@@ -57,36 +57,41 @@ import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.common.util.header.WMOHeaderFinder;
 
 /**
- * Decoder implementation for satellite plugin.
+ * Decodes GINI formatted satelitte data into {@link SatelliteRecord}s.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * 006                      garmenda    Initial Creation
- * /14/2007     139         Phillippe   Modified to follow refactored plugin pattern
- * 8/30/07                  njensen     Added units, commented out data that
- *                                      is currently decoded but not used.
- * 12/01/07     555         garmendariz Modified decompress method.
- * 12/06/07     555         garmendariz Modifed start point to remove satellite header
- * Dec 17, 2007 600         bphillip    Added dao pool usage
- * 04Apr2008    1068        MW Fegan    Modified decompression routine to prevent
- *                                       process hang-up.
- * 11/11/2008               chammack    Refactored to be thread safe in camel
- * 02/05/2010   4120        jkorman     Modified removeWmoHeader to handle WMOHeader in
- *                                      various start locations.
- * 04/17/2012  14724        kshresth    This is a temporary workaround - Projection off CONUS
- * - AWIPS2 Baseline Repository --------
- * 06/27/2012    798        jkorman     Using SatelliteMessageData to "carry" the decoded image.
- * 01/03/2013  15294        D. Friedman Start with File instead of byte[] to
- *                                      reduce memory usage.
- * Feb 15, 2013 1638        mschenke    Moved array based utilities from Util into ArraysUtil
- * 
- * Mar 19, 2013 1785        bgonzale    Added performance status handler and added status
- *                                      to decode.
- * Jan 20, 2014             njensen     Better error handling when fields are not recognized
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ *         2006           garmenda    Initial Creation
+ * Feb 14, 2007  139      Phillippe   Modified to follow refactored plugin
+ *                                    pattern
+ * Aug 30, 2007           njensen     Added units, commented out data that is
+ *                                    currently decoded but not used.
+ * Dec 01, 2007  555      garmendariz Modified decompress method.
+ * DEc 06, 2007  555      garmendariz Modifed start point to remove satellite
+ *                                    header
+ * Dec 17, 2007  600      bphillip    Added dao pool usage
+ * Apr 04, 2008  1068     MW Fegan    Modified decompression routine to prevent
+ *                                    process hang-up.
+ * Nov 11, 2008           chammack    Refactored to be thread safe in camel
+ * Feb 05, 2010  4120     jkorman     Modified removeWmoHeader to handle
+ *                                    WMOHeader in various start locations.
+ * Apr 17, 2012  14724    kshresth    This is a temporary workaround - 
+ *                                    Projection off CONUS
+ * Jun 27, 2012  798      jkorman     Using SatelliteMessageData to "carry" the
+ *                                    decoded image.
+ * Jan 03, 2013  15294    D. Friedman Start with File instead of byte[] to
+ *                                    reduce memory usage.
+ * Feb 15, 2013  1638     mschenke    Moved array based utilities from Util
+ *                                    into ArraysUtil
+ * Mar 19, 2013  1785     bgonzale    Added performance status handler and 
+ *                                    added status to decode.
+ * Jan 20, 2014  2359     njensen     Better error handling when fields are not
+ *                                    recognized
+ * Apr 15, 2014  3017     bsteffen    Call new methods in SatSpatialFactory
  * 
  * </pre>
  * 
@@ -369,7 +374,10 @@ public class SatelliteDecoder {
                 // get the scanning mode
                 scanMode = byteBuffer.get(37);
 
-                float dx = 0.0f, dy = 0.0f, lov = 0.0f, lo2 = 0.0f, la2 = 0.0f;
+                float dx = 0.0f;
+                float dy = 0.0f;
+
+                SatMapCoverage mapCoverage = null;
                 // Do specialized decoding and retrieve spatial data for Lambert
                 // Conformal and Polar Stereographic projections
                 if ((mapProjection == SatSpatialFactory.PROJ_LAMBERT)
@@ -384,30 +392,7 @@ public class SatelliteDecoder {
 
                     byteBuffer.position(27);
                     byteBuffer.get(threeBytesArray, 0, 3);
-                    lov = transformLongitude(threeBytesArray);
-                }
-                // Do specialized decoding and retrieve spatial data for
-                // Mercator projection
-                else if (mapProjection == SatSpatialFactory.PROJ_MERCATOR) {
-                    dx = byteBuffer.getShort(33);
-                    dy = byteBuffer.getShort(35);
-
-                    byteBuffer.position(27);
-                    byteBuffer.get(threeBytesArray, 0, 3);
-                    la2 = transformLatitude(threeBytesArray);
-
-                    byteBuffer.position(30);
-                    byteBuffer.get(threeBytesArray, 0, 3);
-                    lo2 = transformLongitude(threeBytesArray);
-
-                } else {
-                    throw new DecoderException(
-                            "Unable to decode GINI Satellite: Encountered Unknown projection");
-                }
-
-                SatMapCoverage mapCoverage = null;
-
-                try {
+                    float lov = transformLongitude(threeBytesArray);
                     /**
                      * This is a temporary workaround for DR14724, hopefully to
                      * be removed after NESDIS changes the product header
@@ -428,35 +413,39 @@ public class SatelliteDecoder {
                      * End of DR14724
                      */
                     mapCoverage = SatSpatialFactory.getInstance()
-                            .getMapCoverage(mapProjection, nx, ny, dx, dy, lov,
+                            .getCoverageSingleCorner(mapProjection, nx, ny,
+                                    lov,
+                                    latin, la1, lo1, dx, dy);
+                }
+                // Do specialized decoding and retrieve spatial data for
+                // Mercator projection
+                else if (mapProjection == SatSpatialFactory.PROJ_MERCATOR) {
+                    dx = byteBuffer.getShort(33);
+                    dy = byteBuffer.getShort(35);
+
+                    byteBuffer.position(27);
+                    byteBuffer.get(threeBytesArray, 0, 3);
+                    float la2 = transformLatitude(threeBytesArray);
+
+                    byteBuffer.position(30);
+                    byteBuffer.get(threeBytesArray, 0, 3);
+                    float lo2 = transformLongitude(threeBytesArray);
+                    mapCoverage = SatSpatialFactory.getInstance()
+                            .getCoverageTwoCorners(mapProjection, nx, ny, 0.0f,
                                     latin, la1, lo1, la2, lo2);
-                } catch (Exception e) {
-                    StringBuffer buf = new StringBuffer();
-                    buf.append(
-                            "Error getting or constructing SatMapCoverage for values: ")
-                            .append("\n\t");
-                    buf.append("mapProjection=" + mapProjection).append("\n\t");
-                    buf.append("nx=" + nx).append("\n\t");
-                    buf.append("ny=" + ny).append("\n\t");
-                    buf.append("dx=" + dx).append("\n\t");
-                    buf.append("dy=" + dy).append("\n\t");
-                    buf.append("lov=" + lov).append("\n\t");
-                    buf.append("latin=" + latin).append("\n\t");
-                    buf.append("la1=" + la1).append("\n\t");
-                    buf.append("lo1=" + lo1).append("\n\t");
-                    buf.append("la2=" + la2).append("\n\t");
-                    buf.append("lo2=" + lo2).append("\n");
-                    throw new DecoderException(buf.toString(), e);
+
+                } else {
+                    throw new DecoderException(
+                            "Unable to decode GINI Satellite: Encountered Unknown projection: "
+                                    + mapProjection);
                 }
 
-                if (record != null) {
-                    record.setTraceId(traceId);
-                    record.setCoverage(mapCoverage);
-                    // Create the data record.
-                    IDataRecord dataRec = messageData.getStorageRecord(record,
-                            SatelliteRecord.SAT_DATASET_NAME);
-                    record.setMessageData(dataRec);
-                }
+                record.setTraceId(traceId);
+                record.setCoverage(mapCoverage);
+                // Create the data record.
+                IDataRecord dataRec = messageData.getStorageRecord(record,
+                        SatelliteRecord.SAT_DATASET_NAME);
+                record.setMessageData(dataRec);
             }
             timer.stop();
             perfLog.logDuration("Time to Decode", timer.getElapsedTime());

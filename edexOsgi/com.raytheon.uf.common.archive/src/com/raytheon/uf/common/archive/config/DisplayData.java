@@ -3,9 +3,9 @@ package com.raytheon.uf.common.archive.config;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.raytheon.uf.common.util.SizeUtil;
 
@@ -24,7 +24,7 @@ import com.raytheon.uf.common.util.SizeUtil;
  * Aug 02, 2013 2224       rferrel     Changes to include DataSet in configuration.
  * Aug 06, 2013 2222       rferrel     Changes to display all selected data.
  * Aug 14, 2013 2220       rferrel     Add priority comparator.
- * 
+ * Mar 24, 2014 2835       rjpeter     Changed method signatures, add volatile to multi-threaded variables.
  * </pre>
  * 
  * @author rferrel
@@ -94,8 +94,7 @@ public class DisplayData implements Comparable<DisplayData> {
     /** The data's category configuration. */
     protected final CategoryConfig categoryConfig;
 
-    protected final List<CategoryDataSet> dataSets = new ArrayList<CategoryDataSet>(
-            1);
+    protected final List<CategoryDataSet> dataSets;
 
     /** The display label for this data. */
     protected final String displayLabel;
@@ -104,20 +103,20 @@ public class DisplayData implements Comparable<DisplayData> {
      * Mappings of a list of directories for the display label matching the data
      * set's directory patterns and found under the archive's root directory.
      */
-    protected final Map<CategoryDataSet, List<File>> dirsMap = new HashMap<CategoryDataSet, List<File>>();
+    protected final Map<CategoryDataSet, Set<File>> labelDirMap;
 
     /**
      * For use by GUI to indicate display label's row is selected.
      */
-    private boolean selected = false;
+    private volatile boolean selected = false;
 
     /**
      * Indicates data is visible in the display.
      */
-    private boolean visible = false;
+    private volatile boolean visible = false;
 
     /** For use by GUI for indicating the size of the directories' contents. */
-    private long size = UNKNOWN_SIZE;
+    private volatile long size = UNKNOWN_SIZE;
 
     /**
      * Constructor.
@@ -128,12 +127,14 @@ public class DisplayData implements Comparable<DisplayData> {
      * @param displayLabel
      */
     public DisplayData(ArchiveConfig archiveConfig,
-            CategoryConfig categoryConfig, CategoryDataSet dataSet,
-            String displayLabel) {
+            CategoryConfig categoryConfig,
+            Map<CategoryDataSet, Set<File>> dataSetsAndDirs, String displayLabel) {
         this.archiveConfig = archiveConfig;
         this.categoryConfig = categoryConfig;
         this.displayLabel = displayLabel;
-        this.dataSets.add(dataSet);
+        this.dataSets = new ArrayList<CategoryDataSet>(dataSetsAndDirs.keySet());
+        this.labelDirMap = dataSetsAndDirs;
+
     }
 
     /**
@@ -244,6 +245,7 @@ public class DisplayData implements Comparable<DisplayData> {
     /**
      * Determine if the object contains the same data as the instance.
      */
+    @Override
     public boolean equals(Object object) {
         if (this == object) {
             return true;
@@ -281,6 +283,10 @@ public class DisplayData implements Comparable<DisplayData> {
 
     public String getCategoryName() {
         return categoryConfig.getName();
+    }
+
+    public Map<CategoryDataSet, Set<File>> getLabelDirMap() {
+        return labelDirMap;
     }
 
     /*

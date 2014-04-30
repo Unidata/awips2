@@ -38,6 +38,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexTimerBasedThread;
 
 /**
@@ -88,7 +89,7 @@ public class SmartInitSrv extends EdexTimerBasedThread {
             if (record != null) {
                 runSmartInit(record);
             }
-        } while (record != null);
+        } while ((record != null) && !EDEXUtil.isShuttingDown());
     }
 
     @Override
