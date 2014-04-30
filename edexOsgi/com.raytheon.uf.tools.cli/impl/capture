@@ -7,6 +7,8 @@ grepString="(/awips2/cave/cave|/usr/local/viz/cave)"
 
 edexGrepString="edex.run.mode="
 
+xorgLogPath="/var/log"
+
 # the remote servers to grab top on.  Use to get general state of servers
 REMOTE_SERVERS_TO_CHECK="${DX_SERVERS}"
 
@@ -30,6 +32,7 @@ GRAB_REMOTE_VMSTAT="Y"
 GRAB_CAVE_AND_ALERTVIZ_LOGS="Y"
 GRAB_SCREENSHOT="Y"
 GRAB_CURRENT_QUERIES="Y"
+GRAB_XORG_LOG="Y"
 EDEX_MODE="N"
 FORCE="N"
 TGZ_OUTPUT="Y"
@@ -150,6 +153,16 @@ grabScreenShot() {
    fi
 }
 
+# runs import to grab screen shot of users desktop
+grabXorgLog() {
+   if [ "$GRAB_XORG_LOG" == "y" ]; then
+      echo "Capturing Xorg logs"
+      t1=`date "+%Y%m%d %H:%M:%S"`
+      echo "${t1}: Capturing Xorg logs" >> $processFile
+      cp ${xorgLogPath}/Xorg*.log* ${dataPath} >> $processFile 2>&1 &
+   fi
+}
+
 # runs ssh command to grab top on a remote server, requires auto login to be setup
 grabRemoteTop() {
    if [ "$GRAB_REMOTE_TOP" == "y" ]; then
@@ -184,6 +197,7 @@ grabCurrentDatabaseQueries() {
       t1=`date "+%Y%m%d %H:%M:%S"`
       echo "${t1}: Capturing current database queries" >> $processFile
       out_file="${dataPath}/database_queries.log"
+      echo "dx1f:5432:metadata:awips:awips" > ~/.pgpass; chmod 600 ~/.pgpass
       psql -d metadata -U awips -h ${DATABASE_HOST} -c "select datname, pid, client_addr, query, now()-xact_start as runningTime from pg_stat_activity where state != 'idle' order by runningTime desc;" >>  $out_file 2>&1 &
    fi
 }
@@ -433,6 +447,7 @@ checkYes TGZ_OUTPUT $TGZ_OUTPUT
 checkYes ACCCUM $ACCCUM
 checkYes RUN_VERSIONS $RUN_VERSIONS
 checkYes GRAB_SCREENSHOT $GRAB_SCREENSHOT
+checkYes GRAB_XORG_LOG $GRAB_XORG_LOG
 
 # if PID mode don't grab other hs_err_pids
 if [ ! -z $cavePid ]; then
@@ -451,6 +466,7 @@ if [ "$EDEX_MODE" == "y" ]; then
    MOVE_ALL_HS_ERR_PID="n"
    GRAB_REMOTE_TOP="n"
    GRAB_REMOTE_VMSTAT="n"
+   GRAB_XORG_LOG="n"
 fi
 
 umask 0002
@@ -552,6 +568,9 @@ else
    echo "${t1}: NO processes found for $user" >> $processFile
    echo "" >> $processFile
 fi
+
+# grab Xorg logs
+grabXorgLog
 
 # grab top for servers
 grabRemoteTop
@@ -671,6 +690,7 @@ fi
 zenity --info --no-wrap --title="Capture Done" --text="$message" > /dev/null 2>&1 &
 echo
 echo $message
+rm ~/.pgpass
 
 cd $curDir
 
