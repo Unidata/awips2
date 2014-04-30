@@ -43,13 +43,13 @@ RUN_FROM_DIR=`dirname $0`
 # These lines are commented out because this script will be run
 # from mpe_editor using mpe_editor's environment.  If this script
 # is run stand alone, these lines must be uncommented.
-export FXA_HOME=/awips/fxa
-. $FXA_HOME/readenv.sh
 . $RUN_FROM_DIR/../../set_hydro_env
 export RFC_BIAS_OUTPUT_DIR=$(get_apps_defaults rfc_bias_output_dir)
 export PROCESS_BIAS_LOG_DIR=$(get_apps_defaults process_bias_log_dir)
 export MPE_TRANSMIT_BIAS=$(get_apps_defaults mpe_transmit_bias)
 export PPROC_BIN=$(get_apps_defaults pproc_bin)
+export FXA_LOCAL_SITE=$(get_apps_defaults fxa_local_site)
+export SYS_JAVA_DIR=$(get_apps_defaults sys_java_dir)
 
 # set java classpath
 export CLASSPATH=$DB_DRIVER_PATH:$PPROC_BIN/bias_trans.jar
