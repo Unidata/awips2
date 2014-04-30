@@ -7,7 +7,7 @@
 
     <bean factory-bean="bandwidthHandlerRegistry" factory-method="register">
         <constructor-arg
-            value="com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest" />
+            value="com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest" />
         <constructor-arg ref="bandwidthManager" />
     </bean>
 
