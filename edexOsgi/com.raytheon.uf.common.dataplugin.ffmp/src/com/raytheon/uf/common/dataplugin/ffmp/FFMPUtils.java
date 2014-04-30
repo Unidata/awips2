@@ -41,8 +41,11 @@ import org.geotools.referencing.GeodeticCalculator;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
+import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderMode;
+import com.raytheon.uf.common.dataquery.requests.QlServerRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
@@ -51,12 +54,11 @@ import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.hydro.spatial.HRAPCoordinates;
 import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
+import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.site.SiteMap;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -85,6 +87,9 @@ import com.vividsolutions.jts.io.WKTWriter;
  * 03/01/13      DR 13228   G. Zhang    Add state for VGB query and related code
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * 08/20/13      2250       mnash       Fixed incorrect return types for database queries.
+ * Apr 21, 2014  2060       njensen     Remove dependency on grid dataURI column
+ * Apr 22, 2014  2984       njensen     Remove dependency on edex/CoreDao
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -208,9 +213,8 @@ public class FFMPUtils {
                 + "where lid in " + "(select distinct(lid) from IngestFilter "
                 + "where pe in ('PC', 'PP') " + "and ingest = 'T' "
                 + "and dur < 2000)";
-        CoreDao dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
         try {
-            Object[] results = dao.executeSQLQuery(sql.toString());
+            Object[] results = executeSqlQuery(sql, ShefConstants.IHFS);
             Geometry poly = getCwaGeometry(cwa, mode);
             PreparedGeometry pg = PreparedGeometryFactory.prepare(poly);
             Coordinate coor = poly.getCentroid().getCoordinate();
@@ -943,10 +947,8 @@ public class FFMPUtils {
      */
     public static String getFFGDataURI(String rfc, String parameter,
             String plugin) {
-
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(GridRecord.class.getName());
-        request.addRequestField("dataURI");
         request.addConstraint(GridConstants.PARAMETER_ABBREVIATION,
                 new RequestConstraint(parameter));
         request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
@@ -955,10 +957,7 @@ public class FFMPUtils {
         try {
             DbQueryResponse response = (DbQueryResponse) RequestRouter
                     .route(request);
-
-            for (Map<String, Object> map : response.getResults()) {
-                return (String) map.get("dataURI");
-            }
+            return response.getEntityObjects(GridRecord.class)[0].getDataURI();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1364,6 +1363,38 @@ public class FFMPUtils {
     public static File getHdf5File(String cwa, String sourceSiteDataKey) {
         return new File("ffmp" + File.separatorChar + cwa + File.separatorChar
                 + sourceSiteDataKey + ".h5");
+    }
+
+    /**
+     * Queries the specified database
+     * 
+     * @param query
+     *            the SQL query to run
+     * @param database
+     *            the database to query
+     * @return a two dimensional Object[] representing rows and columns
+     * @throws Exception
+     */
+    private static Object[] executeSqlQuery(String query, String database)
+            throws Exception {
+        // code shamelessly modeled after DirectDbQuery
+        // TODO DirectDbQuery should be changed to use RequestRouter instead of
+        // ThriftClient and should be promoted to a common plugin
+        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
+        constraints.put("query", new RequestConstraint(query));
+        constraints.put("database", new RequestConstraint(database));
+        constraints.put("mode", new RequestConstraint("sqlquery"));
+        QlServerRequest request = new QlServerRequest(constraints);
+        ResponseMessageGeneric resp = (ResponseMessageGeneric) RequestRouter
+                .route(request);
+
+        QueryResult result = (QueryResult) resp.getContents();
+        List<Object[]> unmappedResults = new ArrayList<Object[]>();
+        for (QueryResultRow row : result.getRows()) {
+            unmappedResults.add(row.getColumnValues());
+        }
+
+        return unmappedResults.toArray(new Object[0]);
     }
 
 }

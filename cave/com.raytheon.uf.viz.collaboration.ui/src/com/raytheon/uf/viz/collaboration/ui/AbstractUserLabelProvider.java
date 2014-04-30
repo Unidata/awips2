@@ -35,7 +35,7 @@ import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Feb 13, 2014 2751       bclement     made generic for IUsers
  * Feb 13, 2014 2751       njensen      Extracted getImageName() to allow overrides
  * Feb 17, 2014 2751       bclement     moved block image logic to roster specific code
+ * Apr 24, 2014 3070       bclement     added pending contact icon
  * 
  * </pre>
  * 
@@ -103,6 +104,14 @@ public abstract class AbstractUserLabelProvider<T extends IUser> extends
             return null;
         }
         String key = getImageName(user);
+        if (element instanceof RosterEntry) {
+            RosterEntry entry = (RosterEntry) element;
+            ItemStatus status = entry.getStatus();
+            if (status != null) {
+                /* status always indicates pending */
+                key = "pending";
+            }
+        }
 
         if (imageMap.get(key) == null && !key.equals("")) {
             imageMap.put(key, CollaborationUtils.getNodeImage(key));
@@ -144,7 +153,8 @@ public abstract class AbstractUserLabelProvider<T extends IUser> extends
             }
             ItemStatus status = entry.getStatus();
             if (status != null) {
-                text.append(status).append(" pending\n");
+                /* status always indicates pending */
+                text.append("Contact request pending\n");
             }
         }
         // delete trailing newline
