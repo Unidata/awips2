@@ -34,7 +34,7 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandle
 import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapRequest;
 import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * Edex handler for subscription overlap requests.
@@ -64,7 +64,7 @@ public class SubscriptionOverlapHandler implements
     @Override
     public Object handleRequest(SubscriptionOverlapRequest request)
             throws Exception {
-        String deliveryId = DataDeliveryIdUtil.getId();
+        String deliveryId = RegistryIdUtil.getId();
         List<Subscription> subscriptions = request.getSubscriptionList();
         List<String> duplicateList = new LinkedList<String>();
         SubscriptionOverlapResponse response = new SubscriptionOverlapResponse();

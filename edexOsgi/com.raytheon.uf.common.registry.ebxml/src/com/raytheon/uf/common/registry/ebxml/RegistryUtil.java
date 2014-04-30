@@ -54,6 +54,7 @@ import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.StringSlotConverter;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
+import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.ReflectionException;
 import com.raytheon.uf.common.util.ReflectionUtil;
@@ -79,7 +80,8 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Jun 03, 2013 2038       djohnson    Allow setting the same encoder strategy.
  * Jun 24, 2013 2106       djohnson    Remove encoder strategy from instance variables.
  * Dec 04, 2013 2584       dhladky     Versions for Registry objects
- * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
+ * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
+ * Apr 24, 2014 2992       dhladky     fixed all objects in ebxml owned by NCF, bad.
  * 
  * </pre>
  * 
@@ -99,6 +101,8 @@ public final class RegistryUtil {
     public static final String registryObjectDefaultVersion = "1.0";
     
     public static final String registryUser = "Registry";
+    
+    public static final String defaultUser = "NCF";
 
     static {
         if (System.getenv("EBXML_REGISTRY_HOST") != null
@@ -113,9 +117,9 @@ public final class RegistryUtil {
     public static final String CALLING_REGISTRY_SOAP_HEADER_NAME = "Calling_Registry";
 
     /**
-     * The default internal owner
+     * The default internal owner is the local registry ID
      */
-    public static final String DEFAULT_OWNER = "NCF";
+    public static final String DEFAULT_OWNER = ClusterIdUtil.getId();
 
     // A private mapping of attribute types to slot types, used when storing an
     // object to the registry to map QueryableAttributes to SlotConverters.
