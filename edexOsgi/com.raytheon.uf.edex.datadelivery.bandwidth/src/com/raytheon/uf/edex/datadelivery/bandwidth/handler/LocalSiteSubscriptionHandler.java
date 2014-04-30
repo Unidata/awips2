@@ -23,7 +23,7 @@ import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SiteSubscriptionQuery;
 import com.raytheon.uf.common.datadelivery.registry.handlers.SiteSubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * {@link IRegistryObjectHandler} implementation for {@link SiteSubscription}.
@@ -52,7 +52,7 @@ public class LocalSiteSubscriptionHandler extends SiteSubscriptionHandler {
      * Default Constructor.
      */
     public LocalSiteSubscriptionHandler() {
-        this(DataDeliveryIdUtil.getId());
+        this(RegistryIdUtil.getId());
     }
 
     /**

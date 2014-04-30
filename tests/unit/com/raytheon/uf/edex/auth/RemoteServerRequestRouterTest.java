@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivilegedRequest;
@@ -48,7 +48,7 @@ import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivil
  */
 public class RemoteServerRequestRouterTest {
     
-    private static final IBandwidthRequest PRIVILEGED_REQUEST = new IBandwidthRequest();
+    private static final BandwidthRequest PRIVILEGED_REQUEST = new BandwidthRequest();
 
     private static final GetServersRequest UNPRIVILEGED_REQUEST = new GetServersRequest();
 
