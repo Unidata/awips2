@@ -21,6 +21,7 @@
 package com.raytheon.uf.edex.database.dao;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
@@ -65,6 +67,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 12/9/2013    2613       bphillip    Added flushAndClearSession method
  * Jan 17, 2014 2459       mpduff      Added null check to prevent NPE.
  * 2/13/2014    2769       bphillip    Added read-only flag to query methods and loadById method
+ * 4/18/2014    3012       dhladky     Diagnostic addition.
  * 
  * </pre>
  * 
@@ -214,7 +217,26 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> query(String queryString, Object... params) {
-        return executeHQLQuery(queryString, 0, params);
+
+        List<ENTITY> stuff = executeHQLQuery(queryString, 0, params);
+
+        // Used for diagnostics 
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.debug("Query: " + queryString);
+
+            for (Object o : params) {
+                if (o instanceof Calendar) {
+                    statusHandler.debug("param: "
+                            + ((Calendar) o).getTime().toString());
+                } else {
+                    statusHandler.debug("param: " + o.toString());
+                }
+            }
+
+            statusHandler.debug("return size: " + stuff.size() + "\n");
+        }
+
+        return stuff;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
