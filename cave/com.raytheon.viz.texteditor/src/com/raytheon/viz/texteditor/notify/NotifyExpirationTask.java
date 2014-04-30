@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Sep 21, 2010 2187       cjeanbap    Removed hard coded values of
  *                                     tables names.
  * Dec 20, 2010 7210       cjeanbap    Added non-blocking dialog.
+ * Apr 25, 2014 DR 16668   D. Friedman Handle partial cancellations
  * </pre>
  * 
  * @author jsanchez
@@ -114,8 +115,6 @@ public class NotifyExpirationTask extends TimerTask {
             req.setMode(ActiveTableMode.OPERATIONAL);
         }
 
-        /* textNotifyExpiration.tcl ln 76: Only queries for a CAN */
-        req.setAct("CAN");
         req.setSiteID(office);
         req.setPhensigList(phenSig);
         req.setEtn(etn);
@@ -127,22 +126,32 @@ public class NotifyExpirationTask extends TimerTask {
             activeTable = resp.getActiveTable();
         } catch (VizException e) {
             statusHandler.handle(Priority.ERROR,
-                    "Error querying active table for CAN." + office + "."
+                    "Error querying active table for " + office + "."
                             + phenSig + "." + etn, e);
         }
 
-        if (activeTable != null && activeTable.size() > 0) {
-            ActiveTableRecord record = activeTable.get(0);
-
-            /*
-             * textNotifyExpiration.tcl ln 97: If any of the found products are
-             * less than 48 hours old,return true.
-             */
-            if (record != null
-                    && (System.currentTimeMillis()
-                            - record.getIssueTime().getTimeInMillis() < TWO_DAYS)) {
-                return true;
+        if (activeTable != null) {
+            boolean haveCAN = false;
+            for (ActiveTableRecord record : activeTable) {
+                if (record != null) {
+                    /*
+                     * textNotifyExpiration.tcl ln 106: If any of the found products are
+                     * less than 48 hours old,return true.
+                     */
+                    if ("CAN".equals(record.getAct())
+                            && (System.currentTimeMillis()
+                                    - record.getIssueTime().getTimeInMillis() < TWO_DAYS)) {
+                        haveCAN = true;
+                    } else if ("CON".equals(record.getAct())) {
+                        /* If there CANs and the event is still active, there
+                         * should be some CONs.  Thus, it is not necessary to
+                         * check for every other kind of non-terminal action.
+                         */
+                        return false;
+                    }
+                }
             }
+            return haveCAN;
         }
 
         return false;
