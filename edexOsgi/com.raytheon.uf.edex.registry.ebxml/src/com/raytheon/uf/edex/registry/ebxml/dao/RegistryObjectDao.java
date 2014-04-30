@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 8/1/2013     1693       bphillip    Added methods to facilitate implementation of the lifecyclemanager according to the 4.0 spec
  * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 4/11/2014    3011       bphillip    Changed merge to not delete unused slots
+ * 4/21/2014    2992       dhladky     General list of Registry server nodes.
  * 
  * </pre>
  * 
@@ -57,6 +58,9 @@ public class RegistryObjectDao extends
     /** Delete object type parameterized statement */
     private static final String GET_IDS_BY_OBJECT_TYPE = "SELECT regObj.id FROM RegistryObjectType regObj WHERE regObj.objectType=:objectType";
 
+    /** Get the unique list of registry nodes with subscriptions **/
+    private static final String QUERY_UNIQUE_REGISTRIES = "SELECT DISTINCT regObj.owner FROM RegistryObjectType regObj WHERE regObj.objectType LIKE ";
+
     /** Query to determine if an object id exists in the registry */
     private static final String ID_EXISTS_QUERY = "select count(obj.id) from RegistryObjectType obj where id=:id";
 
@@ -65,6 +69,8 @@ public class RegistryObjectDao extends
 
     /** Query to get all sub versions beneath the given version */
     private static String GET_SUB_VERSION_QUERY = "select obj.versionInfo.versionName from RegistryObjectType obj where obj.lid=:lid and obj.versionInfo.versionName like :version";
+
+    private SlotTypeDao slotDao;
 
     /**
      * Creates a new RegistryObjectDao
@@ -189,6 +195,20 @@ public class RegistryObjectDao extends
     @Override
     protected Class<RegistryObjectType> getEntityClass() {
         return RegistryObjectType.class;
+    }
+
+    public void setSlotDao(SlotTypeDao slotDao) {
+        this.slotDao = slotDao;
+    }
+    
+    /**
+     * Gets a list of unique registry ID's with data on this node for this objectType.
+     * @param objectType
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    public List<String> getUniqueRegistries(String objectType) {
+        return this.executeHQLQuery(QUERY_UNIQUE_REGISTRIES+" "+objectType);
     }
 
 }
