@@ -33,6 +33,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsForScheduling;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * {@link IEdexBandwidthManagerCreator} A bandwidth manager creator for
@@ -53,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Dec 04, 2013 2566       bgonzale    use bandwidthmanager method to retrieve spring files.
  * Jan 14, 2014 2692       dhladky     AdhocSubscription handler
  * Jan 30, 2014 2636       mpduff      Scheduling refactor.
+ * Apr 22, 2014 2992       dhladky     Added IdUtil for siteList
  * 
  * </pre>
  * 
@@ -85,12 +87,13 @@ public class MonolithicBandwidthManagerCreator<T extends Time, C extends Coverag
                 IBandwidthDao<T, C> bandwidthDao,
                 RetrievalManager retrievalManager,
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
+                RegistryIdUtil idUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler,
                 IAdhocSubscriptionHandler adhocSubscriptionHandler,
                 ISubscriptionNotificationService subscriptionNotificationService,
                 IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
-            super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
+            super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil, idUtil,
                     dataSetMetaDataHandler, subscriptionHandler,
                     adhocSubscriptionHandler, subscriptionNotificationService,
                     findSubscriptionsStrategy);
@@ -110,13 +113,14 @@ public class MonolithicBandwidthManagerCreator<T extends Time, C extends Coverag
     public IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil,
+            RegistryIdUtil idUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
             IAdhocSubscriptionHandler adhocSubscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService,
             IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
         return new MonolithicBandwidthManager(dbInit, bandwidthDao,
-                retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler,
+                retrievalManager, bandwidthDaoUtil, idUtil, dataSetMetaDataHandler,
                 subscriptionHandler, adhocSubscriptionHandler,
                 subscriptionNotificationService, findSubscriptionsStrategy);
     }
