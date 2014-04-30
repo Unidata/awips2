@@ -30,8 +30,8 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Jul 3, 2012            bsteffen     Initial creation
  * Dec 20, 2013 2563       bclement    added support for ungrouped roster entries
  * Jan 24, 2014 2701       bclement    removed local groups
+ * Apr 24, 2014 3070       bclement    RosterChangeEvent changes
  * 
  * </pre>
  * 
@@ -114,8 +115,9 @@ public class AddToGroupAction extends Action {
         if (entry != null) {
             // the entry wasn't in a group, so the entire tree needs to be
             // refreshed
+            UserId entryId = IDConverter.convertFrom(entry);
             connection.postEvent(new RosterChangeEvent(RosterChangeType.MODIFY,
-                    entry));
+                    entryId));
         }
     }
 

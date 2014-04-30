@@ -27,8 +27,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPOutputStream;
 
@@ -60,6 +65,9 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
 import com.raytheon.uf.common.archive.config.ArchiveConstants;
 import com.raytheon.uf.common.archive.config.DisplayData;
+import com.raytheon.uf.common.dataquery.requests.SharedLockRequest;
+import com.raytheon.uf.common.dataquery.requests.SharedLockRequest.RequestType;
+import com.raytheon.uf.common.dataquery.responses.SharedLockResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -67,10 +75,12 @@ import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * This class performs the desired type of case creation and display a
+ * This class performs the desired type of case creation and displays a
  * progress/status message dialog.
  * 
  * <pre>
@@ -84,8 +94,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     archive and category directory and 
  *                                     implementation of compression.
  * Oct 08, 2013 2442       rferrel     Remove category directory.
- * Feb 04, 2013 2270       rferrel     Move HDF files to parent's directory.
+ * Feb 04, 2014 2270       rferrel     Move HDF files to parent's directory.
  * Mar 26, 2014 2880       rferrel     Compress and split cases implemented.
+ * Apr 03, 2014 2862       rferrel     Logic for shared locking of top level directories.
  * 
  * </pre>
  * 
@@ -95,11 +106,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class GenerateCaseDlg extends CaveSWTDialog {
 
-    /** Extension for HDF files. */
-    private static final String hdfExt = ".h5";
-
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GenerateCaseDlg.class);
+
+    /** Extension for HDF files. */
+    private static final String hdfExt = ".h5";
 
     /** Use to display the current state of the case generation. */
     private Label stateLbl;
@@ -125,7 +136,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
     /** End time for the case. */
     private final Calendar endCal;
 
-    /** Data list for the case. */
+    /** Data list for the case sorted by archive and category names. */
     private final DisplayData[] sourceDataList;
 
     /** When true compress the case directory. */
@@ -374,24 +385,74 @@ public class GenerateCaseDlg extends CaveSWTDialog {
     }
 
     /**
-     * The performs the work of generating the case on a non-UI thread.
+     * This performs the work of generating the case on a non-UI thread.
      */
     private class GenerateJob extends Job {
+        /** Parent flag to shutdown the job. */
         private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
+        /** How long to wait before making another request for a plug-in lock. */
+        private final long LOCK_RETRY_TIME = 2 * TimeUtil.MILLIS_PER_MINUTE;
+
+        /** Files/directories needing plug-in locks in order to copy. */
+        private final Map<CopyInfo, Map<String, List<File>>> caseCopyMap = new HashMap<CopyInfo, Map<String, List<File>>>();
+
+        /** Timer to determine when to send another request for a plug-in lock. */
+        private final ITimer retrytimer = TimeUtil.getTimer();
+
+        /** Timer to update current lock's last execute time. */
+        private Timer updateTimer = null;
+
+        /**
+         * Constructor.
+         */
         public GenerateJob() {
             super("Generate Case");
         }
 
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            if (monitor.isCanceled()) {
-                return Status.OK_STATUS;
+        /**
+         * Add file to the caseCopyMap.
+         * 
+         * @param copyInfo
+         * @param plugin
+         * @param file
+         * @return
+         */
+        private boolean putFile(CopyInfo copyInfo, String plugin, File file) {
+            if (caseCopyMap.size() == 0) {
+                retrytimer.start();
             }
 
+            Map<String, List<File>> pluginMap = caseCopyMap.get(copyInfo);
+
+            if (pluginMap == null) {
+                pluginMap = new HashMap<String, List<File>>();
+                caseCopyMap.put(copyInfo, pluginMap);
+            }
+
+            List<File> files = pluginMap.get(plugin);
+
+            if (files == null) {
+                files = new ArrayList<File>();
+                pluginMap.put(plugin, files);
+            }
+            return files.add(file);
+        }
+
+        /**
+         * @param copyInfo
+         * @return true if locks needed to complete the copy.
+         */
+        private boolean keepCaseCopy(CopyInfo copyInfo) {
+            return caseCopyMap.get(copyInfo) != null;
+        }
+
+        /**
+         * @return true when valid case directory.
+         */
+        private boolean validateCaseDirectory() {
             setStateLbl("Creating: " + caseDir.getName(),
                     caseDir.getAbsolutePath());
-            ICaseCopy caseCopy = null;
 
             String errorMessage = null;
             if (caseDir.exists()) {
@@ -403,41 +464,98 @@ public class GenerateCaseDlg extends CaveSWTDialog {
             if (errorMessage != null) {
                 setStateLbl(errorMessage, caseDir.getAbsolutePath());
                 setProgressBar(100, SWT.ERROR);
-                return Status.OK_STATUS;
+                return false;
             }
 
             if (shutdown.get()) {
+                return false;
+            }
+            return true;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
+         * IProgressMonitor)
+         */
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            if (monitor.isCanceled()) {
                 return Status.OK_STATUS;
             }
 
+            if (!validateCaseDirectory()) {
+                return Status.OK_STATUS;
+            }
+
+            ICaseCopy caseCopy = null;
             String currentArchive = null;
             String currentCategory = null;
-            boolean updateDestDir = false;
+            int rootDirLen = -1;
+            File rootDir = null;
+            String plugin = null;
+            boolean allowCopy = true;
+            CopyInfo copyInfo = null;
 
             ITimer timer = TimeUtil.getTimer();
             timer.start();
 
             try {
+                /*
+                 * The sourceDataList is sorted so all the displayDatas for a
+                 * given archive/category are grouped together in the loop.
+                 */
                 for (DisplayData displayData : sourceDataList) {
                     if (shutdown.get()) {
                         return Status.OK_STATUS;
                     }
 
-                    if (!displayData.getArchiveName().equals(currentArchive)) {
-                        updateDestDir = true;
+                    /*
+                     * The current display data is for a different
+                     * archive/category then the previous one.
+                     */
+                    if (!displayData.getArchiveName().equals(currentArchive)
+                            || !displayData.getCategoryName().equals(
+                                    currentCategory)) {
+
+                        // Finish up previous archive/category.
+                        if (caseCopy != null) {
+                            if (allowCopy) {
+                                releaseLock(plugin);
+                            }
+
+                            /*
+                             * The copyInfo needs locks in order to finish.
+                             * Force creation of a new caseCopy for the new
+                             * category.
+                             */
+                            if (keepCaseCopy(copyInfo)) {
+                                caseCopy = null;
+                                copyInfo = null;
+                            } else {
+                                caseCopy.finishCase();
+                            }
+                            plugin = null;
+                        }
+
+                        // Set up for new category.
                         currentArchive = displayData.getArchiveName();
                         currentCategory = displayData.getCategoryName();
-                    } else if (!displayData.getCategoryName().equals(
-                            currentCategory)) {
-                        updateDestDir = true;
-                        currentCategory = displayData.getCategoryName();
-                    }
+                        rootDir = new File(displayData.getRootDir());
+                        rootDirLen = displayData.getRootDir().length();
+                        allowCopy = true;
 
-                    if (updateDestDir) {
-                        updateDestDir = false;
-                        if (caseCopy != null) {
-                            caseCopy.finishCase();
-                        } else {
+                        setStateLbl(currentArchive + " | " + currentCategory,
+                                caseDir.getAbsolutePath() + "\n"
+                                        + currentArchive + "\n"
+                                        + currentCategory);
+
+                        /*
+                         * When caseCopy is not null it is safe to reuse it for
+                         * the new category.
+                         */
+                        if (caseCopy == null) {
                             if (!doCompress) {
                                 caseCopy = new CopyMove();
                             } else if (doMultiFiles) {
@@ -445,33 +563,83 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                             } else {
                                 caseCopy = new CompressCopy();
                             }
+                            copyInfo = new CopyInfo(caseCopy, currentArchive,
+                                    currentCategory, caseDir);
                         }
+
                         caseCopy.startCase(caseDir, displayData, shutdown);
-                        setStateLbl(currentArchive + " | " + currentCategory,
-                                caseDir.getAbsolutePath() + "\n"
-                                        + currentArchive + "\n"
-                                        + currentCategory);
                     }
 
                     List<File> files = archiveManager.getDisplayFiles(
                             displayData, startCal, endCal);
+
+                    /*
+                     * Check all files/directories in the displayData and
+                     * attempt a recursive copy.
+                     */
                     for (File source : files) {
                         if (shutdown.get()) {
                             return Status.OK_STATUS;
                         }
 
-                        caseCopy.copy(source);
+                        String dirName = source.getAbsolutePath()
+                                .substring(rootDirLen).split(File.separator)[0];
+                        String newPlugin = (new File(rootDir, dirName))
+                                .getAbsolutePath();
+
+                        // Have new plugin.
+                        if (!newPlugin.equals(plugin)) {
+                            // Release the current lock.
+                            if (allowCopy && (plugin != null)) {
+                                releaseLock(plugin);
+                            }
+                            allowCopy = requestLock(newPlugin);
+                            plugin = newPlugin;
+                        }
+
+                        if (allowCopy) {
+                            // Have lock safe to perform recursive copy.
+                            caseCopy.copy(source);
+                        } else {
+                            // No lock add to Map of files needing locks.
+                            putFile(copyInfo, plugin, source);
+                        }
+                    } // End of files loop
+
+                    /*
+                     * The copy may have taken some time see if any pending
+                     * copies can be completed.
+                     */
+                    if (retrytimer.getElapsedTime() >= LOCK_RETRY_TIME) {
+                        retryCasesCopy();
                     }
-                }
-                if (caseCopy != null) {
-                    caseCopy.finishCase();
+                } // End of sourceDataList loop
+
+                // Finish up the loop's last plugin.
+                if (plugin != null) {
+                    if (allowCopy) {
+                        releaseLock(plugin);
+                    }
+
+                    // Finish last case
+                    if (!keepCaseCopy(copyInfo)) {
+                        caseCopy.finishCase();
+                    }
+                    plugin = null;
                 }
                 caseCopy = null;
+
+                // Finish pending copies needing locks.
+                waitForLocks();
+
+                if (shutdown.get()) {
+                    return Status.OK_STATUS;
+                }
 
                 setStateLbl("Created: " + caseName, caseDir.getAbsolutePath());
                 setProgressBar(100, SWT.NORMAL);
 
-            } catch (CaseCreateException e) {
+            } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
                 setStateLbl(
@@ -479,15 +647,25 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                         caseDir.getAbsolutePath() + "\n"
                                 + e.getLocalizedMessage());
                 setProgressBar(100, SWT.ERROR);
+                shutdown.set(true);
             } finally {
-                if (caseCopy != null) {
-                    try {
-                        caseCopy.finishCase();
-                    } catch (Exception ex) {
-                        // Ignore
-                    }
-                    caseCopy = null;
+                // shutdown the time.
+                if (updateTimer != null) {
+                    updateTimer.cancel();
+                    updateTimer = null;
                 }
+
+                // Release resources of active case copy.
+                if (caseCopy != null) {
+                    if (!keepCaseCopy(copyInfo)) {
+                        try {
+                            // Allow the caseCopy to clean its resources.
+                            caseCopy.finishCase();
+                    } catch (Exception ex) {
+                            // Ignore
+                        }
+                        caseCopy = null;
+                    }
                 timer.stop();
                 if (statusHandler.isPriorityEnabled(Priority.INFO)) {
                     String message = String.format("Case %s took %s.",
@@ -495,9 +673,199 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                             TimeUtil.prettyDuration(timer.getElapsedTime()));
                     statusHandler.handle(Priority.INFO, message);
                 }
+                }
+
+                // Release current lock.
+                if (allowCopy && (plugin != null)) {
+                    releaseLock(plugin);
+                }
+
+                // Release resources of any pending case copy.
+                if (caseCopyMap.size() > 0) {
+                    for (CopyInfo cpi : caseCopyMap.keySet()) {
+                        try {
+                            cpi.caseCopy.finishCase();
+                        } catch (CaseCreateException ex) {
+                            // Ignore
+                        }
+                    }
+                    caseCopyMap.clear();
+                }
             }
 
             return Status.OK_STATUS;
+        }
+
+        /**
+         * Finish copying all files needing locks.
+         * 
+         * @throws CaseCreateException
+         * @throws InterruptedException
+         */
+        private void waitForLocks() throws CaseCreateException,
+                InterruptedException {
+            int retryCount = 0;
+            boolean updateStatus = true;
+            while (caseCopyMap.size() > 0) {
+                if (updateStatus) {
+                    ++retryCount;
+                    StringBuilder tooltip = new StringBuilder();
+                    tooltip.append("Waiting to finish ").append(
+                            caseCopyMap.size());
+                    if (caseCopyMap.size() == 1) {
+                        tooltip.append(" category.");
+                    } else {
+                        tooltip.append(" categories.");
+                    }
+                    tooltip.append("\nAttempt: ").append(retryCount);
+                    setStateLbl("Waiting for locks", tooltip.toString());
+                    updateStatus = false;
+                }
+
+                synchronized (this) {
+                    wait(TimeUtil.MILLIS_PER_SECOND / 2L);
+                }
+
+                if (shutdown.get()) {
+                    return;
+                }
+
+                if (retrytimer.getElapsedTime() >= LOCK_RETRY_TIME) {
+                    retryCasesCopy();
+                    updateStatus = true;
+                }
+            }
+        }
+
+        /**
+         * Attempt to copy files still waiting on plug-in locks.
+         * 
+         * @throws CaseCreateException
+         */
+        private void retryCasesCopy() throws CaseCreateException {
+            if (shutdown.get()) {
+                return;
+            }
+
+            if (caseCopyMap.size() > 0) {
+                retrytimer.stop();
+                retrytimer.reset();
+                String lockedPlugin = null;
+                try {
+                    Iterator<CopyInfo> copyInfoIter = caseCopyMap.keySet()
+                            .iterator();
+                    while (copyInfoIter.hasNext()) {
+                        CopyInfo copyInfo = copyInfoIter.next();
+                        setStateLbl(copyInfo.archive + " | "
+                                + copyInfo.category,
+                                copyInfo.caseDir.getAbsolutePath() + "\n"
+                                        + copyInfo.archive + "\n"
+                                        + copyInfo.category);
+
+                        Map<String, List<File>> pluginMap = caseCopyMap
+                                .get(copyInfo);
+                        Iterator<String> pluginIter = pluginMap.keySet()
+                                .iterator();
+                        while (pluginIter.hasNext()) {
+                            String plugin = pluginIter.next();
+                            if (shutdown.get()) {
+                                return;
+                            }
+
+                            if (requestLock(plugin)) {
+                                lockedPlugin = plugin;
+                                for (File source : pluginMap.get(plugin)) {
+                                    copyInfo.caseCopy.copy(source);
+                                    if (shutdown.get()) {
+                                        return;
+                                    }
+                                }
+                                releaseLock(plugin);
+                                lockedPlugin = null;
+                                pluginIter.remove();
+                            }
+                        }
+                        if (pluginMap.size() == 0) {
+                            copyInfo.caseCopy.finishCase();
+                            copyInfoIter.remove();
+                        }
+                    }
+                } finally {
+                    if (lockedPlugin != null) {
+                        releaseLock(lockedPlugin);
+                    }
+                }
+            }
+
+            if (caseCopyMap.size() > 0) {
+                retrytimer.start();
+            }
+        }
+
+        /**
+         * Request a lock for the plug-in.
+         * 
+         * @param details
+         * @return true when lock obtained otherwise false
+         */
+        private boolean requestLock(String details) {
+            SharedLockRequest request = new SharedLockRequest(
+                    ArchiveConstants.CLUSTER_NAME, details,
+                    RequestType.READER_LOCK);
+
+            try {
+                Object o = ThriftClient.sendRequest(request);
+                if (o instanceof SharedLockResponse) {
+                    SharedLockResponse response = (SharedLockResponse) o;
+                    if (response.isSucessful()) {
+                        if (updateTimer == null) {
+                            updateTimer = new Timer(
+                                    "Case Creation update timer", true);
+                        }
+                        TimerTask timerTask = new LockUpdateTask(details);
+                        updateTimer.schedule(timerTask,
+                                TimeUtil.MILLIS_PER_MINUTE,
+                                TimeUtil.MILLIS_PER_MINUTE);
+                        return true;
+                    }
+                }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+
+            return false;
+        }
+
+        /**
+         * Release previously obtained lock for the details.
+         * 
+         * @param details
+         * @return true when lock released otherwise false.
+         */
+        private boolean releaseLock(String details) {
+            SharedLockRequest request = new SharedLockRequest(
+                    ArchiveConstants.CLUSTER_NAME, details,
+                    RequestType.READER_UNLOCK);
+            try {
+                if (updateTimer != null) {
+                    updateTimer.cancel();
+                    updateTimer = null;
+                }
+                Object o = ThriftClient.sendRequest(request);
+                if (o instanceof SharedLockResponse) {
+                    SharedLockResponse response = (SharedLockResponse) o;
+                    if (response.isSucessful()) {
+                        details = null;
+                        return true;
+                    }
+                }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+
+            return false;
         }
 
         /*
@@ -574,7 +942,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                     copyFile(new File(source, file),
                             new File(destination, file));
                 }
-            } else {
+            } else if (source.exists()) {
                 // DR 2270 bump HDF files up a directory.
                 if (destination.getName().endsWith(hdfExt)) {
                     destination = new File(destination.getParentFile()
@@ -745,7 +1113,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                         tarDirFile.add(file);
                         addTarFiles(file.listFiles());
                     }
-                } else {
+                } else if (file.exists()) {
                     checkFit(file);
                     // DR 2270 bump HDF files up a directory.
                     if (name.endsWith(hdfExt)) {
@@ -998,6 +1366,48 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                 openStreams();
                 addParentDir(file);
             }
+        }
+    }
+
+    /** Task to update the lock plugin's last execute time. */
+    private final class LockUpdateTask extends TimerTask {
+        /** The locked cluster task's details. */
+        private final String details;
+
+        public LockUpdateTask(String details) {
+            this.details = details;
+        }
+
+        @Override
+        public void run() {
+            SharedLockRequest request = new SharedLockRequest(
+                    ArchiveConstants.CLUSTER_NAME, details,
+                    RequestType.READER_UPDATE_TIME);
+            try {
+                ThriftClient.sendRequest(request);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
+    }
+
+    /** Information needed to update status when retrying a copy. */
+    private static class CopyInfo {
+        protected final ICaseCopy caseCopy;
+
+        protected final String archive;
+
+        protected final String category;
+
+        protected final File caseDir;
+
+        public CopyInfo(ICaseCopy caseCopy, String archive, String category,
+                File caseDir) {
+            this.caseCopy = caseCopy;
+            this.archive = archive;
+            this.category = category;
+            this.caseDir = caseDir;
         }
     }
 }

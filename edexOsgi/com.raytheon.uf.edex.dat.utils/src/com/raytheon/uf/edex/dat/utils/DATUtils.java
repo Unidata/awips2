@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
+ * Apr 24, 2014  2060       njensen     Updates for removal of grid dataURI column
  * 
  * </pre>
  * 
@@ -69,8 +70,7 @@ public class DATUtils {
      * @param uri
      * @return
      */
-    public static PluginDataObject getPDORecord(String uri, SourceXML xml)
-            throws PluginException {
+    public static PluginDataObject getPDORecord(String uri, SourceXML xml) {
         PluginDataObject rec = null;
         try {
             Class<?> clazz = Class.forName(xml.getPluginClass());
@@ -104,19 +104,7 @@ public class DATUtils {
         gr = (GridRecord) gd.getMetadata(uri);
 
         if (gr != null) {
-
-            IDataStore dataStore = gd.getDataStore(gr);
-
-            try {
-                IDataRecord[] dataRec = dataStore.retrieve(uri);
-                for (int i = 0; i < dataRec.length; i++) {
-                    if (dataRec[i] instanceof FloatDataRecord) {
-                        gr.setMessageData(dataRec[i]);
-                    }
-                }
-            } catch (Exception se) {
-                logger.error("No Grib record found.....");
-            }
+            populateGridRecord(gr);
         } else {
             logger.error("URI: " + uri + " Not in Database...");
         }
@@ -125,31 +113,27 @@ public class DATUtils {
     }
 
     /**
-     * Make a DB request
+     * Fills a GridRecord with the raw data retrieved from IDataStore
      * 
-     * @param sql
-     * @return
+     * @param gr
+     * @throws PluginException
      */
-    public static Object[] dbRequest(String sql) {
-
-        logger.debug("SQL to run: " + sql);
-        CoreDao cdao = null;
-        Object[] results = null;
-        try {
-            if (cdao == null) {
-                try {
-                    cdao = new CoreDao(DaoConfig.DEFAULT);
-                } catch (Exception ed1) {
-                    logger.error("Core DAO access failed. " + ed1);
+    public static void populateGridRecord(GridRecord gr) throws PluginException {
+        if (gr != null) {
+            PluginDao gd = PluginFactory.getInstance().getPluginDao(
+                    gr.getPluginName());
+            IDataStore dataStore = gd.getDataStore(gr);
+            try {
+                IDataRecord[] dataRec = dataStore.retrieve(gr.getDataURI());
+                for (int i = 0; i < dataRec.length; i++) {
+                    if (dataRec[i] instanceof FloatDataRecord) {
+                        gr.setMessageData(dataRec[i]);
+                    }
                 }
+            } catch (Exception e) {
+                logger.error("Error retrieving grid data for " + gr, e);
             }
-            results = cdao.executeSQLQuery(sql);
-
-        } catch (Exception ed2) {
-            logger.error("SQL Query Failed to process. SQL=" + sql + " : "
-                    + ed2);
         }
-        return results;
     }
 
     /**
@@ -159,7 +143,9 @@ public class DATUtils {
      * @param startTime
      * @param endTime
      * @return
+     * @deprecated Nothing seems to be calling this....
      */
+    @Deprecated
     public static FFMPVirtualGageBasin getVirtualBasinData(String lid,
             FFMPVirtualGageBasin vgb, String endTime, String startTime) {
 
@@ -229,13 +215,6 @@ public class DATUtils {
                     }
                 }
 
-                int totalDurations = 0;
-                for (int dur : durations) {
-                    totalDurations += dur;
-                }
-
-                int avDuration = totalDurations / durations.size();
-
                 float totalVals = 0.0f;
                 for (float val : values) {
                     totalVals += val;
@@ -263,20 +242,18 @@ public class DATUtils {
      * @param param
      * @return
      */
-    public static GridRecord getMostRecentGridRecord(int interval, String sql,
-            SCANModelParameterXML param) {
-
+    public static GridRecord getMostRecentGridRecord(int interval,
+            GridRecord newRec, SCANModelParameterXML param) {
         GridRecord rec = null;
 
         try {
             ScanDataCache cache = ScanDataCache.getInstance();
-            Object[] obs = dbRequest(sql);
-            GridRecord newRec = null;
-
-            if (obs != null && obs.length > 0) {
-                String uri = (String) obs[0];
-                newRec = getGridRecord(uri);
-            }
+            /*
+             * TODO njensen: we should only spend time populating if the new rec
+             * replaces the old rec. Delaying that change as at present as I'm
+             * just trying to make it work the same as before.
+             */
+            populateGridRecord(newRec);
 
             if (cache.getModelData().isType(param.getModelName(),
                     param.getParameterName())) {
@@ -304,9 +281,8 @@ public class DATUtils {
                 }
             }
         } catch (Exception e) {
-            logger.error("DatUtils: " + param.getModelName() + ": "
-                    + param.getParameterName() + " SQL: " + sql
-                    + "  error in retrieval..");
+            logger.error("Error in retrieval: " + param.getModelName() + ": "
+                    + param.getParameterName() + " record: " + newRec);
         }
 
         return rec;
