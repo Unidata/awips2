@@ -11,15 +11,9 @@
 
     <bean id="satelliteMcidasDecoder" class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasSatelliteDecoder"/>
 
-    <bean id="satMcidasCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="sat-mcidas-camel"/>
-  	</bean>  
-
 	<camelContext id="sat-mcidas-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 
 		<!-- Begin McIDAS Sat routes -->
 		<route id="satMcidasIngestRoute">

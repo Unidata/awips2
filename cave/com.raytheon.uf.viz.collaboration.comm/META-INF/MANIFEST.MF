@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Collaboratioin
 Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.comm;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.collaboration.comm.Activator
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
@@ -32,6 +32,8 @@ Export-Package: com.raytheon.uf.viz.collaboration.comm,
  com.raytheon.uf.viz.collaboration.comm.identity.user,
  com.raytheon.uf.viz.collaboration.comm.packet,
  com.raytheon.uf.viz.collaboration.comm.provider,
+ com.raytheon.uf.viz.collaboration.comm.provider.account,
+ com.raytheon.uf.viz.collaboration.comm.provider.connection,
  com.raytheon.uf.viz.collaboration.comm.provider.event,
  com.raytheon.uf.viz.collaboration.comm.provider.info,
  com.raytheon.uf.viz.collaboration.comm.provider.session,

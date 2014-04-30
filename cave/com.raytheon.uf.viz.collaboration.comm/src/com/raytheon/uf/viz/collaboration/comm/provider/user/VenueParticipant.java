@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -40,6 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2014            bclement     Initial creation
  * Feb 13, 2014 2751       bclement     no longer is a subclass of UserId
+ * Apr 22, 2014 3056       bclement     made equals case insensitive
  * 
  * </pre>
  * 
@@ -131,12 +131,38 @@ public class VenueParticipant implements IUser {
         if (!(obj instanceof VenueParticipant)) {
             return false;
         }
+        /*
+         * the xmpp server lower cases room names so we may get them back as
+         * lower case when we have them locally as upper/mixed case. Treat case
+         * insensitive.
+         */
         VenueParticipant other = (VenueParticipant) obj;
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(handle, other.handle);
-        builder.append(host, other.host);
-        builder.append(room, other.room);
-        return builder.isEquals();
+        if (!stringFieldEquals(this.handle, other.handle)){
+            return false;
+        }
+        if (!stringFieldEquals(this.room, other.room)) {
+            return false;
+        }
+        if (!stringFieldEquals(this.host, other.host)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @param field
+     * @param other
+     * @return true if both arguments are null or arguments are equal ignoring
+     *         case
+     */
+    private boolean stringFieldEquals(String field, String other) {
+        boolean rval;
+        if (field == null) {
+            rval = other == null;
+        } else {
+            rval = field.equalsIgnoreCase(other);
+        }
+        return rval;
     }
 
     /**

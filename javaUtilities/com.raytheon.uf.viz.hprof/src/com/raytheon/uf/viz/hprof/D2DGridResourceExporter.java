@@ -177,7 +177,6 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
             } catch (IllegalStateException e) {
                 /* heap dump is from after 14.2 */
             }
-            resource.getBoolean("reprojectedData");
             int floats = entry.getValue();
             int size = floats * 4 / 1024;
             String suffix = "KB";
@@ -216,9 +215,16 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
             SmartInstance gridGeometry = generalGridData.get("gridGeometry");
             SmartInstance gridRange = gridGeometry.get("gridRange");
             int[] index = gridRange.getIntArray("index");
-            width = index[2] - index[0];
-            height = index[3] - index[1];
-
+            if (index != null) {
+                /* GeneralGridEnvelope */
+                this.width = index[2] - index[0];
+                this.height = index[3] - index[1];
+            } else {
+                /* GridEnvelope2D */
+                this.width = gridRange.getInt("width");
+                this.height = gridRange.getInt("height");
+            }
+            
             SmartInstance buffer = generalGridData.get("scalarData");
             scalarCapacity = getCapacity(buffer);
 
@@ -237,11 +243,34 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
             if (buffer == null) {
                 return 0;
             }
-            try {
-                return buffer.getInt("capacity");
-            } catch (IllegalStateException e) {
-                return buffer.get("buffer").getInt("capacity");
+            while (buffer != null) {
+                try {
+                    /*
+                     * Eventually we hope to find a FloatBuffer, before 14.3 it
+                     * even happens on the first try.
+                     */
+                    return buffer.getInt("capacity");
+                } catch (IllegalStateException e1) {
+                    /*
+                     * This case will pull the buffer out of a
+                     * FloatBufferWrapper
+                     */
+
+                    SmartInstance tmp = buffer.get("buffer");
+                    if (tmp == null) {
+                        /*
+                         * This case will pull a source out of a
+                         * GeographicDataSource or a FilteredDataSource,
+                         * hopefully after recursing enough we will get to a
+                         * FloatBufferWrapper.
+                         */
+                        tmp = buffer.get("wrappedSource");
+                    }
+                    buffer = tmp;
+                }
             }
+            System.err.println("Unable to count floats in GeneralGridData.");
+            return 0;
         }
 
         public int getFloatCount() {
