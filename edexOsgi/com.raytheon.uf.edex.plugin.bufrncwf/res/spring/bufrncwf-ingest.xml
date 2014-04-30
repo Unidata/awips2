@@ -12,15 +12,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.bufrncwf"/>
 	</bean>
 
-	<bean id="bufrncwfCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="bufrncwf-camel"/>
-  	</bean> 
-
     <camelContext id="bufrncwf-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!--
         <endpoint id="bufrncwfFileEndpoint" uri="file:${edex.home}/data/sbn/bufrncwf?noop=true&amp;idempotent=false" />
 

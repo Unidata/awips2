@@ -21,15 +21,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.sgwhv" />
 	</bean>
     
-	<bean id="sgwhvCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="sgwhv-camel"/>
-  	</bean>   
-    
 	<camelContext id="sgwhv-camel" 
 	              xmlns="http://camel.apache.org/schema/spring" 
-	              errorHandlerRef="errorHandler"
-	              autoStartup="false">
+	              errorHandlerRef="errorHandler">
 		<endpoint id="sgwhvFileEndpoint" uri="file:${edex.home}/data/sbn/sgwhv?noop=true&amp;idempotent=false" />
 
 		<!-- Begin sgwhv routes -->

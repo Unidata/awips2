@@ -141,15 +141,14 @@
 #       	Status:           TEST
 #       	Title:             AvnFPS: Lack of customization in QC check
 #  
-#**
-#*
-#* 
-#* <pre>
-#* SOFTWARE HISTORY
-#* Date         Ticket#     Engineer    Description
-#* ------------ ----------  ----------- --------------------------
-#*                                      Initial creation.
-#* Mar 07, 2013 1735        rferrel     Changes to obtain grid data for a list of sites.
+# <pre>
+# SOFTWARE HISTORY
+# Date         Ticket#     Engineer    Description
+# ------------ ----------  ----------- --------------------------
+#                                      Initial creation.
+# Mar 07, 2013 1735        rferrel     Changes to obtain grid data for a list of sites.
+# Apr 23, 2014 3006        randerso    Fix Wx parsing, handling of missing pdcs
+#
 ##  
 #
 import logging, os, time, ConfigParser
@@ -313,7 +312,7 @@ def _getData(pdc, firstTime):
             organizedData[fcstHr] = pdv
         for n in range(_NumHours):
             dd = {'time': 3600.0*n+(firstTime / 1000)}
-            dd = _createRecord(dd, organizedData[n])        
+            dd = _createRecord(dd, organizedData[n])
             data.append(dd)
     else :
     	return None
@@ -344,11 +343,11 @@ def _createRecord(dd, pdv):
         elif k == 'Tint':
             v = _stripmsng(GfeValues.wxTstmInt(arg))
         elif k[:4] == 'Prob':
-            v = _stripmsng(GfeValues.wxValCov(arg, k[4]))                                                     
+            v = _stripmsng(GfeValues.wxValCov(arg, int(k[4])))
         elif k[:4] == 'PTyp':
-            v = _wxcode(GfeValues.wxVal(arg, k[4]))
+            v = _wxcode(GfeValues.wxVal(arg, int(k[4])))
         elif k[:4] == 'Ints':
-            v = _intcode(GfeValues.wxValInst(arg, k[4]))
+            v = _intcode(GfeValues.wxValInst(arg, int(k[4])))
         else:
             v = _stripmsng(arg)
         dd[k] = v
@@ -545,12 +544,12 @@ def _retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
             results[siteID] = None
         return results
     
-    i = 0
-    for siteID in siteIDs:
-        pdc = pdcs.getContainer(i)
+    for i, siteID in enumerate(siteIDs):
+        data = None
         if i < pdcs.getSize() :
-            ++i
-        data = _getData(pdc, timeSeconds * 1000)
+            pdc = pdcs.getContainer(i)
+            data = _getData(pdc, timeSeconds * 1000)
+            
         if data is None:
             _Logger.info('Data not available for %s', siteID)
         results[siteID] = data

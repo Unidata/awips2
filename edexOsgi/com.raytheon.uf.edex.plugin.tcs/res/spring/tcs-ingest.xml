@@ -13,15 +13,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.tcs" />
 	</bean>
 	
-	<bean id="tcsCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="tcs-camel"/>
-  	</bean> 	
-	
     <camelContext id="tcs-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <route id="tcsIngestRoute">
             <from uri="jms-durable:queue:Ingest.tcs"/>
