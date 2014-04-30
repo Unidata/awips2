@@ -84,6 +84,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  *                                      active period.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * Feb 11, 2014 2636       mpduff       Change how retrieval times are calculated.
+ * Apr 21, 2014 2887       dhladky      Missed start/end in previous call, needs shouldScheduleForTime();
  * </pre>
  * 
  * @author djohnson
@@ -229,8 +230,13 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                              * Fine grain check by hour and minute, for
                              * subscription(start/end), activePeriod(start/end)
                              */
+                            
+                            // TODO: IMPORTANT NOTE:  WHEN 14.2.1 MERGES IN.  THIS NEEDS 
+                            // TO CHECK AGAINST THE OFFSET BASE REFTIME, THE BASE REFTIME
+                            // WILL BE WHAT IS ADDED IF THE CHECK IS TRUE.  DO NOT BLINDLY
+                            // MERGE 14.2.1's CODE OVER THIS.
                             if (!subscription
-                                    .inActivePeriodWindow(retrievalTime)) {
+                                    .shouldScheduleForTime(retrievalTime)) {
                                 // don't schedule this retrieval time,
                                 // outside subscription window
                                 continue;

@@ -41,7 +41,7 @@ import org.osgi.framework.Bundle;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation;
@@ -74,6 +74,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Mar 24, 2014 2936       mpduff      Remove join alerts from feed view.
  * Mar 25, 2014 2938       mpduff      Show status message for site and role changes.
  * Apr 01, 2014 2938       mpduff      Update logic for site and role changes.
+ * Apr 22, 2014 3038       bclement    added initialized flag to differentiate between roster population and new joins
  * 
  * </pre>
  * 
@@ -103,6 +104,8 @@ public class SessionFeedView extends SessionView {
      * Set of users logged in.
      */
     private final ConcurrentHashMap<String, Presence> enabledUsers = new ConcurrentHashMap<String, Presence>();
+
+    private volatile boolean initialized = false;
 
     /**
      * 
@@ -409,6 +412,18 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void participantPresenceUpdated(VenueParticipant participant,
             Presence presence) {
+        /*
+         * when we join, the room will send presence for everyone in the room,
+         * then send us our own presence to signify that the list is done and we
+         * have been initialized.
+         */
+        if (!initialized && session.getUserID().isSameUser(participant)) {
+            initialized = true;
+            /*
+             * continue and print the message for ourselves joining which will
+             * serve as a delimiter between historical messages and new messages
+             */
+        }
         // Verify we have properties
         if (!presence.getPropertyNames().contains(
                 SiteConfigInformation.SITE_NAME)) {
@@ -425,7 +440,9 @@ public class SessionFeedView extends SessionView {
 
             String roleName = getRoleName(presence);
             if (presence.isAvailable()) {
-                if (prev == null || hasPresenceChanged(prev, presence)) {
+                /* only print announcements after we are initialized */
+                if (initialized
+                        && (prev == null || hasPresenceChanged(prev, presence))) {
                     StringBuilder message = getMessage(roleName, siteName, user);
                     sendSystemMessage(message);
                 }

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Aviation Plug-in
 Bundle-SymbolicName: com.raytheon.viz.aviation;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.aviation.activator.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.alerts,
  com.raytheon.viz.texteditor,
  org.geotools,
- com.raytheon.edex.plugin.ccfp,
+ com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.7",
  com.raytheon.uf.common.serialization,
  com.raytheon.edex.plugin.taf;bundle-version="1.12.1174",
@@ -41,9 +41,8 @@ Export-Package: com.raytheon.viz.aviation,
  com.raytheon.viz.aviation.utility,
  com.raytheon.viz.aviation.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.plugin.bufrmos.common,
- com.raytheon.uf.common.inventory.exception,
- com.raytheon.uf.common.dataplugin.acarssounding,
+Import-Package: com.raytheon.uf.common.dataplugin.acarssounding,
+ com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.dataplugin.gfe.point,
  com.raytheon.uf.common.dataplugin.gfe.request,
  com.raytheon.uf.common.dataplugin.gfe.server.message,
@@ -54,6 +53,7 @@ Import-Package: com.raytheon.edex.plugin.bufrmos.common,
  com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.text.db,
  com.raytheon.uf.common.dissemination,
+ com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.serialization.comm,
  javax.measure.converter,
