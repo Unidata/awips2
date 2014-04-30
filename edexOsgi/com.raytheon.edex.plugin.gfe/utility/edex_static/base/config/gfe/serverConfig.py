@@ -37,6 +37,7 @@
 #                                                 to get correct offsets for Alaska
 #    01/17/2014          #2719     randerso       Added NHA domain
 #    02/20/2014          #2824     randerso       Added log message when local override files are not found
+#    03/11/2014          #2897     dgilling       Add new MHWM databases to default configuration.
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
 #
 ########################################################################
@@ -1063,7 +1064,11 @@ if SID in ALASKA_SITES:
                  'RTOFS-Arctic',
                  'RTOFS-Bering',
                  'RTOFS-GulfAlaska',
-                 'RTOFS-HudsonBaffin'
+                 'RTOFS-HudsonBaffin',
+                 'NPHwave15',
+                 'AKHwave10',
+                 'AKHwave4',
+                 'GLOBHwave',
                ]
 
 # Hawaii OCONUS
@@ -1082,6 +1087,10 @@ elif SID == "HFO":
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  'RTOFS-Honolulu',
+                 'NPHwave15',
+                 'WPHwave10',
+                 'NPHwave4',
+                 'GLOBHwave',
                ]
 
 # San Juan OCONUS
@@ -1105,6 +1114,10 @@ elif SID == "SJU":
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  'RTOFS-Atlantic',
+                 'NAHwave15',
+                 'NAHwave10',
+                 'NAHwave4',
+                 'GLOBHwave',
                ]
 
 # Guam OCONUS
@@ -1114,7 +1127,9 @@ elif SID == "GUM":
                  'GWW233',
                  'GlobalWave',
                  ('TPCWindProb', 'TPCProb'),
-                 'RTOFS-Guam'
+                 'RTOFS-Guam',
+                 'WPHwave10',
+                 'GLOBHwave',
                ]
 
 #CONUS sites
@@ -1164,6 +1179,14 @@ elif SID in CONUS_EAST_SITES:
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  ('ENPWAVE253', 'ENPwave'),
+                 'NAHwave15',
+                 'NAHwave10',
+                 'NAHwave4',
+                 'NPHwave15',
+                 'NPHwave10',
+                 'NPHwave4',
+                 'WPHwave10',
+                 'GLOBHwave',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1214,6 +1237,14 @@ else:   #######DCS3501 WEST_CONUS
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  ('ENPWAVE253', 'ENPwave'),
+                 'NAHwave15',
+                 'NAHwave10',
+                 'NAHwave4',
+                 'NPHwave15',
+                 'NPHwave10',
+                 'NPHwave4',
+                 'WPHwave10',
+                 'GLOBHwave',
                ]
 
 if SID in GreatLake_SITES:

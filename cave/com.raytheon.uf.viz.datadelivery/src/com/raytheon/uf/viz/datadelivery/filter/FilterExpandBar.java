@@ -85,7 +85,8 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Jul 05, 2013   2137     mpduff       Only a single data type can be selected.
  * Jul 05, 2013   2138     mpduff       Fixed to not use filter if filter is disabled.
  * Sep 26, 2013   2412     mpduff       Don't create expand items if no data type is selected.
- * 
+ * Apr 10, 2014   2892     mpduff       Clear selected items when changing data types.
+ *  
  * </pre>
  * 
  * @author lvenable
@@ -93,6 +94,13 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  */
 public class FilterExpandBar extends Composite implements IFilterUpdate,
         IExpandControlAction {
+    private final String DATA_PROVIDER = "Data Provider";
+
+    private final String DATA_SET = "Data Set";
+
+    private final String PARAMETER = "Parameter";
+
+    private final String LEVEL = "Level";
 
     /**
      * Filter expand bar.
@@ -290,10 +298,6 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
          * TODO : this needs to be reworked as this only has 4 display
          * (filters). This should be configurable.
          */
-        final String DATA_PROVIDER = "Data Provider";
-        final String DATA_SET = "Data Set";
-        final String PARAMETER = "Parameter";
-        final String LEVEL = "Level";
         if (displayName.equals(DATA_PROVIDER)) {
             Set<String> providerSet = dataManager
                     .getAvailableDataProvidersByType(dataType);
@@ -596,6 +600,13 @@ public class FilterExpandBar extends Composite implements IFilterUpdate,
         this.dataType = dataType;
         setEnvelope(envelope);
         disposeExpandItemsAndControls();
+
+        // Clear previously selected items
+        if (filterSettingsXml != null) {
+            for (FilterTypeXML xml : this.filterSettingsXml.getFilterTypeList()) {
+                xml.clearValues();
+            }
+        }
         if (!dataType.isEmpty()) {
             createExpandItems();
         }

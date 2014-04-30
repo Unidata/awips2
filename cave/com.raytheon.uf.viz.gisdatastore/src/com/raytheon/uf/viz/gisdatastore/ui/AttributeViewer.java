@@ -83,6 +83,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Mar 21, 2013       1638 mschenke    Created Pair class internal so no dependencies on GFE
  * Jul 24, 2013      #1908 randerso    Added support for updating attributes when resource cropped.
  *                                     Code cleanup
+ * Apr 21, 2014      #2998 randerso    Changed to use attribute type (not type of attribute value 
+ *                                     which may be null) to determine alignment of column.
  * 
  * </pre>
  * 
@@ -326,7 +328,6 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener,
         Table table = viewer.getTable();
 
         table.setHeaderVisible(true);
-        // table.setLinesVisible(true);
         table.setSortDirection(SWT.UP);
         comparator = new ColumnComparator();
         ArrayList<Pair<String, Integer>> sortOrder = new ArrayList<Pair<String, Integer>>(
@@ -341,16 +342,13 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener,
         for (String attrName : names) {
             int index = i++;
             int alignment = SWT.LEFT;
-            if (this.attributes[0][index] instanceof Integer) {
+            if (Number.class.isAssignableFrom(rsc.getAttributeType(attrName))) {
                 alignment = SWT.RIGHT;
             }
             TableViewerColumn tvc = new TableViewerColumn(viewer, alignment,
                     index);
             final TableColumn column = tvc.getColumn();
             column.setText(attrName);
-            // column.addSelectionListener(new
-            // ColumnSelectionAdapter(tableViewer,
-            // index));
             column.pack();
             int extent = column.getWidth();
             for (Object[] atts : this.attributes) {

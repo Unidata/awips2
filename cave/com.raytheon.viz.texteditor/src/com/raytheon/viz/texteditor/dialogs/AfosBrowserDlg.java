@@ -102,6 +102,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29Jan2013    1496        rferrel     Changes to designator hours query
  *                                       off the UI thread.
  *                                      Changes to have multiple query jobs.
+ * 15Apr2014    #3031       lvenable    Added dispose check in the runAsync calls.
  * </pre>
  * 
  * @author lvenable
@@ -1606,6 +1607,9 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
                 @Override
                 public void run() {
+                    if (isDisposed()) {
+                        return;
+                    }
                     startDesignatorTimeList();
                 }
             });
@@ -1657,6 +1661,9 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             for (TimesRequest result : resultList) {
                                 if (canceled) {
                                     break;
@@ -1690,6 +1697,9 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
 
                     @Override
                     public void run() {
+                        if (isDisposed()) {
+                            return;
+                        }
                         finishDesignatorTimeList();
                     }
                 });

@@ -8,7 +8,6 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  org.geotools,
- com.raytheon.edex.uengine,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization.comm,

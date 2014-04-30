@@ -25,7 +25,7 @@ import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
-import javax.xml.bind.JAXBException;
+import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -39,9 +39,7 @@ import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.parameter.Parameter;
-import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -62,6 +60,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Mar 28, 2010  2874     bsteffen    Initial creation
+ * Apr 25, 2014  2060     njensen     Use JAXB instead of JAXBManager
  * 
  * 
  * </pre>
@@ -93,31 +92,23 @@ public class TemperatureCorrectionPostProcessor implements
         }
     }
 
-    protected LocalizationFile readConfiguration() throws GribException {
+    protected LocalizationFile readConfiguration() {
         LocalizationFile file = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(LOCALIZATON_LOCATION);
         Map<String, Double> paramThresholdMap = new HashMap<String, Double>(8);
         if (file != null && file.exists()) {
-            JAXBManager manager = null;
-            try {
-                manager = new JAXBManager(TemperatureCorrectionParameters.class);
-
-            } catch (JAXBException e) {
-                /* No hope of recovering */
-                throw new GribException(
-                        "Error occured preparing to load temperate correction parameters.",
-                        e);
-            }
             TemperatureCorrectionParameters params = null;
             try {
-                params = file.jaxbUnmarshal(
-                        TemperatureCorrectionParameters.class, manager);
-            } catch (LocalizationException e) {
+                params = JAXB.unmarshal(file.getFile(),
+                        TemperatureCorrectionParameters.class);
+            } catch (Exception e) {
                 /* Some hope of recovering with a better file. */
                 statusHandler
                         .error("Error occured loading temperate correction parameters, verify the file is formatted correctly.",
                                 e);
+
             }
+
             if (params != null) {
                 for (TemperatureCorrectionParameter param : params
                         .getParameters()) {
@@ -134,7 +125,7 @@ public class TemperatureCorrectionPostProcessor implements
     public void fileUpdated(FileUpdatedMessage message) {
         try {
             readConfiguration();
-        } catch (GribException e) {
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }

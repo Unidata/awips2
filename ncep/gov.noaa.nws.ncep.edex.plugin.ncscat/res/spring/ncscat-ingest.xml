@@ -18,15 +18,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.Ncscat" />
 	</bean>
 
-	<bean id="ncscatCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ncscat-camel"/>
-  	</bean> 
-
 	<camelContext id="ncscat-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="ncscatFileEndpoint" uri="file:${edex.home}/data/sbn/ncscat??noop=true&amp;idempotent=false" />
 
 		<!-- Begin Ncscat routes -->

@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.session.ISubscriptionRequestCompleteAction;
+import com.raytheon.uf.viz.collaboration.comm.provider.account.ISubscriptionRequestCompleteAction;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
