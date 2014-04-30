@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 13, 2014 2751       bclement    changed sendObjectToPeer id to VenueParticipant
  * Feb 13, 2014 2751       njensen     Added changeLeader()
  * Feb 19, 2014 2751       bclement    Added isClosed()
+ * Apr 15, 2014 2822       bclement    added isSharedDisplayClient()
  * 
  * </pre>
  * 
@@ -123,5 +124,11 @@ public interface ISharedDisplaySession extends IVenueSession {
      * @return
      */
     public boolean isClosed();
+
+    /**
+     * @param participant
+     * @return true if the participant is viewing the shared display
+     */
+    public boolean isSharedDisplayClient(VenueParticipant participant);
 
 }

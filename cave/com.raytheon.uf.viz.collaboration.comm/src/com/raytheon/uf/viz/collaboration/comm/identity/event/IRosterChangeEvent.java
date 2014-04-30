@@ -19,8 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
+
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Event fired when the roster has changed
@@ -33,6 +34,7 @@ import org.jivesoftware.smack.packet.Presence;
  * ------------ ---------- ----------- --------------------------
  * Apr 06, 2012            jkorman     Initial creation.
  * Feb 24, 2014    2632    mpduff      Added getPresence, changed getItem to getEntry.
+ * Apr 24, 2014    3070    bclement    getEntry() returns UserId
  * 
  * </pre>
  * 
@@ -54,7 +56,7 @@ public interface IRosterChangeEvent {
      * 
      * @return The changed entry
      */
-    RosterEntry getEntry();
+    UserId getEntry();
 
     /**
      * Get the Presence object.

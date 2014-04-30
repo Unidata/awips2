@@ -23,10 +23,8 @@ package com.raytheon.edex.uengine.tasks.radar;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.edex.uengine.tasks.ScriptTask;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarTiler;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -44,12 +42,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date             PR#             Engineer            Description
  * -----------      ----------      ------------        --------------------------
  * Apr 12, 2007                     njensen             Initial Creation
+ * Apr 14, 2014           2984      njensen             Deprecated and remove uengine dependency
  * </PRE>
  * 
  */
-public class DecodeRadarImage extends ScriptTask {
+@Deprecated
+public class DecodeRadarImage {
 
-    private static final IUFStatusHandler handler = UFStatus.getHandler(DecodeRadarImage.class);
+    private static final IUFStatusHandler handler = UFStatus
+            .getHandler(DecodeRadarImage.class);
 
     private RadarRecord radarRecord;
 
@@ -75,12 +76,6 @@ public class DecodeRadarImage extends ScriptTask {
         geometry = radarTiler.constructGridGeometry();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.uengine.js.tasks.ScriptTask#execute()
-     */
-    @Override
     public byte[] execute() {
         byte[] bi = null;
 

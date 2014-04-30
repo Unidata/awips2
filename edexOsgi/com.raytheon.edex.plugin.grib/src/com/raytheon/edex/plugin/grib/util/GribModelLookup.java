@@ -55,6 +55,8 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  *                                    reverse.
  * Apr 30, 2013  1961     bsteffen    Add ability to disable grib tables.
  * Oct 14, 2013  2473     bsteffen    Remove lookup of deprecated grib files.
+ * Apr 25, 2014  2874     bsteffen    Add processType
+ * 
  * 
  * </pre>
  * 
@@ -94,42 +96,60 @@ public class GribModelLookup {
         initModelList();
     }
 
-    public GridModel getModel(int center, int subcenter, String grid,
-            int process) {
-        GridModel model = models.get(toKey(center, subcenter, grid, process));
-        if (model == null) {
-            // See if there is a version for all grids.
-            model = models.get(toKey(center, subcenter, null, process));
+    /**
+     * Get a model based off some fields in the grib file.
+     * 
+     * @param center
+     *            the id of the center
+     * @param subcenter
+     *            the id of the subcenter
+     * @param grid
+     *            gridcoverage as defined in the grib file(don't use subgrids)
+     * @param process
+     *            the process id
+     * @param processType
+     *            the process type, although this is a byte in the grib file
+     *            this method expects the byte to be resolved to a string by
+     *            looking up the type id in the grib tables(4.3). grib1 does not
+     *            include a value for process type so null is acceptable.
+     * @return The grid model if one is find or null if no such model is defined
+     *         in the localization files..
+     */
+    public GridModel getModel(int center, int subcenter, GridCoverage grid,
+            int process, String processType) {
+        /* Match all fields */
+        GridModel model = getModelSimple(center, subcenter, grid, process,
+                processType);
+        if (model == null && processType != null) {
+            /* Match with no processType specified */
+            model = getModelSimple(center, subcenter, grid, process, null);
+        }
+        if (model == null && grid != null) {
+            /* Match with no grid specified */
+            model = getModelSimple(center, subcenter, null, process,
+                    processType);
+        }
+        if (model == null && grid != null && processType != null) {
+            /* Match with no grid or processType */
+            model = getModelSimple(center, subcenter, null, process, null);
         }
         return model;
     }
 
-    public GridModel getModel(int center, int subcenter, GridCoverage grid,
-            int process) {
-        GridModel model = null;
-        if (grid.getName() != null) {
-            models.get(toKey(center, subcenter, grid.getName(), process));
-        }
-        if (model == null) {
+    private GridModel getModelSimple(int center, int subcenter,
+            GridCoverage grid, int process, String processType) {
+        if (grid != null) {
             for (String gribGridName : GribSpatialCache.getInstance()
                     .getGribCoverageNames(grid)) {
-                model = models.get(toKey(center, subcenter, gribGridName,
-                        process));
+                String key = toKey(center, subcenter, gribGridName, process,
+                        processType);
+                GridModel model = models.get(key);
                 if (model != null) {
-                    break;
+                    return model;
                 }
             }
-            if (model == null) {
-                // last step is to look for a matching center, subcenter, and
-                // process with no grid.
-                model = models.get(toKey(center, subcenter, null, process));
-            }
         }
-        return model;
-    }
-
-    public GridModel getModel(int center, int subcenter, int gridid, int process) {
-        return getModel(center, subcenter, String.valueOf(gridid), process);
+        return null;
     }
 
     public GridModel getModelByName(String name) {
@@ -141,8 +161,9 @@ public class GribModelLookup {
     }
 
     public String getModelName(int center, int subcenter, GridCoverage grid,
-            int process) {
-        GridModel model = getModel(center, subcenter, grid, process);
+            int process, String processType) {
+        GridModel model = getModel(center, subcenter, grid, process,
+                processType);
         if (model == null || model.getName() == null) {
             String cenSubProc = "GribModel:" + String.valueOf(center) + ":"
                     + String.valueOf(subcenter) + ":" + String.valueOf(process);
@@ -219,41 +240,32 @@ public class GribModelLookup {
 
     private void addModels(GridModelSet modelSet) {
         for (GridModel model : modelSet.getModels()) {
+            int subCenter = Integer.parseInt(model.getSubCenter());
             modelsByName.put(model.getName(), model);
             for (int process : model.getProcess()) {
                 if (model.getAllGrids().isEmpty()) {
-                    models.put(
-                            toKey(model.getCenter(),
-                                    Integer.parseInt(model.getSubCenter()),
-                                    null, process), model);
+                    String key = toKey(model.getCenter(), subCenter, null,
+                            process, model.getProcessType());
+                    models.put(key, model);
                 }
                 for (String grid : model.getAllGrids()) {
-                    models.put(
-                            toKey(model.getCenter(),
-                                    Integer.parseInt(model.getSubCenter()),
-                                    grid, process), model);
+                    String key = toKey(model.getCenter(), subCenter, grid,
+                            process, model.getProcessType());
+                    models.put(key, model);
                 }
             }
         }
     }
 
-
     private String toKey(Integer center, Integer subcenter, String grid,
-            Integer process) {
+            Integer process, String processType) {
         StringBuilder builder = new StringBuilder();
         builder.append(center);
         builder.append(subcenter);
         builder.append(grid);
         builder.append(process);
+        builder.append(processType);
         return builder.toString();
-        // final int PRIME = 31;
-        // int result = 1;
-        // result = PRIME * result + ((center == null) ? 0 : center.hashCode());
-        // result = PRIME * result
-        // + ((subcenter == null) ? 0 : subcenter.hashCode());
-        // result = PRIME * result + ((grid == null) ? 0 : grid.hashCode());
-        // result = PRIME * result + ((process == null) ? 0 :
-        // process.hashCode());
-        // return result;
+
     }
 }
