@@ -96,6 +96,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Sep 03, 2013 2315       mpduff      Add subscription name to denied approval message.
  * Oct 23, 2013 2292       mpduff      Move subscription overlap checks to edex.
  * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
+ * Apr 18, 2014  3012      dhladky      Null check.
  * 
  * </pre>
  * 
@@ -368,13 +369,15 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
             for (int idx : tableComp.getTable().getSelectionIndices()) {
                 SubscriptionApprovalRowData approvedItem = pendingSubData
                         .getDataRow(idx);
-                if (site) {
-                    approveList.add(approvedItem);
-                } else {
-                    if (approvedItem.isOwner(user)) {
+                if (approvedItem != null) {
+                    if (site) {
                         approveList.add(approvedItem);
                     } else {
-                        notApprovedSubList.add(approvedItem.getSubName());
+                        if (approvedItem.isOwner(user)) {
+                            approveList.add(approvedItem);
+                        } else {
+                            notApprovedSubList.add(approvedItem.getSubName());
+                        }
                     }
                 }
             }
@@ -461,12 +464,13 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
                 for (int idx : tableComp.getTable().getSelectionIndices()) {
                     SubscriptionApprovalRowData removedItem = pendingSubData
                             .getDataRow(idx);
-
-                    if (site) {
-                        deleteList.add(removedItem);
-                    } else {
-                        if (removedItem.isOwner(user)) {
+                    if (removedItem != null) {
+                        if (site) {
                             deleteList.add(removedItem);
+                        } else {
+                            if (removedItem.isOwner(user)) {
+                                deleteList.add(removedItem);
+                            }
                         }
                     }
                 }
