@@ -1,0 +1,87 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="redbookDecoder" class="com.raytheon.uf.edex.plugin.redbook.RedbookDecoder">
+        <constructor-arg ref="redbookPluginName" />
+    </bean>
+
+	<bean id="redbookDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="redbook" />
+		<constructor-arg value="jms-durable:queue:Ingest.redbook"/>
+	</bean>
+
+    <bean id="spcMenuListener" class="com.raytheon.uf.edex.plugin.redbook.ingest.RedbookMenuSubscriber"/>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookHazardMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookHPCMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookCPCMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookMPCMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookNCOMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookUAMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredRedbook-camel" />
+    </bean>
+
+	<camelContext id="clusteredRedbook-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<!--
+		<endpoint id="redbookFileEndpoint" uri="file:${edex.home}/data/sbn/redbook?noop=true&amp;idempotent=false" />
+
+		<route id="redbookFileConsumerRoute">
+			<from ref="redbookFileEndpoint" />
+			<bean ref="fileToString"  />
+			<setHeader headerName="pluginName">
+				<constant>redbook</constant>
+			</setHeader>
+			<to uri="jms-durable:queue:Ingest.redbook" />
+		</route>
+		-->
+
+		<!-- Begin Redbook routes -->
+		<route id="redbookIngestRoute">
+			<from uri="jms-durable:queue:Ingest.redbook"/>
+			<setHeader headerName="pluginName">
+				<constant>redbook</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile"  />
+					<bean ref="redbookDecoder" method="decode" />
+					<to uri="direct-vm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:redbook?level=ERROR"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

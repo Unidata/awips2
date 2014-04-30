@@ -21,12 +21,10 @@ package com.raytheon.uf.viz.collaboration.ui.actions;
 
 import org.eclipse.jface.action.Action;
 import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -42,6 +40,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2014            bclement     Initial creation
  * Mar 05, 2014 2837       bclement     added image
+ * Apr 24, 2014 3070       bclement     moved contact request logic to contacts manager
  * 
  * </pre>
  * 
@@ -71,10 +70,9 @@ public class SendSubReqAction extends Action {
     @Override
     public void run() {
         CollaborationConnection connection = CollaborationConnection.getConnection();
-        IAccountManager manager = connection.getAccountManager();
+        ContactsManager manager = connection.getContactsManager();
         try {
-            manager.sendPresence(IDConverter.convertFrom(entry), new Presence(
-                    Type.subscribe));
+            manager.sendContactRequest(IDConverter.convertFrom(entry));
         } catch (CollaborationException e) {
             Activator.statusHandler.error(
                     "Unable to send subscription request", e);

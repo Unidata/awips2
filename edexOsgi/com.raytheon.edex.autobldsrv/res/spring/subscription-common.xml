@@ -20,8 +20,8 @@
 				depends-on="metadataTxManager">
 		<constructor-arg value="com.raytheon.edex.autobldsrv"/>
 		<constructor-arg ref="subscriptionDbPluginProperties"/>
-	</bean>	
-	<camelContext id="subscription-common-camel" 
+	</bean>
+	<camelContext id="subscription-common-camel"
 	              xmlns="http://camel.apache.org/schema/spring"
                   errorHandlerRef="errorHandler">
 		<route id="subscriptionNotify">
@@ -34,7 +34,7 @@
 		   	   </doCatch>
 		   </doTry>
 		</route>
-                  
+
 		<!-- LDAD (watch/warn) triggered script runner, internal use only -->
 		<route id="ldadWatchWarnDirect">
 			<from uri="direct-vm:ldadWatchWarnDirect"/>
