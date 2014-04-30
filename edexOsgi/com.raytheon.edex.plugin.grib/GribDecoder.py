@@ -122,6 +122,7 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 # Sep 06, 2013  2402     bsteffen    Switch to use file extents for multipart
 #                                    grib files.
 # Feb 11, 2014  2765     bsteffen    Better handling of probability parameters.
+# Apr 28, 2014  3084     bsteffen    Use full grid for looking up parameter aliases.
 #
 class GribDecoder():
 
@@ -301,6 +302,17 @@ class GribDecoder():
         modelName = self._createModelName(gribDict, gridCoverage)
         #check if forecast used flag needs to be removed
         self._checkForecastFlag(gribDict, gridCoverage, dataTime) 
+        # check parameter abbreivation mapping
+        parameterAbbreviation = gribDict['parameterAbbreviation']
+        newAbbr = GribParamTranslator.getInstance().translateParameter(2, parameterAbbreviation, gribDict['center'], gribDict['subcenter'], gribDict['genprocess'], dataTime, gridCoverage)
+        
+        if newAbbr is None:
+            if gribDict['parameterName'] != MISSING and dataTime.getValidPeriod().getDuration() > 0:
+               parameterAbbreviation = parameterAbbreviation + str(dataTime.getValidPeriod().getDuration() / 3600000) + "hr"
+        else:
+            parameterAbbreviation = newAbbr
+        parameterAbbreviation = parameterAbbreviation.replace('_', '-')  
+        
         # check sub gridding
         spatialCache = GribSpatialCache.getInstance()
         subCoverage = spatialCache.getSubGridCoverage(modelName, gridCoverage)
@@ -335,16 +347,6 @@ class GribDecoder():
             gridCoverage = subCoverage
 
         numpyDataArray = numpy.reshape(numpyDataArray, (1, gribDict['ngrdpts']))        
-        
-        parameterAbbreviation = gribDict['parameterAbbreviation']
-        newAbbr = GribParamTranslator.getInstance().translateParameter(2, parameterAbbreviation, gribDict['center'], gribDict['subcenter'], gribDict['genprocess'], dataTime, gridCoverage)
-        
-        if newAbbr is None:
-            if gribDict['parameterName'] != MISSING and dataTime.getValidPeriod().getDuration() > 0:
-               parameterAbbreviation = parameterAbbreviation + str(dataTime.getValidPeriod().getDuration() / 3600000) + "hr"
-        else:
-            parameterAbbreviation = newAbbr
-        parameterAbbreviation = parameterAbbreviation.replace('_', '-')  
         
         # Construct the GribRecord
         record = GridRecord()
