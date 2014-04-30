@@ -80,6 +80,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.RegistryQueryUtil;
  * 10/8/2013    1682        bphillip    Added query queries
  * 11/7/2013    1678        bphillip    Added getCustomQueries method
  * Mar 31, 2014 2889        dhladky     Added username for notification center tracking.
+ * Apr 12,2014  3012       dhladky     Purge never worked, fixed to make work.
  * </pre>
  * 
  * @author bphillip
@@ -343,9 +344,9 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
             try {
                 Object subObj = subscriptionJaxbManager
                         .unmarshalFromXml(subscriptionXML);
-                EDEXUtil.getMessageProducer().sendSync("scheduleSubscription",
-                        subObj);
                 lcm.submitObjects(submitRequest);
+                EDEXUtil.getMessageProducer().sendSync("scheduleSubscription",
+                        new Object[] {subObj, false});
                 subscriptionFile.delete();
                 response.append(
                         "Subscription successfully restored from file [")
