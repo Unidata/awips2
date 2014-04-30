@@ -428,9 +428,10 @@ public class FFMPConfig {
             }
         } catch (Exception e) {
             sources = null;
-            statusHandler.handle(Priority.PROBLEM,
-                    "Couldn't create FFMP Config... Improper source configuration detected."
-                            + e);
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Couldn't create FFMP Config... Improper source configuration detected.",
+                            e);
         }
     }
 
