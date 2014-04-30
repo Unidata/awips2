@@ -32,6 +32,8 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilities;
 
@@ -50,6 +52,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilit
  * May 12, 2013 753        dhladky      Altered to be more flexible with other types
  * May 31, 2013 2038       djohnson     Rename setPdos to allocatePdoArray.
  * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Apr 22, 2014  3046      dhladky      Got rid of duplicate code.
  * 
  * </pre>
  * 
@@ -58,6 +61,9 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.ResponseProcessingUtilit
  */
 public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GridMetadataAdapter.class);
+        
     public GridMetadataAdapter() {
     }
 
@@ -91,12 +97,6 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
         GridCoverage gridCoverage = ((GriddedCoverage) attXML.getCoverage())
                 .getRequestGridCoverage();
 
-        try {
-            gridCoverage = getCoverageFromCache(gridCoverage);
-        } catch (Exception e) {
-            throw new InstantiationException(e.getMessage());
-        }
-
         if (time.getSelectedTimeIndices() != null) {
             int bin = 0;
             for (String ensemble : ensembles) {
@@ -128,19 +128,16 @@ public class GridMetadataAdapter extends AbstractMetadataAdapter<Integer> {
      */
     private GridRecord populateGridRecord(String name, Parameter parm,
             Level level, String ensembleId, GridCoverage gridCoverage) {
-        return ResponseProcessingUtilities.getGridRecord(name, parm, level,
-                ensembleId, gridCoverage);
-    }
 
-    /**
-     * Try to find the coverage in the cache
-     * 
-     * @param coverage
-     * @return
-     */
-    @VisibleForTesting
-    GridCoverage getCoverageFromCache(GridCoverage coverage) {
-        return ResponseProcessingUtilities.getCoverageFromCache(coverage);
+        GridRecord rec = null;
+
+        try {
+            rec = ResponseProcessingUtilities.getGridRecord(name, parm, level, ensembleId, gridCoverage);
+        } catch (Exception e) {
+            statusHandler.error("Couldn't create grid record! "+e);
+        }
+
+        return rec;
     }
 
     @VisibleForTesting

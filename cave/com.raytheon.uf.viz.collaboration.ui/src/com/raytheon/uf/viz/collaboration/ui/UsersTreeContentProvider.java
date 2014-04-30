@@ -31,8 +31,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
@@ -51,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
  * Jan 27, 2014 2700       bclement    added support roster entries
+ * Apr 24, 2014 3070       bclement    removed check for hasInteraction() from group entries
  * 
  * </pre>
  * 
@@ -141,8 +141,7 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
         UserId localUser = connection.getUser();
         for (RosterEntry entry : entries) {
             String user = entry.getUser();
-            if (!localUser.isSameUser(user)
-                    && ContactsManager.hasInteraction(entry)) {
+            if (!localUser.isSameUser(user)) {
                 result.add(entry);
             }
         }

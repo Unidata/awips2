@@ -207,8 +207,7 @@
 
 	<camelContext id="clustered-text-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!-- TextPurge route -->
 		<route id="textPurgeRequestRoute">
 			<from uri="jms-generic:queue:textPurgeRequest" />
@@ -232,8 +231,7 @@
 		</route>
 	</camelContext>
 
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clustered-text-camel" />
   	</bean>
 </beans>

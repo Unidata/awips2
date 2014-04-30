@@ -34,6 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied.Property;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -51,6 +52,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Apr 18, 2012            njensen      Cleanup
  * Dec  6, 2013 2561       bclement    removed ECF
  * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
+ * Apr 11, 2014 2903       bclement    made constructor public b/c connection code moved packages
  * 
  * </pre>
  * 
@@ -66,7 +68,7 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
      * @param externalBus
      * @param manager
      */
-    PeerToPeerChat(EventBus externalBus,
+    public PeerToPeerChat(EventBus externalBus,
             CollaborationConnection manager) throws CollaborationException {
         super(externalBus, manager);
     }

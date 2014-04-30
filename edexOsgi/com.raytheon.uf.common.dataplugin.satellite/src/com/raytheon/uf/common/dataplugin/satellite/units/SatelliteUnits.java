@@ -28,6 +28,7 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
+import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PercentOfNormalTPWPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
@@ -45,12 +46,14 @@ import com.raytheon.uf.common.dataplugin.satellite.units.water.RainfallRatePixel
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 4, 2007             njensen     Initial creation
- * Mar 23, 2009     2086   jsanchez    Updated RainfallRatePixel to be velocity.
- *                                     Added PolarPrecipWaterPixel.
- * Jun 20, 2013     2122   mschenke    Added alias for degrees celsius to "C"
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 04, 2007           njensen     Initial creation
+ * Mar 23, 2009  2086     jsanchez    Updated RainfallRatePixel to be velocity.
+ *                                    Added PolarPrecipWaterPixel.
+ * Jun 20, 2013  2122     mschenke    Added alias for degrees celsius to "C"
+ * Apr 15, 2014  2947     bsteffen    Register units with both formats.
+ * 
  * 
  * </pre>
  * 
@@ -84,35 +87,35 @@ public class SatelliteUnits {
 
     public static final Unit<Dimensionless> GENERIC_PIXEL = new GenericPixel();
 
+    public static final Unit<Temperature> DERIVED_WV = new DerivedWVPixel();
+
     public static void register() {
-        UnitFormat.getUCUMInstance().alias(SI.KELVIN, "kelvin");
-        UnitFormat.getUCUMInstance().alias(SI.CELSIUS, "C");
-        UnitFormat.getUCUMInstance().label(SatelliteUnits.IR_PIXEL, "IRPixel");
-        UnitFormat.getUCUMInstance().label(SatelliteUnits.PRECIP_PIXEL,
-                "PrecipPixel");
-        UnitFormat.getUCUMInstance().label(SatelliteUnits.RAINFALL_RATE_PIXEL,
-                "RainfallRatePixel");
-        UnitFormat.getUCUMInstance().label(
-                SatelliteUnits.SOUNDER_CLOUD_AMOUNT_PIXEL,
+        register(UnitFormat.getUCUMInstance());
+        register(UnitFormat.getInstance());
+
+    }
+
+    public static void register(UnitFormat format) {
+        format.alias(SI.KELVIN, "kelvin");
+        format.alias(SI.CELSIUS, "C");
+        format.label(SatelliteUnits.IR_PIXEL, "IRPixel");
+        format.label(SatelliteUnits.PRECIP_PIXEL, "PrecipPixel");
+        format.label(SatelliteUnits.RAINFALL_RATE_PIXEL, "RainfallRatePixel");
+        format.label(SatelliteUnits.SOUNDER_CLOUD_AMOUNT_PIXEL,
                 "SounderCloudAmountPixel");
-        UnitFormat.getUCUMInstance().label(
-                SatelliteUnits.SOUNDER_CLOUD_HEIGHT_PIXEL,
+        format.label(SatelliteUnits.SOUNDER_CLOUD_HEIGHT_PIXEL,
                 "SounderCloudTopHeightPixel");
-        UnitFormat.getUCUMInstance().label(
-                SatelliteUnits.SOUNDER_LIFTED_INDEX_PIXEL,
+        format.label(SatelliteUnits.SOUNDER_LIFTED_INDEX_PIXEL,
                 "SounderLiftedIndexPixel");
-        UnitFormat.getUCUMInstance().label(
-                SatelliteUnits.SOUNDER_PRECIP_WATER_PIXEL,
+        format.label(SatelliteUnits.SOUNDER_PRECIP_WATER_PIXEL,
                 "SounderPrecipWaterPixel");
-        UnitFormat.getUCUMInstance().label(
-                SatelliteUnits.POLAR_PRECIP_WATER_PIXEL,
+        format.label(SatelliteUnits.POLAR_PRECIP_WATER_PIXEL,
                 "PolarPrecipWaterPixel");
-        UnitFormat.getUCUMInstance().label(
-                SatelliteUnits.SOUNDER_SKIN_TEMP_PIXEL, "SounderSkinTempPixel");
-        UnitFormat.getUCUMInstance().label(SatelliteUnits.GENERIC_PIXEL,
-                "GenericPixel");
-        UnitFormat.getUCUMInstance().label(SatelliteUnits.PERCENT_PIXEL,
-                "PercentOfNormalTPWPixel");
+        format.label(SatelliteUnits.SOUNDER_SKIN_TEMP_PIXEL,
+                "SounderSkinTempPixel");
+        format.label(SatelliteUnits.GENERIC_PIXEL, "GenericPixel");
+        format.label(SatelliteUnits.PERCENT_PIXEL, "PercentOfNormalTPWPixel");
+        format.label(SatelliteUnits.DERIVED_WV, "DerivedWV");
     }
 
 }
