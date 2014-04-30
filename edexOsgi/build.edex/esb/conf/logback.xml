@@ -38,6 +38,22 @@
       <appender-ref ref="ProductSrvRequestLog" />
    </appender> 
 
+   <!-- TextDBSrvRequest log --> 
+   <appender name="TextDBSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-request-textdbSrvRequest-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>    
+   
+   <appender name="TextDBSrvRequestLogAsync" class="ch.qos.logback.classic.AsyncAppender">            
+      <appender-ref ref="TextDBSrvRequestLog" />
+   </appender> 
+
    <!-- ThriftSrv (RemoteRequestRouteWrapper) request log --> 
    <appender name="ThriftSrvRequestLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -71,6 +87,11 @@
    <logger name="ProductSrvRequestLogger" additivity="false">
    		<level value="DEBUG"/>
    		<appender-ref ref="ProductSrvRequestLogAsync"/>
+   </logger>    
+
+   <logger name="TextDBSrvRequestLogger" additivity="false">
+   		<level value="DEBUG"/>
+   		<appender-ref ref="TextDBSrvRequestLogAsync"/>
    </logger>    
 
    <logger name="ThriftSrvRequestLogger" additivity="false">

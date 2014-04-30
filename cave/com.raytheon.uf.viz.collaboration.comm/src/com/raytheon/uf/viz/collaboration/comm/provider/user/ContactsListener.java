@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.packet.Presence;
@@ -48,6 +47,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2014 2822       bclement     Initial creation
+ * Apr 24, 2014 3070       bclement     removed roster, 
+ *                                      RosterChangedEvent sends UserId not RosterEntry
  * 
  * </pre>
  * 
@@ -58,17 +59,14 @@ public class ContactsListener implements RosterListener {
 
     private final ContactsManager manager;
 
-    private final Roster roster;
-
     private final Map<String, List<ResourceInfo>> contactResources = new HashMap<String, List<ResourceInfo>>();
 
     /**
      * @param manager
      * @param roster
      */
-    public ContactsListener(ContactsManager manager, Roster roster) {
+    public ContactsListener(ContactsManager manager) {
         this.manager = manager;
-        this.roster = roster;
     }
 
     /*
@@ -92,9 +90,11 @@ public class ContactsListener implements RosterListener {
                 }
             }
             RosterEntry entry = manager.getRosterEntry(u);
-            post(entry);
+            if (entry != null) {
+                post(entry);
+            }
             IRosterChangeEvent event = new RosterChangeEvent(
-                    RosterChangeType.PRESENCE, entry, presence);
+                    RosterChangeType.PRESENCE, u, presence);
             post(event);
         }
     }
@@ -197,11 +197,13 @@ public class ContactsListener implements RosterListener {
      */
     private void send(Collection<String> addresses, RosterChangeType type) {
         for (String addy : addresses) {
-            RosterEntry entry = roster.getEntry(addy);
-            if (entry != null) {
-                IRosterChangeEvent event = new RosterChangeEvent(type, entry);
-                post(event);
-            }
+            UserId entry = IDConverter.convertFrom(addy);
+            /*
+             * RosterChangeEvents can't use RosterEntry objects because DELETE
+             * events happen after the entry is removed from the server roster
+             */
+            IRosterChangeEvent event = new RosterChangeEvent(type, entry);
+            post(event);
         }
     }
 

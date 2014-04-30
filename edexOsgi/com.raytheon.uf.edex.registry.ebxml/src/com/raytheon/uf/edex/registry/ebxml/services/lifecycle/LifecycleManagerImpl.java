@@ -80,6 +80,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor;
 import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
+import com.raytheon.uf.edex.registry.events.DeleteSlotEvent;
 
 /**
  * The LifecycleManager interface allows a client to perform various lifecycle
@@ -110,6 +111,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * 01/21/2014   2613       bphillip    Removed verbose log message from removeObjects
  * 2/19/2014    2769        bphillip   Added current time to audit trail events
  * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
+ * 4/11/2014    3011       bphillip    Modified merge behavior
  * 
  * 
  * </pre>
@@ -418,7 +420,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                      */
                     checkReplica(request, obj, existingObject);
                     objsUpdated.add(obj);
-                    registryObjectDao.merge(obj, existingObject);
+                    mergeObjects(obj, existingObject);
                     statusHandler.info("Object [" + objectId
                             + "] replaced in the registry.");
                 }
@@ -738,7 +740,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                     + "...");
             RegistryObjectType updatedObject = applyUpdates(objToUpdate,
                     updateActions);
-            registryObjectDao.merge(updatedObject, objToUpdate);
+            mergeObjects(updatedObject, objToUpdate);
         }
         if (!objectsToUpdate.isEmpty()) {
             EventBus.publish(new CreateAuditTrailEvent(request.getId(),
@@ -751,6 +753,14 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 .info("LifeCycleManager updateObjects operation completed in "
                         + totalTime + " ms");
         return response;
+    }
+
+    private void mergeObjects(RegistryObjectType newObject,
+            RegistryObjectType existingObject) {
+        registryObjectDao.merge(newObject, existingObject);
+        DeleteSlotEvent deleteSlotEvent = new DeleteSlotEvent(
+                existingObject.getSlot());
+        EventBus.publish(deleteSlotEvent);
     }
 
     private RegistryObjectType applyUpdates(RegistryObjectType objectToUpdate,
