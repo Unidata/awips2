@@ -100,6 +100,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Mar 06, 2014 2848       bclement    moved colormanager update code to session container
  * Mar 11, 2014 2865       lvenable    Added null checks in threads
  * Mar 18, 2014 2895       njensen     Fix lockAction enable/disable logic
+ * Apr 15, 2014 2822       bclement    only allow transfer leader if participant is using shared display
  * 
  * </pre>
  * 
@@ -539,7 +540,8 @@ public class CollaborationSessionView extends SessionView implements
                         .getSelection();
                 VenueParticipant entry = (VenueParticipant) selection
                         .getFirstElement();
-                if (!entry.isSameUser(session.getUserID())) {
+                if (!entry.isSameUser(session.getUserID())
+                        && session.isSharedDisplayClient(entry)) {
                     manager.add(leaderChangeAction);
                 }
             }

@@ -10,8 +10,7 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.common.parameter;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
-Import-Package: com.raytheon.edex.uengine.tasks.query,
- com.raytheon.uf.common.pointdata,
+Import-Package: com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.edex.pointdata,
  org.apache.commons.logging

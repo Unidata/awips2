@@ -25,14 +25,8 @@
 		<constructor-arg value="jms-durable:queue:Ingest.atcf" />
 	</bean>
 
-	<bean id="atcfCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="atcf-camel"/>
-  	</bean> 
-
 	<camelContext id="atcf-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="atcfFileEndpoint" uri="file:${edex.home}/data/sbn/atcf?noop=true&amp;idempotent=false"/>
 
 		<!-- Begin Atcf routes -->

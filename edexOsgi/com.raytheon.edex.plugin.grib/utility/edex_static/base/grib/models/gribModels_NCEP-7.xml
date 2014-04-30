@@ -2095,6 +2095,106 @@
 			<id>11</id>
 		</process>
 	</model>
+	
+	<model>
+		<name>GLOBHwave</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>720311001</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>AKHwave10</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>15</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>AKHwave4</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>16</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>NAHwave15</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>238</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>NAHwave10</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>12</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>NAHwave4</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>18</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>NPHwave15</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>253</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>NPHwave10</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>13</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>NPHwave4</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>17</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>WPHwave10</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>14</grid>
+		<process>
+			<id>13</id>
+		</process>
+	</model>
 
 	<!-- END SUBCENTER 0 -->
 

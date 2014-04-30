@@ -344,19 +344,14 @@
     <!-- ISC Send Beans -->
 
     <bean id="iscSendQueue" class="com.raytheon.edex.plugin.gfe.isc.IscSendQueue" factory-method="getInstance"/>
-    <bean id="iscSendThreadPool" class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="1" />
-        <property name="maxPoolSize" value="1" />
-    </bean>
-    <bean id="iscSendSrvCfg" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrvConfig">
-        <property name="executor" ref="iscSendThreadPool"/>
-        <!-- Threads should be same size as the iscSendThreadPool -->
-        <property name="threads" value="1"/>
+    <bean id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv" depends-on="gfeDbRegistered, gfeSitesActiveRequest">
         <property name="runningTimeOutMillis" value="300000"/>
         <property name="threadSleepInterval" value="5000"/>
     </bean>
-    <bean depends-on="gfeDbRegistered, gfeSitesActiveRequest" id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv">
-        <constructor-arg ref="iscSendSrvCfg"/>
+
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="gfe-request-camel"/>
+        <constructor-arg ref="sendIscSrv"/>
     </bean>
     <!-- End ISC Send Beans -->
 
@@ -420,6 +415,7 @@
         <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
         <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.logs.cron}"/>
         <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
+        <endpoint id="iscSendLauncher" uri="timer://iscSendThread?repeatCount=1"/>
 
         <route id="exportDigitalData">
             <from uri="exportDigitalDataCron"/>
@@ -488,11 +484,16 @@
                 </doCatch>
             </doTry>
         </route>
+
+        <!-- Thread runs for life of context -->
+        <route id="iscSendThread">
+            <from ref="iscSendLauncher"/>
+            <bean ref="sendIscSrv" method="run"/>
+        </route>
     </camelContext>
 
     <!-- ISC Send Routes -->
-    <camelContext id="clusteredGfeIscRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler"
-        autoStartup="false">
+    <camelContext id="clusteredGfeIscRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <route id="iscSendJobQueueAggr">
             <from uri="jms-durable:queue:iscSendNotification" />
@@ -512,7 +513,7 @@
         </route>
     </camelContext>
 
-    <bean factory-bean="clusteredCamelContextMgr" factory-method="register">
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
         <constructor-arg ref="clusteredGfeIscRoutes"/>
     </bean>
 </beans>

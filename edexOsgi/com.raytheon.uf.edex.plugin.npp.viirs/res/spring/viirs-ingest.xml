@@ -10,11 +10,6 @@
 		<constructor-arg value="jms-durable:queue:Ingest.VIIRS" />
 	</bean>
 
-    <bean id="viirsCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="viirs-camel"/>
-  	</bean>
-  	
   	<bean id="viirsDao" class="com.raytheon.uf.edex.plugin.npp.viirs.dao.VIIRSDao">
   		<constructor-arg value="viirs"/>
   	</bean>
@@ -25,8 +20,7 @@
   	
 	<camelContext id="viirs-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 
 		<!-- Begin VIIRS routes -->
 		<route id="viirsIngestRoute">

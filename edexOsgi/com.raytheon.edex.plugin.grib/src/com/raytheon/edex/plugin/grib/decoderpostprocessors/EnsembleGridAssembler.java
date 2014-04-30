@@ -58,8 +58,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
+import com.raytheon.uf.edex.database.plugin.DataURIDatabaseUtil;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
 
 /**
@@ -81,6 +81,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * Nov 19, 2013  2478     rjpeter     Make update process update database also.
  * Dec 06, 2013  2170     rjpeter     Update to pass PluginDataObject[] to notification.
+ * Apr 21, 2014 2060      njensen     Remove dependency on grid dataURI column
  * </pre>
  * 
  * @author bphillip
@@ -214,15 +215,11 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
      */
     private void processGrid(GridRecord record, CompositeModel thinned)
             throws Exception {
-
         GridDao dao = (GridDao) PluginFactory.getInstance().getPluginDao(
                 GridConstants.GRID);
         GridRecord assembledRecord = createAssembledRecord(record, thinned);
-        DatabaseQuery query = new DatabaseQuery(GridRecord.class);
-        query.addReturnedField("dataURI");
-        query.addQueryParam("dataURI", assembledRecord.getDataURI());
-        List<?> result = dao.queryByCriteria(query);
-        if (result.isEmpty()) {
+        boolean exists = DataURIDatabaseUtil.existingDataURI(assembledRecord);
+        if (!exists) {
             persistNewRecord(record, assembledRecord, thinned, dao);
         } else {
             updateExistingRecord(record, assembledRecord, thinned, dao);

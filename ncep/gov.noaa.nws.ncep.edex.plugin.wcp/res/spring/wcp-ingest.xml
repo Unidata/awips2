@@ -16,14 +16,8 @@
 		<constructor-arg value="jms-durable:queue:Ingest.wcp" />
 	</bean>
 
-    <bean id="wcpCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="wcp-camel"/>
-  	</bean> 
-
 	<camelContext id="wcp-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="wcpFileEndpoint"
 			uri="file:${edex.home}/data/sbn/wcp?noop=true&amp;idempotent=false" />
 
