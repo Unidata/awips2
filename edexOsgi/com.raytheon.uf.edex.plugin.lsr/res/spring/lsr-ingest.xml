@@ -13,15 +13,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.lsr" />
 	</bean>
 
-	<bean id="lclstrmrptCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="lclstrmrpt-camel"/>
-  	</bean> 
-
     <camelContext id="lclstrmrpt-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!--
         <endpoint id="lclstrmrptFileEndpoint" uri="file:${edex.home}/data/sbn/lsr?noop=true&amp;idempotent=false" />
 

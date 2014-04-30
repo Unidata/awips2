@@ -46,6 +46,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
@@ -63,6 +64,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 5, 2011            mpduff     Initial creation
  * Sep 5, 2013  16437      wkwock      Fix the "HiRes" issue
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
+ * Apr 10, 2014   2675     mpduff      Modified to be called from quartz timer.
+ * Apr 21, 2014   2060     njensen     Remove dependency on grid dataURI column
  * 
  * </pre>
  * 
@@ -136,11 +139,6 @@ public class GAFF {
     private String hsa = "XXX";
 
     /**
-     * Time of last run in millis.
-     */
-    private long lastRunTime = 0;
-
-    /**
      * The previous Duration
      */
     private int prevDuration = 0;
@@ -164,12 +162,6 @@ public class GAFF {
      * The extent of the WFO grid
      */
     private Rectangle wfoExtent = null;
-
-    /** Process start time */
-    private final long start;
-
-    /** Process end time */
-    private long end;
 
     private final GAFFDB db = new GAFFDB();
 
@@ -210,42 +202,18 @@ public class GAFF {
     }
 
     public GAFF() {
-        start = Calendar.getInstance().getTimeInMillis();
-        log.debug("GAFF process is starting");
-
-        init();
-        if (log.isPriorityEnabled(Priority.DEBUG)) {
-            log.debug(toString());
-        }
     }
 
     private void init() {
-        // Only run every 12 minutes
-        this.lastRunTime = db.getLastRunTime(PROCESS_NAME);
-
         getTokens();
 
         this.hsa = db.getHsa();
     }
 
-    public boolean shouldGAFFRun() {
-        // Only run every 12 minutes
-        final int minutesBetweenRuns = 12;
-
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        if (cal.getTimeInMillis() - this.lastRunTime < minutesBetweenRuns * 60 * 1000) {
-            if (log.isPriorityEnabled(Priority.DEBUG)) {
-                float time = (cal.getTimeInMillis() - this.lastRunTime) / 1000 / 60;
-                log.debug("Only run every 12 minutes.  " + time
-                        + " minutes since last run.");
-            }
-            return false;
-        }
-
-        return true;
-    }
-
     public void process() {
+        long start = TimeUtil.currentTimeMillis();
+        log.info("GAFF process starting");
+        init();
         Rectangle extent;
         HRAP hrap;
         HRAPSubGrid subGrid;
@@ -268,12 +236,12 @@ public class GAFF {
 
         /* write record to PerfLog table */
         try {
-            db.insertPerflog(PROCESS_NAME, this.start);
+            db.insertPerflog(PROCESS_NAME, start);
         } catch (DataAccessLayerException e) {
             log.error("Error updating perflog table", e);
         }
 
-        end = Calendar.getInstance().getTimeInMillis();
+        long end = TimeUtil.currentTimeMillis();
         log.info("GAFF Process complete in " + (end - start) + " millis");
     }
 
@@ -289,15 +257,13 @@ public class GAFF {
      */
 
     private void createFFGMosaic(int dur, HRAP hrap, HRAPSubGrid subGrid) {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        cal.set(Calendar.HOUR, 0);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        String today = sdf.format(cal.getTime());
-        String uri = null;
+        Calendar cal = TimeUtil.newGmtCalendar();
+        TimeUtil.minCalendarFields(cal, Calendar.HOUR, Calendar.HOUR_OF_DAY,
+                Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+        ThreadLocal<SimpleDateFormat> sdf = TimeUtil
+                .buildThreadLocalSimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+                        TimeZone.getTimeZone("GMT"));
+        String today = sdf.get().format(cal.getTime());
         IDataRecord dataRec;
         Rectangle rfcExtent = null;
 
@@ -341,22 +307,18 @@ public class GAFF {
             IDataStore dataStore = null;
 
             try {
-                uri = db.getDataURI(rfc, durString, today);
-                if (uri == null) {
-                    uri = db.getDataURI(rfc + "-HiRes", durString, today);
+                GridRecord gr = db.getGridRecord(rfc, durString, today);
+                if (gr == null) {
+                    gr = db.getGridRecord(rfc + "-HiRes", durString, today);
                 }
-                if (uri == null) {
+                if (gr == null) {
                     continue;
                 }
 
-                GridRecord gr = new GridRecord(uri);
                 PluginDao gd = null;
-
                 gd = PluginFactory.getInstance().getPluginDao(
                         gr.getPluginName());
-                gr = (GridRecord) gd.getMetadata(uri);
                 grReftime = gr.getDataTime().getRefTime();
-
                 dataStore = gd.getDataStore(gr);
 
                 int nx = gr.getSpatialObject().getNx();
@@ -375,10 +337,10 @@ public class GAFF {
                         (int) ulRfcNationalScale.y - ny, nx, ny);
                 extentsMap.put(rfc, rfcExtent);
 
-                dataRec = dataStore.retrieve(uri, "Data", Request.ALL);
+                dataRec = dataStore.retrieve(gr.getDataURI(), "Data",
+                        Request.ALL);
 
                 if (dataRec instanceof FloatDataRecord) {
-                    // gridList.add(((FloatDataRecord) dataRec).getFloatData());
                     gridMap.put(rfc, ((FloatDataRecord) dataRec).getFloatData());
                 }
 
@@ -444,7 +406,6 @@ public class GAFF {
                     wfoExtent.width, this.mosaicFfgShort, minArea, dur,
                     grReftime.getTime());
             areaProcessor.processAreas();
-
         }
     }
 
@@ -519,21 +480,20 @@ public class GAFF {
     public String toString() {
         StringBuilder sb = new StringBuilder(
                 "***********************************\n");
-        sb.append("siteId = " + this.siteId);
-        sb.append("\nmosaicDir = " + this.mosaicDir);
-        sb.append("\nlookbackLimit = " + this.lookbackLimit);
-        sb.append("\nminArea = " + this.minArea);
+        sb.append("siteId = ").append(this.siteId);
+        sb.append("\nmosaicDir = ").append(this.mosaicDir);
+        sb.append("\nlookbackLimit = ").append(this.lookbackLimit);
+        sb.append("\nminArea = ").append(this.minArea);
         sb.append("\nRFC Names");
         for (String s : rfcNames) {
-            sb.append("\n   " + s);
+            sb.append("\n   ").append(s);
         }
         sb.append("\nDurations");
         for (int i : this.durations) {
-            sb.append("\n   " + i);
+            sb.append("\n   ").append(i);
         }
 
-        sb.append("\nLast run time = " + this.lastRunTime);
-        sb.append("\nHSA = " + this.hsa);
+        sb.append("\nHSA = ").append(this.hsa);
         return sb.toString();
     }
 

@@ -19,14 +19,24 @@
  **/
 package com.raytheon.uf.edex.plugin.scan.process;
 
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.scan.ScanException;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
+import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
+import com.raytheon.uf.edex.database.plugin.PluginFactory;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
 
 /**
  * 
- * TODO Add Description
+ * Abstract grid product for SCAN
  * 
  * <pre>
  * 
@@ -34,8 +44,9 @@ import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 2, 2012             bsteffen     Initial creation
- * Jun 21, 2013 7613       zhao         Modified getGrigSQL()
+ * Mar 2, 2012             bsteffen    Initial creation
+ * Jun 21, 2013 7613       zhao        Modified getGridSQL()
+ * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
  * 
  * </pre>
  * 
@@ -52,6 +63,21 @@ public abstract class GridProduct extends ScanProduct {
         super(uri, tableType, filter);
     }
 
+    /**
+     * Gets a pattern for matching a URI with the specified parameters.
+     * 
+     * @param dataset
+     * @param parameter
+     * @param levelName
+     * @param levelOne
+     * @param levelTwo
+     * @return
+     * @deprecated This entire method should be removed and/or replaced,
+     *             possibly by using the PluginNotifier or methods in
+     *             DataURIUtil. At present the method is coupled too tightly to
+     *             the grid dataURI format.
+     */
+    @Deprecated
     protected static Pattern getGridPattern(String dataset, String parameter,
             String levelName, String levelOne, String levelTwo) {
         // Format =
@@ -92,34 +118,53 @@ public abstract class GridProduct extends ScanProduct {
     }
 
     /**
-     * The SQL for MODEL 500 thickness
+     * Gets the newest grid record that has a reftime newer than the interval
+     * back in time
      * 
-     * @return
+     * @param interval
+     *            the number of minutes back from the current time to check for
+     *            a matching record
+     * @param dataset
+     *            the grid dataset
+     * @param parameter
+     *            the grid parameter
+     * @param levelName
+     *            the grid level name
+     * @param levelOne
+     *            the grid level one value
+     * @param levelTwo
+     *            the grid level two value
+     * @return the newest grid record that matches, or null if none are found
+     * @throws ScanException
      */
-    public static String getGridSQL(int interval, String dataset,
-            String parameter, String levelName, String levelOne, String levelTwo) {
-        StringBuilder sql = new StringBuilder(
-                "select grid.datauri from grid, grid_info, level where");
-        sql.append(" grid.info_id = grid_info.id");
-        sql.append(" and");
-        // datasetId
-        sql.append(" grid_info.datasetId = \'" + dataset + "\'");
-        sql.append(" and");
-        // parameterAbbreviation
-        sql.append(" grid_info.parameter_abbreviation = \'" + parameter + "\'");
-        sql.append(" and");
-        // level
-        sql.append(" level.id = grid_info.level_id");
-        sql.append(" and");
-        sql.append(" level.masterlevel_name = \'" + levelName + "\'");
-        sql.append(" and");
-        sql.append(" level.levelonevalue = \'" + levelOne + "\'");
-        sql.append(" and");
-        sql.append(" level.leveltwovalue = \'" + levelTwo + "\'");
-        // interval
-        sql.append("and reftime > (now()- interval \'" + interval
-                + " minutes\')");
-        sql.append(" order by reftime desc, forecasttime desc" + " limit 1");
-        return sql.toString();
+    public static GridRecord getGridRecord(int interval, String dataset,
+            String parameter, String levelName, String levelOne, String levelTwo)
+            throws ScanException {
+        DatabaseQuery dbQuery = new DatabaseQuery(GridRecord.class);
+        dbQuery.addQueryParam(GridConstants.DATASET_ID, dataset);
+        dbQuery.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, parameter);
+        dbQuery.addQueryParam(GridConstants.MASTER_LEVEL_NAME, levelName);
+        dbQuery.addQueryParam(GridConstants.LEVEL_ONE, levelOne);
+        dbQuery.addQueryParam(GridConstants.LEVEL_TWO, levelTwo);
+        dbQuery.addQueryParam("dataTime.refTime", new Date(SimulatedTime
+                .getSystemTime().getMillis()
+                - (interval * TimeUtil.MILLIS_PER_MINUTE)), ">");
+        dbQuery.addOrder("dataTime.refTime", false);
+        dbQuery.addOrder("dataTime.fcstTime", false);
+        dbQuery.setMaxResults(1);
+
+        try {
+            PluginDao dao = PluginFactory.getInstance().getPluginDao(
+                    GridConstants.GRID);
+            List<?> list = dao.queryByCriteria(dbQuery);
+            GridRecord result = null;
+            if (list != null && !list.isEmpty()) {
+                result = (GridRecord) list.get(0);
+            }
+            return result;
+        } catch (Exception e) {
+            throw new ScanException("Error querying database for grid record "
+                    + dbQuery, e);
+        }
     }
 }

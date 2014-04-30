@@ -14,15 +14,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.ffg" />
 	</bean>
     
-	<bean id="ffgCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ffg-camel"/>
-  	</bean>  
-    
     <camelContext id="ffg-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
         <!--
 	    <endpoint id="ffgFileEndpoint" uri="file:${edex.home}/data/sbn/ffg?noop=true&amp;idempotent=false"/>
         

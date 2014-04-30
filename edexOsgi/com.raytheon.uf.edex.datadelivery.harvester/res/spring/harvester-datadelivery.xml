@@ -10,12 +10,17 @@
         <constructor-arg ref="ProviderHandler" />
     </bean>
   	
+    <bean id="DataSetMetaDataPurgeLauncher" class="com.raytheon.uf.edex.datadelivery.harvester.purge.DataSetMetaDataPurgeLauncher"
+        factory-method="getInstance" depends-on="DbInit">
+    </bean>
+
   	<camelContext id="MetaData-context"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 
 		<endpoint id="metaDataCron" uri="quartz://datadelivery/harvester/?cron=${metadata-process.cron}"/>
 		<endpoint id="harvesterProcessWorkEndpoint" uri="jms-generic:queue:metaDataProcessWork?concurrentConsumers=${metadata-process.threads}&amp;threadName=harvester"/>
+        <endpoint id="datasetMetaDataPurgeCron" uri="quartz://datadelivery/metaDataPurge/?cron=${metadata-purge.cron}"/>
 
 		<route id="metaDataProcess">
 			<from uri="metaDataCron" />
@@ -35,19 +40,6 @@
             </doTry>
 		</route>
 		
-	</camelContext>
-
-    <!-- Start of DataSetMetaData purge configuration -->
-    <bean id="DataSetMetaDataPurgeLauncher" class="com.raytheon.uf.edex.datadelivery.harvester.purge.DataSetMetaDataPurgeLauncher"
-        factory-method="getInstance" depends-on="DbInit">
-    </bean>
-
-    <camelContext id="DataSetMetaDataPurge-context"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler">
-
-        <endpoint id="datasetMetaDataPurgeCron" uri="quartz://datadelivery/metaDataPurge/?cron=${metadata-purge.cron}"/>
-
         <route id="metaDataPurge">
             <from uri="datasetMetaDataPurgeCron" />
             <to uri="jms-generic:queue:metaDataPurgeWork" />
@@ -67,6 +59,4 @@
         </route>
 
     </camelContext>
-    <!-- End of DataSetMetaData purge configuration -->
-  
 </beans>
