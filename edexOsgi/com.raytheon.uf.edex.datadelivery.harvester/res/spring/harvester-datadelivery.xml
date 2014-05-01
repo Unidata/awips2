@@ -38,23 +38,24 @@
 	</camelContext>
 
     <!-- Start of DataSetMetaData purge configuration -->
-    <bean id="DataSetMetaDataPurgeLauncher" class="com.raytheon.uf.edex.datadelivery.harvester.purge.DataSetMetaDataPurgeLauncher"
-        factory-method="getInstance" depends-on="DbInit">
+    <bean id="DataSetMetaDataPurgeLauncher" class="com.raytheon.uf.edex.datadelivery.harvester.purge.DataSetMetaDataPurgeLauncher" depends-on="registryInit">
+        <constructor-arg ref="registryObjectDao" />
     </bean>
 
     <camelContext id="DataSetMetaDataPurge-context"
         xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
 
-        <endpoint id="datasetMetaDataPurgeCron" uri="quartz://datadelivery/metaDataPurge/?cron=${metadata-purge.cron}"/>
+        <endpoint id="dataSetMetaDataPurgeCron" uri="quartz://datadelivery/metaDataPurge/?cron=${metadata-purge.cron}"/>
+        <endpoint id="dataSetMetaDataWorkEndpoint" uri="jms-generic:queue:dataSetMetaDataPurgeWork?concurrentConsumers=1&amp;threadName=dataSetMetaDataPurge"/>
 
         <route id="metaDataPurge">
-            <from uri="datasetMetaDataPurgeCron" />
-            <to uri="jms-generic:queue:metaDataPurgeWork" />
+            <from uri="dataSetMetaDataPurgeCron" />
+            <to uri="jms-generic:queue:dataSetMetaDataPurgeWork" />
         </route>
 
-        <route id="metaDataPurgeWork">
-            <from uri="jms-generic:queue:metaDataPurgeWork" />
+        <route id="datSetMetaDataPurgeWork">
+            <from uri="dataSetMetaDataWorkEndpoint" />
             <doTry>
                 <pipeline>
                     <bean ref="DataSetMetaDataPurgeLauncher" method="runPurge" />
