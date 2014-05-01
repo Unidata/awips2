@@ -14,7 +14,7 @@ COLLAB_BIN=/awips2/collab-dataserver/bin
 PROG=`basename $0`
 
 start() {
-  echo -n $"Starting HTTP Collaboration Dataserver"
+  echo $"Starting HTTP Collaboration Dataserver"
     # start.sh script starts the service using nohup. 
   ${COLLAB_BIN}/start.sh
   return $?
@@ -26,7 +26,7 @@ status() {
 }
 
 stop() {
-  echo -n $"Stopping HTTP Collaboration Dataserver"
+  echo $"Stopping HTTP Collaboration Dataserver"
   ${COLLAB_BIN}/stop.sh
   return
 }
@@ -50,8 +50,10 @@ case "$1" in
     start
     RETVAL=$?
     ;;
+  *)
     echo $"Usage: $PROG {start|stop|restart|status}"
     exit 1
+    ;;
 esac
 
 exit $RETVAL
