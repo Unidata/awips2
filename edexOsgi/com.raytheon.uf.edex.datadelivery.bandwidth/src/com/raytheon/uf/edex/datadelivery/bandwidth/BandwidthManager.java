@@ -148,6 +148,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Feb 11, 2014 2771       bgonzale     Added handler for GET_DATADELIVERY_ID request.
  * Feb 10, 2014 2636       mpduff       Changed how retrieval plan is updated over time.
  * Apr 02, 2014  2810      dhladky      Priority sorting of subscriptions.
+ * Apr 09, 2014 3012       dhladky      Range the querries for metadata checks to subscriptions.
  * 
  * </pre>
  * 
@@ -173,6 +174,12 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
     protected final BandwidthDaoUtil<T, C> bandwidthDaoUtil;
 
     private final IBandwidthDbInit dbInit;
+    
+    /** used for min time range **/
+    public static final String MIN_RANGE_TIME = "min";
+    
+    /** used for max time range **/
+    public static final String MAX_RANGE_TIME = "max";
 
     // Instance variable and not static, because there are multiple child
     // implementation classes which should each have a unique prefix
@@ -371,7 +378,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                         .getBaseReferenceTime();
                 Calendar startTime = TimeUtil.newGmtCalendar(retrievalTime
                         .getTime());
-
+                
+                startTime.add(Calendar.MINUTE,
+                        retrieval.getDataSetAvailablityDelay());
                 int maxLatency = retrieval.getSubscriptionLatency();
                 retrieval.setStartTime(startTime);
 
@@ -450,8 +459,14 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
     @Override
     public List<BandwidthAllocation> schedule(Subscription<T, C> subscription) {
-        List<BandwidthAllocation> unscheduled = null;
 
+        List<BandwidthAllocation> unscheduled = Collections.emptyList();
+        if (subscription instanceof RecurringSubscription) {
+            if (!((RecurringSubscription<T, C>) subscription).shouldSchedule()) {
+                return unscheduled;
+            }
+        }
+        
         final DataType dataSetType = subscription.getDataSetType();
         switch (dataSetType) {
         case GRID:
@@ -470,7 +485,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
         return unscheduled;
     }
-
+    
     /**
      * Update the retrieval plan for this subscription.
      * 
@@ -728,7 +743,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             Subscription<T, C> subscription) {
         List<BandwidthAllocation> unscheduled = schedule(subscription,
                 ((PointTime) subscription.getTime()).getInterval());
-        unscheduled.addAll(getMostRecent(subscription, false));
+        // add an adhoc if one exists and isn't in startup mode
+        if (EDEXUtil.isRunning()) {
+            unscheduled.addAll(getMostRecent(subscription, false));
+        }
         return unscheduled;
     }
 
@@ -752,10 +770,20 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         if (subscribedToCycles) {
             unscheduled = schedule(subscription, Sets.newTreeSet(cycles));
         }
+        // add an adhoc if one exists and isn't in startup mode
+        if (EDEXUtil.isRunning()) {
+            unscheduled.addAll(getMostRecent(subscription, true));
+        }   
 
         return unscheduled;
     }
 
+    /**
+     * Schedule the most recent dataset update if one exists.
+     * @param subscription
+     * @param useMostRecentDataSetUpdate
+     * @return
+     */
     private List<BandwidthAllocation> getMostRecent(
             Subscription<T, C> subscription, boolean useMostRecentDataSetUpdate) {
         List<BandwidthAllocation> unscheduled = Collections.emptyList();
@@ -1705,5 +1733,28 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         }
 
         return dataSetMetaDataTime;
+    }
+    
+    /**
+     * Sets a range based on the baseReferenceTime hour.
+     * @param baseReferenceTime
+     * @return
+     */
+    public static Map<String, Date> getBaseReferenceTimeDateRange(Calendar baseReferenceTime) {
+        
+        Map<String, Date> dates = new HashMap<String, Date>(2);
+        // Set min range to baseReferenceTime hour "00" minutes, "00" seconds
+        // Set max range to baseReferenceTime hour "59" minutes, "59" seconds
+        Calendar min = TimeUtil.newGmtCalendar(baseReferenceTime.getTime());
+        min.set(Calendar.MINUTE, 0);
+        min.set(Calendar.SECOND, 0);
+        Calendar max = TimeUtil.newGmtCalendar(baseReferenceTime.getTime());
+        max.set(Calendar.MINUTE, 59);
+        max.set(Calendar.SECOND, 59);
+        
+        dates.put(MIN_RANGE_TIME, min.getTime());
+        dates.put(MAX_RANGE_TIME, max.getTime());
+        
+        return dates;
     }
 }
