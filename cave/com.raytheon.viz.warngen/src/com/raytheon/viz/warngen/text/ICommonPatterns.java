@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
  *                                      is dropped, a name has more than one word, two names are separated by slash (/), 
  *                                      or a name has an apostrophe (') for Significant Weather Advisory, Special Weather 
  *                                      Statement, and Short Term Forecast.
+ * May  1, 2014  DR 16627  Qinglu Lin   Roll back the changes to listOfAreaName on January 6, 2014.
  * 
  * </pre>
  * 
@@ -61,7 +62,7 @@ public interface ICommonPatterns {
     // LOCK_END can be added at the start of the line if a previous line has
     // been locked.
     public static final String listOfAreaName = "^((" + LOCK_END
-            + "){0,1}((([\\?\\(\\)\\w\\.,/'-])+(\\s{1,}\\w{2}){0,1}(\\s{1,}\\w{1,}([\\/\\']\\w{0,}\\s{0,}\\w{0,}){0,}){0,}-)*))";
+            + "){0,1}((([\\?\\(\\)\\w\\.,/'-]+\\s{1,})+\\w{2}-)*(([\\?\\(\\)\\w\\.,/'-]+\\s{1,})+\\w{2}-)))";
 
     // LOCK_END should not be found at the beginning of a first bullet since the
     // previous line should be blank.
