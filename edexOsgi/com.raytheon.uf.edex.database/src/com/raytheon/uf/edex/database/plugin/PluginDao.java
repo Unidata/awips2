@@ -1777,7 +1777,7 @@ public abstract class PluginDao extends CoreDao {
              * specifically if defining 0 keys.
              */
             if (auxRules.getKeys().equals(purgeRules.getKeys())) {
-                purgeRules.getRules().addAll(purgeRules.getRules());
+                purgeRules.getRules().addAll(auxRules.getRules());
             } else {
                 PurgeLogger.logError(
                         "Ignoring purge rules in "
