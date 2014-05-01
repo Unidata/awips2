@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionRetrieva
  * Dec 10, 2012   1259     bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Dec 11, 2013   2625     mpduff       Remove creation of DataURI.
  * Jan 30, 2014   2686     dhladky      refactor of retrieval.
+ * Apr 09, 2014   3012     dhladky      Added error message.
  * 
  * </pre>
  * 
@@ -128,7 +129,7 @@ public class RetrievalGeneratorUtilities {
                         }
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
+                                "Can't determine if URI is a duplicate", e);
                     }
                 }
             }
