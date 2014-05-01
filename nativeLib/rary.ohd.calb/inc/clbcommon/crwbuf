@@ -1,0 +1,5 @@
+C                                           *--> FROM CLBCOMMON.CRWBUF
+C  DATA FILE READ/WRITE ARRAY COMMON BLOCK
+      COMMON /CRWBUF/ BUF(4000,3)
+      INTEGER BUF
+C

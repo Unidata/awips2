@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>IMPORT CLIMATE GUI HELP PAGE</title>
+</head>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=center SRC="awip_ban.gif"></A ><P>
+<center><h3><b>IMPORT CLIMATE HELP PAGE</b></h3>
+</center>
+<hr>
+<IMG align=left SRC="arrow.gif"></A > Please read <b>NOTES/CAUTIONS</B> at the bottom of this page.<br>
+<br>
+<b>IMPORT CLIMATE GUI</b> <a href = import_climate.gif>  (Click here to see GUI)</a> Listed are options found on the Master Climate GUI. Please select from the following:<br>
+<br><br>
+<b>Station Name</b> - This field displays the stations currently in the database.<br><br>
+<b>Station Name(s) in Header(s)</b> - This button allows the forecaster to specify that the station name(s) appears in the header(s) of the import file.  This is useful when the file contains more than one stations data separated by headers.<br><br>
+<b>Station Name(s) in Data</b> - This button allows the forecaster to specify that the station name(s) appears in the data of the import file.<br><br>
+<b>Enter Data Delimiters</b> - This field allows the forecaster to insert any delimiter that appears in the imported climatology file.  The delimiter defaults are  * ,  space , and  / .  If any other delimiter is used, the forecaster must enter the appropriate character(s) into the field.  There is no specific format for this; if entering more than one delimiter, neither spaces nor commas are needed.<br><br>
+<b>File Name</b> - This field displays the name of the import file.  The file name will only appear after the forecaster goes through the process of Getting a New Data File Name.<br><br>
+<b>Get New Data File Name</b> - This button generates the <b>Choose File to be Imported</b> GUI which allows the forecaster to browse the directories for the import file.<br><br>
+<b>Data Type</b> - The <b>Daily</b> button and the <b>Monthly</b> button specifies whether the import file is daily climatology or monthly climatology.<br><br>
+<b>Data Format</b> - This field lists the months January through December and allows the forecaster to specify what month(s) the file(s) pertains to.<br><br>
+<b>Month Name(s) in Header(s)</b> - This button allows the forecaster to specify if the month name(s) appears in the header(s).  This is useful when a file contains more than one month's data separated by headers.<br><br>
+<b>Month Located in Data field</b> - This button allows the forecaster to specify whether the month name is located in the data field.  If so, the forecaster must select <b>Month first</b> if the format for the date places the month first, <b>Day first</b> if the format for the date places the day first, or <b>Julian Days</b> if the date is recorded in Julian days.<br><br>
+<b>Arrange Order</b> - This button allows the forecaster to specify the format of each data file.  Once activated, this button will bring up the <b>Import Daily or Monthly Climatology Data</b> GUI where the forecaster arranges the climatology data according to the order of the data in the import file.  <b>NOTE:</b>  The format must be arranged before the file can be imported.<br><br>
+<b>Add File to List</b> - This button adds the specified file to the pending list onthe right.  The specific file name, station, data type, data format and delimiter values become visible.<br><br>
+<b>Save New Values for File</b> - This button saves any format changes made to the highlighted file already in the pending list.<br><br>
+<b>Delete From List</b> - This button deletes the highlighted file from the import list.<br><br>
+<b>Import Data From File(s)</b> - This button imports the data from all of the files contained in the import list.<br><br>
+<b>Cancel</b> - The cancel button makes no changes and closes the Import Climate GUI. <b>NOTE:</b> The same effect is achieved by toggling off the </b>Import Climate Window</b> option in the File menu of Climatology Normals, Means, Extremes GUI.<br><br>
+<b>Choose File to be Imported</b> - This button will call up a GUI that enables the forecaster to import a file from a specified directory.<br><br>
+<br><a name="import_daily">
+<B>IMPORT DAILY OR MONTHLY CLIMATOLOGY DATA GUI</B><a href= imported_data.gif> (Click here to see GUI) </a><br><br>
+<b>Climatology Data Options</b> - Includes a list of variables that may be contained in the WFO's daily or monthly climatology, dependent upon the format chosen for the file (daily or monthly).<br><br>
+<b>Order of Data in File</b> - Once a data variable is selected in the Climatology Data Options list it is displayed with its associated column number in this field.  A variable may be selected by double-clicking the left mouse button or by highlighting the variable and single-clicking the <b>Append</b> button.  
+<b>Append</b> - Moves selected variable from Climatology Data Options to Order of Data in File.  Append can also be activated by double-clicking the left mousebutton.<br><br>
+<b>Place</b> - Opens the <b>Column Placement GUI</b> <a href = column.gif>  (Click here to see GUI)</a> and allows the forecaster to move the selected variable from Climatology Data Options to a specific column number in the Order of Data in File field. This is helpful if the forecaster leaves a variable out in the initial configuration.  The addition of that variable can be made without starting over.  <b>NOTE</b>: The variable placed will not remove any other elements, but will push the remaining list down one column.<br><br>
+<b>Append All</b> - Moves all of the remaining variables in Climatology Data Options to the Order of Data in File field.  The variables will keep the order in which they appear under Climatology Data Options.  <b>NOTE:</b>  Other data not listed will not move unless directly selected and appended.<br><br>
+<b>Remove</b> - Takes the selected variable in the Order of Data in File and places it back in the Climatology Data Options field shifting the list up one place.  If no variable is selected, the variable listed with column 1 is the default and will be removed.  Remove can also be activated by double-clicking the left mouse button.<br><br>
+<b>Remove All</b> - Selects all of the variables in the Order of Data in File field and places them in the Climatology Data Options field.<br><br>
+<b>Accept</b> - Saves the changes and returns the forecaster to the Import Climate GUI.<br><br>
+<b>Cancel</b> - Closes the GUI without saving the values and returns forecaster to the Import Climate GUI.<br><br>
+
+<h3><b>NOTES/CAUTIONS</h3></b>
+<IMG align=left SRC="dotblue.gif"></a ><b>If using 'arrange order', the format must be arranged before the file can be imported.</b><br>
+<br><IMG align=left SRC="dotblue.gif"></a ><b>After clicking 'Import Data from File(s)', in order to view the new imported data, the forecaster must double click on the correct station found on the Climatology Normals, Means, Extremes GUI. </b><br>
+<br><br>
+<center>
+<a href= climo_help.html>Return to Main Climate Help Page</a><br>
+</center>
+<hr><p>
+</body>
+</HTML>

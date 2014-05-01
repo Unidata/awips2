@@ -1,0 +1,71 @@
+'\"
+'\" $Header: /cvsroot/ldm/src/feedme/feedme.1,v 1.10.22.1 2009/06/18 16:10:21 steve Exp $
+.TH FEEDME 1 "$Date: 2009/06/18 16:10:21 $"
+.SH NAME
+feedme - event driven data sink client for the Unidata LDM
+.SH "UNIX SYNOPSIS"
+\fBfeedme \fR[\fB\-vx\fR] [\fB\-l \fIlogfile\fR] 
+.BI [\-h " remote" ]
+.BI [\-p " pattern" ]
+.BI [\-f " feedtype" ]
+.BI [\-t " timeout" ]
+.BI [\-T " TotalTimeo" ]
+.SH DESCRIPTION
+This program gets selected meteorological data as it becomes available.
+It is part of the Unidata Local Data Management system (LDM).
+It calls  the LDM server at \fIremote\fR and requests
+that data whose identifying key matches \fIpattern\fR be sent.
+As data arrives at the server, qualifying data products are passed along
+to this program. On receipt, this program writes the data to standard output.
+If connection is lost to the server,
+the program repeats its request for data.
+.SH OPTIONS 
+.TP 8
+.B \-v
+Verbose flag.  If present, the log will contain a line for 
+each product that was received.
+.TP 8
+.B \-x
+Requests that debugging information also be printed. Details about
+each FEEDME RPC.
+.TP
+.BI \-l " logfile"
+The path name of a file to be used as the log file for the process.  The
+default is to use syslogd(8).
+.TP
+.BI \-h " remote"
+Requests that  that the LDM server on \fIremote\fR send along data.
+Default is "localhost".
+.TP
+.BI \-p " pattern"
+Requests that data be sent along that matches \fIpattern\fP.
+The default is `\fB.*\fP'.
+.TP
+.BI \-f " feedtype"
+Requests that data that originates in a feed type of type 
+\fIfeedtype\fP be sent along.
+The default is any feed type.
+.TP
+.BI \-t " timeout"
+Sets the RPC timeout on FEEDME requests to "\fItimeout\fR" seconds.
+.TP
+.BI \-T " TotalTimeo"
+Give up attempting to make a connection after
+\fITotalTimeo\fR seconds. Any partially built up client connnection
+is destroyed and we start over.
+.SH EXAMPLE
+Although this program was written as a coding example, it is useful in
+its own right.
+The command
+.RS +4
+.nf
+xterm -sb -title "Denver Warnings" -e ~ldm/bin/feedme -h myhost -f PPS -p "^W..... KDEN"
+.fi
+.RE
+Will create a scrolling window titled "Denver Warnings" to which warnings
+and watches from KDEN will be printed as they are received.
+.SH "SEE ALSO"
+ldmd(1), ldm(1)
+.SH DIAGNOSTICS
+Error messages and log messages are written to the
+log file.

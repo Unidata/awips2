@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="mina-core-1.1.7.jar" sourcepath="/home/bphillip/Desktop/mina-1.1.7/core"/>
+	<classpathentry exported="true" kind="lib" path="mina-filter-codec-netty-1.1.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="mina-filter-compression-1.1.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="mina-filter-ssl-1.1.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="mina-integration-jmx-1.1.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="mina-integration-spring-1.1.7.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

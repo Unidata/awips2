@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="FY1C">
+		<contribute xsi:type="placeholder" 
+					menuText=" FY1C " id="FY1CLine"/>
+		<contribute xsi:type="subMenu" menuText="FY1C VIS ch1">
+		<contribute xsi:type="placeholder" 
+					menuText=" Channel 1 VIS " id="FY1Cch1Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="1a1" id="1a1Sector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1a1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="1a2" id="1a2Sector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1a2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="1ab" id="1abSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1ab"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	             		menuText="1ac" id="1acSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1ac"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="1af" id="1afSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1af"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="1ak" id="1akSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1ak"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="1am" id="1amSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1am"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="1ao" id="1aoSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1ao"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>		
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="1cc" id="1ccSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1cc"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>		        
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		           		menuText="1f1" id="1f1Sector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1f1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		          		menuText="1f2" id="1f2Sector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1f2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="1j1" id="1j1Sector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1j1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		        	    menuText="1kk" id="1kkSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1kk"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		           		menuText="1ok" id="1okSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1ok"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="1pv" id="1pvSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1pv"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="1rs" id="1rsSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1rs"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>		    
+	    </contribute>
+	    <contribute xsi:type="subMenu" menuText="FY1C WV ch3">
+	    <contribute xsi:type="placeholder" 
+					menuText=" Channel 3 WV " id="FY1Cch3Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="3a1" id="3a1Sector">
+		        <substitute key="element" value="Imager 3.9 micron IR"/>
+		        <substitute key="sector" value="AkSec3a1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="3a2" id="3a2Sector">
+		        <substitute key="element" value="Imager 3.9 micron IR"/>
+		        <substitute key="sector" value="AkSec3a2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>	
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	             		menuText="3ab" id="3abSector">
+		        <substitute key="element" value="Imager 3.9 micron IR"/>
+		        <substitute key="sector" value="AkSec3ab"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>		    	    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="3ac" id="3acSector">
+		        <substitute key="element" value="Imager 3.9 micron IR"/>
+		        <substitute key="sector" value="AkSec3ac"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="3af" id="3afSector">
+		        <substitute key="element" value="Imager 3.9 micron IR"/>
+		        <substitute key="sector" value="AkSec3af"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>		    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="3ak" id="3akSector">
+		        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+		        <substitute key="sector" value="AkSec3ak"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="3am" id="3amSector">
+		        <substitute key="element" value="Imager 3.9 micron IR"/>
+		        <substitute key="sector" value="AkSec3am"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>		    
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="3ao" id="3aoSector">
+		        <substitute key="element" value="Imager 3.9 micron IR"/>
+		        <substitute key="sector" value="AkSec3ao"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>	
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="3cc" id="3ccSector">
+		        <substitute key="element" value="Imager 3.9 micron IR"/>
+		        <substitute key="sector" value="AkSec3cc"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="3f1" id="3f1Sector">
+		        <substitute key="element" value="3.55-3.93 micron IRUL"/>
+		        <substitute key="sector" value="AkSec3f1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                	menuText="3f2" id="3f2Sector">
+		        <substitute key="element" value="3.55-3.93 micron IRUL"/>
+		        <substitute key="sector" value="AkSec3f2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="3j1" id="3j1Sector">
+		        <substitute key="element" value="3.55-3.93 micron IRUL"/>
+		        <substitute key="sector" value="AkSec3j1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="3kk" id="3kkSector">
+		        <substitute key="element" value="3.55-3.93 micron IRUL"/>
+		        <substitute key="sector" value="AkSec3kk"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="3ok" id="3okSector">
+		        <substitute key="element" value="3.55-3.93 micron IRUL"/>
+		        <substitute key="sector" value="AkSec3ok"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="3pv" id="3pvSector">
+		        <substitute key="element" value="3.55-3.93 micron IRUL"/>
+		        <substitute key="sector" value="AkSec3pv"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="3rs" id="3rsSector">
+		        <substitute key="element" value="3.55-3.93 micron IRUL"/>
+		        <substitute key="sector" value="AkSec3rs"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+	    </contribute>
+		<contribute xsi:type="subMenu" menuText="FY1C IR ch4">
+		<contribute xsi:type="placeholder" 
+					menuText=" Channel 4 IR " id="FY1Cch4Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="4a1" id="4a1Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4a1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="4a2" id="4a2Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4a2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="4ab" id="4abSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4ab"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="4ac" id="4acSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4ac"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="4af" id="4afSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4af"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>	    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="4ak" id="4akSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4ak"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="4am" id="4amSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4am"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="4ao" id="4aoSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4ao"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="4cc" id="4ccSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4cc"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="4f1" id="4f1Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4f1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="4f2" id="4f2Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4f2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		   	<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="4j1" id="4j1Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4j1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="4kk" id="4kkSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4kk"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="4ok" id="4okSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4ok"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="4pv" id="4pvSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4pv"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="4rs" id="4rsSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec4rs"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+	    </contribute>
+		<contribute xsi:type="subMenu" menuText="FY1C IR ch5">
+		<contribute xsi:type="placeholder" 
+					menuText=" Channel 5 IR " id="5a1Sector"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="5a1" id="5a1Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5a1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="5a2" id="5a2Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5a2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="5ab" id="5abSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5ab"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="5ac" id="5acSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5ac"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="5af" id="5afSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5af"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="5ak" id="5akSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5ak"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="5am" id="5amSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5am"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>	
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="5ao" id="5aoSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5ao"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="5cc" id="5ccSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5cc"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="5f1" id="5f1Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5f1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="5f2" id="5f2Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5f2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    	    
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="5j1" id="5j1Sector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5j1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="5kk" id="5kkSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5kk"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="5ok" id="5okSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5ok"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="5pv" id="5pvSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5pv"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                	menuText="5rs" id="5rsSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec5rs"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>		    
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="FY1C 3 Ch Diff">
+	    <contribute xsi:type="placeholder" 
+					menuText=" 3 Ch Diff " id="FY1Cch3Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                	menuText="da1" id="da1Sector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecda1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>	    	    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="dac" id="dacSector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdac"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>	    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="dak" id="dakSector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdak"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>	
+   	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                	menuText="dcc" id="dccSector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdcc"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="dj1" id="dj1Sector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdj1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="dkk" id="dkkSector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdkk"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="dok" id="dokSector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdok"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="drs" id="drsSector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdrs"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="dv1" id="dv1Sector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdv1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="dv2" id="dv2Sector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdv2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="dv3" id="dv3Sector">
+		        <substitute key="element" value="Imager 3 Channel Diff"/>
+		        <substitute key="sector" value="AkSecdv3"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+	    </contribute>	
+	    <contribute xsi:type="subMenu" menuText="FY1C Ch 4 - Ch 5 Diff">
+	    <contribute xsi:type="placeholder" 
+					menuText=" Ch 4 - Ch 5 Diff " id="FY1Cch3Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="sa1" id="sa1Sector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsa1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>	    	    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="sac" id="sacSector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsac"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>	    
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="sak" id="sakSector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsak"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>	
+   	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="scc" id="sccSector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecscc"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="sj1" id="sj1Sector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsj1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml"
+		                menuText="skk" id="skkSector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecskk"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="sok" id="sokSector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsok"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="srs" id="srsSector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsrs"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="sv1" id="sv1Sector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsv1"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="sv2" id="sv2Sector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsv2"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="sv3" id="sv3Sector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSecsv3"/>
+		        <substitute key="entity" value="FY1C"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+	    </contribute>		
+    </contribute>
+</menuTemplate>

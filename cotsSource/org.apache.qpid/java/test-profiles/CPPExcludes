@@ -1,0 +1,111 @@
+org.apache.qpid.test.unit.client.channelclose.ChannelCloseTest#*
+org.apache.qpid.client.ResetMessageListenerTest#*
+
+//These tests are for the java broker
+org.apache.qpid.server.security.acl.SimpleACLTest#*
+org.apache.qpid.server.security.firewall.FirewallConfigTest#*
+org.apache.qpid.server.plugins.PluginTest#*
+org.apache.qpid.server.BrokerStartupTest#*
+
+// This test is not finished
+org.apache.qpid.test.testcases.TTLTest#*
+org.apache.qpid.test.client.failover.FailoverTest#test4MinuteFailover
+
+// Those tests are testing 0.8 specific semantics
+org.apache.qpid.test.testcases.ImmediateMessageTest#test_QPID_517_ImmediateFailsConsumerDisconnectedNoTxP2P
+org.apache.qpid.test.testcases.ImmediateMessageTest#test_QPID_517_ImmediateFailsConsumerDisconnectedTxP2P
+org.apache.qpid.test.testcases.ImmediateMessageTest#test_QPID_517_ImmediateFailsNoRouteNoTxP2P
+org.apache.qpid.test.testcases.ImmediateMessageTest#test_QPID_517_ImmediateFailsNoRouteTxP2P
+org.apache.qpid.test.testcases.ImmediateMessageTest#test_QPID_517_ImmediateFailsConsumerDisconnectedNoTxPubSub
+org.apache.qpid.test.testcases.ImmediateMessageTest#test_QPID_517_ImmediateFailsConsumerDisconnectedTxPubSub
+org.apache.qpid.test.testcases.ImmediateMessageTest#test_QPID_517_ImmediateFailsNoRouteNoTxPubSub
+org.apache.qpid.test.testcases.ImmediateMessageTest#test_QPID_517_ImmediateFailsNoRouteTxPubSub
+org.apache.qpid.test.testcases.MandatoryMessageTest#test_QPID_508_MandatoryFailsNoRouteNoTxP2P
+org.apache.qpid.test.testcases.MandatoryMessageTest#test_QPID_508_MandatoryFailsNoRouteTxP2P
+org.apache.qpid.test.testcases.MandatoryMessageTest#test_QPID_508_MandatoryFailsNoRouteNoTxPubSub
+org.apache.qpid.test.testcases.MandatoryMessageTest#test_QPID_508_MandatoryFailsNoRouteTxPubSub
+org.apache.qpid.test.client.FlowControlTest#*
+org.apache.qpid.test.unit.client.connection.ConnectionTest#testDefaultExchanges
+org.apache.qpid.test.unit.client.connection.ConnectionTest#testUnresolvedVirtualHostFailure
+
+// the 0.10 c++ broker does not implement forget
+org.apache.qpid.test.unit.xa.FaultTest#testForget
+
+// the 0-10 c++ broker does not implement priority / this test depends on a Java broker extension for queue creation
+org.apache.qpid.server.queue.PriorityTest
+
+//this test checks explicitly for 0-8 flow control semantics
+org.apache.qpid.test.client.FlowControlTest
+
+// 0-10 c++ broker doesn't implement virtual hosts, or those wackhy exchanges
+org.apache.qpid.test.unit.client.connection.ConnectionTest#testUnresolvedVirtualHostFailure
+org.apache.qpid.test.unit.client.connection.ConnectionTest#testDefaultExchanges
+
+// 0-10 c++ broker in cpp.testprofile is started with no auth so won't pass this test
+org.apache.qpid.test.unit.client.connection.ConnectionTest#testPasswordFailureConnection
+
+// c++ broker doesn't do selectors, so this will fail
+org.apache.qpid.test.unit.topic.TopicSessionTest#testNonMatchingMessagesDoNotFillQueue
+
+// InVM Broker tests
+org.apache.qpid.test.client.timeouts.SyncWaitDelayTest#*
+
+// QPID-1262, QPID-1119 : This test fails occasionally due to potential protocol issue.
+org.apache.qpid.test.client.timeouts.SyncWaitTimeoutDelayTest#*
+
+// c++ broker doesn't support priorities, TTL or message bouncing
+org.apache.qpid.server.exchange.ReturnUnroutableMandatoryMessageTest#*
+org.apache.qpid.server.queue.PriorityTest#*
+org.apache.qpid.server.queue.TimeToLiveTest#*
+
+// QPID-1727 , QPID-1726 :c++ broker does not support flow to disk on transient queues. Also it requries a persistent store impl. for Apache
+org.apache.qpid.test.client.QueueBrowsingFlowToDiskTest#*
+
+// This test currently does not pick up the runtime location of the nonVm queueBacking store.
+org.apache.qpid.test.unit.close.FlowToDiskBackingQueueDeleteTest#*
+
+// This test may use QpidTestCase but it is not using the getConnection and is hardwired to InVM
+org.apache.qpid.test.unit.client.connection.CloseAfterConnectionFailureTest#*
+
+//QPID-1818 : 0-10 Client code path does not correctly restore a transacted session after failover.
+org.apache.qpid.server.persistent.NoLocalAfterRecoveryTest#*
+
+// QPID-1730: the C++ server has a totally different logging mechanism. We should split this file differently
+org.apache.qpid.server.AlertingTest#*
+
+// The C++ server has a totally different persistence mechanism
+org.apache.qpid.server.store.PersistentStoreTest#*
+
+// CPP Broker does not follow the same Logging convention as the Java broker
+org.apache.qpid.server.logging.*
+
+// CPP Broker does not have a JMX interface to test
+org.apache.qpid.management.jmx.*
+// JMX is used in this test for validation
+org.apache.qpid.server.queue.ModelTest#*
+
+
+// 0-10 is not supported by the MethodRegistry
+org.apache.qpid.test.unit.close.JavaServerCloseRaceConditionTest#*
+
+// QPID-2084 : this test needs more work for 0-10
+org.apache.qpid.test.unit.client.DynamicQueueExchangeCreateTest#*
+
+// QPID-2118 : 0-10 Java client has differrent error handling to 0-8 code path
+org.apache.qpid.test.client.message.SelectorTest#testRuntimeSelectorError
+
+//QPID-942 : Implemented Channel.Flow based Producer Side flow control to the Java Broker (not in CPP Broker)
+org.apache.qpid.server.queue.ProducerFlowControlTest#*
+
+//QPID-1950 : Commit to test this failure. This is a MINA only failure so it cannot be tested when using 010.
+org.apache.qpid.server.failover.MessageDisappearWithIOExceptionTest#*
+
+// These are recent test additions that are failing with the c++ broker
+// Temporarily disabling until properly investigated.
+org.apache.qpid.test.unit.publish.DirtyTrasactedPubilshTest#*
+org.apache.qpid.test.unit.ack.FailoverBeforeConsumingRecoverTest#*
+org.apache.qpid.test.unit.ack.AcknowledgeAfterFailoverTest#*
+org.apache.qpid.test.unit.ack.AcknowledgeAfterFailoverOnMessageTest#*
+
+org.apache.qpid.test.client.RollbackOrderTest#testOrderingAfterRollbackOnMessage#*
+

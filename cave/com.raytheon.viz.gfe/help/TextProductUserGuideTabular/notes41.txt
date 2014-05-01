@@ -1,0 +1,2 @@
+The special "self.IFP()" qualifier gives us the ability to create time range objects "from scratch".   To do this, specify a start and end time which must be AbsTime objects obtained from an existing time range object..  
+

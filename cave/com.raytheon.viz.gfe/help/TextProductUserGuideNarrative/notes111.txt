@@ -1,0 +1,2 @@
+The "combinePhraseStats" method combines sub-phrases that have similar statistics. This will prevent redundant phrasing like "N winds 10 mph becoming N 10 mph in the afternoon".
+

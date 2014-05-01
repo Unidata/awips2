@@ -1,0 +1,88 @@
+C MEMBER TERP26
+C  (from old member FCTERP26)
+C
+      SUBROUTINE TERP26(X,Y,XA,YA,N,IFLAG,IBUG)
+C
+C THIS UTILITY SUBROUTINE INTERPOLATES BETWEEN TWO POINTS ON A CURVE
+C USING ARITHMETIC INTERPOLATION OR EXTRAPOLATES BEYOND THE LAST POINT
+C ON THE CURVE.
+C
+C VARIABLES IN THE ARGUMENT LIST ARE DEFINED AS FOLLOWS:
+C     X -- KNOWN ABSCISSA VALUE.
+C     Y -- UNKNOWN ORDINATE VALUE TO BE COMPUTED.
+C     XA -- ARRAY OF ABSCISSA VALUES.
+C     YA -- ARRAY OF ORDINATE VALUES.
+C     N -- NO. OF PAIRS OF XA AND XY VALUES.
+C     ISTEP -- =0 LINEAR INTERPOLATION, =1 STEP FUNCTION.
+C     IFLAG -- INDICATES IF X VALUE OS BELOW THE LOWEST XA VALUE (IFLAG
+C       =-1), WITHIN THE RANGE OF XA VALUES (IFLAG=0), OR ABOVE THE
+C       HIGHEST XA VALUE (IFLAG=1).
+C     IBUG -- NO TRACE OR DEBUG (IBUG=0), TRACE AND DEBUG (IBUG=5)
+      DIMENSION XA(1),YA(1)
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_res/RCS/terp26.f,v $
+     . $',                                                             '
+     .$Id: terp26.f,v 1.2 1999/04/22 19:49:17 page Exp $
+     . $' /
+C    ===================================================================
+C
+      ISTEP=0
+      IF(N.LT.0) ISTEP=1
+      N=ABS(N)
+      IFLAG=0
+      IF(X.LT.XA(1)) IFLAG=-1
+      IF(X.GT.XA(N)) IFLAG=1
+C
+      IF(ISTEP.NE.1) GO TO 5
+      DO I=N,1,-1
+         IF(X.GT.XA(I)) THEN
+            Y=YA(I)
+            GO TO 130
+         ENDIF
+      ENDDO
+      Y=YA(1)
+      GO TO 130
+C
+ 5    IF(IFLAG) 10,30,20
+   10 Y=YA(1)
+      RETURN
+   20 L=N
+      J=N-1
+      GO TO 70
+   30 DO 60 I=2,N
+      IF(X-XA(I)) 50,40,60
+   40 Y=YA(I)
+      RETURN
+   50 L=I
+      J=I-1
+      GO TO 70
+   60 CONTINUE
+      L=N
+      J=N-1
+   70 X2=XA(L)
+      X1=XA(J)
+      Y2=YA(L)
+      Y1=YA(J)
+C
+C CHECK FOR DIVISION BY ZERO.  IF (X2-X1) IS ZERO, THE SMALLER OF
+C Y1 AND Y2 WILL BE USED.
+C
+      IF((X2-X1).NE.0.) GO TO 80
+      Y=Y1
+      IF(Y2.LT.Y1) Y=Y2
+      GO TO 90
+   80 Y=(Y2-Y1)*(X-X1)/(X2-X1) + Y1
+   90 CONTINUE
+      IF (IBUG.LT.5) GO TO 150
+  100 WRITE(IODBUG,110) X,Y,N,IFLAG,IBUG
+  110 FORMAT(1H0,17H X,Y,N,IFLAG,IBUG/1X,2F12.3,3I6)
+      WRITE(IODBUG,120) (XA(I),YA(I),I=1,N)
+  120 FORMAT(1H0,36H ALTERNATING VALUES OF XA AND YA ARE/(1X,10F12.3))
+  130 WRITE(IODBUG,140)
+  140 FORMAT(1H0,10X,17H** LEAVING TERP26)
+  150 RETURN
+      END

@@ -1,0 +1,89 @@
+#!/bin/bash
+#
+# edex_postgres  This shell script takes care of starting and stopping
+#                the AWIPS EDEX postgreSQL instance.
+#
+# chkconfig: - 99 10
+# description: PostgreSQL database, which is the instance \
+#              used by AWIPS EDEX.
+# processname: postmaster
+# config: %database_files_home/postgresql.conf
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+RETVAL=0
+prog="postmaster"
+# Installation prefix
+
+# We will no longer be using hard-coded paths that need to be replaced.
+# Use rpm to find the paths that we need.
+JAVA_INSTALL="/awips2/java"
+PYTHON_INSTALL="/awips2/python"
+PSQL_INSTALL="/awips2/psql"
+
+POSTGRESQL_INSTALL_ROOT="/awips2"
+POSTGRESQL_INSTALL="${POSTGRESQL_INSTALL_ROOT}/postgresql"
+PGDATA_DIR="${POSTGRESQL_INSTALL_ROOT}/data"
+
+# Data directory
+PGDATA="${PGDATA_DIR}"
+# Who to run the postmaster as, usually "postgres".  (NOT "root")
+PGUSER=awips
+# Where to keep a log file
+PGLOG="$PGDATA/serverlog"
+# The path that is to be used for the script
+PATH=${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib
+# What to use to start up the postmaster (we do NOT use pg_ctl for this,
+# as it adds no value and can cause the postmaster to misrecognize a stale
+# lock file)
+DAEMON="${POSTGRESQL_INSTALL}/bin/postmaster"
+# What to use to shut down the postmaster
+PGCTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"
+
+[ -x $DAEMON ] || exit 0
+[ -x $PGCTL ] || exit 0
+
+# See how we were called.
+case $1 in
+  start)
+	echo -n "Starting EDEX PostgreSQL: "
+	su $PGUSER -c "$DAEMON -D '$PGDATA' &" >>$PGLOG 2>&1
+	echo
+	RETVAL=$?
+	;;
+  stop)
+	echo -n "Stopping EDEX PostgreSQL: "
+	su $PGUSER -c "$PGCTL stop -D '$PGDATA' -s -m fast"
+	echo
+	RETVAL=$?
+	;;
+  restart)
+	echo -n "Restarting EDEX PostgreSQL: "
+	su $PGUSER -c "$PGCTL stop -D '$PGDATA' -s -m fast -w"
+	su $PGUSER -c "$DAEMON -D '$PGDATA' &" >>$PGLOG 2>&1
+	RETVAL=$?
+	;;
+  reload)
+        echo -n "Reload EDEX PostgreSQL: "
+        su $PGUSER -c "$PGCTL reload -D '$PGDATA' -s"
+        RETVAL=$?
+        ;;
+  status)
+	su $PGUSER -c "$PGCTL status -D '$PGDATA'"
+	;;
+  *)
+	# Print help
+	echo "Usage: $0 {start|stop|restart|reload|status}" 1>&2
+	exit 1
+	;;
+esac
+
+exit $RETVAL

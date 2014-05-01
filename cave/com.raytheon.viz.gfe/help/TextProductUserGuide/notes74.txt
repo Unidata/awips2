@@ -1,0 +1,4 @@
+The thresholds and variables from the TextRules classes some or all of these arguments from which you can access information upon which to base returned values.  
+In the Advanced User Guide, you will learn much more about the Narrative “tree” and “node” arguments.  For now, know that there are some simple ways that you can make use of them.  
+
+For example...

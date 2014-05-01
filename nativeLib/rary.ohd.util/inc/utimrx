@@ -1,0 +1,4 @@
+C                                                *--> FROM CMS(UTIMRX)
+C  CPU AND CLOCK TIME USED COMMON BLOCK
+      COMMON /UTIMRX/ ITMTOT,ITMELA,ISTDAY,ISTHMS,ITMFIL,ITMPRT
+C

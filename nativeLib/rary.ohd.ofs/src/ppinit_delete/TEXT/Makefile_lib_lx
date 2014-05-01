@@ -1,0 +1,55 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppinit_delete library file
+#
+#  cmt: File made on Wed Aug  6 12:51:50 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libppinit_delete_t.a:  \
+     $(LIB)/libppinit_delete_t.a(slarea.o)  \
+     $(LIB)/libppinit_delete_t.a(slbasn.o)  \
+     $(LIB)/libppinit_delete_t.a(slchk.o)  \
+     $(LIB)/libppinit_delete_t.a(sldelt.o)  \
+     $(LIB)/libppinit_delete_t.a(slfmap.o)  \
+     $(LIB)/libppinit_delete_t.a(slgoes.o)  \
+     $(LIB)/libppinit_delete_t.a(slmape.o)  \
+     $(LIB)/libppinit_delete_t.a(slmap.o)  \
+     $(LIB)/libppinit_delete_t.a(slmapx.o)  \
+     $(LIB)/libppinit_delete_t.a(slmat.o)  \
+     $(LIB)/libppinit_delete_t.a(slpcpn.o)  \
+     $(LIB)/libppinit_delete_t.a(slpe.o)  \
+     $(LIB)/libppinit_delete_t.a(slppd.o)  \
+     $(LIB)/libppinit_delete_t.a(slppp.o)  \
+     $(LIB)/libppinit_delete_t.a(slprd.o)  \
+     $(LIB)/libppinit_delete_t.a(slrrs.o)  \
+     $(LIB)/libppinit_delete_t.a(slsasm.o)  \
+     $(LIB)/libppinit_delete_t.a(slsta.o)  \
+     $(LIB)/libppinit_delete_t.a(slstan.o)  \
+     $(LIB)/libppinit_delete_t.a(sltemp.o)
+

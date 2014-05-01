@@ -1,0 +1,867 @@
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys13ThreadPrivateC1EPNS0_8RunnableE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN5boost15program_options19options_description3addERKS1_
+   fun:_ZN4qpid3log7OptionsC1ERKSsS3_
+   fun:_ZN20ClientSessionFixtureC1EN4qpid6broker6Broker7OptionsE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   obj:/usr/lib64/libstdc++.so.6.0.3
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN4qpid34options_description_less_easy_initclEPKcPKN5boost15program_options14value_semanticES2_
+   fun:_ZN4qpid3log5posix11SinkOptionsC1ERKSs
+   fun:_ZN4qpid3log11SinkOptions6createERKSs
+   fun:_ZN4qpid3log7OptionsC1ERKSsS3_
+   fun:_ZN4qpid3log6LoggerC1Ev
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSt6vectorISsSaISsEE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPSsS1_EERKSs
+   fun:_ZN4qpid7Options14register_namesESs
+   fun:_ZN4qpid34options_description_less_easy_initclEPKcPKN5boost15program_options14value_semanticES2_
+   fun:_ZN4qpid3log7OptionsC1ERKSsS3_
+   fun:_ZN4qpid3log6LoggerC1Ev
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN5boost15program_options29options_description_easy_initclEPKcPKNS0_14value_semanticES3_
+   fun:_ZN4qpid34options_description_less_easy_initclEPKcPKN5boost15program_options14value_semanticES2_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN5boost15program_options19options_description3addERKS1_
+   fun:_ZN4qpid3log7OptionsC1ERKSsS3_
+   fun:_ZN13BrokerFixtureC2EN4qpid6broker6Broker7OptionsE
+   fun:_ZN15SessionFixtureTI15ProxyConnectionN4qpid6client12Session_0_10EEC1ENS1_6broker6Broker7OptionsE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN5boost15program_options19options_description3addERKS1_
+   fun:_ZN4qpid3log7OptionsC1ERKSsS3_
+   fun:_ZN4qpid3log6LoggerC1Ev
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN5boost9unit_test9test_caseC2ENS0_13basic_cstringIKcEEbmb
+}
+
+{
+   dl_open_1
+   Memcheck:Leak
+   fun:*alloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_sasl_get_plugin
+   fun:_sasl_load_plugins
+   fun:sasl_client_init
+}
+{
+   dl_open_2
+   Memcheck:Leak
+   fun:*alloc
+   fun:_dl_*
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_sasl_get_plugin
+   fun:_sasl_load_plugins
+   fun:sasl_client_init
+}
+{
+   dl_open_3
+   Memcheck:Leak
+   fun:malloc
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_sasl_get_plugin
+   fun:_sasl_load_plugins
+   fun:sasl_client_init
+}
+{
+   dl_open_4
+   Memcheck:Leak
+   fun:*alloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_sasl_get_plugin
+   fun:_sasl_load_plugins
+   fun:sasl_client_init
+}
+{
+   dl_open_5
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_sasl_get_plugin
+   fun:_sasl_load_plugins
+   fun:sasl_client_init
+}
+{
+   dl_open_6
+   Memcheck:Leak
+   fun:malloc
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_sasl_get_plugin
+   fun:_sasl_load_plugins
+   fun:sasl_client_init
+}
+{
+   dl_open_7
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_8
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlclose
+   fun:_sasl_done_with_plugins
+   fun:sasl_done
+   fun:__tcf_2
+   fun:__cxa_finalize
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys13ThreadPrivateC1EPNS0_8RunnableE
+   fun:_ZN4qpid3sys6ThreadC1EPNS0_8RunnableE
+   fun:_ZN4qpid6client12TCPConnector4initEv
+   fun:_ZN4qpid6client14ConnectionImpl4openEv
+   fun:_ZN4qpid6client10Connection4openERKNS0_18ConnectionSettingsE
+   fun:_ZN6ClientC2Ev
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys13ThreadPrivateC1EPNS0_8RunnableE
+   fun:_ZN4qpid3sys6ThreadC1EPNS0_8RunnableE
+   fun:_ZN4qpid6client12TCPConnector4initEv
+   fun:_ZN4qpid6client14ConnectionImpl4openEv
+   fun:_ZN4qpid6client10Connection4openERKNS0_18ConnectionSettingsE
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys13ThreadPrivateC1EPNS0_8RunnableE
+   fun:_ZN4qpid3sys6ThreadC1EPNS0_8RunnableE
+   fun:_ZN4qpid6client12TCPConnector4initEv
+   fun:_ZN4qpid6client14ConnectionImpl4openEv
+   fun:_ZN4qpid6client10Connection4openERKNS0_18ConnectionSettingsE
+   fun:_ZN4qpid6client10Connection4openERKSsiS3_S3_S3_t
+   fun:_ZN15ProxyConnectionC1Ei
+   fun:_ZN15SessionFixtureTI15ProxyConnectionN4qpid6client12Session_0_10EEC1ENS1_6broker6Broker7OptionsE
+   fun:_Z18DisconnectedListenv
+   fun:_ZN5boost9unit_test9ut_detail17unit_test_monitor8functionEv
+   obj:/usr/lib64/libboost_unit_test_framework.so.1.32.0
+   fun:_ZN5boost17execution_monitor7executeEbi
+   fun:_ZN5boost9unit_test9ut_detail17unit_test_monitor21execute_and_translateEPNS0_9test_caseEMS3_FvvEi
+   fun:_ZN5boost9unit_test9test_case3runEv
+   fun:_ZN5boost9unit_test10test_suite6do_runEv
+   fun:_ZN5boost9unit_test9test_case3runEv
+   fun:main
+}
+{
+   dl_open_9
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_10
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   <insert a suppression name here>
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:get_mapping
+   fun:__nscd_get_map_ref
+   fun:nscd_gethst_r
+   fun:__nscd_gethostbyname2_r
+   fun:gethostbyname2_r@@GLIBC_2.2.5
+   fun:gaih_inet
+   fun:getaddrinfo
+   fun:_ZNK4qpid3sys6Socket7connectERKSst
+   fun:_ZN4qpid6client12TCPConnector7connectERKSsi
+   fun:_ZN4qpid6client14ConnectionImpl4openEv
+   fun:_ZN4qpid6client10Connection4openERKNS0_18ConnectionSettingsE
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:get_mapping
+   fun:__nscd_get_map_ref
+   fun:nscd_gethst_r
+   fun:__nscd_gethostbyname2_r
+   fun:gethostbyname2_r@@GLIBC_2.2.5
+   fun:gaih_inet
+   fun:getaddrinfo
+   fun:_ZNK4qpid3sys6Socket7connectERKSst
+   fun:_ZN20ClientSessionFixtureC1Ev
+   fun:_Z14testXmlBindingv
+}
+{
+   dl_open_11
+   Memcheck:Leak
+   fun:malloc
+   fun:decompose_rpath
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_12
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_13
+   Memcheck:Leak
+   fun:malloc
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_14
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_15
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_16
+   Memcheck:Leak
+   fun:malloc
+   fun:decompose_rpath
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_17
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_18
+   Memcheck:Leak
+   fun:malloc
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_19
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_20
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys13ThreadPrivateC1EPNS0_8RunnableE
+   fun:_ZN4qpid3sys6ThreadC1EPNS0_8RunnableE
+   fun:_ZN4qpid3sys5Timer5startEv
+   fun:_ZN4qpid3sys5TimerC1Ev
+   fun:_ZN4qpid6broker6BrokerC1ERKNS1_7OptionsE
+   fun:_ZN4qpid6broker6Broker6createERKNS1_7OptionsE
+   fun:_ZN20ClientSessionFixtureC1Ev
+   fun:_Z14testXmlBindingv
+}
+{
+   dl_open_21
+   Memcheck:Leak
+   fun:malloc
+   fun:decompose_rpath
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_22
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_23
+   Memcheck:Leak
+   fun:malloc
+   fun:expand_dynamic_string_token
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_24
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   dl_open_25
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_GLOBAL__I__ZN53_GLOBAL__N_XmlClientSessionTest.cpp_CF4CBC2E_2FCE92D42_1E
+}
+{
+   <insert a suppression name here>
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:get_mapping
+   fun:__nscd_get_map_ref
+   fun:nscd_gethst_r
+   fun:__nscd_gethostbyname2_r
+   fun:gethostbyname2_r@@GLIBC_2.2.5
+   fun:gaih_inet
+   fun:getaddrinfo
+   fun:_ZNK4qpid3sys6Socket7connectERKSst
+   fun:_ZN4qpid6client12TCPConnector7connectERKSsi
+   fun:_ZN4qpid6client14ConnectionImpl4openEv
+   fun:_ZN4qpid6client10Connection4openERKNS0_18ConnectionSettingsE
+   fun:_ZN6ClientC2Ev
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlclose
+   fun:_sasl_done_with_plugins
+   fun:sasl_done
+   fun:__tcf_2
+   fun:__cxa_finalize
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys13ThreadPrivateC1EPNS0_8RunnableE
+   fun:_ZN4qpid3sys6ThreadC1EPNS0_8RunnableE
+   fun:_ZN4qpid6client12TCPConnector4initEv
+   fun:_ZN4qpid6client14ConnectionImpl4openEv
+   fun:_ZN4qpid6client10Connection4openERKNS0_18ConnectionSettingsE
+   fun:_ZN6ClientC2Ev
+   fun:main
+}
+{
+   <insert a suppression name here>
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:get_mapping
+   fun:__nscd_get_map_ref
+   fun:nscd_gethst_r
+   fun:__nscd_gethostbyname2_r
+   fun:gethostbyname2_r@@GLIBC_2.2.5
+   fun:gaih_inet
+   fun:getaddrinfo
+   fun:_ZNK4qpid3sys6Socket7connectERKSst
+}
+{
+   dl 0  
+   Memcheck:Leak
+   fun:*dl*
+}
+
+{
+   dl 1
+   Memcheck:Leak
+   fun:*
+   fun:*dl*
+}
+
+{
+   dl 2
+   fun:*
+   fun:*
+   Memcheck:Leak
+   fun:*dl*
+}
+
+{
+   Znwm
+   Memcheck:Leak
+   fun:_Znwm
+}
+
+{
+   Znwj
+   Memcheck:Leak
+   fun:_Znwj
+}
+
+{
+   Znaj
+   Memcheck:Leak
+   fun:_Znaj
+}
+
+{
+   libc res nsend
+   Memcheck:Leak
+   fun:malloc
+   fun:__libc_res_nsend
+}
+
+{
+   new exitfn
+   Memcheck:Leak
+   fun:malloc
+   fun:__new_exitfn
+}
+
+{
+   pthread mutex unlock
+   Memcheck:Param
+   futex(uaddr2)
+   fun:__lll_mutex_unlock_wake
+   fun:pthread_mutex_unlock
+}
+
+{
+   sasl 1
+   Memcheck:Leak
+   fun:*
+   fun:sasl*
+}
+
+{
+   sasl 2
+   Memcheck:Leak
+   fun:*
+   obj:*
+   fun:sasl*
+}
+

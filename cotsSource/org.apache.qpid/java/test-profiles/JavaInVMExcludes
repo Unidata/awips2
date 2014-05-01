@@ -1,0 +1,9 @@
+//======================================================================
+//Exclude the following tests when running the InVM default test profile
+//======================================================================
+
+// QPID-2097 exclude until InVM JMX test runs are reliable
+org.apache.qpid.server.queue.ProducerFlowControlTest#testFlowControlAttributeModificationViaJMX
+
+// This test requires a broker capable of 0-8/9 and 0-10
+org.apache.qpid.test.client.message.JMSDestinationTest#testReceiveResend

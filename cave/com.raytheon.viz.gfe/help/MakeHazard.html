@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>MakeHazard Procedure</title>
+</head>
+<body>
+<h1 style="text-align: center;">MakeHazard</h1>
+<div style="text-align: center;">
+<h2>A Procedure for Creating Hazards</h2>
+<div style="text-align: left;"><a href="#methodology">Methodology</a><br>
+<a href="#howitworks">How It Works</a><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="methodology"></a>Methodology</h2>
+</div>
+<br>
+</div>
+<br>
+<big>The MakeHazard procedure is the primary interface for creating and
+editing hazards in GFE, excluding convective and tropical
+hazards, which have their own procedures (<a href="PlotSPCWatches.html">PlotSPCWatches</a>
+and <a href="PlotTPCEvents.html">PlotTCPEvents</a>). For more on how
+to use the MakeHazard tool
+and general hazard methodology, check <a href="Hazard_Methodology.html">Hazard
+Methodlogy</a>.<br>
+<br>
+<a href="#starting">Starting MakeHazard</a><br>
+<a href="#buttondescription">Description of Interface</a><br>
+<a href="#shortcuts">Shortcuts</a><br>
+<a href="#configuration">Configuration</a><br>
+<big><span style="font-weight: bold;"><br>
+<a name="starting"></a>Starting MakeHazard</span></big><br
+ style="font-weight: bold;">
+<br>
+MakeHazard is started by selecting <span
+ style="font-weight: bold; font-style: italic;">MakeHazard</span> under
+the <span style="font-weight: bold; font-style: italic;">Hazards</span>
+menu.<br>
+<br>
+<img style="width: 243px; height: 273px;" alt="Make Hazards Menu"
+ src="images/MakeHazardsMenu.png"><br>
+<br>
+<big><span style="font-weight: bold;">Description of MakeHazard
+Interface<br>
+<br>
+</span></big>After selecting this, the tool interface will display<br>
+<br>
+<img style="width: 1008px; height: 629px;"
+ alt="Make Hazards Tool (Blank)" src="images/MakeHazards.png"><br>
+<br>
+Here is the function of each component:<br>
+<br>
+<span style="font-weight: bold; color: rgb(204, 0, 0);"><a
+ name="buttondescription"></a>Map Area</span><br>
+<span style="font-weight: bold; font-style: italic;">Map</span> - This
+displays the area of a potential hazard visually.<br>
+<br>
+<span style="font-weight: bold; font-style: italic;">Zoom In Button</span>
+- Zooms closer in on map.<br>
+<span style="font-weight: bold; font-style: italic;">Zoom Out Button</span>
+- Zoom further out on map.<br>
+<span style="font-weight: bold; font-style: italic;">Zoom 1:1</span> -
+Returns map to default zoom level.<br>
+<span style="font-weight: bold; font-style: italic;"><br>
+Clear</span> <span style="font-weight: bold; font-style: italic;">All</span>
+-
+Clears all selected counties from map.<br>
+</big><big><span style="font-weight: bold; font-style: italic;">Select</span>
+<span style="font-weight: bold; font-style: italic;">All</span> -
+Selects all selected counties on map.<br>
+</big><br>
+<big><span style="font-weight: bold; font-style: italic;">Map Labels</span>
+- When checked, labels the zones (WIZ001 format) or counties (WIC001
+format).<br>
+<br>
+<span style="font-weight: bold; color: rgb(204, 0, 0);">Select Hazard
+Area</span><br>
+<span style="font-weight: bold; font-style: italic;">Hazard List</span>
+- Allows the selection of one hazard from list.<br>
+<span style="font-weight: bold; font-style: italic;">Hazard Category
+Toggles</span> - Allows selection of general categories of Hazards, and
+changes Hazard List as needed.<br>
+<span style="font-weight: bold; font-style: italic;">ETN/Segment Number</span>
+- Allows entry of an ETN (Only TO.A or SV.A, not normally needed), or a
+segment identifier.<br>
+<br>
+<span style="color: rgb(204, 0, 0); font-weight: bold;">Time Area</span><br>
+<span style="font-weight: bold; font-style: italic;">Start Hazard Time</span>
+- Sets the starting time of the hazard in the grid.<br>
+<span style="font-weight: bold; font-style: italic;">End Hazard Time</span>
+- Sets the ending time of the hazard in the grid.<br>
+<br>
+<span style="font-weight: bold; color: rgb(204, 0, 0);">Invocation
+Buttons</span><br>
+<span style="font-weight: bold; font-style: italic;">Run</span> - Runs
+the tool for selected settings<br>
+<span style="font-weight: bold; font-style: italic;">Run/Dismiss</span>
+- Runs the tool, then closes.<br>
+<span style="font-weight: bold; font-style: italic;">Cancel</span> -
+Closes the tool without running.<br>
+<br>
+</big><big><big><span style="font-weight: bold;"><a name="shortcuts"></a>Shortcuts<br>
+</span></big></big><br>
+The following tips may help:<br>
+<ul>
+  <li>The Hazard Grids are automatically separated when the procedure
+is started.</li>
+  <li>It can be tedious to always have to select the time area, zones,
+category, and hazard.&nbsp;&nbsp; If you already have a temporary
+hazard element selected (simply by clicking on the weather element or a
+grid in that weather element, then the time selectors, the hazard, and
+the category and zones will automatically be set when the interface is
+displayed.<br>
+  </li>
+</ul>
+<big><br>
+</big><big><big><span style="font-weight: bold;"><a name="configuration"></a>Configuration
+of MakeHazard<br>
+<br>
+<span style="font-weight: bold;"></span></span><small>You can easily
+configure the hazards which display in the hazard lists, and the
+categories available, by creating an override at SITE level to the
+procedure. In the configuration
+section, located in method setUI, you can set the map types, hazard
+lists, categories, default categories, and more.
+See the example below.<br>
+<br>
+<img style="width: 800px; height: 881px;"
+ alt="MakeHazard Configuration screen" src="images/MakeHazardConfig.png"><br>
+<br>
+<br>
+The most important sections for configuration are the mapNames and the
+hazardDict. Each hazard that you want to appear in the
+menus must be associated with a category.&nbsp;&nbsp; Each category
+must be associated with a map background (or map
+backgrounds). For example, the HU.W (Hurricane Warning) is
+part of the "Tropical Cyclone" group in the hazardDict.&nbsp;&nbsp; The
+"Tropical Cyclone" category uses the Zones_&lt;site&gt;,
+Marine_Zones_&lt;site&gt;, and Offshore_Marine_Zones_&lt;site&gt; map
+backgrounds.<br>
+<br>
+If the lists are not synchronized properly, then the procedure will not
+work. Categories may be added and removed, and individual
+hazards may be added and removed (including locally defined
+hazards). The list of map backgrounds contain &lt;site&gt;,
+which is replaced with your real site identifier when the procedure
+runs. The list of map backgrounds assumes that you are using the
+standard set of map shapefiles and map names as defined in <a
+ href="mapConfig.html">Maps.py</a>.<br>
+<br>
+</small></big></big>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="howitworks"></a>How It Works</h2>
+The MakeHazard first separates out the Hazards grid into separate haz*
+temporary weather elements. The user chooses the type of
+event, the time, and the area (either on the grid as a selected area or
+by using the map), and presses Run or Run/Dismiss. The
+temporary weather element is created (if not already there) and the
+grid is created/edited as appropriate.<br>
+</body>
+</html>

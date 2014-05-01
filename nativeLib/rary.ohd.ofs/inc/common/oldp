@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.OLDP
+C  FORECAST COMPONENT OLD PARAMETRIC DATA
+      COMMON /OLDP/ MOLDP,OLDP(500000)
+C

@@ -1,0 +1,25 @@
+!
+! Restore File : 100000_dskint
+!
+! Log:
+! S. Gurung 	9/2013	Initial creation
+!
+GLEVEL=100000
+GVCORD=hght
+SKIP=
+FILTER=y
+SCALE=0     
+GDPFUN=dskint
+TYPE=f   
+CINT=
+LINE=11/1/2
+FINT=0.002;0.004;0.006;0.007;0.008;0.009
+FLINE=0;23;22;21;5;17;2
+HILO=
+HLSYM=
+CLRBAR=1
+WIND=
+TITLE=5/-1/~ ^ @ DSKINT !
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

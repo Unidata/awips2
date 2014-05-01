@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+ <!-- 
+ * gov.noaa.nws.ost.edex.plugin.alaskasat.util.RegionalSatLookups
+ * 
+ * 12-01-11
+ * 
+ * This code has been developed by the NWS/OST/SEC for use in the AWIPS2 system.
+ -->
+
+<source>
+	<map>
+		<entry><key>Source</key><value>ARH</value></entry>
+	</map>
+</source>

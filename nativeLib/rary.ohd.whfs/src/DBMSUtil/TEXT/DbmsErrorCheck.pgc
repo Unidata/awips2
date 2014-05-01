@@ -1,0 +1,28 @@
+
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "DbmsUtils.h"
+
+char * DbErrorString(int errorCode)
+{
+   
+   
+   static char	errorMessage[BUFSIZ],
+      		fullErrorMessage[BUFSIZ];
+   
+   rgetmsg((short) errorCode, errorMessage, sizeof(errorMessage));
+   sprintf(fullErrorMessage, errorMessage, sqlca.sqlerrm);
+   
+   
+   return fullErrorMessage;	   
+}
+
+
+void DbErrorPrint(int errorCode, FILE *fp)
+{  
+   
+   fprintf(fp, "SQL Error %d.\n %s\n", errorCode, DbErrorString(errorCode));
+
+   return;
+}

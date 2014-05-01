@@ -1,0 +1,1502 @@
+/*
+    File: DSPAdapt.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:20 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DSPAdapt.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DSPAdapt_t
+{
+    char		radid[4];
+    dtime_t		obstime;
+    float		min_reflth;
+    float		max_reflth;
+    float		ref_tltest;
+    float		rng_tltin;
+    float		rng_tltout;
+    float		max_birng;
+    float		min_birng;
+    float		min_echoar;
+    float		min_awrefl;
+    float		max_pctred;
+    float		mlt_zrcoef;
+    float		pwr_zrcoef;
+    float		min_zrefl;
+    float		max_zrefl;
+    float		max_stmspd;
+    float		max_timdif;
+    float		min_artcon;
+    float		tim_p1cont;
+    float		tim_p2cont;
+    float		max_ecarch;
+    float		rng_cutoff;
+    float		rng_e1coef;
+    float		rng_e2coef;
+    float		rng_e3coef;
+    float		min_prate;
+    float		max_prate;
+    float		tim_restrt;
+    float		max_timint;
+    float		min_timprd;
+    float		thr_hlyout;
+    float		end_timgag;
+    float		max_prdval;
+    float		max_hlyval;
+    float		tim_biest;
+    float		thr_nosets;
+    float		res_bias;
+    float		longest_lag;
+    char		bias_applied[2];
+
+    int		ind_min_reflth;
+    int		ind_max_reflth;
+    int		ind_ref_tltest;
+    int		ind_rng_tltin;
+    int		ind_rng_tltout;
+    int		ind_max_birng;
+    int		ind_min_birng;
+    int		ind_min_echoar;
+    int		ind_min_awrefl;
+    int		ind_max_pctred;
+    int		ind_mlt_zrcoef;
+    int		ind_pwr_zrcoef;
+    int		ind_min_zrefl;
+    int		ind_max_zrefl;
+    int		ind_max_stmspd;
+    int		ind_max_timdif;
+    int		ind_min_artcon;
+    int		ind_tim_p1cont;
+    int		ind_tim_p2cont;
+    int		ind_max_ecarch;
+    int		ind_rng_cutoff;
+    int		ind_rng_e1coef;
+    int		ind_rng_e2coef;
+    int		ind_rng_e3coef;
+    int		ind_min_prate;
+    int		ind_max_prate;
+    int		ind_tim_restrt;
+    int		ind_max_timint;
+    int		ind_min_timprd;
+    int		ind_thr_hlyout;
+    int		ind_end_timgag;
+    int		ind_max_prdval;
+    int		ind_max_hlyval;
+    int		ind_tim_biest;
+    int		ind_thr_nosets;
+    int		ind_res_bias;
+    int		ind_longest_lag;
+    int		ind_bias_applied;
+} DSPAdapt_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DSPAdapt * GetDSPAdapt(const char * where)
+{
+
+    DSPAdapt * listPtr = NULL;
+    DSPAdapt * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DSPAdapt ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSPAdapt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSPAdapt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSPAdapt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSPAdapt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.min_reflth:dbs.ind_min_reflth, :dbs.max_reflth:dbs.ind_max_reflth, 
+    :dbs.ref_tltest:dbs.ind_ref_tltest, :dbs.rng_tltin:dbs.ind_rng_tltin, 
+    :dbs.rng_tltout:dbs.ind_rng_tltout, :dbs.max_birng:dbs.ind_max_birng, 
+    :dbs.min_birng:dbs.ind_min_birng, :dbs.min_echoar:dbs.ind_min_echoar, 
+    :dbs.min_awrefl:dbs.ind_min_awrefl, :dbs.max_pctred:dbs.ind_max_pctred, 
+    :dbs.mlt_zrcoef:dbs.ind_mlt_zrcoef, :dbs.pwr_zrcoef:dbs.ind_pwr_zrcoef, 
+    :dbs.min_zrefl:dbs.ind_min_zrefl, :dbs.max_zrefl:dbs.ind_max_zrefl, 
+    :dbs.max_stmspd:dbs.ind_max_stmspd, :dbs.max_timdif:dbs.ind_max_timdif, 
+    :dbs.min_artcon:dbs.ind_min_artcon, :dbs.tim_p1cont:dbs.ind_tim_p1cont, 
+    :dbs.tim_p2cont:dbs.ind_tim_p2cont, :dbs.max_ecarch:dbs.ind_max_ecarch, 
+    :dbs.rng_cutoff:dbs.ind_rng_cutoff, :dbs.rng_e1coef:dbs.ind_rng_e1coef, 
+    :dbs.rng_e2coef:dbs.ind_rng_e2coef, :dbs.rng_e3coef:dbs.ind_rng_e3coef, 
+    :dbs.min_prate:dbs.ind_min_prate, :dbs.max_prate:dbs.ind_max_prate, 
+    :dbs.tim_restrt:dbs.ind_tim_restrt, :dbs.max_timint:dbs.ind_max_timint, 
+    :dbs.min_timprd:dbs.ind_min_timprd, :dbs.thr_hlyout:dbs.ind_thr_hlyout, 
+    :dbs.end_timgag:dbs.ind_end_timgag, :dbs.max_prdval:dbs.ind_max_prdval, 
+    :dbs.max_hlyval:dbs.ind_max_hlyval, :dbs.tim_biest:dbs.ind_tim_biest, 
+    :dbs.thr_nosets:dbs.ind_thr_nosets, :dbs.res_bias:dbs.ind_res_bias, 
+    :dbs.longest_lag:dbs.ind_longest_lag, :dbs.bias_applied:dbs.ind_bias_applied    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSPAdapt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DSPAdapt *) malloc(sizeof(DSPAdapt))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->min_reflth = dbs.min_reflth;
+            setNullIfIndicated(dbs.ind_min_reflth, FLOAT, &structPtr->min_reflth);
+
+            structPtr->max_reflth = dbs.max_reflth;
+            setNullIfIndicated(dbs.ind_max_reflth, FLOAT, &structPtr->max_reflth);
+
+            structPtr->ref_tltest = dbs.ref_tltest;
+            setNullIfIndicated(dbs.ind_ref_tltest, FLOAT, &structPtr->ref_tltest);
+
+            structPtr->rng_tltin = dbs.rng_tltin;
+            setNullIfIndicated(dbs.ind_rng_tltin, FLOAT, &structPtr->rng_tltin);
+
+            structPtr->rng_tltout = dbs.rng_tltout;
+            setNullIfIndicated(dbs.ind_rng_tltout, FLOAT, &structPtr->rng_tltout);
+
+            structPtr->max_birng = dbs.max_birng;
+            setNullIfIndicated(dbs.ind_max_birng, FLOAT, &structPtr->max_birng);
+
+            structPtr->min_birng = dbs.min_birng;
+            setNullIfIndicated(dbs.ind_min_birng, FLOAT, &structPtr->min_birng);
+
+            structPtr->min_echoar = dbs.min_echoar;
+            setNullIfIndicated(dbs.ind_min_echoar, FLOAT, &structPtr->min_echoar);
+
+            structPtr->min_awrefl = dbs.min_awrefl;
+            setNullIfIndicated(dbs.ind_min_awrefl, FLOAT, &structPtr->min_awrefl);
+
+            structPtr->max_pctred = dbs.max_pctred;
+            setNullIfIndicated(dbs.ind_max_pctred, FLOAT, &structPtr->max_pctred);
+
+            structPtr->mlt_zrcoef = dbs.mlt_zrcoef;
+            setNullIfIndicated(dbs.ind_mlt_zrcoef, FLOAT, &structPtr->mlt_zrcoef);
+
+            structPtr->pwr_zrcoef = dbs.pwr_zrcoef;
+            setNullIfIndicated(dbs.ind_pwr_zrcoef, FLOAT, &structPtr->pwr_zrcoef);
+
+            structPtr->min_zrefl = dbs.min_zrefl;
+            setNullIfIndicated(dbs.ind_min_zrefl, FLOAT, &structPtr->min_zrefl);
+
+            structPtr->max_zrefl = dbs.max_zrefl;
+            setNullIfIndicated(dbs.ind_max_zrefl, FLOAT, &structPtr->max_zrefl);
+
+            structPtr->max_stmspd = dbs.max_stmspd;
+            setNullIfIndicated(dbs.ind_max_stmspd, FLOAT, &structPtr->max_stmspd);
+
+            structPtr->max_timdif = dbs.max_timdif;
+            setNullIfIndicated(dbs.ind_max_timdif, FLOAT, &structPtr->max_timdif);
+
+            structPtr->min_artcon = dbs.min_artcon;
+            setNullIfIndicated(dbs.ind_min_artcon, FLOAT, &structPtr->min_artcon);
+
+            structPtr->tim_p1cont = dbs.tim_p1cont;
+            setNullIfIndicated(dbs.ind_tim_p1cont, FLOAT, &structPtr->tim_p1cont);
+
+            structPtr->tim_p2cont = dbs.tim_p2cont;
+            setNullIfIndicated(dbs.ind_tim_p2cont, FLOAT, &structPtr->tim_p2cont);
+
+            structPtr->max_ecarch = dbs.max_ecarch;
+            setNullIfIndicated(dbs.ind_max_ecarch, FLOAT, &structPtr->max_ecarch);
+
+            structPtr->rng_cutoff = dbs.rng_cutoff;
+            setNullIfIndicated(dbs.ind_rng_cutoff, FLOAT, &structPtr->rng_cutoff);
+
+            structPtr->rng_e1coef = dbs.rng_e1coef;
+            setNullIfIndicated(dbs.ind_rng_e1coef, FLOAT, &structPtr->rng_e1coef);
+
+            structPtr->rng_e2coef = dbs.rng_e2coef;
+            setNullIfIndicated(dbs.ind_rng_e2coef, FLOAT, &structPtr->rng_e2coef);
+
+            structPtr->rng_e3coef = dbs.rng_e3coef;
+            setNullIfIndicated(dbs.ind_rng_e3coef, FLOAT, &structPtr->rng_e3coef);
+
+            structPtr->min_prate = dbs.min_prate;
+            setNullIfIndicated(dbs.ind_min_prate, FLOAT, &structPtr->min_prate);
+
+            structPtr->max_prate = dbs.max_prate;
+            setNullIfIndicated(dbs.ind_max_prate, FLOAT, &structPtr->max_prate);
+
+            structPtr->tim_restrt = dbs.tim_restrt;
+            setNullIfIndicated(dbs.ind_tim_restrt, FLOAT, &structPtr->tim_restrt);
+
+            structPtr->max_timint = dbs.max_timint;
+            setNullIfIndicated(dbs.ind_max_timint, FLOAT, &structPtr->max_timint);
+
+            structPtr->min_timprd = dbs.min_timprd;
+            setNullIfIndicated(dbs.ind_min_timprd, FLOAT, &structPtr->min_timprd);
+
+            structPtr->thr_hlyout = dbs.thr_hlyout;
+            setNullIfIndicated(dbs.ind_thr_hlyout, FLOAT, &structPtr->thr_hlyout);
+
+            structPtr->end_timgag = dbs.end_timgag;
+            setNullIfIndicated(dbs.ind_end_timgag, FLOAT, &structPtr->end_timgag);
+
+            structPtr->max_prdval = dbs.max_prdval;
+            setNullIfIndicated(dbs.ind_max_prdval, FLOAT, &structPtr->max_prdval);
+
+            structPtr->max_hlyval = dbs.max_hlyval;
+            setNullIfIndicated(dbs.ind_max_hlyval, FLOAT, &structPtr->max_hlyval);
+
+            structPtr->tim_biest = dbs.tim_biest;
+            setNullIfIndicated(dbs.ind_tim_biest, FLOAT, &structPtr->tim_biest);
+
+            structPtr->thr_nosets = dbs.thr_nosets;
+            setNullIfIndicated(dbs.ind_thr_nosets, FLOAT, &structPtr->thr_nosets);
+
+            structPtr->res_bias = dbs.res_bias;
+            setNullIfIndicated(dbs.ind_res_bias, FLOAT, &structPtr->res_bias);
+
+            structPtr->longest_lag = dbs.longest_lag;
+            setNullIfIndicated(dbs.ind_longest_lag, FLOAT, &structPtr->longest_lag);
+
+            strcpy(structPtr->bias_applied, dbs.bias_applied);
+            setNullIfIndicated(dbs.ind_bias_applied, CHAR, structPtr->bias_applied);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.min_reflth:dbs.ind_min_reflth, :dbs.max_reflth:dbs.ind_max_reflth, 
+        :dbs.ref_tltest:dbs.ind_ref_tltest, :dbs.rng_tltin:dbs.ind_rng_tltin, 
+        :dbs.rng_tltout:dbs.ind_rng_tltout, :dbs.max_birng:dbs.ind_max_birng, 
+        :dbs.min_birng:dbs.ind_min_birng, :dbs.min_echoar:dbs.ind_min_echoar, 
+        :dbs.min_awrefl:dbs.ind_min_awrefl, :dbs.max_pctred:dbs.ind_max_pctred, 
+        :dbs.mlt_zrcoef:dbs.ind_mlt_zrcoef, :dbs.pwr_zrcoef:dbs.ind_pwr_zrcoef, 
+        :dbs.min_zrefl:dbs.ind_min_zrefl, :dbs.max_zrefl:dbs.ind_max_zrefl, 
+        :dbs.max_stmspd:dbs.ind_max_stmspd, :dbs.max_timdif:dbs.ind_max_timdif, 
+        :dbs.min_artcon:dbs.ind_min_artcon, :dbs.tim_p1cont:dbs.ind_tim_p1cont, 
+        :dbs.tim_p2cont:dbs.ind_tim_p2cont, :dbs.max_ecarch:dbs.ind_max_ecarch, 
+        :dbs.rng_cutoff:dbs.ind_rng_cutoff, :dbs.rng_e1coef:dbs.ind_rng_e1coef, 
+        :dbs.rng_e2coef:dbs.ind_rng_e2coef, :dbs.rng_e3coef:dbs.ind_rng_e3coef, 
+        :dbs.min_prate:dbs.ind_min_prate, :dbs.max_prate:dbs.ind_max_prate, 
+        :dbs.tim_restrt:dbs.ind_tim_restrt, :dbs.max_timint:dbs.ind_max_timint, 
+        :dbs.min_timprd:dbs.ind_min_timprd, :dbs.thr_hlyout:dbs.ind_thr_hlyout, 
+        :dbs.end_timgag:dbs.ind_end_timgag, :dbs.max_prdval:dbs.ind_max_prdval, 
+        :dbs.max_hlyval:dbs.ind_max_hlyval, :dbs.tim_biest:dbs.ind_tim_biest, 
+        :dbs.thr_nosets:dbs.ind_thr_nosets, :dbs.res_bias:dbs.ind_res_bias, 
+        :dbs.longest_lag:dbs.ind_longest_lag, :dbs.bias_applied:dbs.ind_bias_applied        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDSPAdapt() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DSPAdapt * SelectDSPAdapt(const char * where)
+{
+
+    DSPAdapt * listPtr = NULL;
+    DSPAdapt * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DSPAdapt ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSPAdapt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSPAdapt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSPAdapt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSPAdapt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.min_reflth:dbs.ind_min_reflth, :dbs.max_reflth:dbs.ind_max_reflth, 
+    :dbs.ref_tltest:dbs.ind_ref_tltest, :dbs.rng_tltin:dbs.ind_rng_tltin, 
+    :dbs.rng_tltout:dbs.ind_rng_tltout, :dbs.max_birng:dbs.ind_max_birng, 
+    :dbs.min_birng:dbs.ind_min_birng, :dbs.min_echoar:dbs.ind_min_echoar, 
+    :dbs.min_awrefl:dbs.ind_min_awrefl, :dbs.max_pctred:dbs.ind_max_pctred, 
+    :dbs.mlt_zrcoef:dbs.ind_mlt_zrcoef, :dbs.pwr_zrcoef:dbs.ind_pwr_zrcoef, 
+    :dbs.min_zrefl:dbs.ind_min_zrefl, :dbs.max_zrefl:dbs.ind_max_zrefl, 
+    :dbs.max_stmspd:dbs.ind_max_stmspd, :dbs.max_timdif:dbs.ind_max_timdif, 
+    :dbs.min_artcon:dbs.ind_min_artcon, :dbs.tim_p1cont:dbs.ind_tim_p1cont, 
+    :dbs.tim_p2cont:dbs.ind_tim_p2cont, :dbs.max_ecarch:dbs.ind_max_ecarch, 
+    :dbs.rng_cutoff:dbs.ind_rng_cutoff, :dbs.rng_e1coef:dbs.ind_rng_e1coef, 
+    :dbs.rng_e2coef:dbs.ind_rng_e2coef, :dbs.rng_e3coef:dbs.ind_rng_e3coef, 
+    :dbs.min_prate:dbs.ind_min_prate, :dbs.max_prate:dbs.ind_max_prate, 
+    :dbs.tim_restrt:dbs.ind_tim_restrt, :dbs.max_timint:dbs.ind_max_timint, 
+    :dbs.min_timprd:dbs.ind_min_timprd, :dbs.thr_hlyout:dbs.ind_thr_hlyout, 
+    :dbs.end_timgag:dbs.ind_end_timgag, :dbs.max_prdval:dbs.ind_max_prdval, 
+    :dbs.max_hlyval:dbs.ind_max_hlyval, :dbs.tim_biest:dbs.ind_tim_biest, 
+    :dbs.thr_nosets:dbs.ind_thr_nosets, :dbs.res_bias:dbs.ind_res_bias, 
+    :dbs.longest_lag:dbs.ind_longest_lag, :dbs.bias_applied:dbs.ind_bias_applied    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSPAdapt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DSPAdapt *) malloc(sizeof(DSPAdapt))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->min_reflth = dbs.min_reflth;
+            setNullIfIndicated(dbs.ind_min_reflth, FLOAT, &structPtr->min_reflth);
+
+            structPtr->max_reflth = dbs.max_reflth;
+            setNullIfIndicated(dbs.ind_max_reflth, FLOAT, &structPtr->max_reflth);
+
+            structPtr->ref_tltest = dbs.ref_tltest;
+            setNullIfIndicated(dbs.ind_ref_tltest, FLOAT, &structPtr->ref_tltest);
+
+            structPtr->rng_tltin = dbs.rng_tltin;
+            setNullIfIndicated(dbs.ind_rng_tltin, FLOAT, &structPtr->rng_tltin);
+
+            structPtr->rng_tltout = dbs.rng_tltout;
+            setNullIfIndicated(dbs.ind_rng_tltout, FLOAT, &structPtr->rng_tltout);
+
+            structPtr->max_birng = dbs.max_birng;
+            setNullIfIndicated(dbs.ind_max_birng, FLOAT, &structPtr->max_birng);
+
+            structPtr->min_birng = dbs.min_birng;
+            setNullIfIndicated(dbs.ind_min_birng, FLOAT, &structPtr->min_birng);
+
+            structPtr->min_echoar = dbs.min_echoar;
+            setNullIfIndicated(dbs.ind_min_echoar, FLOAT, &structPtr->min_echoar);
+
+            structPtr->min_awrefl = dbs.min_awrefl;
+            setNullIfIndicated(dbs.ind_min_awrefl, FLOAT, &structPtr->min_awrefl);
+
+            structPtr->max_pctred = dbs.max_pctred;
+            setNullIfIndicated(dbs.ind_max_pctred, FLOAT, &structPtr->max_pctred);
+
+            structPtr->mlt_zrcoef = dbs.mlt_zrcoef;
+            setNullIfIndicated(dbs.ind_mlt_zrcoef, FLOAT, &structPtr->mlt_zrcoef);
+
+            structPtr->pwr_zrcoef = dbs.pwr_zrcoef;
+            setNullIfIndicated(dbs.ind_pwr_zrcoef, FLOAT, &structPtr->pwr_zrcoef);
+
+            structPtr->min_zrefl = dbs.min_zrefl;
+            setNullIfIndicated(dbs.ind_min_zrefl, FLOAT, &structPtr->min_zrefl);
+
+            structPtr->max_zrefl = dbs.max_zrefl;
+            setNullIfIndicated(dbs.ind_max_zrefl, FLOAT, &structPtr->max_zrefl);
+
+            structPtr->max_stmspd = dbs.max_stmspd;
+            setNullIfIndicated(dbs.ind_max_stmspd, FLOAT, &structPtr->max_stmspd);
+
+            structPtr->max_timdif = dbs.max_timdif;
+            setNullIfIndicated(dbs.ind_max_timdif, FLOAT, &structPtr->max_timdif);
+
+            structPtr->min_artcon = dbs.min_artcon;
+            setNullIfIndicated(dbs.ind_min_artcon, FLOAT, &structPtr->min_artcon);
+
+            structPtr->tim_p1cont = dbs.tim_p1cont;
+            setNullIfIndicated(dbs.ind_tim_p1cont, FLOAT, &structPtr->tim_p1cont);
+
+            structPtr->tim_p2cont = dbs.tim_p2cont;
+            setNullIfIndicated(dbs.ind_tim_p2cont, FLOAT, &structPtr->tim_p2cont);
+
+            structPtr->max_ecarch = dbs.max_ecarch;
+            setNullIfIndicated(dbs.ind_max_ecarch, FLOAT, &structPtr->max_ecarch);
+
+            structPtr->rng_cutoff = dbs.rng_cutoff;
+            setNullIfIndicated(dbs.ind_rng_cutoff, FLOAT, &structPtr->rng_cutoff);
+
+            structPtr->rng_e1coef = dbs.rng_e1coef;
+            setNullIfIndicated(dbs.ind_rng_e1coef, FLOAT, &structPtr->rng_e1coef);
+
+            structPtr->rng_e2coef = dbs.rng_e2coef;
+            setNullIfIndicated(dbs.ind_rng_e2coef, FLOAT, &structPtr->rng_e2coef);
+
+            structPtr->rng_e3coef = dbs.rng_e3coef;
+            setNullIfIndicated(dbs.ind_rng_e3coef, FLOAT, &structPtr->rng_e3coef);
+
+            structPtr->min_prate = dbs.min_prate;
+            setNullIfIndicated(dbs.ind_min_prate, FLOAT, &structPtr->min_prate);
+
+            structPtr->max_prate = dbs.max_prate;
+            setNullIfIndicated(dbs.ind_max_prate, FLOAT, &structPtr->max_prate);
+
+            structPtr->tim_restrt = dbs.tim_restrt;
+            setNullIfIndicated(dbs.ind_tim_restrt, FLOAT, &structPtr->tim_restrt);
+
+            structPtr->max_timint = dbs.max_timint;
+            setNullIfIndicated(dbs.ind_max_timint, FLOAT, &structPtr->max_timint);
+
+            structPtr->min_timprd = dbs.min_timprd;
+            setNullIfIndicated(dbs.ind_min_timprd, FLOAT, &structPtr->min_timprd);
+
+            structPtr->thr_hlyout = dbs.thr_hlyout;
+            setNullIfIndicated(dbs.ind_thr_hlyout, FLOAT, &structPtr->thr_hlyout);
+
+            structPtr->end_timgag = dbs.end_timgag;
+            setNullIfIndicated(dbs.ind_end_timgag, FLOAT, &structPtr->end_timgag);
+
+            structPtr->max_prdval = dbs.max_prdval;
+            setNullIfIndicated(dbs.ind_max_prdval, FLOAT, &structPtr->max_prdval);
+
+            structPtr->max_hlyval = dbs.max_hlyval;
+            setNullIfIndicated(dbs.ind_max_hlyval, FLOAT, &structPtr->max_hlyval);
+
+            structPtr->tim_biest = dbs.tim_biest;
+            setNullIfIndicated(dbs.ind_tim_biest, FLOAT, &structPtr->tim_biest);
+
+            structPtr->thr_nosets = dbs.thr_nosets;
+            setNullIfIndicated(dbs.ind_thr_nosets, FLOAT, &structPtr->thr_nosets);
+
+            structPtr->res_bias = dbs.res_bias;
+            setNullIfIndicated(dbs.ind_res_bias, FLOAT, &structPtr->res_bias);
+
+            structPtr->longest_lag = dbs.longest_lag;
+            setNullIfIndicated(dbs.ind_longest_lag, FLOAT, &structPtr->longest_lag);
+
+            strcpy(structPtr->bias_applied, dbs.bias_applied);
+            setNullIfIndicated(dbs.ind_bias_applied, CHAR, structPtr->bias_applied);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.min_reflth:dbs.ind_min_reflth, :dbs.max_reflth:dbs.ind_max_reflth, 
+        :dbs.ref_tltest:dbs.ind_ref_tltest, :dbs.rng_tltin:dbs.ind_rng_tltin, 
+        :dbs.rng_tltout:dbs.ind_rng_tltout, :dbs.max_birng:dbs.ind_max_birng, 
+        :dbs.min_birng:dbs.ind_min_birng, :dbs.min_echoar:dbs.ind_min_echoar, 
+        :dbs.min_awrefl:dbs.ind_min_awrefl, :dbs.max_pctred:dbs.ind_max_pctred, 
+        :dbs.mlt_zrcoef:dbs.ind_mlt_zrcoef, :dbs.pwr_zrcoef:dbs.ind_pwr_zrcoef, 
+        :dbs.min_zrefl:dbs.ind_min_zrefl, :dbs.max_zrefl:dbs.ind_max_zrefl, 
+        :dbs.max_stmspd:dbs.ind_max_stmspd, :dbs.max_timdif:dbs.ind_max_timdif, 
+        :dbs.min_artcon:dbs.ind_min_artcon, :dbs.tim_p1cont:dbs.ind_tim_p1cont, 
+        :dbs.tim_p2cont:dbs.ind_tim_p2cont, :dbs.max_ecarch:dbs.ind_max_ecarch, 
+        :dbs.rng_cutoff:dbs.ind_rng_cutoff, :dbs.rng_e1coef:dbs.ind_rng_e1coef, 
+        :dbs.rng_e2coef:dbs.ind_rng_e2coef, :dbs.rng_e3coef:dbs.ind_rng_e3coef, 
+        :dbs.min_prate:dbs.ind_min_prate, :dbs.max_prate:dbs.ind_max_prate, 
+        :dbs.tim_restrt:dbs.ind_tim_restrt, :dbs.max_timint:dbs.ind_max_timint, 
+        :dbs.min_timprd:dbs.ind_min_timprd, :dbs.thr_hlyout:dbs.ind_thr_hlyout, 
+        :dbs.end_timgag:dbs.ind_end_timgag, :dbs.max_prdval:dbs.ind_max_prdval, 
+        :dbs.max_hlyval:dbs.ind_max_hlyval, :dbs.tim_biest:dbs.ind_tim_biest, 
+        :dbs.thr_nosets:dbs.ind_thr_nosets, :dbs.res_bias:dbs.ind_res_bias, 
+        :dbs.longest_lag:dbs.ind_longest_lag, :dbs.bias_applied:dbs.ind_bias_applied        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDSPAdapt() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDSPAdaptCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DSPAdapt ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSPAdapt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSPAdapt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSPAdapt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSPAdapt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDSPAdapt(const DSPAdapt * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSPAdapt_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.min_reflth = structPtr->min_reflth;
+    dbs.ind_min_reflth = getIndicator(FLOAT, (void *)&structPtr->min_reflth);
+
+    dbs.max_reflth = structPtr->max_reflth;
+    dbs.ind_max_reflth = getIndicator(FLOAT, (void *)&structPtr->max_reflth);
+
+    dbs.ref_tltest = structPtr->ref_tltest;
+    dbs.ind_ref_tltest = getIndicator(FLOAT, (void *)&structPtr->ref_tltest);
+
+    dbs.rng_tltin = structPtr->rng_tltin;
+    dbs.ind_rng_tltin = getIndicator(FLOAT, (void *)&structPtr->rng_tltin);
+
+    dbs.rng_tltout = structPtr->rng_tltout;
+    dbs.ind_rng_tltout = getIndicator(FLOAT, (void *)&structPtr->rng_tltout);
+
+    dbs.max_birng = structPtr->max_birng;
+    dbs.ind_max_birng = getIndicator(FLOAT, (void *)&structPtr->max_birng);
+
+    dbs.min_birng = structPtr->min_birng;
+    dbs.ind_min_birng = getIndicator(FLOAT, (void *)&structPtr->min_birng);
+
+    dbs.min_echoar = structPtr->min_echoar;
+    dbs.ind_min_echoar = getIndicator(FLOAT, (void *)&structPtr->min_echoar);
+
+    dbs.min_awrefl = structPtr->min_awrefl;
+    dbs.ind_min_awrefl = getIndicator(FLOAT, (void *)&structPtr->min_awrefl);
+
+    dbs.max_pctred = structPtr->max_pctred;
+    dbs.ind_max_pctred = getIndicator(FLOAT, (void *)&structPtr->max_pctred);
+
+    dbs.mlt_zrcoef = structPtr->mlt_zrcoef;
+    dbs.ind_mlt_zrcoef = getIndicator(FLOAT, (void *)&structPtr->mlt_zrcoef);
+
+    dbs.pwr_zrcoef = structPtr->pwr_zrcoef;
+    dbs.ind_pwr_zrcoef = getIndicator(FLOAT, (void *)&structPtr->pwr_zrcoef);
+
+    dbs.min_zrefl = structPtr->min_zrefl;
+    dbs.ind_min_zrefl = getIndicator(FLOAT, (void *)&structPtr->min_zrefl);
+
+    dbs.max_zrefl = structPtr->max_zrefl;
+    dbs.ind_max_zrefl = getIndicator(FLOAT, (void *)&structPtr->max_zrefl);
+
+    dbs.max_stmspd = structPtr->max_stmspd;
+    dbs.ind_max_stmspd = getIndicator(FLOAT, (void *)&structPtr->max_stmspd);
+
+    dbs.max_timdif = structPtr->max_timdif;
+    dbs.ind_max_timdif = getIndicator(FLOAT, (void *)&structPtr->max_timdif);
+
+    dbs.min_artcon = structPtr->min_artcon;
+    dbs.ind_min_artcon = getIndicator(FLOAT, (void *)&structPtr->min_artcon);
+
+    dbs.tim_p1cont = structPtr->tim_p1cont;
+    dbs.ind_tim_p1cont = getIndicator(FLOAT, (void *)&structPtr->tim_p1cont);
+
+    dbs.tim_p2cont = structPtr->tim_p2cont;
+    dbs.ind_tim_p2cont = getIndicator(FLOAT, (void *)&structPtr->tim_p2cont);
+
+    dbs.max_ecarch = structPtr->max_ecarch;
+    dbs.ind_max_ecarch = getIndicator(FLOAT, (void *)&structPtr->max_ecarch);
+
+    dbs.rng_cutoff = structPtr->rng_cutoff;
+    dbs.ind_rng_cutoff = getIndicator(FLOAT, (void *)&structPtr->rng_cutoff);
+
+    dbs.rng_e1coef = structPtr->rng_e1coef;
+    dbs.ind_rng_e1coef = getIndicator(FLOAT, (void *)&structPtr->rng_e1coef);
+
+    dbs.rng_e2coef = structPtr->rng_e2coef;
+    dbs.ind_rng_e2coef = getIndicator(FLOAT, (void *)&structPtr->rng_e2coef);
+
+    dbs.rng_e3coef = structPtr->rng_e3coef;
+    dbs.ind_rng_e3coef = getIndicator(FLOAT, (void *)&structPtr->rng_e3coef);
+
+    dbs.min_prate = structPtr->min_prate;
+    dbs.ind_min_prate = getIndicator(FLOAT, (void *)&structPtr->min_prate);
+
+    dbs.max_prate = structPtr->max_prate;
+    dbs.ind_max_prate = getIndicator(FLOAT, (void *)&structPtr->max_prate);
+
+    dbs.tim_restrt = structPtr->tim_restrt;
+    dbs.ind_tim_restrt = getIndicator(FLOAT, (void *)&structPtr->tim_restrt);
+
+    dbs.max_timint = structPtr->max_timint;
+    dbs.ind_max_timint = getIndicator(FLOAT, (void *)&structPtr->max_timint);
+
+    dbs.min_timprd = structPtr->min_timprd;
+    dbs.ind_min_timprd = getIndicator(FLOAT, (void *)&structPtr->min_timprd);
+
+    dbs.thr_hlyout = structPtr->thr_hlyout;
+    dbs.ind_thr_hlyout = getIndicator(FLOAT, (void *)&structPtr->thr_hlyout);
+
+    dbs.end_timgag = structPtr->end_timgag;
+    dbs.ind_end_timgag = getIndicator(FLOAT, (void *)&structPtr->end_timgag);
+
+    dbs.max_prdval = structPtr->max_prdval;
+    dbs.ind_max_prdval = getIndicator(FLOAT, (void *)&structPtr->max_prdval);
+
+    dbs.max_hlyval = structPtr->max_hlyval;
+    dbs.ind_max_hlyval = getIndicator(FLOAT, (void *)&structPtr->max_hlyval);
+
+    dbs.tim_biest = structPtr->tim_biest;
+    dbs.ind_tim_biest = getIndicator(FLOAT, (void *)&structPtr->tim_biest);
+
+    dbs.thr_nosets = structPtr->thr_nosets;
+    dbs.ind_thr_nosets = getIndicator(FLOAT, (void *)&structPtr->thr_nosets);
+
+    dbs.res_bias = structPtr->res_bias;
+    dbs.ind_res_bias = getIndicator(FLOAT, (void *)&structPtr->res_bias);
+
+    dbs.longest_lag = structPtr->longest_lag;
+    dbs.ind_longest_lag = getIndicator(FLOAT, (void *)&structPtr->longest_lag);
+
+    strcpy(dbs.bias_applied, structPtr->bias_applied);
+    dbs.ind_bias_applied = getIndicator(CHAR, (void *)structPtr->bias_applied);
+
+
+    EXEC SQL INSERT INTO DSPAdapt (radid,obstime,
+        min_reflth,max_reflth,ref_tltest,
+        rng_tltin,rng_tltout,max_birng,
+        min_birng,min_echoar,min_awrefl,
+        max_pctred,mlt_zrcoef,pwr_zrcoef,
+        min_zrefl,max_zrefl,max_stmspd,
+        max_timdif,min_artcon,tim_p1cont,
+        tim_p2cont,max_ecarch,rng_cutoff,
+        rng_e1coef,rng_e2coef,rng_e3coef,
+        min_prate,max_prate,tim_restrt,
+        max_timint,min_timprd,thr_hlyout,
+        end_timgag,max_prdval,max_hlyval,
+        tim_biest,thr_nosets,res_bias,
+        longest_lag,bias_applied        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.min_reflth:dbs.ind_min_reflth,
+         :dbs.max_reflth:dbs.ind_max_reflth, :dbs.ref_tltest:dbs.ind_ref_tltest, :dbs.rng_tltin:dbs.ind_rng_tltin,
+         :dbs.rng_tltout:dbs.ind_rng_tltout, :dbs.max_birng:dbs.ind_max_birng, :dbs.min_birng:dbs.ind_min_birng,
+         :dbs.min_echoar:dbs.ind_min_echoar, :dbs.min_awrefl:dbs.ind_min_awrefl, :dbs.max_pctred:dbs.ind_max_pctred,
+         :dbs.mlt_zrcoef:dbs.ind_mlt_zrcoef, :dbs.pwr_zrcoef:dbs.ind_pwr_zrcoef, :dbs.min_zrefl:dbs.ind_min_zrefl,
+         :dbs.max_zrefl:dbs.ind_max_zrefl, :dbs.max_stmspd:dbs.ind_max_stmspd, :dbs.max_timdif:dbs.ind_max_timdif,
+         :dbs.min_artcon:dbs.ind_min_artcon, :dbs.tim_p1cont:dbs.ind_tim_p1cont, :dbs.tim_p2cont:dbs.ind_tim_p2cont,
+         :dbs.max_ecarch:dbs.ind_max_ecarch, :dbs.rng_cutoff:dbs.ind_rng_cutoff, :dbs.rng_e1coef:dbs.ind_rng_e1coef,
+         :dbs.rng_e2coef:dbs.ind_rng_e2coef, :dbs.rng_e3coef:dbs.ind_rng_e3coef, :dbs.min_prate:dbs.ind_min_prate,
+         :dbs.max_prate:dbs.ind_max_prate, :dbs.tim_restrt:dbs.ind_tim_restrt, :dbs.max_timint:dbs.ind_max_timint,
+         :dbs.min_timprd:dbs.ind_min_timprd, :dbs.thr_hlyout:dbs.ind_thr_hlyout, :dbs.end_timgag:dbs.ind_end_timgag,
+         :dbs.max_prdval:dbs.ind_max_prdval, :dbs.max_hlyval:dbs.ind_max_hlyval, :dbs.tim_biest:dbs.ind_tim_biest,
+         :dbs.thr_nosets:dbs.ind_thr_nosets, :dbs.res_bias:dbs.ind_res_bias, :dbs.longest_lag:dbs.ind_longest_lag,
+         :dbs.bias_applied:dbs.ind_bias_applied);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDSPAdapt() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDSPAdapt(const DSPAdapt * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSPAdapt_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.min_reflth = structPtr->min_reflth;
+    dbs.ind_min_reflth = getIndicator(FLOAT, (void *)&structPtr->min_reflth);
+
+    dbs.max_reflth = structPtr->max_reflth;
+    dbs.ind_max_reflth = getIndicator(FLOAT, (void *)&structPtr->max_reflth);
+
+    dbs.ref_tltest = structPtr->ref_tltest;
+    dbs.ind_ref_tltest = getIndicator(FLOAT, (void *)&structPtr->ref_tltest);
+
+    dbs.rng_tltin = structPtr->rng_tltin;
+    dbs.ind_rng_tltin = getIndicator(FLOAT, (void *)&structPtr->rng_tltin);
+
+    dbs.rng_tltout = structPtr->rng_tltout;
+    dbs.ind_rng_tltout = getIndicator(FLOAT, (void *)&structPtr->rng_tltout);
+
+    dbs.max_birng = structPtr->max_birng;
+    dbs.ind_max_birng = getIndicator(FLOAT, (void *)&structPtr->max_birng);
+
+    dbs.min_birng = structPtr->min_birng;
+    dbs.ind_min_birng = getIndicator(FLOAT, (void *)&structPtr->min_birng);
+
+    dbs.min_echoar = structPtr->min_echoar;
+    dbs.ind_min_echoar = getIndicator(FLOAT, (void *)&structPtr->min_echoar);
+
+    dbs.min_awrefl = structPtr->min_awrefl;
+    dbs.ind_min_awrefl = getIndicator(FLOAT, (void *)&structPtr->min_awrefl);
+
+    dbs.max_pctred = structPtr->max_pctred;
+    dbs.ind_max_pctred = getIndicator(FLOAT, (void *)&structPtr->max_pctred);
+
+    dbs.mlt_zrcoef = structPtr->mlt_zrcoef;
+    dbs.ind_mlt_zrcoef = getIndicator(FLOAT, (void *)&structPtr->mlt_zrcoef);
+
+    dbs.pwr_zrcoef = structPtr->pwr_zrcoef;
+    dbs.ind_pwr_zrcoef = getIndicator(FLOAT, (void *)&structPtr->pwr_zrcoef);
+
+    dbs.min_zrefl = structPtr->min_zrefl;
+    dbs.ind_min_zrefl = getIndicator(FLOAT, (void *)&structPtr->min_zrefl);
+
+    dbs.max_zrefl = structPtr->max_zrefl;
+    dbs.ind_max_zrefl = getIndicator(FLOAT, (void *)&structPtr->max_zrefl);
+
+    dbs.max_stmspd = structPtr->max_stmspd;
+    dbs.ind_max_stmspd = getIndicator(FLOAT, (void *)&structPtr->max_stmspd);
+
+    dbs.max_timdif = structPtr->max_timdif;
+    dbs.ind_max_timdif = getIndicator(FLOAT, (void *)&structPtr->max_timdif);
+
+    dbs.min_artcon = structPtr->min_artcon;
+    dbs.ind_min_artcon = getIndicator(FLOAT, (void *)&structPtr->min_artcon);
+
+    dbs.tim_p1cont = structPtr->tim_p1cont;
+    dbs.ind_tim_p1cont = getIndicator(FLOAT, (void *)&structPtr->tim_p1cont);
+
+    dbs.tim_p2cont = structPtr->tim_p2cont;
+    dbs.ind_tim_p2cont = getIndicator(FLOAT, (void *)&structPtr->tim_p2cont);
+
+    dbs.max_ecarch = structPtr->max_ecarch;
+    dbs.ind_max_ecarch = getIndicator(FLOAT, (void *)&structPtr->max_ecarch);
+
+    dbs.rng_cutoff = structPtr->rng_cutoff;
+    dbs.ind_rng_cutoff = getIndicator(FLOAT, (void *)&structPtr->rng_cutoff);
+
+    dbs.rng_e1coef = structPtr->rng_e1coef;
+    dbs.ind_rng_e1coef = getIndicator(FLOAT, (void *)&structPtr->rng_e1coef);
+
+    dbs.rng_e2coef = structPtr->rng_e2coef;
+    dbs.ind_rng_e2coef = getIndicator(FLOAT, (void *)&structPtr->rng_e2coef);
+
+    dbs.rng_e3coef = structPtr->rng_e3coef;
+    dbs.ind_rng_e3coef = getIndicator(FLOAT, (void *)&structPtr->rng_e3coef);
+
+    dbs.min_prate = structPtr->min_prate;
+    dbs.ind_min_prate = getIndicator(FLOAT, (void *)&structPtr->min_prate);
+
+    dbs.max_prate = structPtr->max_prate;
+    dbs.ind_max_prate = getIndicator(FLOAT, (void *)&structPtr->max_prate);
+
+    dbs.tim_restrt = structPtr->tim_restrt;
+    dbs.ind_tim_restrt = getIndicator(FLOAT, (void *)&structPtr->tim_restrt);
+
+    dbs.max_timint = structPtr->max_timint;
+    dbs.ind_max_timint = getIndicator(FLOAT, (void *)&structPtr->max_timint);
+
+    dbs.min_timprd = structPtr->min_timprd;
+    dbs.ind_min_timprd = getIndicator(FLOAT, (void *)&structPtr->min_timprd);
+
+    dbs.thr_hlyout = structPtr->thr_hlyout;
+    dbs.ind_thr_hlyout = getIndicator(FLOAT, (void *)&structPtr->thr_hlyout);
+
+    dbs.end_timgag = structPtr->end_timgag;
+    dbs.ind_end_timgag = getIndicator(FLOAT, (void *)&structPtr->end_timgag);
+
+    dbs.max_prdval = structPtr->max_prdval;
+    dbs.ind_max_prdval = getIndicator(FLOAT, (void *)&structPtr->max_prdval);
+
+    dbs.max_hlyval = structPtr->max_hlyval;
+    dbs.ind_max_hlyval = getIndicator(FLOAT, (void *)&structPtr->max_hlyval);
+
+    dbs.tim_biest = structPtr->tim_biest;
+    dbs.ind_tim_biest = getIndicator(FLOAT, (void *)&structPtr->tim_biest);
+
+    dbs.thr_nosets = structPtr->thr_nosets;
+    dbs.ind_thr_nosets = getIndicator(FLOAT, (void *)&structPtr->thr_nosets);
+
+    dbs.res_bias = structPtr->res_bias;
+    dbs.ind_res_bias = getIndicator(FLOAT, (void *)&structPtr->res_bias);
+
+    dbs.longest_lag = structPtr->longest_lag;
+    dbs.ind_longest_lag = getIndicator(FLOAT, (void *)&structPtr->longest_lag);
+
+    strcpy(dbs.bias_applied, structPtr->bias_applied);
+    dbs.ind_bias_applied = getIndicator(CHAR, (void *)structPtr->bias_applied);
+
+
+    EXEC SQL INSERT INTO DSPAdapt (radid,obstime,
+        min_reflth,max_reflth,ref_tltest,
+        rng_tltin,rng_tltout,max_birng,
+        min_birng,min_echoar,min_awrefl,
+        max_pctred,mlt_zrcoef,pwr_zrcoef,
+        min_zrefl,max_zrefl,max_stmspd,
+        max_timdif,min_artcon,tim_p1cont,
+        tim_p2cont,max_ecarch,rng_cutoff,
+        rng_e1coef,rng_e2coef,rng_e3coef,
+        min_prate,max_prate,tim_restrt,
+        max_timint,min_timprd,thr_hlyout,
+        end_timgag,max_prdval,max_hlyval,
+        tim_biest,thr_nosets,res_bias,
+        longest_lag,bias_applied        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.min_reflth:dbs.ind_min_reflth,
+         :dbs.max_reflth:dbs.ind_max_reflth, :dbs.ref_tltest:dbs.ind_ref_tltest, :dbs.rng_tltin:dbs.ind_rng_tltin,
+         :dbs.rng_tltout:dbs.ind_rng_tltout, :dbs.max_birng:dbs.ind_max_birng, :dbs.min_birng:dbs.ind_min_birng,
+         :dbs.min_echoar:dbs.ind_min_echoar, :dbs.min_awrefl:dbs.ind_min_awrefl, :dbs.max_pctred:dbs.ind_max_pctred,
+         :dbs.mlt_zrcoef:dbs.ind_mlt_zrcoef, :dbs.pwr_zrcoef:dbs.ind_pwr_zrcoef, :dbs.min_zrefl:dbs.ind_min_zrefl,
+         :dbs.max_zrefl:dbs.ind_max_zrefl, :dbs.max_stmspd:dbs.ind_max_stmspd, :dbs.max_timdif:dbs.ind_max_timdif,
+         :dbs.min_artcon:dbs.ind_min_artcon, :dbs.tim_p1cont:dbs.ind_tim_p1cont, :dbs.tim_p2cont:dbs.ind_tim_p2cont,
+         :dbs.max_ecarch:dbs.ind_max_ecarch, :dbs.rng_cutoff:dbs.ind_rng_cutoff, :dbs.rng_e1coef:dbs.ind_rng_e1coef,
+         :dbs.rng_e2coef:dbs.ind_rng_e2coef, :dbs.rng_e3coef:dbs.ind_rng_e3coef, :dbs.min_prate:dbs.ind_min_prate,
+         :dbs.max_prate:dbs.ind_max_prate, :dbs.tim_restrt:dbs.ind_tim_restrt, :dbs.max_timint:dbs.ind_max_timint,
+         :dbs.min_timprd:dbs.ind_min_timprd, :dbs.thr_hlyout:dbs.ind_thr_hlyout, :dbs.end_timgag:dbs.ind_end_timgag,
+         :dbs.max_prdval:dbs.ind_max_prdval, :dbs.max_hlyval:dbs.ind_max_hlyval, :dbs.tim_biest:dbs.ind_tim_biest,
+         :dbs.thr_nosets:dbs.ind_thr_nosets, :dbs.res_bias:dbs.ind_res_bias, :dbs.longest_lag:dbs.ind_longest_lag,
+         :dbs.bias_applied:dbs.ind_bias_applied);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDSPAdapt() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDSPAdapt(const DSPAdapt *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSPAdapt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.min_reflth = structPtr->min_reflth;
+    dbs.ind_min_reflth = getIndicator(FLOAT, (void *)&structPtr->min_reflth);
+
+    dbs.max_reflth = structPtr->max_reflth;
+    dbs.ind_max_reflth = getIndicator(FLOAT, (void *)&structPtr->max_reflth);
+
+    dbs.ref_tltest = structPtr->ref_tltest;
+    dbs.ind_ref_tltest = getIndicator(FLOAT, (void *)&structPtr->ref_tltest);
+
+    dbs.rng_tltin = structPtr->rng_tltin;
+    dbs.ind_rng_tltin = getIndicator(FLOAT, (void *)&structPtr->rng_tltin);
+
+    dbs.rng_tltout = structPtr->rng_tltout;
+    dbs.ind_rng_tltout = getIndicator(FLOAT, (void *)&structPtr->rng_tltout);
+
+    dbs.max_birng = structPtr->max_birng;
+    dbs.ind_max_birng = getIndicator(FLOAT, (void *)&structPtr->max_birng);
+
+    dbs.min_birng = structPtr->min_birng;
+    dbs.ind_min_birng = getIndicator(FLOAT, (void *)&structPtr->min_birng);
+
+    dbs.min_echoar = structPtr->min_echoar;
+    dbs.ind_min_echoar = getIndicator(FLOAT, (void *)&structPtr->min_echoar);
+
+    dbs.min_awrefl = structPtr->min_awrefl;
+    dbs.ind_min_awrefl = getIndicator(FLOAT, (void *)&structPtr->min_awrefl);
+
+    dbs.max_pctred = structPtr->max_pctred;
+    dbs.ind_max_pctred = getIndicator(FLOAT, (void *)&structPtr->max_pctred);
+
+    dbs.mlt_zrcoef = structPtr->mlt_zrcoef;
+    dbs.ind_mlt_zrcoef = getIndicator(FLOAT, (void *)&structPtr->mlt_zrcoef);
+
+    dbs.pwr_zrcoef = structPtr->pwr_zrcoef;
+    dbs.ind_pwr_zrcoef = getIndicator(FLOAT, (void *)&structPtr->pwr_zrcoef);
+
+    dbs.min_zrefl = structPtr->min_zrefl;
+    dbs.ind_min_zrefl = getIndicator(FLOAT, (void *)&structPtr->min_zrefl);
+
+    dbs.max_zrefl = structPtr->max_zrefl;
+    dbs.ind_max_zrefl = getIndicator(FLOAT, (void *)&structPtr->max_zrefl);
+
+    dbs.max_stmspd = structPtr->max_stmspd;
+    dbs.ind_max_stmspd = getIndicator(FLOAT, (void *)&structPtr->max_stmspd);
+
+    dbs.max_timdif = structPtr->max_timdif;
+    dbs.ind_max_timdif = getIndicator(FLOAT, (void *)&structPtr->max_timdif);
+
+    dbs.min_artcon = structPtr->min_artcon;
+    dbs.ind_min_artcon = getIndicator(FLOAT, (void *)&structPtr->min_artcon);
+
+    dbs.tim_p1cont = structPtr->tim_p1cont;
+    dbs.ind_tim_p1cont = getIndicator(FLOAT, (void *)&structPtr->tim_p1cont);
+
+    dbs.tim_p2cont = structPtr->tim_p2cont;
+    dbs.ind_tim_p2cont = getIndicator(FLOAT, (void *)&structPtr->tim_p2cont);
+
+    dbs.max_ecarch = structPtr->max_ecarch;
+    dbs.ind_max_ecarch = getIndicator(FLOAT, (void *)&structPtr->max_ecarch);
+
+    dbs.rng_cutoff = structPtr->rng_cutoff;
+    dbs.ind_rng_cutoff = getIndicator(FLOAT, (void *)&structPtr->rng_cutoff);
+
+    dbs.rng_e1coef = structPtr->rng_e1coef;
+    dbs.ind_rng_e1coef = getIndicator(FLOAT, (void *)&structPtr->rng_e1coef);
+
+    dbs.rng_e2coef = structPtr->rng_e2coef;
+    dbs.ind_rng_e2coef = getIndicator(FLOAT, (void *)&structPtr->rng_e2coef);
+
+    dbs.rng_e3coef = structPtr->rng_e3coef;
+    dbs.ind_rng_e3coef = getIndicator(FLOAT, (void *)&structPtr->rng_e3coef);
+
+    dbs.min_prate = structPtr->min_prate;
+    dbs.ind_min_prate = getIndicator(FLOAT, (void *)&structPtr->min_prate);
+
+    dbs.max_prate = structPtr->max_prate;
+    dbs.ind_max_prate = getIndicator(FLOAT, (void *)&structPtr->max_prate);
+
+    dbs.tim_restrt = structPtr->tim_restrt;
+    dbs.ind_tim_restrt = getIndicator(FLOAT, (void *)&structPtr->tim_restrt);
+
+    dbs.max_timint = structPtr->max_timint;
+    dbs.ind_max_timint = getIndicator(FLOAT, (void *)&structPtr->max_timint);
+
+    dbs.min_timprd = structPtr->min_timprd;
+    dbs.ind_min_timprd = getIndicator(FLOAT, (void *)&structPtr->min_timprd);
+
+    dbs.thr_hlyout = structPtr->thr_hlyout;
+    dbs.ind_thr_hlyout = getIndicator(FLOAT, (void *)&structPtr->thr_hlyout);
+
+    dbs.end_timgag = structPtr->end_timgag;
+    dbs.ind_end_timgag = getIndicator(FLOAT, (void *)&structPtr->end_timgag);
+
+    dbs.max_prdval = structPtr->max_prdval;
+    dbs.ind_max_prdval = getIndicator(FLOAT, (void *)&structPtr->max_prdval);
+
+    dbs.max_hlyval = structPtr->max_hlyval;
+    dbs.ind_max_hlyval = getIndicator(FLOAT, (void *)&structPtr->max_hlyval);
+
+    dbs.tim_biest = structPtr->tim_biest;
+    dbs.ind_tim_biest = getIndicator(FLOAT, (void *)&structPtr->tim_biest);
+
+    dbs.thr_nosets = structPtr->thr_nosets;
+    dbs.ind_thr_nosets = getIndicator(FLOAT, (void *)&structPtr->thr_nosets);
+
+    dbs.res_bias = structPtr->res_bias;
+    dbs.ind_res_bias = getIndicator(FLOAT, (void *)&structPtr->res_bias);
+
+    dbs.longest_lag = structPtr->longest_lag;
+    dbs.ind_longest_lag = getIndicator(FLOAT, (void *)&structPtr->longest_lag);
+
+    strcpy(dbs.bias_applied, structPtr->bias_applied);
+    dbs.ind_bias_applied = getIndicator(CHAR, (void *)structPtr->bias_applied);
+
+
+    sprintf(queryBuffer, " UPDATE DSPAdapt SET " );
+    strcat(queryBuffer, "radid = ? , obstime = ? , min_reflth = ? , max_reflth = ? , ref_tltest = ? ,     ");
+    strcat(queryBuffer, "rng_tltin = ? , rng_tltout = ? , max_birng = ? , min_birng = ? , min_echoar = ? ,     ");
+    strcat(queryBuffer, "min_awrefl = ? , max_pctred = ? , mlt_zrcoef = ? , pwr_zrcoef = ? , min_zrefl = ? ,     ");
+    strcat(queryBuffer, "max_zrefl = ? , max_stmspd = ? , max_timdif = ? , min_artcon = ? , tim_p1cont = ? ,     ");
+    strcat(queryBuffer, "tim_p2cont = ? , max_ecarch = ? , rng_cutoff = ? , rng_e1coef = ? , rng_e2coef = ? ,     ");
+    strcat(queryBuffer, "rng_e3coef = ? , min_prate = ? , max_prate = ? , tim_restrt = ? , max_timint = ? ,     ");
+    strcat(queryBuffer, "min_timprd = ? , thr_hlyout = ? , end_timgag = ? , max_prdval = ? , max_hlyval = ? ,     ");
+    strcat(queryBuffer, "tim_biest = ? , thr_nosets = ? , res_bias = ? , longest_lag = ? , bias_applied = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDSPAdapt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.obstime, :dbs.min_reflth:dbs.ind_min_reflth, :dbs.max_reflth:dbs.ind_max_reflth, :dbs.ref_tltest:dbs.ind_ref_tltest,
+     :dbs.rng_tltin:dbs.ind_rng_tltin, :dbs.rng_tltout:dbs.ind_rng_tltout, :dbs.max_birng:dbs.ind_max_birng, :dbs.min_birng:dbs.ind_min_birng, :dbs.min_echoar:dbs.ind_min_echoar,
+     :dbs.min_awrefl:dbs.ind_min_awrefl, :dbs.max_pctred:dbs.ind_max_pctred, :dbs.mlt_zrcoef:dbs.ind_mlt_zrcoef, :dbs.pwr_zrcoef:dbs.ind_pwr_zrcoef, :dbs.min_zrefl:dbs.ind_min_zrefl,
+     :dbs.max_zrefl:dbs.ind_max_zrefl, :dbs.max_stmspd:dbs.ind_max_stmspd, :dbs.max_timdif:dbs.ind_max_timdif, :dbs.min_artcon:dbs.ind_min_artcon, :dbs.tim_p1cont:dbs.ind_tim_p1cont,
+     :dbs.tim_p2cont:dbs.ind_tim_p2cont, :dbs.max_ecarch:dbs.ind_max_ecarch, :dbs.rng_cutoff:dbs.ind_rng_cutoff, :dbs.rng_e1coef:dbs.ind_rng_e1coef, :dbs.rng_e2coef:dbs.ind_rng_e2coef,
+     :dbs.rng_e3coef:dbs.ind_rng_e3coef, :dbs.min_prate:dbs.ind_min_prate, :dbs.max_prate:dbs.ind_max_prate, :dbs.tim_restrt:dbs.ind_tim_restrt, :dbs.max_timint:dbs.ind_max_timint,
+     :dbs.min_timprd:dbs.ind_min_timprd, :dbs.thr_hlyout:dbs.ind_thr_hlyout, :dbs.end_timgag:dbs.ind_end_timgag, :dbs.max_prdval:dbs.ind_max_prdval, :dbs.max_hlyval:dbs.ind_max_hlyval,
+     :dbs.tim_biest:dbs.ind_tim_biest, :dbs.thr_nosets:dbs.ind_thr_nosets, :dbs.res_bias:dbs.ind_res_bias, :dbs.longest_lag:dbs.ind_longest_lag, :dbs.bias_applied:dbs.ind_bias_applied;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDSPAdapt() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDSPAdapt(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DSPAdapt ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDSPAdapt() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDSPAdaptByRecord (const DSPAdapt * newStructPtr, const DSPAdapt * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDSPAdaptPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDSPAdapt(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDSPAdapt(const DSPAdapt * structPtr)
+{
+    UpdateDSPAdaptByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDSPAdapt(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDSPAdapt(const DSPAdapt * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DSPAdaptExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDSPAdapt(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDSPAdaptByRecord(const DSPAdapt * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDSPAdaptPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDSPAdapt(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DSPAdaptExists(const DSPAdapt * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDSPAdaptPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDSPAdaptCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDSPAdaptPrimaryKeyWhereString (const DSPAdapt * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND obstime = '%s' ",
+            structPtr->radid, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDSPAdapt( DSPAdapt * structPtr)
+{
+    DSPAdapt* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DSPAdapt * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDSPAdaptDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDSPAdaptErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

@@ -1,0 +1,92 @@
+# $Id: Makefile.in,v 1.12 2002/11/21 15:58:00 steve Exp $
+#
+#	Makefile for "pqinsert"
+#
+.POSIX:
+
+SHELL = /bin/sh
+CC = @CC@
+INSTALL = cp
+
+prefix = @prefix@
+exec_prefix = $(prefix)
+
+LIBDIR = $(exec_prefix)/lib
+BINDIR = $(exec_prefix)/bin
+MANDIR = $(prefix)/man
+
+# parameters to the build
+INCLUDES = -I../config -I. -I../misc -I../ulog -I../protocol -I../pq
+DEFINES =  @DEFS@
+CPPFLAGS = @CPPFLAGS@ $(INCLUDES) $(DEFINES)
+CFLAGS = @CFLAGS@ $(CPPFLAGS)
+LDMLIBS = -L.. -lldm -lm
+LDLIBS = $(LDMLIBS) @LIBS@
+
+####
+COMPILE.c = $(CC) $(CFLAGS) -c
+.c.o:
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+LINK.c = $(CC) $(CFLAGS) $(LDFLAGS)
+###
+
+PROG = pqinsert
+
+PROG_CSRCS = \
+	pqinsert.c
+
+PROG_OBJS = \
+	pqinsert.o
+
+all : $(PROG)
+
+install : all $(BINDIR)/$(PROG) $(MANDIR)/man1/$(PROG).1
+
+$(BINDIR)/$(PROG) : $(PROG)
+	-@cmp -s $? $@ || \
+		($(INSTALL) $? $@ && echo 'updated $@')
+
+$(PROG) : $(PROG_OBJS) ../libldm.a
+	$(LINK.c) $(PROG_OBJS) $(LDLIBS) -o $@
+
+$(MANDIR)/man1/$(PROG).1 : $(PROG).1
+	-@cmp -s $? $@ || \
+		($(INSTALL) $? $@ && echo 'updated $@')
+
+clean:
+	rm -f $(PROG_OBJS) $(PROG) depends
+
+# inventory
+PACKING_LIST = \
+	Makefile.in \
+	pqinsert.1 \
+	pqinsert.c
+
+MANIFEST.echo:
+	@$(MAKE) -s $(MFLAGS) $(LOCAL_MACROS) \
+	    ensure_manifest > /dev/null
+	@echo $(PACKING_LIST) | fmt -1
+
+ensure_manifest:	$(PACKING_LIST)
+
+distclean: clean
+	rm -f Makefile config.status
+
+depends: $(PROG_CSRCS)
+	cc -xM1 $(CPPFLAGS) $(PROG_CSRCS) > depends
+
+#
+# begin depends , hand built and maintained
+#
+pqinsert.o: ../config/ldmconfig.h
+pqinsert.o: ../misc/inetutil.h
+pqinsert.o: ../misc/paths.h
+pqinsert.o: ../pq/pq.h
+pqinsert.o: ../protocol/atofeedt.h
+pqinsert.o: ../protocol/ldm.h
+pqinsert.o: ../protocol/ldmprint.h
+pqinsert.o: ../protocol/md5.h
+pqinsert.o: ../protocol/prod_class.h
+pqinsert.o: ../protocol/timestamp.h
+pqinsert.o: ../ulog/ulog.h
+pqinsert.o: pqinsert.c

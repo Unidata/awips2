@@ -1,0 +1,507 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'display_control_precip.c';
+generateNameStubs = 'display_control_precip_stubs.c';
+generateNameExterns = * 'display_control_precip.h';
+generateCHeaderFile = 'display_control_precip.h';
+motifFlavour = 2;
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+javaUnselectedFiles = '';
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'accum_displayControlDS' : XmDialogShell {
+	arguments {
+	name = 'accum_displayControlDS';
+	lastGenName = 'accum_displayControlDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_accum_displayControlDS (Widget parent)
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Multi-Hour Precipitation Accumulation';
+	XmNminWidth = 390;
+	XmNminHeight = 400;
+	XmNmaxWidth = 390;
+	XmNmaxHeight = 400;
+	XmNbaseWidth = 390;
+	XmNbaseHeight = 400;
+	};
+object 'accum_displayControlFO' : XmForm {
+	arguments {
+	name = 'accum_displayControlFO';
+	was_selected = true;
+	lastGenName = 'accum_displayControlFO';
+	XmNwidth = 390;
+	XmNheight = 400;
+	XmNautoUnmanage = false;
+	};
+object 'accum_displayOptionsFR' : XmFrame {
+	arguments {
+	name = 'accum_displayOptionsFR';
+	lastGenName = 'accum_displayOptionsFR';
+	};
+object 'accum_displayOptionsFO' : XmForm {
+	arguments {
+	name = 'accum_displayOptionsFO';
+	lastGenName = 'accum_displayOptionsFO';
+	};
+object 'accum_intervalOM' : XmOptionMenu {
+	arguments {
+	name = 'accum_intervalOM';
+	lastGenName = 'accum_intervalOM';
+	};
+abstract object 'accum_intervalLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'accum_intervalLA';
+	XmNlabelString = 'Duration:';
+	};
+};
+abstract object 'accum_intervalCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'accum_intervalCB';
+	XmNx = 60;
+	XmNy = 3;
+	XmNwidth = 145;
+	XmNheight = 22;
+	XmNlabelString = '1 Hour';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = true;
+	};
+object 'accum_intervalPDM' : XmPulldownMenu {
+	arguments {
+	name = 'accum_intervalPDM';
+	lastGenName = 'accum_intervalPDM';
+	XmNwidth = 115;
+	XmNheight = 35;
+	};
+object 'accum_intervalPB1' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB1';
+	lastGenName = 'accum_intervalPB1';
+	XmNx = 1;
+	XmNy = 1;
+	XmNlabelString = '1 Hour';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_intervalPB3' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB3';
+	lastGenName = 'accum_intervalPB3';
+	XmNlabelString = '3 Hours';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_intervalPB6' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB6';
+	lastGenName = 'accum_intervalPB6';
+	generateResName = true;
+	XmNwidth = 126;
+	XmNheight = 22;
+	XmNlabelString = '6 Hours';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_intervalPB12' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB12';
+	lastGenName = 'accum_intervalPB12';
+	generateResName = true;
+	XmNwidth = 126;
+	XmNheight = 22;
+	XmNlabelString = '12 Hours';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_intervalPB24' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB24';
+	lastGenName = 'accum_intervalPB24';
+	XmNlabelString = '24 Hours';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_intervalPB36' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB36';
+	lastGenName = 'accum_intervalPB36';
+	generateResName = true;
+	XmNlabelString = '36 Hours';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_intervalPB48' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB48';
+	lastGenName = 'accum_intervalPB48';
+	XmNlabelString = '48 Hours';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_intervalPB72' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB72';
+	lastGenName = 'accum_intervalPB72';
+	XmNlabelString = '72 Hours';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_intervalPB_other' : XmPushButton {
+	arguments {
+	name = 'accum_intervalPB_other';
+	lastGenName = 'accum_intervalPB_other';
+	XmNlabelString = 'Other';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+};
+};
+};
+object 'accum_dayRC' : XmRowColumn {
+	arguments {
+	name = 'accum_dayRC';
+	lastGenName = 'accum_dayRC';
+	XmNspacing = 0;
+	};
+object 'accum_dayUpAB' : XmArrowButton {
+	arguments {
+	name = 'accum_dayUpAB';
+	lastGenName = 'accum_dayUpAB';
+	};
+};
+object 'accum_dayDownAB' : XmArrowButton {
+	arguments {
+	name = 'accum_dayDownAB';
+	lastGenName = 'accum_dayDownAB';
+	XmNarrowDirection = XmARROW_DOWN;
+	};
+};
+};
+object 'accum_hourRC' : XmRowColumn {
+	arguments {
+	name = 'accum_hourRC';
+	lastGenName = 'accum_hourRC';
+	XmNspacing = 0;
+	};
+object 'accum_hourUpAB' : XmArrowButton {
+	arguments {
+	name = 'accum_hourUpAB';
+	lastGenName = 'accum_hourUpAB';
+	};
+};
+object 'accum_hourDownAB' : XmArrowButton {
+	arguments {
+	name = 'accum_hourDownAB';
+	lastGenName = 'accum_hourDownAB';
+	XmNarrowDirection = XmARROW_DOWN;
+	};
+};
+};
+object 'accum_endTimeTF' : XmTextField {
+	arguments {
+	name = 'accum_endTimeTF';
+	lastGenName = 'accum_endTimeTF';
+	};
+};
+object 'accum_endTimeLA' : XmLabel {
+	arguments {
+	name = 'accum_endTimeLA';
+	lastGenName = 'accum_endTimeLA';
+	XmNlabelString = 'Ending Time:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'accum_dayAdjLA' : XmLabel {
+	arguments {
+	name = 'accum_dayAdjLA';
+	lastGenName = 'accum_dayAdjLA';
+	XmNlabelString = 'Day
+Adjust';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'accum_hourAdjLA' : XmLabel {
+	arguments {
+	name = 'accum_hourAdjLA';
+	lastGenName = 'accum_hourAdjLA';
+	XmNlabelString = 'Hour
+Adjust';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -282;
+	XmNleftAttachment = 1 0 4;
+	XmNbottomAttachment = 2 0 -47;
+	XmNtopAttachment = 1 0 9;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 56;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 92;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 282;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 92;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 102;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -231;
+	XmNleftAttachment = 1 0 4;
+	XmNbottomAttachment = 2 0 -84;
+	XmNtopAttachment = 1 0 58;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 4;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 103;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 318;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 100;
+    };
+    };
+};
+object '4' : XmLabel {
+	arguments {
+	name = 'accum_displayOptionsLA';
+	lastGenName = 'label4';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Accumulation Interval Setup';
+	};
+};
+};
+object 'accum_displayControlFR' : XmFrame {
+	arguments {
+	name = 'accum_displayControlFR';
+	lastGenName = 'accum_displayControlFR';
+	};
+object 'accum_displayButtonsFO' : XmForm {
+	arguments {
+	name = 'accum_displayButtonsFO';
+	lastGenName = 'accum_displayButtonsFO';
+	};
+object 'accum_displayPrecipPB' : XmPushButton {
+	arguments {
+	name = 'accum_displayPrecipPB';
+	lastGenName = 'accum_displayPrecipPB';
+	generateResName = true;
+	XmNwidth = 90;
+	XmNheight = 30;
+	XmNlabelString = 'Show Data';
+	};
+};
+object 'mean_precipLA' : XmLabel {
+	arguments {
+	name = 'mean_precipLA';
+	lastGenName = 'mean_precipLA';
+	XmNlabelString = 'Annotate:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	XmNrecomputeSize = false;
+	};
+};
+object 'mprecip_valTB' : XmToggleButton {
+	arguments {
+	name = 'mprecip_valTB';
+	lastGenName = 'mprecip_valTB';
+	XmNlabelString = 'Values';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	XmNrecomputeSize = false;
+	};
+};
+object 'mprecip_idTB' : XmToggleButton {
+	arguments {
+	name = 'mprecip_idTB';
+	lastGenName = 'mprecip_idTB';
+	XmNlabelString = 'Ids';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_areaOM' : XmOptionMenu {
+	arguments {
+	name = 'accum_areaOM';
+	lastGenName = 'accum_areaOM';
+	XmNorientation = XmHORIZONTAL;
+	};
+abstract object 'accum_areaLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'accum_areaLA';
+	XmNlabelString = 'Display As:';
+	};
+};
+abstract object 'accum_areaCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'accum_areaCB';
+	XmNx = 74;
+	XmNy = 3;
+	XmNwidth = 136;
+	XmNheight = 22;
+	XmNlabelString = 'Grid';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = true;
+	};
+object 'accum_areaPDM' : XmPulldownMenu {
+	arguments {
+	name = 'accum_areaPDM';
+	lastGenName = 'accum_areaPDM';
+	};
+object 'accum_areaPB1' : XmPushButton {
+	arguments {
+	name = 'accum_areaPB1';
+	lastGenName = 'accum_areaPB1';
+	generateResName = true;
+	XmNwidth = 80;
+	XmNlabelString = 'Grid';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_areaPB2' : XmPushButton {
+	arguments {
+	name = 'accum_areaPB2';
+	lastGenName = 'accum_areaPB2';
+	generateResName = true;
+	XmNwidth = 80;
+	XmNlabelString = 'Basin';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_areaPB3' : XmPushButton {
+	arguments {
+	name = 'accum_areaPB3';
+	lastGenName = 'accum_areaPB3';
+	XmNlabelString = 'County';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+object 'accum_areaPB4' : XmPushButton {
+	arguments {
+	name = 'accum_areaPB4';
+	lastGenName = 'accum_areaPB4';
+	XmNlabelString = 'Zone';
+	XmNalignment = XmALIGNMENT_CENTER;
+	XmNrecomputeSize = false;
+	};
+};
+};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 260;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -115;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -95;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -240;
+	XmNleftAttachment = 1 0 135;
+	XmNbottomAttachment = 2 0 -95;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -365;
+	XmNleftAttachment = 1 0 260;
+	XmNbottomAttachment = 2 0 -95;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -235;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 17;
+    };
+    };
+};
+object 'accum_displayControlLA' : XmLabel {
+	arguments {
+	name = 'accum_displayControlLA';
+	lastGenName = 'accum_displayControlLA';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Accumulation Display Control';
+	};
+};
+};
+object 'accum_closeDisplayPB' : XmPushButton {
+	arguments {
+	name = 'accum_closeDisplayPB';
+	lastGenName = 'accum_closeDisplayPB';
+	generateResName = true;
+	XmNwidth = 80;
+	XmNheight = 30;
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -385;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -200;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -385;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -340;
+	XmNtopAttachment = 1 0 205;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 38;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 355;
+    };
+    };
+};
+};
+end module;

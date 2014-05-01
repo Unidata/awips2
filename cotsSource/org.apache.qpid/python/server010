@@ -1,0 +1,72 @@
+#!/usr/bin/env python
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+from qpid import delegates
+from qpid.connection010 import Connection
+from qpid.util import connect, listen
+from qpid.spec010 import load
+from qpid.session import Client
+from qpid.datatypes import Message
+from qpid.log import enable, DEBUG, WARN
+
+import sys
+
+if "-v" in sys.argv:
+  level = DEBUG
+else:
+  level = WARN
+
+enable("qpid", level)
+
+spec = load("../specs/amqp.0-10.xml")
+
+class Server:
+
+  def connection(self, connection):
+    return delegates.Server(connection, self.session)
+
+  def session(self, session):
+    session.auto_sync = False
+    return SessionDelegate(session)
+
+class SessionDelegate(Client):
+
+  def __init__(self, session):
+    self.session = session
+
+  def queue_declare(self, qd):
+    print "Queue %s declared..." % qd.queue
+
+  def queue_query(self, qq):
+    return qq._type.result.type.new((qq.queue,), {})
+
+  def message_transfer(self, cmd, headers, body):
+    m = Message(body)
+    m.headers = headers
+    self.session.message_transfer(cmd.destination, cmd.accept_mode, cmd.acquire_mode, m)
+
+  def message_accept(self, messages):
+    print "ACCEPT %s" % messages
+
+server = Server()
+
+for s in listen("0.0.0.0", spec.port):
+  conn = Connection(s, spec, server.connection)
+  conn.start(5)

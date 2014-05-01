@@ -1,0 +1,39 @@
+#  ============================================================================
+#  pgm: amirunning .. insert script to check if same named program is running
+#
+#  use:     . amirunning
+#
+#   in: (env-var) ... (optional) global variable "AMIRUNNING_DIR" defines the
+#   in:               directory to place a temproary file; if not defined use
+#   in:               directory "/tmp"
+#  out: AmIRunning .. variable set to "yes" if running, else set to "no"
+#  oth: (file) ...... a temporary file "temp_ps.$$" is made in the directory
+#  oth:               defined by global variable "AmIRunning" or in "/tmp"
+#
+#  rqd: env vars - AMIRUNNING_DIR
+#
+#  cmt: MUST BE RUN WITH THE DOT COMMAND.
+#  cmt: SCRIPT NAME MUST BE UNIQUE TO 14 PLACES.
+#  cmt:    (ps -e only gets 14 char names)
+#  cmt: THE CALLING SCRIPT MUST HAVE "#!/bin/ksh" AS THE TOP LINE
+#
+#  cmt:   Add blank in front of lines comming from "ps -e".
+#
+#  ver: 20031006
+#  ============================================================================
+                         type dd_help 1>/dev/null 2>&1 && . dd_help 2>/dev/null
+
+Fil=${AMIRUNNING_DIR:-/tmp}/temp_ps.$$
+touch "$Fil" || exit
+
+          ## Limit the caller name to 15 chars since "ps -e" only outputs 15
+
+Nam=${0##*/}; [ "${#Nam}" -gt 14 ] && Nam=$(expr $Nam : '\(..............\)')
+ps -e | sed 's/^/ /' | awk '/ '$$' /{next};/ '$Nam'/{print $1}' >  $Fil
+ps -e | sed 's/^/ /' | awk '/ '$$' /{next};/ '$Nam'/{print $1}' >> $Fil
+
+Lin=$(cat $Fil | sort | uniq -d); rm -f $Fil
+[[ -n "$Lin" ]] && AmIRunning="yes" || AmIRunning="no"
+
+unset  Fil Nam Lin
+

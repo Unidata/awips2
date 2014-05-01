@@ -1,0 +1,10 @@
+# Product Discipline 4: Space Weather Products, Parameter Category 7: Terrestrial electromagnetic emissions 
+0:0:Limb Intensity:J*m^2*s^1:LMBINT
+1:1:Disk Intensity:j*m^2*s^1:DSKINT
+2:2:Disk Intensity Day:J*m^2*s^1:DSKDAY
+3:3:Disk Intensity Night:J*m^2*s^1:DSKNGT
+# 4-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing
+
+

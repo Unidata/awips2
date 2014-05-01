@@ -1,0 +1,753 @@
+module 'Hb'
+version = 48;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * './hbAS.c';
+generateNameCMainProgram = 'hbAS.c';
+generateNameExterns = * './hbAS.h';
+generateNameResDB = * './hbAS.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256301;
+useMask = 1;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'hbAS' : XmDialogShell {
+	arguments {
+	lastGenName = 'hbAS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_hbAS (display, app_name, app_argc, app_argv)Display *display;
+char *app_name;
+int app_argc;
+char **app_argv;
+';
+	XmNwidth = 920;
+	XmNheight = 780;
+	XmNallowShellResize = true;
+	XmNtitle = 'HydroBase';
+	XmNminWidth = 920;
+	XmNminHeight = 780;
+	XmNmaxWidth = 920;
+	XmNmaxHeight = 780;
+	XmNprimary = 1;
+	};
+object 'hbFO' : XmForm {
+	arguments {
+	lastGenName = 'hbFO';
+	XmNwidth = 920;
+	XmNheight = 780;
+	XmNresizePolicy = XmRESIZE_NONE;
+	XmNautoUnmanage = false;
+	};
+object 'hbPDM' : XmMenuBar {
+	arguments {
+	lastGenName = 'hbPDM';
+	};
+object 'hbfileCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hbfileCB';
+	XmNx = 4;
+	XmNy = 4;
+	XmNlabelString = 'File';
+	XmNmnemonic = 'F';
+	};
+object 'hbfilePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hbfilePDM';
+	};
+object 'hbfile_prefPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbfile_prefPB';
+	XmNlabelString = 'Preferences...';
+	XmNmnemonic = 'P';
+	XmNacceleratorText = ' ';
+	};
+};
+object 'hbfile_SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbfile_SE';
+	};
+};
+object 'hbfile_exitPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbfile_exitPB';
+	XmNlabelString = 'Exit';
+	XmNmnemonic = 'x';
+	XmNaccelerator = 'Ctrl<Key>x';
+	XmNacceleratorText = 'Ctrl+X';
+	};
+};
+};
+};
+object 'hblocCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hblocCB';
+	XmNlabelString = 'Location';
+	XmNmnemonic = 'L';
+	};
+object 'hblocPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hblocPDM';
+	};
+object 'hbloc_addPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbloc_addPB';
+	XmNlabelString = 'Add Location...';
+	XmNmnemonic = 'A';
+	XmNaccelerator = 'Ctrl<Key>A';
+	XmNacceleratorText = 'Ctrl+A';
+	};
+};
+object 'hbloc_modPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbloc_modPB';
+	XmNlabelString = 'Modify Location...';
+	XmNmnemonic = 'M';
+	XmNaccelerator = 'Ctrl<Key>M';
+	XmNacceleratorText = 'Ctrl+M';
+	};
+};
+object 'hbloc_SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbloc_SE';
+	};
+};
+object 'hbloc_contactPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbloc_contactPB';
+	XmNlabelString = 'Contacts...';
+	XmNmnemonic = 'C';
+	XmNaccelerator = 'Ctrl<Key>C';
+	XmNacceleratorText = 'Ctrl+C';
+	};
+};
+object 'hbloc_czugcPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbloc_czugcPB';
+	XmNlabelString = 'County/Zone UGC...';
+	XmNmnemonic = 'U';
+	XmNaccelerator = 'Ctrl<Key>U';
+	XmNacceleratorText = 'Ctrl+U';
+	};
+};
+object 'hbloc_gagePB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbloc_gagePB';
+	XmNlabelString = 'Gage History...';
+	XmNmnemonic = 'G';
+	XmNaccelerator = 'Ctrl<Key>G';
+	XmNacceleratorText = 'Ctrl+G';
+	};
+};
+object 'hbloc_dsrcsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbloc_dsrcsPB';
+	XmNlabelString = 'Data Sources...';
+	XmNmnemonic = 'D';
+	XmNaccelerator = 'Ctrl<Key>D';
+	XmNacceleratorText = 'Ctrl+D';
+	};
+};
+};
+};
+object 'hbrvrCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hbrvrCB';
+	XmNlabelString = 'RiverGage';
+	XmNmnemonic = 'R';
+	};
+object 'hbrvrPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hbrvrPDM';
+	};
+object 'hbrvr_riverPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_riverPB';
+	XmNlabelString = 'River Gage...';
+	XmNmnemonic = 'R';
+	XmNaccelerator = 'Ctrl<Key>R';
+	XmNacceleratorText = 'Ctrl+R';
+	};
+};
+object 'hbrvr_sep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbrvr_sep1SE';
+	};
+};
+object 'hbrvr_fcatPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_fcatPB';
+	XmNlabelString = 'Flood Category...';
+	XmNmnemonic = 't';
+	XmNaccelerator = 'Ctrl<Key>T';
+	XmNacceleratorText = 'Ctrl+T';
+	};
+};
+object 'hbrvr_fstmtPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_fstmtPB';
+	XmNlabelString = 'Impact Statement...';
+	XmNmnemonic = 'I';
+	XmNaccelerator = 'Ctrl<Key>I';
+	XmNacceleratorText = 'Ctrl+I';
+	};
+};
+object 'hbrvr_lwstmtPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_lwstmtPB';
+	XmNlabelString = 'Low Water Statement...';
+	XmNmnemonic = 'w';
+	XmNaccelerator = 'Ctrl<Key>W';
+	XmNacceleratorText = 'Ctrl+W';
+	};
+};
+object 'hbrvr_floodPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_floodPB';
+	XmNlabelString = 'Flood Damage...';
+	XmNmnemonic = 'F';
+	XmNaccelerator = 'Ctrl<Key>F';
+	XmNacceleratorText = 'Ctrl+F';
+	};
+};
+object 'hbrvr_ratingPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_ratingPB';
+	XmNlabelString = 'Rating Curve...';
+	XmNmnemonic = 'n';
+	XmNaccelerator = 'Ctrl<Key>N';
+	XmNacceleratorText = 'Ctrl+N';
+	};
+};
+object 'hbrvr_uhgPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_uhgPB';
+	XmNlabelString = 'Unit Hydrograph...';
+	};
+};
+object 'hbrvr_sep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbrvr_sep2SE';
+	};
+};
+object 'hbrvr_crestPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_crestPB';
+	XmNlabelString = 'Crest History...';
+	XmNmnemonic = 's';
+	XmNaccelerator = 'Ctrl<Key>s';
+	XmNacceleratorText = 'Ctrl+S';
+	};
+};
+object 'hbrvr_lwPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_lwPB';
+	XmNlabelString = 'Low Water...';
+	XmNmnemonic = 'L';
+	XmNaccelerator = 'Ctrl<Key>L';
+	XmNacceleratorText = 'Ctrl+L';
+	};
+};
+object 'hbrvr_sep3SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbrvr_sep3SE';
+	};
+};
+object 'hbrvr_bmPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_bmPB';
+	XmNlabelString = 'Benchmark...';
+	XmNmnemonic = 'B';
+	XmNaccelerator = 'Ctrl<Key>B';
+	XmNacceleratorText = 'Ctrl+B';
+	};
+};
+object 'hbrvr_datumPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_datumPB';
+	XmNlabelString = 'Datum...';
+	XmNmnemonic = 'm';
+	XmNaccelerator = 'Ctrl<Key>J';
+	XmNacceleratorText = 'Ctrl+J';
+	};
+};
+object 'hbrvr_descrPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_descrPB';
+	XmNlabelString = 'Description...';
+	XmNmnemonic = 'c';
+	XmNaccelerator = 'Ctrl<Key>K';
+	XmNacceleratorText = 'Ctrl+K';
+	};
+};
+object 'hbrvr_sep4SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbrvr_sep4SE';
+	};
+};
+object 'hbrvr_pubPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_pubPB';
+	XmNlabelString = 'Publications...';
+	XmNmnemonic = 'P';
+	XmNaccelerator = 'Ctrl<Key>P';
+	XmNacceleratorText = 'Ctrl+P';
+	};
+};
+object 'hbrvr_refPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbrvr_refPB';
+	XmNlabelString = 'References...';
+	XmNmnemonic = 'e';
+	XmNaccelerator = 'Ctrl<Key>e';
+	XmNacceleratorText = 'Ctrl+E';
+	};
+};
+};
+};
+object 'hbresvrCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hbresvrCB';
+	XmNlabelString = 'Reservoir';
+	XmNmnemonic = 'v';
+	};
+object 'hbresvrPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hbresvrPDM';
+	};
+object 'hbresvr_resvrPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbresvr_resvrPB';
+	XmNlabelString = 'Reservoir...';
+	XmNmnemonic = 'v';
+	XmNaccelerator = 'Ctrl<Key>v';
+	XmNacceleratorText = 'Ctrl+V';
+	};
+};
+};
+};
+object 'hbingestCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hbingestCB';
+	XmNx = 241;
+	XmNy = 4;
+	XmNlabelString = 'Data Ingest';
+	XmNmnemonic = 'I';
+	};
+object 'hbingestPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hbingestPDM';
+	};
+object 'hbingest_ingestPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbingest_ingestPB';
+	XmNlabelString = 'Ingest Filter...';
+	XmNmnemonic = 'I';
+	};
+};
+object 'hbingest_adjustPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbingest_adjustPB';
+	XmNlabelString = 'Adjustment Factors...';
+	};
+};
+object 'hbingest_rcheckPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbingest_rcheckPB';
+	XmNlabelString = 'QC/Alert/Alarm Limits...';
+	XmNmnemonic = 'R';
+	};
+};
+object 'hbingest_purgePB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbingest_purgePB';
+	XmNlabelString = 'Purge Parameters...';
+	XmNmnemonic = 'P';
+	};
+};
+object 'hbingest_shefPB' : XmPushButton {
+	arguments {
+	name = 'hbingest_shefPB';
+	lastGenName = 'hbingest_shefPB';
+	XmNlabelString = 'Start/Stop SHEFdecoder...';
+	};
+};
+};
+};
+object 'hbreportsCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hbreportsCB';
+	XmNlabelString = 'Reports';
+	XmNmnemonic = 'p';
+	};
+object 'hbreportsPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hbreportsPDM';
+	};
+object 'hbreports_floodPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbreports_floodPB';
+	XmNlabelString = 'Flood Report...';
+	XmNmnemonic = 'F';
+	};
+};
+object 'hbreports_textPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbreports_textPB';
+	XmNlabelString = 'Text Reports...';
+	XmNmnemonic = 'T';
+	};
+};
+};
+};
+object 'hbnullCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hbnullCB';
+	generateResName = true;
+	XmNx = 374;
+	XmNy = 4;
+	XmNwidth = 330;
+	XmNheight = 20;
+	XmNmappedWhenManaged = false;
+	XmNlabelString = '                               ';
+	XmNrecomputeSize = false;
+	};
+};
+object 'hbsetupCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hbsetupCB';
+	XmNx = 704;
+	XmNy = 4;
+	XmNlabelString = 'Setup';
+	XmNmnemonic = 'S';
+	};
+object 'hbsetupPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hbsetupPDM';
+	};
+object 'hbsetup_adminPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_adminPB';
+	XmNlabelString = 'Administration...';
+	XmNmnemonic = 'd';
+	};
+};
+object 'hbsetup_citiesPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_citiesPB';
+	XmNlabelString = 'Cities...';
+	XmNmnemonic = 'C';
+	};
+};
+object 'hbsetup_rfPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_rfPB';
+	XmNlabelString = 'Reference Fields...';
+	XmNmnemonic = 'e';
+	};
+};
+object 'hbsetup_stcozoPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_stcozoPB';
+	XmNlabelString = 'States/Counties/Zones...';
+	XmNmnemonic = 'S';
+	};
+};
+object 'hbsetup_sep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbsetup_sep1SE';
+	};
+};
+object 'hbsetup_rpfparamsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_rpfparamsPB';
+	XmNlabelString = 'RiverPro General Parameters...';
+	XmNmnemonic = 'G';
+	XmNaccelerator = 'Ctrl<Key>g';
+	XmNacceleratorText = ' ';
+	};
+};
+object 'hbsetup_fgPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_fgPB';
+	XmNlabelString = 'RiverPro Forecast Groups/Points...';
+	XmNmnemonic = 'F';
+	XmNaccelerator = 'Ctrl<Key>f';
+	XmNacceleratorText = ' ';
+	};
+};
+object 'hbsetup_sep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbsetup_sep2SE';
+	};
+};
+object 'hbsetup_rlocPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_rlocPB';
+	XmNlabelString = 'Radar Locations...';
+	XmNmnemonic = 'R';
+	};
+};
+object 'hbsetup_sep3SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbsetup_sep3SE';
+	};
+};
+object 'hbsetup_adefPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_adefPB';
+	XmNlabelString = 'Areal Definitions...';
+	XmNmnemonic = 'A';
+	};
+};
+object 'hbsetup_vdefPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsetup_vdefPB';
+	XmNlabelString = 'Vector Definitions...';
+	XmNmnemonic = 'V';
+	};
+};
+object 'hbsetup_sep4SE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbsetup_sep4SE';
+	};
+};
+object 'nwrtowerPB' : XmPushButton {
+	arguments {
+	lastGenName = 'nwrtowerPB';
+	XmNlabelString = 'NWR Transmitter Towers...';
+	XmNmnemonic = 'N';
+	};
+};
+object 'hbsetup_sep4TS' : XmSeparator {
+	arguments {
+	lastGenName = 'hbsetup_sep4TS';
+	};
+};
+object 'tscfgPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tscfgPB';
+	XmNlabelString = 'TimeSeries Group Configuration...';
+	};
+};
+object 'hbsetup_sep5HBS' : XmSeparator {
+	arguments {
+	lastGenName = 'hbsetup_sep5HBS';
+	};
+};
+object 'hgstationPB' : XmCascadeButton {
+	arguments {
+	was_selected = true;
+	lastGenName = 'hgstationPB';
+	XmNlabelString = 'HydroGen Configuration...';
+	};
+};
+};
+};
+object 'hbhelpCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'hbhelpCB';
+	XmNx = 750;
+	XmNy = 4;
+	XmNwidth = 66;
+	XmNheight = 15;
+	XmNlabelString = 'Help';
+	XmNmnemonic = 'H';
+	};
+object 'hbhelpPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hbhelpPDM';
+	};
+object 'hbhelp_aboutPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbhelp_aboutPB';
+	XmNlabelString = 'About...';
+	};
+};
+};
+};
+};
+object 'hbsepSE' : XmSeparator {
+	arguments {
+	lastGenName = 'hbsepSE';
+	};
+};
+object 'hbmainLA' : XmLabel {
+	arguments {
+	lastGenName = 'hbmainLA';
+	XmNlabelString = 'Column Label';
+	};
+};
+object 'hbmainSW' : XmScrolledList {
+	arguments {
+	lastGenName = 'hbmainSW';
+	XmNtraversalOn = false;
+	};
+abstract object 'hbmainHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'hbmainHSB';
+	XmNmappedWhenManaged = false;
+	};
+};
+abstract object 'hbmainVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'hbmainVSB';
+	};
+};
+abstract object 'hbmainLI' : XmList {
+	arguments {
+	lastGenName = 'hbmainLI';
+	XmNtraversalOn = false;
+	XmNautomaticSelection = XmAUTO_SELECT;
+	XmNselectionPolicy = XmBROWSE_SELECT;
+	XmNlistSizePolicy = XmCONSTANT;
+	XmNscrollBarDisplayPolicy = XmSTATIC;
+	};
+};
+};
+object 'loc_countLA' : XmLabel {
+	arguments {
+	lastGenName = 'loc_countLA';
+	generateResName = true;
+	XmNheight = 18;
+	XmNlabelString = '( 0 Stations )                              ';
+	};
+};
+object 'hbsortOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'hbsortOM';
+	XmNtraversalOn = false;
+	};
+abstract object 'hbsortLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'hbsortLA';
+	XmNlabelString = 'Sort By: ';
+	};
+};
+abstract object 'hbsortCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'hbsortCB';
+	XmNwidth = 147;
+	XmNheight = 27;
+	};
+object 'hbsortPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hbsortPDM';
+	};
+object 'hbsort_stationPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsort_stationPB';
+	XmNlabelString = 'Station';
+	};
+};
+object 'hbsort_namePB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsort_namePB';
+	XmNlabelString = 'Name';
+	};
+};
+object 'hbsort_countyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsort_countyPB';
+	XmNlabelString = 'State,County';
+	};
+};
+};
+};
+};
+object 'hblidLA' : XmLabel {
+	arguments {
+	lastGenName = 'hblidLA';
+	XmNlabelString = 'Station Search:';
+	};
+};
+object 'hblidTE' : XmText {
+	arguments {
+	lastGenName = 'hblidTE';
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	};
+};
+object 'hbbackupPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbbackupPB';
+	XmNlabelString = 'Station List Filter Options';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -920;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -905;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -730;
+	XmNtopAttachment = 3 3 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -750;
+	XmNtopAttachment = 1 0 730;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -705;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -770;
+	XmNtopAttachment = 1 0 735;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -830;
+	XmNleftAttachment = 1 0 705;
+	XmNbottomAttachment = 2 0 -765;
+	XmNtopAttachment = 1 0 740;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -905;
+	XmNleftAttachment = 1 0 830;
+	XmNbottomAttachment = 2 0 -770;
+	XmNtopAttachment = 1 0 735;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 240;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 740;
+    };
+    };
+};
+};
+end module;

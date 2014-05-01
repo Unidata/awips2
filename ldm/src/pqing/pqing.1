@@ -1,0 +1,166 @@
+'\"
+'\" $Id: pqing.1,v 1.9.20.1.2.3 2009/06/18 16:18:41 steve Exp $
+.TH PQING 1 "$Date: 2009/06/18 16:18:41 $"
+.SH NAME
+pqing, dds, pps, ddplus, ids, hds, afos \- product queue ingester for Unidata LDM
+.SH "SYNOPSIS"
+.HP
+.ft B
+pqing
+.nh
+\%[-v]
+\%[-r\ \fIrawfile\fR]
+\%[-l\ \fIlogfile\fR] 
+\%[-f\ \fIfeedtype\fR]
+\%[-b\ \fIbaud\fR]
+\%[-q\ \fIq_path\fP]
+\%[-p\ \fIparity\fR]
+\%[-c]
+\%[-n]
+\%[-5]
+\fIfeedname\fR
+.hy
+.ft
+
+.SH DESCRIPTION
+.LP
+This program performs real-time capture of meteorological data into an
+LDM product queue (see \fBpq(3)\fP).  It is part of the Unidata
+Local Data Management system (LDM).  The input data is assumed to be in the
+form of ``meteorological messages'' specified by the World Meteorological
+Organization in WMO Publication 386 (``WMO format''), or in AFOS format.
+It reads from
+\fIfeedname\fR looking for messages.  Each message is encapsulated as a
+``data product'' and the WMO header or AFOS identifer is assigned as the
+product's identifying
+key.  The product is then inserted at the end of the specified product queue
+for further processing.  The product queue should already exist (see
+\fBpqcreate(1)\fP).  
+.LP
+This program is typically run in the background with a local \fBrpc.ldmd(1)\fP
+server (OR \fBpqsend(1)\fP)
+to supply input to a distribution tree.
+.LP
+Multiple instances of
+\fBpqing\fP may insert products from different feeds into the same product
+queue.
+.LP
+This program can read from a file of previously captured raw data or an
+asynchronous text feed such as the Alden's International Data Service.
+.LP
+As a convenience, the program changes its default baud rate based on
+its name (argv[0]). For example, if the program is invoked as \fBids \fR,
+the baud rate set to 9600. For afos, the default baud rate is 4800.  The program name also effects a ``feedtype''
+field in the product data structure, which helps to uniquely identify a
+data product. Conventionally, \fB ddplus, ids,\fR 
+\fBhds \fR and \fBafos \fR are links to \fBpqing \fR.
+.SH OPTIONS 
+.TP 8
+.B \-v
+Verbose flag.  If present, the log will contain a line for 
+each product that was ingested, giving the time read, header, and 
+size of the product. 
+.TP
+.BI \-r " rawfile"
+The path name of a file 
+to be used to capture the raw data seen on the input without processing
+it in any way.  This can later be used for testing by giving this
+file as the \fIfeedname\fP argument.  \fBWARNING:\fP If this program is
+invoked with this option and is left running, then the file system will 
+eventually fill up.
+.TP
+.BI \-l " logfile"
+The path name of a file to be used as the log file for the process.  The
+default is send messages to syslogd(8).  You may specify a minus
+``\fB\-\fP'' for the filename.  This results in the standard error output
+being used and prevents the program from putting itself in the background.
+This allows you to watch the log messages as products are read, for example.
+.TP
+.BI \-f " feedtype"
+Assert that the feedtype is \fIfeedtype\fR, one of \fBhds, ddplus, 
+ids,\fR etc. Useful when sending data from a file. If the feedtype is
+AFOS, then the input is parsed as AFOS products, otherwise, WMO format
+is assumed.
+.TP
+.BI \-b " baud"
+Set the baud rate of the feed. This makes no difference unless data is
+being read from a \fBtty\fP.
+The default varies according to feedtype.
+.TP
+.BI "-q " q_path
+The pathname of the data product queue.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP. The compiled in default can
+be overridden by setting the environment variable \fBLDMPQFNAME\fP.
+.TP
+.B "\-P port"
+Get input via TCP connection to host \fIfeedname\fP at \fIport\fP.
+.TP
+.B "\-p even|odd|none"
+Check the parity of the feed.  This makes no difference unless data is
+being read from a \fBtty\fP.  The default varies according to feedtype.
+.TP
+.B "\-c"
+For an HDS feed, the feed contains checksums. If the checksum is
+invalid, the product is not enqueued.
+For other FOS feeds (DDS, IDS, DDPLUS), check for the tty parity
+errors. If one occurs, the product is not enqueued.
+This option is assumed if the data is being read from a \fBtty\fP.
+.TP
+.B "\-n"
+Disable the checksum or parity check on data being read from a
+tty. This would be used on textual FOS feeds in situations where
+data quanity was more important than quality.
+.TP
+.B "\-5"
+Perform checksum calculation on entire product.  By default, in calculating the
+checksum pqing
+determines whether the product's leading control string qualifies the product as a
+WMO product, and if so it then calculates the checksum on the portion of
+the product that does not include the leading control string.  This
+way, products that differ only by sequence number will have
+identical signatures.  The -5 option disables this feature, causing
+pqing to calculate the checksum based on the entire product, including
+the sequence number.
+.SH "INPUT FEED"
+The source for the ingester, whether a tty
+device or a file, is specified by the required
+\fIfeedname\fP argument.  Possible values of the \fIfeedname\fP are:
+.TP 8
+.BR /dev/tty\fIx\fR " or " /dev/tty\fIxx\fR
+Asynchronous feed on a UNIX system.  \fIxx\fP identifies the 
+serial port.
+.TP
+.I filename
+Specification of file containing raw data previously captured by one of the
+LDM programs \fBpqing\fP, \fBingestd\fP, \fBfeedtest\fP, or \fBldmd\fP.  Use
+of the filename ``\fB\-\fP'' forces the program to read from standard input.
+.SH SIGNALS
+On receipt of the following signals, the specified action occurs:
+.TP
+SIGUSR1 \- accumulated statistics are printed to the logfile.
+.TP
+SIGUSR2 \- the \fIverbose\fP flag is toggled.
+.LP
+On successful insertion of a product into the product queue, SIGCONT is sent
+to \fBpqing\fP's process group, informing all queue processes that are
+members of the same process group that a new product has arrived.
+.SH FILES
+\fBpqing.log\fP	the default log file
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR pqsend (1),
+.BR pqexpire (1),
+.BR ingestd (1),
+.BR ulog (3),
+.BR pq (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+.SH DIAGNOSTICS
+Error and log messages are written using the ulog(3) interface.
+Nothing is written to standard output by the program.
+A summary of ingest statistics is
+output when the process terminates.  Statistics may also be
+appended to the log file at any time while the process is running by
+sending a \fBSIGUSR1\fP signal to the process.

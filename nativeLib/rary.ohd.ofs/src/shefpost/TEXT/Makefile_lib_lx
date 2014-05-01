@@ -1,0 +1,49 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-shefpost library file
+#
+#  cmt: File made on Wed Aug  6 12:56:15 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libshefpost_t.a:  \
+     $(LIB)/libshefpost_t.a(dapscm.o)  \
+     $(LIB)/libshefpost_t.a(dfadjh.o)  \
+     $(LIB)/libshefpost_t.a(dfchkh.o)  \
+     $(LIB)/libshefpost_t.a(dfcode.o)  \
+     $(LIB)/libshefpost_t.a(dffdur.o)  \
+     $(LIB)/libshefpost_t.a(dfgspd.o)  \
+     $(LIB)/libshefpost_t.a(dfmtch.o)  \
+     $(LIB)/libshefpost_t.a(dfpost.o)  \
+     $(LIB)/libshefpost_t.a(dfppst.o)  \
+     $(LIB)/libshefpost_t.a(dfpsmain.o)  \
+     $(LIB)/libshefpost_t.a(dfqchk.o)  \
+     $(LIB)/libshefpost_t.a(dfrspd.o)  \
+     $(LIB)/libshefpost_t.a(dfwpdb.o)  \
+     $(LIB)/libshefpost_t.a(uprimo_post.o)
+

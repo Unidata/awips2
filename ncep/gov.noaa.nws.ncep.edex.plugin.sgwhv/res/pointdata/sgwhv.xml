@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pointDataDescription>
+  <parameter name="OBSTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="FORECASTTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="REFTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="DATAURI" numDims="1" type="STRING" size="128"/> 
+  <parameter name="LAT" numDims="1" type="FLOAT" unit="degree_N" />
+  <parameter name="LON" numDims="1" type="FLOAT" unit="degree_E" />
+  <parameter name="ALTITUDE" numDims="1" type="FLOAT" unit="m" />
+  <parameter name="ALTCORRI" numDims="1" type="FLOAT" unit="" />
+  <parameter name="ALTCORRD" numDims="1" type="FLOAT" unit="" />
+  <parameter name="ALTCORRW" numDims="1" type="FLOAT" unit="" />
+  <parameter name="LOOPCORR" numDims="1" type="FLOAT" unit="" />
+  <parameter name="BKST" numDims="1" type="FLOAT" unit="db" />
+  <parameter name="SATELLITEID" numDims="1" type="LONG" unit="" />
+  <parameter name="WSPD10" numDims="1" type="FLOAT" unit="m/s" />
+  <parameter name="HTWAVES" numDims="1" type="FLOAT" unit="m" />
+  <parameter name="SGWHSD" numDims="1" type="FLOAT" unit="m" />
+  <parameter name="PEAK" numDims="1" type="LONG" unit="" />
+  <parameter name="REPORTTYPE" numDims="1" type="STRING" size="8"/> 
+  
+</pointDataDescription>

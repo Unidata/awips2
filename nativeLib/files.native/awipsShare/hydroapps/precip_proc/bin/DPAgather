@@ -1,0 +1,186 @@
+#!/bin/ksh
+#
+#
+#   script for gathering DPA products from fxa directories
+#   and moving them to the OHD precip_proc world
+#   August 22, 2003  
+#   updated for PostgreSQL - Oct 22, 2004
+
+# This allows you to call this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for AWIPS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export DPA_DIRNAME2=$(get_apps_defaults dpa_dirname2)
+export DPA_DIRNAME1=$(get_apps_defaults dpa_dirname1)
+export DPA_PROD_DIR=$(get_apps_defaults dpa_prod_dir)
+export DPA_LOG_DIR=$(get_apps_defaults dpa_log_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+# this script uses the following set_hydro_env variables:
+# DPA_LOG_DIR, DPA_PROD_DIR, DPA_DIRNAME1, DPA_DIRNAME2, DB_NAME       
+#
+
+#   setup log files
+#
+
+fnm=$DPA_LOG_DIR/dpagather_log
+tmp=$DPA_LOG_DIR/dpagather_tmp
+
+#----------------------------------------------------------------------
+#  Don't fire up another instance if one is underway
+# the AMIRUNNING_DIR variable is required by the amirunning script
+
+AMIRUNNING_DIR=$DPA_LOG_DIR
+
+. /awips/hydroapps/public/bin/amirunning
+
+if [[ $AmIRunning = "yes" ]]; then
+  echo DPAgather script cancelled due to other instance running >> $fnm
+  exit 1
+  fi
+
+#
+#   save latest entries in log file
+#
+
+if [[ -s $fnm ]]
+  then
+     tail -1200 $fnm > $tmp
+     mv $tmp  $fnm
+  fi
+
+#
+#   begin write to log               
+#
+
+echo "-------------------------------------------" >> $fnm
+Dte=`date -u`
+echo "Begin gather at  "$Dte >> $fnm
+
+#
+#   touch dpagather control temp file
+#
+
+touch $DPA_LOG_DIR/dpagather_control.temp
+
+#
+#  check if radarloc table has any radars with use_radar="T"
+#  if not, then stop
+#  the sed command strips off all non-numeric characters
+#
+
+Num_Rad=$(
+echo "select count(*) from Radarloc WHERE use_radar='T'; " | \
+$POSTGRESQLBINDIR/psql -q -t $DB_NAME 
+         )
+
+if [[ $Num_Rad = 0 ]]
+then
+
+      echo no radars defined for use -- gather not done  >> $fnm
+      Dte=`date -u`
+      echo "End   gather at  "$Dte >> $fnm
+      exit 1
+
+elif [[ -z $Num_Rad ]]
+then
+
+      echo number of radars defined for use is undetermined -- gather continuing  >> $fnm
+fi
+
+#
+#  write radar identifiers and prefixes to temp file                             
+#
+
+
+#$POSTGRESQLBINDIR/psql -q  -t  $DB_NAME
+#unload to "$DPA_LOG_DIR/radid.temp"
+#select lower(radid_prefix), lower(radid)
+#from Radarloc
+#WHERE use_radar='T';
+
+echo "select lower(radid_prefix), lower(radid) from Radarloc WHERE use_radar='T';" | \
+$POSTGRESQLBINDIR/psql -q  -A  -t  $DB_NAME > $DPA_LOG_DIR/radid.temp
+
+
+#
+#  if radid.temp is not created or is 0 bytes in length, then print message and exit gather script
+#
+
+if [[ ! -s $DPA_LOG_DIR/radid.temp ]]
+  then
+      rm -f $DPA_LOG_DIR/radid.temp
+      rm -f $DPA_LOG_DIR/dpagather_control.temp
+      echo radid.temp file not created properly -- gather not done  >> $fnm
+
+      Dte=`date -u`
+      echo "End   gather at  "$Dte >> $fnm
+      exit 1
+  fi
+
+#
+#  for each radar id in file, construct directory name and search for products
+#  note that the radar id in the directory name is lower case and 4 char
+#
+
+for rid in `cat $DPA_LOG_DIR/radid.temp`
+do 
+
+radid_dir=$(echo "$rid" | sed 's/|//g')
+radid=${radid_dir#?}
+
+PRODUCT_DIR_NAME=$DPA_DIRNAME1/$radid_dir/$DPA_DIRNAME2
+
+#  
+#   look for raw products in the directory satisfying the time test                     
+#   if found, then copy to a temporary location and mv to the gather directory
+#   change radar id to upper case
+#   successfully processed products will be deleted from the gather directory as part of
+#     the decoding process
+#   write old name, new name to log file 
+#
+
+num_files=`ls -F $PRODUCT_DIR_NAME 2>>$fnm | grep -v "*" | grep -v "/" | wc -l`
+if test $num_files -ne 0
+then
+   RADID=$(print $radid | tr '[a-z]' '[A-Z]')
+
+   i=0
+
+   for pname in `find $PRODUCT_DIR_NAME  -type f  -name '*'  -newer  $DPA_LOG_DIR/dpagather_control` 
+   do
+
+      GATHER_FILENAME=$DPA_PROD_DIR/DPA$RADID.`date -u +%Y%m%d%H%M%S.$i`
+      i=`expr $i + 1`
+
+      cp $pname  $DPA_LOG_DIR/radar_temp
+
+      mv $DPA_LOG_DIR/radar_temp  $GATHER_FILENAME
+
+      echo $pname "copied to"  $GATHER_FILENAME  >> $fnm
+
+   done
+
+fi
+
+done
+
+#
+#   mv dpagather control file
+#
+
+mv $DPA_LOG_DIR/dpagather_control.temp  $DPA_LOG_DIR/dpagather_control
+
+#
+#   delete radid.temp file      
+#
+
+rm $DPA_LOG_DIR/radid.temp                      
+
+#
+#   end write to log               
+#
+
+Dte=`date -u`
+echo "End   gather at  "$Dte >> $fnm

@@ -1,0 +1,80 @@
+<project>
+	<target name="setup">
+		<!-- read the properties -->
+		<property file="${basedir}/edex/common.properties" />
+		<property file="${basedir}/edex/developer.properties" />
+		<condition property="wa.enabled">
+			<not><equals arg1="${wa.to.deploy}" arg2="" /></not>
+		</condition>
+	
+		<!-- Determine where we are. -->
+ 		<!-- actually evaluate the directory instead of using relative pathing. -->
+ 		<shellscript shell="bash" 
+ 		outputproperty="awips.baseline.directory"
+ 		dir="${basedir}">
+			cd ../
+ 			dirpath=`pwd`
+ 			dir=`basename ${dirpath}`
+ 			if [ "${dir}" = "edexOsgi" ]; then
+ 			   # we are in the distributed development environment
+ 			   cd ../
+ 			   pwd
+ 			else
+ 			   # all of the projects are in the workspace or one single directory
+ 			   echo ${dirpath}
+ 			fi
+ 		</shellscript>
+		
+		<!-- construct the list of "basedirectories" -->
+ 		<propertyselector property="baseline.variables"
+ 			delimiter="${path.separator}"
+ 			match="dir.([0-9][0-9])"
+ 			select="\1"
+ 			casesensitive="true" />
+		
+		<var name="basedirectories" 
+			value="${awips.baseline.directory}" />
+ 		
+  		<for list="${baseline.variables}" param="index"
+ 		delimiter="${path.separator}">
+ 			<sequential>
+ 				<propertycopy property="variable.name"
+ 					override="true"
+ 					from="dir.@{index}" />
+ 				<var name="base.directory"
+ 					value="${awips.baseline.directory}/${variable.name}" />
+ 				
+ 				<if>
+ 					<available file="${base.directory}" type="dir" />
+ 					<then>
+ 						<var name="basedirectories"
+ 							value="${base.directory};${basedirectories}" />
+ 					</then>
+ 				</if>
+ 				
+ 				<!-- Loop through the WA directories, if they exist. -->
+ 				<if>
+ 					<isset property="wa.enabled" />
+ 					<then>
+ 						<for list="${wa.to.deploy}" param="wa"
+ 						delimiter="${path.separator}">
+ 							<sequential>
+								<var name="wa.base.directory"
+									value="@{wa}/${variable.name}" /> 						
+ 						
+ 								<if>
+ 									<available file="${wa.base.directory}" 
+ 										type="dir" />	
+ 									<then>
+ 	 									<var name="basedirectories"
+ 	 										value="${wa.base.directory};${basedirectories}" /> 							
+ 									</then>
+ 								</if>
+ 							</sequential>
+ 						</for>
+ 					</then>
+ 				</if>
+ 			</sequential>
+ 		</for>
+	</target>
+</project>

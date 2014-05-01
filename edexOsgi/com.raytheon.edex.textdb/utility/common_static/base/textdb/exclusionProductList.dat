@@ -1,0 +1,20 @@
+#---------------------------------------
+# This file contains a site-maintained list of products to be skipped
+# from database storage and is used only by StdDBDecoder. 
+# It is a list of AFOS ids, CCCNNNXXXs.  Use '000' as a wild card to 
+# replace CCC or NNN or XXX. However, '000000000' is invalid since it will 
+# exclude any data to be stored in the text database.
+# Every entry must have nine characters. To take the effect, the StdDBDecoder 
+# will have to be restarted each time this file is changed.
+# 
+# Examples:
+# DENWSWDEN
+# DENZFPGJT
+# DENCLIDEN
+# NOAFOSPIL
+# DENMTR000
+# WBC000000 
+# 000EFWDEN
+# 000EFW000
+#---------------------------------------
+NOAFOSPIL

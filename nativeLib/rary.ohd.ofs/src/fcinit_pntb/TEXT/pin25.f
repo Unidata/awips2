@@ -1,0 +1,1272 @@
+C MODULE PIN25
+C
+C
+C
+      SUBROUTINE PIN25(PO,LEFTP,IUSEP)
+C
+C  SUBROUTINE ... PIN25 ... APRIL, 1982
+C
+C  PROGRAMMER ... RANDALL P. TETZLOFF, TULSA RFC, FTS 8-736-7121
+C
+C  PURPOSE ... INPUT SUBROUTINE FOR PLOT OPERATION 25
+C
+C  PROCEDURE ... THE FUNCTION OF THE INPUT SUBROUTINE IS TO:
+C     1.  READ FROM CARDS OR GENERATE BY DEFAULT ALL OF THE
+C         PARAMETERS, INITIAL CARRYOVER, AND OTHER INFORMATION
+C         NEEDED BY THE OPERATION
+C     2.  CHECK ALL THE VALUES
+C     3.  STORE THE VALUES FOR USE BY THE OTHER SUBROUTINES
+C         ASSOCIATED WITH THE OPERATION
+C
+C  ASSUMPTIONS ...
+C     1.  TIME SERIES OF UPSTREAM COMPONENTS MUST BE DEFINED
+C         IN PREVIOUS OPERATIONS
+C     2.  TIME SERIES OF LUMPED UPSTREAM COMPONENTS MUST BE DEFINED
+C         IN PREVIOUS OPERATIONS
+C     3.  TIME SERIES OF ADJUSTED FLOWS MUST BE BLENDED
+C         IN PREVIOUS OPERATIONS
+C     4.  TIME SERIES OF ADJUSTED FLOWS MUST BE CONVERTED TO
+C         TIME SERIES OF STAGES IN PREVIOUS OPERATION
+C     5.  ANY NUMBER OF TIME SERIES CAN BE PLOTTED AS LONG AS THEIR
+C         UNITS AND TIME INTERVAL ARE THE SAME
+C     6.  THE LISTING AND PLOTTING ORDER WILL BE DETERMINED BY
+C         THE ORDER INPUT INTO THE PIN25 SUBROUTINE
+C         ... THE FIRST ENTERED WILL BE LISTED FIRST ON THE PLOT
+C             LEFT TO RIGHT
+C         ... THE LAST ENTERED WILL BE PLOTTED FIRST AND
+C             OVERWRITTEN BY PREVIOUS ENTRIES
+C     7.  THE LISTING OF MORE THAN THREE TIME SERIES WITH THE PLOT
+C         WILL IMPLY THE USE OF AN ORDINATE SIZE OF 51 CHARACTERS VS 101
+C     8.  ONLY EIGHT TIME SERIES CAN BE LISTED ON PLOT
+C         ... 1ST THREE TIME SERIES (USUALLY M.A.P., STAGE, AND
+C             ADJUSTED FLOW) WILL BE LISTED TO LEFT OF ORDINATE
+C             AND WILL BE REAL VARIABLES
+C         ... LAST FIVE TIME SERIES (SIMULATED, M.A.P.'S, ETC.)
+C             WILL BE LISTED TO RIGHT OF ORDINATE AND WILL BE
+C             REAL VARIABLES
+C
+C  DEFINITION OF FILES ...
+C     IN     ... CARD READER  ... //FT05F001  DD  *
+C     IPR    ... LINE PRINTER ... //FT06F001  DD  SYSOUT=A
+C     IPU    ... CARD PUNCH   ... //FT07F001  DD  SYSOUT=B
+C     IODBUG ... LINE PRINTER ... //FT08F001  DD  SYSOUT=A
+C
+C  DEFINITION OF CALLED SUBROUTINES ...
+C     CHECKP ... CHECKS TO SEE IF THE NUMBER OF POSITIONS
+C                REQUESTED IN THE P ARRAY ARE AVAILABLE
+C     CHEKRC ... CHECKS TO MAKE SURE THAT A RATING CURVE
+C                TO BE USED HAS BEEN DEFINED
+C     CHEKTS ... CHECKS A GIVEN TIME SERIES FOR
+C                DEFINITION AND PARAMETER SPECIFICATIONS
+C     ERROR  ... KEEPS TRACK OF THE NUMBER OF ERRORS
+C                AND PRINTS MESSAGES INDICATING WHERE
+C                ERROR OCCURRED
+C     FCONVT ... CALCULATES METRIC TO ENGLISH CONVERSION FACTORS
+C     FDCODE ... CHECKS A GIVEN TIME SERIES FOR
+C                PARAMETER SPECIFICATIONS
+C     FPRBUG ... CHECKS TRACE LEVEL AND SETS THE
+C                DEBUG OUTPUT SWITCH
+C     WARN   ... KEEPS TRACK OF THE NUMBER OF WARNINGS
+C                AND PRINTS MESSAGES INDICATING WHERE
+C                WARNING OCCURRED
+C
+C  DEFINITION OF ARRAYS ...
+C     FRMT(2)    ... LISTING FORMAT FOR THE TIME SERIES
+C     IDEBUG(20) ... LIST OF OPERATION NUMBERS TO PRODUCE
+C                    DEBUG PRINTOUT
+C     PO(1)     ... USED TO STORE ALL THE PARAMETERS, TIME
+C                   SERIES IDENTIFICATION, OPTIONS, TITLES, ETC.
+C     RC(2)     ... 8 CHARACTER IDENTIFIER OF RATING CURVE
+C     SUBNAM(2) ... 8 CHARACTER NAME OF SUBROUTINE
+C     TSID(2)   ... 8 CHARACTER IDENTIFIER OF TIME SERIES
+C
+C  DEFINITION OF VARIABLES ...
+C     ADDC   ... ADDITION CONSTANT FOR METRIC TO ENGLISH
+C                CONVERSION FACTORS
+C     BLANK4 ... ALPHA 4 CHARACTER, BLANK
+C     BOTH   ... ALPHA 4 CHARACTER, BOTH
+C     CONVRT ... CONVERSION FACTOR METRIC TO ENGLISH
+C     CURTM  ... ALPHA 1 CHARACTER CURRENT TIME PLOTTING SYMBOL
+C     DIM    ... ALPHA 4 CHARACTER TIME SERIES DIMENSION CODE
+C     FLDSYM ... ALPHA 1 CHARACTER FOR FLOOD FLOW
+C     IBUG   ... DEBUG OUTPUT SWITCH
+C     ICKDIM ... SWITCH INDICATING WHETHER THE DIMENSION OF
+C                THE TIME SERIES SHOULD BE CHECKED
+C     IDBALL ... DEBUG ALL OPERATIONS SWITCH
+C     IDUMMY ... DUMMY VARIABLE
+C     IERR   ... ERROR FLAG
+C     IERROR ... NUMBER OF ERRORS ENCOUNTERED
+C     IHYD   ... HYDROGRAPH PLOT INDICATOR
+C     IN     ... UNIT NUMBER OF CARD READER
+C     INTPLT ... TIME INTERVAL OF TIME SERIES
+C     INTRVL ... TIME INTERVAL IN HOURS FOR THE TIME SERIES
+C     IODBUG ... UNIT NUMBER OF DEBUG FILE
+C     IPR    ... UNIT NUMBER OF LINE PRINTER
+C     IPU    ... UNIT NUMBER OF CARD PUNCH
+C     ITRACE ... TRACE LEVEL CARRIED IN COMMON
+C     IUSEP  ... SPACE IN THE P ARRAY USED BY THIS OPERATION
+C     IVALUS ... NUMBER OF VALUES PER TIME INTERVAL THAT
+C                THE TIME SERIES CAN HAVE
+C     JBGN   ... BEGINNING ARRAY ELEMENT
+C     JEND   ... ENDING ARRAY ELEMENT
+C     JTRACE ... TRACE LEVEL FOR THIS SUBROUTINE
+C     LEFTP  ... SPACE LEFT IN FORECAST COMPONENT P ARRAY
+C     MINSCL ... MINIMUM SCALE (INCREMENT)
+C     MSG    ... SWITCH INDICATING WHETHER THE TIME SERIES
+C                CAN CONTAIN MISSING VALUES
+C     N      ... COUNTER FOR NELMNT
+C     NADD   ... NUMBER OF ADDITIONAL VALUES FOR A GIVEN DATA TYPE
+C     NBASE  ... PLOT BASE VALUE
+C     NCALC  ... ARRAY ELEMENT COUNTER FOR PO AND W1 ARRAYS
+C     NCRMNT ... PREFERRED TIME INCREMENT TO PLOT
+C     NDEBUG ... NUMBER OF OPERATIONS WITH DEBUG OUTPUT
+C     NEEDP  ... SPACE NEEDED IN THE P ARRAY BY THIS OPERATION
+C     NELMNT ... NUMBER OF ARRAY ELEMENT
+C     NEWPG  ... TOP OF PAGE OPTION
+C     NMLIST ... NUMBER OF TIME SERIES TO BE LISTED
+C     NOOPER ... OPERATION NUMBER
+C     NOVRSN ... VERSION NUMBER OF THIS OPERATION
+C     NPDT   ... NUMBER OF VALUES PER TIME INTERVAL
+C     NPLCRT ... PLOT CRITERIA IF PLOT HAS NO RATING CURVE DEFINED
+C     NPLSTG ... PLOT STAGE
+C     NPLTSZ ... PLOT SIZE OPTION
+C     NPRCNT ... PER CENT OF FLOOD FLOW
+C     NPUNCH ... PUNCH STREAM OF PLOT OPTION
+C     NUMLST ... NUMBER OF TIME SERIES TO BE LISTED
+C     NUMPLT ... NUMBER OF TIME SERIES TO BE PLOTTED
+C     NUMTOT ... NUMBER OF TIME SERIES ACTUALLY READ IN
+C     NUMTS  ... NUMBER OF TIME SERIES TO BE READ IN
+C     ORDSYM ... ALPHA 1 CHARACTER ORDINATE PLOTTING SYMBOL
+C     PLOT   ... ALPHA 4 CHARACTER, PLOT
+C     PLTDIM ... ALPHA 4 CHARACTER TIME SERIES DIMENSION CODE
+C     PLTOPT ... LIST/PLOT/BOTH OPTION FOR TIME SERIES
+C     PLTUNT ... ALPHA 4 CHARACTER TIME SERIES STANDARD UNIT
+C     RATLIM ... ALPHA 1 CHARACTER RATING UPPER LIMIT SYMBOL
+C     RCDMAX ... ALPHA 1 CHARACTER MAX OF RECORD PLOTTING SYMBOL
+C     R1     ... 1ST 4 CHARACTERS OF RATING CURVE IDENTIFIER
+C     R2     ... 2ND 4 CHARACTERS OF RATING CURVE IDENTIFIER
+C     STORGE ... = S, TO INDICATE STORAGE IS LISTED IN ACFT OT TCUM
+C     SYMBOL ... ALPHA 1 CHARACTER PLOTTING SYMBOL
+C     TLIST  ... ALPHA 4 CHARACTER, LIST
+C     TSCALE ... ALPHA 4 CHARACTER TIME SERIES TIME SCALE
+C     TSID1  ... 1ST 4 CHARACTERS OF TIME SERIES IDENTIFIER
+C     TYPE   ... 4 CHARACTER DATA TYPE CODE FOR TIME SERIES
+C     UNITS  ... ALPHA 4 CHARACTER TIME SERIES STANDARD UNIT
+C     UNITSE ... STANDARD ENGLISH UNITS
+C     X      ... REAL VARIABLE FOR NCRMNT
+C     XBEND  ... ALPHA 4 CHARACTER, BEND
+C     XENDB  ... ALPHA 4 CHARACTER, ENDB
+C     XNINE4 ... ALPHA 4 CHARACTER, 9999
+C     XX     ... DIFFERENCE BETWEEN Z AND ZZ
+C     Y      ... REAL VARIABLE FOR INTRVL
+C     Z      ... RATIO OF X TO Y
+C     ZZ     ... REAL VARIABLE RATIO OF NCRMNT TO INTRVL
+C
+C
+C  *********************************************************************
+C  SUMMARY OF CARD INPUT
+C
+C  CARD 1 ...
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      IHYD         2   IS PLOT A HYDROGRAPH-0/1/9    INTEGER    I5
+C      NEWPG        3   TOP OF PAGE OPTION-0/1        INTEGER    I5
+C      NPLTSZ       4   PLOT SIZE OPTION-51/101       INTEGER    I5
+C      NPUNCH       5   PUNCH STREAM OF PLOT-0/1/2    INTEGER    I5
+C      MINSCL       6   MINIMUM SCALE (INCREMENT)     INTEGER    I5
+C      INTRVL       7   TIME INTERVAL OF TIME SERIES  INTEGER    I5
+C      NCRMNT       8   PREFERRED TIME INCREMENT      INTEGER    I5
+C      NUMTS        9   TOTAL NO. OF TIME SERIES      INTEGER    I5
+C      NMLIST      10   NO. OF TIME SERIES TO LIST    INTEGER    I5
+C      ORDSYM      11   ORDINATE PLOTTING SYMBOL      1 CHAR     4X,A1
+C      CURTM       12   CURRENT TIME PLOTTING SYMBOL  1 CHAR     4X,A1
+C      NPLCRT      13   PLOT CRITERIA IF NO
+C                       RATING CURVE DEFINED          INTEGER    I5
+C      NBASE       14   PLOT BASE VALUE               INTEGER    I5
+C      IDUMMY      15   DUMMY                         INTEGER    I5
+C
+C  CARD 2 ... (IF IHYD.EQ.0)
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      PO(16-25) 16-25  PLOT NAME LABEL               40 CHAR    10A4
+C
+C  CARD 2 ... (IF IHYD.EQ.1)
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      NPLSTG      16   PLOT STAGE                    INTEGER    I5
+C      NPRCNT      17   PER CENT OF FLOOD FLOW        INTEGER    I5
+C      FLDSYM      18   FLOOD FLOW PLOTTING SYMBOL    1 CHAR     4X,A1
+C      RATLIM      19   RATING UP LIMIT PLOT SYMBOL   1 CHAR     4X,A1
+C      RCDMAX      20   MAX OF RECORD PLOTTING SYMBOL 1 CHAR     4X,A1
+C      RC(1-2)   21-22  RATING CURVE IDENTIFIER       8 CHAR     2X,2A4
+C      IDUMMY      23   DUMMY                         INTEGER    I5
+C      IDUMMY      24   DUMMY                         INTEGER    I5
+C      IDUMMY      25   DUMMY                         INTEGER    I5
+C
+C  CARD 3 ... (IF NPLTSZ.EQ.101 .OR. IF NPLTSZ.EQ.51 WITH NMLIST.LT.4)
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      PO(26-30) 26-30  LEFT SIDE COLUMN HEADING      20 CHAR    5A4
+C
+C  CARD 3 ... (IF NPLTSZ.EQ.51 .AND. NMLIST.GT.3)
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      PO(26-30) 26-30  LEFT SIDE COLUMN HEADING      20 CHAR    5A4
+C      PO(31-43) 31-43  RIGHT SIDE COLUMN HEADING     52 CHAR    13A4
+C
+C  CARD 4 TO CARD (NUMTS+3) ... 1 CARD FOR EACH TIME SERIES ...
+C     FOR EACH TIME SERIES ...
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      TSID(1-2) +1,+2  TIME SERIES IDENTIFIER        8 CHAR     2A4,2X
+C      TYPE        +3   TYPE CODE                     4 CHAR     A4,1X
+C      PLTOPT      +6   LIST/PLOT/BOTH OPTION         4 CHAR     A4,1X
+C      SYMBOL      +7   PLOTTING SYMBOL               1 CHAR     A1,4X
+C      FRMT(1-2) +8,+9  LISTING FORMAT-REAL           8 CHAR     2A4,1X
+C      STORGE           STORAGE UNITS LISTING OPTION  1 CHAR     A1,1x
+c      tstime     +10   time series time interval     1 int      i2,1x
+c      descrp   11-15   time series description       20 char    5a4
+C
+C  CARD FINAL ...
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      TSID(1)          9999 OR END                   4 CHAR     A4
+C
+C  *********************************************************************
+C
+C
+      DIMENSION    PO(*)
+      DIMENSION    SUBNAM(2),RC(2),TSID(2),FRMT(2)
+      character *4 descrp(5)
+      character*8  formt
+      character*36 dtades
+      character*2  field1
+      character*20 chrtmp
+      integer      tstime
+C
+      COMMON /IONUM/ IN,IPR,IPU
+      COMMON /FDBUG/ IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_pntb/RCS/pin25.f,v $
+     . $',                                                             '
+     .$Id: pin25.f,v 1.7 2000/12/19 14:48:22 jgofus Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SUBNAM,NOOPER,IBUG/4HPIN2,4H5   ,25,0/
+      DATA BLANK4,XNINE4/4H    ,4H9999/
+      DATA XENDB,XBEND/4HEND ,4H END/
+      DATA PLOT,TLIST,BOTH/4HPLOT,4HLIST,4HBOTH/
+      DATA CAPS/1HS/
+      DATA TCUM,ACFT/4HTCUM,4HACFT/
+C
+C
+C  CALL SUBROUTINE, FPRBUG, TO CHECK TRACE LEVEL AND DEBUG OPTION
+C     JTRACE = TRACE LEVEL FOR SUBROUTINE = 1
+C     IBUG   = DEBUG SWITCH = 0
+C
+      JTRACE=1
+      CALL FPRBUG (SUBNAM,JTRACE,NOOPER,IBUG)
+C
+      IUSEP=0
+      IERROR=0
+C
+C  BEGIN READING INPUT CARDS WITH ECHO PRINT (IF IBUG .NE. 0)
+C
+C  *********************************************************************
+C
+C  CARD 1 ...
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      IHYD         2   IS PLOT A HYDROGRAPH-0/1/9    INTEGER    I5
+C      NEWPG        3   TOP OF PAGE OPTION-0/1        INTEGER    I5
+C                       IF 0, WILL NOT ADVANCE TO
+C                       TOP OF PAGE
+C      NPLTSZ       4   PLOT SIZE OPTION-51/101       INTEGER    I5
+C      NPUNCH       5   PUNCH STREAM OF PLOT-0/1/2    INTEGER    I5
+C                       IF 0 ... NO PUNCH STREAM
+C                       IF 1 ... PUNCH STREAM ONLY
+C                       IF 2 ... PUNCH AND PRINT STREAM
+C      MINSCL       6   MINIMUM SCALE (INCREMENT)     INTEGER    I5
+C      INTRVL       7   TIME INTERVAL OF TIME SERIES  INTEGER    I5
+C                          1,2,3,4,6,8,12,24
+C      NCRMNT       8   PREFERRED TIME INCREMENT      INTEGER    I5
+C      NUMTS        9   TOTAL NO. OF TIME SERIES      INTEGER    I5
+C      NMLIST      10   NO. OF TIME SERIES TO LIST    INTEGER    I5
+C      ORDSYM      11   ORDINATE PLOTTING SYMBOL      1 CHAR     4X,A1
+C                       IF BLANK, WILL USE NONE
+C      CURTM       12   CURRENT TIME PLOTTING SYMBOL  1 CHAR     4X,A1
+C                       IF BLANK, WILL USE NONE
+C      NPLCRT      13   PLOT CRITERIA IF NO
+C                       RATING CURVE DEFINED          INTEGER    I5
+C      NBASE       14   PLOT BASE VALUE               INTEGER    I5
+C      IDUMMY      15   DUMMY                         INTEGER    I5
+C
+      READ(IN,10) IHYD,NEWPG,NPLTSZ,NPUNCH,MINSCL,INTRVL,
+     1   NCRMNT,NUMTS,NMLIST,ORDSYM,CURTM,NPLCRT,NBASE,IDUMMY
+ 10   FORMAT(9I5,2(4X,A1),3I5)
+C
+      IF(IBUG.NE.0) WRITE(IODBUG,20)
+     1   IHYD,NEWPG,NPLTSZ,NPUNCH,MINSCL,INTRVL,
+     2   NCRMNT,NUMTS,NMLIST,ORDSYM,CURTM,NPLCRT,NBASE,IDUMMY
+ 20   FORMAT(10X,9I5,2(4X,A1),3I5,//)
+C
+C  CHECK CONTENTS OF CARD 1 FOR ERRORS ...
+C
+C  VERSION NUMBER MUST EQUAL 1 AT PRESENT (03/82)
+C
+c     NOVRSN=1
+      novrsn=2
+C
+C  IS PLOT A HYDROGRAPH WITH A RATING CURVE ... 0 OR 9 (NO) OR 1 (YES)
+C     IF 0 ... PLOT IS NOT A HYDROGRAPH WITH A RATING CURVE
+C     IF 1 ... PLOT IS A HYDROGRAPH WITH A RATING CURVE
+C     IF 9 ... PLOT IS NOT A HYDROGRAPH BUT SOME OTHER PLOT
+C     IF .LT. 0 ... WILL BE SET TO 0
+C     IF .GT. 1 ... WILL BE SET TO 9
+C
+      IF(IHYD.EQ.0) GO TO 40
+      IF(IHYD.EQ.1) GO TO 40
+      IF(IHYD.EQ.9) GO TO 40
+C
+      WRITE(IPR,30) IHYD
+ 30   FORMAT(10X,33H**WARNING** PLOT SPECIFICATION = ,I5,/,
+     1   10X,49HPLOT SPECIFICATION MUST BE EQUAL TO 0,1 OR 9 ... ,/,
+     2   10X,39HIF LESS THAN 0, IT WILL BE CHANGED TO 0,
+     3   39H (NOT A HYDROGRAPH WITH A RATING CURVE),/,
+     4   10X,42HIF GREATER THAN 1, IT WILL BE CHANGED TO 9,
+     5   19H (NOT A HYDROGRAPH),//)
+C
+      CALL WARN
+      IF(IHYD.LT.0) IHYD=0
+      IF(IHYD.GT.1) IHYD=9
+ 40   CONTINUE
+C
+C  TOP OF PAGE OPTION ...
+C     IF 0 ... WILL NOT ADVANCE TO TOP OF PAGE FOR EACH PLOT
+C     IF 1 ... WILL ADVANCE TO TOP OF PAGE FOR EACH PLOT
+C     IF .LT. 0 ... WILL BE SET TO 0
+C     IF .GT. 1 ... WILL BE SET TO 1
+C
+      IF(NEWPG.EQ.0) GO TO 60
+      IF(NEWPG.EQ.1) GO TO 60
+C
+      WRITE(IPR,50) NEWPG
+ 50   FORMAT(10X,33H**WARNING** TOP OF PAGE OPTION = ,I5,/,
+     1   10X,41HTOP OF PAGE OPTION MUST EQUAL 0 OR 1 ... ,/,
+     2   10X,39HIF LESS THAN 0, IT WILL BE CHANGED TO 0,/,
+     3   10X,42HIF GREATER THAN 1, IT WILL BE CHANGED TO 1,//)
+C
+      CALL WARN
+      IF(NEWPG.LT.0) NEWPG=0
+      IF(NEWPG.GT.1) NEWPG=1
+ 60   CONTINUE
+C
+C  PLOT SIZE OPTION ... IF 101 ... CAN ONLY LIST THREE TIME SERIES
+C                                  IF MORE IDENTIFIED ON INPUT, WILL
+C                                  CHANGE TO 51
+C                              ... CANNOT PRODUCE PUNCH STREAM
+C                       IF 51  ... CAN LIST ONE OR MAXIMUM OF EIGHT
+C                                  TIME SERIES
+C                              ... CAN PRODUCE PUNCH STREAM BUT WILL
+C                                  LIST ONLY MAX OFTHREE TIME SERIES
+C
+      IF(NPLTSZ.EQ.51)  GO TO 80
+      IF(NPLTSZ.EQ.101) GO TO 80
+C
+      WRITE(IPR,70) NPLTSZ
+ 70   FORMAT(10X,37H**WARNING** INPUT PLOT SIZE OPTION = ,I5,/,
+     1   10X,35HPLOT SIZE MUST EQUAL 51 OR 101 ... ,/,
+     2   10X,42HIF LESS THAN 100, IT WILL BE CHANGED TO 51,/,
+     3   10X,45HIF GREATER THAN 99, IT WILL BE CHANGED TO 101,//)
+C
+      CALL WARN
+      IF(NPLTSZ.LT.100) NPLTSZ=51
+      IF(NPLTSZ.GT.99)  NPLTSZ=101
+ 80   CONTINUE
+C
+C  PUNCH STREAM OF PLOT OPTION ... 0/1/2
+C     IF 0 ... NO PUNCH STREAM
+C     IF 1 ... PUNCH STREAM ONLY (NPLTSZ=51)
+C     IF 2 ... PUNCH AND PRINT STREAM (NPLTSZ=51)
+C
+      IF(NPUNCH.EQ.0) GO TO 120
+C
+      IF(NPUNCH.EQ.1 .OR. NPUNCH.EQ.2) GO TO 100
+C
+      WRITE(IPR,90) NPUNCH
+ 90   FORMAT(10X,39H**WARNING** PLOT PUNCH STREAM OPTION = ,I5,/,
+     1   10X,46HPLOT PUNCH STREAM OPTION MUST EQUAL 0, 1, OR 2,/,
+     2   10X,23HIT WILL BE CHANGED TO 0,//)
+C
+      CALL WARN
+      NPUNCH=0
+      GO TO 120
+C
+C  CHECK IF NPLTSZ=51
+C
+ 100  IF(NPLTSZ.EQ.51) GO TO 120
+C
+      WRITE(IPR,110) NPLTSZ,NPUNCH
+ 110  FORMAT(10X,31H**WARNING** PLOT SIZE OPTION = ,I5,/,
+     1   10X,32HWITH PLOT PUNCH STREAM OPTION = ,I5,/,
+     2   10X,29HPLOT SIZE MUST EQUAL 51 WITH ,
+     3   35HPUNCH STREAM OPTION EQUAL TO 1 OR 2,/,
+     4   10X,31HPLOT SIZE WILL BE CHANGED TO 51,//)
+C
+      CALL WARN
+      NPLTSZ=51
+ 120  CONTINUE
+C
+C  MINIMUM SCALE SPECIFICATION (INCREMENTAL) ...
+C     CAN ESSENTIALLY BE ANYTHING FROM 1 TO 99999
+C     IF 0 ... EXECUTION SUBROUTINE WILL DETERMINE SCALE
+C     IF 99999 ... WILL BE SET TO 100000
+C     IF .LT. 0 ... WILL BE SET TO 0
+C
+      IF(MINSCL.GT.0) GO TO 140
+C
+      WRITE(IPR,130) MINSCL
+ 130  FORMAT(10X,42H**WARNING** MINIMUM SCALE SPECIFICATION = ,I5,/,
+     1   10X,45HMINIMUM SCALE MUST BE BETWEEN 1 AND 99999 ...,/,
+     2   10X,39HIF LESS THAN 0, IT WILL BE CHANGED TO 0,/,
+     3   10X,47HIF EQUAL TO 99999, IT WILL BE CHANGED TO 100000,//)
+C
+      CALL WARN
+      IF(MINSCL.LT.0) MINSCL=0
+ 140  IF(MINSCL.EQ.99999) MINSCL=100000
+C
+C  TIME INTERVAL OF TIME SERIES ...
+C     MUST BE 1,2,3,4,6,8,12, OR 24 ... DEFAULT WILL BE 6
+C
+      IF(INTRVL.EQ.1) GO TO 160
+      IF(INTRVL.EQ.2) GO TO 160
+      IF(INTRVL.EQ.3) GO TO 160
+      IF(INTRVL.EQ.4) GO TO 160
+      IF(INTRVL.EQ.6) GO TO 160
+      IF(INTRVL.EQ.8) GO TO 160
+      IF(INTRVL.EQ.12) GO TO 160
+      IF(INTRVL.EQ.24) GO TO 160
+C
+      WRITE(IPR,150) INTRVL
+ 150  FORMAT(10X,49H**WARNING** INPUT TIME INTERVAL OF TIME SERIES = ,
+     1   I5,/,
+     2   10X,50HTIME INTERVAL MUST EQUAL 1,2,3,4,6,8,12, OR 24 ...,/,
+     3   10X,23HIT WILL BE CHANGED TO 6,//)
+C
+      CALL WARN
+      INTRVL=6
+ 160  CONTINUE
+C
+C  PREFERRED TIME INCREMENT OF PLOT ...
+C     MUST BE 1,2,3,4,6,8,12, OR 24 ... DEFAULT WILL BE INTRVL
+C     CONVENIENT IF THE SAME AS INTRVL, THE TIME INCREMENT OF THE
+C        TIME SERIES TO BE PLOTTED
+C     IF NOT ... CANNOT BE LESS THAN INTRVL
+C     IF .GT. INTRVL ... MUST BE AN EVEN MULTIPLE OF INTRVL
+C     IF .LT. INTRVL ... WILL BE SET TO INTRVL
+C
+      IF(NCRMNT.EQ.INTRVL) GO TO 230
+C
+      IF(NCRMNT.EQ.1) GO TO 180
+      IF(NCRMNT.EQ.2) GO TO 180
+      IF(NCRMNT.EQ.3) GO TO 180
+      IF(NCRMNT.EQ.4) GO TO 180
+      IF(NCRMNT.EQ.6) GO TO 180
+      IF(NCRMNT.EQ.8) GO TO 180
+      IF(NCRMNT.EQ.12) GO TO 180
+      IF(NCRMNT.EQ.24) GO TO 180
+C
+      WRITE(IPR,170) NCRMNT,INTRVL
+ 170  FORMAT(10X,47H**WARNING** PREFERRED TIME INCREMENT OF PLOT = ,
+     1   I5,/,
+     2   10X,51HTIME INCREMENT MUST EQUAL 1,2,3,4,6,8,12, OR 24 ...,/,
+     3   10X,22HIT WILL BE CHANGED TO ,I5,//)
+C
+      CALL WARN
+      NCRMNT=INTRVL
+      GO TO 230
+ 180  CONTINUE
+C
+      IF(NCRMNT.LT.INTRVL) GO TO 210
+C
+C  NCRMNT IS GREATER THAN INTRVL ...
+C     DETERMINE IF NCRMNT IS AN EVEN MULTIPLE OF INTRVL
+C
+      IF(MOD(NCRMNT,INTRVL).EQ.0) GO TO 230
+C
+      WRITE(IPR,200) NCRMNT,INTRVL,INTRVL
+ 200  FORMAT(10X,47H**WARNING** PREFERRED TIME INCREMENT OF PLOT = ,
+     1   I5,/,
+     2   10X,42HVALUE IS NOT AN EVEN MULTIPLE OF INTRVL = ,I5,/,
+     3   10X,22HIT WILL BE CHANGED TO ,I5,//)
+C
+      CALL WARN
+      NCRMNT=INTRVL
+      GO TO 230
+C
+C  NCRMNT IS LESS THAN INTRVL ...
+C     WILL BE SET TO INTRVL
+C
+ 210  WRITE(IPR,220) NCRMNT,INTRVL,INTRVL
+ 220  FORMAT(10X,47H**WARNING** PREFERRED TIME INCREMENT OF PLOT = ,
+     1   I5,/,
+     2   10X,28HVALUE IS LESS THAN INTRVL = ,I5,/,
+     3   10X,22HIT WILL BE CHANGED TO ,I5,//)
+C
+      CALL WARN
+      NCRMNT=INTRVL
+ 230  CONTINUE
+C
+C  TOTAL NUMBER OF TIME SERIES ... MINIMUM LIMIT OF 1
+C     NO ACTUAL MAXIMUM LIMIT
+C
+      IF(NUMTS.GT.0) GO TO 250
+C
+      WRITE(IPR,240) NUMTS
+ 240  FORMAT(10X,40H**ERROR** INPUT NUMBER OF TIME SERIES = ,I5,/,
+     1   10X,47HTHERE MUST BE AT LEAST 1 TIME SERIES INPUT ... ,//)
+C
+      CALL ERROR
+      IERROR=IERROR+1
+ 250  CONTINUE
+C
+C  NUMBER OF TIME SERIES TO BE LISTED ON PLOT
+C     MINIMUM LIMIT OF ONE
+C     MAXIMUM LIMIT OF EIGHT (NPLTSZ=51)
+C
+c     IF(NMLIST.GT.0 .AND. NMLIST.LT.9) GO TO 270
+      IF(NMLIST.GT.0 .AND. NMLIST.LT.9) GO TO 265
+C
+      WRITE(IPR,260) NMLIST
+ 260  FORMAT(10X,26H**ERROR** INPUT NUMBER OF ,
+     1   22HTIME SERIES TO LIST = ,I5,/,
+     2   10X,48HTHERE MUST BE AT LEAST 1 TIME SERIES LISTED ... ,/,
+     3   10X,19HAND NOT MORE THAN 8,//)
+C
+      CALL ERROR
+      IERROR=IERROR+1
+c
+  265 continue
+c
+c  npltsz must be set at 51 if the number of time series
+c  to be listed is greater 3
+c
+      if(nmlist.gt.3.and.npltsz.eq.101) then
+         write(ipr,266) nmlist,npltsz
+         call error
+         ierror=ierror+1
+         goto 270
+         endif
+c
+  266 format(10X,'**ERROR** INPUT NUMBER OF ',
+     1  'TIME SERIES TO LIST = ',I3,/,10X,'AND PLOTSIZE OPTION = ',I3,
+     2  10X,'PLEASE SET PLOTSIZE OPTION TO 51 IF TIME SERIES TO LIST ',
+     3  'IS GREATER 3',//)
+c
+ 270  CONTINUE
+C
+C  ORDINATE PLOTTING SYMBOL ... CAN USE ANY OR NONE,
+C     BUT CHARACTER "I" IS SUGGESTED
+C     NO CHECK IS MADE ON PLOTTING SYMBOLS
+C
+C  CURRENT TIME PLOTTING SYMBOL ... CAN USE ANY OR NONE,
+C     BUT CHARACTER "-" IS SUGGESTED
+C     NO CHECK IS MADE ON PLOTTING SYMBOLS
+C
+C  PLOT CRITERIA ONLY USED IF IHYD .EQ. 0
+C     I.E., NO RATING CURVE DEFINED FOR PLOT
+C     CAN BE ANYTHING FROM 0 TO 99999
+C     IF IHYD .NE. 0 ... NOT USED
+C     IF .LT. 0 ... WILL BE SET TO 0
+C     IF .EQ. 99999 ... WILL BE SET TO 100000
+C
+      IF(NPLCRT.LT.0) NPLCRT=0
+      IF(NPLCRT.EQ.99999) NPLCRT=100000
+C
+C  PLOT BASE VALUE
+C     CAN BE ANYTHING FROM 0 TO 99999
+C     IF .LT. 0 ... WILL BE SET TO 0
+C     IF .EQ. 99999 ... WILL BE SET TO 100000
+C
+      IF(NBASE.LT.0) NBASE=0
+      IF(NBASE.EQ.99999) NBASE=100000
+C
+C  NO CHECK MADE ON IDUMMY
+C     SET TO 0 AT THIS POINT
+C
+      IDUMMY=0
+C
+C  CHECK THAT SPACE EXISTS IN P ARRAY
+C
+      IF(NPLTSZ.EQ.101) NELMNT=30
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.LT.4) NELMNT=30
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.GT.3) NELMNT=43
+c     NEEDP=NELMNT+(NUMTS*12)
+      needp=nelmnt+(numts*18)
+      CALL CHECKP(NEEDP,LEFTP,IERR)
+      IF(IERR.EQ.1) GO TO 670
+C
+C  MOVE CARD 1 TO PO() ARRAY
+C
+      PO(1)=NOVRSN+0.1
+      PO(2)=IHYD+0.1
+      PO(3)=NEWPG+0.1
+      PO(4)=NPLTSZ+0.1
+      PO(5)=NPUNCH+0.1
+      PO(6)=MINSCL+0.1
+      PO(7)=INTRVL+0.1
+      PO(8)=NCRMNT+0.1
+      PO(9)=NUMTS+0.1
+      PO(10)=NMLIST+0.1
+      PO(11)=ORDSYM
+      PO(12)=CURTM
+      PO(13)=NPLCRT+0.1
+      PO(14)=NBASE+0.1
+      PO(15)=IDUMMY+0.1
+C
+C  *********************************************************************
+C
+C  CARD 2 ... (IF IHYD.EQ.0 .OR. IHYD.EQ.9)
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      PO(16-25) 16-25  PLOT NAME LABEL               40 CHAR    10A4
+C
+C
+C  NO CHECKS MADE ON THIS CARD 2
+C
+      IF(IHYD.EQ.1) GO TO 300
+C
+      READ(IN,280) (PO(I),I=16,25)
+ 280  FORMAT(10A4)
+C
+      IF(IBUG.NE.0) WRITE(IODBUG,290) (PO(I),I=16,25)
+ 290  FORMAT(10X,10A4,//)
+ 300  CONTINUE
+C
+C  *********************************************************************
+C
+C  CARD 2 ... (IF IHYD.EQ.1)
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      NPLSTG      16   PLOT STAGE                    INTEGER    I5
+C      NPRCNT      17   PER CENT OF FLOOD FLOW        INTEGER    I5
+C      FLDSYM      18   FLOOD FLOW PLOTTING SYMBOL    1 CHAR     4X,A1
+C                       IF BLANK, WILL USE NONE
+C      RATLIM      19   RATING UP LIMIT PLOT SYMBOL   1 CHAR     4X,A1
+C                       IF BLANK, WILL USE NONE
+C      RCDMAX      20   MAX OF RECORD PLOTTING SYMBOL 1 CHAR     4X,11
+C                       IF BLANK, WILL USE NONE
+C      RC(1-2)   21-22  RATING CURVE IDENTIFIER       8 CHAR     2X,2A4
+C      IDUMMY      23   DUMMY                         INTEGER    I5
+C      IDUMMY      24   DUMMY                         INTEGER    I5
+C      IDUMMY      25   DUMMY                         INTEGER    95
+C
+      IF(IHYD.NE.1) GO TO 360
+C
+      READ(IN,310) NPLSTG,NPRCNT,FLDSYM,RATLIM,RCDMAX,
+     1   RC(1),RC(2),IDUMMY,IDUMMY,IDUMMY
+ 310  FORMAT(2I5,3(4X,A1),2X,2A4,3I5)
+C
+      IF(IBUG.NE.0) WRITE(IODBUG,320)
+     1   NPLSTG,NPRCNT,FLDSYM,RATLIM,RCDMAX,
+     2   RC(1),RC(2),IDUMMY,IDUMMY,IDUMMY
+ 320  FORMAT(10X,2I5,3(4X,A1),2X,2A4,3I5,//)
+C
+C  CHECK CONTENTS OF CARD 2 FOR ERRORS ...
+C
+C  PLOT STAGE ... NO CHECK IS MADE
+C
+C  PER CENT OF FLOOD FLOW ...
+C     IF LESS THAN 0 ... SET TO 0
+C
+      IF(NPRCNT.GE.0) GO TO 340
+C
+      WRITE(IPR,330) NPRCNT
+ 330  FORMAT(10X,37H**WARNING** PER CENT OF FLOOD FLOW = ,I5,/,
+     1   10X,30HPER CENT OF FLOOD FLOW MUST BE,
+     2   27H EQUAL TO OR GREATER THAN 0,/,
+     3   10X,39HIF LESS THAN 0, IT WILL BE CHANGED TO 0,//)
+C
+      CALL WARN
+      NPRCNT=0
+ 340  CONTINUE
+C
+C  FLOOD FLOW PLOTTING SYMBOL ... CAN USE ANY OR NONE,
+C     BUT CHARACTER "F" IS SUGGESTED
+C     NO CHECK IS MADE ON PLOTTING SYMBOLS
+C
+C  RATING UPPER LIMIT PLOTTING SYMBOL ... CAN USE ANY OR NONE,
+C     BUT CHARACTER "U" IS SUGGESTED
+C     NO CHECK IS MADE ON PLOTTING SYMBOLS
+C
+C  MAX OF RECORD PLOTTING SYMBOL ... CAN USE ANY OR NONE,
+C     BUT CHARACTER "M" IS SUGGESTED
+C     NO CHECK IS MADE ON PLOTTING SYMBOLS
+C
+C  RATING CURVE ID ... IF NOT BLANK, CHECK THAT RATING EXISTS
+C
+      R1=RC(1)
+      R2=RC(2)
+      IF(R1.EQ.BLANK4 .AND. R2.EQ.BLANK4) GO TO 350
+C
+      IERR=0
+      CALL CHEKRC(RC,IERR)
+      IF(IERR.GT.0) IERROR=IERROR+1
+ 350  CONTINUE
+C
+C  NO CHECK MADE ON IDUMMY
+C     SET TO 0 AT THIS POINT
+C
+      IDUMMY=0
+C
+C  MOVE CARD 2 TO PO() ARRAY
+C
+      PO(16)=NPLSTG+0.1
+      PO(17)=NPRCNT+0.1
+      PO(18)=FLDSYM
+      PO(19)=RATLIM
+      PO(20)=RCDMAX
+      PO(21)=RC(1)
+      PO(22)=RC(2)
+      PO(23)=IDUMMY+0.1
+      PO(24)=IDUMMY+0.1
+      PO(25)=IDUMMY+0.1
+ 360  CONTINUE
+C
+C  *********************************************************************
+C
+C  CARD 3 ... (IF NPLTSZ.5Q.101 #OR# I6 NPLTSZ#5Q#51 W9T8 NML9ST#LT#4)
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      PO(26-30) 26-30  LEFT SIDE COLUMN HEADING      20 CHAR    5A4
+C
+C  CARD 3 ... (IF NPLTSZ.EQ.51 .AND. NMLIST.GT.3)
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      PO(26-30) 26-30  LEFT SIDE COLUMN HEADING      20 CHAR    5A4
+C      PO(31-43) 31-43  RIGHT SIDE COLUMN HEADING     52 CHAR    13A4
+C
+      IF(NPLTSZ.EQ.101) READ(IN,370) (PO(I),I=26,30)
+ 370  FORMAT(18A4)
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.LT.4)
+     1   READ(IN,370) (PO(I),I=26,30)
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.GT.3)
+     1   READ(IN,370) (PO(I),I=26,43)
+C
+      IF(IBUG.EQ.0) GO TO 400
+      IF(NPLTSZ.EQ.101)
+     1   WRITE(IODBUG,390) (PO(I),I=26,30)
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.GT.3)
+     1   WRITE(IODBUG,380) (PO(I),I=26,43)
+ 380  FORMAT(10X,18A4,//)
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.LT.4)
+     1   WRITE(IODBUG,390) (PO(I),I=26,30)
+ 390  FORMAT(10X,5A4,//)
+ 400  CONTINUE
+C
+C  NO CHECKS MADE ON COLUMN HEADINGS
+C
+C  *********************************************************************
+C
+C  CARD 4 TO CARD (NUMTS+3) ... 1 CARD FOR EACH TIME SERIES ...
+C     FOR EACH TIME SERIES ...
+C
+C      VARIABLE   PO()  CONTENTS                      FORM       FORMAT
+C     ********** ***** **********                    ******     ********
+C      TSID(1-2) +1,+2  TIME SERIES IDENTIFIER        8 CHAR     2A4,2X
+C      TYPE        +3   TYPE CODE                     4 CHAR     A4,1X
+C      PLTOPT      +6   LIST/PLOT/BOTH OPTION         4 CHAR     A4,1X
+C      SYMBOL      +7   PLOTTING SYMBOL               1 CHAR     A1,4X
+C      FRMT(1-2) +8,+9  LISTING FORMAT-REAL           8 CHAR     2A4,1X
+C      STORGE           STORAGE UNITS LISTING OPTION  1 CHAR     A1
+c      tstime     +10   time series time interval     1 int      i2,1x
+c      descrp   11-15   time series description       20 char    5a4
+C
+      nlist=0
+      NUMLST=0
+      NUMPLT=0
+      NUMTOT=0
+      PLTDIM=BLANK4
+      PLTUNT=BLANK4
+      IF(NPLTSZ.EQ.101) NELMNT=30
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.LT.4) NELMNT=30
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.GT.3) NELMNT=43
+C
+410   continue
+      tstime=0
+      do 415 iii=1,5
+         descrp(iii)=' '
+415   continue
+      formt=' '
+      dtades=' '
+      READ(IN,420) TSID(1),TSID(2),TYPE,PLTOPT,SYMBOL,FRMT(1),FRMT(2),
+     & STORGE,dtades
+ 420  FORMAT(2A4,2X,A4,1X,A4,1X,A1,4X,2A4,1X,A1,a)
+C
+C  CHECK IF LAST CARD ... CONTAINS 9999 OR END IN COLS 1-4
+C
+      TSID1=TSID(1)
+      IF(TSID1.EQ.XNINE4) GO TO 510
+      IF(TSID1.EQ.XENDB) GO TO 510
+      IF(TSID1.EQ.XBEND) GO TO 510
+C
+      IF(IBUG.NE.0)
+     1   WRITE(IODBUG,430) TSID(1),TSID(2),TYPE,PLTOPT,SYMBOL,
+     2   FRMT(1),FRMT(2),STORGE,dtades
+ 430  FORMAT(10X,2A4,2X,A4,1X,A4,1X,A1,4X,2A4,1X,A1,1x,a//)
+c
+      field1=' '
+      call uscan2(dtades,' ',1,field1,length,ierr)
+      if(field1.eq.' ') goto 422
+      if (ierr.ne.0.or.length.gt.2) then
+         write(ipr,421) field1
+         goto 445
+         endif
+c
+  421 format(1H0,10X,'**ERROR** INPUT LISTING FORMAT FOR THE TIME',
+     1   'SERIES TIME INTERVAL = ',A,' IS NOT VALID.')
+c
+  422 call uindex(dtades,len(dtades),field1,length,ipos)
+c
+      ibegin=ipos+length
+      do 423 icurr = ibegin,len(dtades)
+         if (dtades(icurr:icurr).ne.' ') then
+            chrtmp=' '
+            izz=0
+            do 424 istart = icurr,icurr+19
+               izz=izz+1
+               chrtmp(izz:izz)=dtades(istart:istart)
+  424       continue
+            call umemov(chrtmp,descrp,5)
+            goto 425
+            endif
+  423 continue
+c
+  425 if (field1.eq.' ') goto 426
+c
+      call ufa2i(field1,1,length,tstime,1,6,ierr)
+      if(ierr.ne.0) goto 445
+c
+cc426 if (tstime.le.0.or.mod(24,tstime).ne.0) tstime = INTRVL
+cc
+cc      Visual Fortran did not like above stmt - calculates both
+cc
+  426 if (tstime .le. 0) then
+          tstime = INTRVL
+      elseif (mod(24,tstime) .ne. 0) then
+          tstime = INTRVL
+      endif
+C
+C  CHECK TIME SERIES CARD FOR ERRORS ...
+C
+C     CHECK TIME SERIES ITSELF
+C
+      NUMTOT=NUMTOT+1
+      DIM=BLANK4
+      UNITS=BLANK4
+      ICKDIM=1
+      MSG=1
+      IVALUS=1
+      IERR=0
+C
+      CALL FDCODE(TYPE,UNITS,DIM,MSG,NPDT,TSCALE,NADD,IERR)
+      IF(IERR.EQ.1) IERROR=IERROR+1
+      CALL CHEKTS(TSID,TYPE,tstime,ICKDIM,DIM,MSG,IVALUS,IERR)
+      IF(IERR.EQ.1) IERROR=IERROR+1
+C
+c  check for valid format-real
+c
+      if(pltopt.eq.plot) goto 436
+c
+      call umemov(frmt(1),formt,2)
+      icoma=0
+      do 321 iz=1,lenstr(formt)
+         if (formt(iz:iz).eq.','.and.iz.ne.lenstr(formt)) icoma=iz
+  321 continue
+      if (icoma.eq.0) icoma=lenstr(formt)
+      if (formt.eq.' ') goto 432
+      if (formt(lenstr(formt):lenstr(formt)).eq.',') goto 434
+c
+  432 write(ipr,435) frmt(1),frmt(2)
+  435 format(1H0,10X,'**ERROR** INPUT LISTING FORMAT FOR THE TIME',
+     1   'SERIES = ',A4,A4,' IS NOT VALID.')
+c
+      goto 445
+c
+  434 continue
+c
+c  check if there is a dot(.) in the format
+c
+      idot=0
+      do 433 iabc=1,lenstr(formt)
+         if(formt(iabc:iabc).eq.'.') then
+            idot=iabc
+            ioff=iabs(idot-icoma)
+            if (idot.gt.0.and.icoma.gt.0.and.ioff.gt.1) goto 436
+            endif
+  433 continue
+      goto 432
+c
+c  check if time series time interval is different then INTRVL
+c
+  436 continue
+
+c     if(tstime.eq.INTRVL) goto 439
+c     goto 439
+c
+c -----------------------------------------------------------------
+c  3/21/97
+c  this part of the code is not needed since ifp can now list
+c  time series with different time interval
+c
+c  if time series time interval is different than INTRVL LIST/BOTH
+c  is not allowable in IFP
+c
+c     if(pltopt.eq.plot.or.pltopt.eq.list.or.pltopt.eq.both) goto 439
+c     if(pltopt.eq.plot) goto 439
+c -----------------------------------------------------------------
+c
+c     write(ipr,437) pltopt,tsid(1),tsid(2),tstime,intrvl
+c 437 format(10X,'**ERROR** INPUT DISPLAY OPTION = ',A4,/,
+c    1   10X,'IS NOT ALLOWABLE BECAUSE THE TIME SERIES = ',A4,A4,
+c    2   10X,'WITH TIME INTERVAL = ',I2,' IS DIFFERENT THAN ',
+c    3       'THE DEFAULT VALUE OF ',I2)
+c
+c     call error
+c     ierror=ierror+1
+c
+c 439 continue
+c
+C  CHECK PLOT/LIST/BOTH OPTION
+C
+      IF(PLTOPT.EQ.TLIST) then
+         nlist=nlist+1
+         GO TO 490
+         endif
+      IF(PLTOPT.EQ.PLOT)  GO TO 450
+      IF(PLTOPT.EQ.BOTH)  then
+         nlist=nlist+1
+         GO TO 450
+         endif
+C
+      WRITE(IPR,440) PLTOPT
+ 440  FORMAT(10X,33H**ERROR** INPUT DISPLAY OPTION = ,A4,/,
+     1   10X,44HDOES NOT EQUAL ANY OF AVAILABLE CHOICES ... ,
+     2   18HLIST / PLOT / BOTH,//)
+C
+  445 CALL ERROR
+      IERROR=IERROR+1
+      GO TO 500
+C
+C  CHECK THAT ALL TIME SERIES TO BE PLOTTED HAVE SAME
+C     DIMENSIONS, UNITS, TIME INTERVAL
+C
+ 450  NUMPLT=NUMPLT+1
+      IF(NUMPLT.GT.1) GO TO 460
+      PLTDIM=DIM
+      PLTUNT=UNITS
+      INTPLT=INTRVL
+      GO TO 480
+C
+ 460  IF(PLTDIM.EQ.DIM .AND. PLTUNT.EQ.UNITS .AND. INTPLT.EQ.INTRVL)
+     1   GO TO 480
+      WRITE(IPR,470) PLTDIM,DIM,PLTUNT,UNITS,INTPLT,INTRVL
+ 470  FORMAT(10X,36H**ERROR** ALL THE TIME SERIES TO BE ,
+     1   30HPLOTTED DO NOT HAVE IDENTICAL ,
+     2   44HDIMENSION CODES, UNITS AND/OR TIME INTERVALS,/,
+     3   10X,A4,2X,5HVS.  ,A4,5X,6HAND/OR,
+     4   5X,A4,2X,5HVS.  ,A4,5X,6HAND/OR,
+     5   5X,I5,2X,5HVS.  ,I5,//)
+C
+      CALL ERROR
+      IERROR=IERROR+1
+C
+C  TIME SERIES TO BE LISTED ON PLOT
+C
+ 480  IF(PLTOPT.NE.BOTH) GO TO 500
+ 490  NUMLST=NUMLST+1
+C
+C  TIME SERIES PLOTTING SYMBOL ... CAN USE ANY OR NONE,
+C     BUT CHARACTER "O" IS SUGGESTED FOR OBSERVED DATA
+C         CHARACTER "X" IS SUGGESTED FOR ADJUSTED DATA
+C         CHARACTER "*" IS SUGGESTED FOR SIMULATED DATA
+C         CHARACTER "+" IS SUGGESTED FOR LOCAL DATA
+C         CHARACTER "1...5" IS SUGGESTED FOR ROUTED DATA
+C     NO CHECK IS MADE ON THE PLOTTING SYMBOLS
+C
+C  LISTING FORMAT ... MUST BE A REAL FORMAT, NOT INTEGER
+C     NO CHECK IS MADE ON THE LISTING FORMAT
+C
+C  CHECK THAT SPACE EXISTS IN P ARRAY ... IF NECESSARY
+C
+ 500  IF(NUMTOT.LE.NUMTS) GO TO 505
+c     NEEDP=NEEDP+12
+      needp=needp+18
+      CALL CHECKP(NEEDP,LEFTP,IERR)
+      IF(IERR.EQ.1) GO TO 670
+C
+C  GET CONVERSION FACTORS
+C
+ 505  CONVRT=0.00
+      ADDC=0.00
+      UNITSE=BLANK4
+      CALL FCONVT(UNITS,DIM,UNITSE,CONVRT,ADDC,IERR)
+C
+      IF(STORGE.EQ.CAPS) THEN
+        UNITS=TCUM
+        UNITSE=ACFT
+      ENDIF
+      IF(IBUG.EQ.1) WRITE(IODBUG,508) UNITS,DIM,UNITSE,
+     1   CONVRT,ADDC,IERR
+ 508  FORMAT(//,15X,5HUNITS,7X,3HDIM,4X,6HUNITSE,4X,
+     1   6HCONVRT,6X,4HADDC,6X,4HIERR,/,
+     2   10X,3(6X,A4),2F10.4,I10,//)
+C
+C  MOVE TIME SERIES DATA TO PO() ARRAY
+C
+
+      N=NELMNT+1
+c     PO(N)=TSID(1)
+      call umemov(tsid(1),po(n),1)
+      N=N+1
+c     PO(N)=TSID(2)
+      call umemov(tsid(2),po(n),1)
+      N=N+1
+      PO(N)=TYPE
+      N=N+1
+      PO(N)=UNITS
+      N=N+1
+      PO(N)=DIM
+      N=N+1
+      PO(N)=PLTOPT
+      N=N+1
+      ihtemp=4HLIST
+      if(pltopt.eq.ihtemp) symbol=1H
+      PO(N)=SYMBOL
+      N=N+1
+      PO(N)=FRMT(1)
+      N=N+1
+      PO(N)=FRMT(2)
+      N=N+1
+      PO(N)=CONVRT
+      N=N+1
+      PO(N)=ADDC
+      N=N+1
+c     PO(N)=UNITSE
+      call umemov(unitse,po(n),1)
+      n=n+1
+      po(n)=tstime+0.01
+      n=n+1
+      call umemov(descrp(1),po(n),1)
+      n=n+1
+      call umemov(descrp(2),po(n),1)
+      n=n+1
+      call umemov(descrp(3),po(n),1)
+      n=n+1
+      call umemov(descrp(4),po(n),1)
+      n=n+1
+      call umemov(descrp(5),po(n),1)
+      NELMNT=N
+C
+      GO TO 410
+C
+C  *********************************************************************
+C
+C  CHECK THAT NUMBER OF TIME SERIES ACTUALLY READ IN, NUMTOT,
+C     EQUALS THE DECLARED NUMBER OF TIME SERIES TO BE READ IN, NUMTS
+C
+ 510  IF(NUMTS.EQ.NUMTOT) GO TO 525
+C
+      WRITE(IPR,520) NUMTOT,NUMTS
+ 520  FORMAT(10X,26H**WARNING** THE NUMBER OF ,
+     1   28HTIME SERIES ACTUALLY READ IN ,I5,/,
+     2   10X,31HDOES NOT EQUAL NUMBER DECLARED ,
+     3   9HON CARD 2,I5,/,
+     4   10X,30HTHE LATTER WILL BE CHANGED TO ,
+     5   38HAGREE WITH THE NUMBER ACTUALLY READ IN,//)
+C
+      CALL WARN
+      NUMTS=NUMTOT
+      PO(9)=NUMTS+0.1
+C
+c  check again that number of time series to be listed is equal
+c  to the one specified in po(9).
+c
+  525 if (nlist.eq.nmlist) goto 530
+      write(ipr,526) nlist,nmlist
+  526 format(10x,'**WARNING** THE NUMBER OF LISTED TIME SERIES ',
+     1   'ACTUALLY READ IN: ',I2,/,10X,'DOES NOT EQUAL NUMBER ',
+     2   'DECLARED ON CARD 2: ',I2,'.',/,10X,'THE LATTER WILL BE ',
+     3   'CHANGED TO AGREE WITH THE NUMBER ACTUALLY READ IN',//)
+c
+      call warn
+      nmlist=nlist
+      po(10)=nmlist+0.1
+c
+C  CHECK AGAIN THAT NUMBER OF TIME SERIES ACTUALLY
+C     READ IN IS 1 OR MORE
+C
+ 530  IF(NUMTS.GT.0) GO TO 540
+C
+      WRITE(IPR,240) NUMTS
+C
+      CALL ERROR
+      IERROR=IERROR+1
+C
+C  CHECK THAT IF NUMBER OF TIME SERIES TO BE LISTED IS
+C     GREATER THAN 3, THE PLOT SIZE OPTION IS SET AT 51,
+C     IF .LE. 3, MAKES NO DIFFERENCE
+C
+ 540  IF(NUMLST.LT.4)  GO TO 580
+      IF(NPLTSZ.EQ.51) GO TO 560
+C
+      WRITE(IPR,550) NUMLST,NPLTSZ
+ 550  FORMAT(10X,27H**WARNING** NUMBER OF TIME ,
+     1   20HSERIES TO BE LISTED ,I5,/,
+     2   10X,34HIS GREATER THAN 3 ... SO THE PLOT ,
+     3   11HSIZE OPTION,I5,5X,10HMUST BE 51,/,
+     4   10X,32HTHE LATTER WILL BE CHANGED TO 51,//)
+C
+      CALL WARN
+      NPLTSZ=51
+      PO(4)=NPLTSZ+0.1
+C
+C  CHECK THAT TOTAL NUMBER OF TIME SERIES TO BE LISTED
+C     DOES NOT EXCEED 8
+C
+ 560  IF(NUMLST.LT.9) GO TO 580
+C
+      WRITE(IPR,570) NUMLST
+ 570  FORMAT(10X,32H**ERROR** NUMBER OF TIME SERIES ,
+     1   12HTO BE LISTED,I5,/,
+     2   10X,27HEXCEEDS MAXIMUM NUMBER OF 8,//)
+C
+      CALL ERROR
+      IERROR=IERROR+1
+C
+C  CHECK IF ANY ERRORS DETECTED ... IERROR .GT. 0
+C
+ 580  IF(IERROR.EQ.0) GO TO 610
+C
+      WRITE(IPR,600) IERROR
+ 600  FORMAT(10X,10HTHERE ARE ,I5,3X,16HERRORS INDICATED,/,
+     1   10X,38H*** THIS OPERATION WILL BE IGNORED ***,//)
+C
+      GO TO 670
+C
+C  NO ERRORS DETECTED ...
+C
+ 610  IUSEP=NEEDP
+C
+C  *********************************************************************
+C
+C  DUMP CONTENTS OF PO() ARRAY IF DEBUG SPECIFIED
+C
+      IF(IBUG.EQ.0) GO TO 670
+C
+      WRITE(IODBUG,620)
+ 620  FORMAT(10X,25HPIN25 ... PLOT OPERATION ,
+     1   18HDUMP OF PO() ARRAY,//)
+C
+      WRITE(IODBUG,630) (PO(I),I=1,15)
+ 630  FORMAT(10X,10F5.0,2(4X,A1),3F5.0,//)
+C
+      IF(IHYD.NE.1) WRITE(IODBUG,290) (PO(I),I=16,25)
+      IF(IHYD.EQ.1) WRITE(IODBUG,640) (PO(I),I=16,25)
+ 640  FORMAT(10X,2F5.0,3(4X,A1),2X,2A4,3F5.0,//)
+C
+      IF(NPLTSZ.EQ.101)
+     1   WRITE(IODBUG,390) (PO(I),I=26,30)
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.GT.3)
+     1   WRITE(IODBUG,380) (PO(I),I=26,43)
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.LT.4)
+     1   WRITE(IODBUG,390) (PO(I),I=26,30)
+C
+      IF(NPLTSZ.EQ.101) NCALC=31
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.LT.4) NCALC=31
+      IF(NPLTSZ.EQ.51 .AND. NMLIST.GT.3) NCALC=44
+C
+      DO 660 II=1,NUMTOT
+      I=II-1
+      JBGN=NCALC+(I*18)
+c     if (novrsn.eq.2.and.i.gt.1) jbgn=ncalc+(i*18)
+c     JEND=JBGN+11
+      if (novrsn.eq.2) jend=jbgn+17
+      WRITE(IODBUG,650) (PO(J),J=JBGN,JEND)
+ 650  FORMAT(10X,2A4,2X,4(A4,1X),A1,4X,2A4,2X,2F10.4,1X,A1,
+     1       1x,f4.0,1x,5a4//)
+ 660  CONTINUE
+C
+C  *********************************************************************
+C
+C        CONTENTS OF PO() ARRAY ... PIN 25 ... PLOT OPERATION
+C
+C      POSITION         CONTENTS                      FORM
+C     **********       **********                    ******
+C            1          VERSION NUMBER                INTEGER
+C            2          IS PLOT A HYDROGRAPH-0/1/9    INTEGER
+C            3          TOP OF PAGE OPTION-0/1        INTEGER
+C            4          PLOT SIZE OPTION-51/101       INTEGER
+C            5          PUNCH STREAM OF PLOT-0/1/2    INTEGER
+C            6          MINIMUM SCALE (INCREMENT)     INTEGER
+C            7          TIME INTERVAL OF TIME SERIES  INTEGER
+C            8          PREFERRED TIME INCREMENT      INTEGER
+C            9          TOTAL NO. OF TIME SERIES      INTEGER
+C           10          NO. OF TIME SERIES TO LIST    INTEGER
+C           11          ORDINATE PLOTTING SYMBOL      1 CHAR
+C           12          CURRENT TIME PLOTTING SYMBOL  1 CHAR
+C           13          PLOT CRITERIA                 INTEGER
+C           14          PLOT BASE VALUE               INTEGER
+C           15          DUMMY                         INTEGER
+C
+C        16-25          PLOT NAME LABEL               40 CHAR
+C                       ... OR ...
+C           16          PLOT STAGE                    INTEGER
+C           17          PER CENT OF FLOOD FLOW        INTEGER
+C           18          FLOOD FLOW PLOTTING SYMBOL    1 CHAR
+C           19          RATING UP LIMIT PLOT SYMBOL   1 CHAR
+C           20          MAX OF RECORD PLOTTING SYMBOL 1 CHAR
+C        21-22          RATING CURVE IDENTIFIER       8 CHAR
+C           23          DUMMY                         INTEGER
+C           24          DUMMY                         INTEGER
+C           25          DUMMY                         INTEGER
+C
+C        26-30          LEFT SIDE COLUMN HEADING      20 CHAR
+C                       ... OR ...
+C        26-30          LEFT SIDE COLUMN HEADING      20 CHAR
+C        31-43          RIGHT SIDE COLUMN HEADING     52 CHAR
+C
+C     FOR EACH TIME SERIES ...
+C        +1,+2          TIME SERIES IDENTIFIER        8 CHAR
+C           +3          TYPE CODE                     4 CHAR
+C           +4          STANDARD METRIC UNITS         4 CHAR
+C           +5          DIMENSION OF UNITS            4 CHAR
+C           +6          LIST/PLOT/BOTH OPTION         4 CHAR
+C           +7          PLOTTING SYMBOL               1 CHAR
+C        +8,+9          LISTING FORMAT-REAL           8 CHAR
+C          +10          CONVERSION FACTOR             REAL
+C          +11          ADDITION CONSTANT             REAL
+C          +12          STANDARD ENGLISH UNITS        4 CHAR
+c          +13          time series time interval     integer
+c       +14,+18         time series description       20 char
+C
+C
+ 670  RETURN
+      END

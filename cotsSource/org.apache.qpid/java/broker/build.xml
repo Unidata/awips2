@@ -1,0 +1,105 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="AMQ Broker" default="build">
+
+    <property name="module.depends" value="management/common common"/>
+    <property name="module.test.depends" value="common/test" />
+    <property name="module.main" value="org.apache.qpid.server.Main"/>
+
+    <import file="../module.xml"/>
+
+    <property name="output.dir" value="${module.precompiled}/org/apache/qpid/server/filter/jms/selector"/>
+
+    <property name="gentools.home" location="${project.root}/../gentools" />
+    <property name="generated.package" value="org/apache/qpid/server/logging/messages" />
+    <property name="generated.dir" location="${module.precompiled}/${generated.package}" />
+    <property name="velocity.compile.dir" value="${module.build}/velocity"/>
+    <property name="velocity.timestamp" location="${generated.dir}/velocity.timestamp" />
+
+
+    <target name="precompile" depends="gen_logging">
+        <mkdir dir="${output.dir}"/>
+        <!-- Compile Selcector Code -->
+        <javacc target="src/main/grammar/SelectorParser.jj"
+                outputdirectory="${output.dir}"
+                javacchome="${project.root}/lib"/>
+    </target>
+
+    <target name="compile_velocity" >
+        <mkdir dir="${velocity.compile.dir}" />	
+        <!-- Compile LogMessages Velocity Generator -->
+        <javac source="${java.source}" target="${java.target}"
+               destdir="${velocity.compile.dir}" debug="on"
+               deprecation="${javac.deprecation}" 
+               srcdir="src/velocity/java" >
+          <classpath>
+            <pathelement path="${gentools.home}/lib/velocity-1.4.jar" />
+          </classpath>
+          <compilerarg line="${javac.compiler.args}"/>
+        </javac>
+    </target>
+
+  <property name="velocity.properties.dir" value="${project.root}/broker/src/main/java/org/apache/qpid/server/logging/messages"/>
+
+  <target name="check_velocity_deps">
+    <uptodate property="velocity.notRequired" targetfile="${velocity.timestamp}">
+      <srcfiles dir="${velocity.properties.dir}" includes="LogMessages**" />
+      <srcfiles dir="src/velocity/" includes="**/*.java **/*.vm" />
+    </uptodate>
+  </target>
+
+  <target name="gen_logging" depends="compile_velocity,check_velocity_deps" unless="velocity.notRequired">
+    <mkdir dir="${generated.dir}"/>
+    <java classname="org.apache.qpid.server.logging.GenerateLogMessages" fork="true" dir="${gentools.home}/src" failonerror="true">
+      <arg line="-j -o ${generated.dir} -t ${project.root}/broker/src/velocity/templates/org/apache/qpid/server/logging/messages"/>
+      <classpath>
+        <pathelement path="${project.root}/broker/src/main/java"/>
+        <pathelement path="${velocity.compile.dir}" />
+        <fileset dir="${project.root}/lib">
+          <include name="**/*.jar"/>
+        </fileset> 
+        <pathelement path="${gentools.home}/lib/velocity-1.4.jar" />
+      </classpath>
+    </java>
+    <touch file="${velocity.timestamp}" />
+  </target>
+
+
+    <target name="copy-etc-release" if="module.etc.exists" description="copy etc directory if it exists to build tree">
+      <copy todir="${module.release}/etc" failonerror="false" flatten="true">
+          <fileset dir="${module.etc}" excludes="*.conf,*.jpp"/>
+      </copy>
+    </target>
+
+    <target name="copy-bin-release" description="copy dependencies into module release">
+        <copy todir="${module.release}/bin" failonerror="true">
+            <fileset dir="${module.bin}"/>
+        </copy>
+        <copy todir="${module.release}/bin" failonerror="true" flatten="true">
+            <fileset dir="${basedir}/../common/bin"/>
+        </copy>
+        <chmod dir="${module.release}/bin" perm="ugo+rx" includes="**/*"/>
+
+    </target>
+
+    <target name="release-bin" depends="release-bin-tasks"/>
+
+</project>

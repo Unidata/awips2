@@ -1,0 +1,213 @@
+C     MEMBER OPSTAT
+C
+      SUBROUTINE OPSTAT(QS,QO,NOMO,MONTH1)
+C
+C.......................................
+C     THIS SUBROUTINE COMPUTES THE OBJECTIVE FUNCTION STATISTICS
+C     FOR THE OPT3 PROGRAM.
+C.......................................
+C     SUBROUTINE INITIALLY WRITTEN BY
+C            LARRY BRAZIL - HRL   APRIL 1981   VERSION 1
+C.......................................
+C     THIS SUBROUTINE IS UPDATED FOR INCLUSION OF MAXIMUM LIKELIHOOD
+C     ESTIMATOR FOR THE HETEROSCEDASTIC ERROR CASE BY
+C            QINGYUN DUAN - UNIVERSITY OF ARIZONA
+C.......................................
+C
+      DIMENSION QS(1),QO(1)
+C
+C     DIMENSIONING VARIABLES FOR THE MAXIMUM LIKELIHOOD ESTIMATOR
+      DIMENSION HMLNUM(21),HMLDEN(21)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fctime'
+      INCLUDE 'ocommon/opschm'
+      INCLUDE 'ocommon/odrop'
+      INCLUDE 'ocommon/optts'
+      INCLUDE 'ocommon/ostats'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/opt3_shared/RCS/opstat.f,v $
+     . $',                                                             '
+     .$Id: opstat.f,v 1.2 1996/07/11 20:52:04 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA IBUG/4HOPT /
+C     INITIALIZE VARIABLES(FIRST MONTH).
+      IF(MONTH1.EQ.0) GO TO 20
+      OPTIM=0.0
+      PBIAS=0.0
+      RCOF=0.0
+      NCASES=0
+      SUMS=0.0
+      SUMO=0.0
+      SS2=0.0
+      SO2=0.0
+      SOS=0.0
+      SABSDF=0.0
+      SABSLG=0.0
+      VSUMS=0.0
+      VSUMO=0.0
+      SUMTS=0.0
+      SUMTO=0.0
+      VTOTS=0.0
+      VTOTO=0.0
+      VDIFF=0.0
+      DRMS=0.0
+      VRMS=0.0
+      IND=0
+C
+C     INITIALIZE VARIABLES FOR THE MAXIMUM LIKELIHOOD ESTIMATOR
+      DO 10 ILAM = 1, 21
+        HMLNUM(ILAM) = 0.0
+        HMLDEN(ILAM) = 0.0
+   10 CONTINUE
+C
+C     TRACE LEVEL FOR THIS SUBROUTINE=1.
+   20 IF(ITRACE.EQ.1) WRITE(IODBUG,1000)
+ 1000 FORMAT(1H0,17H** OPSTAT ENTERED)
+C
+C     CHECK IF DEBUG IS NEEDED.
+      IF(IFBUG(IBUG).NE.1) GO TO 30
+      WRITE(IODBUG,900) (QS(I),I=1,31)
+      WRITE(IODBUG,900) (QO(I),I=1,31)
+  900 FORMAT(1H0,10F12.3)
+C
+   30 NDRP2=NDRP*2
+C
+C     BEGIN DAILY COMPUTATIONAL LOOP.
+C
+      DO 100 IDY=IDA,LDA
+C
+C     CHECK IF DROP PERIOD BEGINS OR ENDS THIS DAY.
+C
+      IF(NDRP.EQ.0) GO TO 80
+      IF(IDRP.GT.NDRP2) GO TO 80
+      IF(IDY.NE.IDT(IDRP)) GO TO 70
+      IF(IND.EQ.0) GO TO 50
+      IND=0
+      GO TO 60
+   50 IND=1
+   60 IDRP=IDRP+1
+   70 IF(IND.EQ.1) GO TO 100
+   80 CONTINUE
+C
+      JFIRST=(IDY-IDA)*24/IDTOS+1
+      JLAST=(IDY-IDA)*24/IDTOS+(24/IDTOS)
+C
+C     BEGIN TIME INTERVAL COMPUTATIONAL LOOP.
+C
+      DO 90 JPER=JFIRST,JLAST
+C
+      S=QS(JPER)
+      O=QO(JPER)
+C
+      IF(O.LT.QMIN) GO TO 90
+C
+C     COMPUTE ADDITIONS FOR CURRENT MONTH.
+C
+      NCASES=NCASES+1
+      IF(S.LT.1.E-6) S=1.E-6
+      IF(O.LT.1.E-6) O=1.E-6
+C
+      SUMS=SUMS+S
+      SUMO=SUMO+O
+      SS2=SS2+S*S
+      SO2=SO2+O*O
+      SOS=SOS+O*S
+C
+C     MAXIMUM LIKELIHOOD COMPUTATIONS
+      DO 85 ILAM = 1, 21
+        DLAMDA = -1.0 + (ILAM-1) * 0.1
+        WEIGHT = O**(2.0*(DLAMDA-1.0))
+        HMLNUM(ILAM) = HMLNUM(ILAM) + WEIGHT * (O - S)**2
+        HMLDEN(ILAM) = HMLDEN(ILAM) + ALOG(O)
+   85 CONTINUE
+C
+C     ABSOLUTE LOG DIFFERENCE COMPUTATIONS
+      IF(S.EQ.0.0) S=0.01
+      IF(O.EQ.0.0) O=0.01
+      SABSLG=SABSLG+ABS(ALOG(S)-ALOG(O))**EXPO
+      S=QS(JPER)
+      O=QO(JPER)
+C
+C     ABSOLUTE DIFFERENCE COMPUTATIONS
+      ABSSO=ABS(S-O)
+      IF(ABSSO.LT.1.E-6) GO TO 90
+      SABSDF=SABSDF+ABSSO**EXPO
+C
+   90 CONTINUE
+  100 CONTINUE
+C
+C     MONTHLY VOLUME COMPUTATIONS
+      VSUMS=SUMS-SUMTS
+      VSUMO=SUMO-SUMTO
+      SUMTS=SUMS
+      SUMTO=SUMO
+      VTOTS=VSUMS/AREA*86.4
+      VTOTO=VSUMO/AREA*86.4
+      VDIFF=VDIFF+(ABS(VTOTO-VTOTS))**EXPO
+C
+      IF(LDA.EQ.LDARUN) GO TO 118
+      GO TO 9999
+C
+  118 CONTINUE
+      RMTEMP=RMOD
+      DRMS=(SABSDF/NCASES)**.5
+      VRMS=(VDIFF/NOMO)**.5
+      PBIAS=((SUMS-SUMO)/SUMO)*100.
+C
+C     COMPUTE THE MAXIMUM LIKELIHOOD VALUE
+      HMLE = 10.E20
+      DO 105 ILAM = 1, 21
+        DLAMDA = -1.0 + (ILAM-1) * 0.1
+        DENEX = 2. * (DLAMDA - 1.0) * HMLDEN(ILAM) / NCASES
+        HMLE1 = HMLNUM(ILAM) / EXP(DENEX) / NCASES
+        IF (HMLE1 .GT. HMLE) GO TO 105
+        HMLE = HMLE1
+        TLAMDA = DLAMDA
+  105 CONTINUE
+C
+C     MODIFIED R-COEFFICIENT COMPUTATIONS
+      SX2=NCASES*SS2-SUMS*SUMS
+      SY2=NCASES*SO2-SUMO*SUMO
+      DEM=SQRT(SX2*SY2)
+      IF(DEM.LT.0.00001) GO TO 130
+      RCOF=(NCASES*SOS-SUMS*SUMO)/DEM
+C
+      AB=SQRT(SY2/SX2)
+      RMOD=RCOF*AB
+      IF(AB.GE.1.0) RMOD=RCOF/AB
+      GO TO 140
+  130 RCOF=0.0
+      RMOD=RMTEMP
+  140 CONTINUE
+      RMOD1 = 1.0 - RMOD
+C
+C     COMPUTE AUTO OPT CRITERION.
+C
+      GO TO(141,142,143,144,145,146),IOPTIM
+C
+  141 OPTIM=DRMS
+      GO TO 160
+  142 OPTIM=VRMS
+      GO TO 160
+  143 OPTIM=SABSDF
+      GO TO 160
+  144 OPTIM=SABSLG
+      GO TO 160
+  145 OPTIM=RMOD1
+      GO TO 160
+  146 OPTIM=HMLE
+C
+  160 CONTINUE
+C
+ 9999 IF(ITRACE.GE.1) WRITE(IODBUG,1002)
+ 1002 FORMAT(1H0,14H** EXIT OPSTAT)
+      RETURN
+      END

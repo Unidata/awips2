@@ -1,0 +1,5 @@
+For a given edit area, the histogram will list the number of occurrences of each grid value.  Suppose, for example, we are sampling a MaxT grid over a small edit area of 30 points.  You might have a list of pairs:
+  (10,70), (15, 71), (5, 73)
+indicating that 10 grid points had a value of 70 degrees, 15 points had a value of 71 degrees, and 5 grid point had a value of 73 degrees.  
+
+The Sampler code is written in C++ for maximum performance. 

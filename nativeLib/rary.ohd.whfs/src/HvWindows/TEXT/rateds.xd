@@ -1,0 +1,514 @@
+module '*Hb'
+version = 47;
+xdesigned = 1;
+applicationName = '*Hb';
+generateNameC = * 'rateds.c';
+generateNameExterns = * 'rateds.h';
+generateNameResDB = * 'rateds.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'rateDS' : XmDialogShell {
+	arguments {
+	name = 'rateDS';
+	was_selected = true;
+	lastGenName = 'rateDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_rateDS (Widget parent)
+';
+	XmNwidth = 850;
+	XmNheight = 700;
+	XmNallowShellResize = false;
+	XmNtitle = 'Rating Curve';
+	XmNminWidth = 850;
+	XmNminHeight = 700;
+	XmNmaxWidth = 850;
+	XmNmaxHeight = 700;
+	};
+object 'rateFM' : XmForm {
+	arguments {
+	name = 'rateFM';
+	lastGenName = 'rateFM';
+	XmNwidth = 850;
+	XmNheight = 700;
+	XmNresizePolicy = 0;
+	XmNautoUnmanage = false;
+	};
+object 'rateSLB' : XmScrolledList {
+	arguments {
+	name = 'rateSLB';
+	lastGenName = 'rateSLB';
+	};
+abstract object 'rt_vSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'rt_vSB';
+	};
+};
+abstract object 'rt_hSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'rt_hSB';
+	};
+};
+abstract object 'rateLB' : XmList {
+	arguments {
+	name = 'rateLB';
+	lastGenName = 'rateLB';
+	generateResName = true;
+	XmNwidth = 244;
+	XmNheight = 261;
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'rtstgLbl' : XmLabel {
+	arguments {
+	name = 'rtstgLbl';
+	lastGenName = 'rtstgLbl';
+	XmNlabelString = 'Stage                   Discharge';
+	};
+};
+object 'rtdateLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rtdateLbl';
+	XmNlabelString = 'Date of Rating:';
+	};
+};
+object 'rtusgsnumLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rtusgsnumLbl';
+	XmNlabelString = 'USGS Rating No.:';
+	};
+};
+object 'rtimpPB' : XmPushButton {
+	arguments {
+	name = 'rtimpPB';
+	lastGenName = 'rtimpPB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Import Curve';
+	};
+};
+object 'rtmodifyPB' : XmPushButton {
+	arguments {
+	name = 'rtmodifyPB';
+	lastGenName = 'rtmodifyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Update/Insert';
+	};
+};
+object 'rtremPB' : XmPushButton {
+	arguments {
+	name = 'rtremPB';
+	lastGenName = 'rtremPB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Remove Point';
+	};
+};
+object 'rtclearPB' : XmPushButton {
+	arguments {
+	name = 'rtclearPB';
+	lastGenName = 'rtclearPB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Clear All';
+	};
+};
+object 'rtstgTxt' : XmText {
+	arguments {
+	name = 'rtstgTxt';
+	lastGenName = 'rtstgTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 11;
+	};
+};
+object 'rtqTxt' : XmText {
+	arguments {
+	name = 'rtqTxt';
+	lastGenName = 'rtqTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 11;
+	};
+};
+object 'rshiftSLB' : XmScrolledList {
+	arguments {
+	lastGenName = 'rshiftSLB';
+	};
+abstract object 'rs_vSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'rs_vSB';
+	};
+};
+abstract object 'rs_hSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'rs_hSB';
+	};
+};
+abstract object 'rshiftLB' : XmList {
+	arguments {
+	lastGenName = 'rshiftLB';
+	};
+};
+};
+object 'rshiftLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rshiftLbl';
+	XmNlabelString = ' Shift Date           Value     Active';
+	XmNalignment = 0;
+	};
+};
+object 'shiftapplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'shiftapplyPB';
+	XmNlabelString = 'Update/Insert';
+	};
+};
+object 'shiftdelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'shiftdelPB';
+	XmNlabelString = 'Remove Shift';
+	};
+};
+object 'rs_dateTxt' : XmText {
+	arguments {
+	lastGenName = 'rs_dateTxt';
+	XmNmaxLength = 10;
+	};
+};
+object 'rs_valueTxt' : XmText {
+	arguments {
+	lastGenName = 'rs_valueTxt';
+	XmNmaxLength = 5;
+	};
+};
+object 'rs_activeTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'rs_activeTB';
+	XmNlabelString = 'Active';
+	};
+};
+object 'rateresultSLB' : XmScrolledList {
+	arguments {
+	lastGenName = 'rateresultSLB';
+	};
+abstract object 'result_vSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'result_vSB';
+	};
+};
+abstract object 'result_hSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'result_hSB';
+	};
+};
+abstract object 'rateresultLB' : XmList {
+	arguments {
+	lastGenName = 'rateresultLB';
+	};
+};
+};
+object 'rateresultLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rateresultLbl';
+	XmNlabelString = 'Active Rating Curve
+including Shift
+Stage                  Discharge';
+	};
+};
+object 'rateDA' : XmDrawingArea {
+	arguments {
+	name = 'rateDA';
+	lastGenName = 'rateDA';
+	generateResName = true;
+	XmNwidth = 600;
+	XmNheight = 450;
+	XmNbackground = color('black');
+	};
+};
+object 'rtstageLbl' : XmLabel {
+	arguments {
+	name = 'rtstageLbl';
+	lastGenName = 'rtstageLbl';
+	XmNlabelString = 'Stage:';
+	};
+};
+object 'rtstageInfo' : XmLabel {
+	arguments {
+	name = 'rtstageInfo';
+	lastGenName = 'rtstageInfo';
+	XmNlabelString = ' ';
+	};
+};
+object 'rtflowLbl' : XmLabel {
+	arguments {
+	name = 'rtflowLbl';
+	lastGenName = 'rtflowLbl';
+	XmNlabelString = 'KCFS:';
+	};
+};
+object 'rtflowInfo' : XmLabel {
+	arguments {
+	name = 'rtflowInfo';
+	lastGenName = 'rtflowInfo';
+	XmNlabelString = ' ';
+	};
+};
+object 'rtfldstgLbl' : XmLabel {
+	arguments {
+	name = 'rtfldstgLbl';
+	lastGenName = 'rtfldstgLbl';
+	XmNlabelString = 'Flood:';
+	};
+};
+object 'rtforLbl' : XmLabel {
+	arguments {
+	name = 'rtforLbl';
+	lastGenName = 'rtforLbl';
+	XmNlabelString = 'Record:';
+	};
+};
+object 'rtfmSP' : XmSeparator {
+	arguments {
+	name = 'rtfmSP';
+	lastGenName = 'rtfmSP';
+	generateResName = true;
+	XmNwidth = 966;
+	};
+};
+object 'rtokPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rtokPB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Save & Exit';
+	};
+};
+object 'rtapplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rtapplyPB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Save Changes';
+	};
+};
+object 'rtclosePB' : XmPushButton {
+	arguments {
+	lastGenName = 'rtclosePB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -845;
+	XmNleftAttachment = 1 0 615;
+	XmNbottomAttachment = 2 0 -605;
+	XmNtopAttachment = 1 0 475;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -845;
+	XmNleftAttachment = 1 0 615;
+	XmNbottomAttachment = 2 0 -475;
+	XmNtopAttachment = 1 0 455;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -845;
+	XmNleftAttachment = 1 0 615;
+	XmNbottomAttachment = 2 0 -425;
+	XmNtopAttachment = 1 0 405;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -845;
+	XmNleftAttachment = 1 0 615;
+	XmNbottomAttachment = 2 0 -450;
+	XmNtopAttachment = 1 0 430;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -605;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -515;
+	XmNtopAttachment = 1 0 485;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -605;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -640;
+	XmNtopAttachment = 1 0 610;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -605;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -595;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -605;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -555;
+	XmNtopAttachment = 1 0 525;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -720;
+	XmNleftAttachment = 1 0 620;
+	XmNbottomAttachment = 2 0 -645;
+	XmNtopAttachment = 1 0 610;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -830;
+	XmNleftAttachment = 1 0 735;
+	XmNbottomAttachment = 2 0 -645;
+	XmNtopAttachment = 1 0 610;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -290;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -590;
+	XmNtopAttachment = 1 0 500;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -385;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -500;
+	XmNtopAttachment = 1 0 480;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -425;
+	XmNleftAttachment = 1 0 295;
+	XmNbottomAttachment = 2 0 -580;
+	XmNtopAttachment = 1 0 550;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -425;
+	XmNleftAttachment = 1 0 295;
+	XmNbottomAttachment = 2 0 -540;
+	XmNtopAttachment = 1 0 510;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -135;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -635;
+	XmNtopAttachment = 1 0 595;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 135;
+	XmNbottomAttachment = 2 0 -635;
+	XmNtopAttachment = 1 0 595;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -290;
+	XmNleftAttachment = 1 0 210;
+	XmNbottomAttachment = 2 0 -630;
+	XmNtopAttachment = 1 0 600;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -840;
+	XmNleftAttachment = 1 0 610;
+	XmNbottomAttachment = 2 0 -370;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -840;
+	XmNleftAttachment = 1 0 610;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 220;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 310;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 465;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -845;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -655;
+	XmNtopAttachment = 1 0 645;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 2 0 -695;
+	XmNtopAttachment = 1 0 660;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -495;
+	XmNleftAttachment = 1 0 355;
+	XmNbottomAttachment = 2 0 -695;
+	XmNtopAttachment = 1 0 660;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -790;
+	XmNleftAttachment = 1 0 650;
+	XmNbottomAttachment = 2 0 -695;
+	XmNtopAttachment = 1 0 660;
+    };
+    };
+};
+};
+end module;

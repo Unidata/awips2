@@ -1,0 +1,21 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="lclstrmrptPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="lsr" />
+    </bean>
+
+    <bean id="lclstrmrptProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="lclstrmrptPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.lsr" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.lsr.LocalStormReportDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.lsr.LocalStormReport" />
+    </bean>
+    
+    <bean factory-bean="pluginRegistry" factory-method="register">
+        <constructor-arg ref="lclstrmrptPluginName" />
+        <constructor-arg ref="lclstrmrptProperties"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,4 @@
+C                                                *--> FROM CMS(UPRIMX)
+C  COMMON BLOCK USED BY ROUTINE UPRIMO
+      COMMON /UPRIMX/ LPNCH1,LPNCH2
+C

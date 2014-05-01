@@ -1,0 +1,98 @@
+<HTML>
+<HEAD>
+<title>HWR NWR Station List</title>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=left SRC="bc_storm.gif"</A><br>
+<center>
+<h3><b><a name=defin>HWR NWR Station List</a></b></h3>
+</center>
+<hr>
+<a href=stationnwr.html>Station Format</a>,
+<a href=helpnwr.html>HWR NWR Home</a>
+<hr>
+<BR>
+<IMG align=left SRC="calfrop.gif"</A><br>
+All of the stations to appear in the output product must be listed in the station list.<BR>
+<BR>
+<P>The station list may contain any combination of the following:<BR>
+* comment lines,<BR>
+* internal station list comment lines,<BR>
+* the broadcast frequency,<BR>
+* fixed phrase stations, 
+* SCP stations, <BR>
+* marine stations, and<BR>
+* summary stations.<BR>
+<BR>
+Comment lines can be placed anywhere.  They begin with a tilde "~" as is shown in
+the following example:<BR>
+~These are the %TIMEZ% observations for the local area, on ~%DAY%, %DATE% <BR><BR>
+%TIMEZ%, %DAY%, and %DATE% are symbolic words. <BR>
+<BR>
+Internal comment lines can be placed anywhere.  They begin with a pound sign "#"
+as is shown in the following example:<BR>
+# Product TDLHWRNW1<BR>
+# Broadcast File Frequency section (optional).<BR>
+<BR>
+The broadcast frequency is identified as follows:<BR>
+!!!!!BDCST_FREQ<BR>
+40 30 30 <BR>
+where<BR>
+!!!!!BDCST_FREQ is the broadcast frequency identifier, and<BR>
+40 30 30 represent the broadcast frequencies (in percent) of each of the broadcast files associated with this product.<BR>
+<BR>
+Fixed phrase stations are identified as follows:<BR>
+!!!!!FF_STATIONS <BR>
+/KMKC/KMCI/+Downtown Kansas City<BR>
+/KBWI//*BWI Airport;/KADW/+Andrews<BR>
+where <UL TYPE=I>
+<LI>!!!!!FF_STATIONS identifies that fixed phrase land stations follow;
+
+<LI>"KMKC" is the METAR identifier; 
+
+<LI>"KMCI" is the SCP station identifier (leave blank when same as METAR identifier);
+
+<LI>"+" signifies that if the METAR is missing "The report from Downtown Kansas city was not available." will be broadcast.  Other options 
+are; <OL TYPE=1>
+
+<LI>"-" (ignore the station when missing),
+<LI>"*" (use second station on this line when first station is missing) 
+<LI>"&" (use second entry in broadcast file for this station.  This is useful for recapping the weather conditions;</OL>
+ 
+<LI>"+" before "Andrews" signifies that if METAR is missing for BWI Airport
+and for Andrews Air Force Base then "The report from BWI airport is not available." will be broadcast. 
+</UL>
+Marine stations are identified as follows:<BR>
+!!!!!MAR_STATIONS<BR>
+/MISM1//+Matinicus Isle<BR>
+where <UL TYPE=I>
+<LI>!!!!!MAR_STATIONS identifies that marine stations follow;
+
+<LI>All the rules above for FF_STATIONS applies to MAR_STATIONS; 
+
+</UL>
+Summary stations are identified as follows:<BR>
+!!!!!WX_CONDS<BR>
+SW TF<BR>
+!!!!!SUM_STATIONS<BR>
+@Throughtout the region,<BR>
+/KMRB//+Martinburg<BR>
+/KHGR//*Hagerstown;/KDOV/+Dover<BR>
+/KNHK//-Patuxent River<BR>
+where <UL TYPE=I>
+
+<LI>"!!!!!WX_CONDS" identifies that the weather elements to be summarized follow on the next line.
+
+<LI>"SW TF" signify that the weather elements -- sky/weather and temperature in degrees Fahrenheit, are to be summarized.
+
+<LI>The "@" signifies that the comment "Throughout the region," will be broadcast whenever
+ similarities of weather conditions force the creation of a summary phrase. 
+ 
+<LI>The stations to be summarized are listed on the remaining three lines.   The symbols and words used on these lines 
+have the same meaning as those in the fixed phrase station example already explained above. 
+<p>
+  
+<br>
+<center><a href="stationnwr.html">Station</a></center>
+</body>
+</HTML>

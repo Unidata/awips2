@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
+<!-- ?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/javax.persistence"/>
+	<classpathentry exported="true" kind="src" path="/com.raytheon.uf.common.serialization"/>
+	<classpathentry exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin"/>
+	<classpathentry exported="true" kind="src" path="/com.raytheon.edex.common"/>
+	<classpathentry exported="true" kind="src" path="/gov.noaa.nws.ncep.common"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datastorage"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.springframework"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath -->

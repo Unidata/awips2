@@ -1,0 +1,384 @@
+." $Id: pq.3,v 2.5.14.2.2.1 2008/04/15 16:34:07 steve Exp $
+." $__Header$
+.TH PQ 3 "$Date: 2008/04/15 16:34:07 $" "Printed: \n(yr.\n(mo.\n(dy" "UNIDATA LIBRARY FUNCTIONS"
+.SH NAME
+pq,
+pq_create, pq_open, pq_close,
+pq_insert,
+pqe_new, pqe_discard, pqe_insert,
+pq_cset, pq_ctimestamp, pq_sequence, pq_seqdel,
+pq_pagesize, pq_higwater,
+pq_suspend - LDM product queue inteface
+.SH SYNOPSIS
+#include "pq.h"
+.na
+.nh
+.HP
+int\ pq_create(const\ char\ *\fIpath\fP, mode_t\ \fImode\fP, int\ \fIpflags\fP, size_t\ \fIalign\fP, off_t\ \fIinitialsz\fP, size_t\ \fInproducts\fP, pqueue\ **\fIpqp\fP);
+.HP
+\fRint\ pq_open(const\ char\ *\fIpath\fP, int\ \fIpflags\fP, pqueue\ **\fIpqp\fP);
+.HP
+int\ pq_close(pqueue\ *\fIpq\fP);
+.HP
+int\ pq_insert(pqueue\ *\fIpq\fP, const\ product\ *\fIprod\fP);
+.HP
+void\ pq_cset(pqueue\ *\fIpq\fP, const\ struct\ timeval\ *\fItvp\fP);
+.HP
+void\ pq_ctimestamp(const\ pqueue\ *\fIpq\fP, struct\ timeval\ *\fItvp\fP);
+.HP
+int\ pq_sequence(pqueue\ *\fIpq\fP, pq_match\ \fImt\fP, const\ prod_class_t\ *\fIclass\fP, pq_seqfunc\ *\fIifMatch\fP, void\ *\fIotherargs\fP);
+.HP
+int\ pq_seqdel(pqueue\ *\fIpq\fP, pq_match\ \fImt\fP, const\ prod_class_t\ *\fIclss\fP, size_t\ *\fIextentp\fP, time_t\ *\fItimestampp\fP);
+.HP
+int\ pq_pagesize(const\ pqueue\ *\fIpq\fP);
+.HP
+int\ pq_highwater(pqueue\ *\fIpq\fP, off_t\ *\fIhighwaterp\fP, size_t\ *\fImaxproductsp\fP);
+.HP
+int\ pq_suspend(unsigned\ int\ \fImaxsleep\fP);
+.HP
+int\ pq_get_write_count(const\ char*\ \fIpath\fP, unsigned*\ \fIcount\fP);
+.HP
+int pq_clear_write_count(const\ char*\ \fIpath\fP);
+.ad
+.hy
+.SH DESCRIPTION
+.LP
+The Product Queue interface, \fBPQ\fP, provides access to a persistent and
+sharable queue of LDM data products. This implementation is a
+database, a collection of LDM products keyed by the time a product was 
+inserted in the database, by the product offset in the queue, by the
+product signature (to ensure uniqueness), and by the product size (for
+efficiently recycling memory).
+.LP
+By "shared" we mean the queue may be accessed by multiple processes.
+Contention control is handled below the level of this interface by use of
+POSIX fnctl() file region locking.
+.LP
+By "persistent" we mean the queue outlasts any particular process
+which might access it. The queue appears as an object in the file system.
+Products in the queue will not disappear due to a program
+or system crash.
+.LP
+The library maintains a cursor value for each queue and process which is
+simply a timestamp (struct timeval). This is used by the scanning functions
+\fIpq_sequence\fP() and \fIpq_seqdel\fP().  The value of the cursor is set
+or changed by calls to \fIpq_cset\fP(), \fIpq_sequence\fP(),
+or \fIpq_seqdel\fP(). It may be queried by a call to  \fIpq_ctimestamp\fP().
+.LP
+The ldm product "signature" is used by the package to detect duplicate
+products. Attempts to insert products whose signature is already in the queue
+will fail.
+.LP
+Requests for storage when the queue is full
+will cause the library to delete the oldest products, combining
+adjacent deleted products when possible, until enough
+space is available.
+.LP
+All of the  functions return ENOERR (0) if successful.
+If a system call made in the library fails, causing failure of one of
+these functions, the system errno value is returned.
+Most internal errors are mapped into system errors as well,
+particularly \fBEINVAL\fP for invalid argument and \fBEIO\fP for xdr
+encoding problems.
+The ulog(3) package is used for error reporting below the interface,
+logging descriptive information about problems at the point where they
+occur.
+.SS Routines
+.nf
+#include "pq.h"
+.fi
+.nf
+cc -I/usr/local/ldm/include ... -L/usr/local/ldm/lib -lldm
+.fi
+.na
+.HP
+int pq_create(const\ char\ *\fIpath\fP,\ mode_t\ \fImode\fP,\ int\ \fIpflags\fP, size_t\ \fIalign\fP,\ off_t\ \fIinitialsz\fP,\ size_t\ \fInproducts\fP, pqueue\ **\fIpqp\fP);
+.ad
+.IP
+Creates a new product queue and sets \fI*pqp\fP to reference it.
+
+\fIpath\fP is the pathname of the new product queue.
+
+As the third parameter to the \fIopen\fP() system call,
+the access permission bits of the file mode are set to
+the value of \fImode\fP.
+
+The \fIpflags\fP parameter may contain the bitwise OR of flag bits
+which alter the default behavior. These are defined in pq.h.
+When \fIPQ_NOCLOBBER\fP is set, \fIpqcreate\fP will return \fBEEXIST\fP
+when attempting to create a file which already exists. The default behavior
+is to silently overwrite any existing file.
+When \fIPQ_READONLY\fP is set, the file is opened read-only; the default is read-write.
+The \fIPQ_NOMAP\fP flag causes the library to use an i/o strategy
+which uses \fIread\fP(), \fIwrite\fP() and \fImalloc\fP().
+The \fIPQ_MAPRGNS\fP flag causes the library to use an i/o strategy
+which uses \fImmap\fP(), but maps regions as as they are needed and
+unmaps them when no longer needed. The default strategy is to map the
+whole file. Only one of \fIPQ_NOMAP\fP and \fIPQ_MAPRGNS\fP should be
+specified.
+When \fIPQ_NOLOCK\fP is set,
+locking is disabled. When \fIPQ_PRIVATE\fP is set and mmap() is being used,
+the mapping is \fIMAP_PRIVATE\fP instead of the default \fIMAP_SHARED\fP.
+
+The \fIalign\fP parameter sets the access alignment. Requests for storage in the
+queue are rounded up to a multiple of this value. A value of zero for this
+allows the library to set a suitable default.
+
+The parameter \fIinitialsz\fP is the amount of storage to initially
+allocate for data in the queue.
+
+The parameter \fInproducts\fP sets the initial product capacity of
+the queue.
+The size of the file created is a function of this and the
+\fIinitialsz\fP  parameter.
+
+If the product queue is opened for writing, then the writer-count in the
+product queue is incremented and the product queue \fBmust\fP be closed by
+\fIpq_close\fP in order to decrement the writer-count.
+
+.na
+.HP
+int pq_open(const\ char\ *\fIpath\fP, int\ \fIpflags\fP, pqueue\ **\fIpqp\fP);
+.ad
+.IP
+Opens an existing product queue and sets \fI*pqp\fP to reference it.
+
+\fIpath\fP is a pathname of the product queue.
+
+The \fIpflags\fP parameter contains flags as described under \fIpqcreate\fP(),
+except that \fIPQ_NOCLOBBER\fP is meaningless in this context.
+
+If the product queue is opened for writing, then the writer-count in the
+product queue is incremented and the product queue \fBmust\fP be closed by
+\fIpq_close\fP in order to decrement the writer-count.
+
+This function will not create a new product queue, but will instead
+return \fBENOENT\fP when the queue does not exist. If the file
+exists but is not a product queue, the open fails and \fBEINVAL\fP is
+returned.  If the product queue is inconsistent, then the open fails and
+\fBPQ_CORRUPT\fP is returned.
+
+.na
+.HP
+int pq_close(pqueue\ *\fIpq\fP);
+.ad
+.IP
+Closes an open product queue \fIpq\fP and frees any associated resources.
+
+If the product queue was opened for writing, then the writer-count in the
+product queue is decremented.
+.na
+.HP
+int pq_insert(pqueue\ *\fIpq\fP, const\ product\ *\fIprod\fP);
+.ad
+.IP
+Inserts the LDM data product \fIprod\fP into the queue and sends SIGCONT
+to the process group.
+Calls to this function for products whose signature is already in the queue
+fail with an error indication of \fBPQUEUE_DUP\fB.
+.na
+.HP
+int pqe_new(pqueue\ *\fIpq\fP, const\ prod_info\ *\fIinfop\fP, size_t\ \fIproduct_size\fP, void\ **\fIptrp\fP, pqe_index\ *\fIindexp\fP);
+.ad
+.IP
+This function is used when a product is not yet assembled but we wish to
+allocate storage in the queue for its assembly, such as upon the receipt
+of a COMINGSOON remote procedure call in the server.
+It returns storage in \fI*ptrp\fP suitable for placing the data of the product
+described by \fIinfop\fP and \fIproduct_size\fP.
+The value of \fI*indexp\fP should be retained for use in committing the product
+using \fIpqe_insert\fP() or abandoning it using \fIpqe_discard\fP().
+Calls to this function for products whose signature is already in the queue
+fail with an error indication of \fBPQUEUE_DUP\fB.
+.na
+.HP
+int pqe_discard(pqueue\ *\fIpq\fP, pqe_index\ \fIindex\fP);
+.ad
+.IP
+Abandon construction of a product which was begun using \fIpqe_new\fP(),
+freeing up any queue resources allocated to it.
+.na
+.HP
+int pqe_insert(pqueue\ *\fIpq\fP, pqe_index\ \fIindex\fP);
+.ad
+.IP
+Commit (insert) a completed product which was begun using \fIpqe_new\fP(),
+sending SIGCONT to the process group. The insertion timestamp of the product
+will be the time of the call to this function, not \fIpqe_new\fP().
+.na
+.HP
+void pq_cset(pqueue\ *\fIpq\fP, const\ struct\ timeval\ *\fItvp\fP);
+.ad
+.IP
+Sets the cursor value to \fI*tvp\fP. Cheap to call.
+.na
+.HP
+void pq_ctimestamp(const pqueue\ *\fIpq\fP, struct\ timeval\ *\fItvp\fP);
+.ad
+.IP
+Retrives the cursor value as \fI*tvp\fP. Cheap to call.
+.na
+.HP
+int pq_sequence(pqueue\ *\fIpq\fP, pq_match\ \fImt\fP, const\ prod_class_t\ *\fIclass\fP, pq_seqfunc\ *\fIifMatch\fP, void\ *\fIotherargs\fP);
+.ad
+.IP
+Step thru the queue in the direction specified by \fImt\fP,
+relative to the current cursor value,
+and execute the user supplied function \fIifMatch\fP
+if the product in next position "matches"
+the specification defined by \fIclss\fP.
+The queue cursor value is set to the insertion time of the product sampled.
+The interface file prod_class.h (included by pq.h) provides a definition of 
+prod_class_t and pq.h provides a prototype for pq_seqfunc.
+The product class PQ_CLASS_ALL matches everything.
+
+The \fImt\fP argument controls the sequencing behavior.
+
+If(mt == TV_LT), \fIpq_sequence\fP() will get a product
+whose queue insertion timestamp is strictly less than
+the current cursor value. If the cursor is not set,
+it is set to TV_ENDT early in the call, so that
+most recently inserted product in queue is tested.
+If multiple products have the same queue insertion timestamp, the
+user-supplied function will be applied to each of them on successive
+calls to \fIpq_sequence\fP().
+
+If(mt == TV_GT), \fIpq_sequence\fP() will get a product
+whose queue insertion timestamp is strictly greater than
+the current cursor value. If the cursor is not set,
+it is set to TV_ZERO early in the call, so that
+oldest product in queue is tested.
+
+If(mt == TV_EQ), \fIpq_sequence\fP() will get a product
+whose queue insertion timestamp is equal to
+the current cursor value. If the cursor is not set,
+you will fail an assertion and dump core.
+
+If no product is in the inventory which which meets the
+above spec, \fIpq_sequence\fP() returns \fBPQUEUE_END\fP.
+
+This function waits for locks it needs.
+
+Using this function is easier than it explaining or understanding it.
+See pqcat.c in the source distribution.
+
+.na
+.HP
+int pq_seqdel(pqueue\ *\fIpq\fP, pq_match\ \fImt\fP, const\ prod_class_t\ *\fIclss\fP, size_t\ *\fIextentp\fP, time_t\ *\fItimestampp\fP);
+.ad
+.IP
+Similar to \fIpq_sequence\fP(), except that the action is to
+delete any matching product.
+Upon return, \fI*timestampp\fP is set to creation time of the tested product.
+When deletion occurs,
+\fI*extentp\fP is set to the amount of storage made available.
+
+This function does not wait on region lock. It may return \fBEAGAIN\fP
+or \fBEACCESS\fP.
+.na
+.HP
+int pq_pagesize(const\ pqueue\ *\fIpq\fP);
+.ad
+.IP
+If pq is NULL, returns the system page size. Otherwise, returns the
+queue page size, typically the least common multiple of the system page size
+and the \fIalign\fP parameter to \fIpq_create\fP(). This function might
+be used for optimizations such as the choice of an \fIalign\fP value.
+.na
+.HP
+int pq_highwater(pqueue\ *\fIpq\fP, off_t\ *\fIhighwaterp\fP, size_t\ *\fImaxproductsp\fP);
+.ad
+.IP
+Upon success, returns the maximum data segment utilization in bytes as
+\fI*highwaterp\fP and maximum number of products held in the queue as
+\fI*maxproductsp\fP. These are suitable for use as the \fIinitialsz\fP
+and \fInproducts\fP parameters to \fIpq_create\fP(), respectively.
+Since this information is part of the shared queue state, calling this
+function is more expensive than one would hope.
+.na
+.HP
+int pq_suspend(unsigned\ int\ \fImaxsleep\fP);
+.ad
+.IP
+This function is used in conjunction with the scanning function
+\fIpq_sequence\fP() when it reaches the end of queue.
+\fIpq_suspend\fP() is called and the program sleeps until either
+\fImaxsleep\fP() seconds have elapsed or the process receives the
+signal SIGCONT, presumably signaling that a product has been inserted
+by some other process.
+.na
+.HP
+int\ pq_get_write_count(const\ char*\ \fIpath\fP\fP, unsigned*\ \fIcount\fP\fP);
+.ad
+.IP
+Returns the number of \fBpq_open()\fPs for writing outstanding on an existing
+product queue, i.e., this function returns the current value of the
+\fIwriter-counter\fP.  If a writing process terminates without calling 
+\fBpq_close()\fP,
+then the actual number will be less than this number.  This function opens
+the product-queue read-only, so if there are no outstanding product-queue
+writers, then the returned count will be zero.
+.IP
+.I path
+is the pathname of the product-queue.
+.I count
+is the memory to receive the number of writers.
+.IP
+On and only on success, this function returns 0 and *\fIcount\fP is set 
+to the number of writers.
+Other return values are \fBEINVAL\fP, which means that
+\fIpath\fP is NULL or \fIcount\fP is NULL;
+\fBENOSYS\fP, which means that this function is not supported because the
+product-queue doesn't have a writer-counter; 
+\fBPQ_CORRUPT\fP, which means the product-queue is internally inconsistent;
+and any of the \fB<errno.h>\fP error-codes associated with opening and 
+reading from a file.
+.na
+.HP
+int\ pq_clear_write_count(const\ char*\ \fIpath\fP\fP);
+.ad
+.IP
+Sets to zero the number of pq_open()s for writing outstanding on the
+product-queue, i.e., this function clears the \fIwriter-counter\fP in the
+product-queue.  This is a dangerous function and should only be used when
+it is known that there are no outstanding \fBpq_open()\fPs for writing on the
+product-queue.
+.IP
+\fIpath\fP is the pathname of the product-queue.
+.IP
+On and only on success, this function returns 0.  Other return-values are
+\fBEINVAL\fP, which means that \fIpath\fP is NULL;
+\fBPQ_CORRUPT\fP, which means that the product-queue is internally 
+inconsistent; and any of the \fB<errno.h>\fP error-codes associated with 
+opening and reading from a file.
+.fi
+.ad
+.LP
+.SH "EXAMPLES"
+.LP
+There are numerous examples in ldm source code distribution.
+.sp
+.RS +4
+.nf
+.ta 4m +\w'utUnit 'u +\w'double 'u +4m +4m
+.fi
+.RE
+.SH DIAGNOSTICS
+.LP
+This package uses the \fBulog\fP(3) library to print
+(hopefully) self-explanatory error-messages.
+.SH "SEE ALSO"
+.LP
+.BR ldm (1),
+.BR open (2),
+.BR fnctl (2),
+.BR mmap (2)
+.SH "BUGS AND RESTRICTIONS"
+.LP
+Chaos will result if time runs backwards.
+.LP
+On many systems, it is an error to mmap a file when that file is not
+on a local file system.  In such a case, the package emits a message
+and reverts to the \fIPQ_NOMAP\fP strategy. Since locking over the
+network is _extremely_ slow, use of this feature is strongly
+discouraged.

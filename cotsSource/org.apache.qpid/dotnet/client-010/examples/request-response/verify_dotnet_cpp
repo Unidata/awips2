@@ -1,0 +1,12 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+cpp=$CPP/request-response
+
+server_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-request-response-Server.exe localhost 5672
+}
+
+background "Waiting for requests" server_dotnet
+clients $cpp/client
+kill %%
+outputs   "$cpp/client.out | remove_uuid" ./server_dotnet.out 

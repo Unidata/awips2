@@ -1,0 +1,680 @@
+module 'AlertAlarm'
+version = 48;
+xdesigned = 1;
+applicationName = 'AlertAlarm';
+generateNameC = * 'alertalarm.c';
+generateNameCMainProgram = 'alertalarm.c';
+generateNameExterns = * 'alertalarm.h';
+generateNameResDB = * 'alertalarm.res';
+generateCHeaderFile = 'alertalarm.h';
+motifFlavour = 2;
+generateMask = 4390920;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'alertalarmDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'alertalarmDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_alertalarmDS (parent)
+Widget parent;
+';
+	XmNwidth = 860;
+	XmNallowShellResize = true;
+	XmNtitle = 'Alert and Alarm Data Values';
+	XmNminWidth = 860;
+	XmNminHeight = 750;
+	XmNmaxWidth = 860;
+	XmNmaxHeight = 750;
+	};
+object 'alertalarmFO' : XmForm {
+	arguments {
+	was_selected = true;
+	lastGenName = 'alertalarmFO';
+	XmNautoUnmanage = false;
+	};
+object 'aa_typeOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'aa_typeOM';
+	XmNspacing = 0;
+	XmNmarginWidth = 1;
+	};
+abstract object 'aa_typeLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'aa_typeLB';
+	XmNlabelString = 'Show';
+	XmNmarginWidth = 1;
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+abstract object 'aa_typeCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'aa_typeCB';
+	};
+object 'aa_typeME' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'aa_typeME';
+	};
+object 'aa_typeallPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_typeallPB';
+	XmNlabelString = 'All';
+	};
+};
+object 'aa_obsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_obsPB';
+	XmNlabelString = 'Observed';
+	};
+};
+object 'aa_fcstPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_fcstPB';
+	XmNlabelString = 'Forecast';
+	};
+};
+};
+};
+};
+object 'aa_aaOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'aa_aaOM';
+	XmNspacing = 0;
+	XmNmarginWidth = 1;
+	};
+abstract object 'aa_aaLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'aa_aaLB';
+	XmNlabelString = ' ';
+	XmNmarginWidth = 1;
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+abstract object 'aa_aaCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'aa_aaCB';
+	};
+object 'aa_aaME' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'aa_aaME';
+	};
+object 'aa_bothPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_bothPB';
+	XmNlabelString = 'Alert/Alarms';
+	};
+};
+object 'aa_alertPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_alertPB';
+	XmNlabelString = 'Alarms';
+	};
+};
+object 'aa_alarmPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_alarmPB';
+	XmNlabelString = 'Alerts';
+	};
+};
+};
+};
+};
+object 'aa_checkOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'aa_checkOM';
+	XmNspacing = 0;
+	XmNmarginWidth = 1;
+	};
+abstract object 'aa_checkLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'aa_checkLB';
+	XmNwidth = 50;
+	XmNheight = 21;
+	XmNlabelString = 'Exceeding';
+	XmNmarginWidth = 1;
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+abstract object 'aa_checkCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'aa_checkCB';
+	XmNwidth = 118;
+	XmNheight = 21;
+	};
+object 'aa_checkME' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'aa_checkME';
+	};
+object 'aa_checkallPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_checkallPB';
+	XmNwidth = 104;
+	XmNheight = 18;
+	XmNlabelString = 'Any Limit';
+	};
+};
+object 'aa_rocPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_rocPB';
+	XmNwidth = 97;
+	XmNheight = 16;
+	XmNlabelString = 'Rate-of-Change (roc)';
+	};
+};
+object 'aa_upper_limitPB' : XmPushButton {
+	arguments {
+	name = 'aa_upper_limitPB';
+	lastGenName = 'aa_upper_limitPB';
+	XmNlabelString = 'Upper Limit';
+	};
+};
+object 'aa_lower_limitPB' : XmPushButton {
+	arguments {
+	name = 'aa_lower_limitPB';
+	lastGenName = 'aa_lower_limitPB';
+	XmNlabelString = 'Lower Limit';
+	};
+};
+object 'aa_diff_limitPB' : XmPushButton {
+	arguments {
+	name = 'aa_diff_limitPB';
+	lastGenName = 'aa_diff_limitPB';
+	XmNwidth = 102;
+	XmNheight = 18;
+	XmNlabelString = 'Diff Limit';
+	};
+};
+};
+};
+};
+object 'aa_sortLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_sortLB';
+	XmNlabelString = 'Sort by:';
+	};
+};
+object 'aa_sortRB' : XmRadioBox {
+	arguments {
+	lastGenName = 'aa_sortRB';
+	XmNspacing = 0;
+	XmNorientation = XmHORIZONTAL;
+	};
+object 'aa_sorttimeTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'aa_sorttimeTB';
+	XmNlabelString = 'Time';
+	};
+};
+object 'aa_sortlocTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'aa_sortlocTB';
+	XmNlabelString = 'Location';
+	};
+};
+};
+object 'aa_valLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_valLB';
+	XmNlabelString = 'Location     Name                        PE     Dur TS Ext     Value      SupVal  QC    ThreatDescr      ValidTime         BasisTime';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'aa_valSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'aa_valSL';
+	};
+abstract object 'aa_valHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'aa_valHSB';
+	};
+};
+abstract object 'aa_valVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'aa_valVSB';
+	};
+};
+abstract object 'aa_valLS' : XmList {
+	arguments {
+	lastGenName = 'aa_valLS';
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	};
+};
+};
+object 'aa_detailsFR' : XmFrame {
+	arguments {
+	lastGenName = 'aa_detailsFR';
+	};
+object 'aa_detailsFO' : XmForm {
+	arguments {
+	lastGenName = 'aa_detailsFO';
+	};
+object 'aa_roc_limitLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_roc_limitLB';
+	XmNlabelString = '    ROC';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'aa_alertLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_alertLB';
+	XmNlabelString = 'Alert:';
+	};
+};
+object 'aa_alarmLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_alarmLB';
+	XmNlabelString = 'Alarm:';
+	};
+};
+object 'alert_upper_limitTX' : XmTextField {
+	arguments {
+	name = 'alert_upper_limitTX';
+	lastGenName = 'alert_upper_limitTX';
+	XmNeditable = false;
+	};
+};
+object 'alert_lower_limitTX' : XmTextField {
+	arguments {
+	name = 'alert_lower_limitTX';
+	lastGenName = 'alert_lower_limitTX';
+	XmNeditable = false;
+	};
+};
+object 'alarm_upper_limitTX' : XmTextField {
+	arguments {
+	name = 'alarm_upper_limitTX';
+	lastGenName = 'alarm_upper_limitTX';
+	XmNeditable = false;
+	};
+};
+object 'alarm_lower_limitTX' : XmTextField {
+	arguments {
+	name = 'alarm_lower_limitTX';
+	lastGenName = 'alarm_lower_limitTX';
+	XmNeditable = false;
+	};
+};
+object 'aa_prodidLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_prodidLB';
+	XmNlabelString = 'Product:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'aa_prodidTX' : XmTextField {
+	arguments {
+	lastGenName = 'aa_prodidTX';
+	XmNeditable = false;
+	};
+};
+object 'aa_prodtimeTX' : XmTextField {
+	arguments {
+	lastGenName = 'aa_prodtimeTX';
+	XmNeditable = false;
+	};
+};
+object 'aa_posttimeLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_posttimeLB';
+	XmNlabelString = 'Posting Time:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'aa_posttimeTX' : XmTextField {
+	arguments {
+	lastGenName = 'aa_posttimeTX';
+	XmNeditable = false;
+	};
+};
+object 'aa_reptimeLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_reptimeLB';
+	XmNlabelString = 'Time Last Reported:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'aa_reptimeTX' : XmTextField {
+	arguments {
+	lastGenName = 'aa_reptimeTX';
+	XmNeditable = false;
+	};
+};
+object 'aa_upper_limitLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_upper_limitLB';
+	XmNlabelString = 'Upper';
+	};
+};
+object 'aa_lower_limitLB' : XmLabel {
+	arguments {
+	name = 'aa_lower_limitLB';
+	lastGenName = 'aa_lower_limitLB';
+	XmNlabelString = 'Lower';
+	};
+};
+object 'aa_diff_limitLB' : XmLabel {
+	arguments {
+	name = 'aa_diff_limitLB';
+	lastGenName = 'aa_diff_limitLB';
+	XmNlabelString = 'Diff';
+	};
+};
+object 'alert_diff_limitTX' : XmTextField {
+	arguments {
+	name = 'alert_diff_limitTX';
+	lastGenName = 'alert_diff_limitTX';
+	XmNeditable = false;
+	};
+};
+object 'alarm_diff_limitTX' : XmTextField {
+	arguments {
+	name = 'alarm_diff_limitTX';
+	lastGenName = 'alarm_diff_limitTX';
+	XmNeditable = false;
+	};
+};
+object 'alert_roc_limitTX' : XmTextField {
+	arguments {
+	name = 'alert_roc_limitTX';
+	lastGenName = 'alert_roc_limitTX';
+	XmNeditable = false;
+	};
+};
+object 'alarm_roc_limitTX' : XmTextField {
+	arguments {
+	name = 'alarm_roc_limitTX';
+	lastGenName = 'alarm_roc_limitTX';
+	XmNeditable = false;
+	};
+};
+object 'aa_limitsLB' : XmLabel {
+	arguments {
+	name = 'aa_limitsLB';
+	lastGenName = 'aa_limitsLB';
+	XmNlabelString = 'Limits:';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -308;
+	XmNleftAttachment = 1 0 245;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 14;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -61;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -69;
+	XmNtopAttachment = 1 0 44;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -61;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -103;
+	XmNtopAttachment = 1 0 78;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -143;
+	XmNleftAttachment = 1 0 68;
+	XmNbottomAttachment = 2 0 -73;
+	XmNtopAttachment = 1 0 43;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -230;
+	XmNleftAttachment = 1 0 154;
+	XmNbottomAttachment = 2 0 -71;
+	XmNtopAttachment = 1 0 42;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 68;
+	XmNbottomAttachment = 2 0 -111;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -230;
+	XmNleftAttachment = 1 0 154;
+	XmNbottomAttachment = 2 0 -110;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -488;
+	XmNleftAttachment = 1 0 418;
+	XmNbottomAttachment = 2 0 -38;
+	XmNtopAttachment = 1 0 13;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -635;
+	XmNleftAttachment = 1 0 500;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 7;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -839;
+	XmNleftAttachment = 1 0 649;
+	XmNbottomAttachment = 2 0 -41;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -635;
+	XmNleftAttachment = 1 0 515;
+	XmNbottomAttachment = 2 0 -79;
+	XmNtopAttachment = 1 0 54;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -838;
+	XmNleftAttachment = 1 0 648;
+	XmNbottomAttachment = 2 0 -81;
+	XmNtopAttachment = 1 0 46;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -636;
+	XmNleftAttachment = 1 0 512;
+	XmNbottomAttachment = 2 0 -114;
+	XmNtopAttachment = 1 0 93;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -839;
+	XmNleftAttachment = 1 0 649;
+	XmNbottomAttachment = 2 0 -118;
+	XmNtopAttachment = 1 0 83;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -136;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 2 0 -38;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -222;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -37;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -395;
+	XmNleftAttachment = 1 0 336;
+	XmNbottomAttachment = 2 0 -37;
+	XmNtopAttachment = 1 0 16;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -414;
+	XmNleftAttachment = 1 0 334;
+	XmNbottomAttachment = 2 0 -71;
+	XmNtopAttachment = 1 0 42;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -414;
+	XmNleftAttachment = 1 0 333;
+	XmNbottomAttachment = 2 0 -108;
+	XmNtopAttachment = 1 0 79;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -320;
+	XmNleftAttachment = 1 0 245;
+	XmNbottomAttachment = 2 0 -72;
+	XmNtopAttachment = 1 0 41;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -319;
+	XmNleftAttachment = 1 0 245;
+	XmNbottomAttachment = 2 0 -109;
+	XmNtopAttachment = 1 0 79;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 21;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 18;
+    };
+    };
+};
+object 'aa_detailsLB' : XmLabel {
+	arguments {
+	lastGenName = 'aa_detailsLB';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Details for Selected Item';
+	};
+};
+};
+object 'aa_showgraphPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_showgraphPB';
+	XmNlabelString = 'Graphical Time Series';
+	};
+};
+object 'aa_showtablePB' : XmPushButton {
+	arguments {
+	lastGenName = 'aa_showtablePB';
+	XmNlabelString = 'Tabular Time Series';
+	};
+};
+object 'aa_closePB' : XmPushButton {
+	arguments {
+	name = 'aa_closePB';
+	lastGenName = 'aa_closePB';
+	XmNlabelString = 'Close';
+	};
+};
+object 'aa_deletePB' : XmPushButton {
+	arguments {
+	name = 'aa_deletePB';
+	lastGenName = 'aa_deletePB';
+	XmNlabelString = 'Delete';
+	};
+};
+object 'aa_hint_LB' : XmLabel {
+	arguments {
+	name = 'aa_hint_LB';
+	lastGenName = 'aa_hint_LB';
+	XmNlabelString = 'Note:SupVal is ObsValue for forecast diff threats
+        and actual ROC for ROC threats';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	XmNrecomputeSize = false;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -326;
+	XmNleftAttachment = 1 0 180;
+	XmNbottomAttachment = 2 0 -37;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -550;
+	XmNleftAttachment = 1 0 329;
+	XmNbottomAttachment = 2 0 -37;
+	XmNtopAttachment = 1 0 4;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -65;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -75;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -330;
+	XmNleftAttachment = 1 0 75;
+	XmNbottomAttachment = 2 0 -75;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -860;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -116;
+	XmNtopAttachment = 1 0 85;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -860;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -536;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -860;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -692;
+	XmNtopAttachment = 1 0 555;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -392;
+	XmNleftAttachment = 1 0 207;
+	XmNbottomAttachment = 2 0 -743;
+	XmNtopAttachment = 1 0 708;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -745;
+	XmNtopAttachment = 1 0 710;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -777;
+	XmNleftAttachment = 1 0 672;
+	XmNbottomAttachment = 2 0 -743;
+	XmNtopAttachment = 1 0 708;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -522;
+	XmNleftAttachment = 1 0 429;
+	XmNbottomAttachment = 2 0 -744;
+	XmNtopAttachment = 1 0 708;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -858;
+	XmNleftAttachment = 1 0 552;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 4;
+    };
+    };
+};
+};
+end module;

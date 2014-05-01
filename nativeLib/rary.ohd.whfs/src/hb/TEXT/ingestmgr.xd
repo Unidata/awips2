@@ -1,0 +1,809 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'ingestmgr.c';
+generateNameExterns = * 'ingestmgr.h';
+generateNameResDB = * 'ingestmgr.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'ingestDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'ingestDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_ingestDS (Widget parent)
+';
+	XmNwidth = 960;
+	XmNheight = 705;
+	XmNallowShellResize = true;
+	XmNtitle = 'Data Ingest Filter';
+	XmNminWidth = 960;
+	XmNminHeight = 705;
+	XmNmaxWidth = 960;
+	XmNmaxHeight = 705;
+	XmNbaseWidth = 960;
+	XmNbaseHeight = 705;
+	};
+object 'ingestFO' : XmForm {
+	arguments {
+	lastGenName = 'ingestFO';
+	XmNwidth = 960;
+	XmNheight = 705;
+	XmNautoUnmanage = false;
+	};
+object 'inlistFR' : XmFrame {
+	arguments {
+	lastGenName = 'inlistFR';
+	};
+object 'inlistFO' : XmForm {
+	arguments {
+	lastGenName = 'inlistFO';
+	};
+object 'inlistLA' : XmLabel {
+	arguments {
+	was_selected = true;
+	lastGenName = 'inlistLA';
+	XmNwidth = 510;
+	XmNlabelString = 'Location    PE    Dur    TypeSrc    Ext    Rank   Master   OFS    MPE';
+	};
+};
+object 'inlistSW' : XmScrolledList {
+	arguments {
+	lastGenName = 'inlistSW';
+	XmNheight = 305;
+	};
+abstract object 'inlistHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'inlistHSB';
+	XmNheight = 1;
+	XmNmappedWhenManaged = false;
+	};
+};
+abstract object 'inlistVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'inlistVSB';
+	};
+};
+abstract object 'inlistLI' : XmList {
+	arguments {
+	lastGenName = 'inlistLI';
+	XmNautomaticSelection = true;
+	XmNselectionPolicy = 3;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'inlist_setPB' : XmPushButton {
+	arguments {
+	lastGenName = 'inlist_setPB';
+	XmNheight = 35;
+	XmNlabelString = 'Set Switches for All Listed Above';
+	XmNalignment = 1;
+	};
+};
+object 'inlist_masterTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'inlist_masterTB';
+	XmNlabelString = ' ';
+	};
+};
+object 'inlist_ofsTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'inlist_ofsTB';
+	XmNlabelString = ' ';
+	};
+};
+object 'inlist_stg2TB' : XmToggleButton {
+	arguments {
+	lastGenName = 'inlist_stg2TB';
+	XmNlabelString = ' ';
+	};
+};
+object 'infilterFR' : XmFrame {
+	arguments {
+	lastGenName = 'infilterFR';
+	};
+object 'infilterFO' : XmForm {
+	arguments {
+	lastGenName = 'infilterFO';
+	};
+object 'infilterby_LA' : XmLabel {
+	arguments {
+	lastGenName = 'infilterby_LA';
+	XmNlabelString = 'Filter By:';
+	XmNalignment = 2;
+	};
+};
+object 'infilter_locTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'infilter_locTB';
+	XmNlabelString = 'Location';
+	};
+};
+object 'infilter_peTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'infilter_peTB';
+	XmNlabelString = 'PhysElem';
+	};
+};
+object 'infilter_tsTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'infilter_tsTB';
+	XmNlabelString = 'TypeSrc';
+	};
+};
+object 'infilter_swTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'infilter_swTB';
+	XmNlabelString = 'Switches';
+	};
+};
+object 'infilterSE' : XmSeparator {
+	arguments {
+	lastGenName = 'infilterSE';
+	};
+};
+object 'infilter_locLA' : XmLabel {
+	arguments {
+	lastGenName = 'infilter_locLA';
+	XmNlabelString = 'Location:';
+	XmNalignment = 2;
+	};
+};
+object 'infilter_locTE' : XmText {
+	arguments {
+	lastGenName = 'infilter_locTE';
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	};
+};
+object 'infilter_peLA' : XmLabel {
+	arguments {
+	lastGenName = 'infilter_peLA';
+	XmNlabelString = 'PhysElem:';
+	XmNalignment = 2;
+	};
+};
+object 'infilter_peSW' : XmScrolledList {
+	arguments {
+	lastGenName = 'infilter_peSW';
+	XmNheight = 110;
+	};
+abstract object 'infilter_peHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'infilter_peHSB';
+	};
+};
+abstract object 'infilter_peVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'infilter_peVSB';
+	};
+};
+abstract object 'infilter_peLI' : XmList {
+	arguments {
+	lastGenName = 'infilter_peLI';
+	XmNautomaticSelection = false;
+	XmNselectionPolicy = 1;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'infilter_tsOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'infilter_tsOM';
+	XmNspacing = 5;
+	};
+abstract object 'infilter_tsLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'infilter_tsLA';
+	XmNlabelString = 'TypeSrc:';
+	};
+};
+abstract object 'infilter_tsCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'infilter_tsCB';
+	};
+object 'infilter_tsPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'infilter_tsPDM';
+	};
+};
+};
+};
+object 'infilter_swLA' : XmLabel {
+	arguments {
+	lastGenName = 'infilter_swLA';
+	XmNlabelString = 'Switches:';
+	XmNalignment = 2;
+	};
+};
+object 'infilter_mastTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'infilter_mastTB';
+	XmNlabelString = 'Master';
+	};
+};
+object 'infilter_ofsTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'infilter_ofsTB';
+	XmNlabelString = 'OFS';
+	};
+};
+object 'infilter_stg2TB' : XmToggleButton {
+	arguments {
+	lastGenName = 'infilter_stg2TB';
+	XmNlabelString = 'MPE';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 80;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 80;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 220;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 220;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 5;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 70;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 85;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 10 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 79;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 125;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 9 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 250;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 295;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 292;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 13 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 13 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 14 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 13 0;
+    };
+    };
+};
+object 'infilterLA' : XmLabel {
+	arguments {
+	lastGenName = 'infilterLA';
+	XmNchildType = 2;
+	XmNlabelString = 'Filter Parameters';
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 4 1 -20;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 113;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 349;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 395;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 350;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 443;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 350;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -525;
+	XmNleftAttachment = 1 0 492;
+	XmNbottomAttachment = 2 0 -380;
+	XmNtopAttachment = 1 0 350;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 3 2 20;
+	XmNbottomAttachment = 4 3 0;
+	XmNtopAttachment = 4 2 -10;
+    };
+    };
+};
+object 'incontentsLA' : XmLabel {
+	arguments {
+	lastGenName = 'incontentsLA';
+	XmNchildType = 2;
+	XmNlabelString = 'Ingest Filter Contents for Locations';
+	};
+};
+};
+object 'initemFR' : XmFrame {
+	arguments {
+	lastGenName = 'initemFR';
+	};
+object 'initemFO' : XmForm {
+	arguments {
+	lastGenName = 'initemFO';
+	};
+object 'initem_locLA' : XmLabel {
+	arguments {
+	lastGenName = 'initem_locLA';
+	XmNlabelString = 'Location:';
+	XmNalignment = 2;
+	};
+};
+object 'initem_locTE' : XmText {
+	arguments {
+	lastGenName = 'initem_locTE';
+	XmNvalue = '';
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	};
+};
+object 'initem_durOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'initem_durOM';
+	XmNspacing = 10;
+	};
+abstract object 'initem_durLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'initem_durLA';
+	XmNlabelString = 'Duration:';
+	};
+};
+abstract object 'initem_durCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'initem_durCB';
+	};
+object 'initem_durPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'initem_durPDM';
+	};
+};
+};
+};
+object 'initem_tsOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'initem_tsOM';
+	XmNspacing = 10;
+	};
+abstract object 'initem_tsLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'initem_tsLA';
+	XmNlabelString = 'TypeSource:';
+	};
+};
+abstract object 'initem_tsCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'initem_tsCB';
+	};
+object 'initem_tsPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'initem_tsPDM';
+	};
+};
+};
+};
+object 'initem_extOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'initem_extOM';
+	XmNspacing = 10;
+	};
+abstract object 'initem_extLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'initem_extLA';
+	XmNlabelString = 'Extremum:';
+	};
+};
+abstract object 'initem_extCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'initem_extCB';
+	};
+object 'initem_extPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'initem_extPDM';
+	};
+};
+};
+};
+object 'initem_peLA' : XmLabel {
+	arguments {
+	lastGenName = 'initem_peLA';
+	XmNlabelString = 'Physical Element:';
+	XmNalignment = 2;
+	};
+};
+object 'initem_peSW' : XmScrolledList {
+	arguments {
+	lastGenName = 'initem_peSW';
+	XmNwidth = 275;
+	XmNheight = 123;
+	};
+abstract object 'initem_peHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'initem_peHSB';
+	};
+};
+abstract object 'initem_peVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'initem_peVSB';
+	};
+};
+abstract object 'initem_peLI' : XmList {
+	arguments {
+	lastGenName = 'initem_peLI';
+	XmNautomaticSelection = false;
+	XmNselectionPolicy = 0;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'initem_rankOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'initem_rankOM';
+	};
+abstract object 'initem_rankLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'initem_rankLA';
+	XmNlabelString = 'TypeSource Rank:';
+	};
+};
+abstract object 'initem_rankCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'initem_rankCB';
+	};
+object 'initem_rankPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'initem_rankPDM';
+	};
+object 'initem_rankPB1' : XmPushButton {
+	arguments {
+	lastGenName = 'initem_rankPB1';
+	XmNlabelString = '1st';
+	};
+};
+object 'initem_rankPB2' : XmPushButton {
+	arguments {
+	lastGenName = 'initem_rankPB2';
+	XmNlabelString = '2nd';
+	};
+};
+object 'initem_rankPB3' : XmPushButton {
+	arguments {
+	lastGenName = 'initem_rankPB3';
+	XmNlabelString = '3rd';
+	};
+};
+object 'initem_rankPB4' : XmPushButton {
+	arguments {
+	lastGenName = 'initem_rankPB4';
+	XmNlabelString = '4th';
+	};
+};
+object 'initem_rankPB5' : XmPushButton {
+	arguments {
+	lastGenName = 'initem_rankPB5';
+	XmNlabelString = '5th';
+	};
+};
+};
+};
+};
+object 'initem_mastTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'initem_mastTB';
+	XmNlabelString = 'Master Switch';
+	XmNalignment = 0;
+	};
+};
+object 'initem_ofsTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'initem_ofsTB';
+	XmNlabelString = 'OFS Input Switch';
+	XmNalignment = 0;
+	};
+};
+object 'initem_stg2TB' : XmToggleButton {
+	arguments {
+	lastGenName = 'initem_stg2TB';
+	XmNlabelString = 'MPE Input Switch';
+	XmNalignment = 0;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 40;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 1 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 35;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 42;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 82;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 23;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 122;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 7 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 8;
+    };
+    attachment {
+	XmNrightAttachment = 3 8 20;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 0 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 8 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 8 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 8 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 9 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 8 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 10 0;
+    };
+    };
+};
+object 'initemLA' : XmLabel {
+	arguments {
+	lastGenName = 'initemLA';
+	XmNchildType = 2;
+	XmNlabelString = 'Selected Item';
+	};
+};
+};
+object 'ingestsepSE' : XmSeparator {
+	arguments {
+	lastGenName = 'ingestsepSE';
+	};
+};
+object 'ingest_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ingest_okPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'ingest_applyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ingest_applyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'ingest_cancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ingest_cancelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'ingest_newPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ingest_newPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'New';
+	};
+};
+object 'ingest_deletePB' : XmPushButton {
+	arguments {
+	name = 'ingest_deletePB';
+	lastGenName = 'ingest_deletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'ingest_helpPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ingest_helpPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Help';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -425;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -625;
+	XmNtopAttachment = 1 0 435;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 22;
+	XmNtopAttachment = 3 3 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 4 80;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 4 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 5 80;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 4 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 6 80;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 4 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 7 80;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 4 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 8 80;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 4 0;
+    };
+    };
+};
+};
+end module;

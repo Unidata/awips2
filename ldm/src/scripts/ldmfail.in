@@ -1,0 +1,242 @@
+#!@PERL@
+#
+# $ID$
+#
+# ldmfail
+#
+# Copyright 1996 University Corporation for Atmospheric Research
+# See ../COPYRIGHT file for copying and redistribution conditions.
+#
+# This file implements an automated failover of the LDM server based on the
+# results of an ldmping(1).  If the LDM server is feeding from the primary
+# upstream host, and an ldmping to that host fails, the script then checks
+# the failover feed host.  If that ldmping is successful, the LDM is stopped,
+# a new ldmd.conf is moved into place, and the LDM is then started.  If the
+# ping to the failover host fails, then the LDM remains setup to feed from
+# the primary.  If the LDM is already feeding from the failover, then the
+# primary is checked, and if the check is good, the LDM is stopped, the
+# appropriate ldmd.conf file is moved into place an the the LDM is started.
+# A message or mail is sent whenever a feed switch is made.
+#
+# To use this program, two ldmd.conf files must exist in the etc directory:
+#
+#          ldmd.primary
+#          ldmd.failover
+#
+# Usage:
+#
+#  ldmfail -p primary_host -f failover_host
+#
+#     -p primary_host     fully qualified hostname of the primary feed host
+#     -f failover_host    fully qualified hostname of the failover feed host
+###############################################################################
+###############################################################################
+# CONFIGURATION SECTION
+###############################################################################
+
+# path to the ldm home directory
+$ldmhome = "@LDMHOME@" ;
+
+# working paths
+$etcdir = "$ldmhome/etc" ;
+$bindir = "$ldmhome/bin" ;
+$logdir = "$ldmhome/logs" ;
+
+# working files
+$conf_file = "$etcdir/ldmd.conf" ;
+
+# who should get mail.  If using more than one address, make it a comma
+# separated list. Do not forget to escape the @, ie.  \@
+$mail_list = "ldm" ;
+
+###############################################################################
+# END OF CONFIGURATION SECTION
+###############################################################################
+# identify ourselves and set up some extra stuff we will need
+$PROGNAME = "ldmfail" ;
+$lock_file = "/tmp/.ldmadmin.lck";
+
+$primary = "missing" ;
+$failover = "missing" ;
+
+# Dependencies:  
+$ENV{ 'PATH' } = "@PATH@" ;
+ 
+$ENV{ 'SHELL' } = '/bin/sh' ;
+$ENV{ 'IFS' } = ''if $ENV{ 'IFS' } ne '' ;
+
+# get and process the command line
+while ($_ = $ARGV[0]) {
+	shift ;
+	/^-p/ && ($primary = shift) ;
+	/^-f/ && ($failover = shift) ;
+}
+if( $primary eq "missing" || $failover eq "missing" ) {   # missing parameter
+	print_usage() ;
+}
+$primary_file = "$etcdir/ldmd.$primary" ;
+$failover_file = "$etcdir/ldmd.$failover" ;
+
+# check if another ldmadmin is running
+exit( 0 ) if( -e $lock_file ) ;
+
+# first make sure that the local ldm is up and running
+`$bindir/ldmadmin isrunning` ;
+
+if( $? ) {	# local ldm is down
+	`$bindir/ldmadmin clean` ;
+	`$bindir/ldmadmin start` ;
+	if( $? ) {  # another try this time delete/remake the queue
+		`$bindir/ldmadmin stop` ;
+		`$bindir/ldmadmin clean` ;
+		`$bindir/ldmadmin delqueue` ;
+		`$bindir/ldmadmin mkqueue` ;
+		`$bindir/ldmadmin start` ;
+		if( $? ) {  # time to leave
+			if( ! -e "$logdir/ldmfail" ) {
+				$logMsg = `$bindir/ldmadmin check` ;
+	    			output("Local LDM is down - stop/start failed", 
+					$logMsg) ;
+				`touch "$logdir/ldmfail"` ;
+			}
+			exit 1 ;
+		}
+		output("Local LDM restarted, deleted/remade the queue") ;
+	} else {
+		output("Local LDM restarted") ;
+	}
+}
+`rm -f $logdir/ldmfail` ;
+
+# now find out which host we are currently feeding from
+open(LDMD,$conf_file) || bad_exit("Could not open $conf_file") ;
+
+$primary_flg = 0 ;
+$failover_flg = 0 ;
+
+while (<LDMD>) {
+	next unless( /^request/i ) ;
+	( @infields ) = split ;
+	# read three more fields, possibly over multiple lines
+	while( $#infields < 3 ) {
+		$_ = <LDMD> ;
+		# skip commented lines
+		next if( /^#/ ) ;
+		( @F ) = split ;
+		push( @infields, @F ) ;
+	}
+	if( $infields[ 3 ] eq $primary ) {
+		$primary_flg = 1 ;
+	} elsif( $infields[ 3 ] eq $failover ) {
+		$failover_flg = 1 ;
+	}
+	last if( $primary_flg || $failover_flg ) ;
+}
+# if we did not have a match, then we have big problems
+if(! ( $primary_flg || $failover_flg ) ) {
+	output("No primary or failover found in $etcdir/ldmd.conf") ;
+	exit 1 ;
+}
+# what we do now depends on whether we are currently feeding from the primary
+# or the failover.
+if( $primary_flg ) {     # we are currently on the primary feed
+	`$bindir/ldmping -t 30 -q -i 0 $primary` ;
+	if( $? ) {	   # primary feed is down
+		`$bindir/ldmping -t 30 -q -i 0 $failover` ;
+		if( ! $? ) {      # failover is good, so make the switch
+			`$bindir/ldmadmin stop` ;
+			`cp $failover_file $conf_file` ;
+			`$bindir/ldmadmin start` ;
+			output("Switched LDM to failover feed") ;
+		} else {       # failover is also bad, so stay with the primary
+			output("Both primary and failover feeds bad") ;
+		}
+	}
+} else { # we must be on the failover
+	`$bindir/ldmping -t 30 -q -i 0 $primary` ;
+	if( !$? ) {  # primary feed is back up
+		`$bindir/ldmadmin stop` ;
+		`sleep 45` ;
+		`cp $primary_file $conf_file` ;
+		`$bindir/ldmadmin start` ;
+		output("Switched back to primary feed") ;
+	}
+}
+exit 0 ;
+
+###############################################################################
+# print usage and exit
+###############################################################################
+
+sub print_usage {
+
+print "\n$progname\n" ;
+print "Usage: $progname -p primary_host -f failover_host" ;
+print "\n\n\t-p primary_host\tprimary upstream feed host" ;
+print "\n\t-f failover_host\tfailover upstream feed host" ;
+print "\n" ;
+exit 1 ;
+}
+
+###############################################################################
+# Error routine. Writes error message and exits.
+###############################################################################
+
+sub bad_exit {
+
+my($err_str) = @_ ;
+my($date_str) = get_date() ;
+
+print STDERR "$date_str $PROGNAME[$<]: $err_str\n" ;
+exit -1 ;
+}
+
+###############################################################################
+# date routine.  Gets date and time as GMT.
+###############################################################################
+
+sub get_date {
+@month_array = (Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec) ;
+ 
+my($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+gmtime(time()) ;
+ 
+my($date_string) =
+sprintf("%s %d %02d:%02d:%02d UTC", $month_array[$mon], $mday,
+	$hour, $min,$sec) ;
+ 
+return $date_string ;
+}
+
+###############################################################################
+# local ldm failure mail routine
+###############################################################################
+
+sub send_mail {
+
+my( $msg_str, $msg_str_2 ) = @_ ;
+
+open(MAIL,"| /usr/lib/sendmail $mail_list") ;
+print MAIL "Subject: $msg_str\n\n" ;
+
+my($head_str) = get_date() ;
+print MAIL "$PROGNAME: $head_str\n\n" ;
+print MAIL "$msg_str_2\n\n" if( $msg_str_2 ) ;
+print MAIL "." ;
+close MAIL ;
+}
+###############################################################################
+# status output routine either the screen or mail
+###############################################################################
+
+sub output {
+
+my( $theMsg, $secondMsg ) = @_ ;
+
+if( $ENV{ TERM } ) {
+	print "$theMsg\n\n" ;
+	print "$secondMsg" if( $secondMsg ) ;
+} else {
+	send_mail( "$theMsg", "$secondMsg" ) ;
+}
+}

@@ -1,0 +1,126 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-util_gen1 library file
+#
+#  cmt: File made on Wed Aug  6 12:57:11 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libutil_gen1_t.a:  \
+     $(LIB)/libutil_gen1_t.a(argver.o)  \
+     $(LIB)/libutil_gen1_t.a(ffa2f8.o)  \
+     $(LIB)/libutil_gen1_t.a(ffa2f.o)  \
+     $(LIB)/libutil_gen1_t.a(ffa2i.o)  \
+     $(LIB)/libutil_gen1_t.a(fff2a.o)  \
+     $(LIB)/libutil_gen1_t.a(ffi2a.o)  \
+     $(LIB)/libutil_gen1_t.a(fmtdig.o)  \
+     $(LIB)/libutil_gen1_t.a(ifbug.o)  \
+     $(LIB)/libutil_gen1_t.a(jnum.o)  \
+     $(LIB)/libutil_gen1_t.a(kka2f.o)  \
+     $(LIB)/libutil_gen1_t.a(kka2id.o)  \
+     $(LIB)/libutil_gen1_t.a(kkcaps.o)  \
+     $(LIB)/libutil_gen1_t.a(kkend.o)  \
+     $(LIB)/libutil_gen1_t.a(kki2ap.o)  \
+     $(LIB)/libutil_gen1_t.a(kklast.o)  \
+     $(LIB)/libutil_gen1_t.a(kknxpo.o)  \
+     $(LIB)/libutil_gen1_t.a(kknxr.o)  \
+     $(LIB)/libutil_gen1_t.a(kknxwd.o)  \
+     $(LIB)/libutil_gen1_t.a(kkpos.o)  \
+     $(LIB)/libutil_gen1_t.a(kksmls.o)  \
+     $(LIB)/libutil_gen1_t.a(kktrim.o)  \
+     $(LIB)/libutil_gen1_t.a(lenstr.o)  \
+     $(LIB)/libutil_gen1_t.a(llgd.o)  \
+     $(LIB)/libutil_gen1_t.a(parmf.o)  \
+     $(LIB)/libutil_gen1_t.a(pphash.o)  \
+     $(LIB)/libutil_gen1_t.a(uckflt.o)  \
+     $(LIB)/libutil_gen1_t.a(uckint.o)  \
+     $(LIB)/libutil_gen1_t.a(ucmpar.o)  \
+     $(LIB)/libutil_gen1_t.a(ucp2lc.o)  \
+     $(LIB)/libutil_gen1_t.a(uintch.o)  \
+     $(LIB)/libutil_gen1_t.a(umemo2.o)  \
+     $(LIB)/libutil_gen1_t.a(umemov.o)  \
+     $(LIB)/libutil_gen1_t.a(umems2.o)  \
+     $(LIB)/libutil_gen1_t.a(umemst.o)  \
+     $(LIB)/libutil_gen1_t.a(umove.o)  \
+     $(LIB)/libutil_gen1_t.a(umovex.o)  \
+     $(LIB)/libutil_gen1_t.a(unamcp.o)  \
+     $(LIB)/libutil_gen1_t.a(unoblk.o)  \
+     $(LIB)/libutil_gen1_t.a(unpack.o)  \
+     $(LIB)/libutil_gen1_t.a(unumic.o)  \
+     $(LIB)/libutil_gen1_t.a(upack1.o)  \
+     $(LIB)/libutil_gen1_t.a(uschbf.o)  \
+     $(LIB)/libutil_gen1_t.a(uschfl.o)  \
+     $(LIB)/libutil_gen1_t.a(usrast.o)  \
+     $(LIB)/libutil_gen1_t.a(usrblk.o)  \
+     $(LIB)/libutil_gen1_t.a(usrchr.o)  \
+     $(LIB)/libutil_gen1_t.a(usrdsh.o)  \
+     $(LIB)/libutil_gen1_t.a(usrnew.o)  \
+     $(LIB)/libutil_gen1_t.a(usufit.o)  \
+     $(LIB)/libutil_gen1_t.a(uswitc.o)  \
+     $(LIB)/libutil_gen1_t.a(wlin.o)  \
+     $(LIB)/libutil_gen1_t.a(check_access_mode.o)  \
+     $(LIB)/libutil_gen1_t.a(check_exist.o)  \
+     $(LIB)/libutil_gen1_t.a(check_exist_msg.o)  \
+     $(LIB)/libutil_gen1_t.a(check_if_comment.o)  \
+     $(LIB)/libutil_gen1_t.a(get_apps_charval.o)  \
+     $(LIB)/libutil_gen1_t.a(get_apps_defaults.o)  \
+     $(LIB)/libutil_gen1_t.a(get_apps_floatval.o)  \
+     $(LIB)/libutil_gen1_t.a(get_apps_intval.o)  \
+     $(LIB)/libutil_gen1_t.a(get_db_version.o)  \
+     $(LIB)/libutil_gen1_t.a(gethomedirectory.o)  \
+     $(LIB)/libutil_gen1_t.a(gethostid2.o)  \
+     $(LIB)/libutil_gen1_t.a(get_pe_table.o)  \
+     $(LIB)/libutil_gen1_t.a(getpid2.o)  \
+     $(LIB)/libutil_gen1_t.a(get_prog_pathname.o)  \
+     $(LIB)/libutil_gen1_t.a(get_prog_version.o)  \
+     $(LIB)/libutil_gen1_t.a(get_pwd.o)  \
+     $(LIB)/libutil_gen1_t.a(get_time_secs.o)  \
+     $(LIB)/libutil_gen1_t.a(msg_window.o)  \
+     $(LIB)/libutil_gen1_t.a(read_pe_mapfile.o)  \
+     $(LIB)/libutil_gen1_t.a(SortingMods.o)
+

@@ -1,0 +1,110 @@
+**
+* This software was developed and / or modified by Raytheon Company, 
+* pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+* 
+* U.S. EXPORT CONTROLLED TECHNICAL DATA
+* This software product contains export-restricted data whose
+* export/transfer/disclosure is restricted by U.S. law. Dissemination
+* to non-U.S. persons whether in the United States or abroad requires
+* an export license or other authorization.
+* 
+* Contractor Name:        Raytheon Company
+* Contractor Address:     6825 Pine Street, Suite 340
+*                         Mail Stop B8
+*                         Omaha, NE 68106
+*                         402.291.0100
+* 
+* See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+* further licensing information.
+**
+
+Header Updater
+==============
+
+Update or add a text header to a file.
+
+headup             - update a single file
+headup-batch       - update multiple files
+headup-dir         - update all files in dir
+
+For usage and option information refer to the -h, --help command option
+
+FileType Configuration Files
+============================
+
+The FileType .cfg files define the block and line comment symbols to use
+for a given filetype.  The FileType.cfg file also defines the template
+to use when formatting the header and searching for an existing header.
+
+=Section=
+The section defines the filetype extension to use when matching filetypes
+
+Example:
+[.java]
+
+=Keys=
+The keys define the types of comments, symbols, and template to use
+for the filetype.  If a filetype doesn't have a certain type of comment
+type such as block comments, exclude the key.
+
+Valid keys are:
+blockBegin			- defines block comment begin symbol
+blockEnd			- defines block comment end symbol
+lineComment			- defines the line comment symbol
+lineTemplate		- template for each line within the header
+headerTemplate		- template for the entire header
+placeAfter			- regular expression denfining where to place a new 
+					  header
+requirePlaceAfter	- requires the placeAfter be located before inserting
+					  a new header.  If not defined, defaults to True.
+
+==Re-using Keys==
+Keys may be re-used within a fileType configuration by placing the key 
+name as %(keyname)s  Additional Keys values are also available:
+ - %(space)s
+ - %(headerText)s
+ - %(lineText)s
+
+=Tips=
+ - whitespace is trimed from the beginning of values so use the %(space)s
+   variable where needed
+ - Multi-line values must be preceeded by a space
+ 
+Filter Files
+============
+
+The Filter.csv files controls which files will be fed to headup-dir
+The exclude patterns filters out any files passed through by the include
+patterns; the order of filtering is include -> exclude
+
+CSV format is as follows:
+filterType,pattern,comment
+
+filterType    - may be include,exclude,includeRegex,excludeRegex,includeFiletype
+
+Example
+=======
+
+find BatchTest/ -type f | headup-batch -i .backup -s "Copyright all" \
+	-t "allHeader.txt"
+
+Recursively update all files in BatchTest
+-i perform in-place updating and create backups ending in .backup
+-s search for an existing header with the contents "Copyright all"
+-t use the text from allHeader.txt for the updated header
+
+If something goes wrong and we need to revert the entire update:
+
+find BatchTest/ -type f | headup-batch -r .backup
+
+find BatchTest/ -type f | headup-batch -S "(?=TEST COMPANY|Copyright all)" \
+	-t "allHeader.txt"
+-S search for an existing header that contains either "TEST COMPANY" or
+   "Copyright all"
+   
+Test
+====
+
+Developement tests are included in the Test archive.  They have been
+archived to ensure that they don't accidently get modified by a headup
+run against them.

@@ -1,0 +1,142 @@
+C MEMBER CHAN55
+C
+C
+C
+      SUBROUTINE CHAN55(NBT,AS,BS,HS,NCS,ASS,BSS,BSL,BSR,ASL,ASR,SNM,
+     .   KPRES,KFLP,JN,JNK,K1,K2,K9)
+C
+C           THE FUNCTION OF THIS SUBROUTINE IS TO FILL THE ARRAY SPACE
+C           FOR THE CROSS SECTIONAL AREA BELOW EACH TOPWIDTH (BOTH
+C           ACTIVE AND INACTIVE.
+C
+C           THIS SUBROUTINE WAS WRITTEN BY:
+C           JANICE LEWIS      HRL   DECEMBER,1998     VERSION NO. 1
+C
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+C
+      DIMENSION HS(K9,K2,K1),BS(K9,K2,K1),BSS(K9,K2,K1),AS(K9,K2,K1)
+      DIMENSION ASS(K9,K2,K1),BSL(K9,K2,K1),BSR(K9,K2,K1),SNM(K9,K2,K1)
+      DIMENSION ASL(K9,K2,K1),ASR(K9,K2,K1),NBT(K1)
+C
+      CHARACTER*8 SNAME
+
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_fldwav/RCS/chan55.f,v $
+     . $',                                                             '
+     .$Id: chan55.f,v 1.3 2004/02/02 20:34:24 jgofus Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+C
+      DATA SNAME/'CHAN55  '/
+C
+C
+      CALL FPRBUG(SNAME,1,55,IBUG)
+C
+C...........................
+C        COMPUTE THE TOTAL ACTIVE AREA BELOW EACH ACTIVE TOP WIDTH
+C
+      DO 100 J=1,JN
+      N=NBT(J)
+cc      IF(JNK.GE.1.AND.IBUG.EQ.1) WRITE(IODBUG,8030) J
+cc 8030 FORMAT(1H0,30X,45HACTIVE AREA BELOW EACH TOP WIDTH ON RIVER NO.,I4
+cc     1)
+      DO 50 I=1,N
+      ICNT=0
+      ASS(1,I,J)=0.
+CC      HCAV(1,I,J)=0.
+CC      IFCV(1,I,J)=0
+CC      IF(KFLP.NE.0) THEN
+CC        ASL(1,I,J)=0.
+CC        ASR(1,I,J)=0.
+CC      ENDIF
+      DO 40 K=2,NCS
+      KL=K-1
+C.....  Make sure HS and BS values are increasing in order
+      IF(BS(K,I,J).LT.BS(KL,I,J).AND.KPRES.EQ.0) THEN
+        WRITE(IPR,1000) K,I,J,BS(K,I,J),BS(KL,I,J)
+ 1000   FORMAT(10X,'**ERROR** BS(',I2,',',I4,',',I2,')=',F12.2,
+     .  ' IS LESS THAN THE PREVIOUS VALUE (',F12.2,').')
+        CALL ERROR
+      ENDIF
+      IF(HS(K,I,J).GT.HS(KL,I,J)) GO TO 30
+      IF(HS(K,I,J).GT.0.) THEN
+        WRITE(IPR,1005) K,I,J,HS(K,I,J),HS(KL,I,J)
+ 1005   FORMAT(10X,'**ERROR** HS(',I2,',',I4,',',I2,')=',F12.2,
+     .  ' IS LESS THAN THE PREVIOUS VALUE(',F12.2,').')
+        CALL ERROR
+        GO TO 30
+      ENDIF
+      ICNT=ICNT+1
+      IF(ICNT.GT.1) GO TO 20
+      WRITE(IPR,10) I,J,KL,HS(KL,I,J)
+   10 FORMAT(1H0,10X,78H**WARNING** THE TABLE OF TOPWIDTHS VS. ELEVATION
+     1S IS NOT COMPLETE FOR SECTION ,I3,13H ON RIVER NO.,I2,1H./1H ,22X,
+     232HTHE LAST GOOD VALUE IS AT LEVEL ,I3,26H WHICH HAS AN ELEVATION
+     3OF,F10.2,21H FEET.  AT ELEVATIONS /1H ,22X,'HIGHER THAN THIS, THE
+     4MODEL WILL LINEARLY EXTRAPOLATE FROM THE LAST TWO POINTS.'//21X,
+     . 'EXCEPT FOR INACTIVE TOPWIDTHS WHEREIN THE LAST VALUE IS USED')
+      CALL WARN
+      DIF=0.5/(NCS-KL)
+   20 Z=(BS(KL,I,J)-BS(KL-1,I,J))/(HS(KL,I,J)-HS(KL-1,I,J))
+      HS(K,I,J)=HS(KL,I,J)+DIF
+      IF(BS(K,I,J).LT.0.01) BS(K,I,J)=BS(KL,I,J)+2*Z*DIF
+      IF(BSS(K,I,J).LT.0.01) BSS(K,I,J)=BSS(KL,I,J)
+      IF(KFLP.EQ.0) GO TO 30
+      IF(BSL(K,I,J).LT.0.01) BSL(K,I,J)=BSL(KL,I,J)+2*Z*DIF
+      IF(BSR(K,I,J).LT.0.01) BSR(K,I,J)=BSR(KL,I,J)+2*Z*DIF
+      IF(SNM(K,I,J).LT.0.01) THEN
+        SNM(K,I,J)=SNM(KL,I,J)+2*Z*DIF
+        IF(SNM(K,I,J).LT.1) SNM(K,I,J)=1.
+      ENDIF
+CC   30 AS(K,I,J)=AS(KL,I,J)+0.5*(BS(K,I,J)+BS(KL,I,J))*
+CC     1      (HS(K,I,J)-HS(KL,I,J))
+CC      ASS(K,I,J)=ASS(KL,I,J)+0.5*(BSS(K,I,J)+BSS(KL,I,J))*
+CC     1      (HS(K,I,J)-HS(KL,I,J))
+CC      IF(KFLP.NE.0) THEN
+CC        ASL(K,I,J)=ASL(KL,I,J)+0.5*(BSL(K,I,J)+BSL(KL,I,J))*
+CC     1      (HS(K,I,J)-HS(KL,I,J))
+CC        ASR(K,I,J)=ASR(KL,I,J)+0.5*(BSR(K,I,J)+BSR(KL,I,J))*
+CC     1      (HS(K,I,J)-HS(KL,I,J))
+CC      ENDIF
+CC      HCAV(K,I,J)=0.
+CC      IFCV(K,I,J)=0
+CC      IF(K.GT.2) THEN
+CC        KL2=K-2
+CC        DHCV=HS(K,I,J)-HS(KL2,I,J)
+CC        IF(BSS(KL,I,J).GT.BSS(K,I,J).AND.DHCV.LE.1.0)
+CC     .     HCAV(K,I,J)=HS(K,I,J)
+CC      ENDIF
+ 30   continue
+   40 CONTINUE
+CC      IF(JNK.GE.1.AND.IBUG.EQ.1) THEN
+CC        WRITE(IODBUG,7000) I,(AS(K,I,J),K=1,NCS)
+CC 7000   FORMAT('  AS(',I4,')  ',10F12.2)
+CC        WRITE(IODBUG,7002) I,(ASS(K,I,J),K=1,NCS)
+CC 7002   FORMAT(' ASS(',I4,')  ',10F12.2)
+CC        IF(KFLP.NE.0) THEN
+CC          WRITE(IODBUG,7004) I,(ASL(K,I,J),K=1,NCS)
+CC 7004     FORMAT(' ASL(',I4,') ',10F12.2)
+CC          WRITE(IODBUG,7006) I,(ASR(K,I,J),K=1,NCS)
+CC 7006    FORMAT(' ASR(',I4,') ',10F12.2)
+CC        ENDIF
+CC      ENDIF
+   50 CONTINUE
+  100 CONTINUE
+C
+      IF(ITRACE.EQ.1) WRITE(IODBUG,9000) SNAME
+ 9000 FORMAT(1H0,2H**,1X,2A4,8H EXITED.)
+C
+      RETURN
+      END
+
+
+
+
+
+

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="titleItem" 
+			titleText="------ NAM ------" id="NAMLine"/>
+	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/ModelSoundingPlot.xml" 
+               menuText="Sounding Availability" id="namSoundingAvailability">
+        <substitute key="reportType" value="ETA"/>
+        <substitute key="levelKey" value="Station"/>
+        <substitute key="legend" value="NAM Sounding Availability"/>
+        <substitute key="svgFile" value="sndrAvailabilityDesign.svg"/>
+    </contribute>  
+    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ModelSoundingPlot.xml" 
+               menuText="Surface" id="namSurface">
+        <substitute key="reportType" value="ETA"/>
+        <substitute key="levelKey" value="Surface"/>
+        <substitute key="legend" value="NAM Sounding Sfc Plot"/>
+        <substitute key="svgFile" value="sndrSurfaceDesign.svg"/>
+    </contribute>  
+    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ModelSoundingPlot.xml" 
+               menuText="Ceiling/Visibility" id="ceilingVisibility">
+        <substitute key="reportType" value="ETA"/>
+        <substitute key="levelKey" value="Station"/>
+        <substitute key="legend" value="NAM Ceiling/Vis Plot"/>
+        <substitute key="svgFile" value="sndrCvDesign.svg"/>
+    </contribute>  
+    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ModelSoundingPlot.xml" 
+               menuText="1 hr Precip Amt" id="oneHrPrecipAmt">
+        <substitute key="reportType" value="ETA"/>
+        <substitute key="levelKey" value="Station"/>
+        <substitute key="legend" value="NAM Sounding 1-Hr Precip Amt (in)"/>
+        <substitute key="svgFile" value="sndrPrecipDesign.svg"/>
+    </contribute>
+	<contribute xsi:type="separator" id="separator4"/>
+	
+	<contribute xsi:type="titleItem" 
+			titleText="------ GFS ------" id="GFSLine"/>
+	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/ModelSoundingPlot.xml" 
+               menuText="Sounding Availability" id="gfsSoundingAvailability">
+        <substitute key="reportType" value="GFS"/>
+        <substitute key="levelKey" value="Station"/>
+        <substitute key="legend" value="GFS Sounding Availability"/>
+        <substitute key="svgFile" value="sndrAvailabilityDesign.svg"/>
+    </contribute>  
+	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/ModelSoundingPlot.xml" 
+               menuText="Surface" id="namSurface">
+        <substitute key="reportType" value="GFS"/>
+        <substitute key="levelKey" value="Surface"/>
+        <substitute key="legend" value="GFS Sounding Sfc Plot"/>
+        <substitute key="svgFile" value="sndrSurfaceDesign.svg"/>
+    </contribute>  
+    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ModelSoundingPlot.xml" 
+               menuText="Cloud Layers" id="cloudLayers">
+        <substitute key="reportType" value="GFS"/>
+        <substitute key="levelKey" value="Station"/>
+        <substitute key="legend" value="GFS Cloud Layers Plot"/>
+        <substitute key="svgFile" value="sndrCvDesign.svg"/>
+    </contribute>  
+    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ModelSoundingPlot.xml" 
+               menuText="3 hr Precip Amt" id="threeHrPrecipAmt">
+        <substitute key="reportType" value="GFS"/>
+        <substitute key="levelKey" value="Station"/>
+        <substitute key="legend" value="GFS Sounding 3-Hr Precip Amt (in)"/>
+        <substitute key="svgFile" value="sndrPrecipDesign.svg"/>
+    </contribute>
+
+</menuTemplate>

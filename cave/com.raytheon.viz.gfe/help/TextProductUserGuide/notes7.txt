@@ -1,0 +1,1 @@
+To run Text Products from the GFE, from the Main Menu, choose Products-->Formatter Launcher.  Select the product(s) to run.  You can select a source database if you like.  You can adjust any zone combinations and then run the product using the “Run All” button.  

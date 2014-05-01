@@ -1,0 +1,134 @@
+#
+# Official .Apps_defaults_site file for OHD/HL for AWIPS Release 5.2.1
+# Also see National .Apps_defaults file for other settings
+# Revised: 30 October 2001 
+# ====================================================================
+
+# --------TOKENS THAT SHOULD BE AT ALL SITES-----------
+
+#  database selection tokens
+db_name            : hd5_12ounx  # IHFS database name
+
+# ===========================================================================
+#  WHFS Local Customization
+# ===========================================================================
+hv_center_lat          : 35.0   # HydroView center latitude
+hv_center_lon          : -97.8  # HydroView center longitude
+hv_map_width           : 650    # HydroView map width (nautical miles)
+whfs_primary_radar     : TLX    # WHFS primary radar id, for Stage II
+whfs_tz                : CST6CDT  # WHFS time zone for local time
+hv_refresh_minutes     : 10     # HydroView auto refresh time (minutes)
+hv_pets                : PRIMARY     # initial shef PE-TS point data display
+                                # value either: PRIMARY, PCPP, <PE>, <PETS>
+hv_riverbasis          : obs    # initial river basis for river characteristics
+                                # values either obs, fcst, maxobsfcst
+hv_durhours            : 36     # initial hour duration for point data display
+
+#  shefdecode tokens
+shef_perflog       : OFF  # ON/OFF - create a separate performance log file to
+                          #          save internal decoder timing messages for
+                          #          monitoring performance
+
+shef_load_ingest   : ON   # ON/OFF - automatically load the IngestFilter table or not
+                          #          with (station id-PEDTSE) combinations as they
+                          #          arrive in the input data flow
+shef_storetext     : ON   # ON/OFF - post/don't post raw encoded SHEF text messages
+                          #          to the TextProduct table
+shef_post_unk      : IDS_ONLY # NONE - do not post to the UnkStn nor UnkStnValue tables
+                              # IDS_ONLY - post only location identifiers for unknown
+                              #            stations to the UnkStn table
+                              # IDS_AND_DATA - post all data from unknown stations to
+                              #                the UnkStnValue table
+shef_post_baddata  : REJECT   # PE/REJECT - post data that have failed the gross range
+                          #             check to the physical element data tables (=PE) OR
+                          #             to the RejectedData table (=REJECT)
+shef_procobs       : OFF  # ON/OFF - post Processed data values (i.e., TS=P*) to
+                          #          the observation data tables (=ON) or to
+                          #          the ProcValue table (=OFF)
+shef_post_latest   : VALID_ONLY   # ON/OFF - post/don't post data to the LatestObsValue table
+                                  # VALID_ONLY - post data to the LatestObsValue table
+                          #              ONLY if the gross range check is passed
+shef_post_link     : ON   # ON/OFF - post/don't post data to the ProductLink table
+shef_load_maxfcst  : ON   # ON/OFF - after each product that resulted in forecast
+                          #          height or discharge data being posted, load
+                          #          the maximum forecast data into the RiverStatus table
+shef_alertalarm    : ON   # ON/OFF - causes shefdecoder to screen data against
+                          #          alert and alarm thresholds
+
+# ----END TOKENS THAT SHOULD BE AT ALL SITES------------
+
+# --------TOKENS THAT SHOULD BE AT EACH  RFC SITE--------
+
+#tokens for ifp
+ifp_rfc            :   ofstest              # name of RFC to run for IFP
+
+#tokens for stageiii
+st3_rfc            : oun  
+awips_rfc_id       : OUN           #  3 char AWIPS RFC identifier
+                                   #  must be all upper case
+                                   
+#tokens for auto_stageiii
+st3_auto_graphic_scale : 2.4
+                                   
+#  defaults for stageiii netCDF output
+st3_netcdf_loc    : arkansas_red_basin_river_forecast_center_tulsa_ok
+                                       # underscores needed between words
+st3_netcdf_swlat  : 33.603
+st3_netcdf_swlon  : 106.456
+st3_netcdf_selat  : 32.433
+st3_netcdf_selon  : 92.322
+st3_netcdf_nelat  : 38.027
+st3_netcdf_nelon  : 90.678
+st3_netcdf_nwlat  : 39.420
+st3_netcdf_nwlon  : 106.652
+
+# ----END TOKENS THAT SHOULD BE AT EACH RFC SITE-------
+
+# ------- TOKENS THAT ARE OHD/HL SPECIFIC--------------
+
+cm_database  : programs                   # CM database
+
+# NWSRFS tokens
+
+home_files_workstation   :   ds1-nhdr     # hostname of machine for home files
+
+ofs_level       : ofstest
+ofs_reor_lvl    : test
+ofs_inpt_grp    : ofstest
+
+# ds tokens
+ds_system          : $(apps_dir)/devl_sys
+ds_system_lvl_dirs : "src inc ctl lib obj mak log rls"
+ds_system_levels1  : "ofs util calb my ifp mgr ffg grib st1 icp oli"
+ds_system_levels2  : "esp cmdb hdb precip_proc pproc_rfcdb"
+
+my_dir        :   /home/$(LOGNAME)/devl
+my_rls        :   $(my_dir)/bin
+my_bin        :   $(my_dir)/bin
+mgr_dir       :   $(apps_dir)/mgr
+mgr_rls       :   $(mgr_dir)/bin/RELEASE
+      
+my_src        :   $(my_dir)/src
+ofs_src       :   $(ofs_dir)/src
+util_src      :   $(util_dir)/src
+calb_src      :   $(calb_dir)/src
+      
+ofs_server    : apwk01g2                              # OFS "slave" server 
+
+oli_source    :   $(oli_dir)/source
+
+#    ffg program control
+ffg_level     :  ofstest
+ffg_out_dir   :  $(ffg_dir)/output/$(ffg_level)
+
+#   mpe tokens
+
+rfcw_rfcname  :  oun
+awips_rfc_id  :  OUN
+st3_rfc       :  oun
+rfcwide_xmrg_dir : "D:\Data\code\SiteSpecific\input\mpe" 
+st3_auto_graphic_scale  :  2.4
+
+#siipp tokens
+
+siipp_table_post  : procp

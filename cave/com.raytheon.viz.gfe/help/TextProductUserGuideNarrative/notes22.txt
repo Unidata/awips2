@@ -1,0 +1,2 @@
+Each node of the tree can have attributes or data values associated with it.  There are some standard attributes such as "words" and "areaLabel".  In addition, you may create any attribute you like on-the-fly and store it at the node for future reference.
+

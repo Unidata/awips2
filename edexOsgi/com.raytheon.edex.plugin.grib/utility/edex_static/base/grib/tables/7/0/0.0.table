@@ -1,0 +1,3 @@
+#Code Table 0.0: Discipline of processed data in the GRIB message, number of GRIB Master Table
+# 192-254 Reserved for local use
+255:255:Missing

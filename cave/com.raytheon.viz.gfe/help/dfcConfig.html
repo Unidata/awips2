@@ -1,0 +1,434 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.78 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+   <title>Daily Forecast Critique Configuration Guide</title>
+</head>
+<body bgcolor="#FFFFFF">
+
+
+
+<h1 class="1Heading">
+Daily Forecast Critique Configuration Guide</h1>
+
+<div class="1Heading">July, 2002</div>
+
+<div class="1Heading">
+<h3>
+<a href="#localDfcConfig.py">Overview</a></h3>
+
+<h3>
+<b><font color="#3333FF"><a href="#ArchiveDataConfiguration">Archive Data
+Configuration</a></font></b></h3>
+
+<h3>
+<a href="#AppearanceConfiguration">Appearance Configuration</a></h3>
+
+<h3>
+<a href="#localDfcConfig.py">localDfcConfig.py</a></h3>
+
+<div class="1Heading">
+<hr width="100%"></div>
+</div>
+
+<h2 class="1Heading">
+<a NAME="Overview"></a>Overview</h2>
+
+<div class="1Heading">The Daily Forecast Critique program can be adapted
+to the local forecast office by changing the settings found in the DFC
+config file called dfcConfig.py.&nbsp; This file contains all of the various
+settings needed by the main display program ifpDFC as well as the two archive
+programs: archiveObs and archivePointForecast.</div>
+
+<div class="1Heading">&nbsp;</div>
+Let's start by briefly describing each item in the dfcConfig.py file.
+<p>The contents of this file is in <font color="#3366FF">blue</font> to
+distinguish it from the description that follows.&nbsp; Each configuration
+item is separated by a horizontal line.
+<p><b><font color="#FF0000">DO NOT MODIFY THE dfcConfig.py FILE!!!&nbsp;
+Any changes should be made to the localDfcConfig.py file in your SITE</font></b>
+<br><b><font color="#FF0000">directory.</font></b>&nbsp; <font color="#FF0000"><b>See
+the section</b> <a href="#localDfcConfig.py">localDfcConfig.py</a> <b>for
+more details.</b></font>
+<div class="1Heading">
+<hr width="100%"></div>
+
+<div class="1Heading">
+<h2>
+<a NAME="ArchiveDataConfiguration"></a><b><font color="#000000">Archive
+Data Configuration</font></b></h2>
+This section descibes the configuration items that affect which models,
+times and elements are archived for later display.
+<p><font color="#3366FF">import siteConfig</font>
+<br>&nbsp;</div>
+<font color="#330000">This import statement is very important in that many
+of the files DFC generates and later reads are defined in this configuration
+file.&nbsp;&nbsp; If you do, it is very likely that DFC will not work properly,
+if at all.</font>
+<br>
+<hr width="100%">
+<div class="1Heading"><font color="#3366FF">## host and port definitions
+based on siteConfig.py</font></div>
+
+<div class="1Heading"><font color="#3366FF">host = siteConfig.GFESUITE_SERVER</font></div>
+
+<div class="1Heading"><font color="#3366FF">port = int(siteConfig.GFESUITE_PORT)</font></div>
+<font color="#330000">These statements inherit the host and port definitions
+of siteConfig so that the DFC programs know where server lives. Change
+these only if you will be using DFC with an ifpServer other than your operational
+system.</font>
+<br>&nbsp;
+<div class="1Heading">
+<hr width="100%"></div>
+
+<div class="1Heading"><font color="#3366FF">## the list of elements that
+will be archived</font></div>
+
+<div class="1Heading"><font color="#3366FF">supportedWEs = ['temperature',
+'dewpoint', 'windSpeed', 'windDir']</font></div>
+<font color="#330000">This item contains a list of weather elements that
+DFC currently supports.&nbsp; You may REMOVE elements from this list, but
+adding any new ones will likely cause problems.&nbsp; At this early stage
+in the DFC development, only these elements are supported by the software.&nbsp;
+Other elements may be added later.</font>
+<div class="1Heading">
+<hr width="100%"></div>
+
+<div class="1Heading"><font color="#3366FF">## the list of directories
+in which the observation are stored</font></div>
+
+<div class="1Heading"><font color="#3366FF">obDirectories = ['/data/fxa/point/metar/netcdf/']</font></div>
+
+<div class="1Heading"><font color="#666666">###&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'/data/fxa/LDAD/mesonet/qc/'] # uncomment this line to include any mesonet
+stations</font></div>
+<font color="#330000">This item defines where your local surface observations
+are stored.&nbsp; For most sites the first item is the standard directory
+into which the surface observation data files are stored.&nbsp; Other local
+data sources may also be defined in this list, depending on your particular
+office.&nbsp; Many offices use LDAD to gather and store additional data
+sources.&nbsp; You may add new directories to this list if they contain
+netCDF files that store surface observations in the typical D2D format.</font>
+<br>&nbsp;
+<div class="1Heading">
+<hr width="100%"></div>
+
+<div class="1Heading"><font color="#3366FF">dfcTop = siteConfig.GFESUITE_DFCDIR</font></div>
+
+<div class="1Heading"><font color="#3366FF">## the directory where the
+observation archive will be stored</font></div>
+
+<div class="1Heading"><font color="#3366FF">obArchiveDir = siteConfig.GFESUITE_DFCDIR
++ '/archivedObs/'</font></div>
+
+<div class="1Heading"><font color="#3366FF">## directory where the point
+forecasts will be stored</font></div>
+
+<div class="1Heading"><font color="#3366FF">fcstArchiveDir = siteConfig.GFESUITE_DFCDIR
++ '/archivedFcsts/'</font></div>
+<font color="#330000">These three items define where the archive files
+for the observations and forecasts are stored.&nbsp; Unless you are already
+short on disk space, </font><font color="#FF0000">it is strongly recommended
+that you leave these unmodified.</font>
+<div class="1Heading">
+<hr width="100%"></div>
+
+<div class="1Heading"><font color="#3366FF">## Define the site ID</font></div>
+
+<div class="1Heading"><font color="#3366FF">dfcSiteID = siteConfig.GFESUITE_SITEID</font></div>
+<font color="#330000">This item defines the ID for your site based on whatever
+is defined in your siteConfig file.&nbsp; It is used to figure out which
+stations that lie in or near your WFO.&nbsp;&nbsp; In general, there will
+be no need to modify this item.</font>
+<div class="1Heading">
+<hr width="100%"></div>
+
+<div class="1Heading"><font color="#3366FF">## How long observations will
+stay around before purging (in hours)</font></div>
+
+<div class="1Heading"><font color="#3366FF">obPurgeTime = 72</font></div>
+
+<div class="1Heading"><font color="#3366FF">pointFcstPurgeTime = 72</font></div>
+<font color="#330000">These items control how long observations and forecasts
+stay in the archive before they are purged. Increasing these values will
+</font>cause DFC to use more disk space in the directories obArchiveDir
+and fcstArchiveDir.
+<p><font color="#FF0000">NOTE!</font>
+<br><font color="#FF0000">If you set the obPurgeTime to a value less than
+6 hours, the purger will automatically reset the value to 6 so that you
+will always archive least 6 hours worth of observations.</font>
+<div class="1Heading">&nbsp;</div>
+
+<div class="1Heading">
+<hr width="100%"></div>
+
+<div class="1Heading">
+<div class="1Heading"><font color="#3366FF">## A placeholder for a configurable
+list of stations</font>
+<br><font color="#3366FF">myStations = [ ]</font>
+<p>This is the item that you will change if you want to change the list
+of stations from ALL of the stations in or near your office domain to a
+list of stations that you choose.
+<br>
+<hr width="100%"></div>
+<font color="#3366FF">## a dictionary containing the model, elements and
+forecast hour</font></div>
+
+<div class="1Heading"><font color="#3366FF">## to be archived by the pointFcst
+archive program</font></div>
+
+<div class="1Heading"><font color="#3366FF">pointFcstDict = {</font></div>
+
+<div class="1Heading">
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp; 'NAM':</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp; {'T':[0,
+6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Td':[0,
+6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Wind':[0,
+6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; },</font></div>
+<font color="#3366FF">&nbsp;&nbsp;&nbsp; 'NGM':</font></div>
+
+<div class="1Heading">
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp; {'T':[0,
+6, 12, 18, 24, 30, 36, 42, 48],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Td':[0,
+6, 12, 18, 24, 30, 36, 42, 48],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Wind':[0,
+6, 12, 18, 24, 30, 36, 42, 48],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; },</font></div>
+<font color="#3366FF">&nbsp;&nbsp;&nbsp; 'MesoNAM':</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp; {'T':[0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Td':[0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Wind':[0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; },</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp; 'MRF':</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp; {'T':[0,12,24,36,48,60,72,84,96,108,120],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Td':[0,12,24,36,48,60,72,84,96,108,120],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Wind':[0,12,24,36,48,60,72,84,96,108,120],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; },</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp; 'AVN':</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp; {'T':[0,6,12,18,24,30,36,42,48,54,60,72,78,84,90,96,102,108,114,120],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Td':[0,6,12,18,24,30,36,42,48,54,60,72,78,84,90,96,102,108,114,120],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Wind':[0,6,12,18,24,30,36,42,48,54,60,72,78,84,90,96,102,108,114,120],</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; },</font></div>
+
+<div class="1Heading"><font color="#3366FF">&nbsp;&nbsp; </font><font color="#3333FF">'Official':</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp; {'T':[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+66,67,68,69,70,71,72],</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp; 'Td':[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+66,67,68,69,70,71,72],</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp; 'Wind':[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+66,67,68,69,70,71,72],</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp; },</font></div>
+
+<div class="1Heading">&nbsp;</div>
+<font color="#330000">This item tells DFC which forecasts to archive.&nbsp;
+The python dictionary defined above specifies the model, weather element,
+and forecast hour for each model.&nbsp; This is another configuration item
+that will affect the amount of disk space used by the DFC archive programs.&nbsp;
+If you are not interested in archiving every available forecast, please
+feel free to edit these lists to whatever you like.&nbsp; If you wish to
+include a new model (e.g., a model run at your local office), just insert
+a new model entry like those defined already. Note that in order to run
+DFC with a locally generated model, you must first configure ifpInit to
+generate surface weather elements for that model. Once you can successfully
+</font>populate your GFE Forecast database with your local model, you're
+ready to add it to this list of models.
+<p>This config file serves as a template for another structure that is
+used by the forecast archive processes.&nbsp; Any time you change your
+localDfcConfig.py file, the structure, which is saved to disk between archive
+runs, is regenerated, so that the file on disk always reflects your latest
+changes.
+<div class="1Heading">&nbsp;
+<h2>
+<a NAME="AppearanceConfiguration"></a><font color="#330000">Appearance
+Configuration</font></h2>
+In addition to the various archive configuration items, there are also
+items that help you configure the DFC display.&nbsp; These include the
+size of the display screen, the plotted symbol types, lines types and widths,
+colors, and font types and sizes. Each of these items is described below
+in more detail.
+<p><font color="#3333FF">configList = [('screen', 'width', 800)]</font>
+<p><font color="#000000">This item determines the width of the display
+screen in pixels.&nbsp; You can make the size larger or smaller by adjusting
+this value.</font>
+<p><font color="#3333FF">symbolTypes = ["plus", "asterisk", "circle", "cross",
+"square", "triangle", "diamond", "star", "fancy plus", "fancy square",
+"fancy cross",</font>
+<br><font color="#3333FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"fancy diamond"]</font>
+<p><font color="#000000">The symbolTypes item is a list of symbol types.&nbsp;
+Each new plot uses the next symbol type in the sequence.&nbsp; If you plot
+so many data sets that you reach the end of the list, the new symbol is
+selected for the beginning again.&nbsp; You may not need all of the symbol
+types listed here and may remove some if you like.&nbsp; The complete set
+of possible symbol types is listed below.</font>
+<pre>&nbsp;<span style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size=+1> "none"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "filled circle"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "dot"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "filled square"</span>
+<span 
+ style="color: rgb(51, 102, 255);"> "plus"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "filled triangle"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "asterisk"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "filled diamond"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "circle"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "filled inverted triangle"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "cross"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "filled fancy square"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp; "square"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "filled fancy diamond"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp; "triangle"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "half filled circle"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp; "diamond"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "half filled square"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp; "star"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "half filled triangle"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp; "inverted triangle"&nbsp;&nbsp;&nbsp;&nbsp; "half filled diamond"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp; "starburst"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "half filled inverted triangle"</span>
+<span 
+ style="color: rgb(51, 102, 255);"> "fancy plus"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "half filled fancy square"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "fancy cross"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "half filled fancy diamond"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp;&nbsp; "fancy square"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "octagon"</span>
+<span 
+ style="color: rgb(51, 102, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "fancy diamond"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "filled octagon"</font></span></pre>
+<font color="#3333FF">fcstSymbolSize = 4.0&nbsp; ## change this to 0.0
+to remove symbols on fcst data</font>
+<br><font color="#3333FF">obSymbolSize = 3.0</font>
+<p><font color="#000000">You can also control the size of the symbols plotted
+in the DFC display.&nbsp; The fcstSymbolSize</font> controls how large
+the symbols are drawn for forecast data.&nbsp; The obSYmbolSize controls
+how large symbols are plotted for observations.&nbsp; You can remove the
+symbol for forecast data sets if you set the size to 0.0.
+<p><font color="#3333FF">colors = ["blue", "red", "darkgreen", "magenta",
+"black", "coral", "darkviolet", "brown", "darkred", "darkblue"]</font>
+<p><font color="#000000">The colors items lists the colors and the order
+in which they are used.&nbsp; The ones listed here are generally dark to
+maximize the&nbsp; contrast against the white background.&nbsp; Feel free
+to change the order or color, if you would like to see something different.&nbsp;
+Like the symbol types, the colors are used in the order specified and then
+reset to the beginning again when the end of the list is reached. Usually,
+the entire list of possible colors can be found in the file:</font>/usr/lib/X11/rgb.txt.
+<p><font color="#3333FF">lineTypes = ["solid", "longdashed", "dotted",
+"shortdashed", "dotdashed", "dotdotdashed", "dotdotdotdashed"]</font>
+<p><font color="#000000">The lineTypes list is used when plotting model
+data.&nbsp; Lines are drawn between points in time order.&nbsp; The line
+type used for these type of plots is read from this list.&nbsp; Like symbol
+type and color, the DFC display starts with the first lineType in the list,
+then uses the second and so on until the end when it starts from the beginning
+again. The complete set of lineTypes is listed above.</font>
+<p><font color="#3333FF">lineWidth = 2</font>
+<p>The lineWidth determines how thick the line is in pixels.&nbsp; If you
+find the lines hard to see, increase the value one or two pixels.
+<p><font color="#3333FF">fontFace = "helvetica"</font>
+<br><font color="#3333FF">fontSize = 1.5</font>
+<p><font color="#000000">The fontFace and fontSize configuration items
+a</font>llow you to change the font style and size, respectively.&nbsp;
+Since the loaded fonts on your system may vary, be sure that the font is
+available from your system before changing it.
+<br>
+<hr width="100%" size="2" align="left">
+<h2>
+<a NAME="localDfcConfig.py"></a>localDfcConfig.py</h2>
+To modify any of the above items, it is strongly recommended that you create
+a localDfcConfig.py file in your etc/SITE directory.&nbsp; That way, any
+changes you make will be preserved when you upgrade to a newer version
+of GFESuite.
+<p>Before making any of these changes you must first create the localDfcConfig.py
+file in your etc/SITE directory.&nbsp; Once you have done this, include
+these lines at the very top of the file
+<p><font color="#3366FF">from dfcConfig import *</font>
+<br><font color="#3366FF">import dfcConfig</font>
+<p>That will ensure that changes you make to this file can be "seen" by
+the main config file.
+<p>Once that is done you may then override any definition in the main configuration
+file by redefining it with a "dfcConfig." prefix.&nbsp; For example,
+<p>&nbsp; <font color="#3366FF">dfcConfig.myStations = ["KABC', "KDEF",
+"KGHI"]</font>
+<p>This will redefine any of the items already defined in the main configuration
+file.
+<h3>
+Changing myStations</h3>
+Changing myStations (the list of stations for which data will be achived)
+is something that you will likely want to do.&nbsp; The reason is that
+the default station list is the set of stations that live within a rectangle
+that circumscribes your office domain.&nbsp; Typically,&nbsp; this list
+comprises about 100 stations.&nbsp; You may wish to cut down the number
+of stations to reduce the amount of disk space that DFC uses as well as
+reduce the number of stations that you will see in the DFC interface.&nbsp;
+Reducing the number of stations will make it easier to find a station you
+want.
+<h3>
+Changing the pointFcstDict</h3>
+Changing a dictionary is slightly different.&nbsp; To modify any of the
+model entries, use the following syntax:
+<br>&nbsp;
+<p><font color="#3366FF">dfcConfig.pointFcstDict ['NAM'] =</font>
+<br><font color="#3366FF">&nbsp;&nbsp;&nbsp; {'T':[0, 12, 24, 36, 48, 60],</font>
+<br><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Td':[0, 6, 12, 18,
+24, 30, 36, 42, 48, 54, 60, 66, 72],</font>
+<br><font color="#3366FF">&nbsp;&nbsp;&nbsp;&nbsp; 'Wind':[0, 6, 12, 18,
+24, 30, 36, 42, 48, 54, 60, 66, 72]}</font>
+<p>To add a new model, use the same syntax.
+<h3>
+Changing any of the display items</h3>
+Changing any of the config item that affect the display works exactly the
+same way.&nbsp; Just redefine the item you wich to change, making sure
+it's preceded by "dfcConfig." before the item name.&nbsp; For example to
+change the line width:
+<p><font color="#3366FF">dfcConfig.lineWidth = 3</font>
+<br>&nbsp;</div>
+
+<div class="1Heading">
+<hr width="100%">For information on using the Daily Forecast Critique,
+refer to the <a href="dfcUser.html">DFC User's Guide</a> .</div>
+
+<div class="1Heading">
+<hr width="100%"></div>
+
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resource>LocalRadar</resource>
+    <attrSetGroupName>Elevation3</attrSetGroupName>
+    <attrSetNames>VEL3_1.00,BREF3_2.00,VEL3_.25.00,SRVEL3_1.00,BREF3_1.00</attrSetNames>
+</AttributeSetGroup>

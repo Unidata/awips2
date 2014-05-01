@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resourceDefnName>RAP_NT</resourceDefnName>
+    <inventoryEnabled>false</inventoryEnabled>
+    <resourceCategory>NTRANS</resourceCategory>
+	<resourceParameters>
+pluginName=ntrans
+modelName=rap
+	</resourceParameters>
+    <rscImplementation>NTRANS</rscImplementation>
+    <subTypeGenerator>metafileName,productName</subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <dfltGeogArea>XY</dfltGeogArea>
+</ResourceDefinition>

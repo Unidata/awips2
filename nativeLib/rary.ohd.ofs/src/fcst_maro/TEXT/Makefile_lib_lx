@@ -1,0 +1,103 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_maro library file
+#
+#  cmt: File made on Wed Aug  6 12:50:33 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_maro_t.a:  \
+     $(LIB)/libfcst_maro_t.a(fun014.o)  \
+     $(LIB)/libfcst_maro_t.a(gapiup.o)  \
+     $(LIB)/libfcst_maro_t.a(gbxplt.o)  \
+     $(LIB)/libfcst_maro_t.a(gcpuck.o)  \
+     $(LIB)/libfcst_maro_t.a(gctrl.o)  \
+     $(LIB)/libfcst_maro_t.a(gcyint.o)  \
+     $(LIB)/libfcst_maro_t.a(gdatsv.o)  \
+     $(LIB)/libfcst_maro_t.a(gdgp6.o)  \
+     $(LIB)/libfcst_maro_t.a(gdist6.o)  \
+     $(LIB)/libfcst_maro_t.a(gdist.o)  \
+     $(LIB)/libfcst_maro_t.a(gdlys.o)  \
+     $(LIB)/libfcst_maro_t.a(gdpg24.o)  \
+     $(LIB)/libfcst_maro_t.a(gdttst.o)  \
+     $(LIB)/libfcst_maro_t.a(genapi.o)  \
+     $(LIB)/libfcst_maro_t.a(gestck.o)  \
+     $(LIB)/libfcst_maro_t.a(gestmt.o)  \
+     $(LIB)/libfcst_maro_t.a(gflags.o)  \
+     $(LIB)/libfcst_maro_t.a(gfpldt.o)  \
+     $(LIB)/libfcst_maro_t.a(ggendm.o)  \
+     $(LIB)/libfcst_maro_t.a(ggenld.o)  \
+     $(LIB)/libfcst_maro_t.a(ggmdrd.o)  \
+     $(LIB)/libfcst_maro_t.a(ggp24d.o)  \
+     $(LIB)/libfcst_maro_t.a(ggpxgp.o)  \
+     $(LIB)/libfcst_maro_t.a(ggpxhd.o)  \
+     $(LIB)/libfcst_maro_t.a(giluvo.o)  \
+     $(LIB)/libfcst_maro_t.a(glptvr.o)  \
+     $(LIB)/libfcst_maro_t.a(glsprt.o)  \
+     $(LIB)/libfcst_maro_t.a(glst6.o)  \
+     $(LIB)/libfcst_maro_t.a(glstv.o)  \
+     $(LIB)/libfcst_maro_t.a(gmaro.o)  \
+     $(LIB)/libfcst_maro_t.a(gmdmp1.o)  \
+     $(LIB)/libfcst_maro_t.a(gmdmp2.o)  \
+     $(LIB)/libfcst_maro_t.a(gmdrrf.o)  \
+     $(LIB)/libfcst_maro_t.a(gmodgp.o)  \
+     $(LIB)/libfcst_maro_t.a(gmprm.o)  \
+     $(LIB)/libfcst_maro_t.a(gmropo.o)  \
+     $(LIB)/libfcst_maro_t.a(gog24d.o)  \
+     $(LIB)/libfcst_maro_t.a(gpddmp.o)  \
+     $(LIB)/libfcst_maro_t.a(gpg24u.o)  \
+     $(LIB)/libfcst_maro_t.a(gplist.o)  \
+     $(LIB)/libfcst_maro_t.a(gplvit.o)  \
+     $(LIB)/libfcst_maro_t.a(gppchk.o)  \
+     $(LIB)/libfcst_maro_t.a(gppest.o)  \
+     $(LIB)/libfcst_maro_t.a(gput.o)  \
+     $(LIB)/libfcst_maro_t.a(gpx24.o)  \
+     $(LIB)/libfcst_maro_t.a(gpxerr.o)  \
+     $(LIB)/libfcst_maro_t.a(gpxsix.o)  \
+     $(LIB)/libfcst_maro_t.a(grddat.o)  \
+     $(LIB)/libfcst_maro_t.a(grdger.o)  \
+     $(LIB)/libfcst_maro_t.a(grocmp.o)  \
+     $(LIB)/libfcst_maro_t.a(grtov.o)  \
+     $(LIB)/libfcst_maro_t.a(grunof.o)  \
+     $(LIB)/libfcst_maro_t.a(gsettm.o)  \
+     $(LIB)/libfcst_maro_t.a(gsgrda.o)  \
+     $(LIB)/libfcst_maro_t.a(gsixfl.o)  \
+     $(LIB)/libfcst_maro_t.a(gso6h.o)  \
+     $(LIB)/libfcst_maro_t.a(gsodat.o)  \
+     $(LIB)/libfcst_maro_t.a(gspfil.o)  \
+     $(LIB)/libfcst_maro_t.a(gspq.o)  \
+     $(LIB)/libfcst_maro_t.a(gstchk.o)  \
+     $(LIB)/libfcst_maro_t.a(gtdrrc.o)  \
+     $(LIB)/libfcst_maro_t.a(gtitle.o)  \
+     $(LIB)/libfcst_maro_t.a(gtrnsf.o)  \
+     $(LIB)/libfcst_maro_t.a(gwperr.o)  \
+     $(LIB)/libfcst_maro_t.a(gwptst.o)  \
+     $(LIB)/libfcst_maro_t.a(iansw.o)  \
+     $(LIB)/libfcst_maro_t.a(nfgrd.o)  \
+     $(LIB)/libfcst_maro_t.a(nweek.o)
+

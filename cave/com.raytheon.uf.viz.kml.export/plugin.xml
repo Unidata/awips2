@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+<extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         locationURI="menu:export">
+      <command
+            commandId="com.raytheon.uf.viz.kml.export.exportKML"
+            label="KML"
+            style="push">
+      </command>
+   </menuContribution>
+</extension>
+<extension
+      point="org.eclipse.ui.commands">
+      <command
+           id="com.raytheon.uf.viz.kml.export.exportKML"
+           name="Export KML">
+    </command>
+</extension>
+<extension
+      point="org.eclipse.ui.handlers">
+   <handler
+         class="com.raytheon.uf.viz.kml.export.KmlExportHandler"
+         commandId="com.raytheon.uf.viz.kml.export.exportKML">
+   </handler>
+</extension>
+<extension
+	point="com.raytheon.uf.viz.core.graphicsExtension">
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.point.KmlPointImageExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlSingleColorImageExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlColormappedImageExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlRasterImageExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlMapMeshExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.radar.KmlRadialMeshExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlMosaicImageExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlMosaicMaxValImageExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlMosaicOrderedImageExtension">
+	</graphicsExtension>
+	<graphicsExtension
+       class="com.raytheon.uf.viz.kml.export.graphics.ext.KmlCanvasRenderingExtension">
+	</graphicsExtension>
+</extension>
+</plugin>

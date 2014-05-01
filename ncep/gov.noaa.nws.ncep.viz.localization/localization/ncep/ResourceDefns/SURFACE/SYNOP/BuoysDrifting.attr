@@ -1,0 +1,7 @@
+! Parameters and Attributes for the default METAR Resource
+!
+legendString=Drifting Buoy Synop
+plotModel=@PlotModels/sfcobs/bouys.xml
+reportType=1006
+plotDensity=15
+conditionalFilter=

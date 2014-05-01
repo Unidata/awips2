@@ -1,0 +1,12 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+cpp=$CPP/request-response
+
+server_java(){
+java -Dlog4j.configuration=$LOG4J -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.requestResponse.Server
+}
+
+background "can receive messages" server_java
+clients $cpp/client
+#ps -ao pid,cmd | awk '/qpid-client-<version>.jar/{ print $1 }' | xargs -r kill
+kill %%
+outputs "$cpp/client.out | remove_uuid" "server_java.out | remove_uuid"

@@ -1,0 +1,2 @@
+The Trouble-shooting section of the Text Product Reference Guide lists error messages and strategies for trouble-shooting.  We will summarize this information in this section. First, we must isolate the problem and then we can fix it.
+

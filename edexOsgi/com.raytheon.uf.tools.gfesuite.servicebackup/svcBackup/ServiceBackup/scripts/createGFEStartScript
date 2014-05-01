@@ -1,0 +1,81 @@
+#!/bin/bash
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+##############################################################################
+# Create GFE Start Script
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    03/20/14        #2933         randerso       Fixed for Dual Domain
+##############################################################################
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+# $1=failed site
+SITE_CAPS=`echo ${1}|tr [a-z] [A-Z]`
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+# Create the log file
+logdir=${IFPS_LOG}/`date +%Y%m%d`
+logfil=svcbu_createGFEStartScript`date +%H%M`
+logfile=${logdir}/${logfil}
+
+[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
+touch ${logdir}/${logfil}
+exec 1>${logdir}/${logfil} 2>&1
+
+
+LAUNCH_SCRIPT=${AWIPS_HOME}/GFESuite/ServiceBackup/.launch_cave.sh
+
+log_msg "Creating GFE launch script for ${SITE_CAPS} at ${LAUNCH_SCRIPT}"
+log_msg "CAVE location: ${CAVE_LAUNCH_SCRIPT}"
+
+if [ $SVCBU_USER -eq 1 ] && [ "$SVCBU_USER_ID" = "" ]; then
+  log_msg "You do not have a user id configured for ServiceBackup"
+  log_msg "GFE will start with your regular user id"
+fi
+
+echo "#!/bin/bash">${LAUNCH_SCRIPT}
+if [ $SVCBU_USER -eq 1 ] && [ "$SVCBU_USER_ID" != "" ]; then
+  echo "${CAVE_LAUNCH_SCRIPT} -site ${SITE_CAPS} -u $SVCBU_USER_ID -perspective GFE -server ec:9581/services" >> ${LAUNCH_SCRIPT}
+else
+  echo "${CAVE_LAUNCH_SCRIPT} -site ${SITE_CAPS} -perspective GFE -server ec:9581/services" >> ${LAUNCH_SCRIPT}
+fi
+
+chmod +x ${LAUNCH_SCRIPT}
+
+if [ -z $PRIMARY_SITES ]
+then
+  LOCAL_SITE=${AW_SITE_IDENTIFIER}
+else
+  IFS=','
+  site_list=($PRIMARY_SITES)
+  LOCAL_SITE=${site_list[0]}
+fi
+SITE_LOWER=`echo ${LOCAL_SITE}|tr [a-z] [A-Z]`
+echo  $SITE_LOWER > $SCRIPTS_DIR/siteID.txt
+
+log_msg "GFE launch script created for ${SITE_CAPS}"

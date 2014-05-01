@@ -1,0 +1,1417 @@
+C MODULE MATMN
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE MATMN (ITUNIT)
+C
+C  DRIVER ROUTINE FOR PROGRAM MAT.      
+C
+C  PROGRAM IS CURRENTLY DIMENSIONED FOR THE FOLLOWING MAXIMUM VALUES:
+C       200 STATIONS
+C        10 CORRECTION FACTORS PER STATION
+C        1O OBSERVATION TIME CHANGES PER STATION
+C        50 AREAS
+C        50 YEARS (600 MONTHS)
+C      3000 BASIN BOUNDARY POINTS
+C
+C  PROGRAM MUST BE RUN FOR AT LEAST TWO MONTHS.
+C
+      PARAMETER (MXAREA=50)
+      PARAMETER (MXSTA=200)
+      PARAMETER (MBPTS=3000)
+
+C SPECIFY THE MAXIMUM YEAR OF STATIONS ALLOWED
+C
+C     Change MXYEAR from 50 to 100 for handling the same years of data
+C     as PXPP program -- bug r23-46   guoxian zhou 08/11/03
+C     PARAMETER (MXYEAR=50)
+      PARAMETER (MXYEAR=100)
+      PARAMETER (MXMON=MXYEAR*12)
+      PARAMETER (MX_CF_OBC=10)
+      PARAMETER (MXCF=MX_CF_OBC,MXCFD=MXCF+1)
+      PARAMETER (MXOB=MX_CF_OBC,MXOBD=MXOB+1)
+      PARAMETER (MXGP=5)
+C
+      CHARACTER*4 AUNITS,CLABEL
+      CHARACTER*4 UNITI/'METR'/
+      CHARACTER*4 UNITO/'METR'/
+      CHARACTER*4 UNITA/'METR'/
+      CHARACTER*4 DTYPE,DDIMN,DUNITI,DUNITO
+      CHARACTER*3 MONAME(12)
+     *   /'JAN','FEB','MAR','APR','MAY','JUN',
+     *    'JUL','AUG','SEP','OCT','NOV','DEC'/
+      CHARACTER*132 NEWNAME
+C
+C  ARRAYS FOR STATION VALUES
+      DIMENSION DUMSTA(2),DUMMRD(2)
+      DIMENSION STAFLD(5),ENAME(5)
+      DIMENSION PXNAME(MXSTA,5)
+      DIMENSION X(MXSTA),Y(MXSTA),NDUMST(MXSTA)
+      DIMENSION FE(MXSTA,2),TNORM(MXSTA,12,2),ELEV(MXSTA)
+      DIMENSION TMM(MXSTA,66),TSTA(MXSTA,124)
+      DIMENSION NWSST(MXSTA)
+      DIMENSION STAID(5,MXSTA)
+      DIMENSION STACC(2,MXSTA)
+C
+C  ARRAYS FOR STATION TEMPERATURE CORRECTION FACTORS AND
+C  OBSERVATION TIME CHANGES
+      DIMENSION ISTNUM(MXSTA*MX_CF_OBC),ISTSLT(MXSTA*MX_CF_OBC)
+      DIMENSION ISTAMO(MXSTA*MX_CF_OBC),ISTAYR(MXSTA*MX_CF_OBC)
+      
+C  ARRAYS FOR IDMA
+      DIMENSION GAMAX(5),GAMIN(5)     
+      DIMENSION  AMAX_ARRAY(MXSTA,MXMON)
+      DIMENSION  AMIN_ARRAY(MXSTA,MXMON)
+      DIMENSION  IFLAGMX_ARRAY(MXSTA,MXMON)
+      DIMENSION  IFLAGMN_ARRAY(MXSTA,MXMON)
+      DIMENSION  IYEAR_ARRAY(MXMON)
+      DIMENSION  MONTH_ARRAY(MXMON)
+      DIMENSION  GAMAX_ARRAY(MXSTA,MXMON)
+      DIMENSION  GAMIN_ARRAY(MXSTA,MXMON)
+C
+C   SMMTXN: STATION MEAN MONTHLY TEMP BY (STATION,MONTH,TYPE) 
+C           TYPE(1)=MIN TYPE(2)=MAX
+      REAL*8 SMMTXN(MXSTA,12,2)
+C   IPFC: PERIOD FREQUENCY COUNT BY (STATION,MONTH,TYPE)
+      DIMENSION IPFC(MXSTA,12,2)
+C
+C  ARRAYS FOR STATION TEMPERATURE CORRECTION FACTORS      
+      DIMENSION ITCGE(MXSTA,MXCFD),TMAXC(MXSTA,MXCFD),TMINC(MXSTA,MXCFD)
+C
+C  ARRAYS FOR STATION OBSERVATION TIME CHANGES 
+      DIMENSION TIMEOB(MXSTA,MXOBD),IOBCGE(MXSTA,MXOBD)
+C
+C  ARRAYS FOR AREA VALUES
+      DIMENSION AID(3),ANAM(5),DUMYID(2)
+      DIMENSION AREAID(3,MXAREA),ARNAME(5,MXAREA)
+      DIMENSION ITSUNN(MXAREA)
+C   BATAMY: BASIN AVERAGE TEMP BY (AREA,MONTH,YEAR)
+      DIMENSION BATAMY(MXAREA,12,MXYEAR)
+C   AMONTH (MONTHLY_TEMP_AVE), AYEAR (YEAR_TEMP_AVE), AAREA (AVE)
+      DIMENSION AMONTH(MXAREA,12),AYEAR(MXAREA,MXYEAR),AAREA(MXAREA)
+c   array for basin name which will be added to the directory path      
+      character*12 bn(MXAREA)
+c   array for baisn file name. fn will equal bn unless a separate 
+c   name has been specified for the file name (i.e. bn_upper and bn_lower)
+      character*12 fn(MXAREA)
+C      
+C  ARRAY FOR STATION WEIGHTS
+      DIMENSION W(MXAREA,MXSTA)
+C 
+C  ARRAYS FOR BASIN BOUNDARY POINT VALUES   
+      DIMENSION IPT(MBPTS),IY(MBPTS),IXB(MBPTS),IXE(MBPTS)
+      DIMENSION SLAT(MBPTS),SLON(MBPTS),FLAT(MBPTS),FLON(MBPTS)
+      DIMENSION JX(MBPTS),JY(MBPTS),JN(MBPTS),BX(MBPTS),BY(MBPTS)
+      DIMENSION STAWT(MBPTS)
+C
+C  ARRAYS FOR CONSISTENCY CHECK 
+      DIMENSION IGS(MXGP,MXSTA),NPG(MXGP),NPLUS(MXGP)
+      DIMENSION AMAX(MXSTA),AMIN(MXSTA)
+      DIMENSION PH(MXSTA,2),PL(MXSTA,2)
+      DIMENSION DMAX(MXSTA,MXMON),DMIN(MXSTA,MXMON) 
+C
+C  ARRAYS FOR TEMPCK
+      DIMENSION GNAME(5),GNORM(12,2)
+      DIMENSION GMM(2,62),ND(12),SE2(4,12),ISCALE(2)
+C      
+      INTEGER LASTDA(2,12)
+     *   /31,31,28,29,31,31,30,30,31,31,30,30,
+     *    31,31,31,31,30,30,31,31,30,30,31,31/
+      DIMENSION UCHAR(2)
+      DIMENSION FILEN(3)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'upvrsx'
+      INCLUDE 'ufreex'
+      INCLUDE 'clbcommon/crwctl'
+      INCLUDE 'scommon/sntwkx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/mat/RCS/matmn.f,v $
+     . $',                                                             '
+     .$Id: matmn.f,v 1.12 2003/08/14 19:11:01 gzhou Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA ENAME/4HEST.,4H MAX,4H-MIN,4H DAT,4HA   /
+      DATA DUMSTA/4HDUMM,4HY   /
+C
+C
+      IUSTOP=0
+      INDERR=0
+C
+      IEND=0
+      IELEV=0
+      ICTMP=0
+      ICTIM=0
+      ICONS=0
+      NSTOP=0
+      IGRID=1
+      ITYPE=1
+      NPRINT=0
+      IPUNCH=0
+      NOOUT=1
+      IFSUMT=0
+      IFSUMP=0
+C
+      POWER=2.0
+      STMNWT=0.01
+C
+      NFLD=0
+      ISTRT=0
+      NCHAR=1
+C      
+      ICNT=0    
+C
+C INITIALIZE ARRAYS
+      CALL UMEMST (0,NDUMST,MXSTA)
+      CALL UMEMST (0.0,FE,MXSTA*2)
+      CALL UMEMST (0.0,TNORM,MXSTA*12*2)
+      CALL UMEMST (0.0,ELEV,MXSTA)
+      DO 30 IAREAS=1,MXAREA
+         DO 20 M=1,12
+            DO 10 IIY=1,MXYEAR
+               AYEAR(IAREAS,IIY)=0.0
+               BATAMY(IAREAS,M,IIY)=-999.0
+10            CONTINUE
+            AMONTH(IAREAS,M)=0.0
+20          CONTINUE
+         AAREA(IAREAS)=0.0
+30       CONTINUE
+      DO 40 IRG=1,MXSTA
+         DO 40 M=1,12
+            DO 40 ITYP=1,2
+              SMMTXN(IRG,M,ITYP)=0.0
+              IPFC(IRG,M,ITYP)=0
+40       CONTINUE
+      DO 50 IAREAS=1,MXAREA
+         DO 50 IRG=1,MXSTA
+            W(IAREAS,IRG)=0.0
+50       CONTINUE
+C
+C  SET STOP PARAMETER FOR CALIBRATION READ/WRITE ROUTINES
+      ISTOP=0
+C
+C  SET OPTION TO PRINT INPUT CARDS
+       IPRCRD=1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  *** READ RUN OPTIONS ***
+C
+      CALL MTRDCD (IMO,IYR,LMO,LYR,NAREAS,IRGCK,IELEV,ICTMP,
+     *  ICTIM,ICONS,NSTOP,ITYPE,IGRID,POWER,STMNWT,NPRINT,IPUNCH,
+     *  NOOUT,IFSUMT,IFSUMP,FILEN,UNITI,UNITO,NFLD,ISTRT,ISFN,IERR)
+      IF (ISFN.EQ.1) WRITE (LP,1230)
+C
+      IF (LDEBUG.GT.0) WRITE (LP,*) 'NSTOP=',NSTOP
+C
+C   PRINT OPTIONS
+      CALL UPAGE (LP)
+      CALL MTOPT (NAREAS,ICONS,IRGCK,IELEV,IGRID,ITYPE,POWER,
+     *  NPRINT,IPUNCH,NOOUT,IFSUMT,IFSUMP,FILEN,ICTMP,ICTIM,
+     *  STMNWT,UNITI,UNITO,ISFN)
+C
+      IBASEY=1900
+C
+C  CHECK BEGINNING AND ENDING YEAR
+      IF (IYR.LT.IBASEY) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,890) 'BEGINNING YEAR',IYR,IBASEY
+         INDERR=1
+         ENDIF
+      IF (LYR.LT.IBASEY) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,890) 'ENDING YEAR',LYR,IBASEY
+         INDERR=1
+         ENDIF
+C
+C  COMPUTE NUMBER OF MONTHS IN PERIOD OF RECORD
+      NMO=(LMO+LYR*12)-(IMO+IYR*12)+1
+C     
+C  CHECK FOR MINIMUM NUMBER OF MONTHS
+      MNMON=2
+      IF (NMO.GT.0.AND.NMO.GE.MNMON) THEN
+         ELSE
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,895) NMO,MNMON,IMO,IYR,LMO,LYR
+            INDERR=1
+         ENDIF
+C
+C  CHECK FOR MAXIMUM NUMBER OF MONTHS
+      IF (NMO.GT.0.AND.NMO.LE.MXMON) THEN
+         ELSE
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,900) NMO,MXMON,IMO,IYR,LMO,LYR
+            INDERR=1
+         ENDIF
+C
+C  CHECK FOR MAXIMUM NUMBER OF MAT AREAS
+      IF (NAREAS.GE.0.AND.NAREAS.LE.MXAREA) THEN
+         ELSE
+            CALL UEROR (LP,1,-1)
+            WRITE (LP,920) NAREAS,MXAREA
+            INDERR=1
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  INPUT STATION INFORMATION
+C
+C   ** CARD E **
+C
+      NCHAR=1
+      CLABEL='@E'
+70    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *   NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,IERR)
+      IF (ISTAT.EQ.7) GO TO 70
+C      
+C   GET NUMBER OF STATIONS      
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,NSTA,UREAL,
+     *   NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,0,ISTAT,LENGTH,IERR)
+      IF (ISTAT.EQ.6) ISTRT=-1
+C
+C  CHECK FOR MAXIMUM NUMBER OF STATIONS
+      IF (NSTA.GT.0.AND.NSTA.LE.MXSTA) GO TO 80
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,910) NSTA,MXSTA
+         INDERR=1
+C
+80    IF (INDERR.EQ.1) CALL USTOP (LP,IUSTOP)
+C
+C  GET STATION INFORMATION
+      DO 160 IRG=1,NSTA
+C     ** CARD F **
+         CLABEL='@F'
+90       NCHAR=1
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *      NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.7) GO TO 90
+         NCHAR=5
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *      NCHAR,STAFLD,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,2,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.7) GO TO 100
+C     READ STATION LATITUDE AND LONGITUDE
+         CALL MTSTLT (SLAT(IRG),NFLD,ISTRT,IERR)
+         CALL MTSTLN (SLON(IRG),NFLD,ISTRT,IERR)
+         NCHAR=1
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,
+     *      TIMEOB(IRG,1),
+     *      NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,IERR)
+         IF (TIMEOB(IRG,1).LT.0.0.OR.TIMEOB(IRG,1).GT.24.0) IERR=1
+         IF (TIMEOB(IRG,1).LT.0.1.AND.TIMEOB(IRG,1).GT.-0.1) THEN
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,930)
+            GO TO 840
+            ENDIF
+         IF (ISTAT.EQ.6.OR.LENGTH.EQ.0) IERR=1
+         IF (ISTAT.EQ.6) THEN
+            ISTRT=-1
+            GO TO 100
+            ENDIF
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,ELEV(IRG),
+     *      NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.6) THEN
+            ISTRT=-1
+            GO TO 100
+            ENDIF
+         NCHAR=2
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *      NCHAR,DUMMRD,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,2,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.6) ISTRT=-1
+100      IF (DUMMRD(1).EQ.DUMSTA(1)) NDUMST(IRG)=1
+         DO 110 I=1,5
+            PXNAME(IRG,I)=STAFLD(I)
+110         CONTINUE
+         IF (IELEV.EQ.1) THEN
+C        READ ELEVATION WEIGHTING FACTORS AND MEAN MAX/MIN TEMPS
+C        ** CARD G **
+            CLABEL='@G'
+120         NCHAR=1
+            CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *         NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *         ISTAT)
+            CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,
+     *         IERR)
+            IF (ISTAT.EQ.7) GO TO 120
+            NCHAR=1
+            CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,
+     *         FE(IRG,2),
+     *         NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *         ISTAT)
+            CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,
+     *         IERR)
+            IF (ISTAT.EQ.6) THEN
+               ISTRT=-1
+               GO TO 140
+               ENDIF
+            DO 130 MO=1,12
+               CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,
+     *            TNORM(IRG,MO,2),
+     *            NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *            ISTAT)
+               CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,
+     *            IERR)
+               IF (ISTAT.EQ.6) THEN
+                  ISTRT=-1
+                  GO TO 140
+                  ENDIF
+130            CONTINUE
+C        ** CARD H **
+            CLABEL='@H'
+140         NCHAR=1
+            CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *         NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *         ISTAT)
+            CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,
+     *         IERR)
+            IF (ISTAT.EQ.7) GO TO 140
+            NCHAR=1
+            CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,
+     *         FE(IRG,1),
+     *         NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *         ISTAT)
+            CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,
+     *         IERR)
+            IF (ISTAT.EQ.7) GO TO 160
+            DO 150 MO=1,12
+               CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,
+     *            TNORM(IRG,MO,1),
+     *            NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *            ISTAT)
+               CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,
+     *            IERR)
+               IF (ISTAT.EQ.6) THEN
+                  ISTRT=-1
+                  GO TO 160
+                  ENDIF
+150            CONTINUE
+            ENDIF
+160      CONTINUE
+C
+      IF (LDEBUG.GT.0) THEN
+         DO 170 I=1,NSTA
+            IF (NDUMST(I).EQ.1) WRITE (LP,940) I,(PXNAME(I,L),L=1,5)
+170         CONTINUE
+         ENDIF
+C
+C  CALCULATE GRID LENGTH
+      IF (IELEV.EQ.1) THEN
+         CALL SBFMIN (SLAT,NSTA,YMIN,ISTAT)
+         CALL SBFMAX (SLAT,NSTA,YMAX,ISTAT)
+         CALL SBCNTR (YMIN,YMAX,YCENTR,ISTAT)
+         CALL SBGRDL (YCENTR,GRIDL,ISTAT)
+         IF (UNITI.EQ.'ENGL') THEN
+            ICONV=1
+            NCONV=1
+            CALL UDUCNV ('KM  ','MI  ',ICONV,NCONV,GRIDL,GRIDL,IERR)
+            ENDIF
+         ENDIF
+C
+C  CONVERT LONGITUDE AND LATITUDE TO HRAP GRID SYSTEM
+      ILLGD=1
+      CALL SBLLGD (SLON,SLAT,NSTA,X,Y,ILLGD,ISTAT)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  *** TEMPCK RUN ***
+C
+      IF (IRGCK.GE.1) THEN
+         NSTA=NSTA+1
+         ICHECK=NSTA
+         FE(ICHECK,2)=FE(IRGCK,2)
+         FE(ICHECK,1)=FE(IRGCK,1)
+         SLAT(ICHECK)=SLAT(IRGCK)
+         SLON(ICHECK)=SLON(IRGCK)
+         X(ICHECK)=X(IRGCK)
+         Y(ICHECK)=Y(IRGCK)
+         TIMEOB(ICHECK,1)=24.0
+         ELEV(ICHECK)=ELEV(IRGCK)
+         NDUMST(ICHECK)=1
+         DO 180 MO=1,12
+            TNORM(ICHECK,MO,2)=TNORM(IRGCK,MO,2)
+            TNORM(ICHECK,MO,1)=TNORM(IRGCK,MO,1)
+180         CONTINUE
+         DO 190 I=1,5
+            PXNAME(ICHECK,I)=ENAME(I)
+190        CONTINUE
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C   PRINT INPUT SUMMARY
+C
+      IF (IELEV.EQ.1) THEN
+C     MOUNTAINOUS CASE
+         CALL UPAGE (LP)
+         WRITE (LP,980) IMO,IYR,LMO,LYR
+         WRITE (LP,1100)
+         DO 200 IRG=1,NSTA
+            WRITE (LP,1110) IRG,(PXNAME(IRG,I),I=1,5),
+     *         SLAT(IRG),SLON(IRG),
+     *         TIMEOB(IRG,1),ELEV(IRG),FE(IRG,2),FE(IRG,1)
+200         CONTINUE
+         CALL UPAGE (LP)
+         WRITE (LP,1020)
+         WRITE (LP,990)
+         DO 210 IRG=1,NSTA
+            WRITE (LP,1000)
+     *         (PXNAME(IRG,I),I=1,5),'MAX',(TNORM(IRG,MO,2),MO=1,12)
+            WRITE (LP,1000)
+     *         (PXNAME(IRG,I),I=1,5),'MIN',(TNORM(IRG,MO,1),MO=1,12)
+210         CONTINUE
+         ELSE
+C           NON-MOUNTAINOUS CASE
+            CALL UPAGE (LP)
+            WRITE (LP,980) IMO,IYR,LMO,LYR
+            WRITE (LP,1090)
+            DO 220 IRG=1,NSTA
+               WRITE (LP,1130) IRG,(PXNAME(IRG,I),I=1,5),SLAT(IRG),
+     *            SLON(IRG),TIMEOB(IRG,1)
+220            CONTINUE
+         ENDIF
+C
+C  CHECK IF MAT NOT REQUESTED BUT TEMPCK REQUESTED
+      IF (IRGCK.GE.1) GO TO 390
+      IF (NAREAS.EQ.0) GO TO 390
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  GET AREA INFORMATION
+C
+C  LOAD SNTWKX COMMON BLOCK
+      INWTYP=2
+      INWFIL=NSTA
+      DO 230 I=1,NSTA
+         SFLGNW(I)=2
+         CORDNW(1,I)=X(I)*10
+         CORDNW(2,I)=Y(I)*10
+         TA24NW(I)=I
+         WORKNW(I)=0.0
+230      CONTINUE
+C
+      DO 370 JB=1,NAREAS
+         DO 240 III=1,MBPTS
+            FLAT(III)=0.0
+            FLON(III)=0.0
+            STAWT(III)=0.0
+240         CONTINUE
+         XC=0.0
+         YC=0.0
+C     *** AREA INFO (PREDETERMINED WEIGHTS) ***
+C     FOR EACH AREA, READ CARDS @I @J @L AND COMPUTE BASIN CENTROID
+C     ** CARD I **
+         CLABEL='@I'
+250      NCHAR=1
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *      NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.7) GO TO 250
+         NCHAR=3
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *      NCHAR,AID,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,2,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.6) THEN
+            ISTRT=-1
+            GO TO 260
+            ENDIF
+         NCHAR=5
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *      NCHAR,ANAM,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,2,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.6) THEN
+            ISTRT=-1
+            GO TO 260
+            ENDIF
+         NCHAR=1
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,AREA,
+     *      NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.6) THEN
+            ISTRT=-1
+            GO TO 260
+            ENDIF
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *      NCHAR,AUNITS,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,2,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.6) THEN
+            ISTRT=-1
+            GO TO 260
+            ENDIF
+         NCHAR=3
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *     NCHAR,bn(JB),LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,bn(JB),CLABEL,2,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.6) THEN
+            bn(JB)=' '
+            fn(JB) = bn(JB)
+            ISTRT=-1
+            GO TO 260
+            ENDIF
+C       The last field in the I card is optional.  If it is not
+C       specified, then the file name is set equal to the basin name
+C       and the last field read in will be an @ symbol as indicated by
+C       ISTAT = 6.  Then by setting ISTRT=-1, the last field will be
+C       reprocessed on the next call to UFIELD. 
+        NCHAR=3
+        CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *     NCHAR,fn(JB),LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,fn(JB),CLABEL,2,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.6) THEN
+            fn(JB) = bn(JB)
+            ISTRT=-1
+            ENDIF
+260      DO 270 I=1,3
+            AREAID(I,JB)=AID(I)
+270         CONTINUE
+         DO 280 I=1,5
+            ARNAME(I,JB)=ANAM(I)
+280         CONTINUE
+         CALL UPAGE (LP)
+         WRITE (LP,1160) (ARNAME(I,JB),I=1,5),(AREAID(I,JB),I=1,3)
+C     IF NOT USING PREDETERMINED WEIGHTS READ CARD @J AND
+C     COMPUTE BASIN CENTROID, STATION LOCATIONS, ETC
+         IF (IGRID.NE.0) THEN
+C        ** CARD J **
+C        READ BASIN LATITUDE-LONGITUDE COORDINATES
+            CALL JREAD (MBPTS,FLAT,FLON,NBPTS,ISTRT,NFLD,ISTAT,
+     *            LDEBUG,IERR)
+            IF (LDEBUG.GT.1) THEN
+               WRITE (LP,1140) NBPTS
+               DO 290 IPTS=1,NBPTS+5
+                  WRITE (LP,1150) IPTS,FLAT(IPTS),FLON(IPTS)
+290               CONTINUE
+               ENDIF
+C        IF MORE THAN ONE POINT ON CARD @J, PERFORM COMPUTATIONS
+            IF (NBPTS.GT.1) THEN
+               AREA1=AREA
+               IF (AUNITS.EQ.'MI2 ') UNITA='ENGL'
+               CALL SFBDRV (BX,BY,FLAT,FLON,IY,IXB,IXE,MBPTS,NBPTS,
+     *            LFACTR,AREA1,UAREA,CAREA,XC,YC,UNITA,NSEGS,ISTAT)
+C           CONVERT BASIN CENTROID TO LAT/LON
+               CALL SBLLGD (CLON,CLAT,1,XC,YC,0,ISTAT)
+               DO 300 I=1,NSTA
+                  JX(I)=X(I)+0.5
+                  JY(I)=Y(I)+0.5
+300               CONTINUE
+C           PLOT STATION LOCATION AND PRINT OTHER INFORMATION
+               WRITE (LP,1170)
+               IF (IERR.EQ.0) CALL SBPLOT (2,80,IY,IXB,IXE,NSEGS,X,Y,
+     *            JX,JY,NSTA,LFACTR,XC,YC,JN,ISTAT)
+               IF (IERR.GT.0) WRITE (LP,870)
+               WRITE (LP,1170)
+               WRITE (LP,850) CLAT,CLON
+               IF (IELEV.EQ.1.AND.UNITI.EQ.'METR')
+     *            WRITE (LP,1080) GRIDL,'KM'
+               IF (IELEV.EQ.1.AND.UNITI.EQ.'ENGL')
+     *            WRITE (LP,1080) GRIDL,'MI'
+C          CALCULATE FLATMN AND FLATMX FOR SNTWKX COMMON BLOCK
+               IF (IELEV.LE.0) THEN
+               CALL SBFMIN (FLAT,NBPTS,FLATMN,ISTAT)
+               CALL SBFMAX (FLAT,NBPTS,FLATMX,ISTAT)
+               ENDIF
+            ELSE
+               IF (ITYPE.NE.3) THEN
+                  CALL UEROR (LP,1,-1)
+                  WRITE (LP,880)
+                  INDERR=1
+                  GO TO 380
+                  ENDIF
+               CALL SBLLGD (FLON,FLAT,1,XC,YC,1,ISTAT)
+               FLATMN=FLAT(1)
+               FLATMX=FLAT(1)
+            ENDIF
+         DO 310 I=1,NSTA
+         DO 310 J=1,5
+            STAID(J,I)=PXNAME(I,J)
+310         CONTINUE
+C      COMPUTE WEIGHTS
+         LARRAY=1
+         IPARM=3
+         CALL SFADRV (DUMYID,ARRAY,LARRAY,IPARM,ITYPE,POWER,STMNWT,
+     *      NSEGS,LFACTR,IY,IXB,IXE,XC,YC,MBPTS,NSTATN,STAID,STAWT,
+     *      IPT,STACC,ISTAT)
+         DO 320 I=1,INWFIL
+            IF (IPT(I).NE.0) W(JB,IPT(I))=STAWT(I)
+            IF (LDEBUG.GT.2) WRITE (LP,1120) I,JB,STAWT(I),W(JB,IPT(I))
+320         CONTINUE
+         ELSE
+C     ** CARD L **
+         CLABEL='@L'
+C     READ PREDETERMINED STATION WEIGHTS
+330      NCHAR=1
+         CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *      NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+         CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,IERR)
+         IF (ISTAT.EQ.7) GO TO 330
+         NCHAR=1
+         DO 340 IRG=1,NSTA
+            CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,
+     *         W(JB,IRG),
+     *         NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+            CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,IERR)
+            IF (ISTAT.EQ.6) THEN
+               ISTRT=-1
+               GO TO 350
+               ENDIF
+340         CONTINUE
+350      ENDIF
+C     OUTPUT STATION WEIGHTS
+         WRITE (LP,860) AREA,AUNITS
+         WRITE (LP,1190)
+         DO 360 IRG=1,NSTA
+            WRITE (LP,1180) IRG,(PXNAME(IRG,I),I=1,5),W(JB,IRG)
+360         CONTINUE
+         IF (IERR.NE.0) WRITE (LP,*) 'IERR=',IERR
+370      CONTINUE
+C
+380   IF (IERR.GT.0) INDERR=1
+C
+C IF MAT DATA IS TO BE OUTPUT TO A FILE, THEN WRITE TIME SERIES HEADER
+      IF (NOOUT.EQ.1.OR.NOOUT.EQ.3) GO TO 390
+C
+      DTYPE='MAT'
+      DDIMN='TEMP'
+      DUNITO='DEGC'
+      IF (UNITO.EQ.'ENGL') DUNITO='DEGF'
+CCC     CALL HEADER (FILEN,DTYPE,DDIMN,DUNITO,6,NAREAS,IMO,IYR,LMO,LYR,
+CCC    *   AREAID,10,ARNAME,10)
+CCC    HEADER has been replaced by a call to cardhd in routine sxhrtm
+      IF (IERROR.NE.0) THEN
+         CALL UEROR (LP,0,-1)
+         WRITE (LP,1240)
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  INPUT OBSERVATION TIME CHANGES IN ORDER BY TIME
+C
+C  ** CARD M **
+C
+390   CALL MTTIME (NSTA,IFMON,ICTIM,IOBCGE,TIMEOB,IMO,IYR,PXNAME,
+     *  NFLD,ISTRT,
+     *  MXSTA,MXOB,MXOBD,ISTNUM,ISTSLT,ISTAMO,ISTAYR)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  INPUT TEMPERATURE CORRECTIONS IN ORDER BY TIME
+C
+C  ** CARD O **
+C
+      CALL TPCOR (NSTA,IFMON,ICTMP,PXNAME,NFLD,ISTRT,
+     *   MXSTA,MXCF,MXCFD,ITCGE,TMAXC,TMINC,
+     *   ISTNUM,ISTSLT,ISTAMO,ISTAYR)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IF (INDERR.NE.0) CALL USTOP (LP,IUSTOP)
+C
+C   READ MAX/MIN TEMPERATURE DATA
+C
+C  ** CARD Q **
+C
+420   CLABEL='@Q'
+      NCHAR=1
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *   NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,IERR)
+      IF (ISTAT.EQ.6) THEN
+         ISTRT=-1
+         GO TO 440
+         ENDIF
+      IF (ISTAT.EQ.7) GO TO 420
+C
+      IF (IERR.NE.0) CALL USTOP (LP,IUSTOP)
+C      
+      DUNITI='DEGC'
+      IF (UNITI.EQ.'ENGL') DUNITI='DEGF'
+C
+      CALL MTDATR (IYR,LYR,IMO,LMO,LASTDA,PXNAME,NDUMST,NPRINT,
+     *   NFLD,NSTA,ITUNIT,LDEBUG,
+     *   MXSTA,MXCF,MXOB,NWSST,ITCGE,TMAXC,TMINC,TIMEOB,IOBCGE,DUNITI)
+C
+      IF (LDEBUG.GT.0) THEN
+         DO 430 I=1,NSTA
+            IF (NDUMST(I).EQ.1) WRITE (LP,950) I,(PXNAME(I,L),L=1,5)
+430      CONTINUE
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C
+C  *** MAIN LOOP ON MONTH ***
+C
+C  START AT FIRST MONTH OF RUN
+440   MONTH=IMO
+      LOOPAR=-1
+      IYEAR=IYR
+      MONUM=1
+      NBMO=IYR*12+IMO
+      NEMO=LYR*12+LMO
+      NTMO=NEMO-NBMO+1
+C
+C  STARTING AT NEXT MONTH OF RUN
+450   IF (IRGCK.LE.0) GO TO 460
+      GO TO 520
+C
+460   IF (NAREAS.EQ.0) GO TO 520
+      LOOPAR=LOOPAR+1
+C
+      IF (NAREAS-3) 470,490,510
+C
+470   IF (NAREAS.GT.1) GO TO 480
+         IF (LOOPAR.EQ.6) LOOPAR=0
+         GO TO 500
+C
+480   IF (LOOPAR.EQ.3) LOOPAR=0
+      GO TO 500
+C
+490   IF (LOOPAR.EQ.2) LOOPAR=0
+C
+500   IF (LOOPAR.EQ.0) GO TO 510
+      GO TO 520
+C
+510   IF (NOOUT.GT.1) GO TO 520
+      CALL UPAGE (LP)
+C
+520   LY=0
+      IF ((IYEAR-4*(IYEAR/4)).EQ.0) LY=1
+      LAST=LASTDA((LY+1),MONTH)
+      CALL MTDATI (MXSTA,NSTA,MONUM,LAST,NTMO,TMM,ITUNIT)
+C
+C  IF ONE OR BOTH STATION SUMMARY OPTIONS WERE REQUESTED, CALCULATE
+C  AVERAVE MAX AND MIN FOR EACH MONTH BY STATION
+      IF (IFSUMT.EQ.1.OR.IFSUMP.EQ.1) THEN
+C     IL IS MOST MINIMUM TEMPERATURES POSSIBLE FOR THIS MONTH
+         IL=(LAST*2)+2
+         DO 530 IRG=1,NSTA
+         DO 530 I=3,IL,2
+C        ACCUMULATE AND COUNT NUMBER OF MINIMUM TEMPERATURES NOT MISSING
+            IF (TMM(IRG,I).LT.998.0) THEN
+               SMMTXN(IRG,MONTH,1)=SMMTXN(IRG,MONTH,1)+TMM(IRG,I)
+               IPFC(IRG,MONTH,1)=IPFC(IRG,MONTH,1)+1
+               ENDIF
+C        ACCUMULATE AND COUNT NUMBER OF MAXIMUM TEMPERATURES NOT MISSING
+            IF (TMM(IRG,I+1).LT.998.0) THEN
+               SMMTXN(IRG,MONTH,2)=SMMTXN(IRG,MONTH,2)+TMM(IRG,I+1)
+               IPFC(IRG,MONTH,2)=IPFC(IRG,MONTH,2)+1
+               ENDIF
+530        CONTINUE
+         ENDIF
+C
+      IP=3
+      IF (MONUM.EQ.1) IP=1
+      IL=(LAST*2)+4
+C
+C          -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+C
+C  *** ESTIMATE MISSING DATA ***
+C
+C   NON-MOUNTAINOUS AREA (ELEVATION NOT CONSIDERED)
+      IF (IELEV.EQ.1) THEN
+C        MOUNTAINOUS AREA
+         CALL MTESTM (NSTA,IP,IL,GRIDL,IRGCK,MONTH,IYEAR,LAST,UNITI,
+     *      MXSTA,X,Y,TMM,NDUMST,PXNAME,FE,TNORM,ELEV)
+         ELSE
+C        NON-MOUNTAINOUS AREA
+            CALL MTESTD (NSTA,IP,IL,IRGCK,MONTH,IYEAR,LAST,
+     *         MXSTA,X,Y,TMM,NDUMST,PXNAME)
+         ENDIF
+C
+C  SET IFLAGMX AND IFLAGMN = 1 IF ESTIMATED
+C
+C  CHECK EVEN VALUES FOR ESTIMATED MAX VALUES
+         DO 538 IRG=1,NSTA
+            IL=(LAST*2)+2
+            DO 534 I=4,IL,2
+               IF (TMM(IRG,I).GT.998.0) THEN
+                  IFLAGMX_ARRAY(IRG,MONUM)=1
+               ENDIF
+534            CONTINUE
+C
+C  CHECK ODD VALUES FOR ESTIMATED MIN VALUES
+            IL=IL-1
+            DO 536 I=3,IL,2
+               IF (TMM(IRG,I).GT.998.0) THEN
+                  IFLAGMN_ARRAY(IRG,MONUM)=1
+               ENDIF
+536            CONTINUE
+538      CONTINUE         
+C
+C  SUBTRACT 2000 FROM ALL ESTIMATED VALUES
+      IL=(LAST*2)+4
+      DO 540 IRG=1,NSTA
+         DO 540 I=IP,IL
+            IF (TMM(IRG,I).GE.1000.0) TMM(IRG,I)=TMM(IRG,I)-2000.0
+540      CONTINUE
+C
+C          -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+C
+C  *** CONSISTENCY CHECK ***
+C
+      IF (ICONS.EQ.1) THEN
+         IF (MONUM.LE.1) THEN
+            IF (IEND.LE.0) THEN
+C           ** CARD R **
+               CLABEL='@R'
+550            NCHAR=1
+               CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *            NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *            ISTAT)
+               CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,
+     *            IERR)
+               IF (ISTAT.EQ.7) GO TO 550
+C           GET NUMBER OF GROUPS
+               CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,NG,UREAL,
+     *            NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *            ISTAT)
+               CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,0,ISTAT,LENGTH,
+     *            IERR)
+               IF (ISTAT.EQ.6) THEN
+                  ISTRT=-1
+                  GO TO 570
+                  ENDIF
+               IF (NG.GT.MXGP) THEN
+                  CALL UEROR (LP,0,-1)
+                  WRITE (LP,955) NG,MXGP
+                  CALL USTOP (LP,IUSTOP)
+                  ENDIF
+C            GET NUMBER OF STATIONS IN EACH GROUP
+               DO 560 IG=1,NG
+                  CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,NPG(IG),
+     *               UREAL,NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,
+     *               LEQUAL,ISTAT)
+                  CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,0,ISTAT,
+     *               LENGTH,IERR)
+                  IF (ISTAT.EQ.6) THEN
+                     ISTRT=-1
+                     GO TO 570
+                     ENDIF
+                  IF (NPG(IG).GT.MXSTA) THEN
+                     CALL UEROR (LP,0,-1)
+                     WRITE (LP,957) IG,NPG(IG),MXSTA
+                     INDERR=1
+                     ENDIF
+560               CONTINUE
+            IF (INDERR.EQ.1) CALL USTOP (LP,IUSTOP)
+C        GET STATIONS IN EACH GROUP
+C          PLUS STATIONS MAKE UP GROUP BASE AND ARE PLOTTED AGAINST THE
+C            OTHER STATIONS IN THE GROUP BASE
+C          MINUS STATIONS ARE PLOTTED AGAINST GROUP BASE
+570         DO 620 IG=1,NG
+               N=NPG(IG)
+               NPLUS(IG)=0
+C           ** CARD S **
+               CLABEL='@S'
+580            NCHAR=1
+               CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *            NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,
+     *            ISTAT)
+               CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,
+     *            IERR)
+               IF (ISTAT.EQ.7) GO TO 580
+               DO 590 IRG=1,N
+                  CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,
+     *               IGS(IG,IRG),
+     *               UREAL,NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,
+     *               LEQUAL,ISTAT)
+                  CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,0,ISTAT,
+     *               LENGTH,IERR)
+                  IF (ISTAT.EQ.6) THEN
+                     ISTRT=-1
+                     GO TO 600
+                     ENDIF
+590               CONTINUE
+600            IF (IERR.NE.0) CALL USTOP (LP,IUSTOP)
+C           COUNT THE NUMBER OF PLUS STATIONS
+               DO 610 IRG=1,N
+                  IF (IGS(IG,IRG).GE.0) NPLUS(IG)=NPLUS(IG)+1
+610               CONTINUE
+C           SET UP FOR CONSISTENCY CHECK WITH TEMPCK RUN
+               IF (IRGCK.GE.1.AND.IG.LE.1) THEN
+                  N=N+1
+                  NPG(1)=N
+                  IGS(1,N)=-ICHECK
+                  ENDIF
+620            CONTINUE
+            ENDIF
+C       INITIALIZE ARRAYS AMAX AND AMIN
+            DO 630 IRG=1,NSTA
+               AMAX(IRG)=0.0
+               AMIN(IRG)=0.0
+630            CONTINUE
+            IF (LDEBUG.GT.2) WRITE (LP,*) 'MONUM=',MONUM
+            ENDIF
+C     CARDS @R AND @S READ AND INITIALIZATION DONE
+         IF (LDEBUG.GT.2) WRITE (LP,*)
+     *      ' MONUM=',MONUM,
+     *      ' NMO=',NMO,
+     *      ' '
+C     COMPUTE ACCUMULATED MEAN MAX AND MIN FOR EACH STATION
+         DO 680 IRG=1,NSTA
+C        ACCUMULATE FROM EVEN TMM VALUES THE MONTH'S MAX TEMPS (AMAX)
+C        AFTER COUNTING THE NUMBER OF MISSING MAXIMUM TEMPS (NM)
+            IL=(LAST*2)+2
+            NM=0
+            DO 640 I=4,IL,2
+               IF (TMM(IRG,I).GT.998.0) THEN
+                  NM=NM+1
+                  IFLAGMX_ARRAY(IRG,MONUM)=2
+               ENDIF
+640            CONTINUE
+            DO 650 I=4,IL,2
+               IF (TMM(IRG,I).LT.998.0)
+     *            AMAX(IRG)=AMAX(IRG)+TMM(IRG,I)/(LAST-NM)
+650            CONTINUE
+C      ACCUMULATE FROM ODD TMM VALUES THE MONTH'S MIN TEMPS (AMIN)
+C      AFTER COUNTING THE NUMBER OF MISSING MINIMUM TEMPS (NM)
+            IL=IL-1
+            NM=0
+            DO 660 I=3,IL,2
+               IF (TMM(IRG,I).GT.998.0) THEN
+                  NM=NM+1
+                  IFLAGMN_ARRAY(IRG,MONUM)=2
+               ENDIF
+660            CONTINUE
+            DO 670 I=3,IL,2
+               IF (TMM(IRG,I).LT.998.0) THEN
+                  AMIN(IRG)=AMIN(IRG)+TMM(IRG,I)/(LAST-NM)
+               ENDIF
+670         CONTINUE
+680      CONTINUE
+C     COMPUTE VALUES FOR CONSISTENCY CHECK
+         CALL CONSUM (MONUM,NSTA,MXSTA,MXMON,
+     *      AMAX,AMIN,NPG,NPLUS,IGS,NG,
+     *      PH,PL,DMAX,DMIN,GAMAX,GAMIN,GAMAX_ARRAY,GAMIN_ARRAY)
+C     FILL ARRAYS FOR IDMA     
+         DO 685 IRG=1,NSTA
+            AMAX_ARRAY(IRG,MONUM)=AMAX(IRG)
+            AMIN_ARRAY(IRG,MONUM)=AMIN(IRG)
+            IYEAR_ARRAY(MONUM)=IYEAR
+            MONTH_ARRAY(MONUM)=MONTH
+ 685        CONTINUE 
+         ENDIF
+C
+C          -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+C
+C  *** TEMPCK RUN ***
+C
+      IF (IRGCK.GE.1) THEN
+         IF (MONUM.LE.1) THEN
+            DO 690 I=1,5
+               GNAME(I)=PXNAME(IRGCK,I)
+690            CONTINUE
+            DO 700 I=1,12
+               FEMAX=FE(IRGCK,2)
+               FEMIN=FE(IRGCK,1)
+               GNORM(I,1)=TNORM(IRGCK,I,1)
+               GNORM(I,2)=TNORM(IRGCK,I,2)
+700            CONTINUE
+            ENDIF
+         DO 710 I=1,62
+            J=I+2
+            GMM(1,I)=TMM(IRGCK,J)
+            GMM(2,I)=TMM(ICHECK,J)
+710         CONTINUE
+         CALL TEMPCK (MONUM,NTMO,IYR,IMO,GNAME,GNORM,GMM,IEND,FEMAX,
+     *      FEMIN,ND,SE2,EMAX,ISCALE,UNITI,NFLD,ISTRT)
+         ENDIF
+C
+C          -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+C
+C  MAT COMPUTATIONS: PERFORMED IF TEMPCK OPTION OFF AND MAT REQUESTED
+C
+      IF (IRGCK.LE.0) THEN
+         IL=LAST*4
+         IF (NAREAS.GT.0) THEN
+C        COMPUTE SIX HOUR TEMPERATURE FROM MAX-MIN
+            CALL SXHRTM (FILEN,bn,fn,dtype,DUNITO,ddimn,imo,iyr,
+     +          lmo,lyr,ARNAME,NSTA,IL,NAREAS,MONTH,IYEAR,
+     +          TMM,W,AREAID,NOOUT,IPUNCH,UNITI,UNITO,BATAMY,ITSUNN,
+     *          ICNT,MXSTA,MXAREA,MXYEAR,TSTA,DUNITI)
+            ENDIF
+         ENDIF
+C
+C  IF THIS IS NOT THE LAST MONTH OF THE LAST YEAR OF THE RUN PERIOD,
+C  COMPUTE NEXT MONTH AND YEAR AND RESTART LOOP ON MONTH
+      IF ((IYEAR.EQ.LYR).AND.(MONTH.EQ.LMO)) THEN
+         ELSE
+            MONTH=MONTH+1
+            IF (MONTH.GE.13) THEN
+               MONTH=1
+               IYEAR=IYEAR+1
+               ENDIF
+            MONUM=MONUM+1
+            II=LAST*2
+            DO 720 IRG=1,NSTA
+            DO 720 I=1,2
+               TMM(IRG,I)=TMM(IRG,(II+I))
+720            CONTINUE
+            IF (LDEBUG.GT.1) WRITE (LP,*)
+     *         ' MONTH=',MONTH,
+     *         ' IYEAR=',IYEAR,
+     *         ' MONUM=',MONUM,
+     *         ' '
+             GO TO 450
+         ENDIF
+C
+C  Close all mat-ts output files
+      CALL CCLOSL
+C                     
+C          -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+C
+C  *** STATION SUMMARY DATA ***
+
+      IF (IFSUMT.EQ.1.OR.IFSUMP.EQ.1) THEN
+C     CALCULATE STATION MONTHLY MEANS
+C      1. MONTHLY MEAN VALUES FOR DUMMY STATIONS IN NON-MOUNTAINOUS AREA
+C         ARE SET TO MISSING: -999.0
+C      2. DUMMY STATIONS IN MOUNTAINOUS AREA RETAIN INPUT VALUES FROM
+C         @G AND @H CARDS (TNORM(STATION,MONTH,MAX/MIN)
+C      3. MONTHLY MEAN = ACCUMULATED TEMPS FOR A PARTICULAR MONTH
+C         DIVIDED BY THE NUMBER OF TEMPS USED IN ACCUMULATION
+C      4. IF THERE ARE NO TEMPERATURES RECORDED (IPFC=0) SET TO MISSING
+         INOTE=0
+         DO 730 IRG=1,NSTA
+            DO 730 MON=1,12
+            DO 730 MXN=1,2
+               IF (NDUMST(IRG).EQ.1.AND.IELEV.EQ.0) THEN
+                  SMMTXN(IRG,MON,MXN)=-999.0
+                  INOTE=1
+               ELSE IF (NDUMST(IRG).EQ.1.AND.IELEV.EQ.1) THEN
+                  SMMTXN(IRG,MON,MXN)=TNORM(IRG,MON,MXN)
+               ELSE IF (IPFC(IRG,MON,MXN).GT.0) THEN
+               SMMTXN(IRG,MON,MXN)=SMMTXN(IRG,MON,MXN)/IPFC(IRG,MON,MXN)
+               ELSE
+                  SMMTXN(IRG,MON,MXN)=-999.0
+                  INOTE=1
+               ENDIF
+730         CONTINUE
+         IF (LDEBUG.GT.0) THEN
+            DO 740 IRG=1,NSTA
+               WRITE (LP,960) (PXNAME(IRG,J),J=1,5)
+               WRITE (LP,970) 'MAX',(SMMTXN(IRG,MON,2),MON=1,12),
+     *            (IPFC(IRG,MON,2),MON=1,12)
+               WRITE (LP,970) 'MIN',(SMMTXN(IRG,MON,1),MON=1,12),
+     *            (IPFC(IRG,MON,1),MON=1,12)
+740            CONTINUE
+            ENDIF
+C     PRINT SUMMARY TABLE
+         IF (IFSUMT.EQ.1) THEN
+            CALL UPAGE (LP)
+            WRITE (LP,1030)
+            WRITE (LP,990)
+            DO 750 IRG=1,NSTA
+               WRITE (LP,1000)
+     *            (PXNAME(IRG,L),L=1,5),'MAX',
+     *            (SMMTXN(IRG,MON,2),MON=1,12)
+               WRITE (LP,1000)
+     *            (PXNAME(IRG,L),L=1,5),'MIN',
+     *            (SMMTXN(IRG,MON,1),MON=1,12)
+750            CONTINUE
+            IF (INOTE.EQ.1) WRITE (LP,1010)
+            ENDIF
+C     CHECK IF SUMMARY @F @G @H CARDS REQUESTED AND AREA IS MOUNTAINOUS
+         IF (IFSUMP.EQ.1.AND.IELEV.EQ.1) THEN
+            DO 760 IRG=1,NSTA
+               IF (NDUMST(IRG).EQ.0) THEN
+                  WRITE (ICDPUN,1040) (PXNAME(IRG,L),L=1,5),SLAT(IRG),
+     *                SLON(IRG),TIMEOB(IRG,1),ELEV(IRG)
+                  WRITE (ICDPUN,1060) FE(IRG,2),
+     *                (SMMTXN(IRG,MON,2),MON=1,12)
+                  WRITE (ICDPUN,1070) FE(IRG,1),
+     *                (SMMTXN(IRG,MON,1),MON=1,12)
+                  ELSE
+                     WRITE (ICDPUN,1050)(PXNAME(IRG,L),L=1,5),SLAT(IRG),
+     *                  SLON(IRG),TIMEOB(IRG,1),ELEV(IRG)
+                     WRITE (ICDPUN,1060) FE(IRG,2),
+     *                  (SMMTXN(IRG,MON,2),MON=1,12)
+                     WRITE (ICDPUN,1070) FE(IRG,1),
+     *                  (SMMTXN(IRG,MON,1),MON=1,12)
+                  ENDIF
+760            CONTINUE
+            ENDIF
+         ENDIF
+C
+C          -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+C
+C  *** MAT AREA SUMMARY TABLE ***
+C
+C IF MAT COMPUTATIONS REQUESTED, AUTOMATICALLY PRODUCE COMPLETE SUMMARY
+C   TABLE FOR EACH AREA, WITH MONTHLY, ANNUAL AND AREAL AVERAGES
+C
+      IF (NAREAS.GT.0) THEN
+         DO 830 N=1,NAREAS
+C     CALCULATE AMONTH (MONTHLY AVE)
+         DO 780 M=1,12
+            NYHM=0
+            DO 770 IIY=IYR-IYR+1,LYR-IYR+1
+               IF (BATAMY(N,M,IIY).GT.-998.) THEN
+                  AMONTH(N,M)=AMONTH(N,M)+BATAMY(N,M,IIY)
+                  NYHM=NYHM+1
+                  ENDIF
+770            CONTINUE
+            IF (NYHM.GT.0) AMONTH(N,M)=AMONTH(N,M)/NYHM
+780         CONTINUE
+C     COMPUTE ANNUAL AVERAGES (AYEAR)
+         DO 800 IIY=IYR-IYR+1,LYR-IYR+1
+            NMCY=0
+            DO 790 M=1,12
+               IF (BATAMY(N,M,IIY).GT.-998.) THEN
+                  AYEAR(N,IIY)=AYEAR(N,IIY)+BATAMY(N,M,IIY)
+                  NMCY=NMCY+1
+                  ENDIF
+790            CONTINUE
+C           IF NOT A FULL YEAR'S DATA, SET ANNUAL AVERAGE TO MISSING
+            IF (NMCY.GE.12) THEN
+                AYEAR(N,IIY)=AYEAR(N,IIY)/NMCY
+                ELSE
+                   AYEAR(N,IIY)=-999.0
+               ENDIF
+800         CONTINUE
+C     CALCULATE AAREA (TOTAL AREA AVE)
+         NTVA=0
+         DO 810 IIY=IYR-IYR+1,LYR-IYR+1
+            DO 810 M=1,12
+              IF (BATAMY(N,M,IIY).GT.-998.) THEN
+                  AAREA(N)=AAREA(N)+BATAMY(N,M,IIY)
+                  NTVA=NTVA+1
+                 ENDIF
+810         CONTINUE
+            IF (NTVA.GT.0) AAREA(N)=AAREA(N)/NTVA
+C        PRINT SUMMARY TABLE FOR THE AREA
+            CALL UPAGE (LP)
+            WRITE (LP,1200) (ARNAME(I,N),I=1,5),
+     *         (AREAID(I,N),I=1,3),IMO,IYR,LMO,LYR,(MONAME(M),M=1,12)
+            DO 820 IIY=IYR-IYR+1,LYR-IYR+1
+               WRITE (LP,1210) IIY+IYR-1,(BATAMY(N,M,IIY),M=1,12),
+     *            AYEAR(N,IIY)
+820            CONTINUE
+            WRITE (LP,1220) (AMONTH(N,M),M=1,12),AAREA(N)
+830         CONTINUE
+         ENDIF
+C
+C          -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+C
+C  *** CONSISTENCY CHECK ***
+C
+      IF (ICONS.GT.0) THEN
+         CALL MATCON (NG,NPG,IGS,PXNAME,NTMO,IMO,IYR,UNITI,
+     *      MXSTA,MXMON,PH,PL,DMAX,DMIN)
+         ENDIF
+C
+C          -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+C
+      IF (IRGCK.LE.0) GO TO 840
+C
+C  *** TEMPCK RUN ***
+C
+      CLABEL='@U'
+C
+C  ** CARD U **
+      NCHAR=1
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *   NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      IF (ISTAT.EQ.3) GO TO 840
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,LENGTH,IERR)
+      IF (ISTAT.EQ.7) GO TO 840
+      NCHAR=1
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,FE(ICHECK,2),
+     *   NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      IF (ISTAT.EQ.3) GO TO 840
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,IERR)
+      IF (ISTAT.EQ.6) GO TO 840
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,FE(ICHECK,1),
+     *   NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      IF (ISTAT.EQ.3) GO TO 840
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,LENGTH,IERR)
+      IF (ISTAT.EQ.6) GO TO 840
+C
+      IF (IERR.NE.0) CALL USTOP (LP,IUSTOP)
+C
+      FE(IRGCK,2)=FE(ICHECK,2)
+      FE(IRGCK,1)=FE(ICHECK,1)
+      ICONS=0
+      IEND=1
+      IF (LDEBUG.GT.0) WRITE (LP,*)
+     *   ' IEND=',IEND,
+     *   ' ICONS=',ICONS,
+     *   ' '
+      GO TO 440
+C
+840   IF (ICONS.EQ.1) THEN
+C     SET FILE NAME FOR IDMA OUTPUT
+         CALL USUFIT (LP,'_dma',NEWNAME,ISTAT)
+         IF (ISTAT.NE.0) THEN
+            WRITE (LP,935) 'USUFIT',ISTAT
+            CALL UWARN (LP,0,-1)
+            ENDIF
+C     OPEN IDMA OUTPUT FILE
+         LSYS=99
+         CALL UPOPEN (LSYS,NEWNAME,0,'F',ISTAT)
+         IF (ISTAT.NE.0) THEN
+            WRITE (LP,935) 'USUFIT',ISTAT
+            CALL UWARN (LP,0,-1)
+            ENDIF
+C     WRITE OUT IDMA FILE:
+C      NSTA  = TOTAL NUMBER OF STATIONS
+C      IPLT  = CONSISTENCY PLOT NUMBER, NOTE THAT THERE CAN ONLY BE 5 
+C              STATIONS PER PLOT, SO IF THERE ARE 13 STATIONS, 
+C              STATIONS 6-10 MAKE UP PLOTNUM 2
+C      NPLTS = NUMBER OF CONSISTENCY PLOTS
+C     COMPUTE THE NUMBER OF CONSISTENCY PLOTS
+         NPLTS=NSTA/5
+         IF ((NPLTS*5).LT.NSTA) NPLTS=NPLTS+1
+C     WRITE ACCUMULATED MAX VALUES 
+         DO 844 IPLT=1,NPLTS 
+            IF (IPLT.NE.NPLTS) THEN 
+               WRITE (LSYS,936)
+     *            ((PXNAME(I,L),L=1,5),I=(IPLT*5-4),IPLT*5)
+               DO 842,IMONTH=1,MONUM
+                  WRITE (LSYS,937)  MONTH_ARRAY(IMONTH),
+     *               IYEAR_ARRAY(IMONTH),
+     *               (AMAX_ARRAY(I,IMONTH),IFLAGMX_ARRAY(I,IMONTH),
+     *               GAMAX_ARRAY(I,IMONTH),I=(IPLT*5-4),IPLT*5)
+ 842              CONTINUE
+               ENDIF
+            IF (IPLT.EQ.NPLTS) THEN
+               WRITE (LSYS,936) ((PXNAME(I,L),L=1,5),I=(IPLT*5-4),NSTA)
+               DO 843,IMONTH=1,MONUM
+                  WRITE (LSYS,937)  MONTH_ARRAY(IMONTH),
+     *               IYEAR_ARRAY(IMONTH),
+     *               (AMAX_ARRAY(I,IMONTH),IFLAGMX_ARRAY(I,IMONTH),
+     *               GAMAX_ARRAY(I,IMONTH),I=(IPLT*5-4),NSTA)
+ 843             CONTINUE
+               ENDIF
+ 844        CONTINUE
+C     WRITE ACCUMULATED MIN VALUES
+         DO 847 IPLT=1,NPLTS
+            IF (IPLT.NE.NPLTS) THEN 
+               WRITE (LSYS,936)
+     *            ((PXNAME(I,L),L=1,5),I=(IPLT*5-4),IPLT*5)
+               DO 845,IMONTH=1,MONUM
+                  WRITE (LSYS,937)  MONTH_ARRAY(IMONTH),
+     *               IYEAR_ARRAY(IMONTH),
+     *               (AMIN_ARRAY(I,IMONTH),IFLAGMN_ARRAY(I,IMONTH),
+     *               GAMIN_ARRAY(I,IMONTH),I=(IPLT*5-4),IPLT*5)
+ 845              CONTINUE
+              ENDIF
+           IF (IPLT.EQ.NPLTS) THEN
+              WRITE (LSYS,936)
+     *           ((PXNAME(I,L),L=1,5),I=(IPLT*5-4),NSTA)
+              DO 846,IMONTH=1,MONUM
+                 WRITE (LSYS,937)  MONTH_ARRAY(IMONTH),
+     *              IYEAR_ARRAY(IMONTH),
+     +              (AMIN_ARRAY(I,IMONTH),IFLAGMN_ARRAY(I,IMONTH),
+     +              GAMIN_ARRAY(I,IMONTH),I=(IPLT*5-4),NSTA)
+ 846             CONTINUE
+              ENDIF
+ 847       CONTINUE 
+C     CLOSE IDMA OUTPUT FILE
+         CALL UPCLOS (LSYS,' ',ISTAT)
+         IF (ISTAT.NE.0) THEN
+            WRITE (LP,935) 'UPCLOS',ISTAT
+            CALL UWARN (LP,0,-1)
+            ENDIF
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+850   FORMAT (// 3X,'COMPUTED BASIN CENTROID:  LAT=',F6.2,5X,'LON=',
+     *  F7.2)
+860   FORMAT (/ 3X,'BASIN AREA = ',F6.0,' ',A3)
+870   FORMAT (/ 3X,'--- PLOT OMITTED DUE TO PREVIOUS ERROR ---')
+880   FORMAT ('0*** ERROR - WEIGHTING OPTION SPECIFIED ON CARD C',
+     *  ' CANNOT BE USED WITH BASIN CENTROID.')
+890   FORMAT ('0*** ERROR - ',A,' (',I4,') IS LESS THAN ',I4,'.')
+895   FORMAT ('0*** ERROR - THE NUMBER OF MONTHS OF MAT TO BE COMPUTED',
+     *  ' (',I4,') IS LESS THAN THE MINIMUM ALLOWABLE VALUE (',I4,').'/
+     *  T14,'BEGINNING MONTH AND YEAR - ',I2,'/',I4/
+     *  T14,'   ENDING MONTH AND YEAR - ',I2,'/',I4)
+900   FORMAT ('0*** ERROR - THE NUMBER OF MONTHS OF MAT TO BE COMPUTED',
+     *  ' (',I4,') EXCEEDS THE MAXIMUM ALLOWABLE VALUE (',I4,').'/
+     *  T14,'BEGINNING MONTH AND YEAR - ',I2,'/',I4/
+     *  T14,'   ENDING MONTH AND YEAR - ',I2,'/',I4)
+910   FORMAT ('0*** ERROR - THE NUMBER OF STATIONS (',I3,') EXCEEDS',
+     *  ' THE MAXIMUM ALLOWED (',I3,').')
+920   FORMAT ('0*** ERROR - THE MAXIMUM NUMBER OF MAT AREAS (',I3,
+     *  ') EXCEEDS THE MAXIMUM ALLOWED (',I3,')')
+930   FORMAT ('0*** ERROR - @F FIELD 4 - OBSERVATION TIME CANNOT BE ',
+     *  'ZERO.')
+935   FORMAT ('0*** WARNING - IN MATMN - STATUS FROM ROUTINE ',A,
+     *   ' IS ',I2,'.')
+936   FORMAT (1H0,10X,5(3X,5A4))
+937   FORMAT(1H ,i2,1H/,i4,3x,5(3x,f10.1,i3,f10.1))  
+940   FORMAT (' FROM @F CARD: DUMMY STATION #',I3,' NAME: ',5A4)
+950   FORMAT (' FROM MTDATR:  DUMMY STATION #',I3,' NAME: ',5A4)
+955   FORMAT ('0*** ERROR - NUMBER OF GROUPS SPECIFIED (',I2,
+     *   ') EXCEEDS MAXIMUM ALLOWED (',I2,').')
+957   FORMAT ('0*** ERROR - NUMBER OF STATIONS SPECIFIED IN GROUP ',I2,
+     *   ' (',I3,') EXCEEDS MAXIMUM ALLOWED (',I3,').')
+960   FORMAT (' ******* STATION:  ',5A4,'*******')
+970   FORMAT (4X,A3,' SMMTXN ',12(F6.1)/ 8X,'(IPFC) ',12(2X,I4))
+980   FORMAT ('0PERIOD OF RECORD: ',I2.2,'/',I4,
+     *   ' THROUGH ',I2.2,'/',I4)
+990   FORMAT ('0',T5,'STATION NAME',T28,'MAX/MIN',3X,
+     *       ' JAN ',2X,' FEB ',2X,' MAR ',2X,' APR ',2X,
+     *       ' MAY ',2X,' JUN ',2X,' JUL ',2X,' AUG ',2X,
+     *       ' SEP ',2X,' OCT ',2X,' NOV ',2X,' DEC ' /
+     *   T5,20('-'),T28,7('-'),3X,12('-----',2X))
+1000  FORMAT (' ',T5,5A4,5X,A3,2X,3X,12(F5.1,2X))
+1010  FORMAT (/ 10X,'NOTE - ''-999.0'' INDICATES THERE ARE NO OBSERVED',
+     *  ' DATA DURING THE RUN PERIOD.')
+1020  FORMAT (// 25X,'*** MEAN TEMPERATURES USED TO ESTIMATE',
+     *  ' MISSING DATA ***')
+1030  FORMAT (// 20X,'*** SUMMARY OF MEAN MAXIMUM AND MEAN MINIMUM',
+     *  ' TEMPERATURES BY MONTH FOR EACH STATION ***')
+1040  FORMAT ('@F',2X,'''',5A4,'''',3X,2(2X,F7.2),3X,F3.0,3X,F8.0)
+1050  FORMAT ('@F',2X,'''',5A4,'''',3X,2(2X,F7.2),3X,F3.0,3X,F8.0,
+     *  3X,'DUMMY')
+1060  FORMAT ('@G',3X,F5.1,12(F5.1))
+1070  FORMAT ('@H',3X,F5.1,12(F5.1))
+1080  FORMAT ('0',3X,'GRID LENGTH=',F8.4,' ',A)
+1090  FORMAT (/// 1X,T5,'STATION',T26,'STATION',T47,'LATITUDE',
+     *  T62,'LONGITUDE',T75,'OBSERVATION'/ T5,'NUMBER',T27,'NAME',
+     *  T47,'COORDINATE',T62,'COORDINATE',T78,'TIME'/ T5,7('-'),
+     *  T17,25('-'),T47,10('-'),T62,10('-'),T75,11('-'))
+1100  FORMAT (/// 1X,T5,'STATION',T26,'STATION',T47,'LATITUDE',T62,
+     *  'LONGITUDE',T75,'OBSERVATION'/ T5,'NUMBER',T27,'NAME',T47,
+     *  'COORDINATE',T62,'COORDINATE',T78,'TIME',T88,'ELEVATION',T103,
+     *  'FE(MAX)',T113,'FE(MIN)'/ T5,7('-'),T17,25('-'),T47,10('-'),
+     *  T62,10('-'),T75,11('-'),T88,12('-'),T103,7('-'),T113,7('-'))
+1110  FORMAT (' ',T6,I3,T17,5A4,T47,F8.4,T64,F8.4,T79,F5.2,T90,F7.1,
+     *  T104,F5.1,T114,F5.1)
+1120  FORMAT (' STATION # ',I2,'  AREA # ',I2,' ---> STAWT: ',
+     *  F16.2,' W(AREA,IPT(I)): ',F16.2)
+1130  FORMAT (' ',T6,I3,T17,5A4,T47,F8.4,T64,F8.4,T79,F5.2)
+1140  FORMAT (// 3X,'AFTER JREAD:  NBPTS ',I3 // 6X,'NBPTS',
+     *  3X,'LATITUDE',
+     *  3X,'LONGITUDE')
+1150  FORMAT (8X,I3,6X,F5.2,6X,F6.2)
+1160  FORMAT (// 30X,'*** AREA:  ',5A4,' ***' / 30X,'*** ID:  ',3A4,10X,
+     *  ' ***')
+1170  FORMAT (' ',1X,80('*'))
+1180  FORMAT (' ',T6,I3,T17,5A4,T44,F5.3)
+1190  FORMAT (// 1X,T5,'STATION',T26,'STATION' / T5,'NUMBER',T27,'NAME',
+     *  T43,'WEIGHT' / T5,7('-'),T17,20('-'),T43,6('-'))
+1200  FORMAT (// 12X,'MAT SUBAREA SUMMARY FOR ''',5A4,''' (ID: ',3A4,
+     *  ') PERIOD OF RECORD ',I2,'/',I4,' TO ',I2,'/',I4/ T117,
+     *  'YEARLY'/ 3X,'YEAR',10X,12(A3,5X),2X,'AVERAGE'/)
+1210  FORMAT (3X,I4,5X,12(2X,F6.1),7X,F6.1)
+1220  FORMAT (/3X,'MONTHLY',101X,'TOTAL AREA'/ 3X,'AVERAGE',2X,
+     *  12(2X,F6.1),7X,F6.1)
+1230  FORMAT ('0*** NOTE - OPTION TO USE MULTIPLE CALIBRATION FILE ',
+     *  'SETS SPECIFIED.')
+1240  FORMAT ('0*** ERROR - RETURNED FROM HEADER IN ROUTINE MATMN.')
+C
+      END

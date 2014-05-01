@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <title>LogFile Information</title>
+</head>
+<body bgcolor="#ffffff">
+<h1>
+logFile Information</h1>
+March 27, 2012<br>
+<br>
+Table of Contents
+<br>
+<br>
+<a href="#location">Location of LogFiles</a>
+<br>
+<a href="#logPref">Logging Preferences</a>
+<br>
+<hr width="100%">
+<h2><a name="location"></a>Location of LogFiles</h2>
+In AWIPS2 logfiles are stored in a number of locations for different operations.
+EDEX logs are stored in /awips2/edex/logs on dx3/dx4; GFE utilities logs are in 
+/awips2/GFESuite/logs/SITE_ID on dx3/dx4; text formatter logs are in 
+~/caveData/etc/user/USER_ID/gfe/logs; CAVE logs are in ~/caveData/logs; AlertViz
+logs are in ~/caveData/textLogs. All caveData logs are on the local workstation
+where GFE is run.
+<p>EDEX logs can be configured by modifying the log4j files under /awips2/edex/conf. See 
+<a href="https://onestop.noaa3a.awips.noaa.gov/AWIPS_2_Documentation/ssdd/SSDD_Initial_Draft.htm">Software 
+System Design Description (SSDD)</a> for implementation details.</p>
+<hr width="100%">
+<h2><a name="logPref"></a>Logging Preferences</h2>
+Logging preferences for EDEX can be changed by modifying the log4j.xml and log4j-ingest.xml
+files for the setting "level value". Acceptable settings are TRACE, DEBUG, INFO, WARN, ERROR,
+and FATAL. TRACE is lowest level and FATAL is highest level. A logger set to log at a 
+certain level will log that level and all higher levels.  Example: logger set to WARN level 
+will log all WARN, ERROR, and FATAL messages, but not TRACE, DEBUG, or INFO levels. 
+EDEX must be restarted after any changes to the logging configuration.
+</body>
+</html>

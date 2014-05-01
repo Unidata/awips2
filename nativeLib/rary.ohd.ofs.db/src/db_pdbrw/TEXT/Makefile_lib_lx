@@ -1,0 +1,140 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-db_pdbrw library file
+#
+#  cmt: File made on Wed Aug  6 12:48:21 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libdb_pdbrw_t.a:  \
+     $(LIB)/libdb_pdbrw_t.a(ipdcdw.o)  \
+     $(LIB)/libdb_pdbrw_t.a(ipdckd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(ipdckr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(ipdfdt.o)  \
+     $(LIB)/libdb_pdbrw_t.a(ipdgrt.o)  \
+     $(LIB)/libdb_pdbrw_t.a(julmin.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdadjb.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdberr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdckcv.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdcki2.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdckst.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdckuu.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdckvl.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdckwr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdcnvt.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdcold.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdcrec.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdcvdd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdcvpp.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdcvt1.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdday1.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pddelf.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pddeq.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pddfpc.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pddfut.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pddlfr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pddlrr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pddofd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdfefd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdflof.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdflor.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdfndd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdfndi.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdfndr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdfunt.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdfvfr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdfvrr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdgfud.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdgnsv.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdgtfr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdgtpp.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdhash.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdhasi.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdincp.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdmftr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdmksp.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdmovo.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdmvaf.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdmvbf.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdmvdr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdmvfr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdnewd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdprrr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdptpp.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdputr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdrdfr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdrpvl.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdrrrr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdrsdt.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdrstf.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdset0.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdstar.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdstp2.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdstpp.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdsts2.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdstss.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdtrrs.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdupsi.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdvals.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdwrfr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdwrrr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdwrst.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdwsif.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdzapp.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pdzdat.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pfdunt.o)  \
+     $(LIB)/libdb_pdbrw_t.a(pgtnxp.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpd1s.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpd1sf.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdckd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdckr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdcks.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpddly.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpddte.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdfil.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdgrd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdhsh.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdid.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdlrs.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdmdr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rpdrrs.o)  \
+     $(LIB)/libdb_pdbrw_t.a(rppdco.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpd1s.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpd1sf.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpd24p.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpdc.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpdcr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpdd.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpddly.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpdhsh.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpdmdr.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpdpcn.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpdrrs.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wpdss.o)  \
+     $(LIB)/libdb_pdbrw_t.a(wppdco.o)
+

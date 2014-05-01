@@ -1,0 +1,2 @@
+The FWFTable contains a "rowList" which has an entry for each row of the table in order in which they are to appear.  Each entry includes a row label and a method to call to produce the data values for the row.
+

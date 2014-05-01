@@ -1,0 +1,14 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+  	       
+   	<bean id="ddEventDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginFQN" value="com.raytheon.uf.common.datadelivery.event" />
+		<property name="database" value="metadata" />
+	</bean>
+	<bean id="ddEventRegister" factory-bean="dbPluginRegistry" factory-method="register">
+		<constructor-arg value="ddEvent"/>
+		<constructor-arg ref="ddEventDatabaseProperties"/>
+	</bean>
+
+</beans>

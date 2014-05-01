@@ -1,0 +1,14 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+
+  	<bean id="generateGeospatialDataRequestHandler" class="com.raytheon.edex.plugin.warning.gis.GenerateGeospatialDataRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialDataRequest"/>
+  		<constructor-arg ref="generateGeospatialDataRequestHandler"/>
+  	</bean>
+
+    <!-- Instantiating class causes a thread to be run that will generate the warngen geometries -->
+	<bean class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGeneratorThread" depends-on="spatialQueryRegistered" />
+</beans>

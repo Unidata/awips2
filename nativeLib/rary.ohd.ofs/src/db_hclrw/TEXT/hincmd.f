@@ -1,0 +1,228 @@
+C MODULE HINCMD
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE HINCMD (IOPTRC,NMC,NX1,MOPTRC,ISTAT)
+C
+C  ROUTINE TO READ RUN-TIME MOD CARDS FROM AN EXTERNAL FILE AND PUT 
+C  THEM IN THE HCL OPTION RECORD.
+C
+C     ARGUMENT LIST:
+C
+C         NAME    TYPE  I/O   DIM   DESCRIPTION
+C
+C       IOPTRC     I     I/O   ?    HCL OPTION RECORD
+C       NMC        I     I/O   1    NUMBER OF MOD CARDS READ
+C       NX1        I     I/O   1    NEXT POSITION TO STORE MOD CARD
+C                                   IN OPTION RECORD
+C       MOPTRC     I      I    1    LENGTH OF OPTION RECORD
+C       ISTAT      I      O    1    STATUS CODE
+C                                     0=NORMAL RETURN
+C                                     1=ERROR
+C
+C***********************************************************************
+C
+      INCLUDE 'uio'
+      INCLUDE 'uinclx'
+      INCLUDE 'udebug'
+      INCLUDE 'ufreei'
+      INCLUDE 'udatas'
+      INCLUDE 'hclcommon/hunits'
+      INCLUDE 'hclcommon/hcomnd'
+      INCLUDE 'hclcommon/hprflg'
+C
+      CHARACTER*8 XCHAR8,TYPMSG
+      CHARACTER*8 XINCLD/'.INCLUDE'/
+      CHARACTER*80 RECOLD,RECNEW
+      CHARACTER*80 FILNAM
+C
+      DIMENSION IOPTRC(1)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_hclrw/RCS/hincmd.f,v $
+     . $',                                                             '
+     .$Id: hincmd.f,v 1.3 2004/04/21 14:12:19 gzhou Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (IHCLTR.GT.0) WRITE (LP,*) ' *** ENTER HINCMD'
+C
+      ISTAT=0
+C
+      IFULL=0
+      NUMREC=0
+C
+C  CHECK NUMBER OF FIELDS
+      NCHK=2
+      IF (NFIELD.NE.NCHK) THEN
+         WRITE (LP,100) NCHK,NFIELD
+         CALL ERROR
+         ISTAT=1
+         GO TO 90
+         ENDIF
+C
+C  GET PATH NAME
+      FILNAM=' '
+      CALL UPPFIX ('MODS',FILNAM,DIRINCL,LDIRINCL)     
+C
+C  GET FILE NAME
+      FILNAM=' '
+      NFLD=2
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NCHAR.GT.LEN(FILNAM)) NCHAR=LEN(FILNAM)
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),FILNAM,NCHAR)
+C
+      NSTLVL=0
+      RECOLD=' '
+      CALL UPACKN (LEN(RECOLD),IBUF,LEN(RECOLD)/4,RECOLD,IERR)
+C
+C  CHECK FOR 'INCLUDE' STATEMENT
+20    ICKCOL=0
+      IPRERR=1
+      TYPMSG='WARNING'
+      CALL UINCLD (XINCLD,RECOLD,ICKCOL,NSTLVL,RECNEW,LRECNEW,
+     *   IPRERR,TYPMSG,LP,IERR)
+      IF (IERR.GT.0) GO TO 90
+C
+C  CHECK IF END OF INPUT FROM 'INCLUDE' STATEMENT
+      IF (NSTLVL.EQ.-1) GO TO 90
+C
+      IF (IHCLDB.GT.0) THEN
+         CALL ULINE (IPR,1)
+         WRITE (IPR,*) 'NSTLVL=',NSTLVL,
+     *      ' RECNEW=',RECNEW
+         ENDIF
+C
+      IF (IHCLDB.GT.0) WRITE (LP,*) ' NUMREC=',NUMREC
+      IF (NUMREC.EQ.1) THEN
+         WRITE (LP,140) FILNAM(1:LENSTR(FILNAM))
+CCC         NUNIT=0
+         IPRERR=1
+CCC         CALL UPRDSA (DDNAME,NUNIT,'NODSNAME',IPRERR,LP,IERR)
+         ENDIF
+C
+C  CONVERT THE 4 CHAR PER WORD RECORD TO 1 CHARACTER PER WORD
+      CALL UNPAKS (RECNEW,IBUF,LEN(RECNEW)/4,LEN(RECNEW),IERR)
+C
+      IF (IPRFLG.EQ.1) CALL WPCARD (IBUF)
+C
+C  CHECK FOR COMMENT
+      IEND=72
+      DO 30 I=1,IEND
+         IF (IBUF(I).EQ.IDOLR) GO TO 40
+30       CONTINUE
+      GO TO 50
+C
+C  READ NEXT CARD IF '$' IN COLUMN 1
+40    IEND=I-1
+      IF (IEND.EQ.0) GO TO 80
+C
+C  CHECK FOR NON-BLANK CHARACTERS
+50    DO 60 I=1,IEND
+         IF (IBUF(I).NE.IBLNK) GO TO 70
+60       CONTINUE
+C
+C  ALL BLANKS BEFORE '$' OR END OF CARD
+      GO TO 80
+C
+C  FIELD FIELDS
+70    CALL UFREE (1,IEND)
+C
+      XCHAR8=' '
+C
+C  CHECK FIRST FIELD
+C
+CGZHOU FOR BUG R24-38 04-2004
+CBASED ON THE CUSTOMER'S REQUIREMENT, IT IS LEGAL THAT THE FIRST FIELD HAS 
+CFORMAT 111*222. IT CAN NOT PASS THE IFSTRT FUNCTION AND UPACK1 CHECK.
+CCOMMENT OUT THESE FUNCTIONS.
+C
+      NFLD=1
+C      IBEG=IFSTRT(NFLD)
+      IBEG=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1 
+      IF (NCHAR.GT.LEN(XCHAR8)) NCHAR=LEN(XCHAR8)
+C      CALL UPACK1 (IBUF(IBEG),XCHAR8,NCHAR)
+C
+      IF (IHCLDB.GT.0) WRITE (LP,*) ' XCHAR8=',XCHAR8
+C
+C  CHECK FOR MOD
+      IF (XCHAR8.EQ.'MOD') THEN
+C     MOD STATEMENT NOT ALLOWED IN INCLUDED FILE
+         WRITE (LP,150) XCHAR8(1:LENSTR(XCHAR8))
+         CALL ERROR
+         ISTAT=1
+         GO TO 80
+         ENDIF
+C
+C  CHECK FOR ENDMOD
+      IF (XCHAR8.EQ.'ENDMOD') THEN
+C     ENDMOD STATEMENT NOT ALLOWED IN INCLUDED FILE
+         WRITE (LP,150) XCHAR8(1:LENSTR(XCHAR8))
+         CALL ERROR
+         ISTAT=1
+         GO TO 80
+         ENDIF
+C
+C  CHECK FOR INCLUDE
+      IF (XCHAR8.EQ.XINCLD) THEN
+C     INCLUDE STATEMENT NOT ALLOWED IN INCLUDED FILE
+         WRITE (LP,150) XCHAR8(1:LENSTR(XCHAR8))
+         CALL ERROR
+         ISTAT=1
+         GO TO 80
+         ENDIF
+C
+C  NORMAL MOD STATEMENT - PLACE INTO OPTION RECORD
+      NMC=NMC+1
+      NCHAR=IEND-IBEG+1
+      IF (NX1+NCHAR.GT.MOPTRC) THEN
+C     OPTION RECORD FULL
+         IF (IFULL.EQ.0) THEN
+            WRITE (LP,180) MOPTRC
+            CALL ERROR
+            ISTAT=1
+            IFULL=1
+            ENDIF
+         GO TO 80
+         ENDIF
+      CALL HPTSTR (IBUF(IBEG),NCHAR,IOPTRC(NX1+1),IERR)
+      IOPTRC(NX1)=NCHAR
+      IF (IERR.NE.0) THEN
+         WRITE (LP,170) IERR
+         CALL ERROR
+         ISTAT=1
+         GO TO 80
+         ENDIF
+C
+C  UPDATE LAST USED
+      NX1=NX1+NCHAR+1
+C
+C  CHECK IF ANY 'INCLUDE' STATEMENTS FOUND
+80    IF (NSTLVL.GT.0) THEN
+         RECOLD=RECNEW
+         GO TO 20
+         ENDIF
+C
+90    IF (IHCLTR.GT.0) WRITE (LP,*) ' *** EXIT HINCMD'
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+100   FORMAT ('0**ERROR** ',I2,' FIELDS FOUND ON INCLUDE STATEMENT ',
+     *   'BUT ONLY ',I2,' WERE EXPECTED.')
+140   FORMAT ('0**NOTE** MOD INPUT WILL BE READ FROM FILE ',A,
+     *   '.')
+150   FORMAT ('0**ERROR** ',A,' STATEMENT NOT ALLOWED IN ',
+     *   'INCLUDED FILE.')
+170   FORMAT ('0**ERROR** IN HINCMD - STORING MOD CARD. ',
+     *   'HPTSTR STATUS CODE = ',I3)
+180   FORMAT ('0**ERROR** IN HINCMD - ',
+     *   'NUMBER OF WORDS IN OPTION ARRAY (',I6,') EXCEEDED. ',
+     *   'NO ADDITIONAL RUN-TIME OPTIONS WILL BE STORED.')
+C
+      END

@@ -1,0 +1,2 @@
+To address this situation, we introduce the concept of "holographic" processing.  This simply means that each part potentially embodies the whole, each sub-phrase, phrase, and component is potentially dependent on other nodes of the tree.
+

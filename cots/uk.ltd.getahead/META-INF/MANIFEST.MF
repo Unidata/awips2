@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Getahead Plug-in
+Bundle-SymbolicName: uk.ltd.getahead
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: dwr.jar,
+ .
+Export-Package: uk.ltd.getahead.dwr,
+ uk.ltd.getahead.dwr.compat,
+ uk.ltd.getahead.dwr.convert,
+ uk.ltd.getahead.dwr.create,
+ uk.ltd.getahead.dwr.impl,
+ uk.ltd.getahead.dwr.servlet,
+ uk.ltd.getahead.dwr.util,
+ uk.ltd.getahead.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

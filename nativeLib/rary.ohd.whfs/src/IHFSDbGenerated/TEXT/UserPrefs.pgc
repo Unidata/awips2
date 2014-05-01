@@ -1,0 +1,782 @@
+/*
+    File: UserPrefs.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:32 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "UserPrefs.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct UserPrefs_t
+{
+    char		userid[33];
+    long		title;
+    long		statlist;
+    long		sortlist;
+    long		fieldlist;
+
+    int		ind_title;
+    int		ind_statlist;
+    int		ind_sortlist;
+    int		ind_fieldlist;
+} UserPrefs_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+UserPrefs * GetUserPrefs(const char * where)
+{
+
+    UserPrefs * listPtr = NULL;
+    UserPrefs * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM UserPrefs ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct UserPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetUserPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetUserPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetUserPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.userid, :dbs.title:dbs.ind_title, 
+    :dbs.statlist:dbs.ind_statlist, :dbs.sortlist:dbs.ind_sortlist, 
+    :dbs.fieldlist:dbs.ind_fieldlist    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetUserPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (UserPrefs *) malloc(sizeof(UserPrefs))) != NULL)
+        {
+
+            strcpy(structPtr->userid, dbs.userid);
+
+            structPtr->title = dbs.title;
+            setNullIfIndicated(dbs.ind_title, INT, &structPtr->title);
+
+            structPtr->statlist = dbs.statlist;
+            setNullIfIndicated(dbs.ind_statlist, INT, &structPtr->statlist);
+
+            structPtr->sortlist = dbs.sortlist;
+            setNullIfIndicated(dbs.ind_sortlist, INT, &structPtr->sortlist);
+
+            structPtr->fieldlist = dbs.fieldlist;
+            setNullIfIndicated(dbs.ind_fieldlist, INT, &structPtr->fieldlist);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.userid, :dbs.title:dbs.ind_title, 
+        :dbs.statlist:dbs.ind_statlist, :dbs.sortlist:dbs.ind_sortlist, 
+        :dbs.fieldlist:dbs.ind_fieldlist        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetUserPrefs() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+UserPrefs * SelectUserPrefs(const char * where)
+{
+
+    UserPrefs * listPtr = NULL;
+    UserPrefs * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM UserPrefs ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct UserPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectUserPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectUserPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectUserPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.userid, :dbs.title:dbs.ind_title, 
+    :dbs.statlist:dbs.ind_statlist, :dbs.sortlist:dbs.ind_sortlist, 
+    :dbs.fieldlist:dbs.ind_fieldlist    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectUserPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (UserPrefs *) malloc(sizeof(UserPrefs))) != NULL)
+        {
+
+            strcpy(structPtr->userid, dbs.userid);
+
+            structPtr->title = dbs.title;
+            setNullIfIndicated(dbs.ind_title, INT, &structPtr->title);
+
+            structPtr->statlist = dbs.statlist;
+            setNullIfIndicated(dbs.ind_statlist, INT, &structPtr->statlist);
+
+            structPtr->sortlist = dbs.sortlist;
+            setNullIfIndicated(dbs.ind_sortlist, INT, &structPtr->sortlist);
+
+            structPtr->fieldlist = dbs.fieldlist;
+            setNullIfIndicated(dbs.ind_fieldlist, INT, &structPtr->fieldlist);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.userid, :dbs.title:dbs.ind_title, 
+        :dbs.statlist:dbs.ind_statlist, :dbs.sortlist:dbs.ind_sortlist, 
+        :dbs.fieldlist:dbs.ind_fieldlist        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectUserPrefs() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectUserPrefsCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM UserPrefs ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountUserPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountUserPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountUserPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountUserPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutUserPrefs(const UserPrefs * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct UserPrefs_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    dbs.title = structPtr->title;
+    dbs.ind_title = getIndicator(INT, (void *)&structPtr->title);
+
+    dbs.statlist = structPtr->statlist;
+    dbs.ind_statlist = getIndicator(INT, (void *)&structPtr->statlist);
+
+    dbs.sortlist = structPtr->sortlist;
+    dbs.ind_sortlist = getIndicator(INT, (void *)&structPtr->sortlist);
+
+    dbs.fieldlist = structPtr->fieldlist;
+    dbs.ind_fieldlist = getIndicator(INT, (void *)&structPtr->fieldlist);
+
+
+    EXEC SQL INSERT INTO UserPrefs (userid,title,
+        statlist,sortlist,fieldlist        )
+        VALUES (
+         :dbs.userid, :dbs.title:dbs.ind_title, :dbs.statlist:dbs.ind_statlist,
+         :dbs.sortlist:dbs.ind_sortlist, :dbs.fieldlist:dbs.ind_fieldlist);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutUserPrefs() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertUserPrefs(const UserPrefs * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct UserPrefs_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    dbs.title = structPtr->title;
+    dbs.ind_title = getIndicator(INT, (void *)&structPtr->title);
+
+    dbs.statlist = structPtr->statlist;
+    dbs.ind_statlist = getIndicator(INT, (void *)&structPtr->statlist);
+
+    dbs.sortlist = structPtr->sortlist;
+    dbs.ind_sortlist = getIndicator(INT, (void *)&structPtr->sortlist);
+
+    dbs.fieldlist = structPtr->fieldlist;
+    dbs.ind_fieldlist = getIndicator(INT, (void *)&structPtr->fieldlist);
+
+
+    EXEC SQL INSERT INTO UserPrefs (userid,title,
+        statlist,sortlist,fieldlist        )
+        VALUES (
+         :dbs.userid, :dbs.title:dbs.ind_title, :dbs.statlist:dbs.ind_statlist,
+         :dbs.sortlist:dbs.ind_sortlist, :dbs.fieldlist:dbs.ind_fieldlist);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertUserPrefs() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateUserPrefs(const UserPrefs *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct UserPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    dbs.title = structPtr->title;
+    dbs.ind_title = getIndicator(INT, (void *)&structPtr->title);
+
+    dbs.statlist = structPtr->statlist;
+    dbs.ind_statlist = getIndicator(INT, (void *)&structPtr->statlist);
+
+    dbs.sortlist = structPtr->sortlist;
+    dbs.ind_sortlist = getIndicator(INT, (void *)&structPtr->sortlist);
+
+    dbs.fieldlist = structPtr->fieldlist;
+    dbs.ind_fieldlist = getIndicator(INT, (void *)&structPtr->fieldlist);
+
+
+    sprintf(queryBuffer, " UPDATE UserPrefs SET " );
+    strcat(queryBuffer, "userid = ? , title = ? , statlist = ? , sortlist = ? , fieldlist = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateUserPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.userid, :dbs.title:dbs.ind_title, :dbs.statlist:dbs.ind_statlist, :dbs.sortlist:dbs.ind_sortlist, :dbs.fieldlist:dbs.ind_fieldlist;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateUserPrefs() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteUserPrefs(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM UserPrefs ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteUserPrefs() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateUserPrefsByRecord (const UserPrefs * newStructPtr, const UserPrefs * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetUserPrefsPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateUserPrefs(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateUserPrefs(const UserPrefs * structPtr)
+{
+    UpdateUserPrefsByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertUserPrefs(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueUserPrefs(const UserPrefs * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (UserPrefsExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertUserPrefs(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteUserPrefsByRecord(const UserPrefs * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetUserPrefsPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteUserPrefs(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool UserPrefsExists(const UserPrefs * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetUserPrefsPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectUserPrefsCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetUserPrefsPrimaryKeyWhereString (const UserPrefs * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE userid = '%s' ",
+            structPtr->userid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeUserPrefs( UserPrefs * structPtr)
+{
+    UserPrefs* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( UserPrefs * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetUserPrefsDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetUserPrefsErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

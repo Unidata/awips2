@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<procedure perspective="com.raytheon.viz.ui.GFEPerspective" xmlns:ns2="group">
+    <bundles>
+        <bundle editor="com.raytheon.viz.ui.glmap.GLMapEditor">
+            <displayList>
+                <displays xsi:type="gfeMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <descriptor xsi:type="mapDescriptor">
+                        <numberOfFrames>2147483647</numberOfFrames>
+                        <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                        <gridGeometry envelopeMaxY="2442307.0305421595" envelopeMinY="1337517.846292229" envelopeMaxX="267912.22239998565" envelopeMinX="-836857.4824502743" rangeY="0 144" rangeX="0 144">
+                            <CRS>PROJCS["Lambert Conformal (SP: 25.0/25.0, Origin: -95.0)", 
+  GEOGCS["WGS84(DD)", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Lambert_Conformal_Conic_1SP"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["central_meridian", -95.0], 
+  PARAMETER["latitude_of_origin", 25.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                        </gridGeometry>
+                    </descriptor>
+                </displays>
+            </displayList>
+        </bundle>
+    </bundles>
+</procedure>

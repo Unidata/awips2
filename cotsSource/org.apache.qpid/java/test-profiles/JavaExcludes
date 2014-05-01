@@ -1,0 +1,20 @@
+org.apache.qpid.test.unit.ct.DurableSubscriberTests#*
+// Those tests are not finished
+org.apache.qpid.test.testcases.TTLTest#*
+org.apache.qpid.test.testcases.FailoverTest#*
+// This is a long running test so should exclude from normal runs
+org.apache.qpid.test.client.failover.FailoverTest#test4MinuteFailover
+// Those tests are written against the 0.10 path
+org.apache.qpid.test.unit.message.UTF8Test#*
+org.apache.qpid.client.MessageListenerTest#testSynchronousRecieveNoWait
+
+//QPID-1818 : Client code path does not correctly restore a transacted session after failover.
+org.apache.qpid.server.persistent.NoLocalAfterRecoveryTest#*
+
+// QPID-1823: this takes ages to run
+org.apache.qpid.client.SessionCreateTest#*
+
+// QPID-2097 exclude it from the InVM test runs until InVM JMX Interface is reliable
+org.apache.qpid.management.jmx.ManagementActorLoggingTest#*
+org.apache.qpid.server.queue.ModelTest#*
+

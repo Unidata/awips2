@@ -1,0 +1,183 @@
+." $Id: pqcat.1,v 1.14.16.1.2.2 2009/06/18 16:15:03 steve Exp $
+.TH PQCAT 1 "$Date: 2009/06/18 16:15:03 $"
+.SH NAME
+pqcat - program to print products from an LDM product queue
+.SH SYNOPSIS
+.HP
+.ft B
+pqcat
+.nh
+\%[-v]
+\%[-O]
+\%[-x]
+\%[-l\ \fIlogfile\fP]
+\%[-f\ \fIfeedtype\fP]
+\%[-p\ \fIpattern\fP]
+\%[-q\ \fIpqfname\fP]
+\%[-i\ \fIinterval\fP]
+\%[-o\ \fIoffset\fP]
+\%[-c]
+\%[-s]
+\%[\fIoutputfile\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This program writes to \fIoutputfile\fP selected data products from a local
+LDM product queue (see \fBpq\fP(3)). If no \fIoutputfile\fP is specified,
+the data is written to standard output.  The program may also be used to log
+product information about the products in a product queue whose identifiers
+match a specified feedtype and pattern.  By default,
+.B pqcat
+starts at the front of the product queue (the oldest products) and iterates
+through products in order until it reaches the end of the queue (the most
+recently inserted products).  On reaching the end of the queue it exits,
+unless a non zero \fIinterval\fP is specified.
+.LP
+.B pqcat
+is typically used to see what is in the product queue or to select
+particular products out of the product queue.
+.SH OPTIONS
+.TP
+.B -v
+Verbose logging.  A line is emitted for every product in the queue whose
+feed type and identifier match the specified feedtype and pattern.  The
+emitted line contains the UTC date and time, the program name, the product
+ingest time, feedtype, sequence number, size in bytes, and the product
+identifier.
+.TP
+.B -O
+Show product origin.  Adds originating site of product to each line of
+verbose output.  Valid only with -v option.
+.TP
+.B -x
+Debugging information is also emitted.
+.TP
+.BI "-l " logfile
+The path name of a file to be used as the log file for the process.  The
+default is to use standard error when interactive and syslogd(8) otherwise.
+To use syslogd from the command line, enter ``pqcat ... >& /dev/null''.
+
+.TP
+.BI \-f " feedtype"
+Reads from the product queue only products that have a feedtype that is a
+member of the \fIfeedtype\fP set.  The default is `ANY', specifying all
+feed types.  See \fBpqact\fP(1) for a list of basic feed types
+and the use of feedtype expressions to specify combinations of basic
+feed types.
+.TP
+.BI \-p " pattern"
+Reads from the product queue only products whose identifier
+matches the regular expression \fIpattern\fP.
+The default is `\fB.*\fP', specifying all products.
+.TP
+.BI "-q " pqfname
+The filename of the product queue.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP.
+.TP
+.BI \-i " interval"
+Polling interval, in seconds.  When the end of the queue is reached, the
+program sleeps and
+checks for new products in the product queue every \fIinterval\fP seconds.
+If the \fIinterval\fP is 0, the program exits after one pass through the queue.
+When
+.B pqcat
+is run in the same process group as the programs that insert products into
+the product queue, a signal informs
+.B pqcat
+and all other interested processes in the process group
+whenever a new product is available. This may wake up the process sooner than
+\fIinterval\fP.
+.TP
+.BI \-o " offset"
+Offset time, in seconds.
+Begin reading products inserted into the product queue \fIoffset\fP
+seconds earlier than the current time.
+The default is to read all products
+in the queue.
+.TP
+.B -c
+Check each product.
+Recompute the MD5 checksum of product data and compare it against the
+the signature in product description. If the comparison fails,
+a message is emitted.
+
+.TP
+.B -s
+Queue "sanity" check.
+Scans entire queue, tallies number of products encountered, and
+compares the result with the number of products the queue thinks it should
+have.  If the LDM is not running and no product subsets are specified
+on the command line, the
+results should agree.  This is a simplistic way to determine
+whether the queue is corrupted.  Although it may be possible for the
+queue to be in a bad state for some other reason, it is expected that
+this test will catch most ways in which queue corruption can occur.  Note
+that if the LDM is running or if a subset of products is specified on
+the command line with the -f or -p options,
+the two results will not agree and pqcat will exit with a nonzero
+value.  It is intended that pqcat -s be run before starting the LDM in
+order to determine whether or not to rebuild the queue before starting.
+
+.SH SIGNALS
+.TP
+.BR SIGTERM
+Normal termination.
+.TP
+.BR SIGINT
+Immediate termination.
+.TP
+.B SIGUSR1
+Write status and product statistics to log output.
+.TP
+.B SIGUSR2
+Cyclically increment the verbosity of the program. Assumming the program was
+started without the \fB-v\fP or \fB-x\fP switches, the first \fBSIGUSR2\fP will
+make it verbose and \fBLOG_INFO\fP priority messages will appear.
+The second will turn on the \fBLOG_DEBUG\fP priority messages as well.
+A third will take it back to the normal state.
+
+.SH EXAMPLE
+
+The following invocation will capture into the file /tmp/pq.contents
+information about all the products currently in the default product queue:
+.RS +4
+  pqcat -vl /tmp/pq.contents > /dev/null
+.RE
+The following example will emit to stderr information about each product as
+it is inserted into a product queue in /tmp/ldm.pq, starting at the
+current time:
+.RS +4
+  pqcat -v -q /tmp/ldm.pq -o 0 -i 15 > /dev/null
+.RE
+
+.SH FILES
+.LP
+
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR pqact(1),
+.BR ulog (3),
+.BR pq (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm/\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information -- to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP
+.RE

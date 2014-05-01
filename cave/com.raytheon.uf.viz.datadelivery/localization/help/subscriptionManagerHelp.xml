@@ -1,0 +1,137 @@
+<Help>
+  <!-- Help dialog's title -->
+  <title>Subscription Manager Help</title>
+  <!-- A help entry -->
+  <helpEntry>
+     <!-- Help entry heading, bold font -->
+     <header>
+		The Subscription Manager Table allows a user to add, edit, copy, view, and delete data delivery subscriptions.
+     </header>
+     <!-- Help entry text, normal font.  Line breaks in text are passed through to display -->
+     <text>
+First is the optional Area filter.  Selecting an area only displays datasets that have coverage over the area. Next select and available Data Type.  Move the data type to the selected column using the arrows.  Next select from the filtering options.  Filters include Data Provider, Dataset, Level, and Parameter.  Click the arrows to the left of the Filter titles to expand the filter selection sections. After Filters are selected, click Update Results to load the list of Datasets in the table. Select a Dataset and click the Subset... button. Optionally, select Subset information. Enter a Subset Name. Click the Subscribe button to subscribe to the subset. Click the Query button to find details about the subset. 
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        File Menu  
+     </header>
+     <text />
+  </helpEntry>
+  <helpEntry>
+     <header>
+        New Subscription... 
+     </header>
+     <text>
+     The New Subscription menu option opens the Dataset Discovery Browser.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        New Group... 
+     </header>
+     <text>
+     The New Group menu option allows the user to create a new subscription group.  First enter a group name.  Next select the Subscription Duration, Active Period, and Areal Coverage.  Finally select which subscriptions to add to the new group.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Refresh Table 
+     </header>
+     <text>
+     Refresh the table data.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Approve Pending Subscriptions... 
+     </header>
+     <text>
+     Opens the Subscription Approval dialog.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Exit
+     </header>
+     <text>
+     Close the dialog.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Edit Menu  
+     </header>
+     <text />
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Edit Subscription...
+     </header>
+     <text>
+Highlight a row in the table to edit. Modify the Subscription Delivery Options, the Subscription Duration, the Subscription Active Period, the Subscription Priority or the additional Subscription Information. 
+
+Subscription Duration sets the start and expiration times for subscription delivery. Use the No Expiration radio button to continue to receive the subscription. 
+
+The Subscription Active Period may be used to select a specified time range for the subscription to be active. (Note: The active period does not include the year.) The Subscription Priority sets the order of subscription fulfillment and may be set to High (1), Default (2), or Low (3).
+
+The Subscription Information allows the Description to be modified.  The Subscription Name may not be modified.
+
+Click OK to perform the edit.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Copy Subscription... 
+     </header>
+     <text>
+     Highlight a row in the table to copy. Enter a New Subscription Name. Click OK to perform the copy.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Delete Subscription... 
+     </header>
+     <text>
+     Highlight a row(s) in the table to delete. Click Yes to perform the deletion.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Edit Group... 
+     </header>
+     <text>
+     Edit the group settings.  Select a group to edit, change the settings, click OK to save the edit.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Delete Group... 
+     </header>
+     <text>
+     Select a group to delete and click OK to delete the group.
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Settings Menu  
+     </header>
+     <text />
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Configure Table...
+     </header>
+     <text>
+The Table Column Configuration Settings allow a user to hide and make visible table columns. The list of Hidden Columns is located on the left and the Visible Columns list is located on the right. If columns are moved to the Visible Columns list, the corresponding columns will be displayed in the Notification Table. Use the right and left arrows to move column names back and forth from the Hidden Columns list to the Visible Columns list. Use the up and down arrows to change the order of the visible columns as seen in the table. (Note: Column names are not duplicated and appear only once either in the Hidden or Visible lists.) After making selections, click the OK button to configure the table. (Note: Unless the configuration is set to the default or saved, changes will be lost when the table is closed.)
+     </text>
+  </helpEntry>
+  <helpEntry>
+     <header>
+        Tooltips
+     </header>
+     <text>
+Turns on the mouseover tooltips for the dialog's controls.
+     </text>
+  </helpEntry>
+</Help>

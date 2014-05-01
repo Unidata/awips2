@@ -1,0 +1,2 @@
+The Definition has several sections.  General set-up contains general information such as the displayName, outputFile.   Next, the Table Layout is specified to indicate the contents of the rows and columns.  Then we specify the Edit Areas, Time Ranges, and Weather Elements involved in the product.
+

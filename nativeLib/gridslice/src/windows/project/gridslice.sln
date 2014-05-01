@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gridslice", "gridslice.vcproj", "{60589C73-F65B-44AE-8D8C-DE88B01E6ECE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{60589C73-F65B-44AE-8D8C-DE88B01E6ECE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{60589C73-F65B-44AE-8D8C-DE88B01E6ECE}.Debug|Win32.Build.0 = Debug|Win32
+		{60589C73-F65B-44AE-8D8C-DE88B01E6ECE}.Release|Win32.ActiveCfg = Release|Win32
+		{60589C73-F65B-44AE-8D8C-DE88B01E6ECE}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

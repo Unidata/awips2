@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]"
+ name="GENERATOR">
+  <title>gfeConfig - Misc. Configuration Items</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<div style="text-align: center;"></div>
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Misc. Configuration Items</h2>
+This section contains miscellaneous configuration items that don't seem
+to belong in any other category:<br>
+<div class="3Heading">
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to ifpIMAGE</b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#GridManagerSortOrder">Grid Manager Sort Order</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#GridManagerSortAlgorithm">Grid Manager Sort
+Algorithm</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#AutoSaveInterval">Auto Save Interval</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#Purge">Product File Purge Threshold</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<hr style="width: 100%; height: 2px;">
+<h4><a name="GridManagerSortOrder"></a><font size="+1">Grid Manager
+Sort Order</font></h4>
+The Grid Manager Sort Order defines the order in which weather elements
+will be displayed in the grid manager.&nbsp; If not defined, then
+weather
+elements will be ordered alphabetically by weather element name.&nbsp;
+The first section of the grid manager will always be the mutable
+database
+(e.g., Fcst).&nbsp; A separator line is placed at the end of the
+mutable
+database panes.&nbsp; All other databases are shown after the separator
+line.&nbsp; If entries are defined in the sort order, then as weather
+elements
+are loaded, they are placed in the defined order.&nbsp; If a weather
+element
+is not listed, then it is placed alphabetically at the end of the grid
+manager section.
+<p><b><tt>GridManagerSortOrder = ['T', 'Td', 'MaxT', "minT', 'Wind',</tt></b>
+<br>
+<b><tt>&nbsp; 'FreeWind', 'TransWind', 'Sky', 'Wx', 'LAL', 'PoP',</tt></b>
+<br>
+<b><tt>&nbsp; 'CWR', 'QPF', 'SnowAmt', 'FzLevel', 'Haines', 'MixHgt']</tt></b>
+<br>
+&nbsp; </p>
+<h4><a name="GridManagerSortAlgorithm"></a><font size="+1">Grid
+Manager Sort
+Algorithm</font></h4>
+This algorithm determines the sorting order of weather elements in the
+Grid Manager, Samples, and Spatial Editor Legends. It contains of up to
+5 characters in the order of sort importance. The characters are:'m'
+for
+mutable, 'N' for parm name, 'M' for model name, 't' for model time, and
+'o' for model optional type. For example, "mNMto" will result in the
+mutables
+first, then parm name, then model name, then model time, then optional
+type. This means that all of the weather elements with the same name
+from
+different models will be grouped together (except for the mutable).
+<p><b><tt>GridManagerSortAlgorithm = "mNMto"</tt></b> <br>
+&nbsp; </p>
+<h4><a name="AutoSaveInterval"></a><font size="+1">Auto Save Interval</font></h4>
+The Auto Save Interval entry defines, in minutes, the initial setting
+of
+the automatic weather element save interval.&nbsp; The values can range
+from 0, to indicate Off, up to a reasonable value, such as 60, to save
+the grids automatically every hour.
+<p><b><tt>AutoSaveInterval = 30</tt></b> <br></p>
+<h4>
+<a name="Purge"></a><font size="+1">Product Directory Purge Threshold</font></h4>
+These entries define the number of
+hours to retain files within the
+product directories before purging them, and the
+number of days of log files to retain before purging them.<br>
+<br>
+<b><tt>ProductPurgeHours = 6</tt></b>
+<br>
+<hr style="width: 100%; height: 2px;"><b><tt><br>
+</tt></b>
+<p></p>
+<div class="Body">
+<center><a href="GFESuite.html">Back To TOC</a></center>
+</div>
+</div>
+</body>
+</html>

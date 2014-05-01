@@ -1,0 +1,11 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+py=$PYTHON_EXAMPLES/pubsub
+
+pubsub_producer_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-pub-sub-Publisher.exe localhost 5672
+}
+
+background "Queues created" $py/topic_subscriber.py
+clients pubsub_producer_dotnet 
+outputs  ./pubsub_producer_dotnet.out "$py/topic_subscriber.py.out | remove_uuid | sort"

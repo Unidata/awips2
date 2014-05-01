@@ -1,0 +1,15 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+
+pubsub_listener_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-pub-sub-Listener.exe localhost 5672
+}
+
+topic_publisher_java()
+{
+java -Dlog4j.configuration=file://"$JAVA"/log4j.xml -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.pubsub.Publisher
+}
+
+background "Listening for messages ..." pubsub_listener_dotnet 
+clients topic_publisher_java
+outputs topic_publisher_java.out "pubsub_listener_dotnet.out | remove_uuid | sort"

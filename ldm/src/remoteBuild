@@ -1,0 +1,270 @@
+ERR_USAGE=1
+ERR_BUILD=2
+
+
+zasu()		# AIX 1 5 000C330F4C00
+{
+    ssh Zasu /opt/gnu/bin/bash -login ldm/package/src/linkBuild \
+	-C /usr/vac/bin/cc \
+	-m /usr/ccs/bin/make &&
+    ssh Zasu /opt/gnu/bin/bash -login ldm/package/src/linkBuild \
+	-C /usr/vac/bin/xlc \
+	-m /usr/ccs/bin/make &&
+    ssh Zasu /opt/gnu/bin/bash -login ldm/package/src/linkBuild \
+	-C gcc \
+	-c --disable-max-size \
+	-m /opt/gnu/bin/make &&
+# gcc 3.2
+    ssh Zasu /opt/gnu/bin/bash -login ldm/package/src/linkBuild \
+	-C /usr/vac/bin/c89 \
+	-m /usr/ccs/bin/make
+}
+
+
+sid()		# Darwin 8.11.0 Power Macintosh
+{
+    ssh Sid /bin/bash --login ldm/package/src/linkBuild \
+	-C c89 \
+	-m make &&
+    ssh Sid /bin/bash --login ldm/package/src/linkBuild \
+	-C gcc-4.0 \
+	-m gnumake
+}
+
+
+mort()		# Darwin 9.5.0 i386
+{
+    ssh Mort /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/c89 \
+	-m /usr/bin/make &&
+    ssh Mort /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/gcc \
+	-m /usr/bin/gnumake &&
+    ssh Mort /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/cc \
+	-m /usr/bin/make
+}
+
+
+shemp()		# FreeBSD 4.9-RELEASE-p11 i386
+{
+    ssh Shemp /usr/local/bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/c89 \
+	-m /usr/bin/make
+}
+
+
+tweety()	# HP-UX B.11.00 9000/785
+{
+    ssh Tweety /opt/gnu/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/ansic/bin/c89 \
+	-m /usr/ccs/bin/make &&
+    ssh Tweety /opt/gnu/bin/bash --login ldm/package/src/linkBuild \
+	-c --disable-max-size \
+	-C gcc \
+	-m /opt/gnu/bin/make
+# gcc 3.3.2
+}
+
+
+flip()		# IRIX64 6.5 IP30
+{
+    ssh Flip /opt/bin/bash --login ldm/package/src/linkBuild \
+	-C /bin/c89 \
+	-m /sbin/make &&
+    ssh Flip /opt/bin/bash --login ldm/package/src/linkBuild \
+	-c --disable-max-size \
+	-C gcc \
+	-m /opt/gnu/bin/make
+# gcc 3.3
+}
+
+
+imogene()	# Linux 2.6.26.3-29.fc9.x86_64 x86_64
+{
+    ssh Imogene /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/c89 \
+	-m /usr/bin/make \
+	-y bison
+}
+
+
+yakov()		# Linux 2.6.26.5-28.fc8 x86_64
+{
+    ssh Yakov /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/c89 \
+	-m /usr/bin/make
+}
+
+
+gilda()		# Linux 2.6.26.3-14.fc8 x86_64
+{
+    ssh Gilda /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/c89 &&
+    ssh Gilda /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/cc &&
+    ssh Gilda /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/gcc
+}
+
+
+dana()		# OSF1 V5.1 alpha
+{
+    ssh Dana /opt/gnu/bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/c89 \
+	-m /usr/ccs/bin/make &&
+    ssh Dana /opt/gnu/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/gnu/bin/gcc \
+	-m /usr/bin/posix/make
+# gcc 3.3.2
+}
+
+
+zero()		# SunOS 5.9 sun4u
+{
+    ssh Zero /usr/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/SUNWspro/bin/cc \
+	-m /usr/ccs/bin/make &&
+    ssh Zero /usr/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/SUNWspro/bin/cc \
+	-m /usr/xpg4/bin/make &&
+    ssh Zero /usr/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/csw/gcc3/bin/gcc \
+	-c --disable-max-size \
+	-m /opt/csw/bin/gmake &&
+    ssh Zero /usr/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/csw/gcc4/bin/gcc \
+	-c --disable-max-size \
+	-m /opt/csw/bin/gmake
+}
+
+
+buddy()		# SunOS 5.10 i86pc
+{
+#    ssh Buddy /usr/bin/bash --login ldm/package/src/linkBuild \
+#	-C /opt/SUNWspro/bin/c89 \	# "c89 -O" is broken
+#	-m /usr/ccs/bin/make &&
+    ssh Buddy /usr/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/SUNWspro/bin/cc \
+	-m /usr/ccs/bin/make &&
+    ssh Buddy /usr/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/csw/gcc4/bin/gcc \
+	-c --disable-max-size \
+	-m /usr/xpg4/bin/make
+# gcc 4.0.2
+}
+
+
+# Decommissioned
+oliver()	# 2.6.11-1.14_FC3smp x86_64
+{
+    ssh Oliver /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/c89 \
+	-m /usr/bin/make
+}
+
+
+# Decommissioned
+bette()		# Linux 2.6.10-1.766_FC3smp i686
+{
+    ssh Bette /bin/bash --login ldm/package/src/linkBuild \
+	-C /usr/bin/c89 \
+	-m /usr/bin/make
+}
+
+
+#iddnode1()	# Linux 2.6.10-1.766_FC3smp x86_64
+#{
+#    ssh iddnode1 /bin/bash --login ldm/package/src/linkBuild \
+#	-C /opt/SUNWspro/bin/c89 \
+#	-m /usr/xpg4/bin/make &&
+#    ssh iddnode1 /bin/bash --login ldm/package/src/linkBuild \
+#	-C /opt/SUNWspro/bin/cc \
+#	-m /usr/ccs/bin/make
+#}
+
+
+#uni3()		# Linux 2.6.10-1.770_FC3smp x86_64
+#{
+#    ssh Uni3 /usr/local/bin/bash --login ldm/package/src/linkBuild \
+#	-C /usr/bin/cc \
+#	-m /usr/bin/make
+#}
+
+
+lenny()		# SunOS 5.10 i86pc
+{
+    ssh Lenny /usr/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/SUNWspro/bin/c89 \
+	-m /usr/ccs/bin/make &&
+    ssh Lenny /usr/bin/bash --login ldm/package/src/linkBuild \
+	-C /opt/SUNWspro/bin/cc \
+	-m /usr/xpg4/bin/make
+}
+
+
+#desi()		# SunOS 5.9 i86pc
+#{
+#    ssh Desi /usr/bin/bash --login ldm/package/src/linkBuild \
+#	-C /opt/SUNWspro/bin/c89 \
+#	-m /usr/ccs/bin/make &&
+#    ssh Desi /usr/bin/bash --login ldm/package/src/linkBuild \
+#	-C /opt/SUNWspro/bin/cc \
+#	-m /usr/xpg4/bin/make
+#}
+
+
+err_usage()
+{
+    echo 2>&1 "Usage: $0 all | host ..."
+    exit $ERR_USAGE
+}
+
+
+#
+# Parse options
+#
+while getopts "" opt 
+do
+    case $opt in
+	*)  err_usage;;
+    esac
+done
+
+#
+# Terminate if no host specified.
+#
+if test $# -eq 0
+then
+    err_usage
+fi
+
+#
+# Special-case host "all"
+#
+if test $# -eq 1 && test $1 = all
+then
+    set buddy dana flip gilda imogene mort sid tweety yakov zasu zero
+fi
+
+for host in "$@"
+do
+    echo "Starting build on $host."
+    $host >$host.log 2>&1 &
+    eval ${host}Pid=$!
+done
+
+status=0
+for host in "$@"
+do
+    eval wait \${${host}Pid}
+    stat=$?
+    if test $stat -ne 0
+    then
+	echo 1>&2 "Build on \"$host\" exited with status $stat.  " \
+	    "See file \"$host.log\"."
+	status=$ERR_BUILD
+    fi
+done
+
+exit $status

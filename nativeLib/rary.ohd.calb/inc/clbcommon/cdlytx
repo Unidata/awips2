@@ -1,0 +1,7 @@
+C                                           *--> FROM CLBCOMMON.CDLYTX
+C  COMMON BLOCK TO STORE DAILY DATA VALUES
+      COMMON /CDLYTX/
+     *    DYSW(31,12),EVAP(31,12),PNMN(31,12),PNMX(31,12),
+     *    PRCP(31,12),SNOW(31,12),SNWD(31,12),WTEQ(31,12),
+     *    TMAX(31,12),TMIN(31,12),TOBS(31,12),WDMV(31,12)
+C

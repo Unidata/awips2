@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+	<displayList>
+		<displays xsi:type="mapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+					<loadProperties loadWithoutData="true">
+						<capabilities>
+							<capability xsi:type="colorableCapability"
+								colorAsString="white" />
+						</capabilities>
+					</loadProperties>
+					<resourceData xsi:type="trueColorResourceGroupData">
+						<groupName>${productName}</groupName>
+						<channelResource channelName="${redParameter}">
+							<channel>RED</channel>
+							<resourceData xsi:type="viirsResourceData">
+								<groupTimeRangeMinutes>${groupTimeRange;30}</groupTimeRangeMinutes>
+								<metadataMap>
+									<mapping key="parameter">
+										<constraint constraintValue="${redParameter}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="region">
+										<constraint constraintValue="${region}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="viirs" constraintType="EQUALS" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</channelResource>
+						<channelResource channelName="${greenParameter}">
+							<channel>GREEN</channel>
+							<resourceData xsi:type="viirsResourceData">
+								<groupTimeRangeMinutes>${groupTimeRange;30}</groupTimeRangeMinutes>
+								<metadataMap>
+									<mapping key="parameter">
+										<constraint constraintValue="${greenParameter}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="region">
+										<constraint constraintValue="${region}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="viirs" constraintType="EQUALS" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</channelResource>
+						<channelResource channelName="${blueParameter}">
+							<channel>BLUE</channel>
+							<resourceData xsi:type="viirsResourceData">
+								<groupTimeRangeMinutes>${groupTimeRange;30}</groupTimeRangeMinutes>
+								<metadataMap>
+									<mapping key="parameter">
+										<constraint constraintValue="${blueParameter}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="region">
+										<constraint constraintValue="${region}"
+											constraintType="EQUALS" />
+									</mapping>
+									<mapping key="pluginName">
+										<constraint constraintValue="viirs" constraintType="EQUALS" />
+									</mapping>
+								</metadataMap>
+							</resourceData>
+						</channelResource>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        * SOFTWARE HISTORY
+ 		* Date         Ticket#     Engineer    Description
+ 		* __________   _______     __________  __________________________
+ 		* 09/13/2011   458		   S. Gurung   Initial creation.   
+ 		* 09/29/2011               S. Gurung   Added reportType     
+    -->
+<pointDataDbDescription>
+  <parameter name="dataURI" queryName="dataURI" type="STRING" />
+  <parameter name="reportType" queryName="reportType" type="STRING" />
+  <parameter name="latitude" queryName="location.latitude" type="FLOAT" unit="°" />
+  <parameter name="longitude" queryName="location.longitude" type="FLOAT" unit="°" />
+  <parameter name="elevation" queryName="location.elevation" type="FLOAT" unit="m" />
+  <parameter name="stationId" queryName="location.stationId" type="STRING" />
+  <parameter name="stationName" queryName="location.stationId" type="STRING" />
+</pointDataDbDescription>

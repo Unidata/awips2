@@ -1,0 +1,2 @@
+The Infrastructure allows for altering the data values when extracting them from the grids by converting units,  rounding and adjusting the ranges according to minimum and maximum range values.  The ForecastNarrative engine performs these operations when it creates the Statistics Dictionary.  Unit conversion is done automatically according to the "element_inUnits_dict" and "element_outUnits_dict" which are located in the ConfigVariables module and can be overridden in your Local file.
+

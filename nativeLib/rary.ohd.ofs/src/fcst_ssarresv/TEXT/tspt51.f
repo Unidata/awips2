@@ -1,0 +1,153 @@
+C MEMBER TSPT51
+C DESC SET UP TIME SERIES POINTER FOR PO ARRAY
+C
+C@PROCESS LVL(77)
+C
+      SUBROUTINE TSPT51(PO,CO,D,LOCWS,IDPT)
+C---------------------------------------------------------------------
+C  ROUTINE TO GENERATE BEGINNING LOCATION FOR ALL TIME SERIES
+C  TIME SERIES SEQUENCE --
+C     (QI1),QI2,QO1,QO2,(QOM),(POOL),(STORAGE),(OBSQO),(OBSQOM),(OBSH),
+C              (QO1,QO2,(QOM),(POOL),(STORAGE),(OBSQO),(OBSQOM),(OBSH))
+C  IN PO, IDPT, D, WK ARRAY
+C---------------------------------------------------------------------
+C  WRITTEN BY KUANG HSU - HRL - OCTOBER 1994
+C---------------------------------------------------------------------
+C
+      INCLUDE 'common/fprog'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/lts51'
+      INCLUDE 'common/sarr51'
+C
+      DIMENSION PO(*),CO(*),D(*),LOCWS(*),IDPT(*)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_ssarresv/RCS/tspt51.f,v $
+     . $',                                                             '
+     .$Id: tspt51.f,v 1.2 1996/12/09 21:40:44 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C  SET UP TIME SERIES POINTER FOR PO ARRAY
+C
+      LPO12 = PO(12)
+      NTTS = PO(LPO12)
+      NTS = (NTTS-2)/NRES
+      LPQI1 = PO(12)+1
+      LPQI2 = LPQI1+5
+      LPQO1 = (NRES-IRES)*NTS*5+LPQI2+5
+      LPQO2 = LPQO1+5
+      LPQM  = LPQO2+5
+      LPEL  = LPQM+5
+      LPST  = LPEL+5
+      LPOQO = LPST+5
+      LPOQM = LPOQO+5
+      LPOEL = LPOQM+5
+      LPQL1 = LPOEL+5
+      LPQL2 = LPQL1+5
+      IF(NTS.EQ.10) GO TO 150
+      LPBQI1 = LPQL2+5
+      LPBQI2 = LPBQI1+5
+      LPBQIM = LPBQI2+5
+ 150  CONTINUE
+C
+C  SET UP TIME SERIES POINTER FOR IDPT ARRAY
+C
+      LIQI1 = 1
+      LIQI2 = LIQI1+1
+      LIQO1 = (NRES-IRES)*NTS+LIQI2+1
+      LIQO2 = LIQO1+1
+      LIQM  = LIQO2+1
+      LIEL  = LIQM+1
+      LIST  = LIEL+1
+      LIOQO = LIST+1
+      LIOQM = LIOQO+1
+      LIOEL = LIOQM+1
+      LIQL1= LIOEL+1
+      LIQL2= LIQL1+1
+      IF(NTS.EQ.10) GO TO 250
+      LIBQI1 = LIQL2+1
+      LIBQI2 = LIBQI1+1
+      LIBQIM = LIBQI2+1
+ 250  CONTINUE
+C
+C  SET UP TIME SERIES POINTER FOR D ARRAY
+C
+      IDTQI1 = PO(LPQI1+3)
+      LDQI1 = 0
+      IF(IDTQI1.GT.0) LDQI1 = IDPT(LIQI1) + IDOFST*24/IDTQI1
+      IDTQI2 = PO(LPQI2+3)
+      LDQI2 = 0
+      IF(IDTQI2.GT.0) LDQI2 = IDPT(LIQI2) + IDOFST*24/IDTQI2
+      IDTQO1 = PO(LPQO1+3)
+      LDQO1 = 0
+      IF(IDTQO1.GT.0) LDQO1 = IDPT(LIQO1) + IDOFST*24/IDTQO1
+      IDTQO2 = PO(LPQO2+3)
+      LDQO2 = 0
+      IF(IDTQO2.GT.0) LDQO2 = IDPT(LIQO2) + IDOFST*24/IDTQO2
+      IDTQM = PO(LPQM+3)
+      LDQM = 0
+      IF(IDTQM.GT.0) LDQM  = IDPT(LIQM) + IDOFST*24/IDTQM
+      IDTEL = PO(LPEL+3)
+      LDEL = 0
+      IF(IDTEL.GT.0) LDEL  = IDPT(LIEL) + IDOFST*24/IDTEL
+      IDTST = PO(LPST+3)
+      LDST = 0
+      IF(IDTST.GT.0) LDST  = IDPT(LIST) + IDOFST*24/IDTST
+      IDTOQO = PO(LPOQO+3)
+      LDOQO = 0
+      IF(IDTOQO.GT.0) LDOQO = IDPT(LIOQO) + IDOFST*24/IDTOQO
+      IDTOQM = PO(LPOQM+3)
+      LDOQM = 0
+      IF(IDTOQM.GT.0) LDOQM = IDPT(LIOQM) + IDOFST*24/IDTOQM
+      IDTOEL = PO(LPOEL+3)
+      LDOEL = 0
+      IF(IDTOEL.GT.0) LDOEL = IDPT(LIOEL) + IDOFST*24/IDTOEL
+      IDTQL1 = PO(LPQL1+3)
+      LDQL1= 0
+      IF(IDTQL1.GT.0) LDQL1 = IDPT(LIQL1) + IDOFST*24/IDTQL1
+      IDTQL2 = PO(LPQL2+3)
+      LDQL2= 0
+      IF(IDTQL2.GT.0) LDQL2 = IDPT(LIQL2) + IDOFST*24/IDTQL2
+      LDBQI1 = 0
+      LDBQI2 = 0
+      LDBQIM = 0
+      IF(NTS.EQ.10) GO TO 350
+      IDTX = PO(LPBQI1+3)
+      IF(IDTX.GT.0) LDBQI1 = IDPT(LIBQI1) + IDOFST*24/IDTX
+      IDTX = PO(LPBQI2+3)
+      IF(IDTX.GT.0) LDBQI2 = IDPT(LIBQI2) + IDOFST*24/IDTX
+      IDTX = PO(LPBQIM+3)
+      IF(IDTX.GT.0) LDBQIM = IDPT(LIBQIM) + IDOFST*24/IDTX
+ 350  CONTINUE
+C
+C  SET UP TIME SERIES POINTER FOR WK ARRAY
+C
+      LWQO1 = LOCWS(NRES+3)+(NRES-IRES)*NTS*NDD*NTIM24
+      LWQO2 = LWQO1+NDD*NTIM24
+      LWQM  = LWQO2+NDD*NTIM24
+      LWEL  = LWQM+NDD*NTIM24
+      LWST  = LWEL+NDD*NTIM24
+      IF(NTS.EQ.10) GO TO 450
+      LWBQI1 = LWST+NDD*NTIM24
+      LWBQI2 = LWBQI1+NDD*NTIM24
+      LWBQIM = LWBQI2+NDD*NTIM24
+ 450  CONTINUE
+C
+      IF(IBUG.LE.1 .OR. NS2.NE.2) GO TO 1000
+      WRITE(IODBUG,900) 
+     & LPQI1,LPQI2,LPQO1,LPQO2,LPQM,LPEL,LPST,LPOQO,LPOQM,LPOEL,
+     &  LPQL1,LPQL2,LPBQI1,LPBQI2,LPBQIM,
+     & LIQI1,LIQI2,LIQO1,LIQO2,LIQM,LIEL,LIST,LIOQO,LIOQM,LIOEL,
+     &  LIQL1,LIQL2,LIBQI1,LIBQI2,LIBQIM,
+     & LDQI1,LDQI2,LDQO1,LDQO2,LDQM,LDEL,LDST,LDOQO,LDOQM,LDOEL,
+     &  LDQL1,LDQL2,LDBQI1,LDBQI2,LDBQIM,
+     & LWQO1,LWQO2,LWQM,LWEL,LWST,LWBQI1,LWBQI2,LWBQIM,ires
+ 900   FORMAT(5X,12I5)
+C
+ 1000 CONTINUE
+      RETURN
+      END

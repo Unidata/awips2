@@ -1,0 +1,152 @@
+." $Id: pqcheck.1,v 1.1.4.1.4.4.2.2 2009/06/18 16:15:11 steve Exp $
+.TH PQCHECK 1 "$Date: 2009/06/18 16:15:11 $"
+.SH NAME
+pqcheck - program to check that an LDM product queue was successfully closed
+.SH SYNOPSIS
+.HP
+.ft B
+pqcheck
+.nh
+\%[-F]
+\%[-v]
+\%[-l\ \fIlogfile\fP]
+\%[-q\ \fIpqfname\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This program checks that a product-queue is not open for writing by any
+process.  Beginning with this version of the LDM, a product-queue contains
+a persistent "write count".  Every time 
+\fBpq_open\fP(3) is invoked on a product-queue with the
+\fBPQ_READONLY\fP flag unset, the write-count is incremented.
+Every time 
+\fBpq_close\fP(3) is invoked on a product-queue opened in this way,
+the write-count is decremented.
+.LP
+If it is known that no process holds the product-queue open for writing
+and this utility indicates that the product-queue write-count is zero, then the
+product-queue was successfully closed by all processes that had it open for
+writing and the product-queue is guaranteed to be in a consistent state 
+(i.e., the product-queue will not be corrupt).
+.SH OPTIONS
+.TP
+.B -F
+Force.  Support for a write-count will be added to the product-queue,
+if necessary, and the write-count will be set to zero.
+.TP
+.BI "-l " logfile
+The path name of a file to be used as the log file for the process.  The
+default is to use standard error when that stream goes to the terminal
+and syslogd(8) otherwise.
+To use syslogd(8) from the command line, execute "pqcheck ... 2> /dev/null".
+.TP
+.BI "-q " pqfname
+The filename of the product queue.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP.
+.TP
+.B -v
+Verbose logging.  The write-count for the product-queue will be printed.
+.SH SIGNALS
+.TP
+.BR SIGTERM
+Normal termination.
+.TP
+.BR SIGINT
+Immediate termination.
+
+.SH EXIT STATUS
+.TP
+0
+Success.  The product-queue was opened and the write-count is zero.
+.TP
+1
+A system-error occurred.  
+.TP
+2
+The product-queue doesn't have a write-count.  If you know that no process
+has the product-queue open for writing, then you can use the \fB-F\fP option
+to add write-count capability to the product-queue.
+.TP
+3
+The product-queue was opened but the write-count is positive.
+.TP
+4
+The product-queue could not be opened because it is internally inconsistent.
+It will have to be deleted and recreated.
+
+.SH EXAMPLE
+.LP
+The following shell-script fragment checks the product-queue:
+.RS +4
+.nf
+#
+# The product-queue exists.  Test for corruption.
+#
+if pqcheck -q $LDMHOME/data/ldm.pq; then
+    echo "Using existing queue."
+else
+    case $? in
+    1)  echo "Aborting..."
+        ;;
+    2)  echo "Adding write-count capability to product-queue"
+        if ! pqcheck -F -q $LDMHOME/data/ldm.pq; then
+            echo "Aborting..."
+        fi
+        ;;
+    3)  echo "Product-queue incorrectly closed.  Checking..."
+        if pqcat -s -l /dev/null; then
+            echo "Product-queue appears OK.  Clearing write-count."
+            if ! pqcheck -F -q $LDMHOME/data/ldm.pq; then
+                echo "Aborting..."
+            fi
+        else
+            echo "Product-queue appears corrupt.  Recreating..."
+            /bin/mv -f $LDMHOME/data/ldm.pq $LDMHOME/data/ldm.pq.save
+            /bin/su - ldm -c "$LDMBIN/ldmadmin delqueue"
+            /bin/su - ldm -c "$LDMBIN/ldmadmin mkqueue"
+        fi
+        ;;
+    4)  echo "Product-queue is corrupt.  Recreating..."
+            /bin/mv -f $LDMHOME/data/ldm.pq $LDMHOME/data/ldm.pq.save
+            /bin/su - ldm -c "$LDMBIN/ldmadmin delqueue"
+            /bin/su - ldm -c "$LDMBIN/ldmadmin mkqueue"
+        fi
+        ;;
+    esac
+fi
+.fi
+.RE
+This fragment
+is appropriate for a shell-script that starts the LDM system at boot-time.
+
+.SH FILES
+.LP
+
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR pqcat(1),
+.BR ulog (3),
+.BR pq (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm\fP.
+
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information -- to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP
+.RE

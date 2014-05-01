@@ -1,0 +1,110 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'mpe_bad_gage_list.c';
+generateNameExterns = * 'mpe_bad_gage_list.h';
+generateNameResDB = 'mpe_bad_gage_list.res';
+generateCHeaderFile = 'mpe_bad_gage_list.h';
+generateNameMakefile = 'Makefile';
+motifFlavour = 1;
+generateMask = 4390920;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+defaultStorageClass = 3;
+javaVersion = 2;
+javaUnselectedFiles = '';
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'badGageSH' : XmDialogShell {
+	arguments {
+	name = 'badGageSH';
+	lastGenName = 'shell1';
+	storageClass = 3;
+	accessControl = 0;
+	XmNallowShellResize = true;
+	};
+object 'badGageFM' : XmForm {
+	arguments {
+	name = 'badGageFM';
+	lastGenName = 'form1';
+	storageClass = 3;
+	accessControl = 0;
+	XmNautoUnmanage = false;
+	};
+object '1' : XmScrolledList {
+	arguments {
+	lastGenName = 'scrolledList1';
+	accessControl = 0;
+	};
+abstract object '1' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'scrollbar1';
+	};
+};
+abstract object '2' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'scrollbar2';
+	};
+};
+abstract object 'badGageLS' : XmList {
+	arguments {
+	name = 'badGageLS';
+	lastGenName = 'list1';
+	storageClass = 3;
+	accessControl = 0;
+	XmNvisibleItemCount = 9;
+	XmNselectColor = color('#00007e18ffff');
+	XmNselectionPolicy = XmSINGLE_SELECT;
+	XmNscrollBarDisplayPolicy = XmSTATIC;
+	};
+};
+};
+object 'okPB' : XmPushButton {
+	arguments {
+	name = 'okPB';
+	lastGenName = 'okPB';
+	XmNlabelString = 'OK';
+	};
+};
+object 'delPB' : XmPushButton {
+	arguments {
+	name = 'delPB';
+	lastGenName = 'delPB';
+	XmNlabelString = 'Delete Selected Item';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -159;
+	XmNleftAttachment = 1 0;
+	XmNbottomAttachment = 2 0 -171;
+	XmNtopAttachment = 1 0;
+    };
+    attachment {
+	XmNleftAttachment = 1 0;
+	XmNtopAttachment = 3 1;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -160;
+	XmNleftAttachment = 1 0 28;
+	XmNbottomAttachment = 2 0 -193;
+	XmNtopAttachment = 1 0 171;
+    };
+    };
+};
+};
+end module;

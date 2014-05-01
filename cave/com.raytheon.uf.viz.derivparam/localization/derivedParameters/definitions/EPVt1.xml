@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// This is designed to iconize slantwise and upright instability. The
+	// first check is for Sat Geo Pot Vort values of .2 or less.
+	// Then the fields are checked for thetae decreasing with height. If it does decr,
+	// upright is diagnosed, otherwise slantwise.
+	//
+	
+	
+	AWIPS 1 format
+	EPVt1 | ||Instability is Slantwise=S Upright=U ||ICON||   *Test|gammaE|1.|-0.0005|1.e37|1.|1.|-1.e37|-0.0005|2.
+	
+	
+	abbreviation: |EPVt1| 
+	Notused1: | | 
+	Notused2: || 
+	name: |Instability is Slantwise=S Upright=U | 
+	
+	
+	NEW FILE - EPVt1.xml
+ -->
+<DerivedParameter name="Instability is Slantwise=S Upright=U" abbreviation="EPVt1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field abbreviation="gammaE"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-5.0E-4"/>
+        <ConstantField value="1.0E37"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="-5.0E-4"/>
+        <ConstantField value="2.0"/>
+    </Method>
+</DerivedParameter>

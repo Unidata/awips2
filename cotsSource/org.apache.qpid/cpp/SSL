@@ -1,0 +1,71 @@
+                 Using SSL
+                 =========
+
+SSL support for Qpid-C++, based on Mozilla's Network Security Services
+library, is provided as two loadable modules: one for the client
+(sslconnector.so), one for the broker (ssl.so). Either these libraries
+should be present in the relevant module directory or the
+'load-module' option (or QPID_LOAD_MODULE environment variable) is
+used to ensure they are loaded.
+
+Broker side SSL Settings (note you can get these by qpidd --help
+providing the ssl.so module is loaded):
+
+SSL Settings:
+  --ssl-use-export-policy              Use NSS export policy
+  --ssl-cert-password-file PATH        File containing password to use for
+                                       accessing certificate database
+  --ssl-cert-db PATH                   Path to directory containing certificate
+                                       database
+  --ssl-cert-name NAME (thinkpad)      Name of the certificate to use
+  --ssl-port PORT (5671)               Port on which to listen for SSL
+                                       connections
+  --ssl-require-client-authentication  Forces clients to authenticate in order
+                                       to establish an SSL connection
+
+
+The first four of these are also available as client options (where
+they must either be in the client config file or set as environment
+variables e.g. QPID_SSL_CERT_DB).
+
+To run either the broker or client you need ssl-cert-db-path to point
+to the directory where relevant certificate and key databases can be
+found.
+
+Certificate databases are set up using certutil (included in the
+nss-tools package on fedora). See the NSS site for examples[1] and
+full details[2].
+
+For a simple testing you can set up a single db with a single self
+signed certificate. E.g (with myhost and mydomain replaced by the
+hostname and domainname of the machine in question respectively):
+
+    mkdir test_cert_db
+    certutil -N -d test_cert_db -f cert.password
+    certutil -S -d test_cert_db -n "myhost.mydomain" \
+             -s "CN=myhost.mydomain" -t "CT,," -x \
+             -f cert.password -z /usr/bin/certutil
+
+Here cert.password is a file with a password in it that will be needed
+for accessing the created db.
+
+The daemon can then be started with something like the following:
+
+./src/qpidd --auth no --load-module src/.libs/ssl.so \
+            --ssl-cert-db ./test_cert_db \
+            --ssl-cert-password-file ./cert.password \
+            --ssl-cert-name myhost.mydomain
+
+then for client set:
+
+QPID_LOAD_MODULE=./src/.libs/sslconnector.so
+QPID_SSL_CERT_DB=./test_cert_db
+
+and run e.g.
+
+./src/tests/perftest --count 10000 -P ssl --port 5671 \
+                     --broker myhost.mydomain
+
+
+[1] http://www.mozilla.org/projects/security/pki/nss/ref/ssl/gtstd.html
+[2] http://www.mozilla.org/projects/security/pki/nss/tools/certutil.html

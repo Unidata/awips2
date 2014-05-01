@@ -1,0 +1,5 @@
+C                                           *--> FROM SCOMMON.SURRSX
+C  URRS PARAMETERS COMMON BLOCK
+      COMMON /SURRSX/ IURRSX,MTYPCD,NTYPCD,
+     *   TYPCD(30),MNDAY(30),NMOBS(30)
+C

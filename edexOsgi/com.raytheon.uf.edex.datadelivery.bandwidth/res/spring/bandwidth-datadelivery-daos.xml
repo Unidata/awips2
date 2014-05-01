@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="bandwidthAllocationDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthAllocationDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="bandwidthSubscriptionDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthSubscriptionDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="subscriptionRetrievalDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.SubscriptionRetrievalDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="subscriptionRetrievalAttributesDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.SubscriptionRetrievalAttributesDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="bandwidthDataSetUpdateDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthDataSetUpdateDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>
+
+    <bean id="hibernateBandwidthDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDao">
+        <property name="bandwidthAllocationDao" ref="bandwidthAllocationDao" />
+        <property name="bandwidthSubscriptionDao" ref="bandwidthSubscriptionDao" />
+        <property name="subscriptionRetrievalDao" ref="subscriptionRetrievalDao" />
+        <property name="subscriptionRetrievalAttributesDao" ref="subscriptionRetrievalAttributesDao" />
+        <property name="bandwidthDataSetUpdateDao" ref="bandwidthDataSetUpdateDao" />
+    </bean>
+
+    <!-- TODO: Switch to use database bandwidth buckets 
+    <bean id="hibernateBandwidthBucketDao"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.BandwidthBucketDao">
+        <property name="sessionFactory" ref="metadataSessionFactory" />
+    </bean>  -->
+</beans>

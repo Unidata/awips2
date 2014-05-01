@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	50dbzZ  | |N|50dbz Hgt for 3/4 in. Svr Hail |m agl|CONTOUR,IMAGE,OTHER|Layer  |   *Poly,Layer|6587.1917|1.|1.|-2.6305|zAGL,FrzLvl|1.|0.000921|zAGL,FrzLvl|2.0
+	
+	
+	varId: |50dbzZ| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |50dbz Hgt for 3/4 in. Svr Hail | 
+	units: |m agl| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, planeList: |Poly, Layer| 
+	const: |6587.1917| 
+	const: |1.| 
+	const: |1.| 
+	const: |-2.6305| 
+	varId, plane: |zAGL,FrzLvl| 
+	const: |1.| 
+	const: |0.000921| 
+	varId, plane: |zAGL,FrzLvl| 
+	const: |2.0| 
+
+	AWIPS II NEW FILE - 50dbzZ.xml
+ -->
+<DerivedParameter unit="m" name="50dbz Hgt for 3/4 in. Svr Hail" abbreviation="50dbzZ" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Poly">
+        <ConstantField value="6587.192"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-2.6305"/>
+        <Field level="FrzLvl" abbreviation="zAGL"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="9.21E-4"/>
+        <Field level="FrzLvl" abbreviation="zAGL"/>
+        <ConstantField value="2.0"/>
+    </Method>
+</DerivedParameter>

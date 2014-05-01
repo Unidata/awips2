@@ -1,0 +1,300 @@
+#!/usr/bin/perl
+#
+# $Id: syscheck.in,v 1.3 1997/09/04 16:13:04 mitch Exp $
+#
+# File:		syscheck
+# Version:      1.01
+#
+# Copyright 1995 University Corporation for Atmospheric Research
+# See ../COPYRIGHT file for copying and redistribution conditions.
+#
+# Description: This perl script checks local conditions on both the host
+#  machine and the local network segment.  It uses vmstat(1), netstat(1),
+#  iostat(1) and uptime(1).  As output format is different on different
+#  platforms, check your local man pages for each of the utilities for
+#  descriptions and explanations.  Output is both to stdout, as well as
+#  appended to a log file.
+#
+#  For vmstat(1), the following interface is specified:
+#
+#    Solaris, SunOS          le0
+#    IRIX                    ec0
+#    OSF/1                   ln0
+#    HP-UX                   lan0
+#    AIX                     en0
+#
+#  If you need to specify a different interface, use the -I switch.
+#
+# Files:
+#
+#  syscheck.log  - syscheck log file
+#
+# Environment Variables:
+#
+#  LDMHOME - path to LDM home directory
+#
+# Usage:
+#
+#  syscheck [-u] [-I interface] [-l logfile] [-o] [-n]
+#
+#       -u             print usage message
+#       -I interface   network interface if other than default
+#       -l logfile     logfile (default: $LDMHOME/logs/netcheck.log)
+#       -n             suppress output to <STDOUT>
+#       -o             suppress output to logfile
+###############################################################################
+
+# set identification information
+
+$PROGNAME = "syscheck";
+$VERSION = "1.01";
+
+# we need the LDMHOME path
+
+$ldmhome = "/usr/local/ldm";
+
+# set the PATH
+
+$ENV{'PATH'} =
+  "/usr/bin:/usr/sbin:/sbin:/usr/ucb:/bin:/usr/usb:/usr/etc:/etc:$ENV{'PATH'}";
+
+# we need both the operating system and the hostname
+
+($os,$hostname,$vers) = split(/ /,`uname -a`);
+
+# get and process command line
+
+while ($_ = $ARGV[0]) {
+    shift;
+    /^-u/ && &usage();
+    /^-I/ && ($interface = shift);
+    /^-l/ && ($logpath = shift);
+    /^-n/ && $no_stdout++;
+    /^-o/ && $no_log++;
+}
+
+# set the network interface to the default value and set executables
+
+if ($os eq "SunOS" && $vers =~ /^5/) {
+    if (!$interface) {
+	$interface = "le0";
+    }
+
+    $vmstat_cmd = "vmstat";
+    $netstat_cmd = "netstat -i -I $interface";
+    $iostat_cmd = "iostat -x";
+    $uptime_cmd = "uptime";
+}
+
+elsif ($os eq "SunOS" && $vers =~ /^4/) {
+    if (!$interface) {
+	$interface = "le0";
+    }
+
+    $vmstat_cmd = "vmstat";
+    $netstat_cmd = "netstat -i -I $interface";
+    $iostat_cmd = "iostat -I";
+    $uptime_cmd = "uptime";
+}
+
+elsif ($os eq "IRIX") {
+    if (!$interface) {
+	$interface = "ec0";
+    }
+
+    $vmstat_cmd = "sar -A 5";
+    $netstat_cmd = "netstat -i -I $interface";
+    $iostat_cmd = "true";
+    $uptime_cmd = "uptime";
+}
+
+elsif ($os eq "OSF1") {
+    if (!$interface) {
+	$interface = "ln0";
+    }
+
+    $vmstat_cmd = "vmstat";
+    $netstat_cmd = "netstat -i -I $interface";
+    $iostat_cmd = "iostat";
+    $uptime_cmd = "uptime";
+}
+
+elsif ($os eq "HP-UX") {
+    if (!$interface) {
+	$interface = "lan0";
+    }
+
+    $vmstat_cmd = "vmstat";
+    $netstat_cmd = "netstat -i -I $interface";
+    $iostat_cmd = "iostat -t";
+    $uptime_cmd = "uptime";
+}
+
+elsif ($os eq "AIX") {
+    if (!$interface) {
+	$interface = "en0";
+    }
+
+    $vmstat_cmd = "vmstat";
+    $netstat_cmd = "netstat -i -I $interface";
+    $iostat_cmd = "iostat";
+    $uptime_cmd = "uptime";
+}
+
+else {
+    &bad_warn("Unknown Operating System - winging it");
+    if (!$interface) {
+	$interface = "";
+    }
+
+    $vmstat_cmd = "vmstat";
+    $netstat_cmd = "netstat -i";
+    $iostat_cmd = "iostat";
+    $uptime_cmd = "uptime";
+}
+
+
+
+# set the file paths and open the log file
+
+unless ($logpath) {
+   $logpath = "$ldmhome/logs/syscheck.log";
+}
+unless ($no_log) {
+   open(LOGFILE,">>$logpath") || &bad_exit("Could not open $logpath");
+}
+
+# print header information
+
+unless ($no_stdout) {
+    $^ = "NONE";
+    $~ = "PROGRAM_BODY";
+    write;
+}
+
+unless ($no_log) {
+    select(LOGFILE);
+    $| = 1;
+    $^ = "NONE";
+    $~ = "PROGRAM_BODY";
+    write;
+    select(STDOUT);
+}
+
+# run utilities
+
+$uptime_str = `$uptime_cmd`;
+$vmstat_str = `$vmstat_cmd`;
+$netstat_str = `$netstat_cmd`;
+$iostat_str = `$iostat_cmd`;
+
+# print results
+
+unless ($no_stdout) {
+    print "$uname_str\n";
+    print "$uptime_cmd:\n$uptime_str\n\n";
+    print "$vmstat_cmd:\n$vmstat_str\n\n";
+    print "$netstat_cmd:\n$netstat_str\n\n";
+    print "$iostat_cmd:\n$iostat_str\n\n";
+}
+
+unless ($no_log) {
+    print LOGFILE "$uname_str\n";
+    print LOGFILE "$uptime_cmd:\n$uptime_str\n\n";
+    print LOGFILE "$vmstat_cmd:\n$vmstat_str\n\n";
+    print LOGFILE "$netstat_cmd:\n$netstat_str\n\n";
+    print LOGFILE "$iostat_cmd:\n$iostat_str\n\n";
+}
+
+# that's all folks
+
+exit 0;
+
+###############################################################################
+# Print usage and exit.
+###############################################################################
+
+sub usage {
+
+    print "\n$PROGNAME $VERSION\n";
+    print "Usage: $PROGNAME [-u] [-I] [-l logfile] [-o] [-n]";
+    print "\n\t-u\t\tprint this screen\n";
+    print "\t-I interface\tnetwork interface (default: $interface)\n";
+    print "\t-l logfile\tlogfile (default: \$LDMHOME/logs/netcheck.log)\n";
+    print "\t-n\t\tsuppress output to <STDOUT>\n";
+    print "\t-o\t\tsuppress output to logfile\n\n";
+
+    exit(0);
+}
+
+###############################################################################
+# Error Routine.  Writes error message and exits.
+###############################################################################
+
+sub bad_exit {
+
+    local($err_str) = @_;
+    local($date_str) = &get_date();
+
+    print STDERR "$date_str $hostname $PROGNAME[$<]: $err_str\a\n";
+
+    unless ($no_log) {
+	print LOGFILE "$date_str $hostname $PROGNAME[$<]: $err_str\n";
+    }
+
+    exit -1;
+
+}
+
+###############################################################################
+# Error Routine. Writes error and does not exit.
+###############################################################################
+
+sub bad_warn {
+
+    local($err_str) = @_;
+    local($date_str) = &get_date();
+
+    print STDERR "$date_str $hostname $PROGNAME[$<]: $err_str\n";
+
+    unless ($no_log) {
+	print LOGFILE "$date_str $hostname $PROGNAME[$<]: $err_str\n";
+    }
+}
+
+###############################################################################
+# Date routine.  Gets date and time as GMT in the same format as the LDM log
+# file.
+###############################################################################
+
+sub get_date {
+
+    @month_array = (Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec);
+
+    local($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+	gmtime(time());
+
+    local($date_string) =
+	sprintf("%s %d %02d:%02d:%02d UTC", $month_array[$mon], $mday,
+		$hour, $min,$sec);
+
+    return $date_string;
+
+}
+
+###############################################################################
+# FORMATS
+###############################################################################
+
+format NONE =
+.
+
+format PROGRAM_BODY =
+
+                     @||||||||||||||||||||||||||||||||||||
+                                   $hostname
+@<<<<<<<<                     @|||||||||||||||||||               Version:@>>>>>
+$PROGNAME,                    &get_date(),                       $VERSION
+===============================================================================
+
+.

@@ -1,0 +1,53 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="webServerThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+		<property name="minThreads" value="5" />
+		<property name="maxThreads" value="${ebxml-webserver-max-threads}" />
+	</bean>
+
+	<bean id="ebxmlRegistryWebServer" class="org.eclipse.jetty.server.Server"
+		init-method="start" destroy-method="stop">
+
+		<property name="threadPool" ref="webServerThreadPool"/>
+
+		<property name="connectors">
+			<list>
+				<bean id="Connector"
+					class="org.eclipse.jetty.server.nio.NetworkTrafficSelectChannelConnector">
+					<property name="port" value="${EBXML_REGISTRY_WEBSERVER_PORT}" />
+					<property name="maxIdleTime" value="5000" />
+					<property name="acceptors" value="2" />
+					<property name="confidentialPort"
+						value="${EBXML_REGISTRY_WEBSERVER_CONFIDENTIAL_PORT}" />
+				</bean>
+			</list>
+		</property>
+
+		<property name="handler">
+			<bean id="handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
+				<property name="handlers">
+					<list>
+						<bean id="contexts"
+							class="org.eclipse.jetty.server.handler.ContextHandlerCollection">
+							<property name="handlers">
+								<list>
+									<bean class="org.eclipse.jetty.webapp.WebAppContext">
+										<property name="contextPath" value="/" />
+										<property name="war"
+											value="file:///${edex.home}/webapps/registryEbxml" />
+										<property name="systemClasses"
+                                            value="java., javax., org., com., gov., ch., net., edu."/>
+									</bean>
+								</list>
+							</property>
+						</bean>
+						<bean id="defaultHandler" class="org.eclipse.jetty.server.handler.DefaultHandler" />
+						<bean id="requestLog" class="org.eclipse.jetty.server.handler.RequestLogHandler" />
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+</beans>  

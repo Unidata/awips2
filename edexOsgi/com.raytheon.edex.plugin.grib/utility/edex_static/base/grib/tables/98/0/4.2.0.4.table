@@ -1,0 +1,9 @@
+# Product Discipline 0: Meteorological products, Parameter Category 4: Short-wave Radiation
+#192-254 Reserved for local use
+192:192:Downward Short-W/m^2:DSWRF
+193:193:Upward Short-W/m^2:USWRF
+194:194:UV-B downward solar flux:W/m^2:DUVB
+195:195:Clear sky UV-B downward solar flux:W/m^2:CDUVB
+196:196:Clear sky downward solar flux:W/m^2:CSDSF
+255:255:Missing
+

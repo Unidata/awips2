@@ -1,0 +1,231 @@
+C************************************************************************
+C* /DMLABL/								*
+C*									*
+C* This common area stores labels for the DM library subroutines.	*
+C**									*
+C* M. desJardins/GSFC	 6/86						*
+C* M. desJardins/GSFC	 9/87	Eliminated continuation lines past 19	*
+C* M. desJardins/GSFC	 3/89	Added grid packing			*
+C* M. desJardins/NMC	 5/91	Added logical vars for data types	*
+C* K. Brill/HPC		11/02	ksgrid (LLMXGD) -> ksgrid (LLMXTG)	*
+C* D.W.Plummer/NCEP	09/06	Remove ksgrid entirely			*
+C************************************************************************
+	LOGICAL		kvmst, kieeet, mvmst, mieeet
+C*
+	COMMON  /DMLABL/
+     +		kversn (MMFILE),
+C!						!version number
+     +		kfhdrs (MMFILE),
+C!						! # file headers
+     +		kpfile (MMFILE),
+C!						! ptr to file keys
+     +		krow   (MMFILE),
+C!						! # of rows
+     +		krkeys (MMFILE),
+C!						! # row keys
+     +		kprkey (MMFILE),
+C!						! ptr to row keys
+     +		kprowh (MMFILE),
+C!						! ptr to row headers
+     +		kcol   (MMFILE), kckeys (MMFILE),
+C!						! # of cols
+C!						! # col keys
+     +		kpckey (MMFILE), kpcolh (MMFILE),
+C!						! ptr to col keys
+C!						! ptr to col headers
+     +		kprt   (MMFILE), kppart (MMFILE),
+C!						! # of parts
+C!						! # part info
+     +		kpdmgt (MMFILE), kldmgt (MMFILE),
+C!						! ptr/length of dmg rec
+     +		kpdata (MMFILE),
+C!						! ptr to data
+     +		kftype (MMFILE), kfsrce (MMFILE),
+C!						! file type, source
+     +		kmachn (MMFILE),
+C!						! machine data type
+     +		kmissd (MMFILE), smissd (MMFILE),
+C!						! missing data values
+     +		kvmst (MMFILE), kieeet (MMFILE), mvmst, mieeet
+C!						! swap byte, ieee flags
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMDMGT/								*
+C*									*
+C* This common area stores the data management information for the 	*
+C* DM library.								*
+C**									*
+C************************************************************************
+	COMMON  /DMDMGT/
+     +		kpnext (MMFILE),
+C!						! next free word
+     +		kmfree (MMFILE),
+C!						! max # free pairs
+     +		knfree (MMFILE),
+C!						! actual # free pairs
+     +		kfreew (2,MMFREE,MMFILE),
+C!						! free pairs
+     +		klstwd (MMFILE)
+C!						! last word in shr files
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMFHDRS/								*
+C*									*
+C* This common area stores file header information for the DM 		*
+C* library subroutines.							*
+C**									*
+C************************************************************************
+	CHARACTER*4	kfhnam
+C
+	COMMON  /DMFHDRS/
+     +		kfhnam (MMFHDR,MMFILE),
+C!						! file header names
+     +		kfhlen (MMFHDR,MMFILE),
+C!						! file header lengths
+     +		kfhtyp (MMFHDR,MMFILE)
+C!						! file header data types
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMKEYS/								*
+C*									*
+C* This common area stores the keys for the DM subroutines.		*
+C**									*
+C************************************************************************
+	CHARACTER*4	kkrow, kkcol
+C
+	COMMON  /DMKEYS/
+     +		kkrow  (MMKEY,MMFILE),
+C!						! row keys
+     +		kkcol  (MMKEY,MMFILE)
+C!						! col keys
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMPART/								*
+C*									*
+C* This common area stores the part information for the DM subroutines.	*
+C**									*
+C************************************************************************
+	CHARACTER*4	kprtnm, kprmnm
+C
+	COMMON  /DMPART/
+     +		kprtnm (MMPRT,MMFILE),
+C!						! part names
+     +		klnhdr (MMPRT,MMFILE),
+C!						! header lengths
+     +		ktyprt (MMPRT,MMFILE),
+C!						! data type
+     +		kparms (MMPRT,MMFILE),
+C!						! # parameters
+     +		kprmnm (MMPARM,MMPRT,MMFILE),
+C!						! parameters names
+     +		kscale (MMPARM,MMPRT,MMFILE),
+C!						! scaling terms
+     +		koffst (MMPARM,MMPRT,MMFILE),
+C!						! offset terms
+     +		kbits  (MMPARM,MMPRT,MMFILE),
+C!						! # bits
+     +		kpkno  (MMPRT,MMFILE),
+C!						! packing number
+     +		kwordp (MMPRT,MMFILE)
+C!						! length of packed rec
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMHDRS/								*
+C*									*
+C* This common area stores the headers for the DM subroutines.		*
+C**									*
+C************************************************************************
+	COMMON  /DMHDRS/
+     +		kheadr (0:MMKEY,MMHDRS,MMFILE),
+C!						! row & col headers
+     +		klstcl (MMFILE),
+C!						! last row hdr defined
+     +		klstrw (MMFILE)
+C!						! last col hdr defined
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMCACH/								*
+C*									*
+C* This common area stores the last MCACHE (8) data records read.	*
+C**									*
+C************************************************************************
+C
+	COMMON  /DMCACH/
+     +		kcdata (MBLKSZ,MCACHE)
+C!						! data records
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMFILE/								*
+C*									*
+C* This common area stores file information for the DM subroutines.	*
+C**									*
+C************************************************************************
+	LOGICAL		wflag, kshare
+C
+	COMMON  /DMFILE/
+     +		wflag   (MMFILE),
+C!						! write flag
+     +		kshare  (MMFILE)
+C!						! shared access flag
+C
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMSRCH/								*
+C*									*
+C* This common area stores search information for the DM subroutines.	*
+C**									*
+C************************************************************************
+	LOGICAL		srcflg, kaddsr
+C
+	COMMON /DMSRCH/
+     +		nsrch   (MMFILE),		  
+C!						! number of searches
+     +		srcflg  (MMFILE),		  
+C!						! primary search flag
+     +		kaddsr  (MMSRCH,MMFILE),	  
+C!						! additive search flag
+     +		ksnrow  (0:MMSRCH,MMFILE),	  
+C!						! # of row searches
+     +		kslrow  (MMKEY,0:MMSRCH,MMFILE),  
+C!						! location of row search
+     +		ksrlov  (MMKEY,0:MMSRCH,MMFILE),  
+C!						! low search values
+     +		ksrhiv  (MMKEY,0:MMSRCH,MMFILE),  
+C!						! high search values
+     +		ksncol  (0:MMSRCH,MMFILE),  	  
+C!						! # of col searches
+     +		kslcol  (MMKEY,0:MMSRCH,MMFILE),  
+C!						! location of col search
+     +		ksclov  (MMKEY,0:MMSRCH,MMFILE),  
+C!						! low search values
+     +		kschiv  (MMKEY,0:MMSRCH,MMFILE),  
+C!						! high search values
+     +		ksrow   (MMFILE),  		  
+C!						! current row
+     +		kscol   (MMFILE)		  
+C!						! current col
+C------------------------------------------------------------------------
+C************************************************************************
+C* /DMSPCE/								*
+C*									*
+C* This common area contains a scratch space for the DM library.	*
+C* Grid packing values are also stored here to allow subroutine		*
+C* DM_RDTR to pack data.						*
+C**									*
+C************************************************************************
+	PARAMETER	( MMSPCE = 4 * MMPARM * MMPRT )
+	PARAMETER	( MMSCPR = MMSPCE / 2 )
+C
+	INTEGER		kscrch (2,MMSCPR)
+C
+	COMMON  /DMSPCE/
+     +		intarr  (MMSPCE),
+C!						! scratch space
+     +		msspce,
+C!						! # pairs in kscrch
+     +		iigx, iigy, iipkty, inbits,
+     +		iimiss, rrref, rscale, rdifmn
+C!						! grid packing values
+C
+	EQUIVALENCE	( intarr, kscrch )
+C------------------------------------------------------------------------

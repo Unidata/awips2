@@ -1,0 +1,329 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="Performance Tests" default="build">
+
+    <property name="module.depends" value="systests client broker common junit-toolkit"/>
+
+    <import file="../module.xml"/>
+
+    <property name="xms" value="-Xms256m"/>
+    <property name="xmx" value="-Xmx1024m"/>
+    <property name="test.logging.level" value="-Damqj.test.logging.level=info"/>
+    <property name="qpid.logging.level" value="-Damqj.logging.level=warn"/>
+    <property name="log4j.config" value="-Dlog4j.configuration=perftests.log4j"/>
+    <property name="properties" value="perftests.properties"/>
+    <property name="scripts.dir" value="${build.bin}/${module.name}"/>
+
+    <condition property="results" value="${result-path}/results" else="${project.root}/${module}/results">
+      <isset property="result-path"/>
+    </condition>
+
+    <target name="precompile">
+      <mkdir dir="${scripts.dir}"/>
+      <jython path="${mllib.dir}">
+        <args>
+          <arg value="generate-scripts"/>
+          <arg value="scripts.xml"/>
+          <arg value="${scripts.dir}"/>
+        </args>
+      </jython>
+    </target>
+
+    <target name="all-tests" depends="all-queue-tests,all-topic-tests"/>
+
+    <target name="all-queue-tests" depends="Queue-Duration-Persistent,Queue-Concurrent,
+    Queue-Duration,Queue-Latency,Queue-Duration-Transacted,Queue-LargeMessage-Persistent"/>
+
+    <target name="all-topic-tests" depends="Topic-Concurrent,Topic-Duration,Topic-Latency,
+    Topic-Duration-Transacted"/>
+
+    <!-- Queue tests -->
+
+    <!--
+    Send 10000 (.5K) messages and measure the time for receiving 1000 messages (10 intervals)
+    the overall latency is also calculated (See Test * Size Throughput)
+    Note that "Test Throughput" is the average time for receiving 1000 messages
+    -->
+    <target name="Queue-Latency" depends="build" description="Run Queue-Latency">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-n Queue-Latency"/>
+            <arg value="-s[10000]"/>
+            <arg value="-t testPingLatency"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingLatencyTestPerf"/>
+            <arg value="rate=100"/>
+            <arg value="batchSize=1000"/>
+            <arg value="messageSize=512"/>
+        </java>
+    </target>
+
+    <!--
+    Measure the time required for one producer/consumer pair
+    for sending and receiving 10000 transient messages.
+    The test last for 5 minutes.
+    -->
+    <target name="Queue-Duration" depends="build" description="">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-d5M"/>
+            <arg value="-n Queue-Duration"/>
+            <arg value="-s[1000]"/>
+            <arg value="-t testAsyncPingOk"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingAsyncTestPerf"/>
+            <arg value="messageSize=512"/>
+        </java>
+    </target>
+
+    <!--
+    Measure the time required for one producer/consumer pair
+    for sending and receiving 10000 0.5K persistent messages.
+    The test last for 5 minutes.
+    -->
+    <target name="Queue-Duration-Persistent" depends="build" description="">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-d5M"/>
+            <arg value="-n Queue-Duration-Persistent"/>
+            <arg value="-s[1000]"/>
+            <arg value="-t testAsyncPingOk"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingAsyncTestPerf"/>
+            <arg value="persistent=true"/>
+            <arg value="messageSize=512"/>
+        </java>
+    </target>
+
+    <!--
+    Measure the time required for one producer/consumer pair
+    for sending and receiving 10000 100K persistent messages.
+    The test last for 5 minutes.
+    -->
+    <target name="Queue-LargeMessage-Persistent" depends="build" description="">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-d5M"/>
+            <arg value="-n Queue-LargeMessage-Persistent"/>
+            <arg value="-s[1000]"/>
+            <arg value="-t testAsyncPingOk"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingAsyncTestPerf"/>
+            <arg value="persistent=true"/>
+            <arg value="messageSize=102400"/>
+        </java>
+    </target>
+
+    <!--
+       Measure the time required for one (transacted producer)/(Transacted consumer) pair
+       for sending and receiving 10000 (0.5K) persistent messages.
+       Tx batch size is 100 (consumer and producer)
+       The test last for 5 minutes.
+       -->
+    <target name="Queue-Duration-Transacted" depends="build" description="">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-d5M"/>
+            <arg value="-n Queue-Duration-Transacted"/>
+            <arg value="-s[1000]"/>
+            <arg value="-t testAsyncPingOk"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingAsyncTestPerf"/>
+            <arg value="persistent=true"/>
+            <arg value="transacted=true"/>
+            <arg value="batchSize=100"/>
+            <arg value="consTransacted=true"/>
+            <arg value="commitBatchSize=100"/>
+            <arg value="messageSize=512"/>
+        </java>
+    </target>
+
+    <!--
+    Measure the time for four concurrent producer/receiver pairs to send and receive 1000 transient messages
+    -->
+    <target name="Queue-Concurrent" depends="build" description="">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-r1"/>
+            <arg value="-n Queue-Concurrent"/>
+            <arg value="-s[1000]"/>
+            <arg value="-c[4]"/>
+            <arg value="-t testAsyncPingOk"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingAsyncTestPerf"/>
+            <arg value="messageSize=512"/>
+        </java>
+    </target>
+
+
+    <!-- Topic tests -->
+
+    <!--
+    Send 10000 (.5K) messages and measure the time for receiving 1000 messages (10 intervals)
+    the overall latency is also calculated (See Test * Size Throughput)
+    Note that "Test Throughput" is the average time for receiving 1000 messages
+    -->
+    <target name="Topic-Latency" depends="build" description="Run Queue-Latency">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-n Topic-Latency"/>
+            <arg value="-s[10000]"/>
+            <arg value="-t testPingLatency"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingLatencyTestPerf"/>
+            <arg value="rate=100"/>
+            <arg value="batchSize=1000"/>
+            <arg value="messageSize=512"/>
+            <arg value="pubsub=true"/>
+        </java>
+    </target>
+
+    <!--
+    Measure the time required for one producer/consumer pair
+    for sending and receiving 10000 transient messages.
+    The test last for 5 minutes.
+    -->
+    <target name="Topic-Duration" depends="build" description="">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-d5M"/>
+            <arg value="-n Topic-Duration"/>
+            <arg value="-s[1000]"/>
+            <arg value="-t testAsyncPingOk"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingAsyncTestPerf"/>
+            <arg value="messageSize=512"/>
+            <arg value="pubsub=true"/>
+        </java>
+    </target>
+
+    <!--
+       Measure the time required for one (transacted producer)/(Transacted consumer) pair
+       for sending and receiving 10000 (0.5K) persistent messages.
+       Tx batch size is 100 (consumer and producer)
+       The test last for 5 minutes.
+       -->
+    <target name="Topic-Duration-Transacted" depends="build" description="">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-d5M"/>
+            <arg value="-n Topic-Duration-Transacted"/>
+            <arg value="-s[1000]"/>
+            <arg value="-t testAsyncPingOk"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingAsyncTestPerf"/>
+            <arg value="persistent=true"/>
+            <arg value="transacted=true"/>
+            <arg value="batchSize=100"/>
+            <arg value="consTransacted=true"/>
+            <arg value="commitBatchSize=100"/>
+            <arg value="messageSize=512"/>
+        </java>
+    </target>
+
+    <!--
+    Measure the time for four concurrent producer/receiver pairs to send and receive 1000 transient messages
+    -->
+    <target name="Topic-Concurrent" depends="build" description="">
+        <java classname="org.apache.qpid.junit.extensions.TKTestRunner" fork="true">
+            <classpath refid="module.test.path"/>
+            <jvmarg value="${xms}"/>
+            <jvmarg value="${xmx}"/>
+            <jvmarg value="${test.logging.level}"/>
+            <jvmarg value="${qpid.logging.level}"/>
+            <jvmarg value="${log4j.config}"/>
+            <!-- args -->
+            <arg value="-r1"/>
+            <arg value="-n Topic-Concurrent"/>
+            <arg value="-s[1000]"/>
+            <arg value="-c[4]"/>
+            <arg value="-t testAsyncPingOk"/>
+            <arg value="-o${results}"/>
+            <arg value="--csv"/>
+            <arg value="org.apache.qpid.ping.PingAsyncTestPerf"/>
+            <arg value="messageSize=512"/>
+        </java>
+    </target>
+
+</project>

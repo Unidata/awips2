@@ -1,0 +1,134 @@
+C MEMBER PRC19
+C  (from old member FCPRC19)
+C
+      SUBROUTINE PRC19(PS,CS)
+C.......................................
+C     THIS IS THE PRINT CARRYOVER SUBROUTINE FOR THE 'SNOW-17 '
+C        OPERATION.
+C.......................................
+C     SUBROUTINE INITIALLY WRITTEN BY...
+C        ERIC ANDERSON - HRL   MAY 1980
+
+CVK      UPDATED 4/00 BY V. KOREN TO INCLUDE TWO NEW STATES
+C
+CEA      MODIFIED 11/05 BY E. ANDERSON TO ADD TAPREV STATE AND TO
+CEA        CORRECT ERRORS IN PREVIOUS VERSION.
+C.......................................
+      DIMENSION PS(*),CS(*)
+C
+C     COMMON BLOCKS
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/FCONIT/IVALUE
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_prpc/RCS/prc19.f,v $
+     . $',                                                             '
+     .$Id: prc19.f,v 1.4 2006/10/03 19:33:21 hsu Exp $
+     . $' /
+C    ===================================================================
+C
+C.......................................
+C     TRACE LEVEL=1, NO DEBUG OUTPUT
+      IF(ITRACE.GE.1) WRITE(IODBUG,900)
+  900 FORMAT(1H0,16H** PRC19 ENTERED)
+C.......................................
+C     PRINT TITLE.
+      WRITE(IPR,901) (PS(I),I=2,6)
+  901 FORMAT(1H0,10X,25HSNOW COVER CONDITIONS FOR,1X,5A4)
+C.......................................
+C
+C     DETERMINE IF A SNOW COVER EXISTS.
+      WE=CS(1)
+      IF(WE.GT.0.0) GO TO 100
+C
+C     NO SNOW COVER
+      WRITE(IPR,902)
+  902 FORMAT(1H0,15X,20HNO SNOW COVER EXISTS)
+      RETURN
+C
+C     SNOW COVER EXISTS.
+CEA   GET VERSION NUMBER FOR CARRYOVER ARRAY TO BE PRINTED
+  100 IVER=PS(1)
+CEA   DETERMINE NUMBER OF EXCESS LAG VALUES
+      ITPX=PS(10)
+      NEXLAG=5/ITPX+2
+      IF(IVALUE.EQ.0) GO TO 110
+      IRDCO=PS(15)
+      IF(IRDCO.EQ.2) GO TO 110
+C********************************************************************
+C     PRINT PRIMARY VARIABLES ONLY.
+C
+CEA     VERSION 1 CS ARRAY DOESN'T CONTAIN SNOW DEPTH AND TEMPERATURE
+      IF (IVER.EQ.1) THEN
+        WRITE(IPR,903)
+  903 FORMAT(1H0,20X,2HWE,2X,5HNEGHS,3X,4HLIQW,1X,6HTINDEX,1X,6HACCMAX)
+        WRITE(IPR,904) (CS(I),I=1,5)
+  904 FORMAT(1H ,15X,F7.1,3F7.1,2F7.0,F7.2,F7.0,F7.1,F7.0,F7.1,6F5.1)
+        ELSE
+C
+CEA     VERSION 2 AND 3 CS ARRAYS CONTAIN DEPTH AND TEMPERATURE, BUT NOT
+CEA       TAPREV.
+        IF (IVER.LT.4) THEN
+CVK  ADDED TWO NEW STATES TO PRINT
+          WRITE(IPR,905)
+  905 FORMAT(1H0,20X,2HWE,2X,5HNEGHS,3X,4HLIQW,1X,6HTINDEX,1X,6HACCMAX,
+CGZ     +       1X,5HSNDPT,1X,5HSNTMP)
+     +       2X,5HSNDPT,2X,5HSNTMP)
+          WRITE(IPR,906) (CS(I),I=1,5),CS(11+NEXLAG),CS(12+NEXLAG)
+CGZ  FOR BUG R24-14 10/31/2003
+CGZ  906 FORMAT(1H ,15X,F7.1,3F7.1,F7.0,2F7.1,F7.0,F7.2,F7.0,F7.1,
+CGZ     +       F7.0,7F5.1)
+  906 FORMAT(1H ,15X,F7.1,3F7.1,F7.0,2F7.1,F7.0,F7.2,F7.0,F7.1,
+     +       F7.0,F7.1,6F5.1)
+          ELSE
+CEA     VERSION 4 CS ARRAY CONTAINS DEPTH, TEMPERATURE, AND TAPREV
+          WRITE(IPR,907)
+  907 FORMAT(1H0,20X,2HWE,2X,5HNEGHS,3X,4HLIQW,1X,6HTINDEX,1X,6HACCMAX,
+     +       2X,5HSNDPT,2X,5HSNTMP,1X,6HTAPREV)
+          WRITE(IPR,908) (CS(I),I=1,5),CS(11+NEXLAG),CS(12+NEXLAG),
+     +  CS(13+NEXLAG)
+  908 FORMAT(1H ,15X,F7.1,3F7.1,F7.0,3F7.1,F7.0,F7.2,F7.0,F7.1,
+     +       F7.0,F7.1,6F5.1)
+        ENDIF
+      ENDIF
+C             
+      RETURN
+C********************************************************************
+C     PRINT ALL VARIABLES
+C
+  110 IF (IVER.EQ.1) THEN
+        L=10+NEXLAG
+        WRITE(IPR,909)
+  909 FORMAT(1H0,20X,2HWE,2X,5HNEGHS,3X,4HLIQW,1X,6HTINDEX,1X,6HACCMAX,
+     +       5X,2HSB,1X,6HSBAESC,3X,4HSBWS,1X,6HSTORGE,2X,5HAEADJ,
+     +       2X,5HEXLAG)   
+        WRITE(IPR,904) (CS(I),I=1,L)
+        ELSE
+        IF (IVER.LT.4) THEN
+CVK  ADDED TWO NEW STATES 
+          L=12+NEXLAG
+          WRITE(IPR,910)
+  910 FORMAT(1H0,20X,2HWE,2X,5HNEGHS,3X,4HLIQW,1X,6HTINDEX,1X,6HACCMAX,
+CGZ     +       1X,5HSNDPT,1X,5HSNTMP,5X,2HSB,1X,6HSBAESC,
+     +       2X,5HSNDPT,2X,5HSNTMP,5X,2HSB,1X,6HSBAESC,
+C
+CGZ     +       3X,4HSBWS,1X,6HSTORGE,2X,5HAEADJ,5X,5HEXLAG)     
+     +       3X,4HSBWS,1X,6HSTORGE,2X,5HAEADJ,2X,5HEXLAG)     
+          WRITE(IPR,906) (CS(I),I=1,5),CS(L-1),CS(L),
+     +               (CS(I),I=6,10),(CS(I),I=11,L-2)
+          ELSE
+            L=13+NEXLAG
+            WRITE(IPR,911)
+  911 FORMAT(1H0,20X,2HWE,2X,5HNEGHS,3X,4HLIQW,1X,6HTINDEX,1X,6HACCMAX,
+     +       2X,5HSNDPT,2X,5HSNTMP,1X,6HTAPREV,5X,2HSB,1X,6HSBAESC,
+     +       3X,4HSBWS,1X,6HSTORGE,2X,5HAEADJ,2X,5HEXLAG)     
+            WRITE(IPR,908) (CS(I),I=1,5),CS(L-2),CS(L-1),CS(L),
+     +               (CS(I),I=6,10),(CS(I),I=11,L-3)
+        ENDIF
+      ENDIF
+C.......................................
+      RETURN
+      END

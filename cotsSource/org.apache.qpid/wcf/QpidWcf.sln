@@ -1,0 +1,79 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+
+# 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License
+#
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmqpTypes", "src\Apache\Qpid\AmqpTypes\AmqpTypes.csproj", "{820BFC34-A40F-46BA-B86B-05334854CA17}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interop", "src\Apache\Qpid\Interop\Interop.vcproj", "{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}"
+	ProjectSection(ProjectDependencies) = postProject
+		{820BFC34-A40F-46BA-B86B-05334854CA17} = {820BFC34-A40F-46BA-B86B-05334854CA17}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalTests", "test\Apache\Qpid\Test\Channel\Functional\FunctionalTests.csproj", "{E2D8C779-E417-40BA-BEE1-EE034268482F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Channel", "src\Apache\Qpid\Channel\Channel.csproj", "{8AABAB30-7D1E-4539-B7D1-05450262BAD2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{820BFC34-A40F-46BA-B86B-05334854CA17}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{820BFC34-A40F-46BA-B86B-05334854CA17}.Debug|Win32.Build.0 = Debug|Any CPU
+		{820BFC34-A40F-46BA-B86B-05334854CA17}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{820BFC34-A40F-46BA-B86B-05334854CA17}.Debug|x64.Build.0 = Debug|Any CPU
+		{820BFC34-A40F-46BA-B86B-05334854CA17}.Release|Win32.ActiveCfg = Release|Any CPU
+		{820BFC34-A40F-46BA-B86B-05334854CA17}.Release|Win32.Build.0 = Release|Any CPU
+		{820BFC34-A40F-46BA-B86B-05334854CA17}.Release|x64.ActiveCfg = Release|Any CPU
+		{820BFC34-A40F-46BA-B86B-05334854CA17}.Release|x64.Build.0 = Release|Any CPU
+		{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}.Debug|Win32.Build.0 = Debug|Win32
+		{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}.Debug|x64.ActiveCfg = Debug|x64
+		{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}.Debug|x64.Build.0 = Debug|x64
+		{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}.Release|Win32.ActiveCfg = Release|Win32
+		{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}.Release|Win32.Build.0 = Release|Win32
+		{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}.Release|x64.ActiveCfg = Release|x64
+		{C9B6AC75-6332-47A4-B82B-0C20E0AF2D34}.Release|x64.Build.0 = Release|x64
+		{E2D8C779-E417-40BA-BEE1-EE034268482F}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{E2D8C779-E417-40BA-BEE1-EE034268482F}.Debug|Win32.Build.0 = Debug|Any CPU
+		{E2D8C779-E417-40BA-BEE1-EE034268482F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E2D8C779-E417-40BA-BEE1-EE034268482F}.Debug|x64.Build.0 = Debug|Any CPU
+		{E2D8C779-E417-40BA-BEE1-EE034268482F}.Release|Win32.ActiveCfg = Release|Any CPU
+		{E2D8C779-E417-40BA-BEE1-EE034268482F}.Release|Win32.Build.0 = Release|Any CPU
+		{E2D8C779-E417-40BA-BEE1-EE034268482F}.Release|x64.ActiveCfg = Release|Any CPU
+		{E2D8C779-E417-40BA-BEE1-EE034268482F}.Release|x64.Build.0 = Release|Any CPU
+		{8AABAB30-7D1E-4539-B7D1-05450262BAD2}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{8AABAB30-7D1E-4539-B7D1-05450262BAD2}.Debug|Win32.Build.0 = Debug|Any CPU
+		{8AABAB30-7D1E-4539-B7D1-05450262BAD2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8AABAB30-7D1E-4539-B7D1-05450262BAD2}.Debug|x64.Build.0 = Debug|Any CPU
+		{8AABAB30-7D1E-4539-B7D1-05450262BAD2}.Release|Win32.ActiveCfg = Release|Any CPU
+		{8AABAB30-7D1E-4539-B7D1-05450262BAD2}.Release|Win32.Build.0 = Release|Any CPU
+		{8AABAB30-7D1E-4539-B7D1-05450262BAD2}.Release|x64.ActiveCfg = Release|Any CPU
+		{8AABAB30-7D1E-4539-B7D1-05450262BAD2}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

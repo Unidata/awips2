@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	NST2 | | |Nonsupercell Tornado (>1 NST Threat | |CONTOUR,IMAGE,OTHER|Layer|      *Difference,Layer|18.|BlkMag,0-6kmAgl
+	
+	
+	varId: |NST2| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Nonsupercell Tornado (>1 NST Threat | 
+	units: || 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Layer| 						//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, plane: |Difference,Layer|
+	const: |18| 
+	varId: |BlkMag,0-6kmAgl| 
+
+
+	AWIPS II NEW FILE - NST2.xml
+-->
+<DerivedParameter name="Nonsupercell Tornado (&gt;1 NST Threat" abbreviation="NST2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Difference">
+        <Field level="0-6kmAgl" abbreviation="BlkMag"/>
+        <ConstantField value="-18.0"/>
+    </Method>
+</DerivedParameter>

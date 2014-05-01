@@ -1,0 +1,16 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+
+fanout_producer_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-fanout-Producer.exe localhost 5672
+}
+
+
+fanout_listener_java()
+{
+java -Dlog4j.configuration=file://"$JAVA"/log4j.xml -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.fanout.Listener $1
+}
+
+background "can receive messages" fanout_listener_java fanoutQueue1
+clients fanout_producer_dotnet
+outputs ./fanout_producer_dotnet.out "./fanout_listener_java.out | remove_uuid"

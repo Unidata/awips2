@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Grib Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.grib
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.edex.uengine,
+ com.raytheon.uf.common.awipstools,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.dataplugin.grid,
+ com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.parameter,
+ com.raytheon.uf.edex.awipstools,
+ com.raytheon.uf.edex.plugin.grid,
+ com.raytheon.uf.edex.python.decoder,
+ org.apache.camel,
+ org.apache.commons.lang,
+ org.apache.commons.logging,
+ javax.measure,
+ ucar.nc2
+Export-Package: com.raytheon.edex.plugin.grib,
+ com.raytheon.edex.plugin.grib.exception,
+ com.raytheon.edex.plugin.grib.spatial,
+ com.raytheon.edex.plugin.grib.util,
+ com.raytheon.edex.uengine.tasks.grib,
+ com.raytheon.edex.util.grib
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -1,0 +1,64 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <bean id="dupElim" class="com.raytheon.uf.edex.ingest.DupElimSrv"/>
+    <bean id="persist" class="com.raytheon.uf.edex.ingest.PersistSrv" factory-method="getInstance"/>
+    <bean id="index" class="com.raytheon.uf.edex.ingest.IndexSrv"/>        
+
+    <bean id="pluginNotifier" class="com.raytheon.uf.edex.ingest.notification.PluginNotifier"/>
+
+    <bean id="persistCamelRegistered" factory-bean="contextManager"
+        factory-method="register">
+        <constructor-arg ref="persist-camel"/>
+    </bean>
+  
+    <camelContext id="persist-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <!-- Generic persist and indexing
+             Intended for routes that need persisting to HDF5, 
+             Indexing but no alert processing
+        -->
+        <route id="persistIndex">
+            <from uri="direct-vm:persistIndex"/>
+            <bean ref="persist" method="persist"/>
+            <bean ref="index" method="index"/>
+            <bean ref="processUtil" method="log"/>
+        </route>
+          
+        <!-- Generic persist, index and alert route 
+             Intended for routes that need persisting to HDF5, 
+             Indexing and Alerting
+        -->
+        <route id="persistIndexAlert">
+            <from uri="direct-vm:persistIndexAlert"/>
+            <bean ref="persist" method="persist"/>
+            <bean ref="index" method="index"/>
+            <bean ref="processUtil" method="log"/>
+            <to uri="direct-vm:stageNotification"/> 
+        </route>
+        
+        <!-- Generic index and alert route 
+             Intended for routes that need Indexing and Alerting
+        -->
+        <route id="indexAlert">
+            <from uri="direct-vm:indexAlert"/>
+            <bean ref="index" method="index"/>
+            <bean ref="processUtil" method="log"/>
+            <to uri="direct-vm:stageNotification"/> 
+        </route>
+
+        <route id="notificationAggregation">
+            <from uri="direct-vm:stageNotification"/>
+            <bean ref="pluginNotifier" method="notify" />
+        </route>
+        
+        <route id="notificationTimer">
+            <from uri="timer://notificationTimer?fixedRate=true&amp;period=1000" />
+            <bean ref="pluginNotifier" method="sendQueuedNotifications" />
+        </route>
+    </camelContext>    
+ </beans>

@@ -1,0 +1,62 @@
+
+Usage
+=====
+
+cdbgen creates *.pgc files capable of creating, reading, updating, and deleting
+records from tables within an active database.
+
+The cdbgen.sh script will search the given project directory for *_CDB.cfg 
+files.  *_CDB.cfg files contain the settings for connecting to the database and
+the directory into which the generated *.pgc and *.h files are to be placed.
+
+*_CDB.cfg example:
+
+    db_host=localhost
+    db_name=hd_ob83empty
+    db_user=awips
+
+    output_dir=../src/IHFSDbGenerated
+    header_dir=../inc/dbms
+
+A *_CDB.cfg file may have an accompaning *_CDB.txt file containing a list of 
+table names writtin in the preffered case.  For example a table with the name
+hourlylog in the database may have an HourlyLog entry in the *_CDB.txt file.
+
+If the output_dir exists cdbgen will not run.  The output and header directories
+can be relative paths rooted at the location of the *_CDB.cfg file.
+
+The cdbgen.sh script must run before Eclipse generates the makefiles.  See the 
+build/docs for instructions on setting up cdbgen.sh with Eclipse.
+
+Directory and File Structure
+=============================
+[cdbgen]                    - cdbgen root directory
+
+    build.xml               - ant build script
+    gluegen.jar             - pre-built gluegen jar
+    
+    [db_drivers]            - jdbc db driver jars availble for use by cdbgen
+    
+                              To use another jdbc driver add the jar here,
+                              rebuild the gluegen.jar file, and adjust the
+                              cdbgen.sh script's db_driver_class_name and
+                              connection_url variables
+                              
+    [src]                   - cdbgen source
+    
+    The following directories are created during the ant build process:
+    
+    [build]                 - compiled cdbgen class code
+    [dist]                  - cdbgen jar file
+
+Re-Building
+===========
+
+Change the db_drivers property in the build.xml script as needed to point to
+the location of the db_driver that will be used.  Update the cdbgen.sh script
+if the driver changes from Postgres.
+
+Run ant from the gluegen directory.  After ant finishes move the cdbgen-*.jar 
+file from the dist directory into the cdbgen root directory.  Rename it to 
+cdbgen.jar
+

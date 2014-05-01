@@ -1,0 +1,141 @@
+The Performance Tests
+-------------------------
+
+Building the Tests (Only develoeprs need to know how to do this).
+-----------------------------------------------------------------
+
+The performance tests are compiled as part of the Maven build by default, but the performance test scripts are not. There is also an additional step to perform, that generates a convenient Jar file containing all of the test dependencies, to simplify invoking Java with a very long command line. The steps to build the performance test suite are:
+
+   1. Cd to the /java/perftests directory.
+   2. Execute: mvn org.apache.qpid:junit-toolkit-maven-plugin:tkscriptgen (this generates the scripts).
+   3. Execute: mvn assembly:assembly
+
+The assembly:assembly step generates a Jar with all the dependecies in it in a file name ending with -all-test-deps.jar, which contains the client code and all its dependencies, plus JUnit and the toolkit test runners. The generated scripts expect to find the jar in the current directory. You can Cd to the /target directory and run the scripts from there. The assembly:assembly step also outputs some archives that contain all the scripts and required Jar for convenient shipping of the test suite. Unpack this anywhere you like and run the tests from there.
+
+Running the Tests
+-----------------
+
+All the performance tests are run through shell scripts, that have been configured with parameters set up in the pom.xml file. You can override any of these parameters on the command line. It is also possible to pass parameters through the script to the JVM that is running the test. For example to change the heap size you might do:
+
+./Ping-Once.sh -java:Xmx1024M
+
+The tests have all been set up to accept a single integer 'size' parameter, passed to the JUnit TestCase for the test, through the JUnit Toolkit asymptotic test case extension. The 'size' parameter is always interpreted in the performance tests as standing for the number of messages to send per test method invocation. Therefore, in the results of the test the throughput of messages is equal to the number of test method invocations times the 'size' divided by the time taken.
+
+** TODO: Change this, use seconds not millis.
+
+Test timing results are output to .csv files, which can easily be imported into a spreadsheet for graphing and analysis. The timings in this file are always given in milliseconds, which may be a bit confusing and should really be changed to seconds.
+
+The JUnit Toolkit provides a framework for controlling how long tests are run for, how many are run at once and what the 'size' parameter is, which is general enough to handle a wide variety of performance tests. Here is the documentation from the TKTestRunner class that explains what its command line parameters are:
+
+ ...
+ * TKTestRunner extends {@link junit.textui.TestRunner} with the ability to run tests multiple times, to execute a test
+ * simultaneously using many threads, to put a delay between test runs and adds support for tests that take integer
+ * parameters that can be 'stepped' through on multiple test runs. These features can be accessed by using this class
+ * as an entry point and passing command line arguments to specify which features to use:
+ *
+ * <pre>
+ * -w ms       The number of milliseconds between invocations of test cases.
+ * -c pattern  The number of tests to run concurrently.
+ * -r num      The number of times to repeat each test.
+ * -d duration The length of time to run the tests for.
+ * -t name     The name of the test case to execute.
+ * -s pattern  The size parameter to run tests with.
+ * -o dir      The name of the directory to output test timings to.
+ * -v          Verbose mode.
+ * </pre>
+ *
+ * <p/>The pattern arguments are of the form [lowest(, ...)(, highest)](,sample=s)(,exp), where round brackets
+ * enclose optional values. Using this pattern form it is possible to specify a single value, a range of values divided
+ * into s samples, a range of values divided into s samples but distributed exponentially, or a fixed set of samples.
+ *
+ * <p/>The duration arguments are of the form dD(:hH)(:mM)(:sS), where round brackets enclose optional values.
+ *
+ * <p/>Here are some examples:
+ *
+ * <p/><table>
+ * <tr><td><pre> -c [10,20,30,40,50] </pre><td> Runs the test with 10,20,...,50 threads.
+ * <tr><td><pre> -s [1,100],samples=10 </pre>
+ *     <td> Runs the test with ten different size parameters evenly spaced between 1 and 100.
+ * <tr><td><pre> -s [1,1000000],samples=10,exp </pre>
+ *     <td> Runs the test with ten different size parameters exponentially spaced between 1 and 1000000.
+ * <tr><td><pre> -r 10 </pre><td> Runs each test ten times.
+ * <tr><td><pre> -d 10H </pre><td> Runs the test repeatedly for 10 hours.
+ * <tr><td><pre> -d 1M, -r 10 </pre>
+ *     <td> Runs the test repeatedly for 1 minute but only takes a timing sample every 10 test runs.
+ * <tr><td><pre> -r 10, -c [1, 5, 10, 50], -s [100, 1000, 10000] </pre>
+ *     <td> Runs 12 test cycles (4 concurrency samples * 3 size sample), with 10 repeats each. In total the test
+ *          will be run 199 times (3 + 15 + 30 + 150)
+ * </table>
+ ...
+
+The specific performance test cases for QPid are implemented as extensions to JUnit TestCase (asymptotic test cases), and also accept a large number of different parameters to control the characteristics of the test. The are passed into the test scripts as name=value pairs. Here is the documentation from the PingPongProducer class that explains what the available parameters and default values are:
+
+ ...
+ * <p/>This ping tool accepts a vast number of configuration options, all of which are passed in to the constructor. It
+ * can ping topics or queues; ping multiple destinations; do persistent pings; send messages of any size; do pings within
+ * transactions; control the number of pings to send in each transaction; limit its sending rate; and perform failover
+ * testing. A complete list of accepted parameters, default values and comments on their usage is provided here:
+ *
+ * <p/><table><caption>Parameters</caption>
+ * <tr><th> Parameter        <th> Default  <th> Comments
+ * <tr><td> messageSize      <td> 0        <td> Message size in bytes. Not including any headers.
+ * <tr><td> destinationName  <td> ping     <td> The root name to use to generate destination names to ping.
+ * <tr><td> persistent       <td> false    <td> Determines whether peristent delivery is used.
+ * <tr><td> transacted       <td> false    <td> Determines whether messages are sent/received in transactions.
+ * <tr><td> broker           <td> tcp://localhost:5672 <td> Determines the broker to connect to.
+ * <tr><td> virtualHost      <td> test     <td> Determines the virtual host to send all ping over.
+ * <tr><td> rate             <td> 0        <td> The maximum rate (in hertz) to send messages at. 0 means no limit.
+ * <tr><td> verbose          <td> false    <td> The verbose flag for debugging. Prints to console on every message.
+ * <tr><td> pubsub           <td> false    <td> Whether to ping topics or queues. Uses p2p by default.
+ * <tr><td> failAfterCommit  <td> false    <td> Whether to prompt user to kill broker after a commit batch.
+ * <tr><td> failBeforeCommit <td> false    <td> Whether to prompt user to kill broker before a commit batch.
+ * <tr><td> failAfterSend    <td> false    <td> Whether to prompt user to kill broker after a send.
+ * <tr><td> failBeforeSend   <td> false    <td> Whether to prompt user to kill broker before a send.
+ * <tr><td> failOnce         <td> true     <td> Whether to prompt for failover only once.
+ * <tr><td> username         <td> guest    <td> The username to access the broker with.
+ * <tr><td> password         <td> guest    <td> The password to access the broker with.
+ * <tr><td> selector         <td> null     <td> Not used. Defines a message selector to filter pings with.
+ * <tr><td> destinationCount <td> 1        <td> The number of receivers listening to the pings.
+ * <tr><td> timeout          <td> 30000    <td> In milliseconds. The timeout to stop waiting for replies.
+ * <tr><td> commitBatchSize  <td> 1        <td> The number of messages per transaction in transactional mode.
+ * <tr><td> uniqueDests      <td> true     <td> Whether each receiver only listens to one ping destination or all.
+ * <tr><td> durableDests     <td> false    <td> Whether or not durable destinations are used.
+ * <tr><td> ackMode          <td> AUTO_ACK <td> The message acknowledgement mode. Possible values are:
+ *                                               0 - SESSION_TRANSACTED
+ *                                               1 - AUTO_ACKNOWLEDGE
+ *                                               2 - CLIENT_ACKNOWLEDGE
+ *                                               3 - DUPS_OK_ACKNOWLEDGE
+ *                                               257 - NO_ACKNOWLEDGE
+ *                                               258 - PRE_ACKNOWLEDGE
+ * <tr><td> maxPending       <td> 0        <td> The maximum size in bytes, of messages sent but not yet received.
+ *                                              Limits the volume of messages currently buffered on the client
+ *                                              or broker. Can help scale test clients by limiting amount of buffered
+ *                                              data to avoid out of memory errors.
+ * </table>
+ ...
+
+The most common test case to run is implemented in the class PingAsyncTestPerf, which sends and recieves messages simultaneously. This class uses a PingPongProdicer to do its sending and receiving, and wraps it in a suitable way to make it callable through the extended JUnit test runner. This class also accpets another parameter "batchSize" with a default of "1000". This tells the test how many messages to send before stopping sending and waiting for them all to come back. The actual value entered does not matter too much, but typically values larger than 1000 are used to ensure that there is a reasonable opportunity for simultaneous sending and receiving, and less than 10000 to ensure that each test method invocation does not go on for too long.
+
+The test script parameters can all be seen in the pom.xml file. A three letter code is used on the test scripts, first letter P or T for persistent or transient, second letter Q or T for queue (p2p) or topic (pub/sub), third letter R for reliability tests, C for client scaling tests, M for message size tests.Typically tests run and sample their results for 10 minutes, to get a reasonable measurement of a broker running under a steady load. The tests as configured do not measure 'burst' performance.
+
+The reliability/burn in tests, test the broker running at slightly below its maximum throughput for a period of 24 hours. Their purpose is to check that the broker remains stable under load for a reasonable duration, in order to provide some confidence in the long-term stability of its process. These tests are intended to be run as a two step process. The first two tests run for 10 minutes and are used to asses the broker throughput for the test. The output from these tests are to be fed into the rate limiter for the second set of tests, so that the broker may be set up to run at slightly below its maximum throughput for the 24 hour duration. It is suggested that 90% of the rate achieved by the first two tests should be used for this.
+
+The client scaling tests are split into two sub-sections. The first section tests the performance of increasing numbers of client connections, each sending at a fixed rate. The purpose of this is to determine the brokers saturation load, and to evaluate how its performance degrades uder higher loads. The second section varies the fan-out or fan-in ratio of the number of sending clients to receving clients. This is primarily intended to test the pubsub messaging model, but the tests are also run in p2p mode (with each message being received by one consumer), for completeness and to provide a comparison with the pubsub performance.
+
+The message size scaling tests, examine the brokers performance with different message payload sizes. The purpose of these tests is to evaluate where the broker process switches from being an io-bound to a cpu-bound process (if at all). The expected model is that the amount of CPU processing the broker has to carry out depends largely on the number of messages, and not on their size, because it carries out de-framing and routing for each message header but just copies payloads in-place or in a tight instruction loop. Therefore large message should be io-bound and a constant data rate through the broker should be seen for messages larger than the io/cpu threshold. Small messages require more processing so a constant message rate should be seen for message smaller than the io/cpu threshold. If the broker implementation is extremely efficient the threshold may dissapear altogether and the broker will be purely io-bound.
+The final variation, which is applied to all tests, is to run a transactional and non-transactional version of each. Messages are always batched into transactions of 100 messages each.
+
+Running the entire test suite can take some time, in particular their are about 4 24 hour burn-in tests. There are also 8 30 minute client scaling ramp up tests. If you want to run the test for a short time, to skim test that they work on your environment a command line like the following is usefull:
+
+> find . -name '*.sh' -exec {} -d10S \;
+
+If you want to run just a sub-set of the tests, you can use variations of the above command line. For example, to run just the message size tests using persistent p2p messaging do:
+
+> find . -name 'PPM-*.sh' -exec {} \;
+
+and so on.
+
+Interpreting the Results
+------------------------
+
+TODO: Explain what the results are expected to show and how to look for it. What should be graphed to get a visualization of the broker performance. How to turn the measurements into a description of the performance 'envelope'.

@@ -1,0 +1,40 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <bean id="utilitySrv" class="com.raytheon.edex.services.UtilitySrv"/>
+  <bean id="privilegedUtilityHandler" class="com.raytheon.edex.services.PrivilegedUtilityHandler"/>
+  <!-- Dual purpose bean, provides the thrift handler for getServers requests and contains the registry of servers -->
+  <bean id="serverLocationRegistry" class="com.raytheon.edex.services.GetServersHandler"/>
+  <bean id="getServerTime" class="com.raytheon.edex.services.GetServerTimeHandler"/>
+  <bean id="streamSrv" class="com.raytheon.edex.services.LocalizationStreamHandler"/>
+ 
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.msgs.UtilityRequestMessage"/>
+  	<constructor-arg ref="utilitySrv"/>
+  </bean>
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.msgs.PrivilegedUtilityRequestMessage"/>
+  	<constructor-arg ref="privilegedUtilityHandler"/>
+  </bean>
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.msgs.GetServersRequest"/>
+  	<constructor-arg ref="serverLocationRegistry"/>
+  </bean>
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.time.msgs.GetServerTimeRequest"/>
+  	<constructor-arg ref="getServerTime"/>
+  </bean>
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.stream.LocalizationStreamPutRequest"/>
+  	<constructor-arg ref="streamSrv"/>
+  </bean>
+  
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.stream.LocalizationStreamGetRequest"/>
+  	<constructor-arg ref="streamSrv"/>
+  </bean>
+ 
+</beans>

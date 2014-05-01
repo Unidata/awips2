@@ -1,0 +1,14 @@
+<pluginNotificationList>
+    <pluginNotification>
+        <endpointName>grid-staticdata-generate</endpointName>
+        <endpointType>QUEUE</endpointType>
+        <format>DATAURI</format>
+        <durable>true</durable>
+        <timeToLive>600000</timeToLive>
+        <metadataMap>
+            <mapping key="pluginName">
+                <constraint constraintValue="grid" constraintType="EQUALS"/>
+            </mapping>
+        </metadataMap>
+    </pluginNotification>
+</pluginNotificationList>

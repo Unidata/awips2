@@ -1,0 +1,56 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_assim library file
+#
+#  cmt: File made on Wed Aug  6 12:49:56 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_assim_t.a:  \
+     $(LIB)/libfcst_assim_t.a(aug50.o)  \
+     $(LIB)/libfcst_assim_t.a(bkps50.o)  \
+     $(LIB)/libfcst_assim_t.a(ex50.o)  \
+     $(LIB)/libfcst_assim_t.a(fcal50.o)  \
+     $(LIB)/libfcst_assim_t.a(fpcl50.o)  \
+     $(LIB)/libfcst_assim_t.a(fqcl50.o)  \
+     $(LIB)/libfcst_assim_t.a(fscl50.o)  \
+     $(LIB)/libfcst_assim_t.a(ldrv50.o)  \
+     $(LIB)/libfcst_assim_t.a(mdpr50.o)  \
+     $(LIB)/libfcst_assim_t.a(mdst50.o)  \
+     $(LIB)/libfcst_assim_t.a(nmsq50.o)  \
+     $(LIB)/libfcst_assim_t.a(nmze50.o)  \
+     $(LIB)/libfcst_assim_t.a(nprs50.o)  \
+     $(LIB)/libfcst_assim_t.a(objf50.o)  \
+     $(LIB)/libfcst_assim_t.a(opmk50.o)  \
+     $(LIB)/libfcst_assim_t.a(prsn50.o)  \
+     $(LIB)/libfcst_assim_t.a(scrb50.o)  \
+     $(LIB)/libfcst_assim_t.a(smts50.o)  \
+     $(LIB)/libfcst_assim_t.a(svrn50.o)  \
+     $(LIB)/libfcst_assim_t.a(upkp50.o)  \
+     $(LIB)/libfcst_assim_t.a(upks50.o)
+

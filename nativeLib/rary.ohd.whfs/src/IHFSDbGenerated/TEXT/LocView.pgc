@@ -1,0 +1,552 @@
+/* This is a view record ! */
+/*
+    File: LocView.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:34 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "LocView.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct LocView_t
+{
+    char		lid[9];
+    char		name[51];
+    double		lat;
+    double		lon;
+    char		rb[31];
+    char		state[3];
+    char		county[21];
+    char		type[5];
+    char		wfo[4];
+    char		hsa[4];
+    long		post;
+    char		stream[33];
+    char		gsno[11];
+
+    int		ind_lid;
+    int		ind_name;
+    int		ind_lat;
+    int		ind_lon;
+    int		ind_rb;
+    int		ind_state;
+    int		ind_county;
+    int		ind_type;
+    int		ind_wfo;
+    int		ind_hsa;
+    int		ind_post;
+    int		ind_stream;
+    int		ind_gsno;
+} LocView_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+LocView * GetLocView(const char * where)
+{
+
+    LocView * listPtr = NULL;
+    LocView * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LocView ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocView_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocView() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocView() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocView() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+    :dbs.rb:dbs.ind_rb, :dbs.state:dbs.ind_state, 
+    :dbs.county:dbs.ind_county, :dbs.type:dbs.ind_type, 
+    :dbs.wfo:dbs.ind_wfo, :dbs.hsa:dbs.ind_hsa, 
+    :dbs.post:dbs.ind_post, :dbs.stream:dbs.ind_stream, 
+    :dbs.gsno:dbs.ind_gsno    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocView() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LocView *) malloc(sizeof(LocView))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            strcpy(structPtr->rb, dbs.rb);
+            setNullIfIndicated(dbs.ind_rb, CHAR, structPtr->rb);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->type, dbs.type);
+            setNullIfIndicated(dbs.ind_type, CHAR, structPtr->type);
+
+            strcpy(structPtr->wfo, dbs.wfo);
+            setNullIfIndicated(dbs.ind_wfo, CHAR, structPtr->wfo);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            structPtr->post = dbs.post;
+            setNullIfIndicated(dbs.ind_post, INT, &structPtr->post);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            strcpy(structPtr->gsno, dbs.gsno);
+            setNullIfIndicated(dbs.ind_gsno, CHAR, structPtr->gsno);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+        :dbs.rb:dbs.ind_rb, :dbs.state:dbs.ind_state, 
+        :dbs.county:dbs.ind_county, :dbs.type:dbs.ind_type, 
+        :dbs.wfo:dbs.ind_wfo, :dbs.hsa:dbs.ind_hsa, 
+        :dbs.post:dbs.ind_post, :dbs.stream:dbs.ind_stream, 
+        :dbs.gsno:dbs.ind_gsno        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetLocView() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+LocView * SelectLocView(const char * where)
+{
+
+    LocView * listPtr = NULL;
+    LocView * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LocView ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocView_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocView() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocView() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocView() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+    :dbs.rb:dbs.ind_rb, :dbs.state:dbs.ind_state, 
+    :dbs.county:dbs.ind_county, :dbs.type:dbs.ind_type, 
+    :dbs.wfo:dbs.ind_wfo, :dbs.hsa:dbs.ind_hsa, 
+    :dbs.post:dbs.ind_post, :dbs.stream:dbs.ind_stream, 
+    :dbs.gsno:dbs.ind_gsno    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocView() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LocView *) malloc(sizeof(LocView))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            strcpy(structPtr->rb, dbs.rb);
+            setNullIfIndicated(dbs.ind_rb, CHAR, structPtr->rb);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->type, dbs.type);
+            setNullIfIndicated(dbs.ind_type, CHAR, structPtr->type);
+
+            strcpy(structPtr->wfo, dbs.wfo);
+            setNullIfIndicated(dbs.ind_wfo, CHAR, structPtr->wfo);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            structPtr->post = dbs.post;
+            setNullIfIndicated(dbs.ind_post, INT, &structPtr->post);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            strcpy(structPtr->gsno, dbs.gsno);
+            setNullIfIndicated(dbs.ind_gsno, CHAR, structPtr->gsno);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+        :dbs.rb:dbs.ind_rb, :dbs.state:dbs.ind_state, 
+        :dbs.county:dbs.ind_county, :dbs.type:dbs.ind_type, 
+        :dbs.wfo:dbs.ind_wfo, :dbs.hsa:dbs.ind_hsa, 
+        :dbs.post:dbs.ind_post, :dbs.stream:dbs.ind_stream, 
+        :dbs.gsno:dbs.ind_gsno        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectLocView() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectLocViewCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM LocView ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocView() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocView() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocView() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocView() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeLocView( LocView * structPtr)
+{
+    LocView* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( LocView * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetLocViewDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetLocViewErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

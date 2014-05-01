@@ -1,0 +1,43 @@
+# Product Discipline 2: Land surface products, Parameter Category 0: Vegetation/Biomass
+#192-254 Reserved for local use
+192:192:Volumetric soil moisture content:Proportion:SOILW
+193:193:Ground heat flux:W/m^2:GFLUX
+194:194:Moisture availability:%:MSTAV
+195:195:Exchange coefficient:mm * s:SFEXC
+196:196:Plant canopy surface water:mm:CNWAT
+197:197:Blackadars mixing length scale:m:BMIXL
+198:198:Vegetation Type:Integer 0-13:VGTYP
+199:199:Canopy conductance:m/s:CCOND
+200:200:Minimal stomatal resistance:s/m:RSMIN
+201:201:Wilting point:Proportion:WILT
+202:202:Solar parameter in canopy conductance:Fraction:RCS
+203:203:Temperature parameter in canopy conductance:Fraction:RCT
+204:204:Humidity parameterin canopy conductance:Fraction:RCQ
+205:205:Soil moisture parameter in canopy conductance:Fraction:RCSOL
+206:206:Rate of water dropping from canopy to ground:unknown:RDRIP
+207:207:Ice-free water surface:%:ICWAT
+208:208:Surface exchange coefficients for T and Q divided by delta z:m/s:AKHS
+209:209:Surface exchange coefficients for U and V divided by delta z:m/s:AKMS
+210:210:Vegetation canopy temperature:K:VEGT
+211:211:Surface water storage:mm:SSTOR
+212:212:Liquid soil moisture content (non-frozen):mm:LSOIL
+213:213:Open water evaporation (standing water):W/m^2:EWATR
+214:214:Groundwater recharge:mm:GWREC
+215:215:Flood plain recharge:mm:QREC
+216:216:Roughness length for heat:m:SFCRH
+217:217:Normalized Difference Vegetation Index::NDVI
+218:218:Land-sea coverage (nearest neighbor):[land=1,sea=0]:LANDN
+219:219:Asymptotic mixing length scale:m:AMIXL
+220:220:Water vapor added by precip assimilation:mm:WVINC
+221:221:Water condensate added by precip assimilation:mm:WCINC
+222:222:Water Vapor Flux Convergance (Vertical Int):mm:WVCONV
+223:223:Water Condensate Flux Convergance (Vertical Int):mm:WCCONV
+224:224:Water Vapor Zonal Flux (Vertical Int):mm:WVUFLX
+225:225:Water Vapor Meridional Flux (Vertical Int):mm:WVVFLX
+226:226:Water Condensate Zonal Flux (Vertical Int):mm:WCUFLX
+227:227:Water Condensate Meridional Flux (Vertical Int):mm:WCVFLX
+228:228:Aerodynamic conductance:m/s:ACOND
+229:229:Canopy water evaporation:W/m^2:EVCW
+230:230:Transpiration:W/m^2:TRANS
+255:255:Missing
+

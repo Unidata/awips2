@@ -1,0 +1,1 @@
+Next, add an “intersectAreas” section that specifies for each weather element, the names of the local effect edit areas, intersected with the current area, to be compared for potential Local Effect wording.

@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="sbnSimulator"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.sbn.SbnSimulator" />
+
+    <camelContext id="SbnSimulator-context"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <endpoint id="checkForSbnDataCron"
+            uri="quartz://datadelivery/sbnSimulator?cron=${sbnSimulator-checkForSbnData.cron}" />
+
+        <route id="distributeToSiteDirs">
+            <from uri="checkForSbnDataCron" />
+            <doTry>
+                <pipeline>
+                    <bean ref="sbnSimulator" method="distributeToSiteDirs" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:SbnSimulator" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+</beans>

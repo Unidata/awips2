@@ -1,0 +1,542 @@
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# Hazards_TestScript
+#
+# Author:
+# ----------------------------------------------------------------------------
+
+
+# The following tuples are of the form:
+
+##  testName, product, comboFlag, hazards, cmdLineVars, checkStrs
+def1 = "    def __init__(self):"
+
+def2 = [
+    'TextProduct.Definition["includeCities"] = 1',
+    'TextProduct.Definition["cityDescriptor"] = "INCLUDING THE AREAS OF"',
+    'TextProduct.Definition["includeZoneNames"] = 0'
+    #def __init__(self):
+]
+
+def3 = """TextProduct.Definition["defaultEditAreas"] = [("FLZ042", "CITRUS")]"""
+
+scripts = [
+    {"name":"CFW1",
+     "productType" : "Hazard_CFW_Local",
+     "commentary": "Basic testing of CFW product with CF.Y.",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 0, 96, "CF.Y", "all"),
+        ],
+     "checkStrings" : [
+        "COASTAL HAZARD MESSAGE",
+        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+        "FLZ039-042-043-048>052-055>057-060>062-065-",
+        "/O.NEW.KTBW.CF.Y.0001.100526T2300Z-100530T2300Z/",
+        "700 PM EDT WED MAY 26 2010",
+        "...COASTAL FLOOD ADVISORY IN EFFECT UNTIL 7 PM EDT SUNDAY...",
+        "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED A COASTAL FLOOD ADVISORY...WHICH IS IN EFFECT UNTIL 7 PM EDT SUNDAY.",
+        "PRECAUTIONARY/PREPAREDNESS ACTIONS...", 
+        "&&",
+        ],
+     },
+    
+    {"name":"FFA1", 
+     "productType" : "Hazard_FFA_Local", 
+     "commentary": "Basic testing of FFA product with FF.A.",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 4, 7, "FF.A", "all"),
+        ],
+     "cmdLineVars" : "{('Issued By', 'issuedBy'): None, ('Flood Reason (HVTEC)', 'floodReason'): 'ER (Excessive Rainfall)'}",
+     "checkStrings" : [
+          "URGENT - IMMEDIATE BROADCAST REQUESTED",
+          "FLOOD WATCH",
+          "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+          "700 PM EDT WED MAY 26 2010",
+          "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+          ".|*OVERVIEW (MUST EDIT)*|.",
+          "FLZ039-042-043-048>052-055>057-060>062-065-",
+          "/O.NEW.KTBW.FF.A.0001.100527T0300Z-100527T0600Z/",
+          "/00000.0.ER.000000T0000Z.000000T0000Z.000000T0000Z.OO/",
+          "LEVY-",
+          "700 PM EDT WED MAY 26 2010",
+          "...FLASH FLOOD WATCH IN EFFECT FROM 11 PM THIS EVENING TO 2 AM EDT THURSDAY...",
+          "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED A",
+          "* FLASH FLOOD WATCH FOR PORTIONS OF CENTRAL FLORIDA...NORTHERN FLORIDA...SOUTH CENTRAL FLORIDA...SOUTHWEST FLORIDA AND WEST CENTRAL FLORIDA...INCLUDING THE FOLLOWING AREAS...IN CENTRAL FLORIDA...HARDEE...POLK AND SUMTER. IN NORTHERN FLORIDA...LEVY. IN SOUTH CENTRAL FLORIDA...DE SOTO AND HIGHLANDS. IN SOUTHWEST FLORIDA...CHARLOTTE AND LEE. IN WEST CENTRAL FLORIDA...CITRUS...HERNANDO...HILLSBOROUGH...MANATEE...PASCO...PINELLAS AND SARASOTA.",
+          "* FROM 11 PM THIS EVENING TO 2 AM EDT THURSDAY",
+          "PRECAUTIONARY/PREPAREDNESS ACTIONS...", 
+          "&&",
+        ],
+
+     },
+    
+    
+    
+    {"name":"HWO1", 
+     "productType" : "Hazard_HWO_Local", 
+     "commentary": "Basic testing of HWO product - no active weather",
+     "comboFlag" : 1,
+     "combinations" :[(["FLZ042"],"")],
+     "cmdLineVars" : "{('Issued By', 'issuedBy'): None, ('HWO Type', 'hwoType'): 'No Active Weather'}",
+     "checkStrings" : [
+        "HAZARDOUS WEATHER OUTLOOK",
+        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+        "FLZ042-",
+        "CITRUS-",
+        "700 PM EDT WED MAY 26 2010",
+        "THIS HAZARDOUS WEATHER OUTLOOK IS FOR PORTIONS OF WEST CENTRAL FLORIDA.",
+        ".DAY ONE...TONIGHT",
+        "NO HAZARDOUS WEATHER IS EXPECTED AT THIS TIME.",
+        ".DAYS TWO THROUGH SEVEN...THURSDAY THROUGH TUESDAY",
+        "NO HAZARDOUS WEATHER IS EXPECTED AT THIS TIME.",
+        ".SPOTTER INFORMATION STATEMENT...",
+        "SPOTTER ACTIVATION WILL NOT BE NEEDED.",
+        "$$",
+   ],
+
+     },
+    
+    {"name":"HWO2", 
+     "productType" : "Hazard_HWO_Local", 
+     "commentary": "Basic testing of HWO product - active weather",
+     "comboFlag" : 1,
+     "combinations" :[(["FLZ042"],"")],
+     "cmdLineVars" : "{('Issued By', 'issuedBy'): None, ('HWO Type', 'hwoType'): 'Active Weather'}",
+     "gridsStartTime": "20100527_0600",
+     "checkStrings" : [
+          "HAZARDOUS WEATHER OUTLOOK",
+          "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+          "200 AM EDT THU MAY 27 2010",
+          "FLZ042-280600-",
+          "CITRUS-",
+          "200 AM EDT THU MAY 27 2010",
+          "THIS HAZARDOUS WEATHER OUTLOOK IS FOR PORTIONS OF WEST CENTRAL FLORIDA.",
+          ".DAY ONE...TONIGHT",
+          ".DAYS TWO THROUGH SEVEN...THURSDAY THROUGH TUESDAY",
+          ".SPOTTER INFORMATION STATEMENT...",
+          "$$",
+       ],
+     },
+    
+    {"name":"HWO3", # Test includeCities (set to 1), cityDescriptor, includeZoneNames(set to 0)
+     "productType" : "Hazard_HWO_Local", 
+     "commentary": "Basic testing of HWO product - active weather, includeCities, cityDescriptor, includeZoneNames set to 0",
+     "comboFlag" : 1,
+     "combinations" :[(["FLZ042"],"")],
+     "cmdLineVars" : "{('Issued By', 'issuedBy'): None, ('HWO Type', 'hwoType'): 'Active Weather'}",
+     "gridsStartTime": "20100527_0600",
+     "fileChanges": [
+          ("Hazard_HWO_Local", "TextProduct", "replace", def2, "undo"),
+          ],
+     "notCheckStrings": [
+          "CITRUS-",
+          ],
+     "checkStrings" : [
+          "HAZARDOUS WEATHER OUTLOOK",
+          "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+          "200 AM EDT THU MAY 27 2010",
+          "FLZ042-280600-",
+          "INCLUDING THE AREAS OF...HOMOSASSA SPRINGS...BEVERLY HILLS...HERNANDO...INVERNESS...LECANTO...FLORAL CITY...CITRUS SPRINGS",
+          "200 AM EDT THU MAY 27 2010",
+          "THIS HAZARDOUS WEATHER OUTLOOK IS FOR PORTIONS OF WEST CENTRAL FLORIDA.",
+          ".DAY ONE...TONIGHT",
+          ".DAYS TWO THROUGH SEVEN...THURSDAY THROUGH TUESDAY",
+          ".SPOTTER INFORMATION STATEMENT...",
+          "$$",
+       ],
+     },
+
+    {"name":"HWO4", # Test for TK 4628
+     "productType" : "Hazard_HWO_Local", 
+     "commentary": "Basic testing of HWO product - tk4628- DR16885",
+     "comboFlag" : 1,
+     "combinations" :[(["FLZ042"],"")],
+     "cmdLineVars" : "{('Issued By', 'issuedBy'): None, ('HWO Type', 'hwoType'): 'Active Weather'}",
+     "gridsStartTime": "20100527_0600",
+     "fileChanges": [
+          ("Hazard_HWO_Local", "TextProduct", "replace", def3, "undo"),
+          ],
+     "checkStrings" : [
+          "HAZARDOUS WEATHER OUTLOOK",
+          "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+          "200 AM EDT THU MAY 27 2010",
+          "FLZ042-280600-",
+          "CITRUS",
+          "200 AM EDT THU MAY 27 2010",
+          "THIS HAZARDOUS WEATHER OUTLOOK IS FOR PORTIONS OF WEST CENTRAL FLORIDA.",
+          ".DAY ONE...TONIGHT",
+          ".DAYS TWO THROUGH SEVEN...THURSDAY THROUGH TUESDAY",
+          ".SPOTTER INFORMATION STATEMENT...",
+          "$$",
+       ],
+     },
+     
+    {"name":"MWS1", 
+     "productType" : "Hazard_MWS_Local", 
+     "commentary": "Basic testing of MWS product with MA.S",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 9, 13, "MA.S", "all"),
+        ],
+     "checkStrings" : [
+         "MARINE WEATHER STATEMENT",
+         "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+         "700 PM EDT WED MAY 26 2010",
+         "GMZ830-850-853-856-870-873-876-",
+         "/O.NEW.KTBW.MA.S.0001.100527T0800Z-100527T1200Z/",
+         "TAMPA BAY WATERS-",
+         "COASTAL WATERS FROM TARPON SPRINGS TO SUWANNEE RIVER FL OUT 20 NM-",
+         "COASTAL WATERS FROM ENGLEWOOD TO TARPON SPRINGS FL OUT 20 NM-",
+         "COASTAL WATERS FROM BONITA BEACH TO ENGLEWOOD FL OUT 20 NM-",
+         "WATERS FROM TARPON SPRINGS TO SUWANNEE RIVER FL OUT 20 TO 60 NM-",
+         "WATERS FROM ENGLEWOOD TO TARPON SPRINGS FL OUT 20 TO 60 NM-",
+         "WATERS FROM BONITA BEACH TO ENGLEWOOD FL OUT 20 TO 60 NM-",
+         "700 PM EDT WED MAY 26 2010",
+         "|* STATEMENT TEXT GOES HERE *|.",
+         "$$",
+        ],
+     },
+    
+    {"name":"MWW1", 
+     "productType" : "Hazard_MWW_Local", 
+     "commentary": "Basic testing of MWW product with GL.A",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 0, 1, "GL.A", "all"),
+        ],
+     "checkStrings" : [
+        "URGENT - MARINE WEATHER MESSAGE",
+        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+        "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+        ".|*OVERVIEW (MUST EDIT)*|.",
+        "GMZ830-850-853-856-870-873-876-270000-",
+        "/O.NEW.KTBW.GL.A.0001.100526T2300Z-100527T0000Z/",
+        "TAMPA BAY WATERS-",
+        "COASTAL WATERS FROM TARPON SPRINGS TO SUWANNEE RIVER FL OUT 20 NM-",
+        "COASTAL WATERS FROM ENGLEWOOD TO TARPON SPRINGS FL OUT 20 NM-",
+        "COASTAL WATERS FROM BONITA BEACH TO ENGLEWOOD FL OUT 20 NM-",
+        "WATERS FROM TARPON SPRINGS TO SUWANNEE RIVER FL OUT 20 TO 60 NM-",
+        "WATERS FROM ENGLEWOOD TO TARPON SPRINGS FL OUT 20 TO 60 NM-",
+        "WATERS FROM BONITA BEACH TO ENGLEWOOD FL OUT 20 TO 60 NM-",
+        "700 PM EDT WED MAY 26 2010",
+        "...GALE WATCH IN EFFECT UNTIL 8 PM EDT THIS EVENING...",
+        "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED A GALE WATCH...WHICH IS IN EFFECT UNTIL 8 PM EDT THIS EVENING.",
+        "|* SEGMENT TEXT GOES HERE *|.",
+        "PRECAUTIONARY/PREPAREDNESS ACTIONS...", 
+        "&&",
+        "$$",
+        ],
+     },
+
+    {"name":"MWW2",
+     "productType" : "Hazard_MWW_Local",
+     "commentary": "Basic testing of MWW product with MH.W",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 0, 1, "MH.W", "all"),
+        ],
+     "checkStrings" : [
+        "URGENT - MARINE WEATHER MESSAGE",
+        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+        "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+        ".|*OVERVIEW (MUST EDIT)*|.",
+        "GMZ830-850-853-856-870-873-876-270000-",
+        "/O.NEW.KTBW.MH.W.0001.100526T2300Z-100527T0000Z/",
+        "TAMPA BAY WATERS-",
+        "COASTAL WATERS FROM TARPON SPRINGS TO SUWANNEE RIVER FL OUT 20 NM-",
+        "COASTAL WATERS FROM ENGLEWOOD TO TARPON SPRINGS FL OUT 20 NM-",
+        "COASTAL WATERS FROM BONITA BEACH TO ENGLEWOOD FL OUT 20 NM-",
+        "WATERS FROM TARPON SPRINGS TO SUWANNEE RIVER FL OUT 20 TO 60 NM-",
+        "WATERS FROM ENGLEWOOD TO TARPON SPRINGS FL OUT 20 TO 60 NM-",
+        "WATERS FROM BONITA BEACH TO ENGLEWOOD FL OUT 20 TO 60 NM-",
+        "700 PM EDT WED MAY 26 2010",
+        "...ASHFALL WARNING IN EFFECT UNTIL 8 PM EDT THIS EVENING...",
+        "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED AN ASHFALL WARNING...WHICH IS IN EFFECT UNTIL 8 PM EDT THIS EVENING.",
+        "|* SEGMENT TEXT GOES HERE *|.",
+        "PRECAUTIONARY/PREPAREDNESS ACTIONS...",
+        "AN ASHFALL WARNING MEANS THAT SIGNIFICANT ACCUMULATION OF ASHFALL IS EXPECTED ON VESSELS. IT IS RECOMMENDED THAT VESSELS BE PREPARED TO TAKE THE NECESSARY COUNTER MEASURES BEFORE PUTTING TO SEA OR ENTERING THE WARNING AREA.",
+        "&&",
+        "$$",
+        ],
+     },
+
+    {"name":"NPW1",
+     "productType" : "Hazard_NPW_Local",
+     "commentary": "Basic testing of NPW product with AS.O",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 0, 1, "AS.O", "all"),
+        ],
+     "checkStrings" : [
+        "WWUS72 KTBW 262300",
+        "NPWTBW",
+        "URGENT - WEATHER MESSAGE",
+        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+        "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+        ".|*OVERVIEW (MUST EDIT)*|.",
+        "FLZ039-042-043-048>052-055>057-060>062-065-270000-",
+        "/O.NEW.KTBW.AS.O.0001.100526T2300Z-100527T0000Z/",
+        "LEVY-CITRUS-SUMTER-HERNANDO-PASCO-PINELLAS-HILLSBOROUGH-POLK-",
+        "MANATEE-HARDEE-HIGHLANDS-SARASOTA-DE SOTO-CHARLOTTE-LEE-",
+        "INCLUDING THE CITIES OF...WILLISTON...CHIEFLAND...BRONSON...",
+        "CEDAR KEY...FANNING SPRINGS...HOMOSASSA SPRINGS...BEVERLY HILLS...",
+        "HERNANDO...INVERNESS...LECANTO...FLORAL CITY...CITRUS SPRINGS...",
+        "WILDWOOD...LAKE PANASOFFKEE...BUSHNELL...SPRING HILL...HOLIDAY...",
+        "LAND O' LAKES...JASMINE ESTATES...NEW PORT RICHEY...HUDSON...",
+        "ZEPHYRHILLS...DADE CITY...ST. PETERSBURG...CLEARWATER...LARGO...",
+        "TAMPA...BRANDON...LAKELAND...WINTER HAVEN...BRADENTON...",
+        "BAYSHORE GARDENS...PALMETTO...WAUCHULA...BOWLING GREEN...",
+        "ZOLFO SPRINGS...SEBRING...AVON PARK...PLACID LAKES...SARASOTA...",
+        "NORTH PORT...VENICE...ENGLEWOOD...SOUTH VENICE...ARCADIA...",
+        "PORT CHARLOTTE...PUNTA GORDA...CAPE CORAL...FORT MYERS...",
+        "NORTH FORT MYERS...LEHIGH ACRES...BONITA SPRINGS",
+        "700 PM EDT WED MAY 26 2010",
+        "...AIR STAGNATION OUTLOOK IN EFFECT UNTIL 8 PM EDT THIS EVENING...",
+        "|* SEGMENT TEXT GOES HERE *|. ",
+        "$$",
+        ],
+     },
+    
+    {"name":"NPW2",
+     "productType" : "Hazard_NPW_Local",
+     "commentary": "Basic testing of NPW product with AF.W",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 0, 1, "AF.W", "all"),
+        ],
+     "checkStrings" : [
+        "WWUS72 KTBW 262300",
+        "NPWTBW",
+        "URGENT - WEATHER MESSAGE",
+        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+        "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+        ".|*OVERVIEW (MUST EDIT)*|.",
+        "FLZ039-042-043-048>052-055>057-060>062-065-270000-",
+        "/O.NEW.KTBW.AF.W.0001.100526T2300Z-100527T0000Z/",
+        "LEVY-CITRUS-SUMTER-HERNANDO-PASCO-PINELLAS-HILLSBOROUGH-POLK-",
+        "MANATEE-HARDEE-HIGHLANDS-SARASOTA-DE SOTO-CHARLOTTE-LEE-",
+        "INCLUDING THE CITIES OF...WILLISTON...CHIEFLAND...BRONSON...",
+        "CEDAR KEY...FANNING SPRINGS...HOMOSASSA SPRINGS...BEVERLY HILLS...",
+        "HERNANDO...INVERNESS...LECANTO...FLORAL CITY...CITRUS SPRINGS...",
+        "WILDWOOD...LAKE PANASOFFKEE...BUSHNELL...SPRING HILL...HOLIDAY...",
+        "LAND O' LAKES...JASMINE ESTATES...NEW PORT RICHEY...HUDSON...",
+        "ZEPHYRHILLS...DADE CITY...ST. PETERSBURG...CLEARWATER...LARGO...",
+        "TAMPA...BRANDON...LAKELAND...WINTER HAVEN...BRADENTON...",
+        "BAYSHORE GARDENS...PALMETTO...WAUCHULA...BOWLING GREEN...",
+        "ZOLFO SPRINGS...SEBRING...AVON PARK...PLACID LAKES...SARASOTA...",
+        "NORTH PORT...VENICE...ENGLEWOOD...SOUTH VENICE...ARCADIA...",
+        "PORT CHARLOTTE...PUNTA GORDA...CAPE CORAL...FORT MYERS...",
+        "NORTH FORT MYERS...LEHIGH ACRES...BONITA SPRINGS",
+        "700 PM EDT WED MAY 26 2010",
+        "...ASHFALL WARNING IN EFFECT UNTIL 8 PM EDT THIS EVENING...",
+        "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED AN ASHFALL WARNING...WHICH IS IN EFFECT UNTIL 8 PM EDT THIS EVENING.",
+        "|* SEGMENT TEXT GOES HERE *|.",
+        "PRECAUTIONARY/PREPAREDNESS ACTIONS...",
+        "AN ASHFALL WARNING MEANS THAT SIGNIFICANT ACCUMULATION OF VOLCANIC ASH IS EXPECTED OR OCCURRING DUE TO A VOLCANIC ERUPTION OR RESUSPENSION OF PREVIOUSLY DEPOSITED ASH.",
+        " LISTEN TO NOAA WEATHER RADIO OR LOCAL MEDIA FOR FURTHER INFORMATION.",
+        "&&",
+        "$$",
+        ],
+     },
+ 
+    {"name":"RFW1", 
+     "productType" : "Hazard_RFW_Local", 
+     "commentary": "Basic testing of RFW product with FW.W",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 2, 15, "FW.W", "all"),
+        ],
+     "checkStrings" : [
+         "WWUS82 KTBW 262300",
+         "RFWTBW",
+         "URGENT - FIRE WEATHER MESSAGE",
+         "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+         "700 PM EDT WED MAY 26 2010",
+         "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+         ".|*OVERVIEW (MUST EDIT)*|.",
+         "FLZ039-042-043-048>052-055>057-060>062-065-270700-",
+         "/O.NEW.KTBW.FW.W.0001.100527T0100Z-100527T1400Z/",
+         "LEVY-CITRUS-SUMTER-HERNANDO-PASCO-",
+         "700 PM EDT WED MAY 26 2010",
+         "...RED FLAG WARNING IN EFFECT UNTIL 10 AM EDT THURSDAY...",
+         "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED A RED FLAG WARNING...WHICH IS IN EFFECT UNTIL 10 AM EDT THURSDAY.",
+         "|* SEGMENT TEXT GOES HERE *|.",
+         "PRECAUTIONARY/PREPAREDNESS ACTIONS...", 
+         "A RED FLAG WARNING MEANS THAT CRITICAL FIRE WEATHER CONDITIONS ARE EITHER OCCURRING NOW...OR WILL SHORTLY. A COMBINATION OF STRONG WINDS...LOW RELATIVE HUMIDITY...AND WARM TEMPERATURES WILL CREATE EXPLOSIVE FIRE GROWTH POTENTIAL.",
+         "&&",
+         "$$",
+        ],
+     },
+
+    {"name":"WCN1", 
+     "productType" : "Hazard_WCN_Local", 
+     "commentary": "Basic testing of WCN product with TO.A",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 0, 6, "TO.A:123", "all"),
+        ],
+     "checkStrings" : [
+        "WWUS62 KTBW 262300",
+        "WCNTBW",
+        "WATCH COUNTY NOTIFICATION FOR WATCH 123",
+        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+        "FLC015-017-027-049-053-055-057-071-",
+        "/O.NEW.KTBW.TO.A.0123.100526T2300Z-100527T0500Z/",
+        "THE NATIONAL WEATHER SERVICE HAS ISSUED TORNADO WATCH 123 IN EFFECT UNTIL 1 AM EDT THURSDAY FOR THE FOLLOWING AREAS",
+        "IN FLORIDA THIS WATCH INCLUDES 15 COUNTIES",
+        "IN CENTRAL FLORIDA",
+        "HARDEE POLK SUMTER",
+        "IN NORTHERN FLORIDA",
+        "LEVY",
+        "IN SOUTH CENTRAL FLORIDA",
+        "DESOTO HIGHLANDS",
+        "IN SOUTHWEST FLORIDA",
+        "CHARLOTTE LEE",
+        "IN WEST CENTRAL FLORIDA",
+        "CITRUS HERNANDO HILLSBOROUGH",
+        "MANATEE PASCO PINELLAS",
+        "SARASOTA",
+        "$$",
+        "GMZ830-850-853-856-870-873-876-270500-",
+        "/O.NEW.KTBW.TO.A.0123.100526T2300Z-100527T0500Z/",
+        "THE NATIONAL WEATHER SERVICE HAS ISSUED TORNADO WATCH 123 IN EFFECT UNTIL 1 AM EDT THURSDAY FOR THE FOLLOWING AREAS",
+        "THIS WATCH INCLUDES THE FOLLOWING ADJACENT COASTAL WATERS",
+        "TAMPA BAY WATERS",
+        "COASTAL WATERS FROM TARPON SPRINGS TO SUWANNEE RIVER FL OUT 20 NM",
+        "COASTAL WATERS FROM ENGLEWOOD TO TARPON SPRINGS FL OUT 20 NM",
+        "COASTAL WATERS FROM BONITA BEACH TO ENGLEWOOD FL OUT 20 NM",
+        "WATERS FROM TARPON SPRINGS TO SUWANNEE RIVER FL OUT 20 TO 60 NM",
+        "WATERS FROM ENGLEWOOD TO TARPON SPRINGS FL OUT 20 TO 60 NM",
+        "WATERS FROM BONITA BEACH TO ENGLEWOOD FL OUT 20 TO 60 NM",
+        "$$",
+
+       ],
+     },
+    
+    {"name":"WSW1", 
+     "productType" : "Hazard_WSW_Local", 
+     "commentary": "Basic testing of WSW product with BZ.W",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 12, 21, "BZ.W", "all"),
+        ],
+     "checkStrings" : [
+        "WWUS42 KTBW 262300",
+        "WSWTBW",
+        "URGENT - WINTER WEATHER MESSAGE",
+        "NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+        "...|*OVERVIEW HEADLINE (MUST EDIT)*|...",
+        ".|*OVERVIEW (MUST EDIT)*|.",
+        "FLZ039-042-043-048>052-055>057-060>062-065-270700-",
+        "/O.NEW.KTBW.BZ.W.0001.100527T1100Z-100527T2000Z/",
+        "LEVY-CITRUS-SUMTER-HERNANDO-PASCO-",
+        "700 PM EDT WED MAY 26 2010",
+        "...BLIZZARD WARNING IN EFFECT FROM 7 AM TO 4 PM EDT THURSDAY...",
+        "THE NATIONAL WEATHER SERVICE IN TAMPA BAY RUSKIN HAS ISSUED A BLIZZARD WARNING...WHICH IS IN EFFECT FROM 7 AM TO 4 PM EDT THURSDAY.",
+        "|* SEGMENT TEXT GOES HERE *|. ",
+        "PRECAUTIONARY/PREPAREDNESS ACTIONS...", 
+        "A BLIZZARD WARNING MEANS SEVERE WINTER WEATHER CONDITIONS ARE EXPECTED OR OCCURRING. FALLING AND BLOWING SNOW WITH STRONG WINDS AND POOR VISIBILITIES ARE LIKELY. THIS WILL LEAD TO WHITEOUT CONDITIONS...MAKING TRAVEL EXTREMELY DANGEROUS. DO NOT TRAVEL. IF YOU MUST TRAVEL...HAVE A WINTER SURVIVAL KIT WITH YOU. IF YOU GET",
+        "STRANDED...STAY WITH YOUR VEHICLE.",
+        "&&",
+        "$$",
+        ],
+     },    
+    {"name":"AQA1",
+     "productType" : "Hazard_AQA_Local",
+     "commentary": "Basic testing of AQA product with AQ.Y",
+     "createGrids": [
+        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
+        ("Fcst", "Hazards", "DISCRETE", 0, 1, "AQ.Y", "all"),
+        ],
+       "cmdLineVars" :"{('Source', 'source'): 'COLORADO EMERGENCY MANAGEMENT AGENCY DENVER COLORADO', ('Issued By', 'issuedBy'): None, ('EAS Level', 'eas'): 'NONE', ('Alert Code', 'alertCode'): 'Orange'}",
+     "checkStrings" : [
+
+        "UFUS42 KTBW 262300",
+        "AQAABC",
+
+        "AIR QUALITY ALERT",
+        "RELAYED BY NATIONAL WEATHER SERVICE TAMPA BAY RUSKIN FL",
+        "700 PM EDT WED MAY 26 2010",
+
+        "FLZ039-042-043-048>052-055>057-060>062-065-270000-",
+        "/O.NEW.KTBW.AQ.Y.0001.100526T2300Z-100527T0000Z/",
+        "LEVY-CITRUS-SUMTER-HERNANDO-PASCO-PINELLAS-HILLSBOROUGH-POLK-MANATEE-",
+        "HARDEE-HIGHLANDS-SARASOTA-DE SOTO-CHARLOTTE-LEE-",
+        "INCLUDING THE CITIES OF...WILLISTON...CHIEFLAND...BRONSON...",
+        "CEDAR KEY...FANNING SPRINGS...HOMOSASSA SPRINGS...BEVERLY HILLS...",
+        "HERNANDO...INVERNESS...LECANTO...FLORAL CITY...CITRUS SPRINGS...",
+        "WILDWOOD...LAKE PANASOFFKEE...BUSHNELL...SPRING HILL...HOLIDAY...",
+        "LAND O' LAKES...JASMINE ESTATES...NEW PORT RICHEY...HUDSON...",
+        "ZEPHYRHILLS...DADE CITY...ST. PETERSBURG...CLEARWATER...LARGO...",
+        "TAMPA...BRANDON...LAKELAND...WINTER HAVEN...BRADENTON...",
+        "BAYSHORE GARDENS...PALMETTO...WAUCHULA...BOWLING GREEN...",
+        "ZOLFO SPRINGS...SEBRING...AVON PARK...PLACID LAKES...SARASOTA...",
+        "NORTH PORT...VENICE...ENGLEWOOD...SOUTH VENICE...ARCADIA...",
+        "PORT CHARLOTTE...PUNTA GORDA...CAPE CORAL...FORT MYERS...",
+        "NORTH FORT MYERS...LEHIGH ACRES...BONITA SPRINGS",
+        "700 PM EDT WED MAY 26 2010",
+
+        "...AIR QUALITY ALERT IN EFFECT UNTIL 8 PM EDT THIS EVENING...",
+
+        "THE NORTH CAROLINA DEPARTMENT OF ENVIRONMENTAL AND NATURAL RESOURCES",
+        "HAS ISSUED AN AIR QUALITY ACTION DAY...IN EFFECT UNTIL 8 PM EDT THIS",
+        "EVENING.",
+
+        "A CODE ORANGE AIR QUALITY ALERT FOR OZONE HAS BEEN ISSUED. GROUND",
+        "LEVEL OZONE CONCENTRATIONS WITHIN THE REGION MAY APPROACH OR EXCEED",
+        "UNHEALTHY STANDARDS. MEMBERS OF SENSITIVE GROUPS MAY EXPERIENCE",
+        "HEALTH EFFECTS. THE GENERAL PUBLIC IS NOT LIKELY TO BE AFFECTED.",
+        "FOR ADDITIONAL INFORMATION...PLEASE VISIT THE NORTH CAROLINA",
+        "DIVISION OF AIR QUALITY WEB SITE AT",
+        "HTTP://DAQ.STATE.NC.US/AIRAWARE/FORECAST/.",
+
+        "$$",
+        ],
+     },
+
+    ]
+
+import TestScript
+def testScript(self, dataMgr):
+    defaults = {
+        "cmdLineVars" :"{('Source', 'source'): 'COLORADO EMERGENCY MANAGEMENT AGENCY DENVER COLORADO', ('Issued By', 'issuedBy'): None, ('EAS Level', 'eas'): 'NONE'}",
+        "publishGrids" : 1,
+        "vtecMode" : "O",
+        "clearHazardsTable": 1,
+        "gridsStartTime": "20100526_2300",
+        "orderStrings": 1,
+        "deleteGrids" : [("Fcst", "Hazards", "SFC", "all", "all")],
+        }
+    return TestScript.generalTestScript(self, dataMgr, scripts, defaults)
+

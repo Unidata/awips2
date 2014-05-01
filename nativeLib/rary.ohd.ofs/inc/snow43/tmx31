@@ -1,0 +1,14 @@
+C..............................................
+C    COMMON BLOCK TMX31
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      tnn1              Temporary space for a 5 x 5 matrix
+C      tnn2              Temporary space for a 5 x 5 matrix
+C      tnn3              Temporary space for a 5 x 5 matrix
+C..............................................
+C
+      real    tnn1, tnn2, tnn3
+C
+      common/tmx31/tnn1(5,5), tnn2(5,5), tnn3(5,5)
+C

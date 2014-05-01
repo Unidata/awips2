@@ -1,0 +1,222 @@
+#! /bin/ksh
+# purge_files
+#
+# This script purges WHFS UNIX files
+# revised: 10/24/2001 
+# revised: 05/29/2002 - added purging of GAFF_MOSAIC_DIR
+# revised: 08/15/2002 - added purging of DPA_ARCH_DIR
+# revised: 09/12/2003 - replaced  wc | cut -f 1 d " "   with  wc -l  (6 places)
+#                     - latter version works on both HP and Linux
+#                     - former version does not work on Linux
+# revised: 02/18/2004 - removed delete of stage2 log files                           
+# revised: 08/06/2004 - Added the purging of the GAGE_PP_LOG directory.
+# revised: 12/29/2004 - Added the purging of the VACUUM_LOG_DIR dir.
+#                     - Removed purge of siipp logs
+# revised: 8/19/2005  - Added purge of metar_input dir.
+#                     - removed purge of vacuum logs
+#                        (vacuum now done via postgres cron and log files
+#                            purged with scour)
+# revised: 9/7/2006   - added purge of gage pp input directory
+#
+# revised: 5/9/2007   - commented out purge from DAILY_QC_LOG dir
+#                     - added "-type f" to all find commands
+# revised  1/15/08    - added purging of PrecipMonitor log files by changing RiverMonitor.* to
+#                        *Monitor.*
+# This allows you to run this script from outside of ./standard/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+. $RUN_FROM_DIR/../../check_app_context
+
+export GAGE_PP_DATA=$(get_apps_defaults gage_pp_data)
+export GAGE_PP_LOG=$(get_apps_defaults gage_pp_log)
+export SSHP_INGEST_XML_DIR=$(get_apps_defaults sshp_ingest_xml_dir)
+export SSHP_OFS_EXTRACT_XML_DIR=$(get_apps_defaults sshp_ofs_extract_xml_dir)
+export SSHP_OFS_EXTRACT_TEXT_DIR=$(get_apps_defaults sshp_ofs_extract_text_dir)
+export GAFF_MOSAIC_DIR=$(get_apps_defaults gaff_mosaic_dir)
+export DPA_ARCH_DIR=$(get_apps_defaults dpa_arch_dir)
+export DPA_ERROR_DIR=$(get_apps_defaults dpa_error_dir)
+export DPA_LOG_DIR=$(get_apps_defaults dpa_log_dir)
+export SHEF_ERROR_DIR=$(get_apps_defaults shef_error_dir)
+export SHEFDECODE_LOG=$(get_apps_defaults shefdecode_log)
+export QCALARM_LOG_DIR=$(get_apps_defaults qcalarm_log_dir)
+export FLOODSEQ_LOG_DIR=$(get_apps_defaults floodseq_log_dir)
+export DB_PURGE_LOG_DIR=$(get_apps_defaults db_purge_log_dir)
+export WHFS_UTIL_LOG_DIR=$(get_apps_defaults whfs_util_log_dir)
+export OBSFCSTMONITOR_LOG_DIR=$(get_apps_defaults obsfcstmonitor_log_dir)
+export RIVERMON_LOG_DIR=$(get_apps_defaults rivermon_log_dir)
+export RPF_LOG_DIR=$(get_apps_defaults rpf_log_dir)
+export METAR_LOG_DIR=$(get_apps_defaults metar_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+
+
+Dte=`date -u`
+
+# Setup file names
+#
+fnm=$WHFS_UTIL_LOG_DIR/purge_files.log
+tmp=$WHFS_UTIL_LOG_DIR/purge_files.tmp
+
+echo `basename $0` log location: $fnm
+
+if [ -e "${fnm}" ]
+then
+	tail -1200 $fnm > $tmp
+	mv $tmp $fnm
+fi	
+
+# Log a header line to the output file
+#
+echo "----------------------------------------------------" >> $fnm
+echo "Begin purge_files at:  " $Dte >> $fnm
+
+
+# Purge SHEF Decoder product log files older than 1 day
+# 
+echo "   Purging SHEF Decoder product log files..." >> $fnm
+Num=`ls $SHEF_ERROR_DIR | wc -l`
+echo "      Number of files before purge:  " $Num >> $fnm
+find  $SHEF_ERROR_DIR -name '*.*.*' -type f -mtime +0 -print | xargs rm -f >> $fnm
+Num=`ls $SHEF_ERROR_DIR | wc -l`
+echo "      Number of files after  purge:  " $Num >> $fnm
+
+
+# Purge SHEF Decoder daily log files older than 2 days
+#
+echo "   Purging SHEF Decoder daily log files..." >> $fnm
+find  $SHEFDECODE_LOG -name 'shef_decode_log_*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+
+# Purge Gage PP daily log files older than 2 days
+#
+echo "   Purging Gage Precipitation Processor daily log files..." >> $fnm
+find $GAGE_PP_LOG -name 'gage_pp_log_*' -type f -mtime +1 -print | xargs rm -f >> $fnm 
+
+# Purge obsfcst monitor daily log files older than 2 days
+#
+echo "   Purging ObsFcst Monitor daily log files..." >> $fnm
+find $OBSFCSTMONITOR_LOG_DIR -name 'obsfcst_monitor_log_*' -type f -mtime +1 -print | xargs rm -f >> $fnm 
+
+# Purge river monitor daily log files older than 2 days
+#
+echo "   Purging RiverMonitor and PrecipMonitor daily log files..." >> $fnm
+find $RIVERMON_LOG_DIR -name '*Monitor.*' -type f -mtime +1 -print | xargs rm -f >> $fnm 
+
+# Purge build hourly daily log files older than 2 days
+#
+echo "   Purging build hourly daily log files..." >> $fnm
+find $GAGE_PP_LOG -name 'build_hourly_*' -type f -mtime +1 -print | xargs rm -f >> $fnm 
+
+# Purge any undecoded metar input file.  They would only be there
+# if the decoder fails to run normally.
+# This directory is hardcoded here as it is not centrally defined;
+# it is expected to have the below value, as defined in the file:
+# ${apps_dir}/whfs/local/data/app/metar2shef/metar.cfg
+#
+echo "   Purging undecoded metar input files..." >> $fnm
+echo "   If any files are purged, check metar2shef processing..." >> $fnm
+METAR_INPUT_DIR=${apps_dir}/whfs/local/data/metar_input
+find $METAR_INPUT_DIR -name '*[A-Z]*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+
+# Purge undecodable DPA files older than 1 day
+#
+echo "   Purging undecodable DPA files..." >> $fnm
+find  $DPA_ERROR_DIR -name '*[A-Z]*' -type f -mtime +0 -print | xargs rm -f >> $fnm
+
+
+# Purge DPA Decoder daily log files older than 2 days
+#
+echo "   Purging DPA Decoder daily log files..." >> $fnm
+find  $DPA_LOG_DIR -name 'process_dpa_log_*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+
+ 
+# Purge DPA Archive files older than 1 day
+#
+echo "   Purging DPA Archive files..." >> $fnm
+find  $DPA_ARCH_DIR -name '*[A-Z]*' -type f -mtime +0 -print | xargs rm -f >> $fnm
+
+  
+# Purge METAR-to-SHEF Translator log files older than 1 day
+#
+echo "   Purging METAR-to-SHEF Translator log files..." >> $fnm
+Num=`ls $METAR_LOG_DIR | wc -l`
+echo "      Number of files before purge:  " $Num >> $fnm
+find  $METAR_LOG_DIR -type f \! -name '*.log' -type f -mtime +0 -print | xargs rm -f >> $fnm
+Num=`ls $METAR_LOG_DIR | wc -l`
+echo "      Number of files after  purge:  " $Num >> $fnm
+
+ 
+# Purge QC/Alert/Alarm log files older than 1 day
+#
+echo "   Purging QC/Alert/Alarm log files..." >> $fnm
+find  $QCALARM_LOG_DIR  -name '*.*.*' -type f -mtime +0 -print | xargs rm -f >> $fnm
+
+
+# Purge db_purge log files older than 4 days
+#
+echo "   Purging db_purge log files..." >> $fnm
+find  $DB_PURGE_LOG_DIR  -name '*.*.*' -type f -mtime +3 -print | xargs rm -f >> $fnm
+
+# Purge FloodSeq log files older than 2 days
+#
+echo "   Purging FloodSeq log files..." >> $fnm
+find  $FLOODSEQ_LOG_DIR  -name '*.*.*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+
+
+# Purge RiverPro log files older than 2 days
+#
+echo "   Purging RiverPro log files..." >> $fnm
+find  $RPF_LOG_DIR -name '*.log.*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+ 
+ 
+# Purge RiverPro, SHEF Encoder, and Alarm output product files older than 2 days
+#
+echo "   Purging RiverPro, SHEF Encoder, and Alarm output product files..." >> $fnm
+Num=`ls $WHFS_PRODUCT_DIR | wc -l`
+echo "      Number of files before purge:  " $Num >> $fnm
+find  $WHFS_PRODUCT_DIR      -name '*.*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+Num=`ls $WHFS_PRODUCT_DIR | wc -l`
+echo "      Number of files after  purge:  " $Num >> $fnm
+
+
+# Purge DailyQC logs older than 1 day
+#DAILY_QC_LOG_DIR=/fs/hseb/ob7/wfo_rfc/precip_proc/local/data/log/daily_qc
+#echo "Purging DailyQC logs older than 1 day..." >> $fnm
+#find  $DAILY_QC_LOG_DIR      -name '*.*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+#Num=`ls $DAILY_QC_LOG_DIR | wc -l`
+#echo "      Number of files after  purge:  " $Num >> $fnm
+
+
+# Purge GAFF mosaic ffg files older than 3 days
+#
+echo "   Purging GAFF mosaic ffg files..." >> $fnm
+find  $GAFF_MOSAIC_DIR  -name '*.ffg' -type f -mtime +2 -print | xargs rm -f >> $fnm
+
+# Purge GAFF log files older than 3 days
+#
+echo "   Purging GAFF log files..." >> $fnm
+find  $DPA_LOG_DIR  -name 'gen_areal_ffg_log_*' -type f -mtime +2 -print | xargs rm -f >> $fnm
+
+# Purge SSHP OFS extract text files older than 15 days
+echo "   Purging SSHP OFS extract text files..." >> $fnm
+find  $SSHP_OFS_EXTRACT_TEXT_DIR -name '*.txt' -type f -mtime +14 -print | xargs rm -f >> $fnm
+
+# Purge SSHP OFS extract text log files older than 15 days
+echo "   Purging SSHP OFS extract text log files..." >> $fnm
+find  $SSHP_OFS_EXTRACT_TEXT_DIR -name '*.log' -type f -mtime +14 -print | xargs rm -f >> $fnm
+
+# Purge SSHP OFS extract xml files older than 15 days
+echo "   Purging SSHP OFS extract XML files..." >> $fnm
+find  $SSHP_OFS_EXTRACT_XML_DIR -name '*.xml' -type f -mtime +14 -print | xargs rm -f >> $fnm
+
+# Purge SSHP ingest XML files older than 15 days
+echo "   Purging SSHP ingest XML files..." >> $fnm
+find  $SSHP_INGEST_XML_DIR -name '*.xml' -type f -mtime +14 -print | xargs rm -f >> $fnm
+
+# Purge the GagePP input directory of files older than 2 days.
+echo "   Purging GagePP input files..." >> $fnm
+find  $GAGE_PP_DATA  -name '*[A-Z0-9]*' -type f -mtime +1 -print | xargs rm -f >> $fnm
+
+Dte=`date -u`
+echo "End   purge_files at:  " $Dte >> $fnm
+

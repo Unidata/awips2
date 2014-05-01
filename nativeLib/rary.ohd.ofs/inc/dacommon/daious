@@ -1,0 +1,5 @@
+C                                           *--> FROM DACOMMON.DAIOUS
+C  ASAP I/O UNITS
+      COMMON /DAIOUS/ RAWCTL,ASPUNT,ASPCTL
+      INTEGER*4 RAWCTL,ASPUNT,ASPCTL
+C

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+
+if [ -f /etc/rc.config.d/AWIPS ];then
+ . /etc/rc.config.d/AWIPS
+fi
+
+#echo "Halting retransmission process"
+#pid=`ps -ef |grep start_sbn_retransmit|grep -v grep | awk  '{print $2}'`
+#kill -s SIGKILL $pid
+
+echo "Stopping ldm service"
+
+su - ldm -c "ldmadmin stop"
+
+echo "Releasing shared memory resources"
+
+su - ldm -c "acq_ldm_freeshm -m0"
+
+echo "Done."
+

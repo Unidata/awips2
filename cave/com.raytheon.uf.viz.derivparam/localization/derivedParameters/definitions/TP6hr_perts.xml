@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	TP6hr_perts| |N|6hr Precip Perturbations|in         |  | | *Gather|TP6hr
+	
+	varId: |TP6hr_perts| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |6hr Precip Perturbations| 
+	units: |in| 
+	displayTypes: || 						//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: || 							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Gather|
+	FIELD: |TP6hr| 
+	
+	AWIPS II NEW FILE - TP6hr_perts.xml
+ -->
+<DerivedParameter unit="mm" name="6hr Precip Perturbations" abbreviation="TP6hr_perts" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Gather">
+        <Field abbreviation="TP6hr"/>
+    </Method>
+</DerivedParameter>

@@ -1,0 +1,21 @@
+#!/bin/ksh
+#
+#  RERUN RfCWGen from RFCWide GUI
+#
+
+#  define directory containing the get_apps_defaults function
+
+GAD_DIR=/awips/hydroapps/public/bin
+
+#
+#  define .Apps_defaults token lists
+#
+
+APPS_DEFAULTS=/awips/hydroapps/.Apps_defaults
+APPS_DEFAULTS_SITE=/awips/hydroapps/.Apps_defaults_site
+APPS_DEFAULTS_USER=/awips/hydroapps/.Apps_defaults_site
+export  APPS_DEFAULTS APPS_DEFAULTS_SITE  APPS_DEFAULTS_USER
+
+RFCWBIN=`$GAD_DIR/get_apps_defaults pproc_bin`
+
+$RFCWBIN/rfcwgen  1  $1  $2

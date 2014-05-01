@@ -1,0 +1,19 @@
+broker.version=0-10
+
+broker.dir=${project.root}/../cpp/src
+module.dir=${broker.dir}/.libs
+store.module.dir=${project.root}/../../cppStore/cpp/lib/.libs
+
+broker.executable=${broker.dir}/qpidd
+broker.module.ssl=${module.dir}/ssl.so
+broker.module.cluster=${module.dir}/cluster.so
+broker.module.store=${store.module.dir}/msgstore.so
+broker.stopped=Exception constructed
+
+broker.modules=
+broker.args=
+
+broker=${broker.executable} -p @PORT --data-dir ${build.data}/@PORT -t --auth no --no-module-dir ${broker.modules} ${broker.args}
+
+profile.excludes=CPPPrefetchExcludes CPPTransientExcludes
+test.excludes=Excludes CPPExcludes ${profile}.excludes ${profile.excludes} cpp.excludes

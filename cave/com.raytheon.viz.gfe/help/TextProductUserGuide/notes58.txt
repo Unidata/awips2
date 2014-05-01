@@ -1,0 +1,2 @@
+For Tabular products, most product settings will be found in the Definition section.  For Narrative products, however, there are many additional customizations you may want to make.  
+In this section, we’ll see how to customize Narrative products by locating and setting thresholds and variables as well as altering the product component definitions and narrative definitions through the configurable issuance capability.

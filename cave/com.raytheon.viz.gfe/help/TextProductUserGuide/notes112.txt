@@ -1,0 +1,2 @@
+Recall the Infrastructure Inheritance Hierarchy with the SampleAnalysis and TextRules libraries.  The SampleAnalysis library is relatively concise and self-contained.  However, the TextRules library is very extensive and is composed of it’s own Inheritance Hierarchy of classes
+

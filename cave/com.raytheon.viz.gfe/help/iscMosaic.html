@@ -1,0 +1,794 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+ <title>iscMosaic - User's Guide</title>
+</head>
+<body alink="#ff0000" bgcolor="#ffffff" link="#0000ee" text="#000000"
+ vlink="#551a8b">
+<h1>
+iscMosaic User's Guide</h1>
+January 6, 2012<br>
+<p>
+</p>
+<h2><a name="TableofContents"></a>Table of Contents</h2>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#Running">Running the iscMosaic Program</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Command">Command Line Switches</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Restrictions">Restrictions</a>
+<br>
+<a href="#Examples">Examples</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#DefaultBehavior">Default Behavior</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Blanking">Blanking</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#ReplaceOnlyDoNotMerge">Replace Only, Do
+Not Merge</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#NoMask">No Mask</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#AlternativeMask">Alternative Mask</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#SimpleStorageofGrids">Simple Storage of
+Grids</a>
+<br>
+<a href="#RequiredFormat">Required netCDF File Format</a>
+<br>
+<a href="#TemporalMerge">Temporal Mosaicing</a>
+<p></p>
+<br>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+The main use of the iscMosaic program is to merge and store grids
+received
+from the <a href="IntersiteCoordination.html">intersite coordination
+of
+grids</a> routine into your database.&nbsp; The iscMosaic program can
+also
+be used to merge other local data sets and for storing data, that is in
+the appropriate netCDF format, into your database.&nbsp; Refer to the <a
+ href="ifpnetCDF.html">ifpnetCDF
+program's user guide</a> for details on the required format of the
+netCDF
+file.
+<p>There are a variety of options available to iscMosaic.&nbsp; In the
+basic mode, the contents of the specified netCDF file is merged into
+the
+existing dataset.&nbsp; Only those areas identified by the source site
+identifier in the netCDF file are merged; the remainder of the existing
+grids remain untouched.&nbsp; Using the various options, you can limit
+the time range scope of the merge, limit the processing to one or just
+a few weather elements, define an alternative merge mask or bypass the
+merge and replace the entire grid, and zero out the existing grid
+inventory
+before beginning.
+</p>
+<p>Merging of grids is generally achived through "masking".&nbsp; The
+mask
+is an edit area.&nbsp; Be default the edit area mask is defined by the
+site identifier field in each weather element of the incoming netCDF
+file.&nbsp;
+For example, if the grids in the netCDF were created by the <a
+ href="ifpnetCDF.html">ifpnetCDF
+program</a> at Cheyenne (CYS), and then the iscMosaic program was run
+on
+the data file at BOU, only the data defined by those grid points in the
+Boulder's CYS edit area would be merged into the grids.&nbsp; The mask
+can be disabled, or redefined when the iscMosaic program is run.
+</p>
+<p>The format of the input netCDF file is described in the <a
+ href="netCDFFormat.html">netCDF
+Format documentation</a>.
+</p>
+<p>The following three images are from BOU, CYS, and PUB, when merged
+and
+clipped to their CWA regions, the result is the fourth image.
+<br>
+&nbsp;
+<table nosave="" cols="4" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><img src="images/Mosaic_BOU_Orig.jpg" nosave=""
+ height="296" width="200"></td>
+      <td><img src="images/Mosaic_CYS_Orig.jpg" nosave="" height="320"
+ width="200"></td>
+      <td><img src="images/Mosaic_PUB_Orig.jpg" nosave="" height="316"
+ width="200"></td>
+      <td><img src="images/Mosaic_BOUCYSPUB.jpg" nosave="" height="285"
+ width="200"></td>
+    </tr>
+    <tr>
+      <td>Boulder, CO (BOU)</td>
+      <td>Cheyenne, WY (CYS)</td>
+      <td>Pueblo, CO (PUB)</td>
+      <td>Merge of the three different office grids, each one clipped
+on its
+CWA.</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Running"></a>Running the iscMosaic Program</h2>
+<h3>
+<a name="Command"></a>Command Line Switches</h3>
+The following command line switches are supported by iscMosaic:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Switch</b></td>
+      <td><b>Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>YES&nbsp; (See Note)</td>
+      <td>Identifies the hostname upon which EDEX is running.</td>
+    </tr>
+    <tr>
+      <td>-r rpcport</td>
+      <td>YES (See Note)</td>
+      <td>Identifies the RPC port number upon which EDEX is
+processing
+requests.</td>
+    </tr>
+    <tr>
+      <td>-u user</td>
+      <td>NO</td>
+      <td>Identifies the user of the program for use in obtaining edit
+areas
+from the server.&nbsp;</td>
+    </tr>
+    <tr>
+      <td>-d outputDatabaseID</td>
+      <td>YES (See Note)</td>
+      <td>Defines the destination database to store the grids.&nbsp;
+This is
+a full database id, in the form of
+"siteID_GRID_optType_modelName_modelDate_modelTime",
+such as BOU_GRID__Fcst_00000000_0000.</td>
+    </tr>
+    <tr>
+      <td>-p parm</td>
+      <td>NO</td>
+      <td>If not present, then all weather elements found in the netCDF
+file
+that exist in the destination database will be stored.&nbsp; If
+present,
+then only those weather elements will be stored.&nbsp; There can be
+multiple
+-p switches, in the form of -p wx1 -p wx2 -p wx3. The name refers to
+SFC
+weather elements, to denote a weather element for a different level,
+use
+the parmName_level format, such as T_3K.</td>
+    </tr>
+    <tr>
+      <td>-f inputFile</td>
+      <td>YES</td>
+      <td>Specifies the input netCDF file for processing.&nbsp; This
+file must
+be in the same format as the output that <a href="ifpnetCDF.html">ifpnetCDF</a>
+produces. There can be multiple -f switches, in the form of -f file1 -f
+file2 -f file3.&nbsp; See the <a href="#Restrictions">restrictions
+section</a>
+for more information about command switch compatibility with multiple
+-f
+switches are given.</td>
+    </tr>
+    <tr>
+      <td>-b</td>
+      <td>NO</td>
+      <td>Blanking Mode.&nbsp; If enabled, then for all times, other
+than the
+times in the incoming grids, any existing grids will have the area
+defined
+by the area mask blanked, i.e., set to the minimum data value.&nbsp; If
+disabled, then no data within the area defined by the area mask will be
+modified in time periods that are not contained within the incoming
+grids.&nbsp;
+For purposes of <a href="IntersiteCoordination.html">intersite
+coordination</a>,
+which always sends the complete weather element's inventory, the switch
+must be specified. The -s and -e switches affect the overall time range
+that ths operation is performed.</td>
+    </tr>
+    <tr>
+      <td>-s startTime</td>
+      <td>NO</td>
+      <td>Start Time. By default, the start time is set to January 1,
+1970 at
+0000Z.&nbsp;&nbsp; Only incoming grids that contain the start time or
+start
+after the start time will be processed.&nbsp; For purposes of <a
+ href="IntersiteCoordination.html">intersite
+coordination</a>, the -s switch should not be specified.</td>
+    </tr>
+    <tr>
+      <td>-e endTime</td>
+      <td>NO</td>
+      <td>Stop Time. By default, the stop time is set way into the
+future.&nbsp;
+Only incoming grids that contain the ending time or end before the
+ending
+time will be processed.&nbsp; For purposes of <a
+ href="IntersiteCoordination.html">intersite
+coordination</a>, the -e switch should not be specified.</td>
+    </tr>
+    <tr>
+      <td>-x</td>
+      <td>NO</td>
+      <td>Replace Mode.&nbsp; By default, iscMosaic performs merges of
+the incoming
+data grids into any existing grids over the region defined by the area
+mask.&nbsp; If the -x switch is given, then iscMosaic will not perform
+a merge, but instead will simply replace any existing grid with the
+incoming
+grid.&nbsp; For purposes of <a href="IntersiteCoordination.html">intersite
+coordination</a>, the -x switch should not be specified.&nbsp; The -s
+and
+-e switches affect the overall time range that this operation is
+performed.</td>
+    </tr>
+    <tr>
+      <td>-z</td>
+      <td>NO</td>
+      <td>Erase Inventory First. By default,&nbsp; no grids are removed
+from
+the destination database.&nbsp; If the -z switch is specified, then
+before
+any incoming grids are stored, any existing grids in the database are
+removed.&nbsp;
+For purposes of <a href="IntersiteCoordination.html">intersite
+coordination</a>,
+the -z switch should not be specified.&nbsp; The -s and -e switches
+affect
+the overall time range that this operation is performed.</td>
+    </tr>
+    <tr>
+      <td>-n</td>
+      <td>NO</td>
+      <td>Ignore Area Mask. Be default, the site identifier field in
+the input
+netCDF file is used to determine the area mask.&nbsp; For example, if
+the
+netCDF file site id field is "CYS", then the program will attempt to
+get
+the edit area called "ISC_CYS" from EDEX and then only merge
+those
+grid points.&nbsp; If the -n switch is present, then the area mask will
+be ignored and all grid points in the input netCDF will be merged into
+the database.&nbsp; This mode is not quite identical to the -x replace
+mode unless the input netCDF file and the destination database contain
+the same domain (geographical information). There is another mask
+within
+the input netCDF file that cannot be disabled.&nbsp; That mask defines
+valid data points vs. invalid data points.&nbsp; The software will not
+store invalid data points, despite the absence of a mask.</td>
+    </tr>
+    <tr>
+      <td>-a altMask</td>
+      <td>NO</td>
+      <td>Alternative Mask. By default, the site identifier field in
+the input
+netCDF file is used to determine the area mask.&nbsp; For example, if
+the
+netCDF file site id field is "CYS", then the program will attempt to
+get
+the edit area called "ISC_CYS" from EDEX and then only merge
+those
+grid points.&nbsp; The -a switch identifies the name of the edit area
+used
+for masking.</td>
+    </tr>
+    <tr>
+      <td>-w message</td>
+      <td>NO</td>
+      <td>Warn/Alert all clients connected to EDEX that data
+has been
+processed.&nbsp; This produces a message on the AlertViz
+indicating
+that "message" occurred.&nbsp; The site identifier, number of grids,
+valid
+time range, and weather elements received are displayed in the message.</td>
+    </tr>
+    <tr>
+      <td>-k</td>
+      <td>NO</td>
+      <td>Delete the input file(s) after processing has been completed.</td>
+    </tr>
+    <tr>
+      <td>-i parm</td>
+      <td>NO</td>
+      <td>If not present, then all weather elements found in the netCDF
+file
+that exist in the destination database will be stored or those
+specified
+by the -p switch will be stored.&nbsp; If present, the identified
+weather
+element, if found in the input file, will be skipped, even if a -p
+switch
+is given. There can be multiple -i switches, in the form of -i wx1 -i
+wx2
+-i wx3.&nbsp; The name refers to SFC weather elements, to denote a
+weather
+element for a different level, use the parmName_level format, such as
+T_3K.</td>
+    </tr>
+    <tr>
+      <td>-l</td>
+      <td>NO</td>
+      <td>Lock flag.&nbsp; If set, then only one iscMosaic can run at a
+time.&nbsp;
+This switch is used by the intersite coordination software and is not
+needed
+for routine use of ifpnetCDF.</td>
+    </tr>
+    <tr>
+      <td>-D gridDelay</td>
+      <td>NO</td>
+      <td>Grid Delay. Specifies the delay between processing of grids.
+Defaults
+to 0.25 seconds. The delay is used to lessen the effect of ISC traffic
+on the loading of EDEX, and hence affects the GFE performance.
+The value
+is in seconds, and can be fractional. To eliminate the delay, use the
+-D 0
+switch. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-o<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;">Use the office type from EDEX.
+      Incoming weather elements will be renamed if the data
+is from a different office type than your own. For example,
+receiving QPF data from an RFC at a WFO will have QPF stored as QPFrfc.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-S<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;">Enables the "ISC Sending" for
+this process.&nbsp;&nbsp; Depending upon how the EDEX ISC
+configuration is set, different behaviors may be observed.&nbsp; If
+"Send ISC On Save" is set, then the Fcst grids will be sent upon
+saving.&nbsp; If "Send ISC On Save" is not set, then the user must
+manually send the grids via a procedure through the Send Intersite
+Grids capability.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-T<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+      <td style="vertical-align: top;">Enables the "translate" mode for
+WEATHER and DISCRETE data. If incoming data is not
+considered valid per EDEX definition, then the data keys will
+be translated to simpler keys that is understood by EDEX.
+See <a href="#translationRules">translation rules</a>
+for more details.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"><b>Note:</b> The -h serverhost, -r rpcport, and -d
+outputDatabaseID
+are predefined based on your installation configration of
+GFESuite.&nbsp;
+The -h and -r will be defined for the server host and port specified
+during
+installation.&nbsp; The -d output database identifier is preset to the
+ISC (intersite coordination database) for the site installed.&nbsp; If
+you wish to connect to another server, then these switches will be
+necessary.&nbsp;</font><font color="#3366ff">&nbsp; If environment
+variables ${CDSHOST} or
+${CDSPORT} are defined, then the default server and port will be
+determined from the environment variables, unless overridden with the
+user specified -h and -r switches.<br>
+</font>
+<p><br>
+</p>
+<h3>
+<a name="Restrictions"></a>Restrictions</h3>
+The following restrictions apply to running this program:
+<ul>
+  <li>The -n and -a switches cannot be specified together since they
+are
+mutually
+exclusive.</li>
+  <li>If more than one -f switch is given, then the -x switch should
+not be
+given,
+since it will not perform a merge.</li>
+  <li>If more than one -f switch is given, then the -z switch cannot be
+given.</li>
+  <li>For purposes of intersite coordination, the following switches
+must not
+be specified: -s, -e, -x, -z, -n, -a.&nbsp; The following switch should
+be specified: -b</li>
+  <li>The program ignores the database time constraints, so if the data
+to be
+stored does not fall within a valid time constraint, the grid will not
+be stored.&nbsp; This isn't a problem with the intersite coordination
+database,
+since its grids are stored into the ISC database, which has time
+constraints
+of 1 hour.</li>
+  <li>If the "-d" switch specifies a database that does not currently
+exist,
+it will not be automatically created for you and the program will fail.</li>
+</ul>
+<hr width="100%">
+<h2><a name="Examples"></a>Examples</h2>
+This section describes the behavior of the iscMosaic program with the
+various
+options.
+<h3><a name="DefaultBehavior"></a>Default Behavior</h3>
+The default behavior, where the -h, -r, -d, and -f switches are given,
+is to merge the grids in the input netCDF files into the destination
+database.
+<p>The following illustrates the concept of merging.&nbsp; Merging is
+done
+both temporally, and spatially.
+<br>
+&nbsp;
+<table nosave="" cellspacing="10">
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><br>
+      </td>
+      <td>Original Grid, as viewed on the GFE at the remote site. Note
+the inventory
+for the grids.&nbsp; The merging will also perform temporal merges.</td>
+      <td>Grid, after it has been remapped and clipped to the
+destination's grid
+domain.</td>
+    </tr>
+    <tr nosave="">
+      <td>BOU</td>
+      <td nosave=""><img src="images/Mosaic_BOU_Orig.jpg" nosave=""
+ height="532" width="359"></td>
+      <td><img src="images/Mosaic_BOU_CWA.jpg" nosave="" height="540"
+ width="401"></td>
+    </tr>
+    <tr>
+      <td>CYS</td>
+      <td><img src="images/Mosaic_CYS_Orig.jpg" nosave="" height="489"
+ width="305"></td>
+      <td><img src="images/Mosaic_CYS_CWA.jpg" nosave="" height="542"
+ width="379"></td>
+    </tr>
+    <tr nosave="">
+      <td>PUB</td>
+      <td nosave=""><img src="images/Mosaic_PUB_Orig.jpg" nosave=""
+ height="523" width="331"></td>
+      <td><img src="images/Mosaic_PUB_CWA.jpg" nosave="" height="541"
+ width="380"></td>
+    </tr>
+    <tr>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>The result of merging the grids is shown in the following
+image.&nbsp;
+Note the grids contained within the grid manager for Temperature.&nbsp;
+The inventory is a temporal blend of the BOU, CYS, and PUB grids.
+</p>
+<p><img src="images/Mosaic_BOUCYSPUB.jpg" nosave="" height="543"
+ width="381"></p>
+<p>In the event that data is not available for a particular time period
+from a site, the merged grid will contain missing data.&nbsp; The
+missing
+data is denoted by the weather element's minimum value, such as -30 for
+temperature, calm for winds, and &lt;NoWx&gt; for weather grids.&nbsp;
+Here
+is an example of looping through a sequence of merged grids:
+</p>
+<p><img src="images/Mosaic_Loop.gif" nosave="" height="723" width="488"></p>
+<h3><a name="Blanking"></a>Blanking</h3>
+Blanking is used when when the incoming grids represent the entire
+inventory
+of grids for that weather element.&nbsp; Any grids, and any portions of
+grids that do not overlap the incoming grids's valid times will be
+blanked
+when blanking is enabled.&nbsp; If blanking is disabled, then the
+non-overlapping
+portions of the grids will not have their data modified.
+<p>The data written into a grid that has been "blanked" is basically
+the
+minimum data value or fill value over the area mask.
+</p>
+<p>Non-Blanking Situation:
+<table nosave="" border="1" cols="3" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><img src="images/Mosaic_Blank0.jpg" nosave=""
+ height="450" width="307"></td>
+      <td><img src="images/Mosaic_Blank1.jpg" nosave="" height="462"
+ width="288"></td>
+      <td><img src="images/Mosaic_Blank2.jpg" nosave="" height="462"
+ width="286"></td>
+    </tr>
+    <tr>
+      <td>Original Grid before merging. Note the valid time of the grid
+is 00z-07z.</td>
+      <td>Merging results in two grids since the merged grid is valid
+from 00z-01z.&nbsp;
+The two valid times are 00z-01z, and 01-07z.&nbsp; This is the first
+grid
+which now consists of the merged CYS data.</td>
+      <td>The second grid looks exactly the same as before the merge,
+since the
+incoming merged grid valid time (00-01z) does not overlap this grid
+(01-07z).
+This is the effect of blanking turned off.</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>Blanking Situation:
+<table nosave="" border="1" cols="3" width="100%">
+  <tbody>
+    <tr>
+      <td><img src="images/Mosaic_Blank0.jpg" nosave="" height="450"
+ width="307"></td>
+      <td><img src="images/Mosaic_Blank1.jpg" nosave="" height="462"
+ width="288"></td>
+      <td><img src="images/Mosaic_Blank3.jpg" nosave="" height="458"
+ width="285"></td>
+    </tr>
+    <tr>
+      <td>Original Grid before merging. Note the valid time of the grid
+is 00z-07z.</td>
+      <td>Merging results in two grids since the merged grid is valid
+from 00z-01z.&nbsp;
+The two valid times are 00z-01z, and 01-07z.&nbsp; This is the first
+grid
+which now consists of the merged CYS data.</td>
+      <td>The second grid is different since blanking is enabled. Since
+the incoming
+merged grid valid time (00z-01z) does not overlap this grid's valid
+time
+(01-07z), the area defined by the CYS edit area is masked out (or set
+to
+the minimum value) to indicate there is no valid data available.</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<h3><a name="ReplaceOnlyDoNotMerge"></a>Replace Only, Do Not Merge</h3>
+If the replace only, do not merge flag is set via the command line,
+then
+an incoming grid will completely replace any overlapping existing grid,
+rather than performing a merge.
+<p>Here is an example of an existing grid and the result of performing
+a replace.&nbsp; Note that the -a nor the -n switches were provided,
+which
+caused the grid to be masked over the PUB CWA:
+<br>
+&nbsp;
+<br>
+&nbsp;
+<table nosave="" border="1" cols="2" width="100%">
+  <tbody>
+    <tr>
+      <td><img src="images/Mosaic_Replace0.jpg" nosave="" height="541"
+ width="302"></td>
+      <td><img src="images/Mosaic_Replace.jpg" nosave="" height="541"
+ width="374"></td>
+    </tr>
+    <tr>
+      <td>Merged Grid before the PUB grid has been added.</td>
+      <td>Merged (Replaced) grid after the PUB grid has been
+added.&nbsp; The
+PUB grid has completely replaced the CYS and BOU data sets since the -x
+switch was used.</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+&nbsp;
+</p>
+<h3><a name="NoMask"></a>No Mask</h3>
+The -n switch specifies that all valid data in the incoming grid will
+be
+used.&nbsp; No mask will be applied.&nbsp; Here is an example of
+storing
+a PUB grid using the -n switch.&nbsp; A merge is performed, but since
+there
+wasn't data previously from CYS, that area is blanked out.&nbsp; Note
+the
+blank area at the top of the grid; this area was not covered by PUB's
+original
+grid domain, and hence data values cannot be applied to it.
+<p>The use of no mask is generally used only when replacing grids; it
+is
+used in conjunction with the -x switch.
+</p>
+<p><img src="images/Mosaic_NoMask.jpg" nosave="" height="543"
+ width="379"><br>
+&nbsp;
+</p>
+<h3><a name="AlternativeMask"></a>Alternative Mask</h3>
+The user may specifify an alternative mask, which is the name of an
+edit
+area. In this example, the original data before the merge is shown, the
+edit area is outlined in the second image, and those data portions
+within
+the incoming file that are contained within the named edit area are
+merged.
+<br>
+&nbsp;
+<br>
+&nbsp;
+<table nosave="" cols="3" width="100%">
+  <tbody>
+    <tr>
+      <td><img src="images/Mosaic_AltMask0.jpg" nosave="" height="458"
+ width="302"></td>
+      <td><img src="images/Mosaic.AltMask1.jpg" nosave="" height="430"
+ width="300"></td>
+      <td><img src="images/Mosaic_AltMask2.jpg" nosave="" height="408"
+ width="300"></td>
+    </tr>
+    <tr nosave="">
+      <td>Original Data set before merging.</td>
+      <td nosave="">The incoming data set when masked to the specified
+area.&nbsp;
+Note that some of the area is "blank", which was outside the original
+grid's
+domain.&nbsp;</td>
+      <td>The result of the merge.</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+&nbsp;
+<h2><a name="SimpleStorageofGrids"></a>Simple Storage of Grids</h2>
+Another use for the iscMosaic program is to simply store grids from
+netCDF
+into the server.&nbsp; Of course the <a href="#RequiredFormat">format
+of
+the file</a> must meet the appropriate standards for the iscMosaic
+program
+to recognize the data.
+<p>It is assumed that you will completely want to replace any existing
+grids in the server. The following command line switches are normally
+used
+for this purpose:
+<br>
+&nbsp;
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>-h hostname</td>
+      <td>Hostname upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-r portNumber</td>
+      <td>RPC port number upon which EDEX is handling requests</td>
+    </tr>
+    <tr>
+      <td>-d databaseOutputID</td>
+      <td>Name of the output database to store the grids</td>
+    </tr>
+    <tr>
+      <td>-f inputFile</td>
+      <td>Name of the input netCDF file</td>
+    </tr>
+    <tr>
+      <td>-x</td>
+      <td>Replace grids, do not merge.</td>
+    </tr>
+    <tr>
+      <td>-z</td>
+      <td>Erase all grids before storing.</td>
+    </tr>
+    <tr>
+      <td>-n</td>
+      <td>Do not mask the grids upon storage</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>In addition, if you want to completely replace all existing data,
+then
+you will probably want to use all of the above switches.
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="RequiredFormat"></a>Required netCDF File Format</h2>
+<p><br>
+The format of the netCDF file is in the <a href="netCDFFormat.html">netCDF
+file format documentation</a>.
+<br>
+&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="TemporalMerge"></a>Temporal Mosaicing</h2>
+<img src="images/Mosaic_Temporal.png" nosave="" height="540" width="720">
+<br>
+&nbsp;
+&nbsp;
+<hr width="100%">
+<h2><a name="translationRules"></a>Translation Rules</h2>
+When the -T switch is specified and incoming data does not conform to
+"known values" by the EDEX definition, iscMosaic will attempt to
+translate the data into "known values". The iscMosaic
+log file will indicate which values were translated. If the
+-w switch is present, then similar information will be sent to the GFEs
+as alert (orange) messages on the ISC status bar.<br>
+<br>
+<h3>Discrete Data</h3>
+<ol>
+  <li>If "overlapping" data is input (as denoted by the key^key
+format), and EDEX is not configured for this weather element
+to have overlapping data, then only the first key is
+used.&nbsp;&nbsp;&nbsp; For example, "FW.A^SV.A" will translate into
+"FW.A".</li>
+  <li>If data containing aux data fields is input and the field length
+exceeds EDEX configuration, then the aux data field will be
+dropped. For example, if the aux data field is configured
+to be a maximum of 4 characters and "FW.A:12345" is input, it will be
+translated into "FW.A".</li>
+  <li>If data containing an unknown key is input, then the data will be
+translated into the first defined value in EDEX.&nbsp;&nbsp;
+For many configurations including Hazards, this value is
+"&lt;None&gt;". For example, if "XY.Z" is input, it will be
+translated into "&lt;None&gt;".<br>
+  </li>
+</ol>
+<h3>Weather Data</h3>
+<ol>
+  <li>If an unknown visibility is input, then the visibility will be
+translated into the first configured visibility element in
+EDEX, which is normally &lt;NoVis&gt;.&nbsp;&nbsp; For example,
+"Sct:RW:-:52M:" will translate into "Sct:RW:-:&lt;NoVis&gt;".</li>
+  <li>If an unknown type is input, then the type and all associated
+fields will be translated into the first configured type element in
+EDEX, which is normally &lt;NoWx&gt;. For example,
+"Sct:ZZZ:+:&lt;NoVis&gt;:" will translate into
+"&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:".</li>
+  <li>If an unknown coverage is input, then the coverage will be
+translated into the first configured coverage for that weather
+type.&nbsp;&nbsp; For example, "XXX:R:+:&lt;NoVis&gt;:" will translate
+into "Wide:R:+:&lt;NoVis&gt;:".</li>
+  <li>If an unknown intensity is input, then the intensity will be
+translated into the first configured intensity for that weather
+type.&nbsp; For example, "Wide:R:?:&lt;NoVis&gt;:" will translate into
+"Wide:R:--:&lt;NoVis&gt;:".</li>
+  <li>If an unknown attribute is input, then the attribute will be
+removed.&nbsp;&nbsp; For examplle,
+"Wide:T:&lt;NoInten&gt;:&lt;NoVis&gt;:DmgW,LgA,XYZ" will translate into
+"Wide:T:&lt;NoInten&gt;&lt;NoVis&gt;:DmgW,LgA".<br>
+  </li>
+</ol>
+<br>
+<br>
+</body>
+</html>

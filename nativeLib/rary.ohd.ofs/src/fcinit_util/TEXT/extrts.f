@@ -1,0 +1,163 @@
+C     MODULE EXRTTS
+C     -----------------------------------------------------------------
+      SUBROUTINE EXTRTS(TSSTR,TSARRY,TSNAME,TSCOD,TSINT,MVINDX)
+C
+C     ORIGINALLY CREATED AUG 2007
+C        DARRIN SHARP, RIVERSIDE TECHNOLOGY
+
+C     GIVEN AN ENTIRE LINE READ FROM AN INPUT DECK (SEE PIN53.F)
+C     CONTAINING TIME SERIES (T.S.) INFO, EXTRACT THE T.S. NAME, 
+C     T.S. DATA TYPE CODE, T.S. INTERVAL, AND MULTIVALUE (M.V.) 
+C     INDEX (IF PRESENT). TOKENS MUST BE SEPARATED BY SPACES.
+C     FOR EXAMPLE:
+C    
+C     TSNAME SMZC 24 LZTDEF
+C
+C     THIS PROCEDURE IS REQUIRED SINCE LOOKUP3 INPUT IS FREE_FORMAT
+C     SO IT IS NOT DEFINED WHERE THE INPUT PARAMS WILL BE - THEY
+C     COULD BE ANYWHERE ON THE LINE (OR NONEXISTENT, IN THE CASE OF
+C     THE MULTIVALUE INDEX). 
+C
+C     ANY INVALID DATA WILL BE NOTED WHEN CHEKTS IS CALLED LATER.
+C
+C     INPUT:
+C        TSARRY,TSSTR (INPUT)
+C
+C        TSARRY (TIME SERIES ARRAY) AND TSSTR (TIME SERIES STRING)
+C        CONTAIN THE INPUT LINE FROM THE DECK. BOTH ARE REQUIRED SO
+C        A) WE CAN MARCH THROUGH THE ARRAY STRIPPING OUT BLANKS AND
+C        OTHER IRRELEVANT CHARACTERS, AND B) WE CAN USE STRING OPS
+C        TO OPERATE ON THE FULL STRING TO EXTRACT THE PARAMS WE'RE
+C        LOOKING FOR.
+C
+C     OUTPUT:
+C        TSNAME,MVINDX,TSCOD,TSINT
+
+      CHARACTER * 1 TSARRY(72)
+      CHARACTER * 72 TSSTR         
+C     T.S. NAME (OUPUT), M.V. INDEX (OUTPUT)
+      CHARACTER * 8 TSNAME,MVINDX,BLANK8
+C     T.S. DATA TYPE CODE (OUTPUT)
+      CHARACTER * 4 TSCOD,BLANK4
+C     STRING REP OF INTEGER
+      CHARACTER * 2 CINT
+C     INTEGER REP OF T.S. TIME STEP INTERVAL; END OF LINE
+      INTEGER * 2 TSINT,ENDOL
+C     SINGLE QUOTE
+      CHARACTER * 1 SNGLQ
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source$
+     . $',                                                             '
+     .$Id$
+     . $' /
+C    ===================================================================
+C
+
+      DATA BLANK8 /8H        /
+      DATA BLANK4 /4H    /
+      DATA ENDOL /72/
+      DATA SNGLQ /1H'/
+
+      MVINDX=BLANK8
+      TSNAME=BLANK8
+      TSCOD=BLANK4
+      	
+C     SKIP ANY LEADING SPACES AND/OR SINGLE QUOTES
+      I=1     
+      DO WHILE ((TSARRY(I).EQ.' ').OR.(TSARRY(I).EQ.SNGLQ))
+         IF (I.LT.ENDOL) THEN
+            I=I+1   
+         ELSE
+            RETURN
+         END IF
+      END DO  
+
+C     EXTRACT THE T.S. NAME
+      ISTBEG=I
+      DO WHILE ((TSARRY(I).NE.' ').AND.(TSARRY(I).NE.SNGLQ))
+         IF (I.LT.ENDOL) THEN
+            I=I+1   
+         ELSE
+            RETURN
+         END IF
+      END DO  
+      ISTEND=I-1
+      TSNAME=TSSTR(ISTBEG:ISTEND)
+
+C     SKIP BLANKS AND/OR SINGLE QUOTES BETWEEN T.S. 
+C     NAME AND T.S. DATA TYPE
+      DO WHILE ((TSARRY(I).EQ.' ').OR.(TSARRY(I).EQ.SNGLQ))
+         IF (I.LT.ENDOL) THEN
+            I=I+1   
+         ELSE
+            RETURN
+         END IF
+      END DO  
+
+C     EXTRACT T.S. DATA TYPE
+      ISTBEG=I
+      DO WHILE ((TSARRY(I).NE.' ').AND.(TSARRY(I).NE.SNGLQ))
+         IF (I.LT.ENDOL) THEN
+            I=I+1   
+         ELSE
+            RETURN
+         END IF
+      END DO  
+      ISTEND=I-1
+      TSCOD=TSSTR(ISTBEG:ISTEND)
+
+C     SKIP BLANKS AND/OR SINGLE QUOTES BETWEEN T.S. 
+C     DATA TYPE AND TIME STEP
+      DO WHILE ((TSARRY(I).EQ.' ').OR.(TSARRY(I).EQ.SNGLQ))
+         IF (I.LT.ENDOL) THEN
+            I=I+1   
+         ELSE
+            RETURN
+         END IF
+      END DO  
+
+C     EXTRACT TIME STEP (IN HOURS)
+      ISTBEG=I
+      DO WHILE ((TSARRY(I).NE.' ').AND.(TSARRY(I).NE.SNGLQ))
+         IF (I.LT.ENDOL) THEN
+            I=I+1   
+         ELSE
+            RETURN
+         END IF
+      END DO  
+      ISTEND=I-1
+C     CHAR REPRESENTATION
+      CINT=TSSTR(ISTBEG:ISTEND)
+C     EFFECTIVELY CAST THE CHAR TO AN INTEGER
+      READ(CINT,'(I2)') TSINT
+
+C     SKIP BLANKS AND/OR SINGLE QUOTES, EITHER TO THE 
+C     END OF THE LINE OR UNTIL THE MULTIVALUE INDEX
+      DO WHILE ((TSARRY(I).EQ.' ').OR.(TSARRY(I).EQ.SNGLQ))
+         IF (I.LT.ENDOL) THEN
+            I=I+1   
+         ELSE
+            RETURN
+         END IF
+      END DO  
+
+C     EXTRACT THE MULTIVALUE INDEX, IF IT EXISTS
+      ISTBEG=I
+      DO WHILE ((TSARRY(I).NE.' ').AND.(TSARRY(I).NE.SNGLQ))
+         IF (I.LT.ENDOL) THEN
+            I=I+1   
+         ELSE
+            RETURN
+         END IF
+      END DO  
+      ISTEND=I-1
+C     ONLY IF MVINDX EXISTS
+      IF (ISTBEG.LT.ENDOL) THEN
+         MVINDX=TSSTR(ISTBEG:ISTEND)
+      END IF
+
+      RETURN
+      END

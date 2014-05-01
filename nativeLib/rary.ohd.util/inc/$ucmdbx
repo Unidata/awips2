@@ -1,0 +1,12 @@
+C                                                *--> FROM CMS($UCMDBX)
+C     DESCRIPTION OF VARIABLES:
+C        VARIABLE   TYPE   I/O   DIM   CONTENTS
+C        --------   ----   ---   ---   --------
+C        ICMPRU     I*4    I     1     PRINT UNIT
+C        ICMTRC     I*4    I     1     TRACE PRINT INDICATOR
+C                                        0=DO NOT PRINT
+C                                       >0=PRINT
+C        ICMDBG     I*4    I     1     DEBUG PRINT INDICATOR
+C                                        0=DO NOT PRINT
+C                                       >0=PRINT
+C

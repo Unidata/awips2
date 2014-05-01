@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+#
+#  metarWriter 
+#
+#  Program to split metar type bulletins into individual reports, then write
+#  them to a directory structure ~/data/metar/yyyymmdd/stn using the station
+#  name as the file name. The additional reports for the hour are appended to
+#  file. 
+#
+use Time::Local;
+use Time::HiRes qw(gettimeofday);
+#no encoding;
+
+# process command line switches
+while ($_ = $ARGV[0], /^-/) {
+	 shift;
+       last if /^--$/;
+	     /^(-v)/ && $verbose++;
+}
+# process input parameters
+if( $#ARGV == 1 ) {
+	$datadir = $ARGV[ 0 ] ;
+	$dateTime = $ARGV[ 1 ];
+} else {
+	die "usage: metarWriter datatdir yyyymm < rawMetars $!\n" ;
+}
+
+# set interrupt handler
+$SIG{ 'INT' }  = 'atexit' ;
+$SIG{ 'KILL' }  = 'atexit' ;
+$SIG{ 'TERM' }  = 'atexit' ;
+$SIG{ 'QUIT' }  = 'atexit' ;
+
+chdir( "$datadir" ) ;
+
+# Now begin parsing file and decoding observations breaking on cntrl C
+$/ = "\cC" ;
+
+# set select processing here from STDIN
+START:
+while( 1 ) {
+	open( STDIN, '-' ) ;
+	($s, $usec) = gettimeofday();
+	vec($rin,fileno(STDIN),1) = 1;
+	$timeout = 1200 ; # 20 minutes
+	$nfound = select( $rout = $rin, undef, undef, $timeout );
+	# timed out
+	if( ! $nfound ) {
+		print "Shut down, time out 20 minutes\n" ;
+		atexit() ;
+	}
+	atexit( "eof" ) if( eof( STDIN ) ) ;
+
+	# Process each line of metar bulletins, header first
+	$_ = <STDIN> ;
+	$_ =~ /(S[AP]\w\w\d\d) (\w\w\w\w) (\d\d\d\d\d\d)/;
+	$wmoHeader = "$1_$2_$3";
+        $filename = "$wmoHeader\_$s\_$usec.txt";
+	open( STN, ">$filename" ) ;
+	print STN "$_\n" ;
+	close STN ;
+} # end while( 1 )
+atexit( "eof" );
+exit( 0 ) ; #should never get here
+
+# execute at exit
+sub atexit
+{
+local( $sig ) = @_ ;
+
+if( $sig eq "eof" ) {
+	print "eof on STDIN --shutting down\n" ;
+} elsif( defined( $sig )) {
+	print "Caught SIG$sig --shutting down\n" ;
+}
+exit( 0 ) ;
+
+} #end atexit

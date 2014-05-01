@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>gfeConfig - Sample and Legend Colors</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+<span style="font-weight: bold;"></span>Sample and Legend Colors</h2>
+<p><span style="font-weight: bold;"></span></p>
+<p><br>
+&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center>GFE Configuration Item</center>
+      </td>
+      <td>
+      <center>Applicable to GFE</center>
+      </td>
+      <td>
+      <center>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></center>
+      </td>
+      <td>
+      <center>Notes</center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#AlternativeSampleColor">Alternative Sample Color</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#AlternativeLegendColor">Alternative Legend Color</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SampleLatitude/LongitudeandPlusSignColor">Sample
+Latitude/Longitude
+and Plus Sign Color</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ImageLegendColor">Image Legend Color</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SampleShadows">Show Sample Shadows</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ShadowColor">Shadow Sample Color</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SampleOffsets">Sample Label Offsets</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#LimitingSamplestoSpecificWeatherElements">Limiting
+Samples
+to Specific Weather Elements</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td>Not particularily useful for the GFE. Intended mainly with
+the ifpIMAGE
+program.</td>
+    </tr>
+    <tr>
+      <td><a href="#UsingWxDescriptiveNames">Using Descriptive Names
+for Wx Strings</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td>Not particularily useful for the GFE. Intended mainly with
+the ifpIMAGE
+program.</td>
+    </tr>
+    <tr>
+      <td><a href="#ShowISCUpdate">Show ISC Update Time</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td>Applicable to Intersite Coordination mode.</td>
+    </tr>
+    <tr>
+      <td><a href="#ShowISCId">Show ISC Site ID</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td>Applicable to Intersite Coordination mode.</td>
+    </tr>
+    <tr>
+      <td><a href="#EnableISCMarkers">Enable ISC Markers</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td>Applicable to Intersite Coordination mode</td>
+    </tr>
+    <tr>
+      <td><a href="#ShowISCUpdateTimeMarker">Show ISC Update Time Marker</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td>Applicable to Intersite Coordination mode</td>
+    </tr>
+    <tr>
+      <td><a href="#ShowISCSiteIDMarker">Show ISC Site ID Marker</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td>Applicable to Intersite Coordination mode</td>
+    </tr>
+    <tr>
+      <td><a href="#ShowISCOfficialSymbolMarker">Show ISC Official
+Symbol Marker</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td>Applicable to Intersite Coordination mode</td>
+    </tr>
+    <tr>
+      <td><a href="#ISCOfficialSymbol">ISC Official Symbol</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td>Applicable to Intersite Coordination mode</td>
+    </tr>
+    <tr>
+      <td><a href="#ColorBarTextColors">Color Bar Labels/TickMark Colors</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr nosave="">
+      <td><a href="#WxAdditional">Color Bar Additional Weather
+Identifier</a></td>
+      <td>YES</td>
+      <td nosave="">YES</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+</div>
+<blockquote>
+</blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="AlternativeSampleColor"></a><font size="+1">Alternative
+Sample Color</font></h4>
+Alternative sample color. This is used primarily for ifpIMAGE when you
+want a specific color for the sample, rather than the default which is
+the graphic color.&nbsp;&nbsp; Format is parmname_Sample_color =
+"color".
+Note that this applies only if the data is being displayed as a
+graphic.&nbsp;
+Specification of a parm that is not SFC (surface-based)&nbsp; is done
+with
+this format:&nbsp;&nbsp;parmname_level_Sample_color.
+<p><b><tt><br>
+T_Sample_color = "#ff0672"</tt></b>
+</p>
+<h4><a name="AlternativeLegendColor"></a><font size="+1">Alternative
+Legend Color</font></h4>
+Alternative legend color. This is used primarily for ifpIMAGE when you
+want a specific color for the legend, rather than the default which is
+the graphic color.&nbsp;&nbsp; Format is parmname_Legend_color =
+"color".
+Note that this applies only if the data is being displayed as a
+graphic.
+Specification of a parm that is not SFC (surface-based)&nbsp; is done
+with
+this format:&nbsp;&nbsp;parmname_level_Legend_color.
+<p><b><tt>T_Legend_color = "#ff0672"<br>
+<br>
+</tt></b></p>
+<h4><a name="SampleLatitude/LongitudeandPlusSignColor"></a><font
+ size="+1">Sample
+Latitude/Longitude and Plus Sign Color</font></h4>
+Sample LatLon and + Color. This affects the color of the '+' drawing,
+plus
+the color of the latitude/longitude samples on the spatial editor.
+<p><b><tt>SampleLLPlus_color = "white"</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="ImageLegendColor"></a><font size="+1">Image Legend Color</font></h4>
+Image Legend color. This affects the color of the legend when a weather
+element is displayed as an image.&nbsp;&nbsp;&nbsp; This also affects
+the
+sample color for weather element displayed as an image.
+<p><b><tt>ImageLegend_color = "white"</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="SampleShadows"></a><font size="+1">Sample Shadows</font></h4>
+Sample Shadows. The samples can have a shadow character written in
+black
+offset from the sample text.&nbsp; This improves constrast when the
+main
+sample color is light and the background color (e.g., image) is also
+fairly
+light.&nbsp; Acceptable entries are either yes or no.
+<p><b><tt>ShowSampleShadows = yes</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="ShadowColor"></a><font size="+1">Sample Shadow Color</font></h4>
+Sample Shadow Color.&nbsp; You can control the color of the shadow on
+samples.&nbsp;
+It defaults to "black".&nbsp; Setting it to a different color may
+improve
+the contrast between the main sample color and the background
+color.&nbsp;
+The color may be any valid color string.
+<p><b><tt>SampleShadow_color = "#000000"</tt></b>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<h4><a name="SampleOffsets"></a><b><font size="+1">Sample Label Offsets</font></b></h4>
+SampleLabelXOffset and SampleLabelYOffset are the number of pixes you
+wish
+to move sample labels relative to their "normal" position.
+<p><b><tt>SampleLabelXOffset = 0</tt></b>
+<br>
+<b><tt>SampleLabelYOffset = 0</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="LimitingSamplestoSpecificWeatherElements"></a><font
+ size="+1">Limiting
+Samples to Specific Weather Elements</font></h4>
+Samples may be limited to just certain weather elements.&nbsp; This
+feature
+is normally only used in conjunction with the creation of PNG imagery,
+but will work on the GFE.
+<p>Limiting Samples to Specific Weather Elements controls the weather
+elements
+that will be displayed as samples. This feature is normally only used
+in
+conjunction with the creation of PNG imagery. If not specified, then
+all
+visible weather elements will have a sample value.&nbsp; Specification
+of a parm that is not SFC (surface-based)&nbsp; is done with this
+format:&nbsp;&nbsp;parmname_level.
+</p>
+<p><b><tt>SampleParms = ['T', 'Wind']</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="UsingWxDescriptiveNames"></a><font size="+1">Using
+Descriptive Names
+for Wx Strings</font></h4>
+Using descriptive names instead of the pretty Wx strings for samples.
+This
+set of parallel lists translate a pretty Wx string into a more
+descriptive
+name for the sample labels.
+<p><b><tt>AltWxSampleLabels_prettyWx = ['Sct RW-', 'Sct SW-']</tt></b>
+<br>
+<b><tt>AltWxSampleLabels_label = ['Rain Showers', 'Snow Showers']</tt></b>
+<br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="ShowISCUpdate"></a><font size="+1">Show ISC Update Time</font></h4>
+The samples can show the ISC Update Time if in ISC mode. Acceptable
+entries
+are yes and no.
+<p><b><tt>ShowISCUpdateTime = yes</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="ShowISCId"></a><font size="+1">Show ISC Site ID</font></h4>
+The samples can show the ISC Site Id if in ISC mode. Acceptable entries
+are yes and no.
+<p><b><tt>ShowISCSiteID = yes</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="EnableISCMarkers"></a><b><font size="+1">Enable ISC Markers</font></b></h4>
+The ISC Markers may be enabled/disabled on startup.&nbsp; ISC Markers
+are
+only shown if ISC mode or an ISC grid is displayed.&nbsp; Acceptable
+entries
+are yes and no.
+<p><b><tt>ShowISCMarkers = yes<br>
+</tt></b></p>
+<p><b><tt><br>
+</tt></b></p>
+<p><a name="ShowISCUpdateTimeMarker"></a><b><font size="+1">Show ISC
+Update
+Time Marker</font></b>
+</p>
+<p>The ISC Update Time Marker can show the ISC update time if in ISC
+mode.&nbsp;
+This update time marker is really just a sample without the data
+point.&nbsp;
+Acceptable entries are yes and no.
+</p>
+<p><b><tt>ShowISCUpdateTimeMarker = yes</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<p><a name="ShowISCSiteIDMarker"></a><b><font size="+1">Show ISC Site
+ID
+Marker</font></b>
+</p>
+<p>The ISC Site ID Marker can show the ISC Site ID marker if in ISC
+mode.&nbsp;
+This site ID marker is really just a sample without the data
+point.&nbsp;
+Acceptable entries are yes and no.
+</p>
+<p><b><tt>ShowISCSiteIDMarker = yes</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<p><a name="ShowISCOfficialSymbolMarker"></a><b><font size="+1">Show
+ISC
+Official Symbol Marker</font></b>
+</p>
+<p>The ISC Official Symbol Marker can show the "P" symbol if in ISC
+mode.&nbsp;
+This official symbol marker is really just a sample without the data
+point.&nbsp;
+Acceptable entries are yes and no.
+</p>
+<p><b><tt>ShowISCOfficialSymbolMarker = yes</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<p><a name="ISCOfficialSymbol"></a><b><font size="+1">ISC Official
+Symbol</font></b>
+</p>
+<p>The samples can show the "P" symbol for the official database data
+or
+not.&nbsp; Data coming from the Forecast work database will not have
+any
+characters shown.&nbsp; Acceptable entries are yes and no.
+</p>
+<p><b><tt>ShowISCOfficialSymbol = yes</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="ColorBarTextColors"></a><font size="+1">Color Bar
+Text/Tick Colors</font></h4>
+Controls the tick, foreground text colors for the labels, and the
+foreground/background
+text colors for the pickup value. There is a special set of colors for
+the Wx (WEATHER) pickup values.
+<p><b><tt>SEColorBar_tickColor = "white"</tt></b>
+<br>
+<b><tt>SEColorBar_fgTextColor = "white"</tt></b>
+<br>
+<b><tt>SEColorBar_fgPickUpColor = "white"</tt></b>
+<br>
+<b><tt>SEColorBar_bgPickUpColor = "black"</tt></b>
+<br>
+<b><tt>SEColorBar_fgWxPickUpColor = "white"</tt></b>
+<br>
+<b><tt>SEColorBar_bgWxPickUpColor = "purple"</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="WxAdditional"></a><font size="+1">Color Bar Additional
+Weather Identifiers</font></h4>
+By default, the color bar values that appear for the Wx weather
+parameter
+consist only of the types that appear in the current grid.&nbsp; For
+example,
+if the grid has TRW-, RW- and No Weather, but not snow, then the color
+bar will have entries for TRW-, RW-, and No Weather, but not
+snow.&nbsp;
+This behavior can be changed by using the Wx_AdditionalColorBarLabels
+entry.&nbsp;
+This entry contains a list of Wx ugly strings to always appear in the
+color
+bar.
+<p><b><tt>Wx_AdditionalColorBarLabels =
+["Sct:SW:-:&lt;NoVis&gt;:&lt;NoAttr&gt;"]</tt></b>
+</p>
+<p>The same technique may also be applied to DISCRETE type elements, by
+specifying the labels.&nbsp; For example, for the Discrete Highlights
+grid:
+</p>
+<p><b><tt>Highlights_AdditionalColorBarLabels = ["WntrSTMWRN"]</tt></b>
+</p>
+<p>The parmname may be written as parmname_level for those weather
+elements
+that are not surface-based. <br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<p>&nbsp;</p>
+<div class="Body">
+<center><a href="GFESuite.html">Back To TOC</a></center>
+</div>
+</div>
+</body>
+</html>

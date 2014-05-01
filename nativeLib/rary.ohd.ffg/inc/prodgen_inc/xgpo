@@ -1,0 +1,2 @@
+      common /xgpo/ mgpo,gpo(250000)
+      

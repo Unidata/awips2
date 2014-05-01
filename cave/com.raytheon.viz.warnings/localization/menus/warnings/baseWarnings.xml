@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<!-- 
+	<contribute xsi:type="bundleItem" file="bundles/LocalCWASPS.xml" 
+              menuText="Local CWA SPS" id="localCWASPS">
+        <dataURI>/warning/%</dataURI>
+    </contribute>
+    -->
+	<contribute xsi:type="bundleItem" file="bundles/LocalCWAWarnings.xml" 
+              menuText="Local CWA Warnings" id="localCWAWarnings">
+        <dataURI>/warning/%</dataURI>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/LocalCWAFloodWarnings.xml" 
+              menuText="Local CWA Flood Warnings" id="localCWAFloodWarnings">
+        <dataURI>/warning/%</dataURI>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/MarineWarning.xml" 
+              menuText="Marine Warnings" id="marineWarnings">
+        <dataURI>/warning/%</dataURI>
+    </contribute>
+			
+	<contribute xsi:type="subMenu" menuText="Other Warning Displays">
+		<contribute xsi:type="bundleItem" file="bundles/LocalRegionalWarnings.xml" 
+              menuText="Local and Regional Warnings" id="localRegionalWarnings">
+	        <dataURI>/warning/%</dataURI>
+	    </contribute> 
+		<contribute xsi:type="bundleItem" file="bundles/LocalRegionalFloodWarnings.xml" 
+              menuText="Local and Regional Flood Warnings" id="localRegionalFloodWarnings">
+	        <dataURI>/warning/%</dataURI>
+	    </contribute>   
+		<contribute xsi:type="bundleItem" file="bundles/AllLocalWarnings.xml" 
+              menuText="All Local Warnings" id="allLocalWarnings">
+	        <dataURI>/warning/%</dataURI>
+	    </contribute>    
+	    <contribute xsi:type="bundleItem" file="bundles/AllRegionalWarnings.xml" 
+              menuText="All Regional Warnings" id="allRegionalWarnings">
+	        <dataURI>/warning/%</dataURI>
+	    </contribute>
+    </contribute>
+    <!--  There is no support in the backend for these reports -->
+    <contribute xsi:type="subMenu" menuText="Local Storm Reports">
+	    <contribute xsi:type="bundleItem" file="bundles/LocalStormReportsOffice.xml"
+			menuText="Office" id="office" >
+			<dataURI>/lsr/%</dataURI>
+	    	<substitute key="title" value="Local Storm Reports"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/LocalStormReportsLocal.xml"
+			menuText="Local" id="local" >
+			<dataURI>/lsr/%</dataURI>
+	    	<substitute key="title" value="Local Storm Reports"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/LocalStormReportsRegion.xml"
+			menuText="Region" id="region" >
+			<dataURI>/lsr/%</dataURI>
+	    	<substitute key="title" value="Local Storm Reports"/>
+		</contribute>
+
+    </contribute>
+</menuTemplate>

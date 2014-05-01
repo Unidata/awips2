@@ -1,0 +1,157 @@
+C MEMBER PIN45
+C  (from old member FCPIN45)
+C
+C @PROCESS LVL(77)
+C
+C                             LAST UPDATE: 02/08/94.11:25:03 BY $WC30KH
+C
+      SUBROUTINE PIN45(PO,LEFTP,IUSEP,CO,LEFTC,IUSEC)
+C.......................................
+C     THIS IS THE INPUT SUBROUTINE FOR THE DELTA-TS TIME SERIES
+C        OPERATION.  THIS OPERATION COMPUTES RATE OF CHANGE OF VALUES
+C        PER TIME INTERVAL FOR A TIME SERIES.  THE OPERATION CAN ONLY
+C        BE USED FOR TIME SERIES WITH ONE VALUE PER TIME INTERVAL.
+C.......................................
+C     SUBROUTINE INITIALLY WRITTEN BY. . .
+C        KUANG HSU - HRL   DEC. 1993
+C.......................................
+      DIMENSION PO(*),CO(*)
+      DIMENSION SNAME(2),AID(2),BID(2)
+C
+C     COMMON BLOCKS.
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_pntb/RCS/pin45.f,v $
+     . $',                                                             '
+     .$Id: pin45.f,v 1.2 1997/04/06 12:45:36 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS
+      DATA SNAME/4HPIN4,4H5   /
+      DATA YES/3HYES/,XUNT/4HXUNT/
+C.......................................
+C     TRACE LEVEL FOR SUBROUTINE=1, DEBUG SWITCH=IBUG
+      CALL FPRBUG(SNAME,1,45,IBUG)
+C.......................................
+C     INITIALIZE VARIABLES
+      IUSEP=0
+      IUSEC=0
+      IVER=1
+      IXUNIT=0
+C.......................................
+C     READ INPUT CARD
+      READ(IN,900) AID,ATYPE,ITH,BID,BTYPE,RDCO,PQ,XUNIT
+  900 FORMAT(2X,2A4,1X,A4,3X,I2,2X,2A4,1X,A4,2X,A3,
+     1F10.0,1X,A4)
+      IF(XUNIT.EQ.XUNT) IXUNIT=1
+C
+C     CHECK THE TIME SERIES.
+      IERROR=0
+      CALL CHEKTS(AID,ATYPE,ITH,0,DIMA,1,1,IERROR)
+      CALL FDCODE(ATYPE,UNITA,DIMA,MSGA,NPDT,TSCALE,NADD,IERR)
+      CALL CHEKTS(BID,BTYPE,ITH,1,DIMA,1,1,IERR)
+      IF(IERR.EQ.1) IERROR=1
+      CALL FDCODE(BTYPE,UNITB,DIMB,MSGB,NPDT,TSCALE,NADD,IERR)
+C.......................................
+C     CHECK IF AN ERROR OCCURRED.
+      IF(IERROR.EQ.0) GO TO 50
+      WRITE(IPR,901)
+  901 FORMAT(1H0,10X,'THE DELTA-TS OPERATION WILL BE IGNORED ',
+     1 'BECAUSE OF THE PRECEEDING ERRORS.')
+      RETURN
+C.......................................
+C       CHECK THAT IF INPUT TS ALLOWS MISSING THEN OUTPUT TS MUST
+C       ALLOW MISSING DATA
+ 50   IF(MSGA.EQ.0) GO TO 51
+      IF(MSGA.EQ.1.AND.MSGB.EQ.1) GO TO 51
+      WRITE(IPR,914)
+ 914  FORMAT(1H0,10X,'**ERROR** THE INPUT TIME SERIES ',
+     1'ALLOWS MISSING DATA.'/20X,'THEREFORE RATE OF CHANGE ',
+     2'TIME SERIES MUST ALSO ALLOW MISSING DATA.')
+      CALL ERROR
+      IERROR=1
+C.......................................
+C     CHECK THAT BOTH TIME SERIES HAVE THE SAME UNITS.
+ 51   IF (UNITA.EQ.UNITB) GO TO 102
+      WRITE(IPR,916) UNITA,UNITB
+ 916  FORMAT (1H0,10X,'**ERROR** INPUT AND RATE OF CHANGE TIME SERIES',
+     1 'DO NOT HAVE THE SAME UNITS (',A4,1X,3HAND,1X,A4,2H).)
+      CALL ERROR
+      IERROR=1
+C.......................................
+C     CHECK THAT SPACE EXISTS IN THE P AND C ARRAYS.
+  102 NEEDP=10
+      CALL CHECKP(NEEDP,LEFTP,IERR)
+      IF(IERR.EQ.1) IERROR=1
+C
+C     CARRYOVER NEEDED.
+      NEEDC=1
+      CALL CHECKC(NEEDC,LEFTC,IERR)
+      IF(IERR.EQ.1) IERROR=1
+C.......................................
+C     CHECK IF CARRYOVER INCLUDED WITH INPUT
+      IF(RDCO.EQ.YES) GO TO 103
+C
+C     DEFAULT CARRYOVER
+      PREVQ=-989.0
+      IRDCO=0
+      GO TO 105
+C
+C     USE CARRYOVER READ ON INPUT CARD.
+  103 PREVQ=PQ
+      IRDCO=1
+C.......................................
+C     CHECK IF OKAY TO LOAD VALUES INTO PO() AND CO().
+  105 IF(IERROR.EQ.0) GO TO 100
+      WRITE(IPR,901)
+      RETURN
+C
+C     LOAD INFORMATION INTO PO().
+  100 PO(1)=IVER+0.01
+      PO(2)=AID(1)
+      PO(3)=AID(2)
+      PO(4)=ATYPE
+      PO(5)=ITH+0.01
+      PO(6)=BID(1)
+      PO(7)=BID(2)
+      PO(8)=BTYPE
+      PO(9)=IRDCO+0.01
+      PO(10)=IXUNIT+0.01
+C
+C     LOAD CARRYOVER VALUE INTO CO().
+      CO(1)=PREVQ
+      IUSEP=NEEDP
+      IUSEC=NEEDC
+C     ALL ENTERIES HAVE BEEN MADE INTO THE PO AND CO ARRAYS.
+C.......................................
+      IF(IBUG.EQ.0) GO TO 199
+C     DEBUG OUTPUT
+      WRITE(IODBUG,903)
+  903 FORMAT(1H0,45HDELTA-TS DEBUG--CONTENTS OF PO AND CO ARRAYS.)
+      WRITE(IODBUG,904) (PO(I),I=1,IUSEP)
+  904 FORMAT(1X,'PO= ',F10.2,2X,2A4,1X,A4,F10.2,2X,2A4,1X,A4,2F10.2)
+      WRITE(IODBUG,905) CO(1)
+ 905  FORMAT(1X,'CO= ',F10.2)
+C.......................................
+C     CONTENTS OF THE PO ARRAY-- DELTA-TS OPERATION.
+C
+C     POSITION                    CONTENTS
+C        1         VERSION NUMBER FOR THE OPERATION
+C      2-3         IDENTIFIER FOR TIME SERIES A.
+C        4         DATA TYPE FOR TIME SERIES A.
+C        5         TIME INTERVAL FOR TIME SERIES A.
+C      6-7         IDENTIFIER FOR TIME SERIES B.
+C        8         DATA TYPE FOR TIME SERIES B.
+C        9         SOURCE OF INITIAL CARRYOVER, =1 VALUE READ IN,
+C                      =0 DEFAULT VALUE USED.
+C       10         FOR FUTURE USE, SET TO ZERO
+C.......................................
+  199 CONTINUE
+      RETURN
+      END

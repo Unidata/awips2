@@ -1,0 +1,7 @@
+\set ON_ERROR_STOP 1
+DROP DATABASE IF EXISTS ncep;
+DROP TABLESPACE IF EXISTS ncep;
+CREATE TABLESPACE ncep OWNER awips LOCATION '%{database_files_home}%/ncep';
+COMMENT ON TABLESPACE ncep IS 'NCEP Database tablespace';
+CREATE DATABASE ncep OWNER awips TABLESPACE ncep;
+

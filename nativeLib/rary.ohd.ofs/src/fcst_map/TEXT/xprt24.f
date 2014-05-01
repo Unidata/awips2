@@ -1,0 +1,121 @@
+C MEMBER XPRT24
+C  (from old member PPXPRT24)
+C
+      SUBROUTINE XPRT24(STA,STAN,STATE,VAL,ITITLE,NPRT,ICF,IEST,JBUG)
+C.......................................
+C     THIS SUBROUTINE PRINTS OBSERVED AND ESTIMATED 24 HOUR
+C       PRECIPITATION AMOUNTS.
+C.......................................
+C     WRITTEN BY-- ERIC ANDERSON, HRL-- FEBRUARY 1983
+C.......................................
+      INTEGER*2 VAL
+      DIMENSION UNIT(2),ENGL(2),UMET(2),STA(2),STAN(5)
+C
+C     COMMON BLOCKS
+      COMMON/PUDBUG/IOPDBG,IPTRCE,NDBUG,PDBUG(20),IPALL
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/XDISPL/MDRPRT,MDRCOM,IPRT24,IPLT24,IPRT6,IPRSSR,
+     1 IPRSRW,MAPPRT,METRIC,LASTDY,IPRDAY,IPLTMP
+      COMMON/XTIME/KZDA,KDA,KHR,LSTMO,KMO,KID,KYR,KIH,TZCODE,ISW,
+     1  IUTMP,NSSR,IDAY
+      COMMON/XPRA24/ST(3,2),SN(3,5),SC(3),PP(3),ES(3)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_map/RCS/xprt24.f,v $
+     . $',                                                             '
+     .$Id: xprt24.f,v 1.1 1995/09/17 19:00:09 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS
+      DATA ENGL,UMET/4HINCH,4HES  ,4HMM  ,4H    /
+      DATA BNK,CC,CZ,CM,CE/1H ,1HC,1HZ,1HM,1HE/
+      DATA CG/1HG/
+C.......................................
+C     CHECK TRACE LEVEL
+      IF(IPTRCE.GE.3) WRITE(IOPDBG,900)
+  900 FORMAT(1H0,17H** XPRT24 ENTERED)
+C.......................................
+C     CHECK IF CALL IS JUST TO FLUSH THE PRINT ARRAY.
+      IF(ITITLE.LT.0) GO TO 120
+C.......................................
+C     PRINT TITLE IF REQUESTED.
+      IF(ITITLE.EQ.0) GO TO 100
+      WRITE(IPR,901) KMO,KID,KYR,KIH,TZCODE
+  901 FORMAT(1H1,16X,75HPRECIPITATION TOTALS FOR STATIONS WITH ONLY DAIL
+     1Y REPORTS FOR DAY ENDING ON,I3,1H/,I2,1H/,I4,1H-,I2,A4)
+      IF(METRIC.EQ.1) GO TO 101
+      UNIT(1)=ENGL(1)
+      UNIT(2)=ENGL(2)
+      GO TO 102
+  101 UNIT(1)=UMET(1)
+      UNIT(2)=UMET(2)
+  102 IF(IPRT24.GT.1) GO TO 103
+      WRITE(IPR,902)UNIT
+  902 FORMAT(1H0,26X,31HOBSERVED VALUES ONLY--UNITS ARE,1X,2A4,2X,
+     1 32H'C' INDICATES CORRECTION APPLIED)
+      GO TO 104
+  103 WRITE(IPR,903)UNIT
+  903 FORMAT(1H0,36X,40HOBSERVED AND ESTIMATED VALUES--UNITS ARE,
+     1 1X,2A4,//29X,20HC=CORRECTION APPLIED,5X,
+     2 13HZ=SET TO ZERO,/29X,20HM=ESTIMATED FROM MDR,5X,
+     3 37HE=ESTIMATED FROM SURROUNDING STATIONS,/39X,
+     4  27HG=VALUE FROM COLOCATED GAGE)
+      IF (JBUG.EQ.0) WRITE(IPR,909)
+  909 FORMAT(1H0,43X,33HESTIMATED ZERO VALUES NOT PRINTED)
+  104 WRITE(IPR,904)
+  904 FORMAT(1H0,/1X,12HSTATION NAME,6X,5HSTATE,4X,2HID,6X,5HVALUE,
+     1  2(6X,12HSTATION NAME,6X,5HSTATE,4X,2HID,6X,5HVALUE))
+      WRITE(IPR,905)
+  905 FORMAT(1H ,12H------------,6X,5H-----,4X,2H--,6X,5H-----,
+     1  2(6X,12H------------,6X,5H-----,4X,2H--,6X,5H-----))
+      ITITLE=0
+C.......................................
+C     STORE CURRENT VALUE IN PRINT ARRAY.
+  100 I=NPRT+1
+      ST(I,1)=STA(1)
+      ST(I,2)=STA(2)
+      DO 105 J=1,5
+  105 SN(I,J)=STAN(J)
+      SC(I)=STATE
+      PP(I)=VAL*0.01
+      IF(METRIC.EQ.1)PP(I)=PP(I)*25.4
+      IF(IEST)106,107,108
+  106 ES(I)=CZ
+      GO TO 110
+  107 ES(I)=BNK
+      IF(ICF.NE.100)ES(I)=CC
+      GO TO 110
+  108 J=IEST-2
+      IF (J) 111,109,112
+  111 ES(I)=CE
+      GO TO 110
+  109 ES(I)=CM
+      GO TO 110
+  112 ES(I)=CG
+  110 NPRT=I
+C
+C     IF THREE VALUES STORED, PRINT RESULTS
+      IF(NPRT.LT.3) GO TO 99
+C.......................................
+C     DUMP PRINT ARRAY
+  120 IF(METRIC.EQ.1) GO TO 125
+      WRITE(IPR,906) ((SN(I,J),J=1,5),SC(I),(ST(I,J),J=1,2),PP(I),
+     1 ES(I),I=1,NPRT)
+  906 FORMAT(1H ,5A4,1X,A2,2X,2A4,F6.2,A1,2(6X,5A4,1X,A2,2X,2A4,F6.2,A1)
+     1)
+      GO TO 130
+  125 WRITE(IPR,907) ((SN(I,J),J=1,5),SC(I),(ST(I,J),J=1,2),PP(I),
+     1 ES(I),I=1,NPRT)
+  907 FORMAT(1H ,5A4,1X,A2,2X,2A4,F7.0,A1,2(6X,5A4,1X,A2,2X,2A4,F7.0,A1)
+     1)
+  130 NPRT=0
+C     PRINT COMPLETED
+C.......................................
+   99 IF(IPTRCE.GE.3) WRITE(IOPDBG,908)
+  908 FORMAT(1H0,14H** EXIT XPRT24)
+      RETURN
+      END

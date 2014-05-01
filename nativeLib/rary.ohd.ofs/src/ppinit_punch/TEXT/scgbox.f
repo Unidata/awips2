@@ -1,0 +1,133 @@
+C MEMBER SCGBOX
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 06/07/95.14:17:52 BY $WC21DT
+C
+C @PROCESS LVL(77)
+C
+C DESC PUNCH GRID BOX PARAMETERS
+C
+      SUBROUTINE SCGBOX (IVGBOX,GBOXID,NUGBOX,BOXLOC,IBXADJ,IBXMDR,
+     *   ISTAT)
+C
+      REAL MDR/4HMDR /,MDRT/4HMDRT/
+      REAL QUES/4H????/
+C
+      DIMENSION CHAR(2),CARD(20),ARRAY(100)
+      INCLUDE 'scommon/dimgbox'
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/sugnlx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_punch/RCS/scgbox.f,v $
+     . $',                                                             '
+     .$Id: scgbox.f,v 1.1 1995/09/17 19:14:31 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA MAXCHR/8/,CARD/20*4H    /,LARRAY/100/
+C
+      IF (ISTRCE.GT.1) WRITE (IOSDBG,140)
+      IF (ISTRCE.GT.1) CALL SULINE (IOSDBG,1)
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG(4HGBOX)
+C
+      ISTAT=0
+      NUMWRN=0
+C
+C  PRINT PARAMETER ARRAY VERSION NUMBER
+      IF (LDEBUG.EQ.0) GO TO 10
+         WRITE (IOSDBG,160) IVGBOX
+         CALL SULINE (IOSDBG,2)
+C
+C  PUNCH 'GBOX' STARTING IN COLUMN 1
+10    NPOS=1
+      CALL UTOCRD (ICDPUN,NPOS,4HGBOX,4,1,CARD,0,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 120
+C
+C  PUNCH GRID BOX IDENTIFIER
+      CALL UTOCRD (ICDPUN,NPOS,GBOXID(1),8,1,CARD,3,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 120
+C
+C  PUNCH GRID BOX NUMBER
+      CALL UINTCH (NUGBOX,MAXCHR,CHAR,LFILL,IERR)
+      CALL UTOCRD (ICDPUN,NPOS,CHAR,MAXCHR,1,CARD,1,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 120
+C
+C  PUNCH LATITUDE AND LONGITUDE AS DECIMAL DEGREES
+      IF (IUGFIL.EQ.0) CALL SUGTUG (LARRAY,ARRAY,ICHECK)
+      CALL UMEMOV(BOXLOC(1),XLAT,1)
+      CALL UMEMOV(BOXLOC(2),XLONG,1)
+      IF (XLAT.LE.ULLMTS(1).AND.XLAT.GE.ULLMTS(2)) THEN
+         ELSE
+            WRITE (LP,15) 'LATITUDE',XLAT,GBOXID,
+     *                     ULLMTS(2),ULLMTS(1)
+            CALL SUWRNS(LP,2,NUMWRN)
+         ENDIF
+      IF (XLONG.LE.ULLMTS(4).AND.XLONG.GE.ULLMTS(3)) THEN
+         ELSE
+            WRITE (LP,15) 'LONGTITUDE',XLONG,GBOXID,
+     *                     ULLMTS(3),ULLMTS(4)
+            CALL SUWRNS(LP,2,NUMWRN)
+        ENDIF
+      INTEGR=BOXLOC(1)+.01
+      CALL UINTCH (INTEGR,MAXCHR,CHAR,LFILL,IERR)
+      CALL UTOCRD (ICDPUN,NPOS,CHAR,MAXCHR,1,CARD,1,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 120
+      INTEGR=BOXLOC(2)+.01
+      CALL UINTCH (INTEGR,MAXCHR,CHAR,LFILL,IERR)
+      CALL UTOCRD (ICDPUN,NPOS,CHAR,MAXCHR,1,CARD,1,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 120
+C
+C  PUNCH ADJACENT GRID BOX NUMBERS
+      CALL UTOCRD (ICDPUN,NPOS,4HADJ(,4,0,CARD,0,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 120
+      NSPACE=1
+      NADJ=8
+      ITYPE=1
+      DO 60 I=1,NADJ
+         IF (I.EQ.NADJ) NSPACE=0
+         CALL UINTCH (IBXADJ(I),MAXCHR,CHAR,LFILL,IERR)
+         CALL UTOCRD (ICDPUN,NPOS,CHAR,MAXCHR,NSPACE,CARD,ITYPE,0,
+     *                LNUM,IERR)
+         IF (IERR.GT.0) GO TO 120
+60       CONTINUE
+      CALL UTOCRD (ICDPUN,NPOS,1H),1,1,CARD,0,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 120
+C
+C  PUNCH MDR USAGE OPTION
+      XMDR=QUES
+      IF (IBXMDR.EQ.0) XMDR=MDR
+      IF (IBXMDR.EQ.1) XMDR=MDRT
+      CALL UTOCRD (ICDPUN,NPOS,XMDR,4,1,CARD,0,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 120
+C
+110   CALL UPNCRD (ICDPUN,CARD)
+      IF (LDEBUG.GT.0) WRITE (IOSDBG,150)
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+      GO TO 130
+C
+120   ISTAT=1
+C
+130   IF (ISTRCE.GT.1) WRITE (IOSDBG,170)
+      IF (ISTRCE.GT.1) CALL SULINE (IOSDBG,1)
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+15    FORMAT ('0*** WARNING - ',A,' ',F11.1,' FOR GRID BOX ',2A4,' IS ',
+     *        'NOT IN THE RANGE OF ',F11.1,' THROUGH ',F11.1,'.')
+140   FORMAT (' *** ENTER SCGBOX')
+150   FORMAT (' *** NOTE - GBOX PARAMETERS SUCCESSFULLY PUNCHED FOR ',
+     *   'IDENTIFIER ',2A4,'.')
+160   FORMAT ('0PARAMETER ARRAY VERSION NUMBER = ',I2)
+170   FORMAT (' *** EXIT SCGBOX')
+C
+      END

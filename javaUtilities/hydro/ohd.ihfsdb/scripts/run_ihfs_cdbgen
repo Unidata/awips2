@@ -1,0 +1,45 @@
+#!/bin/ksh
+
+if [ $LOGNAME != dsa ]
+then
+   print "\nSkipping generation of IHFS DB C code...\n"
+   exit 0
+else
+   export JAVA_BIN_DIR=/usr/local/java//bin
+
+   export DRIVERPATH=/usr/lib/postgresql-8.2-506.jdbc3.jar
+   export JAVA_VM_DIR=/fs/hseb/${DS_BUILD}/ohd/java/ohd-common/projects
+   export IHFSDB_DIR=$JAVA_VM_DIR/ihfsdb
+   export DB_DIR=$JAVA_VM_DIR/db
+
+   export BASEPATH=$DB_DIR/classes
+
+   export CLASSPATH=./:$BASEPATH/:$DRIVERPATH
+   echo "CLASSPATH =" $CLASSPATH
+
+   #The connection string
+   connecturl="jdbc:postgresql://genessee:5432/hd_${DS_BUILD}empty?user=pguser"
+
+   #The location of the PreferredTableNames.txt file.
+   namingfile=$IHFSDB_DIR/scripts/PreferredTableNames.txt
+
+   #The destination of the generated source files 
+   targetdir=/fs/hseb/${DS_BUILD}/ohd/whfs_lib/src/IHFSDbGenerated/TEXT
+
+   #db name
+   dbname=hd_${DS_BUILD}empty
+
+   #package name -- NONE means no packaging
+   # Note: this does NOT affect directly in which the generated class is placed
+   package=ohd.hseb.ihfsdb.generated
+
+   db_driver_class_name=org.postgresql.Driver
+
+   rm -f /fs/hseb/${DS_BUILD}/ohd/whfs_lib/src/IHFSDbGenerated/TEXT/*.pgc
+   rm -f /fs/hseb/${DS_BUILD}/ohd/whfs_lib/src/IHFSDbGenerated/TEXT/*.h
+   $JAVA_BIN_DIR/java ohd.hseb.dbgen.CDbGen $connecturl $namingfile $dbname $targetdir $db_driver_class_name
+
+   mv $targetdir/*.h /fs/hseb/${DS_BUILD}/ohd/whfs_lib/inc/dbms/
+   #cd -
+   return $?
+fi

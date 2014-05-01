@@ -1,0 +1,3 @@
+Once this framework was in place, we worked with our Focus Group to determine WHICH rules to apply to the tree-like structure. It turns out that these are the rules forecasters have used almost intuitively over the years as they typed their text forecasts. The Rapid Prototype Process, working interatively with the users, is a very effective way of extracting this information.
+
+

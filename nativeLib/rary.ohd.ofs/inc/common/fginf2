@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FGINF2
+C  FORECAST COMPONENT FORECAST GROUP INFORMATION
+      COMMON /FGINF2/ MAXFG2,LUFGL2
+C      

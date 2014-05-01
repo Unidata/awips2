@@ -1,0 +1,14 @@
+==== client.py.out | remove_uuid
+Request: Twas brillig, and the slithy toves
+Request: Did gyre and gimble in the wabe.
+Request: All mimsy were the borogroves,
+Request: And the mome raths outgrabe.
+Messages on queue: reply_to:
+Response: TWAS BRILLIG, AND THE SLITHY TOVES
+Response: DID GYRE AND GIMBLE IN THE WABE.
+Response: ALL MIMSY WERE THE BOROGROVES,
+Response: AND THE MOME RATHS OUTGRABE.
+No more messages!
+==== server.py.out | remove_uuid
+Request server running - run your client now.
+(Times out after 100 seconds ...)

@@ -1,0 +1,129 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Run the topic test on a federated setup
+
+# Clean up old log files
+rm -f subscriber_*.log 
+
+# Defaults values 
+SUBSCRIBERS=2
+MESSAGES=1000
+BATCHES=1
+VERBOSE=1
+
+while getopts "s:m:b:" opt ; do
+    case $opt in
+	s) SUBSCRIBERS=$OPTARG ;;
+	m) MESSAGES=$OPTARG ;;
+	b) BATCHES=$OPTARG ;;
+	?)
+	    echo "Usage: %0 [-s <subscribers>] [-m <messages.] [-b <batches>]"
+	    exit 1
+	    ;;
+    esac
+done
+
+MY_DIR=$(dirname $(which $0))
+source ./test_env.sh
+
+trap stop_brokers EXIT
+
+start_broker() {
+    ${MY_DIR}/../qpidd --daemon --port 0 --no-module-dir --no-data-dir --auth no > qpidd.port
+}
+
+start_brokers() {
+    start_broker
+    PORT_A=`cat qpidd.port`
+    start_broker
+    PORT_B=`cat qpidd.port`
+    start_broker
+    PORT_C=`cat qpidd.port`
+}
+
+stop_brokers() {
+    for p in $PORT_A $PORT_B $PORT_C; do
+        $QPIDD_EXEC --no-module-dir -q --port $p
+    done
+}
+
+subscribe() {
+    #which broker should we connect to?
+    if (( $1 % 2 )); then
+        MY_PORT=$PORT_C;
+    else
+        MY_PORT=$PORT_A;
+    fi
+
+    echo Subscriber $1 connecting on $MY_PORT
+    LOG="subscriber_$1.log"
+    ${MY_DIR}/topic_listener -p $MY_PORT  > $LOG 2>&1 && rm -f $LOG 
+}
+
+publish() {
+    ${MY_DIR}/topic_publisher --messages $MESSAGES --batches $BATCHES --subscribers $SUBSCRIBERS -p $PORT_A
+}
+
+setup_routes() {
+    BROKER_A="localhost:$PORT_A"
+    BROKER_B="localhost:$PORT_B"
+    BROKER_C="localhost:$PORT_C"
+    if (($VERBOSE)); then
+        echo "Establishing routes for topic..."
+    fi
+    $PYTHON_COMMANDS/qpid-route route add $BROKER_B $BROKER_A amq.topic topic_control B B
+    $PYTHON_COMMANDS/qpid-route route add $BROKER_C $BROKER_B amq.topic topic_control C C
+    if (($VERBOSE)); then
+        echo "linked A->B->C"        
+    fi
+    $PYTHON_COMMANDS/qpid-route route add $BROKER_B $BROKER_C amq.topic topic_control B B
+    $PYTHON_COMMANDS/qpid-route route add $BROKER_A $BROKER_B amq.topic topic_control A A
+    if (($VERBOSE)); then
+        echo "linked C->B->A"        
+        echo "Establishing routes for response queue..."
+    fi
+
+    $PYTHON_COMMANDS/qpid-route route add $BROKER_B $BROKER_C amq.direct response B B
+    $PYTHON_COMMANDS/qpid-route route add $BROKER_A $BROKER_B amq.direct response A A
+    if (($VERBOSE)); then
+        echo "linked C->B->A"        
+        for b in $BROKER_A $BROKER_B $BROKER_C; do 
+            echo "Routes for $b"
+            $PYTHON_COMMANDS/qpid-route route list $b
+        done
+    fi
+}
+
+if test -d ${PYTHON_DIR} ;  then
+    start_brokers
+    if (($VERBOSE)); then
+        echo "Running federated topic test against brokers on ports $PORT_A $PORT_B $PORT_C"
+    fi
+
+    for ((i=$SUBSCRIBERS ; i--; )); do
+        subscribe $i &
+    done
+
+    setup_routes
+
+    publish  || exit 1
+fi

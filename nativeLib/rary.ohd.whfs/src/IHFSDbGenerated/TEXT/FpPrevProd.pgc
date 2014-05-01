@@ -1,0 +1,880 @@
+/*
+    File: FpPrevProd.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:22 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "FpPrevProd.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct FpPrevProd_t
+{
+    char		lid[9];
+    char		product_id[11];
+    char		prod_categ[4];
+    dtime_t		producttime;
+    char		office_id[6];
+    double		obsvalue;
+    dtime_t		obstime;
+    double		max_fcstvalue;
+    dtime_t		validtime;
+    dtime_t		basistime;
+
+    int		ind_product_id;
+    int		ind_prod_categ;
+    int		ind_office_id;
+    int		ind_obsvalue;
+    int		ind_obstime;
+    int		ind_max_fcstvalue;
+    int		ind_validtime;
+    int		ind_basistime;
+} FpPrevProd_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+FpPrevProd * GetFpPrevProd(const char * where)
+{
+
+    FpPrevProd * listPtr = NULL;
+    FpPrevProd * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM FpPrevProd ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FpPrevProd_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFpPrevProd() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFpPrevProd() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFpPrevProd() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.product_id:dbs.ind_product_id, 
+    :dbs.prod_categ:dbs.ind_prod_categ, :dbs.producttime, 
+    :dbs.office_id:dbs.ind_office_id, :dbs.obsvalue:dbs.ind_obsvalue, 
+    :dbs.obstime:dbs.ind_obstime, :dbs.max_fcstvalue:dbs.ind_max_fcstvalue, 
+    :dbs.validtime:dbs.ind_validtime, :dbs.basistime:dbs.ind_basistime    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFpPrevProd() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (FpPrevProd *) malloc(sizeof(FpPrevProd))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->product_id, dbs.product_id);
+            setNullIfIndicated(dbs.ind_product_id, CHAR, structPtr->product_id);
+
+            strcpy(structPtr->prod_categ, dbs.prod_categ);
+            setNullIfIndicated(dbs.ind_prod_categ, CHAR, structPtr->prod_categ);
+
+            structPtr->producttime = dbs.producttime;
+
+            strcpy(structPtr->office_id, dbs.office_id);
+            setNullIfIndicated(dbs.ind_office_id, CHAR, structPtr->office_id);
+
+            structPtr->obsvalue = dbs.obsvalue;
+            setNullIfIndicated(dbs.ind_obsvalue, DOUBLE, &structPtr->obsvalue);
+
+            structPtr->obstime = dbs.obstime;
+            setNullIfIndicated(dbs.ind_obstime, DATETIME, &structPtr->obstime);
+
+            structPtr->max_fcstvalue = dbs.max_fcstvalue;
+            setNullIfIndicated(dbs.ind_max_fcstvalue, DOUBLE, &structPtr->max_fcstvalue);
+
+            structPtr->validtime = dbs.validtime;
+            setNullIfIndicated(dbs.ind_validtime, DATETIME, &structPtr->validtime);
+
+            structPtr->basistime = dbs.basistime;
+            setNullIfIndicated(dbs.ind_basistime, DATETIME, &structPtr->basistime);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.product_id:dbs.ind_product_id, 
+        :dbs.prod_categ:dbs.ind_prod_categ, :dbs.producttime, 
+        :dbs.office_id:dbs.ind_office_id, :dbs.obsvalue:dbs.ind_obsvalue, 
+        :dbs.obstime:dbs.ind_obstime, :dbs.max_fcstvalue:dbs.ind_max_fcstvalue, 
+        :dbs.validtime:dbs.ind_validtime, :dbs.basistime:dbs.ind_basistime        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetFpPrevProd() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+FpPrevProd * SelectFpPrevProd(const char * where)
+{
+
+    FpPrevProd * listPtr = NULL;
+    FpPrevProd * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM FpPrevProd ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FpPrevProd_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFpPrevProd() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFpPrevProd() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFpPrevProd() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.product_id:dbs.ind_product_id, 
+    :dbs.prod_categ:dbs.ind_prod_categ, :dbs.producttime, 
+    :dbs.office_id:dbs.ind_office_id, :dbs.obsvalue:dbs.ind_obsvalue, 
+    :dbs.obstime:dbs.ind_obstime, :dbs.max_fcstvalue:dbs.ind_max_fcstvalue, 
+    :dbs.validtime:dbs.ind_validtime, :dbs.basistime:dbs.ind_basistime    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFpPrevProd() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (FpPrevProd *) malloc(sizeof(FpPrevProd))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->product_id, dbs.product_id);
+            setNullIfIndicated(dbs.ind_product_id, CHAR, structPtr->product_id);
+
+            strcpy(structPtr->prod_categ, dbs.prod_categ);
+            setNullIfIndicated(dbs.ind_prod_categ, CHAR, structPtr->prod_categ);
+
+            structPtr->producttime = dbs.producttime;
+
+            strcpy(structPtr->office_id, dbs.office_id);
+            setNullIfIndicated(dbs.ind_office_id, CHAR, structPtr->office_id);
+
+            structPtr->obsvalue = dbs.obsvalue;
+            setNullIfIndicated(dbs.ind_obsvalue, DOUBLE, &structPtr->obsvalue);
+
+            structPtr->obstime = dbs.obstime;
+            setNullIfIndicated(dbs.ind_obstime, DATETIME, &structPtr->obstime);
+
+            structPtr->max_fcstvalue = dbs.max_fcstvalue;
+            setNullIfIndicated(dbs.ind_max_fcstvalue, DOUBLE, &structPtr->max_fcstvalue);
+
+            structPtr->validtime = dbs.validtime;
+            setNullIfIndicated(dbs.ind_validtime, DATETIME, &structPtr->validtime);
+
+            structPtr->basistime = dbs.basistime;
+            setNullIfIndicated(dbs.ind_basistime, DATETIME, &structPtr->basistime);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.product_id:dbs.ind_product_id, 
+        :dbs.prod_categ:dbs.ind_prod_categ, :dbs.producttime, 
+        :dbs.office_id:dbs.ind_office_id, :dbs.obsvalue:dbs.ind_obsvalue, 
+        :dbs.obstime:dbs.ind_obstime, :dbs.max_fcstvalue:dbs.ind_max_fcstvalue, 
+        :dbs.validtime:dbs.ind_validtime, :dbs.basistime:dbs.ind_basistime        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectFpPrevProd() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectFpPrevProdCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM FpPrevProd ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFpPrevProd() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFpPrevProd() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFpPrevProd() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFpPrevProd() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutFpPrevProd(const FpPrevProd * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FpPrevProd_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    strcpy(dbs.prod_categ, structPtr->prod_categ);
+    dbs.ind_prod_categ = getIndicator(CHAR, (void *)structPtr->prod_categ);
+
+    dbs.producttime = structPtr->producttime;
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+    dbs.obsvalue = structPtr->obsvalue;
+    dbs.ind_obsvalue = getIndicator(DOUBLE, (void *)&structPtr->obsvalue);
+
+    dbs.obstime = structPtr->obstime;
+    dbs.ind_obstime = getIndicator(DATETIME, (void *)&structPtr->obstime);
+
+    dbs.max_fcstvalue = structPtr->max_fcstvalue;
+    dbs.ind_max_fcstvalue = getIndicator(DOUBLE, (void *)&structPtr->max_fcstvalue);
+
+    dbs.validtime = structPtr->validtime;
+    dbs.ind_validtime = getIndicator(DATETIME, (void *)&structPtr->validtime);
+
+    dbs.basistime = structPtr->basistime;
+    dbs.ind_basistime = getIndicator(DATETIME, (void *)&structPtr->basistime);
+
+
+    EXEC SQL INSERT INTO FpPrevProd (lid,product_id,
+        prod_categ,producttime,office_id,
+        obsvalue,obstime,max_fcstvalue,
+        validtime,basistime        )
+        VALUES (
+         :dbs.lid, :dbs.product_id:dbs.ind_product_id, :dbs.prod_categ:dbs.ind_prod_categ,
+         :dbs.producttime, :dbs.office_id:dbs.ind_office_id, :dbs.obsvalue:dbs.ind_obsvalue,
+         :dbs.obstime:dbs.ind_obstime, :dbs.max_fcstvalue:dbs.ind_max_fcstvalue, :dbs.validtime:dbs.ind_validtime,
+         :dbs.basistime:dbs.ind_basistime);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutFpPrevProd() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertFpPrevProd(const FpPrevProd * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FpPrevProd_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    strcpy(dbs.prod_categ, structPtr->prod_categ);
+    dbs.ind_prod_categ = getIndicator(CHAR, (void *)structPtr->prod_categ);
+
+    dbs.producttime = structPtr->producttime;
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+    dbs.obsvalue = structPtr->obsvalue;
+    dbs.ind_obsvalue = getIndicator(DOUBLE, (void *)&structPtr->obsvalue);
+
+    dbs.obstime = structPtr->obstime;
+    dbs.ind_obstime = getIndicator(DATETIME, (void *)&structPtr->obstime);
+
+    dbs.max_fcstvalue = structPtr->max_fcstvalue;
+    dbs.ind_max_fcstvalue = getIndicator(DOUBLE, (void *)&structPtr->max_fcstvalue);
+
+    dbs.validtime = structPtr->validtime;
+    dbs.ind_validtime = getIndicator(DATETIME, (void *)&structPtr->validtime);
+
+    dbs.basistime = structPtr->basistime;
+    dbs.ind_basistime = getIndicator(DATETIME, (void *)&structPtr->basistime);
+
+
+    EXEC SQL INSERT INTO FpPrevProd (lid,product_id,
+        prod_categ,producttime,office_id,
+        obsvalue,obstime,max_fcstvalue,
+        validtime,basistime        )
+        VALUES (
+         :dbs.lid, :dbs.product_id:dbs.ind_product_id, :dbs.prod_categ:dbs.ind_prod_categ,
+         :dbs.producttime, :dbs.office_id:dbs.ind_office_id, :dbs.obsvalue:dbs.ind_obsvalue,
+         :dbs.obstime:dbs.ind_obstime, :dbs.max_fcstvalue:dbs.ind_max_fcstvalue, :dbs.validtime:dbs.ind_validtime,
+         :dbs.basistime:dbs.ind_basistime);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertFpPrevProd() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateFpPrevProd(const FpPrevProd *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FpPrevProd_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+    dbs.ind_product_id = getIndicator(CHAR, (void *)structPtr->product_id);
+
+    strcpy(dbs.prod_categ, structPtr->prod_categ);
+    dbs.ind_prod_categ = getIndicator(CHAR, (void *)structPtr->prod_categ);
+
+    dbs.producttime = structPtr->producttime;
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+    dbs.obsvalue = structPtr->obsvalue;
+    dbs.ind_obsvalue = getIndicator(DOUBLE, (void *)&structPtr->obsvalue);
+
+    dbs.obstime = structPtr->obstime;
+    dbs.ind_obstime = getIndicator(DATETIME, (void *)&structPtr->obstime);
+
+    dbs.max_fcstvalue = structPtr->max_fcstvalue;
+    dbs.ind_max_fcstvalue = getIndicator(DOUBLE, (void *)&structPtr->max_fcstvalue);
+
+    dbs.validtime = structPtr->validtime;
+    dbs.ind_validtime = getIndicator(DATETIME, (void *)&structPtr->validtime);
+
+    dbs.basistime = structPtr->basistime;
+    dbs.ind_basistime = getIndicator(DATETIME, (void *)&structPtr->basistime);
+
+
+    sprintf(queryBuffer, " UPDATE FpPrevProd SET " );
+    strcat(queryBuffer, "lid = ? , product_id = ? , prod_categ = ? , producttime = ? , office_id = ? ,     ");
+    strcat(queryBuffer, "obsvalue = ? , obstime = ? , max_fcstvalue = ? , validtime = ? , basistime = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateFpPrevProd() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.product_id:dbs.ind_product_id, :dbs.prod_categ:dbs.ind_prod_categ, :dbs.producttime, :dbs.office_id:dbs.ind_office_id,
+     :dbs.obsvalue:dbs.ind_obsvalue, :dbs.obstime:dbs.ind_obstime, :dbs.max_fcstvalue:dbs.ind_max_fcstvalue, :dbs.validtime:dbs.ind_validtime, :dbs.basistime:dbs.ind_basistime;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateFpPrevProd() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteFpPrevProd(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM FpPrevProd ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteFpPrevProd() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateFpPrevProdByRecord (const FpPrevProd * newStructPtr, const FpPrevProd * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetFpPrevProdPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateFpPrevProd(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateFpPrevProd(const FpPrevProd * structPtr)
+{
+    UpdateFpPrevProdByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertFpPrevProd(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueFpPrevProd(const FpPrevProd * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (FpPrevProdExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertFpPrevProd(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteFpPrevProdByRecord(const FpPrevProd * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetFpPrevProdPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteFpPrevProd(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool FpPrevProdExists(const FpPrevProd * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetFpPrevProdPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectFpPrevProdCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetFpPrevProdPrimaryKeyWhereString (const FpPrevProd * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND producttime = '%s' ",
+            structPtr->lid, dtimet_to_ansi(structPtr->producttime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeFpPrevProd( FpPrevProd * structPtr)
+{
+    FpPrevProd* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( FpPrevProd * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetFpPrevProdDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetFpPrevProdErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

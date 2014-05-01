@@ -1,0 +1,201 @@
+#include "light_data.h"
+#include "llgd.h"
+#include "stage3.h"
+
+EXEC SQL include pgtypes_timestamp;
+
+/*
+    Find lightning data in the specific RFC region and insert
+    them into "lightning" table.
+*/
+
+
+/******************************************************/
+void write_lightning(int num_strike)
+/******************************************************/
+{
+
+  EXEC SQL BEGIN DECLARE SECTION;
+    short db_x_hgrid, db_y_hgrid, db_no_strike;
+    timestamp db_obstime;
+  EXEC SQL END DECLARE SECTION;
+
+  char strdt[22];
+  float x,y,flat, flon;
+
+  int  nbpts,illgd,istat,ixrfc,iyrfc,i,j,k,julian;
+  int  yr,mm,dd,hr,min,sec;
+
+  long int      irc;
+  char datetime[22];
+  long int num_records;
+
+  int **idata;
+
+  light_t **rec;
+
+  idata = (int **)malloc((nx)*sizeof(int *));
+
+  if(!idata)
+  {
+     printf("FATAL Error: malloc failed - lightning_count.ec\n");
+  }
+
+  for (i=0; i<nx; i++)
+  {
+     idata[i] = (int *)malloc((ny)*sizeof(int));
+     if(!idata[i])
+     {
+        printf("FATAL Error: malloc failed - lightning_count.ec\n");
+     }
+  }
+
+  rec = (light_t **)malloc((nx)*sizeof(light_t *));
+
+  if(!rec)
+  {
+     printf("FATAL Error: malloc failed - lightning_count.ec\n");
+  }
+
+  for (i=0; i<nx; i++)
+  {
+     rec[i] = (light_t *)malloc((ny)*sizeof(light_t));
+     if(!rec[i])
+     {
+        printf("FATAL Error: malloc failed - lightning_count.ec\n");
+     }
+  }
+
+  for (i=0; i<nx; i++)
+    for(j=0; j<ny; j++)
+      idata[i][j]=0;
+
+  nbpts = 1;
+  illgd = 1;
+
+  num_records = 0;
+
+  for(k=0; k<num_strike; k++)
+  {
+    flat = light[k].lat;
+    flon = -light[k].lon;
+
+    julian = (int)light[k].time + 3600;
+
+    ddgsc3(&julian,&yr,&mm,&dd,&hr,&min,&sec);
+    sprintf(strdt,"%d-%02d-%02d %02d:00:00",yr,mm,dd,hr);
+
+    if((flat > min_lat) && (flat < max_lat) &&
+       (flon > min_lon) && (flon < max_lon))
+    {
+
+       /* Convert latitude and longitude to HRAP gridpoint of RFC */
+       LLGD(&flon,&flat,&nbpts,&x,&y,&illgd,&istat);
+
+/*       printf("flat, flon, x, y are: %f %f %f %f \n", flat, flon, x, y);  */
+       ixrfc = ((int)x - llx);
+       iyrfc = ((int)y - lly);
+
+       if ((ixrfc >= 0) && (ixrfc < nx) &&
+           (iyrfc >= 0) && (iyrfc < ny))
+       {
+          idata[ixrfc][iyrfc]=idata[ixrfc][iyrfc] + 1;
+	  rec[ixrfc][iyrfc].x_hgrid=ixrfc + 1;
+          rec[ixrfc][iyrfc].y_hgrid=iyrfc + 1;
+	  strcpy(rec[ixrfc][iyrfc].obstime, strdt);
+	  rec[ixrfc][iyrfc].no_strike=idata[ixrfc][iyrfc];
+
+	  num_records = num_records + 1;
+
+       }
+
+    }
+
+  }
+
+  if (num_records == 0) {
+     printf("Number of strikes within this site is %ld, just exit.\n",num_records);
+     exit(1);
+  }
+
+  printf("Number of strikes within this site is: %ld \n", num_records);
+
+ /*-------------------------------*/
+ /*   open database               */
+ /*-------------------------------*/
+
+   startdb(&irc);
+   if(irc !=0)
+   {
+     printf("PostgreSQL error# %ld ",irc);
+     printf(" occurred attempting to open database \n");
+     exit(1);
+   }
+
+  printf("Database was opened successfully.\n");
+
+
+  num_records = 0;
+
+  for(i=0; i<nx; i++)
+  for(j=0; j<ny; j++)
+  {
+     if((rec[i][j].obstime>0) && (rec[i][j].x_hgrid>0) &&
+        (rec[i][j].y_hgrid>0) && (rec[i][j].no_strike>0))
+     {
+        db_x_hgrid = rec[i][j].x_hgrid;
+	db_y_hgrid = rec[i][j].y_hgrid;
+
+	memset(datetime, '\0', 22);
+        strncpy(datetime,rec[i][j].obstime,19);
+        dtcvasc(datetime,&db_obstime);
+
+        db_no_strike = rec[i][j].no_strike;
+
+        EXEC SQL update lightning
+          set x_hgrid = :db_x_hgrid,
+              y_hgrid = :db_y_hgrid,
+              obstime = :db_obstime,
+              no_of_strike = :db_no_strike
+          where x_hgrid=:db_x_hgrid
+	    and y_hgrid=:db_y_hgrid
+	    and obstime=:db_obstime;
+
+        if (sqlca.sqlerrd[2] == 0) /* if zero rows were updated */
+        {
+           EXEC SQL insert into lightning
+            values(:db_x_hgrid, :db_y_hgrid, :db_obstime, :db_no_strike);
+        }
+
+
+        if (sqlca.sqlcode != 0)
+	{
+           printf("PostgreSQL error %s ",sqlca.sqlstate);
+           printf(" occurred attempting to insert lightning data.\n");
+	   printf("%d\t%d\t%s\t%d\n",rec[i][j].x_hgrid,rec[i][j].y_hgrid,
+			 	rec[i][j].obstime, rec[i][j].no_strike);
+
+	}
+	else
+	{
+	  num_records =  num_records + 1;
+	}
+     }
+  }
+
+
+  /*--------------------------------------------------------------------*/
+  /*  close database                                                    */
+  /*--------------------------------------------------------------------*/
+
+  closedb(&irc);
+  if(irc !=0)
+  {
+     printf("PostgreSQL error# %ld ",irc);
+     printf(" occurred attempting to close database.\n");
+  }
+
+  printf("Number of records inserted in the table is: %ld \n", num_records);
+
+
+}

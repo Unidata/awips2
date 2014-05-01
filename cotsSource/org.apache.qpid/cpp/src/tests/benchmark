@@ -1,0 +1,95 @@
+#!/bin/sh
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# A basic "benchmark" to generate performacne samples of throughput
+# and latency against a single cluster member while they are replicating.
+#
+# Must be run in the qpid src/tests build directory.
+# 
+
+usage() {
+cat <<EOF
+Usage: $0 [options] -- client hosts --- broker hosts
+Read the script for options.
+EOF
+}
+# Defaults
+TESTDIR=${TESTDIR:-$PWD}    # Absolute path to test exes on all hosts.
+SCRIPTDIR=${SCRIPTDIR:-`dirname $0`} #  Path to local test scripts directory.
+SAMPLES=10			# Runs of each test.
+COUNT=${COUNT:-10000}		# Count for pub/sub tests.
+SIZE=${SIZE:-600}		# Size of messages
+ECHO=${ECHO:-1000}		# Count for echo test.
+NSUBS=${NSUBS:-4}
+NPUBS=${NPUBS:-4}
+
+collect() { eval $COLLECT=\""\$$COLLECT $*"\"; }
+COLLECT=ARGS
+while test $# -gt 0; do
+    case $1 in
+	--testdir) TESTDIR=$2 ; shift 2 ;;
+	--samples) SAMPLES=$2 ; shift 2 ;;
+	--count) COUNT=$2 ; shift 2 ;;
+	--echos) ECHO=$2 ; shift 2 ;;
+	--size) SIZE=$2 ; shift 2 ;;
+	--nsubs) NSUBS=$2 ; shift 2 ;;
+	--npubs) NPUBS=$2 ; shift 2 ;;
+	--) COLLECT=CLIENTARG; shift ;;
+	---) COLLECT=BROKERARG; shift;;
+	*) collect $1; shift ;;
+    esac
+done
+
+CLIENTS=${CLIENTARG:-$CLIENTS}
+BROKERS=${BROKERARG:-$BROKERS}
+test -z "$CLIENTS" && { echo "Must specify at least one client host."; exit 1; }
+test -z "$BROKERS" && { echo "Must specify at least one broker host."; exit 1; } 
+
+export TESTDIR			# For perfdist
+CLIENTS=($CLIENTS)		# Convert to array
+BROKERS=($BROKERS)
+trap "rm -f $FILES" EXIT
+
+dosamples() {
+    FILE=`mktemp`
+    FILES="$FILES $FILE"
+    TABS=`echo "$HEADING" | sed s'/[^	]//g'`
+    {
+	echo "\"$*\"$TABS"
+	echo "$HEADING" 
+	for (( i=0; i<$SAMPLES; ++i)) ; do echo "`$*`" ; done
+	echo
+    } | tee $FILE
+}
+
+HEADING="pub	sub	total	Mb"
+dosamples $SCRIPTDIR/perfdist --size $SIZE --count $COUNT --nsubs $NSUBS --npubs $NPUBS -s -- ${CLIENTS[*]} --- ${BROKERS[*]}
+HEADING="pub"
+dosamples ssh -A ${CLIENTS[0]} $TESTDIR/publish --routing-key perftest0 --size $SIZE --count $COUNT -s -b ${BROKERS[0]} 
+HEADING="sub"
+dosamples ssh -A ${CLIENTS[0]} $TESTDIR/consume --queue perftest0 -s --count $COUNT -b ${BROKERS[0]} 
+HEADING="min	max	avg"
+dosamples ssh -A ${CLIENTS[0]} $TESTDIR/echotest --count $ECHO -s -b ${BROKERS[0]} 
+
+echo
+echo "Tab separated spreadsheet (also saved as benchmark.tab):"
+echo
+
+echo "benchmark -- ${CLIENTS[*]} --- ${BROKERS[*]} " | tee benchmark.tab
+paste $FILES | tee -a benchmark.tab

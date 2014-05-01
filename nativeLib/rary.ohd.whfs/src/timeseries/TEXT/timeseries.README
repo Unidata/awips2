@@ -1,0 +1,313 @@
+                WHFS TIME SERIES FUNCTION - ALPHA VERSION
+          Office of Hydrology - Hydrologic Research Laboratory
+                            September 14, 1999
+
+--------
+Purpose:
+--------
+Provides time series plot capabilities for all observed and forecast
+data in the WHFS IHFS database.  This alpha version is a stand-alone
+version being used for demonstration and evaluation purposes.  It will be
+integrated later into the WHFS HydroView application.
+
+
+--------------
+Files included:
+--------------
+There are four files needed to run the application:
+
+	start_timeseries_alpha (start script)
+	timeseries_alpha       (executable program )
+	timeseries_RSRC        (resource file )
+	timeseries_groups.cfg  (group configuration file )
+
+
+-----------
+Description:
+-----------
+The application extracts data from the IHFS database and allows the 
+user to plot the data in conventional X-Y plots of the time series data.
+The user can plot data for stations using ad-hoc requests (i.e. station
+selection mode) or can use predefined requests to generate customized
+plots (group plot mode).  The Time Series Control window provides the 
+control of the user requests when in either mode.  Subsequent plots are
+displayed in a single dedicated Time Series Plot window.
+
+After invoking the start script, a small parent window is displayed; in 
+the actual WHFS implementation, this parent window would be the main
+HydroView window.  The user should select the "Start Time Series" push button
+to invoke the Time Series Control window.  After the user defines their
+plot request via the Control window, the Graph pushbutton is selected 
+to generate and display the Time Series Plot window.
+
+The Time Series Control window and the Time Series Plot window are described
+below.
+
+
+--------------------------
+Time Series Control Window:
+--------------------------
+
+The Control window has two primary components: the upper section controls the
+time period being plotted, while the lower section controls what data are
+being plotted.
+
+The time period is given as an ending time and a beginning time which 
+can be adjusted by the user.  The default time period is 5 days in the past
+to 3 days in the future, based on the current time.  All times are defined
+and displayed as GMT times.
+
+The data plotted are selected in one of two ways, depending upon the 
+selection mode in effect.  The selection mode is shown and changeable by the
+user through use of the option menu button just below the time period
+information.  Each of the two selection modes are described below.
+
+To generate the plot(s) of the requested data, the user selects the Graph 
+pushbutton at the bottom of the window.  The options available to the 
+user when reviewing the plots are described later.  The Tab pushbutton is
+intended for tabular representations of the data. Currently, this feature is
+not activated. 			
+
+
+Station Selection Mode:
+
+In this mode, a list of stations is presented from which the user can select
+a single station.  To facilitate the selection of stations, a text window
+placed right above the list allows the user to specify the station identifier.
+As the user enters each letter of the identifier, the list is positioned to
+list the closest matching identifier at the top of the list.
+
+The user can select a station from the station list at any time, and all the
+defined data types for that station are listed.  This will automatically occur
+if the user enters a station id that exactly matches one of the stations in the
+list.  These listed data types follow the SHEF convention, which includes
+the physical element, duration, type-source, and extremum attributes
+(a.k.a PEDTSE) for each data type for the station.  The user then selects
+one or more data types from this list.
+
+Multiple selections are only allowed if they are for the same physical element
+class (i.e. the first letter of the physical element matches).  The 
+few exceptions to this flexibility are that PC and PP cannot both be chosen.
+
+In station selection mode, the plot of the time series data is given in one
+graph on one page.  This is in contrast to the group selection mode, which
+allows for multiple graphs on multiple pages.
+
+
+Group Selection Mode:
+
+In this mode, a list of predefined groups is given.  Each of these groups 
+contains a set of instructions that specify which stations and SHEF PEDTSE
+data types are to be displayed.  The user selects the desired group.
+
+The group selection mode provides the user with a powerful means to view data.
+Remember that the time-series application uses a single window to display all
+plots.  To allow many plots to be quickly viewed, the single window can 
+contain one or more pages, where each page contains one or more graphs, and
+each graph contains one or more traces, where a trace is simply a "line"
+in the graph for a specified SHEF PEDTSE.  For forecast data, the traces
+are also uniquely identified by the basis time.  For each group within the group
+definitions, there are explicit instructions regarding which SHEF PEDTSE
+to plot in which graph, and how to group the graphs onto the multiple pages.
+
+
+Plotting the Data:
+			     
+To generate the plot(s) of the requested data, the user selects the Graph 
+pushbutton at the bottom of the window.  The options available to the 
+user when reviewing the plots are described below.
+
+The Tab pushbutton is intended for tabular representations of the data.
+Currently, this feature is not activated. 			
+
+
+---------------------------
+Time Series Display Options:
+---------------------------
+
+The requested plots occupy the entire time series plot window except for the
+menu bar at the top of the window.  The menu bar provides four main menu
+options:
+
+	File    - provides options related to overall operations
+	Page    - provides options related to the current page of graphs
+	Graph   - provides options related to the selected graph
+	Options - invokes Time Series Control window
+	
+All but the Options menu selection are tear-off menus, meaning you can position 
+your cursor just under the menu bar and with the right mouse button, remove
+the respective menu options for permanent display.  The actions associated with
+each menu option are described below.
+
+File|Save                 - save image file in .gif format
+    |Print->Reverse Video - prints image as reverse video, where the black and
+                            non-black colors are reversed to save printer ink
+    |Print->Normal        - prints image as normal colors
+    |Close                - close Time Series plot window
+
+Page|Next                 - displays the next page of graphs; the right and up
+			    arrow buttons on the keyboard can also be used. 
+    |Prev                 - displays the previous page of graphs; the left and
+     			    down arrow buttons on the keyboard can also be used.
+
+Graph|Zoom->Set           - allows zooming an area within a graph, the cursor
+                            changes to a hand, and the user can then select the
+                            zoom area by selecting a corner point, then dragging
+                            the mouse to the opposite corner and releasing the
+                            mouse button
+          ->Reset         - restores the zoom level of the most recently
+                            selected graph
+     |Show PC As 1Hr PP->Interpolate     - add display of PC data as 1 hour
+                                           incremental data using an
+                                           interpolation method to fill missing
+                                           hourly periods  (default)    	
+                       ->Assign          - add display of PC data as 1 hour
+                                           incremental data by assigning the 
+                                           nearest value to missing hour periods
+                       ->Off             - suppress display of PC data as 
+                                           incremental                                       
+     |Scale Stages->Data Only            - scale the vertical axis to fit the
+                                           data
+                  ->Data with Categories - scale the vertical axis so that lines
+                                           for stage categories (e.g. flood
+                                           stage) are displayed if they are 
+                                           within the range implied by the data
+                                           (default)
+                  ->Data and Categories -  scale the vertical axis so that
+                  			   horizontal lines for stage categories
+                  			   (e.g. flood stage) are always shown
+
+Options|Time Series Control - invokes the Time Series Control window                                                                                  
+       |Gridlines->On       - displays gridlines (default)
+                 ->Off      - suppresses gridlines 
+       |Plot->Points        - displays the data as points only
+            ->Lines         - displays the data as lines connecting the points
+                              without the points shown (default)
+            ->Both          - displays the data as lines and points
+	                  
+If the user clicks the middle mouse button in a graph area, then a 
+small window is displayed listing all the time series traces shown for 
+the graph.  The user can toggle individual traces, specific to a given 
+PEDTSE and in the case of forecast data, the basis time of the forecast.
+For each time series trace, the SHEF PE, TS, and E codes are shown; if the 
+duration is not 0 (i.e. instantaneous), the D code is also shown.  If 
+the time series is a forecast trace, then the basis time is shown. 
+
+Other features of the Time Series plot window are that the current time is
+always shown in the plot as a double-width dashed line.  Also, the window
+itself can be resized and the graphs will be adjusted accordingly.
+
+
+----------------------------------
+Configuration of Group Definitions:
+----------------------------------
+The group definitions are contained in the configuration file:
+
+	timeseries_groups.cfg
+	
+This file uses a very specific syntax to specify the group definitions
+that must be adhered to.  In the future, this information will be stored in a
+relational database form instead of the file approach currently used.  A
+graphical user interface will be provided to manage the database information
+that contains the group definitions.
+
+The first line of the file specifies the geometry of the window.  This line
+should NOT be changed.  The drawing area of the time series page is divided
+into six equal-sized columnar sections and two equal-sized row-like sections,
+resulting in the drawing area being divided into 12 rectangular areas.
+As discussed later, the top-left corner of each graph is referenced
+in terms of this grid geometry, and is given a size in terms of the number of
+rows and columns the particular graph should occupy.  The top-left corner of
+the drawing area is assigned a location of row 1, column 1, with the position
+indicators increasing as the rows move downward, and the columns move leftward.
+Graphically, the resulting geometry is:
+
+  (1,1)-----(2,1)-----(3,1)-----(4,1)-----(5,1)-----(6,1)-----(7,1) 
+    |         |         |         |         |         |         |
+    |         |         |         |         |         |         | 
+    |         |         |         |         |         |         |
+    |         |         |         |         |         |         |
+    |         |         |         |         |         |         |
+ (1,2)------(2,2)-----(3,2)-----(4,2)-----(5,2)-----(6,2)-----(7,2)
+    |         |         |         |         |         |         |
+    |         |         |         |         |         |         |
+    |         |         |         |         |         |         | 
+    |         |         |         |         |         |         | 
+    |         |         |         |         |         |         |
+  (1,3)-----(2,3)-----(3,3)-----(4,3)-----(5,3)-----(6,3)-----(7,3)
+
+The subsequent lines contain the group instructions, where each group begins
+with an identifying record in the file, followed by the instructions for
+each page, graph, and trace in the group.  Each line after the group id line
+specifies the information for a graph, including whether it is the last 
+graph for the current page within the group.  This results in a file structure
+of the following form:
+
+geometric size on line 1
+GroupName=group1 
+  graph1 info
+  graph2 info
+  graph3 info
+GroupName=group2
+  graph1 info
+  graph2 info
+  graph3 info
+etc.
+
+The GroupName identifier is used when listing the available groups in the
+Group Selection mode of the Time Series Control window.  Each graph information
+record in the file has the following form:
+
+   lid=XXX pc=PEDTSE [pc=PEDTSE] ypos=# xpos=# xsize=# ysize=# [+end_page]
+
+The lid field gives the location identifier, and following that can be one
+or more SHEF PEDTSE specifiers.  The top-left position and the size of the
+graph are given in the row-column units discussed earlier.  The order of these
+fields is not important.  lastly, if this is the last graph for the page,
+then the optional +end_page specifier should be given.  Some examples of the
+graph information records are given below:
+
+
+lid=ADSO2 pc=tdirzzz pc2=tairzzz xpos=1 ypos=1 xsize=3 ysize=1
+	[graph will extend from upper left (1,1) to lower right (4,2)]
+	and will plot two temperature data sets for ADSO2
+
+lid=WETO2 pc=tdirzzz pc2=tairzzz xpos=1 ypos=2 xsize=6 ysize=1
+	[graph will extend from upper left (1,2) to lower right (7,2)]
+
+lid=BLUO2 pc=tdirzzz pc2=tairzzz xpos=4 ypos=2 xsize=3 ysize=1
+	[graph will extend from upper left (4,2) and lower right (7,3)]
+
+lid=EAGO2 pc=tdirzzz pc2=tairzzz xpos=1 ypos=1 xsize=6 ysize=2
+	[graph will occupy the entire page] 
+	
+
+An example group definition file looks like this:
+
+x_per_page=6 y_per_page=2
+GroupName=Southeast Locations
+lid=ADSO2 pc=tdirzzz pc=tairzzz ypos=1 xpos=1 xsize=3 ysize=1 
+lid=BLUO2 pc=hgirgzz pc=hgiffzz ypos=1 xpos=4 xsize=3 ysize=1 
+lid=ENSO2 pc=tairzzz ypos=2 xpos=1 xsize=6 ysize=1 +end_page
+lid=ANDO2 pc=tdirgzz ypos=1 xpos=1 xsize=6 ysize=2 +end_page
+lid=WANO2 pc=hgirgzz ypos=1 xpos=1 xsize=6 ysize=1 
+lid=BLUO2 pc=hgirgzz ypos=2 xpos=1 xsize=6 ysize=1 +end_page
+lid=SEIO2 pc=hgirgzz ypos=1 xpos=1 xsize=6 ysize=1 
+lid=RPDO2 pc=hgirgzz ypos=2 xpos=1 xsize=6 ysize=1 +end_page
+GroupName=Upper Basin Locations
+lid=EAGO2 pc=hgirgzz ypos=1 xpos=1 xsize=6 ysize=1 
+lid=CARO2 pc=hgirgzz ypos=2 xpos=1 xsize=6 ysize=1 +end_page
+lid=CNOO2 pc=hgirgzz ypos=1 xpos=1 xsize=6 ysize=1 
+lid=MGMO2 pc=hgirgzz ypos=2 xpos=1 xsize=6 ysize=1 +end_page
+lid=BLUO2 pc=hgirgzz pc=hgiffzz ypos=1 xpos=1 xsize=6 ysize=1 
+lid=ALXO2 pc=hgirgzz ypos=2 xpos=1 xsize=6 ysize=1 +end_page
+lid=WETO2 pc=hgirgzz pc=hgiffzz ypos=1 xpos=1 xsize=6 ysize=2 +end_page
+
+
+That's it for now.
+
+
+
+
+
+

@@ -1,0 +1,1968 @@
+      GetWSDLMetadataExample 
+-------------------------------------------------------------------
+
+This example shows the usage of WS-DM 
+GetResourcePropertyRequest / Response on a 
+Group service.
+The target resource is the WS-DM Adapter itself 
+and the requested property is "ws-rp:Entry".
+WS-DM Adapter is a special WS-Resource (is a Group)
+that  acts as the main entry point for retrieving
+all other managed resources.
+So clients that want to deal with QMan WS-Resources
+must first get resource identifiers sending
+a GetResourcePropertyRequest to WS-DM Adapter 
+with "ws-rp:Entry" as target target property.
+
+-------------------------------------------------------------------
+
+Type enter to proceed.
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/adapter</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:ec4d0c03-3174-e39d-4a36-8f109056865b</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourceProperty
+            xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2" xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2">wsrf-sg:Entry</wsrf-rp:GetResourceProperty>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:0f47d614-565e-5360-8dcc-ea8e4771e4dd</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:ec4d0c03-3174-e39d-4a36-8f109056865b</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://localhost:8080/qman/services/adapter</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourcePropertyResponse xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2">
+            <wsrf-sg:Entry xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2">
+                <wsrf-sg:ServiceGroupEntryEPR>
+                    <wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/ServiceGroupEntry</wsa:Address>
+                    <wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                        <muse-wsa:ResourceId xmlns:muse-wsa="http://ws.apache.org/muse/addressing">uuid:1d01b4ee-7d23-3a30-342e-62fc49984fe6</muse-wsa:ResourceId>
+                    </wsa:ReferenceParameters>
+                </wsrf-sg:ServiceGroupEntryEPR>
+                <wsrf-sg:MemberServiceEPR>
+                    <wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/QManWsResource</wsa:Address>
+                    <wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                        <qman-wsa:ResourceId xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing">Q-MAN: brokerID=d5b32f44-5164-4e59-8f1d-a6f8c0a8a748,class=queue,name=1232872843214,objectId=a3759467-bede-476d-8dde-169f1a652191,package=org.apache.qpid</qman-wsa:ResourceId>
+                    </wsa:ReferenceParameters>
+                </wsrf-sg:MemberServiceEPR>
+                <wsrf-sg:Content/>
+            </wsrf-sg:Entry>
+        </wsrf-rp:GetResourcePropertyResponse>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/QManWsResource</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadata</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:0cdb5112-09e0-ac39-06ba-393843f06e42</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+        <qman-wsa:ResourceId
+            xmlns:wsa="http://www.w3.org/2005/08/addressing"
+            wsa:IsReferenceParameter="true" xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing">Q-MAN: brokerID=d5b32f44-5164-4e59-8f1d-a6f8c0a8a748,class=queue,name=1232872843214,objectId=a3759467-bede-476d-8dde-169f1a652191,package=org.apache.qpid</qman-wsa:ResourceId>
+    </soap:Header>
+    <soap:Body>
+        <qman:GetMetadata xmlns:qman="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <qman:Dialect>http://schemas.xmlsoap.org/wsdl/</qman:Dialect>
+        </qman:GetMetadata>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadataResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:980617c8-e3a0-ebf1-8f5a-2b43d3d6d416</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:0cdb5112-09e0-ac39-06ba-393843f06e42</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://localhost:8080/qman/services/QManWsResource</wsa:Address>
+            <wsa:ReferenceParameters>
+                <qman-wsa:ResourceId wsa:IsReferenceParameter="true"
+                    xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing" xmlns:wsa="http://www.w3.org/2005/08/addressing">Q-MAN: brokerID=d5b32f44-5164-4e59-8f1d-a6f8c0a8a748,class=queue,name=1232872843214,objectId=a3759467-bede-476d-8dde-169f1a652191,package=org.apache.qpid</qman-wsa:ResourceId>
+            </wsa:ReferenceParameters>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsx:Metadata xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            <wsx:MetadataSection>
+                <wsdl:definitions name="QManWsResource"
+                    targetNamespace="http://amqp.apache.org/qpid/management/qman"
+                    xmlns="http://schemas.xmlsoap.org/wsdl/"
+                    xmlns:qman="http://amqp.apache.org/qpid/management/qman"
+                    xmlns:wsa="http://www.w3.org/2005/08/addressing"
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                    xmlns:wsdl-soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                    xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+                    xmlns:wsrf-r="http://docs.oasis-open.org/wsrf/r-2"
+                    xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2"
+                    xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"
+                    xmlns:wsrmd="http://docs.oasis-open.org/wsrf/rmd-1"
+                    xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                    <wsdl:types>
+                        <xsd:schema attributeFormDefault="unqualified"
+                            elementFormDefault="qualified"
+                            targetNamespace="http://www.w3.org/2005/08/addressing"
+                            xmlns:tns="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                            <xs:element name="EndpointReference"
+                                type="tns:EndpointReferenceType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType mixed="false"
+                                name="EndpointReferenceType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:sequence>
+                                    <xs:element name="Address" type="tns:AttributedURIType"/>
+                                    <xs:element minOccurs="0"
+                                    name="ReferenceParameters" type="tns:ReferenceParametersType"/>
+                                    <xs:element minOccurs="0" ref="tns:Metadata"/>
+                                    <xs:any maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                </xs:sequence>
+                                <xs:anyAttribute namespace="##other" processContents="lax"/>
+                            </xs:complexType>
+                            <xs:complexType mixed="false"
+                                name="ReferenceParametersType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:sequence>
+                                    <xs:any maxOccurs="unbounded"
+                                    minOccurs="0" namespace="##any" processContents="lax"/>
+                                </xs:sequence>
+                                <xs:anyAttribute namespace="##other" processContents="lax"/>
+                            </xs:complexType>
+                            <xs:element name="Metadata"
+                                type="tns:MetadataType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType mixed="false"
+                                name="MetadataType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:sequence>
+                                    <xs:any maxOccurs="unbounded"
+                                    minOccurs="0" namespace="##any" processContents="lax"/>
+                                </xs:sequence>
+                                <xs:anyAttribute namespace="##other" processContents="lax"/>
+                            </xs:complexType>
+                            <xs:element name="MessageID"
+                                type="tns:AttributedURIType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="RelatesTo"
+                                type="tns:RelatesToType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType mixed="false"
+                                name="RelatesToType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:anyURI">
+                                    <xs:attribute
+                                    default="http://www.w3.org/2005/08/addressing/reply"
+                                    name="RelationshipType"
+                                    type="tns:RelationshipTypeOpenEnum" use="optional"/>
+                                    <xs:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                            <xs:simpleType
+                                name="RelationshipTypeOpenEnum" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:union memberTypes="tns:RelationshipType xs:anyURI"/>
+                            </xs:simpleType>
+                            <xs:simpleType name="RelationshipType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:restriction base="xs:anyURI">
+                                    <xs:enumeration value="http://www.w3.org/2005/08/addressing/reply"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                            <xs:element name="ReplyTo"
+                                type="tns:EndpointReferenceType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="From"
+                                type="tns:EndpointReferenceType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="FaultTo"
+                                type="tns:EndpointReferenceType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="To"
+                                type="tns:AttributedURIType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="Action"
+                                type="tns:AttributedURIType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType mixed="false"
+                                name="AttributedURIType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:anyURI">
+                                    <xs:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                            <xs:attribute name="IsReferenceParameter"
+                                type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:simpleType name="FaultCodesOpenEnumType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:union memberTypes="tns:FaultCodesType xs:QName"/>
+                            </xs:simpleType>
+                            <xs:simpleType name="FaultCodesType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:restriction base="xs:QName">
+                                    <xs:enumeration value="tns:InvalidAddressingHeader"/>
+                                    <xs:enumeration value="tns:InvalidAddress"/>
+                                    <xs:enumeration value="tns:InvalidEPR"/>
+                                    <xs:enumeration value="tns:InvalidCardinality"/>
+                                    <xs:enumeration value="tns:MissingAddressInEPR"/>
+                                    <xs:enumeration value="tns:DuplicateMessageID"/>
+                                    <xs:enumeration value="tns:ActionMismatch"/>
+                                    <xs:enumeration value="tns:MessageAddressingHeaderRequired"/>
+                                    <xs:enumeration value="tns:DestinationUnreachable"/>
+                                    <xs:enumeration value="tns:ActionNotSupported"/>
+                                    <xs:enumeration value="tns:EndpointUnavailable"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                            <xs:element name="RetryAfter"
+                                type="tns:AttributedUnsignedLongType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType mixed="false"
+                                name="AttributedUnsignedLongType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:unsignedLong">
+                                    <xs:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                            <xs:element name="ProblemHeaderQName"
+                                type="tns:AttributedQNameType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType mixed="false"
+                                name="AttributedQNameType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:simpleContent>
+                                    <xs:extension base="xs:QName">
+                                    <xs:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xs:extension>
+                                </xs:simpleContent>
+                            </xs:complexType>
+                            <xs:element name="ProblemHeader"
+                                type="tns:AttributedAnyType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType mixed="false"
+                                name="AttributedAnyType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:sequence>
+                                    <xs:any maxOccurs="1" minOccurs="1"
+                                    namespace="##any" processContents="lax"/>
+                                </xs:sequence>
+                                <xs:anyAttribute namespace="##other" processContents="lax"/>
+                            </xs:complexType>
+                            <xs:element name="ProblemIRI"
+                                type="tns:AttributedURIType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="ProblemAction"
+                                type="tns:ProblemActionType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType mixed="false"
+                                name="ProblemActionType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:sequence>
+                                    <xs:element minOccurs="0" ref="tns:Action"/>
+                                    <xs:element minOccurs="0"
+                                    name="SoapAction" type="xs:anyURI"/>
+                                </xs:sequence>
+                                <xs:anyAttribute namespace="##other" processContents="lax"/>
+                            </xs:complexType>
+                        </xsd:schema>
+                        <xsd:schema elementFormDefault="qualified"
+                            targetNamespace="http://schemas.xmlsoap.org/ws/2004/09/mex"
+                            xmlns:tns="http://schemas.xmlsoap.org/ws/2004/09/mex"
+                            xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                            <xs:import
+                                namespace="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="GetMetadata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                    <xs:element minOccurs="0" ref="tns:Dialect"/>
+                                    <xs:element minOccurs="0" ref="tns:Identifier"/>
+                                    </xs:sequence>
+                                    <xs:anyAttribute namespace="##other" processContents="lax"/>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="Dialect" type="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="Identifier"
+                                type="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="Metadata" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                    <xs:element
+                                    maxOccurs="unbounded"
+                                    minOccurs="0" ref="tns:MetadataSection"/>
+                                    </xs:sequence>
+                                    <xs:anyAttribute namespace="##other" processContents="lax"/>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="MetadataSection" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:complexType>
+                                    <xs:choice>
+                                    <xs:any maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                    <xs:element ref="tns:MetadataReference"/>
+                                    <xs:element ref="tns:Location"/>
+                                    </xs:choice>
+                                    <xs:attribute name="Dialect"
+                                    type="xs:anyURI" use="required"/>
+                                    <xs:attribute name="Identifier" type="xs:anyURI"/>
+                                    <xs:anyAttribute namespace="##other" processContents="lax"/>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="MetadataReference"
+                                type="wsa:EndpointReferenceType" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:element name="Location" type="xs:anyURI" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                            <xs:complexType name="AnyXmlType" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                                <xs:sequence>
+                                    <xs:any namespace="##any" processContents="lax"/>
+                                </xs:sequence>
+                                <xs:anyAttribute namespace="##any" processContents="lax"/>
+                            </xs:complexType>
+                        </xsd:schema>
+                        <xsd:schema attributeFormDefault="unqualified"
+                            elementFormDefault="qualified"
+                            targetNamespace="http://docs.oasis-open.org/wsrf/rl-2"
+                            xmlns="http://www.w3.org/2001/XMLSchema"
+                            xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+                            xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2"/>
+                            <xsd:element name="CurrentTime">
+                                <xsd:complexType>
+                                    <xsd:simpleContent>
+                                    <xsd:extension base="xsd:dateTime">
+                                    <xsd:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:extension>
+                                    </xsd:simpleContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="TerminationTime" nillable="true">
+                                <xsd:complexType>
+                                    <xsd:simpleContent>
+                                    <xsd:extension base="xsd:dateTime">
+                                    <xsd:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:extension>
+                                    </xsd:simpleContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="ScheduledResourceTerminationRP">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="1" ref="wsrf-rl:CurrentTime"/>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="1" ref="wsrf-rl:TerminationTime"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="Destroy">
+                                <xsd:complexType/>
+                            </xsd:element>
+                            <xsd:element name="DestroyResponse">
+                                <xsd:complexType/>
+                            </xsd:element>
+                            <xsd:complexType name="ResourceNotDestroyedFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="ResourceNotDestroyedFault" type="wsrf-rl:ResourceNotDestroyedFaultType"/>
+                            <xsd:element name="SetTerminationTime">
+                                <xsd:complexType>
+                                    <xsd:choice>
+                                    <xsd:element
+                                    name="RequestedTerminationTime"
+                                    nillable="true" type="xsd:dateTime"/>
+                                    <xsd:element
+                                    name="RequestedLifetimeDuration" type="xsd:duration"/>
+                                    </xsd:choice>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="SetTerminationTimeResponse">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    name="NewTerminationTime"
+                                    nillable="true" type="xsd:dateTime"/>
+                                    <xsd:element name="CurrentTime" type="xsd:dateTime"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:complexType name="UnableToSetTerminationTimeFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="UnableToSetTerminationTimeFault" type="wsrf-rl:UnableToSetTerminationTimeFaultType"/>
+                            <xsd:complexType name="TerminationTimeChangeRejectedFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="TerminationTimeChangeRejectedFault" type="wsrf-rl:TerminationTimeChangeRejectedFaultType"/>
+                            <xsd:element name="TerminationNotification">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="1"
+                                    name="TerminationTime"
+                                    nillable="true" type="xsd:dateTime"/>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0"
+                                    name="TerminationReason" type="xsd:anyType"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:schema>
+                        <xsd:schema attributeFormDefault="unqualified"
+                            elementFormDefault="qualified"
+                            targetNamespace="http://docs.oasis-open.org/wsrf/rp-2"
+                            xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2" xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2">
+                            <xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2"/>
+                            <xsd:element name="QueryExpressionDialect" type="xsd:anyURI"/>
+                            <xsd:element name="QueryExpressionRPDocument">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    maxOccurs="unbounded"
+                                    minOccurs="0" ref="wsrf-rp:QueryExpressionDialect"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:attribute name="ResourceProperties" type="xsd:QName"/>
+                            <xsd:complexType name="ResourcePropertyValueChangeNotificationType">
+                                <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0" name="OldValues" nillable="true">
+                                    <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any
+                                    maxOccurs="unbounded" minOccurs="1"/>
+                                    </xsd:sequence>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="1" name="NewValues" nillable="true">
+                                    <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any
+                                    maxOccurs="unbounded" minOccurs="1"/>
+                                    </xsd:sequence>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="ResourcePropertyValueChangeNotification" type="wsrf-rp:ResourcePropertyValueChangeNotificationType"/>
+                            <xsd:complexType mixed="true" name="QueryExpressionType">
+                                <xsd:sequence>
+                                    <xsd:any maxOccurs="1" minOccurs="0" processContents="lax"/>
+                                </xsd:sequence>
+                                <xsd:attribute name="Dialect" type="xsd:anyURI"/>
+                            </xsd:complexType>
+                            <xsd:element name="QueryExpression" type="wsrf-rp:QueryExpressionType"/>
+                            <xsd:element name="GetResourcePropertyDocument">
+                                <xsd:complexType/>
+                            </xsd:element>
+                            <xsd:element name="GetResourcePropertyDocumentResponse">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any maxOccurs="1" minOccurs="1"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="GetResourceProperty" type="xsd:QName"/>
+                            <xsd:element name="GetResourcePropertyResponse">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any maxOccurs="unbounded" minOccurs="0"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:complexType name="InvalidResourcePropertyQNameFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="InvalidResourcePropertyQNameFault" type="wsrf-rp:InvalidResourcePropertyQNameFaultType"/>
+                            <xsd:element name="GetMultipleResourceProperties">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    maxOccurs="unbounded"
+                                    minOccurs="1"
+                                    name="ResourceProperty" type="xsd:QName"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="GetMultipleResourcePropertiesResponse">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any maxOccurs="unbounded" minOccurs="0"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="PutResourcePropertyDocument">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any maxOccurs="1" minOccurs="1"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="PutResourcePropertyDocumentResponse">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any maxOccurs="1" minOccurs="0"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:complexType name="ResourcePropertyChangeFailureType">
+                                <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0" name="CurrentValue">
+                                    <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any
+                                    maxOccurs="unbounded" minOccurs="1"/>
+                                    </xsd:sequence>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0" name="RequestedValue">
+                                    <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any
+                                    maxOccurs="unbounded" minOccurs="1"/>
+                                    </xsd:sequence>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                                <xsd:attribute name="Restored" type="xsd:boolean"/>
+                            </xsd:complexType>
+                            <xsd:complexType name="UnableToPutResourcePropertyDocumentFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    name="ResourcePropertyChangeFailure" type="wsrf-rp:ResourcePropertyChangeFailureType"/>
+                                    </xsd:sequence>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="UnableToPutResourcePropertyDocumentFault" type="wsrf-rp:UnableToPutResourcePropertyDocumentFaultType"/>
+                            <xsd:complexType name="InsertType">
+                                <xsd:sequence>
+                                    <xsd:any maxOccurs="unbounded"
+                                    minOccurs="1" processContents="lax"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="Insert" type="wsrf-rp:InsertType"/>
+                            <xsd:complexType name="UpdateType">
+                                <xsd:sequence>
+                                    <xsd:any maxOccurs="unbounded"
+                                    minOccurs="1" processContents="lax"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="Update" type="wsrf-rp:UpdateType"/>
+                            <xsd:complexType name="DeleteType">
+                                <xsd:attribute name="ResourceProperty"
+                                    type="xsd:QName" use="required"/>
+                            </xsd:complexType>
+                            <xsd:element name="Delete" type="wsrf-rp:DeleteType"/>
+                            <xsd:element name="SetResourceProperties">
+                                <xsd:complexType>
+                                    <xsd:choice maxOccurs="unbounded" minOccurs="1">
+                                    <xsd:element ref="wsrf-rp:Insert"/>
+                                    <xsd:element ref="wsrf-rp:Update"/>
+                                    <xsd:element ref="wsrf-rp:Delete"/>
+                                    </xsd:choice>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="SetResourcePropertiesResponse">
+                                <xsd:complexType/>
+                            </xsd:element>
+                            <xsd:complexType name="InvalidModificationFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    name="ResourcePropertyChangeFailure" type="wsrf-rp:ResourcePropertyChangeFailureType"/>
+                                    </xsd:sequence>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element name="InvalidModificationFault" type="wsrf-rp:InvalidModificationFaultType"/>
+                            <xsd:complexType name="UnableToModifyResourcePropertyFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    name="ResourcePropertyChangeFailure" type="wsrf-rp:ResourcePropertyChangeFailureType"/>
+                                    </xsd:sequence>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="UnableToModifyResourcePropertyFault" type="wsrf-rp:UnableToModifyResourcePropertyFaultType"/>
+                            <xsd:complexType name="SetResourcePropertyRequestFailedFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    name="ResourcePropertyChangeFailure" type="wsrf-rp:ResourcePropertyChangeFailureType"/>
+                                    </xsd:sequence>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="SetResourcePropertyRequestFailedFault" type="wsrf-rp:SetResourcePropertyRequestFailedFaultType"/>
+                            <xsd:complexType name="InsertResourcePropertiesRequestFailedFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    name="ResourcePropertyChangeFailure" type="wsrf-rp:ResourcePropertyChangeFailureType"/>
+                                    </xsd:sequence>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="InsertResourcePropertiesRequestFailedFault" type="wsrf-rp:InsertResourcePropertiesRequestFailedFaultType"/>
+                            <xsd:complexType name="UpdateResourcePropertiesRequestFailedFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    name="ResourcePropertyChangeFailure" type="wsrf-rp:ResourcePropertyChangeFailureType"/>
+                                    </xsd:sequence>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="UpdateResourcePropertiesRequestFailedFault" type="wsrf-rp:UpdateResourcePropertiesRequestFailedFaultType"/>
+                            <xsd:complexType name="DeleteResourcePropertiesRequestFailedFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    name="ResourcePropertyChangeFailure" type="wsrf-rp:ResourcePropertyChangeFailureType"/>
+                                    </xsd:sequence>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="DeleteResourcePropertiesRequestFailedFault" type="wsrf-rp:DeleteResourcePropertiesRequestFailedFaultType"/>
+                            <xsd:element name="InsertResourceProperties">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element ref="wsrf-rp:Insert"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="InsertResourcePropertiesResponse">
+                                <xsd:complexType/>
+                            </xsd:element>
+                            <xsd:element name="UpdateResourceProperties">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element ref="wsrf-rp:Update"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="UpdateResourcePropertiesResponse">
+                                <xsd:complexType/>
+                            </xsd:element>
+                            <xsd:element name="DeleteResourceProperties">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element ref="wsrf-rp:Delete"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="DeleteResourcePropertiesResponse">
+                                <xsd:complexType/>
+                            </xsd:element>
+                            <xsd:element name="QueryResourceProperties">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="1" ref="wsrf-rp:QueryExpression"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="QueryResourcePropertiesResponse">
+                                <xsd:complexType>
+                                    <xsd:complexContent mixed="true">
+                                    <xsd:restriction base="xsd:anyType">
+                                    <xsd:sequence>
+                                    <xsd:any
+                                    maxOccurs="unbounded"
+                                    minOccurs="1" processContents="lax"/>
+                                    </xsd:sequence>
+                                    </xsd:restriction>
+                                    </xsd:complexContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:complexType name="UnknownQueryExpressionDialectFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="UnknownQueryExpressionDialectFault" type="wsrf-rp:UnknownQueryExpressionDialectFaultType"/>
+                            <xsd:complexType name="InvalidQueryExpressionFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="InvalidQueryExpressionFault" type="wsrf-rp:InvalidQueryExpressionFaultType"/>
+                            <xsd:complexType name="QueryEvaluationErrorFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="QueryEvaluationErrorFault" type="wsrf-rp:QueryEvaluationErrorFaultType"/>
+                        </xsd:schema>
+                        <xsd:schema attributeFormDefault="unqualified"
+                            elementFormDefault="qualified"
+                            targetNamespace="http://docs.oasis-open.org/wsrf/r-2"
+                            xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+                            xmlns:wsrf-r="http://docs.oasis-open.org/wsrf/r-2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2"/>
+                            <xsd:complexType name="ResourceUnknownFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element name="ResourceUnknownFault" type="wsrf-r:ResourceUnknownFaultType"/>
+                            <xsd:complexType name="ResourceUnavailableFaultType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element name="ResourceUnavailableFault" type="wsrf-r:ResourceUnavailableFaultType"/>
+                        </xsd:schema>
+                        <xsd:schema elementFormDefault="qualified"
+                            targetNamespace="http://docs.oasis-open.org/wsrf/rmd-1"
+                            xmlns="http://www.w3.org/2001/XMLSchema"
+                            xmlns:wsa="http://www.w3.org/2005/08/addressing"
+                            xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2" xmlns:wsrmd="http://docs.oasis-open.org/wsrf/rmd-1">
+                            <xsd:import namespace="http://docs.oasis-open.org/wsrf/rp-2"/>
+                            <xsd:import namespace="http://www.w3.org/2005/08/addressing"/>
+                            <xsd:simpleType name="PairsOfURIType">
+                                <xsd:list itemType="xsd:anyURI"/>
+                            </xsd:simpleType>
+                            <xsd:attribute name="Descriptor" type="xsd:QName"/>
+                            <xsd:attribute name="DescriptorLocation" type="xsd:anyURI"/>
+                            <xsd:complexType mixed="true" name="DocumentationType">
+                                <xsd:sequence>
+                                    <xsd:any maxOccurs="unbounded"
+                                    minOccurs="0" namespace="##any" processContents="lax"/>
+                                </xsd:sequence>
+                                <xsd:anyAttribute/>
+                            </xsd:complexType>
+                            <xsd:complexType name="DocumentedType">
+                                <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0"
+                                    name="documentation" type="wsrmd:DocumentationType"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="DefinitionsType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrmd:DocumentedType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    maxOccurs="unbounded"
+                                    minOccurs="0" ref="wsrmd:MetadataDescriptor"/>
+                                    <xsd:any
+                                    maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:sequence>
+                                    <xsd:attribute
+                                    name="targetNamespace"
+                                    type="xsd:anyURI" use="required"/>
+                                    <xsd:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element name="Definitions" type="wsrmd:DefinitionsType">
+                                <xsd:key name="MetadataDescriptor">
+                                    <xsd:annotation>
+                                    <xsd:documentation>
+          To form a QName, the name of any MetadataDescriptor must be 
+          unique within a Definitions element.
+        </xsd:documentation>
+                                    </xsd:annotation>
+                                    <xsd:selector xpath="wsrmd:MetadataDescriptor"/>
+                                    <xsd:field xpath="@name"/>
+                                </xsd:key>
+                            </xsd:element>
+                            <xsd:complexType name="MetadataDescriptorType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrmd:DocumentedType">
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    maxOccurs="unbounded"
+                                    minOccurs="0" ref="wsrmd:Property"/>
+                                    <xsd:any
+                                    maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:sequence>
+                                    <xsd:attribute name="name"
+                                    type="xsd:NCName" use="required"/>
+                                    <xsd:attribute name="interface"
+                                    type="xsd:QName" use="required"/>
+                                    <xsd:attribute
+                                    name="wsdlLocation" type="wsrmd:PairsOfURIType"/>
+                                    <xsd:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element name="MetadataDescriptor" type="wsrmd:MetadataDescriptorType"/>
+                            <xsd:complexType name="PropertyType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsrmd:DocumentedType">
+                                    <xsd:sequence>
+                                    <xsd:choice>
+                                    <xsd:element
+                                    maxOccurs="1"
+                                    minOccurs="0" ref="wsrmd:ValidValues"/>
+                                    <xsd:element
+                                    maxOccurs="1"
+                                    minOccurs="0" ref="wsrmd:ValidValueRange"/>
+                                    </xsd:choice>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0" ref="wsrmd:StaticValues"/>
+                                    <xsd:any
+                                    maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:sequence>
+                                    <xsd:attribute name="name"
+                                    type="xsd:QName" use="required"/>
+                                    <xsd:attribute name="mutability" type="wsrmd:MutabilityType"/>
+                                    <xsd:attribute
+                                    name="modifiability" type="wsrmd:ModifiabilityType"/>
+                                    <xsd:attribute default="false"
+                                    name="subscribability" type="xsd:boolean"/>
+                                    <xsd:anyAttribute
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:extension>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element name="Property" type="wsrmd:PropertyType"/>
+                            <xsd:simpleType name="MutabilityType">
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="constant"/>
+                                    <xsd:enumeration value="appendable"/>
+                                    <xsd:enumeration value="mutable"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                            <xsd:simpleType name="ModifiabilityType">
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="read-only"/>
+                                    <xsd:enumeration value="read-write"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                            <xsd:complexType mixed="true" name="ValidValuesType">
+                                <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0"
+                                    name="documentation" type="wsrmd:DocumentationType"/>
+                                    <xsd:any maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                </xsd:sequence>
+                                <xsd:anyAttribute namespace="##other" processContents="lax"/>
+                            </xsd:complexType>
+                            <xsd:element name="ValidValues" type="wsrmd:ValidValuesType"/>
+                            <xsd:complexType mixed="true" name="ValidValueRangeType">
+                                <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0"
+                                    name="documentation" type="wsrmd:DocumentationType"/>
+                                    <xsd:any maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                </xsd:sequence>
+                                <xsd:attribute name="lowerBound" type="xsd:anySimpleType"/>
+                                <xsd:attribute name="upperBound" type="xsd:anySimpleType"/>
+                                <xsd:anyAttribute namespace="##other" processContents="lax"/>
+                            </xsd:complexType>
+                            <xsd:element name="ValidValueRange" type="wsrmd:ValidValueRangeType"/>
+                            <xsd:complexType mixed="true" name="StaticValuesType">
+                                <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0"
+                                    name="documentation" type="wsrmd:DocumentationType"/>
+                                    <xsd:any maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                </xsd:sequence>
+                                <xsd:anyAttribute namespace="##other" processContents="lax"/>
+                            </xsd:complexType>
+                            <xsd:element name="StaticValues" type="wsrmd:StaticValuesType"/>
+                            <xsd:complexType mixed="true" name="InitialValuesType">
+                                <xsd:sequence>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0"
+                                    name="documentation" type="wsrmd:DocumentationType"/>
+                                    <xsd:any maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                </xsd:sequence>
+                                <xsd:anyAttribute namespace="##other" processContents="lax"/>
+                            </xsd:complexType>
+                            <xsd:element name="InitialValues" type="wsrmd:InitialValuesType"/>
+                            <xsd:complexType name="MetadataDescriptorReferenceType">
+                                <xsd:complexContent>
+                                    <xsd:extension base="wsa:EndpointReferenceType"/>
+                                </xsd:complexContent>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="MetadataDescriptorReference" type="wsrmd:MetadataDescriptorReferenceType"/>
+                            <xsd:element name="MetadataResourceRP" type="wsrmd:DefinitionsType"/>
+                        </xsd:schema>
+                        <xsd:schema elementFormDefault="qualified" targetNamespace="http://amqp.apache.org/qpid/management/qman">
+                            <xsd:import namespace="http://docs.oasis-open.org/wsrf/rl-2"/>
+                            <xsd:import namespace="http://docs.oasis-open.org/wsrf/rp-2"/>
+                            <xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2"/>
+                            <xsd:element name="QManWsResourceProperties">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element ref="wsrf-rl:CurrentTime"/>
+                                    <xsd:element ref="wsrf-rl:TerminationTime"/>
+                                    <xsd:element
+                                    maxOccurs="unbounded"
+                                    minOccurs="0" ref="wsrf-rp:QueryExpressionDialect"/>
+                                    <xsd:element ref="qman:Name"/>
+                                    <xsd:element ref="qman:Type"/>
+                                    <xsd:element ref="qman:Arguments"/>
+                                    <xsd:element ref="qman:VhostRef"/>
+                                    <xsd:element ref="qman:Durable"/>
+                                    <xsd:element ref="qman:MsgTotalEnqueues"/>
+                                    <xsd:element ref="qman:ConsumerCount"/>
+                                    <xsd:element ref="qman:ExpireTime"/>
+                                    <xsd:element ref="qman:MgmtPubInterval"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="QManFault">
+                                <xsd:complexType>
+                                    <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                    </xsd:complexContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="MethodInvocationFault">
+                                <xsd:complexType>
+                                    <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                    </xsd:complexContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="EntityInstanceNotFoundFault">
+                                <xsd:complexType>
+                                    <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                    </xsd:complexContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="MalformedEntityNameFault">
+                                <xsd:complexType>
+                                    <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                    </xsd:complexContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="NoSuchAttributeFault">
+                                <xsd:complexType>
+                                    <xsd:complexContent>
+                                    <xsd:extension base="wsrf-bf:BaseFaultType"/>
+                                    </xsd:complexContent>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:complexType name="result">
+                                <xsd:sequence>
+                                    <xsd:element name="statusCode" type="xsd:long"/>
+                                    <xsd:element name="statusText" type="xsd:string"/>
+                                    <xsd:complexType name="outputParameters">
+                                    <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element
+                                    maxOccurs="unbounded"
+                                    minOccurs="0" name="entry">
+                                    <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:name
+                                    name="key" type="xsd:string"/>
+                                    <xsd:element
+                                    name="value" type="xsd:anyType"/>
+                                    </xsd:sequence>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                    </xsd:sequence>
+                                    </xsd:complexType>
+                                    </xsd:complexType>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="Name" type="xsd:string"/>
+                            <xsd:element name="Type" type="xsd:string"/>
+                            <xsd:complexType name="map">
+                                <xsd:sequence>
+                                    <xsd:element maxOccurs="unbounded"
+                                    minOccurs="0" name="entry">
+                                    <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:element name="key" type="xsd:string"/>
+                                    <xsd:element
+                                    name="value" type="xsd:anyType"/>
+                                    </xsd:sequence>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="Arguments" type="qman:map"/>
+                            <xsd:complexType name="uuid">
+                                <xsd:sequence>
+                                    <xsd:element name="uuid" type="xsd:string"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="VhostRef" type="qman:uuid"/>
+                            <xsd:element name="Durable" type="xsd:boolean"/>
+                            <xsd:element name="MsgTotalEnqueues" type="xsd:long"/>
+                            <xsd:element name="ConsumerCount" type="xsd:integer"/>
+                            <xsd:element name="ExpireTime" type="xsd:dateTime"/>
+                            <xsd:element name="MgmtPubInterval" type="xsd:short"/>
+                            <xsd:element
+                                name="echoWithSimpleTypesRequest" type="qman:echoWithSimpleTypesRequest"/>
+                            <xsd:element
+                                name="echoWithSimpleTypesResponse" type="qman:echoWithSimpleTypesResponse"/>
+                            <xsd:complexType name="echoWithSimpleTypesRequest">
+                                <xsd:sequence>
+                                    <xsd:element name="p1" type="xsd:long"/>
+                                    <xsd:element name="p2" type="xsd:boolean"/>
+                                    <xsd:element name="p3" type="xsd:double"/>
+                                    <xsd:element name="p4" type="xsd:float"/>
+                                    <xsd:element name="p5" type="xsd:integer"/>
+                                    <xsd:element name="p6" type="xsd:short"/>
+                                    <xsd:element name="p7" type="xsd:string"/>
+                                    <xsd:element name="p8" type="xsd:anyURI"/>
+                                    <xsd:element name="p9" type="xsd:dateTime"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithSimpleTypesResponse">
+                                <xsd:sequence>
+                                    <xsd:element name="result" type="qman:result"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="echoWithArraysRequest" type="qman:echoWithArraysRequest"/>
+                            <xsd:element name="echoWithArraysResponse" type="qman:echoWithArraysResponse"/>
+                            <xsd:complexType name="arrayOfLong">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:long"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfBoolean">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:boolean"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfDouble">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:double"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfFloat">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:float"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfInteger">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:integer"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfShort">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:short"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfString">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:string"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfURI">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:anyURI"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfDate">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:dateTime"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithArraysRequest">
+                                <xsd:sequence>
+                                    <xsd:element name="p1" type="qman:arrayOfLong"/>
+                                    <xsd:element name="p2" type="qman:arrayOfBoolean"/>
+                                    <xsd:element name="p3" type="qman:arrayOfDouble"/>
+                                    <xsd:element name="p4" type="qman:arrayOfFloat"/>
+                                    <xsd:element name="p5" type="qman:arrayOfInteger"/>
+                                    <xsd:element name="p6" type="qman:arrayOfShort"/>
+                                    <xsd:element name="p7" type="qman:arrayOfString"/>
+                                    <xsd:element name="p8" type="qman:arrayOfURI"/>
+                                    <xsd:element name="p9" type="qman:arrayOfDate"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithArraysResponse">
+                                <xsd:sequence>
+                                    <xsd:element name="result" type="qman:result"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="echoWithSimpleTypeArraysRequest" type="qman:echoWithSimpleTypeArraysRequest"/>
+                            <xsd:element
+                                name="echoWithSimpleTypeArraysResponse" type="qman:echoWithSimpleTypeArraysResponse"/>
+                            <xsd:complexType name="arrayOfLong">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:long"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfBoolean">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:boolean"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfDouble">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:double"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfFloat">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:float"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfInt">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:integer"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="arrayOfShort">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type="xsd:short"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithSimpleTypeArraysRequest">
+                                <xsd:sequence>
+                                    <xsd:element name="p1" type="qman:arrayOfLong"/>
+                                    <xsd:element name="p2" type="qman:arrayOfBoolean"/>
+                                    <xsd:element name="p3" type="qman:arrayOfDouble"/>
+                                    <xsd:element name="p4" type="qman:arrayOfFloat"/>
+                                    <xsd:element name="p5" type="qman:arrayOfInt"/>
+                                    <xsd:element name="p6" type="qman:arrayOfShort"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithSimpleTypeArraysResponse">
+                                <xsd:sequence>
+                                    <xsd:element name="result" type="qman:result"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="echoWithByteArrayRequest" type="qman:echoWithByteArrayRequest"/>
+                            <xsd:element
+                                name="echoWithByteArrayResponse" type="qman:echoWithByteArrayResponse"/>
+                            <xsd:complexType name="arrayOfByte">
+                                <xsd:sequence>
+                                    <xsd:element name="entry" type=""/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithByteArrayRequest">
+                                <xsd:sequence>
+                                    <xsd:element name="p1" type="qman:arrayOfByte"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithByteArrayResponse">
+                                <xsd:sequence>
+                                    <xsd:element name="result" type="qman:result"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element
+                                name="voidWithoutArgumentsRequest" type="qman:voidWithoutArgumentsRequest"/>
+                            <xsd:element
+                                name="voidWithoutArgumentsResponse" type="qman:voidWithoutArgumentsResponse"/>
+                            <xsd:complexType name="voidWithoutArgumentsRequest">
+                                <xsd:sequence/>
+                            </xsd:complexType>
+                            <xsd:complexType name="voidWithoutArgumentsResponse">
+                                <xsd:sequence>
+                                    <xsd:element name="result" type="qman:result"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="throwsExceptionRequest" type="qman:throwsExceptionRequest"/>
+                            <xsd:element name="throwsExceptionResponse" type="qman:throwsExceptionResponse"/>
+                            <xsd:complexType name="throwsExceptionRequest">
+                                <xsd:sequence/>
+                            </xsd:complexType>
+                            <xsd:complexType name="throwsExceptionResponse">
+                                <xsd:sequence>
+                                    <xsd:element name="result" type="qman:result"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="echoWithUUIDRequest" type="qman:echoWithUUIDRequest"/>
+                            <xsd:element name="echoWithUUIDResponse" type="qman:echoWithUUIDResponse"/>
+                            <xsd:complexType name="echoWithUUIDRequest">
+                                <xsd:sequence>
+                                    <xsd:element name="p1" type="qman:uuid"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithUUIDResponse">
+                                <xsd:sequence>
+                                    <xsd:element name="result" type="qman:result"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:element name="echoWithMapRequest" type="qman:echoWithMapRequest"/>
+                            <xsd:element name="echoWithMapResponse" type="qman:echoWithMapResponse"/>
+                            <xsd:complexType name="echoWithMapRequest">
+                                <xsd:sequence>
+                                    <xsd:element name="p1" type="qman:map"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                            <xsd:complexType name="echoWithMapResponse">
+                                <xsd:sequence>
+                                    <xsd:element name="result" type="qman:result"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:schema>
+                        <xsd:schema attributeFormDefault="unqualified"
+                            elementFormDefault="qualified"
+                            targetNamespace="http://docs.oasis-open.org/wsrf/bf-2"
+                            xmlns="http://www.w3.org/2001/XMLSchema"
+                            xmlns:wsa="http://www.w3.org/2005/08/addressing"
+                            xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+                            xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <xsd:import namespace="http://www.w3.org/2005/08/addressing"/>
+                            <xsd:import namespace="http://www.w3.org/XML/1998/namespace">
+                                <xsd:annotation>
+                                    <xsd:documentation>
+        Get access to the xml: attribute groups for xml:lang as declared on 'schema'
+        and 'documentation' below
+      </xsd:documentation>
+                                </xsd:annotation>
+                            </xsd:import>
+                            <xsd:element name="BaseFault" type="wsrf-bf:BaseFaultType"/>
+                            <xsd:complexType name="BaseFaultType">
+                                <xsd:sequence>
+                                    <xsd:any maxOccurs="unbounded"
+                                    minOccurs="0"
+                                    namespace="##other" processContents="lax"/>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="1" name="Timestamp" type="xsd:dateTime"/>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0" name="Originator" type="wsa:EndpointReferenceType"/>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0" name="ErrorCode">
+                                    <xsd:complexType>
+                                    <xsd:complexContent mixed="true">
+                                    <xsd:extension base="xsd:anyType">
+                                    <xsd:attribute
+                                    name="dialect"
+                                    type="xsd:anyURI" use="required"/>
+                                    </xsd:extension>
+                                    </xsd:complexContent>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                    <xsd:element maxOccurs="unbounded"
+                                    minOccurs="0" name="Description">
+                                    <xsd:complexType>
+                                    <xsd:simpleContent>
+                                    <xsd:extension base="xsd:string">
+                                    <xsd:attribute
+                                    ref="xml:lang" use="optional"/>
+                                    </xsd:extension>
+                                    </xsd:simpleContent>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                    <xsd:element maxOccurs="1"
+                                    minOccurs="0" name="FaultCause">
+                                    <xsd:complexType>
+                                    <xsd:sequence>
+                                    <xsd:any maxOccurs="1"
+                                    minOccurs="1"
+                                    namespace="##other" processContents="lax"/>
+                                    </xsd:sequence>
+                                    </xsd:complexType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                                <xsd:anyAttribute namespace="##other" processContents="lax"/>
+                            </xsd:complexType>
+                        </xsd:schema>
+                        <xs:schema
+                            targetNamespace="http://www.w3.org/XML/1998/namespace"
+                            xml:lang="en" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                            <xs:attribute name="lang" type="xs:language"/>
+                            <xs:attribute default="preserve" name="space">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:NCName">
+                                    <xs:enumeration value="default"/>
+                                    <xs:enumeration value="preserve"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:attribute>
+                            <xs:attribute name="base" type="xs:anyURI"/>
+                            <xs:attributeGroup name="specialAttrs">
+                                <xs:attribute ref="xml:base"/>
+                                <xs:attribute ref="xml:lang"/>
+                                <xs:attribute ref="xml:space"/>
+                            </xs:attributeGroup>
+                        </xs:schema>
+                    </wsdl:types>
+                    <wsdl:message name="GetMetadataMsg">
+                        <wsdl:part element="wsx:GetMetadata" name="GetMetadataMsg"/>
+                    </wsdl:message>
+                    <wsdl:message name="GetMetadataResponseMsg">
+                        <wsdl:part element="wsx:Metadata" name="GetMetadataResponseMsg"/>
+                    </wsdl:message>
+                    <wsdl:message name="DestroyRequest">
+                        <wsdl:part element="wsrf-rl:Destroy" name="DestroyRequest"/>
+                    </wsdl:message>
+                    <wsdl:message name="DestroyResponse">
+                        <wsdl:part element="wsrf-rl:DestroyResponse" name="DestroyResponse"/>
+                    </wsdl:message>
+                    <wsdl:message name="ResourceNotDestroyedFault">
+                        <wsdl:part
+                            element="wsrf-rl:ResourceNotDestroyedFault" name="ResourceNotDestroyedFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="ResourceUnknownFault">
+                        <wsdl:part element="wsrf-r:ResourceUnknownFault" name="ResourceUnknownFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="ResourceUnavailableFault">
+                        <wsdl:part
+                            element="wsrf-r:ResourceUnavailableFault" name="ResourceUnavailableFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="SetTerminationTimeRequest">
+                        <wsdl:part element="wsrf-rl:SetTerminationTime" name="SetTerminationTimeRequest"/>
+                    </wsdl:message>
+                    <wsdl:message name="SetTerminationTimeResponse">
+                        <wsdl:part
+                            element="wsrf-rl:SetTerminationTimeResponse" name="SetTerminationTimeResponse"/>
+                    </wsdl:message>
+                    <wsdl:message name="UnableToSetTerminationTimeFault">
+                        <wsdl:part
+                            element="wsrf-rl:UnableToSetTerminationTimeFault" name="UnableToSetTerminationTimeFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="TerminationTimeChangeRejectedFault">
+                        <wsdl:part
+                            element="wsrf-rl:TerminationTimeChangeRejectedFault" name="TerminationTimeChangeRejectedFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="GetResourcePropertyDocumentRequest">
+                        <wsdl:part
+                            element="wsrf-rp:GetResourcePropertyDocument" name="GetResourcePropertyDocumentRequest"/>
+                    </wsdl:message>
+                    <wsdl:message name="GetResourcePropertyDocumentResponse">
+                        <wsdl:part
+                            element="wsrf-rp:GetResourcePropertyDocumentResponse" name="GetResourcePropertyDocumentResponse"/>
+                    </wsdl:message>
+                    <wsdl:message name="GetResourcePropertyRequest">
+                        <wsdl:part element="wsrf-rp:GetResourceProperty" name="GetResourcePropertyRequest"/>
+                    </wsdl:message>
+                    <wsdl:message name="GetResourcePropertyResponse">
+                        <wsdl:part
+                            element="wsrf-rp:GetResourcePropertyResponse" name="GetResourcePropertyResponse"/>
+                    </wsdl:message>
+                    <wsdl:message name="InvalidResourcePropertyQNameFault">
+                        <wsdl:part
+                            element="wsrf-rp:InvalidResourcePropertyQNameFault" name="InvalidResourcePropertyQNameFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="GetMultipleResourcePropertiesRequest">
+                        <wsdl:part
+                            element="wsrf-rp:GetMultipleResourceProperties" name="GetMultipleResourcePropertiesRequest"/>
+                    </wsdl:message>
+                    <wsdl:message name="GetMultipleResourcePropertiesResponse">
+                        <wsdl:part
+                            element="wsrf-rp:GetMultipleResourcePropertiesResponse" name="GetMultipleResourcePropertiesResponse"/>
+                    </wsdl:message>
+                    <wsdl:message name="QueryResourcePropertiesRequest">
+                        <wsdl:part
+                            element="wsrf-rp:QueryResourceProperties" name="QueryResourcePropertiesRequest"/>
+                    </wsdl:message>
+                    <wsdl:message name="QueryResourcePropertiesResponse">
+                        <wsdl:part
+                            element="wsrf-rp:QueryResourcePropertiesResponse" name="QueryResourcePropertiesResponse"/>
+                    </wsdl:message>
+                    <wsdl:message name="UnknownQueryExpressionDialectFault">
+                        <wsdl:part
+                            element="wsrf-rp:UnknownQueryExpressionDialectFault" name="UnknownQueryExpressionDialectFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="InvalidQueryExpressionFault">
+                        <wsdl:part
+                            element="wsrf-rp:InvalidQueryExpressionFault" name="InvalidQueryExpressionFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="QueryEvaluationErrorFault">
+                        <wsdl:part
+                            element="wsrf-rp:QueryEvaluationErrorFault" name="QueryEvaluationErrorFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="SetResourcePropertiesRequest">
+                        <wsdl:part
+                            element="wsrf-rp:SetResourceProperties" name="SetResourcePropertiesRequest"/>
+                    </wsdl:message>
+                    <wsdl:message name="SetResourcePropertiesResponse">
+                        <wsdl:part
+                            element="wsrf-rp:SetResourcePropertiesResponse" name="SetResourcePropertiesResponse"/>
+                    </wsdl:message>
+                    <wsdl:message name="InvalidModificationFault">
+                        <wsdl:part
+                            element="wsrf-rp:InvalidModificationFault" name="InvalidModificationFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="UnableToModifyResourcePropertyFault">
+                        <wsdl:part
+                            element="wsrf-rp:UnableToModifyResourcePropertyFault" name="UnableToModifyResourcePropertyFault"/>
+                    </wsdl:message>
+                    <wsdl:message name="SetResourcePropertyRequestFailedFault">
+                        <wsdl:part
+                            element="wsrf-rp:SetResourcePropertyRequestFailedFault" name="SetResourcePropertyRequestFailedFault"/>
+                    </wsdl:message>
+                    <wsdl:portType name="QManWsResourcePortType"
+                        wsrf-rp:ResourceProperties="qman:QManWsResourceProperties"
+                        wsrmd:Descriptor="QManWsResourceMetadata" wsrmd:DescriptorLocation="QManWsResource.rmd">
+                        <wsdl:operation name="GetMetadata">
+                            <wsdl:input message="qman:GetMetadataMsg"
+                                name="GetMetadataMsg" wsa:Action="http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadata"/>
+                            <wsdl:output
+                                message="qman:GetMetadataResponseMsg"
+                                name="GetMetadataResponseMsg" wsa:Action="http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadataResponse"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="Destroy">
+                            <wsdl:input message="qman:DestroyRequest"
+                                name="DestroyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/rlw-2/ImmediateResourceTermination/DestroyRequest"/>
+                            <wsdl:output message="qman:DestroyResponse"
+                                name="DestroyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/rlw-2/ImmediateResourceTermination/DestroyResponse"/>
+                            <wsdl:fault
+                                message="qman:ResourceNotDestroyedFault" name="ResourceNotDestroyedFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnknownFault" name="ResourceUnknownFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnavailableFault" name="ResourceUnavailableFault"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="SetTerminationTime">
+                            <wsdl:input
+                                message="qman:SetTerminationTimeRequest"
+                                name="SetTerminationTimeRequest" wsa:Action="http://docs.oasis-open.org/wsrf/rlw-2/ScheduledResourceTermination/SetTerminationTimeRequest"/>
+                            <wsdl:output
+                                message="qman:SetTerminationTimeResponse"
+                                name="SetTerminationTimeResponse" wsa:Action="http://docs.oasis-open.org/wsrf/rlw-2/ScheduledResourceTermination/SetTerminationTimeResponse"/>
+                            <wsdl:fault
+                                message="qman:UnableToSetTerminationTimeFault" name="UnableToSetTerminationTimeFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnknownFault" name="ResourceUnknownFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnavailableFault" name="ResourceUnavailableFault"/>
+                            <wsdl:fault
+                                message="qman:TerminationTimeChangeRejectedFault" name="TerminationTimeChangeRejectedFault"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="GetResourcePropertyDocument">
+                            <wsdl:input
+                                message="qman:GetResourcePropertyDocumentRequest"
+                                name="GetResourcePropertyDocumentRequest" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetResourcePropertyDocument/GetResourcePropertyDocumentRequest"/>
+                            <wsdl:output
+                                message="qman:GetResourcePropertyDocumentResponse"
+                                name="GetResourcePropertyDocumentResponse" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetResourcePropertyDocument/GetResourcePropertyDocumentResponse"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnknownFault" name="ResourceUnknownFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnavailableFault" name="ResourceUnavailableFault"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="GetResourceProperty">
+                            <wsdl:input
+                                message="qman:GetResourcePropertyRequest"
+                                name="GetResourcePropertyRequest" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyRequest"/>
+                            <wsdl:output
+                                message="qman:GetResourcePropertyResponse"
+                                name="GetResourcePropertyResponse" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyResponse"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnknownFault" name="ResourceUnknownFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnavailableFault" name="ResourceUnavailableFault"/>
+                            <wsdl:fault
+                                message="qman:InvalidResourcePropertyQNameFault" name="InvalidResourcePropertyQNameFault"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="GetMultipleResourceProperties">
+                            <wsdl:input
+                                message="qman:GetMultipleResourcePropertiesRequest"
+                                name="GetMultipleResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetMultipleResourceProperties/GetMultipleResourcePropertiesRequest"/>
+                            <wsdl:output
+                                message="qman:GetMultipleResourcePropertiesResponse"
+                                name="GetMultipleResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetMultipleResourceProperties/GetMultipleResourcePropertiesResponse"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnknownFault" name="ResourceUnknownFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnavailableFault" name="ResourceUnavailableFault"/>
+                            <wsdl:fault
+                                message="qman:InvalidResourcePropertyQNameFault" name="InvalidResourcePropertyQNameFault"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="QueryResourceProperties">
+                            <wsdl:input
+                                message="qman:QueryResourcePropertiesRequest"
+                                name="QueryResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/QueryResourceProperties/QueryResourcePropertiesRequest"/>
+                            <wsdl:output
+                                message="qman:QueryResourcePropertiesResponse"
+                                name="QueryResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/QueryResourceProperties/QueryResourcePropertiesResponse"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnknownFault" name="ResourceUnknownFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnavailableFault" name="ResourceUnavailableFault"/>
+                            <wsdl:fault
+                                message="qman:UnknownQueryExpressionDialectFault" name="UnknownQueryExpressionDialectFault"/>
+                            <wsdl:fault
+                                message="qman:InvalidQueryExpressionFault" name="InvalidQueryExpressionFault"/>
+                            <wsdl:fault
+                                message="qman:QueryEvaluationErrorFault" name="QueryEvaluationErrorFault"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="SetResourceProperties">
+                            <wsdl:input
+                                message="qman:SetResourcePropertiesRequest"
+                                name="SetResourcePropertiesRequest" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/SetResourceProperties/SetResourcePropertiesRequest"/>
+                            <wsdl:output
+                                message="qman:SetResourcePropertiesResponse"
+                                name="SetResourcePropertiesResponse" wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/SetResourceProperties/SetResourcePropertiesResponse"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnknownFault" name="ResourceUnknownFault"/>
+                            <wsdl:fault
+                                message="qman:ResourceUnavailableFault" name="ResourceUnavailableFault"/>
+                            <wsdl:fault
+                                message="qman:InvalidModificationFault" name="InvalidModificationFault"/>
+                            <wsdl:fault
+                                message="qman:UnableToModifyResourcePropertyFault" name="UnableToModifyResourcePropertyFault"/>
+                            <wsdl:fault
+                                message="qman:InvalidResourcePropertyQNameFault" name="InvalidResourcePropertyQNameFault"/>
+                            <wsdl:fault
+                                message="qman:SetResourcePropertyRequestFailedFault" name="SetResourcePropertyRequestFailedFault"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithSimpleTypes">
+                            <wsdl:input
+                                message="qman:echoWithSimpleTypesRequestMessage"
+                                name="echoWithSimpleTypesRequest" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithSimpleTypes"/>
+                            <wsdl:output
+                                message="qman:echoWithSimpleTypesResponseMessage"
+                                name="echoWithSimpleTypesResponse" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithSimpleTypesResponse"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithArrays">
+                            <wsdl:input
+                                message="qman:echoWithArraysRequestMessage"
+                                name="echoWithArraysRequest" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithArrays"/>
+                            <wsdl:output
+                                message="qman:echoWithArraysResponseMessage"
+                                name="echoWithArraysResponse" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithArraysResponse"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithSimpleTypeArrays">
+                            <wsdl:input
+                                message="qman:echoWithSimpleTypeArraysRequestMessage"
+                                name="echoWithSimpleTypeArraysRequest" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithSimpleTypeArrays"/>
+                            <wsdl:output
+                                message="qman:echoWithSimpleTypeArraysResponseMessage"
+                                name="echoWithSimpleTypeArraysResponse" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithSimpleTypeArraysResponse"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithByteArray">
+                            <wsdl:input
+                                message="qman:echoWithByteArrayRequestMessage"
+                                name="echoWithByteArrayRequest" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithByteArray"/>
+                            <wsdl:output
+                                message="qman:echoWithByteArrayResponseMessage"
+                                name="echoWithByteArrayResponse" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithByteArrayResponse"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="voidWithoutArguments">
+                            <wsdl:input
+                                message="qman:voidWithoutArgumentsRequestMessage"
+                                name="voidWithoutArgumentsRequest" wsa:action="http://amqp.apache.org/qpid/management/qman/voidWithoutArguments"/>
+                            <wsdl:output
+                                message="qman:voidWithoutArgumentsResponseMessage"
+                                name="voidWithoutArgumentsResponse" wsa:action="http://amqp.apache.org/qpid/management/qman/voidWithoutArgumentsResponse"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="throwsException">
+                            <wsdl:input
+                                message="qman:throwsExceptionRequestMessage"
+                                name="throwsExceptionRequest" wsa:action="http://amqp.apache.org/qpid/management/qman/throwsException"/>
+                            <wsdl:output
+                                message="qman:throwsExceptionResponseMessage"
+                                name="throwsExceptionResponse" wsa:action="http://amqp.apache.org/qpid/management/qman/throwsExceptionResponse"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithUUID">
+                            <wsdl:input
+                                message="qman:echoWithUUIDRequestMessage"
+                                name="echoWithUUIDRequest" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithUUID"/>
+                            <wsdl:output
+                                message="qman:echoWithUUIDResponseMessage"
+                                name="echoWithUUIDResponse" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithUUIDResponse"/>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithMap">
+                            <wsdl:input
+                                message="qman:echoWithMapRequestMessage"
+                                name="echoWithMapRequest" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithMap"/>
+                            <wsdl:output
+                                message="qman:echoWithMapResponseMessage"
+                                name="echoWithMapResponse" wsa:action="http://amqp.apache.org/qpid/management/qman/echoWithMapResponse"/>
+                        </wsdl:operation>
+                    </wsdl:portType>
+                    <wsdl:binding name="QManWsResourceBinding" type="qman:QManWsResourcePortType">
+                        <wsdl-soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+                        <wsdl:operation name="GetMetadata">
+                            <wsdl-soap:operation soapAction="GetMetadata"/>
+                            <wsdl:input>
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="Destroy">
+                            <wsdl-soap:operation soapAction="Destroy"/>
+                            <wsdl:input name="DestroyRequest">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output name="DestroyResponse">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                            <wsdl:fault name="ResourceNotDestroyedFault">
+                                <wsdl-soap:fault
+                                    name="ResourceNotDestroyedFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnknownFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnknownFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnavailableFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnavailableFault" use="literal"/>
+                            </wsdl:fault>
+                        </wsdl:operation>
+                        <wsdl:operation name="SetTerminationTime">
+                            <wsdl-soap:operation soapAction="SetTerminationTime"/>
+                            <wsdl:input name="SetTerminationTimeRequest">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output name="SetTerminationTimeResponse">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                            <wsdl:fault name="UnableToSetTerminationTimeFault">
+                                <wsdl-soap:fault
+                                    name="UnableToSetTerminationTimeFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnknownFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnknownFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnavailableFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnavailableFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="TerminationTimeChangeRejectedFault">
+                                <wsdl-soap:fault
+                                    name="TerminationTimeChangeRejectedFault" use="literal"/>
+                            </wsdl:fault>
+                        </wsdl:operation>
+                        <wsdl:operation name="GetResourcePropertyDocument">
+                            <wsdl-soap:operation soapAction="GetResourcePropertyDocument"/>
+                            <wsdl:input name="GetResourcePropertyDocumentRequest">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output name="GetResourcePropertyDocumentResponse">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                            <wsdl:fault name="ResourceUnknownFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnknownFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnavailableFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnavailableFault" use="literal"/>
+                            </wsdl:fault>
+                        </wsdl:operation>
+                        <wsdl:operation name="GetResourceProperty">
+                            <wsdl-soap:operation soapAction="GetResourceProperty"/>
+                            <wsdl:input name="GetResourcePropertyRequest">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output name="GetResourcePropertyResponse">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                            <wsdl:fault name="ResourceUnknownFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnknownFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnavailableFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnavailableFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="InvalidResourcePropertyQNameFault">
+                                <wsdl-soap:fault
+                                    name="InvalidResourcePropertyQNameFault" use="literal"/>
+                            </wsdl:fault>
+                        </wsdl:operation>
+                        <wsdl:operation name="GetMultipleResourceProperties">
+                            <wsdl-soap:operation soapAction="GetMultipleResourceProperties"/>
+                            <wsdl:input name="GetMultipleResourcePropertiesRequest">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output name="GetMultipleResourcePropertiesResponse">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                            <wsdl:fault name="ResourceUnknownFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnknownFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnavailableFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnavailableFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="InvalidResourcePropertyQNameFault">
+                                <wsdl-soap:fault
+                                    name="InvalidResourcePropertyQNameFault" use="literal"/>
+                            </wsdl:fault>
+                        </wsdl:operation>
+                        <wsdl:operation name="QueryResourceProperties">
+                            <wsdl-soap:operation soapAction="QueryResourceProperties"/>
+                            <wsdl:input name="QueryResourcePropertiesRequest">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output name="QueryResourcePropertiesResponse">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                            <wsdl:fault name="ResourceUnknownFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnknownFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnavailableFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnavailableFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="UnknownQueryExpressionDialectFault">
+                                <wsdl-soap:fault
+                                    name="UnknownQueryExpressionDialectFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="InvalidQueryExpressionFault">
+                                <wsdl-soap:fault
+                                    name="InvalidQueryExpressionFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="QueryEvaluationErrorFault">
+                                <wsdl-soap:fault
+                                    name="QueryEvaluationErrorFault" use="literal"/>
+                            </wsdl:fault>
+                        </wsdl:operation>
+                        <wsdl:operation name="SetResourceProperties">
+                            <wsdl-soap:operation soapAction="http://oasis.org/SetResourceProperties"/>
+                            <wsdl:input name="SetResourcePropertiesRequest">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output name="SetResourcePropertiesResponse">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                            <wsdl:fault name="ResourceUnknownFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnknownFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="ResourceUnavailableFault">
+                                <wsdl-soap:fault
+                                    name="ResourceUnavailableFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="InvalidModificationFault">
+                                <wsdl-soap:fault
+                                    name="InvalidModificationFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="UnableToModifyResourcePropertyFault">
+                                <wsdl-soap:fault
+                                    name="UnableToModifyResourcePropertyFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="InvalidResourcePropertyQNameFault">
+                                <wsdl-soap:fault
+                                    name="InvalidResourcePropertyQNameFault" use="literal"/>
+                            </wsdl:fault>
+                            <wsdl:fault name="SetResourcePropertyRequestFailedFault">
+                                <wsdl-soap:fault
+                                    name="SetResourcePropertyRequestFailedFault" use="literal"/>
+                            </wsdl:fault>
+                        </wsdl:operation>
+                        <wsdl:operation name="GetMetadata">
+                            <wsdl-soap:operation soapAction="http://ws.apache.org/muse/test/wsrf/GetMetadata"/>
+                            <wsdl:input name="GetMetadataMsg">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output name="GetMetadataResponseMsg">
+                                <wsdl-soap:body
+                                    encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithSimpleTypes">
+                            <wsdl-soap:operation soapAction="http://amqp.apache.org/qpid/management/qman/echoWithSimpleTypes"/>
+                            <wsdl:input>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithArrays">
+                            <wsdl-soap:operation soapAction="http://amqp.apache.org/qpid/management/qman/echoWithArrays"/>
+                            <wsdl:input>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithSimpleTypeArrays">
+                            <wsdl-soap:operation soapAction="http://amqp.apache.org/qpid/management/qman/echoWithSimpleTypeArrays"/>
+                            <wsdl:input>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithByteArray">
+                            <wsdl-soap:operation soapAction="http://amqp.apache.org/qpid/management/qman/echoWithByteArray"/>
+                            <wsdl:input>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="voidWithoutArguments">
+                            <wsdl-soap:operation soapAction="http://amqp.apache.org/qpid/management/qman/voidWithoutArguments"/>
+                            <wsdl:input>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="throwsException">
+                            <wsdl-soap:operation soapAction="http://amqp.apache.org/qpid/management/qman/throwsException"/>
+                            <wsdl:input>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithUUID">
+                            <wsdl-soap:operation soapAction="http://amqp.apache.org/qpid/management/qman/echoWithUUID"/>
+                            <wsdl:input>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                        <wsdl:operation name="echoWithMap">
+                            <wsdl-soap:operation soapAction="http://amqp.apache.org/qpid/management/qman/echoWithMap"/>
+                            <wsdl:input>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:input>
+                            <wsdl:output>
+                                <wsdl-soap:body use="literal"/>
+                            </wsdl:output>
+                        </wsdl:operation>
+                    </wsdl:binding>
+                    <wsdl:service name="QManWsResourceService">
+                        <wsdl:port binding="qman:QManWsResourceBinding" name="QManWsResourcePort">
+                            <wsdl-soap:address location="http://romagazzarini:8080/qman/services/QManWsResource"/>
+                        </wsdl:port>
+                    </wsdl:service>
+                    <message name="echoWithSimpleTypesRequestMessage">
+                        <wsdl:part
+                            element="qman:echoWithSimpleTypesRequest" name="echoWithSimpleTypesRequest"/>
+                    </message>
+                    <wsdl:message name="echoWithSimpleTypesResponseMessage">
+                        <wsdl:part
+                            element="qman:echoWithSimpleTypesResponse" name="echoWithSimpleTypesResponse"/>
+                    </wsdl:message>
+                    <message name="echoWithArraysRequestMessage">
+                        <wsdl:part element="qman:echoWithArraysRequest" name="echoWithArraysRequest"/>
+                    </message>
+                    <wsdl:message name="echoWithArraysResponseMessage">
+                        <wsdl:part element="qman:echoWithArraysResponse" name="echoWithArraysResponse"/>
+                    </wsdl:message>
+                    <message name="echoWithSimpleTypeArraysRequestMessage">
+                        <wsdl:part
+                            element="qman:echoWithSimpleTypeArraysRequest" name="echoWithSimpleTypeArraysRequest"/>
+                    </message>
+                    <wsdl:message name="echoWithSimpleTypeArraysResponseMessage">
+                        <wsdl:part
+                            element="qman:echoWithSimpleTypeArraysResponse" name="echoWithSimpleTypeArraysResponse"/>
+                    </wsdl:message>
+                    <message name="echoWithByteArrayRequestMessage">
+                        <wsdl:part
+                            element="qman:echoWithByteArrayRequest" name="echoWithByteArrayRequest"/>
+                    </message>
+                    <wsdl:message name="echoWithByteArrayResponseMessage">
+                        <wsdl:part
+                            element="qman:echoWithByteArrayResponse" name="echoWithByteArrayResponse"/>
+                    </wsdl:message>
+                    <message name="voidWithoutArgumentsRequestMessage">
+                        <wsdl:part
+                            element="qman:voidWithoutArgumentsRequest" name="voidWithoutArgumentsRequest"/>
+                    </message>
+                    <wsdl:message name="voidWithoutArgumentsResponseMessage">
+                        <wsdl:part
+                            element="qman:voidWithoutArgumentsResponse" name="voidWithoutArgumentsResponse"/>
+                    </wsdl:message>
+                    <message name="throwsExceptionRequestMessage">
+                        <wsdl:part element="qman:throwsExceptionRequest" name="throwsExceptionRequest"/>
+                    </message>
+                    <wsdl:message name="throwsExceptionResponseMessage">
+                        <wsdl:part
+                            element="qman:throwsExceptionResponse" name="throwsExceptionResponse"/>
+                    </wsdl:message>
+                    <message name="echoWithUUIDRequestMessage">
+                        <wsdl:part element="qman:echoWithUUIDRequest" name="echoWithUUIDRequest"/>
+                    </message>
+                    <wsdl:message name="echoWithUUIDResponseMessage">
+                        <wsdl:part element="qman:echoWithUUIDResponse" name="echoWithUUIDResponse"/>
+                    </wsdl:message>
+                    <message name="echoWithMapRequestMessage">
+                        <wsdl:part element="qman:echoWithMapRequest" name="echoWithMapRequest"/>
+                    </message>
+                    <wsdl:message name="echoWithMapResponseMessage">
+                        <wsdl:part element="qman:echoWithMapResponse" name="echoWithMapResponse"/>
+                    </wsdl:message>
+                </wsdl:definitions>
+            </wsx:MetadataSection>
+        </wsx:Metadata>
+    </soap:Body>
+</soap:Envelope>

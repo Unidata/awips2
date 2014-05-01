@@ -1,0 +1,28 @@
+#!/bin/ksh
+# run_disagg
+# Oct 31, 2002
+
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export DISAGG_LOG_DIR=$(get_apps_defaults disagg_log_dir)
+export HYDRO_PUBLICBIN=$(get_apps_defaults hydro_publicbin)
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
+
+#----------------------------------------------------------------------
+#  Don't fire up another instance if one is underway
+#
+# AMIRUNNIN_DIR env is REQUIRED by name by amirunning script
+#
+
+#AMIRUNNING_DIR=$DISAGG_LOG_DIR
+#echo $HYDRO_PUBLICBIN
+#. $HYDRO_PUBLICBIN/amirunning
+
+#if [[ $AmIRunning = "yes" ]]; then
+  #echo Run_disagg script canceled due to disagg is currently running
+  #exit 1
+ # fi
+
+$PPROC_BIN/disagg$OS_SUFFIX

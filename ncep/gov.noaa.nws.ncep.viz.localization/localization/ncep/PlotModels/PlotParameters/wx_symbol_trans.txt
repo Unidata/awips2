@@ -1,0 +1,72 @@
+s2s
+right VC 
+-SHRA  :  45 54
++SHRA  : 180 54 
+SHRA   :  79 54
+-SHSN  :  46 54
++SHSN  : 179 54
+SHSN   :  89 54
+-TSRA  :  45 41
++TSRA  :  79 88 
+TSRA   :  79 41
+-TSSN  :  46 41
++TSSN  : 179 88
+TSSN   :  89 41
+FZRASN :  71 89
+BCBR   :  35
+MIBR   :  36
+BR     :  34
+FZFG   : 173
+BCFG   :  63
+MIFG   :  64
+FG     :  53
+TS     :  41
++TS    :  88
+FC     :  43
++FC    : 137
+PO     :  32
+DRSN   :  59
++DRSN  :  60 
+BLSN   :  61
++BLSN  :  62
+FU     :  28
+HZ     :  29
+-SH    :  54
+SH     :  78
+DU     :  30
+SA     :  31
+SS     :  55
+DS     :  55
++SS    :  58
++DS    :  58
+-FZRA  :  70
+-FZDZ  :  68
+FZRA   :  71
+FZDZ   :  69
+GR     :  80
+IC     :  76
+PE     :  77
+PL     :  77
+GS     :  75
+DZRA   :  73
+RADZ   :  73
+RASN   :  47
+SNRA   :  47
+-RA    :  45
++RA    : 180
+RA     :  79
+-DZ    :  44
++DZ    : 181
+DZ     :  67
+-SN    :  46
++SN    : 179
+SN     :  89
+-UP    : 174
++UP    : 176
+UP     : 175
+IP     :  77
+SG     :  75
+VA     : 177
+PRFG   : 178
+SQ     :  42
+BLDU   :  31

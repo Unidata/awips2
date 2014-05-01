@@ -1,0 +1,51 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Viz Core Capabilities
+Bundle-SymbolicName: com.raytheon.viz.core;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.apache.commons.lang,
+ org.apache.commons.beanutils,
+ org.apache.http,
+ javax.vecmath,
+ org.apache.commons.configuration,
+ javax.measure,
+ org.apache.velocity,
+ org.jep,
+ javax.persistence,
+ net.sf.cglib,
+ com.raytheon.uf.common.localization;visibility:=reexport,
+ com.raytheon.uf.common.serialization;visibility:=reexport,
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.time;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.util;bundle-version="1.12.1174";visibility:=reexport,
+ com.raytheon.uf.common.units;bundle-version="1.0.0";visibility:=reexport,
+ com.raytheon.uf.viz.core;visibility:=reexport,
+ com.raytheon.uf.common.colormap;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization.comm,
+ org.eclipse.core.expressions,
+ com.raytheon.uf.viz.application;bundle-version="1.0.0",
+ com.raytheon.uf.common.topo;bundle-version="1.12.1174",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
+Eclipse-BuddyPolicy: ext, registered, global
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.common.geospatial, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status
+Export-Package: 
+ com.raytheon.viz.core,
+ com.raytheon.viz.core.imagery,
+ com.raytheon.viz.core.interval,
+ com.raytheon.viz.core.map,
+ com.raytheon.viz.core.mode,
+ com.raytheon.viz.core.preferences,
+ com.raytheon.viz.core.rsc,
+ com.raytheon.viz.core.rsc.displays,
+ com.raytheon.viz.core.rsc.hdf5,
+ com.raytheon.viz.core.rsc.jts,
+ com.raytheon.viz.core.spatial,
+ com.raytheon.viz.core.topo
+Bundle-Vendor: Raytheon
+Bundle-Activator: com.raytheon.viz.core.CorePlugin
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

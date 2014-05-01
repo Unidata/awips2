@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>commons-pool</groupId>
+  <artifactId>commons-pool</artifactId>
+  <name>Commons Pool</name>
+  <version>1.4</version>
+  <description>Commons Object Pooling Library</description>
+  <url>http://commons.apache.org/pool/</url>
+  <issueManagement>
+    <url>http://issues.apache.org/jira/</url>
+  </issueManagement>
+  <ciManagement>
+    <notifiers>
+      <notifier>
+        <configuration>
+          <address>dev@commons.apache.org</address>
+        </configuration>
+      </notifier>
+    </notifiers>
+  </ciManagement>
+  <inceptionYear>2001</inceptionYear>
+  <mailingLists>
+    <mailingList>
+      <name>Commons Dev List</name>
+      <subscribe>dev-subscribe@commons.apache.org</subscribe>
+      <unsubscribe>dev-unsubscribe@commons.apache.org</unsubscribe>
+      <archive>http://mail-archives.apache.org/mod_mbox/commons-dev/</archive>
+    </mailingList>
+    <mailingList>
+      <name>Commons User List</name>
+      <subscribe>user-subscribe@commons.apache.org</subscribe>
+      <unsubscribe>user-unsubscribe@commons.apache.org</unsubscribe>
+      <archive>http://mail-archives.apache.org/mod_mbox/commons-user/</archive>
+    </mailingList>
+  </mailingLists>
+  <developers>
+    <developer>
+      <id>morgand</id>
+      <name>Morgan Delagrange</name>
+      <email></email>
+      <organization></organization>
+    </developer>
+    <developer>
+      <id>geirm</id>
+      <name>Geir Magnusson</name>
+      <email></email>
+      <organization></organization>
+    </developer>
+    <developer>
+      <id>craigmcc</id>
+      <name>Craig McClanahan</name>
+      <email></email>
+      <organization></organization>
+    </developer>
+    <developer>
+      <id>rwaldhoff</id>
+      <name>Rodney Waldhoff</name>
+      <email></email>
+      <organization></organization>
+    </developer>
+    <developer>
+      <id>dweinr1</id>
+      <name>David Weinrich</name>
+      <email></email>
+      <organization></organization>
+    </developer>
+    <developer>
+      <id>dirkv</id>
+      <name>Dirk Verbeeck</name>
+      <email></email>
+      <organization></organization>
+    </developer>
+    <developer>
+      <id>rdonkin</id>
+      <name>Robert Burrell Donkin</name>
+      <email></email>
+      <organization>Apache Software Foundation</organization>
+    </developer>
+    <developer>
+      <id>sandymac</id>
+      <name>Sandy McArthur</name>
+      <email></email>
+      <organization>Apache Software Foundation</organization>
+    </developer>
+    <developer>
+      <id>psteitz</id>
+      <name>Phil Steitz</name>
+      <email></email>
+      <organization>Apache Software Foundation</organization>
+    </developer>
+  </developers>
+  <contributors>
+    <contributor>
+      <name>Todd Carmichael</name>
+      <email>toddc@concur.com</email>
+    </contributor>
+  </contributors>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>/LICENSE.txt</url>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/commons/proper/pool/trunk</connection>
+    <url>http://svn.apache.org/repos/asf/commons/proper/pool/trunk</url>
+  </scm>
+  <organization>
+    <name>The Apache Software Foundation</name>
+    <url>http://commons.apache.org/</url>
+  </organization>
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
+    <resources>
+      <resource>
+        <targetPath>META-INF</targetPath>
+        <directory>${basedir}</directory>
+        <includes>
+          <include>NOTICE.txt</include>
+        </includes>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>org/apache/commons/pool/TestBaseObjectPool.java</include>
+            <include>org/apache/commons/pool/TestBaseKeyedObjectPool.java</include>
+            <include>org/apache/commons/pool/TestBasePoolableObjectFactory.java</include>
+            <include>org/apache/commons/pool/TestBaseKeyedPoolableObjectFactory.java</include>
+            <include>org/apache/commons/pool/TestPoolUtils.java</include>
+            <include>org/apache/commons/pool/impl/TestStackObjectPool.java</include>
+            <include>org/apache/commons/pool/impl/TestStackKeyedObjectPool.java</include>
+            <include>org/apache/commons/pool/impl/TestGenericObjectPool.java</include>
+            <include>org/apache/commons/pool/impl/TestGenericKeyedObjectPool.java</include>
+            <include>org/apache/commons/pool/impl/TestSoftReferenceObjectPool.java</include>
+            <include>org/apache/commons/pool/impl/TestGenericObjectPoolFactory.java</include>
+            <include>org/apache/commons/pool/impl/TestStackObjectPoolFactory.java</include>
+            <include>org/apache/commons/pool/impl/TestGenericKeyedObjectPoolFactory.java</include>
+            <include>org/apache/commons/pool/impl/TestStackKeyedObjectPoolFactory.java</include>
+            <include>org/apache/commons/pool/composite/TestFifoLender.java</include>
+            <include>org/apache/commons/pool/composite/TestIdleEvictorLender.java</include>
+            <include>org/apache/commons/pool/composite/TestInvalidEvictorLender.java</include>
+            <include>org/apache/commons/pool/composite/TestLifoLender.java</include>
+            <include>org/apache/commons/pool/composite/TestNullLender.java</include>
+            <include>org/apache/commons/pool/composite/TestSoftLender.java</include>
+            <include>org/apache/commons/pool/composite/TestFailManager.java</include>
+            <include>org/apache/commons/pool/composite/TestGrowManager.java</include>
+            <include>org/apache/commons/pool/composite/TestIdleLimitManager.java</include>
+            <include>org/apache/commons/pool/composite/TestFailLimitManager.java</include>
+            <include>org/apache/commons/pool/composite/TestWaitLimitManager.java</include>
+            <include>org/apache/commons/pool/composite/TestNullTracker.java</include>
+            <include>org/apache/commons/pool/composite/TestReferenceTracker.java</include>
+            <include>org/apache/commons/pool/composite/TestDebugTracker.java</include>
+            <include>org/apache/commons/pool/composite/TestSimpleTracker.java</include>
+            <include>org/apache/commons/pool/composite/TestCompositeObjectPool.java</include>
+            <include>org/apache/commons/pool/composite/TestCompositeKeyedObjectPool.java</include>
+            <include>org/apache/commons/pool/composite/TestCompositeKeyedObjectPool2.java</include>
+            <include>org/apache/commons/pool/composite/TestCompositeKeyedObjectPoolFactory.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jdiff-plugin</artifactId>
+        <version>1.5</version>
+        <configuration>
+          <comment>&lt;strong>Site Only&lt;/strong> - v1.5 (minimum)</comment>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-changes-plugin</artifactId>
+        <version>1.6</version>
+        <configuration>
+          <comment>&lt;strong>Site Only&lt;/strong> - v1.6 (minimum)</comment>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>1.8</version>
+        <configuration>
+          <comment>&lt;b>Site&lt;/b> only</comment>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>default</id>
+      <name>Default Repository</name>
+      <url>file:///www/people.apache.org/builds/commons/pool/</url>
+    </repository>
+    <site>
+      <id>default</id>
+      <name>Default Site</name>
+      <url>scp://people.apache.org//www/commons.apache.org/pool/</url>
+    </site>
+    <status>converted</status>
+  </distributionManagement>
+</project>

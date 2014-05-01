@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Scientific.Geometry.TensorAnalysis.ScalarField</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="Scientific-module.html">Package&nbsp;Scientific</a> ::
+        <a href="Scientific.Geometry-module.html">Package&nbsp;Geometry</a> ::
+        <a href="Scientific.Geometry.TensorAnalysis-module.html">Module&nbsp;TensorAnalysis</a> ::
+        Class&nbsp;ScalarField
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Scientific.Geometry.TensorAnalysis.ScalarField-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class ScalarField</h1><p class="nomargin-top"></p>
+<pre class="base-tree">
+<a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html">Functions.Interpolation.InterpolatingFunction</a> --+    
+                                                |    
+                                      <a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html">TensorField</a> --+
+                                                    |
+                                                   <strong class="uidshort">ScalarField</strong>
+</pre>
+
+<hr />
+<p>Scalar field (tensor field of rank 0)</p>
+  <p>A subclass of TensorField.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Instance Methods</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Geometry.TensorAnalysis.ScalarField-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">axes</span>,
+        <span class="summary-sig-arg">values</span>,
+        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">period</span>=<span class="summary-sig-default"><code class="variable-group">(</code>None<code class="variable-op">, </code>None<code class="variable-op">, </code>None<code class="variable-group">)</code></span>,
+        <span class="summary-sig-arg">check</span>=<span class="summary-sig-default">True</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="Scientific.Geometry.TensorAnalysis.VectorField-class.html" 
+      class="link">VectorField</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Geometry.TensorAnalysis.ScalarField-class.html#gradient" class="summary-sig-name">gradient</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      the gradient</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Geometry.TensorAnalysis.ScalarField-class.html#laplacian" class="summary-sig-name">laplacian</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      the laplacian (gradient of divergence) @rtype <a 
+      href="Scientific.Geometry.TensorAnalysis.ScalarField-class.html" 
+      class="link">ScalarField</a></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html">TensorField</a></code></b>:
+      <code><a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html#__add__">__add__</a></code>,
+      <code><a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html#__call__">__call__</a></code>,
+      <code><a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html#__getitem__">__getitem__</a></code>,
+      <code><a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html#__sub__">__sub__</a></code>,
+      <code><a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html#allDerivatives">allDerivatives</a></code>,
+      <code><a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html#derivative">derivative</a></code>,
+      <code><a href="Scientific.Geometry.TensorAnalysis.TensorField-class.html#zero">zero</a></code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html">Functions.Interpolation.InterpolatingFunction</a></code></b>:
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__abs__">__abs__</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__getattr__">__getattr__</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__getslice__">__getslice__</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__len__">__len__</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#arccos">arccos</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#arcsin">arcsin</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#arctan">arctan</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#cos">cos</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#cosh">cosh</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#definiteIntegral">definiteIntegral</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#exp">exp</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#fitPolynomial">fitPolynomial</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#integral">integral</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#log">log</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#selectInterval">selectInterval</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#sin">sin</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#sinh">sinh</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#sqrt">sqrt</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#tan">tan</a></code>,
+      <code><a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#tanh">tanh</a></code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Method Details</span></td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">axes</span>,
+        <span class="sig-arg">values</span>,
+        <span class="sig-arg">default</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">period</span>=<span class="sig-default"><code class="variable-group">(</code>None<code class="variable-op">, </code>None<code class="variable-op">, </code>None<code class="variable-group">)</code></span>,
+        <span class="sig-arg">check</span>=<span class="sig-default">True</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>axes</code></strong> (sequence of <code>Numeric.array</code> of rank 1) - three arrays specifying the axis ticks for the three axes</li>
+        <li><strong class="pname"><code>values</code></strong> (<code>Numeric.array</code> of 3 dimensions) - an array containing the field values. The three dimensions 
+          correspond to the x, y, z directions and must have lengths 
+          compatible with the axis arrays.</li>
+        <li><strong class="pname"><code>default</code></strong> (number or <code>NoneType</code>) - the value of the field for points outside the grid. A value of 
+          'None' means that an exception will be raised for an attempt to 
+          evaluate the field outside the grid. Any other value must a 
+          tensor of the correct rank.</li>
+        <li><strong class="pname"><code>period</code></strong> (sequence of length three) - the period for each of the variables, or <code>None</code> for 
+          variables in which the function is not periodic.</li>
+    </ul></dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>ValueError</strong></code> - if the arguments are not consistent</li>
+    </ul></dd>
+    <dt>Overrides:
+        <a href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html#__init__">Functions.Interpolation.InterpolatingFunction.__init__</a>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="gradient"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">gradient</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: <a href="Scientific.Geometry.TensorAnalysis.VectorField-class.html" 
+      class="link">VectorField</a></dt>
+        <dd>the gradient</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="laplacian"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">laplacian</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>the laplacian (gradient of divergence) @rtype <a 
+          href="Scientific.Geometry.TensorAnalysis.ScalarField-class.html" 
+          class="link">ScalarField</a></dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0 on Tue Oct 28 14:16:04 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

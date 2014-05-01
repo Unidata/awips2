@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="UA plots">
+		<contribute xsi:type="titleItem" titleText="------ NCEP ------" />
+        <contribute xsi:type="bundleItem" file="bundles/RedbookUpperAir.xml" 
+                    menuText="200hPa" id="200hPa">
+            <substitute key="wmo" value="PYMA20"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/RedbookUpperAir.xml" 
+                    menuText="250hPa" id="250hPa">
+            <substitute key="wmo" value="PYMA25"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/RedbookUpperAir.xml" 
+                    menuText="300hPa" id="300hPa">
+            <substitute key="wmo" value="PYMA30"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/RedbookUpperAir.xml" 
+                    menuText="500hPa" id="500hPa">
+            <substitute key="wmo" value="PYMA50"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/RedbookUpperAir.xml" 
+                    menuText="700hPa" id="700hPa">
+            <substitute key="wmo" value="PYMA70"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/RedbookUpperAir.xml" 
+                    menuText="850hPa" id="850hPa">
+            <substitute key="wmo" value="PYMA85"/>
+        </contribute>
+		<contribute xsi:type="titleItem" titleText="------ RAOB ------" />
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="150 hPa" id="150hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="150MB"/>
+        	<substitute key="plotSource" value="raob 150"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="200 hPa" id="200hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="200MB"/>
+        	<substitute key="plotSource" value="raob 200"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="250 hPa" id="250hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="250MB"/>
+        	<substitute key="plotSource" value="raob 250"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="300 hPa" id="300hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="300MB"/>
+        	<substitute key="plotSource" value="raob 300"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="400 hPa" id="400hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="400MB"/>
+        	<substitute key="plotSource" value="raob 400"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="500 hPa" id="500hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="500MB"/>
+        	<substitute key="plotSource" value="raob 500"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="700 hPa" id="700hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="700MB"/>
+        	<substitute key="plotSource" value="raob 700"/>
+        	<substitute key="plotModelFile" value="raobLowerDesign"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="850 hPa" id="850hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="850MB"/>
+        	<substitute key="plotSource" value="raob 850"/>
+        	<substitute key="plotModelFile" value="raobLowerDesign"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirPlot.xml" 
+	                menuText="925 hPa" id="925hPa"
+	                productInterval="14400" productOffset="7200">
+	        <dataURI>/bufrua/%/2020/%</dataURI>
+        	<substitute key="levelKey" value="925MB"/>
+        	<substitute key="plotSource" value="raob 925"/>
+        	<substitute key="plotModelFile" value="raobLowerDesign"/>
+	    </contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="Model Graphics">
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="UKMO 500 hgt" id="uaUKMO500hgt">
+	    	<substitute key="wmo" value="PHZM50, PHZO50, PHZQ50"/>   	
+	    </contribute>
+		<contribute xsi:type="separator" id="MySeparatorId"/>
+		<contribute xsi:type="titleItem" titleText="------ Trajectories ------" />
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="NGM Sfc Parcel" id="uaNGMSfcParcel">
+	    	<dataURI>/redbook/%/PMNE98/%</dataURI>
+	    	<substitute key="wmo" value="PMNE98"/>   	
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="NGM 850 Parcel" id="uaNGM850Parcel">
+	    	<dataURI>/redbook/%/PMNE85/%</dataURI>
+	    	<substitute key="wmo" value="PMNE85"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="NGM 700 Parcel" id="uaNGM700Parcel">
+	    	<dataURI>/redbook/%/PMNE70/%</dataURI>
+	    	<substitute key="wmo" value="PMNE70"/>     	
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="12hr Vert Displacement" id="ua12hrVertDisplacement">
+	    	<substitute key="wmo" value="PJME07, PJMG07, PJMI07"/>   	
+	    </contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="CPC Charts">
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="6-10 day mean 500 Hgt" id="ua610daymean500Hgt">
+	    	<dataURI>/redbook/%/PHBV50/%</dataURI>
+	    	<substitute key="wmo" value="PHBV50"/>       	
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="8-14 day Mean 500 Hgt" id="ua814dayMean500Hgt">
+	    	<dataURI>/redbook/%/PHTT50/%</dataURI>
+	    	<substitute key="wmo" value="PHTT50"/>       	
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="6-10 day 500 Hgt Anomaly" id="ua610day500HgtAnomaly">
+	    	<dataURI>/redbook/%/PHNT50/%</dataURI>
+	    	<substitute key="wmo" value="PHNT50"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	                menuText="8-14 day 500 Anom" id="ua814day500Anom">
+	    	<dataURI>/redbook/%/PHTT51/%</dataURI>
+	    	<substitute key="wmo" value="PHTT51"/>
+	    </contribute>
+	</contribute>
+	<contribute xsi:type="separator" id="MySeparatorId"/>
+</menuTemplate>

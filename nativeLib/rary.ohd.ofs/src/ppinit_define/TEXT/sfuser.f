@@ -1,0 +1,195 @@
+C MODULE SFUSER
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO DEFINE GENERAL USER PARAMETERS.
+C
+      SUBROUTINE SFUSER (LARRAY,ARRAY,DISP,PRNOTE,NFLD,
+     *   IRUNCK,ISTAT)
+C
+      CHARACTER*(*) DISP,PRNOTE
+      CHARACTER*4 TYPE,UNITS
+      CHARACTER*20 CHAR/' '/,CHK/' '/
+C
+      DIMENSION ARRAY(LARRAY)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_define/RCS/sfuser.f,v $
+     . $',                                                             '
+     .$Id: sfuser.f,v 1.2 1998/04/07 15:16:37 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,150)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DEFN')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*)
+     *      ' LARRAY=',
+     *      ' DISP=',DISP,
+     *      ' NFLD=',NFLD,
+     *      ' '
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+      LCHAR=LEN(CHAR)/4
+      LCHK=LEN(CHK)/4
+C
+      ISTRT=-1
+      ILPFND=0
+      IRPFND=0
+      TYPE=' '
+      NUMKEY=0
+      NUMERR=0
+      NUMWRN=0
+C
+C  SET DEFAULT OPTIONS
+      UNITS='ENGL'
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR DEFINE USER OPTIONS
+C
+10    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *   LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IRETRN)
+      IF (NFLD.EQ.-1) GO TO 140
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *      LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IRETRN)
+         ENDIF
+      IF (IRETRN.EQ.1) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,220) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 10
+         ENDIF
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 130
+C
+C  CHECK FOR PAIRED PARENTHESIS
+      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) THEN
+         WRITE (LP,230) NFLD
+         CALL SULINE (LP,2)
+         ILPFND=0
+         IRPFND=0
+         ENDIF
+      IF (LLPAR.GT.0) ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'CHK=',CHK
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK PARAMETER TYPE
+      IF (CHK.EQ.'UGNL'.OR.
+     *    CHK.EQ.'URRS'.OR.
+     *    CHK.EQ.'STBN') GO TO 50
+C
+C  CHECK FOR KEYWORD
+      CALL SUIDCK ('DEFN',CHK,NFLD,0,IKEYWD,IRETRN)
+      IF (IRETRN.GT.0) GO TO 140
+         WRITE (LP,170) CHK(1:LENSTR(CHK))
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 10
+50    TYPE=CHK
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'TYPE=',TYPE
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK UNITS
+      IF (LLPAR.EQ.0) GO TO 80
+      IF (LRPAR.GT.0) GO TO 60
+         WRITE (LP,230) NFLD
+         CALL SULINE (LP,2)
+         LRPAR=LENGTH+1
+60    CALL UFPACK (LCHK,CHK,ISTRT,LLPAR+1,LRPAR-1,IERR)
+      IF (CHK.EQ.'ENGL'.OR.
+     *    CHK.EQ.'METR') GO TO 70
+         WRITE (LP,180) NFLD,CHK(1:LENSTR(CHK))
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 10
+70    UNITS=CHK
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'UNITS=',UNITS
+         CALL SULINE (LP,1)
+         ENDIF
+C
+80    NUMKEY=NUMKEY+1
+C
+C  GENERAL USER PARAMETERS
+      IF (TYPE.EQ.'UGNL') THEN
+         CALL SFUGNL (LARRAY,ARRAY,DISP,PRNOTE,UNITS,NFLD,
+     *      IRUNCK,IERR)
+         GO TO 120
+         ENDIF
+C
+C  RRS USER PARAMETERS
+       IF (TYPE.EQ.'URRS') THEN
+         CALL SFURRS (LARRAY,ARRAY,DISP,NFLD,IRUNCK,IERR)
+         GO TO 120
+         ENDIF
+C
+C  STATE BOUNDARY USER PARAMETERS
+      IF (TYPE.EQ.'STBN') THEN
+         CALL SFSTBN (LARRAY,ARRAY,DISP,NFLD,IRUNCK,IERR)
+         GO TO 120
+         ENDIF
+C
+C  INVALID PARAMETER TYPE
+      WRITE (LP,250) TYPE
+      CALL SUERRS (LP,2,NUMERR)
+      GO TO 10
+C
+C  CHECK CURRENT FIELD FOR KEYWORD
+120   ISTRT=-1
+      GO TO 10
+C
+C  CHECK NUMBER OF KEYWORDS FOUND
+130   IF (NUMKEY.GT.0) GO TO 140
+C
+C  NO PARAMETER TYPE KEYWORDS FOUND
+      WRITE (LP,240)
+      CALL SUWRNS (LP,2,NUMWRN)
+C
+140   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,260)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+150   FORMAT (' *** ENTER SFUSER')
+170   FORMAT ('0*** ERROR - INVALID USER PARAMETER TYPE : ',A)
+180   FORMAT ('0*** ERROR - CARD FIELD ',I2,' HAS AN INVALID UNITS ',
+     *   'CODE : ',A)
+220   FORMAT (' NULL FIELD FOUND IN FIELD ',I2)
+230   FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN FIELD ',I2,'.')
+240   FORMAT ('0*** WARNING - NO PARAMETER TYPE KEYWORD (UGNL, URRS ',
+     *   'OR STBN) WAS FOUND.')
+250   FORMAT ('0*** ERROR - IN SFUSER - PARAMETER TYPE ',A,' CANNOT ',
+     *   'BE PROCESSED.')
+260   FORMAT (' *** EXIT SFUSER')
+C
+      END

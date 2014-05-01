@@ -1,0 +1,14 @@
+1.00     F4.2     RESET TIME (HRS)
+1.00     F4.2     PROJECTION INTERVAL (HRS)
+4.00     F5.2     nominal grid size (km)
+1.00     F4.2     ERROR PROPORTION FACTOR
+0.2500   F6.4     NOMINAL SCAN INTERVAL (HRS)
+0.10     F4.2     MINIMUM THRESHOLD PRECIP RATE (MM)
+0        I2       MINIMUM NUMBER OF SAMPLES
+1.0000   F6.4     Max. allowable missing period of radar data (hr) for reset
+200.0    f6.1     PDF min. area threshold (km^2)
+0.6      f6.1     PDF min. rainrate threshold (dBR)(modified to rainrate)
+n        logical  Account for growth/decay?
+1        I1       Storm motion vectors used (1=local, 2=uniform hrly-avg)
+0.8      f6.1     lamda (for rate smooth)
+1.3      f6.1     kappa (for rate smooth)

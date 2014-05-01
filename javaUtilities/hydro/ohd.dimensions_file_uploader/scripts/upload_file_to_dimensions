@@ -1,0 +1,66 @@
+#  ============================================================================
+#  pgm: upload_file_to_pvcs .. Uploads the file to PVCS using the PCMS command 
+#                              line tool
+#
+#  use:    upload_file_to_pvcs CI/UI command
+#
+#   in: UI/CI command ..... The PCMS CI/UI command created by the PVCS_File_Uploader
+#                           application in java.  It is passed in by the java application
+#
+#
+#
+#  ver: 20061109
+#  ============================================================================
+                         type dd_help 1>/dev/null 2>&1 && . dd_help 2>/dev/null
+
+
+# Keeps the last 1200 lines of the log file
+
+umask 006
+
+#date=`date +%Y%m%d`
+#LOGFILE=log/upload_file_to_pvcs.log.$date
+
+FILE_TO_BE_UPLOADED=$1
+DIM_USERNAME=$2
+DIM_PASSWORD=$3
+DR_DCS_NUMBER=$4
+
+LOGFILE=log/upload_file_to_dimensions.log.${DR_DCS_NUMBER}
+
+# Shifting since argument 1 = file name to upload
+#                argument 2 = Dimensions username
+#                argument 3 = Dimensions password
+#                argument 4 = DR/DCS #
+shift 4
+
+#. /opt/pvcs/dimensions9_1/serena/changeman/dimensions/9.1/dmprofile   On previous DX1 build
+. /usr/local/dimensions/serena/serena/changeman/dimensions/9.1/dmprofile
+export PCMSDB=AWIPS
+
+#PCMS_COMMAND_STRING="dmcli -user $DIM_USERNAME -pass "$DIM_PASSWORD" -host dim9 -con dim9 -dbname awips '$*'"
+#LOG_PCMS_COMMAND_STRING="dmcli -user $DIM_USERNAME -pass ******** -host dim9 -con dim9 -dbname awips '$*'"
+#PCMS_COMMAND_STRING="dmcli -user dsa -pass "password" -host dim9 -con dim9 -dbname awips '$*'"
+PCMS_COMMAND_STRING="dmcli -user $DIM_USERNAME -pass "$DIM_PASSWORD" -host dim9 -dsn dim9 -dbname awips '$*'"
+LOG_PCMS_COMMAND_STRING="dmcli -user $DIM_USERNAME -pass ******** -host dim9 -dbname awips '$*'"
+
+
+echo "=================================================" >>$LOGFILE
+echo "Uploading file:  " $FILE_TO_BE_UPLOADED  >>$LOGFILE
+echo $LOG_PCMS_COMMAND_STRING >>$LOGFILE
+echo "" >>$LOGFILE
+eval $PCMS_COMMAND_STRING >>$LOGFILE 2>&1
+Status=$?
+echo >> $LOGFILE
+echo $PCMS_COMMAND_STRING
+
+# Check the status returned by the eval above.
+if [[ $Status == 0 ]]
+then
+   echo "SUCCESS: File $FILE_TO_BE_UPLOADED has been successfully uploaded at $(date)."  >>$LOGFILE
+   exit 0
+else
+   echo "ERROR: Unable to upload the file $FILE_TO_BE_UPLOADED at $(date).  Check log file $LOGFILE." >>$LOGFILE
+   exit 1
+fi
+echo "=================================================" >>$LOGFILE

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="titleItem" titleText="------ SCAN: ${icao} ------"
+		id="placeholderSCAN${icao}" />
+	<contribute xsi:type="bundleItem" file="bundles/scan/stormCellsStormThreat.xml"
+			menuText="Storm Cell/ Site Storm Threat" id="SCAN${icao}" commandId="com.raytheon.uf.viz.monitor.scan.openCELLTable">
+			<dataURI>/scan/%/${icao}/CELL/%</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="CWAT" />
+			<substitute key="type" value="CELL" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/scan/stormDMDIconsTable.xml"
+			menuText="DMD Icons And Table" id="SCAN${icao}" commandId="com.raytheon.uf.viz.monitor.scan.openDMDTable">
+			<dataURI>/radar/%/${icao}/DMD/%</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="type" value="DMD" />
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="QPF from ${icao}"
+		id="QPFfrom${icao}">
+		<contribute xsi:type="separator" id="${icao}belowQPF" />
+		<contribute xsi:type="bundleItem" file="bundles/scan/QPF.xml"
+			menuText="QPF .10" id="${icao}QPF .10">
+			<dataURI>/qpf/%/${icao}/P10</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="P10" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/scan/QPF.xml"
+			menuText="QPF .25" id="${icao}QPF .25">
+			<dataURI>/qpf/%/${icao}/P25</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="P25" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/scan/QPF.xml"
+			menuText="QPF .50" id="${icao}QPF .50">
+			<dataURI>/qpf/%/${icao}/P50</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="P50" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/scan/QPF.xml"
+			menuText="QPF .75" id="${icao}QPF .75">
+			<dataURI>/qpf/%/${icao}/P75</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="P75" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/scan/QPF.xml"
+			menuText="QPF 1hr categorical rain fcst." id="${icao}QPF 1hr categorical rain fcst.">
+			<dataURI>/qpf/%/${icao}/PRECIP_AMT</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="PRECIP_AMT" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/scan/scanCWAThreatIndex.xml"
+		menuText="SCAN CWA Threat Index" id="${icao}SCAN CWA Threat Index">
+		<dataURI>/cwat/%/${icao}/CWAT</dataURI>
+		<substitute key="icao" value="${icao}" />
+		<substitute key="fieldName" value="CWAT" />
+		<substitute key="colormap" value="scan/SCANCWAThreatIndex" />
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="Hail Diagnostic Grids from ${icao}"
+		id="HailDiagnosticGrids${icao}">
+		<contribute xsi:type="separator" id="${icao}belowHail" />
+		<contribute xsi:type="bundleItem" file="bundles/scan/VIL.xml"
+			menuText="VIL Density" id="${icao}VILDensity">
+			<dataURI>/vil/%/${icao}/VILD</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="VILD" />
+			<substitute key="colormap" value="scan/VILDensity" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/scan/VIL.xml"
+			menuText="Digital VIL Density" id="${icao}DigitalVILDensity">
+			<dataURI>/vil/%/${icao}/DVILD</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="DVILD" />
+			<substitute key="colormap" value="scan/VILDensity" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/scan/VIL.xml"
+			menuText="Enhanced Digital VIL Density" id="${icao}EnhancedDigitalVILDensity">
+			<dataURI>/vil/%/${icao}/EDVILD</dataURI>
+			<substitute key="icao" value="${icao}" />
+			<substitute key="fieldName" value="EDVILD" />
+			<substitute key="colormap" value="scan/VILDensity" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/scan/PrecipRate.xml"
+		menuText="Precipitation Rate (in/hr)" id="${icao}PrecipitationRate">
+		<dataURI>/preciprate/%/${icao}</dataURI>
+		<substitute key="icao" value="${icao}" />
+		<substitute key="colormap" value="scan/DHR" />
+	</contribute>
+</menuTemplate>  

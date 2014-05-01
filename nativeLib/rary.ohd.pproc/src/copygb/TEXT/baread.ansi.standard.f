@@ -1,0 +1,47 @@
+C-----------------------------------------------------------------------
+      SUBROUTINE BAREAD(LU,IB,NB,KA,A)
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAREAD         BYTE-ADDRESSABLE READ
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 94-04-01
+C
+C ABSTRACT: READ A GIVEN NUMBER OF BYTES FROM AN UNBLOCKED FILE,
+C   SKIPPING A GIVEN NUMBER OF BYTES.  THE FILE MUST BE OPENED
+C   USING BAOPEN.
+C
+C PROGRAM HISTORY LOG:
+C   94-04-01  IREDELL
+C   96-10-01  IREDELL     STANDARD F77 VERSION
+C
+C USAGE:    CALL BAREAD(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO READ
+C     IB           INTEGER NUMBER OF BYTES TO SKIP
+C                  (IF IB<0, THEN DO NOT REPOSITION THE FILE)
+C     NB           INTEGER NUMBER OF BYTES TO READ
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER NUMBER OF BYTES ACTUALLY READ
+C     A            CHARACTER*1 (NB) BUFFER READ
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 77
+C
+C$$$
+      CHARACTER A(NB)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      KA=0
+      IF(IB.LT.0) THEN
+        INQUIRE(LU,NEXTREC=KR,IOSTAT=IOS)
+        IF(IOS.NE.0) RETURN
+      ELSE
+        KR=IB+1
+      ENDIF
+      DO KB=1,NB
+        READ(LU,REC=KR,IOSTAT=IOS) A(KA+1)
+        IF(IOS.NE.0) RETURN
+        KA=KA+1
+        KR=KR+1
+      ENDDO
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      RETURN
+      END

@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="bufrmosDataAccessFactory" class="com.raytheon.uf.common.pointdata.dataaccess.PointDataAccessFactory" />
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="bufrmosAVN"/>
+		<constructor-arg ref="bufrmosDataAccessFactory"/>
+	</bean>	
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="bufrmosETA"/>
+		<constructor-arg ref="bufrmosDataAccessFactory"/>
+	</bean>	
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="bufrmosGFS"/>
+		<constructor-arg ref="bufrmosDataAccessFactory"/>
+	</bean>	
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="bufrmosHPC"/>
+		<constructor-arg ref="bufrmosDataAccessFactory"/>
+	</bean>	
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="bufrmosLAMP"/>
+		<constructor-arg ref="bufrmosDataAccessFactory"/>
+	</bean>	
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="bufrmosMRF"/>
+		<constructor-arg ref="bufrmosDataAccessFactory"/>
+	</bean>	
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="bufrmosNGM"/>
+		<constructor-arg ref="bufrmosDataAccessFactory"/>
+	</bean>	
+</beans>

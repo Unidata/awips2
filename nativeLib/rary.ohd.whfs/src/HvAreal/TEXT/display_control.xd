@@ -1,0 +1,1304 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'display_control.c';
+generateNameExterns = * 'display_control.h';
+generateNameResDB = * 'display_control.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateNameMakefile = '/usr/apps/wfo/dev/exp/src/app/hydroview/display_control/';
+generateMask = 5701640;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'displayControlDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'displayControlDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_displayControlDS (parent)
+Widget parent;
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Display Control';
+	XmNminWidth = 300;
+	XmNminHeight = 950;
+	XmNmaxWidth = 300;
+	XmNmaxHeight = 950;
+	};
+object 'displayControlFO' : XmForm {
+	arguments {
+	lastGenName = 'displayControlFO';
+	XmNautoUnmanage = false;
+	};
+object 'arealDisplayFO' : XmForm {
+	arguments {
+	lastGenName = 'arealDisplayFO';
+	folded = true;
+	XmNmappedWhenManaged = false;
+	XmNautoUnmanage = false;
+	};
+object 'ad_productSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ad_productSL';
+	};
+abstract object 'ad_productHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ad_productHSB';
+	};
+};
+abstract object 'ad_productVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ad_productVSB';
+	};
+};
+abstract object 'ad_productLI' : XmList {
+	arguments {
+	lastGenName = 'ad_productLI';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'ad_modeOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ad_modeOM';
+	};
+abstract object 'ad_modeOMLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ad_modeOMLA';
+	XmNlabelString = 'Mode:';
+	XmNalignment = 0;
+	};
+};
+abstract object 'ad_modeCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ad_modeCB';
+	XmNalignment = 0;
+	};
+object 'ad_modePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ad_modePDM';
+	};
+object 'ad_precipPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_precipPB';
+	XmNlabelString = 'Precipitation';
+	};
+};
+object 'ad_ffgPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_ffgPB';
+	XmNlabelString = 'Flash Flood Guidance';
+	};
+};
+object 'ad_comparisonPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_comparisonPB';
+	XmNlabelString = 'Compare Precip & FFG';
+	};
+};
+};
+};
+};
+object 'ad_legendFR' : XmFrame {
+	arguments {
+	lastGenName = 'ad_legendFR';
+	};
+object 'ad_legendFO' : XmForm {
+	arguments {
+	lastGenName = 'ad_legendFO';
+	};
+object 'ad_legendDA' : XmDrawingArea {
+	arguments {
+	lastGenName = 'ad_legendDA';
+	};
+};
+object 'aw_optionThresholdPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aw_optionThresholdPB';
+	folded = true;
+	XmNlabelString = 'Thresholds';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -220;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 220;
+    };
+    };
+};
+object 'ad_legendFL' : XmLabel {
+	arguments {
+	lastGenName = 'ad_legendFL';
+	XmNchildType = 2;
+	XmNlabelString = 'Color Legend';
+	};
+};
+};
+object 'ad_optionFR' : XmFrame {
+	arguments {
+	lastGenName = 'ad_optionFR';
+	};
+object 'ad_optionFO' : XmForm {
+	arguments {
+	lastGenName = 'ad_optionFO';
+	};
+object 'ad_optionShowLA' : XmLabel {
+	arguments {
+	lastGenName = 'ad_optionShowLA';
+	XmNlabelString = 'Show:';
+	};
+};
+object 'ad_optionFillTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'ad_optionFillTB';
+	XmNlabelString = 'Fill';
+	};
+};
+object 'ad_optionValue1TB' : XmToggleButton {
+	arguments {
+	lastGenName = 'ad_optionValue1TB';
+	XmNlabelString = 'Value';
+	};
+};
+object 'ad_optionIdTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'ad_optionIdTB';
+	XmNlabelString = 'Id';
+	};
+};
+object 'ad_optionNameTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'ad_optionNameTB';
+	XmNlabelString = 'Name';
+	};
+};
+object 'ad_optionValue2TB' : XmToggleButton {
+	arguments {
+	lastGenName = 'ad_optionValue2TB';
+	XmNlabelString = 'Value2';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -60;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -55;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 2 0 -55;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -215;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -55;
+	XmNtopAttachment = 1 0 30;
+    };
+    };
+};
+object 'ad_optionFL' : XmLabel {
+	arguments {
+	lastGenName = 'ad_optionFL';
+	XmNchildType = 2;
+	XmNlabelString = 'Bounded Area Options';
+	};
+};
+};
+object 'aw_compareFR' : XmFrame {
+	arguments {
+	lastGenName = 'aw_compareFR';
+	};
+object 'aw_compareFO' : XmForm {
+	arguments {
+	lastGenName = 'aw_compareFO';
+	};
+object 'aw_compareOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'aw_compareOM';
+	};
+abstract object 'aw_compareOMLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'aw_compareOMLA';
+	XmNlabelString = 'Use:';
+	};
+};
+abstract object 'aw_compareCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'aw_compareCB';
+	};
+object 'aw_comparePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'aw_comparePDM';
+	};
+object 'aw_diffPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aw_diffPB';
+	XmNlabelString = 'Diff (Precip-FFG)';
+	};
+};
+object 'aw_ratioPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aw_ratioPB';
+	XmNlabelString = 'Ratio (Precip/FFG)';
+	};
+};
+};
+};
+};
+object 'aw_optionSummaryPB' : XmPushButton {
+	arguments {
+	lastGenName = 'aw_optionSummaryPB';
+	XmNlabelString = 'Summary...';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -195;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 2 0 -70;
+	XmNtopAttachment = 1 0 40;
+    };
+    };
+};
+object 'aw_optionFRLA' : XmLabel {
+	arguments {
+	lastGenName = 'aw_optionFRLA';
+	XmNchildType = 2;
+	XmNlabelString = 'Precip-FFG Comparison';
+	};
+};
+};
+object 'ad_precipOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ad_precipOM';
+	};
+abstract object 'ad_precipOMLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ad_precipOMLA';
+	XmNlabelString = 'Precip:';
+	};
+};
+abstract object 'ad_precipCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ad_precipCB';
+	};
+object 'ad_precipPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ad_precipPDM';
+	};
+object 'ad_stage1PB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_stage1PB';
+	XmNlabelString = 'Stg 1 Radar';
+	};
+};
+object 'ad_stage2GoPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_stage2GoPB';
+	XmNlabelString = 'Stg 2 Gage';
+	};
+};
+object 'ad_stage2GrPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_stage2GrPB';
+	XmNlabelString = 'Stg 2 GageRadar';
+	};
+};
+object 'ad_qpfPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_qpfPB';
+	XmNlabelString = 'QPF';
+	};
+};
+};
+};
+};
+object 'ad_resOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ad_resOM';
+	};
+abstract object 'ad_resOMLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ad_resOMLA';
+	XmNlabelString = 'Resolution:';
+	};
+};
+abstract object 'ad_resCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ad_resCB';
+	};
+object 'ad_resPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ad_resPDM';
+	};
+object 'ad_gridPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_gridPB';
+	XmNlabelString = 'Grid';
+	};
+};
+object 'ad_countyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_countyPB';
+	XmNlabelString = 'County';
+	};
+};
+object 'ad_zonePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_zonePB';
+	XmNlabelString = 'Zone';
+	};
+};
+object 'ad_basinPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_basinPB';
+	XmNlabelString = 'Basin';
+	};
+};
+};
+};
+};
+object 'ad_productLILA' : XmLabel {
+	arguments {
+	lastGenName = 'ad_productLILA';
+	XmNlabelString = 'Available Products:';
+	};
+};
+object 'ad_desiredProductsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ad_desiredProductsPB';
+	XmNlabelString = 'Desired Products...';
+	};
+};
+object 'ad_productColumnLA' : XmLabel {
+	arguments {
+	lastGenName = 'ad_productColumnLA';
+	XmNlabelString = 'Id  DurHr DateTime (Z)';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -325;
+	XmNtopAttachment = 1 0 155;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -290;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -815;
+	XmNtopAttachment = 1 0 540;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -290;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -445;
+	XmNtopAttachment = 1 0 360;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -290;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -540;
+	XmNtopAttachment = 1 0 445;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 45;
+	XmNbottomAttachment = 2 0 -70;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -213;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -105;
+	XmNtopAttachment = 1 0 70;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 325;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 130;
+    };
+    };
+};
+object 'pointDisplayFO' : XmForm {
+	arguments {
+	lastGenName = 'pointDisplayFO';
+	XmNwidth = 440;
+	XmNheight = 460;
+	XmNmappedWhenManaged = true;
+	XmNautoUnmanage = false;
+	};
+object 'do_filterFR' : XmFrame {
+	arguments {
+	lastGenName = 'do_filterFR';
+	};
+object 'do_filterFO' : XmForm {
+	arguments {
+	name = 'ltForm';
+	was_selected = true;
+	lastGenName = 'do_filterFO';
+	};
+object 'do_sourceFilterOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'do_sourceFilterOM';
+	};
+abstract object 'do_sourceFilterOML' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'do_sourceFilterOML';
+	XmNlabelString = 'Source:';
+	};
+};
+abstract object 'do_sourceFilterCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'do_sourceFilterCB';
+	};
+object 'do_sourceFilterPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'do_sourceFilterPDM';
+	};
+object 'do_sourceFilterAllPB' : XmPushButton {
+	arguments {
+	lastGenName = 'do_sourceFilterAllPB';
+	XmNlabelString = 'Include All';
+	};
+};
+object 'do_sourceFilterSelectedPB' : XmPushButton {
+	arguments {
+	lastGenName = 'do_sourceFilterSelectedPB';
+	XmNlabelString = 'Include Selected';
+	};
+};
+};
+};
+};
+object 'do_sourceSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'do_sourceSL';
+	};
+abstract object 'do_sourceHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'do_sourceHSB';
+	};
+};
+abstract object 'do_sourceVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'do_sourceVSB';
+	};
+};
+abstract object 'do_sourceLI' : XmList {
+	arguments {
+	lastGenName = 'do_sourceLI';
+	XmNselectionPolicy = 1;
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'do_stationTypeLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_stationTypeLA';
+	XmNlabelString = 'Station Icons';
+	};
+};
+object 'do_fcstPtIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_fcstPtIconTB';
+	XmNlabelString = '  River - Fcst Points';
+	XmNalignment = 0;
+	};
+};
+object 'do_riverIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_riverIconTB';
+	XmNlabelString = '  River - Data Points';
+	XmNalignment = 0;
+	};
+};
+object 'do_reservoirIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_reservoirIconTB';
+	XmNlabelString = '  River - Reservoirs';
+	XmNalignment = 0;
+	};
+};
+object 'do_precipIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_precipIconTB';
+	XmNlabelString = '  Precip';
+	XmNalignment = 0;
+	};
+};
+object 'do_snowIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_snowIconTB';
+	XmNlabelString = '  Snow';
+	XmNalignment = 0;
+	};
+};
+object 'do_tempIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_tempIconTB';
+	XmNlabelString = '  Temperature';
+	XmNalignment = 0;
+	};
+};
+object 'do_otherIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_otherIconTB';
+	XmNlabelString = '  Other';
+	XmNalignment = 0;
+	};
+};
+object 'do_undefinedIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_undefinedIconTB';
+	XmNlabelString = '  Undefined';
+	XmNalignment = 0;
+	};
+};
+object 'do_fcstPtDataTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_fcstPtDataTB';
+	XmNlabelString = ' ';
+	};
+};
+object 'do_riverDataTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_riverDataTB';
+	XmNlabelString = ' ';
+	};
+};
+object 'do_reservoirDataTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_reservoirDataTB';
+	XmNlabelString = ' ';
+	};
+};
+object 'do_precipDataTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_precipDataTB';
+	XmNlabelString = ' ';
+	};
+};
+object 'do_snowDataTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_snowDataTB';
+	XmNlabelString = ' ';
+	};
+};
+object 'iconsAndDataLA' : XmLabel {
+	arguments {
+	lastGenName = 'iconsAndDataLA';
+	XmNlabelString = 'Station Data';
+	};
+};
+object 'do_tempDataTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_tempDataTB';
+	XmNlabelString = ' ';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -285;
+	XmNtopAttachment = 1 0 250;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -385;
+	XmNtopAttachment = 1 0 285;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -110;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -75;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -100;
+	XmNtopAttachment = 1 0 75;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -140;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -160;
+	XmNtopAttachment = 1 0 135;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -150;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -185;
+	XmNtopAttachment = 1 0 160;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -115;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -210;
+	XmNtopAttachment = 1 0 185;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -135;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -245;
+	XmNtopAttachment = 1 0 220;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -260;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -260;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -75;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -260;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -100;
+	XmNtopAttachment = 1 0 75;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -260;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -260;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -160;
+	XmNtopAttachment = 1 0 135;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 175;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -240;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -185;
+	XmNtopAttachment = 1 0 160;
+    };
+    };
+};
+object 'do_filterFRLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_filterFRLA';
+	XmNchildType = 2;
+	XmNlabelString = 'Point Data Filter';
+	};
+};
+};
+object 'do_optionFR' : XmFrame {
+	arguments {
+	lastGenName = 'do_optionFR';
+	};
+object 'do_optionFO' : XmForm {
+	arguments {
+	lastGenName = 'do_optionFO';
+	folded = true;
+	};
+object 'do_optionGeneralLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_optionGeneralLA';
+	XmNlabelString = 'General:';
+	XmNalignment = 0;
+	};
+};
+object 'do_optionTimeTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_optionTimeTB';
+	XmNlabelString = 'Time';
+	};
+};
+object 'do_optionNameTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_optionNameTB';
+	XmNlabelString = 'Name';
+	};
+};
+object 'do_optionIdTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_optionIdTB';
+	XmNlabelString = 'Id';
+	};
+};
+object 'do_optionValue1TB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_optionValue1TB';
+	XmNlabelString = 'Value';
+	};
+};
+object 'do_optionHoursOldLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_optionHoursOldLA';
+	XmNlabelString = 'Max Hours Old:';
+	};
+};
+object 'do_optionHoursOldTE' : XmText {
+	arguments {
+	lastGenName = 'do_optionHoursOldTE';
+	};
+};
+object 'do_optionSE1' : XmSeparator {
+	arguments {
+	lastGenName = 'do_optionSE1';
+	};
+};
+object 'do_optionStageLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_optionStageLA';
+	XmNlabelString = 'Stage:';
+	};
+};
+object 'do_optionStageValueToDisplayOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'do_optionStageValueToDisplayOM';
+	folded = true;
+	};
+abstract object 'do_optionValueShowLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'do_optionValueShowLA';
+	XmNlabelString = ' ';
+	XmNalignment = 0;
+	};
+};
+abstract object 'do_optionValueCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'do_optionValueCB';
+	XmNalignment = 0;
+	};
+object 'do_optionValueShowPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'do_optionValueShowPDM';
+	};
+object 'do_optionValueActualPB' : XmPushButton {
+	arguments {
+	lastGenName = 'do_optionValueActualPB';
+	XmNlabelString = 'Actual Value';
+	};
+};
+object 'do_optionValueDeparturePB' : XmPushButton {
+	arguments {
+	lastGenName = 'do_optionValueDeparturePB';
+	XmNlabelString = 'Fld Departure';
+	};
+};
+};
+};
+};
+object 'do_optionStageBasisOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'do_optionStageBasisOM';
+	folded = true;
+	};
+abstract object 'do_optionStageBasisOML' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'do_optionStageBasisOML';
+	XmNlabelString = '  ';
+	XmNalignment = 0;
+	};
+};
+abstract object 'do_optionStageBasisCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'do_optionStageBasisCB';
+	XmNalignment = 0;
+	};
+object 'do_optionStageBasisPDM' : XmPulldownMenu {
+	arguments {
+	name = 'riverObsFcstPDM';
+	lastGenName = 'do_optionStageBasisPDM';
+	};
+object 'do_obsFcstPB' : XmPushButton {
+	arguments {
+	lastGenName = 'do_obsFcstPB';
+	XmNlabelString = 'Obs/MaxFcst';
+	};
+};
+object 'do_obsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'do_obsPB';
+	XmNlabelString = 'Obs';
+	};
+};
+object 'do_fcstPB' : XmPushButton {
+	arguments {
+	lastGenName = 'do_fcstPB';
+	XmNlabelString = 'MaxFcst';
+	};
+};
+};
+};
+};
+object 'do_optionValue2TB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_optionValue2TB';
+	XmNlabelString = 'Show Flood Level';
+	};
+};
+object 'do_stageBasisLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_stageBasisLA';
+	XmNlabelString = 'Basis:';
+	};
+};
+object 'do_stageValueLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_stageValueLA';
+	XmNlabelString = 'Display:';
+	};
+};
+object 'do_optionPrecipLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_optionPrecipLA';
+	XmNlabelString = 'Precip:';
+	};
+};
+object 'do_optionSE2' : XmSeparator {
+	arguments {
+	lastGenName = 'do_optionSE2';
+	};
+};
+object 'do_optionSuppressZeroesTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_optionSuppressZeroesTB';
+	XmNlabelString = 'Zeroes';
+	};
+};
+object 'do_optionSuppressMissingTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'do_optionSuppressMissingTB';
+	XmNlabelString = 'Missing';
+	};
+};
+object 'do_suppressLabel' : XmLabel {
+	arguments {
+	lastGenName = 'do_suppressLabel';
+	XmNlabelString = 'Suppress:';
+	};
+};
+object 'do_precipFO' : XmForm {
+	arguments {
+	lastGenName = 'do_precipFO';
+	folded = true;
+	};
+object 'do_durationLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_durationLA';
+	XmNlabelString = 'Hours Back:';
+	XmNalignment = 0;
+	};
+};
+object 'do_durationTE' : XmText {
+	arguments {
+	lastGenName = 'do_durationTE';
+	XmNeditable = false;
+	};
+};
+object 'do_endTE' : XmLabel {
+	arguments {
+	lastGenName = 'do_endTE';
+	XmNlabelString = 'Ending(Z):';
+	XmNalignment = 0;
+	};
+};
+object 'do_endingTE' : XmText {
+	arguments {
+	lastGenName = 'do_endingTE';
+	XmNvalue = '11/25 11:00';
+	XmNeditable = false;
+	};
+};
+object 'do_changeTimePB' : XmPushButton {
+	arguments {
+	lastGenName = 'do_changeTimePB';
+	XmNlabelString = 'Set Time Period';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 165;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -275;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -60;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -150;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -60;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 60;
+    };
+    };
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 75;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 195;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -195;
+	XmNleftAttachment = 1 0 145;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -160;
+	XmNleftAttachment = 1 0 75;
+	XmNbottomAttachment = 2 0 -55;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 75;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 55;
+	XmNbottomAttachment = 2 0 -110;
+	XmNtopAttachment = 1 0 95;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 90;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 95;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 145;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -260;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -210;
+	XmNtopAttachment = 1 0 185;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 30;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 205;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 65;
+	XmNbottomAttachment = 2 0 -225;
+	XmNtopAttachment = 1 0 210;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -177;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -256;
+	XmNtopAttachment = 1 0 230;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -272;
+	XmNleftAttachment = 1 0 180;
+	XmNbottomAttachment = 2 0 -256;
+	XmNtopAttachment = 1 0 230;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 230;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 255;
+    };
+    };
+};
+object 'do_optionFRLA' : XmLabel {
+	arguments {
+	lastGenName = 'do_optionFRLA';
+	XmNchildType = 2;
+	XmNlabelString = 'Point Data Options';
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -800;
+	XmNtopAttachment = 1 0 425;
+    };
+    };
+};
+object 'dc_closePB' : XmPushButton {
+	arguments {
+	name = 'dc_closePB';
+	lastGenName = 'dc_closePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'dc_SE1' : XmSeparator {
+	arguments {
+	lastGenName = 'dc_SE1';
+	};
+};
+object 'dc_pageOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'dc_pageOM';
+	folded = true;
+	};
+abstract object 'dc_pageOMLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'dc_pageOMLA';
+	XmNlabelString = 'Page:';
+	};
+};
+abstract object 'dc_pageCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'dc_pageCB';
+	};
+object 'dc_pagePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'dc_pagePDM';
+	};
+object 'dc_pointPB' : XmPushButton {
+	arguments {
+	lastGenName = 'dc_pointPB';
+	XmNlabelString = 'Point Data';
+	};
+};
+object 'dc_arealPB' : XmPushButton {
+	arguments {
+	lastGenName = 'dc_arealPB';
+	XmNlabelString = 'Areal Data';
+	};
+};
+};
+};
+};
+object 'dc_pageSEP' : XmSeparator {
+	arguments {
+	lastGenName = 'dc_pageSEP';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -297;
+	XmNleftAttachment = 1 0 4;
+	XmNbottomAttachment = 2 0 -876;
+	XmNtopAttachment = 1 0 61;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -300;
+	XmNleftAttachment = 1 0 3;
+	XmNbottomAttachment = 2 0 -900;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 105;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 910;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -300;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -910;
+	XmNtopAttachment = 1 0 900;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -300;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -60;
+	XmNtopAttachment = 1 0 45;
+    };
+    };
+};
+};
+end module;

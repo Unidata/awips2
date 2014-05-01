@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    
+<!-- The EDEX services/capabilities are all registered/created through spring.
+       By including or excluding specific spring files we can determine at startup
+       which services the EDEX instance should start.
+       
+       If you provide no command line argument, EDEX will default to include
+       all spring files it discovers.  It will print out the files it is using for the
+       configuration, so you can look at the no argument configuration to
+       determine what files to possibly include or exclude.
+       
+       The include and exclude tags should have regular expressions that
+       are compatible with Java's Pattern class.  If you provide no <include>
+       tag for a particular mode, the include defaults to .*.
+       -->
+<!-- 
+       Each mode can define 0..n <includeMode> elements.
+       The mode then becomes the sum of all <include> and <exclude> tags
+       provided in all modes, including itself.  
+       
+       The following xml attributes can be utilized to assist in 
+       structuring the correct configuration:
+       
+       <mode>:
+            template="[true/false]", defaults to false, this is a non-bootable mode
+            
+       e.g.
+       <!- Ignores both foo and bar pattern files,
+            includes baz and NOT bazaar files,
+            the mode is bootable ->
+       <mode name="sumOfIncludesAndExcludes">
+          <includeMode>excludeFooFiles</includeMode>
+          <includeMode>excludeBarFiles</includeMode>
+          <includeMode>includeBazFiles</includeMode>
+       </mode>
+       <!- Template mode, not bootable ->
+       <mode name="excludeFooFiles" template="true">
+          <exclude>.*foo.*</exclude>
+       </mode>
+       <!- Template mode, not bootable ->
+       <mode name="excludeBarFiles" template="true">
+          <exclude>.*bar.*</exclude>
+       </mode>
+       <!- Template mode, not bootable,
+            includes baz but NOT bazaar files ->
+       <mode name="includeBazFiles" template="true">
+          <include>.*baz.*</include>
+          <exclude>.*bazaar.*</exclude>
+       </mode>
+--> 
+<edexModes>
+	<!-- these modes are supported in a PRODUCTION environment -->
+	<mode name="request">
+		<include>.*request.*</include>
+		<include>.*common.*</include>
+        <includeMode>excludeDpaAndOgc</includeMode>
+		<!-- ncep excludes until tested -->
+		<exclude>purgeutil-request.xml</exclude>
+		<!-- end of ncep excludes -->
+	</mode>
+	<mode name="ingest">
+		<exclude>webservices.xml</exclude>
+		<exclude>ebxml.*\.xml</exclude>
+		<exclude>.*request.*</exclude>
+		<exclude>grib-decode.xml</exclude>
+		<exclude>ncgrib-file-endpoint.xml</exclude>
+		<exclude>grid-staticdata-process.xml</exclude>
+		<exclude>.*datadelivery.*</exclude>
+		<exclude>.*bandwidth.*</exclude>
+		<includeMode>excludeDpaAndOgc</includeMode>
+		<exclude>obs-ingest-metarshef.xml</exclude>
+		<!-- ncep excludes until tested -->
+		<exclude>aww-ingest.xml</exclude>
+		<exclude>ncep-util-on-edex-ingest</exclude>
+		<exclude>ncep-util-on-edex-ingestGrib</exclude>
+		<exclude>ncscd-ingest.xml</exclude>
+		<exclude>ncpafm-ingest.xml</exclude>
+		<exclude>nctaf-ingest.xml</exclude>
+		<exclude>nctext-ingest.xml</exclude>
+		<exclude>ncuair-ingest.xml</exclude>
+        <exclude>ntrans-ingest.xml</exclude>
+		<!-- end of ncep excludes -->
+	 	<!-- exclude DAT -->
+		<exclude>ffmp-ingest.xml</exclude>
+		<exclude>scan-ingest.xml</exclude>
+		<exclude>cwat-ingest.xml</exclude>
+		<exclude>fog-ingest.xml</exclude>
+		<exclude>vil-ingest.xml</exclude>
+		<exclude>preciprate-ingest.xml</exclude>
+		<exclude>qpf-ingest.xml</exclude>
+		<exclude>fssobs-ingest.xml</exclude>
+		<exclude>cpgsrv-spring.xml</exclude>
+        <exclude>.*sbn-simulator.*</exclude>
+	</mode>
+    <mode name="ingestHydro">
+    	<include>distribution-spring.xml</include>
+    	<include>manualIngest-common.xml</include>
+    	<include>manualIngest-spring.xml</include>
+    	<include>shef-ingest.xml</include>
+    	<include>persist-ingest.xml</include>
+    	<include>obs-common.xml</include>
+    	<include>obs-ingest.xml</include>
+        <include>obs-ingest-metarshef.xml</include>
+        <include>metartohmdb-plugin.xml</include>
+        <include>pointdata-common.xml</include>
+    	<include>shef-common.xml</include>
+        <include>ohd-common-database.xml</include>
+    	<include>ohd-common.xml</include>
+    	<include>alarmWhfs-spring.xml</include>
+    	<include>arealffgGenerator-spring.xml</include>
+    	<include>arealQpeGen-spring.xml</include>
+    	<include>DPADecoder-spring.xml</include>
+    	<include>dqcPreprocessor-spring.xml</include>
+    	<include>floodArchiver-spring.xml</include>
+    	<include>freezingLevel-spring.xml</include>
+    	<include>hpeDHRDecoder-spring.xml</include>
+    	<include>ihfsDbPurge-spring.xml</include>
+    	<include>logFilePurger-spring.xml</include>
+    	<include>mpeFieldgen-spring.xml</include>
+    	<include>mpeHpeFilePurge-spring.xml</include>
+    	<include>mpeLightningSrv-ingest.xml</include>
+    	<include>mpeProcessGrib-spring.xml</include>
+    	<include>ohdSetupService-spring.xml</include>
+    	<include>pointDataRetrievel-spring.xml</include>
+    	<include>q2FileProcessor-spring.xml</include>
+    	<include>satpre-spring.xml</include>
+    	<include>purge-logs.xml</include>
+    	<exclude>fssobs-ingest.xml</exclude>
+    	<exclude>fssobs-common.xml</exclude>
+    </mode>
+    <mode name="requestHydro">
+        <include>ohd-common-database.xml</include>
+    	<include>ohd-common.xml</include>
+    	<include>database-common.xml</include>
+    	<include>ohd-request.xml</include>
+    	<include>alertviz-request.xml</include>
+    	<include>auth-common.xml</include>
+    	<include>auth-request.xml</include>
+    	<include>persist-request.xml</include>
+    	<include>menus-request.xml</include>
+    	<include>utility-request.xml</include>
+    	<include>management-common.xml</include>
+    	<include>management-request.xml</include>
+    	<include>manualIngest-common.xml</include>
+    	<include>manualIngest-request.xml</include>
+    	<include>nwsauth-request.xml</include>
+    	<include>persist-request.xml</include>
+    	<include>site-common.xml</include>
+    	<include>site-request.xml</include>
+    	<include>time-common.xml</include>
+    	<include>units-common.xml</include>
+    	<include>useradmin-common.xml</include>
+    	<include>useradmin-request.xml</include>
+    	<include>event-common.xml</include>
+    	<include>eventbus-common.xml</include>
+    	<include>edex-request.xml</include>
+    </mode>
+	<mode name="ingestGrib">
+		<include>time-common.xml</include>
+		<include>auth-common.xml</include>
+		<include>nwsauth-request.xml</include>
+		<include>grib-decode.xml</include>
+		<include>ncgrib-file-endpoint.xml</include>
+		<include>grid-staticdata-process.xml</include>
+		<include>level-common.xml</include>
+	 	<include>grid-common.xml</include>
+	 	<include>gridcoverage-common.xml</include>
+	 	<include>parameter-common.xml</include>	 	
+		<include>persist-ingest.xml</include>
+		<include>management-common.xml</include>
+	 	<include>database-common.xml</include>
+        <include>event-ingest.xml</include>
+		<!-- ncep excludes until tested -->
+		<exclude>ncep-util-on-edex-ingestGrib</exclude>
+		<exclude>h5uair-ingest.xml</exclude>
+		<exclude>h5uair-common.xml</exclude>
+		<exclude>h5scd-ingest.xml</exclude>
+		<!-- end of ncep excludes -->
+        <includeMode>statsTemplate</includeMode>
+        <includeMode>excludeDpaAndOgc</includeMode>
+	</mode>
+	<!-- Runs separate now, not just high mem -->
+	<mode name="ingestDat">
+	    <include>nwsauth-request.xml</include>
+		<include>time-common.xml</include>
+		<include>ffmp-ingest.xml</include>
+		<include>ffmp-common.xml</include>
+		<include>scan-ingest.xml</include>
+		<include>scan-common.xml</include>
+		<include>cwat-ingest.xml</include>
+		<include>cwat-common.xml</include>
+		<include>fog-ingest.xml</include>
+		<include>fog-common.xml</include>
+		<include>vil-ingest.xml</include>
+		<include>vil-common.xml</include>
+		<include>preciprate-ingest.xml</include>
+		<include>preciprate-common.xml</include>
+		<include>qpf-ingest.xml</include>
+		<include>qpf-common.xml</include>
+		<include>cpgsrv-spring.xml</include>
+		<include>persist-ingest.xml</include>
+		<include>binlightning-common.xml</include>
+		<include>parameter-common.xml</include>
+		<include>gridcoverage-common.xml</include>
+		<include>grid-common.xml</include>
+		<include>database-common.xml</include>
+		<include>radar-common.xml</include>
+		<include>text-common.xml</include>
+		<include>level-common.xml</include>
+		<include>pointdata-common.xml</include>
+		<include>bufrua-common.xml</include>
+		<include>shef-common.xml</include>
+		<include>satellite-common.xml</include>
+		<include>satellite-dataplugin-common.xml</include>
+        <include>ohd-common-database.xml</include>
+		<include>ohd-common.xml</include>
+		<include>management-common.xml</include>
+		<include>auth-common.xml</include>
+		<include>obs-common.xml</include>
+		<include>fssobs-ingest.xml</include>
+		<include>fssobs-common.xml</include>
+		<include>ldadmesonet-common.xml</include>
+		<include>manualIngest-common.xml</include>
+		<include>dataaccess-common.xml</include>
+		<exclude>nctext-common.xml</exclude>
+        <includeMode>excludeDpaAndOgc</includeMode>
+        <includeMode>statsTemplate</includeMode>
+	</mode>
+	<mode name="registry">
+        <!-- Registry production mode -->
+        <include>ebxml.*\.xml</include>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <include>datadelivery-wfo-cron.xml</include>
+        <include>bandwidth-datadelivery-.*-wfo.xml</include>
+        <exclude>.*datadelivery.*-ncf.*</exclude>
+        <exclude>.*datadelivery.*-monolithic.*</exclude>
+        <exclude>harvester-*</exclude>
+        <exclude>crawler-*</exclude>
+	</mode>
+    <mode name="centralRegistry">
+        <!-- Central Registry production mode -->
+        <include>ebxml.*\.xml</include>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <include>bandwidth-datadelivery-.*-ncf.xml</include>
+        <exclude>.*datadelivery.*-wfo.*</exclude>
+        <exclude>.*datadelivery.*-monolithic.*</exclude>
+    </mode>
+
+    <mode name="statsTemplate" template="true">
+        <include>event-common.xml</include>
+        <include>eventbus-common.xml</include>
+        <include>stats-common.xml</include>
+    </mode>
+    <mode name="dataDeliveryTemplate" template="true">
+        <include>database-common.xml</include>
+        <include>.*datadelivery.*</include>
+        <include>.*bandwidth.*</include>
+        <!-- Exclude the inmemory versions of Spring files -->
+        <exclude>.*bandwidth.*-inmemory.*.xml</exclude>
+        <include>time-common.xml</include>
+        <include>auth-common.xml</include>
+        <include>nwsauth-request.xml</include>
+        <include>grid-common.xml</include>
+        <include>grid-metadata.xml</include>
+        <include>gridcoverage-common.xml</include>
+        <include>parameter-common.xml</include>     
+        <include>pointdata-common.xml</include>
+        <include>obs-common.xml</include>
+        <include>madis-common.xml</include>
+        <include>level-common.xml</include>
+        <include>persist-ingest.xml</include>
+        <include>management-common.xml</include>
+        <include>event-ingest.xml</include>
+        <include>purge-logs.xml</include>
+        <!-- 
+            The pattern datadelivery-registry is used to signify spring configurations 
+            that should be loaded when running datadelivery and the registry in a single JVM 
+        -->
+        <include>.*datadelivery-registry.*</include>
+        <!-- 
+            The pattern datadelivery-standalone is used to signify spring configurations 
+            that should be loaded when running datadelivery with the registry in a separate JVM 
+        -->
+        <exclude>.*datadelivery-standalone.*</exclude>
+
+        <includeMode>statsTemplate</includeMode>
+    </mode>
+    <mode name="excludeDpaAndOgc" template="true">
+        <!-- exclude dpa services -->
+        <exclude>.*dpa.*</exclude>
+        <!-- exclude OGC services -->
+        <exclude>.*ogc.*</exclude>
+        <exclude>grid-metadata.xml</exclude>
+        <exclude>wxsrv-dataset-urn.xml</exclude>
+    </mode>
+    <mode name="inMemoryBandwidthManager">
+        <!-- This is not an edex runtime mode -->
+        <include>bandwidth-datadelivery-inmemory-impl.xml</include>
+        <include>bandwidth-datadelivery.xml</include>
+        <include>bandwidth-datadelivery-wfo.xml</include>
+    </mode>
+	<!-- modes listed below are not supported in a production setting, they 
+		are for DEVELOPMENT purposes only -->
+    <mode name="devRegistry">
+        <include>ebxml.*\.xml</include>
+        <include>datadelivery-wfo-cron.xml</include>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <include>bandwidth-datadelivery-edex-impl-monolithic.xml</include>
+        <include>bandwidth-datadelivery-wfo.xml</include>
+        <exclude>.*datadelivery.*-ncf.*</exclude>
+    </mode>
+    <mode name="sbnSimulator">
+        <include>.*sbn-simulator-wfo.*</include>
+        <include>event-common.xml</include>
+        <include>eventbus-common.xml</include>
+        <exclude>.*sbn-simulator-ncf.*</exclude>
+    </mode>
+    <mode name="centralSbnSimulator">
+        <include>.*sbn-simulator-ncf.*</include>
+        <include>event-common.xml</include>
+        <include>eventbus-common.xml</include>
+        <exclude>.*sbn-simulator-wfo.*</exclude>
+    </mode>
+	<mode name="grib">
+		<include>grib-decode.xml</include>
+		<include>grid-staticdata-process.xml</include>
+		<include>grib-distribution.xml</include>
+		<include>level-common.xml</include>
+		<include>persist-ingest.xml</include>
+		<include>distribution-spring.xml</include>
+		<include>manualIngest-spring.xml</include>
+	</mode>
+	<mode name="text">
+		<include>text-.*</include>
+		<include>textdb-.*</include>
+		<include>textdbsrv-.*</include>
+		<include>uengine-request.xml</include>
+		<include>auth-request.xml</include>
+		<include>distribution-spring.xml</include>
+		<include>manualIngest-spring.xml</include>
+	</mode>
+	<mode name="gfe">
+		<include>.*gfe.*</include>
+		<include>serialize-request.xml</include>
+		<include>level-spring.xml</include>
+		<include>distribution-spring.xml</include>
+		<include>manualIngest-spring.xml</include>
+	</mode>
+	<mode name="noHydro">
+        <exclude>ebxml.*\.xml</exclude>
+		<exclude>alarmWhfs-spring.xml</exclude>
+		<exclude>arealffgGenerator-spring.xml</exclude>
+		<exclude>DPADecoder-spring.xml</exclude>
+		<exclude>dqcPreprocessor-spring.xml</exclude>
+		<exclude>floodArchiver-spring.xml</exclude>
+		<exclude>hpeDHRDecoder-spring.xml</exclude>
+		<exclude>ohd.*.xml</exclude>
+		<exclude>ihfsDbPurge-spring.xml</exclude>
+		<exclude>logFilePurger-spring.xml</exclude>
+		<exclude>mpeFieldgen-spring.xml</exclude>
+		<exclude>mpeHpeFilePurge-spring.xml</exclude>
+		<exclude>mpeProcessGrib-spring.xml</exclude>
+		<exclude>ohdSetupService-spring.xml</exclude>
+		<exclude>pointDataRetrievel-spring.xml</exclude>
+		<exclude>q2FileProcessor-spring.xml</exclude>
+		<exclude>satpre-spring.xml</exclude>
+        <exclude>.*sbn-simulator.*</exclude>
+	</mode>
+	<mode name="localization">
+		<include>auth-request.xml</include>
+		<include>utility-request.xml</include>
+	</mode>
+    <mode name="datadeliveryonly">
+        <include>.*datadelivery-standalone.*</include>
+        <exclude>.*datadelivery-registry.*</exclude>
+        <includeMode>datadeliverytemplate</includeMode>
+    </mode>
+	<mode name="dataProviderAgentTemplate" template="true">
+		<include>manualIngest*</include>
+		<include>time-common.xml</include>
+		<include>distribution-spring.xml</include>
+		<include>persist-ingest.xml</include>
+		<include>auth-common.xml</include>
+		<include>database-common.xml</include>
+		<!-- Remote connect to registry services -->
+		<include>datadelivery-standalone.xml</include>
+		<include>datadelivery-handlers.xml</include>
+		<include>datadelivery-handlers-impl.xml</include>
+		<include>request-router.xml</include>
+		<include>utility-request.xml</include>
+		<include>dpa-datadelivery.xml</include>
+		<!-- Don't want this for DPA, we don't need a local registry -->
+		<exclude>harvester-datadelivery-standalone.xml</exclude>
+		
+		<!-- OGC/DPA services -->
+		<include>ogc-common.xml</include>
+		<include>.*-ogc-request.xml</include>
+		<include>.*-ogc-rest-request.xml</include>
+		<include>.*-ogc-soap-request.xml</include>
+		<include>.*-ogc-soap-wsdl.xml</include>
+		<!--  Purge OGC/DPA registred plugins -->
+		<include>purge-spring.xml</include>
+		<include>purge-spring-impl.xml</include>
+        <include>purge-logs.xml</include>
+	</mode>
+	<!-- This is MADIS implmentation of dataprovideragent -->
+	<mode name="dataprovideragent">
+		<includeMode>dataProviderAgentTemplate</includeMode>
+		<!-- pointdata/madis specific services -->
+		<include>pointdata-common.xml</include>
+		<include>madis-common.xml</include>
+		<include>madis-ogc.xml</include>
+		<include>madis-ogc-registry.xml</include>
+		<!-- pointdata/obs specific services 
+		<include>obs-common.xml</include>
+		<include>pointdata-common.xml</include>
+		<include>obs-dpa-ingest.xml</include>
+		<include>obs-ogc.xml</include>-->
+		<!-- grid specific services 
+		<include>gridcoverage-.*.xml</include>
+		<include>grib-distribution.xml</include>
+		<include>level-common.xml</include>
+		<include>parameter-common.xml</include>	-->
+	</mode>
+</edexModes>

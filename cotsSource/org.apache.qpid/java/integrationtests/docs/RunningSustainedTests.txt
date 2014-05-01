@@ -1,0 +1,17 @@
+In addition to the integration tests the framework provided by this package also allows for
+sustained tests to be run. Currently avaible tests:
+- org.apache.qpid.sustained.SustainedClientTestCase : Pub Sub test to determine steady state throughput.
+
+
+Running Tests.
+
+Run the tests as per the integration tests.
+- Start a broker
+- Start at least one test client [java org.apache.qpid.interop.TestClient], ensuring unique naming.
+
+- Start the test coordinator with the 'fanout' engine, on the sustained test case [java org.apache.qpid.test.framework.distributedtesting.Coordinator]
+
+- Additional Test clients can be started and joined into the running test:  [java org.apache.qpid.interop.TestClient -j]
+
+
+

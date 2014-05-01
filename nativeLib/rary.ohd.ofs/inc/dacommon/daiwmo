@@ -1,0 +1,5 @@
+C                                           *--> FROM DACOMMON.DAIWMO
+C  ASAP CONTROL FILE, WMO INDEX RECORDS
+      COMMON /DAIWMO/ IDXWMO(4,1100)
+C
+C

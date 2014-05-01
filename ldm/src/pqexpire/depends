@@ -1,0 +1,10 @@
+pqexpire.o: ../config/ldmconfig.h
+pqexpire.o: ../misc/paths.h
+pqexpire.o: ../pq/pq.h
+pqexpire.o: ../protocol/atofeedt.h
+pqexpire.o: ../protocol/ldm.h
+pqexpire.o: ../protocol/ldmprint.h
+pqexpire.o: ../protocol/prod_class.h
+pqexpire.o: ../protocol/timestamp.h
+pqexpire.o: ../ulog/ulog.h
+pqexpire.o: pqexpire.c

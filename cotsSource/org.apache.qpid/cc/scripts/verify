@@ -1,0 +1,100 @@
+#!/bin/sh
+###########################################################
+#Licensed to the Apache Software Foundation (ASF) under one
+#or more contributor license agreements. See the NOTICE file
+#distributed with this work for additional information
+#regarding copyright ownership. The ASF licenses this file
+#to you under the Apache License, Version 2.0 (the
+#"License"); you may not use this file except in compliance
+#with the License. You may obtain a copy of the License at
+#
+#http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing,
+#software distributed under the License is distributed on an
+#"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#KIND, either express or implied. See the License for the
+#specific language governing permissions and limitations
+#under the License.
+###########################################################
+
+export DOTNET_EXAMPLES=$CC_HOME/dotnet/client-010/bin/mono-2.0/debug
+export CLASSPATH=`find "$CC_HOME/java/build/lib" -name '*.jar' | tr '\n' ":"`
+export CPP=$CC_HOME/cpp/examples
+export JAVA=$CC_HOME/java/client/example/src/main/java
+export PYTHONPATH=$CC_HOME/python/
+export PYTHON_EXAMPLES=$CC_HOME/python/examples
+
+cleanup() {
+    test -n "$QPIDD" &&  $QPIDD -q # Private broker
+    kill %% > /dev/null 2>&1	# Leftover background jobs
+}
+
+trap cleanup EXIT
+
+ARGS="${QPID_HOST:-localhost} $QPID_PORT"
+
+outfile() {
+    file=$1
+    while [ -f $file.out ]; do file="${file}X"; done
+    echo $file.out
+ }
+
+fail() { test -n "$*" && echo $* 1>&2 ; FAIL=1; return 1; }
+
+client() 
+{
+ "$@" $ARGS > `outfile $*` || fail; 
+}
+
+clients() { for cmd in "$@"; do client $cmd; done; }
+
+waitfor() { until grep -a -l "$2" $1 >/dev/null 2>&1 ; do sleep 1 ; done ; } 
+
+background() {
+    pattern=$1; shift
+    out=`outfile $*`
+    eval "$* $ARGS > $out &" || { fail; return 1; }
+    waitfor $out "$pattern"
+}
+
+name() {
+    for x in $*; do name="$name `basename $x`"; done
+    echo $name;
+}
+
+outputs() {
+    wait 2> /dev/null		# Wait for all backgroud processes to complete
+    rm -f $script.out
+    for f in "$@"; do
+	{ echo "==== `name $f`"; eval "cat $f"; } >> $script.out || fail
+        rm -rf `echo $f| awk '{ print $1 }'` 
+    done
+}
+
+verify() {
+    FAIL=
+    if [ -d $1 ]; then dir=$1; script=verify;
+    else dir=`dirname $1`; script=`basename $1`; fi
+    cd $dir || return 1
+    rm -f *.out
+    echo "Running: $dir/$script"
+    { source ./$script && diff -ac $script.out $script.in ; } || fail
+    test -z "$FAIL" && rm -f *.out
+    return $FAIL
+}
+
+HEX="[a-fA-F0-9]"
+remove_uuid() {
+    sed "s/$HEX\{8\}-$HEX\{4\}-$HEX\{4\}-$HEX\{4\}-$HEX\{12\}//g" $*
+}
+remove_uuid64() {
+    sed 's/[-A-Za-z0-9_]\{22\}==//g' $*
+}
+
+
+for example in "$@"; do
+    echo "Running:  $example "
+     if ( verify $example; ) then echo "PASS";  else echo "FAIL"; RET=1; fi
+     done
+exit $RET

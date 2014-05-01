@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         id="com.raytheon.viz.ui.commandContribution"
+         point="org.eclipse.ui.commands">
+      <category
+         id="com.raytheon.uf.viz.looping"
+         name="Looping" description="Command category for Looping">
+	  </category>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.fasterLoop"
+            categoryId="com.raytheon.uf.viz.looping"
+            description="Increases the looping speed"
+            name="Faster Loop"/>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.slowerLoop"
+            categoryId="com.raytheon.uf.viz.looping"
+            description="Decreases the looping speed"
+            name="Slower Loop"/>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.loop"
+            categoryId="com.raytheon.uf.viz.looping"
+            description="Toggles looping on/off"
+            name="Toggle Loop Status">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.loopProperties"
+            categoryId="com.raytheon.uf.viz.looping"
+            description="Opens the loop properties dialog"
+            name="Loop Properties">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.tools.looping.frameTool"
+            name="Generic Frame Change Tool">
+         <commandParameter
+               id="mode"
+               name="mode"
+               optional="false">
+         </commandParameter>
+         <commandParameter
+               id="operation"
+               name="operation"
+               optional="false">
+         </commandParameter>
+      </command>
+   </extension>
+   
+      <extension
+            point="org.eclipse.ui.handlers">
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.CombinedFrameTool"
+               commandId="com.raytheon.viz.ui.tools.looping.frameTool">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.LoopTool"
+               commandId="com.raytheon.viz.ui.tools.looping.loop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.LoopPropertiesTool"
+               commandId="com.raytheon.viz.ui.tools.looping.loopProperties">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.FasterLoopSpeedTool"
+               commandId="com.raytheon.viz.ui.tools.looping.fasterLoop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+         <handler
+               class="com.raytheon.viz.ui.tools.looping.SlowerLoopSpeedTool"
+               commandId="com.raytheon.viz.ui.tools.looping.slowerLoop">
+               <activeWhen>
+               		<with variable="activeEditor">
+       					<instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+    				</with>
+               </activeWhen>
+         </handler>
+      </extension>
+   
+</plugin>

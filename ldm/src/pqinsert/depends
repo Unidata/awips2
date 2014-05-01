@@ -1,0 +1,12 @@
+pqinsert.o: ../config/ldmconfig.h
+pqinsert.o: ../misc/inetutil.h
+pqinsert.o: ../misc/paths.h
+pqinsert.o: ../pq/pq.h
+pqinsert.o: ../protocol/atofeedt.h
+pqinsert.o: ../protocol/ldm.h
+pqinsert.o: ../protocol/ldmprint.h
+pqinsert.o: ../protocol/md5.h
+pqinsert.o: ../protocol/prod_class.h
+pqinsert.o: ../protocol/timestamp.h
+pqinsert.o: ../ulog/ulog.h
+pqinsert.o: pqinsert.c

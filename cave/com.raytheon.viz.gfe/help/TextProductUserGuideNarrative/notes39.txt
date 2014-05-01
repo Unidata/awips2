@@ -1,0 +1,4 @@
+Narrative methods coordinate to produce desired results.  One method is depending on the outcome of another and thus, we need high level descriptions or "strategies" to describe this coordination since it is not obvious from examining the narrative definition or individual methods.
+
+Now we will look at various Narrative Strategies that are employed in the core products and can be used in new products.  These are described in more detail in the Text Product Reference Guide.
+

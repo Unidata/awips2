@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# determine where the script is being ran from.
+path_to_script=`readlink -f $0`
+RUN_FROM_DIR=`dirname ${path_to_script}`
+BASE_ENV_DIR=`dirname ${RUN_FROM_DIR}`
+
+if [ ! -n "${TMCP_HOME}" ]
+then
+   echo -e "\e[1;31mTMCP_HOME is not set.\e[m"
+   echo -e "\e[0;32mSetting TMCP_HOME to '${BASE_ENV_DIR}'.\e[m"
+   export TMCP_HOME=${BASE_ENV_DIR}
+else
+   echo "TMCP_HOME is '${TMCP_HOME}'"
+fi
+
+if [ ! -n "${FXA_HOME}" ]
+then
+   echo -e "\e[1;31mFXA_HOME is not set.\e[m"
+   echo -e "\e[0;32mSetting FXA_HOME to '${BASE_ENV_DIR}'.\e[m"
+   export FXA_HOME=${BASE_ENV_DIR} 
+else
+   echo "FXA_HOME is '${FXA_HOME}'"
+fi
+
+# determine if 'FXA_WARNGEN_PRODUCT_ID' needs to be set
+HOST=`uname -n`
+TMP_HOST_NUMBER=`uname -n | awk '{print substr($1, 3, 1);}'`
+ALT_HOST_PART=`uname -n | awk '{print substr($1, 3, length($1) - 1);}'`
+ALT_HOST="xt"${ALT_HOST_PART}
+ping -c 1 -w 1 ${ALT_HOST} >/dev/null 2>/dev/null
+RC=`echo $?`
+
+if [ "${RC}" = "0" ]
+then
+   if [ ! -n "${FXA_WARNGEN_PRODUCT_ID}" ]
+   then
+      echo -e "\e[1;31mFXA_WARNGEN_PRODUCT_ID is not set.\e[m"
+      echo -e "\e[0;32mSetting FXA_WARNGEN_PRODUCT_ID to '${TMP_HOST_NUMBER}'.\e[m"
+      export FXA_WARNGEN_PRODUCT_ID=${TMP_HOST_NUMBER}      
+   else
+      echo "FXA_WARNGEN_PRODUCT_ID is '${FXA_WARNGEN_PRODUCT_ID}'."
+   fi
+fi
+
+export LD_LIBRARY_PATH=$TMCP_HOME/lib:$LD_LIBRARY_PATH
+
+# for TMCP logs
+if [ ! -d $HOME/tmcpLogs ]; then
+   mkdir $HOME/tmcpLogs
+fi
+
+export LOG_DIR=$HOME/tmcpLogs
+
+$TMCP_HOME/bin/tmcp

@@ -1,0 +1,414 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+<defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import re
+import datetime
+
+class ObsPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def isMissing(self, value):
+        if value == -99999.0:
+            return True
+        else:
+            return False
+            
+    def getSampleText(self, rec):
+        if rec.isValidParameter("stationId"):
+            stationId = rec.getString("stationId")
+            sampleString = "Station ID: " + stationId + "\n"
+            
+        if rec.isValidParameter("timeObs"):
+            timeObsSeconds = rec.getLong("timeObs")
+            if not self.isMissing(timeObsSeconds):
+                timeString = datetime.datetime.utcfromtimestamp(timeObsSeconds / 1000)
+                sampleString += "Time: " + str(timeString) + "\n"
+        
+        if rec.isValidParameter("provider"):
+            provider = rec.getString("provider")
+            if not provider in ('null'):
+                sampleString += "Provider: " + provider + "\n"
+        
+        if rec.isValidParameter("sub_provider"):
+            subProvider = rec.getString("sub_provider")
+            if not subProvider in ('null'):
+                sampleString += "Sub Provider: " + subProvider + "\n"
+
+        if rec.isValidParameter("restriction"):
+            restriction = rec.getInt("restriction")
+            if not self.isMissing(restriction):
+                sampleString += "Restriction: " + str(restriction) + "\n"
+
+        if rec.isValidParameter("dataset"):
+            dataset = rec.getInt("dataset")
+            if not self.isMissing(dataset):
+                sampleString += "Dataset: " + str(dataset) + "\n"
+
+        if rec.isValidParameter("temperature"):
+            temperature = rec.getFloat("temperature")
+            
+            if not self.isMissing(temperature):
+                temperature = (temperature - 273.15)* 1.8000 + 32
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("temperature_qcd"):
+                    qcd = rec.getString("temperature_qcd")
+                        
+                if rec.isValidParameter("temperature_qca"):
+                    qca = rec.getInt("temperature_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("temperature_qcr"):
+                    qcr = rec.getInt("temperature_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Temperature: "
+                sampleString += self.getString("%.0f" % (temperature), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("dewpoint"):
+            dewpoint = rec.getFloat("dewpoint")
+            
+            if not self.isMissing(dewpoint):
+                dewpoint = (dewpoint - 273.15)* 1.8000 + 32
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("dewpoint_qcd"):
+                    qcd = rec.getString("dewpoint_qcd")
+                        
+                if rec.isValidParameter("dewpoint_qca"):
+                    qca = rec.getInt("dewpoint_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("dewpoint_qcr"):
+                    qcr = rec.getInt("dewpoint_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Dew Point: "
+                sampleString += self.getString("%.0f" % (dewpoint), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("rh"):
+            rh = rec.getFloat("rh")
+            
+            if not self.isMissing(rh):
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("rh_qcd"):
+                    qcd = rec.getString("rh_qcd")
+                        
+                if rec.isValidParameter("rh_qca"):
+                    qca = rec.getInt("rh_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("rh_qcr"):
+                    qcr = rec.getInt("rh_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Relative Humidity: "
+                sampleString += self.getString("%.0f" % (rh), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("windDirection"):
+            windDir = rec.getFloat("windDirection")
+            
+            if not self.isMissing(windDir):
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("windDirection_qcd"):
+                    qcd = rec.getString("windDirection_qcd")
+                        
+                if rec.isValidParameter("windDirection_qca"):
+                    qca = rec.getInt("windDirection_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("windDirection_qcr"):
+                    qcr = rec.getInt("windDirection_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Wind Direction: "
+                sampleString += self.getString("%.0f" % (windDir), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("windSpeed"):
+            windSpeed = rec.getFloat("windSpeed")
+            
+            if not self.isMissing(windSpeed):
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("windSpeed_qcd"):
+                    qcd = rec.getString("windSpeed_qcd")
+                        
+                if rec.isValidParameter("windSpeed_qca"):
+                    qca = rec.getInt("windSpeed_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("windSpeed_qcr"):
+                    qcr = rec.getInt("windSpeed_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Wind Speed: "
+                sampleString += self.getString("%.0f" % (windSpeed), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("windGust"):
+            windGust = rec.getFloat("windGust")
+            
+            if not self.isMissing(windGust):
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("windGust_qcd"):
+                    qcd = rec.getString("windGust_qcd")
+                        
+                if rec.isValidParameter("windGust_qca"):
+                    qca = rec.getInt("windGust_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("windGust_qcr"):
+                    qcr = rec.getInt("windGust_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Wind Gust: "
+                sampleString += self.getString("%.0f" % (windGust), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("altimeter"):
+            altimeter = rec.getFloat("altimeter")
+            
+            if not self.isMissing(altimeter):
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("altimeter_qcd"):
+                    qcd = rec.getString("altimeter_qcd")
+                        
+                if rec.isValidParameter("altimeter_qca"):
+                    qca = rec.getInt("altimeter_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("altimeter_qcr"):
+                    qcr = rec.getInt("altimeter_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Altimeter: "
+                sampleString += self.getString("%.0f" % (altimeter / 100), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("pressure"):
+            pressure = rec.getFloat("pressure")
+            
+            if not self.isMissing(pressure):
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("pressure_qcd"):
+                    qcd = rec.getString("pressure_qcd")
+                        
+                if rec.isValidParameter("pressure_qca"):
+                    qca = rec.getInt("pressure_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("pressure_qcr"):
+                    qcr = rec.getInt("pressure_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Pressure: "
+                sampleString += self.getString("%.0f" % (pressure / 100), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("precipitalWater"):
+            precipitalWater = rec.getFloat("precipitalWater")
+            
+            if not self.isMissing(precipitalWater):
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("precipitalWater_qcd"):
+                    qcd = rec.getString("precipitalWater_qcd")
+                        
+                if rec.isValidParameter("precipitalWater_qca"):
+                    qca = rec.getInt("precipitalWater_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("precipitalWater_qcr"):
+                    qcr = rec.getInt("precipitalWater_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Precipital Water: "
+                sampleString += self.getString("%.2f" % (precipitalWater), qcd, qcaString, qcrString)
+                
+        if rec.isValidParameter("precipRate"):
+            precipRate = rec.getFloat("precipRate")
+            
+            if not self.isMissing(precipRate):
+                qcd = ""
+                qcaString = ""
+                qcrString = ""
+                
+                if rec.isValidParameter("precipRate_qcd"):
+                    qcd = rec.getString("precipRate_qcd")
+                        
+                if rec.isValidParameter("precipRate_qca"):
+                    qca = rec.getInt("precipRate_qca")
+                    if not self.isMissing(qca):
+                        qcaString = str(qca)
+                
+                if rec.isValidParameter("precipRate_qcr"):
+                    qcr = rec.getInt("precipRate_qcr")
+                    if not self.isMissing(qcr):
+                        qcrString = str(qcr)
+                        
+                sampleString += "Precip Rate: "
+                sampleString += self.getString("%.2f" % (precipRate), qcd, qcaString, qcrString)
+                
+                
+        return sampleString
+        
+    def getString(self, value, qcd, qca, qcr):
+        return value + " / " + qcd + " / " + qca + " / " + qcr + "\n"
+        
+plotDelegate = ObsPlotDelegate()
+
+</script>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+        text.barb
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.arrow
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+        text.weather
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: WxSymbolFont;
+
+            }
+        text.special
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-size: 1em;
+                font-family: SpecialSymbolFont;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">
+  <g id="windVaneText" plotMode="barb" plotParam="windSpeed,windDirection,windGust" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
+    <text id="windVaneText" class="arrow" x="0" y="0">0</text>
+    <text id="windArrowText" class="barb" x="0" y="0">arrow</text>
+    <text id="windGustText" class="text" x="0" y="32" style="text-anchor: middle">0</text>
+  </g>
+  <text id="pressure" plotMode="text" plotParam="pressure" plotUnit="hPa" plotFormat="%5.0f" plotTrim="2" style="text-anchor: start;" x="10px" y="-10px">018</text>
+  <text id="dewpoint" plotMode="text" plotParam="dewpoint" plotUnit="F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">59</text>
+  <text id="temperature" plotMode="text" plotParam="temperature" plotUnit="F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text> 
+
+  <text id="provider" plotMode="sample" class="text" plotParam="provider">0</text>
+  <text id="sub_provider" plotMode="sample" class="text" plotParam="sub_provider">0</text>
+  <text id="stationID" plotMode="sample" class="text" plotParam="stationId">0</text> 
+  <text id="restriction" plotMode="sample" class="text" plotParam="restriction">0</text> 
+  <text id="dataset" plotMode="sample" class="text" plotParam="dataset">0</text> 
+  <text id="timeObs" plotMode="sample" class="text" plotParam="timeObs">0</text> 
+  <text id="precipitalWater" plotMode="sample" plotParam="precipitalWater" plotUnit="in" plotFormat="%3.0f" style="text-anchor: end;">0</text>
+  <text id="precipitalWater_qcd" plotMode="sample" plotParam="precipitalWater_qcd">59</text>
+  <text id="precipitalWater_qcr" plotMode="sample" plotParam="precipitalWater_qcr">59</text>
+  <text id="precipitalWater_qca" plotMode="sample" plotParam="precipitalWater_qca">59</text>
+  <text id="rh" plotMode="sample" plotParam="rh" plotUnit="%" plotFormat="%2.0f" style="text-anchor: end;">0</text>
+  <text id="rh_qcd" plotMode="sample" plotParam="rh_qcd">59</text>
+  <text id="rh_qcr" plotMode="sample" plotParam="rh_qcr">59</text>
+  <text id="rh_qca" plotMode="sample" plotParam="rh_qca">59</text>
+  <text id="precipRate" plotMode="sample" plotParam="precipRate" plotUnit="in/hr" plotFormat="%2.0f" style="text-anchor: end;">0</text>
+  <text id="precipRate_qcd" plotMode="sample" plotParam="precipRate_qcd">59</text>
+  <text id="precipRate_qcr" plotMode="sample" plotParam="precipRate_qcr">59</text>
+  <text id="precipRate_qca" plotMode="sample" plotParam="precipRate_qca">59</text>
+  <text id="pressure" plotMode="sample" plotParam="pressure" plotUnit="hPa">018</text>
+  <text id="pressure_qcd" plotMode="sample" plotParam="pressure_qcd">59</text>
+  <text id="pressure_qcr" plotMode="sample" plotParam="pressure_qcr">59</text>
+  <text id="pressure_qca" plotMode="sample" plotParam="pressure_qca">59</text>
+  <text id="altimeter" plotMode="sample" plotParam="altimeter" plotUnit="hPa">018</text>
+  <text id="altimeter_qcd" plotMode="sample" plotParam="altimeter_qcd">59</text>
+  <text id="altimeter_qcr" plotMode="sample" plotParam="altimeter_qcr">59</text>
+  <text id="altimeter_qca" plotMode="sample" plotParam="altimeter_qca">59</text>
+  <text id="windSpeed" plotMode="sample" plotParam="windSpeed" plotUnit="kn">0</text>
+  <text id="windSpeed_qcd" plotMode="sample" plotParam="windSpeed_qcd">59</text>
+  <text id="windSpeed_qcr" plotMode="sample" plotParam="windSpeed_qcr">59</text>
+  <text id="windSpeed_qca" plotMode="sample" plotParam="windSpeed_qca">59</text>
+  <text id="windDirection" plotMode="sample" plotParam="windDirection" plotUnit="degree_angle">0</text>
+  <text id="windDirection_qcd" plotMode="sample" plotParam="windDirection_qcd">59</text>
+  <text id="windDirection_qcr" plotMode="sample" plotParam="windDirection_qcr">59</text>
+  <text id="windDirection_qca" plotMode="sample" plotParam="windDirection_qca">59</text>
+  <text id="windGust" plotMode="sample" plotParam="windGust" plotUnit="kn">0</text>
+  <text id="windGust_qcd" plotMode="sample" plotParam="windGust_qcd">59</text>
+  <text id="windGust_qcr" plotMode="sample" plotParam="windGust_qcr">59</text>
+  <text id="windGust_qca" plotMode="sample" plotParam="windGust_qca">59</text>
+  <text id="dewpoint" plotMode="sample" plotParam="dewpoint">59</text>
+  <text id="dewpoint_qcd" plotMode="sample" plotParam="dewpoint_qcd">59</text>
+  <text id="dewpoint_qcr" plotMode="sample" plotParam="dewpoint_qcr">59</text>
+  <text id="dewpoint_qca" plotMode="sample" plotParam="dewpoint_qca">59</text>
+  <text id="temperature" plotMode="sample" plotParam="temperature">59</text>
+  <text id="temperature_qcd" plotMode="sample" plotParam="temperature_qcd">59</text>
+  <text id="temperature_qcr" plotMode="sample" plotParam="temperature_qcr">59</text>
+  <text id="temperature_qca" plotMode="sample" plotParam="temperature_qca">59</text>
+</symbol>
+</defs>
+<use id="precip" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

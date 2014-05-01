@@ -1,0 +1,236 @@
+C MEMBER INFL51
+C---------------------------------------------------------------------
+C
+C@PROCESS LVL(77)
+C
+      SUBROUTINE INFL51(WK,IUSEW,LEFTW,NPINF,NTINF,NCINF,OKINFL)
+C
+C DESC READS ALL INPUT FOR INFLOW SECTON OF OPERATION 51 PIN ROUTINE.
+C
+C----------------------------------------------------------------------
+C  ARGS:
+C     WK - ARRAY TO HOLD ENCODE INFLOW INFORMATION
+C    IUSEW - NO. OF WORDS ALREADY USED IN WORK ARRAY
+C    LEFTW - NO. OF WORDS REMAINING IN WORK ARRAY
+C    NTINF - NO. OF WORDS NEEDED TO HOLD INFLOW TS INFO
+C    NCINF - NO. OF WORDS NEEDED TO HOLD INFLOW CARRYOVER INFO
+C   OKINFL - LOGICAL VARIABLE TELLING WHETHER ANY MISTAKES OCCURRED IN
+C            INFLOW SECTION INPUT.
+C
+C-----------------------------------------------------------------------
+C
+C  KUANG HSU - HRL - APRIL 1994
+C----------------------------------------------------------------
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/read51'
+      INCLUDE 'common/fld51'
+      INCLUDE 'common/err51'
+      INCLUDE 'common/comn51'
+C
+      DIMENSION KEYWDS(3,4),LKEYWD(4),LINE(20),
+     . ENDINF(2),WK(*),IG(2)
+C
+      LOGICAL OKINFL,PRINT1,PRINT2
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_ssarresv/RCS/infl51.f,v $
+     . $',                                                             '
+     .$Id: infl51.f,v 1.2 1996/12/10 15:16:41 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA KEYWDS/
+     .            4HTIME,4H-SER,4HIES ,4HTS  ,4H    ,4H    ,
+     .            4HCARR,4HYOVE,4HR   ,4HCO  ,4H    ,4H    /
+      DATA LKEYWD/3,1,3,1/
+      DATA NKEYWD/4/
+      DATA NDKEY/3/
+      DATA BLANK/4H    /
+      DATA ENDINF/4HENDI,4HINFW/
+C
+C  INITIALIZE COUNTERS AND LOCAL VARIABLES
+C
+      OKINFL = .TRUE.
+      USEDUP = .FALSE.
+      NTINF = 0
+      NCINF = 1
+      NUMERR = 0
+      NUMTS = 0
+      PRINT1 = .FALSE.
+      PRINT2 = .FALSE.
+      OKELST = .FALSE.
+      IERR = 0
+C
+C  SET OFFSET FOR START OF INFO IN INFLOW SECTION
+C
+      NGOFF = IUSEW
+C
+      DO 3 I =1,2
+           IG(I) = 0
+    3 CONTINUE
+C
+C--------------------------------------------------------------------
+C  NOW PROCESS INPUT UP TO 'ENDINFLW', LOOKING FOR, IN ORDER, KEYWORDS
+C  FOR TIME-SERIES, AND CARRYOVER.
+C
+C  EACH OF THESE HAVE A PRIMARY AND ABBREVIATED KEYWORD.
+C
+C  RESERVE 4 WORDS FOR LOCATION AND NUMBER OF VALUES FOR TIME-SERIES,
+C  AND CARRYOVER OF INFLOW SECTION
+      DO 390 J=1,4
+      CALL FLWK51(WK,IUSEW,LEFTW,0.01,501)
+ 390  CONTINUE
+C
+      IGSTRT = LINFL+1
+      NINF2 = NINFL - 1
+      CALL POSN26(MUNI51,IGSTRT)
+      LAINFL = NINF2 - 1
+      NCARD = 0
+C
+  100 IF (NCARD .GE. LAINFL) GO TO 900
+      NUMFLD = 0
+      CALL UFLD51(NUMFLD,IERF)
+      IF (NCARD .GE. LAINFL) GO TO 900
+      IF (IERF.GT.0) GO TO 9000
+C
+C  LOOK FOR MATCH OF PROPER KEYWORD
+C
+      NUMWD = (LEN -1)/4 + 1
+      IDEST = IKEY26(CHAR,NUMWD,KEYWDS,LKEYWD,NKEYWD,NDKEY)
+      IF (IDEST .GT. 0) GO TO 150
+C
+C  NO VALID KEYWORD FOUND
+C
+      CALL STER51(1,1)
+      GO TO 100
+C
+C  NOW SEND TO CONTROL TO LOCATION TO PROCESS PROPER KEYWORD
+C
+  150 CONTINUE
+      LOCPTS = 0
+      GO TO (500,500,600,600) , IDEST
+C
+C-----------------------------------------------------------------------
+C  TIME-SERIES INFORMATION EXPECTED NEXT. IF NOT FOUND, SIGNAL ERROR.
+C  IF FOUND, CALL ROUTINE TO INPUT TIME-SERIES
+C
+  500 CONTINUE
+      IG(1) = IG(1) + 1
+      IF (IG(1).GT.1) CALL STER51(39,1)
+C
+C  SET POINTER FOR START OF TIME SERIES INFO AND REFILL POSITION IN WORK
+C  WITH THIS VALUE
+C
+      TSSTRT = IUSEW + 1.01
+      LOCX = NGOFF + 1
+      CALL RFIL51(WK,LOCX,TSSTRT)
+C
+      CALL INFT51(WK,IUSEW,LEFTW,NTINF)
+C
+C  SET THE NUMBER OF WORDS NEEDED TO STORE THE TIME SERIES INFO
+C
+      TINFN = NTINF + 0.01
+      LOCX = NGOFF + 2
+      CALL RFIL51(WK,LOCX,TINFN)
+      GO TO 100
+C
+C------------------------------------------------------------------
+C  ' CARRYOVER' EXPECTED HERE. IF NOT FOUND, SIGNAL ERROR. IF FOUND
+C  CALL ROUTINE TO GET CARRYOVER VALUES FOR THE OPERATION
+C
+  600 CONTINUE
+      IG(2) = IG(2) + 1
+C
+605   CONTINUE
+      IF (IG(2).GT.1) CALL STER51(39,1)
+C
+C  SET START OF CARRYOVER INFO IN WORK ARRAY
+C
+      LOCCO = IUSEW + 1
+      COLOC = LOCCO + 0.01
+      LOCX = NGOFF + 3
+      CALL RFIL51(WK,LOCX,COLOC)
+C
+      CALL INFC51(WK,IUSEW,LEFTW,NCINF)
+C
+C  RESET THE NUMBER OF WORDS TO STORE CARRYOVER
+C
+      CINFN = NCINF + 0.01
+      LOCX = NGOFF + 4
+      CALL RFIL51(WK,LOCX,CINFN)
+C
+      GO TO 100
+C
+C--------------------------------------------------------------
+C  SUMMARY
+C---------------------------------------------------------------
+C
+  900 CONTINUE
+C
+C  TS IS REQUIRED. IF NOT FOUND, SIGNAL ERROR
+C
+          IF (IG(1).EQ.0) CALL STER51(36,1)
+C
+      IF (IG(2).EQ.1) GO TO 1000
+C
+C  SET START OF CARRYOVER INFO IN WORK ARRAY
+C
+      LOCCO = IUSEW + 1
+      COLOC = LOCCO + 0.01
+      LOCX = NGOFF + 3
+      CALL RFIL51(WK,LOCX,COLOC)
+      CINFN = 1.01
+      LOCX = NGOFF + 4
+      CALL RFIL51(WK,LOCX,CINFN)
+C
+C  STORE -999.0 AS DEFAULT CARRYOVER
+C
+      VAL = -999.0
+      CALL FLWK51(WK,IUSEW,LEFTW,VAL,501)
+C
+C-------------------------------------------------------
+C  DONE PROCESSING ALL INPUT FOR INFLOW SUBSECTION
+C  PRINT ANY ERRORS IF THEY OCCURRED
+C
+ 1000 CONTINUE
+      IF (NUMERR.EQ.0) GO TO 9999
+      IF (NUMERR.GT.0) OKINFL = .FALSE.
+C
+C  POSITION TO START OF INFLOW SECTION INPUT AND PRINT INPUT WITH
+C  LINE NUMBERS.
+C
+      WRITE(IPR,770)
+  770 FORMAT(1H1,' *** INFLOW SECTION INPUT FOR THIS OPERATION ',
+     .'DEFINITION ***'//)
+C
+      IGSTRT = LINFL+1
+      CALL POSN26(MUNI51,IGSTRT)
+C
+      NINF2 = NINFL - 1
+      DO 30 I=1,NINF2
+      READ(MUNI51,891) LINE
+      WRITE(IPR,892) I,LINE
+   30 CONTINUE
+C
+  891 FORMAT(20A4)
+  892 FORMAT(1H ,'(',I3,')',1X,20A4)
+      CALL EROT51
+      GO TO 9999
+C
+C  ERROR FOUND IN READING THE NEXT FIELD, SET ERROR AND GET NEXT CARD
+C
+ 9000 CONTINUE
+      IF (IERF.EQ.1) CALL STER51(19,1)
+      IF (IERF.EQ.2) CALL STER51(20,1)
+      IF (IERF.EQ.3) CALL STER51(21,1)
+      IF (IERF.EQ.4) CALL STER51(1,1)
+      IF (IERF.NE.3) GO TO 100
+      USEDUP = .TRUE.
+      GO TO 1000
+C
+ 9999 CONTINUE
+      RETURN
+      END

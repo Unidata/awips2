@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# pcrename - use the include file name list for PC's to rename include files
+#
+# SAM, RTi (2-11-93)
+#
+# 1.    Copy all of the files from /usr/local/src/NWS/calb/include to another
+#       directory.
+# 2.    Run this program by typing:
+#
+#               pcrename
+#
+# 3.    All of the include files should be renamed to names which will work in
+#       the DOS world.
+#
+
+pcfile="includes.pc"
+
+ls | cut -f9 | (
+        while [ "1" = "1" ]                     # read name of each include file
+                do
+                read original
+                if [ "$original" = "" ]
+                        then
+                        exit 0
+                fi
+                new=`cat $pcfile |
+                awk '{ if ( $1 == original ) print $2 }' original=$original -`
+                if [ "$new" = "" ]
+                        then
+                        echo "Unable to rename \"$original\""
+                else    echo "Ranaming \"$original\" to \"$new\"..."
+                        if [ -f "$original" ]
+                                then
+                                mv $original $new
+                        fi
+                fi
+        done
+)
+
+exit 0

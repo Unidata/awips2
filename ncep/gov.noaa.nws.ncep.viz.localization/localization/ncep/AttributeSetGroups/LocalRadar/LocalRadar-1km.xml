@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resource>LocalRadar</resource>
+    <attrSetGroupName>1km</attrSetGroupName>
+    <attrSetNames>VEL3_1.00,VEL5_1.00,BREF6_1.00,SRVEL2_1.00,TOPS_1.00,EETOPS_1.00,CREF_1.00,BREF4_1.00,DIGSCAN_1.00,VEL6_1.00,SRVEL6_1.00,BREF1_1.00,BREF5_1.00,SRVEL3_1.00,VEL2_1.00,BREF3_1.00,VIL_1.00,VEL4_1.00,VEL1_1.00,SRVEL5_1.00,SRVEL4_1.00,BREF2_1.00,SRVEL1_1.00</attrSetNames>
+</AttributeSetGroup>

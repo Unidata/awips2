@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.raytheon.uf.viz.xy.VizXyEditor"
+            default="true"
+            icon="icons/timeHeight.gif"  
+            id="com.raytheon.uf.viz.xy.timeheight.TimeHeightEditor"
+            name="Time Height">
+      </editor>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+      		name="TimeHeightDescriptor"
+            class="com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor"
+            editor="com.raytheon.uf.viz.xy.timeheight.TimeHeightEditor">
+      </descriptor>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightImageResource"
+            name="Time Height Image"
+            renderingOrderId="IMAGE_COUNTRY"
+            resourceType="TIME_HEIGHT"/>
+      <resource
+            class="com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightContourResource"
+            name="Time Height Contours"
+            renderingOrderId="CONTOUR"
+            resourceType="TIME_HEIGHT"/>
+      <resource
+            class="com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightVectorResource"
+            name="Time Height Vector"
+            renderingOrderId="CONTOUR"
+            resourceType="TIME_HEIGHT">
+      </resource>
+   </extension>
+</plugin>

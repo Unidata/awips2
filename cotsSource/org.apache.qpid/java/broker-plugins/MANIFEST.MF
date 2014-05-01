@@ -1,0 +1,14 @@
+Bundle-ManifestVersion: 2
+Bundle-Name: Qpid Plugins
+Bundle-Description: A simple plugin for qpid.
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-DocURL: http://www.apache.org/
+Bundle-SymbolicName: org.apache.qpid.extras.example-plugin
+Bundle-Activator: org.apache.qpid.extras.Activator
+Private-Package: org.apache.qpid.extras,org.apache.qpid.extras.exchang
+ es.diagnostic,org.apache.qpid.extras.exchanges.example
+Import-Package: javax.management,javax.management.openmbean,org.apache
+ .qpid,org.apache.qpid.framing,org.apache.qpid.junit.extensions.util,o
+ rg.apache.qpid.protocol,org.apache.qpid.server.exchange,org.apache.qp
+ id.server.management,org.apache.qpid.server.queue,org.apache.qpid.ser
+ ver.virtualhost,org.osgi.framework;version=1.3

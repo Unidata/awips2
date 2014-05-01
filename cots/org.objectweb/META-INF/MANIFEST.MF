@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Objectweb Plug-in
+Bundle-SymbolicName: org.objectweb
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: asm.jar,
+ asm-2.1.jar,
+ asm-attrs.jar,
+ asm-commons-2.1.jar,
+ .
+Export-Package: org.objectweb.asm,
+ org.objectweb.asm.attrs,
+ org.objectweb.asm.commons,
+ org.objectweb.asm.signature
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

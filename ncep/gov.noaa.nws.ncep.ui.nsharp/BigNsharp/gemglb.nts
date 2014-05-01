@@ -1,0 +1,132 @@
+ADDSTN  YES                                                                                                                             
+AFOSFL                                                                                                                                  
+AWPSFL                                                                                                                                  
+ANLYSS  4/2;2;2;2                                                                                                                       
+AREA    @oun                                                                                                                            
+BORDER  1                                                                                                                               
+CINT    0                                                                                                                               
+CLEAR   YES                                                                                                                             
+CLRBAR                                                                                                                                  
+CNTRFL                                                                                                                                  
+COLORS  1                                                                                                                               
+COLUMN  1                                                                                                                               
+CONTUR  0                                                                                                                               
+CPYFIL                                                                                                                                  
+CTLFLG  YES                                                                                                                             
+CTYPE   C                                                                                                                               
+CURVE   2                                                                                                                               
+CXSTNS                                                                                                                                  
+DATTIM  000208/1200                                                                                                                     
+DELTAN                                                                                                                                  
+DELTAX                                                                                                                                  
+DELTAY                                                                                                                                  
+DEVICE  XW                                                                                                                              
+DTAAREA                                                                                                                                 
+EXTEND  2;2;2;2                                                                                                                         
+FILTER  YES                                                                                                                             
+FINT    0                                                                                                                               
+FLINE   10-20                                                                                                                           
+GAMMA   0.3                                                                                                                             
+GAREA   WV                                                                                                                              
+GBDIAG                                                                                                                                  
+GBFILE                                                                                                                                  
+GBTBLS                                                                                                                                  
+GDATTIM LAST                                                                                                                            
+GDEFIL  GDLIST.FIL                                                                                                                      
+GDFILE  $GEMDATA/HRCBOB.GRD                                                                                                             
+GDNUM   LIST                                                                                                                            
+GDOUTF                                                                                                                                  
+GDPFUN  TMPC                                                                                                                            
+GFUNC   TMPC                                                                                                                            
+GGLIMS                                                                                                                                  
+GLEVEL  500                                                                                                                             
+GPACK                                                                                                                                   
+GPOINT  IAD                                                                                                                             
+GRDAREA                                                                                                                                 
+GRDLBL  0                                                                                                                               
+GRDNAM                                                                                                                                  
+GUESS                                                                                                                                   
+GVCORD  PRES                                                                                                                            
+GVECT   WND                                                                                                                             
+HILO                                                                                                                                    
+HISTGRD NO                                                                                                                              
+HLSYM                                                                                                                                   
+HRCN                                                                                                                                    
+IDNTYP  STID                                                                                                                            
+INDXFL                                                                                                                                  
+ISIG                                                                                                                                    
+KXKY    10;10                                                                                                                           
+LATLON  0                                                                                                                               
+LEVELS  all                                                                                                                             
+LINE    3                                                                                                                               
+LSTALL  YES                                                                                                                             
+LUTFIL                                                                                                                                  
+MAP     1                                                                                                                               
+$MAPFIL HIPOWO.CIA                                                                                                                      
+MARKER  0                                                                                                                               
+MAXGRD  200                                                                                                                             
+MIXRLN  0                                                                                                                               
+MRGDAT  YES                                                                                                                             
+NPASS   2                                                                                                                               
+NTRACE  5                                                                                                                               
+OUTFIL                                                                                                                                  
+OUTPUT  T                                                                                                                               
+PANEL   0                                                                                                                               
+PIXRES  1                                                                                                                               
+POSN    0                                                                                                                               
+PROJ    MER                                                                                                                             
+PTYPE   LOG                                                                                                                             
+QCNTL                                                                                                                                   
+RADFIL                                                                                                                                  
+REGION  VIEW                                                                                                                            
+REFVEC                                                                                                                                  
+$RESPONDYES                                                                                                                             
+SATFIL                                                                                                                                  
+SAVFIL                                                                                                                                  
+SCALE   999                                                                                                                             
+SEARCH  20                                                                                                                              
+SFEFIL  SFLIST.FIL                                                                                                                      
+SFFILE  $GEMDATA/HRCBOB.SFC                                                                                                             
+SFFSRC                                                                                                                                  
+SFOUTF                                                                                                                                  
+SFPARM  SKYC;TMPF;WSYM;PMSL;;DWPF;BRBK                                                                                                  
+SFPRMF  METAR.PACK                                                                                                                      
+SHIPFL  NO                                                                                                                              
+SHRTTL                                                                                                                                  
+SKIP    0                                                                                                                               
+SKPMIS  NO                                                                                                                              
+SNBUFR                                                                                                                                  
+SNEFIL  SNLIST.FIL                                                                                                                      
+SNFILE  /NAWIPS/nadata2/model/pfcst/eta_00020812.snd_1                                                                                  
+SNOUTF                                                                                                                                  
+SNPARM  PRES;HGHT;TEMP;DWPT;DRCT;SPED;OMEG                                                                                              
+SNPRMF  SNMERG.PACK                                                                                                                     
+SOURCE  SF                                                                                                                              
+STATION BWI                                                                                                                             
+STNCOL  1                                                                                                                               
+STNDEX                                                                                                                                  
+STNFIL  SFSTNS.TBL                                                                                                                      
+STNTYP  A                                                                                                                               
+STREAM                                                                                                                                  
+TAXIS                                                                                                                                   
+TEXT    1                                                                                                                               
+THTALN  0                                                                                                                               
+THTELN  0                                                                                                                               
+TIMSTN  1/0                                                                                                                             
+TITLE   1                                                                                                                               
+TRACE1  TMPF;DWPF:3/2;3                                                                                                                 
+TRACE2  PMSL/4                                                                                                                          
+TRACE3  SKNT;GUST;DARR/1                                                                                                                
+TRACE4  VSBY/7                                                                                                                          
+TRACE5  CLDS;;WSYM/6                                                                                                                    
+TXTFIL                                                                                                                                  
+TXTLOC                                                                                                                                  
+TYPE    C                                                                                                                               
+VCOORD  PRES                                                                                                                            
+VGFILE                                                                                                                                  
+WARN                                                                                                                                    
+WATCH                                                                                                                                   
+WIND    BM1                                                                                                                             
+WINPOS  1                                                                                                                               
+XAXIS                                                                                                                                   
+YAXIS                                                                                                                                   

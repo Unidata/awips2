@@ -1,0 +1,2 @@
+Here's an example setUp method for the wind_phrase.  We first set up the information about the weather elements included in the phrase.  Then we determine a connectorMethod which will create the connecting words between sub-phrases.  For example, "North winds 10 mph INCREASING TO 20 mph in the afternoon". Then we call a PhraseBuilder method to set up the sub-phrases according to the temporal resolution of the statistics. Finally, it is important the we return the "self.DONE()" flag so this method is not called again.
+

@@ -1,0 +1,54 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "DbmsUtils.h"
+#include <sqlca.h>
+
+int  execStatement ( char *origStatement )
+{
+     EXEC SQL BEGIN DECLARE SECTION;
+          char		statement[BUFSIZ];
+     EXEC SQL END DECLARE SECTION;
+  	
+  	
+     /*
+  	   Copy to host var
+     */	
+     strncpy(statement, origStatement, BUFSIZ-1);
+  
+  	
+     /*
+          Ensure a valid statement has been passed.
+     */
+     if (! statement )
+     {
+         fprintf(stderr, "Invalid statement.  Statement is null.\n");
+         return(-1);
+     }
+     else if ( ! *statement)
+     {
+     	 fprintf(stderr, "Invalid statement.  Statement = :%s:\n",statement);
+         return(-1);
+     }
+   
+	
+     /*
+          Execute the sqlstmt
+     */
+     EXEC SQL EXECUTE IMMEDIATE :statement;   
+   
+   
+     /*
+          Check for errors
+     */
+     if (SQLCODE < 0)
+     {
+          fprintf(stderr, "\nFailure on execute of statement :%s:\n", statement);
+          fprintf(stderr, " SQL Error code = %ld\n", SQLCODE);   
+     }
+   
+   
+     return SQLCODE; 			
+
+}

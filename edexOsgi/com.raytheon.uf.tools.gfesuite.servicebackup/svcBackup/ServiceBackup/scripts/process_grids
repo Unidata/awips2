@@ -1,0 +1,37 @@
+#!/bin/bash
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+# Create the log file
+logdir=${IFPS_LOG}/`date +%Y%m%d`
+logfil=svcbu_receive_grids_`date +%H%M`
+logfile=${logdir}/${logfil}
+[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
+touch ${logdir}/${logfil}
+exec 1>${logdir}/${logfil} 2>&1
+
+# Check the status of the lock file to see if we are OK to proceed
+if [ ! -f ${LOCK_DIR}/importGrids ];
+then
+	log_msg Lock file not present for importing grids!  Cannot continue!
+	touch ${LOCK_DIR}/svcbuerr
+    rm -f ${LOCK_DIR}/importGrids
+    log_msg 100
+    exit 1
+fi
+
+. $SCRIPTS_DIR/proc_receive_grids ${1}
+exitValue=($?)
+if [ $exitValue -ne 0 ]; then
+    log_msg "Receive grids returned with errors..."
+    touch ${LOCK_DIR}/svcbuerr
+    rm -f ${LOCK_DIR}/importGrids
+    log_msg 100
+    exit 1
+fi
+exit 0

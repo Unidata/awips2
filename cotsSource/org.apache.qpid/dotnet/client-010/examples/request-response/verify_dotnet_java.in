@@ -1,0 +1,21 @@
+==== server_dotnet.out
+Waiting for requests
+Request: Twas brillig, and the slithy toves
+Request: Did gire and gymble in the wabe.
+Request: All mimsy were the borogroves,
+Request: And the mome raths outgrabe.
+==== client_java.out | remove_uuid
+Client: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Client: Creating a non-transacted, auto-acknowledged session
+Client: Creating a QueueRequestor
+Client: Starting connection
+Client: 	Request Content= Twas brillig, and the slithy toves
+Client: 	Response Content= TWAS BRILLIG, AND THE SLITHY TOVES
+Client: 	Request Content= Did gire and gymble in the wabe.
+Client: 	Response Content= DID GIRE AND GYMBLE IN THE WABE.
+Client: 	Request Content= All mimsy were the borogroves,
+Client: 	Response Content= ALL MIMSY WERE THE BOROGROVES,
+Client: 	Request Content= And the mome raths outgrabe.
+Client: 	Response Content= AND THE MOME RATHS OUTGRABE.
+Client: Closing connection
+Client: Closing JNDI context

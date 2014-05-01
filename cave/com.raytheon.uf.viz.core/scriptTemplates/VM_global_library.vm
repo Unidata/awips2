@@ -1,0 +1,192 @@
+#macro(standardSelect $scriptLibrary $maxRecords $scriptMetadata $ignoreDataTime)
+import ${scriptLibrary}
+#set($pluginName = $scriptMetadata.get("pluginName").constraintValue)
+dataRequest = ${scriptLibrary}.${scriptLibrary}("${pluginName}")
+dataRequest.setCount(${maxRecords})
+#foreach (${key} in ${scriptMetadata.keySet()})  
+#if(${key})
+#if(${key} != "pluginName" && (${key} != "dataTime" || !${ignoreDataTime}))
+#set($constraint = $scriptMetadata.get($key))
+#set($operand = "=")
+#if ($constraint.constraintType == "NOT_EQUALS")
+#set($operand = "!=")
+#elseif ($constraint.constraintType == "GREATER_THAN")
+#set($operand = ">")
+#elseif ($constraint.constraintType == "GREATER_THAN_EQUALS")
+#set($operand = ">=")
+#elseif ($constraint.constraintType == "LESS_THAN") 
+#set($operand = "<")
+#elseif ($constraint.constraintType == "LESS_THAN_EQUALS") 
+#set($operand = "<=")    
+#elseif ($constraint.constraintType == "BETWEEN") 
+#set($operand = "between")  
+#elseif ($constraint.constraintType == "IN") 
+#set($operand = "in")
+#elseif ($constraint.constraintType == "LIKE")
+#set($operand = "like")
+#elseif ($constraint.constraintType == "ILIKE")
+#set($operand = "ilike")
+#elseif ($constraint.constraintType == "ISNULL")
+#set($operand = "isnull")
+#end  
+#if ($constraint.constraintType == "IN")
+dataRequest.addList("${key}","${constraint.constraintValue}")
+#else
+dataRequest.addParameter("${key}","${constraint.constraintValue}","${operand}")
+#end
+#end
+#end
+#end
+return dataRequest.execute()
+#end
+
+
+#macro(standardCatalog $scriptLibrary $scriptMetadata)
+query = CatalogQuery.CatalogQuery("$scriptMetadata.get("pluginName").constraintValue")
+
+#if ($scriptMetadata.get("distinctFieldName"))
+query.setDistinctField("$scriptMetadata.get("distinctFieldName").constraintValue")
+#elseif ($scriptMetadata.get("maxName"))
+query.addMaxReturnedField("$scriptMetadata.get("maxName").constraintValue")
+#end
+
+#foreach (${name} in ${scriptMetadata.keySet()})
+#if(${name} != "pluginName")
+#set($constraint = $scriptMetadata.get($name))
+#if ($name == "pluginName") 
+#set($name = "plugin")
+#end
+#if($name != "distinctFieldName" && $name != "maxName")
+#set($operand = "=")
+#if ($constraint.constraintType == "NOT_EQUALS")
+#set($operand = "!=")
+#elseif ($constraint.constraintType == "GREATER_THAN")
+#set($operand = ">")
+#elseif ($constraint.constraintType == "GREATER_THAN_EQUALS")
+#set($operand = ">=")
+#elseif ($constraint.constraintType == "LESS_THAN") 
+#set($operand = "<")
+#elseif ($constraint.constraintType == "LESS_THAN_EQUALS") 
+#set($operand = "<=")    
+#elseif ($constraint.constraintType == "BETWEEN") 
+#set($operand = "between")  
+#elseif ($constraint.constraintType == "IN") 
+#set($operand = "in")
+#elseif ($constraint.constraintType == "LIKE") 
+#set($operand = "like")
+#elseif ($constraint.constraintType == "ISNULL")
+#set($operand = "isnull")
+#end     
+query.addConstraint("${name}","${constraint.constraintValue}","${operand}")
+#end
+#end
+#end
+return query.execute()
+#end
+
+#macro(standardLatestTime $scriptMetadata)
+import LatestTime
+ltq = LatestTime.LatestTime('$scriptMetadata.get("uriList").constraintValue')
+return ltq.execute()
+#end
+
+#macro(standardDbQuery $scriptMetadata)
+import BaseRequest
+#if ($scriptMetadata.containsKey("plugin"))
+query = BaseRequest.BaseRequest("$scriptMetadata.remove("plugin").constraintValue")
+#else
+query = BaseRequest.BaseRequest("","$scriptMetadata.remove("dbName").constraintValue","$scriptMetadata.remove("className").constraintValue")
+#end
+#if ($scriptMetadata.containsKey("distinctField"))
+query.setDistinctField("$scriptMetadata.remove("distinctField").constraintValue","$scriptMetadata.remove("distinctClass").constraintValue")
+#end
+#if ($scriptMetadata.containsKey("orderBy"))
+query.setOrderByList("$scriptMetadata.remove("orderBy").constraintValue","$scriptMetadata.remove("sortOrder").constraintValue")
+#end
+#if ($scriptMetadata.containsKey("maxResults"))
+query.setCount($scriptMetadata.remove("maxResults").constraintValue)
+#end
+#if ($scriptMetadata.containsKey("columns"))
+query.setReturnedFieldList("$scriptMetadata.remove("columns").constraintValue")
+#end
+#if ($scriptMetadata.containsKey("joinFields"))
+query.setJoinFields("$scriptMetadata.remove("joinFields").constraintValue")
+#end
+#foreach (${name} in ${scriptMetadata.keySet()})
+#set($constraint = $scriptMetadata.get($name))
+#if($name != "pluginName")
+#set($operand = "=")
+#if ($constraint.constraintType == "NOT_EQUALS")
+#set($operand = "!=")
+#elseif ($constraint.constraintType == "GREATER_THAN")
+#set($operand = ">")
+#elseif ($constraint.constraintType == "GREATER_THAN_EQUALS")
+#set($operand = ">=")
+#elseif ($constraint.constraintType == "LESS_THAN") 
+#set($operand = "<")
+#elseif ($constraint.constraintType == "LESS_THAN_EQUALS") 
+#set($operand = "<=")    
+#elseif ($constraint.constraintType == "BETWEEN") 
+#set($operand = "between")  
+#elseif ($constraint.constraintType == "IN") 
+#set($operand = "in")
+#elseif ($constraint.constraintType == "LIKE")
+#set($operand = "like")
+#elseif ($constraint.constraintType == "ILIKE")
+#set($operand = "ilike")
+#elseif ($constraint.constraintType == "ISNULL")
+#set($operand = "isnull")
+#end  
+#if ($constraint.constraintType == "IN")
+query.addList("${name}","${constraint.constraintValue}")
+#else
+query.addParameter("${name}","${constraint.constraintValue}","${operand}")
+#end
+#end
+#end
+return query.execute()
+#end
+
+#macro(hqlQuery $scriptMetadata)
+import HqlQuery
+request = HqlQuery.HqlQuery("$scriptMetadata.remove("query").constraintValue","$scriptMetadata.remove("database").constraintValue")
+return request.execute()
+#end
+
+#macro(sqlQuery $scriptMetadata)
+import SqlQuery
+request = SqlQuery.SqlQuery("$scriptMetadata.remove("query").constraintValue","$scriptMetadata.remove("database").constraintValue")
+return request.execute()
+#end
+
+#macro(sqlStatement $scriptMetadata)
+import SqlStatement
+request = SqlStatement.SqlStatement("$scriptMetadata.remove("query").constraintValue","$scriptMetadata.remove("database").constraintValue")
+return request.execute()
+#end
+
+#macro(hqlStatement $scriptMetadata)
+import HqlStatement
+request = HqlStatement.HqlStatement("$scriptMetadata.remove("query").constraintValue","$scriptMetadata.remove("database").constraintValue")
+return request.execute()
+#end
+
+#macro(saveOrUpdateObject $scriptMetadata)
+import SaveOrUpdateObject
+request = SaveOrUpdateObject.SaveOrUpdateObject("$scriptMetadata.remove("dbName").constraintValue")
+
+#foreach (${obj} in ${scriptMetadata.values()})
+#if($obj.constraintValue != "satellite")
+request.addObject("$obj.constraintValue")
+#end
+#end
+
+return request.execute()
+#end
+
+
+#macro(getRecordClass $scriptMetadata)
+import GetPluginRecordClass
+request = GetPluginRecordClass.GetPluginRecordClass("$scriptMetadata.remove("ufPlugin").constraintValue")
+return request.execute()
+#end

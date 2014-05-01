@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+     	* SOFTWARE HISTORY
+ 		* Date         Ticket#     Engineer    Description
+ 		* __________   _______     __________  __________________________
+ 		* 09/15/2011   458		   S. Gurung	Initial creation.  
+ 		* 09/29/2011               S. Gurung    Added REPORTTYPE 
+ 		* 10/26/2011               S. Gurung    Added probable parameters
+ 		* 11/03/2011               S. Gurung    Renamed some parameters and added additional parameters
+ 		* 11/07/2011               S. Gurung    Added LOW_LEVEL_WIND_SHEAR
+    -->
+<pointDataDescription>
+  <dimension name="maxIcngLyr" length="5"/>
+  <dimension name="maxSkyCover" length="5"/>
+  <dimension name="maxTempFcst" length="5"/>
+  <dimension name="maxTurbFcst" length="5"/>
+  <dimension name="maxWthrCond" length="5"/>
+    
+  <!--<parameter name="RAWDATA" numDims="1" type="STRING" size="1000"/>  -->
+  <parameter name="REPORTTYPE" numDims="1" type="STRING" size="8"/> 
+  <parameter name="DATAURI" numDims="1" type="STRING" size="256"/> 
+  <parameter name="WMOHEADER" numDims="1" type="STRING" size="32" />
+  <parameter name="TAFTEXT" numDims="1" type="STRING" size="1024" />
+  <parameter name="STID" numDims="1" type="STRING" size="16"/>
+  <parameter name="CORR" numDims="1" type="STRING" size="8"/>
+  <parameter name="AMD" numDims="1" type="STRING" size="8"/>
+  <parameter name="ISSUETIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="ISSUETIMESTR" numDims="1" type="STRING" size="32" />
+  <parameter name="BULLETINTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+    
+  <!-- Change Group Data -->
+  <parameter name="IND" numDims="1" type="STRING" size="10"/>
+  <parameter name="CGRP" numDims="1" type="STRING" size="128"/>
+  <parameter name="PROB" numDims="1" type="INT"/>
+  <parameter name="MAX_TEMP" numDims="1" type="INT" unit="degrees"/>
+  <parameter name="MIN_TEMP" numDims="1" type="INT" unit="degrees"/>
+  <parameter name="ALTIM" numDims="1" type="FLOAT"/>
+  <parameter name="REMARKS" numDims="1" type="STRING"/>
+  <parameter name="SEQID" numDims="1" type="INT"/> 
+  <parameter name="END_DATE" numDims="1" type="LONG" unit="seconds since 1-1-1970"/>
+  <parameter name="START_DATE" numDims="1" type="LONG" unit="seconds since 1-1-1970"/>
+  <parameter name="TRANS_END_DATE" numDims="1" type="LONG" unit="seconds since 1-1-1970"/>
+  <parameter name="VISIBILITY" numDims="1" type="FLOAT" unit="mi"/>
+  <parameter name="VERT_VISIBILITY" numDims="1" type="FLOAT" unit="ft"/>
+  <parameter name="WIND_DIR" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="WIND_GUST" numDims="1" type="FLOAT" unit="kn"/>
+  <parameter name="WIND_SPEED" numDims="1" type="FLOAT" unit="kn"/>
+  <parameter name="SHEAR_WIND_DIR" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="SHEAR_WIND_SPEED" numDims="1" type="FLOAT" unit="kn"/>
+  <parameter name="SHEAR_WIND_HGT" numDims="1" type="FLOAT" unit="ft"/>
+  <parameter name="PROBABLE_VISIBILITY" numDims="1" type="FLOAT" unit="mi"/>
+  <parameter name="PROBABLE_VERT_VISIBILITY" numDims="1" type="FLOAT" unit="ft"/>
+  <parameter name="PROBABLE_WIND_DIR" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="PROBABLE_WIND_GUST" numDims="1" type="FLOAT" unit="kn"/>
+  <parameter name="PROBABLE_WIND_SPEED" numDims="1" type="FLOAT" unit="kn"/>
+  <parameter name="PROBABLE_SHEAR_WIND_DIR" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="PROBABLE_SHEAR_WIND_SPEED" numDims="1" type="FLOAT" unit="kn"/>
+  <parameter name="PROBABLE_SHEAR_WIND_HGT" numDims="1" type="FLOAT" unit="ft"/>
+  
+  <parameter name="CEILING" numDims="1" type="FLOAT" unit="ft"/>
+  <parameter name="PROBABLE_CEILING" numDims="1" type="FLOAT" unit="ft"/>
+  <parameter name="STIM" numDims="1" type="INT"/>  
+  <parameter name="LOW_LEVEL_WIND_SHEAR" numDims="1" type="INT"/>  
+ 
+  <!-- Icing Layer Data --> 
+  <parameter name="numICNG" numDims="1" type="INT"/>
+  <parameter name="ICNG_INTENSITY" numDims="2" type="FLOAT" dimension="maxIcngLyr"/>
+  <parameter name="ICNG_MAX_ALT" numDims="2" type="FLOAT" unit="ft" dimension="maxIcngLyr"/>
+  <parameter name="ICNG_MIN_ALT" numDims="2" type="FLOAT" unit="ft" dimension="maxIcngLyr"/> 
+ 
+  <!-- Sky Cover Data --> 
+  <parameter name="numSCVR" numDims="1" type="INT"/>
+  <parameter name="SCVR_HGT" numDims="2" type="FLOAT" unit="m" dimension="maxSkyCover"/>
+  <parameter name="SCVR_TYPE" numDims="2" type="STRING"  size="8" dimension="maxSkyCover"/>
+  <parameter name="SCVR_GENUS" numDims="2" type="STRING"  size="8" dimension="maxSkyCover"/> 
+  
+  <!-- Probable Sky Cover Data --> 
+  <parameter name="numPROBABLE_SCVR" numDims="1" type="INT"/>
+  <parameter name="PROBABLE_SCVR_HGT" numDims="2" type="FLOAT" unit="m" dimension="maxSkyCover"/>
+  <parameter name="PROBABLE_SCVR_TYPE" numDims="2" type="STRING"  size="8" dimension="maxSkyCover"/>
+  <parameter name="PROBABLE_SCVR_GENUS" numDims="2" type="STRING"  size="8" dimension="maxSkyCover"/> 
+ 
+  <!-- Temperature Forecast Data --> 
+  <parameter name="numTMPFCST" numDims="1" type="INT"/>
+  <parameter name="TMPFCST_VALID_TIME" numDims="2" type="FLOAT" unit="min" dimension="maxTempFcst"/>
+  <parameter name="TMPFCST_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxTempFcst"/> 
+  
+  <!-- Turbulence Layer Data --> 
+  <parameter name="numTURB" numDims="1" type="INT"/>
+  <parameter name="TURB_INTENSITY" numDims="2" type="FLOAT" dimension="maxTurbFcst"/>
+  <parameter name="TURB_MAX_ALT" numDims="2" type="FLOAT" unit="ft" dimension="maxTurbFcst"/>
+  <parameter name="TURB_MIN_ALT" numDims="2" type="FLOAT" unit="ft" dimension="maxTurbFcst"/> 
+   
+  <!-- Weather Condition Data -->
+  <parameter name="numWTHRCOND" numDims="1" type="INT"/>
+  <parameter name="WTHRCOND_DESCRIPTOR" numDims="2" type="STRING" dimension="maxWthrCond"/>
+  <parameter name="WTHRCOND_INTSTY_PRXMTY" numDims="2" type="STRING" dimension="maxWthrCond"/>
+  <parameter name="WTHRCOND_OBSCURATION" numDims="2" type="STRING" dimension="maxWthrCond"/>  
+  <parameter name="WTHRCOND_OTHER" numDims="2" type="STRING" dimension="maxWthrCond"/>  
+  <parameter name="WTHRCOND_PRECIPITATION" numDims="2" type="STRING" dimension="maxWthrCond"/> 
+  
+  <parameter name="PRES_WEATHER" numDims="2" type="STRING" size="10" dimension="maxWthrCond"/>
+  
+  <!-- Probable Weather Condition Data -->
+  <parameter name="numPROBABLE_WTHRCOND" numDims="1" type="INT"/>
+  <parameter name="PROBABLE_WTHRCOND_DESCRIPTOR" numDims="2" type="STRING" dimension="maxWthrCond"/>
+  <parameter name="PROBABLE_WTHRCOND_INTSTY_PRXMTY" numDims="2" type="STRING" dimension="maxWthrCond"/>
+  <parameter name="PROBABLE_WTHRCOND_OBSCURATION" numDims="2" type="STRING" dimension="maxWthrCond"/>  
+  <parameter name="PROBABLE_WTHRCOND_OTHER" numDims="2" type="STRING" dimension="maxWthrCond"/>  
+  <parameter name="PROBABLE_WTHRCOND_PRECIPITATION" numDims="2" type="STRING" dimension="maxWthrCond"/> 
+  
+  <parameter name="PROBABLE_PRES_WEATHER" numDims="2" type="STRING" size="10" dimension="maxWthrCond"/>
+ 
+ </pointDataDescription>

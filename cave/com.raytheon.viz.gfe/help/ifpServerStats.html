@@ -1,0 +1,560 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>ifpServerStats User's Guide</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="1Heading">
+ifpServerStats User's Guide</h1>
+<div class="1Heading">May 13, 2004<br>
+</div>
+<h2 class="1Heading">
+<a name="TableofContents"></a>Table of Contents</h2>
+<h4 class="1Heading">
+<a href="#Overview">Overview</a></h4>
+<h4 class="1Heading">
+<a href="#Running">Running the ifpServerStats Program</a></h4>
+<h4 class="1Heading">
+<a href="#ExampleData">Example Output</a></h4>
+<div class="1Heading">
+<hr width="100%"></div>
+<h2 class="1Heading">
+<a name="Overview"></a>Overview</h2>
+<div class="1Heading">The ifpServerStats program is a utility to output
+certain statistics about the ifpServer.&nbsp; The output includes
+information
+about the network transactions, database sizes, and BASE/SITE/USER
+configurations.&nbsp;
+The output is sent to stdout and may be rerouted to a file if desired.</div>
+<div class="1Heading">
+<hr width="100%"></div>
+
+<div class="1Heading">
+<hr width="100%"></div>
+<h3 class="1Heading">
+<a name="Running"></a>Running the ifpServerStats Program</h3>
+<div class="1Heading">&nbsp;</div>
+<div class="1Heading">The command line syntax is:</div>
+<div class="1Heading"><tt>ifpServerStats -h hostname -p rpcPortNumber
+-t
+-d -f -c -q</tt></div>
+<div class="1Heading">A sample command line is:</div>
+<div class="1Heading"><tt>ifpServerStats -h abc.fsl.noaa.gov -p
+98000000
+-q -c</tt></div>
+<div class="1Heading">&nbsp;</div>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>Mandatory (see note)</td>
+      <td>Specifies the host, upon which the ifpServer is running</td>
+    </tr>
+    <tr>
+      <td>-p port</td>
+      <td>Mandatory (see note)</td>
+      <td>Specifies the port, upon which the ifpServer is running</td>
+    </tr>
+    <tr>
+      <td>-t</td>
+      <td>Optional</td>
+      <td>If specified, outputs the transaction information.</td>
+    </tr>
+    <tr>
+      <td>-d</td>
+      <td>Optional</td>
+      <td>If specified, outputs the database sizing information.</td>
+    </tr>
+    <tr>
+      <td>-f</td>
+      <td>Optional</td>
+      <td>If specified, outputs the base/site/user configuration
+information.</td>
+    </tr>
+    <tr>
+      <td>-c</td>
+      <td>Optional</td>
+      <td>If specified, outputs the client connection information</td>
+    </tr>
+    <tr>
+      <td>-q</td>
+      <td>Optional</td>
+      <td>If specified, outputs the client queue information</td>
+    </tr>
+  </tbody>
+</table>
+Note: If none of the -t, -d -f, -q, or -c switches are given, then all
+information will be output.
+<br>
+<font color="#3366ff">Note: The -h and -p switches are predefined to
+match your GFESuite installation, such that they will point to the
+ifpServer
+specified on installation.&nbsp; Thus the -h and -p switches are not
+necessary
+for normal running of this program.&nbsp; However, if you wish to
+connect
+to a different server, then you will need to specify the -h and
+-p.&nbsp;</font><font color="#3366ff">&nbsp; If environment variables
+${CDSHOST} or
+${CDSPORT} are defined, then the default server and port will be
+determined from the environment variables, unless overridden with the
+user specified -h and -p switches.</font><font color="#3366ff"></font>
+<div class="1Heading">
+<hr width="100%"></div>
+<br>
+&nbsp;
+<h3 class="1Heading"><a name="ExampleData"></a>Example Data</h3>
+<div class="1Heading">The following shows some example output and how
+it
+is interpreted. The output is divided into four sections: network,
+client,
+database sizing, and base/site/user configuration.
+<p><b><tt>ifpServerStats -h abc.fsl.noaa.gov -p 98000000</tt></b>
+<br>
+&nbsp;
+</p>
+<h4>Network Information</h4>
+The first section displays the network message types, the number of
+calls
+made since 0000Z, the average, minimum, and maximum time in seconds for
+each call.
+<p><tt>IFPSERVER STATISTICS INFORMATION as of Feb 08 01 20:53:08 GMT</tt>
+<br>
+<tt>--------------------------------------------------------</tt>
+<br>
+<tt>WsId: 389696393:mark:ifpServer:10342:0</tt>
+<br>
+<tt>Protocol Version: 20010105</tt>
+<br>
+<tt>Network Process Statistics</tt>
+<br>
+<tt>---Rpc Message Type----&nbsp;&nbsp; NumCall&nbsp; AveTime&nbsp;
+MinTime&nbsp; MaxTime</tt>
+<br>
+<tt>Register
+Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp; 0.0005&nbsp;&nbsp; 0.0005&nbsp;&nbsp; 0.0005</tt>
+<br>
+<tt>Get Map
+Projections&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp; 0.0155&nbsp;&nbsp; 0.0155&nbsp;&nbsp; 0.0155</tt>
+<br>
+<tt><br>
+</tt><tt></tt></p>
+<p><tt>Network Statistics</tt>
+<br>
+<tt>-------Network
+Event-------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Number</tt>
+<br>
+<tt>RPC:
+Success&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2</tt>
+</p>
+<p><tt>Port Identifier: 98000044</tt>
+<br>
+&nbsp;
+</p>
+<h4>Client Information</h4>
+<p><br>
+The Client Table displays information about each connection to the
+server, how many notifications are queued, and the length of the queue
+in messages and time.
+</p>
+<p><tt>Connection Statistics</tt>
+<br>
+<tt>&nbsp;FD NR&nbsp; ConnDurat&nbsp; QueueDur&nbsp; Workstation
+Identifier</tt>
+<br>
+<tt>&nbsp;-- --&nbsp; ---------&nbsp; --------&nbsp;
+----------------------</tt>
+<br>
+<tt>&nbsp; 9&nbsp; 0&nbsp; 0.00:00:00 00:00:00
+mark@camper.fsl.noaa.gov:ifpServerStats:14689:0</tt>
+</p>
+<p><tt>Client Table</tt>
+<br>
+<tt>______ _____</tt>
+<br>
+<tt>[** Connection ** wsid= 389696393:mark:ifpServerStats:10361:0</tt>
+<br>
+<tt>&nbsp;fd= 5 notifyRequested=0</tt>
+<br>
+<tt>&nbsp;connDuration=0 queueDuration=0</tt>
+</p>
+<p><tt>Previous Queue Statistics:</tt>
+<br>
+<tt>QueueName&nbsp;&nbsp; TotalQueued&nbsp; MaxOnQueue&nbsp;
+MaxTimeQueued
+MinTimeQueued AveTimeQueued</tt>
+<br>
+<tt>&nbsp;
+Lock&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp;
+Grid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp;
+DbInv&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp;
+Sample&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp; Reference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.0000</tt>
+<br>
+<tt>&nbsp;
+Color&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp; TextFile&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+</p>
+<p><tt>Current Queue Statistics:</tt>
+<br>
+<tt>QueueName&nbsp;&nbsp; TotalQueued&nbsp; MaxOnQueue&nbsp;
+MaxTimeQueued
+MinTimeQueued AveTimeQueued</tt>
+<br>
+<tt>&nbsp;
+Lock&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp;
+Grid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp;
+DbInv&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp;
+Sample&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp; Reference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.0000</tt>
+<br>
+<tt>&nbsp;
+Color&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+<br>
+<tt>&nbsp; TextFile&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0000</tt>
+</p>
+<p><tt>Queue Contents:</tt>
+<br>
+<tt>LOCK Queue: [ ]</tt>
+<br>
+<tt>GRID Queue: [ ]</tt>
+<br>
+<tt>DBINV Queue: [ ]</tt>
+<br>
+<tt>SAMPLE Queue: [ ]</tt>
+<br>
+<tt>REFERENCE Queue: [ ]</tt>
+<br>
+<tt>COLOR Queue: [ ]</tt>
+<br>
+<tt>TEXTFILE Queue: [ ]</tt>
+</p>
+<p><tt>&nbsp;]</tt>
+<br>
+&nbsp;
+</p>
+<h4>Client Queue Information</h4>
+The client queue information displays information about each connected
+client that has notifications enabled.&nbsp; It shows the current, and
+the total number of notifications processed for the client, as well as
+the length of time that queue entries have been available.
+<p><tt>Client Queue Statistics</tt>
+<br>
+<tt>-----------------------</tt>
+<br>
+<tt>Client #:0</tt>
+<br>
+<tt>&nbsp;wsid= mark@camper.fsl.noaa.gov:gfe:7482:0</tt>
+<br>
+<tt>&nbsp;fd= 7 protocolVer= 20030223 notifyReq=1 connDur=0.00:31:03
+queueDur=00:00:00</tt><tt></tt>
+</p>
+<p><tt>Previous Queue Statistics:</tt>
+<br>
+<tt>QueueName&nbsp;&nbsp; TotalQueued&nbsp; MaxOnQueue&nbsp;
+MaxTimeQueued
+MinTimeQueued AveTimeQueued</tt>
+<br>
+<tt>&nbsp;
+Lock&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+57&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2.9953&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0769&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.5776</tt>
+<br>
+<tt>&nbsp;
+Grid&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+327&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+112&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2.8861&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0008&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.9391</tt>
+<br>
+<tt>&nbsp;
+DbInv&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0224&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0224&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0.0224</tt>
+<br>
+<tt>&nbsp;
+UserMsg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2.8678&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1.8457&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2.3077</tt><tt></tt>
+</p>
+<p><tt>Current Queue Statistics:</tt>
+<br>
+<tt>QueueName&nbsp;&nbsp; TotalQueued&nbsp; MaxOnQueue&nbsp;
+MaxTimeQueued
+MinTimeQueued AveTimeQueued</tt>
+<br>
+<tt>&nbsp;----- No Current Queue -----</tt>
+<br>
+<tt></tt>&nbsp;
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<h4>Database Sizing Information</h4>
+<p><br>
+The database sizing statistics display information about each GRID
+database, the size of the grids for the storage araas, the number of
+grid
+slots in the database, number used, and the percent full of each
+database.&nbsp;
+Databases will automatically increase in size.&nbsp; The D2D-style
+databases
+will show the number of inventory slots vs. the number of grids in the
+database.
+</p>
+<p><tt>Database Sizing Statistics</tt>
+<br>
+<tt>&nbsp;Database
+Identifier&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Storage Area Name&nbsp;&nbsp; Total Used %Full</tt>
+<br>
+<tt>&nbsp;-------------------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-----------------&nbsp;&nbsp; ----- ---- -----</tt>
+<br>
+<tt>BOU_GRID_D2D_AVN_20030307_0600&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+D2D netCDF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1242 1214&nbsp; 97.7%</tt>
+<br>
+<tt>BOU_GRID_D2D_AVN_20030307_1200&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+D2D netCDF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1242&nbsp; 992&nbsp; 79.9%</tt>
+<br>
+<tt>BOU_GRID_D2D_ETA12_20030307_1200&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+D2D
+netCDF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+318&nbsp; 209&nbsp; 65.7%</tt>
+<br>
+<tt>BOU_GRID_D2D_ETA_20030307_0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+D2D netCDF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1968 1431&nbsp; 72.7%</tt>
+<br>
+<tt>BOU_GRID_D2D_ETA_20030307_1200&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+D2D netCDF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1968 1431&nbsp; 72.7%</tt>
+<tt></tt><br>
+<tt>BOU_GRID__Fcst_00000000_0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+byte37x37&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+17&nbsp;&nbsp;&nbsp; 7&nbsp; 41.2%</tt>
+<br>
+<tt>BOU_GRID__Fcst_00000000_0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+float37x37&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+227&nbsp;&nbsp; 61&nbsp; 26.9%</tt>
+<br>
+<tt>BOU_GRID__Fcst_00000000_0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+byte37x37&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp; 0.0%</tt>
+<br>
+<tt>BOU_GRID__Fcst_00000000_0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+float37x37&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp; 0.0%</tt>
+<br>
+<tt>BOU_GRID__Fcst_00000000_0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+HistoryUse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+214&nbsp;&nbsp; 62&nbsp; 29.0%</tt>
+<br>
+<tt>BOU_GRID__Fcst_00000000_0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WxUse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+17&nbsp;&nbsp;&nbsp; 7&nbsp; 41.2%</tt>
+<br>
+<br>
+&nbsp;
+</p>
+<h4>Base/Site/User Configuration</h4>
+<p><br>
+The Base/Site/User configuration details goes through each data
+type in the server and displays the user name (e.g., BASE, SITE, mark),
+the name of the file, the coded filename, and whether the file
+overrides
+the BASE or SITE configuration.
+</p>
+<p><tt>BASE/SITE/USER Configuration Details</tt>
+<br>
+<tt>**** Configuration Files for [TEXT/SELECTTR] ****</tt>
+</p>
+<p><tt>&nbsp; Files in [BASE]</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+BASE SITE</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;
+name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+coded
+filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Override</tt>
+<br>
+<tt>&nbsp; ------------------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+---------------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+---- ----</tt>
+<br>
+<tt>&nbsp; Day
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Day_CA3.SELECTTR</tt>
+<br>
+<tt>&nbsp; Day
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Day_CA4.SELECTTR</tt>
+<br>
+<tt>&nbsp; Day
+5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Day_CA5.SELECTTR</tt>
+<br>
+<tt>&nbsp;
+Today&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Today.SELECTTR</tt>
+<br>
+<tt>&nbsp;
+Tomorrow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Tomorrow.SELECTTR</tt>
+<br>
+<tt>&nbsp; Tomorrow
+Night&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Tomorrow_CANight.SELECTTR</tt>
+<br>
+<tt>&nbsp;
+Tonight&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Tonight.SELECTTR</tt>
+</p>
+<p><tt>**** Configuration Files for [TEXT/BUNDLE] ****</tt>
+</p>
+<p><tt>&nbsp; Files in [BASE]</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+BASE SITE</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;
+name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+coded
+filename&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Override</tt>
+<br>
+<tt>&nbsp; ------------------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+---------------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+---- ----</tt>
+<br>
+<tt>&nbsp;
+FireWx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+FireWx.BUNDLE</tt>
+<br>
+<tt>&nbsp;
+Gweight&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Gweight.BUNDLE</tt>
+<br>
+<tt>&nbsp;
+Public&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Public.BUNDLE</tt>
+</p>
+<br>
+<p><br>
+&nbsp;
+<br>
+&nbsp;</p>
+</div>
+</body>
+</html>

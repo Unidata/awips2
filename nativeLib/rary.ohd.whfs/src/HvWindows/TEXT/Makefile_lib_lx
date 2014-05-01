@@ -1,0 +1,79 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the whfs_lib-HvWindows library file
+#
+#  cmt: File made on Wed Aug  6 12:59:10 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/whfs_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libHvWindows_t.a:  \
+     $(LIB)/libHvWindows_t.a(alertalarm.o)  \
+     $(LIB)/libHvWindows_t.a(alertalarm_show.o)  \
+     $(LIB)/libHvWindows_t.a(color_threshold.o)  \
+     $(LIB)/libHvWindows_t.a(contact.o)  \
+     $(LIB)/libHvWindows_t.a(contact_show.o)  \
+     $(LIB)/libHvWindows_t.a(crest.o)  \
+     $(LIB)/libHvWindows_t.a(crest_draw.o)  \
+     $(LIB)/libHvWindows_t.a(crest_show.o)  \
+     $(LIB)/libHvWindows_t.a(crest_util.o)  \
+     $(LIB)/libHvWindows_t.a(ffm_summary.o)  \
+     $(LIB)/libHvWindows_t.a(ffm_summary_show.o)  \
+     $(LIB)/libHvWindows_t.a(fstmt.o)  \
+     $(LIB)/libHvWindows_t.a(fstmt_show.o)  \
+     $(LIB)/libHvWindows_t.a(hv_util.o)  \
+     $(LIB)/libHvWindows_t.a(latestrep.o)  \
+     $(LIB)/libHvWindows_t.a(latestrep_show.o)  \
+     $(LIB)/libHvWindows_t.a(lwstmt.o)  \
+     $(LIB)/libHvWindows_t.a(lwstmt_show.o)  \
+     $(LIB)/libHvWindows_t.a(preaccum.o)  \
+     $(LIB)/libHvWindows_t.a(preaccum_show.o)  \
+     $(LIB)/libHvWindows_t.a(prodview.o)  \
+     $(LIB)/libHvWindows_t.a(prodview_show.o)  \
+     $(LIB)/libHvWindows_t.a(rate_draw.o)  \
+     $(LIB)/libHvWindows_t.a(rateds.o)  \
+     $(LIB)/libHvWindows_t.a(rate_show.o)  \
+     $(LIB)/libHvWindows_t.a(rc_crosshairs.o)  \
+     $(LIB)/libHvWindows_t.a(rejectdata.o)  \
+     $(LIB)/libHvWindows_t.a(rejectdata_show.o)  \
+     $(LIB)/libHvWindows_t.a(reviewqc.o)  \
+     $(LIB)/libHvWindows_t.a(reviewqc_show.o)  \
+     $(LIB)/libHvWindows_t.a(stachar.o)  \
+     $(LIB)/libHvWindows_t.a(stachar_show.o)  \
+     $(LIB)/libHvWindows_t.a(staffgage.o)  \
+     $(LIB)/libHvWindows_t.a(staffgage_show.o)  \
+     $(LIB)/libHvWindows_t.a(statprof.o)  \
+     $(LIB)/libHvWindows_t.a(statprof_show.o)
+

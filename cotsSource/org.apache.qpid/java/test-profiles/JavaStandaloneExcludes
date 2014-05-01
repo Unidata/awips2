@@ -1,0 +1,44 @@
+org.apache.qpid.test.unit.ct.DurableSubscriberTests#*
+// Those tests are not finished
+org.apache.qpid.test.testcases.TTLTest#*
+org.apache.qpid.test.testcases.FailoverTest#*
+// This is a long running test so should exclude from normal runs
+org.apache.qpid.test.client.failover.FailoverTest#test4MinuteFailover
+// Those tests require failover support
+org.apache.qpid.test.client.QueueBrowserAutoAckTest#testFailoverAsQueueBrowserCreated
+org.apache.qpid.test.client.QueueBrowserAutoAckTest#testFailoverWithQueueBrowser
+org.apache.qpid.test.client.QueueBrowserClientAckTest#testFailoverAsQueueBrowserCreated
+org.apache.qpid.test.client.QueueBrowserClientAckTest#testFailoverWithQueueBrowser
+org.apache.qpid.test.client.QueueBrowserDupsOkTest#testFailoverAsQueueBrowserCreated
+org.apache.qpid.test.client.QueueBrowserDupsOkTest#testFailoverWithQueueBrowser
+org.apache.qpid.test.client.QueueBrowserNoAckTest#testFailoverAsQueueBrowserCreated
+org.apache.qpid.test.client.QueueBrowserNoAckTest#testFailoverWithQueueBrowser
+org.apache.qpid.test.client.QueueBrowserPreAckTest#testFailoverAsQueueBrowserCreated
+org.apache.qpid.test.client.QueueBrowserPreAckTest#testFailoverWithQueueBrowser
+org.apache.qpid.test.client.QueueBrowserTransactedTest#testFailoverAsQueueBrowserCreated
+org.apache.qpid.test.client.QueueBrowserTransactedTest#testFailoverWithQueueBrowser
+org.apache.qpid.test.testcases.FailoverTest#*
+org.apache.qpid.test.client.failover.FailoverTest#*
+
+// InVM Broker tests awaiting resolution of QPID-1103
+org.apache.qpid.test.client.timeouts.SyncWaitDelayTest#*
+org.apache.qpid.test.client.timeouts.SyncWaitTimeoutDelayTest#*
+
+// Those tests are written against the 0.10 path
+org.apache.qpid.test.unit.message.UTF8Test#*
+org.apache.qpid.client.MessageListenerTest#testSynchronousRecieveNoWait
+
+// This test currently does not pick up the runtime location of the nonVm queueBacking store.
+org.apache.qpid.test.unit.close.FlowToDiskBackingQueueDeleteTest#*
+
+// This test may use QpidTestCase but it is not using the getConnection and is hardwired to InVM
+org.apache.qpid.test.unit.client.connection.CloseAfterConnectionFailureTest#*
+//QPID-1818 : Client code path does not correctly restore a transacted session after failover.
+org.apache.qpid.server.persistent.NoLocalAfterRecoveryTest#*
+// QPID-1823: this takes ages to run
+org.apache.qpid.client.SessionCreateTest#*
+
+// This test requires the standard configuration file for validation.
+// Excluding here does not reduce test coverage.
+org.apache.qpid.server.configuration.ServerConfigurationFileTest#*
+

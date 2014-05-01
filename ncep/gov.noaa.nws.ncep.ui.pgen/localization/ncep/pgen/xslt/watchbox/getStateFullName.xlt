@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method = "text"/>
+
+<!--
+        getStateFullName.xlt
+                - get state full name from abbreviation 
+
+        Change Log:
+
+        B. Yin/Chugach  03/10   Initial Coding
+-->
+
+<xsl:template name="getStateFullName">
+        <xsl:param name="st"/>
+
+	<xsl:choose>
+	 	<xsl:when test="$st = 'AL'">
+          		<xsl:text>ALABAMA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'AK'">
+          		<xsl:text>ALASKA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'AS'">
+          		<xsl:text>AMERICAN SAMOA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'AZ'">
+          		<xsl:text>ARIZONA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'AR'">
+          		<xsl:text>ARKANSAS</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'CA'">
+          		<xsl:text>CALIFORNIA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'CO'">
+          		<xsl:text>COLORADO</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'CT'">
+          		<xsl:text>CONNECTICUT</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'DE'">
+          		<xsl:text>DELAWARE</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'DC'">
+          		<xsl:text>DISTRICT OF COLUMBIA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'FL'">
+          		<xsl:text>FLORIDA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'GA'">
+          		<xsl:text>GEORGIA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'GU'">
+          		<xsl:text>GUAM</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'HI'">
+          		<xsl:text>HAWAII</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'ID'">
+          		<xsl:text>IDAHO</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'IL'">
+          		<xsl:text>ILLINOIS</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'IN'">
+          		<xsl:text>INDIANA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'IA'">
+          		<xsl:text>IOWA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'KS'">
+          		<xsl:text>KANSAS</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'KY'">
+          		<xsl:text>KENTUCKY</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'LA'">
+          		<xsl:text>LOUISIANA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'ME'">
+          		<xsl:text>MAINE</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MH'">
+          		<xsl:text>MARSHALL ISLANDS</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MD'">
+          		<xsl:text>MARYLAND</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MA'">
+          		<xsl:text>MASSACHUSETTS</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MI'">
+          		<xsl:text>MICHIGAN</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MN'">
+          		<xsl:text>MINNESOTA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MS'">
+          		<xsl:text>MISSISSIPPI</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MO'">
+          		<xsl:text>MISSOURI</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MT'">
+          		<xsl:text>MONTANA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'NE'">
+          		<xsl:text>NEBRASKA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'NV'">
+          		<xsl:text>NEVADA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'NH'">
+          		<xsl:text>NEW HAMPSHIRE</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'NJ'">
+          		<xsl:text>NEW JERSEY</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'NM'">
+          		<xsl:text>NEW MEXICO</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'NY'">
+          		<xsl:text>NEW YORK</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'NC'">
+          		<xsl:text>NORTH CAROLINA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'ND'">
+          		<xsl:text>NORTH DAKOTA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'MP'">
+          		<xsl:text>NORTHERN MARIANA ISLANDS</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'OH'">
+          		<xsl:text>OHIO</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'OK'">
+          		<xsl:text>OKLAHOMA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'OR'">
+          		<xsl:text>OREGON</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'PW'">
+          		<xsl:text>PALAU</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'PA'">
+          		<xsl:text>PENNSYLVANIA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'PR'">
+          		<xsl:text>PUERTO RICO</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'RI'">
+          		<xsl:text>RHODE ISLAND</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'SC'">
+          		<xsl:text>SOUTH CAROLINA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'SD'">
+          		<xsl:text>SOUTH DAKOTA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'TN'">
+          		<xsl:text>TENNESSEE</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'TX'">
+          		<xsl:text>TEXAS</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'UT'">
+          		<xsl:text>UTAH</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'VT'">
+          		<xsl:text>VERMONT</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'VI'">
+          		<xsl:text>VIRGIN ISLANDS</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'VA'">
+          		<xsl:text>VIRGINIA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'WA'">
+          		<xsl:text>WASHINGTON</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'WV'">
+          		<xsl:text>WEST VIRGINIA</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'WI'">
+          		<xsl:text>WISCONSIN</xsl:text>
+          	</xsl:when>
+	 	<xsl:when test="$st = 'WY'">
+          		<xsl:text>WYOMING</xsl:text>
+          	</xsl:when>
+	 	<xsl:otherwise>
+          		<xsl:text>COASTAL WATERS</xsl:text>
+          	</xsl:otherwise>
+        </xsl:choose>
+</xsl:template>
+</xsl:stylesheet>
+  

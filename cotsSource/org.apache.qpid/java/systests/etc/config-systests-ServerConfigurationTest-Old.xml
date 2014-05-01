@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+
+<configuration>
+<work>${QPID_WORK}</work>
+<conf>${QPID_HOME}/etc</conf>
+<passwordDir>${conf}</passwordDir>
+<connector>
+<transport>nio</transport>
+<port>5672</port>
+<socketReceiveBuffer>32768</socketReceiveBuffer>
+<socketSendBuffer>32768</socketSendBuffer>
+</connector>
+<management>
+<enabled>false</enabled>
+<jmxport>8999</jmxport>
+</management>
+<advanced>
+<filterchain enableExecutorPool="true"/>
+<enablePooledAllocator>false</enablePooledAllocator>
+<enableDirectBuffers>false</enableDirectBuffers>
+<framesize>65535</framesize>
+<compressBufferOnQueue>false</compressBufferOnQueue>
+</advanced>
+<security>
+<principal-databases>
+<principal-database>
+<name>passwordfile</name>
+<class>org.apache.qpid.server.security.auth.database.PlainPasswordFilePrincipalDatabase</class>
+<attributes>
+<attribute>
+<name>passwordFile</name>
+<value>${passwordDir}/passwd</value>
+</attribute>
+</attributes>
+</principal-database>
+</principal-databases>
+<access>
+<class>org.apache.qpid.server.security.access.plugins.AllowAll</class>
+</access>
+<jmx>
+<access>${passwordDir}/jmxremote.access</access>
+<principal-database>passwordfile</principal-database>
+</jmx>
+</security>
+<virtualhosts>${conf}/virtualhosts-ServerConfigurationTest-New.xml
+<default>dev-only</default>
+<virtualhost>
+<name>dev-only</name>
+<dev-only>
+<store>
+<class>org.apache.qpid.server.store.MemoryMessageStore</class>
+<environment-path>${work}/bdbstore/dev-only-store</environment-path>
+</store>
+<queues>
+<exchange>amq.direct</exchange>
+<maximumQueueDepth>102400</maximumQueueDepth>
+<maximumMessageSize>20480</maximumMessageSize>
+<maximumMessageAge>60000</maximumMessageAge>
+<queue>
+<name>dev-queue</name>
+</queue>
+</queues>
+</dev-only>
+</virtualhost>
+</virtualhosts>
+<heartbeat>
+<delay>0</delay>
+<timeoutFactor>2.0</timeoutFactor>
+</heartbeat>
+<queue>
+<auto_register>true</auto_register>
+</queue>
+</configuration>

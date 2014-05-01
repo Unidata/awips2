@@ -1,0 +1,6 @@
+dbhost = "dx1f"
+dbuser = "awips"
+dbpass = ""
+nrldb_host = "165.92.28.1"
+site = "CCC"
+dbname = "hd_ob92ccc"

@@ -1,0 +1,488 @@
+#  ============================================================================
+#  pgm: Makefile_obj_lx .. makefile to update the pproc-hpe_fieldgen object files
+#
+#  cmt: File made on Wed Aug  6 13:00:47 EDT 2008 by user "dsa"
+#  ============================================================================
+ 
+OBJ = /fs/hseb/ob83/ohd/pproc/obj/hpe_fieldgen/TEXT
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/ffg/inc  \
+               -I/usr/local/netcdf/include  \
+               -I/fs/hseb/ob83/ohd/util/inc/netcdf_inc \
+	       -I/fs/hseb/ob83/ohd/pproc_lib/inc  \
+               -I/fs/hseb/ob83/ohd/pproc/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc/messenger_inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o
+
+.c.o:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && chmod 664 ${*F}.o  \
+	   && echo "o - ${*F}.o" \
+	   || echo "e - ${*F}"
+	@echo "--------------------------------"
+
+objects:  \
+     $(OBJ)/apply_local_bias.o  \
+     $(OBJ)/apply_mfb.o  \
+     $(OBJ)/apply_polygons.o  \
+     $(OBJ)/build_neighbor_list.o  \
+     $(OBJ)/calculate_mean_bias.o  \
+     $(OBJ)/calculate_pixel_height.o  \
+     $(OBJ)/cal_radar.o  \
+     $(OBJ)/check_autosave.o  \
+     $(OBJ)/check_multiple.o  \
+     $(OBJ)/check_multisensor_qc.o  \
+     $(OBJ)/check_scc_extra_qc.o  \
+     $(OBJ)/check_spatial_consistency.o  \
+     $(OBJ)/create_dhrmosaic.o  \
+     $(OBJ)/create_mosaic.o  \
+     $(OBJ)/delete_zeros.o  \
+     $(OBJ)/empe_constructor.o  \
+     $(OBJ)/empe_destructor.o  \
+     $(OBJ)/empe_parse_args.o  \
+     $(OBJ)/empe_utils.o  \
+     $(OBJ)/gage_only.o  \
+     $(OBJ)/gage_radar_data.o  \
+     $(OBJ)/gage_radar_pairs_qc.o  \
+     $(OBJ)/get_beam_height.o  \
+     $(OBJ)/get_climate.o  \
+     $(OBJ)/get_empe_product_state.o  \
+     $(OBJ)/get_hostname.o  \
+     $(OBJ)/get_loc_latlon.o  \
+     $(OBJ)/get_mean_bias.o  \
+     $(OBJ)/get_os_system.o  \
+     $(OBJ)/hpsort.o  \
+     $(OBJ)/lb_gr_pairs.o  \
+     $(OBJ)/load_radar_beam_height.o  \
+     $(OBJ)/local_bias.o  \
+     $(OBJ)/main_empe_fieldgen.o  \
+     $(OBJ)/mathstuf.o  \
+     $(OBJ)/multi_sensor.o  \
+     $(OBJ)/p3_lmosaic.o  \
+     $(OBJ)/pair_gage_radar.o  \
+     $(OBJ)/print_versionf.o  \
+     $(OBJ)/qksort.o  \
+     $(OBJ)/read_dbparams.o  \
+     $(OBJ)/read_decoded_dhr.o  \
+     $(OBJ)/read_decoded_dsp.o  \
+     $(OBJ)/read_dhr_data.o  \
+     $(OBJ)/read_dhr_radar.o  \
+     $(OBJ)/read_dsp_radar.o  \
+     $(OBJ)/read_gage_data.o  \
+     $(OBJ)/read_gage_precip.o  \
+     $(OBJ)/read_geo_data.o  \
+     $(OBJ)/read_lightning.o  \
+     $(OBJ)/read_mean_bias.o  \
+     $(OBJ)/read_misc.o  \
+     $(OBJ)/read_params.o  \
+     $(OBJ)/read_precip_limit.o  \
+     $(OBJ)/read_pseudo_precip.o  \
+     $(OBJ)/read_radarloc.o  \
+     $(OBJ)/read_radarresult.o  \
+     $(OBJ)/read_rwbiasdyn2.o  \
+     $(OBJ)/read_rwbiasstat.o  \
+     $(OBJ)/read_rwparams.o  \
+     $(OBJ)/read_satellite.o  \
+     $(OBJ)/read_spe.o  \
+     $(OBJ)/read_triangulated_gage.o  \
+     $(OBJ)/readxmrg.o  \
+     $(OBJ)/retrieve_mean_bias.o  \
+     $(OBJ)/run_bdhrmosaic.o  \
+     $(OBJ)/run_dhrmosaic.o  \
+     $(OBJ)/run_ebmosaic.o  \
+     $(OBJ)/run_ermosaic.o  \
+     $(OBJ)/run_gageonly.o  \
+     $(OBJ)/run_lmosaic.o  \
+     $(OBJ)/run_lsatpre.o  \
+     $(OBJ)/run_mlmosaic.o  \
+     $(OBJ)/run_mmosaic.o  \
+     $(OBJ)/save_empe_grib.o  \
+     $(OBJ)/save_gif.o  \
+     $(OBJ)/save_netcdf.o  \
+     $(OBJ)/statistics.o  \
+     $(OBJ)/update_state_variable.o  \
+     $(OBJ)/work.o  \
+     $(OBJ)/write_array.o  \
+     $(OBJ)/write_formatted_xmrg.o  \
+     $(OBJ)/write_gageqc.o  \
+     $(OBJ)/write_params.o  \
+     $(OBJ)/write_qpe.o  \
+     $(OBJ)/write_radarresult.o  \
+     $(OBJ)/write_rwbiasdyn.o  \
+     $(OBJ)/write_rwresult.o
+
+$(OBJ)/apply_local_bias.o: apply_local_bias.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/apply_mfb.o: apply_mfb.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/apply_polygons.o: apply_polygons.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/build_neighbor_list.o: build_neighbor_list.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/calculate_mean_bias.o: calculate_mean_bias.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/calculate_pixel_height.o: calculate_pixel_height.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/cal_radar.o: cal_radar.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/check_autosave.o: check_autosave.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/check_multiple.o: check_multiple.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/check_multisensor_qc.o: check_multisensor_qc.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/check_scc_extra_qc.o: check_scc_extra_qc.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/check_spatial_consistency.o: check_spatial_consistency.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/create_dhrmosaic.o: create_dhrmosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/create_mosaic.o: create_mosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/delete_zeros.o: delete_zeros.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/empe_constructor.o: empe_constructor.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/empe_destructor.o: empe_destructor.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/empe_parse_args.o: empe_parse_args.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/empe_utils.o: empe_utils.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/gage_only.o: gage_only.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/gage_radar_data.o: gage_radar_data.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/gage_radar_pairs_qc.o: gage_radar_pairs_qc.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_beam_height.o: get_beam_height.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_climate.o: get_climate.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_empe_product_state.o: get_empe_product_state.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_hostname.o: get_hostname.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_loc_latlon.o: get_loc_latlon.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_mean_bias.o: get_mean_bias.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_os_system.o: get_os_system.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/hpsort.o: hpsort.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/lb_gr_pairs.o: lb_gr_pairs.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/load_radar_beam_height.o: load_radar_beam_height.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/local_bias.o: local_bias.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/main_empe_fieldgen.o: main_empe_fieldgen.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/mathstuf.o: mathstuf.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/multi_sensor.o: multi_sensor.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/p3_lmosaic.o: p3_lmosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/pair_gage_radar.o: pair_gage_radar.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/print_versionf.o: print_versionf.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/qksort.o: qksort.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_dbparams.o: read_dbparams.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_decoded_dhr.o: read_decoded_dhr.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_decoded_dsp.o: read_decoded_dsp.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_dhr_data.o: read_dhr_data.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_dhr_radar.o: read_dhr_radar.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_dsp_radar.o: read_dsp_radar.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_gage_data.o: read_gage_data.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_gage_precip.o: read_gage_precip.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_geo_data.o: read_geo_data.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_lightning.o: read_lightning.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_mean_bias.o: read_mean_bias.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_misc.o: read_misc.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_params.o: read_params.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_precip_limit.o: read_precip_limit.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_pseudo_precip.o: read_pseudo_precip.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_radarloc.o: read_radarloc.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_radarresult.o: read_radarresult.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_rwbiasdyn2.o: read_rwbiasdyn2.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_rwbiasstat.o: read_rwbiasstat.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_rwparams.o: read_rwparams.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_satellite.o: read_satellite.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_spe.o: read_spe.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/read_triangulated_gage.o: read_triangulated_gage.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/readxmrg.o: readxmrg.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/retrieve_mean_bias.o: retrieve_mean_bias.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_bdhrmosaic.o: run_bdhrmosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_dhrmosaic.o: run_dhrmosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_ebmosaic.o: run_ebmosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_ermosaic.o: run_ermosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_gageonly.o: run_gageonly.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_lmosaic.o: run_lmosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_lsatpre.o: run_lsatpre.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_mlmosaic.o: run_mlmosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/run_mmosaic.o: run_mmosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/save_empe_grib.o: save_empe_grib.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/save_gif.o: save_gif.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/save_netcdf.o: save_netcdf.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/statistics.o: statistics.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/update_state_variable.o: update_state_variable.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/work.o: work.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_array.o: write_array.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_formatted_xmrg.o: write_formatted_xmrg.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_gageqc.o: write_gageqc.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_params.o: write_params.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_qpe.o: write_qpe.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_radarresult.o: write_radarresult.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_rwbiasdyn.o: write_rwbiasdyn.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_rwresult.o: write_rwresult.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+

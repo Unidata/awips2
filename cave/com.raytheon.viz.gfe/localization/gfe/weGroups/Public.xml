@@ -1,0 +1,22 @@
+
+<WEGroup name="Public">
+ <WEItem parmID="MinT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="MaxT_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="T_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="RH_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Td_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Wind_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="WindGust_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="WindChill_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Wx_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Sky_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="PoP_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="SnowAmt_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="StormTotalSnow_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="SnowLevel_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="QPF_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="FzLevel_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="IceAmt_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="HeatIndex_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Hazards_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+</WEGroup>

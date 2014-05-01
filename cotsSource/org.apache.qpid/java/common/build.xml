@@ -1,0 +1,83 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="AMQ Common" default="build">
+
+  <property name="module.genpom" value="true"/>
+
+  <import file="../module.xml"/>
+
+  <property name="gentools.home" location="${project.root}/../gentools" />
+  <property name="generated.package" value="org/apache/qpid/framing" />
+  <property name="generated.dir" location="${module.precompiled}/${generated.package}" />
+  <property name="xml.spec.dir" location="${project.root}/../specs" />
+  <property name="xml.spec.deps" value="amqp.0-8.xml amqp.0-9.xml amqp0-9-1.stripped.xml" />
+  <property name="xml.spec.list" value="${xml.spec.dir}/amqp.0-8.xml ${xml.spec.dir}/amqp.0-9.xml ${xml.spec.dir}/amqp0-9-1.stripped.xml" />
+  <property name="gentools.timestamp" location="${generated.dir}/gentools.timestamp" />
+  <property name="jython.timestamp" location="${generated.dir}/jython.timestamp" />
+
+  <target name="check_jython_deps">
+    <uptodate property="jython.notRequired" targetfile="${jython.timestamp}">
+      <srcfiles dir="${xml.spec.dir}" includes="amqp.0-10-qpid-errata.xml" />
+    </uptodate>
+  </target>
+
+  <target name="jython" depends="check_jython_deps" unless="jython.notRequired">
+    <jython path="${mllib.dir}">
+      <args>
+        <arg value="${basedir}/codegen"/>
+        <arg value="${module.precompiled}"/>
+        <arg value="${xml.spec.dir}/amqp.0-10-qpid-errata.xml"/>
+        <arg value="${basedir}"/>
+      </args>
+    </jython>
+    <touch file="${jython.timestamp}" />
+  </target>
+
+  <target name="compile_gentools">
+    <ant dir="${gentools.home}" />
+  </target>
+
+  <target name="check_gentool_deps">
+    <uptodate property="gentools.notRequired" targetfile="${gentools.timestamp}">
+      <srcfiles dir="${xml.spec.dir}" includes="${xml.spec.deps}" />
+    </uptodate>
+  </target>
+
+  <target name="gentools" depends="compile_gentools,check_gentool_deps" unless="gentools.notRequired">
+    <mkdir dir="${generated.dir}"/>
+    <java classname="org.apache.qpid.gentools.Main" fork="true" dir="${gentools.home}/src" failonerror="true">
+      <arg line="-j -o ${generated.dir} -t ${project.root}/common/templates ${xml.spec.list}"/>
+      <classpath>
+        <pathelement path="${gentools.home}/src" />
+        <fileset dir="${gentools.home}/lib">
+          <include name="**/*.jar"/>
+        </fileset>
+	<pathelement path="${gentools.home}/lib/velocity-1.4.jar" />
+        <pathelement path="${gentools.home}/lib/velocity-dep-1.4.jar" />
+      </classpath>
+    </java>
+    <touch file="${gentools.timestamp}" />
+  </target>
+
+  <target name="precompile" depends="gentools,jython,create-version"/>
+
+  <target name="bundle" depends="bundle-tasks"/>
+</project>

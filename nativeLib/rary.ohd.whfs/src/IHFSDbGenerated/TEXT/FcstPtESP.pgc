@@ -1,0 +1,1075 @@
+/*
+    File: FcstPtESP.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:21 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "FcstPtESP.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct FcstPtESP_t
+{
+    char		lid[9];
+    char		snow_method[31];
+    char		hydrol_method[31];
+    char		reservoir_model[31];
+    char		upstream_seg[9];
+    char		hydraul_method[31];
+    char		flowtype[41];
+    char		fcsttype[21];
+    char		frequpd_normal[31];
+    char		frequpd_flood[31];
+    char		frequpd_drought[31];
+    char		fcst_horizon[31];
+    short		nummonclim;
+    short		numdayhyd;
+    short		num_elev_zones;
+    char		consumptive_use[2];
+    char		channel_loss[2];
+    char		post_processor[31];
+    date		impl_date;
+    date		external_date;
+    date		web_date;
+
+    int		ind_frequpd_normal;
+    int		ind_frequpd_flood;
+    int		ind_frequpd_drought;
+    int		ind_fcst_horizon;
+    int		ind_nummonclim;
+    int		ind_numdayhyd;
+    int		ind_num_elev_zones;
+    int		ind_consumptive_use;
+    int		ind_channel_loss;
+    int		ind_post_processor;
+    int		ind_impl_date;
+    int		ind_external_date;
+    int		ind_web_date;
+} FcstPtESP_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+FcstPtESP * GetFcstPtESP(const char * where)
+{
+
+    FcstPtESP * listPtr = NULL;
+    FcstPtESP * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM FcstPtESP ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtESP_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFcstPtESP() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFcstPtESP() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFcstPtESP() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.snow_method, 
+    :dbs.hydrol_method, :dbs.reservoir_model, 
+    :dbs.upstream_seg, :dbs.hydraul_method, 
+    :dbs.flowtype, :dbs.fcsttype, 
+    :dbs.frequpd_normal:dbs.ind_frequpd_normal, :dbs.frequpd_flood:dbs.ind_frequpd_flood, 
+    :dbs.frequpd_drought:dbs.ind_frequpd_drought, :dbs.fcst_horizon:dbs.ind_fcst_horizon, 
+    :dbs.nummonclim:dbs.ind_nummonclim, :dbs.numdayhyd:dbs.ind_numdayhyd, 
+    :dbs.num_elev_zones:dbs.ind_num_elev_zones, :dbs.consumptive_use:dbs.ind_consumptive_use, 
+    :dbs.channel_loss:dbs.ind_channel_loss, :dbs.post_processor:dbs.ind_post_processor, 
+    :dbs.impl_date:dbs.ind_impl_date, :dbs.external_date:dbs.ind_external_date, 
+    :dbs.web_date:dbs.ind_web_date    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFcstPtESP() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (FcstPtESP *) malloc(sizeof(FcstPtESP))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->snow_method, dbs.snow_method);
+
+            strcpy(structPtr->hydrol_method, dbs.hydrol_method);
+
+            strcpy(structPtr->reservoir_model, dbs.reservoir_model);
+
+            strcpy(structPtr->upstream_seg, dbs.upstream_seg);
+
+            strcpy(structPtr->hydraul_method, dbs.hydraul_method);
+
+            strcpy(structPtr->flowtype, dbs.flowtype);
+
+            strcpy(structPtr->fcsttype, dbs.fcsttype);
+
+            strcpy(structPtr->frequpd_normal, dbs.frequpd_normal);
+            setNullIfIndicated(dbs.ind_frequpd_normal, CHAR, structPtr->frequpd_normal);
+
+            strcpy(structPtr->frequpd_flood, dbs.frequpd_flood);
+            setNullIfIndicated(dbs.ind_frequpd_flood, CHAR, structPtr->frequpd_flood);
+
+            strcpy(structPtr->frequpd_drought, dbs.frequpd_drought);
+            setNullIfIndicated(dbs.ind_frequpd_drought, CHAR, structPtr->frequpd_drought);
+
+            strcpy(structPtr->fcst_horizon, dbs.fcst_horizon);
+            setNullIfIndicated(dbs.ind_fcst_horizon, CHAR, structPtr->fcst_horizon);
+
+            structPtr->nummonclim = dbs.nummonclim;
+            setNullIfIndicated(dbs.ind_nummonclim, SHORT, &structPtr->nummonclim);
+
+            structPtr->numdayhyd = dbs.numdayhyd;
+            setNullIfIndicated(dbs.ind_numdayhyd, SHORT, &structPtr->numdayhyd);
+
+            structPtr->num_elev_zones = dbs.num_elev_zones;
+            setNullIfIndicated(dbs.ind_num_elev_zones, SHORT, &structPtr->num_elev_zones);
+
+            strcpy(structPtr->consumptive_use, dbs.consumptive_use);
+            setNullIfIndicated(dbs.ind_consumptive_use, CHAR, structPtr->consumptive_use);
+
+            strcpy(structPtr->channel_loss, dbs.channel_loss);
+            setNullIfIndicated(dbs.ind_channel_loss, CHAR, structPtr->channel_loss);
+
+            strcpy(structPtr->post_processor, dbs.post_processor);
+            setNullIfIndicated(dbs.ind_post_processor, CHAR, structPtr->post_processor);
+
+            structPtr->impl_date = pg_date_to_date_t(dbs.impl_date);
+            setNullIfIndicated(dbs.ind_impl_date, INT, &structPtr->impl_date);
+
+            structPtr->external_date = pg_date_to_date_t(dbs.external_date);
+            setNullIfIndicated(dbs.ind_external_date, INT, &structPtr->external_date);
+
+            structPtr->web_date = pg_date_to_date_t(dbs.web_date);
+            setNullIfIndicated(dbs.ind_web_date, INT, &structPtr->web_date);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.snow_method, 
+        :dbs.hydrol_method, :dbs.reservoir_model, 
+        :dbs.upstream_seg, :dbs.hydraul_method, 
+        :dbs.flowtype, :dbs.fcsttype, 
+        :dbs.frequpd_normal:dbs.ind_frequpd_normal, :dbs.frequpd_flood:dbs.ind_frequpd_flood, 
+        :dbs.frequpd_drought:dbs.ind_frequpd_drought, :dbs.fcst_horizon:dbs.ind_fcst_horizon, 
+        :dbs.nummonclim:dbs.ind_nummonclim, :dbs.numdayhyd:dbs.ind_numdayhyd, 
+        :dbs.num_elev_zones:dbs.ind_num_elev_zones, :dbs.consumptive_use:dbs.ind_consumptive_use, 
+        :dbs.channel_loss:dbs.ind_channel_loss, :dbs.post_processor:dbs.ind_post_processor, 
+        :dbs.impl_date:dbs.ind_impl_date, :dbs.external_date:dbs.ind_external_date, 
+        :dbs.web_date:dbs.ind_web_date        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetFcstPtESP() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+FcstPtESP * SelectFcstPtESP(const char * where)
+{
+
+    FcstPtESP * listPtr = NULL;
+    FcstPtESP * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM FcstPtESP ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtESP_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFcstPtESP() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFcstPtESP() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFcstPtESP() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.snow_method, 
+    :dbs.hydrol_method, :dbs.reservoir_model, 
+    :dbs.upstream_seg, :dbs.hydraul_method, 
+    :dbs.flowtype, :dbs.fcsttype, 
+    :dbs.frequpd_normal:dbs.ind_frequpd_normal, :dbs.frequpd_flood:dbs.ind_frequpd_flood, 
+    :dbs.frequpd_drought:dbs.ind_frequpd_drought, :dbs.fcst_horizon:dbs.ind_fcst_horizon, 
+    :dbs.nummonclim:dbs.ind_nummonclim, :dbs.numdayhyd:dbs.ind_numdayhyd, 
+    :dbs.num_elev_zones:dbs.ind_num_elev_zones, :dbs.consumptive_use:dbs.ind_consumptive_use, 
+    :dbs.channel_loss:dbs.ind_channel_loss, :dbs.post_processor:dbs.ind_post_processor, 
+    :dbs.impl_date:dbs.ind_impl_date, :dbs.external_date:dbs.ind_external_date, 
+    :dbs.web_date:dbs.ind_web_date    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFcstPtESP() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (FcstPtESP *) malloc(sizeof(FcstPtESP))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->snow_method, dbs.snow_method);
+
+            strcpy(structPtr->hydrol_method, dbs.hydrol_method);
+
+            strcpy(structPtr->reservoir_model, dbs.reservoir_model);
+
+            strcpy(structPtr->upstream_seg, dbs.upstream_seg);
+
+            strcpy(structPtr->hydraul_method, dbs.hydraul_method);
+
+            strcpy(structPtr->flowtype, dbs.flowtype);
+
+            strcpy(structPtr->fcsttype, dbs.fcsttype);
+
+            strcpy(structPtr->frequpd_normal, dbs.frequpd_normal);
+            setNullIfIndicated(dbs.ind_frequpd_normal, CHAR, structPtr->frequpd_normal);
+
+            strcpy(structPtr->frequpd_flood, dbs.frequpd_flood);
+            setNullIfIndicated(dbs.ind_frequpd_flood, CHAR, structPtr->frequpd_flood);
+
+            strcpy(structPtr->frequpd_drought, dbs.frequpd_drought);
+            setNullIfIndicated(dbs.ind_frequpd_drought, CHAR, structPtr->frequpd_drought);
+
+            strcpy(structPtr->fcst_horizon, dbs.fcst_horizon);
+            setNullIfIndicated(dbs.ind_fcst_horizon, CHAR, structPtr->fcst_horizon);
+
+            structPtr->nummonclim = dbs.nummonclim;
+            setNullIfIndicated(dbs.ind_nummonclim, SHORT, &structPtr->nummonclim);
+
+            structPtr->numdayhyd = dbs.numdayhyd;
+            setNullIfIndicated(dbs.ind_numdayhyd, SHORT, &structPtr->numdayhyd);
+
+            structPtr->num_elev_zones = dbs.num_elev_zones;
+            setNullIfIndicated(dbs.ind_num_elev_zones, SHORT, &structPtr->num_elev_zones);
+
+            strcpy(structPtr->consumptive_use, dbs.consumptive_use);
+            setNullIfIndicated(dbs.ind_consumptive_use, CHAR, structPtr->consumptive_use);
+
+            strcpy(structPtr->channel_loss, dbs.channel_loss);
+            setNullIfIndicated(dbs.ind_channel_loss, CHAR, structPtr->channel_loss);
+
+            strcpy(structPtr->post_processor, dbs.post_processor);
+            setNullIfIndicated(dbs.ind_post_processor, CHAR, structPtr->post_processor);
+
+            structPtr->impl_date = pg_date_to_date_t(dbs.impl_date);
+            setNullIfIndicated(dbs.ind_impl_date, INT, &structPtr->impl_date);
+
+            structPtr->external_date = pg_date_to_date_t(dbs.external_date);
+            setNullIfIndicated(dbs.ind_external_date, INT, &structPtr->external_date);
+
+            structPtr->web_date = pg_date_to_date_t(dbs.web_date);
+            setNullIfIndicated(dbs.ind_web_date, INT, &structPtr->web_date);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.snow_method, 
+        :dbs.hydrol_method, :dbs.reservoir_model, 
+        :dbs.upstream_seg, :dbs.hydraul_method, 
+        :dbs.flowtype, :dbs.fcsttype, 
+        :dbs.frequpd_normal:dbs.ind_frequpd_normal, :dbs.frequpd_flood:dbs.ind_frequpd_flood, 
+        :dbs.frequpd_drought:dbs.ind_frequpd_drought, :dbs.fcst_horizon:dbs.ind_fcst_horizon, 
+        :dbs.nummonclim:dbs.ind_nummonclim, :dbs.numdayhyd:dbs.ind_numdayhyd, 
+        :dbs.num_elev_zones:dbs.ind_num_elev_zones, :dbs.consumptive_use:dbs.ind_consumptive_use, 
+        :dbs.channel_loss:dbs.ind_channel_loss, :dbs.post_processor:dbs.ind_post_processor, 
+        :dbs.impl_date:dbs.ind_impl_date, :dbs.external_date:dbs.ind_external_date, 
+        :dbs.web_date:dbs.ind_web_date        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectFcstPtESP() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectFcstPtESPCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM FcstPtESP ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFcstPtESP() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFcstPtESP() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFcstPtESP() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFcstPtESP() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutFcstPtESP(const FcstPtESP * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtESP_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.snow_method, structPtr->snow_method);
+
+    strcpy(dbs.hydrol_method, structPtr->hydrol_method);
+
+    strcpy(dbs.reservoir_model, structPtr->reservoir_model);
+
+    strcpy(dbs.upstream_seg, structPtr->upstream_seg);
+
+    strcpy(dbs.hydraul_method, structPtr->hydraul_method);
+
+    strcpy(dbs.flowtype, structPtr->flowtype);
+
+    strcpy(dbs.fcsttype, structPtr->fcsttype);
+
+    strcpy(dbs.frequpd_normal, structPtr->frequpd_normal);
+    dbs.ind_frequpd_normal = getIndicator(CHAR, (void *)structPtr->frequpd_normal);
+
+    strcpy(dbs.frequpd_flood, structPtr->frequpd_flood);
+    dbs.ind_frequpd_flood = getIndicator(CHAR, (void *)structPtr->frequpd_flood);
+
+    strcpy(dbs.frequpd_drought, structPtr->frequpd_drought);
+    dbs.ind_frequpd_drought = getIndicator(CHAR, (void *)structPtr->frequpd_drought);
+
+    strcpy(dbs.fcst_horizon, structPtr->fcst_horizon);
+    dbs.ind_fcst_horizon = getIndicator(CHAR, (void *)structPtr->fcst_horizon);
+
+    dbs.nummonclim = structPtr->nummonclim;
+    dbs.ind_nummonclim = getIndicator(SHORT, (void *)&structPtr->nummonclim);
+
+    dbs.numdayhyd = structPtr->numdayhyd;
+    dbs.ind_numdayhyd = getIndicator(SHORT, (void *)&structPtr->numdayhyd);
+
+    dbs.num_elev_zones = structPtr->num_elev_zones;
+    dbs.ind_num_elev_zones = getIndicator(SHORT, (void *)&structPtr->num_elev_zones);
+
+    strcpy(dbs.consumptive_use, structPtr->consumptive_use);
+    dbs.ind_consumptive_use = getIndicator(CHAR, (void *)structPtr->consumptive_use);
+
+    strcpy(dbs.channel_loss, structPtr->channel_loss);
+    dbs.ind_channel_loss = getIndicator(CHAR, (void *)structPtr->channel_loss);
+
+    strcpy(dbs.post_processor, structPtr->post_processor);
+    dbs.ind_post_processor = getIndicator(CHAR, (void *)structPtr->post_processor);
+
+    dbs.impl_date = date_t_to_pg_date(structPtr->impl_date);
+    dbs.ind_impl_date = getIndicator(INT, (void *)&structPtr->impl_date);
+
+    dbs.external_date = date_t_to_pg_date(structPtr->external_date);
+    dbs.ind_external_date = getIndicator(INT, (void *)&structPtr->external_date);
+
+    dbs.web_date = date_t_to_pg_date(structPtr->web_date);
+    dbs.ind_web_date = getIndicator(INT, (void *)&structPtr->web_date);
+
+
+    EXEC SQL INSERT INTO FcstPtESP (lid,snow_method,
+        hydrol_method,reservoir_model,upstream_seg,
+        hydraul_method,flowtype,fcsttype,
+        frequpd_normal,frequpd_flood,frequpd_drought,
+        fcst_horizon,nummonclim,numdayhyd,
+        num_elev_zones,consumptive_use,channel_loss,
+        post_processor,impl_date,external_date,
+        web_date        )
+        VALUES (
+         :dbs.lid, :dbs.snow_method, :dbs.hydrol_method,
+         :dbs.reservoir_model, :dbs.upstream_seg, :dbs.hydraul_method,
+         :dbs.flowtype, :dbs.fcsttype, :dbs.frequpd_normal:dbs.ind_frequpd_normal,
+         :dbs.frequpd_flood:dbs.ind_frequpd_flood, :dbs.frequpd_drought:dbs.ind_frequpd_drought, :dbs.fcst_horizon:dbs.ind_fcst_horizon,
+         :dbs.nummonclim:dbs.ind_nummonclim, :dbs.numdayhyd:dbs.ind_numdayhyd, :dbs.num_elev_zones:dbs.ind_num_elev_zones,
+         :dbs.consumptive_use:dbs.ind_consumptive_use, :dbs.channel_loss:dbs.ind_channel_loss, :dbs.post_processor:dbs.ind_post_processor,
+         :dbs.impl_date:dbs.ind_impl_date, :dbs.external_date:dbs.ind_external_date, :dbs.web_date:dbs.ind_web_date);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutFcstPtESP() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertFcstPtESP(const FcstPtESP * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtESP_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.snow_method, structPtr->snow_method);
+
+    strcpy(dbs.hydrol_method, structPtr->hydrol_method);
+
+    strcpy(dbs.reservoir_model, structPtr->reservoir_model);
+
+    strcpy(dbs.upstream_seg, structPtr->upstream_seg);
+
+    strcpy(dbs.hydraul_method, structPtr->hydraul_method);
+
+    strcpy(dbs.flowtype, structPtr->flowtype);
+
+    strcpy(dbs.fcsttype, structPtr->fcsttype);
+
+    strcpy(dbs.frequpd_normal, structPtr->frequpd_normal);
+    dbs.ind_frequpd_normal = getIndicator(CHAR, (void *)structPtr->frequpd_normal);
+
+    strcpy(dbs.frequpd_flood, structPtr->frequpd_flood);
+    dbs.ind_frequpd_flood = getIndicator(CHAR, (void *)structPtr->frequpd_flood);
+
+    strcpy(dbs.frequpd_drought, structPtr->frequpd_drought);
+    dbs.ind_frequpd_drought = getIndicator(CHAR, (void *)structPtr->frequpd_drought);
+
+    strcpy(dbs.fcst_horizon, structPtr->fcst_horizon);
+    dbs.ind_fcst_horizon = getIndicator(CHAR, (void *)structPtr->fcst_horizon);
+
+    dbs.nummonclim = structPtr->nummonclim;
+    dbs.ind_nummonclim = getIndicator(SHORT, (void *)&structPtr->nummonclim);
+
+    dbs.numdayhyd = structPtr->numdayhyd;
+    dbs.ind_numdayhyd = getIndicator(SHORT, (void *)&structPtr->numdayhyd);
+
+    dbs.num_elev_zones = structPtr->num_elev_zones;
+    dbs.ind_num_elev_zones = getIndicator(SHORT, (void *)&structPtr->num_elev_zones);
+
+    strcpy(dbs.consumptive_use, structPtr->consumptive_use);
+    dbs.ind_consumptive_use = getIndicator(CHAR, (void *)structPtr->consumptive_use);
+
+    strcpy(dbs.channel_loss, structPtr->channel_loss);
+    dbs.ind_channel_loss = getIndicator(CHAR, (void *)structPtr->channel_loss);
+
+    strcpy(dbs.post_processor, structPtr->post_processor);
+    dbs.ind_post_processor = getIndicator(CHAR, (void *)structPtr->post_processor);
+
+    dbs.impl_date = date_t_to_pg_date(structPtr->impl_date);
+    dbs.ind_impl_date = getIndicator(INT, (void *)&structPtr->impl_date);
+
+    dbs.external_date = date_t_to_pg_date(structPtr->external_date);
+    dbs.ind_external_date = getIndicator(INT, (void *)&structPtr->external_date);
+
+    dbs.web_date = date_t_to_pg_date(structPtr->web_date);
+    dbs.ind_web_date = getIndicator(INT, (void *)&structPtr->web_date);
+
+
+    EXEC SQL INSERT INTO FcstPtESP (lid,snow_method,
+        hydrol_method,reservoir_model,upstream_seg,
+        hydraul_method,flowtype,fcsttype,
+        frequpd_normal,frequpd_flood,frequpd_drought,
+        fcst_horizon,nummonclim,numdayhyd,
+        num_elev_zones,consumptive_use,channel_loss,
+        post_processor,impl_date,external_date,
+        web_date        )
+        VALUES (
+         :dbs.lid, :dbs.snow_method, :dbs.hydrol_method,
+         :dbs.reservoir_model, :dbs.upstream_seg, :dbs.hydraul_method,
+         :dbs.flowtype, :dbs.fcsttype, :dbs.frequpd_normal:dbs.ind_frequpd_normal,
+         :dbs.frequpd_flood:dbs.ind_frequpd_flood, :dbs.frequpd_drought:dbs.ind_frequpd_drought, :dbs.fcst_horizon:dbs.ind_fcst_horizon,
+         :dbs.nummonclim:dbs.ind_nummonclim, :dbs.numdayhyd:dbs.ind_numdayhyd, :dbs.num_elev_zones:dbs.ind_num_elev_zones,
+         :dbs.consumptive_use:dbs.ind_consumptive_use, :dbs.channel_loss:dbs.ind_channel_loss, :dbs.post_processor:dbs.ind_post_processor,
+         :dbs.impl_date:dbs.ind_impl_date, :dbs.external_date:dbs.ind_external_date, :dbs.web_date:dbs.ind_web_date);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertFcstPtESP() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateFcstPtESP(const FcstPtESP *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FcstPtESP_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.snow_method, structPtr->snow_method);
+
+    strcpy(dbs.hydrol_method, structPtr->hydrol_method);
+
+    strcpy(dbs.reservoir_model, structPtr->reservoir_model);
+
+    strcpy(dbs.upstream_seg, structPtr->upstream_seg);
+
+    strcpy(dbs.hydraul_method, structPtr->hydraul_method);
+
+    strcpy(dbs.flowtype, structPtr->flowtype);
+
+    strcpy(dbs.fcsttype, structPtr->fcsttype);
+
+    strcpy(dbs.frequpd_normal, structPtr->frequpd_normal);
+    dbs.ind_frequpd_normal = getIndicator(CHAR, (void *)structPtr->frequpd_normal);
+
+    strcpy(dbs.frequpd_flood, structPtr->frequpd_flood);
+    dbs.ind_frequpd_flood = getIndicator(CHAR, (void *)structPtr->frequpd_flood);
+
+    strcpy(dbs.frequpd_drought, structPtr->frequpd_drought);
+    dbs.ind_frequpd_drought = getIndicator(CHAR, (void *)structPtr->frequpd_drought);
+
+    strcpy(dbs.fcst_horizon, structPtr->fcst_horizon);
+    dbs.ind_fcst_horizon = getIndicator(CHAR, (void *)structPtr->fcst_horizon);
+
+    dbs.nummonclim = structPtr->nummonclim;
+    dbs.ind_nummonclim = getIndicator(SHORT, (void *)&structPtr->nummonclim);
+
+    dbs.numdayhyd = structPtr->numdayhyd;
+    dbs.ind_numdayhyd = getIndicator(SHORT, (void *)&structPtr->numdayhyd);
+
+    dbs.num_elev_zones = structPtr->num_elev_zones;
+    dbs.ind_num_elev_zones = getIndicator(SHORT, (void *)&structPtr->num_elev_zones);
+
+    strcpy(dbs.consumptive_use, structPtr->consumptive_use);
+    dbs.ind_consumptive_use = getIndicator(CHAR, (void *)structPtr->consumptive_use);
+
+    strcpy(dbs.channel_loss, structPtr->channel_loss);
+    dbs.ind_channel_loss = getIndicator(CHAR, (void *)structPtr->channel_loss);
+
+    strcpy(dbs.post_processor, structPtr->post_processor);
+    dbs.ind_post_processor = getIndicator(CHAR, (void *)structPtr->post_processor);
+
+    dbs.impl_date = date_t_to_pg_date(structPtr->impl_date);
+    dbs.ind_impl_date = getIndicator(INT, (void *)&structPtr->impl_date);
+
+    dbs.external_date = date_t_to_pg_date(structPtr->external_date);
+    dbs.ind_external_date = getIndicator(INT, (void *)&structPtr->external_date);
+
+    dbs.web_date = date_t_to_pg_date(structPtr->web_date);
+    dbs.ind_web_date = getIndicator(INT, (void *)&structPtr->web_date);
+
+
+    sprintf(queryBuffer, " UPDATE FcstPtESP SET " );
+    strcat(queryBuffer, "lid = ? , snow_method = ? , hydrol_method = ? , reservoir_model = ? , upstream_seg = ? ,     ");
+    strcat(queryBuffer, "hydraul_method = ? , flowtype = ? , fcsttype = ? , frequpd_normal = ? , frequpd_flood = ? ,     ");
+    strcat(queryBuffer, "frequpd_drought = ? , fcst_horizon = ? , nummonclim = ? , numdayhyd = ? , num_elev_zones = ? ,     ");
+    strcat(queryBuffer, "consumptive_use = ? , channel_loss = ? , post_processor = ? , impl_date = ? , external_date = ? ,     ");
+    strcat(queryBuffer, "web_date = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateFcstPtESP() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.snow_method, :dbs.hydrol_method, :dbs.reservoir_model, :dbs.upstream_seg,
+     :dbs.hydraul_method, :dbs.flowtype, :dbs.fcsttype, :dbs.frequpd_normal:dbs.ind_frequpd_normal, :dbs.frequpd_flood:dbs.ind_frequpd_flood,
+     :dbs.frequpd_drought:dbs.ind_frequpd_drought, :dbs.fcst_horizon:dbs.ind_fcst_horizon, :dbs.nummonclim:dbs.ind_nummonclim, :dbs.numdayhyd:dbs.ind_numdayhyd, :dbs.num_elev_zones:dbs.ind_num_elev_zones,
+     :dbs.consumptive_use:dbs.ind_consumptive_use, :dbs.channel_loss:dbs.ind_channel_loss, :dbs.post_processor:dbs.ind_post_processor, :dbs.impl_date:dbs.ind_impl_date, :dbs.external_date:dbs.ind_external_date,
+     :dbs.web_date:dbs.ind_web_date;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateFcstPtESP() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteFcstPtESP(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM FcstPtESP ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteFcstPtESP() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateFcstPtESPByRecord (const FcstPtESP * newStructPtr, const FcstPtESP * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetFcstPtESPPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateFcstPtESP(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateFcstPtESP(const FcstPtESP * structPtr)
+{
+    UpdateFcstPtESPByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertFcstPtESP(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueFcstPtESP(const FcstPtESP * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (FcstPtESPExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertFcstPtESP(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteFcstPtESPByRecord(const FcstPtESP * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetFcstPtESPPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteFcstPtESP(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool FcstPtESPExists(const FcstPtESP * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetFcstPtESPPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectFcstPtESPCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetFcstPtESPPrimaryKeyWhereString (const FcstPtESP * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND snow_method = '%s'  AND hydrol_method = '%s'  AND reservoir_model = '%s'  AND upstream_seg = '%s'  AND hydraul_method = '%s'  AND flowtype = '%s'  AND fcsttype = '%s' ",
+            structPtr->lid, structPtr->snow_method, structPtr->hydrol_method, structPtr->reservoir_model, structPtr->upstream_seg, 
+            structPtr->hydraul_method, structPtr->flowtype, structPtr->fcsttype);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeFcstPtESP( FcstPtESP * structPtr)
+{
+    FcstPtESP* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( FcstPtESP * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetFcstPtESPDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetFcstPtESPErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

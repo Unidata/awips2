@@ -1,0 +1,19 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <camelContext id="server-camel"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <endpoint id="ebxmlThriftService_from"
+            uri="jetty:http://0.0.0.0:${EBXML_THRIFT_SERVICE_PORT}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+
+        <route id="ebxmlThriftService">
+            <from uri="ref:ebxmlThriftService_from" />
+            <bean ref="routeWrapper" method="executeThrift" />
+        </route>
+
+    </camelContext>
+
+</beans>

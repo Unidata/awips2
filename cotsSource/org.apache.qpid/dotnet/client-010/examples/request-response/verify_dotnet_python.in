@@ -1,0 +1,17 @@
+==== client.py.out | remove_uuid
+Request: Twas brillig, and the slithy toves
+Request: Did gyre and gimble in the wabe.
+Request: All mimsy were the borogroves,
+Request: And the mome raths outgrabe.
+Messages on queue: reply_to:
+Response: TWAS BRILLIG, AND THE SLITHY TOVES
+Response: DID GYRE AND GIMBLE IN THE WABE.
+Response: ALL MIMSY WERE THE BOROGROVES,
+Response: AND THE MOME RATHS OUTGRABE.
+No more messages!
+==== server_dotnet.out | remove_uuid
+Waiting for requests
+Request: Twas brillig, and the slithy toves
+Request: Did gyre and gimble in the wabe.
+Request: All mimsy were the borogroves,
+Request: And the mome raths outgrabe.

@@ -1,0 +1,36 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-util_udaio library file
+#
+#  cmt: File made on Wed Aug  6 12:57:23 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libutil_udaio_t.a:  \
+     $(LIB)/libutil_udaio_t.a(uclosl.o)  \
+     $(LIB)/libutil_udaio_t.a(ureadt.o)  \
+     $(LIB)/libutil_udaio_t.a(uwritt.o)
+

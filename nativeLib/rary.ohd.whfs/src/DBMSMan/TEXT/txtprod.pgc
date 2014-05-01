@@ -1,0 +1,282 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <memory.h>
+
+#include "DbmsAccess.h"
+#include "dbmserrs.h"
+#include "List.h"
+#include "txtprod.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+
+
+
+EXEC SQL include pgtypes_numeric;
+
+
+
+EXEC SQL include datetime;
+#define QUERY_LEN		9999
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct GTextProduct_t {
+	char		product_id[11];
+	dtime_t		producttime;
+	dtime_t		postingtime;
+	char		prodtype[2];
+	long		issnum;
+	char    	*product;
+} GTextProduct_rec;
+EXEC SQL END DECLARE SECTION;
+
+
+static char slct_stmt[] = " SELECT product_id, producttime, postingtime, prodtype, issnum, product FROM TextProduct ";
+static char del_stmt[] = " DELETE FROM TextProduct ";
+
+
+GTextProduct	* GetGTextProduct(char *where)
+{
+	GTextProduct		*listPtr;
+	GTextProduct		*spPtr;
+        int counter = 0;
+
+	EXEC SQL BEGIN DECLARE SECTION;
+
+	struct GTextProduct_t		dbs;
+	char		buf[QUERY_LEN];
+
+	EXEC SQL END DECLARE SECTION;
+
+	int		first = 1;
+
+        dbs.product = NULL;
+
+	strcpy(buf, slct_stmt);
+	if ( ( where != NULL ) && ( *where != '\0' ) )
+		strcat(buf, where);
+
+
+	EXEC SQL PREPARE tid FROM :buf;
+	if (SQLCODE < 0)
+	{
+		fprintf(stderr, "Select PREPARE GTextProduct(): ERROR \n");
+		fprintf(stderr, "SQLCODE = (%ld)  sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+		fprintf(stderr, "Error Message = (%s)\n ", sqlca.sqlerrm.sqlerrmc);
+		return(NULL);
+	}
+
+
+	EXEC SQL DECLARE tcur CURSOR WITH HOLD FOR tid;
+	if (SQLCODE < 0)
+	{
+		fprintf(stderr, "Select DECLARE GTextProduct(): ERROR \n");
+		fprintf(stderr, "SQLCODE = (%ld)  sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+		fprintf(stderr, "Error Message = (%s)\n ", sqlca.sqlerrm.sqlerrmc);
+		return(NULL);
+	}
+
+
+	EXEC SQL OPEN tcur;
+	if (SQLCODE < 0)
+	{
+		fprintf(stderr, "Select OPEN GTextProduct(): ERROR \n");
+		fprintf(stderr, "SQLCODE = (%ld)  sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+		fprintf(stderr, "Error Message = (%s)\n ", sqlca.sqlerrm.sqlerrmc);
+		return(NULL);
+	}
+
+
+	listPtr = 0;
+	memset(&dbs, '\0', sizeof(dbs));
+	EXEC SQL FETCH tcur INTO :dbs.product_id, :dbs.producttime, :dbs.postingtime, :dbs.prodtype, :dbs.issnum, :dbs.product;
+
+        if (SQLCODE < 0)
+        {
+                fprintf(stderr, "Select Fetch GTextProduct(): ERROR \n");
+                fprintf(stderr, "SQLCODE = (%ld)  sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message = (%s)\n ", sqlca.sqlerrm.sqlerrmc);
+                return(NULL);
+        }
+
+
+
+	while (SQLCODE == 0)
+	{
+                counter++;
+		if ((spPtr = (GTextProduct *)malloc(sizeof(GTextProduct))) != NULL)
+		{
+			strcpy(spPtr->product_id, dbs.product_id);
+			spPtr->producttime = dbs.producttime;
+			spPtr->postingtime = dbs.postingtime;
+			strcpy(spPtr->prodtype, dbs.prodtype);
+			spPtr->issnum = dbs.issnum;
+                        spPtr->product = malloc(strlen(dbs.product) + 1 );
+                        strcpy(spPtr->product, dbs.product);
+		}
+		else
+			break;
+
+
+		if (first)
+		{
+			listPtr = spPtr;
+			ListInit(&listPtr->list);
+			first = 0;
+		}
+
+
+		ListAdd(&listPtr->list, &spPtr->node);
+
+		memset(&dbs, '\0', sizeof(dbs));
+		EXEC SQL FETCH tcur INTO :dbs;
+	}
+        printf( "counter = %d", counter );
+
+
+	EXEC SQL CLOSE tcur;
+	return(listPtr);
+}
+
+
+int	PutGTextProduct(GTextProduct *sp)
+{
+
+	EXEC SQL BEGIN DECLARE SECTION;
+
+	struct GTextProduct_t		dbs;
+
+	EXEC SQL END DECLARE SECTION;
+
+	if (sp == NULL)
+		return(ERR_BAD_ARGS);
+
+	memset(&dbs, 0, sizeof(dbs));
+
+
+	strcpy(dbs.product_id, sp->product_id);
+	dbs.producttime = sp->producttime;
+	dbs.postingtime = sp->postingtime;
+	strcpy(dbs.prodtype, sp->prodtype);
+	dbs.issnum = sp->issnum;
+        dbs.product = malloc(strlen(sp->product) + 1 );
+        strcpy(dbs.product, sp->product );
+
+
+	EXEC SQL INSERT INTO TextProduct VALUES (:dbs);
+	if (SQLCODE < 0)
+	{
+		fprintf(stderr, "PutGTextProduct(): ERROR \n");
+		fprintf(stderr, "SQLCODE = (%ld)  sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+		fprintf(stderr, "Error Message = (%s)\n ", sqlca.sqlerrm.sqlerrmc);
+		return(SQLCODE);
+	}
+
+
+	return(ERR_OK);
+}
+
+int	DeleteGTextProduct(const char *where)
+{
+
+	EXEC SQL BEGIN DECLARE SECTION;
+
+	char		buf[QUERY_LEN];
+
+	EXEC SQL END DECLARE SECTION;
+	strcpy(buf, del_stmt);
+	if ( ( where != NULL ) && ( *where != '\0' ) )
+		strcat(buf, where);
+
+
+	EXEC SQL EXECUTE IMMEDIATE :buf;
+	if (SQLCODE < 0)
+	{
+		fprintf(stderr, "DeleteGTextProduct(): ERROR \n");
+		fprintf(stderr, "SQLCODE = (%ld)  sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+		fprintf(stderr, "Error Message = (%s)\n ", sqlca.sqlerrm.sqlerrmc);
+		return(SQLCODE);
+	}
+
+
+	return(ERR_OK);
+}
+
+
+int	UpdateGTextProduct(GTextProduct *sp, const char *where)
+{
+
+EXEC SQL BEGIN DECLARE SECTION;
+
+	struct GTextProduct_t	dbs;
+	char       	buf[QUERY_LEN];
+
+EXEC SQL END DECLARE SECTION;
+
+	int	      	num_rows_updated;
+	strcpy(dbs.product_id, sp->product_id);
+	dbs.producttime = sp->producttime;
+	dbs.postingtime = sp->postingtime;
+	strcpy(dbs.prodtype, sp->prodtype);
+	dbs.issnum = sp->issnum;
+        dbs.product = malloc ( strlen( sp->product ) + 1 );
+        strcpy( dbs.product, sp->product );
+
+	sprintf(buf, " UPDATE TextProduct SET ");
+	strcat(buf, "product_id = ?, producttime = ?, postingtime = ?, prodtype = ?, issnum = ?, product = ?");
+	if ( ( where != NULL ) && ( *where != '\0' ) ) 
+		strcat(buf, where);
+
+
+	EXEC SQL PREPARE uid FROM :buf;
+	if (SQLCODE < 0)
+	{
+		fprintf(stderr, "UpdatePrepareGTextProduct(): ERROR \n");
+		fprintf(stderr, "SQLCODE = (%ld)  sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+		fprintf(stderr, "Error Message = (%s)\n ", sqlca.sqlerrm.sqlerrmc);
+		return(SQLCODE);
+	}
+
+
+	EXEC SQL EXECUTE uid USING :dbs.product_id, :dbs.producttime, :dbs.postingtime, :dbs.prodtype, :dbs.issnum, :dbs.product;
+	if (SQLCODE < 0)
+	{
+		fprintf(stderr, "UpdateExecuteGTextProduct(): ERROR \n");
+		fprintf(stderr, "SQLCODE = (%ld)  sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+		fprintf(stderr, "Error Message = (%s)\n ", sqlca.sqlerrm.sqlerrmc);
+		return(SQLCODE);
+	}
+
+
+	num_rows_updated = sqlca.sqlerrd[2];
+
+
+	sqlca.sqlerrd[2] = num_rows_updated;
+	return(ERR_OK);
+}
+
+
+void FreeGTextProduct ( GTextProduct * sp )
+
+{
+	GTextProduct * nextPtr = NULL ;
+
+	while ( sp != NULL )
+	{
+		nextPtr = ( GTextProduct * ) ListNext ( & sp->node ) ;
+                if ( sp->product != NULL )
+                {
+                   free ( sp->product );
+                }
+		free ( ( void * ) sp ) ;
+		sp = nextPtr ;
+	}
+}
+
+
+

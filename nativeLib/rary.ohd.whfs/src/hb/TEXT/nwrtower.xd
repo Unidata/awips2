@@ -1,0 +1,708 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'nwrtower.c';
+generateNameExterns = * 'nwrtower.h';
+generateNameResDB = * 'nwrtower.res';
+generateCHeaderFile = 'nwrtower.h';
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'nwrDS' : XmDialogShell {
+	arguments {
+	was_selected = true;
+	lastGenName = 'nwrDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_nwrDS (Widget parent)
+';
+	XmNheight = 870;
+	XmNallowShellResize = true;
+	XmNtitle = 'NWR Transmitter';
+	XmNminWidth = 1100;
+	XmNminHeight = 815;
+	XmNmaxWidth = 1100;
+	XmNmaxHeight = 815;
+	};
+object 'nwrFM' : XmForm {
+	arguments {
+	lastGenName = 'nwrFM';
+	XmNwidth = 1100;
+	XmNheight = 815;
+	XmNautoUnmanage = false;
+	};
+object 'nwrtowerFR' : XmFrame {
+	arguments {
+	lastGenName = 'nwrtowerFR';
+	};
+object 'nwrtowerFM' : XmForm {
+	arguments {
+	lastGenName = 'nwrtowerFM';
+	XmNheight = 450;
+	};
+object 'nwrtowerLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrtowerLA';
+	XmNlabelString = 'Call
+Sign';
+	XmNalignment = 0;
+	};
+};
+object 'nwrtowerLA2' : XmLabel {
+	arguments {
+	name = 'nwrtowerLA2';
+	lastGenName = 'nwrtowerLA2';
+	XmNlabelString = 'WFO';
+	};
+};
+object 'nwrtowerLA3' : XmLabel {
+	arguments {
+	name = 'nwrtowerLA3';
+	lastGenName = 'nwrtowerLA3';
+	XmNlabelString = 'Transmitter City';
+	};
+};
+object 'nwrtowerLA4' : XmLabel {
+	arguments {
+	name = 'nwrtowerLA4';
+	lastGenName = 'nwrtowerLA4';
+	XmNlabelString = 'Transmitter County, State';
+	};
+};
+object 'nwrtowerLA5' : XmLabel {
+	arguments {
+	name = 'nwrtowerLA5';
+	lastGenName = 'nwrtowerLA5';
+	XmNlabelString = 'Coverage Area';
+	};
+};
+object 'nwrtowerLA6' : XmLabel {
+	arguments {
+	name = 'nwrtowerLA6';
+	lastGenName = 'nwrtowerLA6';
+	XmNlabelString = 'Lat / Lon';
+	};
+};
+object 'nwrTowerLA7' : XmLabel {
+	arguments {
+	name = 'nwrTowerLA7';
+	lastGenName = 'nwrTowerLA7';
+	XmNlabelString = 'Freq.';
+	};
+};
+object 'nwrtowerLA8' : XmLabel {
+	arguments {
+	name = 'nwrtowerLA8';
+	lastGenName = 'nwrtowerLA8';
+	XmNlabelString = 'Power';
+	};
+};
+object 'nwrtowerLA9' : XmLabel {
+	arguments {
+	name = 'nwrtowerLA9';
+	lastGenName = 'nwrtowerLA9';
+	XmNlabelString = 'Prod.
+Code';
+	};
+};
+object 'nwrtowerLA10' : XmLabel {
+	arguments {
+	name = 'nwrtowerLA10';
+	lastGenName = 'nwrtowerLA10';
+	XmNlabelString = 'Cnty.
+Num';
+	};
+};
+object 'nwrcall_signLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrcall_signLA';
+	XmNlabelString = 'Call Sign:';
+	XmNalignment = 0;
+	};
+};
+object 'nwrcall_signTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrcall_signTE';
+	XmNmaxLength = 6;
+	XmNcolumns = 6;
+	};
+};
+object 'nwrconsoleLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrconsoleLA';
+	XmNlabelString = 'Programming WFO:';
+	};
+};
+object 'nwrcityLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrcityLA';
+	XmNlabelString = 'City:';
+	};
+};
+object 'nwrcityTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrcityTE';
+	XmNmaxLength = 20;
+	};
+};
+object 'nwrcntystPB' : XmPushButton {
+	arguments {
+	lastGenName = 'nwrcntystPB';
+	XmNlabelString = 'County/State';
+	};
+};
+object 'nwrcntystTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrcntystTE';
+	XmNmaxLength = 24;
+	XmNeditable = false;
+	};
+};
+object 'nwrareaLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrareaLA';
+	XmNlabelString = 'Coverage Area:';
+	};
+};
+object 'nwrareaTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrareaTE';
+	XmNmaxLength = 25;
+	};
+};
+object 'nwrlatlonLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrlatlonLA';
+	XmNlabelString = 'Lat/Lon:';
+	};
+};
+object 'nwrlatTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrlatTE';
+	XmNmaxLength = 9;
+	};
+};
+object 'nwrlonTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrlonTE';
+	XmNmaxLength = 10;
+	};
+};
+object 'nwrfreqLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrfreqLA';
+	XmNlabelString = 'Frequency(Mhz):';
+	};
+};
+object 'nwrfreqTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrfreqTE';
+	XmNmaxLength = 7;
+	};
+};
+object 'nwrpowerLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrpowerLA';
+	XmNlabelString = 'Power(Watts):';
+	};
+};
+object 'nwrpowerTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrpowerTE';
+	XmNmaxLength = 4;
+	};
+};
+object 'nwrtwrclearPB' : XmPushButton {
+	arguments {
+	lastGenName = 'nwrtwrclearPB';
+	XmNlabelString = 'Clear';
+	};
+};
+object 'nwrtwrapplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'nwrtwrapplyPB';
+	XmNlabelString = 'Apply';
+	};
+};
+object 'nwrtwrdeletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'nwrtwrdeletePB';
+	XmNlabelString = 'Delete';
+	};
+};
+object 'nwrtowerSLB' : XmScrolledList {
+	arguments {
+	lastGenName = 'nwrtowerSLB';
+	};
+abstract object 'nwrtowerHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'nwrtowerHSB';
+	};
+};
+abstract object 'nwrtowerVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'nwrtowerVSB';
+	};
+};
+abstract object 'nwrtowerLI' : XmList {
+	arguments {
+	lastGenName = 'nwrtowerLI';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'nwrtwractiveTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'nwrtwractiveTB';
+	XmNlabelString = 'Active';
+	};
+};
+object 'nwrprodcodeLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrprodcodeLA';
+	XmNlabelString = 'Product Code:';
+	};
+};
+object 'nwrprodcodeTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrprodcodeTE';
+	XmNmaxLength = 3;
+	};
+};
+object 'nwrpseudoctyLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrpseudoctyLA';
+	XmNlabelString = 'Pseudo County Number:';
+	};
+};
+object 'nwrpseudoctyTE' : XmTextField {
+	arguments {
+	lastGenName = 'nwrpseudoctyTE';
+	XmNmaxLength = 4;
+	};
+};
+object 'nwrconsoleSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'nwrconsoleSL';
+	XmNwidth = 60;
+	XmNheight = 83;
+	};
+abstract object 'nwrconsoleHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'nwrconsoleHSB';
+	XmNsliderSize = 1;
+	XmNmaximum = 1;
+	XmNincrement = 1;
+	};
+};
+abstract object 'nwrconsoleVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'nwrconsoleVSB';
+	};
+};
+abstract object 'nwrconsoleLI' : XmList {
+	arguments {
+	lastGenName = 'nwrconsoleLI';
+	XmNautomaticSelection = true;
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -49;
+	XmNleftAttachment = 1 0 7;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 -1;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 65;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 105;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 265;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 468;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 709;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 831;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 885;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 940;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 -2;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 990;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 -2;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -300;
+	XmNtopAttachment = 1 0 275;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 95;
+	XmNbottomAttachment = 2 0 -305;
+	XmNtopAttachment = 1 0 270;
+    };
+    attachment {
+	XmNrightAttachment = 3 36;
+	XmNleftAttachment = 1 0 320;
+	XmNbottomAttachment = 2 0 -300;
+	XmNtopAttachment = 1 0 275;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 35;
+	XmNbottomAttachment = 2 0 -440;
+	XmNtopAttachment = 1 0 415;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -315;
+	XmNleftAttachment = 1 0 80;
+	XmNbottomAttachment = 2 0 -445;
+	XmNtopAttachment = 1 0 410;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -450;
+	XmNleftAttachment = 1 0 330;
+	XmNbottomAttachment = 2 0 -445;
+	XmNtopAttachment = 1 0 410;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -765;
+	XmNleftAttachment = 1 0 455;
+	XmNbottomAttachment = 2 0 -445;
+	XmNtopAttachment = 1 0 410;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -730;
+	XmNleftAttachment = 1 0 590;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 270;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1065;
+	XmNleftAttachment = 1 0 735;
+	XmNbottomAttachment = 2 0 -300;
+	XmNtopAttachment = 1 0 265;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -395;
+	XmNtopAttachment = 1 0 370;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 80;
+	XmNbottomAttachment = 2 0 -400;
+	XmNtopAttachment = 1 0 365;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -340;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -400;
+	XmNtopAttachment = 1 0 365;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -485;
+	XmNleftAttachment = 1 0 345;
+	XmNbottomAttachment = 2 0 -395;
+	XmNtopAttachment = 1 0 370;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -600;
+	XmNleftAttachment = 1 0 490;
+	XmNbottomAttachment = 2 0 -400;
+	XmNtopAttachment = 1 0 365;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -735;
+	XmNleftAttachment = 1 0 615;
+	XmNbottomAttachment = 2 0 -395;
+	XmNtopAttachment = 1 0 370;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -810;
+	XmNleftAttachment = 1 0 735;
+	XmNbottomAttachment = 2 0 -400;
+	XmNtopAttachment = 1 0 365;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 145;
+	XmNbottomAttachment = 2 0 -485;
+	XmNtopAttachment = 1 0 455;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -570;
+	XmNleftAttachment = 1 0 505;
+	XmNbottomAttachment = 2 0 -485;
+	XmNtopAttachment = 1 0 455;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -925;
+	XmNleftAttachment = 1 0 860;
+	XmNbottomAttachment = 2 0 -485;
+	XmNtopAttachment = 1 0 455;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1065;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -260;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 195;
+	XmNbottomAttachment = 2 0 -305;
+	XmNtopAttachment = 1 0 270;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -985;
+	XmNleftAttachment = 1 0 870;
+	XmNbottomAttachment = 2 0 -395;
+	XmNtopAttachment = 1 0 370;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1065;
+	XmNleftAttachment = 1 0 990;
+	XmNbottomAttachment = 2 0 -400;
+	XmNtopAttachment = 1 0 365;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -985;
+	XmNleftAttachment = 1 0 785;
+	XmNbottomAttachment = 2 0 -440;
+	XmNtopAttachment = 1 0 415;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1065;
+	XmNleftAttachment = 1 0 990;
+	XmNbottomAttachment = 2 0 -445;
+	XmNtopAttachment = 1 0 410;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 265;
+    };
+    };
+};
+object 'nwrtowerFRLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrtowerFRLA';
+	XmNchildType = 2;
+	XmNlabelString = 'NWR Transmitter Information';
+	};
+};
+};
+object 'nwrcountyFR' : XmFrame {
+	arguments {
+	lastGenName = 'nwrcountyFR';
+	};
+object 'nwrcountyFM' : XmForm {
+	arguments {
+	lastGenName = 'nwrcountyFM';
+	};
+object 'nwrctytwrLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrctytwrLA';
+	XmNlabelString = 'Counties covered by Transmitter:';
+	};
+};
+object 'nwrctyaddPB' : XmPushButton {
+	arguments {
+	lastGenName = 'nwrctyaddPB';
+	XmNlabelString = '<-- Add';
+	};
+};
+object 'nwravailctyLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwravailctyLA';
+	XmNlabelString = 'Available Counties';
+	};
+};
+object 'nwrctydeletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'nwrctydeletePB';
+	XmNlabelString = 'Delete';
+	};
+};
+object 'nwrctytwrSLB' : XmScrolledList {
+	arguments {
+	lastGenName = 'nwrctytwrSLB';
+	};
+abstract object 'nwrctytwrHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'nwrctytwrHSB';
+	};
+};
+abstract object 'nwrctytwrVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'nwrctytwrVSB';
+	};
+};
+abstract object 'nwrctytwrLI' : XmList {
+	arguments {
+	lastGenName = 'nwrctytwrLI';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'nwravailctySLB' : XmScrolledList {
+	arguments {
+	lastGenName = 'nwravailctySLB';
+	};
+abstract object 'nwravailctyHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'nwravailctyHSB';
+	};
+};
+abstract object 'nwravailctyVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'nwravailctyVSB';
+	};
+};
+abstract object 'nwravailctyLI' : XmList {
+	arguments {
+	lastGenName = 'nwravailctyLI';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -440;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 500;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -985;
+	XmNleftAttachment = 1 0 635;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -575;
+	XmNleftAttachment = 1 0 500;
+	XmNbottomAttachment = 2 0 -160;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -440;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -200;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -985;
+	XmNleftAttachment = 1 0 635;
+	XmNbottomAttachment = 2 0 -200;
+	XmNtopAttachment = 1 0 30;
+    };
+    };
+};
+object 'nwrcountyFRLA' : XmLabel {
+	arguments {
+	lastGenName = 'nwrcountyFRLA';
+	XmNchildType = 2;
+	XmNlabelString = 'County Coverage Information';
+	};
+};
+};
+object 'nwrclosePB' : XmPushButton {
+	arguments {
+	lastGenName = 'nwrclosePB';
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -1090;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -525;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1090;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -760;
+	XmNtopAttachment = 1 0 530;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -580;
+	XmNleftAttachment = 1 0 520;
+	XmNbottomAttachment = 2 0 -800;
+	XmNtopAttachment = 1 0 770;
+    };
+    };
+};
+};
+end module;

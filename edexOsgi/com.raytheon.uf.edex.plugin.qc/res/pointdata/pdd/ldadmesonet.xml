@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointDataDescription>
+	<parameter name="test1" numDims="2" type="STRING" size="156" />
+	<parameter name="test3" numDims="2" type="STRING" size="156" />
+	<parameter name="reportTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1-1-1970" fillValue="3.40282346e+38" />
+	<parameter name="test5" numDims="2" type="STRING" size="156" />
+	<parameter name="test4" numDims="2" type="STRING" size="156" />
+	<parameter name="test7" numDims="2" type="STRING" size="156" />
+	<parameter name="test6" numDims="2" type="STRING" size="156" />
+	<parameter name="waveHeight" numDims="1" type="FLOAT" unit="m"
+		fillValue="3.40282346639e+38" />
+	<parameter name="test8" numDims="2" type="STRING" size="156" />
+	<parameter name="windSpeedICA" numDims="1" type="INT" />
+	<parameter name="test2" numDims="2" type="STRING" size="156" />
+	<parameter name="secondsStage1_2" numDims="1" type="INT"
+		fillValue="-2147483647.0" />
+	<parameter name="skyLayerBase" numDims="2" type="FLOAT"
+		unit="m" fillValue="3.40282346639e+38" />
+	<parameter name="windGustChangeTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
+	<parameter name="windSpeedICR" numDims="1" type="INT" />
+	<parameter name="precipAccum" numDims="1" type="FLOAT" unit="mm"
+		fillValue="3.40282346639e+38" />
+	<parameter name="rawPrecip" numDims="1" type="FLOAT" unit="mm"
+		fillValue="3.40282346639e+38" />
+	<parameter name="precipAccumICR" numDims="1" type="INT" />
+	<parameter name="elevation" numDims="1" type="FLOAT" unit="m"
+		fillValue="3.40282346639e+38" />
+	<parameter name="staticIds" numDims="2" type="STRING" size="85" />
+	<parameter name="latitude" numDims="1" type="FLOAT" unit="degree_N"
+		fillValue="3.40282346639e+38" />
+	<parameter name="windSpeedChangeTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
+	<parameter name="precipAccumICA" numDims="1" type="INT" />
+	<parameter name="windDirChangeTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
+	<parameter name="solarRadiation" numDims="1" type="FLOAT"
+		unit="W/m²" fillValue="3.40282346639e+38" />
+	<parameter name="seaLevelPressure" numDims="1" type="FLOAT"
+		unit="Pa" fillValue="3.40282346639e+38" />
+	<parameter name="seaSurfaceTempICA" numDims="1" type="INT" />
+	<parameter name="totalSignalDelay" numDims="1" type="FLOAT"
+		unit="m" fillValue="-99.9000015259" />
+	<parameter name="firstInBin" numDims="1" type="INT"
+		fillValue="-1.0" />
+	<parameter name="presWeather" numDims="2" type="STRING" size="76" />
+	<parameter name="homeWFO" numDims="2" type="STRING" size="16" />
+	<parameter name="seaSurfaceTempICR" numDims="1" type="INT" />
+	<parameter name="windDirMaxDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="precipAccumQCD" numDims="2" type="FLOAT"
+		unit="mm" fillValue="3.40282346639e+38" />
+	<parameter name="precipAccumQCA" numDims="1" type="INT" />
+	<parameter name="dewpointICR" numDims="1" type="INT" />
+	<parameter name="relHumidityQCA" numDims="1" type="INT" />
+	<parameter name="temperatureQCR" numDims="1" type="INT" />
+	<parameter name="relHumidityQCD" numDims="2" type="FLOAT"
+		fillValue="3.40282346639e+38" />
+	<parameter name="providerId" numDims="2" type="STRING" size="42" />
+	<parameter name="dewpointICA" numDims="1" type="INT" />
+	<parameter name="seaSurfaceTemp" numDims="1" type="FLOAT"
+		unit="K" fillValue="3.40282346639e+38" />
+	<parameter name="precipAccumQCR" numDims="1" type="INT" />
+	<parameter name="temperatureQCA" numDims="1" type="INT" />
+	<parameter name="relHumidityQCR" numDims="1" type="INT" />
+	<parameter name="temperatureQCD" numDims="2" type="FLOAT"
+		unit="K" fillValue="3.40282346639e+38" />
+	<parameter name="meanWeightedTemperature" numDims="1" type="FLOAT"
+		unit="K" fillValue="-99.9000015259" />
+	<parameter name="temperatureICR" numDims="1" type="INT" />
+	<parameter name="seaSurfaceTempQCR" numDims="1" type="INT" />
+	<parameter name="totalCloudCover" numDims="1" type="FLOAT"
+		fillValue="3.40282346639e+38" />
+	<parameter name="seaSurfaceTempQCA" numDims="1" type="INT" />
+	<parameter name="temperatureICA" numDims="1" type="INT" />
+	<parameter name="seaSurfaceTempQCD" numDims="2" type="FLOAT"
+		unit="K" fillValue="3.40282346639e+38" />
+	<parameter name="dataProvider" numDims="2" type="STRING"
+		size="37" />
+	<parameter name="pressChange3HourDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="windSpeedQCD" numDims="2" type="FLOAT"
+		unit="m/s" fillValue="3.40282346639e+38" />
+	<parameter name="pressChange3Hour" numDims="1" type="FLOAT"
+		unit="Pa" fillValue="3.40282346639e+38" />
+	<parameter name="visibilityQCR" numDims="1" type="INT" />
+	<parameter name="windSpeedQCA" numDims="1" type="INT" />
+	<parameter name="lowLevelCloudType" numDims="1" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="stationPressureQCA" numDims="1" type="INT" />
+	<parameter name="receivedTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1-1-1970" fillValue="3.40282346e+38" />
+	<parameter name="stationPressureQCD" numDims="2" type="FLOAT"
+		unit="Pa" fillValue="3.40282346639e+38" />
+	<parameter name="solarRadChangeTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
+	<parameter name="visibilityQCA" numDims="1" type="INT" />
+	<parameter name="visibilityQCD" numDims="2" type="FLOAT"
+		unit="m" fillValue="3.40282346639e+38" />
+	<parameter name="windSpeedQCR" numDims="1" type="INT" />
+	<parameter name="stationPressure" numDims="1" type="FLOAT"
+		unit="Pa" fillValue="3.40282346639e+38" />
+	<parameter name="stationPressureQCR" numDims="1" type="INT" />
+	<parameter name="lastInBin" numDims="1" type="INT" fillValue="-1.0" />
+	<parameter name="minimumTemperature" numDims="2" type="FLOAT"
+		unit="K" fillValue="3.40282346639e+38" />
+	<parameter name="pressChange3HourQCR" numDims="1" type="INT" />
+	<parameter name="dewpointDD" numDims="1" type="STRING" size="1" />
+	<parameter name="dewpoint" numDims="1" type="FLOAT" unit="K"
+		fillValue="3.40282346639e+38" />
+	<parameter name="timeSinceLastPcp" numDims="1" type="DOUBLE"
+		unit="s" fillValue="3.40282346e+38" />
+	<parameter name="precipRateDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="globalInventory" numDims="1" type="STRING"
+		size="1" fillValue="0.0" />
+	<parameter name="pressChange3HourQCA" numDims="1" type="INT" />
+	<parameter name="relHumidityDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="pressChange3HourQCD" numDims="2" type="FLOAT"
+		unit="Pa" fillValue="3.40282346639e+38" />
+	<parameter name="secondsStage3" numDims="1" type="INT"
+		fillValue="-2147483647.0" />
+	<parameter name="altimeter" numDims="1" type="FLOAT" unit="Pa"
+		fillValue="3.40282346639e+38" />
+	<parameter name="windSpeedDD" numDims="1" type="STRING" size="1" />
+	<parameter name="dewpointQCR" numDims="1" type="INT" />
+	<parameter name="precipAccumDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="visibilityICA" numDims="1" type="INT" />
+	<parameter name="minTempRecordPeriod" numDims="2" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="numericWMOid" numDims="1" type="INT"
+		fillValue="-2147483647.0" />
+	<parameter name="visibilityICR" numDims="1" type="INT" />
+	<parameter name="altimeterDD" numDims="1" type="STRING" size="1" />
+	<parameter name="relHumidity" numDims="1" type="FLOAT"
+		fillValue="3.40282346639e+38" />
+	<parameter name="isOverflow" numDims="1" type="INT"
+		fillValue="0.0" />
+	<parameter name="invTime" numDims="1" type="INT" fillValue="0.0" />
+	<parameter name="wetSignalDelay" numDims="1" type="FLOAT"
+		unit="m" fillValue="-99.9000015259" />
+	<parameter name="altimeterQCR" numDims="1" type="INT" />
+	<parameter name="seaLevelPressureICA" numDims="1" type="INT" />
+	<parameter name="windDirICR" numDims="1" type="INT" />
+	<parameter name="windDirMaxQCR" numDims="1" type="INT" />
+	<parameter name="altimeterQCD" numDims="2" type="FLOAT"
+		unit="Pa" fillValue="3.40282346639e+38" />
+	<parameter name="precipType" numDims="2" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="seaLevelPressureICR" numDims="1" type="INT" />
+	<parameter name="altimeterQCA" numDims="1" type="INT" />
+	<parameter name="windDirMaxQCD" numDims="2" type="FLOAT"
+		unit="degree" fillValue="3.40282346639e+38" />
+	<parameter name="firstOverflow" numDims="1" type="FLOAT"
+		fillValue="-1.0" />
+	<parameter name="midLevelCloudType" numDims="1" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="seaSurfaceTempDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="windDirMaxQCA" numDims="1" type="INT" />
+	<parameter name="windDirICA" numDims="1" type="INT" />
+	<parameter name="precipRateQCR" numDims="1" type="INT" />
+	<parameter name="temperatureDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="temperature" numDims="1" type="FLOAT" unit="K"
+		fillValue="3.40282346639e+38" />
+	<parameter name="platformTrueSpeed" numDims="1" type="FLOAT"
+		unit="m/s" fillValue="3.40282346639e+38" />
+	<parameter name="rawMessage" numDims="2" type="STRING" size="1638" />
+	<parameter name="precipRateQCA" numDims="1" type="INT" />
+	<parameter name="maxTempRecordPeriod" numDims="2" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="precipRateQCD" numDims="2" type="FLOAT"
+		unit="m/s" fillValue="3.40282346639e+38" />
+	<parameter name="pressChangeChar" numDims="1" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="dataPlatformType" numDims="1" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="formalError" numDims="1" type="FLOAT" unit="cm"
+		fillValue="-9.89999961853" />
+	<parameter name="seaLevelPressureQCR" numDims="1" type="INT" />
+	<parameter name="visibility" numDims="1" type="FLOAT" unit="m"
+		fillValue="3.40282346639e+38" />
+	<parameter name="stationPressChangeTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
+	<parameter name="stationType" numDims="2" type="STRING" size="37" />
+	<parameter name="cloudBaseHeight" numDims="1" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="seaLevelPressureQCD" numDims="2" type="FLOAT"
+		unit="Pa" fillValue="3.40282346639e+38" />
+	<parameter name="seaLevelPressureQCA" numDims="1" type="INT" />
+	<parameter name="totalColumnPWV" numDims="1" type="FLOAT"
+		unit="cm" fillValue="3.40282346639e+38" />
+	<parameter name="drySignalDelay" numDims="1" type="FLOAT"
+		unit="m" fillValue="-99.9000015259" />
+	<parameter name="nStaticIds" numDims="1" type="FLOAT"
+		fillValue="0.0" />
+	<parameter name="longitude" numDims="1" type="FLOAT" unit="degree_E"
+		fillValue="3.40282346639e+38" />
+	<parameter name="handbook5Id" numDims="2" type="STRING" size="19" />
+	<parameter name="observationTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1-1-1970" fillValue="3.40282346e+38" />
+	<parameter name="windGust" numDims="1" type="FLOAT" unit="m/s"
+		fillValue="3.40282346639e+38" />
+	<parameter name="precipIntensity" numDims="2" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="seaLevelPressureDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="wavePeriod" numDims="1" type="FLOAT" unit="s"
+		fillValue="3.40282346639e+38" />
+	<parameter name="stationPressureICR" numDims="1" type="INT" />
+	<parameter name="QCT" numDims="2" type="STRING" size="200" />
+	<parameter name="pressChange3HourICA" numDims="1" type="INT" />
+	<parameter name="windGustQCR" numDims="1" type="INT" />
+	<parameter name="stationPressureICA" numDims="1" type="INT" />
+	<parameter name="filterSetNum" numDims="1" type="INT"
+		fillValue="0.0" />
+	<parameter name="stationPressureDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="windGustQCD" numDims="2" type="FLOAT" unit="m/s"
+		fillValue="3.40282346639e+38" />
+	<parameter name="pressChange3HourICR" numDims="1" type="INT" />
+	<parameter name="precipRate" numDims="1" type="FLOAT" unit="m/s"
+		fillValue="3.40282346639e+38" />
+	<parameter name="windGustQCA" numDims="1" type="INT" />
+	<parameter name="windDirDD" numDims="1" type="STRING" size="1" />
+	<parameter name="inventory" numDims="1" type="INT" fillValue="0.0" />
+	<parameter name="windDirMax" numDims="1" type="FLOAT" unit="degree"
+		fillValue="3.40282346639e+38" />
+	<parameter name="maximumTemperature" numDims="2" type="FLOAT"
+		unit="K" fillValue="3.40282346639e+38" />
+	<parameter name="windDirQCR" numDims="1" type="INT" />
+	<parameter name="highLevelCloudType" numDims="1" type="INT"
+		fillValue="-32767.0" />
+	<parameter name="tempChangeTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
+	<parameter name="visibilityDD" numDims="1" type="STRING"
+		size="1" />
+	<parameter name="stationId" numDims="2" type="STRING" size="24" />
+	<parameter name="providerId" numDims="2" type="STRING" size="12" />
+	<parameter name="dataProvider" numDims="2" type="STRING" size="12" />
+	<parameter name="windDirQCD" numDims="2" type="FLOAT" unit="degree"
+		fillValue="3.40282346639e+38" />
+	<parameter name="platformTrueDirection" numDims="1" type="FLOAT"
+		unit="degree" fillValue="3.40282346639e+38" />
+	<parameter name="stationName" numDims="2" type="STRING" size="180" />
+	<parameter name="windDirMin" numDims="1" type="FLOAT" unit="degree"
+		fillValue="3.40282346639e+38" />
+	<parameter name="windDirQCA" numDims="1" type="INT" />
+	<parameter name="dewpointQCD" numDims="2" type="FLOAT" unit="K"
+		fillValue="3.40282346639e+38" />
+	<parameter name="dewpointQCA" numDims="1" type="INT" />
+	<parameter name="ICT" numDims="2" type="STRING" size="262" />
+	<parameter name="windGustDD" numDims="1" type="STRING" size="1" />
+	<parameter name="test9" numDims="2" type="STRING" size="156" />
+	<parameter name="windDir" numDims="1" type="FLOAT" unit="degree"
+		fillValue="3.40282346639e+38" />
+	<parameter name="rhChangeTime" numDims="1" type="DOUBLE"
+		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
+	<parameter name="windSpeed" numDims="1" type="FLOAT" unit="m/s"
+		fillValue="3.40282346639e+38" />
+	<parameter name="prevRecord" numDims="1" type="INT"
+		fillValue="-1.0" />
+	<parameter name="wetBulbTemperature" numDims="1" type="FLOAT"
+		unit="K" fillValue="3.40282346639e+38" />
+	<parameter name="capPi" numDims="1" type="FLOAT" unit="dimensionless"
+		fillValue="-99.9000015259" />
+	<parameter name="lastRecord" numDims="1" type="INT"
+		fillValue="-1.0" />
+
+</pointDataDescription>

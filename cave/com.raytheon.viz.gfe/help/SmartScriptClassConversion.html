@@ -1,0 +1,66 @@
+<html>
+<title>Smart Script Class - Conversion Methods</title>
+<body>
+<br>
+
+<h1><a name="Conversion"></a>Conversion Methods</h1>
+<a href="#UVToMagDir">UVToMagDir</a>
+<br>
+<a href="#MagDirToUV">MagDirToUV</a>
+<br>
+<a href="#convertMsecToKts">convertMsecToKts</a>
+<br>
+<a href="#convertKtoF">convertKtoF</a>
+<br>
+<a href="#KtoF">KtoF</a>
+<br>
+<a href="#convertFtoK">convertFtoK</a>
+<br>
+<a href="#FtoK">FtoK</a>
+<br>
+<a href="#convertFtToM">convertFtToM</a>
+<!-- Leave this comment for formatting purposes -->
+<hr width="100%">
+
+
+<h2>
+<a name="UVToMagDir"></a>UVToMagDir</h2>
+def UVToMagDir(self, u, v):
+<h2><a name="MagDirToUV"></a>MagDirToUV</h2>
+def MagDirToUV(self, mag, dir):
+<h2><a name="convertMsecToKts"></a>convertMsecToKts</h2>
+def convertMsecToKts(self, value_Msec):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert from meters/sec to Kts
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # meters = 1.0/.0006214 * miles
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # seconds = 60*60*hours
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # m/s = (1.0/.0006214) * (1/ 60*60)
+* mph
+<h2><a name="convertKtoF"></a>convertKtoF</h2>
+def convertKtoF(self, t_K):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert the temperature from Kelvin
+to Fahrenheit
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Degrees Fahrenheit = (Degrees Kelvin
+- 273.15) / (5/9) + 32
+<h2><a name="KtoF"></a>KtoF</h2>
+def KtoF(self, t_K):
+<h2><a name="convertFtoK"></a>convertFtoK</h2>
+def convertFtoK(self, t_F):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert the temperature from Kelvin
+to Fahrenheit
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Degrees Kelvin = (Degrees Fahrenheit
+- 32) * (5 / 9) + 273.15
+<h2><a name="FtoK"></a>FtoK</h2>
+def FtoK(self, t_F):
+<h2><a name="convertFtToM"></a>convertFtToM</h2>
+def convertFtToM(self, value_Ft):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert the value in Feet to Meters
+

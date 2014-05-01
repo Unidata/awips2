@@ -1,0 +1,231 @@
+C MODULE PUCB51
+C***********************************************************************
+C
+      SUBROUTINE PUCB51(ISTYP,IRES,NRES,LPO,LTS,LCO,PO,CO)
+C
+C     ROUTINE PUNCHESS THE INFORMATION STORED IN THE P ARRAY FOR THE
+C     SSARRESV RESERVOIR OPERATION (UPERBKWR AND LWERBKWR).
+C
+C***********************************************************************
+C     PROGRAMMED BY KUANG HSU  OCTOBER 1994
+C***********************************************************************
+      REAL NORMP,NORMQ
+      DIMENSION PO(*),CO(*),PR51(2),SCHEME(26),X(365),Y(365),Z(365),
+     1 IDAY(365),ANAME(5),DIM(4),AMP(2),BWTYP(2),CNTLBY(2)
+C
+      CHARACTER*4  FNV(6)
+      CHARACTER*28 FMT0,FMT2
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fengmt'
+      REAL*8 GTSKW(12),ENGMET(2),KEYWD(3)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_ssarresv/RCS/pucb51.f,v $
+     . $',                                                             '
+     .$Id: pucb51.f,v 1.4 2000/12/19 15:11:10 jgofus Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA PR51,BLANK/4HPUC5,4H1   ,4H    /
+      DATA DIM/4HL   ,4HL3/T,4HL3  ,4HL/T /
+C
+      DATA GTSKW/8HINSTQI1 ,8HINSTQI2 ,8HINSTQO1 ,8HINSTQO2 ,8HMEANQOUT,
+     1           8HPOOL    ,8HSTORAGE ,8HOBSQO   ,8HOBSQOM  ,8HOBSH    ,
+     1           8HTRIBQL1 ,8HTRIBQL2 /
+      DATA KEYWD/8HELVSSTOR,8HQVSEL   ,8H        /
+      DATA BWTYP/4HFLOW,4HELEV/
+      DATA CNTLBY/4HRESV,4HTRIB/
+      DATA ENGMET/8HENGLISH ,8HMETRIC  /
+      DATA AMP/1H&,1H /
+      DATA UNTL,UNTQ,UNTST/4HM   ,4HCMS ,4HCMSD/
+      DATA DIML,DIMQ,DIMST/4HL   ,4HL3/T,4HL3  /
+      DATA ACFT,CFSD/4HACFT,4HCFSD/
+      DATA FMT0/'( A8,1X,    F10.0,  T72,A1) '/
+      DATA FMT2/'( A8,1X,    F10.2,  T72,A1) '/
+      DATA  FNV/'   1','   2','   3','   4','   5','   6'/
+C
+      LTSQO1=LTS
+      LTSQO2=LTSQO1+5
+      LTSQL1=LTS+40
+      LTSQL2=LTSQL1+5
+      WRITE(IPU,510)
+ 510  FORMAT('PARMS')
+      ISTYP=PO(LPO-1)
+      NVAL=PO(LPO)
+      IX=LPO
+      IY=IX+NVAL
+      IZ=IY+NVAL
+      DO 105 I=1,NVAL
+ 105  X(I)=PO(IX+I )
+      DO 107 I=1,NVAL
+ 107  Y(I)=PO(IY+I)
+      DO 109 I=1,NVAL
+ 109  Z(I)=PO(IZ+I)
+      LPO=LPO+3*NVAL+1
+C
+C  PUNCH ELVSSTOR CURVE
+      IAMP=1
+      IB=1
+      IE=NVAL
+      IF(IE .GT. 6) IE=6
+      JP=IE-IB+1
+      FMT2(9:12)=FNV(JP)
+      WRITE(IPU,FMT2) KEYWD(1),(X(I),I=IB,IE),AMP(IAMP)
+      IF(IE .GE. NVAL)GO TO 116
+      IB=IE+1
+      IE=IE+6
+      IF(IE .GT. NVAL)IE=NVAL
+ 115  JP=IE-IB+1
+      FMT2(9:12)=FNV(JP)
+      WRITE(IPU,FMT2) KEYWD(3),(X(I),I=IB,IE),AMP(IAMP)
+      IF(IE .GE. NVAL)GO TO 116
+      IB=IE+1
+      IE=IE+6
+      IF(IE .GT. NVAL)IE=NVAL
+      GO TO 115
+C
+ 116  CONTINUE
+      IB=1
+      IE=NVAL
+      IF(IE .GT. 6) IE=6
+ 117  IF(IE.GE.NVAL) IAMP=2
+      JP=IE-IB+1
+      FMT0(9:12)=FNV(JP)
+      WRITE(IPU,FMT0) KEYWD(3),(Y(I),I=IB,IE),AMP(IAMP)
+      IF(IE .GE. NVAL)GO TO 118
+      IB=IE+1
+      IE=IE+6
+      IF(IE .GT. NVAL)IE=NVAL
+      GO TO 117
+C
+ 118  CONTINUE
+C
+C  PUNCH BACKWATER TABLE
+C
+      NVAL=PO(LPO)
+      LBWTYP=LPO+3*NVAL+1
+      IBWTYP=PO(LBWTYP)
+      DO 135 I=1,NVAL
+      IX=LPO+(I-1)*3+1
+      X(I)=PO(IX)
+      IY=IX+1
+      Y(I)=PO(IY)
+      IZ=IY+1
+      Z(I)=PO(IZ)
+ 135  CONTINUE
+C
+      IAMP=1
+      IB=1
+      IE=NVAL
+      IF(IE .GT. 2) IE=2
+      IF(IE.GE.NVAL) IAMP=2
+      IF(IBWTYP.EQ.2) WRITE(IPU,1820) (X(I),Y(I),Z(I),I=IB,IE),AMP(IAMP)
+1820  FORMAT('BACKTABL',1X,2(F10.0,2F10.2),1X,A1)
+      IF(IBWTYP.EQ.1) WRITE(IPU,1830) (X(I),Y(I),Z(I),I=IB,IE),AMP(IAMP)
+1830  FORMAT('BACKTABL',1X,2(F10.0,F10.2,F10.0),1X,A1)
+      IF(IE .GE. NVAL)GO TO 150
+      IB=IE+1
+      IE=IE+2
+      IF(IE .GT. NVAL)IE=NVAL
+ 140  IF(IE.GE.NVAL) IAMP=2
+      IF(IBWTYP.EQ.2) THEN
+      IF(IE.GT.IB) WRITE(IPU,1825) (X(I),Y(I),Z(I),I=IB,IE),AMP(IAMP)
+1825  FORMAT(9X,2(F10.0,2F10.2),1X,A1)
+      IF(IE.EQ.IB) WRITE(IPU,1826) (X(I),Y(I),Z(I),I=IB,IE)
+ 1826 FORMAT(9X,F10.0,2F10.2)
+      END IF
+      IF(IBWTYP.EQ.1) THEN
+      IF(IE.GT.IB) WRITE(IPU,1835) (X(I),Y(I),Z(I),I=IB,IE),AMP(IAMP)
+1835  FORMAT(9X,2(F10.0,F10.2,F10.0),1X,A1)
+      IF(IE.EQ.IB) WRITE(IPU,1836) (X(I),Y(I),Z(I),I=IB,IE)
+ 1836 FORMAT(9X,F10.0,F10.2,F10.0)
+      END IF
+      IF(IE .GE. NVAL)GO TO 150
+      IB=IE+1
+      IE=IE+2
+      IF(IE .GT. NVAL)IE=NVAL
+      GO TO 140
+C
+ 150  CONTINUE
+      LPO=LPO+3*NVAL+1
+cc      IF(ISTYP.EQ.2) GO TO 170
+C
+C  PUNCH BACKWATER CONTROL TYPE
+cc      IBWTYP=PO(LPO)
+      WRITE(IPU,1715) BWTYP(IBWTYP),CNTLBY(ISTYP)
+1715  FORMAT('BACKWATR',2X,A4,2X,A4)
+ 170  LPO=LPO+1
+C
+C  PUNCH MAXEL
+      ELMAX=PO(LPO)
+      WRITE(IPU,1730) ELMAX
+1730  FORMAT('MAXEL',1X,F10.2)
+      LPO=LPO+1
+C
+C  PUNCH MINEL
+      ELMIN=PO(LPO)
+      WRITE(IPU,1731) ELMIN
+1731  FORMAT('MINEL',1X,F10.2)
+      LPO=LPO+1
+C
+C  PUNCH MINQREL
+      QRELMN=PO(LPO)
+      WRITE(IPU,1732) QRELMN
+ 1732 FORMAT('MINQREL',1X,F10.0)
+      LPO=LPO+1
+C
+C  PUNCH SHUTRESV
+      QSHUT=PO(LPO)
+      WRITE(IPU,1733) QSHUT
+ 1733 FORMAT('SHUTRESV',1X,F10.0)
+      LPO=LPO+1
+C
+      WRITE(IPU,515)
+ 515  FORMAT('ENDP')
+CC
+C***********************************************************************
+C     TIME SERIES INFORMATION
+      WRITE(IPU,520)
+ 520  FORMAT('TIME-SERIES')
+      DO 155 I=1,10
+      II=I+2
+      IF(PO(LTS).EQ.BLANK)GO TO 152
+      IT=PO(LTS+3)
+      WRITE(IPU,750) GTSKW(II),PO(LTS),PO(LTS+1),PO(LTS+2),IT
+ 750  FORMAT(A8,2X,2A4,2X,A4,2X,I2)
+152   LTS=LTS+5
+155   CONTINUE
+      WRITE(IPU,525)
+ 525  FORMAT('ENDTS')
+C
+C     CARRYOVER INFORMATION
+C
+      WRITE(IPU,530)
+ 530  FORMAT('CARRYOVER')
+      QOI = CO(LCO)
+      EL1 = CO(LCO+1)
+      STO = CO(LCO+2)
+      QL1 = CO(LCO+3)
+      LCO=LCO+4
+C
+      WRITE(IPU,1610) QOI
+      WRITE(IPU,1612) EL1
+      WRITE(IPU,1614) STO
+      IF(IRES.EQ.2) GO TO 160
+      IF(PO(LTSQL1).EQ.BLANK .AND. PO(LTSQL2).NE.BLANK) 
+     & WRITE(IPU,1616) QL1
+ 160  CONTINUE
+1610  FORMAT('Q-INST ',1X,F10.0)
+1612  FORMAT('POOL   ',1X,F10.2)
+1614  FORMAT('STORAGE',1X,F10.0)
+ 1616 FORMAT('TRIBQL ',1X,F10.0)
+      WRITE(IPU,535)
+ 535  FORMAT('ENDCO')
+C
+      RETURN
+      END

@@ -1,0 +1,7 @@
+C                                           *--> FROM DACOMMON.DAMISC
+C  ASAP MISCELLANEOUS COMMON BLOCK
+      COMMON /DAMISC/ IPRETR,IPREDB,RSTDBG,FLGRAY,NFLGS,
+     +                IDISP,IEXTRA(5)
+      INTEGER*4 RSTDBG,FLGRAY(9,20)
+C
+

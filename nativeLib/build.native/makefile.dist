@@ -1,0 +1,49 @@
+# makefile.dist creates a tar archive of all files within the
+# build directory given by the environment variable BUILD_DIR
+
+# files to be included are specified in an include_files.txt file
+# file arrangement is controlled by the arrange_files.sh script
+
+.SILENT:
+
+# include optional user defined variables
+-include makefile.conf~
+
+files_native=$(wildcard ../files.native)
+tmp_location=tmp~/$$(basename $(BUILD_DIR))
+
+init:
+ifndef BUILD_DIR
+	echo BUILD_DIR is not defined
+	exit 1
+endif
+
+_all: init
+	# copy files from build_dir into tmp_location
+	mkdir -p $(tmp_location)
+	rsync -mau --include='*/' --include-from=include_files.txt \
+		--exclude='*' $(BUILD_DIR)/ $(tmp_location)
+		
+	# remove _keep_me directory placeholders
+	find $(tmp_location) -name "_keep_me" -exec rm {} \;
+	
+	# arrange the files
+	$$(export tmp_location=$(tmp_location);bash arrange_files.sh)
+	
+	# finished
+	
+_deploy:
+	# copy files from the tmp_location into files.native
+	
+	echo $(files_native)
+	rsync -avz $(tmp_location)/* $(files_native)
+
+clean: init
+	# rm tmp_location
+	rm -fr $(tmp_location)
+	# finished
+	
+update: init _all _deploy clean
+
+# include optional user defined targets (and possible target overrides)
+-include makefile.targets~

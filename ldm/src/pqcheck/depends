@@ -1,0 +1,11 @@
+pqcheck.o: ../config/ldmconfig.h
+pqcheck.o: ../misc/paths.h
+pqcheck.o: ../pq/pq.h
+pqcheck.o: ../protocol/atofeedt.h
+pqcheck.o: ../protocol/ldm.h
+pqcheck.o: ../protocol/ldmprint.h
+pqcheck.o: ../protocol/md5.h
+pqcheck.o: ../protocol/prod_class.h
+pqcheck.o: ../protocol/timestamp.h
+pqcheck.o: ../ulog/ulog.h
+pqcheck.o: pqcheck.c

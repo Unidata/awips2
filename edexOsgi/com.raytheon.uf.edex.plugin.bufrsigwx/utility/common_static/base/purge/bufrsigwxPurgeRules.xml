@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet>
+	<key>wxLayer</key>
+	<defaultRule>
+		<versionsToKeep>12</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</defaultRule>
+	<rule>
+		<keyValue>SWM</keyValue>
+		<versionsToKeep>12</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<keyValue>SWH</keyValue>
+		<versionsToKeep>12</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+</purgeRuleSet>

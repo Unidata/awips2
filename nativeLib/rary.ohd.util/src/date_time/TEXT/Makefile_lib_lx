@@ -1,0 +1,92 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-date_time library file
+#
+#  cmt: File made on Wed Aug  6 12:56:33 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libdate_time_t.a:  \
+     $(LIB)/libdate_time_t.a(ddec.o)  \
+     $(LIB)/libdate_time_t.a(ddecml.o)  \
+     $(LIB)/libdate_time_t.a(ddgccd.o)  \
+     $(LIB)/libdate_time_t.a(ddgcd2.o)  \
+     $(LIB)/libdate_time_t.a(ddgcdm.o)  \
+     $(LIB)/libdate_time_t.a(ddgch2.o)  \
+     $(LIB)/libdate_time_t.a(ddgcj.o)  \
+     $(LIB)/libdate_time_t.a(ddgdj2.o)  \
+     $(LIB)/libdate_time_t.a(ddgdj.o)  \
+     $(LIB)/libdate_time_t.a(ddghc2.o)  \
+     $(LIB)/libdate_time_t.a(ddgjc.o)  \
+     $(LIB)/libdate_time_t.a(ddgjd2.o)  \
+     $(LIB)/libdate_time_t.a(ddgjd.o)  \
+     $(LIB)/libdate_time_t.a(ddgjw.o)  \
+     $(LIB)/libdate_time_t.a(ddich1.o)  \
+     $(LIB)/libdate_time_t.a(ddsc.o)  \
+     $(LIB)/libdate_time_t.a(ddvccd.o)  \
+     $(LIB)/libdate_time_t.a(ddycdl.o)  \
+     $(LIB)/libdate_time_t.a(urtimr.o)  \
+     $(LIB)/libdate_time_t.a(utimf.o)  \
+     $(LIB)/libdate_time_t.a(uwait.o)  \
+     $(LIB)/libdate_time_t.a(datim2.o)  \
+     $(LIB)/libdate_time_t.a(ddgcd2_c.o)  \
+     $(LIB)/libdate_time_t.a(ddgcj_c.o)  \
+     $(LIB)/libdate_time_t.a(ddgdc2_c.o)  \
+     $(LIB)/libdate_time_t.a(ddgdj2_c.o)  \
+     $(LIB)/libdate_time_t.a(ddgjc_c.o)  \
+     $(LIB)/libdate_time_t.a(ddgjd2_c.o)  \
+     $(LIB)/libdate_time_t.a(ddrmcl.o)  \
+     $(LIB)/libdate_time_t.a(ddrmjl.o)  \
+     $(LIB)/libdate_time_t.a(getcpu.o)  \
+     $(LIB)/libdate_time_t.a(rjulmdy_1900.o)  \
+     $(LIB)/libdate_time_t.a(rmdyjul_1900.o)  \
+     $(LIB)/libdate_time_t.a(udatg.o)  \
+     $(LIB)/libdate_time_t.a(udatl.o)  \
+     $(LIB)/libdate_time_t.a(udatld.o)  \
+     $(LIB)/libdate_time_t.a(utim.o)
+

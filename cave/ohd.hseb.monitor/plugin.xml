@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.raytheon.monitor.preferences.MonitorPreferences"
+            id="ohd.hseb.monitor.page1"
+            name="Hydro Apps">
+      </page>
+   </extension>
+</plugin>

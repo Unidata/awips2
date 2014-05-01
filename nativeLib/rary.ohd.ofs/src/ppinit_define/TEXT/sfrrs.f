@@ -1,0 +1,1493 @@
+C MODULE SFRRS
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO DEFINE STATION RRS PARAMETERS.
+C
+      SUBROUTINE SFRRS (LARRAY,ARRAY,DISP,TDISP,IRUNCK,
+     *   PRPARM,PRNOTE,UNITS,NFLD,
+     *   STAID,DESCRP,STATE,STALOC,NBRSTA,NSRCCD,SRCCD,
+     *   IFSTAN,
+     *   RRSTYPO,NRRSTPO,IRTIMEO,URMISSO,
+     *   RRSTYP,NRRSTP,IRTIME,NVLPOB,MNODAY,NUMOBS,
+     *   RUNITS,URMISS,ICVRRS,IRSTAT,
+     *   NXBUF,LWKBUF,IWKBUF,
+     *   NPRRSO,NPRRSN,
+     *   NUMERR,NUMWRN,IWRITE,LPRRS,ISTAT)
+C
+      CHARACTER*4 DISP,TDISP,WDISP,PRPARM,PRNOTE,UNITS,PTYPE
+      CHARACTER*4 TRRSCD,CRRSCD,DTYPE
+      PARAMETER (MOPTN=5)
+      CHARACTER*4 OPTN(MOPTN)
+     *   /'MSNG','MIN ','DIST','RET ','LIN '/
+      PARAMETER (NDGTYP=18)
+      CHARACTER*4 GOESTP(NDGTYP)
+     *   /
+     *    'PP01','PP03','PP06',
+     *    'PP24','TA24','TA01',
+     *    'TA03','TA06','US24',
+     *    'TN24','TX24','TM24',
+     *    'STG ','PELV','TWEL',
+     *    'QIN ','QME ','RSTO'
+     *   /
+      CHARACTER*20 CHAR/' '/,CHK/' '/
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION UNUSED(10)
+C
+C  STAN PARAMETER ARRAYS
+      INCLUDE 'scommon/dimstan'
+C
+C  RRS PARAMETER ARRAYS
+      INCLUDE 'scommon/dimrrs'
+      CHARACTER*4 RRSTYPO(MRRSTP),URMISSO(MRRSTP),RUNITS(MRRSTP)
+      DIMENSION IRTIMEO(MRRSTP),IRSTAT(MRRSTP),ICVRRS(MRRSTP)
+C
+C  PROCESS DATABASE READ/WRITE ARRAYS
+      CHARACTER*8 FTSID
+      DIMENSION IHEAD(22)
+      PARAMETER (LXBUF=1)
+      DIMENSION XBUF(LXBUF)
+      DIMENSION IWKBUF(LWKBUF)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'common/udtypc'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/suoptx'
+      INCLUDE 'scommon/surrsx'
+      INCLUDE 'scommon/sudtrx'
+      INCLUDE 'scommon/sworkx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_define/RCS/sfrrs.f,v $
+     . $',                                                             '
+     .$Id: sfrrs.f,v 1.7 2002/02/11 21:01:33 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,1350)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=0
+      IF (ISBUG('RRS ').GT.0) LDEBUG=1
+      IF (ISBUG('UTIL').GT.0) LDEBUG=2
+C
+      ISTAT=0
+C
+      LCHAR=LEN(CHAR)/4
+      LCHK=LEN(CHK)/4
+C
+C  SET VALUE FOR MISSING PARAMETER
+      UNUSD=-999.
+      UNDEF=-997.
+      IUNDEF=-997
+C
+      TDISP=DISP
+C
+      MXDAYS=60
+      NRTYPE=0
+      NRRSTP=0
+      NRRSTPO=0
+      NMISS=0
+      NDIST=0
+      NMIN=0
+      NFRACT=0
+      NUMCDS=0
+      NUMNEW=0
+      NUMOLD=0
+      NRRNEW=0
+      NRROLD=0
+      NERDEF=0
+      INEW=0
+      IRRDST=0
+      IRRMSG=0
+C
+C  SET INDICATOR WHETHER RRS TYPES CAN BE ADDED TO DEFINITION
+      INDADD=0 
+C
+      DO 20 I=1,MRRSTP
+         ICVRRS(I)=0
+         ITSREC(I)=0
+         INTERP(I)=IUNDEF
+         EXTRAP(I)=UNDEF
+         FLOMIN(I)=UNDEF
+         DO 10 N=1,24
+            FRACT(N,I)=UNDEF
+10          CONTINUE
+20       CONTINUE
+C
+      NOPFLD=0
+      IOPFL1=0
+      IOPFL2=0
+      IOPFL3=0
+      NPIFLD=0
+      NPCFLD=0
+      NXRFLD=1
+      NXOFLD=0
+      NUMERR=0
+      NUMWRN=0
+      NERROR=0
+      NTYERR=0
+      ILPFND=0
+      IRPFND=0
+      ISTRT=-1
+      NUMFLD=0
+      MAXREQ=5
+      MINFLD=2
+      MAXFLD=10
+      INWIND=0
+      IENDIN=0
+      IDEFLT=0
+C
+C  CHECK NUMBER OF LINES LEFT ON PAGE
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+C
+C  PRINT CARD
+      CALL SUPCRD
+C
+C  PRINT HEADER LINE
+      WRITE (LP,1360)
+      CALL SULINE (LP,1)
+      WRITE (LP,1370)
+      CALL SULINE (LP,2)
+C
+C  PRINT OPTIONS
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,1400) DISP,PRPARM,PRNOTE
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF DATA BASES ALLOCATED
+C
+      IDPPP=1
+      IDPRD=1
+      CALL SUDALC (0,0,0,0,IDPPP,IDPRD,0,0,0,0,NUMERR,IERR)
+      IF (IERR.GT.0) THEN
+         IF (IDPPP.EQ.0) THEN
+            WRITE (LP,1440) 'PREPROCESSOR PARAMETRIC'
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         IF (IDPRD.EQ.0) THEN
+            WRITE (LP,1440) 'PROCESSED'
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         ISTAT=1
+         IF (IDPPP.EQ.0) GO TO 90
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ USER RRS PARAMETER RECORD
+C
+      ILURRS=0
+      IF (IURRSX.EQ.0) THEN
+         IPRERR=-1
+         CALL SUGTUR (LARRAY,ARRAY,IPRERR,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (LP,1390)
+            CALL ULINE (LP,2)
+            ILURRS=-1
+            ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK STATION IDENTIFIER
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'STAID=',STAID
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (STAID.EQ.'????????') THEN
+         WRITE (LP,1410)
+         CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+C
+C  STORE CURRENT ATTRIBUTES
+      TDESCRP=DESCRP
+      TSTATE=STATE
+      TNBRSTA=NBRSTA
+C
+C  READ STATION RRS PARAMETERS
+      IPRERR=0
+      IPTR=0
+      IREAD=1
+      INCLUDE 'scommon/callsrrrs'
+      IF (IERR.EQ.0) THEN    
+C     RESET ATTRIBUTES
+         DESCRP=TDESCRP
+         STATE=TSTATE
+         NBRSTA=TNBRSTA
+         IF (LDEBUG.GT.0) THEN 
+            IPRNT=1
+            INCLUDE 'scommon/callsprrs'
+            ENDIF
+         ENDIF
+C
+C  STATION EXISTS AND DISP IS NEW
+      IF (IERR.EQ.0.AND.TDISP.EQ.'NEW') THEN
+         WRITE (LP,1420) STAID
+         CALL SULINE (LP,2)
+         TDISP='OLD'
+         GO TO 80
+         ENDIF
+C
+C  STATION DOES NOT EXIST AND DISP IS OLD
+      IF (IERR.GT.0.AND.TDISP.EQ.'OLD') THEN
+         WRITE (LP,1430) STAID
+         CALL SUWRNS (LP,2,NUMWRN)
+         TDISP='NEW'
+         GO TO 90
+         ENDIF
+C
+80    IF (IERR.EQ.0) THEN
+         IF (INDADD.EQ.1) NRTYPE=NRRSTP
+         NPRRSO=IPTR     
+         NRRSTPO=NRRSTP          
+         DO 85 I=1,NRRSTPO
+            RRSTYPO(I)=RRSTYP(I)
+            IRTIMEO(I)=IRTIME(I)
+            URMISSO(I)=URMISS(I)
+85          CONTINUE
+         NMISS=0
+         NDIST=0 
+         ENDIF      
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+90    IF (IURFIL.GT.0) GO TO 120
+C
+C  READ RRS DATA TYPE INFORMATION AND LOAD COMMON BLOCK SUDTRX
+C
+      CALL UDTRRS (MURTYP,NURTYP,RRSCD,ICLASS,NPROBS,UMISS,UNTIN,
+     *   UNTOUT,DISTRB,LFIELD,NUMDEC,CHKMIN,CHKMAX,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1460) NURTYP
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (IERR.EQ.0) GO TO 100
+         WRITE (LP,1450) IERR
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 120
+C
+100   IURFIL=1
+C
+      IF (NURTYP.EQ.0) GO TO 120
+      IF (LDEBUG.LT.2) GO TO 120
+         WRITE (IOSDBG,1510)
+         CALL SULINE (IOSDBG,2)
+         DO 110 I=1,NURTYP
+            WRITE (IOSDBG,1520) RRSCD(I),ICLASS(I),NPROBS(I),UMISS(I),
+     *          UNTIN(I),UNTOUT(I),LFIELD(I),NUMDEC(I),CHKMIN(I),
+     *          CHKMAX(I)
+110        CALL SULINE (IOSDBG,1)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+120    IF (ICFULL.GT.0) GO TO 150
+C
+C  READ FILE AND LOAD DATA TYPE COMMON BLOCK UDTYPC
+C
+      IPRC=-99
+      CALL UDTYPE ('FCST',MTYPE,NTYPE,TYPE,DIMN,UNIT,MISS,NVAL,
+     *   TIME,NADD,IPRC,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1500) NTYPE
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (IERR.EQ.0) GO TO 130
+         WRITE (LP,1470) IERR
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 150
+C
+130   ICFULL=1
+C
+      IF (NTYPE.GT.0) THEN
+         IF (LDEBUG.GT.1) THEN
+            WRITE (IOSDBG,1480)
+            CALL SULINE (IOSDBG,2)
+            DO 140 I=1,NTYPE
+               WRITE (IOSDBG,1490) TYPE(I),DIMN(I),UNIT(I),MISS(I),
+     *            NVAL(I),TIME(I),NADD(I)
+               CALL SULINE (IOSDBG,1)
+140            CONTINUE
+            ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR DEFINE STATION RRS OPTIONS
+C
+150   IF (INWIND.EQ.0) GO TO 160
+         INULL=1
+         GO TO 190
+160   INULL=0
+      NULREP=0
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,CHAR,
+     *   LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IRUFLD)
+      IF (NFLD.EQ.-1) GO TO 240
+      IF (LDEBUG.GT.1) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,
+     *      CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IRUFLD)
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'CHAR=',CHAR
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK FOR DEBUG
+      CALL SUIDCK ('CMDS',CHAR,NFLD,0,ICMD,IERR)
+      IF (ICMD.EQ.1) THEN
+         CALL SBDBUG (NFLD,ISTRT,IERR)
+         IF (ISBUG('RRS ').GT.0) LDEBUG=1
+         IF (ISBUG('UTIL').GT.0) LDEBUG=2
+         GO TO 150
+         ENDIF
+C
+      IF (NXRFLD.GT.0) GO TO 190
+C
+C  CHECK FOR PAIRED PARENTHESES
+      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) THEN
+         WRITE (LP,1600) NFLD
+         CALL SULINE (LP,2)
+         ILPFND=0
+         IRPFND=0
+         ENDIF
+C
+C  CHECK IF DISP IS NEW AND ALL FIELDS FOUND
+190   IF (INWIND.EQ.0) GO TO 200
+         IF (NUMFLD.EQ.MAXREQ) GO TO 1110
+         GO TO 270
+C
+C  CHECK FOR NULL FIELD
+200   IF (IRUFLD.NE.1) GO TO 210
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,1570) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         INULL=1
+         GO TO 270
+C
+C  CHECK FOR REPEATED NULL FIELD
+210   IF (CHAR.EQ.'/'.OR.CHAR.EQ.'NULL') THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,*) 'NREP=',NREP
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (NREP.GT.0.AND.NREP+NUMFLD.LE.MAXFLD) GO TO 220
+            WRITE (LP,1590) NREP,MAXFLD
+            CALL SUERRS (LP,2,NUMERR)
+220      NREP=MAXFLD-NUMFLD
+         NULREP=NREP-1
+         INULL=1
+         GO TO 270
+         ENDIF
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 240
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+C
+C  CHECK FOR END OF INPUT
+      IF (CHK.EQ.'/') GO TO 240
+C
+C  IF FIRST FIELD, CONTENTS HAS BEEN CHECK FOR KEYWORD
+      IF (NUMFLD.EQ.0) GO TO 270
+C
+C  CHECK FOR KEYWORD
+      CALL SUIDCK ('DEFN',CHK,NFLD,0,IKEYWD,IERR)
+      IF (IERR.NE.2) GO TO 270
+240      IENDIN=1
+         IF (NUMFLD.LT.MINFLD) GO TO 250
+         IF (NXRFLD.NE.2) GO TO 250
+         IF (NXRFLD.EQ.5) GO TO 510
+         GO TO 380
+250      INWIND=1
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1640)
+            CALL SULINE (LP,2)
+            ENDIF
+         IF (NXRFLD.EQ.2) GO TO 150
+            IDEFLT=1
+            INULL=1
+            GO TO 520
+C
+270   IF (NUMFLD+1.LE.MINFLD) GO TO 370
+C
+C  CHECK IF NEW DATA TYPE
+      CALL SUBSTR (CHAR,1,4,XCODE,1)
+      INEW=0
+      DO 280 I=1,NURTYP
+         IF (XCODE.NE.RRSCD(I)) GO TO 280
+            INEW=1
+            IF (NUMFLD.LT.4) GO TO 510
+            GO TO 290
+280      CONTINUE
+C
+C  CHECK FOR OPTIONAL FIELDS
+290   IF (NUMFLD.GT.MAXFLD) GO TO 360
+         IF (NOPFLD.GT.0.AND.LRPAR.EQ.LENGTH.AND.LENGTH.EQ.1) GO TO 370
+         IF (NOPFLD.GT.0.AND.LRPAR.EQ.LENGTH.AND.LENGTH.EQ.1) GO TO 370
+            DO 300 IOPTN=1,MOPTN
+               IF (CHK.EQ.OPTN(IOPTN)) THEN
+                  IF (IOPTN.LE.3) GO TO 310
+                  ENDIF
+300            CONTINUE
+         IF (URMISS(NRRSTP).NE.'EROR'.AND.IOPTN.EQ.4.OR.IOPTN.EQ.5)
+     *      INEW=1
+         IF (NXRFLD.GT.0.OR.NXOFLD.GT.0) GO TO 370
+         IF (INEW.EQ.1.AND.NUMFLD.LT.4) GO TO 510
+         IF (INEW.EQ.1) GO TO 370
+            CALL SUPCRD
+            WRITE (LP,1620) NUMFLD,NFLD,CHAR
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 150
+310      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) GO TO 320
+            GO TO 330
+320      CALL SUPCRD
+         WRITE (LP,1630) NPIFLD,NPCFLD
+         CALL SULINE (LP,2)
+         ILPFND=0
+         IRPFND=0
+330      IF (NUMFLD.LT.4) GO TO 510
+340      NXRFLD=2
+         GO TO (1070,1080,1080,350),IOPTN
+350         CALL SUPCRD
+            WRITE (LP,1620) NUMFLD,NFLD,CHAR
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 150
+C
+C     MAXIMUM FIELDS EXCEEDED
+360      CALL SUPCRD
+         NUMFLD=NUMFLD+1
+         WRITE (LP,1530) NUMFLD,MAXFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 150
+C
+370   IF (LLPAR.GT.0) ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+C
+C  CHECK IF NEW DATA TYPE
+      IF (INEW.EQ.0) GO TO 500     
+C     INWRRS INDICATES STATUS THE DATA TYPE
+C        -1 = OLD AND UNCHANGED
+C         0 = OLD AND CHANGED
+C         1 = NEW
+         INWRRS=-1
+         INEW=0
+         NUMFLD=0
+         NXRFLD=2
+         NOPFLD=0
+         IOPFL1=0
+         IOPFL2=0
+         IOPFL3=0
+         NMIN=0
+         NFRACT=0
+C
+C  CHECK IF MISSING NOT ALLOWED AND BOTH INTERPOLATION AND
+C  EXTRAPOLATION PARAMETERS INPUT
+380   IF (URMISS(NRRSTP).EQ.'SAME'.OR.IRRMSG.EQ.0) GO TO 400
+         IF (INTERP(IRRMSG).NE.IUNDEF) GO TO 390
+            WRITE (LP,1710) RRSTYP(NRRSTP)
+            CALL SUERRS (LP,2,NUMERR)
+390      IF (EXTRAP(IRRMSG).NE.UNDEF) GO TO 400
+            WRITE (LP,1720) RRSTYP(NRRSTP)
+            CALL SUERRS (LP,2,NUMERR)
+C
+C  CHECK IF MEAN FLOWS TO BE DISTRIBUTED AND PARAMETRS OKAY
+400   IF (FLOMIN(NRRSTP).EQ.UNDEF.OR.IRRDST.EQ.0) GO TO 420
+         NUM=0
+         DO 410 I=1,24
+            IF (FRACT(I,IRRDST).EQ.UNDEF) GO TO 410
+            NUM=NUM+1
+410         CONTINUE
+         IF (NUM.NE.24) THEN
+            IF (NUM.EQ.0) THEN
+               WRITE (LP,1730) RRSTYP(NRRSTP)
+               CALL SUERRS (LP,2,NUMERR)
+               ENDIF
+            IF (NUM.GT.0.AND.NUM.LT.24) THEN
+               WRITE (LP,1740) NUM
+               CALL SUERRS (LP,2,NUMERR)
+               ENDIF
+            ENDIF
+C
+C  CHECK FOR ERRORS FOR THIS DATA TYPE
+420   IF (NUMERR.GT.NERROR) GO TO 430
+         IF (INWRRS.EQ.1) NRRNEW=NRRNEW+1
+         IF (INWRRS.EQ.0) NRROLD=NRROLD+1
+         GO TO 490
+430   NERDEF=NERDEF+1
+      NERRS=NUMERR-NERROR
+      INW=INWRRS
+      IF (INVALD.EQ.1) INW=-1
+      IF (INW.EQ.1) THEN
+         WRITE (LP,2060) TRRSCD,NERRS
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (INW.EQ.0) THEN
+         WRITE (LP,2070) TRRSCD,NERRS
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (FLOMIN(NRRSTP).NE.UNDEF) NDIST=NDIST-1
+      NUM=NRTYPE+NUMNEW
+      IF (NUM.LE.1.OR.NRRSTP.EQ.NUM) GO TO 450
+         DO 440 I=NRRSTP,NUM
+            RRSTYP(I)=RRSTYP(I+1)
+            IRTIME(I)=IRTIME(I+1)
+            NVLPOB(I)=NVLPOB(I+1)
+            MNODAY(I)=MNODAY(I+1)
+            NUMOBS(I)=NUMOBS(I+1)
+            URMISS(I)=URMISS(I+1)
+            IF (IRRMSG.GT.0) THEN
+               INTERP(IRRMSG)=INTERP(IRRMSG+1)
+               EXTRAP(IRRMSG)=EXTRAP(IRRMSG+1)
+               ENDIF
+            FLOMIN(I)=FLOMIN(I+1)
+440      CONTINUE
+         FLOMIN(I+1)=UNDEF
+450   IRRDST=0
+      IRRMSG=0
+      IF (TDISP.EQ.'NEW') NUMNEW=NUMNEW-1
+      IF (TDISP.EQ.'OLD') THEN
+         NUMOLD=NUMOLD-1
+         NRTYPE=NRTYPE-1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,2080)
+         CALL SULINE (LP,2)
+         N=0
+         NUM=NRTYPE+NUMNEW
+         DO 480 I=1,NUM
+            IF (URMISS(I).NE.'SAME') GO TO 460
+               WRITE (IOSDBG,2090) RRSTYP(I),INWRRS,IRTIME(I),
+     *            NVLPOB(I),MNODAY(I),NUMOBS(I),URMISS(I),FLOMIN(I)
+               CALL SULINE (IOSDBG,1)
+               GO TO 480
+460         N=N+1
+            WRITE (IOSDBG,2090) RRSTYP(I),INWRRS,IRTIME(I),
+     *         NVLPOB(I),MNODAY(I),NUMOBS(I),URMISS(I),FLOMIN(I),
+     *         INTERP(N),EXTRAP(N)
+            CALL SULINE (IOSDBG,1)
+480         CONTINUE
+         ENDIF
+C
+C  CHECK IF END OF INPUT ENCOUNTERED
+490   IF (IENDIN.EQ.1) GO TO 1110
+C
+C  PRINT CARD
+500   IF (IENDIN.EQ.0) CALL SUPCRD
+C
+      IF (NXRFLD.EQ.1) GO TO 520
+C
+C  CHECK IF FIELD WITH MORE THAN ONE POSSIBLE PARAMETER
+      IF (NOPFLD.GT.0) GO TO (1070,1080,1080),NOPFLD
+C
+C  CHECK IF MAXIMUM NUMBER OF FIELDS EXPECTED EXCEEDED
+      NUMFLD=NUMFLD+1
+      IF (TDISP.EQ.'OLD'.AND.INULL.EQ.1) GO TO 150
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1380) NUMFLD,MAXFLD,NUMERR,
+     *      NXRFLD,NXOFLD,NOPFLD,NMISS,NDIST
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      IF (NUMCDS.EQ.0) GO TO 520
+C
+C  CHECK IF DATA TYPE DEFAULTS TO BE USED
+      IDEFLT=0
+      IF (ITYPE.EQ.2.AND.NXRFLD.GE.3.AND.NXRFLD.LE.4) GO TO 510
+         GO TO 520
+510   IDEFLT=1
+      INULL=1
+C
+520   GO TO (530,570,750,820,890),NXRFLD
+         WRITE (LP,1620) NUMFLD,NFLD,CHAR
+         CALL SUERRS (LP,2,NUMERR)
+         NUMFLD=0
+         NXRFLD=2
+         GO TO 150
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK PARAMETER TYPE
+C
+530   IF (CHK.EQ.'RRS') GO TO 540
+         WRITE (LP,1550) 'RRS',NFLD,CHK(1:LENSTR(CHK))
+         CALL SUERRS (LP,2,NUMERR)
+         NXRFLD=2
+         GO TO 150
+540   PTYPE=CHK
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'PTYPE=',PTYPE
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK IF UNITS SPECIFIED
+      IF (LLPAR.EQ.0) GO TO 560
+      IEND=LRPAR-1
+      IF (LRPAR.GT.0) GO TO 550
+         WRITE (LP,1600) NUMFLD,NFLD
+         CALL SULINE (LP,2)
+         LRPAR=LENGTH-1
+550   CALL UFPACK (LCHK,CHK,ISTRT,LLPAR+1,IEND,IERR)
+      WRITE (LP,1670) CHK(1:LENSTR(CHK)),NFLD
+      CALL SULINE (LP,2)
+C
+560   NXRFLD=2
+      GO TO 150
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  RRS DATA TYPE CODE
+C
+570   INVALD=0
+C
+C  CHECK FOR NULL FIELD
+      IF (INULL.EQ.0) GO TO 580
+         WRITE (LP,1650) NXRFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 740
+580   IF (ITYPE.EQ.2) GO TO 590
+         WRITE (LP,1690) NXRFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 740
+590   IF (LENGTH.LE.4) GO TO 600
+         WRITE (LP,1790) LENGTH
+         CALL SUWRNS (LP,2,NUMWRN)
+C
+600   CALL SUBSTR (CHAR,1,4,TRRSCD,1)
+      NERROR=NUMERR
+      NUMCDS=NUMCDS+1
+C
+C  CHECK FOR VALID CODE
+      DO 610 IRSREF=1,NURTYP
+         CALL UMEMOV (RRSCD(IRSREF),CRRSCD,1)
+         IF (TRRSCD.EQ.CRRSCD) GO TO 630
+610      CONTINUE
+         WRITE (LP,1750) CHAR
+         CALL SUERRS (LP,2,NUMERR)
+         INVALD=1
+         NTYERR=NTYERR+1
+         IF (NTYERR.GT.1) GO TO 740
+            ISPTR=0
+            CALL SUSORT (1,NURTYP,RRSCD,SWORK,ISPTR,IERR)
+            WRITE (LP,1770)
+            CALL SULINE (LP,2)
+            DO 620 I=1,NURTYP
+               WRITE (LP,1780) SWORK(I)
+620            CALL SULINE (LP,1)
+            GO TO 740
+C
+C  CHECK IF TYPE CURRENTLY DEFINED
+630   IF (NRRSTP.EQ.0) GO TO 650
+         NUM=0
+         IF (TDISP.EQ.'NEW') NUM=NUMNEW
+         IF (TDISP.EQ.'OLD') NUM=NRTYPE+NUMNEW
+         DO 640 I=1,NUM
+            IF (TRRSCD.NE.RRSTYP(I)) GO TO 640
+            NRRSTP=I
+            IF (LDEBUG.GT.0) THEN
+               WRITE (IOSDBG,1800) TRRSCD,NRRSTP
+               CALL SULINE (IOSDBG,1)
+               ENDIF
+            IF (INWRRS.EQ.-1) INWRRS=0
+            IF (TDISP.EQ.'OLD') NUMOLD=NUMOLD+1
+            WRITE (LP,1760) RRSTYP(NRRSTP)
+            CALL SULINE (LP,2)
+            GO TO 670
+640         CONTINUE
+C
+C  NEW DATA TYPE
+650   NUMNEW=NUMNEW+1
+      IF (TDISP.EQ.'NEW') NRRSTP=NUMNEW
+      IF (TDISP.EQ.'OLD') NRRSTP=NRTYPE+NUMNEW
+      INWRRS=1
+      IF (NRRSTP.LE.MRRSTP) GO TO 660
+         WRITE (LP,1810) MRRSTP
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 670
+660   RRSTYP(NRRSTP)=TRRSCD
+C
+C  SET NUMBER OF VALUES PER OBSERVATION
+670   NVLPOB(NRRSTP)=NPROBS(IRSREF)
+      IF (NVLPOB(NRRSTP).LE.0) THEN
+         WRITE (LP,1820) NPROBS(IRSREF),RRSTYP(NRRSTP)
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 740
+         ENDIF
+C
+C  INITIALIZE MISSING ALLOWED INDICATOR
+      URMISS(NRRSTP)='SAME'
+C
+C  SET OUTPUT DATA UNITS
+      RUNITS(NRRSTP)='????'
+      DO 690 IDTREF=1,NTYPE
+         CALL UMEMOV (TYPE(IDTREF),CRRSCD,1)
+         IF (RRSTYP(NRRSTP).EQ.CRRSCD) THEN
+            CALL SUBSTR (UNIT(IDTREF),1,4,RUNITS(NRRSTP),1)
+            GO TO 710
+            ENDIF
+690      CONTINUE
+      WRITE (LP,1830) RRSTYP(NRRSTP)
+      CALL SUERRS (LP,2,NUMERR)
+C
+710   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1840) NRRSTP,NUMNEW,NUMOLD,NRTYPE,IRSREF,IDTREF
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,1850) RRSTYP(NRRSTP),
+     *        NVLPOB(NRRSTP),
+     *        URMISS(NRRSTP),
+     *        RUNITS(NRRSTP)
+         CALL SULINE (IOSDBG,1)
+         IF (ILURRS.GT.0) THEN
+            WRITE (IOSDBG,1870) ILURRS
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         ENDIF
+C
+C  CHECK FOR USER SPECIFIED DEFAULTS
+      IF (ILURRS.EQ.-1) GO TO 740
+         ILURRS=0
+         DO 720 I=1,NTYPCD
+            CALL UMEMOV (TYPCD(I),CRRSCD,1)
+            IF (TRRSCD.EQ.CRRSCD) GO TO 730
+720         CONTINUE
+            GO TO 740
+730         ILURRS=I
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,1860) ILURRS
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+C
+740   NXRFLD=3
+      GO TO 1090
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DATA TIME INTERVAL
+C
+C  CHECK FOR NULL FIELD
+750   IF (INULL.EQ.0) GO TO 760
+         IF (INWRRS.EQ.0) GO TO 810
+            WRITE (LP,1650) NXRFLD,NFLD
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 810
+760   IF (ITYPE.EQ.0) GO TO 770
+         WRITE (LP,1680) NXRFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 810
+770   ICHK=INTEGR
+      IF (ICHK.GT.0) GO TO 780
+         ICHK=IABS(INTEGR)
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1880) RRSTYP(NRRSTP)
+            CALL SULINE (LP,2)
+            ENDIF
+780   IF (ICHK.EQ.1.OR.
+     *    ICHK.EQ.2.OR.
+     *    ICHK.EQ.3.OR.
+     *    ICHK.EQ.4.OR.
+     *    ICHK.EQ.6.OR.
+     *    ICHK.EQ.8.OR.
+     *    ICHK.EQ.12.OR.
+     *    ICHK.EQ.24)
+     *   GO TO 790
+         WRITE (LP,1900) INTEGR,RRSTYP(NRRSTP)
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 810
+C
+790   IF (INVALD.EQ.1) GO TO 810
+      IF (INWRRS.EQ.1) GO TO 800
+         IF (INTEGR.EQ.IRTIME(NRRSTP)) GO TO 800
+            WRITE (LP,1890) IRTIME(NRRSTP),INTEGR
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 810
+800   IRTIME(NRRSTP)=INTEGR
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1930) IRTIME(NRRSTP)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+810   NXRFLD=4
+      GO TO 1090
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MINIMUM DAYS TO BE RETAINED ON PREPROCESSOR DATA BASE
+C
+C  CHECK FOR NULL FIELD
+820   IF (INULL.EQ.1) THEN
+         IF (INWRRS.EQ.0.AND.IDEFLT.EQ.0) GO TO 880
+         IF (ILURRS.LE.0) THEN
+            IF (INVALD.EQ.1) GO TO 880
+            IF (ILURRS.EQ.0) THEN
+               WRITE (LP,1910) 'URRS DEFAULTS NOT FOUND ',
+     *            'FOR DATA TYPE ',RRSTYP(NRRSTP),'.'
+               CALL SUERRS (LP,2,NUMERR)
+               ELSE
+                  WRITE (LP,1910) 'USER RRS PARAMETERS NOT DEFINED.'
+                  CALL SUERRS (LP,2,NUMERR)
+               ENDIF
+            GO TO 880
+            ENDIF
+         INTEGR=MNDAY(ILURRS)
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1660) NXRFLD,INTEGR
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 850
+         ENDIF
+C         
+      IF (ITYPE.EQ.2) THEN
+         WRITE (LP,1700) NXRFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 880
+         ENDIF
+C         
+850   IF (INTEGR.GE.1.AND.INTEGR.LE.MXDAYS) GO TO 860
+         WRITE (LP,1920) INTEGR,MXDAYS
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 880
+C
+860   IF (INVALD.EQ.1) GO TO 880
+C
+C  CHECK IF MIN DAYS CHANGED
+      IF (INWRRS.EQ.1) GO TO 870
+         IF (INTEGR.EQ.MNODAY(NRRSTP)) GO TO 870
+            IF (PRNOTE.EQ.'YES') THEN
+               WRITE (LP,1950) MNODAY(NRRSTP),INTEGR
+               CALL SULINE (LP,2)
+               ENDIF
+870   MNODAY(NRRSTP)=INTEGR
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1940) MNODAY(NRRSTP)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+880   NXRFLD=5
+      IF (IDEFLT.EQ.0) GO TO 1090
+         NUMFLD=NUMFLD+1
+         GO TO 890
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  TYPICAL NUMBER OF OBSERVATIONS TO BE STORED IN PREPROCESSOR DATA
+C  BASE
+C
+C  CHECK FOR NULL FIELD
+890   IF (INULL.EQ.1) THEN
+         IF (INWRRS.EQ.0.AND.IDEFLT.EQ.0) GO TO 1060
+         IF (ILURRS.GT.0) GO TO 900
+            IF (INVALD.EQ.1) GO TO 1060
+            IF (ILURRS.EQ.0) THEN
+               WRITE (LP,2040) 'URRS DEFAULTS NOT FOUND ',
+     *            'FOR DATA TYPE ',RRSTYP(NRRSTP),'.'
+               CALL SUERRS (LP,2,NUMERR)
+               ELSE
+                  WRITE (LP,2040) 'USER RRS PARAMETERS NOT DEFINED.'
+                  CALL SUERRS (LP,2,NUMERR)
+               ENDIF
+               GO TO 1060
+900      INTEGR=NMOBS(ILURRS)
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1660) NXRFLD,INTEGR
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 920
+         ENDIF
+C
+      IF (ITYPE.EQ.2) THEN
+         WRITE (LP,1700) NXRFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 1060
+         ENDIF
+C
+C  CHECK IF STATION SPECIFIED AS GOES STATION
+920   IGOES=0
+      ICDAS=0
+      DO 950 I=1,NSRCCD
+         IF (SRCCD(I).EQ.'GPLT') THEN
+            IGOES=1
+            GO TO 950
+            ENDIF
+         IF (SRCCD(I).EQ.'GHB5') THEN
+            IGOES=1
+            GO TO 950
+            ENDIF
+         IF (SRCCD(I).EQ.'CDAS') THEN
+            ICDAS=1
+            GO TO 950
+            ENDIF
+950      CONTINUE
+      IF (IGOES.EQ.0.AND.ICDAS.EQ.0) GO TO 1030
+      IF (IGOES.EQ.1) ICDAS=0
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1960) IGOES,ICDAS
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK IF TYPE THAT CAN BE TRANSFERRED FROM GOES
+      DO 960 I=1,NDGTYP
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,1970) I,NDGTYP,GOESTP(I),NRRSTP,RRSTYP(NRRSTP)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (RRSTYP(NRRSTP).EQ.GOESTP(I)) GO TO 970
+960      CONTINUE
+         GO TO 1030
+C
+C  SET TYPICAL OBS BASED ON TIME INTERVAL AND MIN DAYS IF LESS THAN
+C  MINUMUM REQUIRED
+970   IATIME=IABS(IRTIME(NRRSTP))
+      NUMVAL=(24/IATIME)*MNODAY(NRRSTP)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1980) IATIME,INTEGR,NUMVAL
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ICAUTO=0
+      IF (ICAUTO.EQ.0) GO TO 1030
+C
+C  CHECK IF TYPICAL OBS EQUAL TO WHAT WOULD BE NEEDED FOR AUTOMATIC
+C  TRANSFER
+      IF (INTEGR.EQ.NUMVAL) GO TO 1030
+C
+C  CHECK IF TYPICAL OBS GREATER THAN WOULD BE NEEDED FOR AUTOMATIC
+C  TRANSFER
+      IF (INTEGR.GT.NUMVAL) GO TO 980
+      GO TO 1010
+C
+C  CHECK IF DEFAULT MIN DAYS DEFINED
+980   IF (ILURRS.LE.0) GO TO 1000
+C
+C  CHECK IF MIN DAYS IS GREATER THAN OR EQUAL TO DEFAULT
+      IF (MNODAY(NRRSTP).GE.MNDAY(ILURRS)) GO TO 990
+C
+C  MIN DAYS IS LESS THAN DEFAULT
+      WRITE (LP,1990) MNODAY(NRRSTP),MNDAY(ILURRS),MNDAY(ILURRS),
+     *                RRSTYP(NRRSTP)
+      CALL SUWRNS (LP,2,NUMWRN)
+      MNODAY(NRRSTP)=MNDAY(ILURRS)
+      GO TO 970
+C
+C  MIN DAYS IS GREATER THAN OR EQUAL TO DEFAULT
+990   IF (INULL.EQ.1) GO TO 1030
+         WRITE (LP,2000) INTEGR,NUMVAL,RRSTYP(NRRSTP)
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 1030
+C
+1000  IF (INULL.EQ.1) GO TO 1020
+C
+C  CHECK IF TYPICAL OBS LESS THAN WOULD BE TRANSFERRED
+C
+1010  IF (INTEGR.GE.NUMVAL) GO TO 1030
+      IF (INULL.EQ.0) THEN
+         WRITE (LP,2010) 'SPECIFIED',INTEGR,NUMVAL,NUMVAL,RRSTYP(NRRSTP)
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+      IF (INULL.EQ.1) THEN
+         WRITE (LP,2010) 'DEFAULT',INTEGR,NUMVAL,NUMVAL,RRSTYP(NRRSTP)
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+C
+C  SET TYPICAL OBS TO THAT NEEDED BY GOES AUTOMATIC TRANSFER
+1020  INTEGR=NUMVAL
+C
+C  CHECK FOR VALID TYPICAL OBS VALUE
+1030  MAXOBS=1000
+      IF (INTEGR.LT.1) THEN
+         IF (MAXOBS.EQ.0.AND.INTEGR.GT.MAXOBS) THEN
+            WRITE (LP,2015) INTEGR,RRSTYP(NRRSTP)
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 1060
+            ENDIF
+         IF (MAXOBS.GT.0.AND.INTEGR.GT.MAXOBS) THEN
+            WRITE (LP,2020) INTEGR,MAXOBS,RRSTYP(NRRSTP)
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 1060
+            ENDIF
+         ENDIF
+C
+      IF (INVALD.EQ.1) GO TO 1060
+C
+C  CHECK IF TYPICAL OBS CHANGED
+      IF (INWRRS.EQ.1) GO TO 1050
+         IF (INTEGR.EQ.NUMOBS(NRRSTP)) GO TO 1050
+            IF (PRNOTE.EQ.'YES') THEN
+               WRITE (LP,2030) NUMOBS(NRRSTP),INTEGR,RRSTYP(NRRSTP)
+               CALL SULINE (LP,2)
+               ENDIF
+1050  NUMOBS(NRRSTP)=INTEGR
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,2050) NUMOBS(NRRSTP)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+1060  NXRFLD=2
+      IF (IDEFLT.EQ.1) NUMFLD=NUMFLD+1
+      IF (IENDIN.EQ.1) GO TO 380
+      GO TO 1090
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MISSING DATA OPTION
+C
+1070  CALL SFRRSM (INULL,NFLD,NUMFLD,ITYPE,INTEGR,REAL,
+     *   LCHAR,CHAR,LCHK,CHK,
+     *   ISTRT,LENGTH,LLPAR,LRPAR,
+     *   NXOFLD,NOPFLD,IOPFL1,
+     *   NRRSTP,RRSTYP,INWRRS,UMISS,IRSREF,URMISS,NMISS,
+     *   IRRMSG,INTERP,EXTRAP,
+     *   NUMERR,NUMWRN,IERR)
+      GO TO 1090
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DISTRIBUTE FLOWS OPTION
+C
+1080  CALL SFRRSD (INULL,NFLD,NUMFLD,ITYPE,INTEGR,REAL,
+     *   LCHAR,CHAR,LCHK,CHK,
+     *   NREP,ISTRT,LENGTH,LASK,LLPAR,LRPAR,
+     *   UNDEF,IOPTN,NOPFLD,NXOFLD,IOPFL2,IOPFL3,
+     *   NRRSTP,RRSTYP,INWRRS,NVLPOB,NDIST,NUMNEW,ICVRRS,
+     *   IRRDST,NMIN,FLOMIN,NFRACT,FRACT,
+     *   NUMERR,NUMWRN,IERR)
+      GO TO 1090
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FOR REPEATED NULL FIELDS
+C
+1090   IF (NULREP.GT.0) THEN
+         NULREP=NULREP-1
+         IF (NULREP.NE.0) GO TO 270
+         INWIND=0
+         ENDIF
+C
+      IF (IENDIN.EQ.1) GO TO 380
+      IF (IDEFLT.EQ.0) GO TO 1100
+         IDEFLT=0
+         INULL=0
+         NXOFLD=0
+         IF (INEW.EQ.1) GO TO 290
+         GO TO 340
+1100  IF (INWIND.EQ.1) GO TO 570
+         NPIFLD=NUMFLD
+         NPCFLD=NFLD
+         GO TO 150
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK NUMBER OF FIELDS PROCESSED
+1110  IF (NUMFLD.GE.2) GO TO 1120
+         WRITE (LP,2310)
+         CALL SUERRS (LP,2,NUMERR)
+         ISTAT=1
+         GO TO 1340
+C
+1120  NUM=NRTYPE+NUMNEW
+C
+C  CONVERT UNITS
+      IF (UNITS.EQ.'ENGL') GO TO 1140
+         DO 1130 I=1,NUM
+            IF (ICVRRS(I).EQ.0) GO TO 1130
+            IF (FLOMIN(I).GT.0)
+     *         CALL UDUCNV ('CMS ','CFS ',1,1,FLOMIN(I),FLOMIN,IERR)
+            IF (IERR.EQ.0) GO TO 1130
+               WRITE (LP,2200) IERR
+               CALL SUERRS (LP,2,NUMERR)
+               NRRNEW=0
+               NRROLD=0
+            GO TO 1180
+1130     CONTINUE
+C
+C  CHECK IF ANY TYPES SUCCESSFULLY DEFINED OR REDEFINED
+1140  IF (NUMNEW.EQ.0.AND.NUMOLD.EQ.0) THEN
+         WRITE (LP,2210)
+         CALL SULINE (LP,2)
+         ISTAT=1
+         NRRSTP=0
+         GO TO 1340
+         ENDIF
+C
+C  CHECK IF RUNCHECK OPTION SET
+      IF (IRUNCK.EQ.1) THEN
+         WRITE (LP,2220) STAID
+         CALL SULINE (LP,2)
+         GO TO 1340
+         ENDIF
+C
+C  CHECK IF ERRORS ENCOUNTERED
+      IF (NUMERR.GT.0) THEN
+         IF (IRUNCK.EQ.0) THEN
+            WRITE (LP,2230) STAID,NUMERR
+            CALL SULINE (LP,2)
+            IRUNCK=1
+            ELSE
+               WRITE (LP,2240) STAID,NUMERR
+               CALL SULINE (LP,2)
+            ENDIF
+         ISTAT=1
+         NRRSTP=0
+         GO TO 1340
+         ENDIF
+C
+C  CHECK IF STATION GENERAL PARAMETERS DEFINED
+      IF (IFSTAN.EQ.0.OR.IFSTAN.EQ.1) THEN
+         ELSE
+            IF (DISP.EQ.'NEW') THEN
+               WRITE (LP,2180) STAID
+               CALL SUWRNS (LP,2,NUMWRN)
+               ENDIF
+            IF (DISP.EQ.'OLD') THEN
+               WRITE (LP,2190) STAID
+               CALL SUWRNS (LP,2,NUMWRN)
+               ENDIF
+            ISTAT=1
+            GO TO 1340
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,2080)
+         CALL SULINE (LP,2)
+         N=0
+         DO 1170 I=1,NUM
+            IF (URMISS(I).NE.'SAME') GO TO 1150
+            WRITE (IOSDBG,2090) RRSTYP(I),INWRRS,IRTIME(I),
+     *         NVLPOB(I),MNODAY(I),NUMOBS(I),URMISS(I),FLOMIN(I)
+            GO TO 1160
+1150        N=N+1
+            WRITE (IOSDBG,2090) RRSTYP(I),INWRRS,IRTIME(I),
+     *         NVLPOB(I),MNODAY(I),NUMOBS(I),URMISS(I),FLOMIN(I),
+     *         INTERP(N),EXTRAP(N)
+1160        CALL SULINE (IOSDBG,1)
+1170        CONTINUE
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+1180  IF (TDISP.EQ.'NEW') NRRSTP=NUMNEW
+      IF (TDISP.EQ.'OLD') NRRSTP=NRTYPE+NUMNEW       
+C
+C  SET INDICATOR FOR RRS TIME SERIES STATUS:
+C   -1 = DO NOT CREATE TIME SERIES
+C    0 = TIME SERIES DOES NOT EXIST
+C    1 = TIME SERIES EXISTS AND HAS SAME DATA TIME INTERVAL
+C    2 = TIME SERIES EXISTS AND HAS COMPATIBLE DATA TIME INTERVAL
+C    3 = TIME SERIES EXISTS AND HAS INCOMPATIBLE DATA TIME INTERVAL
+      DO 1183 I=1,NRRSTP
+         IRSTAT(I)=0
+         IF (IRTIME(I).LT.0) IRSTAT(I)=-1
+1183     CONTINUE
+C
+C  OPEN DATA BASE
+      CALL SUDOPN (1,'PRD ',IERR)
+      IF (IERR.NE.0) THEN
+         ISTAT=1
+         GO TO 1340
+         ENDIF
+C
+C  CHECK IF TIME SERIES EXISTS AND DATA TIME INTERVAL IS THE SAME 
+      DO 1185 I=1,NRRSTP
+C     CHECK IF TIME SERIES NOT TO BE CREATED      
+         IF (IRSTAT(I).NE.-1) THEN
+C        CHECK IF TIME SERIES EXISTS
+            DTYPE=URMISS(I)
+            IF (DTYPE.EQ.'SAME') DTYPE=RRSTYP(I) 
+            CALL RPRDH (STAID,DTYPE,LXBUF,IHEAD,NXBUF,XBUF,FTSID,IERR)
+            IF (IERR.EQ.1) THEN
+               IRSTAT(I)=0
+               GO TO 1185
+               ENDIF
+C        CHECK DATA TIME INTERVAL           
+            IF (IRTIME(I).NE.IHEAD(2)) THEN
+C           CHECK IF NEW DATA TIME INTERVAL COMPATIBLE WITH OLD 
+               IF (IRTIME(I).GT.IHEAD(2)) THEN
+                  IREM=MOD(IRTIME(I),IHEAD(2))
+                  IF (IREM.GT.0) THEN 
+                     WRITE (LP,2250) DTYPE,STAID,'BUT',IRTIME(I),
+     *                  'INCOMPATIBLE WITH',IHEAD(2),
+     *                  'THE TIME SERIES WILL BE DELETED AND RECREATED'
+                     CALL SUWRNS (LP,3,NUMWRN)              
+                     IRSTAT(I)=3
+                     GO TO 1185
+                     ENDIF
+                  WRITE (LP,2250) DTYPE,STAID,'AND',IRTIME(I),
+     *               'COMPATIBLE WITH',IHEAD(2),
+     *               'THE DATA WILL BE COPIED TO A NEW TIME SERIES' 
+                  CALL SUWRNS (LP,3,NUMWRN)               
+                  IRSTAT(I)=2
+                  GO TO 1185
+                  ENDIF      
+               WRITE (LP,2250) DTYPE,STAID,'BUT',IRTIME(I),
+     *            'LESS THAN',IHEAD(2),
+     *            'THE TIME SERIES WILL BE DELETED AND RECREATED'
+               CALL SUWRNS (LP,3,NUMWRN)               
+               IRSTAT(I)=3
+               GO TO 1185
+               ENDIF
+            WRITE (LP,2255) DTYPE,STAID
+            CALL SULINE (LP,2)
+            IRSTAT(I)=1
+            ENDIF
+1185     CONTINUE
+C
+      IF (IWRITE.EQ.0) GO TO 1190
+C      
+C  DEFINE TIME SERIES      
+      CALL SFRRS2 (STAID,DESCRP,STALOC,
+     *   RRSTYP,NRRSTP,IRTIME,NVLPOB,MNODAY,
+     *   NUMOBS,RUNITS,URMISS,IRSTAT,ITSREC,NMISS,
+     *   NXBUF,LWKBUF,IWKBUF,
+     *   NUMERR,NUMWRN,IERR)
+      IF (IERR.NE.0) GO TO 1340
+C
+C  WRITE PARAMETERS
+1190  IVRRS=2
+      WDISP=TDISP
+      INCLUDE 'scommon/callswrrs'
+      IF (IERR.NE.0) THEN
+         ISTAT=1
+         GO TO 1340
+         ENDIF
+C
+      NPRRSN=NPRRS
+C      
+      IF (IWRITE.EQ.0.OR.PRPARM.EQ.'NO') GO TO 1340
+C
+C  READ PARAMETERS
+      IPTR=0
+      IPRERR=1
+      IREAD=1
+      INCLUDE 'scommon/callsrrrs'
+      IF (IERR.EQ.0) THEN
+C     PRINT PARAMETERS
+         IPRNT=1
+         INCLUDE 'scommon/callsprrs'
+         ENDIF
+C         
+      IF (NRRNEW.GT.0) THEN
+         WRITE (LP,2260) NRRNEW
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (NRROLD.GT.0) THEN
+         WRITE (LP,2270) NRROLD
+         CALL SULINE (LP,2)
+         ENDIF        
+      IF (NERDEF.GT.0) THEN
+         WRITE (LP,2280) NERDEF
+         CALL SULINE (LP,2)
+         ENDIF
+C
+1340  IF (NUMERR.GT.0) THEN
+         WRITE (LP,2300) NUMERR
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (NUMWRN.GT.0) THEN
+         WRITE (LP,2290) NUMWRN
+         CALL SULINE (LP,2)
+         ENDIF
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,2320) ISTAT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+1350  FORMAT (' *** ENTER SFRRS')
+1360  FORMAT (' ')
+1370  FORMAT ('0*--> DEFINE STATION RRS PARAMETERS')
+1400  FORMAT ('0DEFINE OPTIONS IN EFFECT :  ',
+     *   'DISP=',A,3X,
+     *   'PRPARM=',A,3X,
+     *   'PRNOTE=',A3)
+1380  FORMAT (' NUMFLD=',I2,3X,'MAXFLD=',I2,3X,'NUMERR=',I2,3X,
+     *   'NXRFLD=',I2,3X,'NXOFLD=',I2,3X,'NOPFLD=',I2,3X,
+     *   'NMISS=',I2,3X,'NDIST=',I2)
+1390  FORMAT ('0*** NOTE - URRS PARAMETERS NOT FOUND. ',
+     *   'USER DEFAULTS FOR MINUMUM DAYS TO BE RETAINED ',
+     *   'AND TYPICAL NUMBER OF OBS CANNOT BE OBTAINED.')
+1410  FORMAT ('0*** ERROR - STATION IDENTIFIER NOT SPECIFIED. ',
+     *   'CHECK FOR MISSING ''STAN'' INPUT.')
+1420  FORMAT ('0*** NOTE - DISPOSITION OF NEW WAS SPECIFIED ',
+     *   'FOR STATION ',A,' BUT RRS PARAMETERS ALREADY EXIST. ',
+     *   'DISP ASSUMED TO BE OLD.')
+1430  FORMAT ('0*** WARNING - RRS PARAMETERS FOR STATION ',A,
+     *   ' DO NOT EXIST. DISP ASSUMED TO BE NEW FOR THIS DATA GROUP.')
+1440  FORMAT ('0*** ERROR - ',A,' DATA BASE IS NOT ALLOCATED.')
+1450  FORMAT ('0*** ERROR - RRS DATA TYPE FILE NOT SUCCESSFULLY ',
+     *   'READ. STATUS CODE RETURNED FROM UDTRRS = ',I2)
+1460  FORMAT (' UDTRRS CALLED : NURTYP=',I2)
+1470  FORMAT ('0*** ERROR - DATA TYPE FILE NOT SUCCESSFULLY ',
+     *   'READ. STATUS CODE RETURNED FROM UDTYPE = ',I2)
+1480  FORMAT ('0TYPE DIMN UNIT MISS NVAL TIME NADD')
+1490  FORMAT (' ',3(A4,1X),2(I4,1X),A4,1X,I4)
+1500  FORMAT (' UDTYPE CALLED : NTYPE=',I2)
+1510  FORMAT ('0RRSCD ICLASS NPROBS UMISS UNTIN UNTOUT LFIELD NUMDEC ',
+     *   'CHKMIN CHKMAX')
+1520  FORMAT (' ',A4,2X,I4,1X,3X,I4,3(2X,A4),2(3X,I4),3X,F6.0,1X,F9.0)
+1530  FORMAT ('0*** ERROR - FIELD ',I2,' EXCEEDS MAXIMUM ALLOWABLE ',
+     *   'FIELDS (',I2,').')
+1550  FORMAT ('0*** ERROR - IN SFRRS - THE CHARACTERS ''',A,
+     *   ''' WERE EXPECTED IN FIELD ',I2,' BUT ''',A,''' WERE FOUND.')
+1570  FORMAT (' BLANK STRING FOUND IN FIELD ',I2)
+1590  FORMAT ('0*** ERROR - ',I3,' IS AN INVALID NUMBER OF NULL ',
+     *   'FIELDS TO BE REPEATED. MAXIMUM FIELDS ALLOWED IS ',I2,'.')
+1600  FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED. IN FIELD ',I2,'.')
+1620  FORMAT ('0*** ERROR - INVALID DEFINE RRS STATION OPTION ',
+     *   'IN INPUT FIELD ',I2,' (CARD FIELD ',I2,') : ',A)
+1630  FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN INPUT FIELD ',
+     *   I2,'+ (CARD FIELD ' ,I2,').')
+1640  FORMAT ('0*** NOTE - REMAINING STATION RRS PARAMETERS WILL ',
+     *   'BE SET TO DEFAULT VALUES.')
+1650  FORMAT ('0*** ERROR - NO VALUE FOUND FOR REQUIRED INPUT FIELD ',
+     *   I2,' (CARD FIELD ',I2,').')
+1660  FORMAT ('0*** NOTE - NO VALUE FOUND FOR REQUIRED FIELD ',I2,
+     *   '. DEFAULT VALUE (',I5,') WILL BE USED.')
+1670  FORMAT ('0*** NOTE - UNITS CODE (',A,') FOUND IN CARD FIELD ',
+     *   I2,' NOT USED FOR DEFINING RRS PARAMETERS.')
+1680  FORMAT ('0*** ERROR - INTEGER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+1690  FORMAT ('0*** ERROR - CHARACTER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+1700  FORMAT ('0*** ERROR - NON-CHARACTER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+1710  FORMAT ('0*** ERROR - MISSING INDICATOR SPECIFIED FOR DATA TYPE ',
+     *   A,' HOWEVER INTERPOLATION OPTION NEVER SPECIFIED.')
+1720  FORMAT ('0*** ERROR - MISSING INDICATOR SPECIFIED FOR DATA TYPE ',
+     *   A,' HOWEVER EXTRAPOLATION RECESSION CONSTANT NEVER ',
+     *   'SPECIFIED.')
+1730  FORMAT ('0*** ERROR - MINIMUM DISCHARGE SPECIFIED FOR DATA TYPE ',
+     *   A,' HOWEVER NO DISTRIBUTION VALUES WERE SPECIFIED.')
+1740  FORMAT ('0*** ERROR - 24 VALUES ARE REQUIRED TO DEFINE THE ',
+     *   'TYPICAL DAILY FLOW DISTRIBUTION. ONLY ',I2,' WERE FOUND.')
+1750  FORMAT ('0*** ERROR - INVALID DATA TYPE CODE : ',A)
+1760  FORMAT ('0*** NOTE - DATA TYPE ',A,' IS ALREADY DEFINED.')
+1770  FORMAT ('0',T14,'- VALID RRS DATA TYPE CODES -')
+1780  FORMAT (20X,A4)
+1790  FORMAT ('0*** WARNING - NUMBER OF CHARACTERS IN RRS DATA TYPE (',
+     *   I2,') EXCEEDS 4. NAME SET TO FIRST 8 CHARACTERS.')
+1800  FORMAT (' RRS DATA TYPE CODE ',A,' IS ALREADY DEFINED. ',
+     *   'NRRSTP SET TO : ',I2)
+1810  FORMAT ('0*** ERROR - MAXIMUM NUMBER OF RRS DATA TYPES ',
+     *   'THAT CAN BE PROCESSED (',I3,') EXCEEDED.')
+1820  FORMAT ('0*** ERROR - INVALID NUMBER OF VALUES PER TIME ',
+     *   'INTERVAL (',I2,') FOR DATA TYPE CODE ',A,'.')
+1830  FORMAT ('0*** ERROR - DATA TYPE ',A,' NOT FOUND IN DATA TYPE ',
+     *   'LIST OBTAINED FROM ROUTINE UDTYPE.')
+1840  FORMAT (' NRRSTP=',I2,3X,'NUMNEW=',I2,3X,'NUMOLD=',I2,3X,
+     *   'NRTYPE=',I2,3X,'IRSREF=',I2,3X,'IDTREF=',I2)
+1850  FORMAT (' DATA TYPE SET TO : ',A,' ',
+     *   'NUMBER OF VALUES PER OBSERVATION SET TO : ',I2 /
+     *   'MISSING ALLOWED INDICATOR SET TO : ',A,' ',
+     *   'OUTPUT UNITS SET TO : ',A)
+1860  FORMAT (' USER SPECIFIED DEFAULTS WILL BE USED : ILURRS=',I2)
+1870  FORMAT (' ARRAY LOCATION OF USER DEFAULTS SET TO : ',I2)
+1880  FORMAT ('0*** NOTE - NO TIME SERIES WILL BE CREATED FOR DATA ',
+     *   'TYPE ',A,' BECAUSE NEGATIVE TIME INTERVAL WAS SPECIFIED.')
+1890  FORMAT ('0*** ERROR - OLD DATA TIME INTERVAL (',I2,
+     *   ') AND NEW DATA TIME INTERVAL (',I2,
+     *   ') ARE DIFFERENT. THE TIME INTERVAL CANNOT BE CHANGED.')
+1900  FORMAT ('0*** ERROR - TIME SERIES DATA TIME INTERVAL (',I4,
+     *   ') FOR DATA TYPE ',A,' IS INVALID. ',
+     *   'VALID VALUES ARE 1, 2, 3, 4, 6, 8, 12 OR 24 HOURS.')
+1910  FORMAT ('0*** ERROR - MINIMUM DAYS TO BE RETAINED CANNOT BE ',
+     *   'DETERMINED BECAUSE ',A,A,A,A)
+1920  FORMAT ('0*** ERROR - MINIMUM DAYS TO BE RETAINED ON PPDB (',I4,
+     *   ') MUST BE GREATER THAN OR EQUAL TO ZERO AND LESS THAN ',I2,
+     *   '.')
+1930  FORMAT (' TIME INTERVAL SET TO : ',I4)
+1940  FORMAT (' MINIMUM DAYS TO BE RETAINED SET TO : ',I4)
+1950  FORMAT ('0*** NOTE - OLD MAX DAYS RETAINED (',I2,
+     *   ') AND NEW MAX DAYS RETAINED (',I2,'',
+     *   ') ARE DIFFERENT. THE MAX DAYS RETAINED WILL BE CHANGED.')
+1960  FORMAT (' IGOES=',I2,3X,'ICDAS=',I2)
+1970  FORMAT (' I=',I2,3X,'NDGTYP=',I2,3X,'TYPE=',A4,3X,
+     *   'NRRSTP=',I2,3X,'RRSTYP(NRRSTP)=',A)
+1980  FORMAT (' IATIME=',I2,3X,'INTEGR=',I3,3X,
+     *   'NUMVAL=',I3)
+1990  FORMAT ('0*** WARNING - SPECIFIED MIN DAYS TO BE RETAINED (',I3,
+     *   ') IS LESS THAN DEFAULT VALUE (',I3,
+     *   ') AND WILL BE SET TO ',I3,' FOR DATA TYPE ',A,'.')
+2000  FORMAT ('0*** WARNING - SPECIFIED TYPICAL OBS (',I3,
+     *   ') GREATER THAN NEEDED FOR GOES TRANSFERS (',I3,
+     *   ') FOR DATA TYPE ',A,'.')
+2010  FORMAT ('0*** WARNING - ',A,' TYPICAL OBS (',I3,
+     *   ') LESS THAN NEEDED FOR GOES TRANSFERS (',I3,
+     *   ') AND WILL BE SET TO ',I3,' FOR DATA TYPE ',A,'.')
+2015  FORMAT ('0*** ERROR - MINIMUM DAYS OF DATA TO BE RETAINED (',
+     *   I4,') MUST BE GREATER THAN ZERO FOR DATA TYPE ',A,'.')
+2020  FORMAT ('0*** ERROR - MINIMUM DAYS OF DATA TO BE RETAINED (',
+     *   I4,') MUST BE GREATER THAN ZERO AND LESS THAN ',
+     *   'OR EQUAL TO ',I4,' FOR DATA TYPE ',A,'.')
+2030  FORMAT ('0*** NOTE - OLD TYPICAL OBS (',I2,') AND NEW ',
+     *   'TYPICAL OBS (',I2,') ARE DIFFERENT. THE TYPICAL ',
+     *   'OBS WILL BE CHANGED FOR DATA TYPE ',A,'.')
+2040  FORMAT ('0*** ERROR - TYPICAL NUMBER OF OBSERVATIONS CANNOT BE ',
+     *   'DETERMINED BECAUSE ',A,A,A,A)
+2050  FORMAT (' TYPICAL NUMBER OF OBSERVATIONS SET TO : ',I4)
+2060  FORMAT ('0*** NOTE - RRS DATA TYPE ',A,' NOT DEFINED ',
+     *   'BECAUSE ',I2,' ERRORS ENCOUNTERED.')
+2070  FORMAT ('0*** NOTE - RRS DATA TYPE ',A,' NOT REDEFINED ',
+     *   'BECAUSE ',I2,' ERRORS ENCOUNTERED.')
+2080  FORMAT ('0RRSTYP',3X,'INWRRS',3X,'IRTIME',3X,'NVLPOB',3X,
+     *   'MNODAY',3X,'NUMOBS',3X,'URMISS',3X,'FLOMIN',3X,'INTERP',3X,
+     *   'EXTRAP')
+2090  FORMAT (' ',(2X,A4),5(3X,I6),3X,(2X,A4),3X,F6.1,3X,I6,3X,F6.3)
+2180  FORMAT ('0*** WARNING - RRS PARAMETERS FOR STATION ',A,
+     *   ' NOT WRITTEN BECAUSE STAN PARAMETERS NOT SUCCESSFULLY ',
+     *   'DEFINED.')
+2190  FORMAT ('0*** WARNING - RRS PARAMETERS FOR STATION ',A,
+     *   ' NOT WRITTEN BECAUSE STAN PARAMETERS NOT SUCCESSFULLY ',
+     *   'REDEFINED.')
+2200  FORMAT ('0*** ERROR - CONVERTING PARAMETERS. UDUCNV STATUS ',
+     *   'CODE=',I2)
+2210  FORMAT ('0*** NOTE - STATION RRS PARAMETERS NOT WRITTEN ',
+     *   'BECAUSE NO TYPES SUCCESSFULLY DEFINED OR REDEFINED.')
+2220  FORMAT ('0*** NOTE - RRS PARAMETERS FOR STATION ',A,
+     *   ' NOT WRITTEN BECAUSE RUNCHECK OPTION IS SET.')
+2230  FORMAT ('0*** NOTE - RRS PARAMETERS FOR STATION ',A,
+     *   ' NOT WRITTEN BECAUSE ',I2,' ERRORS ENCOUNTERED. ',
+     *   'RUNCHECK OPTION SET FOR THIS STATION.')
+2240  FORMAT ('0*** NOTE - RRS PARAMETERS FOR STATION ',A,
+     *   ' NOT WRITTEN BECAUSE ',I2,' ERRORS ENCOUNTERED.')
+2250  FORMAT ('0*** WARNING - TIME SERIES EXISTS ',
+     *      'FOR DATA TYPE ',A,' ',
+     *      'FOR STATION ',A,' ',
+     *      A,' ',
+     *      'THE NEW TIME INTERVAL (',I2,') ',
+     *      'IS ',A,' ',
+     *   / T16,
+     *      'THE OLD TIME INTERVAL (',I2,'). ',
+     *      A,'.')      
+2255  FORMAT ('0*** NOTE - TIME SERIES EXISTS ',
+     *   'FOR DATA TYPE ',A,' ',
+     *   'FOR STATION ',A,' ',
+     *   'AND WILL BE CHANGED.')  
+2260  FORMAT ('0*** NOTE - ',I3,' RRS DATA TYPES SUCCESSFULLY DEFINED.')
+2270  FORMAT ('0*** NOTE - ',I3,' RRS DATA TYPES SUCCESSFULLY ',
+     *   'REDEFINED.')
+2280  FORMAT ('0*** NOTE - ',I3,' RRS DATA TYPES NOT SUCCESSFULLY ',
+     *   'DEFINED.')
+2290  FORMAT ('0*** NOTE - ',I3,' WARNINGS ENCOUNTERED BY DEFINE ',
+     *   'STATION RRS COMMAND.')
+2300  FORMAT ('0*** NOTE - ',I3,' ERRORS   ENCOUNTERED BY DEFINE ',
+     *   'STATION RRS COMMAND.')
+2310  FORMAT ('0*** ERROR - 2 RRS PARAMETER VALUES EXPECTED. ',
+     *   'ONLY ONE WAS FOUND.')
+2320  FORMAT (' *** EXIT SFRRS - ISTAT=',I2)
+C
+      END

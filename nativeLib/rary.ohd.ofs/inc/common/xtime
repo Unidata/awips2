@@ -1,0 +1,5 @@
+C                                           *--> FROM COMMON.XTIME
+      COMMON/XTIME/KZDA,KDA,KHR,LSTMO,KMO,KID,KYR,KIH,TZCODE,ISW,
+     $ IUTMP,NSSR,IDAY
+C
+C

@@ -1,0 +1,24 @@
+
+NSHARP updates for adding map area selection with Zoom/Unzoom for
+sounding region selection (Observed soundings and ACARS). 
+1/8/02 chiz@unidata.ucar.edu
+
+Updated draw.c, gui.h, guid.h from $NAWIPS/nprogs/nwx/source.
+These files are identical to the NWX source files.
+
+Copied nwxtbl.c from $NAWIPS/nprogs/nwx/source and
+modified to only read NWX map areas from $NAWIPS/tables/nwx/mapinfo.nwx
+(deleted reading of master.tbl). Add to nsharp_compile script.
+
+copied proto_nwx.h from $NAWIPS/nprogs/nwx/source (included by nwxtbl.c)
+
+Routines Modified:
+mapw.c
+
+xwvid6.c
+	Added mapproj_cb, mapzoom_cb, mapunzoom_cb routines
+
+acars_selection.c
+	Added amapproj_cb routine
+
+

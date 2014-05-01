@@ -1,0 +1,99 @@
+==== topic_publisher_java.out
+Publisher: Creating a non-transacted, auto-acknowledged session
+Publisher: Creating a TestMessage to send to the topics
+Publisher: Creating a Message Publisher for topic usa.weather
+Publisher: Sending message 1
+Publisher: Sending message 2
+Publisher: Sending message 3
+Publisher: Sending message 4
+Publisher: Sending message 5
+Publisher: Sending message 6
+Publisher: Creating a Message Publisher for topic usa.news
+Publisher: Sending message 1
+Publisher: Sending message 2
+Publisher: Sending message 3
+Publisher: Sending message 4
+Publisher: Sending message 5
+Publisher: Sending message 6
+Publisher: Creating a Message Publisher for topic europe.weather
+Publisher: Sending message 1
+Publisher: Sending message 2
+Publisher: Sending message 3
+Publisher: Sending message 4
+Publisher: Sending message 5
+Publisher: Sending message 6
+Publisher: Creating a Message Publisher for topic europe.news
+Publisher: Sending message 1
+Publisher: Sending message 2
+Publisher: Sending message 3
+Publisher: Sending message 4
+Publisher: Sending message 5
+Publisher: Sending message 6
+Publisher: Closing connection
+Publisher: Closing JNDI context
+==== topic_listener.out | remove_uuid | sort
+Declaring queue: europe
+Declaring queue: news
+Declaring queue: usa
+Declaring queue: weather
+Listening for messages ...
+Message: message 1 from europe
+Message: message 1 from europe
+Message: message 1 from news
+Message: message 1 from news
+Message: message 1 from usa
+Message: message 1 from usa
+Message: message 1 from weather
+Message: message 1 from weather
+Message: message 2 from europe
+Message: message 2 from europe
+Message: message 2 from news
+Message: message 2 from news
+Message: message 2 from usa
+Message: message 2 from usa
+Message: message 2 from weather
+Message: message 2 from weather
+Message: message 3 from europe
+Message: message 3 from europe
+Message: message 3 from news
+Message: message 3 from news
+Message: message 3 from usa
+Message: message 3 from usa
+Message: message 3 from weather
+Message: message 3 from weather
+Message: message 4 from europe
+Message: message 4 from europe
+Message: message 4 from news
+Message: message 4 from news
+Message: message 4 from usa
+Message: message 4 from usa
+Message: message 4 from weather
+Message: message 4 from weather
+Message: message 5 from europe
+Message: message 5 from europe
+Message: message 5 from news
+Message: message 5 from news
+Message: message 5 from usa
+Message: message 5 from usa
+Message: message 5 from weather
+Message: message 5 from weather
+Message: message 6 from europe
+Message: message 6 from europe
+Message: message 6 from news
+Message: message 6 from news
+Message: message 6 from usa
+Message: message 6 from usa
+Message: message 6 from weather
+Message: message 6 from weather
+Message: That's all, folks! from europe
+Message: That's all, folks! from news
+Message: That's all, folks! from usa
+Message: That's all, folks! from weather
+Shutting down listener for europe
+Shutting down listener for news
+Shutting down listener for usa
+Shutting down listener for weather
+Subscribing to queue europe
+Subscribing to queue news
+Subscribing to queue usa
+Subscribing to queue weather

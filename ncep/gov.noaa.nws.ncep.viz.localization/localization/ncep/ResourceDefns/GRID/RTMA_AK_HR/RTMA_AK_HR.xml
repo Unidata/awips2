@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="http://www.example.org/productType">
+    <resourceDefnName>RTMA_AK_HR</resourceDefnName>
+    <resourceCategory>GRID</resourceCategory>
+    <rscImplementation>ModelFcstGridContours</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>24</dfltFrameCount>
+    <dfltTimeRange>24</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+    <resourceParameters>
+pluginName=grid
+GDFILE=AK-RTMA-HR
+
+</resourceParameters>
+    <inventoryEnabled>true</inventoryEnabled>
+</ResourceDefinition>

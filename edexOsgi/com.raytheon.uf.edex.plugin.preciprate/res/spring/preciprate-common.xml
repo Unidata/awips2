@@ -1,0 +1,27 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+   <bean id="precipratePluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="preciprate" />
+   </bean>
+
+   <bean id="preciprateProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="precipratePluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.preciprate" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.preciprate.PrecipRateDao" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.preciprate.PrecipRateRecord" />
+		<property name="dependencyFQNs">
+		    <list>
+		       <value>com.raytheon.uf.common.dataplugin.radar</value>
+		    </list>
+		</property>
+   </bean>
+   
+	<bean factory-bean="pluginRegistry" factory-method="register" depends-on="radarRegistered">
+		<constructor-arg value="preciprate"/>
+		<constructor-arg ref="preciprateProperties"/>
+	</bean>
+       
+</beans>

@@ -1,0 +1,5 @@
+# CODE TABLE 3.2, Shape of the reference system
+10:10:Earth model assumed WGS84 with corrected geomagnetic coordinates (latitude and longitude) defined by Gustafsson et al., 1992
+11:11:Sun assumed spherical with radius = 695,990,000 m (Allen, C.W., 1976 Astrophysical Quantities (3rd Ed.; London: Athlone) and Stonyhurst latitude and longitude system with origin at the intersection of the solar central meridian (as seen from Earth) and the solar equator (Thompson, W, Coordinate systems for solar image data, A&A 449, 791–803 (2006))
+# 192- 254  Reserved for local use
+255:255:Missing

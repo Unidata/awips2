@@ -1,0 +1,11 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+py=$PYTHON_EXAMPLES/fanout
+
+fanout_producer_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-fanout-Producer.exe localhost 5672
+}
+
+background "Subscribed" $py/fanout_consumer.py
+clients fanout_producer_dotnet
+outputs ./fanout_producer_dotnet.out "$py/fanout_consumer.py.out | remove_uuid"

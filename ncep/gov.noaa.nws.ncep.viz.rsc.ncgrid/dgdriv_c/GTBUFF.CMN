@@ -1,0 +1,27 @@
+C************************************************************************
+C* GTBUFF.CMN								*
+C*									*
+C* This buffer is used to transform x,y values internally by GTRANS.	*
+C**									*
+C* Log:									*
+C* I. Graffman/RDS	 8/87						*
+C* M. desJardins/GSFC	 1/88	Put in common which was forgotten	*
+C* M. desJardins/NMC	 3/92	Add gspd, gdir				*
+C* M. Linda/GSC		 6/96	Added igxt & igyt, and increased sizes	*
+C* M. Linda/GSC		 6/96	Added igst, ixot, and iyot		*
+C* M. Linda/GSC		12/96	Added hx,hy,gvis; del. igst,ixot,iyot	*
+C* M. Linda/GSC		 1/97	Removed igxt and igyt			*
+C* M. Linda/GSC		 2/97	Added fx and fy				*
+C************************************************************************
+	REAL		  gx (LLMXPT),   gy (LLMXPT),
+     +			  hx (LLMXPT),   hy (LLMXPT),
+     +			  fx (LLMXPT),   fy (LLMXPT),
+     +			gspd (LLMXPT), gdir (LLMXPT)
+C
+	LOGICAL		gvis (LLMXPT)
+C*
+	COMMON /GTBUFF/ gx, gy, gspd, gdir, fx, fy
+C
+	EQUIVALENCE	( hx, gspd )
+	EQUIVALENCE	( hy, gdir )
+	EQUIVALENCE	( fx, gvis )

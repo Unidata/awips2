@@ -1,0 +1,174 @@
+C MODULE TPCOR
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE TPCOR (NSTA,IFMON,ICTMP,PXNAME,NFLD,ISTRT,
+     *   MXSTA,MXCF,MXCFD,ICFGE,TMAXC,TMINC,
+     *   ISTNUM,ISTSLT,ISTAMO,ISTAYR)
+C
+C  ROUTINE TO READ TEMPERATURE CORRECTION FACTORS FOR PROGRAM MAT.
+C
+      CHARACTER*4 CLABEL
+C
+      DIMENSION PXNAME(MXSTA,5)
+      DIMENSION ICFGE(MXSTA,MXCFD),TMAXC(MXSTA,MXCFD),TMINC(MXSTA,MXCFD)
+      DIMENSION ISTNUM(MXSTA*MXCF),ISTSLT(MXSTA*MXCF)
+      DIMENSION ISTAMO(MXSTA*MXCF),ISTAYR(MXSTA*MXCF)
+C
+      INCLUDE 'uiox'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/mat/RCS/tpcor.f,v $
+     . $',                                                             '
+     .$Id: tpcor.f,v 1.5 2001/06/13 09:32:25 mgm Exp $
+     . $' /
+C    ===================================================================
+C      
+C
+      LDEBUG=0
+C      
+      DO 10 IRG=1,NSTA
+         TMAXC(IRG,1)=0.0
+         TMINC(IRG,1)=0.0
+         DO 10 I=1,MXCFD
+            ICFGE(IRG,I)=9999
+10       CONTINUE
+C
+      IF (ICTMP.EQ.0) GO TO 60
+      
+      NUMCF=0
+C
+C   ** CARD O **
+      CLABEL='@O'
+C
+20    NCHAR=1
+C
+C  GET STATION NUMBER
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     * NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,3,ISTAT,
+     *   LENGTH,IERR)
+      IF (ISTAT.EQ.7) GO TO 20
+      NCHAR=1
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,JSTA,UREAL,
+     * NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,0,ISTAT,
+     *   LENGTH,IERR)
+      IF (ISTAT.EQ.6) THEN
+         ISTRT=-1
+         GO TO 30
+         ENDIF
+      
+C  CHECK IF LAST CORRECTION      
+      IF (JSTA.EQ.999) GO TO 55
+      IF (NSTA.LT.99.AND.JSTA.EQ.99) GO TO 55
+C  
+C  GET MONTH IN WHICH CORRECTION STARTS    
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,JMO,UREAL,
+     * NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,0,ISTAT,
+     *   LENGTH,IERR)
+      IF (ISTAT.EQ.6) THEN
+         ISTRT=-1
+         GO TO 30
+         ENDIF
+C  
+C  GET YEAR IN WHICH CORRECTION STARTS      
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,JYR,UREAL,
+     * NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,0,ISTAT,
+     *   LENGTH,IERR)
+      IF (ISTAT.EQ.6) THEN
+         ISTRT=-1
+         GO TO 30
+         ENDIF
+C
+C  GET CORRECTION TO MAX TEMPERATURE
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,TXC,
+     * NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,
+     *   LENGTH,IERR)
+      IF (ISTAT.EQ.6) THEN
+         ISTRT=-1
+         GO TO 30
+         ENDIF
+C 
+C  GET CORRECTION TO MIN TEMPERATURE     
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,TNC,
+     * NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      CALL AFTERU (LATSGN,ITYPEU,UCHAR,CLABEL,1,ISTAT,
+     *   LENGTH,IERR)
+      IF (ISTAT.EQ.6) THEN
+         ISTRT=-1
+         GO TO 30
+         ENDIF
+C
+30    ICMON=JYR*12+JMO
+      ICMON=ICMON-IFMON+1
+C
+      DO 40 I=1,10
+         IF (ICFGE(JSTA,I).LT.9999) GO TO 40
+            ICFGE(JSTA,I)=ICMON
+            ICF=I
+            GO TO 50
+40       CONTINUE
+      CALL UEROR (LP,2,-1)
+      WRITE (LP,65) MXCF
+      GO TO 20
+C
+50    NUMCF=NUMCF+1
+      ISTNUM(NUMCF)=JSTA
+      ISTSLT(NUMCF)=ICF+1
+      ISTAMO(NUMCF)=JMO
+      ISTAYR(NUMCF)=JYR
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,70) JSTA,(PXNAME(JSTA,I),I=1,5),JMO,JYR,TXC,TNC
+         ENDIF
+      IF (ICF+1.GT.MXCFD) THEN
+         CALL UEROR (LP,2,-1)
+         WRITE (LP,65) MXCF
+         GO TO 20
+         ENDIF  
+      TMAXC(JSTA,(ICF+1))=TXC
+      TMINC(JSTA,(ICF+1))=TNC
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*)
+     *      ' NUMCF=',NUMCF,
+     *      ' ISTNUM(NUMCF)=',ISTNUM(NUMCF),
+     *      ' ISTSLT(NUMCF)=',ISTSLT(NUMCF),
+     *      ' ISTAMO(NUMCF)=',ISTAMO(NUMCF),
+     *      ' ISTAYR(NUMCF)=',ISTAYR(NUMCF),
+     *      ' ICF=',ICF,
+     *      ' JSTA=',JSTA,
+     *      ' TMAXC(JSTA,(ICF+1))=',TMAXC(JSTA,(ICF+1)),
+     *      ' TMINC(JSTA,(ICF+1))=',TMINC(JSTA,(ICF+1)),
+     *      ' '
+         ENDIF
+      GO TO 20
+C
+55    WRITE (LP,67)
+      WRITE (LP,69)
+      DO 57 I=1,NUMCF 
+         ISTA=ISTNUM(I)
+         ICF=ISTSLT(I)
+         WRITE (LP,70) ISTNUM(I),(PXNAME(ISTA,J),J=1,5),
+     *      ISTAMO(I),ISTAYR(I),
+     *      TMAXC(ISTA,ICF),TMINC(ISTA,ICF)
+57       CONTINUE             
+C
+60    RETURN
+C
+C-----------------------------------------------------------------------
+C
+65    FORMAT ('0*** ERROR - MAXIMUM NUMBER OF ',
+     *   'CORRECTION FACTORS ',
+     *   'THAT CAN BE PROCESSED (',I2,') EXCEEDED.')
+67    FORMAT ('0',10X,'*** TEMPERATURE CORRECTIONS ***')
+69    FORMAT ('0',T68,'TEMPERATURE',T83,'TEMPERATURE'/ T5,'STATION',
+     *  T26,'STATION',T69,'CORRECTION',T84,'CORRECTION'/ T5,'NUMBER',
+     *  T27,'NAME',T47,'MONTH',T58,'YEAR',T71,'(MAX)',T86,'(MIN)'/ T5,
+     *  7('-'),T17,25('-'),T47,5('-'),T58,4('-'),T71,5('-'),T86,5('-'))
+70    FORMAT (' ',T6,I3,T17,5A4,T48,I3,T58,I4,T71,F5.2,T86,F5.2)
+C
+      END

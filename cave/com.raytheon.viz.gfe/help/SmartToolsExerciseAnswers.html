@@ -1,0 +1,818 @@
+<html>
+<title>GFESuite Documentation - Smart Tools</title>
+<body>
+<h1 align=center>Smart Tools Answers to Exercises</h1>
+<h3 class="3Heading"><a name="AnswerNum1"></a>Answer to Exercise Tool-1</h3>
+<div class="3Heading">
+<div class="Code">
+<div class="3Heading">ToolType = "numeric"</div>
+<div class="3Heading">WeatherElementEdited = "SnowAmt"</div>
+<div class="3Heading">from numpy import *</div>
+<div class="3Heading">import SmartScript</div>
+<div class="3Heading">class Tool (SmartScript.SmartScript):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp; def __init__(self, dbss):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp; def execute(self, QPF):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Tool
+to return QPF multiplied by 10"</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Determine
+new value</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SnowAmt
+= QPF * 10</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Return
+the new value</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+SnowAmt</div>
+<h3 class="3Heading">
+<a name="AnswerNum2"></a>Answer to Exercise Tool-2</h3>
+<div class="Code">ToolType = "numeric"
+<br>
+WeatherElementEdited = "SnowAmt"
+<br>
+from numpy import *
+<br>
+import SmartScript
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, QPF, T):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Tool to calculate SnowAmt"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowAmt = where(less(T,
+20),
+QPF * 18,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+where(less(T, 25), QPF * 14,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QPF * 10))
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return SnowAmt
+<br>
+&nbsp;
+</p>
+<h3><a name="AnswerNum3"></a>Answer to Exercise Tool-3</h3>
+<div class="Code">
+<div class="Code">ToolType = "numeric"
+<br>
+WeatherElementEdited = "SnowAmt"
+<br>
+from numpy import *
+<br>
+import SmartScript
+<p>VariableList = [
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Enter elevation" , 5000,
+"numeric"),
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]
+<br>
+class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, QPF, T, Topo, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Tool to calculate SnowAmt"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set up Variables from
+the
+varDict
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elevation = varDict["Enter
+elevation"]
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowAmt = where(less(T,
+20),
+QPF * 18,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+where(less(T, 25), QPF * 14,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QPF * 10))
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowAmt = where(less(Topo,
+elevation), 0, SnowAmt)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return SnowAmt
+<br>
+</p>
+</div>
+</div>
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<h3 class="3Heading"><a name="AnswerSS1"></a>Answer to Exercise
+SmartScript-1</h3>
+</div>
+</div>
+<div class="Code">
+<div class="Code">ToolType = "numeric"
+<br>
+WeatherElementEdited = "QPF"
+<br>
+from numpy import *
+<br>
+import SmartScript
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, GridTimeRange, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This tool accesses QPF
+and tp&nbsp; grids directly"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; Get QPF and tp
+values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qpf = self.getGrids("Fcst",
+"QPF", "SFC", GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp =
+self.getGrids("BOU_D2D_NAM12",
+"tp","SFC", GridTimeRange)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qpf =
+where(equal(qpf,0.0),
+tp, qpf)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return qpf</p>
+</div>
+</div>
+<h3 class="3Heading">
+<a name="AnswerSS2"></a>Answer to Exercise SmartScript-2</h3>
+</div>
+</div>
+<div class="Code">
+<div class="Code">ToolType = "numeric"
+<br>
+WeatherElementEdited = "QPF"
+<br>
+from numpy import *
+<br>
+import SmartScript
+<p>VariableList = [("Model:" , "", "model")]
+<br>
+class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, GridTimeRange, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This tool accesses QPF
+and tp&nbsp; grids directly"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; model = varDict["Model:"]
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; Get QPF and tp
+values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qpf = self.getGrids("Fcst",
+"QPF", "SFC", GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp = self.getGrids(model,
+"tp","SFC", GridTimeRange)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qpf =
+where(equal(qpf,0.0),
+tp, qpf)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return qpf
+<br>
+</p>
+<h3 class="3Heading"><a name="AnswerSS3"></a>Answer to Exercise
+SmartScript-3</h3>
+</div>
+</div>
+<div class="Code">
+<div class="Code">ToolType = "numeric"
+<br>
+WeatherElementEdited = "T"
+<br>
+from numpy import *
+<br>
+import SmartScript
+<p>VariableList = [("Model:" , "", "D2D_model")]
+<br>
+class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, GridTimeRange, Topo, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This tool accesses QPF
+and tp&nbsp; grids directly"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; model = varDict["Model:"]
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert Topo to meters
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; topo_M =
+self.convertFtToM(Topo)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make a sounding cubes
+for
+T
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Height will increase in
+the sounding and be the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # first dimension
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; levels =
+["MB1000","MB950","MB900","MB850","MB800",
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB750","MB700","MB650","MB600"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh_Cube, t_Cube =
+self.makeNumericSounding(
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+model, "t", levels, GridTimeRange)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print "Cube shapes ",
+gh_Cube.shape,
+t_Cube.shape
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make an initial T grid
+with values of -200
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This is an out-of-range
+value to help us identify values that
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # have already been set.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T = (Topo * 0) - 200
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Work "upward" in the
+cubes
+to assign T
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # We will only set the value
+once, i.e. the first time the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # gh height is greater than
+the Topo
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For each level
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for i in
+xrange(gh_Cube.shape[0]):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# where ( gh &gt; topo and T == -200),
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to t_Cube value, otherwise
+keep
+value already set))
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+T = where(logical_and(greater(gh_Cube[i], topo_M), equal(T,-200)),
+t_Cube[i],
+T)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert from K to F
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_F = self.convertKtoF(T)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return T_F
+<br>
+</p>
+<h3 class="3Heading"><a name="AnswerSS4"></a>Answer to Exercise
+SmartScript-4</h3>
+</div>
+</div>
+<div class="Code">
+<div class="Code">ToolType = "numeric"
+<br>
+WeatherElementEdited = "T"
+<br>
+from numpy import *
+<br>
+import SmartScript
+<p>VariableList = [("Model:" , "", "D2D_model")]
+<br>
+class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, GridTimeRange, Topo, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This tool accesses QPF
+and tp&nbsp; grids directly"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; model = varDict["Model:"]
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert Topo to meters
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; topo_M =
+self.convertFtToM(Topo)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make a sounding cubes
+for
+T
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Height will increase in
+the sounding and be the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # first dimension
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; levels =
+["MB1000","MB950","MB900","MB850","MB800",
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB750","MB700","MB650","MB600"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh_Cube, t_Cube =
+self.makeNumericSounding(
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+model, "t", levels, GridTimeRange)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print "Cube shapes ",
+gh_Cube.shape,
+t_Cube.shape
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make an initial T grid
+with values of -200
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This is an out-of-range
+value to help us identify values that
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # have already been set.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T = (Topo * 0) - 200
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Work "upward" in the
+cubes
+to assign T
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # We will only set the value
+once, i.e. the first time the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # gh height is greater than
+the Topo
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For each level
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for i in
+xrange(gh_Cube.shape[0]):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# where ( gh &gt; topo and T == -200 ),
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to t_Cube value, otherwise
+keep
+value already set))
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+notSet = equal(T, -200)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+aboveGround = greater(gh_Cube[i], topo_M)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+readyToSet = logical_and(notSet, aboveGround)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+T = where(readyToSet, t_Cube[i], T)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert from K to F
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_F = self.convertKtoF(T)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return T_F
+<br>
+</p>
+<h3 class="3Heading"><a name="AnswerSS5"></a>Answer to Exercise
+SmartScript-5</h3>
+ToolType = "numeric"
+<br>
+WeatherElementEdited = "None"
+<br>
+from numpy import *
+<p>ScreenList = ["T","Td"]
+</p>
+<p>import SmartScript
+</p>
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, T, Td, GridTimeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Creates a temporary
+element,
+TempRH"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Determine new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Tc = .556 * (T - 32.0)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Tdc = .556 * (Td - 32.0)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vt = 6.11 * pow(10,(Tc *
+7.5 / (Tc + 237.3)))
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vd = 6.11 * pow(10,(Tdc
+* 7.5 / (Tdc + 237.3)))
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RH = (Vd / Vt) * 100.0<br>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # clip<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RH = clip(RH, 0.0, 100.0)<br>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Create Element and add
+Grid
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.createGrid("TempModel",
+"TempRH", "SCALAR", RH, GridTimeRange,<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; descriptiveName="TempRH",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeConstraints=(0, 3600,3600), minAllowedValue = 0.0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxAllowedValue
+= 100.0, units="%")
+<br>
+</p>
+<h3><a name="AnswerSS6"></a>Answer to Exercise SmartScript-6</h3>
+ToolType = "numeric"
+<br>
+WeatherElementEdited = "Wx"
+<br>
+from numpy import *
+<p>import SmartScript
+</p>
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, PoP, Wx):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assign Wx based on PoP
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Separate Wx into
+components
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues = Wx[0]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; keys = Wx[1]
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues = where(
+less(PoP,
+20),
+self.getIndex("&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:",keys),
+wxValues)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues =
+where(logical_and(
+greater_equal(PoP, 20), less(PoP, 35)),&nbsp;
+self.getIndex("Chc:R:-:&lt;NoVis&gt;:"
+,keys), wxValues)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues =
+where(logical_and(
+greater_equal(PoP, 35), less(PoP, 55)),&nbsp;
+self.getIndex("Sct:RW:m:&lt;NoVis&gt;:"
+,keys), wxValues)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues =
+where(greater_equal(PoP,
+55),&nbsp; self.getIndex("Wide:R:+:&lt;NoVis&gt;:" ,keys), wxValues)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (wxValues, keys)
+</p>
+<h3><a name="AnswerSS7"></a>Answer to Exercise SmartScript-7</h3>
+ToolType = "numeric"
+<br>
+WeatherElementEdited = "PoP"
+<br>
+from numpy import *
+<p>import SmartScript
+</p>
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, PoP, Wx):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assign PoP based
+on Wx
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PoP =
+where(self.wxMask(Wx,
+"&lt;NoCov&gt;:"),&nbsp; 0,&nbsp;&nbsp; PoP)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Here we
+need
+to require a regular expression to avoid confusion between "Chc" and
+"SChc"
+and "Sct" and "WSct"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PoP =
+where(self.wxMask(Wx,
+"^Chc:", 1),&nbsp; 25,&nbsp;&nbsp; PoP)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PoP =
+where(self.wxMask(Wx,
+"^Sct:", 1),&nbsp; 55,&nbsp;&nbsp; PoP)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PoP =
+where(self.wxMask(Wx,
+"Wide:"),&nbsp; 80,&nbsp;&nbsp; PoP)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return PoP
+</p>
+<h3 class="3Heading"><a name="AnswerProc1"></a>Answer to Exercise
+Procedure-1</h3>
+</div>
+<div class="3Heading">MenuItems = ["Edit"]</div>
+<div class="3Heading">ToolList = [</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("AdjustValue_Up", "variableElement"),</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Smooth", "variableElement"),</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]</div>
+<div class="3Heading">import SmartScript</div>
+<div class="3Heading">class Procedure (SmartScript.SmartScript):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp; def __init__(self, dbss):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp; def execute(self, editArea,
+timeRange,
+varDict):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Calls
+each Smart Tool: T_Tool, PoP_Tool, Wind_Tool</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for
+toolName,
+elementName in ToolList:</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+error = self.callSmartTool(toolName, elementName,</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+editArea, timeRange, varDict)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if error is not None:</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+break</div>
+<h3 class="3Heading">
+<a name="AnswerProc2"></a>Answer to Exercise Procedure-2</h3>
+<div class="3Heading">import SmartScript</div>
+<div class="3Heading">VariableList = [("Model:" , "", "D2D_model")]</div>
+<div class="3Heading">class Procedure (SmartScript.SmartScript):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp; def __init__(self, dbss):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)</div>
+<div class="3Heading">&nbsp;</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp; def execute(self, editArea,
+varDict):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"""Copy
+from model, create grids, run smart tool."""</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; model
+= varDict["Model:"]</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+databaseID
+= self.getDatabase(model)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeRange
+= self.createTimeRange(0, 12, "Database", databaseID)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elements
+= ['T', 'Wind','Wx']</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.copyCmd(elements,
+databaseID, timeRange)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.createFromScratchCmd(['T'],
+timeRange, repeat=3, duration=1)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.callSmartTool("ExSS4","T",
+editArea, timeRange, varDict,</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+missingDataMode="Create")</div>
+<h3 class="3Heading">
+<a name="AnswerProc3"></a>Answer to Exercise Procedure-3</h3>
+**Running Revised Exercise Procedure-1 using runProcedure:
+<p>&nbsp;&nbsp; ./runProcedure -n Proc1 -u hansen -c gfeConfig -a
+CO_Boulder
+-t Tonight
+</p>
+<p>**Revised Procedure-1&nbsp; (does not use variableElement)
+<br>
+</p>
+<div class="3Heading">MenuItems = ["Edit"]</div>
+<div class="3Heading">ToolList = [</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("AdjustValue_Up", "T"),</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Smooth", "T"),</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]</div>
+<div class="3Heading">import SmartScript</div>
+<div class="3Heading">class Procedure (SmartScript.SmartScript):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp; def __init__(self, dbss):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp; def execute(self, editArea,
+timeRange,
+varDict):</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Calls
+each Smart Tool: T_Tool, PoP_Tool, Wind_Tool</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for
+toolName,
+elementName in ToolList:</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+error = self.callSmartTool(toolName, elementName,</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+editArea, timeRange, varDict)</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if error is not None:</div>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+break</div>
+<h3 class="3Heading">
+<a name="AnswerUtil1"></a>Answer to Exercise Utility-1</h3>
+<h4 class="3Heading">
+New Utility named:&nbsp; Common</h4>
+<div class="3Heading">import SmartScript
+<p>class Common(SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss, eaMgr, mdMode=None,
+toolType="numeric"):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.setUp(eaMgr, mdMode,
+toolType)
+</p>
+<p>&nbsp;&nbsp;&nbsp; # Include your utility methods here
+<br>
+&nbsp;&nbsp;&nbsp; def _convertFtToM(self, value):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return value/3.28084</p>
+</div>
+<h4 class="3Heading">
+Smart Tool:</h4>
+<div class="3Heading">ToolType = "numeric"
+<br>
+WeatherElementEdited = "T"
+<br>
+from Numeric import *
+<p>import SmartScript
+<br>
+import Common
+</p>
+<p>VariableList = [("Model:" , "", "D2D_model")]
+</p>
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._dbss = dbss
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, GridTimeRange, Topo, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This tool accesses QPF
+and tp&nbsp; grids directly"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._common =
+Common.Common(self._dbss,
+self.eaMgr())
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert Topo to meters
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; topo_M =
+self._common._convertFtToM(Topo)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make a sounding cubes
+for
+T
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Height will increase in
+the sounding and be the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # first dimension
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; levels =
+["MB1000","MB950","MB900","MB850","MB800",
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB750","MB700","MB650","MB600"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh_Cube, t_Cube =
+self.makeNumericSounding(
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+model, "t", levels, GridTimeRange)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print "Cube shapes ",
+gh_Cube.shape,
+t_Cube.shape
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make an initial T grid
+with values of -200
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This is an out-of-range
+value to help us identify values that
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # have already been set.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T = (Topo * 0) - 200
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Work "upward" in the
+cubes
+to assign T
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # We will only set the value
+once, i.e. the first time the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # gh height is greater than
+the Topo
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For each level
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for i in
+xrange(gh_Cube.shape[0]):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# where ( gh &gt; topo and T == -200),
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to t_Cube value, otherwise
+keep
+value already set))
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+T = where(logical_and(greater(gh_Cube[i], topo_M), equal(T,-200)),
+t_Cube[i],
+T)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert from K to F
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_F = self.convertKtoF(T)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return T_F</p>
+</div>

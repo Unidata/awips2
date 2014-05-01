@@ -1,0 +1,399 @@
+#!/bin/ksh
+
+#
+#   script for gathering DHR products from fxa directories
+#   and moving them to the OHD precip_proc world
+#   October 16, 2007
+#   David T. Miller RSIS OHD/HSEB
+#   this script is modified based on DPAgather script.
+
+# This allows you to call this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for AWIPS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+
+export DSP_PROD_DIR=$(get_apps_defaults dsp_prod_dir)
+export DHR_LOG_DIR=$(get_apps_defaults dhr_log_dir)
+export DHR_DIRNAME2=$(get_apps_defaults dhr_dirname2)
+export DHR_DIRNAME1=$(get_apps_defaults dhr_dirname1)
+export DHR_PROD_DIR=$(get_apps_defaults dhr_prod_dir)
+export HPE_LOG_DIR=$(get_apps_defaults hpe_log_dir)
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
+export DB_NAME=$(get_apps_defaults db_name)
+
+
+#
+# define function for checking for a stop file to bypass the gather process 
+
+checkcronstop()
+{
+	STOP_DIR=$1
+	test -r $STOP_DIR/stop_hpe_crons
+	FILES_FOUND=$?
+	if test $FILES_FOUND -eq 0
+	then
+	
+             return 1
+
+	else
+             return 0
+	fi
+}
+
+checkHPErun()
+{
+	# Check to see if age on file is more than 10 minutes
+	# If it is stop the start_hpe script until data arrives.
+	     tnow=`date +%s`
+	     tfile=`date +%s -r $HPE_LOG_DIR/processhpe_log`
+	     agesecs=$(($tnow-$tfile))
+	     echo "Checking age of processhpe_log $agesecs secs " >> $hpefnm
+	     if [[ $agesecs -ge 600 ]]
+	     then
+	          return 1
+         else
+	          return 2
+         fi
+}
+
+#   setup log files
+#
+
+hpefnm=$HPE_LOG_DIR/start_hpe_log
+hpetmp=$HPE_LOG_DIR/start_hpe_tmp
+fnm=$DHR_LOG_DIR/dhrgather_log
+tmp=$DHR_LOG_DIR/dhrgather_tmp
+
+#
+#   save latest entries in log file
+#
+
+if [[ -s $fnm ]]
+  then
+     tail -1200 $fnm > $tmp
+     mv $tmp  $fnm
+  fi
+
+if [[ -s $hpefnm ]]
+then
+   tail -1200 $hpefnm > $hpetmp
+   mv $hpetmp $hpefnm
+fi
+
+checkcronstop $HPE_LOG_DIR
+STOP_FOUND=$?
+
+if test STOP_FOUND -eq 1
+then
+
+# Instead of using kill, will introduce a delayed stop.
+# This is especially important if radar files are separate in time
+# and only 1 radar is indicating precip but the rest are not
+# The time of this file is checked in start_hpe script.
+# If greater than 20 min, the start_hpe script will exit
+
+   if [[ ! -r $HPE_LOG_DIR/stop_hpe_process ]]
+   then
+         touch $HPE_LOG_DIR/stop_hpe_process
+         echo "stop_hpe_process file created " $Dte >> $hpefnm
+         echo "HPE decoders and field generator will stop after 20 min " >> $hpefnm
+         echo "unless precipitation occurs at a radar before that time " >> $hpefnm
+      fi
+
+
+   exit 0
+fi
+
+
+#----------------------------------------------------------------------
+#  Don't fire up another instance if one is underway
+# the AMIRUNNING_DIR variable is required by the amirunning script
+
+AMIRUNNING_DIR=$DHR_LOG_DIR
+
+. $RFCLX/public/bin/amirunning
+
+
+if [[ $AmIRunning = "yes" ]]; then
+  echo DHRgather script cancelled due to other instance running >> $fnm
+  exit 0
+fi
+dhrps=`ps -fe | grep DHRgather | grep -v grep | grep -v vi | wc -l`
+  if [[ $dhrps -gt 1 ]]
+  then
+     echo ""
+  fi
+
+#
+#   begin write to log               
+#
+
+echo "-------------------------------------------" >> $fnm
+Dte=`date -u`
+echo "Begin gather at  "$Dte >> $fnm
+
+#if [[ ! -d $DHR_PROD_DIR ]]
+#then
+#   echo "The DHR PROD DIR $DHR_PROD_DIR is invalid or " >> $fnm
+#   echo "does not exist.  Exiting DHRgather script. " $Dte >> $fnm
+#   exit 1
+#fi
+
+#
+#   touch dhrgather control temp file
+#
+
+touch $DHR_LOG_DIR/dhrgather_control.temp
+touch /tmp/dhrgather_control.temp
+
+#
+#  check if radarloc table has any radars with use_radar="T"
+#  if not, then stop
+#  the sed command strips off all non-numeric characters
+#
+
+Num_Rad=$(
+echo "select count(*) from Radarloc WHERE use_radar='T'; " | \
+$POSTGRESQLBINDIR/psql -q -t $DB_NAME 
+         )
+
+if [[ $Num_Rad = 0 ]]
+then
+
+      echo no radars defined for use -- gather not done  >> $fnm
+      Dte=`date -u`
+      echo "End   gather at  "$Dte >> $fnm
+      exit 1
+
+elif [[ -z $Num_Rad ]]
+then
+
+      echo number of radars defined for use is undetermined -- gather continuing  >> $fnm
+fi
+
+#
+#  write radar identifiers and prefixes to temp file                             
+#
+
+echo "select lower(radid_prefix), lower(radid) from Radarloc WHERE use_radar='T';" | \
+$POSTGRESQLBINDIR/psql -q  -A  -t  $DB_NAME > $DHR_LOG_DIR/radid.temp
+
+
+#
+#  if radid.temp is not created or is 0 bytes in length, then print message and exit gather script
+#
+
+if [[ ! -s $DHR_LOG_DIR/radid.temp ]]
+  then
+      rm -f $DHR_LOG_DIR/radid.temp
+      rm -f $DHR_LOG_DIR/dhrgather_control.temp
+      echo radid.temp file not created properly -- gather not done  >> $fnm
+
+      Dte=`date -u`
+      echo "End   gather at  "$Dte >> $fnm
+      exit 1
+  fi
+
+#
+#  for each radar id in file, construct directory name and search for products
+#  note that the radar id in the directory name is lower case and 4 char
+#
+
+FileCheck=0
+RainCheck=0
+
+#for rid in `cat $DHR_LOG_DIR/radid.temp`
+#do 
+#radid_dir=$(echo "$rid" | sed 's/|//g')
+#radid=${radid_dir#?}
+#PRODUCT_DIR_NAME=$DHR_DIRNAME1/$radid_dir/$DHR_DIRNAME2
+
+#  
+#   Look for raw products in the directory satisfying the time test.                     
+#   If found, then copy to a temporary location and mv to the gather directory.
+#   Change radar id to upper case.
+#   Successfully processed products will be deleted from the gather directory 
+#   as part of the decoding process.
+#   Write old name, new name to log file.
+#
+#   In addition, this now checks the DHR data for precip status category.
+#   If category is 1 or 2, it will kick off the start_hpe script 
+#   which will run the DHR and DSP decoders and 
+#   the HPE field generator
+#
+
+#num_files=`ls -F $PRODUCT_DIR_NAME 2>>$fnm | grep -v "*" | grep -v "/" | wc -l`
+#if test $num_files -ne 0
+#then
+#   RADID=$(print $radid | tr '[a-z]' '[A-Z]')
+#   i=0
+#   for pname in `find $PRODUCT_DIR_NAME  -type f  -name '*'  -newer  $DHR_LOG_DIR/dhrgather_control` 
+
+   for pname in `find $DHR_PROD_DIR  -type f  -name '*'  -newer  $DHR_LOG_DIR/dhrgather_control` 
+   do
+
+      #GATHER_FILENAME=$DHR_PROD_DIR/DHR$RADID.`date -u +%Y%m%d%H%M%S.$i`
+      #i=`expr $i + 1`
+      #cp $pname  $DHR_LOG_DIR/radar_temp
+      #mv $DHR_LOG_DIR/radar_temp  $GATHER_FILENAME
+      #echo $pname "copied to"  $GATHER_FILENAME  >> $fnm
+
+       echo $pname "copied to"  $DHR_PROD_DIR  >> $fnm
+       GATHER_FILENAME=$pname
+      
+    # check to see if the SUPL info in the DHR data indicates rain
+
+      result=`runso rary.ohd.pproc get_dhrpsm_main $pname`
+      Get_DHRPsm=`expr $result`
+
+    # debug statement to log file  
+      echo "$GATHER_FILENAME Get_DHRPsm = $Get_DHRPsm" >> $hpefnm
+      
+      FileCheck=1
+      
+      if [[ $Get_DHRPsm > 0 ]] 
+      then
+         RainCheck=1
+      fi
+
+   done
+#fi
+
+#done
+#
+#   mv dhrgather control file
+#
+
+mv $DHR_LOG_DIR/dhrgather_control.temp  $DHR_LOG_DIR/dhrgather_control
+
+#
+#   delete radid.temp file      
+#
+
+rm $DHR_LOG_DIR/radid.temp                      
+
+#
+#   end write to log               
+#
+
+Dte=`date -u`
+echo "End   gather at  "$Dte >> $fnm
+
+# In order to execute gather every minute need to not stop or start HPE rapidly
+# If there were files last minute but not any now,
+# need to just continue with whatever RainCheck did last time
+
+echo "FileCheck = $FileCheck" >> $hpefnm
+
+if [[ $FileCheck -gt 0 ]]
+then
+
+# based on precip category in new DHR products for the radars, 
+# start or stop HPE processes
+
+echo "checking to start or stop start_hpe script" $Dte >> $hpefnm
+phpe=`ps -ef|grep start_hpe|grep -v grep|grep -v vi|awk '{print $2}'`
+
+echo "checking to start or stop start_hpe script" $Dte >> $hpefnm
+
+if [[ -n "$phpe" ]]
+   then
+      checkHPErun
+      RUN_FOUND=$?
+         if test RUN_FOUND -eq 1
+            then
+                  echo "We are going to stop start_hpe " $Dte >> $hpefnm
+                  `kill $phpe`
+                  phpe=`ps -ef|grep start_hpe|grep -v grep|grep -v vi|awk '{print $2}'`
+                  if [[ -n "$phpe" ]]
+                     then
+                        `kill -9 $phpe`
+                  fi
+                  phpe=`ps -ef|grep start_hpe|grep -v grep|grep -v vi|awk '{print $2}'`
+         fi
+fi
+
+if [[ $RainCheck -le 0 ]]
+then
+   if [[ -z "$phpe" ]]
+   then
+      echo "start_hpe script not running " $Dte >> $hpefnm
+      
+# if HPE process isn't running, there's no precip in area.
+# remove the temp files in the DHR and DSP product directories
+# 
+     if [[ -d $DHR_PROD_DIR && -n "$DHR_PROD_DIR" ]]
+     then
+        echo "Removing temp DHR files in $DHR_PROD_DIR due to no rain " $Dte >> $hpefnm    
+        rm -f $DHR_PROD_DIR/*
+     else
+        echo "Attempted to remove files but " >> $hpefnm
+        echo "DHR PROD DIR $DHR_PROD_DIR invalid " $Dte >> $hpefnm
+     fi
+     if [[ -d $DSP_PROD_DIR && -n "$DSP_PROD_DIR" ]]
+     then 
+        echo "Removing temp DSP files in $DSP_PROD_DIR due to no rain " $Dte >> $hpefnm   
+        rm -f $DSP_PROD_DIR/*
+     else
+        echo "Attempted to remove files but " >> $hpefnm
+        echo "DSP PROD DIR $DSP_PROD_DIR invalid " $Dte >> $hpefnm
+     fi         
+   else
+   
+# Instead of using kill, will introduce a delayed stop.
+# This is especially important if radar files are separate in time
+# and only 1 radar is indicating precip but the rest are not
+# The time of this file is checked in start_hpe script.
+# If greater than 20 min, the start_hpe script will exit
+   
+      if [[ ! -r $HPE_LOG_DIR/stop_hpe_process ]]
+      then
+         touch $HPE_LOG_DIR/stop_hpe_process
+	 echo "stop_hpe_process file created " $Dte >> $hpefnm
+	 echo "HPE decoders and field generator will stop after 20 min " >> $hpefnm
+	 echo "unless precipitation occurs at a radar before that time " >> $hpefnm
+     else
+         echo "stop_hpe_process file already created " $Dte >> $hpefnm
+	 echo "HPE process will stop in less than 20 min unless new precip occurs " >> \
+	 $hpefnm
+     fi
+     
+  
+   fi
+   
+
+   
+elif [[ $RainCheck -gt 0 ]]
+then
+#sleep 10
+   echo "RainCheck= "$RainCheck >> $hpefnm
+   phpe=`ps -ef|grep start_hpe|grep -v grep|grep -v vi|awk '{print $2}' | wc -l`
+   echo "PHPE " $phpe >>$hpefnm
+
+   if [[ $phpe -le 0 ]]
+   then
+    
+      echo "starting HPE processes via start_hpe script " $Dte >> $hpefnm
+      /bin/ksh $PPROC_BIN/launch_hpe 2>$DHR_LOG_DIR/launch_hpe.err &
+      exit 0
+   else
+   
+# Remove the stop file if it exists because at least one radar has
+# indicated there's precip and don't want the processes to stop
+# prematurely.
+#
+# Script will check if one has been entered after it starts.
+
+      if [[ -r $HPE_LOG_DIR/stop_hpe_process ]]
+      then
+         rm -f $HPE_LOG_DIR/stop_hpe_process
+      fi   
+      echo "start_hpe script already running " $Dte >> $hpefnm
+   fi
+fi
+else
+   echo "no radar files found to process " $Dte >> $hpefnm 
+# next statement goes with FileCheck if test
+fi
+exit 0

@@ -1,0 +1,1 @@
+Components are “glued together” via a Narrative Definition which specifies the order of the components and the time period to be represented by each component. 

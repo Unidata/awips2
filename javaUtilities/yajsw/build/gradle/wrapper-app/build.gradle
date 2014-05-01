@@ -1,0 +1,31 @@
+projectHome = '../../..'
+sourceSets.main.java.srcDirs = ["$projectHome/src/app"]
+
+dependencies {
+    compile project(':wrapper')
+}
+
+dependencies {
+    compile group: 'commons-collections', name: 'commons-collections', 			version: "$commons_collections_version"
+    compile group: 'commons-configuration', name: 'commons-configuration', 	version: "$commons_configuration_version"
+    compile group: 'commons-io', 					name: 'commons-io', 							version: "$commons_io_version"
+    compile group: 'commons-lang', 				name: 'commons-lang', 						version: "$commons_lang_version"
+    compile group: 'commons-logging', 		name: 'commons-logging', 					version: "$commons_logging_version"
+    compile group: 'netty', 							name: 'netty', 										version: "$netty_version"
+}
+
+//println '---------------------------'
+//println 'dependency jars:'
+//println '---------------------------'
+//configurations.compile.each { File file -> println file.absolutePath }
+//println '---------------------------'
+
+// name of jar file
+jar.baseName = 'wrapperApp'
+
+// TODO generate manifest
+jar {
+    manifest {
+        from '../../MANIFEST.MF'
+    }
+}

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+      <extension
+         point="com.raytheon.uf.viz.xy.crosssection.crosssectionadapter">
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.GridCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.grid.GridRecord"
+            name="Grid Cross Section Adapter">
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite"
+            name="Model Sounding Cross Section Adapter">
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.poessounding.POESSounding"
+            name="POESSounding Cross Section Adapter">
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.goessounding.GOESSounding"
+            name="GOESSounding Cross Section Adapter">
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.profiler.ProfilerObs"
+            name="Profiler Cross Section Adapter">
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.DmdCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
+            name="DMD Cross Section Adapter">
+         <constraint
+               key="productCode"
+               value="149">
+         </constraint>
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
+            name="VWP Cross Section Adapter">
+         <constraint
+               key="productCode"
+               value="48">
+         </constraint>
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.edex.plugin.acarssounding.common.ACARSSoundingRecord"
+            name="Acars Sounding Cross Section Adapter">
+      </crossSectionAdapter>
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.bufrua.UAObs"
+            name="Raob Cross Section Adapter">
+      </crossSectionAdapter>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.xy.timeseries.timeseriesadapter">
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.GridTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.grid.GridRecord"
+            name="Grid Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.DmdTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
+            name="DMD Time Series Adapter">
+         <constraint
+               key="productCode"
+               value="149">
+         </constraint>
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
+            name="VWP Time Series Adapter">
+         <constraint
+               key="productCode"
+               value="48">
+         </constraint>
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
+            name="Acars Sounding Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.profiler.ProfilerObs"
+            name="Profiler Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.goessounding.GOESSounding"
+            name="GOESSounding Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.poessounding.POESSounding"
+            name="POESSounding Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord"
+            name="Metar Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.edex.plugin.bufrmos.common.BufrMosData"
+            name="BufrMOS Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.bufrua.UAObs"
+            name="UA Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite"
+            name="Model Sounding Time Series Adapter">
+      </timeSeriesAdapter>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.xy.varheight.varheightadapter">
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.GridVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.grid.GridRecord"
+            name="Grid Var Height Adapter">
+      </varHeightAdapter>
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.poessounding.POESSounding"
+            name="POESSounding Var Height Adapter">
+      </varHeightAdapter>
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.goessounding.GOESSounding"
+            name="GOESSounding Var Height Adapter">
+      </varHeightAdapter>
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.profiler.ProfilerObs"
+            name="Profiler Var Height Adapter">
+      </varHeightAdapter>
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
+            name="AcarsSounding Var Height Adapter">
+      </varHeightAdapter>
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.DmdVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
+            name="DMD Var Height Adapter">
+         <constraint
+               key="productCode"
+               value="149">
+         </constraint>
+      </varHeightAdapter>
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
+            name="VWP Var Height Adapter">
+         <constraint
+               key="productCode"
+               value="48">
+         </constraint>
+      </varHeightAdapter>
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.bufrua.UAObs"
+            name="Raob Var height Adapter">
+      </varHeightAdapter>
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite"
+            name="Model Sounding Var Height Adapter">
+      </varHeightAdapter>
+   </extension>
+</plugin>

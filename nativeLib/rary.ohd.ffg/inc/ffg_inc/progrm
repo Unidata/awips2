@@ -1,0 +1,5 @@
+      character*4 pgmcmp,pgmsys
+      character*8 pgmnam
+      character*10 pgmvrd,pgmvrn
+      common /progrm/ pgmvrn,pgmvrd,pgmnam,pgmcmp,pgmsys,vers
+      

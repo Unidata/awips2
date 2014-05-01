@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet xmlns:ns2="group">
+	<rule>
+		<id>
+			<pluginName>airmet</pluginName>
+			<key>default</key>
+		</id>
+		<period>02-00:00:00</period>
+	</rule>
+</purgeRuleSet>

@@ -1,0 +1,21 @@
+C
+C Common block:  "platform"
+C
+C notes:        (1)     This common block is used to store information
+C                       about a machine's platform.  Such information is
+C                       used in conditional statements to perform
+C                       machine- or OS-dependent commands.
+C               (2)     Initialize this common block by calling SETPLAT
+C                       from the main program.
+C               (3)     The values in the common block should be set in
+C                       the defaults file for NWSRFS, as follows:
+C
+C                               opersys         nwsrfs_platform
+C
+C               (4)     If on a UNIX system, set the value of opersys to
+C                       the operating system name returned by the
+C                       "uname" command.
+
+       character*8      opersys
+
+       common / platform /      opersys

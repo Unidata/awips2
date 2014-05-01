@@ -1,0 +1,2 @@
+A field user can post questions and problems to the Text Support Listserver (ifpslocalformatterdev). Other users and/or the Regional Support Team members can respond to these posts.  If the problem does not get solved, a member of the Regional Team can post a message to the Regional Listserver (gfetextsupport).  Other Regional Team members and/or FSL developers will respond.   The Regional Team members have direct access to FSL developers through the Regional Listserver. 
+

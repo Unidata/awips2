@@ -1,0 +1,49 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	
+	<bean id="wfsHandler" class="com.raytheon.uf.edex.wfs.WfsHttpHandler">
+	 		
+	  <!--  
+	       Thread the WFS requests, this allows you fine grain control
+	       over how many requests are serviced simultaneously.
+	  
+	   <constructor-arg>
+            <bean id="threadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+                <property name="minThreads" value="2"/>
+                <property name="maxThreads" value="4"/>
+            </bean>
+       </constructor-arg>
+       -->
+	 		
+		<constructor-arg>
+			<list>
+				<bean class="com.raytheon.uf.edex.wfs.v1_1_0.Wfs1_1_0Provider">
+					<constructor-arg ref="wfsRegistry" />
+				</bean>
+				<ref bean="wfs2_0_0Provider"/>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<bean id="wfsHttpPool" class="com.raytheon.uf.edex.ogc.common.http.SingleHttpPool">
+		<constructor-arg ref="wfsHandler" />
+	</bean>
+
+	<bean id="wfserv" class="com.raytheon.uf.edex.ogc.common.http.OgcHttpEndpoint">
+		<constructor-arg ref="wfsHttpPool" />
+	</bean>
+
+	<camelContext id="wfs-rest-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+		<route id="WfsRest">
+		    <!--  Set a maximum and minimum number of threads -->
+			<from uri="jetty:http://0.0.0.0:8085/wfs?maxThreads=4&amp;minThreads=2" />
+			<bean ref="wfserv" />
+		</route>
+
+	</camelContext>
+  
+  
+  </beans>

@@ -1,0 +1,57 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_sssac library file
+#
+#  cmt: File made on Wed Aug  6 12:51:15 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_sssac_t.a:  \
+     $(LIB)/libfcst_sssac_t.a(aray22.o)  \
+     $(LIB)/libfcst_sssac_t.a(cnvr22.o)  \
+     $(LIB)/libfcst_sssac_t.a(data22.o)  \
+     $(LIB)/libfcst_sssac_t.a(deru22.o)  \
+     $(LIB)/libfcst_sssac_t.a(dvr122.o)  \
+     $(LIB)/libfcst_sssac_t.a(dvrk22.o)  \
+     $(LIB)/libfcst_sssac_t.a(ex22.o)  \
+     $(LIB)/libfcst_sssac_t.a(flws22.o)  \
+     $(LIB)/libfcst_sssac_t.a(flwz22.o)  \
+     $(LIB)/libfcst_sssac_t.a(gmpr22.o)  \
+     $(LIB)/libfcst_sssac_t.a(gmtr22.o)  \
+     $(LIB)/libfcst_sssac_t.a(intr22.o)  \
+     $(LIB)/libfcst_sssac_t.a(outp22.o)  \
+     $(LIB)/libfcst_sssac_t.a(posd22.o)  \
+     $(LIB)/libfcst_sssac_t.a(pred22.o)  \
+     $(LIB)/libfcst_sssac_t.a(prtd22.o)  \
+     $(LIB)/libfcst_sssac_t.a(step22.o)  \
+     $(LIB)/libfcst_sssac_t.a(symm22.o)  \
+     $(LIB)/libfcst_sssac_t.a(updt22.o)  \
+     $(LIB)/libfcst_sssac_t.a(vmff22.o)  \
+     $(LIB)/libfcst_sssac_t.a(vmfp22.o)  \
+     $(LIB)/libfcst_sssac_t.a(vrpr22.o)
+

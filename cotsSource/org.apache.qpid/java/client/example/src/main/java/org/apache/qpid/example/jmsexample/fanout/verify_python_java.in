@@ -1,0 +1,55 @@
+==== fanout_producer.py.out
+==== fanout_listener_java.out | remove_uuid
+Listener: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Listener: Creating a non-transacted, auto-acknowledged session
+Listener: Creating a MessageConsumer
+Listener: Starting connection so MessageConsumer can receive messages
+Listener: Received  message:  message 0
+Listener: Received  message:  message 1
+Listener: Received  message:  message 2
+Listener: Received  message:  message 3
+Listener: Received  message:  message 4
+Listener: Received  message:  message 5
+Listener: Received  message:  message 6
+Listener: Received  message:  message 7
+Listener: Received  message:  message 8
+Listener: Received  message:  message 9
+Listener: Received final message That's all, folks!
+Listener: Closing connection
+Listener: Closing JNDI context
+==== fanout_listener_javaX.out | remove_uuid
+Listener: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Listener: Creating a non-transacted, auto-acknowledged session
+Listener: Creating a MessageConsumer
+Listener: Starting connection so MessageConsumer can receive messages
+Listener: Received  message:  message 0
+Listener: Received  message:  message 1
+Listener: Received  message:  message 2
+Listener: Received  message:  message 3
+Listener: Received  message:  message 4
+Listener: Received  message:  message 5
+Listener: Received  message:  message 6
+Listener: Received  message:  message 7
+Listener: Received  message:  message 8
+Listener: Received  message:  message 9
+Listener: Received final message That's all, folks!
+Listener: Closing connection
+Listener: Closing JNDI context
+==== fanout_listener_javaXX.out | remove_uuid
+Listener: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Listener: Creating a non-transacted, auto-acknowledged session
+Listener: Creating a MessageConsumer
+Listener: Starting connection so MessageConsumer can receive messages
+Listener: Received  message:  message 0
+Listener: Received  message:  message 1
+Listener: Received  message:  message 2
+Listener: Received  message:  message 3
+Listener: Received  message:  message 4
+Listener: Received  message:  message 5
+Listener: Received  message:  message 6
+Listener: Received  message:  message 7
+Listener: Received  message:  message 8
+Listener: Received  message:  message 9
+Listener: Received final message That's all, folks!
+Listener: Closing connection
+Listener: Closing JNDI context

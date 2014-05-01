@@ -1,0 +1,35 @@
+   1 JOAL is released under the BSD license. The full license terms follow:
+   2 
+   3    Copyright (c) 2003-2006 Sun Microsystems, Inc. All Rights Reserved.
+   4  
+   5    Redistribution and use in source and binary forms, with or without
+   6    modification, are permitted provided that the following conditions are
+   7    met:
+   8    
+   9    - Redistribution of source code must retain the above copyright
+  10      notice, this list of conditions and the following disclaimer.
+  11    
+  12    - Redistribution in binary form must reproduce the above copyright
+  13      notice, this list of conditions and the following disclaimer in the
+  14      documentation and/or other materials provided with the distribution.
+  15    
+  16    Neither the name of Sun Microsystems, Inc. or the names of
+  17    contributors may be used to endorse or promote products derived from
+  18    this software without specific prior written permission.
+  19    
+  20    This software is provided "AS IS," without a warranty of any kind. ALL
+  21    EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES,
+  22    INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A
+  23    PARTICULAR PURPOSE OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN
+  24    MICROSYSTEMS, INC. ("SUN") AND ITS LICENSORS SHALL NOT BE LIABLE FOR
+  25    ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+  26    DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES. IN NO EVENT WILL SUN OR
+  27    ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR
+  28    DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE
+  29    DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY,
+  30    ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF
+  31    SUN HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+  32    
+  33    You acknowledge that this software is not designed or intended for use
+  34    in the design, construction, operation or maintenance of any nuclear
+  35    facility.

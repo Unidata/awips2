@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method = "text"/>
+
+<!--
+        getIssueTime.xlt
+                - get the issue time of the watch in format:
+				DDHHMM
+
+        Change Log:
+
+        B. Yin/Chugach  03/10   Initial Coding
+-->
+
+  <xsl:template name="getIssueTime">
+  	<xsl:value-of select="substring(@issueTime,9,2)"/>
+  	<xsl:value-of select="substring(@issueTime,12,2)"/>
+  	<xsl:value-of select="substring(@issueTime,15,2)"/>
+  </xsl:template>
+</xsl:stylesheet>
+

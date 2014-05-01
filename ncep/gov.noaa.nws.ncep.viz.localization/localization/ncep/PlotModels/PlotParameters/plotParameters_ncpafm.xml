@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+<!--  From the ncpafm PointDataDescription file.
+  <parameter name="stationId" numDims="1" type="STRING" size="16" />
+
+  <parameter name="forecastTimeUtc" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="forecastTimeLocal" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="forecastTimeZone" numDims="1" type="STRING" size="8" />
+  
+TDXF name="avgMxTmpf" unit="degree" 
+or TDXF (TDYF?) ->  name="hiMxTmpf" unit="degree"
+  <parameter name="loMxTmpf" numDims="1" type="FLOAT" unit="degree" />
+TNTF ->  name="avgMnTmpf" numDims="1" type="FLOAT" unit="degree"  
+  <parameter name="hiMnTmpf" numDims="1" type="FLOAT" unit="degree" />
+name="loMnTmpf" unit="degree"
+TMPF ->  name="tmpf" unit="degree"
+DWPF ->  name="dwpf"  unit="degree"
+RELH ->  name="relh" " unit="percent" 
+DRCT ->  name="windDir" type="STRING" unit="degree" float
+SPED ->  name="windSmph" unit="mph" 
+GUST ->  name="gust_Mph"  type="STRING" unit="mph"/>
+  <parameter name="pwindDir" numDims="1" type="STRING" size="8"/>
+  <parameter name="windChar" numDims="1" type="STRING" size="8"/>
+  <parameter name="skyCover" numDims="1" type="STRING" size="8"/>
+PP12 ->  name="pop12"  unit="percent"
+  <parameter name="qpf12Mn" numDims="1" type="FLOAT" unit="degree"/>  
+  <parameter name="qpf12Mx" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="highestMaxQpf" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="lowestMaxQpf" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="snow12Mn" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="snow12Mx" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="avgSkyCover" numDims="1" type="STRING" size="8"/>
+  OVIS - Categorical forecast in plain language of obstructions
+OVIS ->  name="obvis" type="STRING"
+WCEQ ->  name="windChill"  unit="degree"/>
+HEAT ->  name="heatIndex" type="FLOAT" unit="degree"
+  <parameter name="minChill" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="maxHeat" numDims="1" type="FLOAT" unit="degree"/>
+  <parameter name="rain" numDims="1" type="STRING" size="8"/>
+  <parameter name="rainShwrs" numDims="1" type="STRING" size="8"/>
+  <parameter name="sprinkles" numDims="1" type="STRING" size="8"/>
+  <parameter name="tstms" numDims="1" type="STRING" size="8"/>
+  <parameter name="drizzle" numDims="1" type="STRING" size="8"/>
+  <parameter name="snow" numDims="1" type="STRING" size="8"/>  
+  <parameter name="snowShwrs" numDims="1" type="STRING" size="8"/>
+  <parameter name="flurries" numDims="1" type="STRING" size="8"/>
+  <parameter name="sleet" numDims="1" type="STRING" size="8"/>
+  <parameter name="frzgRain" numDims="1" type="STRING" size="8"/>
+  <parameter name="frzgDrzl" numDims="1" type="STRING" size="8"/>
+  <parameter name="hazards" numDims="1" type="STRING" size="160"/>
+ -->
+	<plugin>ncpafm</plugin>
+ <PlotParameterDefn  plotParamName="TMPF" metParamName="AirTemperature"  
+                     dbParamName="tmpf" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMPC" metParamName="AirTemperature"  
+                     dbParamName="tmpf" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMPK" metParamName="AirTemperature"  
+                     dbParamName="tmpf" plotUnit="K" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="DWPF" metParamName="DewPointTemp"  
+                     dbParamName="dwpf" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="DWPC" metParamName="DewPointTemp"   
+                     dbParamName="dwpf" plotUnit="°C" plotFormat="%3.0f"/>
+                     
+ <PlotParameterDefn  plotParamName="DWPK" metParamName="DewPointTemp"   
+                     dbParamName="dwpf" plotUnit="K" plotFormat="%3.0f"/>                     
+
+ <PlotParameterDefn  plotParamName="RELH" metParamName="RelativeHumidity"  
+                     dbParamName="relh"    plotUnit="%" plotFormat="%3.0f"/>
+
+
+ <PlotParameterDefn  plotParamName="STID" metParamName="StationID"  
+                     dbParamName="stationName" />
+ <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"  
+                     dbParamName="latitude" plotUnit="°"/>
+ <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude"  
+                     dbParamName="longitude" plotUnit="°"/>        
+ <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation"  
+                     dbParamName="elevation"    plotUnit="m"/>                     
+                                  
+ <PlotParameterDefn  plotParamName="DRCT" metParamName="WindDirection"  
+                     dbParamName="windDir" plotUnit="degree" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="SPED" metParamName="WindSpeed"  
+                     dbParamName="windSmph" plotUnit="m/s" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="SKNT" metParamName="WindSpeed"  
+                     dbParamName="windSmph" plotUnit="kts" plotFormat="%3.0f"/>
+                     
+ <PlotParameterDefn plotParamName="GUST" metParamName="WindGust"  
+                    dbParamName="gust_Mph" plotUnit="kts" plotFormat="%3.0f"/>     
+
+ <PlotParameterDefn  plotParamName="TDYF" metParamName="DayTempFcst"  
+                     dbParamName="avgMxTmpf" plotUnit="°F" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="TNTF" metParamName="NightTempFcst"  
+                     dbParamName="avgMnTmpf" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="HEAT" metParamName="HeatIndex"  
+                     dbParamName="heatIndex"    plotUnit="°F" plotFormat="%3.0f"/>
+
+<!--  Do we need a MaxHeatIndex metParam?
+ <PlotParameterDefn  plotParamName="" metParamName="MaxHeatIndex"  
+                     dbParamName="maxHeat"    plotUnit="°F" plotFormat="%3.0f"/>
+ -->
+ <!-- No data seen in nmap2. Is this supposed to be a symbol, a number or a string?
+ 
+         OVIS - Categorical forecast in plain language of obstructions
+                to vision
+                0 = N = none of the following
+                1 = FG or F = fog or ground fog (vis. less than .625 mile)
+                2 = HZ or H = haze, smoke, dust
+                3 = BR = mist (fog with visibility greater than .625 mile)
+                4 = BL = blowing dust, sand, snow
+ 
+ <PlotParameterDefn  plotParamName="OVIS" metParamName="CatFcstObstructionsVision"  
+                     dbParamName="obvis" />
+-->
+
+ <PlotParameterDefn   plotParamName="PP12" metParamName="POP12Hrs"  
+                      dbParamName="pop12" plotUnit="%" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn   plotParamName="WCEQ" metParamName="WindChillEquivalentTemp"
+                      dbParamName="windChill" plotUnit="°F" plotFormat="%3.0f"/>
+<!--
+ <PlotParameterDefn   plotParamName="" metParamName=""
+                      dbParamName="minchill" plotUnit="%" plotFormat="%3.0f"/>
+ -->
+
+ <PlotParameterDefn  plotParamName="BRBK" metParamName="WindDirection,WindSpeed"
+                     plotMode="barb" symbolFont="WindSymbolFont" 
+                     plotUnit="kts" />
+ 	
+ 	 <!-- WEATHER 
+ <PlotParameterDefn  plotParamName="WXPB" metParamName="" 
+					 dbParamName=""
+ <PlotParameterDefn  plotParamName="CFRT" metParamName="" 
+					 dbParamName="skyCover"
+ <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
+                     dbParamName=""
+                     plotMode="table" symbolFont="WxSymbolFont" 
+                     plotLookupTable="wx_symbol_trans.txt"/>
+ 	-->    
+</PlotParameterDefns>

@@ -1,0 +1,336 @@
+// filename: AlertAlarmValTable.java
+// author  : DBGEN
+// created : Tue May 31 17:52:19 CDT 2011 using database hd_ob83oax
+// description: This class is used to get data from and put data into the
+//              alertalarmval table of an IHFS database
+//
+package ohd.hseb.ihfsdb.generated;
+
+import java.sql.*;
+
+import java.util.*;
+
+import ohd.hseb.db.*;
+
+public class AlertAlarmValTable extends DbTable
+{
+//-----------------------------------------------------------------
+//  Private data
+//-----------------------------------------------------------------
+    private int _recordsFound = -1;
+//-----------------------------------------------------------------
+//  AlertAlarmValTable() - constructor to set statement variable and initialize
+//		number of records found to zero
+//-----------------------------------------------------------------
+    public AlertAlarmValTable(Database database) 
+    {
+        //Constructor calls DbTable's constructor
+        super(database);
+        setTableName("alertalarmval");
+    }
+
+
+    //-----------------------------------------------------------------
+    //  select() - this method is called with a where clause and returns
+    //		a List of AlertAlarmValRecord objects
+    //-----------------------------------------------------------------
+    public List select(String where) throws SQLException
+    {
+        AlertAlarmValRecord record = null;
+
+        // create a List to hold AlertAlarmVal Records
+        List recordList = new ArrayList();
+
+        // set number of records found to zero
+        _recordsFound = 0;
+
+        // Create the SQL statement and issue it
+        // construct the select statment
+        String selectStatement = "SELECT * FROM alertalarmval " + where;
+
+        // get the result set back from the query to the database
+        ResultSet rs = getStatement().executeQuery(selectStatement);
+
+        // loop through the result set
+        while (rs.next())
+        {
+            // create an instance of a AlertAlarmValRecord
+            // and store its address in oneRecord
+            record = new AlertAlarmValRecord();
+
+            // increment the number of records found
+            _recordsFound++;
+
+            // assign the data returned to the result set for one
+            // record in the database to a AlertAlarmValRecord object
+
+            record.setLid(getString(rs, 1));
+            record.setPe(getString(rs, 2));
+            record.setDur(getShort(rs, 3));
+            record.setTs(getString(rs, 4));
+            record.setExtremum(getString(rs, 5));
+            record.setProbability(getReal(rs, 6));
+            record.setValidtime(getTimeStamp(rs, 7));
+            record.setBasistime(getTimeStamp(rs, 8));
+            record.setValue(getDouble(rs, 9));
+            record.setSuppl_value(getDouble(rs, 10));
+            record.setShef_qual_code(getString(rs, 11));
+            record.setQuality_code(getInt(rs, 12));
+            record.setRevision(getShort(rs, 13));
+            record.setProduct_id(getString(rs, 14));
+            record.setProducttime(getTimeStamp(rs, 15));
+            record.setPostingtime(getTimeStamp(rs, 16));
+            record.setAction_time(getTimeStamp(rs, 17));
+            record.setAa_categ(getString(rs, 18));
+            record.setAa_check(getString(rs, 19));
+            
+            // add this AlertAlarmValRecord object to the list
+            recordList.add(record);
+        }
+        // Close the result set
+        rs.close();
+
+        // return a List which holds the AlertAlarmValRecord objects
+        return recordList;
+
+    } // end of select method
+
+    //-----------------------------------------------------------------
+    //  selectNRecords() - this method is called with a where clause and returns
+    //		a List filled with a maximum of maxRecordCount of AlertAlarmValRecord objects 
+    //-----------------------------------------------------------------
+    public List selectNRecords(String where, int maxRecordCount) throws SQLException
+    {
+        AlertAlarmValRecord record = null;
+
+        // create a List to hold AlertAlarmVal Records
+        List recordList = new ArrayList();
+
+        // set number of records found to zero
+        _recordsFound = 0;
+
+        // Create the SQL statement and issue it
+        // construct the select statment
+        String selectStatement = "SELECT * FROM alertalarmval " + where;
+
+        // get the result set back from the query to the database
+        ResultSet rs = getStatement().executeQuery(selectStatement);
+
+        // loop through the result set
+        while (rs.next())
+        {
+            // create an instance of a AlertAlarmValRecord
+            // and store its address in oneRecord
+            record = new AlertAlarmValRecord();
+
+            // increment the number of records found
+            _recordsFound++;
+
+            // assign the data returned to the result set for one
+            // record in the database to a AlertAlarmValRecord object
+
+            record.setLid(getString(rs, 1));
+            record.setPe(getString(rs, 2));
+            record.setDur(getShort(rs, 3));
+            record.setTs(getString(rs, 4));
+            record.setExtremum(getString(rs, 5));
+            record.setProbability(getReal(rs, 6));
+            record.setValidtime(getTimeStamp(rs, 7));
+            record.setBasistime(getTimeStamp(rs, 8));
+            record.setValue(getDouble(rs, 9));
+            record.setSuppl_value(getDouble(rs, 10));
+            record.setShef_qual_code(getString(rs, 11));
+            record.setQuality_code(getInt(rs, 12));
+            record.setRevision(getShort(rs, 13));
+            record.setProduct_id(getString(rs, 14));
+            record.setProducttime(getTimeStamp(rs, 15));
+            record.setPostingtime(getTimeStamp(rs, 16));
+            record.setAction_time(getTimeStamp(rs, 17));
+            record.setAa_categ(getString(rs, 18));
+            record.setAa_check(getString(rs, 19));
+            
+            // add this AlertAlarmValRecord object to the list
+            recordList.add(record);
+            if (_recordsFound >= maxRecordCount)
+            {
+                break;
+            }
+        }
+        // Close the result set
+        rs.close();
+
+        // return a List which holds the AlertAlarmValRecord objects
+        return recordList;
+
+    } // end of selectNRecords method
+
+//-----------------------------------------------------------------
+//  insert() - this method is called with a AlertAlarmValRecord object and..
+//-----------------------------------------------------------------
+    public int insert(AlertAlarmValRecord record)  throws SQLException
+    {
+        int returnCode=-999;
+
+        // Create a SQL insert statement and issue it
+        // construct the insert statement
+        PreparedStatement insertStatement = getConnection().prepareStatement(
+" INSERT INTO alertalarmval VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?        )");
+
+        setString(insertStatement, 1, record.getLid());
+        setString(insertStatement, 2, record.getPe());
+        setShort(insertStatement, 3, record.getDur());
+        setString(insertStatement, 4, record.getTs());
+        setString(insertStatement, 5, record.getExtremum());
+        setReal(insertStatement, 6, record.getProbability());
+        setTimeStamp(insertStatement, 7, record.getValidtime());
+        setTimeStamp(insertStatement, 8, record.getBasistime());
+        setDouble(insertStatement, 9, record.getValue());
+        setDouble(insertStatement, 10, record.getSuppl_value());
+        setString(insertStatement, 11, record.getShef_qual_code());
+        setInt(insertStatement, 12, record.getQuality_code());
+        setShort(insertStatement, 13, record.getRevision());
+        setString(insertStatement, 14, record.getProduct_id());
+        setTimeStamp(insertStatement, 15, record.getProducttime());
+        setTimeStamp(insertStatement, 16, record.getPostingtime());
+        setTimeStamp(insertStatement, 17, record.getAction_time());
+        setString(insertStatement, 18, record.getAa_categ());
+        setString(insertStatement, 19, record.getAa_check());
+        
+        // get the number of records processed by the insert
+        returnCode = insertStatement.executeUpdate();
+
+        return returnCode;
+
+    } // end of insert method
+
+//-----------------------------------------------------------------
+//  delete() - this method is called with a where clause and returns
+//                   the number of records deleted
+//-----------------------------------------------------------------
+    public int delete(String where) throws SQLException
+    {
+        int returnCode=-999;
+
+        // Create a SQL delete statement and issue it
+        // construct the delete statement
+        String deleteStatement = "DELETE FROM alertalarmval " + where;
+
+        // get the number of records processed by the delete
+        returnCode = getStatement().executeUpdate(deleteStatement);
+
+        return returnCode;
+    } // end of delete method 
+
+//-----------------------------------------------------------------
+//  update() - this method is called with a AlertAlarmValRecord object and a where clause..
+//-----------------------------------------------------------------
+    public int update(AlertAlarmValRecord record, String where)  throws SQLException
+    {
+        int returnCode=-999;
+        // Create a SQL update statement and issue it
+        // construct the update statement
+        PreparedStatement updateStatement = getConnection().prepareStatement(
+" UPDATE alertalarmval SET lid = ?, pe = ?, dur = ?, ts = ?, extremum = ?, probability = ?, validtime = ?, basistime = ?, value = ?, suppl_value = ?, shef_qual_code = ?, quality_code = ?, revision = ?, product_id = ?, producttime = ?, postingtime = ?, action_time = ?, aa_categ = ?, aa_check = ?        " + where );
+
+        setString(updateStatement, 1, record.getLid());
+        setString(updateStatement, 2, record.getPe());
+        setShort(updateStatement, 3, record.getDur());
+        setString(updateStatement, 4, record.getTs());
+        setString(updateStatement, 5, record.getExtremum());
+        setReal(updateStatement, 6, record.getProbability());
+        setTimeStamp(updateStatement, 7, record.getValidtime());
+        setTimeStamp(updateStatement, 8, record.getBasistime());
+        setDouble(updateStatement, 9, record.getValue());
+        setDouble(updateStatement, 10, record.getSuppl_value());
+        setString(updateStatement, 11, record.getShef_qual_code());
+        setInt(updateStatement, 12, record.getQuality_code());
+        setShort(updateStatement, 13, record.getRevision());
+        setString(updateStatement, 14, record.getProduct_id());
+        setTimeStamp(updateStatement, 15, record.getProducttime());
+        setTimeStamp(updateStatement, 16, record.getPostingtime());
+        setTimeStamp(updateStatement, 17, record.getAction_time());
+        setString(updateStatement, 18, record.getAa_categ());
+        setString(updateStatement, 19, record.getAa_check());
+        // get the number of records processed by the update
+        returnCode = updateStatement.executeUpdate();
+
+        return returnCode;
+
+    } // end of updateRecord method
+
+//-----------------------------------------------------------------
+//  delete() - this method is called with a where clause and returns
+//                   the number of records deleted
+//-----------------------------------------------------------------
+    public int delete(AlertAlarmValRecord record) throws SQLException
+    {
+        int returnCode=-999;
+
+        // Create a SQL delete statement and issue it
+        // construct the delete statement
+        String deleteStatement = "DELETE FROM alertalarmval " + record.getWhereString();
+
+        // get the number of records processed by the delete
+        returnCode = getStatement().executeUpdate(deleteStatement);
+
+        return returnCode;
+    } // end of delete method 
+
+//-----------------------------------------------------------------
+//  update() - this method is called with a AlertAlarmValRecord object and a where clause..
+//-----------------------------------------------------------------
+    public int update(AlertAlarmValRecord oldRecord, AlertAlarmValRecord newRecord)  throws SQLException
+    {
+        int returnCode=-999;
+        // Create a SQL update statement and issue it
+        // construct the update statement
+        PreparedStatement updateStatement = getConnection().prepareStatement(
+" UPDATE alertalarmval SET lid = ?, pe = ?, dur = ?, ts = ?, extremum = ?, probability = ?, validtime = ?, basistime = ?, value = ?, suppl_value = ?, shef_qual_code = ?, quality_code = ?, revision = ?, product_id = ?, producttime = ?, postingtime = ?, action_time = ?, aa_categ = ?, aa_check = ?        " + oldRecord.getWhereString() );
+
+        setString(updateStatement, 1, newRecord.getLid());
+        setString(updateStatement, 2, newRecord.getPe());
+        setShort(updateStatement, 3, newRecord.getDur());
+        setString(updateStatement, 4, newRecord.getTs());
+        setString(updateStatement, 5, newRecord.getExtremum());
+        setReal(updateStatement, 6, newRecord.getProbability());
+        setTimeStamp(updateStatement, 7, newRecord.getValidtime());
+        setTimeStamp(updateStatement, 8, newRecord.getBasistime());
+        setDouble(updateStatement, 9, newRecord.getValue());
+        setDouble(updateStatement, 10, newRecord.getSuppl_value());
+        setString(updateStatement, 11, newRecord.getShef_qual_code());
+        setInt(updateStatement, 12, newRecord.getQuality_code());
+        setShort(updateStatement, 13, newRecord.getRevision());
+        setString(updateStatement, 14, newRecord.getProduct_id());
+        setTimeStamp(updateStatement, 15, newRecord.getProducttime());
+        setTimeStamp(updateStatement, 16, newRecord.getPostingtime());
+        setTimeStamp(updateStatement, 17, newRecord.getAction_time());
+        setString(updateStatement, 18, newRecord.getAa_categ());
+        setString(updateStatement, 19, newRecord.getAa_check());
+        // get the number of records processed by the update
+        returnCode = updateStatement.executeUpdate();
+
+        return returnCode;
+
+    } // end of updateRecord method
+
+//-----------------------------------------------------------------
+//  insertOrUpdate() - this method is call with a AlertAlarmValRecord object.
+//                   the number of records inserted or updated
+//-----------------------------------------------------------------
+    public int insertOrUpdate(AlertAlarmValRecord record) throws SQLException
+    {
+        int returnCode=-999;
+        List recordList = select(record.getWhereString());
+
+        if (recordList.size() < 1)
+        {
+            returnCode = insert(record);
+        }
+        else
+        {
+            AlertAlarmValRecord oldRecord = (AlertAlarmValRecord) recordList.get(0);
+            returnCode = update(oldRecord, record);
+        }
+        return returnCode;
+    } // end of insertOrUpdate() 
+} // end of AlertAlarmValTable class

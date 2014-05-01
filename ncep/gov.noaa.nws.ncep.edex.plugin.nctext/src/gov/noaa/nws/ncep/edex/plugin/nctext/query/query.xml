@@ -1,0 +1,45 @@
+<!-- ==================================================================== -->
+<!-- NCTEXT query ingest file formats                            		  -->
+<!-- 		                                                              -->
+<!--	<Wmoid>TTAAii</Wmoid>											  -->
+<!--	<Awipsid>NNNXXX</Awipsid>										  -->
+<!--	<Datauri>/nc_ext/YYYY-MM-DD hh:mm:ss/TTAAii/CCCC/NNNXXX/Z..Z/n</Datauri> -->
+<!--  	<BBB>AAA</BBB>														  -->
+<!--	<Producttype>Z..Z</Producttype>								      -->
+<!--	<Issuesite>CCCC</Issuesite>										  -->
+<!--	<Issuetime>YYYY-MM-DD hh:mm:ss</Issuetime>						  -->
+<!--    <Timerange>YYYY-MM-DD hh:mm:ss@YYYY-MM-DD hh:mm:ss</Timerange>	  -->
+<!--	<Id>N..N</Id>													  -->
+<!--       Note: n in Datauri stands for record id; 					  -->
+<!--		     Datauri and Issuetime should have exact format           -->
+<!--		     Wmoid, Awipsid, Producttype, Issuesite, Id value size is variable -->
+<!--			 Timerange with "startime@endtime" format				  -->
+<!--																	  -->
+<!		  Rule:															  -->
+<!--			1.Query with Id or Datauri can not combine with others	  -->
+<!--			2.Query with Wmoid, Awipsid, Producttype, Issuesite, BBB  -->
+<!--			  can combine with each others							  -->
+<!-- 			3.Query with Wmoid, Awipsid, Producttype, Issuesite, BBB  -->
+<!--			  can combine with either Issuetime or Timerange		  -->
+<!--			4.Query with either Issuetime or Timerange, but can not   -->
+<!--			  combine these two. 									  -->
+<!--			5.There is no space allowed between <keyword>value</keyword> -->
+<!--		    6.There is no space allowed between <keyword></keyword>, if no value used-->
+<!--			7.Query precedence order are Id, Datauri, Issuetime, Timerange, and rest. -->													  -->
+<!--																	  -->
+<!-- File History:                                                        -->
+<!--  Date:     Ticket     Engineer      Description                      -->
+<!--  ========= =========  ============  ==============================   -->
+<!--  11/5/09     TBD       Chin Chen   Initial Creation                  -->
+<!-- ==================================================================== -->
+<query>
+	<Wmoid></Wmoid>
+	<Awipsid></Awipsid>
+	<Datauri></Datauri>	
+	<BBB></BBB>	
+	<Product></Product>
+	<Issuesite></Issuesite>
+	<Issuetime></Issuetime>
+	<Timerange></Timerange>
+	<Id></Id>
+</query>

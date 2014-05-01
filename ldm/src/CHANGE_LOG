@@ -1,0 +1,1494 @@
+6.8.0
+	Installation:
+	    The ldmadmin(1) configuration-file is copied, read, and
+	    rewritten with additional user-configurable parameters.
+
+	LDM Server (rpc.ldmd):
+	    Improved vetting (i.e., access-checking) of a client to
+	    prevent delays due to a time-out on the reverse DNS lookup,
+	    which is used to convert the client IP address into a
+	    hostname:
+		Moved vetting from the LDM server before fork(2)ing a
+		child process to the fork(2)ed child process.
+
+		Made vetting a two-phase procedure: first with the
+		client IP address and then, if and only if that fails,
+		with the client hostname.
+
+	    Added the new option "-M max_clients" (default: 256).
+
+	ldmadmin(1):
+	    Program:
+		Added the ability to check the accuracy of the system
+		clock.  This new ability is highly user-configurable.
+		The defaults are to check the clock but not to abort if
+		it's off by too much.
+
+		Added removal of product-information (~/.*.info) files
+		to the "delqueue" command if "$deleteInfoFiles" is true
+		in the ldmadmin(1) configuration-file.
+
+		Added the new option "-M max_clients".
+
+		Added the new commands "printmetrics", "addmetrics", and
+		"plotmetrics".
+
+		Moved variables "$os" and "$release" to the
+		configuration-file.
+
+		Added the error message "Uknown command: ".
+
+		Removed printing of "ldmadmin" from "ldmadmin usage" output.
+
+	    Configuration-file (ldmadmin-pl.conf):
+		Improved internal documentation and layout.
+
+		Added many new variables.
+
+	    Manual-Page:
+		Documented LDM configuration-file argument.
+
+		Added "-C" and "-x" options.
+
+		Rearranged options alphabetically.
+
+	scour(1):
+	    Added the prefix "scour: " to log messages.
+
+	scripts/plotMetrics:
+	    Created this script for plotting the accumulated output of
+	    "ldmadmin addmetrics".
+
+6.7.1	(was 6.7.1.1) 2009-06-19
+	Installation:
+	    Modified the rule for making the RPC library so that it
+	    always adds the object modules because they weren't always
+	    added to the LDM library on a very fast Linux
+	    2.6.26.6-79.fc9.x86_64 system.
+
+	    Added printing of system logging daemon PID file to
+	    configure(1) script output.
+
+	    Improved configure(1) help message.
+
+	ldmadmin(1):
+	    Modified "ldmadmin pqactHUP".  In general, it now restricts
+	    its search for pqact(1) processes to those owned by the
+	    user.  This should only affect sites running multiple
+	    pqact(1)-using LDMs on the same host.
+
+	rpc.ldmd(1) (LDM server):
+	    Improved handling of "EXEC pqact..." entries in the LDM
+	    configuration-file that have trailing whitespace by the
+	    ldmadmin(1) script.
+
+	    Improved ldmd(1) manual-page.
+
+	Downstream LDM:
+	    Fixed bug in downstream-LDM code when it receives a
+	    data-product that is larger than the largest data-product
+	    that the product-queue can hold.  Before, the downstream-LDM
+	    process would terminate; now it emits an error-level log
+	    message and continues.  (Thanks AWC).
+
+	pqact(1):
+	    Fixed a bug in pqact(1) that caused it to receive a
+	    segmentation fault (SIGSEGV) when an action-entry matched
+	    the dummy "_BEGIN_" data-product.  Thanks Chuck.
+
+	    Promoted "timed-out" message from pqact(1) PIPE action from
+	    WARN to ERROR.
+
+	pqinsert(1):
+	    Added "-i" option to synopsis section of pqinsert(1)
+	    man(1)-page.
+
+	Misc:
+	    Modified manual-pages to automatically indicate the time of
+	    last modification and put options in alphabetical order.
+
+6.7.0	(was 6.7.0.7) 2008-10-09
+	Installation:
+	    Added rpcgen(1) output to distribution (e.g., ldm6_clnt.c,
+	    ldm_xdr.c) and removed unconditional use of rpcgen(1) from
+	    makefiles.  This was done because rpcgen(1) on a Mac OS/X
+	    10.5.1 (Darwin 9.1.1) system generates output that's
+	    incompatible with the "rpc" subpackage.
+
+	    Slightly modified the configure(1) script to work around
+	    non-standard tr(1) utilities.
+
+	    Added the typedef "prod_class_t" to the header-file "ldm.h"
+	    and changed all code and documentation to use it instead of
+	    the typedef "prod_class".  This was done to allow "ldm.h" to
+	    be processed by a C++ compiler.  The typedef "prod_class"
+	    still exists for backward compatibility -- though it is no
+	    longer used in the code.  Both C and C++ programmers should
+	    now use "prod_class_t" instead of "prod_class".
+
+	    Added "typedef" for "rpc_inline_t" to "rpc/types.h" to
+	    support output of rpcgen(1) on SunOS 5.11 systems.
+
+	    Ported to Fedora 8.  The log file of the system log daemon
+	    is "/var/run/rsyslogd.pid".
+
+	    Ported to Darwin 9: corrected misdefinition of OPEN_MAX as
+	    10240 by ensuring that the XOPEN_SOURCE and
+	    XOPEN_SOURCE_EXTENDED macros are defined on that platform.
+
+	Feedtypes:
+	    Changed the primary name of the FT27 feedtype from "NNEXRAD"
+	    to "NEXRAD3" to accomodate such data regardless of source.
+	    "NNEXRAD" is an understood alias for that feedtype.
+
+	ldmadmin(1):
+	    Added checking of LDM configuration-file syntax to "start"
+	    command.
+
+	    Modified the "pqactcheck" command.  By default, it now
+	    checks the syntax of every pqact(1) configuration-file that
+	    is associated with an EXEC entry for pqact(1) in the LDM
+	    configuration-file.  LDM configuration-file entries like
+	    "EXEC pqact -f CONDUIT" (i.e., with options but with no
+	    explicit configuration-file) are correctly handled.
+
+	    Changed the default size of the product-queue from 400
+	    megabytes to 500 megabytes.
+
+	    Changed setting of PATH environment variable in ldmadmin(1)
+	    script to use $bin_path and $PATH only.
+
+	    Added initialization of local variables to functions in the
+	    ldmadmin(1) script to accomodate Perl interpreters that no
+	    longer perform default initialization.
+
+	rpc.ldmd(1) (LDM server): 
+	    Adapted parsing of timestamps in .*.info files to Darwin 9.1.1: 
+	    replaced use of strptime() with sscanf() (strptime() conversion
+	    specification must be separated by non-alphanumeric characters).
+
+	pqact(1):
+	    Made each decoder its own process-group leader.  This should
+	    improve the performance of decoders like GEMPAK's
+	    dcgrib2(1).
+
+	    Added "-metadata" and "-nodata" options to the PIPE action
+	    of pqact(1).
+
+	    Changed behavior if a corrupt state-file is read.  Before,
+	    the process would exit.  Now, it continues with the most
+	    recent data-product (same as if the state-file didn't
+	    exist).
+
+	    Adapted pqsurf(1) to handle multiple BOYC reports in
+	    composite SHIP bulletins.
+
+	    Added code to the parser of feedtype expressions to prevent
+	    an infinite loop upon encountering two consecutive UNION (|)
+	    operators.
+
+	pq(3):
+	    Removed retry attempt from write-locking fcntl() call in
+	    file "pq/pq.c" because only fatal signals could occur.
+
+	Misc:
+	    Improved some log messages.
+
+	    Slightly improved rtstats(1) man-page.
+
+6.6.5	(was 6.6.5.11)	2007-06-19
+	Corrected the "pqact" utility's determination of the month
+	associated with a data-product from the creation-time of the
+	data-product and the day-of-the-month field in the
+	product-identifier.  This modification is tested extensively by
+	executing the command "make check" in the pqact/ subdirectory.
+
+	Removed extraneous carriage returns from file
+	pqact/wmo_header.c.
+
+6.6.4	(was 6.6.4.2)	2007-05-17
+	Modified the function surf_split() in the "pqsurf" program so
+	that it uses a dynamically allocated buffer instead of a
+	statically allocated one.  This means that "pqsurf" can now
+	handle arbitrarily large composite bulletins.
+
+	Fixed (for the last time!) the "pqact" utility's determination
+	of the month associated with a data-product from the
+	creation-time of the data-product and the day-of-the-month field
+	in the product-identifier.
+
+	Changed the behavior of a downstream LDM upon reception of a
+	COMINGSOON message whose data-product has zero length.  Before,
+	this would cause the downstream LDM to exit; now the
+	data-product is simply rejected.  Both LDM-6 and LDM-5 code were
+	modified.
+
+	Improved the performance of the "scour" utility.
+
+	Added a call to exitIfDone() after the call to pq_sequence() in
+	file "up6.c".
+
+6.6.3	(was 6.6.3.1)	2007-04-06
+	Corrected command that removes old ".*.info" files from the LDM
+	user's home-directory in the "ldmadmin" script.  The "-prune"
+	option wasn't preventing the "find" process from descending into
+	subdirectories.
+
+	Modified algorithm that determines when an upstream LDM should
+	flush the connection to its downstream LDM.  The modification of
+	the algorithm introduced in version 6.6.1 appears to not flush
+	the connection often enough --- resulting in bursts of data
+	which can cause problems (e.g., the ORPG apparently has problems
+	keeping up with bursts of NEXRAD Level II data).  The modified
+	algorithm will flush the connection the first time the end of
+	the queue is hit and every 30 seconds thereafter if no relevant
+	data is added to the queue.
+
+6.6.2	(was 6.6.2.2)	2007-03-22
+	Corrected (again) the "pqact" utility's determination of the
+	month associated with a data-product from the creation-time of
+	the data-product and the day-of-the-month field in the
+	product-identifier.  This is the primary reason for this
+	release.
+
+	Added "-prune" option to execution of "find" in "ldmadmin" when
+	removing old ".*.info" files from the LDM user's home directory.
+
+	Corrected the logic behind an upstream LDM sending something (at
+	least a NULLPROC) every 30 seconds.
+
+6.6.1	(was 6.6.1.0) 2007-03-13
+	Demoted the "Exiting" message from "rpc.ldmd" from log-level
+	NOTE to log-level INFO unless it's in response to a TERM signal
+	(such as by "ldmadmin stop").
+
+	Modified the "flushing" algorithm of an upstream LDM.  It used
+	to flush the connection more often than every 30 seconds; now it
+	flushes the connection no more often than every 30 seconds.
+
+6.6.0	2007-03-07
+	Added a persistent-state file for a downstream LDM.  This file
+	saves the metadata of the last, successfully-received
+	data-product so that the next downstream LDM process that
+	requests the same data from the same source can start where the
+	previous process stopped.  The files reside in the LDM user's
+	home-directory and have the pattern ".*.info".  This increases
+	the startup performance of a downstream LDM and will greatly
+	benefit LDM's with many REQUEST entries.
+
+	Changed format of distribution file from ".tar.Z" to ".tar.gz"
+	because the "compress" utility is not available on my
+	development workstation (due to IP restrictions) and the (now
+	necessary) "gunzip" utility appears to be ubiquitous.
+
+	Corrected the "pqact" utility's determination of the month
+	associated with a data-product from the creation-time of
+	the data-product and the day-of-the-month field in the
+	product-identifier.
+
+6.5.1	(was 6.5.1.5) 2007-02-23
+	Improved LDM performance:
+	    Of downstream process during startup by changing product-queue
+	    access-mode from writing to readonly when searching backwards
+	    for matching product to avoid file write-locking contention.
+
+	    Of upstream process during termination by
+		Adding potential termination point to each data-product
+		during initial backward search of the product-queue.
+
+		Closing downstream connection upon receipt of SIGTERM.
+
+	    Of downstream process during termination by closing downstream
+	    connection upon receipt of SIGTERM.
+
+	Modified the "pqact" utility:
+	    Corrected behavior of the "-overwrite" option of the FILE
+	    and STDIOFILE actions.
+
+	    Ensured proper behavior of the "-log" option of the FILE
+	    and STDIOFILE actions regardless of operating-system.
+
+6.5.0	(was 6.5.0.4)
+	Modified top-level LDM server:
+	    1.  Replaced sending of SIGINT to process-group with sending
+		of SIGTERM because that allows for a cleaner shutdown of
+		pqact(1) processes.  This *shouldn't* affect decoders
+		because they've always been required to terminate upon
+		reception of either a SIGTERM or SIGINT.  You might
+		check your decoders, however.
+
+	    2.  Added the ability for the configuration-file to have
+	    	"include" statements.
+
+	Made all LDM programs safer in the face of asynchronous
+	termination signals (SIGTERM) by eliminating calls to unsafe
+	functions by signal handlers and correcting responses to
+	SIGTERM.  The LDM server and its child processes will now
+	respond synchronously to a SIGTERM rather than in an unsafe,
+	asynchronous manner.  This makes termination of a running LDM
+	system take longer (have patience), but greatly reduces the risk
+	of mysterious crashes.
+
+	Modified pqact(1) utility:
+	    1.  Added saving of the insertion-time of the last
+		successfully-processed data-product in a file
+		whose pathname is that of the configuration-file
+		with ".state" appended.  This allows the pqact(1)
+		process in a subsequent LDM session that uses the same
+		configuration-file to start processing where the previous
+		one left-off (it logs this fact).
+
+		This means that one pqact(1) process, at most, should
+		execute any pqact(1) configuration-file.
+
+	    2.  Added "-log" option to FILE and STDIOFILE actions.
+		This option will cause the pathname and product-
+		identifier to be logged at the NOTICE level.
+
+	    3.  Added logging of warning message when the oldest product
+		in the product-queue is processed.
+
+	    4.  Modified error-message logged with a child process
+		terminates.  If the child process was stated via an EXEC
+		entry in the LDM configuration-file, then the command-line
+		is appended to the error-message to identify the entry.
+
+	    5.  Added printing of the command-line of decoders that do not
+		read from standard input quickly enough to log message.
+		This should ease the identification of slow decoders.
+
+	    6.  Increased the number of arguments in a PIPE command from
+		15 to _POSIX_ARG_MAX/2 (2048).
+
+	    7.  Modified algorithm for determining the canonical time of
+	    	a WMO data-product from the day-of-month component in the
+		product-identifier.  It now assigns the data-product to
+		the previous month if and only if the canonical time of
+		the data-product is one or more days in the future (as
+		determined by the creation-time of the data-product and
+		the day-of-month component in the product-identifier).
+		This should eliminate the problem of old, retransmitted
+		WMO data-products being assigned to a future time.
+
+	Added "-i" option to pqinsert(1).  This option causes the MD5
+	signature to be computed from the product-identifier rather than
+	from the product's data.  This will greatly increase the rate
+	at which large data-products can be inserted but requires that
+	the product-identifier be unique.
+
+	Modified behavior of product-queue module:
+	    Modified pq_setCursorFromSignature(3) in file "pq/pq.c".
+	    It used to find the data-product with the given signature
+	    by searching forward in the time-map from just before the
+	    creation-time of the target data-product until it either
+	    found a time-map entry whose signature matched or until
+	    the data-products appeared to come from the same source but
+	    were created one minute later.  Now it searches forward in
+	    the time-map from the same starting point until it finds
+	    an entry whose offset to the data region equals that of
+	    the signature-map entry.  If no entry is found, then a
+	    second search is made starting from the beginning of the
+	    product-queue up to the starting point of the first search.
+	    This second search is much more time-consuming but will find
+	    data-products whose creation-time is, otherwise, too far in
+	    the future (relative to the local system clock).  This should
+	    fix Art Person's problem of not finding the "signature"
+	    data-product during a reconnection by a downstream LDM
+	    (JIG-686458).
+
+	    Added warning-level log message to pq_insert(3) about
+	    data-products that are created sufficiently far in the
+	    future (see the previous paragraph) to cause problems during
+	    reconnection.  Only one such message will be logged per hour
+	    per ingest host.  In this day and age, any computer that's
+	    connected to the Internet can easily have an accurate system
+	    clock -- and that's been an explicit requirement for proper
+	    operation of the LDM from the beginning.
+
+        Fixed bug in upstream LDM that could cause it to skip over
+        data-products.  The bug was due to the way an upstream LDM
+        processed a request with an encoded signature.  The LDM would
+        adjust the "from" time of the request to the insertion time of
+        the associated product, if found.  Under sufficient latency
+        conditions, the insertion time would be after the creation-
+        time of the next products that should be sent and the products
+        would be filtered-out.  The correction involves removing the
+        adjustment but still setting the product-queue cursor based on
+        the signature product.
+
+        Improved downstream LDM.  Removed from a reconnection attempt
+        the setting of the metadata of the last successfully-received
+        data-product from a search of the product-queue if the number of
+        downstream LDM was two or more.  This was mistakenly introduced
+	in version 6.4.5.
+
+	Modified "log_log(3)" and "err_log(3)" so that they print error-
+	messages using a "%s" format instead of passing them directly to
+	ulog(3) because the messages might contain formatting characters
+	(e.g., "%" from, for example, a product-identifier).  This will
+	prevent upstream and downsteam LDM-s from crashing when printing
+	a product-identifier that contains a "%".  (Thanks Harry.)
+
+6.4.6	(was 6.4.6.5)	2006-10-19
+	Improved error-message from readtcp() in the svc_tcp module
+	when a select() on the socket times-out.
+
+        Modified ldmadmin(1) script to allow a zero argument to the
+	offset option (-o).
+
+        Corrected behavior of the "-overwrite" option in pqact(1)'s FILE
+        and STDIOFILE actions.  Before, data-products would always be
+        appended unless the file was closed -- either explicitly via the
+        "close" option or implicitly (and unpredictably) if pqact(1) ran
+        out of file descriptors.  Now, both those actions always start
+        writing from the beginning of the file.
+
+	Corrected "-P port" option for ldmsend(1).  The option affected
+	an LDM 6 connection but not an LDM 5 connection.  Now it does.
+
+	Renamed the type "error_t" to "ErrorObj" to avoid a legitimate 
+	name-conflict with system headers.
+
+        Modified pq_del_oldest(3)) function so that it releases the data
+        region if the signature isn't found in the signature-list.  This
+        should have little, practical effect because the result of not
+        finding the signature entry is, ultimately, to terminate the
+        downstream LDM (once the queue is corrupt, it's a little late to
+        ensure consistency -- still, the code is better).
+
+        Modified vulog(3) function.  Because it calls functions that are
+        unsafe in the presence of asynchronous signals (e.g., SIGCHLD),
+        it now blocks most signals during its execution.  This should 
+	prevent a SIGSEGV from occuring when inside the strftime(3) 
+	function when a SIGCHLD is received.
+
+	Changed error-message "Terminating due to LDM failure..." to 
+	"Disconnecting due to LDM failure..." to improve accuracy.
+
+	Moved initialization of autoshift module to accomodate incoming 
+	HIYA connections that start sending data-products regardless of
+	a RECLASS reply.  This solves a problem receiving data from WSI.
+
+	Corrected ulog/log module (it only printed the first message).
+
+	Cosmetic changes to "ulog/log" module.
+
+	Committed previous-version changes to RPC library so that 
+	they will actually appear in a distribution.
+
+	pqexpire:
+	    Enabled "make tags".
+	    Added internal commentary to code.
+
+        In an attempt to solve Robert Mullenax's problem of the upstream
+        connection being closed for no apparent reason (see AET-991057)
+        the "ulog/log" module was created to accumulate log-messages
+        and some logging was added to the "rpc/svc_tcp" module.  This
+        modification might have the added benefit of preventing a
+        downstream LDM from receiving a SIGSEGV under very rare
+        circumstances when the RPC layer closes the connection due to a
+        fault (basically, svc_destroy(SVCXPRT*) was being called twice
+        on the same transport).
+
+6.4.5	(was 6.4.5.5)	2006-03-03
+        Corrected behavior of downstream LDM when upstream host no
+        longer is has the IP address that was used to establish the
+        connection.  The downstream LDM now first verifies that
+        the IP address of the upstream host has not changed when
+        verifying that the upstream LDM is still alive after not
+        receiving anything for 60 seconds.  This detects problems
+        arising from the upstream host being assigned a different IP
+        address by its Internet Service Provider upon reconnection
+        to the Internet by the upstream host (e.g., the UCAR HAIPER
+        airplane).  Added misc/inetutil/hostHasIpAddress() and modified
+        server/requester6/is_upstream_alive() to use it.
+
+        Rationalized forward and reverse hostname resolution:
+        modified most code to use one of misc/inetutil/hostbyaddr(),
+        misc/inetutil/addrbyhost(), or misc/inetutil/hostHasIpAddress.
+        Added logging of excessive time-usage to those functions to
+        notify user of, for example, an LDM server that's hanging trying
+        to resolve an IP address into a hostname.  This is particularly
+        important for LDM-s to which many rstats(1) connect.
+
+        Modified the downstream LDM code so that it closes any
+        connection to the network host database after an unsuccessful
+        connection attempt.  This allows DNS updates to have an effect
+        on a running downstream LDM.
+
+        Modified when a downstream LDM process searches backwards
+        through the product-queue for the most recent data-product that
+        matches the product-class.  It now does it only once if it's the
+        only downstream LDM process that will request the data.  This
+	greatly reduces the load that a downstream LDM puts on the CPU
+	when it can't connect to the upstream LDM.
+
+        Corrected checking of saved product-information by a downstream
+        LDM if the number of hosts sending the same products is two or
+        more.  This should decrease the rate of transfer-mode switching.
+
+        Changed the identifier used in ulog(3) messages: the remote
+        hostname portion is no longer truncated after the first
+        component of the fully-qualified hostname.  The maximum length
+        of the identifier is still 32 characters.  This should make
+        interpretation of log messages easier.
+
+	Stopped ldmping(1) and pqcheck(1) from writing into log file
+	when executing "ldmadmin start" and "ldmadmin stop".
+
+	Modified rtstats(1) so that it can report more than 2^32 bytes
+	of received data.
+
+        Fixed "ldmadmin pqactHUP" for Mac OS X by adding "Darwin" to
+        known operating-systems for executing ps(1) in order to find the
+        pqact(1) PIDs (thanks to Dave Dempsey).
+
+        Modified mkdirs_open() so that it doesn't error-return if the
+        directory to be created exists (it might just have been created
+        by another pqact(1) process).  This eliminates a race condition
+        between two pqact(1) processes trying to write to the same
+        output directory.
+
+        Removed an assert(n > 0) call in pq/pq.c that was responsible
+        for an upstream LDM crashing in the unlikely event that the
+        first four bytes of a data-product's signature were all zero
+	(2^32 to 1, against).
+
+	Demoted "feed or notify failure; ..." message from level ERROR
+	to level NOTICE because it's now expected for an autoshifting
+	downstream LDM.
+
+	Corrected test of strdup() result in parser for LDM 
+	configuration-file.
+
+	Modified pqinsert(1) so that it exits with a non-zero status if
+	something went wrong inserting a file into the product-queue.
+
+        Corrected ldmping(1).  It now correctly interprests hostnames
+        that start with a digit (e.g., "600644362.tssmob.net") rather
+        than assuming the hostname is an IP address in "dotted-quad"
+        format.
+
+6.4.4	(was 6.4.4.0)	2005-12-01
+
+        Eliminated ERROR-level logging by the pqact(1) utility of
+        the extraneous messages that start with "pbuf_flush (fd)
+        write: Broken pipe" by returning removal of the relevant
+        file-list entry to the reap() function, when appropriate.  This
+        bug was introduced by the modification to pqact(1)'s logging in
+        version 6.4.3.
+
+6.4.3	(was 6.4.3.2)	2005-11-08
+	Added support for 4 GB product-queues on 32-bit systems running
+	Free BSD 4.
+
+	Modfied product-queue module: it now memory-maps the entire 
+	product-queue if possible and allowed based on a runtime 
+	determination (rather than a configuration-time one).
+
+        Modified pqact(1): it will now print the command-string of a
+        PIPE child process (if available) when the child process is
+        stopped or terminated by a signal or when the child terminates
+        normally but with an error status.  The command-string won't
+        be available if the child process terminates due to pqact(1)'s
+        closing of the pipe.
+
+	Modified logging module, ulog(3):
+            Replaced use of vsprintf(3) with vsnprintf(3) to eliminate
+            risk of buffer overflow.
+
+	    Rewrote vulog():
+		Eliminated fork()ing in writing to console when regular
+		logging fails because of reports of hanging, downstream
+		LDM.  See <http://www.unidata.ucar.edu/support/help/MailArchives/ldm/msg04324.html>.
+
+                Restructured code, removed superfluous code, and
+		combined common code.
+
+	    Removed some lint(1).
+
+        Corrected use of PATH_MAX in pqact/filel.c, which incorrectly
+        assumed that the terminating NUL wasn't counted.
+
+	Removed superfluous set_abbr_ident() from "up6" module.
+
+	Changed URL "my.unidata.ucar.edu/content" to 
+	"www.unidata.ucar.edu" wherever found.
+
+6.4.2	(was 6.4.2.5)
+    Bug Fixes:
+
+        Downstream LDM:
+
+            Fixed bug in "DownHelp" module that caused a downstream LDM
+            5 resulting from a HIYA message to terminate normally with
+            an error status when it received the first data-product.
+
+        pqact(1):
+
+            Fixed bug described in
+
+                http://www.unidata.ucar.edu/support/help/MailArchives/ldm/msg04238.html.
+
+            by improving how pqact(1) manages its file descriptors.
+            File descriptors are now reserved for stdin, stdout,
+            stderr, the configuration-file, the product-queue, and
+            (possibly) logging.  Stdin and stdout are redirected to
+            /dev/null at startup to prevent problems with miscoded child
+            programs.  Stderr is redirected to /dev/null if logging
+            isn't to stderr.  Most other file descriptors are set to
+            close-on-exec.
+
+        scour(1):
+
+            Fixed a bug in scour(1) that caused it to output extraneous
+            error-messages about not being able to read (irrelevant)
+            directories.  The fix involved simplifying the use of the
+            find(1) command.
+
+        feedme(1):
+
+            Fixed program feedme(1) -- which didn't work -- by adding
+            use of module xdr_data.
+
+    Non-Bug-Fix Improvements:
+
+        General:
+
+            Modified module xdr_data.  Changed implementation and API to
+            allow programs like feedme(1) to allocate less memory.
+
+            Removed some lint(1).
+
+        rpc.ldmd(1):
+
+            Added calls to prctl() on Linux systems to allow the LDM
+            program (rpc.ldmd) to dump a core-file.
+
+            Modified LDM server to use new "xdr_data" API.
+
+        Downstream LDM:
+
+            Cleaned-up code for determining the acceptable class of
+            products from the product-class of a HIYA message and the
+            ACCEPT entries in the LDM configuration-file.
+
+            Modified "down6" module of downstream LDM system.  Renamed
+            down6_new() to down6_init() and made it callable multiple
+            times.  Changed handling of uninitialized module from
+            assert()ion failure to error-code return.  Modified clients
+            of down6 module accordingly.
+
+        pqact(1):
+
+            Improved efficiency of writing to a pipe by increasing the
+            size of the pipe-buffer from _POSIX_PIPE_BUF (512) bytes to
+            PIPE_BUF bytes on systems that define PIPE_BUF.
+
+            Modified message logged when it takes longer than one second
+            to flush a pipe: improved wording and reduced logging-level
+            from ERROR to WARNING.
+
+6.4.1
+	Installation:
+
+            Bracketed _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED
+            in "config/ldmconfig.h" with "#ifndef" to accomodate
+            compilation environments that define those macros (contrary
+            to the standard).
+
+	Downsteam LDM 6:
+
+            Fixed bug in handling of ACCEPT connections that caused
+            the downstream LDM to crash by adding initialization of
+            autoshift module in response to HIYA message.
+
+6.4.0
+	rpc.ldmd:
+
+	    Server:
+
+                Added ability to use different port than well-known LDM
+                port, 388:
+
+                    Default LDM port can be set when package is built.
+
+                    LDM port on which server will listen can be set when
+                    server is executed.
+
+                    Upstream port to which downstream LDM connects can
+                    be set in associated REQUEST entry.
+
+	    Downstream LDM 6:
+
+		Behavior:
+
+                    Reject every data-product that is older than
+                    "max_latency" seconds -- regardless of arrival mode
+                    (HEREIS or COMINGSOON/BLKDATA).
+
+                    Added ability to encode MD5 signature of last,
+                    successfully-received data-product in FEEDME
+                    product-class specification when connecting to
+                    upstream LDM-6.  Should prevent skipping of
+                    data-products that arrive at upstream LDM-6 out of
+                    temporal order.
+
+                    Added the ability of downstream LDM to automatically
+                    adjust transfer-mode of feed (primary vs. secondary)
+                    based on success of inserting data-products into
+                    product-queue.
+
+                    Replaced adjustment of product-class
+                    specification in FEEDME request based on last
+                    successfully-received data-product with similar
+                    adjustment based on most recent data-product in
+                    queue that matches specification.  Allows input from
+                    other downstream LDM-s.
+
+                    Changed way data-products are accumulated when
+                    received via COMINSOON and BLKDATA messages.  They
+                    are now fully received before any attempt is made to
+                    insert them into product-queue.
+
+                Performance:
+
+                    Reduced CPU utilization by about 75 percent by
+                    creating new RPC library function, svc_getreqsock(3)
+                    and using it.
+
+                    Increased size of queue for connection requests
+                    in LDM server from 2 to 32.  Should ameliorate
+                    connection problems that occur due to large number
+                    of connection attempts in short time.
+
+	    Upstream LDM 6:
+
+                Added "upstream" filtering.  An upstream LDM can now
+                filter data-products based the product-identifier and
+                regular-expression in the LDM configuration-file.
+
+	pqact(1):
+
+            Added ability to "back reference" more than nine
+            subexpressions in string-replacement section of pqact(1)
+            actions.  Now, for example, string "\(12)" in that section
+            references twelfth subexpression of regular-expression.
+
+	scour(1):
+
+            Added blank line to top of scour(1) script to allow user's
+            with non-conforming shell to execute script directly.
+
+	rtstats(1):
+
+            Default feedtype returned to ANY from ANY-EXP.
+
+            Pseudo-random amount of time added to reporting interval to
+            prevent convergence of TCP connections.
+
+	Logging:
+
+            Removed "<file>@<line>" field from "error" module log
+            messages unless logging-level is DEBUG.
+
+            Log messages are now prefixed with priority-level
+            (e.g., NOTE, INFO).
+
+	    Slightly modified some log messages.
+
+	Portability:
+
+            Replaced use of non-standard C macro EPFNOSUPPORT in rpc(3)
+            subpackage with EAFNOSUPPORT and EPROTONOSUPPORT.  Necessary
+            to support building under Tiger version of MAC OS X.
+
+            Replaced use of non-standard "h_addr" member of "hostent"
+            structure with use of "h_addr_list[0]" to increase
+            portability.
+
+            Added "-lxnet" to LIBS on HP-UX 11 systems when in 64-bit
+	    mode.
+
+6.3.1.0
+	Removed the ldmprods(1) utility from the package because it 
+	uses the *.stats files produced by the (now nonexistant)
+	pqbinstats(1) utility.  User's should use the rtstats(1) utility
+	for reporting statistics.
+
+	*Really* removed pqbinstats(1) directory from the distribution.
+
+	Fixed bug in pqact(1) that prevented decoders from writing to the
+	logfile specified by the "-l" option.
+
+6.3.0		2005-03-18
+        Added "-I ip_addr" option to LDM server.  This allows the
+        user to specify what network interface the server should use
+	and enables
+
+	    1.  Construction of director/server clusters.
+
+            2.  Running two LDM servers on the same host simultaneously.
+
+        Added $ip_addr variable to ldmadmin(1) configuration-file,
+        ldmadmin-pl.conf, and modified ldmadmin(1) accordingly.
+
+	Added "--enable-logging=localn" option to configure(1) script to
+	support the use of a different logging facility and permit the
+	running of two LDM-s simultaneously.
+
+        Removed sending of final statistics from rtstats(1)'s cleanup
+        handler to avoid hanging the program if the remote host is
+        unavailable.
+
+	Added printing of IP address to "ldmadmin config" command.
+
+	Removed "pqbinstats" directory from distribution and eliminated
+	"ldmadmin dostats" command.
+
+	Added "-P port" option to pqing(1) manual-page.
+
+	Added "ulogger" to GARBAGE macro in ulog/Makefile so that the
+	program will be removed by a "make clean" or "make distclean".
+
+	Corrected misspelling in ldmadmin-pl.conf.
+
+	The standard error stream of child processes executed by
+	pqact(1) PIPE actions is directed to "/dev/null" in the child
+	processes if it was closed in the pqact(1) process.
+
+6.2.1		2005-02-18
+        Added "1;" to the end of the ldmadmin(1) configuration-file,
+        ldmadmin-pl.conf, so that setting $log_rotate to zero wouldn't
+        cause the "require" statement in ldmadmin(1) to abort.
+
+	Added RELEASE_NOTES to the source-distribution.
+
+        Modified LDM configuration-file parser to prevent invalid
+	entries like
+
+	    REQUEST IDS/DDPLUS .* host.domain
+
+        from being misinterpreted as requesting data-products of
+        feedtype "IDS" that match the regular-expression "/DDPLUS".
+        Such entries are now detected as being invalid.
+
+        Fixed the (deprecated) command "ldmadmin dostats" by correcting
+        the invocation of the "mailpqstats" utility.
+
+        Fixed extraneous memory-freeing in rtstats(1) that caused
+        SIGABRT on Linux 2.6.10 system if the receiving LDM didn't want
+        the data-products.
+
+6.2.0		2005-02-01
+        Added "rpc" subpackage -- replacing use of the native RPC
+        library -- to work-around a bug in the AIX 5.1 ONC RPC 4.0
+        implementation, which fails when receiving large (~10 MB)
+        RPC messages (i.e., most NIMAGE data wasn't being received).
+
+        Modified product-queue (pq) module:
+
+            Corrected bug in pq(3) module when inserting a data-product
+            that has the same insertion-time as an already existing
+            data-product.  The insertion-time in now incremented by
+            one microsecond to ensure unique keys in the time-map
+            rather than using the byte-offset of the data-product.
+            Hopefully, this will eliminate the rare occurrence in which
+            a data-product is missed by a product-queue reader because
+            it has the same insertion-time as the previous data-product
+            in the product-queue but has a smaller byte-offset.
+
+            Corrected fClr() and fMask() macros in file "pq/fbits.h"
+            so that they correctly handle the case where the "flag"
+            variable is smaller than the variable in question.  This
+            removes a problem creating product-queues with data-sections
+            larger than (2^32)-1 bytes on systems where sizeof(size_t)
+            == 8 and sizeof(unsigned) == 4.
+
+	Made all programs that use regular-expressions convert all
+	externally-specified pathological regular-expressions into
+	non-pathological ones.
+
+	Modified top-level LDM server:
+
+            Removed latent bug that caused file-descriptor table to
+            fill-up -- preventing additional connections -- if fork(2)s
+            failed for a while.
+
+            Corrected bug in LDM configuration-file parser.  The LDM
+            will now log an error-message and terminate if it encounters
+            an invalid feedtype expression.
+
+	Modified downstream (i.e., receiving) LDM:
+
+            Changed the way the "last" data-product creation-time is
+            saved.  Before, the creation-time of the most recently
+            received data-product was used.  Now, that time is used
+            only if it is more recent than the saved time.  This
+            should reduce problems caused by the sequential arrival of
+            data-products with creation-times that are non-monotonic.
+
+            Modified down6_get_last_arrival() to accomodate Gilda's
+	    c89(1).
+
+            Improved error-messages when the LDM can't connect to an
+            upstream LDM.
+
+	Modified programs to reduce artificially-induced latencies:
+
+            Modified the toClients() function in the "pqing" module so
+            that the "arrival" argument is ignored and the creation-time
+            of the data-product is set within the function itself.
+            This should reduce the (apparent) latency on systems doing
+            data-product ingestion.
+
+            Modified the pqinsert(1) utility so that the data-product
+            creation- time is set just prior to inserting the
+            data-product into the product-queue.  This should reduce any
+            (apparent) latency.
+
+        Modified pqact(1).  A configuration-file with no entries is now
+        logged as such rather than as having a syntax error.
+
+        Modified rtstats(1):
+
+            A warning-level error-message is logged if it can't connect
+            to the remote LDM.
+
+            The latency field in the data-product it creates is now
+            formatted "%g" from a floating-point value.
+
+        Modified pqcheck(1).  Added support for logging debug-level
+        messages (-x option).
+
+        Modified scour(1) utility to work-around bug in OSF1's find(1)
+        utility.
+
+	Ensured that all utilities log messages of level LOG_WARNING.
+
+	Modified ldmadmin(1) script:
+
+            Moved the configuration section of ldmadmin(1) into a
+            separate file (etc/ldmadmin-pl.conf).  A consequence of this
+            is that if the environment variable LDMHOME is not set, then
+            $HOME is used.
+
+            Removed setting of UDUNITS_PATH because it doesn't have
+            anything to do with running the LDM.  User's who need this
+            environment variable set in order for the gribtonc(1)
+            decoder to work properly should set it in the profile-file
+            of the LDM user's user-shell.
+
+            Corrected default value of $surf_size variable.  Previous
+            value of "2M" caused command "ldmadmin mksurfqueue" to hang.
+
+            Fixed bug in ldmadmin(1) so that "ldmadmin watch -f
+            'IDS|DDPLUS'" now works.
+
+	    Made "ldmadmin clean" abort if the LDM system is running.
+
+	    Corrected use of "$?".
+
+	    Corrected some error-messages.
+
+	Added scouring of ~ldm/logs/*.stats files to example scour(1)
+	configuration-file.
+
+	Ported package to
+	    
+		Darwin (alias Mac OS X)
+		SunOS 5.10 (alias Solaris 10)
+
+	    The package has poor performance under SunOS 5.10.  Sun is 
+	    investigating.
+
+	Modified configure(1) script:
+
+	    Made the script try to create an LDM system that supports
+	    product-queue sizes up to (2^32)-1 bytes.
+
+            Added "--disable-max-size" option so that the user can
+            ensure that the resulting LDM only supports smaller
+            product-queue sizes (in order to use a previously-existing
+            product-queue, for example).
+
+	    Corrected test for non-socket /dev/log.
+
+            Now augments, rather than replaces, a user-specified
+	    CPPFLAGS.
+
+	Modified makefiles:
+
+	    Modified top-level makefile to get libldm.a(ldm_version.o)
+	    updated when VERSION is modified.
+
+            "make clean" no longer removes *.log files; "make distclean"
+	    does.
+
+        Removed files INSTALL and INSTALL.bin from distribution
+        after moving their information to file README.
+
+	Renamed this file (HISTORY) to CHANGE_LOG.
+
+6.1.0		2004-08-25
+        Modified the product-queue module (pq):
+
+            Made available 4 data-product slots that were, otherwise,
+            unvailable.  This means that the minimum number of empty
+            slots can now go to 0.
+
+            Added a writer-counter variable to the product-queue file.
+            Opening the product-queue for writing increments the on-disk
+            value and closing the product-queue decrements it.  This
+            allows for a fast determination of whether the product-queue
+            was properly closed and, consequently, self-consistent.  As
+            a consequence, the script for starting the LDM system at
+            boot-time has changed significantly (see the pqcheck(1)
+            utility).  Furthermore, ALL INGESTERS MUST BE RELINKED
+            AGAINST THE NEW LDM LIBRARY FOR THE NEW CONSISTENCY-TEST TO
+            BE RELIABLE.
+
+            Creation of a product-queue file now fails if the requested
+            size of the file (which is contained in an "off_t") is too
+            large to be represented by variables of type "size_t".
+
+        Modified the LDM server (rpc.ldmd):
+
+            Modified setting of "from" time in downstream LDM for the
+            data-product selection criteria.  Now, it will not ever
+            request any products that are older than the "time offset"
+            argument of the "-o" option if it was specified or the
+            "maximum latency" argument of the the "-m" option (default 1
+            hour) otherwise.  Before this change, a downstream LDM could
+            request data-products that were much older than this if the
+            upstream LDM was unavailable for a long time.
+
+            Added a 1 second pause before an upstream LDM first starts
+            sending data-products or notifications to a downstream
+            LDM.  This prevents, for example, a HEREIS packet arriving
+            contiguously with a FEEDME reply and works around the poor
+            RPC implementations of some operating systems.
+
+        Modified the pqact(1) utility:
+
+            Added a work-around for the non-conformance of OSF/1
+            regarding the SA_RESTART option of sigaction().  On such
+            an operating-system, a write to a pipe by pqact(1) could
+            be terminated by a signal (e.g., SIGCHLD) causing the
+            data-product to be incompletely processed.
+
+            Increased the maximum number of file descriptors that can
+            be simultaneously open from "32" to something based on the
+            output of "getconf OPEN_MAX".
+
+            Corrected examples in configuration-file (pqact.conf).
+
+        Modified the pqcreate(1) utility: it now interprets the
+        specification of the size of the product-queue by pqcreate(1)
+        differently. Previously, a "K", "M", or "G" suffix would mean
+        "kibi", "mibi", or "gibi" (powers of two nearest 1e3, 1e6, or
+        1e9); now it means "kilo", "mega", or "giga".  This now makes
+        "4000M" equal to "4G", whereas before they were different.
+
+        Modified the ldmadmin(1) script:
+
+            Added the command "restart".
+
+            Added the options "-m maxLatency" and "-o offset" to the
+            "start" command (the "restart" command also has these
+            options).
+
+            Added the variable $pq_slots.  This variable sets the number
+            of data-product slots in the LDM product-queue.
+
+            Modified the interpretation of the specification of the size
+            of the product-queue to be consistent with the pqcreate(1)
+            modification, above.
+
+            Greatly increased the performance of the "ldmadmin
+            queuecheck" command by switching from use of pqcat(1) to use
+            of pqcheck(1).
+
+            Removed the "ps" command because there are just too many
+            ps(1) implementations out there that differ from the UNIX
+            standard and from each other (and the same computer can have
+            incompatible versions).
+
+            The "watch" and "queuecheck" commands now first check that
+            the LDM system is running.
+
+            Added printing of $numlogs and $log_rotate to the "ldmadmin
+            config" command.
+
+        Modified the scour(1) utility:
+
+            Greatly improved performance -- mostly by using xargs(1).
+
+            Removed package-specificity from examples in
+            configuration-file (scour.conf).
+
+        Modified the ulog(3) module: it no longer appends an ASCII NUL
+        to messages when logging to a file.
+
+        Changed the feedtype-string that is printed for NEXRAD Level
+        II data-products from CRAFT to NEXRAD2.  The strings CRAFT,
+        NEXRD2, and NEXRAD2 can all be used to specify this feedtype in
+        configuration-files, however.
+
+        Increased the maximum number of statistical-reporting bins
+        in the "binstats" module (which is used by rtstats(1) and
+        pqbinstats(1)) from 96 to 4000 to eliminate underreporting
+        problem now that more than 96 CRAFT radars exist.
+
+        Corrected manual pages.  Removed all references to the
+        LDM 5 "Site Manager's Guide".  Replaced references
+        to "http://www.unidata.ucar.edu" with references to
+        "http://www.unidata.ucar.edu/software/ldm/"
+
+6.0.15		2004-03-31
+        Added code to work-around TCP bug introduced by patch APAR
+        IY38541 for the AIX operating-system.  This patch is included
+        in maintenance-level 11 of AIX 4.3 and maintenance-level 5 of
+        AIX 5.1.  The bug makes TCP connection non-blocking, causing
+        upstream LDM to exit due to "resource temporarily unavailable".
+        With this work-around, LDM6-s running on the above AIX systems
+        will be able to send data-products to requesting downstream
+        LDM6-s.  They will not, however, be able to satisfy requests
+        by downstream LDM5-s.  Also, the same O/S upgrades introduced
+        an, apparently, related bug in the TCP layer that causes the
+        connection from a downstream LDM running on the upgraded O/S to
+        an upstream LDM to episodically dissapear.  The upstream LDM
+        reports a "broken pipe" and the downstream LDM reports that the
+        connection to the upstream LDM "closed".  This problem will be
+        reported to IBM.
+
+        The above bug also causes a connection from a downstream LDM
+        running on the upgraded AIX system to episodically close for no
+        apparent reason.  Consequently, the reconnection strategy of a
+        downstream LDM-6 has been modified to be more aggressive (i.e.,
+        to try to reconnect earlier) but with an exponential backoff to
+        the default maximum of 30 seconds.
+
+6.0.14		2003-07-21
+
+6.0.14.7
+        Made test of pqact(1) configuration-file upon LDM startup 
+        conditional upon its existance.
+
+6.0.14.6
+        Fixed bug in downstream LDM 6 introduced in version 6.0.4: under
+        some circumstances, a failed FEEDME or NOTIFY request wouldn't
+        cause the connection to be closed and, consequently, the socket
+        and client-handle resources to be released -- leading to a
+        blocked, upstream LDM process with a read-lock on a product.
+
+        Fixed latent bug in module "up6".  Too few arguments passed to 
+        udebug(3) when a product-queue lock is encountered.
+
+6.0.14.5
+        Fixed error-reporting bug.  Receiving LDM-s will no longer
+        attempt to unregister from the portmapper -- eliminating the
+        possibility of disconcerting (but harmless) "pmap_unset()"
+        failure messages.
+
+        Modified the LDM so that a SIGUSR1 causes the pseudo-random 
+        number generator in the product-queue module to be reset.
+
+        Improved robustness of the rtstats(1) utility in the face of bad
+        clock times (e.g., CRAFT data).  This should prevent rtstats(1)
+        from opening multiple connections in the same minute.  THIS IS A
+        BIG DEAL.
+
+6.0.14.4
+        Ported package to HP-UX B.11.11 U.
+
+        Changed the effect of a SIGTERM to the top-level LDM process: it
+        now sends a SIGINT to all child processes in order to exit in a
+        more timely manner.
+
+        Eliminated use of the word "class" as a variable name to
+        accomodate C++.
+
+        Modified LDM 6 product-sending code so that it checks the
+        connection if it hasn't sent anything for 30 seconds.  This
+        should help prevent the buildup of upstream processes.
+
+        Added a check of the syntactic validity of the pqact(1)
+        configuration-file to the "ldmadmin start" command to help the
+        user who changes the configuration-file without checking it.
+
+6.0.14.3
+        Partially ported package to HP-UX B.11.11 U.
+
+        Added observance of "done" flag to module ldm_clnt -- resulting
+        in more responsive termination of an LDM system that is
+        attempting to connect to an upstream LDM.  Modified module acl
+        accordingly.
+
+6.0.14.2
+        Made the IS_ALIVE check on the upstream LDM more tolerant of 
+        connection failures.  This should reduce the number of
+        unnecessary reconnections.
+
+        Improved error-logging of LDM 6 connection attempts.  If an
+        attempt fails, a error-message will be logged at the ERROR
+        level.  The reason or reasons behind the failures of the port
+        388 and portmapper attempts are logged at the INFO level.
+
+6.0.14.1
+        Fixed memory-leak in receiving LDM process.  When receiving from
+        a sending LDM 6, the memory-usage of the receiving process
+        would sometimes jump by about 250 kilobytes if the connection
+        was broken and then re-established.
+
+6.0.13
+        Fixed a small memory-leak bug in the utility rtstats(1).  If the
+        destination LDM was version 5, then it would leak about 37 bytes
+        per transmission.
+
+        Modified the file-existance tests in ldmadmin script so that
+        they will work on systems (e.g., Linux) that would, otherwise,
+        require a perl utility with compiled-in support for large-files.
+
+6.0.12
+        Modified strategy for determining which program version is
+        used when connecting to an upstream LDM (version 5 or 6): a
+        downstream LDM will now connect using version 5 if and only
+        if a previous version 6 connection attempt receives a program
+        version mismatch indication (RPC_PROGVERSMISMATCH).  This should
+        eliminate the possibility of a downstream LDM-6 connecting to
+        an upstream LDM-6 using LDM-5 protocols during the "window of
+        vulnerability" that exists when the upstream LDM system is
+        started.
+
+        Changed downstream LDM code so that it doesn't sleep before
+        reconnecting to the upstream LDM when the connection is closed
+        due to a timeout.  This will reduce the magnitude of product
+        latencies due to connection timeouts at the cost of more log
+        messages.
+
+        Synchronous checks have been added in several places to make the
+        LDM more responsive to a termination request (such as from an
+        "ldmadmin stop").
+
+        To work around a bug in Unisys ingest systems, the program
+        pqing(1) has been modified to allow an extraneous newline
+        between the end-of-product and beginning-of-product delimiters.
+
+6.0.11
+        Requesting LDM process will no longer terminate if the
+        connection to the upstream host is so bad that it can't connect
+        in any fashion or if an LDM isn't running on that host.
+        Instead, it will continue to retry.
+
+6.0.10
+        Corrected bug in make_request() in module requester that caused
+        "wanted" and "allowed" product-class specifications in diagnostic 
+        RECLASS message to be the same.
+
+        Corrected bug in feed_or_notify() in module ldm6_server that caused
+        "wanted" and "allowed" product-class specifications in diagnostic
+        "Restricting request" message to be the same.
+
+        Demoted logging-level of rtstats(1) "couldn't connect" message from
+        ERR_FAILURE, to ERR_WARNING to lessen user anxiety.
+
+6.0.9
+        Corrected bug in make_request() that caused assertion failure in
+        xdr_timestampt() because the timestamp was part of the RECLASS
+        reply and the product-class of the reply had been XDR freed
+        (setting its timstamps to TV_NONE).
+
+6.0.8
+        Replaced premature return from ldm_clnt_create_vers() use of
+        NULLPROC for RPC error-code not being a program version 
+        mismatch to being a time-out.
+
+6.0.7
+        Fixed SIGSEGV bug in ldm_clnttcp_create_vers() and improved 
+        error messages.
+
+6.0.6
+        Reimplemented ldm_clnt() to solve rtstats(1) connection problem.
+
+6.0.5
+        Fixed slight memory-leak bug in rtstats(1) and ldmsend(1).
+
+6.0.4
+        Corrected use of hereis_6() and comingsoon_6() by programs
+        rtstats(1) and ldmsend(1).  They should now be able to send to
+        an LDM 6.
+
+6.0.3
+        Improved diagnostic messages in which_version().
+
+        Made "ldmadmin pqactcheck" return a failure exit-status if the
+        configuration file contains a syntax error.
+
+        Generalized receiving LDM: now accepts multiple BLKDATA messages
+        for a product.
+
+        A downstream LDM no longer adjusts the time-interval of acceptible
+        data products when replying to a HIYA.  Duplicate product detection
+        is still in effect.  This prevents rejection of data products sent
+        using ldmsend(1) by a host with an inaccurate clock.  It also
+        places the burden of knowing what to send on the upstream HIYA-
+        initiating LDM.
+
+        Fixed bug that prevented the maximum hereis size field of ACCEPT
+        entries in the LDM configuration-file from having an effect.
+
+        Ported the ldmsend(1) and rtstats(1) utilities to LDM-6
+        protocols: they can now send to a version 6 LDM.
+
+        Added HTML documentation as a separate distribution.
+
+6.0.2
+        Restored use of "done" flag and removed atexit() registration of
+        down6_destroy().
+        
+        Removed child-process-termination loop from ldmd.c in attempt to
+        keep product-queue consistent (pqcat -s).
+
+        Eliminated excessive delay caused by portmapper-access functions on
+        a FreeBSD system than isn't running a portmapper.
+
+        Fixed bug due to copying HEREIS product identifier to garbage 
+        pointer in down6 module.
+
+6.0.1
+        Ensured release of COMINGSOON_6-reserved space in product-queue
+        upon normal termination by modifying down6 module: 1) made
+        down6_destroy() idempotent; and 2) registered down6_destroy()
+        with atexit().  Hopefully, this will fix the "pqcat -s" failures.
+
+6.0
+        Changed default CFLAGS from "-g" to "-O".
+
+        Reworked build procedure.  No more Makefile.in-s.
+
+        Added commentary about pathological regular expressions to template
+        "ldmd.conf" file.
+
+        Added sync(1) invocation to "ldmadmin stop".
+
+        Regularized compiler-command word-order.
+
+        Made module child_process_set a singleton and made free(3)ing of
+        pid_t element more robust (it might have been causing a SIGSEGV
+        under Linux).
+
+        Have duplicate products update the most-recent-product time 
+        of a connection in both LDM-6 and LDM-5 receivers.
+
+6.0.0.18
+        Fixed incorporation of regex/ subdirectory into build
+        procedure.
+
+6.0.0.17
+        Added regex(1) utility.
+
+        Rearranged blocked-signals reversion steps in pq::ctl_get() to
+        maintain invariants.
+
+        Changed RPC timeout from default 25 s to 60 s.
+
+6.0.0.16
+        Added warning message if flushing NULLPROC-6 fails in "up6"
+        module.
+
+6.0.0.15
+        Added "tags" target to pq/Makefile.in.
+
+        Replaced 7 d timeout of non-batched (i.e., blocking) LDM-6
+        RPC messages with default, 25 s timeout to avoid situation in
+        which a sending LDM is trying to read the reply of a flushing
+        NULLPROC call and the receiving LDM is in select() waiting for
+        an incoming RPC message.  This "netlock" situation was seen on
+        2003-02-7 between two sending LDMs on Jackie and two receiving
+        LDMs on Thelma for the IDS|DDPLUS and NNEXRAD feeds.  (Bad RPC!
+        No doughnut!)
+
+6.0.0.14
+        Ported to OSF/1.
+
+        Added an additional criterium to the function
+        is_upstream_alive() for assuming that the sending LDM is still
+        alive: if the client-side handle can't be created due to a
+        time-out of the connection attempt (RPC error == RPC_SYSTEMERROR
+        && system error == ETIMEDOUT).
+
+6.0.0.13
+        Simplified xdr_data module and its use based on assumption of
+        valid client-usage.  It was this or find every error-condition
+        where xd_free() or xd_unset_buf() wouldn't be invoked.
+
+        Corrected use of xdr_data module.
+
+6.0.0.12
+        Corrected use of "xdr_data" module.
+
+        Problem.
+
+6.0.0.11
+        Increased use of "xdr_data" module:
+            Modified modules "down6" and "svc5" to use "xdr_data" module
+            for COMINGSOON/BLKDATA messages.
+
+            Modified file "ldm.x": replaced generation of xdr_dbuf() by
+            rpcgen(1) with explicit definition that uses the "xdr_data"
+            module.
+
+        Problem.
+
+6.0.0.10
+        Added module "xdr_data" and modified xdr_product() to use it.
+
+6.0.0.9
+        Made SIGTERM handling the same as SIGINT.
+
+6.0.0.8
+        Made updating of timestamp of most recently received HEREIS
+        product by LDM-5 subsystem not depend on whether logging level
+        is verbose.
+
+6.0.0.7
+        Tried to reduce backward searches through product queue when 
+        connecting to upstream LDM:
+
+            Added tracking of last-received product to both LDM-5 and
+            LDM-6 receiving subsystems and the use of this information
+            when requesting data from an upstream LDM.
+
+            Moved backward search through product queue, looking for
+            most recent matching product -- from inside connection-loop
+            of acl::prog_requester() to before connection-loop.
+
+        Added dummy feedTime module and invocations.
+
+        Changed connection strategy to favor port LDM_PORT over the
+        portmapper.
+
+        Corrected ldmsend(1) and LDM-6 HIYA behavior.
+
+6.0.0.6
+        Removed indictment of upstream LDM from LDM-6 ECONNRESET error-message.
+
+        Added debug-printing of time from product-creation to insertion
+        into the product-queue to pq_sequence(...).
+
+6.0.0.5
+        Reduced logging-level of initial and final messages of upstream
+        LDM.
+
+6.0.0.4
+        Added "CRAFT" and "CONDUIT" to the list of feedtypes and made
+        them the default string specifications for output.
+
+6.0.0.3
+        Changed SIGTERM logging-level from udebug() to unotice()
+        to reveal cause of "Terminating process group"
+        messages.
+
+6.0.0.2
+        Corrected setting of _mode in down6 regarding IGNORE_BLKDATA.

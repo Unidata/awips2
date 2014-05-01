@@ -1,0 +1,197 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+sourceDirectory = '/fs/hseb/whfs/ob3/HP/whfs/source/app/hydrobase/src/';
+generateNameC = * 'shefdecoder.c';
+generateNameStubs = 'shefdecoder_stubs.c';
+generateNameExterns = * 'shefdecoder.h';
+generateNameResDB = * 'shefdecoder.res';
+generateCHeaderFile = 'shefdecoder.h';
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'shefdecodeDS' : XmDialogShell {
+	arguments {
+	name = 'shefdecodeDS';
+	lastGenName = 'shefdecodeDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_shefdecodeDS (Widget parent)
+';
+	XmNwidth = 800;
+	XmNheight = 400;
+	XmNallowShellResize = true;
+	XmNtitle = 'Start/Stop SHEFdecoder';
+	XmNminWidth = 800;
+	XmNminHeight = 400;
+	XmNmaxWidth = 800;
+	XmNmaxHeight = 400;
+	};
+object 'shefdecodeFO' : XmForm {
+	arguments {
+	name = 'shefdecodeFO';
+	was_selected = true;
+	lastGenName = 'shefdecodeFO';
+	XmNwidth = 800;
+	XmNheight = 400;
+	XmNdialogTitle = 'Start/Stop SHEFdecoder';
+	XmNresizePolicy = 0;
+	XmNautoUnmanage = false;
+	};
+object 'startshefPB' : XmPushButton {
+	arguments {
+	name = 'startshefPB';
+	lastGenName = 'startshefPB';
+	generateResName = true;
+	XmNwidth = 90;
+	XmNheight = 30;
+	XmNlabelString = 'Start';
+	};
+};
+object 'stopshefPB' : XmPushButton {
+	arguments {
+	name = 'stopshefPB';
+	lastGenName = 'stopshefPB';
+	generateResName = true;
+	XmNwidth = 90;
+	XmNheight = 30;
+	XmNlabelString = 'Stop';
+	};
+};
+object 'checkshefPB' : XmPushButton {
+	arguments {
+	name = 'checkshefPB';
+	lastGenName = 'checkshefPB';
+	generateResName = true;
+	XmNwidth = 90;
+	XmNheight = 30;
+	XmNlabelString = 'Check';
+	};
+};
+object 'closeshefPB' : XmPushButton {
+	arguments {
+	name = 'closeshefPB';
+	lastGenName = 'closeshefPB';
+	generateResName = true;
+	XmNwidth = 90;
+	XmNheight = 30;
+	XmNlabelString = 'Close';
+	};
+};
+object 'separator1' : XmSeparator {
+	arguments {
+	name = 'separator1';
+	lastGenName = 'separator1';
+	};
+};
+object 'shefdecodeST' : XmScrolledText {
+	arguments {
+	lastGenName = 'shefdecodeST';
+	};
+abstract object '3' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'scrollbar3';
+	};
+};
+abstract object '4' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'scrollbar4';
+	};
+};
+abstract object 'shefdecodeTX' : XmText {
+	arguments {
+	name = 'shefdecodeTX';
+	lastGenName = 'shefdecodeTX';
+	storageClass = 3;
+	generateResName = true;
+	XmNcolumns = 107;
+	XmNeditable = false;
+	XmNeditMode = 0;
+	XmNrows = 10;
+	XmNscrollHorizontal = true;
+	XmNscrollVertical = true;
+	};
+};
+};
+object 'shefdecodeLA' : XmLabel {
+	arguments {
+	name = 'shefdecodeLA';
+	XmNlabelString = 'SHEFdecoder operations will be performed on the following system:';
+	};
+};
+object 'shefhostTX' : XmTextField {
+	arguments {
+	name = 'shefhostTX';
+	XmNmaxLength = 20;
+	XmNcolumns = 10;
+	XmNeditable = false;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 56;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 58;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 369;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 58;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 655;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 374;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 361;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -796;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -323;
+	XmNtopAttachment = 1 0 313;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -792;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -300;
+	XmNtopAttachment = 1 0 101;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 22;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 12;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 3 7 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 7 0;
+    };
+    };
+};
+};
+end module;

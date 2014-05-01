@@ -1,0 +1,194 @@
+C MEMBER COX2
+C  (from old member FCCOX2)
+C
+      SUBROUTINE COX2(PO,CO,PN,CN,WO,NWO)
+C.......................................................................
+C     THIS IS THE CARRYOVER TRANSFER SUBROUTINE FOR THE UNIT
+C     HYDROGRAPH OPERATION. NEW CARRYOVER (CN) VALUES ARE
+C     DETERMINED FROM OLD CARRYOVER (CO) AND OLD AND NEW PARAMETERS
+C     (PO AND PN). THE LENGTH OF THE CARRYOVER ARRAY MAY CHANGE
+C     IF THE TIME INTERVALS OF THE RUNOFF OR DISCHARGE
+C     TIME SERIES HAVE CHANGED OR IF THE NUMBER OF UNIT
+C     HYDROGRAPH ORDINATES HAS CHANGED.
+C.......................................................................
+C     SUBROUTINE INITIALLY WRITTEN BY
+C        LARRY BRAZIL - HRL - JANUARY 1980   VERSION 1
+C.......................................................................
+      DIMENSION PO(1),CO(1),PN(1),CN(1),SNAME(2),WO(1)
+C
+C     COMMON BLOCKS.
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_cox/RCS/cox2.f,v $
+     . $',                                                             '
+     .$Id: cox2.f,v 1.1 1995/09/17 18:47:13 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SNAME/4HCOX2,4H    /
+C.......................................................................
+C     CHECK TRACE LEVEL AND DEBUG OUTPUT OPTION
+C     TRACE LEVEL FOR THIS SUBROUTINE=1.
+      JTRACE=1
+      IOPNUM=2
+      CALL FPRBUG(SNAME,JTRACE,IOPNUM,IBUG)
+      IPO=PO(9)
+      IPN=PN(9)
+      IDTR=PO(16)
+      IDTRN=PN(16)
+      IDTQ=PO(20)
+      IDTQN=PN(20)
+      NV=PO(10)
+      NVN=PN(10)
+      NROOLD=PO(21)
+      NRONEW=PN(21)
+      IF(IBUG.EQ.0) GO TO 100
+C     DEBUG OUTPUT - OLD AND NEW P AND OLD C ARRAYS.
+      WRITE(IODBUG,900)
+  900 FORMAT(1H0,40HOLD AND NEW PARAMETERS AND OLD CARRYOVER)
+      WRITE(IODBUG,902) (PO(I),I=1,IPO)
+  902 FORMAT(1H0,15F8.3)
+      WRITE(IODBUG,902) (PN(I),I=1,IPN)
+      WRITE(IODBUG,902) (CO(I),I=1,NROOLD)
+  100 CONTINUE
+      NROADJ=NROOLD
+      IF(NROOLD.LE.NWO) GO TO 101
+      WRITE(IPR,912) NROOLD,NWO
+      CALL WARN
+      GO TO 308
+  101 DO 110 I=1,NROOLD
+      WO(I)=CO(I)
+  110 CONTINUE
+C.......................................................................
+C     CHECK TO SEE IF IDTR WAS CHANGED
+      IF(IDTR.EQ.IDTRN) GO TO 200
+      IF((IDTR/IDTRN)*IDTRN.EQ.IDTR) GO TO 140
+      IF((IDTRN/IDTR)*IDTR.EQ.IDTRN) GO TO 120
+      WRITE(IPR,910) IDTR,IDTRN
+  910 FORMAT(1H0,10X,29H**WARNING** NEITHER THE OLD (,I2,21H HOURS) NOR
+     1THE NEW (,I2,40H HOURS) RUNOFF TIME SERIES TIME INTERVAL/23X,33HIS
+     2 AN EVEN MULTIPLE OF THE OTHER./23X,39HNO CARRYOVER VALUES CAN BE
+     3TRANSFERRED.)
+      CALL WARN
+      GO TO 308
+C.......................................................................
+C     COMPUTE ADJUSTED RUNOFF FOR IDTRN GT IDTR
+C
+  120 CONTINUE
+      NROADJ=(NV-1)/(IDTRN/IDTQ)
+      NR=NROADJ
+      N=NROADJ+1
+      IF(N.LE.NWO) GO TO 121
+      WRITE(IPR,912) N,NWO
+  912 FORMAT(1H0,10X,52H**WARNING** MORE CARRYOVER WORKING SPACE IS NEED
+     *ED (,I4,21H) THAN IS AVAILABLE (,I4,2H)./23X,39HNO CARRYOVER VALUE
+     *S CAN BE TRANSFERRED.)
+      CALL WARN
+      GO TO 308
+  121 DO 122 I=1,N
+      WO(I)=0.0
+  122 CONTINUE
+      IF(NROOLD.LE.NROADJ*IDTRN/IDTQ) GO TO 123
+      IDIFF=NROOLD-NROADJ*IDTRN/IDTQ
+      NROADJ=NROADJ+1
+      DO 125 I=1,IDIFF
+      WO(1)=WO(1)+CO(I)
+  125 CONTINUE
+      WO(1)=WO(1)/(IDTRN/IDTQ)
+  123 CONTINUE
+      IRATIO=IDTRN/IDTR
+      L=1
+      DO 124 M=1,NR
+      LRATIO=L+IRATIO-1
+      J=NROADJ-M+1
+      DO 126 I=L,LRATIO
+      K=NROOLD-I+1
+      WO(J)=CO(K)+WO(J)
+  126 CONTINUE
+      L=L+IRATIO
+  124 CONTINUE
+      GO TO 200
+C.......................................................................
+C     COMPUTE ADJUSTED RUNOFF FOR IDTR GT IDTRN
+C
+  140 CONTINUE
+      NROADJ=NROOLD*(IDTR/IDTRN)
+      IF(NROADJ.LE.NWO) GO TO 141
+      WRITE(IPR,912) NROADJ,NWO
+      CALL WARN
+      GO TO 308
+  141 DO 142 I=1,NROADJ
+      WO(I)=0.0
+  142 CONTINUE
+      IDIV=IDTR/IDTRN
+      L=1
+      DO 144 M=1,NROOLD
+      LDIV=L+IDIV-1
+      I=NROOLD-M+1
+      DO 146 J=L,LDIV
+      K=NROADJ-J+1
+      WO(K)=CO(I)/IDIV
+  146 CONTINUE
+      L=L+IDIV
+  144 CONTINUE
+  200 CONTINUE
+C.......................................................................
+C     COMPUTE NEW CARRYOVER
+C
+      DO 150 I=1,NRONEW
+      CN(I)=0.0
+  150 CONTINUE
+C
+      JRO=NRONEW
+      IF(NRONEW.GT.NROADJ) JRO=NROADJ
+      DO 160 I=1,JRO
+      N=NROADJ-I+1
+      K=NRONEW-I+1
+      CN(K)=WO(N)
+  160 CONTINUE
+  600 CONTINUE
+C
+      IF(IBUG.EQ.0) GO TO 300
+C.......................................................................
+C     DEBUG OUTPUT - ADJUSTED RUNOFF IF USED AND NEW CARRYOVER VALUES
+      IF(IDTR.EQ.IDTRN) GO TO 310
+      WRITE(IODBUG,920)
+  920 FORMAT(1H0,22HADJUSTED RUNOFF VALUES)
+      WRITE(IODBUG,902) (WO(I),I=1,NROADJ)
+  308 IF(IBUG.EQ.0) GO TO 300
+  310 WRITE(IODBUG,922)
+  922 FORMAT(1H0,20HNEW CARRYOVER VALUES)
+      WRITE(IODBUG,902) (CN(I),I=1,NRONEW)
+C.......................................................................
+C     CARRYOVER TRANSFER RULES
+C
+C     1. CARRYOVER VALUES ARE RUNOFF TIME SERIES VALUES.
+C
+C     2. IF IDTRN.NE.IDTR :
+C
+C        A. IF IDTRN IS A MULTIPLE OF IDTR, RUNOFF VALUES ARE ADJUSTED
+C           BY SUMMING THE VALUES WHICH FALL WITHIN AN IDTRN INTERVAL.
+C           NROOLD VALUES ARE REPLACED BY NROADJ VALUES.
+C        B. IF IDTR IS A MULTIPLE OF IDTRN, RUNOFF VALUES ARE ADJUSTED
+C           BY DIVIDING EACH VALUE BY IDTR/IDTRN.
+C           NROOLD VALUES ARE REPLACED BY NROADJ VALUES.
+C        C. IF NEITHER IDTRN NOR IDTR IS A MULTIPLE OF THE OTHER,
+C           CARRYOVER IS NOT TRANSFERRED.
+C
+C     3. THE NUMBER OF NEW CARRYOVER VALUES (NRONEW) IS
+C          (NVN-1)/(IDTRN/IDTQN).
+C
+C        A. IF NRONEW.LT.NROOLD OR NROADJ(IF IDTRN.NE.IDTR),
+C           THE NRONEW MOST RECENT RUNOFF VALUES BECOME CARRYOVER.
+C        B. IF NRONEW.GT.NROOLD OR NROADJ(IFIDTRN.NE.IDTR),
+C           ZEROES ARE ADDED PRIOR TO THE EARLIEST RUNOFF VALUES.
+C
+C
+C.......................................................................
+  300 RETURN
+      END

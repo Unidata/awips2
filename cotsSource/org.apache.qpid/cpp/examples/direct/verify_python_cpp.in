@@ -1,0 +1,15 @@
+==== declare_queues.py.out
+==== direct_producer.py.out
+==== listener.out
+Message: message 0
+Message: message 1
+Message: message 2
+Message: message 3
+Message: message 4
+Message: message 5
+Message: message 6
+Message: message 7
+Message: message 8
+Message: message 9
+Message: That's all, folks!
+Shutting down listener for message_queue

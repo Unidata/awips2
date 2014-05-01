@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sshp Plug-in
+Bundle-SymbolicName: ohd.hseb.sshp;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: ohd.hseb.sshp.Activator
+Require-Bundle: ohd.hseb.ihfsdb,
+ ohd.hseb.common,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.postgres,
+ com.raytheon.viz.core,
+ ohd.hseb.monitor
+Bundle-ActivationPolicy: lazy
+Export-Package: ohd.hseb.sshp,
+ ohd.hseb.sshp.gui,
+ ohd.hseb.sshp.messaging,
+ ohd.hseb.sshp.precip,
+ ohd.hseb.sshp.window
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.ohd

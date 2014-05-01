@@ -1,0 +1,21 @@
+Apache Qpid Incubating Java 0.6 Release Notes
+-------------------------------------------
+
+The Qpid 0.6 release contains support for AMQP 0-8, 0-9 and 0-10. You
+can access the specifications from
+
+http://www.amqp.org/confluence/display/AMQP/AMQP+Specification
+
+For full details of Apache Qpid's capabilities see our detailed
+project documentation at:
+
+http://cwiki.apache.org/confluence/display/qpid/Qpid+Java+Documentation
+
+From the link above you can access our Getting Started Guide, FAQ, Build How To
+and detailed developer documentation.
+
+Known Issues/Outstanding Work
+-----------------------------
+
+You can view the outstanding task list for Qpid by visiting our JIRA:
+http://issues.apache.org/jira/browse/QPID

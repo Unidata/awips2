@@ -1,0 +1,8 @@
+broker.language=java
+broker.version=0-10
+broker=${project.root}/build/bin/qpid-server -p @PORT -m @MPORT -c @CONFIG_FILE -l ${test.profiles}/log4j-test.xml
+broker.clean=${test.profiles}/clean-dir ${build.data} ${project.root}/build/work/derbyDB
+broker.ready=BRK-1004
+broker.stopped=Exception
+
+profile.excludes=JavaTransientExcludes JavaStandaloneExcludes CPPExcludes CPPTransientExcludes

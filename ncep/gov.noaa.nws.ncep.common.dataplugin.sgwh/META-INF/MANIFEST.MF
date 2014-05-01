@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sgwh
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.sgwh
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.17",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
+ javax.persistence;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.pointdata
+Export-Package: gov.noaa.nws.ncep.common.dataplugin.sgwh

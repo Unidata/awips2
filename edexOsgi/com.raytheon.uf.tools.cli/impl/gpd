@@ -1,0 +1,34 @@
+#!/bin/bash
+##
+##
+##############################################################################
+# This script allows users to query point data database from EDEX.
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    05/20/2013                    Chin Chen      Initial Creation.
+##############################################################################
+
+# this allows you to run this script from outside of ./bin
+path_to_script=`readlink -f $0`
+RUN_FROM_DIR=`dirname $path_to_script`
+
+BASE_AWIPS_DIR=`dirname $RUN_FROM_DIR`
+
+# get the base environment
+source ${RUN_FROM_DIR}/setup.env
+
+# setup the environment needed to run the the Python
+export LD_LIBRARY_PATH=${BASE_AWIPS_DIR}/src/lib:${PYTHON_INSTALL}/lib
+export PYTHONPATH=${RUN_FROM_DIR}/src:$PYTHONPATH
+
+# execute the ifpInit Python module
+_PYTHON="${PYTHON_INSTALL}/bin/python"
+_MODULE="${RUN_FROM_DIR}/src/gpd/gpd.py"
+
+# quoting of '$@' is used to prevent command line interpretation 
+#$_PYTHON $_MODULE -h ${DEFAULT_HOST} -p ${DEFAULT_PORT} "$@"
+$_PYTHON $_MODULE "$@"
+

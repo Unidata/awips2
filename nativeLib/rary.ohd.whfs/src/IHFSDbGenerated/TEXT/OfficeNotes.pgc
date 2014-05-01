@@ -1,0 +1,815 @@
+/*
+    File: OfficeNotes.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:25 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "OfficeNotes.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct OfficeNotes_t
+{
+    char		topic[9];
+    char		id[9];
+    dtime_t		datatime;
+    dtime_t		postingtime;
+    dtime_t		updatetime;
+    dtime_t		expiretime;
+    char		note[513];
+
+    int		ind_datatime;
+    int		ind_updatetime;
+    int		ind_expiretime;
+    int		ind_note;
+} OfficeNotes_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+OfficeNotes * GetOfficeNotes(const char * where)
+{
+
+    OfficeNotes * listPtr = NULL;
+    OfficeNotes * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM OfficeNotes ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OfficeNotes_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetOfficeNotes() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetOfficeNotes() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetOfficeNotes() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.topic, :dbs.id, 
+    :dbs.datatime:dbs.ind_datatime, :dbs.postingtime, 
+    :dbs.updatetime:dbs.ind_updatetime, :dbs.expiretime:dbs.ind_expiretime, 
+    :dbs.note:dbs.ind_note    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetOfficeNotes() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (OfficeNotes *) malloc(sizeof(OfficeNotes))) != NULL)
+        {
+
+            strcpy(structPtr->topic, dbs.topic);
+
+            strcpy(structPtr->id, dbs.id);
+
+            structPtr->datatime = dbs.datatime;
+            setNullIfIndicated(dbs.ind_datatime, DATETIME, &structPtr->datatime);
+
+            structPtr->postingtime = dbs.postingtime;
+
+            structPtr->updatetime = dbs.updatetime;
+            setNullIfIndicated(dbs.ind_updatetime, DATETIME, &structPtr->updatetime);
+
+            structPtr->expiretime = dbs.expiretime;
+            setNullIfIndicated(dbs.ind_expiretime, DATETIME, &structPtr->expiretime);
+
+            strcpy(structPtr->note, dbs.note);
+            setNullIfIndicated(dbs.ind_note, CHAR, structPtr->note);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.topic, :dbs.id, 
+        :dbs.datatime:dbs.ind_datatime, :dbs.postingtime, 
+        :dbs.updatetime:dbs.ind_updatetime, :dbs.expiretime:dbs.ind_expiretime, 
+        :dbs.note:dbs.ind_note        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetOfficeNotes() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+OfficeNotes * SelectOfficeNotes(const char * where)
+{
+
+    OfficeNotes * listPtr = NULL;
+    OfficeNotes * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM OfficeNotes ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OfficeNotes_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectOfficeNotes() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectOfficeNotes() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectOfficeNotes() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.topic, :dbs.id, 
+    :dbs.datatime:dbs.ind_datatime, :dbs.postingtime, 
+    :dbs.updatetime:dbs.ind_updatetime, :dbs.expiretime:dbs.ind_expiretime, 
+    :dbs.note:dbs.ind_note    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectOfficeNotes() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (OfficeNotes *) malloc(sizeof(OfficeNotes))) != NULL)
+        {
+
+            strcpy(structPtr->topic, dbs.topic);
+
+            strcpy(structPtr->id, dbs.id);
+
+            structPtr->datatime = dbs.datatime;
+            setNullIfIndicated(dbs.ind_datatime, DATETIME, &structPtr->datatime);
+
+            structPtr->postingtime = dbs.postingtime;
+
+            structPtr->updatetime = dbs.updatetime;
+            setNullIfIndicated(dbs.ind_updatetime, DATETIME, &structPtr->updatetime);
+
+            structPtr->expiretime = dbs.expiretime;
+            setNullIfIndicated(dbs.ind_expiretime, DATETIME, &structPtr->expiretime);
+
+            strcpy(structPtr->note, dbs.note);
+            setNullIfIndicated(dbs.ind_note, CHAR, structPtr->note);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.topic, :dbs.id, 
+        :dbs.datatime:dbs.ind_datatime, :dbs.postingtime, 
+        :dbs.updatetime:dbs.ind_updatetime, :dbs.expiretime:dbs.ind_expiretime, 
+        :dbs.note:dbs.ind_note        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectOfficeNotes() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectOfficeNotesCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM OfficeNotes ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountOfficeNotes() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountOfficeNotes() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountOfficeNotes() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountOfficeNotes() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutOfficeNotes(const OfficeNotes * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OfficeNotes_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.topic, structPtr->topic);
+
+    strcpy(dbs.id, structPtr->id);
+
+    dbs.datatime = structPtr->datatime;
+    dbs.ind_datatime = getIndicator(DATETIME, (void *)&structPtr->datatime);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.updatetime = structPtr->updatetime;
+    dbs.ind_updatetime = getIndicator(DATETIME, (void *)&structPtr->updatetime);
+
+    dbs.expiretime = structPtr->expiretime;
+    dbs.ind_expiretime = getIndicator(DATETIME, (void *)&structPtr->expiretime);
+
+    strcpy(dbs.note, structPtr->note);
+    dbs.ind_note = getIndicator(CHAR, (void *)structPtr->note);
+
+
+    EXEC SQL INSERT INTO OfficeNotes (topic,id,
+        datatime,postingtime,updatetime,
+        expiretime,note        )
+        VALUES (
+         :dbs.topic, :dbs.id, :dbs.datatime:dbs.ind_datatime,
+         :dbs.postingtime, :dbs.updatetime:dbs.ind_updatetime, :dbs.expiretime:dbs.ind_expiretime,
+         :dbs.note:dbs.ind_note);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutOfficeNotes() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOfficeNotes(const OfficeNotes * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OfficeNotes_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.topic, structPtr->topic);
+
+    strcpy(dbs.id, structPtr->id);
+
+    dbs.datatime = structPtr->datatime;
+    dbs.ind_datatime = getIndicator(DATETIME, (void *)&structPtr->datatime);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.updatetime = structPtr->updatetime;
+    dbs.ind_updatetime = getIndicator(DATETIME, (void *)&structPtr->updatetime);
+
+    dbs.expiretime = structPtr->expiretime;
+    dbs.ind_expiretime = getIndicator(DATETIME, (void *)&structPtr->expiretime);
+
+    strcpy(dbs.note, structPtr->note);
+    dbs.ind_note = getIndicator(CHAR, (void *)structPtr->note);
+
+
+    EXEC SQL INSERT INTO OfficeNotes (topic,id,
+        datatime,postingtime,updatetime,
+        expiretime,note        )
+        VALUES (
+         :dbs.topic, :dbs.id, :dbs.datatime:dbs.ind_datatime,
+         :dbs.postingtime, :dbs.updatetime:dbs.ind_updatetime, :dbs.expiretime:dbs.ind_expiretime,
+         :dbs.note:dbs.ind_note);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertOfficeNotes() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateOfficeNotes(const OfficeNotes *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct OfficeNotes_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.topic, structPtr->topic);
+
+    strcpy(dbs.id, structPtr->id);
+
+    dbs.datatime = structPtr->datatime;
+    dbs.ind_datatime = getIndicator(DATETIME, (void *)&structPtr->datatime);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    dbs.updatetime = structPtr->updatetime;
+    dbs.ind_updatetime = getIndicator(DATETIME, (void *)&structPtr->updatetime);
+
+    dbs.expiretime = structPtr->expiretime;
+    dbs.ind_expiretime = getIndicator(DATETIME, (void *)&structPtr->expiretime);
+
+    strcpy(dbs.note, structPtr->note);
+    dbs.ind_note = getIndicator(CHAR, (void *)structPtr->note);
+
+
+    sprintf(queryBuffer, " UPDATE OfficeNotes SET " );
+    strcat(queryBuffer, "topic = ? , id = ? , datatime = ? , postingtime = ? , updatetime = ? ,     ");
+    strcat(queryBuffer, "expiretime = ? , note = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateOfficeNotes() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.topic, :dbs.id, :dbs.datatime:dbs.ind_datatime, :dbs.postingtime, :dbs.updatetime:dbs.ind_updatetime,
+     :dbs.expiretime:dbs.ind_expiretime, :dbs.note:dbs.ind_note;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateOfficeNotes() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteOfficeNotes(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM OfficeNotes ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteOfficeNotes() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateOfficeNotesByRecord (const OfficeNotes * newStructPtr, const OfficeNotes * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetOfficeNotesPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateOfficeNotes(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateOfficeNotes(const OfficeNotes * structPtr)
+{
+    UpdateOfficeNotesByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertOfficeNotes(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueOfficeNotes(const OfficeNotes * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (OfficeNotesExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertOfficeNotes(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteOfficeNotesByRecord(const OfficeNotes * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetOfficeNotesPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteOfficeNotes(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool OfficeNotesExists(const OfficeNotes * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetOfficeNotesPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectOfficeNotesCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetOfficeNotesPrimaryKeyWhereString (const OfficeNotes * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE topic = '%s'  AND id = '%s'  AND postingtime = '%s' ",
+            structPtr->topic, structPtr->id, dtimet_to_ansi(structPtr->postingtime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeOfficeNotes( OfficeNotes * structPtr)
+{
+    OfficeNotes* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( OfficeNotes * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetOfficeNotesDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetOfficeNotesErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

@@ -1,0 +1,10 @@
+//======================================================================
+//Exclude the following tests when running all cpp test profilies
+//======================================================================
+
+// This test requires JMX interface to move messages
+org.apache.qpid.test.client.message.JMSDestinationTest#testMovedToQueue
+
+// This test requires a broker capable of 0-8/9 and 0-10
+org.apache.qpid.test.client.message.JMSDestinationTest#testReceiveResend
+

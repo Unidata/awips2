@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>HazardRecovery Procedure</title>
+</head>
+<body>
+<h1 style="text-align: center;">HazardRecovery</h1>
+<div style="text-align: center;">
+<h2>Procedure to re-initialize your Hazard grid based on current events</h2>
+March 8, 20012<br>
+<br>
+<div style="text-align: left;"><br>
+<a href="#methodology">Methodology</a><br>
+<a href="#howitworks">How It Works</a><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="methodology"></a>Methodology</h2>
+</div>
+<br>
+</div>
+<br>
+<big><big><span style="color: rgb(255, 0, 0);"><span
+ style="font-style: italic;">Hazard recovery should only be used in
+case your</span><span style="font-style: italic;"> entire hazard grid
+is lost or mangled
+by so many changes </span><span style="font-style: italic;">that you
+cannot recover. Attempt to
+restore from your </span><span style="font-style: italic;">official
+database first, if it's
+current.</span><br>
+<br>
+<small><span style="color: rgb(0, 0, 0);">The HazardRecovery procedure
+will analyze the <a href="VTEC.html">VTEC</a> active table to
+determine what hazards are in effect for your forecast area. It will
+then convert
+the hazards found in this table to gridded format in your hazard grid.
+When
+restored all hazards will be depicted by zone or county only.<br>
+<br>
+To run the hazard recover procedure, select the <span
+ style="font-weight: bold; font-style: italic;">Hazards menu</span>,
+the select <span style="font-weight: bold; font-style: italic;">HazardRecovery</span>.
+<br>
+<br>
+<img style="width: 299px; height: 316px;"
+ alt="HazardRecovery Menu Image" src="images/HazardRecoveryMenu.png"><br>
+</span></small><br>
+<small><span style="color: rgb(0, 0, 0);">After selecting
+HazardRecovery, a warning dialog will display.<br>
+<br>
+<img style="width: 706px; height: 96px;"
+ alt="Hazard Recovery Warning Image"
+ src="images/HazardRecoveryWarning.png"><br>
+</span></small><br>
+<small><span style="color: rgb(0, 0, 0);">Upon selecting <span
+ style="font-weight: bold; font-style: italic;">Ok</span>, your entire
+Hazards grid will be deleted, and replaced with the current
+hazards found in the active table.<br>
+</span></small></span></big></big><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="howitworks"></a>How It Works</h2>
+The Hazard Recovery tool calculates the current set of Hazards in
+effect (i.e., issued).&nbsp; It uses the following algorithm:<br>
+<ul>
+  <li>The VTEC active table is retrieved from EDEX.</li>
+  <li>The table is filtered and actions that are CAN, UPG, and EXP are
+removed.</li>
+  <li>Records that represent current events are kept. Current
+events are obtained from three different sources (within the VTEC
+table):</li>
+  <ul>
+    <li>Convective Watches (TO.A, SV.A) from "my" site from "my" WCN
+are considered the current issued convective watches.&nbsp; We ignore
+the WOU and other information from SPC. Convective watches from
+"my" site but from a different product are ignored.<br>
+    </li>
+    <li>Any records from "my" site are considered, both tropical and
+non-tropical.<br>
+    </li>
+    <li>Tropical Cyclone Watches/Warnings (HU, TY, TR) from TPC (which
+only contain coastal zones) are added.<br>
+    </li>
+  </ul>
+</ul>
+<br>
+The procedure then removes all Hazard grids, and then creates the
+hazards based on the calculated active events and puts them into the
+Hazards grid.<br>
+<br>
+Note: The HazardRecovery tool only recovers events that are compatible
+with the current GFE mode.&nbsp; If the GFE mode is operational, then
+only
+"X", "O", and "E" VTEC events will be considered.&nbsp; If the GFE mode
+is "TEST", then only "T" VTEC events will be considered.<br>
+<br>
+Note: HazardRecovery has been updated for the 2007 tropical season due
+to changes in the TCV product. The TCV product will now
+only contain coastal zones, thus the HazardRecovery procedure now looks
+at tropical events issued by your site.<br>
+</body>
+</html>

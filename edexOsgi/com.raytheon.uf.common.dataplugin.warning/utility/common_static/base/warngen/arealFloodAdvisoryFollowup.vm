@@ -1,0 +1,818 @@
+##############################
+## FLOOD ADVISORY FOLLOW-UP ##
+##############################
+##################################################################################
+## RECENT VERSION HISTORY:
+##           Phil Kurimski   2-28-2012  for OB 12.2.1-3                         ##
+##           Mike Dangelo    9-13-2012 minor tweaks to ${variables}             ##
+##           Phil Kurimski   2-05-2013 for OB13.2.1-3 Added rain so far section ##
+##           Mike Dangelo    9-18-2013 added initial position and pathcasting options
+##           Evan Bookbinder 9-18-2013 implemented config.vm                    ##
+##           Mike Rega       1-18-2014 added Alaska GP changes for 14.2.1       ##
+##################################################################################
+#parse("config.vm")
+#if(${action} == "EXT")
+	#set($starttime = "000000T0000Z")
+	#set($extend = true)
+#else
+	#set($starttime = ${dateUtil.format(${start}, ${timeFormat.ymdthmz})})
+	#set($extend = false)
+#end
+##
+#set($advType = "FLOOD ADVISORY")
+#set($advTypeShort = "MINOR FLOODING")
+#if(${list.contains(${bullets}, "small")})
+	#set($advType = "SMALL STREAM FLOOD ADVISORY")
+	#set($advTypeShort = "SMALL STREAM FLOODING")
+#elseif(${list.contains(${bullets}, "uss")})
+	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY")
+	#set($advTypeShort = "URBAN AND SMALL STREAM FLOODING")	
+#elseif(${list.contains(${bullets}, "arroyo")})
+	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY")
+	#set($advTypeShort = "ARROYO AND SMALL STREAM FLOODING")
+#elseif(${list.contains(${bullets}, "hydrologic")})
+	#set($advType = "HYDROLOGIC ADVISORY")
+	#set($advTypeShort = "MINOR FLOODING")
+#end
+
+#set($hycType = "")
+#set ($report = "!** warning basis **!")
+#set ($report2 = "")
+#set ($cause = "HEAVY RAIN")
+#if(${ic} == "SM")
+  #set ($cause = "SNOWMELT")   
+  #set ($hycType = "FOR SNOWMELT ")
+#end
+#if(${ic} == "RS")
+  #set ($cause = "RAIN AND SNOWMELT") 
+  #set ($hycType = "FOR RAIN AND SNOWMELT ")  
+#end
+#if(${ic} == "IJ")
+  #set ($cause = "AN ICE JAM") 
+  #set ($hycType = "FOR AN ICE JAM ")  
+#end
+#if(${ic} == "DR")
+  #set ($cause = "A DAM FLOODGATE RELEASE") 
+  #set ($hycType = "FOR A DAM FLOODGATE RELEASE ")  
+#end
+#if(${ic} == "IC")
+  #set ($cause = "AN ICE JAM AND HEAVY RAIN")   
+#end
+#if(${list.contains(${bullets}, "rapidRises")})
+  #set ($report2 = ". RAPID RISES WILL RESULT IN MINOR FLOODING") 
+  #set ($hycType = "${hycType}FOR RAPID RISES ")  
+#end
+#if(${list.contains(${bullets}, "poorDrainage")})
+  #set ($report2 = ". OVERFLOWING POOR DRAINAGE AREAS WILL RESULT IN MINOR FLOODING")   
+  #set ($hycType = "${hycType}FOR MINOR FLOODING IN POOR DRAINAGE AREAS ")
+#end
+#set($rainAmount = "") 
+#if(${list.contains(${bullets}, "rain1")} )
+  #set($rainAmount = "UP TO ONE INCH OF RAIN HAS ALREADY FALLEN.")   
+#end
+#if(${list.contains(${bullets}, "rain2")} )
+  #set($rainAmount = "UP TO TWO INCHES OF RAIN HAVE ALREADY FALLEN.")   
+#end
+#if(${list.contains(${bullets}, "rain3")} )
+  #set($rainAmount = "UP TO THREE INCHES OF RAIN HAVE ALREADY FALLEN.")   
+#end
+#if(${list.contains(${bullets}, "rainEdit")} )
+  #set($rainAmount = "!** RAINFALL AMOUNTS **! INCHES OF RAIN HAVE FALLEN.")   
+#end
+#if(${list.contains(${bullets}, "doppler")})
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains(${bullets}, "doppler")} && ${list.contains(${bullets}, "actual")})
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} CAUSING ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains(${bullets}, "doppler")} && ${list.contains(${bullets}, "thunder")})
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains(${bullets}, "dopplerGauge")})
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause}. THIS WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains(${bullets}, "dopplerGauge")} && ${list.contains(${bullets}, "actual")})
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} CAUSING ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains(${bullets}, "dopplerGauge")} && ${list.contains(${bullets}, "thunder")})
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")})
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")} && ${list.contains(${bullets}, "thunder")})
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")} && ${list.contains(${bullets}, "actual")})
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains(${bullets}, "trainedSpotters")} && ${list.contains(${bullets}, "plainRain")})
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")} && ${list.contains(${bullets}, "thunder")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")} && ${list.contains(${bullets}, "actual")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")} && ${list.contains(${bullets}, "plainRain")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")} && ${list.contains(${bullets}, "thunder")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} IN !** LOCATION **! DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")} && ${list.contains(${bullets}, "actual")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")} && ${list.contains(${bullets}, "plainRain")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains(${bullets}, "public")})
+  #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "thunder")})
+  #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **! DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}")   
+#end
+#if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "actual")})
+  #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "plainRain")})
+  #set ($report = "THE PUBLIC REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set ($report = "REPORTING GAUGES INDICATE !**EVENT TYPE**!." )   
+#end
+### GP end
+##########################################
+## FLOOD ADVISORY FOLLOW-UP HEADER INFO ##
+##########################################
+
+#if(${action}=="COR" && ${cancelareas})
+#set($CORCAN = "true")
+#else
+#set($CORCAN = "false")
+#end
+#if(${action}!="CANCON" && ${CORCAN}!="true")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FLS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLOOD ADVISORY...TEST
+#else
+FLOOD ADVISORY
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${areas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#end
+########################
+## FLOOD ADVISORY CAN ##
+########################
+#if(${action}=="CAN")
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+#### GP End
+
+#if(${list.contains(${bullets}, "recedingWater")})
+THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
+
+#end
+#if(${list.contains(${bullets}, "rainEnded")})
+THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
+
+#end
+#end
+########################
+## FLOOD ADVISORY EXP ##
+########################
+#if(${action}=="EXP")
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} ${hycType}##
+#if(${now.compareTo(${expire})} > -1)
+EXPIRED AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#else
+WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#end
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+#### GP End
+
+#if(${list.contains(${bullets}, "recedingWater")})
+THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
+
+#end
+
+#if(${list.contains(${bullets}, "rainEnded")})
+THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
+
+#end
+#end
+########################
+## FLOOD ADVISORY CON ##
+########################
+#if(${action}=="CON" || (${action}=="COR" && ${CORCAN}=="false"))
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} ${hycType}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${afectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+### GP end
+########### END HEADLINE CODE ####################
+
+#if(${productClass}=="T")
+
+THIS IS A TEST MESSAGE. ##
+#end
+############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
+#if(${list.contains(${bullets},"stormPosition")})
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+#if(${stormType} == "line")
+...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#else
+...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#end
+#if(${movementSpeed} < ${landStationary} || ${stationary})
+...AND IS STATIONARY. ##
+#else
+#if(${stormType} == "line")
+...AND MOVING ## 
+#else
+...MOVING ##
+#end
+#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ##
+#end
+${rainAmount}
+
+#else
+###############IF TRACK IS NOT ENABLED OR stormPosition IS NOT SELECTED  #######################################
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+...${report}. ${rainAmount}
+
+#end
+############################################
+######## (CITY LIST) #########
+############################################
+############# IF TRACK IS ENABLED AND pathcast AND stormPosition BOTH SELECTED ###############################################
+#if(${list.contains(${bullets},"pathcast")} && ${list.contains(${bullets}, "stormPosition")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#if($movementSpeed < 3 )
+#pathCast("HEAVY RAIN WILL CONTINUE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+#pathCast("HEAVY RAIN WILL MOVE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+#end
+#if(${list.contains(${bullets}, "listofcities")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE..." "THIS FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+## Uncomment below to pull in point marker info
+## #parse("pointMarkers.vm")
+
+#if(${list.contains(${bullets}, "addRainfall")})
+ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
+
+#end
+#if(${list.contains(${bullets}, "specificPlace")})
+MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!. 
+
+#end
+#if(${list.contains(${bullets}, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+#####################
+## CALL TO ACTIONS ##
+#####################
+##Check to see if we've selected any calls to action. In our .xml file
+##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set ($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+#if(${list.contains(${bullets}, "dontdrownCTA")})
+MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. FLOOD WATERS ARE USUALLY DEEPER THAN THEY APPEAR. JUST ONE FOOT OF FLOWING WATER IS POWERFUL ENOUGH TO SWEEP VEHICLES OFF THE ROAD. WHEN ENCOUNTERING FLOODED ROADS MAKE THE SMART CHOICE...TURN AROUND...DONT DROWN.
+
+#end
+#if(${list.contains(${bullets}, "urbanCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS AND STREAMS...AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS.
+
+#end
+#if(${list.contains(${bullets}, "ruralCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES.
+
+#end
+#if(${list.contains(${bullets}, "donotdriveCTA")})
+DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY. MOVE TO HIGHER GROUND.
+
+#end
+#if(${list.contains(${bullets}, "lowspotsCTA")})
+IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS WHICH ARE POTENTIALLY DANGEROUS IN HEAVY RAIN. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${list.contains(${bullets}, "powerCTA")})
+DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLOWING WATER CAN QUICKLY CARRY AWAY YOUR VEHICLE.
+
+#end
+#if(${list.contains(${bullets}, "reportFloodingCTA")})
+TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+
+#end
+#if(${list.contains(${bullets}, "advisoryMeansCTA")})
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+#################################### END OF CTA STUFF ###################################
+
+#end
+############################
+## FLOOD ADVISORY CAN/CON ##
+############################
+#if(${action}=="CANCON")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FLS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLOOD ADVISORY...TEST
+#else
+FLOOD ADVISORY
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+${ugclinecan}
+/${productClass}.CAN.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${cancelareas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${cancelaffectedCounties} true true true false)...
+#else
+#headlineLocList(${cancelareas} true true true false)...
+#end
+#### GP End
+###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
+###headlineLocList(${cancelaffectedCounties} true true true false)...
+########### END NEW HEADLINE CODE ####################
+
+!** THE HEAVY RAIN HAS ENDED (AND/OR) FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+${ugcline}
+/${productClass}.CON.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${areas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} REMAINS IN EFFECT UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+#### GP End
+########### END NEW HEADLINE CODE ####################
+
+#if(${productClass}=="T")
+
+THIS IS A TEST MESSAGE. ##
+#end
+############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
+#if(${list.contains(${bullets},"stormPosition")})
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+#if(${stormType} == "line")
+...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
+#else
+...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#end
+#if(${movementSpeed} < ${landStationary} || ${stationary})
+...AND IS STATIONARY. ##
+#else
+#if(${stormType} == "line")
+...AND MOVING ## 
+#else
+...MOVING ##
+#end
+#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ##
+#end
+${rainAmount}
+
+#else
+###############IF TRACK IS NOT ENABLED OR stormPosition IS NOT SELECTED  #######################################
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+...${report}. ${rainAmount}
+
+#end
+############################################
+######## (CITY LIST) #########
+############################################
+############# IF TRACK IS ENABLED AND pathcast AND stormPosition BOTH SELECTED ###############################################
+#if(${list.contains(${bullets},"pathcast")} && ${list.contains(${bullets}, "stormPosition")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#if($movementSpeed < 3 )
+#pathCast("HEAVY RAIN WILL CONTINUE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+#pathCast("HEAVY RAIN WILL MOVE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+#end
+#if(${list.contains(${bullets}, "listofcities")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE..." "THIS FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+## Uncomment below to pull in point marker info
+## #parse("pointMarkers.vm")
+
+#if(${list.contains(${bullets}, "addRainfall")})
+ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
+
+#end
+#if(${list.contains(${bullets}, "specificPlace")})
+MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!. 
+
+#end
+#if(${list.contains(${bullets}, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+#####################
+## CALL TO ACTIONS ##
+#####################
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set ($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+#if(${list.contains(${bullets}, "dontdrownCTA")})
+MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. FLOOD WATERS ARE USUALLY DEEPER THAN THEY APPEAR. JUST ONE FOOT OF FLOWING WATER IS POWERFUL ENOUGH TO SWEEP VEHICLES OFF THE ROAD. WHEN ENCOUNTERING FLOODED ROADS MAKE THE SMART CHOICE...TURN AROUND...DONT DROWN.
+
+#end
+#if(${list.contains(${bullets}, "urbanCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${list.contains(${bullets}, "ruralCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES.
+
+#end
+#if(${list.contains(${bullets}, "donotdriveCTA")})
+DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY. MOVE TO HIGHER GROUND.
+
+#end
+#if(${list.contains(${bullets}, "lowspotsCTA")})
+IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS WHICH ARE POTENTIALLY DANGEROUS IN HEAVY RAIN. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${list.contains(${bullets}, "powerCTA")})
+DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLOWING WATER CAN QUICKLY CARRY AWAY YOUR VEHICLE.
+
+#end
+#if(${list.contains(${bullets}, "reportFloodingCTA")})
+TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+
+#end
+#if(${list.contains(${bullets}, "advisoryMeansCTA")})
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED...OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+#################################### END OF CTA STUFF ###################################
+#elseif(${CORCAN}=="true")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FLS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLOOD ADVISORY...TEST
+#else
+FLOOD ADVISORY
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${cancelareas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+#### GP End
+########### END NEW HEADLINE CODE ####################
+
+!** THE HEAVY RAIN HAS ENDED (AND/OR) FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+${ugcline}
+/${productClass}.COR.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${areas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} REMAINS IN EFFECT UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+#### GP End
+########### END NEW HEADLINE CODE ####################
+
+#if(${productClass}=="T")
+
+THIS IS A TEST MESSAGE. ##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+...!** warning basis **!
+#else
+
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
+...${report}. ${rainAmount}
+#end
+
+#set ($phenomena = "FLASH FLOOD") 
+#set ($warningType = "ADVISORY") 
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE MINOR FLOODING INCLUDE" "THE FLOODING IS EXPECTED TO IMPACT MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#if(${list.contains(${bullets}, "addRainfall")})
+ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
+
+#end
+#if(${list.contains(${bullets}, "specificPlace")})
+MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!. 
+
+#end
+#if(${list.contains(${bullets}, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+## Uncomment below to pull in point marker info
+## #parse("pointMarkers.vm")
+
+#####################
+## CALL TO ACTIONS ##
+#####################
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set ($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+#if(${list.contains(${bullets}, "dontdrownCTA")})
+MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. FLOOD WATERS ARE USUALLY DEEPER THAN THEY APPEAR. JUST ONE FOOT OF FLOWING WATER IS POWERFUL ENOUGH TO SWEEP VEHICLES OFF THE ROAD. WHEN ENCOUNTERING FLOODED ROADS MAKE THE SMART CHOICE...TURN AROUND...DONT DROWN.
+
+#end
+#if(${list.contains(${bullets}, "urbanCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${list.contains(${bullets}, "ruralCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES.
+
+#end
+#if(${list.contains(${bullets}, "donotdriveCTA")})
+DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY. MOVE TO HIGHER GROUND.
+
+#end
+#if(${list.contains(${bullets}, "lowspotsCTA")})
+IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS WHICH ARE POTENTIALLY DANGEROUS IN HEAVY RAIN. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${list.contains(${bullets}, "powerCTA")})
+DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLOWING WATER CAN QUICKLY CARRY AWAY YOUR VEHICLE.
+
+#end
+#if(${list.contains(${bullets}, "reportFloodingCTA")})
+TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+
+#end
+#if(${list.contains(${bullets}, "advisoryMeansCTA")})
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED...OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+#parse("forecasterName.vm")

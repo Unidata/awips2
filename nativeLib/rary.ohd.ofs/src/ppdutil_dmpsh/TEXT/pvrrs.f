@@ -1,0 +1,307 @@
+C MODULE PVRRS
+C-----------------------------------------------------------------------
+C
+C  PGM: PVRRS(IUNT,STAID,DTYPE,JULDB,JULDE,IUNFLG,ICOND) . SHEF-OUT RRS
+C
+C   IN: IUNT ......... UNIT NUMBER FOR OUTPUT IN SHEF FORMAT - INT
+C   IN: STAID ........ STATION ID AS 8 PACKED CHARS (A8) - CHAR
+C   IN: DTYPE ........ DATA TYPE AS 4 PACKED CHARS (A4) - CHAR
+C   IN: JULDB ........ BEGINNING ORDINAL DAY NUM (JAN 1 1900 IS 1) - INT
+C   IN: JULDE ........ ENDING ORDINAL DAY NUMBER (JAN 1 1900 IS 1) - INT
+C   IN: IUNFLG ....... UNITS FLAG, 0 = ENGLISH, 1 = METRIC - INT
+C  I/O: ICOND ........ CONDITION FLAG, IF NOT 0 SKIP RTN, 1 = ERR - INT
+C
+C  =====================================================================
+C
+      SUBROUTINE PVRRS (IUNT,STAID,DTYPE,JULHB,JULHE,IUNFLG,ICOND)
+C
+      CHARACTER*4 DTYPE,DTYPEX
+      CHARACTER*4 TZCODE/'Z'/
+      PARAMETER (NDTOFS=22)
+      CHARACTER*4 DTOFS(NDTOFS)/
+     *            'STG ','PELV','LELV','LAKH','TWEL',
+     *            'TWSW','QIN ','RQOT','DQIN','RQIN',
+     *            'RQSW','QME ','DQME','RQME','RQIM',
+     *            'RQGM','RSTO','AESC','SNWE','SNOG',
+     *            'GATE','ZELV'/
+      PARAMETER (NDTSHF=22)
+      CHARACTER*4 DTSHF(NDTSHF)/
+     *            'HGIR','HPIR','HLIR','HKIR','HTIR',
+     *            'HWIR','QRIR','QTIR','QDIR','QIIR',
+     *            'QSIR','QRZR','QDZR','QTZR','QIZR',
+     *            'QGZR','LSIR','SAIR','SWIR','SDIR',
+     *            'NGIR','HZIR'/
+      CHARACTER*1 ITDUR(25)/
+     *            'I','H','B','T','F','Z','Q','Z','A','Z',
+     *            'Z','Z','K','Z','Z','Z','Z','Z','L','Z',
+     *            'Z','Z','Z','Z','D' /
+      CHARACTER*8 STAID,ROUTN
+      CHARACTER*80 LINE
+C
+      PARAMETER (LMINUTS=750)
+      DIMENSION MINUTS(LMINUTS)
+      PARAMETER (LOBS=LMINUTS*2)
+      INTEGER   OBS(LOBS)
+      DIMENSION DVALS(LOBS),DTIME(LOBS)
+      PARAMETER (LIWKBUF=2000)
+      DIMENSION IWKBUF(LIWKBUF)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'pdbcommon/pddtdr'
+      INCLUDE 'pdbcommon/pdbdta'
+      INCLUDE 'pdbcommon/pdtrrx'
+      INCLUDE 'hclcommon/hdflts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppdutil_dmpsh/RCS/pvrrs.f,v $
+     . $',                                                             '
+     .$Id: pvrrs.f,v 1.2 2002/02/11 20:49:04 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      ROUTN='PVRRS'
+C
+C  CALL TRACE ROUTINE FOR ENTRY INTO THIS ROUTINE
+      CALL PVSUBB (ROUTN,ICOND)
+      IF (ICOND.NE.0) GO TO 140
+C
+      LDEBUG=0
+C
+C  CHECK IF RRS DATA TYPE
+      IRX=IPDCKR(DTYPE)
+      IF (IRX.EQ.0) GO TO 140
+C
+C  SET INDICATOR THAT STATION ID IS A NAME
+      ISTAF1=0
+C
+C  SET DATES
+      JULHBP=JULHB+NHOPDB
+      JULHEP=JULHE+NHOPDB
+C
+C  READ DATA
+      CALL RPDRRS (STAID,ISTAF1,DTYPE,NVLPOB,JULHBP,JULHEP,
+     *   LOBS,OBS,NUMOBS,LMINUTS,MINUTS,LIWKBUF,IWKBUF,LSTHR,ISTAT)
+      KEYE=1
+      CALL PVERRS (KEYE,STAID,DTYPE,ISTAT)
+      IF (ISTAT.NE.0) GO TO 140
+      IF (NUMOBS.EQ.0) THEN
+         WRITE (LP,10) DTYPE,STAID
+10    FORMAT ('0**NOTE** NO OBS ON FILE FOR RRS TYPE ',A,
+     *   ' FOR STATION ',A,'.')
+         GO TO 140
+         ENDIF
+C
+C  COMPUTE NUMBER OF DATA VALUES
+      NVALS=NUMOBS*NVLPOB
+C
+C  GET DATA VALUES AND NUMBER OF DATA PERIODS
+      NDVALS=0
+      DO 20 I=2,NVALS,NVLPOB
+         NDVALS=NDVALS+1
+         CALL UMEMOV (OBS(I),DVALS(NDVALS),1)
+20       CONTINUE
+C
+C  CHECK IF NEED TO CONVERT DATA UNITS
+      CALL PFDUNT (DTYPE,IUNFLG,IUNIT)
+      CFACT=1.0
+      TFACT=0.0
+      CALL PDCKCV (IUNIT,DTYPE,2,ICONVT,CFACT,TFACT,ISTAT)
+      IF (ISTAT.NE.0) GO TO 140
+      IF (ICONVT.EQ.1) THEN
+         RMISS=MISSNG
+         NSKIP=1
+         CALL PDCNVT (CFACT,TFACT,NDVALS,NSKIP,RMISS,DVALS)
+         ENDIF
+C
+C  SET FIELD LENGTH AND NUMBER OF DECIMAL PLACES
+      LFLD=LFIELD(IRX)
+      NDEC=NUMDEC(IRX)
+C
+C  GET SHEF DATA TYPE FROM PPDB DATA TYPE
+      DO 30 IDTOFS=1,NDTOFS
+         IF (DTYPE.EQ.DTOFS(IDTOFS)) THEN
+            DTYPEX=DTSHF(IDTOFS)
+            GO TO 50
+            ENDIF
+30       CONTINUE
+      WRITE (LP,40) DTYPE,STAID
+40    FORMAT ('0**ERROR** RRS DATA TYPE ',A,' FOR STATION ',A,
+     *   ' CANNOT BE OUTPUT IN SHEF.')
+      CALL UEROR (LP,0,-1)
+      GO TO 140
+C
+C  CHECK IF NEED TO CONVERT DATA
+50    IF (IDTOFS.GE.7.AND.IDTOFS.LE.17) THEN
+C     CONVERT TO KCFS
+         CFACT=0.001
+         TFACT=0.0005
+         NPER=1
+         RMISS=MISSNG
+         CALL PDCNVT (CFACT,TFACT,NDVALS,NPER,RMISS,DVALS)
+         ENDIF
+      IF (DTYPE.EQ.'ZELV') THEN
+         CFACT=0.001
+         TFACT=0.0
+         NPER=1
+         RMISS=MISSNG
+         CALL PDCNVT (CFACT,TFACT,NDVALS,NPER,RMISS,DVALS)
+         ENDIF
+C
+C  CHECK IF NEED TO CHANGE FIELD WIDTH AND NUMBER OF DECIMAL PLACES
+      IF (IDTOFS.GT.0.AND.IDTOFS.LT.17) LFLD=11
+      IF (IDTOFS.GT.0.AND.IDTOFS.LT.07) NDEC=2
+      IF (IDTOFS.GT.6.AND.IDTOFS.LT.17) NDEC=3
+C
+C  SET UP SHEF FORMAT LINE
+      LINE=' '
+      CALL UMOVEX ('.A',1,LINE,1,2)
+      CALL UMOVEX (STAID,1,LINE,5,8)
+      CALL UMOVEX ('Z',1,LINE,21,1)
+      CALL UMOVEX ('DH',1,LINE,23,2)
+      CALL UMOVEX ('/',1,LINE,29,1)
+      CALL UMOVEX ('DU',1,LINE,30,2)
+      IF ( IUNFLG.EQ.0 ) CALL UMOVEX ('E',1,LINE,32,1)
+      IF ( IUNFLG.NE.0 ) CALL UMOVEX ('S',1,LINE,32,1)
+      CALL UMOVEX ('/',1,LINE,33,1)
+C
+C  CHECK NUMBER OF VALUES PER OBSERVATION
+      IF (NVLPOB.EQ.3) GO TO 110
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  2 VALUES PER OBSERVATION - INSTANTANEOUS DATA
+C
+      CALL UMOVEX (DTYPEX,1,LINE,34,4)
+C
+      IOBS=1
+      DO 100 IDVALS=1,NDVALS
+         LINE(38:LEN(LINE))=' '
+C     COMPUTE DATE
+         IMINS=MINUTS(IDVALS)
+         IF (IMINS.GT.30) OBS(IOBS)=OBS(IOBS)-1
+         IFDAY=(OBS(IOBS)-NHOPDB)/24+1
+         IFD=IFDAY*24
+         IFH=OBS(IOBS)-IFD+NHOPDB
+         CALL MDYH2 (IFDAY,IFH,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TZCODE)
+C     START OF CHANGES TO FIX MAINTENANCE REQUEST 1547
+         IF (IHR.EQ.24.AND.IMINS.GT.0) THEN
+C        INCREMENT DAY NUMBER
+            IADD=1
+            CALL DDVCCD (IYR,IMO,IDAY,IYRN,IMON,IDAYN,IADD)
+            IF (LDEBUG.GT.O) WRITE (LP,60) IHR,
+     *         IMO,IDAY,IYR,IHR,TZCODE,
+     *         DTYPE,STAID,
+     *         IMON,IDAYN,IYRN,IHRN,TZCODE
+60    FORMAT (' HOUR IS ',I2,
+     *   ' FOR DATE ',I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A,
+     *   ' FOR DATA TYPE ',A,' FOR STATION ',A,
+     *   ' AND WILL BE CHANGED TO ',I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A)
+            IMO=IMON
+            IDAY=IDAYN
+            IHR=IHRN
+            IYR=IYRN
+            ENDIF
+C     END OF CHANGES TO FIX MAINTENANCE REQUEST 1547
+         IYR=MOD(IYR,100)
+C     CONVERT DATE TO CHARACTERS
+         CALL UFI2AZ (LINE,14,2,1,IYR)
+         CALL UFI2AZ (LINE,16,2,1,IMO)
+         CALL UFI2AZ (LINE,18,2,1,IDAY)
+         CALL UFI2AZ (LINE,25,2,1,IHR)
+         CALL UFI2AZ (LINE,27,2,1,IMINS)
+C     CONVERT DATA VALUE TO CHARACTERS
+C     START OF CHANGES TO FIX MAINTENANCE REQUEST 1520
+         LFLDT=LFLD
+         NDECT=NDEC
+         IF (DVALS(IDVALS).EQ.-999.0) THEN
+            LFLDT=5
+            NDECT=0
+            ENDIF
+C     END OF CHANGES TO FIX MAINTENANCE REQUEST 1520
+         IPRERR=1
+         CALL UFF2A (DVALS(IDVALS),LINE,39,LFLDT,NDECT,IPRERR,LP,IERR)
+         IF (IERR.NE.0) THEN
+            WRITE (LP,70) STAID,DTYPE
+70    FORMAT ('0**ERROR** CONVERTING DATA VALUE FOR DATA TYPE ',A,
+     *   ' FOR STATION ',A,'.' $)
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,80) LINE
+80    FORMAT (' THE SHEF MESSAGE BEING CREATED IS:' / T14,A)
+            ENDIF
+         ICKVAL=24
+         IF (IHR.EQ.ICKVAL.AND.IMINS.GT.0) THEN
+            WRITE (LP,90) IHR,ICKVAL,STAID,DTYPE
+90    FORMAT ('0**WARNING** HOUR (',I2,') IS EQUAL TO ',I2,
+     *   ' FOR DATA TYPE ',A,' FOR STATION ',A,'.' $)
+            CALL UWARN (LP,0,-1)
+            WRITE (LP,80) LINE
+            ENDIF
+C     OUTPUT SHEF DATA LINE ON UNIT IUNT
+         WRITE (IUNT,'(A)') LINE(1:LENSTR(LINE))
+         IOBS=IOBS+NVLPOB
+100      CONTINUE
+C
+       GO TO 140
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  3 VALUES PER OBSERVATION - MEAN DATA
+C
+C  GET DATA TIME INTERVAL OF EACH OBSERVTION
+110   IDTIME=0
+      DO 120 I=3,NVALS,NVLPOB
+         IDTIME=IDTIME+1
+         DTIME(IDTIME)=OBS(I)
+120      CONTINUE
+C
+      CALL UMOVEX ('DVH',1,LINE,34,3)
+      CALL UMOVEX ('/',1,LINE,39,1)
+      CALL UMOVEX (DTYPEX,1,LINE,40,4)
+C
+      IOBS=1
+      DO 130 IDVALS=1,NDVALS
+         LINE(44:LEN(LINE))=' '
+C     COMPUTE DATE
+         IFDAY=(OBS(IOBS)-NHOPDB)/24+1
+         IFD=IFDAY*24
+         IFH=OBS(IOBS)-IFD+NHOPDB
+         CALL MDYH2 (IFDAY,IFH,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TZCODE)
+         IYR=MOD(IYR,100)
+C     GET DATA TIME INTERVAL
+         ITIME=DTIME(IDVALS)
+C     CONVERT DATE TO CHARACTERS
+         CALL UFI2AZ (LINE,14,2,1,IYR)
+         CALL UFI2AZ (LINE,16,2,1,IMO)
+         CALL UFI2AZ (LINE,18,2,1,IDAY)
+         CALL UFI2AZ (LINE,25,2,1,IHR)
+         CALL UFI2AZ (LINE,37,2,1,ITIME)
+         IF (ITIME.GE.0.AND.ITIME.LE.24) THEN
+            CALL UMOVEX (ITDUR(ITIME+1),1,LINE,42,1)
+            ENDIF
+C     CONVERT DATA VALUE TO CHARACTERS
+         LFLDT=LFLD
+         NDECT=NDEC
+         IF (DVALS(IDVALS).EQ.-999.0) THEN
+            LFLDT=5
+            NDECT=0
+            ENDIF
+         IPRERR=1
+         CALL UFF2A (DVALS(IDVALS),LINE,45,LFLDT,NDECT,IPRERR,LP,IERR)
+         IF (IERR.NE.0) THEN
+            WRITE (LP,70) STAID,DTYPE
+            CALL UEROR (LP,0,-1)
+            WRITE (LP,80) LINE
+            ENDIF
+C     OUTPUT SHEF DATA LINE ON UNIT IUNT
+         WRITE (IUNT,'(A)') LINE(1:LENSTR(LINE))
+         IOBS=IOBS+NVLPOB
+130      CONTINUE
+C
+140   CALL PVSUBE (ROUTN,ICOND)
+C
+      RETURN
+C
+      END

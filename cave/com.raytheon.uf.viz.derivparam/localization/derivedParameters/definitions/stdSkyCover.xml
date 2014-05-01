@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter name="Std Sky Cover" abbreviation="stdSkyCover">
+    <Method name="StdMOS">
+        <Field abbreviation="QPF6hr_bestCat"/>
+        <Field abbreviation="clouds_bestCat"/>
+    </Method>
+</DerivedParameter>

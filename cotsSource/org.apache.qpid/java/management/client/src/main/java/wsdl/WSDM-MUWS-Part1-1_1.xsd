@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+
+<xs:schema
+    targetNamespace="http://docs.oasis-open.org/wsdm/muws1-2.xsd"	
+    xmlns:muws1="http://docs.oasis-open.org/wsdm/muws1-2.xsd"
+    xmlns:wsa="http://www.w3.org/2005/08/addressing"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xs:import namespace="http://www.w3.org/2005/08/addressing"
+             schemaLocation="WS-Addressing-2005_08.xsd"/>
+
+
+  <xs:element name="ResourceId" type="xs:anyURI"/>
+  <xs:element name="ManageabilityCapability" type="xs:anyURI"/>
+
+
+  <xs:complexType name="CorrelatablePropertiesType">
+    <xs:sequence>
+      <xs:any minOccurs="0" maxOccurs="unbounded"
+              namespace="##other" processContents="lax"/>
+    </xs:sequence>
+    <xs:attribute name="Dialect" type="xs:anyURI"/>
+    <xs:attribute name="NegativeAssertionPossible" type="xs:boolean"/>
+    <xs:anyAttribute namespace="##other"/>
+  </xs:complexType>
+
+  <xs:element name="CorrelatableProperties"
+              type="muws1:CorrelatablePropertiesType"/>
+
+ 
+  <xs:complexType name="ComponentAddressType">
+    <xs:sequence>
+      <xs:any namespace="##any" processContents="lax"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ComponentType">
+    <xs:sequence>
+      <xs:element name="ResourceId" type="xs:anyURI"
+                  minOccurs="0"/>
+      <xs:element name="ComponentAddress"
+                  type="muws1:ComponentAddressType"
+                  minOccurs="0" maxOccurs="unbounded"/>
+      <xs:any minOccurs="0" maxOccurs="unbounded"
+              namespace="##other" processContents="lax"/>
+    </xs:sequence>
+    <xs:anyAttribute namespace="##other"/>
+  </xs:complexType>
+
+   
+  <xs:complexType name="ManagementEventType">
+    <xs:sequence>
+      <xs:element name="EventId" type="xs:anyURI"/>
+      <xs:element name="SourceComponent" type="muws1:ComponentType"/>
+      <xs:element name="ReporterComponent" type="muws1:ComponentType"
+                  minOccurs="0"/>
+      <xs:any minOccurs="0" maxOccurs="unbounded"
+              namespace="##other" processContents="lax"/>
+    </xs:sequence>
+    <xs:attribute name="ReportTime" type="xs:dateTime" use="optional"/>
+    <xs:anyAttribute namespace="##other"/>
+  </xs:complexType>
+
+  <xs:element name="ManagementEvent" 
+              type="muws1:ManagementEventType"/>
+
+  <xs:element name="ManageabilityEndpointReference"
+              type="wsa:EndpointReferenceType"/>
+
+
+<!--   
+                                       SCHEMA COPY Material
+Copy and paste element references below into the schema of a resource properties document.
+These references are provide to insure that the correct minOccurs/maxOccurs attributes are specified in a resource property document schema.
+
+NOTE: You must import the MUWS Part 1 schema namespace (MUWS1).
+
+        **    Identity Properties    **
+          <xs:element ref="muws1:ResourceId"/>
+
+
+        **    ManageabilityCharacteristics Properties    **
+          <xs:element ref="muws1:ManageabilityCapability"
+                      minOccurs="0" maxOccurs="unbounded"/>
+
+        **    Correlatable Properties    **
+          <xs:element ref="muws1:CorrelatableProperties"
+                      minOccurs="0" maxOccurs="unbounded"/>
+
+-->
+
+</xs:schema>
+

@@ -1,0 +1,58 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="getNotificationHandler"
+		class="com.raytheon.uf.edex.datadelivery.event.handler.GetNotificationHandler">
+		<property name="notificationDao" ref="notificationDao" />
+	</bean>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.datadelivery.event.notification.GetNotificationRequest" />
+		<constructor-arg ref="getNotificationHandler" />
+	</bean>
+
+	<bean id="deleteNotificationHandler"
+		class="com.raytheon.uf.edex.datadelivery.event.handler.DeleteNotificationHandler">
+		<constructor-arg type="java.lang.String" value="jms-generic:topic:notify.msg" />
+		<property name="notificationDao" ref="notificationDao" />
+	</bean>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.datadelivery.event.notification.DeleteNotificationRequest" />
+		<constructor-arg ref="deleteNotificationHandler" />
+	</bean>
+
+	<bean id="subscriptionNotificationHandler"
+		class="com.raytheon.uf.edex.datadelivery.event.handler.SubscriptionNotificationHandler">
+		<constructor-arg type="java.lang.String" value="jms-generic:topic:notify.msg" />
+		<property name="notificationDao" ref="notificationDao" />
+	</bean>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.datadelivery.service.SubscriptionNotificationRequest" />
+		<constructor-arg ref="subscriptionNotificationHandler" />
+	</bean>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.datadelivery.service.ApprovedPendingSubscriptionNotificationRequest" />
+		<constructor-arg ref="subscriptionNotificationHandler" />
+	</bean>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.datadelivery.service.DeniedPendingSubscriptionNotificationRequest" />
+		<constructor-arg ref="subscriptionNotificationHandler" />
+	</bean>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.datadelivery.service.PendingSubscriptionNotificationRequest" />
+		<constructor-arg ref="subscriptionNotificationHandler" />
+	</bean>
+
+	<bean id="notificationDao"
+		class="com.raytheon.uf.edex.datadelivery.event.notification.NotificationDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+
+
+</beans>

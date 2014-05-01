@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+aclocal -I m4
+autoheader
+libtoolize --automake
+
+automake
+autoconf
+
+if [ "$1" = "-build" -o "$1" = "--build" ] ; then
+    shift
+    ./configure "$@"
+    make
+    make check
+fi

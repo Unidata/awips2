@@ -1,0 +1,143 @@
+
+    * How to connect with the Broker *
+    ---------------------------------
+
+Before you come in to this state you have to build the source or you
+can get the binary and extract then set the QPID_CLI environment
+variable to the main directory of the source or binary,then only you
+are in a position to start working with management console. First
+check whether the broker is up and running. In order to simply connect
+with the broker you can run the qpid-cli script which required
+arguments.
+
+${QPID_CLI}/bin/qpid-cli -h [HostName of IP of the broker ] -p [Port
+of the broker]
+
+Default values for arguments -h [localhost] -p [8999]
+
+    * One Shot mode *
+    -----------------
+
+With one shot mode you can run interactive mode commands for one time
+and disconnect with the broker.This feature is useful when you want to
+run particular command in the management console using a script which
+is running in the normal console.What you have to do is you have to
+give the command you want to run with the qpid-cli script running
+command.
+
+Ex 1: $QPID_CLI/bin/qpid-cli queue list -- This will list the queue
+objects and disconnect.
+
+Ex 2: $QPID_CLI/bin/qpid-cli queue view -n ping - This will display
+information about all the message in the queue with the name of ping
+
+Likewise you can run any command in one shot mode and get the output
+for one time.
+
+    * Report Generation Mode *
+    -------------------------
+
+If you want to generate reports you can do it by defining your
+required information using a property file. There's a sample property
+file in the parent directory and you can have a look and get an idea
+about that.You can generate reports by giving a time interval in the
+property file. In order to start the daemon mode you have to run the
+qpid-cli script with the option : -r by giving the path for your
+property file.
+
+Ex: $QPID_CLI/bin/qpid-cli -r ../report.property
+
+You should specify a property file in order to run the daemon mode and
+get information repeatedly.
+
+    * Interactive mode with number of command *
+    -------------------------------------------
+
+This is the mode you get when you run the qpid-cli script without the
+one shot mode and without the daemon mode with [-r] option.Once you
+connect with the broker it display you a prompt [qpid-admin-$], then
+you can run several commands to can perform following tasks.
+
+For all the commands object type is command and most important command
+so you can use this option value without giving the option letter by
+giving that option value at the beginning of the command.
+
+Ex: [list -o queue ] can use this command like this dropping -o option
+[queue list]
+Ex: [list -o queue -n ping] = [queue list -n ping]
+
+    * Data displaying commands *
+    ----------------------------
+
+This is the set of commands which display the information about
+broker.
+
+list : 
+------
+list information about the given object type with limited
+number of attributes and you can use number of command options to get
+different useful behaviors with the list command.You can get the
+complete description about the command by running the command like
+this.[list -h].
+
+info :
+------ 
+list all the attributes of a given object type. This command
+works very similar way to list command. You can use -h option for help
+and get complete description of the info command.
+
+view :
+------
+view information about the content of the message in the queue
+object. In order to run this command you have to specify the object
+type at the beginning.You can give how many message informations you
+want to view from the top of the queue by using -t option.
+
+Ex : queue view -n message_queue -t 5
+[list the message info for top 5 messages in queue message_queue]
+
+viewcontent :
+-------------
+view the content of the a given message in the
+queue. You have to give the messageId as a parameter with -id option
+letters.
+
+Ex: queue viewcontent -n message_queue -id 12
+[list the content encoding and Mimetype of the message with the
+messageId for the give message which is in the queue message_queue]
+
+    * Data modification commands *
+    ------------------------------
+
+This is a set of commands which allow users to deal with messages in
+queues.Users can delete messages from a give queue and user's can move
+one message from one queue to another queue.
+
+delete :
+--------
+Using this command user can delete a give message from a given
+queue you can specify how many messages you want to delete from the
+queue from the top of the queue by using -t option.If user does not
+give how many messages to delete from the top of the queue program is
+going to delete all the messages from the queue after giving a prompt
+to confirm the deletion.
+
+Ex: queue delete -n message_queue -t 3
+[Delete top three messages in the queue message_queue ]
+
+move : 
+------
+This command allow user to move number of messages from one
+queue to another queue. First you have to specify from which queue you
+want to move messages by using -n1 and -v1 option letters(-n1 queue
+name/ -v1 virtual host).Then you have to use -n2 option to give the
+target queue name and then you have to give From messageId and To
+messageId using -fmid and -tmid option letters to specify the messages
+range you want to do the move operation.
+
+Ex: queue move -n1 message_queue -n2 ping -fmid 13 -tmid 15
+[This will move messages with the messageId range of 13-15 from queue
+message_queue to queue ping.
+
+
+

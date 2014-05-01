@@ -1,0 +1,3 @@
+      integer*2 ihfld
+      common / ghfld / mhfld,ihfld(250000)
+      

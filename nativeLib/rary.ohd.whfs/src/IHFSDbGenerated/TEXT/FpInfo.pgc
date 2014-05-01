@@ -1,0 +1,720 @@
+/* This is a view record ! */
+/*
+    File: FpInfo.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:33 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "FpInfo.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct FpInfo_t
+{
+    char		lid[9];
+    char		name[51];
+    char		county[21];
+    char		state[3];
+    char		hsa[4];
+    char		primary_back[4];
+    char		secondary_back[4];
+    char		stream[33];
+    double		bf;
+    double		wstg;
+    double		fs;
+    double		fq;
+    double		action_flow;
+    char		pe[3];
+    char		use_latest_fcst[2];
+    char		proximity[7];
+    char		reach[81];
+    char		group_id[9];
+    long		ordinal;
+    double		chg_threshold;
+    char		rec_type[4];
+    long		backhrs;
+    long		forwardhrs;
+    double		adjustendhrs;
+    double		minor_stage;
+    double		moderate_stage;
+    double		major_stage;
+    double		minor_flow;
+    double		moderate_flow;
+    double		major_flow;
+
+    int		ind_lid;
+    int		ind_name;
+    int		ind_county;
+    int		ind_state;
+    int		ind_hsa;
+    int		ind_primary_back;
+    int		ind_secondary_back;
+    int		ind_stream;
+    int		ind_bf;
+    int		ind_wstg;
+    int		ind_fs;
+    int		ind_fq;
+    int		ind_action_flow;
+    int		ind_pe;
+    int		ind_use_latest_fcst;
+    int		ind_proximity;
+    int		ind_reach;
+    int		ind_group_id;
+    int		ind_ordinal;
+    int		ind_chg_threshold;
+    int		ind_rec_type;
+    int		ind_backhrs;
+    int		ind_forwardhrs;
+    int		ind_adjustendhrs;
+    int		ind_minor_stage;
+    int		ind_moderate_stage;
+    int		ind_major_stage;
+    int		ind_minor_flow;
+    int		ind_moderate_flow;
+    int		ind_major_flow;
+} FpInfo_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+FpInfo * GetFpInfo(const char * where)
+{
+
+    FpInfo * listPtr = NULL;
+    FpInfo * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM FpInfo ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FpInfo_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFpInfo() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFpInfo() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFpInfo() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, 
+    :dbs.hsa:dbs.ind_hsa, :dbs.primary_back:dbs.ind_primary_back, 
+    :dbs.secondary_back:dbs.ind_secondary_back, :dbs.stream:dbs.ind_stream, 
+    :dbs.bf:dbs.ind_bf, :dbs.wstg:dbs.ind_wstg, 
+    :dbs.fs:dbs.ind_fs, :dbs.fq:dbs.ind_fq, 
+    :dbs.action_flow:dbs.ind_action_flow, :dbs.pe:dbs.ind_pe, 
+    :dbs.use_latest_fcst:dbs.ind_use_latest_fcst, :dbs.proximity:dbs.ind_proximity, 
+    :dbs.reach:dbs.ind_reach, :dbs.group_id:dbs.ind_group_id, 
+    :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, 
+    :dbs.rec_type:dbs.ind_rec_type, :dbs.backhrs:dbs.ind_backhrs, 
+    :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs, 
+    :dbs.minor_stage:dbs.ind_minor_stage, :dbs.moderate_stage:dbs.ind_moderate_stage, 
+    :dbs.major_stage:dbs.ind_major_stage, :dbs.minor_flow:dbs.ind_minor_flow, 
+    :dbs.moderate_flow:dbs.ind_moderate_flow, :dbs.major_flow:dbs.ind_major_flow    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFpInfo() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (FpInfo *) malloc(sizeof(FpInfo))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            strcpy(structPtr->primary_back, dbs.primary_back);
+            setNullIfIndicated(dbs.ind_primary_back, CHAR, structPtr->primary_back);
+
+            strcpy(structPtr->secondary_back, dbs.secondary_back);
+            setNullIfIndicated(dbs.ind_secondary_back, CHAR, structPtr->secondary_back);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            structPtr->bf = dbs.bf;
+            setNullIfIndicated(dbs.ind_bf, DOUBLE, &structPtr->bf);
+
+            structPtr->wstg = dbs.wstg;
+            setNullIfIndicated(dbs.ind_wstg, DOUBLE, &structPtr->wstg);
+
+            structPtr->fs = dbs.fs;
+            setNullIfIndicated(dbs.ind_fs, DOUBLE, &structPtr->fs);
+
+            structPtr->fq = dbs.fq;
+            setNullIfIndicated(dbs.ind_fq, DOUBLE, &structPtr->fq);
+
+            structPtr->action_flow = dbs.action_flow;
+            setNullIfIndicated(dbs.ind_action_flow, DOUBLE, &structPtr->action_flow);
+
+            strcpy(structPtr->pe, dbs.pe);
+            setNullIfIndicated(dbs.ind_pe, CHAR, structPtr->pe);
+
+            strcpy(structPtr->use_latest_fcst, dbs.use_latest_fcst);
+            setNullIfIndicated(dbs.ind_use_latest_fcst, CHAR, structPtr->use_latest_fcst);
+
+            strcpy(structPtr->proximity, dbs.proximity);
+            setNullIfIndicated(dbs.ind_proximity, CHAR, structPtr->proximity);
+
+            strcpy(structPtr->reach, dbs.reach);
+            setNullIfIndicated(dbs.ind_reach, CHAR, structPtr->reach);
+
+            strcpy(structPtr->group_id, dbs.group_id);
+            setNullIfIndicated(dbs.ind_group_id, CHAR, structPtr->group_id);
+
+            structPtr->ordinal = dbs.ordinal;
+            setNullIfIndicated(dbs.ind_ordinal, INT, &structPtr->ordinal);
+
+            structPtr->chg_threshold = dbs.chg_threshold;
+            setNullIfIndicated(dbs.ind_chg_threshold, DOUBLE, &structPtr->chg_threshold);
+
+            strcpy(structPtr->rec_type, dbs.rec_type);
+            setNullIfIndicated(dbs.ind_rec_type, CHAR, structPtr->rec_type);
+
+            structPtr->backhrs = dbs.backhrs;
+            setNullIfIndicated(dbs.ind_backhrs, INT, &structPtr->backhrs);
+
+            structPtr->forwardhrs = dbs.forwardhrs;
+            setNullIfIndicated(dbs.ind_forwardhrs, INT, &structPtr->forwardhrs);
+
+            structPtr->adjustendhrs = dbs.adjustendhrs;
+            setNullIfIndicated(dbs.ind_adjustendhrs, DOUBLE, &structPtr->adjustendhrs);
+
+            structPtr->minor_stage = dbs.minor_stage;
+            setNullIfIndicated(dbs.ind_minor_stage, DOUBLE, &structPtr->minor_stage);
+
+            structPtr->moderate_stage = dbs.moderate_stage;
+            setNullIfIndicated(dbs.ind_moderate_stage, DOUBLE, &structPtr->moderate_stage);
+
+            structPtr->major_stage = dbs.major_stage;
+            setNullIfIndicated(dbs.ind_major_stage, DOUBLE, &structPtr->major_stage);
+
+            structPtr->minor_flow = dbs.minor_flow;
+            setNullIfIndicated(dbs.ind_minor_flow, DOUBLE, &structPtr->minor_flow);
+
+            structPtr->moderate_flow = dbs.moderate_flow;
+            setNullIfIndicated(dbs.ind_moderate_flow, DOUBLE, &structPtr->moderate_flow);
+
+            structPtr->major_flow = dbs.major_flow;
+            setNullIfIndicated(dbs.ind_major_flow, DOUBLE, &structPtr->major_flow);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, 
+        :dbs.hsa:dbs.ind_hsa, :dbs.primary_back:dbs.ind_primary_back, 
+        :dbs.secondary_back:dbs.ind_secondary_back, :dbs.stream:dbs.ind_stream, 
+        :dbs.bf:dbs.ind_bf, :dbs.wstg:dbs.ind_wstg, 
+        :dbs.fs:dbs.ind_fs, :dbs.fq:dbs.ind_fq, 
+        :dbs.action_flow:dbs.ind_action_flow, :dbs.pe:dbs.ind_pe, 
+        :dbs.use_latest_fcst:dbs.ind_use_latest_fcst, :dbs.proximity:dbs.ind_proximity, 
+        :dbs.reach:dbs.ind_reach, :dbs.group_id:dbs.ind_group_id, 
+        :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, 
+        :dbs.rec_type:dbs.ind_rec_type, :dbs.backhrs:dbs.ind_backhrs, 
+        :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs, 
+        :dbs.minor_stage:dbs.ind_minor_stage, :dbs.moderate_stage:dbs.ind_moderate_stage, 
+        :dbs.major_stage:dbs.ind_major_stage, :dbs.minor_flow:dbs.ind_minor_flow, 
+        :dbs.moderate_flow:dbs.ind_moderate_flow, :dbs.major_flow:dbs.ind_major_flow        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetFpInfo() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+FpInfo * SelectFpInfo(const char * where)
+{
+
+    FpInfo * listPtr = NULL;
+    FpInfo * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM FpInfo ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct FpInfo_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFpInfo() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFpInfo() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFpInfo() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, 
+    :dbs.hsa:dbs.ind_hsa, :dbs.primary_back:dbs.ind_primary_back, 
+    :dbs.secondary_back:dbs.ind_secondary_back, :dbs.stream:dbs.ind_stream, 
+    :dbs.bf:dbs.ind_bf, :dbs.wstg:dbs.ind_wstg, 
+    :dbs.fs:dbs.ind_fs, :dbs.fq:dbs.ind_fq, 
+    :dbs.action_flow:dbs.ind_action_flow, :dbs.pe:dbs.ind_pe, 
+    :dbs.use_latest_fcst:dbs.ind_use_latest_fcst, :dbs.proximity:dbs.ind_proximity, 
+    :dbs.reach:dbs.ind_reach, :dbs.group_id:dbs.ind_group_id, 
+    :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, 
+    :dbs.rec_type:dbs.ind_rec_type, :dbs.backhrs:dbs.ind_backhrs, 
+    :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs, 
+    :dbs.minor_stage:dbs.ind_minor_stage, :dbs.moderate_stage:dbs.ind_moderate_stage, 
+    :dbs.major_stage:dbs.ind_major_stage, :dbs.minor_flow:dbs.ind_minor_flow, 
+    :dbs.moderate_flow:dbs.ind_moderate_flow, :dbs.major_flow:dbs.ind_major_flow    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFpInfo() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (FpInfo *) malloc(sizeof(FpInfo))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            strcpy(structPtr->primary_back, dbs.primary_back);
+            setNullIfIndicated(dbs.ind_primary_back, CHAR, structPtr->primary_back);
+
+            strcpy(structPtr->secondary_back, dbs.secondary_back);
+            setNullIfIndicated(dbs.ind_secondary_back, CHAR, structPtr->secondary_back);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            structPtr->bf = dbs.bf;
+            setNullIfIndicated(dbs.ind_bf, DOUBLE, &structPtr->bf);
+
+            structPtr->wstg = dbs.wstg;
+            setNullIfIndicated(dbs.ind_wstg, DOUBLE, &structPtr->wstg);
+
+            structPtr->fs = dbs.fs;
+            setNullIfIndicated(dbs.ind_fs, DOUBLE, &structPtr->fs);
+
+            structPtr->fq = dbs.fq;
+            setNullIfIndicated(dbs.ind_fq, DOUBLE, &structPtr->fq);
+
+            structPtr->action_flow = dbs.action_flow;
+            setNullIfIndicated(dbs.ind_action_flow, DOUBLE, &structPtr->action_flow);
+
+            strcpy(structPtr->pe, dbs.pe);
+            setNullIfIndicated(dbs.ind_pe, CHAR, structPtr->pe);
+
+            strcpy(structPtr->use_latest_fcst, dbs.use_latest_fcst);
+            setNullIfIndicated(dbs.ind_use_latest_fcst, CHAR, structPtr->use_latest_fcst);
+
+            strcpy(structPtr->proximity, dbs.proximity);
+            setNullIfIndicated(dbs.ind_proximity, CHAR, structPtr->proximity);
+
+            strcpy(structPtr->reach, dbs.reach);
+            setNullIfIndicated(dbs.ind_reach, CHAR, structPtr->reach);
+
+            strcpy(structPtr->group_id, dbs.group_id);
+            setNullIfIndicated(dbs.ind_group_id, CHAR, structPtr->group_id);
+
+            structPtr->ordinal = dbs.ordinal;
+            setNullIfIndicated(dbs.ind_ordinal, INT, &structPtr->ordinal);
+
+            structPtr->chg_threshold = dbs.chg_threshold;
+            setNullIfIndicated(dbs.ind_chg_threshold, DOUBLE, &structPtr->chg_threshold);
+
+            strcpy(structPtr->rec_type, dbs.rec_type);
+            setNullIfIndicated(dbs.ind_rec_type, CHAR, structPtr->rec_type);
+
+            structPtr->backhrs = dbs.backhrs;
+            setNullIfIndicated(dbs.ind_backhrs, INT, &structPtr->backhrs);
+
+            structPtr->forwardhrs = dbs.forwardhrs;
+            setNullIfIndicated(dbs.ind_forwardhrs, INT, &structPtr->forwardhrs);
+
+            structPtr->adjustendhrs = dbs.adjustendhrs;
+            setNullIfIndicated(dbs.ind_adjustendhrs, DOUBLE, &structPtr->adjustendhrs);
+
+            structPtr->minor_stage = dbs.minor_stage;
+            setNullIfIndicated(dbs.ind_minor_stage, DOUBLE, &structPtr->minor_stage);
+
+            structPtr->moderate_stage = dbs.moderate_stage;
+            setNullIfIndicated(dbs.ind_moderate_stage, DOUBLE, &structPtr->moderate_stage);
+
+            structPtr->major_stage = dbs.major_stage;
+            setNullIfIndicated(dbs.ind_major_stage, DOUBLE, &structPtr->major_stage);
+
+            structPtr->minor_flow = dbs.minor_flow;
+            setNullIfIndicated(dbs.ind_minor_flow, DOUBLE, &structPtr->minor_flow);
+
+            structPtr->moderate_flow = dbs.moderate_flow;
+            setNullIfIndicated(dbs.ind_moderate_flow, DOUBLE, &structPtr->moderate_flow);
+
+            structPtr->major_flow = dbs.major_flow;
+            setNullIfIndicated(dbs.ind_major_flow, DOUBLE, &structPtr->major_flow);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, 
+        :dbs.hsa:dbs.ind_hsa, :dbs.primary_back:dbs.ind_primary_back, 
+        :dbs.secondary_back:dbs.ind_secondary_back, :dbs.stream:dbs.ind_stream, 
+        :dbs.bf:dbs.ind_bf, :dbs.wstg:dbs.ind_wstg, 
+        :dbs.fs:dbs.ind_fs, :dbs.fq:dbs.ind_fq, 
+        :dbs.action_flow:dbs.ind_action_flow, :dbs.pe:dbs.ind_pe, 
+        :dbs.use_latest_fcst:dbs.ind_use_latest_fcst, :dbs.proximity:dbs.ind_proximity, 
+        :dbs.reach:dbs.ind_reach, :dbs.group_id:dbs.ind_group_id, 
+        :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, 
+        :dbs.rec_type:dbs.ind_rec_type, :dbs.backhrs:dbs.ind_backhrs, 
+        :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs, 
+        :dbs.minor_stage:dbs.ind_minor_stage, :dbs.moderate_stage:dbs.ind_moderate_stage, 
+        :dbs.major_stage:dbs.ind_major_stage, :dbs.minor_flow:dbs.ind_minor_flow, 
+        :dbs.moderate_flow:dbs.ind_moderate_flow, :dbs.major_flow:dbs.ind_major_flow        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectFpInfo() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectFpInfoCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM FpInfo ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFpInfo() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFpInfo() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFpInfo() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFpInfo() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeFpInfo( FpInfo * structPtr)
+{
+    FpInfo* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( FpInfo * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetFpInfoDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetFpInfoErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

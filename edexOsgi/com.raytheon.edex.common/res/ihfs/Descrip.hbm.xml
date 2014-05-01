@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="true">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Descrip" 
+    table="descrip"
+>
+
+    <id
+        name="lid"
+        type="java.lang.String"
+        column="lid"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="bed"
+        type="java.lang.String"
+        column="bed"
+        length="60"
+    />
+    <property
+        name="divert"
+        type="java.lang.String"
+        column="divert"
+        length="60"
+    />
+    <property
+        name="remark"
+        type="java.lang.String"
+        column="remark"
+        length="255"
+    />
+    <property
+        name="ice"
+        type="java.lang.String"
+        column="ice"
+        length="160"
+    />
+    <property
+        name="reach"
+        type="java.lang.String"
+        column="reach"
+        length="80"
+    />
+    <property
+        name="res"
+        type="java.lang.String"
+        column="res"
+        length="255"
+    />
+    <property
+        name="topo"
+        type="java.lang.String"
+        column="topo"
+        length="255"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-one association to Riverstat -->
+    <one-to-one
+        name="riverstat"
+        class="com.raytheon.edex.db.objects.ihfs.Riverstat"
+        outer-join="auto"
+        constrained="true"
+    />
+    <!-- bi-directional many-to-one association to Proximity -->
+    <many-to-one
+        name="proximity"
+        class="com.raytheon.edex.db.objects.ihfs.Proximity"
+        not-null="true"
+    >
+        <column name="proximity" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

@@ -1,0 +1,1 @@
+...to the point that the Override file is often larger than the original Standard file.  These files are overriding functionality not only from the Standard file, but also from other Text Rules libraries. As a result, it is very important that the Override files be carefully organized and documented.

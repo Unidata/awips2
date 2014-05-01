@@ -1,0 +1,341 @@
+C MODULE PTSRDG
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO PRINT SERIES HEADERS AND DATA.
+C
+      SUBROUTINE PTSRDG (LUNIT,IREC,NXTREC,IUNIT,IFREC,
+     *   IPAGE,IFORM,IKEY,
+     *   LWKBUF,IWKBUF,NDEC,ISTAT)
+C
+C  ARGUMENT LIST:
+C       NAME      TYPE  I/O   DIM   DESCRIPTION
+C       ----      ----  ---   ---   -----------
+C       LUNIT      I     I    1     LOGICAL UNIT OF TS RECORD
+C       IREC       I     I    1     RECORD NUMBER FOR TS RECORD
+C       NXTREC     I     O    1     NEXT RECORD OF SAME TYPE
+C       IKEY       I     I    1     KEY TO PRINT FORMAT
+C                                      0=TSHDRS
+C                                      NOT 0=TSDATA
+C       IFORM      I     I    1     KEY TO DATA TYPE FORMAT
+C                                      1=MIXED
+C                                      2=BOTH
+C                                      3=REG
+C                                      4=FUT
+C       IFREC      I     O    1     POINTER TO FUTURE RECORD
+C       NDEC       I     I    1     NUMBER OF DECIMAL PLACES
+C       ISTAT      I     O    1     STATUS INDICATOR
+C                                      0=OK
+C                                      1=ERROR
+C
+      CHARACTER*4 XUNITS,XDTYPE
+      CHARACTER*4 QPFHR/' N/A'/
+      CHARACTER*8 TSTYPE,FTSID
+      CHARACTER*8 XDELET/'DELETED'/
+      CHARACTER*8 XREG/'REGULAR'/
+      CHARACTER*8 XFUT/'FUTURE'/
+C
+      DIMENSION IWKBUF(LWKBUF)
+      DIMENSION IFARR(3)
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'udatas'
+      INCLUDE 'prdcommon/pdftbl'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/prdutil/RCS/ptsrdg.f,v $
+     . $',                                                             '
+     .$Id: ptsrdg.f,v 1.4 1998/07/06 13:02:16 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (IPRTR.GT.0) WRITE (IOGDB,190)
+C
+      ISTAT=0
+C
+      IUNITS=IUNIT
+C
+C  GET TIME SERIES
+      CALL RTSRCD (IREC,XREG,IBLNK,LUNIT,LWKBUF,IWKBUF,IERR)
+      IF (IERR.NE.0) GO TO 170
+C
+      NXTREC=IWKBUF(17)
+      IFREC=IWKBUF(15)
+C
+C  CHECK IF DELETED
+      CALL UNAMCP (IWKBUF(8),XDELET,IMATCH)
+      IF (IMATCH.EQ.0) GO TO 180
+C
+C  GET DATA TYPE
+      IRTYP=IWKBUF(10)
+      CALL PFDTYP (IWKBUF(10),INDX)
+      IF (DATFIL(7,INDX).GE.0) GO TO 10
+         INDXR=-DATFIL(7,INDX)
+         IRTYP=DATFIL(1,INDXR)
+C
+10    IF (IKEY.EQ.1) GO TO 60
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT HEADER ONLY
+C
+C  SET THE DATES
+      IMO=0
+      IDAY=0
+      IYR=0
+      IHR=0
+      IMOF=0
+      IDAYF=0
+      IYRF=0
+      IHRF=0
+C
+      IF (IWKBUF(14).EQ.0) GO TO 40
+C
+      IF (DATFIL(7,INDX).EQ.0) GO TO 20
+         CALL DDGHC2 (IWKBUF(14),IYR,IMO,IDAY,IHR)
+         GO TO 40
+C
+C  MIXED DATA RECORD
+20    IF (IWKBUF(6).EQ.IWKBUF(7)) GO TO 30
+         CALL DDGHC2 (IWKBUF(14),IYR,IMO,IDAY,IHR)
+         IF (IWKBUF(7).EQ.0) GO TO 40
+         JHOUR=IWKBUF(14)+((IWKBUF(7)-IWKBUF(6))/IWKBUF(3))*
+     *     IWKBUF(2)
+         CALL DDGHC2 (JHOUR,IYRF,IMOF,IDAYF,IHRF)
+         GO TO 40
+C
+30    CALL DDGHC2 (IWKBUF(14),IYRF,IMOF,IDAYF,IHRF)
+C
+40    CALL UMEMOV (IWKBUF(12),RLAT,1)
+      CALL UMEMOV (IWKBUF(13),RLON,1)
+C
+      IF (DATFIL(7,INDX).NE.0) GO TO 50
+C
+      IQPFHR=0
+C
+C  GET DATA TYPE ATTRIBUTES
+      CALL UMEMOV (IWKBUF(10),XDTYPE,1)
+      IF (XDTYPE.EQ.'FMAP') XDTYPE='MAP'
+      CALL UDTATR ('FCST',XDTYPE,
+     *   DTDIMN,DTUNIT,IDTMIS,NDTVAL,DTTIME,NDTADD,IDTWRT,
+     *   IERR)
+      IF (IERR.NE.0) GO TO 170
+C
+      IF (IDTWRT.EQ.1) IQPFHR=1
+C
+      IF (IQPFHR.EQ.0) THEN
+         QPFHR=' N/A'
+         ELSE
+            IPRERR=1
+            CALL UFI2A (IWKBUF(15),QPFHR,1,LEN(QPFHR),IPRERR,LP,IERR)
+            IF (IERR.NE.0) GO TO 170
+         ENDIF
+C
+C  WRITE HEADER INFORMATION FOR MIXED DATA RECORDS
+      TSTYPE='MIXED'
+      CALL ULINE (LP,1)
+        JYR  = IYR  - (IYR/100)*100
+        JYRF = IYRF - (IYRF/100)*100
+      WRITE (LP,210) (IWKBUF(I),I=8,9),IRTYP,
+     *   TSTYPE(1:LENSTR(TSTYPE)),
+     *   IWKBUF(11),(IWKBUF(J),J=2,5),
+     *   IMO,IDAY,JYR,IHR,IMOF,IDAYF,JYRF,IHRF,RLAT,RLON,
+     *   (IWKBUF(I),I=18,22),QPFHR
+      GO TO 180
+C
+C  WRITE HEADER INFORMATION FOR SEPARATE DATA RECORDS
+50    CALL PFDFID (IWKBUF(15),IWKBUF(10),IFARR,IERR)
+      IF (IERR.NE.0) GO TO 170
+      CALL SUBSTR (IFARR,1,LEN(FTSID),FTSID,-1)
+      TSTYPE=XREG
+      IF (DATFIL(7,INDX).LT.0) TSTYPE=XFUT
+      IF (FTSID.EQ.'    NONE') FTSID='**NONE**'
+      CALL ULINE (LP,1)
+        JYR = IYR - (IYR/100)*100
+      WRITE (LP,220) (IWKBUF(I),I=8,9),IRTYP,
+     *   TSTYPE,
+     *   IWKBUF(11),(IWKBUF(I),I=2,5),
+     *   IMO,IDAY,JYR,IHR,RLAT,RLON,
+     *   (IWKBUF(I),I=18,22),FTSID,IFARR(3)
+      GO TO 180
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT DATA
+C
+60    IF (IUNITS.EQ.IBLNK) IUNITS=IWKBUF(11)
+C
+C  CHECK IF NUMBER OF DECIMAL PLACES SPECIFIED
+      IF (NDEC.GE.0) GO TO 70
+      IDUCNV=2
+      NDUCNV=1
+      CALL UDUCNV (IUNITS,IUNITS,IDUCNV,NDUCNV,UDUVL1,UDUVL2,IERR)
+      CALL UMEMOV (IUNITS,XUNITS,1)
+      CALL UDUNDC (XUNITS,NDEC,IERR)
+      IF (IERR.EQ.0) GO TO 70
+         NDEC=2
+C
+C  CHECK IF NEED TO DO UNITS CONVERSION
+70    IF (IUNITS.EQ.IWKBUF(11)) GO TO 80
+      NVAL=IWKBUF(5)*IWKBUF(3)
+      IF (NVAL.GT.0) THEN
+         CALL UDUCNN (1,ZAPR,IERR)
+         IDUCNV=1
+         CALL UDUCNV (IWKBUF(11),IUNITS,IDUCNV,NVAL,IWKBUF(IWKBUF(6)),
+     *                IWKBUF(IWKBUF(6)),IERR)
+         IF (IERR.NE.0) GO TO 180
+         ENDIF
+C
+C  WRITE THE HEADER
+80    CALL ULINE (LP,2)
+      WRITE (LP,200)
+C
+      IQPFHR=0
+C
+C  GET DATA TYPE ATTRIBUTES
+      CALL UMEMOV (IWKBUF(10),XDTYPE,1)
+      IF (XDTYPE.EQ.'FMAP') XDTYPE='MAP'
+      CALL UDTATR ('FCST',XDTYPE,
+     *   DTDIMN,DTUNIT,IDTMIS,NDTVAL,DTTIME,NDTADD,IDTWRT,
+     *   IERR)
+      IF (IERR.NE.0) GO TO 170
+C
+      IF (IDTWRT.EQ.1) IQPFHR=1
+C
+      IF (IQPFHR.EQ.1) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,230) (IWKBUF(I),I=8,9),IRTYP,IUNITS,IWKBUF(2),
+     *      IWKBUF(3),(IWKBUF(J),J=18,22),IWKBUF(15)
+         GO TO 90
+         ENDIF
+C
+      CALL ULINE (LP,1)
+      WRITE (LP,230) (IWKBUF(I),I=8,9),IRTYP,IUNITS,IWKBUF(2),
+     *   IWKBUF(3),(IWKBUF(J),J=18,22)
+C
+90    IF (IFORM.EQ.4) GO TO 110
+      CALL ULINE (LP,2)
+      WRITE (LP,240)
+C
+C  SEE HOW MUCH DATA-CHECK FOR NONE
+      NUM=IWKBUF(7)-IWKBUF(6)
+      IF (NUM.LT.0) NUM=IWKBUF(5)*IWKBUF(3)
+      IF (NUM.GT.0) GO TO 100
+         CALL ULINE (LP,1)
+         WRITE (LP,250)
+         GO TO 110
+C
+C  PRINT THE REGULAR DATA
+100   CALL PTSDAT (IWKBUF(14),IWKBUF(IWKBUF(6)),NUM,IWKBUF(2),IWKBUF(3),
+     *   NDEC)
+C
+C  CHECK IF TO PRINT FUTURE DATA
+110   IF (IFORM.EQ.3) GO TO 160
+      IFREC=IWKBUF(15)
+C
+C  GET DATA TYPE ATTRIBUTES
+      CALL UMEMOV (IWKBUF(10),XDTYPE,1)
+      IF (XDTYPE.EQ.'FMAP') XDTYPE='MAP'
+      CALL UDTATR ('FCST',XDTYPE,
+     *   DTDIMN,DTUNIT,IDTMIS,NDTVAL,DTTIME,NDTADD,IDTWRT,
+     *   IERR)
+      IF (IERR.NE.0) GO TO 170
+C      
+      IF (IDTWRT.EQ.1) GO TO 130
+C
+      IF (IFREC.EQ.0) GO TO 130
+C
+C  GET THE FUTURE RECORD
+      IF (INDX.EQ.0) GO TO 170
+      ILUF=DATFIL(7,INDX)
+      IF (ILUF.LE.0) GO TO 170
+      LUF=DATFIL(2,ILUF)
+      CALL RTSRCD (IFREC,XREG,IBLNK,LUF,LWKBUF,IWKBUF,IERR)
+      IF (IERR.NE.0) GO TO 170
+C
+C  CHECK IF DATA NEEDS TO BE CONVERTED
+      IF (IWKBUF(11).EQ.IUNITS) GO TO 120
+      NVAL=IWKBUF(5)*IWKBUF(3)
+      IF (NVAL.GT.0) THEN
+         CALL UDUCNN (1,ZAPR,IERR)
+         IDUCNV=1
+         CALL UDUCNV (IWKBUF(11),IUNITS,IDUCNV,NVAL,IWKBUF(IWKBUF(6)),
+     *      IWKBUF(IWKBUF(6)),IERR)
+         IF (IERR.NE.0) GO TO 180
+         ENDIF
+C
+C  SET VALUES FOR PRINTING DATA FROM FUTURE RECORD
+120   NUM=IWKBUF(5)*IWKBUF(3)
+      JHOUR=IWKBUF(14)
+      CALL ULINE (LP,2)
+      WRITE (LP,260) IWKBUF(8),IWKBUF(9),IWKBUF(2)
+      GO TO 140
+C
+C  SET VALUES FOR PRINTING DATA FROM MIXED RECORD
+130   CALL ULINE (LP,2)
+      WRITE (LP,270)
+      NUM=0
+      IF (IWKBUF(7).EQ.0) GO TO 140
+      JHOUR=IWKBUF(14)+(IWKBUF(7)-IWKBUF(6))/IWKBUF(3)*IWKBUF(2)
+      NUM=IWKBUF(5)*IWKBUF(3)-(IWKBUF(7)-IWKBUF(6))
+C
+C  PRINT THE FUTURE DATA-CHECK FOR NONE
+140   IF (NUM.GT.0) GO TO 150
+         CALL ULINE (LP,1)
+         WRITE (LP,280)
+         GO TO 180
+150   CALL PTSDAT (JHOUR,IWKBUF(IWKBUF(7)),NUM,IWKBUF(2),IWKBUF(3),
+     *   NDEC)
+      GO TO 180
+C
+C  WRITE THE FUTURE ID IF ONLY WANT REGULAR
+160   IF (IWKBUF(15).EQ.0) GO TO 180
+      CALL PFDFID (IWKBUF(15),IWKBUF(10),IFARR,IERR)
+      IF (IERR.NE.0) GO TO 170
+      CALL SUBSTR (IFARR,1,LEN(FTSID),FTSID,-1)
+      IF (FTSID.EQ.'    NONE') FTSID='**NONE**'
+      CALL ULINE (LP,2)
+      WRITE (LP,290) FTSID
+      GO TO 180
+C
+C  SYSTEM ERROR
+170   CALL ULINE (LP,2)
+      WRITE (LP,300)
+      ISTAT=1
+C
+180   IF (IPRTR.GT.0) WRITE (IOGDB,310)
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+190   FORMAT (' *** ENTER PTSRDG')
+200   FORMAT ('0',132('-'))
+210   FORMAT (1X,2A4,2X,A4,2X,A,2X,A4,3X,
+     *   I2,6X,I1,5X,I4,5X,I4,3X,
+     *   2(3(I2.2,'/'),I2.2,'Z  '),F5.2,2X,F6.2,2X,5A4,1X,A)
+220   FORMAT (1X,2A4,2X,A4,2X,A,2X,A4,4X,
+     *   I2,6X,I1,6X,I4,4X,I4,3X,
+     *   3(I2.2,'/'),I2.2,'Z  ',F5.2,2X,F6.2,2X,5A4,2X,A,1X,A4)
+230   FORMAT ('0TIME SERIES ID=',2A4,2X,
+     *   'TYPE=',A4,2X,
+     *   'UNITS=',A4,2X,
+     *   'TIME STEP=',I2,2X,
+     *   'VALUES/STEP=',I2,2X,
+     *   'DESCRIPTION=',5A4,2X :
+     *   'QPF USAGE=',I3,' HOURS')
+240   FORMAT ('0REGULAR DATA')
+250   FORMAT ('    NONE')
+260   FORMAT ('0FUTURE DATA   FUTURE TIME SERIES ID=',2A4,2X,
+     *   'TIME STEP=',I2)
+270   FORMAT ('0FUTURE DATA')
+280   FORMAT ('    NONE')
+290   FORMAT ('0FUTURE DATA   FUTURE TIME SERIES ID=',A)
+300   FORMAT ('0**ERROR** SYSTEM ERROR')
+310   FORMAT (' *** EXIT PTSRDG')
+C
+      END

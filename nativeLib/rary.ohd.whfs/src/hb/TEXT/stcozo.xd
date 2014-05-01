@@ -1,0 +1,674 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'stcozo.c';
+generateNameExterns = * 'stcozo.h';
+generateNameResDB = * 'stcozo.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'stcozoDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'stcozoDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_stcozoDS (Widget parent)
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'States/Counties/Zones';
+	XmNminWidth = 1130;
+	XmNminHeight = 485;
+	XmNmaxWidth = 1130;
+	XmNmaxHeight = 485;
+	};
+object 'stcozoFM' : XmForm {
+	arguments {
+	lastGenName = 'stcozoFM';
+	XmNautoUnmanage = false;
+	};
+object 'stateFR' : XmFrame {
+	arguments {
+	lastGenName = 'stateFR';
+	};
+object 'stateFM' : XmForm {
+	arguments {
+	lastGenName = 'stateFM';
+	};
+object 'stateSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'stateSL';
+	};
+abstract object 'stateHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'stateHSB';
+	};
+};
+abstract object 'stateVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'stateVSB';
+	};
+};
+abstract object 'stateLS' : XmList {
+	arguments {
+	lastGenName = 'stateLS';
+	XmNautomaticSelection = false;
+	XmNselectionPolicy = 0;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'state_stateTX' : XmText {
+	arguments {
+	lastGenName = 'state_stateTX';
+	XmNmaxLength = 2;
+	XmNcolumns = 3;
+	};
+};
+object 'state_nameTX' : XmText {
+	arguments {
+	lastGenName = 'state_nameTX';
+	XmNmaxLength = 20;
+	XmNcolumns = 26;
+	};
+};
+object 'state_addPB' : XmPushButton {
+	arguments {
+	lastGenName = 'state_addPB';
+	XmNlabelString = 'Add';
+	};
+};
+object 'state_updatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'state_updatePB';
+	XmNlabelString = 'Update';
+	};
+};
+object 'state_deletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'state_deletePB';
+	XmNlabelString = 'Delete';
+	};
+};
+object 'stateLB2' : XmLabel {
+	arguments {
+	lastGenName = 'stateLB2';
+	XmNlabelString = 'State    Name';
+	XmNalignment = 0;
+	};
+};
+object 'stateLB3' : XmLabel {
+	arguments {
+	lastGenName = 'stateLB3';
+	XmNlabelString = 'State';
+	XmNalignment = 0;
+	};
+};
+object 'stateLB4' : XmLabel {
+	arguments {
+	lastGenName = 'stateLB4';
+	XmNlabelString = 'Name';
+	XmNalignment = 0;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -300;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -45;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -370;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 2 0 -370;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 95;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 185;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -255;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -45;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -335;
+	XmNtopAttachment = 1 0 310;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -100;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 2 0 -335;
+	XmNtopAttachment = 1 0 310;
+    };
+    };
+};
+object 'stateLB' : XmLabel {
+	arguments {
+	lastGenName = 'stateLB';
+	XmNchildType = 2;
+	XmNlabelString = 'States';
+	};
+};
+};
+object 'countyFR' : XmFrame {
+	arguments {
+	lastGenName = 'countyFR';
+	};
+object 'countyFM' : XmForm {
+	arguments {
+	lastGenName = 'countyFM';
+	};
+object 'countySL' : XmScrolledList {
+	arguments {
+	lastGenName = 'countySL';
+	};
+abstract object 'countyHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'countyHSB';
+	};
+};
+abstract object 'countyVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'countyVSB';
+	};
+};
+abstract object 'countyLS' : XmList {
+	arguments {
+	lastGenName = 'countyLS';
+	XmNautomaticSelection = false;
+	XmNselectionPolicy = 0;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'county_stateTX' : XmText {
+	arguments {
+	lastGenName = 'county_stateTX';
+	XmNmaxLength = 2;
+	XmNcolumns = 3;
+	};
+};
+object 'county_countyTX' : XmText {
+	arguments {
+	lastGenName = 'county_countyTX';
+	XmNmaxLength = 20;
+	XmNcolumns = 31;
+	};
+};
+object 'county_fipsTX' : XmText {
+	arguments {
+	lastGenName = 'county_fipsTX';
+	XmNmaxLength = 4;
+	XmNcolumns = 6;
+	};
+};
+object 'county_wfoTX' : XmText {
+	arguments {
+	was_selected = true;
+	lastGenName = 'county_ownerTX';
+	XmNmaxLength = 3;
+	};
+};
+object 'county_primaryTX' : XmText {
+	arguments {
+	lastGenName = 'county_primaryTX';
+	XmNmaxLength = 3;
+	};
+};
+object 'county_secondaryTX' : XmText {
+	arguments {
+	lastGenName = 'county_secondaryTX';
+	XmNmaxLength = 3;
+	};
+};
+object 'county_addPB' : XmPushButton {
+	arguments {
+	lastGenName = 'county_addPB';
+	XmNlabelString = 'Add';
+	};
+};
+object 'county_updatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'county_updatePB';
+	XmNlabelString = 'Update';
+	};
+};
+object 'county_deletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'county_deletePB';
+	XmNlabelString = 'Delete';
+	};
+};
+object 'countyLB2' : XmLabel {
+	arguments {
+	lastGenName = 'countyLB2';
+	XmNlabelString = 'State   County                       FIPS   WFO   Primary  Secondary';
+	XmNalignment = 0;
+	};
+};
+object 'countyLB3' : XmLabel {
+	arguments {
+	lastGenName = 'countyLB3';
+	XmNlabelString = 'State';
+	XmNalignment = 0;
+	};
+};
+object 'countyLB4' : XmLabel {
+	arguments {
+	lastGenName = 'countyLB4';
+	XmNlabelString = 'County';
+	XmNalignment = 0;
+	};
+};
+object 'countyLB5' : XmLabel {
+	arguments {
+	lastGenName = 'countyLB5';
+	XmNlabelString = 'FIPS';
+	XmNalignment = 0;
+	};
+};
+object 'countyLB6' : XmLabel {
+	arguments {
+	lastGenName = 'countyLB6';
+	XmNlabelString = 'WFO';
+	XmNalignment = 0;
+	};
+};
+object 'countyLB7' : XmLabel {
+	arguments {
+	lastGenName = 'countyLB7';
+	XmNlabelString = 'Service Backup Primary:';
+	XmNalignment = 2;
+	};
+};
+object 'countyLB8' : XmLabel {
+	arguments {
+	lastGenName = 'countyLB8';
+	XmNlabelString = 'Secondary:';
+	XmNalignment = 2;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -555;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -260;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -50;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -330;
+	XmNtopAttachment = 1 0 295;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -295;
+	XmNleftAttachment = 1 0 55;
+	XmNbottomAttachment = 2 0 -330;
+	XmNtopAttachment = 1 0 295;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -365;
+	XmNleftAttachment = 1 0 300;
+	XmNbottomAttachment = 2 0 -330;
+	XmNtopAttachment = 1 0 295;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -425;
+	XmNleftAttachment = 1 0 370;
+	XmNbottomAttachment = 2 0 -330;
+	XmNtopAttachment = 1 0 295;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -265;
+	XmNleftAttachment = 1 0 210;
+	XmNbottomAttachment = 2 0 -370;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -425;
+	XmNleftAttachment = 1 0 370;
+	XmNbottomAttachment = 2 0 -370;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -320;
+	XmNleftAttachment = 1 0 245;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -555;
+	XmNleftAttachment = 1 0 480;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -555;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -50;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 270;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -115;
+	XmNleftAttachment = 1 0 55;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 270;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -340;
+	XmNleftAttachment = 1 0 300;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 270;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -425;
+	XmNleftAttachment = 1 0 370;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 270;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -365;
+	XmNtopAttachment = 1 0 340;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -370;
+	XmNleftAttachment = 1 0 275;
+	XmNbottomAttachment = 2 0 -365;
+	XmNtopAttachment = 1 0 340;
+    };
+    };
+};
+object 'countyLB' : XmLabel {
+	arguments {
+	lastGenName = 'countyLB';
+	XmNchildType = 2;
+	XmNlabelString = 'Counties';
+	};
+};
+};
+object 'zoneFR' : XmFrame {
+	arguments {
+	lastGenName = 'zoneFR';
+	};
+object 'zoneFM' : XmForm {
+	arguments {
+	lastGenName = 'zoneFM';
+	};
+object 'zoneSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'zoneSL';
+	};
+abstract object 'zoneHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'zoneHSB';
+	};
+};
+abstract object 'zoneVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'zoneVSB';
+	};
+};
+abstract object 'zoneLS' : XmList {
+	arguments {
+	lastGenName = 'zoneLS';
+	XmNautomaticSelection = false;
+	XmNselectionPolicy = 0;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'zone_stateTX' : XmText {
+	arguments {
+	lastGenName = 'zone_stateTX';
+	XmNmaxLength = 2;
+	XmNcolumns = 3;
+	};
+};
+object 'zone_numTX' : XmText {
+	arguments {
+	lastGenName = 'zone_numTX';
+	XmNmaxLength = 3;
+	XmNcolumns = 3;
+	};
+};
+object 'zone_descrTX' : XmText {
+	arguments {
+	lastGenName = 'zone_descrTX';
+	XmNmaxLength = 20;
+	XmNcolumns = 21;
+	};
+};
+object 'zone_addPB' : XmPushButton {
+	arguments {
+	lastGenName = 'zone_addPB';
+	XmNlabelString = 'Add';
+	};
+};
+object 'zone_updatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'zone_updatePB';
+	XmNlabelString = 'Update';
+	};
+};
+object 'zone_deletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'zone_deletePB';
+	XmNlabelString = 'Delete';
+	};
+};
+object 'zoneLB2' : XmLabel {
+	arguments {
+	lastGenName = 'zoneLB2';
+	XmNlabelString = 'St.  Num  Description';
+	XmNalignment = 0;
+	};
+};
+object 'zoneLB3' : XmLabel {
+	arguments {
+	lastGenName = 'zoneLB3';
+	XmNlabelString = 'State';
+	XmNalignment = 0;
+	};
+};
+object 'zoneLB4' : XmLabel {
+	arguments {
+	lastGenName = 'zoneLB4';
+	XmNlabelString = 'Num';
+	XmNalignment = 0;
+	};
+};
+object 'zoneLB5' : XmLabel {
+	arguments {
+	lastGenName = 'zoneLB5';
+	XmNlabelString = 'Description';
+	XmNalignment = 0;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -305;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -45;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -370;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 2 0 -370;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -370;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -80;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -175;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 195;
+	XmNbottomAttachment = 2 0 -410;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -45;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -335;
+	XmNtopAttachment = 1 0 310;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 2 0 -335;
+	XmNtopAttachment = 1 0 310;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -225;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -335;
+	XmNtopAttachment = 1 0 310;
+    };
+    };
+};
+object 'zoneLB' : XmLabel {
+	arguments {
+	lastGenName = 'zoneLB';
+	XmNchildType = 2;
+	XmNlabelString = 'Zones';
+	};
+};
+};
+object 'stcozo_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'stcozo_okPB';
+	XmNlabelString = 'Close';
+	};
+};
+object 'stcozo_helpPB' : XmPushButton {
+	arguments {
+	lastGenName = 'stcozo_helpPB';
+	XmNlabelString = 'Help';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -270;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -440;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -840;
+	XmNleftAttachment = 1 0 275;
+	XmNbottomAttachment = 2 0 -440;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1125;
+	XmNleftAttachment = 1 0 845;
+	XmNbottomAttachment = 2 0 -440;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -600;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -480;
+	XmNtopAttachment = 1 0 445;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1130;
+	XmNleftAttachment = 1 0 1050;
+	XmNbottomAttachment = 2 0 -485;
+	XmNtopAttachment = 1 0 450;
+    };
+    };
+};
+};
+end module;

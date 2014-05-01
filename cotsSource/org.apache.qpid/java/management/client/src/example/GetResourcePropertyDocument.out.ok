@@ -1,0 +1,138 @@
+                 GetResourcePropertyDocument 
+-------------------------------------------------------------------
+
+This example shows how to get the whole property
+document from a WS-Resource.
+Resource property document represents a particular 
+composed structural view of the resource properties
+of the WS-Resource.
+First of all a request is send to WS-DM in order to get
+all registered WS-Resources.
+the target WS-Resource.
+If the returned list is not empty then a
+GetResourcePropertyDocumentRequest is sent to the first child.
+
+-------------------------------------------------------------------
+
+Type enter to proceed...
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/adapter</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:50aa09f5-44e7-8bd3-7f24-49b8f0b9bf0d</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourceProperty
+            xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2" xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2">wsrf-sg:Entry</wsrf-rp:GetResourceProperty>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:f71342ad-2185-fdb3-393a-e9a98305effd</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:50aa09f5-44e7-8bd3-7f24-49b8f0b9bf0d</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://localhost:8080/qman/services/adapter</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourcePropertyResponse xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2">
+            <wsrf-sg:Entry xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2">
+                <wsrf-sg:ServiceGroupEntryEPR>
+                    <wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/ServiceGroupEntry</wsa:Address>
+                    <wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                        <muse-wsa:ResourceId xmlns:muse-wsa="http://ws.apache.org/muse/addressing">uuid:b220e2bd-0370-da4e-fc71-5e283954d319</muse-wsa:ResourceId>
+                    </wsa:ReferenceParameters>
+                </wsrf-sg:ServiceGroupEntryEPR>
+                <wsrf-sg:MemberServiceEPR>
+                    <wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/QManWsResource</wsa:Address>
+                    <wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                        <qman-wsa:ResourceId xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing">Q-MAN: brokerID=8e069b14-40ba-4d48-a2cb-b9f2bef2d404,class=queue,name=1232953394537,objectId=781f4ad7-4c96-4caa-b69d-291461cdb1fc,package=org.apache.qpid</qman-wsa:ResourceId>
+                    </wsa:ReferenceParameters>
+                </wsrf-sg:MemberServiceEPR>
+                <wsrf-sg:Content/>
+            </wsrf-sg:Entry>
+        </wsrf-rp:GetResourcePropertyResponse>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/QManWsResource</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourcePropertyDocument/GetResourcePropertyDocumentRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:e035946b-c3f5-1b24-e94a-61c674ce07b9</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+        <qman-wsa:ResourceId
+            xmlns:wsa="http://www.w3.org/2005/08/addressing"
+            wsa:IsReferenceParameter="true" xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing">Q-MAN: brokerID=8e069b14-40ba-4d48-a2cb-b9f2bef2d404,class=queue,name=1232953394537,objectId=781f4ad7-4c96-4caa-b69d-291461cdb1fc,package=org.apache.qpid</qman-wsa:ResourceId>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourcePropertyDocument xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"/>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourcePropertyDocument/GetResourcePropertyDocumentResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:dafe12e4-c0a9-f872-cf1e-2a41bc291b2e</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:e035946b-c3f5-1b24-e94a-61c674ce07b9</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://localhost:8080/qman/services/QManWsResource</wsa:Address>
+            <wsa:ReferenceParameters>
+                <qman-wsa:ResourceId wsa:IsReferenceParameter="true"
+                    xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing" xmlns:wsa="http://www.w3.org/2005/08/addressing">Q-MAN: brokerID=8e069b14-40ba-4d48-a2cb-b9f2bef2d404,class=queue,name=1232953394537,objectId=781f4ad7-4c96-4caa-b69d-291461cdb1fc,package=org.apache.qpid</qman-wsa:ResourceId>
+            </wsa:ReferenceParameters>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourcePropertyDocumentResponse xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2">
+            <qman:QManWsResourceProperties xmlns:qman="http://amqp.apache.org/qpid/management/qman">
+                <qman:MgmtPubInterval>32767</qman:MgmtPubInterval>
+                <wsrf-rp:QueryExpressionDialect>http://www.w3.org/TR/1999/REC-xpath-19991116</wsrf-rp:QueryExpressionDialect>
+                <qman:Name>Initial Name</qman:Name>
+                <wsrf-rl:TerminationTime xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2"/>
+                <qman:MsgTotalEnqueues>9223372036854775797</qman:MsgTotalEnqueues>
+                <qman:Arguments xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <qman:entry>
+                        <qman:key>Key3</qman:key>
+                        <qman:value xsi:type="xsd:integer">2147483647</qman:value>
+                    </qman:entry>
+                    <qman:entry>
+                        <qman:key>Key4</qman:key>
+                        <qman:value xsi:type="xsd:float">3.4028235E38</qman:value>
+                    </qman:entry>
+                    <qman:entry>
+                        <qman:key>Key1</qman:key>
+                        <qman:value xsi:type="xsd:string">aStringValue</qman:value>
+                    </qman:entry>
+                    <qman:entry>
+                        <qman:key>Key2</qman:key>
+                        <qman:value xsi:type="xsd:long">-9223372036854775808</qman:value>
+                    </qman:entry>
+                </qman:Arguments>
+                <qman:VhostRef>2deef1b3-d2c6-49f3-a8de-51f6a75a1a6b</qman:VhostRef>
+                <wsrf-rl:CurrentTime xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2">1232956293823</wsrf-rl:CurrentTime>
+                <qman:ExpireTime>9223372036854775807</qman:ExpireTime>
+                <qman:Durable>true</qman:Durable>
+                <qman:ConsumerCount>-2147483638</qman:ConsumerCount>
+            </qman:QManWsResourceProperties>
+        </wsrf-rp:GetResourcePropertyDocumentResponse>
+    </soap:Body>
+</soap:Envelope>

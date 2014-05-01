@@ -1,0 +1,50 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_mat library file
+#
+#  cmt: File made on Wed Aug  6 12:50:40 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_mat_t.a:  \
+     $(LIB)/libfcst_mat_t.a(fun008.o)  \
+     $(LIB)/libfcst_mat_t.a(tcorr.o)  \
+     $(LIB)/libfcst_mat_t.a(tdspi.o)  \
+     $(LIB)/libfcst_mat_t.a(tdspm.o)  \
+     $(LIB)/libfcst_mat_t.a(temp.o)  \
+     $(LIB)/libfcst_mat_t.a(testi.o)  \
+     $(LIB)/libfcst_mat_t.a(testm.o)  \
+     $(LIB)/libfcst_mat_t.a(testp.o)  \
+     $(LIB)/libfcst_mat_t.a(tfutur.o)  \
+     $(LIB)/libfcst_mat_t.a(tiluvo.o)  \
+     $(LIB)/libfcst_mat_t.a(tmat.o)  \
+     $(LIB)/libfcst_mat_t.a(tmeani.o)  \
+     $(LIB)/libfcst_mat_t.a(tmeanm.o)  \
+     $(LIB)/libfcst_mat_t.a(tpart.o)  \
+     $(LIB)/libfcst_mat_t.a(tupdat.o)
+

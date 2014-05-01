@@ -1,0 +1,188 @@
+Key:
+  F = Functional
+  PF = Partially Functional
+  NR = Needs Additional Review
+  ND = Needs Additional Design
+  NF = Not Functional
+
+Connection:
+
+  variables/configuration:
+
+    - reconnect: F, NR, ND
+      + reconnect functionality is done and the API semantics provided
+        are ready for review
+      + reconnect policies need to be finished, there is currently
+        only one hardcoded reconnect policy (retry every three
+        seconds), we need to define the pre-canned policies that we
+        want to support and a means to configure them, as well as a
+        very simple plugin/callback for defining ad-hoc policies
+      + need to feed failover exchange into the reconnect policy
+      + acks can be lost on reconnect
+      + handle reconnect during commit/rollback
+
+    - timeout: NF
+      + some sort of timeout threshold for killing the connection
+
+  methods:
+
+    - open/__init__: F, ND
+      + need to support kerberos
+      + need a better way of supplying various kinds of configuration:
+        - authentication info
+        - transport specific configuration options, e.g
+          - heartbeat
+          - socket options
+            - tcp-nodelay
+        - multiple brokers
+
+    - session: F, NR
+
+    - connect: F, NR
+
+    - disconnect: F, NR
+
+    - connected: F, NR
+
+    - close: F, NR, ND
+      + currently there is no distinction between a "close" that does
+        a complete handshake with the remote broker, and a "close"
+        that reclaims resources, this means that close can fail with
+        an exception, I don't like this as it is unclear to the user
+        if there is a responsibility to do further cleanup in this
+        case
+
+  errors:
+
+    - ConnectionError: F, NR
+      + ConnectError F, NR
+      + Disconnected F, NR
+
+    - notification of disconnect?
+
+Session:
+
+  methods:
+
+    - sender: F, NR, ND
+      + need to detail address options
+      + need to define subject pattern semantics
+      + consider providing convenience for sender/receiver caching
+
+    - receiver: F, NR, ND
+      + need to detail address options
+      + need to define filter syntax/semantics
+      + consider providing convenience for sender/receiver caching
+
+    - acknowledge: F, NR
+
+    - reject: NF
+
+    - release: NF
+
+    - commit: F, NR
+
+    - rollback: F, NR
+
+    - next_receiver: F, NR
+
+    - close: F, ND
+      + see comment on Connection.close
+
+  errors:
+
+    - SessionError: F, NR, ND
+      + SendError: F, NR, ND
+      + ReceiveError: F, NR, ND
+      + should there be fatal/non fatal variants?
+
+Sender:
+
+  methods:
+
+    - pending: F, NR
+
+    - send: F, NR
+
+    - sync: F, NR, ND
+      + currently this blocks until pending == 0, I'm thinking of
+        renaming this to wait and adding a slightly richer interface
+        that would let you wait for something like pending < n
+
+    - close: F, NR
+
+  errors:
+
+    - SendError
+      + InsufficientCapacity
+      + need specific subhierarchy for certain conditions, e.g. no such queue
+
+Receiver:
+
+  methods:
+
+    - pending: F, NR
+
+    - listen: F, ND
+      + see comment on Session.fetch
+
+    - fetch: F, NR, ND
+      + explicit grant for receiver
+      + changing capacity/prefetch to issue credit on ack rather than
+        fetch return
+
+    - sync/wait: NF
+
+    - close: F, NR
+
+  errors:
+
+    - ReceiveError
+      + Empty
+      + need specific subhierarchy for certain conditions, e.g. no such queue
+
+Message:
+
+  - standard message properties: F, NR, ND
+
+  - map messages: F, NR
+    + needs interop testing: NF
+    + needs java impl: NF
+
+  - list messages: F, NR, NI
+    + needs interop testing: NF
+    + needs java impl: NF
+
+  - boxed types: NF
+
+Address:
+
+  - syntax: F, NR
+  - subject related changes, e.g. allowing patterns on both ends: NF
+  - creating/deleting queues/exchanges F, NR
+    + need to handle cleanup of temp queues/topics: F, NR
+    + passthrough options for creating exchanges/queues: F, NR
+  - integration with java: NF
+  - queue browsing: NF
+  - temporary queues: NF
+  - xquery: NF
+
+Testing:
+  - stress/soak testing for async: NF
+  - stress/soak testing for reconnect: NF
+  - interop testing: NF
+  - multi session and multi connection client tests: NF
+
+Documentation:
+  - api level docs largely present but need updating and elaboration
+  - tutorial: NF
+
+Examples:
+  - drain: F, NR
+  - spout: F, NR
+  - server: F, NR
+  - client: NF
+  - other examples, e.g. async?
+
+Miscellaneous:
+  - standard ping-like (drain/spout) utilities for all clients: NF

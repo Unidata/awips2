@@ -1,0 +1,67 @@
+'\"
+'\" $Header: /cvsroot/ldm/src/scripts/netcheck.1,v 1.1.22.1 2009/06/18 16:20:18 steve Exp $
+.TH NETCHECK 1 "$Date: 2009/06/18 16:20:18 $"
+.SH NAME
+netcheck - monitor network connectivity to select hosts
+.SH "UNIX SYNOPSIS"
+\fBnetcheck \fR[\fB\-u\fR] [\fB\-v\fR] [\fB\-l \fIlogfile\fR]
+[\fB\-c \fIconffile\fR]
+[\fB\-t \fIpercent\fR]
+[\fB\-m\fR] [\fB\-n\fR] [\fB\-o\fR]
+.SH DESCRIPTION
+
+This perl script monitors the state of the network connection between the
+host running the script and specified remote hosts.  It uses ping(1) and
+traceroute(1) for this purpose.  Output, by default, goes to both STDOUT
+and to a logfile.  In addition, packet losses above a threshold value cause
+email to be sent to spcified email addresses.  Netcheck finds what hosts to
+monitor, and who to send mail to, in a configuration file, netcheck.conf.
+.LP
+Netcheck requires that the environment variable LDMHOME be set to the
+directory containing both the etc and logs directory containing the
+configuration file and log file respectively.  If this variable is not set
+netcheck exits.
+.LP
+Output to both STDOUT and/or the log file may be turned off by command line
+switches, as may the email notification.  Also, the packet loss threshold may
+be adjusted via a command line argument.
+.LP
+.SH OPTIONS 
+.TP 8
+.B \-u
+Usage.  When present, causes a usage message to be printed and netcheck
+exits.
+.TP 8
+.B \-v
+Verbose flag. 
+When present the individual packet statistics from ping(1) are printed.  By
+default, only the ping(8) summary is displayed.
+.TP 8
+.BI \-l " logfile"
+The path name of a file to be used as the log file for the process.  The
+default is to use LDMHOME/logs/netcheck.log.
+.TP 8
+.BI \-c " conffile"
+The path name of the configuration file containing the hosts to be checked
+and the list of names for email.  The default is to use
+LDMHOME/etc/netcheck.conf.
+.TP 8
+.BI \-t " percent"
+The packet loss percentage threshold.  Packet losses greater than the
+threshold will cause an email warning to be sent.  The default is 20%.
+.TP 8
+.B \-m
+Mail flag.  When present turns off warning email.
+.TP 8
+.B \-n
+STDOUT flag.  When present supresses output to STDOUT.  Should be used when
+running netcheck out of cron(1).
+.TP 8
+.B \-o
+Log output flag.  When present supresses output to the logfile.
+.SH "LIMITATIONS AND WARNINGS"
+Netcheck requires that traceroute(1) be installed and executable by root.
+Usually this means that root will own traceroute(1), but it will be installed
+setuid.
+.SH "SEE ALSO"
+ping(1), traceroute(1)

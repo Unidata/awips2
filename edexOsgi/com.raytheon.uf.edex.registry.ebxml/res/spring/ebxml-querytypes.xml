@@ -1,0 +1,145 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd http://www.springframework.org/schema/util
+  http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:BasicQuery"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.BasicQuery">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:BasicQuery" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:AdhocQuery"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.AdhocQuery">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:AdhocQuery" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean
+		id="urn:oasis:names:tc:ebxml-regrep:query:ClassificationSchemeSelector"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.ClassificationSchemeSelector">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:ClassificationSchemeSelector" />
+		<property name="classificationSchemeTypeDao" ref="classificationSchemeTypeDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:FindAssociatedObjects"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.FindAssociatedObjects">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:FindAssociatedObjects" />
+		<property name="findAssociations" ref="urn:oasis:names:tc:ebxml-regrep:query:FindAssociations" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:FindAssociations"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.FindAssociations">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:FindAssociations" />
+		<property name="associationDao" ref="associationDao" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:GarbageCollector"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GarbageCollectorQueryPlugin">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GarbageCollector" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:GetAuditTrailById"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetAuditTrailById">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetAuditTrailById" />
+		<property name="auditableEventDao" ref="AuditableEventTypeDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:GetAuditTrailByLid"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetAuditTrailByLid">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetAuditTrailByLid" />
+		<property name="getAuditTrailById" ref="urn:oasis:names:tc:ebxml-regrep:query:GetAuditTrailById" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean
+		id="urn:oasis:names:tc:ebxml-regrep:query:GetAuditTrailByTimeInterval"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetAuditTrailByTimeInterval">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetAuditTrailByTimeInterval" />
+		<property name="auditableEventDao" ref="AuditableEventTypeDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:GetNotification"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetNotification">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetNotification" />
+		<property name="subscriptionManager" ref="RegistrySubscriptionManager" />
+		<property name="notificationManager" ref="RegistryNotificationManager" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+		<property name="subscriptionDao" ref="subscriptionTypeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:GetChildrenByParentId"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetChildrenByParentId">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetChildrenByParentId" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+		<property name="registryPackageDao" ref="registryPackageTypeDao" />
+	</bean>
+	<bean
+		id="urn:oasis:names:tc:ebxml-regrep:query:GetClassificationSchemesById"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetClassificationSchemesById">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetClassificationSchemesById" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+		<property name="getObjectById" ref="urn:oasis:names:tc:ebxml-regrep:query:GetObjectById" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:GetObjectById"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetObjectById">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetObjectById" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:GetObjectsByLid"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetObjectsByLid">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetObjectsByLid" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean
+		id="urn:oasis:names:tc:ebxml-regrep:query:GetRegistryPackagesByMemberId"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetRegistryPackagesByMemberId">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetRegistryPackagesByMemberId" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:KeywordSearch"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.KeywordSearch">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:KeywordSearch" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:RegistryPackageSelector"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.RegistryPackageSelector">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:RegistryPackageSelector" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+		<property name="registryPackageDao" ref="registryPackageTypeDao" />
+	</bean>
+	<bean id="urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject"
+		class="com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetReferencedObject">
+		<property name="queryDefinition"
+			value="urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject" />
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+		<property name="referenceResolver" ref="objectReferenceResolver" />
+		<property name="registrySoapClient" ref="registryWebServiceClient"/>
+	</bean>
+
+</beans>

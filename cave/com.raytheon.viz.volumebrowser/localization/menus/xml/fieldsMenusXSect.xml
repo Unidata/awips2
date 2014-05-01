@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- 
+         Basic menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Basic">
+    	<contribute xsi:type="menuItem" menuText="Height" key="GH"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Pressure" key="P"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="12hr hgt chg" key="dGH12"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Height AGL" key="zAGL"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Temperature" key="T"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Pot Temp" key="PoT"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Lapse Rate" key="gamma"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="ThetaE Lapse Rate" key="gammaE"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="dp/dTheta" key="SSi"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Equiv Pot Temp" key="EPT"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Sat Equiv Pot Temp" key="EPTs"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Wet Bulb Temp" key="TW"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Rel Humidity" key="RH"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Dewpoint" key="DpT"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Dewpoint Dep" key="DpD"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Spec Humidity" key="SHx"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Cond Pressure" key="CPr"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Cond Pres Def" key="CPrD"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Wind" key="Wind"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Wind Speed" key="wSp"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Omega" key="PVV"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Vert Velocity" key="VV"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Wind Shear" key="Shear"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Shear Mag" key="ShrMag"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Wind Direction" key="WD"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Comp Into" key="Into"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Comp Along" key="Along"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Sect Norm Wind" key="SNW"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Geo Momentum" key="uFX"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Vert Circ" key="vertCirc"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Ageo Vert Circ" key="ageoVC"  indentText="true"/>
+    </contribute>
+    
+    <!-- 
+         Derived menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Derived">
+    	<contribute xsi:type="menuItem" menuText="Vorticity" key="AV"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Vort Adv" key="VAdv"  indentText="false"/>
+    	
+    	<contribute xsi:type="menuItem" menuText="Pot Vorticity" key="pV"  indentText="false"/>    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="Pot Vorticity">
+    	    <contribute xsi:type="menuItem" menuText="Equiv Pot Vort" key="pVeq"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Sat Equiv Pot Vort" key="EPVs"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Geo Equiv Pot Vort" key="EPVg"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Sat Geo Equiv Pot Vort" key="MpV"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Pot Vort Adv" key="PTvA"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="menuItem" menuText="Divergence" key="wDiv"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Total Deformation" key="Tdef"  indentText="true"/>
+    	
+    	<contribute xsi:type="menuItem" menuText="Temp Adv" key="TAdv"  indentText="false"/>    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="Temperature">
+    	    <contribute xsi:type="menuItem" menuText="Pot Temp Adv" key="PoTA"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Temp Grad Mag" key="TGrdM"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Eq Pot Temp Adv" key="EPTA"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Eq Pot Temp Conv" key="EPTC"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Eq Pot Temp Grad Mag" key="EPTGrdM"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="menuItem" menuText="Moisture Adv" key="MAdv"  indentText="false"/>    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="Moisture">
+    	    <contribute xsi:type="menuItem" menuText="Moisture Flux Div" key="MCon"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Moist Flux Mag" key="Mmag"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="menuItem" menuText="Adiabatic Omega" key="NetIO"  indentText="false"/>    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="Isentropic">
+    	    <contribute xsi:type="menuItem" menuText="Pres Adv" key="PAdv"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Local Pres Deriv" key="DpDt"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="dp/dTheta" key="SSi"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Norm Total Moisture" key="TotQi"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Moisture Stab Flux" key="MSFi"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Moist Stab Flux Mag" key="MSFmi"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Moist Stab Flux Div" key="MSFDi"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="menuItem" menuText="Geostrophic Wind" key="geoW"  indentText="false"/>    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="Geostrophic">
+    	    <contribute xsi:type="menuItem" menuText="Geo Wind Speed" key="geoWM"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Geo Vort" key="geoVort"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Ageo Wind" key="ageoW"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Ageo Wind Speed" key="ageoWM"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Geo Equiv Pot Vort" key="EPVg"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Sat Geo Equiv Pot Vort" key="MpV"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="QG">
+    	    <contribute xsi:type="menuItem" menuText="Div Q" key="qDiv"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Qn Vec Div" key="fnD"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Qs Vec Div" key="fsD"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="QG Frontogen" key="fGen"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="menuItem" menuText="Petterson Frontogen" key="PFrnt"  indentText="false"/>    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="Frontogenesis">
+    	    <contribute xsi:type="menuItem" menuText="Frontogen Vec Div" key="DivF"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Fn Vec Div" key="DivFn"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="Fs Vec Div" key="DivFs"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="QG Frontogen" key="fGen"  indentText="false"/>
+    	</contribute>
+    </contribute>
+    
+    <!-- 
+         Other menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Other">
+    	<contribute xsi:type="menuItem" menuText="Cloud Cover" key="CCP"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Cloud Type" key="CTyp"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Cloud Liquid" key="CW"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Cloud Ice" key="CIce"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Cloud Condensate" key="ClCond"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Precip Type" key="PTyp"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Precip Conc" key="HyC"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Rain Conc" key="RAIN"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Snow Conc" key="SNOW"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Ice Conc" key="PICE"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Computed CAPE" key="cCape"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Sfc to * LI" key="LIsfc2x"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Icing Pot" key="IP"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Turb Kin Energy" key="TKE"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Reflectivity" key="RR"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Radial Vel" key="RRV"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Tilt Angle" key="TiltAng"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Spectrum Width" key="BASSW"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Diff Refl" key="ZDR"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Corr Coeff" key="COCO"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Spec Diff Phase" key="KDP"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Hydrometeor Class" key="HC"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Feature Strength" key="sRank"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Feature Diameter" key="diam"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Shear Mag" key="ShrMag"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Gate2Gate Shr" key="g2gsh"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Divergence" key="wDiv"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Peak Power" key="pkPwr"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Vert Var" key="w2"  indentText="true"/>
+    	<contribute xsi:type="menuItem" menuText="Horz Var" key="uv2"  indentText="true"/>
+    </contribute>
+    
+</menuTemplate>

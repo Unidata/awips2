@@ -1,0 +1,42 @@
+n2s
+0 
+1 
+2 
+3 
+4 DRY
+5 
+6 HEAT
+7 COLD
+8 CHILL
+9 FlFld
+10 Fld
+11 
+12 
+13 
+14 A
+15 
+16 
+17 
+18 +Tide
+19 +Surf
+20 +W
+21 
+22 
+23 
+24 -Tide
+25 A
+26 
+27 DMG
+28 
+29 RIP
+30 SEICHE
+31 
+32 
+33 SURGE
+34 
+35 
+36 
+37 
+38 
+39 
+40 

@@ -1,0 +1,47 @@
+'\"
+'\" $Header: /cvsroot/ldm/src/scripts/syscheck.1,v 1.1.22.1 2009/06/18 16:20:26 steve Exp $
+.TH SYSCHECK 1 "$Date: 2009/06/18 16:20:26 $"
+.SH NAME
+syscheck - monitor various I/O, CPU and network parameters
+.SH "UNIX SYNOPSIS"
+\fBsyscheck \fR[\fB\-u\fR] [\fB\-I \fIinterace\fR] [\fB\-l \fIlogfile\fR]
+[\fB\-n\fR] [\fB\-o\fR]
+.SH DESCRIPTION
+
+This perl script monitors the general state of the computer that it runs on.
+It uses, where available, vmstat(1), netstat(1), iostat(1) and uptime(1).
+Output, by default, goes to both STDOUT and to a logfile.
+.LP
+Syscheck requires that the environment variable LDMHOME be set to the
+directory containing the logs directory which contains the syscheck log file
+respectively.  If this variable is not set syscheck exits.
+.LP
+Output to both STDOUT and/or the log file may be turned off by command line
+switches.
+.LP
+.SH OPTIONS 
+.TP 8
+.B \-u
+Usage.  When present, causes a usage message to be printed and netcheck
+exits.
+.TP 8
+.BI \-I " interface"
+Ethernet interface, if other than default.  The default interface is
+different on each platform supported.
+.TP 8
+.BI \-l " logfile"
+The path name of a file to be used as the log file for the process.  The
+default is to use LDMHOME/logs/syscheck.log.
+.TP 8
+.B \-n
+STDOUT flag.  When present supresses output to STDOUT.  Should be used when
+running netcheck out of cron(1).
+.TP 8
+.B \-o
+Log output flag.  When present supresses output to the logfile.
+.SH "LIMITATIONS AND WARNINGS"
+Each of the system utilities used in this script have different output
+formats and information.  Refer to you system man(1) pages to interpret
+the output.
+.SH "SEE ALSO"
+vmstat(1), netstat(1), iostat(1), uptime(1)

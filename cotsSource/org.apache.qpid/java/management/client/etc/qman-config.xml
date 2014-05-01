@@ -1,0 +1,68 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<configuration>
+
+<!-- 
+Default configuration for QMan has no broker settings; 
+that is, there's no broker configured at startup.
+If  you want to connect with a running broker when QMan starts up, 
+you can do that uncommenting and editing the template reported below.
+-->
+<!-- 	<brokers>
+		<broker>
+			<host>localhost</host>
+			<port>5672</port>
+			<virtual-host>test</virtual-host>
+	  		<user>guest</user>
+	  		<password>guest</password>
+	  		<max-pool-capacity>4</max-pool-capacity>
+	  		<initial-pool-capacity>0</initial-pool-capacity>
+	  		<max-wait-timeout>-1</max-wait-timeout>
+		</broker>
+		<broker>
+			<host>localhost</host>
+			<port>5672</port>
+			<virtual-host>test</virtual-host>
+	  		<user>guest</user>
+	  		<password>guest</password>
+	  		<max-pool-capacity>4</max-pool-capacity>
+	  		<initial-pool-capacity>0</initial-pool-capacity>
+	  		<max-wait-timeout>-1</max-wait-timeout>
+		</broker>
+  </brokers>
+  --> 
+  <!-- Internal worked manager configuration-->
+	<work-manager>
+		<!-- The size of the worker thread pool -->
+		<pool-capacity>5</pool-capacity>
+
+		<!-- Maximum size of the worker thread pool -->
+	  	<max-pool-capacity>15</max-pool-capacity>
+
+		<!-- 
+			when the current number of threads is greater than
+     		the pool-capacity, this is the maximum time that excess threads
+     		can be in an idle state (without any task assigned) before terminating.
+     		The value is expressed is milliseconds.
+		-->
+	  	<keep-alive-time>5000</keep-alive-time>
+  </work-manager>
+</configuration>

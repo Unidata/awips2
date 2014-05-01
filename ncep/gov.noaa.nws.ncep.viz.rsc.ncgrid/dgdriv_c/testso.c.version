@@ -1,0 +1,456 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dlfcn.h>
+#include <unistd.h>
+
+void *handle;
+
+void getmeagrid();
+void diagnosticsCallback(char *);
+void filenameCallback(char *);
+void fcsthrsCallback(char *);
+void navigationCallback(char *);
+void datauriCallback(char *);
+void dataCallback(char *);
+
+/* for printing errors */
+void diagnosticsCallback(char *msg) {
+    printf("%s\n",msg);
+}
+
+/* for getting filename */
+void filenameCallback(char *msg) {
+    printf("Don;t think that this Callback is being invoked!!\n");
+}
+
+/* for getting forecast hours */
+void fcsthrsCallback(char *msg) {
+   char hrs[] = "111003/1200f003|111003/1200f006|111003/1200f009|111003/1200f012";
+   char *error;
+   void (*db_returnfhrs)(char *);
+
+   db_returnfhrs = dlsym(handle, "db_returnfhrs");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_returnfhrs: %s\n", error);
+   }
+   printf("Calling db_returnfhrs...\n");
+   (*db_returnfhrs)(hrs);
+}
+
+/* for getting navigation */
+void navigationCallback(char *msg) {
+   char nav[] = "STR;147;110;2680;-1394750;-9999;-9999;-1050000;907550;907550";
+   char *error;
+   void (*db_returnnav)(char *);
+
+   db_returnnav = dlsym(handle, "db_returnnav");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_returnnav: %s\n", error);
+   }
+   printf("Calling db_returnnav...\n");
+   (*db_returnnav)(nav);
+}
+
+/* for getting datauri */
+void datauriCallback(char *msg) {
+   char *duri;
+   char hght[] = "/ncgrib/2011-10-03_12:00:00.0_(6)/NAM104/GH/MB/200.0/-999999.0/null/null/NAM104/2/nam.t12z.grbgrd06.tm00.grib2/HGHT/PRES/45";
+   char *error;
+   void (*db_returnduri)(char *);
+
+   duri = hght;
+
+   db_returnduri = dlsym(handle, "db_returnduri");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_returnduri: %s\n", error);
+   }
+   printf("Calling db_returnduri...\n");
+   (*db_returnduri)(duri);
+}
+
+/* for getting grid */
+void dataCallback(char *msg) {
+   int nx, ny, npoints, j;
+   float *grid_in;
+   char *error, *duri, *ax, *ay;
+   void (*db_returndata)(float *, int *);
+
+   duri = strtok(msg,";");
+   ax = strtok(NULL,";");
+   ay = strtok(NULL,";");
+   printf("IN dataCallback: %s\n", duri );
+   printf("IN dataCallback: %s\n", ax );
+   printf("IN dataCallback: %s\n", ay );
+   nx = atoi(ax);
+   ny = atoi(ay);
+   npoints = nx * ny;
+
+   grid_in = (float *)calloc( npoints, sizeof(float) );
+   if ( grid_in == NULL ) {
+      printf(" Could not allocate internal GRID!\n");
+      return;
+   }
+
+   for ( j=0; j<npoints; j++ ) grid_in[j]=(float)j;
+
+   db_returndata = dlsym(handle, "db_returndata");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_returndata: %s\n", error);
+   }
+   printf("Calling db_returndata...\n");
+   (*db_returndata)(grid_in, &npoints);
+   free(grid_in);
+}
+/*----------------------------------------------------------*/
+
+int   main ( void )
+{
+int j;
+
+handle = dlopen("./libgempak.so", RTLD_NOW);
+if ( !handle ) {
+    printf("dlopen ERROR: %s\n", dlerror() );
+    exit(1);
+}
+/*dlerror();   Clear any existing error */
+
+for (j=0; j<500; j++ ) getmeagrid();
+
+/*sleep(10*60*60);*/
+dlclose(handle);
+return 0;
+}
+
+
+void getmeagrid() {
+
+   int iret, mode = 0, iscals=0, iscalv=0, chngnv=1, coladd=0, nxtok;
+   int idrpfl, kx, ky, igx, igy, level1, level2, ivcord;
+   int imin=1, jmin=1, ier;
+   float *grid, rmin, rmax;
+   char navtime[] = "111003/1200f003";
+   char alias[] = "A2DB_NAM104";
+   char path[] = "A2DB_GRID";
+   char template[] = "NAM104_db";
+   char gdfile[] = "A2DB_NAM104";
+   char empty[] = "";
+   char gdatm[] = "111003/1200f003";
+   char scale[] = "0                             ";
+   char time1[128];
+   char time2[128];
+   char time[40];
+   char area[] = "DSET";
+   char proj[] = "";
+   char areout[128];
+   char prjout[128];
+   char imgfil[] = "";
+   char glevel[] = "200";
+   char gvcord[] = "pres";
+   char gfunc[] = "sm5s(hght)";
+   /*char gfunc[] = "knts((mag(wnd)))";*/
+   char pfunc[128];
+   char parm[40];
+
+   char *error;
+   void (*in_bdta)(int *);
+   void (*gd_init)(int *);
+   void (*gg_init)(int *, int *);
+   void (*dg_intl)(int *);
+   void (*db_init)(int *);
+   void (*db_wsetnavtime)(char *, int *);
+   void (*db_seta2dtinfo)(char *, char *, char *, int *);
+   void (*dgc_nfil)(char *, char *, int *);
+   void (*dgc_ndtm)(char *, int *);
+   void (*inc_scal)(char *, int *, int *, int *);
+   void (*dgc_ntim)(int *, int *, char *, char *, int *, int *);
+   void (*tgc_dual)(char *, char *, char *, int *);
+   void (*dgc_fixa)(char *, char *, char *, char *, int *);
+   void (*ggc_maps)(char *, char *, char *, int *, int *);
+   void (*dg_kxky)(int *, int *, int *);
+   void (*dgc_grid)(char *, char *, char *, char *, char *,
+                    float *, int *, int *, char *, char *,
+                    int *, int *, int *, char *, int *);
+   void (*grc_sscl)(int *, int *, int *, int *, int *,
+                    int *, int *, float *, float *,
+                    float *, int *);
+   void (*dg_fall)(int *);
+
+   int (*db_diagCallback)(void (*aDiagCallback)(char*));
+   int (*db_flnmCallback)(void (*aFlnmCallback)(char*));
+   int (*db_fhrsCallback)(void (*aFhrsCallback)(char*));
+   int (*db_navCallback)(void (*aNavCallback)(char*));
+   int (*db_dataCallback)(void (*aDataCallback)(char*));
+   int (*db_duriCallback)(void (*aDuriCallback)(char*));
+
+   /*  set diags callback  */
+   db_diagCallback = dlsym(handle, "db_diagCallback");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_diagCallback: %s\n", error);
+   }
+   ier = db_diagCallback(*diagnosticsCallback);
+
+   /*  set filename callback  */
+   db_flnmCallback = dlsym(handle, "db_flnmCallback");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_flnmCallback: %s\n", error);
+   }
+   ier = db_flnmCallback(*filenameCallback);
+
+   /*  set forecast hours callback  */
+   db_fhrsCallback = dlsym(handle, "db_fhrsCallback");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_fhrsCallback: %s\n", error);
+   }
+   ier = db_fhrsCallback(*fcsthrsCallback);
+
+   /*  set nav block callback  */
+   db_navCallback = dlsym(handle, "db_navCallback");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_navCallback: %s\n", error);
+   }
+   ier = db_navCallback(*navigationCallback);
+
+   /*  set data callback  */
+   db_dataCallback = dlsym(handle, "db_dataCallback");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_dataCallback: %s\n", error);
+   }
+   ier = db_dataCallback(*dataCallback);
+
+   /*  set dataURI callback  */
+   db_duriCallback = dlsym(handle, "db_duriCallback");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_duriCallback: %s\n", error);
+   }
+   ier = db_duriCallback(*datauriCallback);
+
+   /* initialize block data */
+   in_bdta = dlsym(handle, "in_bdta_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding in_bdta: %s\n", error);
+   }
+   printf("Calling in_bdta...\n");
+   (*in_bdta)(&iret);
+   if ( iret != 0 ) {
+      printf(" Return code from in_bdta = %d\n",iret);
+      return;
+   }
+
+   /* initialize grid library */
+   gd_init = dlsym(handle, "gd_init_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding gd_init: %s\n", error);
+   }
+   printf("Calling gd_init...\n");
+   (*gd_init)(&iret);
+   if ( iret != 0 ) {
+      printf(" Return code from gd_init = %d\n",iret);
+      return;
+   }
+
+   /* initialize GEMPLT package */
+   gg_init = dlsym(handle, "gg_init_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding gg_init: %s\n", error);
+   }
+   printf("Calling gg_init...\n");
+   (*gg_init)(&mode, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from gg_init = %d\n",iret);
+      return;
+   }
+
+   /* initialize grid diagnostics package */
+   dg_intl = dlsym(handle, "dg_intl_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding dg_intl: %s\n", error);
+   }
+   printf("Calling dg_intl...\n");
+   (*dg_intl)(&iret);
+   if ( iret != 0 ) {
+      printf(" Return code from dg_intl = %d\n",iret);
+      return;
+   }
+
+   /* initialize db package */
+   db_init = dlsym(handle, "db_init_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_init: %s\n", error);
+   }
+   printf("Calling db_init...\n");
+   (*db_init)(&iret);
+   if ( iret != 0 ) {
+      printf(" Return code from db_init = %d\n",iret);
+      return;
+   }
+
+   /* */
+   db_wsetnavtime = dlsym(handle, "db_wsetnavtime_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_wsetnavtime: %s\n", error);
+   }
+   printf("Calling db_wsetnavtime...\n");
+   (*db_wsetnavtime)(navtime, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from db_wsetnavtime = %d\n",iret);
+      return;
+   }
+
+   /* */
+   db_seta2dtinfo = dlsym(handle, "db_seta2dtinfo_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding db_seta2dtinfo: %s\n", error);
+   }
+   printf("Calling db_seta2dtinfo...\n");
+   (*db_seta2dtinfo)(alias, path, template, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from db_seta2dtinfo = %d\n",iret);
+      return;
+   }
+
+   /* */
+   dgc_nfil = dlsym(handle, "dgc_nfil_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding dgc_nfil: %s\n", error);
+   }
+   printf("Calling dgc_nfil...\n");
+   (*dgc_nfil)(gdfile, empty, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from dgc_nfil = %d\n",iret);
+      return;
+   }
+
+   /* */
+   dgc_ndtm = dlsym(handle, "dgc_ndtm_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding dgc_ndtm: %s\n", error);
+   }
+   printf("Calling dgc_ndtm...\n");
+   (*dgc_ndtm)(gdatm, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from dgc_ndtm = %d\n",iret);
+      return;
+   }
+
+   /* */
+   inc_scal = dlsym(handle, "inc_scal");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding inc_scal: %s\n", error);
+   }
+   printf("Calling inc_scal...\n");
+   (*inc_scal)(scale, &iscals, &iscalv, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from inc_scal = %d\n",iret);
+      return;
+   }
+
+   /* */
+   dgc_ntim = dlsym(handle, "dgc_ntim_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding dgc_ntim: %s\n", error);
+   }
+   printf("Calling dgc_ntim...\n");
+   (*dgc_ntim)(&chngnv, &coladd, time1, time2, &nxtok, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from dgc_ntim = %d\n",iret);
+      return;
+   }
+
+   /* */
+   tgc_dual = dlsym(handle, "tgc_dual");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding tgc_dual: %s\n", error);
+   }
+   printf("Calling tgc_dual...\n");
+   (*tgc_dual)(time1, time2, time, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from tgc_dual = %d\n",iret);
+      return;
+   }
+
+   /* */
+   dgc_fixa = dlsym(handle, "dgc_fixa_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding dgc_fixa: %s\n", error);
+   }
+   printf("Calling dgc_fixa...\n");
+   (*dgc_fixa)(area, proj, areout, prjout, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from dgc_fixa = %d\n",iret);
+      return;
+   }
+
+   /* */
+   ggc_maps = dlsym(handle, "ggc_maps");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding ggc_maps: %s\n", error);
+   }
+   printf("Calling ggc_maps...\n");
+   (*ggc_maps)(prjout, areout, imgfil, &idrpfl, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from ggc_maps = %d\n",iret);
+      return;
+   }
+
+   /* */
+   dg_kxky = dlsym(handle, "dg_kxky_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding dg_kxky: %s\n", error);
+   }
+   printf("Calling dg_kxky...\n");
+   (*dg_kxky)(&kx, &ky, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from dg_kxky = %d\n",iret);
+      return;
+   }
+
+   grid = (float *)calloc( (kx*ky), sizeof(float) );
+   if ( grid == NULL ) {
+      printf(" Could not allocate GRID!\n");
+      return;
+   }
+
+   /* get grid */
+   dgc_grid = dlsym(handle, "dgc_grid_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding dgc_grid: %s\n", error);
+   }
+   printf("Calling dgc_grid...\n");
+   (*dgc_grid)(time, glevel, gvcord, gfunc, pfunc, grid,
+               &igx, &igy, time1, time2, &level1, &level2,
+               &ivcord, parm, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from dgc_grid = %d\n",iret);
+      return;
+   }
+
+   /* scale grid */
+   grc_sscl = dlsym(handle, "grc_sscl");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding grc_sscl: %s\n", error);
+   }
+   printf("Calling grc_sscl...\n");
+   (*grc_sscl)(&iscals, &igx, &igy, &imin, &jmin, &igx, &igy,
+               grid, &rmin, &rmax, &iret);
+   if ( iret != 0 ) {
+      printf(" Return code from grc_sscl = %d\n",iret);
+      return;
+   }
+
+   printf(" GRID values: rmin = %f   rmax = %f\n",rmin,rmax);
+
+   /* free memory */
+   dg_fall = dlsym(handle, "dg_fall_");
+   if ((error = dlerror()) != NULL)  {
+       printf ("Error finding dg_fall: %s\n", error);
+   }
+   printf("Calling dg_fall...\n");
+   (*dg_fall)(&iret);
+   if ( iret != 0 ) {
+      printf(" Return code from dg_fall = %d\n",iret);
+      return;
+   }
+
+   free(grid);
+}

@@ -1,0 +1,7 @@
+colorMapName=lingray
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=Derived Convective Available Potential Energy (CAPE)
+displayUnitStr=SounderSkinTempPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

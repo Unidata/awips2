@@ -1,0 +1,99 @@
+'\"
+'\" $Header: /cvsroot/ldm/src/pqinsert/pqinsert.1,v 1.7.22.4 2009/06/18 16:18:52 steve Exp $
+.TH PQINSERT 1 "$Date: 2009/06/18 16:18:52 $"
+.SH NAME
+pqinsert - insert files as products in an LDM product queue.
+.SH "SYNOPSIS"
+\fBpqinsert \fR[\fB\-ivx\fR] [\fB\-l \fIlogfile\fR] 
+.BI [\-q " queue"]
+.BI [\-s " seqno"]
+.BI [\-f " feedtype"]
+.BI [\-p " product ID"]
+.BI filename ...
+.SH DESCRIPTION
+.LP
+This program is an example of how to insert data into an LDM product queue.
+Its primary function is as a coding example. It may also be used to
+test the ldm system.  It might also be useful to resend data
+after a downstream node has been offline, or to queue locally generated
+products for transmission.
+.LP
+Each file given on the command line is converted to a separate ldm data product.
+By default, the file name is used as product identifier.
+This default can be changed using the \fB\-p\fR\
+ option to specify some other product identifier.
+The product feed type is specified by the \fB\-f\fR\ option.
+The current time used as product arrival time.
+The product is then inserted at the end of the specified queue.
+.SH OPTIONS 
+.TP 8
+.BI \-i
+Compute the MD5 signature from the product-identifier rather than from
+the product's data.
+You should only use this option if computing the
+MD5 signature from the product's data takes too long and if
+the product-identifier is unique.
+.TP
+.BI \-f " feedtype"
+Asserts that the data being sent has feed type \fIfeedtype\fR.
+The default is `EXP', indicating an experimental feedtype.
+.TP
+.BI \-l " logfile"
+the path name of a file to be used as the log file for the process.  The
+default is log to stderr.
+.TP
+.BI \-p " productID"
+Asigns the data the product identifier \fIproductID\fR. If multiple
+files are being inserted, the product identifier becomes
+<productID>.<sequenceNumber>. 
+The default product identifier is the name of the file being
+inserted.
+.TP
+.BI \-q " queue"
+Insert date to the named queue. The default is `/usr/local/ldm/data/ldm.pq'.
+.TP
+.BI \-s " seqno"
+Sets the product sequence number associated with the first product
+to \fIseqno\fR. Subsequent products (files on the command line)
+are numbered sequentially. Defaults to zero.
+.TP
+.B \-v
+Verbose flag.  If present, the log will contain a line for 
+each product file that was inserted.
+.TP
+.BI \-x
+Requests that debugging information also be printed (currently none).
+.SH EXIT STATUS
+.LP
+If the program exits with a failure status, then the user should check 
+the log messages for details on the failure.
+.TP
+.B 0
+Success.  All input files were inserted into the product-queue.
+.TP
+.B 1
+A failure occurred in the operating-system.  No files were processed.
+.TP
+.B 2
+The product-queue couldn't be opened for writing.  No files were processed.
+.TP
+.B 3
+A problem occurred while processing an input file, which was not added
+to the product-queue.  Other files might have been added.
+.TP
+.B 6
+The MD5 signature computation couldn't be initialized.  No files were
+processed.
+.SH EXAMPLE
+The command
+.RS +4
+.nf
+pqinsert -v -q /var/data/nldn/ldm.pq -f NLDN 19940906220206
+.fi
+.RE
+will insert the file `19940906220206' at the end of `/var/data/nldn/ldm.pq'
+with feedtype `NLDN'.
+.SH "SEE ALSO"
+pq(3), ldmd(1), pqact(1), pqsend(1)
+.SH DIAGNOSTICS
+Error messages and log messages are written to the log file. 

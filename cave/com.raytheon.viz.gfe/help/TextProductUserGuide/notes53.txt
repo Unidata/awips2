@@ -1,0 +1,1 @@
+So to modify the value of a flag, you must only remove the comment symbol (#) from the beginning of the file.

@@ -1,0 +1,1 @@
+If sub-phrases can be combined, the "combine2Children" method is called.  It takes a tree, phrase, and 2 child nodes and combines them into a new child taking the "words" attribute of the first child.  

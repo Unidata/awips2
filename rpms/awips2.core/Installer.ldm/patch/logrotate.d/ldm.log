@@ -1,0 +1,12 @@
+/data/ldm/logs/ldmd.log /data/ldm/logs/nwstg.log /data/ldm/logs/goes.log /data/ldm/logs/nwstg2.log /data/ldm/logs/oconus.log /data/ldm/logs/polarsat.log {
+        missingok
+        compress
+        notifempty
+        daily
+        rotate 5
+        create 0660 root fxalpha
+        postrotate
+        /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+        endscript
+
+}

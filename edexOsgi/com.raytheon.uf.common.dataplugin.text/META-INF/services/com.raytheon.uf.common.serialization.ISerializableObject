@@ -1,0 +1,16 @@
+com.raytheon.uf.common.dataplugin.text.db.AfosLookup
+com.raytheon.uf.common.dataplugin.text.db.AfosLookupPK
+com.raytheon.uf.common.dataplugin.text.db.AutoFaxRecord
+com.raytheon.uf.common.dataplugin.text.db.AutoFaxRecordPK
+com.raytheon.uf.common.dataplugin.text.db.AfosToAwips
+com.raytheon.uf.common.dataplugin.text.db.AfosToAwipsId
+com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct
+com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct
+com.raytheon.uf.common.dataplugin.text.db.StateMatch
+com.raytheon.uf.common.dataplugin.text.db.StateMatchPK
+com.raytheon.uf.common.dataplugin.text.db.StdTextProduct
+com.raytheon.uf.common.dataplugin.text.db.StdTextProductId
+com.raytheon.uf.common.dataplugin.text.db.TextProductInfo
+com.raytheon.uf.common.dataplugin.text.db.TextProductInfoPK
+com.raytheon.uf.common.dataplugin.text.db.WatchWarn
+com.raytheon.uf.common.dataplugin.text.db.WatchWarnPK

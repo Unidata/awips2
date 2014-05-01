@@ -1,0 +1,100 @@
+C************************************************************************
+C IMGDEF								*
+C*									*
+C* Common area for image header information				*
+C*									*
+C* NOTE: When changing or adding entries to this common block, make the	*
+C*	 same changes to the file imgdef.h .  Also, the file xsicmn.c	*
+C*	 in the XW device driver should be modified to reflect changes	*
+C*	 here.								*
+C**									*
+C* Log:									*
+C* J. Cowie/COMET	 2/95						*
+C* C. Lin/EAI	         6/95 	add icbank				*
+C* J. Cowie/COMET	10/95	changed imdate comment			*
+C* J. Cowie/COMET	 4/96	Added 'calib' - image calibration,	*
+C*				increased dimension of cblevs to 256	*
+C* J. Cowie/COMET	 1/97	Renamed variables			*
+C* J. Cowie/COMET	12/97	Added imradf, rmoved imraw, immode	*
+C* D.W.Plummer/NCEP	 2/03	Send more common info to GEMPLT, etc	*
+C************************************************************************
+C
+	PARAMETER	(NIMCMN =  31+5+2+1+1)
+C!					Number of image common variables
+C!					(words) to send down to GEMPLT
+C!					and XW. This includes all numeric
+C!					variables plus the following chars
+C!
+	CHARACTER	cmsorc*20, cmtype*8, cmstyp*4, cmcalb*4
+C!				These get sent down thru GPLT.
+C!
+	CHARACTER	cmlutf*16, cmblev(256)*8, cmbunt*8, cmfile*132
+C!				These do not get sent down thru GPLT.
+C
+	COMMON	/IMGDEF/
+C
+     +			imftyp, imbank, imdoff, imldat,
+C!						Image file type
+C!					 	Color bank ID	
+C!						Data offset (bytes)
+C!						Length of data (bytes)
+     +			imnpix, imnlin, imdpth, 
+C!						Number of pixels
+C!						Number of lines
+C!						Pixel depth (bytes)
+     +			rmxres, rmyres,
+C!						x, y pixel
+C!						resolutions (km)
+     +			imleft, imtop, imrght, imbot,
+C!						Bounds of "zoomed" image
+     +			rmxysc,
+C!						x-y image scaling factor
+     +			imbswp,
+C!						Byte swapped data flag
+     +			imnchl, imprsz, imdcsz,
+C!						Number of channels
+C!						Line prefix size
+C!						Doc size
+C!						(AREA)
+     +			imclsz, imlvsz, imvald,
+C!						Cal size
+C!						Level size
+C!						Validity code
+C!						(AREA)
+     +			imrdfl,
+C!						Radial product flag
+C!						(NIDS)
+     +			immnpx, immxpx,
+C!						Min pixel value
+C!						Max pixel value
+     +			imsorc, imtype,
+C!						Image source
+C!						Image type ID
+     +			imradf,
+C!						Radar image flag
+     +			rmbelv,
+C!						Radar beam elevation
+C!						deg (NIDS)
+     +                  immode,
+C!                                              Operational mode of radar
+C!                                                  0 = maintenance
+C!                                                  1 = clear air
+C!                                                  2 = precip/storm
+     +			imdate, imtime,
+C!						Image date (yyyymmdd)
+C!						Image time (hhmmss)
+     +			cmsorc, cmtype,
+C!						Image source (eg., GOES8)
+C!						Product type (eg., IR)
+     +			cmstyp, cmcalb,
+C!						Image source type (eg., GVAR)
+C!						Calibration units (eg., RAW)
+     +			cmlutf, cmfile,
+C!						LUT file name
+C!						Name of image file
+     +			imndlv,
+C!						Number of data levels
+C!						for cbar
+     +			cmblev, cmbunt
+C!						Color bar data levels
+C!						Color bar units

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<filterPatterns>
+	<filterPattern name="RADAR">
+		<include>.*\.radar.*</include>
+	</filterPattern>
+	<filterPattern name="AVNFPS">
+		<include>.*\.aviation.*</include>
+        <exclude>.*\.aviation.monitor.*</exclude>
+        <exclude>.*\.aviation.guidance.*</exclude>
+        <exclude>.*\.aviation.climatedata.*</exclude>
+        <exclude>.*\.aviation.climatology.*</exclude>
+        <exclude>.*\.aviation.editor.*Taf</exclude>
+        <exclude>.*\.aviation.utility.*Taf</exclude>
+	</filterPattern>
+    <filterPattern name="Monitor">
+        <include>.*\.aviation.monitor.*</include>
+    </filterPattern>
+    <filterPattern name="Guidance">
+        <include>.*\.aviation.guidance.*</include>
+    </filterPattern>
+    <filterPattern name="Climate">
+        <include>.*\.aviation.climatedata.*</include>
+        <include>.*\.aviation.climatology.*</include>
+    </filterPattern>
+    <filterPattern name="TAF Editor">
+        <include>.*\.aviation.editor.*Taf</include>
+        <include>.*\.aviation.utility.*Taf</include>
+    </filterPattern>
+	<filterPattern name="ISC">
+		<include>.*\.isc.*</include>
+        <include>.*Isc.*</include>
+        <include>.*ISC.*</include>
+	</filterPattern>
+	<filterPattern name="GFE">
+		<include>.*GFE.*</include>
+        <include>.*gfe.*</include>
+        <exclude>.*\.isc.*</exclude>
+        <exclude>.*Isc.*</exclude>
+        <exclude>.*ISC.*</exclude>
+        <exclude>.*\.smartinit.*</exclude>
+	</filterPattern>
+	<filterPattern name="NDFD">
+        <include></include>
+	</filterPattern>
+	<filterPattern name="ANNOUNCER">
+		<include></include>
+	</filterPattern>
+	<filterPattern name="MPE">
+		<include>.*\.mpe.*</include>
+        <include>.*MPE.*</include>
+	</filterPattern>
+	<filterPattern name="GHG">
+		<include>.*\.ghg.*</include>
+        <include>.*GHG.*</include>
+	</filterPattern>
+	<filterPattern name="WORKSTATION">
+		<include></include>
+	</filterPattern>
+	<filterPattern name="DEFAULT">
+		<include></include>
+	</filterPattern>
+	<filterPattern name="SNOW">
+		<include>.*\.snow.*</include>
+        <include>.*\.Snow.*</include>
+	</filterPattern>
+	<filterPattern name="FOG">
+		<include>.*\.fog.*</include>
+	</filterPattern>
+	<filterPattern name="FFMP">
+		<include>.*\.ffmp.*</include>
+	</filterPattern>
+	<filterPattern name="SCAN">
+		<include>.*\.scan.*</include>
+	</filterPattern>
+	<filterPattern name="SAFESEAS">
+		<include>.*\.safeseas.*</include>
+        <include>.*\.Safeseas.*</include>
+        <include>.*\.SafeSeas.*</include>
+	</filterPattern>
+	<filterPattern name="NWRWAVES">
+		<include>.*nwr.*</include>
+        <include>.*Nwr.*</include>
+        <include>.*NWR.*</include>
+	</filterPattern>
+	<filterPattern name="SMARTINIT">
+		<include>.*\.smartinit.*</include>
+	</filterPattern>
+	<filterPattern name="GDN_ADMIN">
+		<include>.*\.alertviz.*</include>
+	</filterPattern>
+	<filterPattern name="RPGEnvData">
+		<include>.*\.rpgenvdata.*</include>
+	</filterPattern>
+	<filterPattern name="GRIB">
+		<include>.*\.grib.*</include>
+	</filterPattern>
+	<filterPattern name="Localization">
+		<include>.*\.localization\..*</include>
+	</filterPattern>
+	<filterPattern name="ActiveTable">
+		<include>.*\.activetable\..*</include>
+	</filterPattern>
+	<filterPattern name="PURGE">
+		<exclude>.*\.edex.purgesrv\..*</exclude>
+        <exclude>.*\.database.purge\..*</exclude>
+	</filterPattern>
+	<filterPattern name="HandleOUP">
+		<include>.*\.dissemination\..*</include>
+	</filterPattern>
+	<filterPattern name="Management">
+		<include>.*\.management\..*</include>
+	</filterPattern>
+	<filterPattern name="Storage">
+		<include>.*\.nwsauth\..*</include>
+        <include>.*\.persist\..*</include>
+	</filterPattern>
+	<filterPattern name="TOPO">
+		<include>.*request.*</include>
+	</filterPattern>
+    <filterPattern name="EDEX">
+        <include>.*\.edex.*</include>
+    </filterPattern>
+	<filterPattern name="D2D">
+		<include>.*d2d.*</include>
+	</filterPattern>
+    <filterPattern name="CAVE">
+        <include>.*\.viz.*</include>
+    </filterPattern>
+</filterPatterns>

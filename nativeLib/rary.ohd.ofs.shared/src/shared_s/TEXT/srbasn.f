@@ -1,0 +1,198 @@
+C MODULE SRBASN
+C----------------------------------------------------------------------
+C
+C  ROUTINE TO READ A BASIN PARAMETER RECORD.
+C
+      SUBROUTINE SRBASN (ARRAY,LARRAY,IVER,BASNID,DESCRP,
+     *   FLAT,FLON,MBPTS,NBPTS,
+     *   AREA,CAREA,ELEV,XC,YC,MAPFLG,MATFLG,PID,TID,PXID,
+     *   MSEGS,NSEGS,IY,IXB,IXE,LFACTR,
+     *   IPTR,IPTRNX,IPRERR,ISTAT)
+C
+      DIMENSION ARRAY(LARRAY)
+      CHARACTER*8 BASNID,PID,TID,PXID
+      CHARACTER*20 DESCRP
+      DIMENSION FLAT(MBPTS),FLON(MBPTS)
+      DIMENSION IY(MSEGS),IXB(MSEGS),IXE(MSEGS)
+      DIMENSION PXIDI(2)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/suerrx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/srbasn.f,v $
+     . $',                                                             '
+     .$Id: srbasn.f,v 1.2 1999/07/07 11:26:22 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SRBASN'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('BASN')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*)
+     *     ' MBPTS=',MBPTS,
+     *     ' MSEGS=',MSEGS,
+     *     ' '
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  OPEN DATA BASE
+      CALL SUDOPN (1,'PPP ',IERR)
+C
+C  READ PARAMETER RECORD
+      CALL RPPREC (BASNID,'BASN',IPTR,LARRAY,ARRAY,NFILL,IPTRNX,IERR)
+      IF (IERR.GT.0) THEN
+         ISTAT=IERR
+         IF (IERR.EQ.2.AND.IPRERR.EQ.0) GO TO 110
+            CALL SRPPST (BASNID,'BASN',IPTR,LARRAY,NFILL,IPTRNX,IERR)
+            GO TO 110
+         ENDIF
+C
+C  GET VERSION NUMBER
+      NPOS=1
+      IVER=ARRAY(NPOS)
+C
+C  GET BASIN IDENTIFIER
+      DO 20 I=1,2
+         NPOS=NPOS+1
+         IPOS=(I-1)*4+1
+         CALL SUBSTR (ARRAY(NPOS),1,4,BASNID,IPOS)
+20       CONTINUE
+C
+C  GET BASIN DESCRIPTION
+      DO 30 I=1,5
+         NPOS=NPOS+1
+         IPOS=(I-1)*4+1
+         CALL SUBSTR (ARRAY(NPOS),1,4,DESCRP,IPOS)
+30       CONTINUE
+C
+C  GET BASIN ELEVATION
+      NPOS=NPOS+1
+      ELEV=ARRAY(NPOS)
+C
+C  GET BASIN AREA SPECIFIED BY USER
+      NPOS=NPOS+1
+      AREA=ARRAY(NPOS)
+C
+C  GET BASIN AREA COMPUTED
+      NPOS=NPOS+1
+      CAREA=ARRAY(NPOS)
+C
+C  GET BASIN CENTROID
+      NPOS=NPOS+1
+      XC=ARRAY(NPOS)
+      NPOS=NPOS+1
+      YC=ARRAY(NPOS)
+C 
+C  GET IDENTIFIER OF MAP AREA THAT USES THIS BASIN
+      DO 40 I=1,2
+         NPOS=NPOS+1
+         IPOS=(I-1)*4+1
+         CALL SUBSTR (ARRAY(NPOS),1,4,PID,IPOS)
+40       CONTINUE
+C
+C  STORE IDENTIFIER OF MAT AREA THAT USES THIS BASIN
+      DO 50 I=1,2
+         NPOS=NPOS+1
+         IPOS=(I-1)*4+1
+         CALL SUBSTR (ARRAY(NPOS),1,4,TID,IPOS)
+50       CONTINUE
+C
+C  GET MAP AND MAT UPDATE INICATORS
+      NPOS=NPOS+1
+      MAPFLG=ARRAY(NPOS)
+      NPOS=NPOS+1
+      MATFLG=ARRAY(NPOS)
+C
+C  STORE IDENTIFIER OF MAPX AREA THAT USES THIS BASIN
+      PXID=' '
+      DO 60 I=1,2
+         NPOS=NPOS+1
+         IPOS=(I-1)*4+1
+         CALL SUBSTR (ARRAY(NPOS),1,4,PXID,IPOS)
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,*) 'I=',I,' PXIDI(I)=',PXIDI(I)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+60       CONTINUE
+      CALL SUBSTR (PXID,1,8,PXIDI,1)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'PXIDI(1)=',PXIDI(1),' PXIDI(2)=',PXIDI(2)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (PXIDI(1).EQ.-999.0.AND.PXIDI(2).EQ.-999.0.OR.
+     *    PXIDI(2).EQ.0.0.AND.PXIDI(2).EQ.0.0) THEN
+          PXID=' '
+          ENDIF
+C
+C  GET GRID SPACING FACTOR
+      NPOS=NPOS+1
+      LFACTR=ARRAY(NPOS)
+C
+C  GET NUMBER OF PAIRS OF BASIN BOUNDARY POINTS
+      NPOS=NPOS+1
+      NBPTS=ARRAY(NPOS)
+C
+C  GET NUMBER OF GRID SEGMENTS
+      NPOS=NPOS+1
+      NSEGS=ARRAY(NPOS)
+C
+C  CHECK ARRAY SIZES
+      IF (NBPTS.GT.MBPTS) THEN
+         ISTAT=1
+         WRITE (LP,140) 'LAT/LON PAIRS',NBPTS,MBPTS,BASNID
+         CALL SUERRS (LP,2,-1)
+         ENDIF
+      IF (NSEGS.GT.MSEGS) THEN
+         ISTAT=1
+         WRITE (LP,140) 'GRID SEGMENTS',NSEGS,MSEGS,BASNID
+         CALL SUERRS (LP,2,-1)
+         ENDIF
+      IF (ISTAT.GT.0) GO TO 110
+C
+C  GET BASIN LATITUDE POINTS
+      DO 90 I=1,NBPTS
+         NPOS=NPOS+1
+         FLAT(I)=ARRAY(NPOS)
+90       CONTINUE
+C
+C  GET BASIN LONGITUDE POINTS
+      DO 100 I=1,NBPTS
+         NPOS=NPOS+1
+         FLON(I)=ARRAY(NPOS)
+100      CONTINUE
+C
+C  GET GRID POINT DEFINITION
+      NPOS=NPOS+1
+      CALL SFCONV (IY,ARRAY(NPOS),NSEGS)
+      NPOS=NPOS+NSEGS
+      CALL SFCONV (IXB,ARRAY(NPOS),NSEGS)
+      NPOS=NPOS+NSEGS
+      CALL SFCONV (IXE,ARRAY(NPOS),NSEGS)
+C
+110   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SRBASN'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+140   FORMAT ('0*** ERROR - IN SRBASN - ',
+     *   'NUMBER OF ',A,' TO BE PROCESSED (',I4,
+     *   ') EXCEEDS MAXIMUM (',I4,') FOR BASIN ',A,'.')
+C
+      END

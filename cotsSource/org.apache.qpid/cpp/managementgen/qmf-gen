@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+# 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# 
+
+import sys
+import os
+from qmfgen.schema   import SchemaPackage, SchemaClass
+from qmfgen.generate import Generator
+from optparse        import OptionParser
+
+dataPath = os.path.dirname(Generator.getModulePath())
+defaultTypeFile    = dataPath + "/management-types.xml"
+defaultTemplateDir = dataPath + "/templates"
+
+# Set command line options
+usage  = "usage: %prog [options] schema-document..."
+parser = OptionParser(usage=usage)
+parser.add_option("-o", "--outputdir", dest="outputdir", metavar="DIR", default="./",
+                  help="Output directory")
+parser.add_option("-c", "--cmakelists", dest="cmakelists", metavar="FILE",
+                  help="CMakeLists fragment")
+parser.add_option("-m", "--makefile", dest="makefile", metavar="FILE",
+                  help="Makefile fragment")
+parser.add_option("-t", "--typefile", dest="typefile", metavar="FILE", default=defaultTypeFile,
+                  help="Override type descriptor file")
+parser.add_option("-d", "--templatedir", dest="templatedir", metavar="DIR", default=defaultTemplateDir,
+                  help="Override template directory")
+parser.add_option("-p", "--gen-prefix", dest="genprefix", default="",
+                  help="Prefix for generated files in make dependencies")
+parser.add_option("-q", "--qpid-broker", dest="qpidbroker", default=False, action="store_true",
+                  help="Generate makefile for Qpid broker")
+parser.add_option("-b", "--broker-plugin", dest="brokerplugin", default=False, action="store_true",
+                  help="Generate code for use in a qpid broker plugin")
+
+(opts, args) = parser.parse_args()
+
+typefile    = opts.typefile
+templatedir = opts.templatedir
+outdir      = opts.outputdir
+gen         = Generator(outdir, templatedir)
+
+if len(args) == 0:
+  print "no input files"
+  parser.exit()
+
+vargs = {}
+if opts.brokerplugin:
+  vargs["agentHeaderDir"] = "management"
+else:
+  vargs["agentHeaderDir"] = "agent"
+
+for schemafile in args:
+  package = SchemaPackage(typefile, schemafile, opts)
+
+  gen.setPackage      (package.packageName)
+  gen.makeClassFiles  ("Class.h",     package, vars=vargs)
+  gen.makeClassFiles  ("Class.cpp",   package, vars=vargs)
+  gen.makeMethodFiles ("Args.h",      package, vars=vargs)
+  gen.makeEventFiles  ("Event.h",     package, vars=vargs)
+  gen.makeEventFiles  ("Event.cpp",   package, vars=vargs)
+  gen.makePackageFile ("Package.h",   package, vars=vargs)
+  gen.makePackageFile ("Package.cpp", package, vars=vargs)
+
+if opts.makefile != None:
+  args = {}
+  args["qpidbroker"] = opts.qpidbroker
+  args["genprefix"]  = opts.genprefix
+  gen.makeSingleFile("Makefile.mk", opts.makefile, force=True, vars=args)
+
+if opts.cmakelists != None:
+  args = {}
+  args["qpidbroker"] = opts.qpidbroker
+  args["genprefix"]  = opts.genprefix
+  gen.makeSingleFile("CMakeLists.cmake", opts.cmakelists, force=True, vars=args)

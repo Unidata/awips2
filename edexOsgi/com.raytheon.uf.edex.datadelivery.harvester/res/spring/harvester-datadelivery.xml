@@ -1,0 +1,72 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"    
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="crawlerCommunicationStrategy" class="com.raytheon.uf.edex.datadelivery.harvester.crawler.FileCommunicationStrategy" />
+
+    <bean id="MetaDataProcessor" class="com.raytheon.uf.edex.datadelivery.harvester.CrawlMetaDataHandler" depends-on="registryInit">
+        <constructor-arg ref="crawlerCommunicationStrategy" />
+        <constructor-arg ref="ProviderHandler" />
+    </bean>
+  	
+  	<camelContext id="MetaData-context"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<endpoint id="metaDataCron" uri="quartz://datadelivery/harvester/?cron=${metadata-process.cron}"/>
+		<endpoint id="harvesterProcessWorkEndpoint" uri="jms-generic:queue:metaDataProcessWork?concurrentConsumers=${metadata-process.threads}&amp;threadName=harvester"/>
+
+		<route id="metaDataProcess">
+			<from uri="metaDataCron" />
+			<to uri="jms-generic:queue:metaDataProcessWork" />
+		</route>
+				
+		<route id="metaDataProcessWork">
+		    <from uri="harvesterProcessWorkEndpoint" />
+            <doTry>
+            	<pipeline>
+    				<bean ref="MetaDataProcessor" method="metaDataCheck" />
+    			</pipeline>
+    			<doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:metaDataProcess?level=ERROR"/>
+                </doCatch>
+            </doTry>
+		</route>
+		
+	</camelContext>
+
+    <!-- Start of DataSetMetaData purge configuration -->
+    <bean id="DataSetMetaDataPurgeLauncher" class="com.raytheon.uf.edex.datadelivery.harvester.purge.DataSetMetaDataPurgeLauncher"
+        factory-method="getInstance" depends-on="DbInit">
+    </bean>
+
+    <camelContext id="DataSetMetaDataPurge-context"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <endpoint id="datasetMetaDataPurgeCron" uri="quartz://datadelivery/metaDataPurge/?cron=${metadata-purge.cron}"/>
+
+        <route id="metaDataPurge">
+            <from uri="datasetMetaDataPurgeCron" />
+            <to uri="jms-generic:queue:metaDataPurgeWork" />
+        </route>
+
+        <route id="metaDataPurgeWork">
+            <from uri="jms-generic:queue:metaDataPurgeWork" />
+            <doTry>
+                <pipeline>
+                    <bean ref="DataSetMetaDataPurgeLauncher" method="runPurge" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:metaDataPurge?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+    <!-- End of DataSetMetaData purge configuration -->
+  
+</beans>

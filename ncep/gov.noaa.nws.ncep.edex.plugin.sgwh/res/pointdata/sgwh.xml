@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pointDataDescription>
+  <parameter name="FORECASTTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="OBSTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="REFTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="DATAURI" numDims="1" type="STRING" size="128"/> 
+  <parameter name="REPORTTYPE" numDims="1" type="STRING" size="8"/> 
+  <parameter name="WMOHEADER" numDims="1" type="STRING" size="32" />
+  <parameter name="CLATH" numDims="1" type="FLOAT" unit="degree_N" />
+  <parameter name="CLONH" numDims="1" type="FLOAT" unit="degree_E" />
+  <parameter name="SELV" numDims="1" type="FLOAT" unit="m" />
+  <parameter name="HINC" numDims="1" type="FLOAT" unit="m" />
+
+  <parameter name="SAID" numDims="1" type="LONG" unit="" />
+  <parameter name="SWID" numDims="1" type="LONG" unit="" />
+  <parameter name="OGCE" numDims="1" type="LONG" unit="" />
+  <parameter name="SSIN1" numDims="1" type="LONG" unit="" />
+  <parameter name="SSIN2" numDims="1" type="LONG" unit="" />
+  <parameter name="ORBN" numDims="1" type="LONG" unit="" />
+  
+  <parameter name="RSST" numDims="1" type="LONG" unit="" />
+  <parameter name="AETP" numDims="1" type="LONG" unit="" />
+  <parameter name="LSQL" numDims="1" type="LONG" unit="" />
+  <parameter name="ASFL" numDims="1" type="LONG" unit="" />
+  <parameter name="RSFL" numDims="1" type="LONG" unit="" />
+  <parameter name="EENO" numDims="1" type="LONG" unit="" />
+  <parameter name="AFSSGWH" numDims="1" type="LONG" unit="" />
+  <parameter name="SGWH" numDims="1" type="FLOAT" unit="" />
+  <parameter name="FOSTSGWH" numDims="1" type="LONG" unit="" />
+  <parameter name="SGWHSTD" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVPP" numDims="1" type="LONG" unit="" />
+  <parameter name="TOBDG1R1" numDims="1" type="LONG" unit="" />
+  <parameter name="TOBDG1R2" numDims="1" type="LONG" unit="" />
+  <parameter name="AFSBKSTG1R1" numDims="1" type="LONG" unit="" />
+  <parameter name="AFSBKSTG1R2" numDims="1" type="LONG" unit="" />
+  <parameter name="BKSTG1R1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="BKSTG1R2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="FOSTBKSTG1R1" numDims="1" type="LONG" unit="" />
+  <parameter name="FOSTBKSTG1R2" numDims="1" type="LONG" unit="" />
+  <parameter name="BKSTSTDG1R1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="BKSTSTDG1R2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SONA" numDims="1" type="FLOAT" unit="" />
+  <parameter name="AFSSONA" numDims="1" type="LONG" unit="" />
+  <parameter name="RWVC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RLQC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="AFSSELVG1R1" numDims="1" type="LONG" unit="" />
+  <parameter name="AFSSELVG1R2" numDims="1" type="LONG" unit="" />
+  <parameter name="SELVG1R1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SELVG1R2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="HINCG1R1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="HINCG1R2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="FOSTSELVG1R1" numDims="1" type="LONG" unit="" />
+  <parameter name="FOSTSELVG1R2" numDims="1" type="LONG" unit="" />
+  <parameter name="SELVSTDG1R1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SELVSTDG1R2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVPPG1R1" numDims="1" type="LONG" unit="" />
+  <parameter name="NVPPG1R2" numDims="1" type="LONG" unit="" />
+  <parameter name="MEFRG2R1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="MEFRG2R2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="MEFRG2R3" numDims="1" type="FLOAT" unit="" />
+  <parameter name="AFSTMBRG2R1" numDims="1" type="LONG" unit="" />
+  <parameter name="AFSTMBRG2R2" numDims="1" type="LONG" unit="" />
+  <parameter name="AFSTMBRG2R3" numDims="1" type="LONG" unit="" />
+  <parameter name="TMBRG2R1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="TMBRG2R2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="TMBRG2R3" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SWCMG3R1" numDims="1" type="LONG" unit="" />
+  <parameter name="SWCMG3R2" numDims="1" type="LONG" unit="" />
+  <parameter name="WS10G3R1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="WS10G3R2" numDims="1" type="FLOAT" unit="" />
+
+</pointDataDescription>
