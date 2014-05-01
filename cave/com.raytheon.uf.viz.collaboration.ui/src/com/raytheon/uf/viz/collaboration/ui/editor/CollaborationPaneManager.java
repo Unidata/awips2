@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.panes.VizDisplayPane;
  * ------------ ---------- ----------- --------------------------
  * Jun 07, 2012            mschenke    Initial creation
  * Apr 23, 2014 3060       njensen     Safety checks for SWT widgets disposed
+ * May 01, 2014 2956       njensen     More safety checks for SWT widgets disposed
  * 
  * </pre>
  * 
@@ -242,7 +243,9 @@ public class CollaborationPaneManager extends PaneManager {
 
     public void setCanvasSize(IRenderableDisplay display, Rectangle bounds) {
         DisplayData data = displayMap.get(display);
-        if (data == null) {
+        if (data == null || data.canvasComp.isDisposed()
+                || data.scrollable.isDisposed()
+                || data.wrapperComp.isDisposed()) {
             return;
         }
         data.canvasBounds = bounds;
@@ -273,9 +276,11 @@ public class CollaborationPaneManager extends PaneManager {
     }
 
     private void setExclude(DisplayData data, boolean exclude) {
-        GridData gd = (GridData) data.scrollable.getLayoutData();
-        data.scrollable.setVisible(!exclude);
-        gd.exclude = exclude;
+        if (!data.scrollable.isDisposed()) {
+            GridData gd = (GridData) data.scrollable.getLayoutData();
+            data.scrollable.setVisible(!exclude);
+            gd.exclude = exclude;
+        }
     }
 
 }
