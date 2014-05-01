@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+COMMENT:
+// Super Tornado Icons defined by BRNSHR>60m/s, EHI>2.5, 1000-850MB LR>3C/KM,
+// and CIN > -150
+
+
+AWIPS 1 format
+TORi | |N |BRNSHR,EHI,LRate>3C/km,CIN<150 | |ICON|Layer  |       *Test,Layer|NBE,Surface| 1.|-150.|1.e37|TORi2|1.|-1.e37|-150.|0.
+
+
+abbreviation: |TORi| 
+Notused1: | | 
+Notused2: |N | 
+name: |BRNSHR,EHI,LRate>3C/km,CIN<150 | 
+FIELD: || 
+FIELD: |ICON| 
+FIELD: |Layer| 
+FIELD: |NBE,Surface| 
+FIELD: |1.| 
+FIELD: |-150.| 
+FIELD: |1.e37| 
+FIELD: |TORi2| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |-150.| 
+FIELD: |0.| 
+
+
+NEW FILE - TORi.xml
+-->
+<DerivedParameter name="BRNSHR,EHI,LRate&gt;3C/km,CIN &lt; 150" abbreviation="TORi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Layer" name="Test">
+        <Field level="Surface" abbreviation="NBE"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-150.0"/>
+        <ConstantField value="1.0E37"/>
+        <Field abbreviation="TORi2"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1.0E37"/>
+        <ConstantField value="-150.0"/>
+        <ConstantField value="0.0"/>
+    </Method>
+</DerivedParameter>

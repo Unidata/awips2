@@ -1,0 +1,7 @@
+colorMapName=visgray2
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=NIR-1.6
+displayUnitStr=BRIT
+alpha=1.0
+brightness=1.0
+contrast=1.0

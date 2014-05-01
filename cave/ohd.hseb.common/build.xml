@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<project default="jar" basedir=".">
+	<target name="jar" depends="compile">
+		<jar destfile="${basedir}/dist/ohd_hseb_common.jar">
+			<fileset dir="${basedir}/bin" includes="**/**.class"></fileset>
+		</jar>
+	</target>
+    <target name="compile">
+    	<javac destdir="${basedir}/bin" srcdir="${basedir}/src"></javac>
+    </target>
+</project>

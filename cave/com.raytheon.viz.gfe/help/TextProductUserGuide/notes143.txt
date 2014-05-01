@@ -1,0 +1,3 @@
+Here's an example Text Utility override class.  Note that it does not inherit from any other classes.
+
+

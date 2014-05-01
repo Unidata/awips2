@@ -1,0 +1,12 @@
+      character*1 kbuf
+      logical*1 kbms
+      integer*2 ihfld
+      integer ifld,ibmap
+      real fld,wfld
+      common /gribsz/ kbuf(1200000),ifld(1),ihfld(990000),
+     +                fld(990000),wfld(990000), 
+     +                mxbmap,ibmap(990000),kbms(990000)
+      equivalence (lrbuf,kbuf(1) )
+      data mxbmap /990000/
+      
+      

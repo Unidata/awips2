@@ -1,0 +1,2 @@
+      common /gbx/ mbx,bx(5000),ibx(5000)
+      

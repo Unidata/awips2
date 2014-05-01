@@ -1,0 +1,211 @@
+C MODULE PIN46
+C-----------------------------------------------------------------------
+C
+C      
+      SUBROUTINE PIN46 (PO,LEFTP,IUSEP,CO,LEFTC,IUSEC)
+C     
+C  THIS IS THE INPUT SUBROUTINE FOR THE NO-MISSING VALUES OPERATION.
+C
+C  THIS OPERATION READS A TIME SERIES WITH MISSING VALUES AND CREATES 
+C  A TIME SERIES WITH NO MISSING VALUES.
+C
+      DIMENSION PO(*),CO(*)
+      CHARACTER*8  SNAME
+      CHARACTER*80 CARD
+      DIMENSION    AID(2),BID(2)
+      INTEGER      RDCO
+C 
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_pntb/RCS/pin46.f,v $
+     . $',                                                             '
+     .$Id: pin46.f,v 1.4 2002/02/11 19:02:39 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA  SNAME / 'PIN46   ' /     
+      
+C     LIST OF NON STANDARD VARIABLES USED IN THIS SUBROUTINE
+ 
+C      PQ      PREVIOUS Q (VALUE). THIS IS THE INITIAL CARRY OVER VALUE
+C              SUPPLIED BY THE USER.
+C IBT, IBACKT  NUMBER OF TIME STEPS BETWEEN THE CARRY OVER VALUE AND
+C              THE BEGINNING OF THE RUN. SUPPLIED BY USER.
+C  INTERP      TYPE OF INTERPOLATION TO BE USED;  SUPPLIED BY USER
+C              = 1     USE LINEAR INTERPOLATION
+C              = 0     RETAIN LAST VALUE
+C    RDCO      FLAG FOR READING INITIAL CARRY OVER VALUES. 
+C              = 0     USE DEFAULT INITIAL CARRYOVER VALUES
+C              = 1     USER DEFINED INITIAL CARRYOVER VALUES  
+C
+C 
+      CALL FPRBUG (SNAME,1,46,IBUG)
+C
+      IUSEP=0
+      IUSEC=0
+      IVER=1            
+      IERROR=0
+C
+C  READ INPUT CARD NUMBER 1 
+      READ( IN,900) AID,ATYPE,ITH,BID,BTYPE,INTERP,EXTRAP,RDCO
+  900 FORMAT (2X,2A4,1X,A4,3X,I2,2X,2A4,1X,A4,4x,I1,1X,F4.2,4X,I1)
+  
+C  CHECK RECESSION/EXTRAPOLATION COEFFICIENT.
+      IF (EXTRAP.EQ.0) THEN
+         WRITE (IPR,901) EXTRAP
+  901   FORMAT('0**ERROR** RECESSION CONSTANT OF ',F4.2,
+     $ ' IS NOT ALLOWED. VALID VALUES ARE GREATER THAN 0.0',
+     $ ' AND LESS THAN OR EQUAL TO 1.0.')
+         CALL ERROR
+         IERROR=1
+         ENDIF
+      IF (EXTRAP.GT.1.0)THEN
+         WRITE (IPR,901) EXTRAP
+         CALL ERROR
+         IERROR=1
+         ENDIF
+C 
+C   CHECK COMPUTATIONAL TIME INTERVAL
+      IF (((24/ITH)*ITH).NE.24) THEN
+         WRITE (IPR,902) ITH
+  902 FORMAT('0**ERROR** TIME INTERVAL IS ',I2,' HOURS. ONLY ',
+     $ 'INTERVALS OF 1, 2, 3, 4, 6, 8, 12 AND 24 HOURS ARE ALLOWED.')
+         CALL ERROR 
+         IERROR=1
+         ENDIF
+C
+C  CHECK IF INPUT CARD NUMBER 2 IS NEEDED
+      IF (RDCO.EQ.1) THEN
+         READ (IN,'(A)') CARD
+         READ (CARD,903,ERR=15) PQ,IBT
+  903 FORMAT (2X,F10.2,1X,I2)
+         GO TO 25
+ 15      CALL FRDERR (IPR,' ',CARD)
+ 25      ENDIF
+C      
+C  CHECK THE INPUT TIME SERIES
+      CALL CHEKTS (AID,ATYPE,ITH,0,DIMA,1,1,IERR) 
+      IF (IERR.EQ.1) IERROR=1       
+      CALL FDCODE (ATYPE,UNITA,DIMA,MSGA,NPDT,TSCALE,NADD,IERR)
+      IF (IERR.EQ.1) IERROR=1
+          
+C  CHECK IF INPUT TIME SERIES HAS DATA TYPE THAT DOES NOT ALLOW 
+C  MISSING DATA
+      IF (MSGA.EQ.0) THEN
+         WRITE (IPR,904)
+ 904  FORMAT('0**ERROR** INPUT TIME SERIES DOES NOT ALLOW MISSING ',
+     *  'DATA.')
+         CALL ERROR   
+         IERROR=1
+         ENDIF
+C          
+C   CHECK OUTPUT TIME SERIES. ALSO, CHECK THAT THE DIMENSIONS
+C   OF INPUT AND OUTPUT TIME SERIES ARE THE SAME.  THIS IS DONE
+C   IMPLICITLY BY INPUTING DIMA INTO THE FOLLOWING CHEKTS CALL.
+C   THE TIME STEP ITH IS ALSO CHECKED IN THIS WAY.
+      CALL CHEKTS (BID,BTYPE,ITH,1,DIMA,0,1,IERR)
+      IF (IERR.EQ.1) IERROR=1
+      CALL FDCODE (BTYPE,UNITB,DIMB,MSGB,NPDT,TSCALE,NADD,IERR)
+      
+C  CHECK IF AN ERROR OCCURRED
+      IF (IERROR.EQ.1) GO TO 199
+C                  
+C  CHECK THAT IF BOTH TIME SERIES HAVE THE SAME UNITS
+      IF (UNITA.NE.UNITB) THEN
+         WRITE (IPR,916) UNITA,UNITB
+  916 FORMAT('0**ERROR** INPUT AND OUTPUT TIME SERIES',
+     * ' DO NOT HAVE THE SAME UNITS (',A4' AND ',A4,').') 
+         CALL ERROR
+         IERROR=1
+         ENDIF
+C
+C  CHECK THAT SPACE EXISTS IN THE P AND C ARRAYS
+      NEEDP=12
+      CALL CHECKP (NEEDP,LEFTP,IERR)
+      IF (IERR.EQ.1) IERROR=1
+      NEEDC=2
+      CALL CHECKC (NEEDC,LEFTC,IERR)
+      IF (IERR.EQ.1) IERROR=1
+C.
+C  CHECK IF INITIAL CARRYOVER INCLUDED WITH INPUT
+      IF (RDCO.EQ.1) THEN
+C     USER-DEFINED INITIAL CARRYOVER
+         PREVQ=PQ
+         IRDCO=1
+         IBACKT = IBT   
+         ELSE
+C        REVERT TO DEFAULT INITIAL CARRYOVER OF -999.0 AT BEGINNING
+C        OF RUN
+            PREVQ = -999.0
+            IRDCO=0
+            IBACKT=0
+         ENDIF
+C
+      IF (IERROR.EQ.1) GO TO 199
+C
+C   STORE INFORMATION INTO PO()
+C
+C   ADD 0.01 TO INTEGER VALUES WHEN PASSING BETWEEN ROUTINES TO
+C   PRESERVE VALUE
+C
+      PO(1)=  IVER + 0.01
+      PO(2)=  AID(1)
+      PO(3)=  AID(2)
+      PO(4)=  ATYPE
+      PO(5)=  ITH + 0.01
+      PO(6)=  BID(1)
+      PO(7)=  BID(2)
+      PO(8)=  BTYPE
+      PO(9)=  IRDCO + 0.01
+      PO(10)= INTERP + 0.01
+      PO(11)= EXTRAP   
+      PO(12)= 0.01
+C
+C  STORE INITIAL CARRYOVER VALUES INTO CO()
+      CO(1)=PREVQ
+      CO(2)=IBACKT
+C
+      IUSEP=NEEDP
+      IUSEC=NEEDC
+C 
+      IF (IBUG.GT.0) THEN     
+         WRITE (IODBUG,933)
+         WRITE (IODBUG,934) (PO(I),I=1,IUSEP)
+         WRITE (IODBUG,935) CO(1),CO(2)
+  933 FORMAT (' NOMSNG TIME SERIES DEBUG - CONTENTS OF PO AND CO ',
+     * 'ARRAYS:')
+  934 FORMAT (' PO ARRAY VALUES = ',F10.2,2X,2A4,1X,A4,F10.2,
+     * 2X,2A4,1X,A4,4F10.2)
+  935 FORMAT (' CARRYOVER: CO(1)= ',F10.2,5X,'CO(2)= ',I3)
+         ENDIF
+C
+  199 RETURN
+                    
+C.......................................................................
+C         CONTENTS OF THE PO ARRAY  NO MISSING VALUES TIME SERIES
+
+C            POSITION              CONTENTS
+C            --------              --------
+C               1                  VERSION NUMBER FOR THE OPERATION
+C              2-3                 IDENTIFIER FOR TIME SERIES A.
+C               4                  DATA TYPE FOR TIME SERIES A.
+C               5                  TIME INTERVAL FOR TIME SERIES A.
+C              6-7                 IDENTIFIER FOR TIME SERIES B.
+C               8                  DATA TYPE FOR TIME SERIES B.
+C               9                  SOURCE OF INITIAL CARRYOVER:
+C                                    0 = DEFAULT VALUE USED
+C                                    1 = USER DEFINED INITIAL CARRYOVER
+C               10                 INTERPOLATION SCHEME :
+c                                    0 = RETAIN LAST VALUE
+C                                    1 = LINEAR INTERPOLATION
+C               11                 RECESSION COEFFICIENT (FORWARD OR 
+C                                  BACK):
+C                                    1 = WILL RETAIN LAST VALUE
+C                                   <1 = WILL RECEED LAST VALUE
+C              12                  NOT USED, SET TO 0.01
+C
+      END

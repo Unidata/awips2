@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="DMSP">
+		<contribute xsi:type="placeholder" 
+					menuText=" DMSP " id="DMPSLine"/>
+		<contribute xsi:type="subMenu" menuText="DMSP VIS Ch 1">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="la1" id="la1Sector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSecla1"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="la2" id="la2Sector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSecla2"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lab" id="labSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclab"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lac" id="lacSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclac"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>		
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="laf" id="lafSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclaf"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>				
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lak" id="lakSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclak"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lao" id="laoSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclao"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lav1" id="lav1Sector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclav1"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lav2" id="lav2Sector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclav2"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lf1" id="lf1Sector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclf1"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lf2" id="lf2Sector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclf2"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>		
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lj1" id="lj1Sector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclj1"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>				
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lkk" id="lkkSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclkk"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lok" id="lokSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclok"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lpv" id="lpvSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclpv"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="lrs" id="lrsSector">
+		    <substitute key="element" value="Imager Visible"/>
+		    <substitute key="sector" value="AkSeclrs"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		</contribute>		
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="DMSP IR Ch 4">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="ta1" id="ta1Sector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSecta1"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="ta2" id="ta2Sector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSecta2"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tab" id="tabSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectab"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tac" id="tacSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectac"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>		
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="taf" id="tafSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectaf"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>				
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tak" id="takSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectak"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tao" id="taoSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectao"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tav1" id="tav1Sector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectav1"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tav2" id="tav2Sector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectav2"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tf1" id="tf1Sector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectf1"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tf2" id="tf2Sector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectf2"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>		
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tj1" id="tj1Sector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectj1"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>				
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tkk" id="tkkSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectkk"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tok" id="tokSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectok"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="tpv" id="tpvSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectpv"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                menuText="trs" id="trsSector">
+		    <substitute key="element" value="Imager 11 micron IR"/>
+		    <substitute key="sector" value="AkSectrs"/>
+		    <substitute key="entity" value="DMSP"/>
+		    <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		</contribute>
+		</contribute>
+    </contribute>
+</menuTemplate>

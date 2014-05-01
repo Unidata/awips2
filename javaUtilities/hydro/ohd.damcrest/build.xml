@@ -1,0 +1,7 @@
+<?xml version="1.0" ?> 
+
+<project name="damcrest" default="default" basedir="."> 
+	<property name="other.src.dirs" value="" />
+	
+    <import file="${basedir}/../build.ohd/build-common.xml"/>
+</project>

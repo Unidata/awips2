@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Forecast Service Plug-in
+Bundle-SymbolicName: ohd.hseb.fcstservice;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.raytheon.fcstservice.activator.Activator
+Require-Bundle: ohd.hseb.ihfsdb,
+ ohd.hseb.common,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.postgres,
+ com.raytheon.viz.core,
+ ohd.hseb.monitor
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Raytheon
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -1,0 +1,903 @@
+/*
+    File: RWResult.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:29 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "RWResult.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct RWResult_t
+{
+    char		rfc[9];
+    dtime_t		obstime;
+    short		num_gag_avail;
+    long		num_rad_avail;
+    long		num_pseudo_gages;
+    char		sat_avail[2];
+    char		mapx_field_type[11];
+    char		draw_precip[2];
+    char		auto_save[2];
+    dtime_t		last_exec_time;
+    dtime_t		last_save_time;
+
+    int		ind_num_gag_avail;
+    int		ind_num_rad_avail;
+    int		ind_num_pseudo_gages;
+    int		ind_sat_avail;
+    int		ind_mapx_field_type;
+    int		ind_draw_precip;
+    int		ind_auto_save;
+    int		ind_last_exec_time;
+    int		ind_last_save_time;
+} RWResult_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+RWResult * GetRWResult(const char * where)
+{
+
+    RWResult * listPtr = NULL;
+    RWResult * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RWResult ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.rfc, :dbs.obstime, 
+    :dbs.num_gag_avail:dbs.ind_num_gag_avail, :dbs.num_rad_avail:dbs.ind_num_rad_avail, 
+    :dbs.num_pseudo_gages:dbs.ind_num_pseudo_gages, :dbs.sat_avail:dbs.ind_sat_avail, 
+    :dbs.mapx_field_type:dbs.ind_mapx_field_type, :dbs.draw_precip:dbs.ind_draw_precip, 
+    :dbs.auto_save:dbs.ind_auto_save, :dbs.last_exec_time:dbs.ind_last_exec_time, 
+    :dbs.last_save_time:dbs.ind_last_save_time    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RWResult *) malloc(sizeof(RWResult))) != NULL)
+        {
+
+            strcpy(structPtr->rfc, dbs.rfc);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->num_gag_avail = dbs.num_gag_avail;
+            setNullIfIndicated(dbs.ind_num_gag_avail, SHORT, &structPtr->num_gag_avail);
+
+            structPtr->num_rad_avail = dbs.num_rad_avail;
+            setNullIfIndicated(dbs.ind_num_rad_avail, INT, &structPtr->num_rad_avail);
+
+            structPtr->num_pseudo_gages = dbs.num_pseudo_gages;
+            setNullIfIndicated(dbs.ind_num_pseudo_gages, INT, &structPtr->num_pseudo_gages);
+
+            strcpy(structPtr->sat_avail, dbs.sat_avail);
+            setNullIfIndicated(dbs.ind_sat_avail, CHAR, structPtr->sat_avail);
+
+            strcpy(structPtr->mapx_field_type, dbs.mapx_field_type);
+            setNullIfIndicated(dbs.ind_mapx_field_type, CHAR, structPtr->mapx_field_type);
+
+            strcpy(structPtr->draw_precip, dbs.draw_precip);
+            setNullIfIndicated(dbs.ind_draw_precip, CHAR, structPtr->draw_precip);
+
+            strcpy(structPtr->auto_save, dbs.auto_save);
+            setNullIfIndicated(dbs.ind_auto_save, CHAR, structPtr->auto_save);
+
+            structPtr->last_exec_time = dbs.last_exec_time;
+            setNullIfIndicated(dbs.ind_last_exec_time, DATETIME, &structPtr->last_exec_time);
+
+            structPtr->last_save_time = dbs.last_save_time;
+            setNullIfIndicated(dbs.ind_last_save_time, DATETIME, &structPtr->last_save_time);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.rfc, :dbs.obstime, 
+        :dbs.num_gag_avail:dbs.ind_num_gag_avail, :dbs.num_rad_avail:dbs.ind_num_rad_avail, 
+        :dbs.num_pseudo_gages:dbs.ind_num_pseudo_gages, :dbs.sat_avail:dbs.ind_sat_avail, 
+        :dbs.mapx_field_type:dbs.ind_mapx_field_type, :dbs.draw_precip:dbs.ind_draw_precip, 
+        :dbs.auto_save:dbs.ind_auto_save, :dbs.last_exec_time:dbs.ind_last_exec_time, 
+        :dbs.last_save_time:dbs.ind_last_save_time        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetRWResult() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+RWResult * SelectRWResult(const char * where)
+{
+
+    RWResult * listPtr = NULL;
+    RWResult * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RWResult ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.rfc, :dbs.obstime, 
+    :dbs.num_gag_avail:dbs.ind_num_gag_avail, :dbs.num_rad_avail:dbs.ind_num_rad_avail, 
+    :dbs.num_pseudo_gages:dbs.ind_num_pseudo_gages, :dbs.sat_avail:dbs.ind_sat_avail, 
+    :dbs.mapx_field_type:dbs.ind_mapx_field_type, :dbs.draw_precip:dbs.ind_draw_precip, 
+    :dbs.auto_save:dbs.ind_auto_save, :dbs.last_exec_time:dbs.ind_last_exec_time, 
+    :dbs.last_save_time:dbs.ind_last_save_time    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RWResult *) malloc(sizeof(RWResult))) != NULL)
+        {
+
+            strcpy(structPtr->rfc, dbs.rfc);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->num_gag_avail = dbs.num_gag_avail;
+            setNullIfIndicated(dbs.ind_num_gag_avail, SHORT, &structPtr->num_gag_avail);
+
+            structPtr->num_rad_avail = dbs.num_rad_avail;
+            setNullIfIndicated(dbs.ind_num_rad_avail, INT, &structPtr->num_rad_avail);
+
+            structPtr->num_pseudo_gages = dbs.num_pseudo_gages;
+            setNullIfIndicated(dbs.ind_num_pseudo_gages, INT, &structPtr->num_pseudo_gages);
+
+            strcpy(structPtr->sat_avail, dbs.sat_avail);
+            setNullIfIndicated(dbs.ind_sat_avail, CHAR, structPtr->sat_avail);
+
+            strcpy(structPtr->mapx_field_type, dbs.mapx_field_type);
+            setNullIfIndicated(dbs.ind_mapx_field_type, CHAR, structPtr->mapx_field_type);
+
+            strcpy(structPtr->draw_precip, dbs.draw_precip);
+            setNullIfIndicated(dbs.ind_draw_precip, CHAR, structPtr->draw_precip);
+
+            strcpy(structPtr->auto_save, dbs.auto_save);
+            setNullIfIndicated(dbs.ind_auto_save, CHAR, structPtr->auto_save);
+
+            structPtr->last_exec_time = dbs.last_exec_time;
+            setNullIfIndicated(dbs.ind_last_exec_time, DATETIME, &structPtr->last_exec_time);
+
+            structPtr->last_save_time = dbs.last_save_time;
+            setNullIfIndicated(dbs.ind_last_save_time, DATETIME, &structPtr->last_save_time);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.rfc, :dbs.obstime, 
+        :dbs.num_gag_avail:dbs.ind_num_gag_avail, :dbs.num_rad_avail:dbs.ind_num_rad_avail, 
+        :dbs.num_pseudo_gages:dbs.ind_num_pseudo_gages, :dbs.sat_avail:dbs.ind_sat_avail, 
+        :dbs.mapx_field_type:dbs.ind_mapx_field_type, :dbs.draw_precip:dbs.ind_draw_precip, 
+        :dbs.auto_save:dbs.ind_auto_save, :dbs.last_exec_time:dbs.ind_last_exec_time, 
+        :dbs.last_save_time:dbs.ind_last_save_time        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectRWResult() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectRWResultCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM RWResult ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWResult() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWResult() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWResult() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutRWResult(const RWResult * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWResult_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.rfc, structPtr->rfc);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_gag_avail = structPtr->num_gag_avail;
+    dbs.ind_num_gag_avail = getIndicator(SHORT, (void *)&structPtr->num_gag_avail);
+
+    dbs.num_rad_avail = structPtr->num_rad_avail;
+    dbs.ind_num_rad_avail = getIndicator(INT, (void *)&structPtr->num_rad_avail);
+
+    dbs.num_pseudo_gages = structPtr->num_pseudo_gages;
+    dbs.ind_num_pseudo_gages = getIndicator(INT, (void *)&structPtr->num_pseudo_gages);
+
+    strcpy(dbs.sat_avail, structPtr->sat_avail);
+    dbs.ind_sat_avail = getIndicator(CHAR, (void *)structPtr->sat_avail);
+
+    strcpy(dbs.mapx_field_type, structPtr->mapx_field_type);
+    dbs.ind_mapx_field_type = getIndicator(CHAR, (void *)structPtr->mapx_field_type);
+
+    strcpy(dbs.draw_precip, structPtr->draw_precip);
+    dbs.ind_draw_precip = getIndicator(CHAR, (void *)structPtr->draw_precip);
+
+    strcpy(dbs.auto_save, structPtr->auto_save);
+    dbs.ind_auto_save = getIndicator(CHAR, (void *)structPtr->auto_save);
+
+    dbs.last_exec_time = structPtr->last_exec_time;
+    dbs.ind_last_exec_time = getIndicator(DATETIME, (void *)&structPtr->last_exec_time);
+
+    dbs.last_save_time = structPtr->last_save_time;
+    dbs.ind_last_save_time = getIndicator(DATETIME, (void *)&structPtr->last_save_time);
+
+
+    EXEC SQL INSERT INTO RWResult (rfc,obstime,
+        num_gag_avail,num_rad_avail,num_pseudo_gages,
+        sat_avail,mapx_field_type,draw_precip,
+        auto_save,last_exec_time,last_save_time        )
+        VALUES (
+         :dbs.rfc, :dbs.obstime, :dbs.num_gag_avail:dbs.ind_num_gag_avail,
+         :dbs.num_rad_avail:dbs.ind_num_rad_avail, :dbs.num_pseudo_gages:dbs.ind_num_pseudo_gages, :dbs.sat_avail:dbs.ind_sat_avail,
+         :dbs.mapx_field_type:dbs.ind_mapx_field_type, :dbs.draw_precip:dbs.ind_draw_precip, :dbs.auto_save:dbs.ind_auto_save,
+         :dbs.last_exec_time:dbs.ind_last_exec_time, :dbs.last_save_time:dbs.ind_last_save_time);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutRWResult() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertRWResult(const RWResult * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWResult_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.rfc, structPtr->rfc);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_gag_avail = structPtr->num_gag_avail;
+    dbs.ind_num_gag_avail = getIndicator(SHORT, (void *)&structPtr->num_gag_avail);
+
+    dbs.num_rad_avail = structPtr->num_rad_avail;
+    dbs.ind_num_rad_avail = getIndicator(INT, (void *)&structPtr->num_rad_avail);
+
+    dbs.num_pseudo_gages = structPtr->num_pseudo_gages;
+    dbs.ind_num_pseudo_gages = getIndicator(INT, (void *)&structPtr->num_pseudo_gages);
+
+    strcpy(dbs.sat_avail, structPtr->sat_avail);
+    dbs.ind_sat_avail = getIndicator(CHAR, (void *)structPtr->sat_avail);
+
+    strcpy(dbs.mapx_field_type, structPtr->mapx_field_type);
+    dbs.ind_mapx_field_type = getIndicator(CHAR, (void *)structPtr->mapx_field_type);
+
+    strcpy(dbs.draw_precip, structPtr->draw_precip);
+    dbs.ind_draw_precip = getIndicator(CHAR, (void *)structPtr->draw_precip);
+
+    strcpy(dbs.auto_save, structPtr->auto_save);
+    dbs.ind_auto_save = getIndicator(CHAR, (void *)structPtr->auto_save);
+
+    dbs.last_exec_time = structPtr->last_exec_time;
+    dbs.ind_last_exec_time = getIndicator(DATETIME, (void *)&structPtr->last_exec_time);
+
+    dbs.last_save_time = structPtr->last_save_time;
+    dbs.ind_last_save_time = getIndicator(DATETIME, (void *)&structPtr->last_save_time);
+
+
+    EXEC SQL INSERT INTO RWResult (rfc,obstime,
+        num_gag_avail,num_rad_avail,num_pseudo_gages,
+        sat_avail,mapx_field_type,draw_precip,
+        auto_save,last_exec_time,last_save_time        )
+        VALUES (
+         :dbs.rfc, :dbs.obstime, :dbs.num_gag_avail:dbs.ind_num_gag_avail,
+         :dbs.num_rad_avail:dbs.ind_num_rad_avail, :dbs.num_pseudo_gages:dbs.ind_num_pseudo_gages, :dbs.sat_avail:dbs.ind_sat_avail,
+         :dbs.mapx_field_type:dbs.ind_mapx_field_type, :dbs.draw_precip:dbs.ind_draw_precip, :dbs.auto_save:dbs.ind_auto_save,
+         :dbs.last_exec_time:dbs.ind_last_exec_time, :dbs.last_save_time:dbs.ind_last_save_time);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertRWResult() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRWResult(const RWResult *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWResult_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.rfc, structPtr->rfc);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.num_gag_avail = structPtr->num_gag_avail;
+    dbs.ind_num_gag_avail = getIndicator(SHORT, (void *)&structPtr->num_gag_avail);
+
+    dbs.num_rad_avail = structPtr->num_rad_avail;
+    dbs.ind_num_rad_avail = getIndicator(INT, (void *)&structPtr->num_rad_avail);
+
+    dbs.num_pseudo_gages = structPtr->num_pseudo_gages;
+    dbs.ind_num_pseudo_gages = getIndicator(INT, (void *)&structPtr->num_pseudo_gages);
+
+    strcpy(dbs.sat_avail, structPtr->sat_avail);
+    dbs.ind_sat_avail = getIndicator(CHAR, (void *)structPtr->sat_avail);
+
+    strcpy(dbs.mapx_field_type, structPtr->mapx_field_type);
+    dbs.ind_mapx_field_type = getIndicator(CHAR, (void *)structPtr->mapx_field_type);
+
+    strcpy(dbs.draw_precip, structPtr->draw_precip);
+    dbs.ind_draw_precip = getIndicator(CHAR, (void *)structPtr->draw_precip);
+
+    strcpy(dbs.auto_save, structPtr->auto_save);
+    dbs.ind_auto_save = getIndicator(CHAR, (void *)structPtr->auto_save);
+
+    dbs.last_exec_time = structPtr->last_exec_time;
+    dbs.ind_last_exec_time = getIndicator(DATETIME, (void *)&structPtr->last_exec_time);
+
+    dbs.last_save_time = structPtr->last_save_time;
+    dbs.ind_last_save_time = getIndicator(DATETIME, (void *)&structPtr->last_save_time);
+
+
+    sprintf(queryBuffer, " UPDATE RWResult SET " );
+    strcat(queryBuffer, "rfc = ? , obstime = ? , num_gag_avail = ? , num_rad_avail = ? , num_pseudo_gages = ? ,     ");
+    strcat(queryBuffer, "sat_avail = ? , mapx_field_type = ? , draw_precip = ? , auto_save = ? , last_exec_time = ? ,     ");
+    strcat(queryBuffer, "last_save_time = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRWResult() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.rfc, :dbs.obstime, :dbs.num_gag_avail:dbs.ind_num_gag_avail, :dbs.num_rad_avail:dbs.ind_num_rad_avail, :dbs.num_pseudo_gages:dbs.ind_num_pseudo_gages,
+     :dbs.sat_avail:dbs.ind_sat_avail, :dbs.mapx_field_type:dbs.ind_mapx_field_type, :dbs.draw_precip:dbs.ind_draw_precip, :dbs.auto_save:dbs.ind_auto_save, :dbs.last_exec_time:dbs.ind_last_exec_time,
+     :dbs.last_save_time:dbs.ind_last_save_time;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRWResult() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRWResult(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM RWResult ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteRWResult() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRWResultByRecord (const RWResult * newStructPtr, const RWResult * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRWResultPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateRWResult(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateRWResult(const RWResult * structPtr)
+{
+    UpdateRWResultByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertRWResult(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueRWResult(const RWResult * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (RWResultExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertRWResult(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRWResultByRecord(const RWResult * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRWResultPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteRWResult(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool RWResultExists(const RWResult * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetRWResultPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectRWResultCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetRWResultPrimaryKeyWhereString (const RWResult * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE rfc = '%s'  AND obstime = '%s' ",
+            structPtr->rfc, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeRWResult( RWResult * structPtr)
+{
+    RWResult* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( RWResult * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetRWResultDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetRWResultErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright Notice
+  ================
+  (c) Copyright Cisco Systems, Credit Suisse, Deutsche Börse Systems, Envoy Technologies, Inc.,
+  Goldman Sachs, IONA Technologies PLC, iMatix Corporation sprl.,JPMorgan Chase Bank Inc. N.A, 
+  Novell, Rabbit Technologies Ltd., Red Hat, Inc., TWIST Process Innovations ltd, and 29West Inc
+  2006, 2007. All rights reserved.
+
+  License
+  =======
+  JPMorgan Chase Bank & Co., Cisco Systems, Inc., Envoy Technologies Inc., iMatix Corporation, IONA
+  Technologies, Red Hat, Inc., TWIST Process Innovations, and 29West Inc. (collectively, the
+  "Authors") each hereby grants to you a worldwide, perpetual, royalty-free, nontransferable,
+  nonexclusive license to (i) copy, display, distribute and implement the Advanced Messaging Queue
+  Protocol ("AMQP") Specification and (ii) the Licensed Claims that are held by the Authors, all for
+  the purpose of implementing the Advanced Messaging Queue Protocol Specification. Your license and
+  any rights under this Agreement will terminate immediately without notice from any Author if you
+  bring any claim, suit, demand, or action related to the Advanced Messaging Queue Protocol
+  Specification against any Author. Upon termination, you shall destroy all copies of the Advanced
+  Messaging Queue Protocol Specification in your possession or control.
+
+  As used hereunder, "Licensed Claims" means those claims of a patent or patent application,
+  throughout the world, excluding design patents and design registrations, owned or controlled, or
+  that can be sublicensed without fee and in compliance with the requirements of this Agreement, by
+  an Author or its affiliates now or at any future time and which would necessarily be infringed by
+  implementation of the Advanced Messaging Queue Protocol Specification. A claim is necessarily
+  infringed hereunder only when it is not possible to avoid infringing it because there is no
+  plausible non-infringing alternative for implementing the required portions of the Advanced
+  Messaging Queue Protocol Specification. Notwithstanding the foregoing, Licensed Claims shall not
+  include any claims other than as set forth above even if contained in the same patent as Licensed
+  Claims; or that read solely on any implementations of any portion of the Advanced Messaging Queue
+  Protocol Specification that are not required by the Advanced Messaging Queue Protocol
+  Specification, or that, if licensed, would require a payment of royalties by the licensor to
+  unaffiliated third parties. Moreover, Licensed Claims shall not include (i) any enabling
+  technologies that may be necessary to make or use any Licensed Product but are not themselves
+  expressly set forth in the Advanced Messaging Queue Protocol Specification (e.g., semiconductor
+  manufacturing technology, compiler technology, object oriented technology, networking technology,
+  operating system technology, and the like); or (ii) the implementation of other published
+  standards developed elsewhere and merely referred to in the body of the Advanced Messaging Queue
+  Protocol Specification, or (iii) any Licensed Product and any combinations thereof the purpose or
+  function of which is not required for compliance with the Advanced Messaging Queue Protocol
+  Specification. For purposes of this definition, the Advanced Messaging Queue Protocol
+  Specification shall be deemed to include both architectural and interconnection requirements
+  essential for interoperability and may also include supporting source code artifacts where such
+  architectural, interconnection requirements and source code artifacts are expressly identified as
+  being required or documentation to achieve compliance with the Advanced Messaging Queue Protocol
+  Specification.
+
+  As used hereunder, "Licensed Products" means only those specific portions of products (hardware,
+  software or combinations thereof) that implement and are compliant with all relevant portions of
+  the Advanced Messaging Queue Protocol Specification.
+
+  The following disclaimers, which you hereby also acknowledge as to any use you may make of the
+  Advanced Messaging Queue Protocol Specification:
+
+  THE ADVANCED MESSAGING QUEUE PROTOCOL SPECIFICATION IS PROVIDED "AS IS," AND THE AUTHORS MAKE NO
+  REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR TITLE; THAT THE CONTENTS
+  OF THE ADVANCED MESSAGING QUEUE PROTOCOL SPECIFICATION ARE SUITABLE FOR ANY PURPOSE; NOR THAT THE
+  IMPLEMENTATION OF THE ADVANCED MESSAGING QUEUE PROTOCOL SPECIFICATION WILL NOT INFRINGE ANY THIRD
+  PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
+
+  THE AUTHORS WILL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL
+  DAMAGES ARISING OUT OF OR RELATING TO ANY USE, IMPLEMENTATION OR OF THE ADVANCED
+  MESSAGING QUEUE PROTOCOL SPECIFICATION.
+
+  The name and trademarks of the Authors may NOT be used in any manner, including advertising or
+  publicity pertaining to the Advanced Messaging Queue Protocol Specification or its contents
+  without specific, written prior permission. Title to copyright in the Advanced Messaging Queue
+  Protocol Specification will at all times remain with the Authors.
+
+  No other rights are granted by implication, estoppel or otherwise.
+
+  Upon termination of your license or rights under this Agreement, you shall destroy all copies of
+  the Advanced Messaging Queue Protocol Specification in your possession or control.
+
+  Trademarks
+  ==========
+  "JPMorgan", "JPMorgan Chase", "Chase", the JPMorgan Chase logo and the Octagon Symbol are
+  trademarks of JPMorgan Chase & Co.
+
+  IMATIX and the iMatix logo are trademarks of iMatix Corporation sprl.
+
+  IONA, IONA Technologies, and the IONA logos are trademarks of IONA Technologies PLC and/or its
+  subsidiaries.
+
+  LINUX is a trademark of Linus Torvalds. RED HAT and JBOSS are registered trademarks of Red Hat,
+  Inc. in the US and other countries.
+
+  Java, all Java-based trademarks and OpenOffice.org are trademarks of Sun Microsystems, Inc. in the
+  United States, other countries, or both.
+
+  Other company, product, or service names may be trademarks or service marks of others.
+
+  Links to full AMQP specification:
+  =================================
+  http://www.envoytech.org/spec/amq/
+  http://www.iona.com/opensource/amqp/
+  http://www.redhat.com/solutions/specifications/amqp/
+  http://www.twiststandards.org/tiki-index.php?page=AMQ
+  http://www.imatix.com/amqp
+-->
+
+<!ELEMENT amqp (doc|type|struct|domain|constant|class)*>
+<!ATTLIST amqp
+    xmlns CDATA #IMPLIED
+	major CDATA #REQUIRED
+	minor CDATA #REQUIRED
+	port CDATA #REQUIRED
+	comment CDATA #IMPLIED
+>
+
+<!ELEMENT constant (doc|rule)*>
+<!ATTLIST constant
+	name CDATA #REQUIRED
+	value CDATA #REQUIRED
+	label CDATA #IMPLIED
+>
+
+<!ELEMENT type (doc|rule)*>
+<!ATTLIST type
+        name CDATA #REQUIRED
+        label CDATA #IMPLIED
+        code CDATA #IMPLIED
+        fixed-width CDATA #IMPLIED
+        variable-width CDATA #IMPLIED
+>
+
+<!ELEMENT domain (doc|rule|enum)*>
+<!ATTLIST domain
+	name CDATA #REQUIRED
+	type CDATA #IMPLIED
+	label CDATA #IMPLIED
+>
+
+<!ELEMENT struct (field|doc|rule)*>
+<!ATTLIST struct
+        name CDATA #REQUIRED
+        label CDATA #IMPLIED
+        size (0|1|2|4) #IMPLIED
+        pack (0|1|2|4) #IMPLIED
+        code CDATA #IMPLIED>
+
+<!ELEMENT enum (choice)*>
+
+<!ELEMENT choice (doc|rule)*>
+<!ATTLIST choice
+        name CDATA #REQUIRED
+        value CDATA #REQUIRED
+>
+
+<!ELEMENT class (doc|role|rule|struct|domain|control|command)*>
+<!ATTLIST class
+	name CDATA #REQUIRED
+	code CDATA #REQUIRED
+	label CDATA #IMPLIED
+>
+
+<!ELEMENT role (doc|rule)*>
+<!ATTLIST role
+        name CDATA #REQUIRED
+        implement (MAY|SHOULD|MUST) #REQUIRED
+>
+
+<!ELEMENT control (doc|implement|rule|field|response)*>
+<!ATTLIST control
+	name CDATA #REQUIRED
+	code CDATA #REQUIRED
+	label CDATA #IMPLIED
+>
+
+<!ELEMENT command ((doc|implement|rule|exception|field|response)*, result?, segments?)>
+<!ATTLIST command
+	name CDATA #REQUIRED
+	code CDATA #REQUIRED
+	label CDATA #IMPLIED
+>
+
+<!ELEMENT implement (doc|rule)*>
+<!ATTLIST implement
+        role CDATA #REQUIRED
+	handle (MAY|SHOULD|MUST) #REQUIRED
+        send (MAY|SHOULD|MUST) #IMPLIED
+>
+
+<!ELEMENT field (doc|rule|exception)*>
+<!ATTLIST field
+	name CDATA #REQUIRED
+	type CDATA #IMPLIED
+        default CDATA #IMPLIED
+	code CDATA #IMPLIED
+	label CDATA #IMPLIED
+	required CDATA #IMPLIED
+>
+
+<!ELEMENT rule (doc*)>
+<!ATTLIST rule
+	name CDATA #REQUIRED
+	label CDATA #IMPLIED
+>
+
+<!ELEMENT exception (doc*)>
+<!ATTLIST exception
+	name CDATA #REQUIRED
+	error-code CDATA #IMPLIED
+	label CDATA #IMPLIED
+>
+
+<!ELEMENT response (doc|rule)*>
+<!ATTLIST response
+	name CDATA #IMPLIED
+>
+
+<!ELEMENT result (doc|rule|struct)*>
+<!ATTLIST result
+        type CDATA #IMPLIED
+>
+
+<!ELEMENT segments (doc|rule|header|body)*>
+
+<!ELEMENT header (doc|rule|entry)*>
+<!ATTLIST header
+        required (true|false) #IMPLIED
+>
+
+<!ELEMENT entry (doc|rule)*>
+<!ATTLIST entry
+        type CDATA #REQUIRED
+>
+
+<!ELEMENT body (doc|rule)*>
+<!ATTLIST body
+    required (true|false) #IMPLIED
+>
+
+<!ELEMENT doc (#PCDATA|xref)*>
+<!ATTLIST doc
+	type (grammar|scenario|picture|bnf|todo) #IMPLIED
+	title CDATA #IMPLIED
+>
+
+<!ELEMENT  xref (#PCDATA)>
+<!ATTLIST xref
+  ref CDATA #REQUIRED>

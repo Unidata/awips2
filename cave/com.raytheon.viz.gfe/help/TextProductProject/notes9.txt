@@ -1,0 +1,2 @@
+In order to tackle these complexities and dependencies, we invented a new way of processing which I like to call "holographic".  What I mean by that is we represent the narrative components and phrases in a tree-like structure in the computer memory.  Then we can apply different dependency and logical rules to any part of the tree BEFORE producing the final product.  So we can examine the weather conditions to properly word our PoP phrase. We can sum the snow accumulation over consecutive periods to yield a total snow amount that is consistent and accurate. 
+

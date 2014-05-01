@@ -1,0 +1,8 @@
+gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord
+gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafChangeGroup
+gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafIcingLayer
+gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafSkyCover
+gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTemperatureForecast
+gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafTurbulenceLayer
+gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafWeatherCondition
+

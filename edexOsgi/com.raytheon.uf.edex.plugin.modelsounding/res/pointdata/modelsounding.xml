@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointDataDescription>
+  <dimension name="maxLevels" length="64"/>
+
+  <parameter name="wmoStaNum" numDims="1" type="INT" />
+
+  <parameter name="validTime" numDims="1" type="LONG" unit="s" />
+  <parameter name="landSea" numDims="1" type="INT" />
+
+  <parameter name="sfcPress" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="seaLvlPress" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="lowCld" numDims="1" type="FLOAT" unit="%" />
+  <parameter name="midCld" numDims="1" type="FLOAT" unit="%" />
+  <parameter name="hiCld" numDims="1" type="FLOAT" unit="%" />
+  <parameter name="prCloud" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="vsby" numDims="1" type="FLOAT" unit="m" />
+  <!-- u-component of storm motion -->
+  <parameter name="uStorm" numDims="1" type="FLOAT" unit="m/s" />
+  <!-- v-component of storm motion -->
+  <parameter name="vStorm" numDims="1" type="FLOAT" unit="m/s" />
+  <parameter name="srHel" numDims="1" type="FLOAT" unit="m²/s²" />
+  <parameter name="skinTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="minTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="maxTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="sensHeat" numDims="1" type="FLOAT" unit="W/s²"/>
+  <parameter name="subSfcHeat" numDims="1" type="FLOAT" unit="W/s²"/>
+  <parameter name="snowFlux" numDims="1" type="FLOAT" unit="W/s²"/>
+  <parameter name="totPrecip" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="convPrecip" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="snowFall" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="snowWater" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="snowMelt" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="u10" numDims="1" type="FLOAT" unit="m/s" />
+  <parameter name="v10" numDims="1" type="FLOAT" unit="m/s" />
+  <parameter name="Theta10" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="q10" numDims="1" type="FLOAT" unit="kg/kg" />
+  <parameter name="temp2" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="q2" numDims="1" type="FLOAT" unit="kg/kg" />
+  <parameter name="snowTyp" numDims="1" type="INT" />
+  <parameter name="iceTyp" numDims="1" type="INT" />
+  <parameter name="frzgRainTyp" numDims="1" type="INT" />
+  <parameter name="rainType" numDims="1" type="INT" />
+  <parameter name="numProfLvls" numDims="1" type="INT" />
+  <parameter name="pressure" numDims="2" type="FLOAT" unit="Pa" dimension="maxLevels"/>
+  <parameter name="temperature" numDims="2" type="FLOAT" unit="K" dimension="maxLevels"/>
+  <parameter name="specHum" numDims="2" type="FLOAT" unit="kg/kg" dimension="maxLevels"/>
+  <parameter name="omega" numDims="2" type="FLOAT" unit="Pa/s" dimension="maxLevels"/>
+  <parameter name="uComp" numDims="2" type="FLOAT" unit="m/s" dimension="maxLevels"/>
+  <parameter name="vComp" numDims="2" type="FLOAT" unit="m/s" dimension="maxLevels"/>
+  <parameter name="cldCvr" numDims="2" type="FLOAT" unit="%" dimension="maxLevels"/>
+</pointDataDescription>

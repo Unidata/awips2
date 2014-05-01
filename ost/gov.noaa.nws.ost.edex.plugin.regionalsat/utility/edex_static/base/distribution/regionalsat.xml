@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<requestPatterns xmlns:ns2="group">
+    <regex>^Alaska*</regex>
+    <regex>^GOESR-PG*</regex>
+</requestPatterns>

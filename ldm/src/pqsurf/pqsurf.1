@@ -1,0 +1,220 @@
+." $Id: pqsurf.1,v 1.9.20.1.2.3 2009/06/18 16:19:22 steve Exp $
+.TH PQSURF 1 "$Date: 2009/06/18 16:19:22 $"
+.SH NAME
+pqsurf - program to split surface bulletins and process the observations
+.SH SYNOPSIS
+.HP
+.ft B
+pqsurf
+.nh
+\%[-v]
+\%[-x]
+\%[-l\ \fIlogpath\fP]
+\%[-d\ \fIdatadir\fP]
+\%[-q\ \fIq_path\fP]
+\%[-Q\ \fIprivate_q_path\fP]
+\%[-f\ \fIfeedtype\fP]
+\%[-p\ \fIpattern\fP]
+\%[-i\ \fIinterval\fP]
+\%[-a\ \fIage\fP]
+\%[-t\ \fItime\fP]
+\%[-o\ \fItime\fP]
+\%[\fIconf_path\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+
+This program replaces the LDM 4 program \fBsurf_split\fP.
+It processes data products from a local product queue (see
+\fBpq\fP(3)).
+If the product is a WMO format surface bulletins containing
+SAO, SYNOP, SHIP, METAR,  or SPECI observations, the product is
+broken apart into individual observations. The observations are repackaged
+into ldm products, one per product, and queued again, in a private queue.
+The reason for this re-queuing is to eliminate duplicate observations.
+The new product identifer is derived from the observation type
+and has the following form:
+.TP
+SAO: \fBsao\fI tt ccc ddhhmm\fP
+where tt is the type of SAO: \fBSA\fP, \fBSP\fP or \fBRS\fP;
+ccc is the station ID like SFO, LXV, etc;
+and ddhhmm is the time stamp.
+.TP
+SYNOP: \fBaaxx\fI nnnnn ddhhmm\fP
+where
+nnnnn is the WMO station id (5 digit number).
+.TP
+SHIP: \fBbbxx\fI c* ddhhmm\fP
+where c* is the call sign.
+.TP
+METAR: \fBmetar\fI cccc ddhhmm\fP
+where cccc is the call sign
+.TP
+SPECI: \fBspeci\fI cccc ddhhmm\fP
+.LP
+Since the routine hourly reports usually are shipped with the appropriate
+hour in the WMO identifier, the \fIddhhmm\fP time string for an
+observation is initialized from the bulletin header. For SAO reports
+in particular, bulletin header time string is used.
+The new product sequence number is original sequence number times 1000
+plus the sequence of the individual observation within the product.
+Other aspects of the product info structure are inherited from the
+original product.
+.LP
+This program takes responsibility for expiration of old products in the
+private queue, performing the function of \fBpqexpire(1)\fP.
+.LP
+A private instance of \fBpqact(1)\fP is run as subprocess of \fBpqsurf\fP
+on the private queue when \fBpqsurf\fP is started up. This programs performs
+subsequent processing of the observations according to specifications
+in the configuration file.
+.LP
+.B pqsurf
+is typically started in the background at the same time as other Unidata LDM
+processes to insure that all the LDM processes are
+using the same shared product queue and are in the same process group.
+.SH OPTIONS
+.LP
+Most of the options and arguments to \fBpqsurf\fP
+are arguments to the private instance of \fBpqact(1)\fP.
+.TP
+.B -v
+Verbose logging.
+Informative messages (level \fBLOG_INFO\fP) are logged, including a line for
+each product read out of the product queue and a line for each action
+invoked on a product.
+By default, only messages of severity \fBLOG_NOTICE\fP and greater are
+logged.
+.TP
+.B -x
+Debug logging.
+Debugging messages (level \fBLOG_DEBUG\fP) are logged.
+.TP
+.BI "-l " logpath
+Log file pathname.
+The program uses Unidata's \fBulog\fP(3) package to write error and log
+messages.
+The default is to write to the \fBsyslogd\fP(8) daemon.  If this option is
+specified, however, then messages will be written to the file
+\fIlogpath\fP unless that pathname is "-", in which case all messages will be
+written to standard error and the program will not put itself into the
+background.
+.TP
+.BI \-d " datadir"
+The directory relative to
+which file names are specified in the configuration file.  
+The default is set at compile time, typically /usr/local/ldm.
+.TP
+.BI "-q " q_path
+The pathname of the data product queue.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP. The compiled in default can
+be overridden by setting the environment variable \fBLDMPQFNAME\fP.
+.TP
+.BI "-Q " private_q_path
+The pathname of the private data product queue used by this program
+and its child \fBpqact\fP.
+The default is \fBdata/pqsurf.pq\fP relative to the installation point.
+It is important that the private queue be distinct from the input queue.
+This queue is "denser" than the default product queue; the average product
+size is only 152 bytes. A queue that has 1 Megabyte of data would need 6881 
+slots as opposed to the default 512.
+ Use the -S option of \fBpqcreate\fR to specify more slots as follows:
+\fBpqcreate -c -s 1M -S 6881 /usr/local/ldm/data/pqsurf.pq\fR
+.TP
+.BI \-f " feedtype"
+Reads from the product queue only products that have a feedtype that is a
+member of the \fIfeedtype\fP set.  The default is `IDS|DDS', since these
+feeds contain WMO format surface bulletins.
+.TP
+.BI \-p " pattern"
+Reads from the product queue only products whose identifier
+matches \fIpattern\fP.
+The default is `\fB^S[AIMNP]\fP', since this is the set of bulletins that
+the program knows how to split up.
+.TP
+.BI \-i " time"
+Polling interval, in seconds.
+Check for new products in the product queue every \fItime\fP seconds.
+When
+.B pqsurf
+is run in the same process group as the programs that insert products into
+the product queue, a signal informs
+.B pqsurf
+and all other interested processes in the process group
+whenever a new product is available, so polling is not necessary in this
+case.  The default
+interval is 15 seconds.
+.TP
+.BI \-a " age"
+Maximum product age, in hours, as a floating-point number.  Products
+that were created more than \fIage\fP hours ago will be
+removed from the private queue. 
+The default is 1.004167 hours (one hour + 15 seconds).
+.TP
+.BI \-o " time"
+Offset time, in seconds.
+Begin scan with products created \fItime\fP
+seconds earlier than the current time.
+The default is to start with the time stamp of the oldest product
+in the private queue.
+.TP
+.I conf_file
+Configuration file.  This is the pattern-action file that specifies what to
+do with each product whose feed type and product identifier match a
+specified pattern.  The format of this file is described in the ``Usage''
+section of the man page for \fBpqact(1)\fP.
+The default is \fBetc/pqsurf.conf\fP relative to the
+installation point, which is typically \fB/usr/local/ldm\fP.   
+.SH SIGNALS
+.TP
+.BR SIGTERM
+Graceful termination.
+.TP
+.BR SIGINT
+Exit immediately.
+.TP
+.B SIGUSR1
+Write status and product statistics to log file.
+.TP
+.B SIGUSR2
+Cyclically increment the verbosity of the program. Assumming the program was
+started without the \fB-v\fP or \fB-x\fP switches, the first \fBSIGUSR2\fP will
+make it verbose and \fBLOG_INFO\fP priority messages will appear.
+The second will turn on the \fBLOG_DEBUG\fP priority messages as well.
+A third will take it back to the normal state.
+.TP
+.B SIGCONT
+Wake up if sleeping, because there is a new product in the queue.
+
+.SH FILES
+.LP
+.B pqsurf.conf
+
+.SH "SEE ALSO"
+.LP
+.BR pqact (1),
+.BR ldmd (1),
+.BR ulog (3),
+.BR pq (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm/\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information -- to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP
+.RE

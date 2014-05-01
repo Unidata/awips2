@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+                export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+find ${IFPS_LOG}/* -mtime +7 -exec rm -fr {} \; 2>/dev/null
+
+

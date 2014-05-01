@@ -1,0 +1,63 @@
+<!--
+	-
+	- Licensed to the Apache Software Foundation (ASF) under one
+	- or more contributor license agreements.  See the NOTICE file
+	- distributed with this work for additional information
+	- regarding copyright ownership.  The ASF licenses this file
+	- to you under the Apache License, Version 2.0 (the
+	- "License"); you may not use this file except in compliance
+	- with the License.  You may obtain a copy of the License at
+	- 
+	-   http://www.apache.org/licenses/LICENSE-2.0
+	- 
+	- Unless required by applicable law or agreed to in writing,
+	- software distributed under the License is distributed on an
+	- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+	- KIND, either express or implied.  See the License for the
+	- specific language governing permissions and limitations
+	- under the License.
+	-
+-->
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="broker">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="host" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="port" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="virtual-host" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="user" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="password" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="max-pool-capacity" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="initial-pool-capacity" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="max-wait-timeout" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="brokers">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="broker" maxOccurs="unbounded" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="configuration">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="brokers" maxOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="host" type="xsd:string"/>
+	<xsd:element name="initial-pool-capacity" type="xsd:integer"/>
+	<xsd:element name="max-pool-capacity" type="xsd:integer"/>
+	<xsd:element name="max-wait-timeout" type="xsd:integer"/>
+	<xsd:element name="password" type="xsd:string"/>
+	<xsd:element name="port" type="xsd:integer"/>
+	<xsd:element name="user" type="xsd:string"/>
+	<xsd:element name="virtual-host"type="xsd:string"/>
+	
+</schema>

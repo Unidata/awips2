@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Obs OGC Registry
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.obs.registry
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.ogc.common;bundle-version="1.0.0",
+ com.raytheon.uf.edex.ogc.registry;bundle-version="1.0.0",
+ com.raytheon.uf.edex.plugin.obs.ogc;bundle-version="1.0.0",
+ com.raytheon.uf.edex.wfs;bundle-version="1.0.0",
+ com.raytheon.edex.plugin.obs;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.obs;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.edex.common;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
+ com.raytheon.uf.edex.datadelivery.registry;bundle-version="1.0.0",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datadelivery.harvester;bundle-version="1.0.0",
+ com.raytheon.uf.edex.datadelivery.harvester;bundle-version="1.0.0"
+Export-Package: com.raytheon.uf.edex.plugin.obs.registry

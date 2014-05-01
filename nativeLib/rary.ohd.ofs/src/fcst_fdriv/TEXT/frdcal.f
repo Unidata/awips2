@@ -1,0 +1,96 @@
+C MEMBER FRDCAL
+C  (from old member FCFRDCAL)
+C
+      SUBROUTINE FRDCAL(EXTLOC,IDT,NPDT,UNITS,LD,D,MD,LOC,TS,MTS,MO,
+     1IYEAR,IERR)
+C.......................................
+C     THIS SUBROUTINE READS DATA FROM THE NWSRFS CALIBRATION DATA FILES.
+C.......................................
+C     SUBROUTINE INITIALLY WRITTEN BY ....
+C           ERIC ANDERSON - HRL  APRIL 1981
+C.......................................
+      DIMENSION D(MD),TS(MTS)
+      DIMENSION EXTLOC(1),SNAME(2)
+C
+C     COMMON BLOCKS.
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/WHERE/ISEG(2),IOPNUM,OPNAME(2)
+      COMMON/FPROG/MAINUM,VERS,VDATE(2),PNAME(5),NDD
+      COMMON/FCTIME/IDARUN,IHRRUN,LDARUN,LHRRUN,LDACPD,LHRCPD,NOW(5),
+     1LOCAL,NOUTZ,NOUTDS,NLSTZ,IDA,IHR,LDA,LHR,IDADAT
+      COMMON/CRWCTL/ISTOP,IERROR,IPRINT,ITSH,NTSH,ISFN,IRTSH
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_fdriv/RCS/frdcal.f,v $
+     . $',                                                             '
+     .$Id: frdcal.f,v 1.1 1995/09/17 19:08:24 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS
+      DATA SNAME/4HFRDC,4HAL  /
+C.......................................
+C     TRACE LEVEL=1
+      IF(ITRACE.GE.1) WRITE(IODBUG,900)
+  900 FORMAT(1H0,17H** FRDCAL ENTERED)
+C.......................................
+C     INITIAL VALUES.
+      OPNAME(1)=SNAME(1)
+      OPNAME(2)=SNAME(2)
+C.......................................
+C     CHECK VALUE OF LOCAL.
+      IF(LOCAL.EQ.0) GO TO 106
+      WRITE(IPR,906)
+  906 FORMAT(1H0,10X,76H**ERROR** 'CALB' FILES CANNOT BE USED UNLESS LOC
+     1AL=0 IN FCTIME COMMON BLOCK.)
+      CALL ERROR
+      IERR=1
+      RETURN
+  106 IF(MAINUM.NE.3.AND.MAINUM.NE.4) GO TO 107
+C
+C     MANUAL CALIBRATION PROGRAM.
+      LENGTH=(24/IDT)*NPDT*31
+      CALL MDYH1(LDA,LHR,MO,IDUM1,IYEAR,IDUM2,100,0,ZCODE)
+      NXREAD=EXTLOC(4)
+      NSEQ=EXTLOC(5)
+C
+      CALL RDFILE (1,EXTLOC(1),1,NXREAD,NSEQ,1,MO,IYEAR,1,LENGTH,D(LD))
+C
+      IF(IERROR.EQ.0) GO TO 104
+      WRITE(IPR,907)
+  907 FORMAT(1H0,10X,75H**ERROR** PRECEEDING ERRORS OCCURRED DURING READ
+     1ING FROM CALIBRATION FILES.)
+      CALL ERROR
+      IERR=1
+      IERROR=0
+      RETURN
+  104 TS(LOC+15)=NXREAD+0.01
+      RETURN
+  107 IF(MAINUM.NE.1) GO TO 108
+C
+C     OPERATIONAL PROGRAM
+      LDATA=(24/IDT)*NPDT*NDD
+      NWORK=LD+LDATA
+      LEFTD=MD-NWORK+1
+      IERROR=0
+      IER=0
+      CALL FRCLEX(EXTLOC,D(LD),D(NWORK),LEFTD,IDT,NPDT,UNITS,IER)
+      OPNAME(1)=SNAME(1)
+      OPNAME(2)=SNAME(2)
+      IF (IER.EQ.0) RETURN
+      IERR=1
+      RETURN
+C
+C     PROGRAM NOT INCLUDED.
+  108 WRITE(IPR,905)
+  905 FORMAT(1H0,10X,75H**ERROR** A CALIBRATION FILE READ ROUTINE IS NOT
+     1 INCLUDED FOR THIS PROGRAM.)
+      CALL ERROR
+      IERR=1
+C.......................................
+      RETURN
+      END

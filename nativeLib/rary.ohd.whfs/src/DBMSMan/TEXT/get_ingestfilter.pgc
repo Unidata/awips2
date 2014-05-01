@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <string.h>
+
+void get_ingestfilter(char *lid,
+                     char *pe,
+                     char *ts,
+                     short int dur,
+                     char *extremum,
+                     char process[10],
+                     char process_flag[2],
+                     long int *irc)
+
+/*
+   this function reads a record from the IngestFilter table to find the 
+    value of the ofs_input flag for ofsde or the stg2_input flag for siipp      
+  
+   calling function:  main_ofsde, main_siipp          
+*/
+{
+
+   EXEC SQL BEGIN DECLARE SECTION;
+      char llid[9], ppe[3], tts[3], ext[2], pr_flg[2];
+      short int ddur;
+   EXEC SQL END DECLARE SECTION;
+
+   int control;
+   
+   llid[8] = '\0';
+   ppe[2] = '\0';
+   tts[2] = '\0';
+   ext[1] = '\0';
+   pr_flg[1]='\0';
+
+   strcpy(llid,lid);
+   strcpy(ppe,pe);
+   strcpy(tts,ts);
+   strcpy(ext,extremum);
+   ddur = dur;
+
+   control = 0;
+   if(strcmp(process,"ofsde") == 0) control = 1;
+
+   switch (control)
+   {
+
+   case 0:         /*  siipp  */
+
+      EXEC SQL select stg2_input  
+       into :pr_flg
+       from IngestFilter
+       where lid=:llid and pe=:ppe and ts=:tts and dur=:ddur and extremum=:ext;
+
+   break;
+
+   case 1:         /*  ofsde  */
+
+      EXEC SQL select ofs_input  
+       into :pr_flg
+       from IngestFilter
+       where lid=:llid and pe=:ppe and ts=:tts and dur=:ddur and extremum=:ext;
+
+   break;
+
+   }
+
+   strcpy(process_flag,pr_flg);
+   *irc = sqlca.sqlcode;
+
+}  /*  end get_ingestfilter function  */

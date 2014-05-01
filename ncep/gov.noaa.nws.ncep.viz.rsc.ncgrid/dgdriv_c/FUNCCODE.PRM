@@ -1,0 +1,330 @@
+C************************************************************************
+C* FUNCCODE.PRM								*
+C*									*
+C* This parameter file stores the function codes used by GEMPLT.	*
+C* Log:									*
+C* M. desJardins/GSFC	 4/85	GEMPLT 3.1				*
+C* M. desJardins/GSFC	12/85	Added function codes for curve fitting	*
+C* M. desJardins/GSFC	 3/88	Removed RMISSD, etc & moved to GPARMS	*
+C* S. Schotz/GSC	 3/90	Added function codes for cloud/weather	*
+C*				symbols routines			*
+C* M. desJardins/NMC	10/91	Copied GCURVE codes from MV4		*
+C* M. desJardins/NMC	11/91	Added codes for GFILL			*
+C* M. desJardins/NMC	11/91	Added new contour routines		*
+C* M. desJardins/NMC	 1/92	Add DQDCHR to query device info		*
+C* S. Jacobs/EAI	11/92	Added codes for GMESG			*
+C* S. Jacobs/EAI	 6/93	Added codes for GGTPNT			*
+C* J. Cowie/NPS         10/93   Added code FSATMC                       *
+C* A. Chang/EAI         12/93   Added code for  GSCTBL, GSFLNM, GSPLOT,	*
+C*				GSPIXM, GEPIXM, GLOOPC, GSHCAT, GSATIM	*
+C* S. Jacobs/NMC         3/94   Renamed: GSPIXM ==> GSTANM              *
+C*                                       GEPIXM ==> GENANM              *
+C*                                       GSHCAT ==> GSDATT              *
+C* S. Jacobs/NMC	 7/94	Removed code FSATAO			*
+C* A. Chang/EAI		 8/94	Added code for GTEXTC			*
+C* J. Cowie/COMET	 8/94	Added FSATMG - Mcidas Goes		*
+C* J. Cowie/COMET	12/94	Added FSLUTF, CSLUTF - set LUT file	*
+C* J. Cowie/COMET	 1/95	Added FSIMGB - Set image bounds		*
+C* J. Cowie/COMET	 5/95	Added FSICMN, CSICMN - Set image common	*
+C* J. Cowie/COMET	 5/95	Added FSCOLB - Set color in color bank	*
+C* C. Lin/EAI	         6/95	Added FSBRGB, CSBRGB - Set color  RGB   *
+C*						with color bank		*
+C* G. Krueger/EAI	11/95	Removed references to HLS color scheme.	*
+C* J. Cowie/COMET	11/95	Removed FSLUTF, CSLUTF. Added FQCLRS,	*
+C*				CQCLRS					*
+C* M. Linda/GSC		12/95	Removed FCLDHT, FSATMC, and FSATNP	*
+C* M. Linda/GSC		 2/96	Added FSDEVA and CINITA			*
+C* S. Jacobs/NCEP	 5/96	Added code for GSLWIN and GQDATT	*
+C* S. Jacobs/NCEP	 5/96	Removed FSDEV, CINITD, FSFLNM, CSFLNM	*
+C* S. Jacobs/NCEP	 8/96	Removed FSIMGB				*
+C* M. Linda/GSC		 8/96	Added xICNG, xSPCL, and xTURB		*
+C* E. Wehner/EAi	10/96	Added xFRNT				*
+C* S. Maxwell/GSC	11/96	Removed save and restore functions	*
+C* K. Tyle/GSC           2/97   Added FCLPNL and CCLPNL                 *
+C* M. Linda/GSC		 2/97	Removed CFLUSH and FFLUSH		*
+C* D. Keiser/GSC	 3/97	Added xSPLN				*
+C* E. Safford/GSC 	 4/97	Added code for GTXSY		 	*
+C* E. Safford/GSC 	 6/97	Added xTXSY		 		*
+C* C. Lin/EAI            6/97   Added code for GSROAM, GROAM            *
+C* S. Maxwell/GSC	 6/97	Added FSFILL, FQFILL and CSFILL		*
+C* S. Maxwell/GSC	 6/97	Added FSGRP, FEGRP and CSGRP		*
+C* G. Krueger/EAI	 7/97	Added GETMAP				*
+C* M. Linda/GSC		 7/97	Added FLOGO and CLOGO			*
+C* S. Jacobs/NCEP	 9/97	Removed FSTXSY, FQTXSY and CSTXSY	*
+C* I. Durham/GSC	12/97	Added FQSIZD				*
+C* S. Jacobs/NCEP	 2/98	Added FSSMTH, FQSMTH and CSSMTH		*
+C* S. Jacobs/NCEP	 3/98	Added FSDASH, FQDASH, and CSDASH	*
+C* I. Durham/GSC	 3/98	Added FDARR, FSDARR, and FQDARR 	*
+C* I. Durham/GSC	 3/98	Added CDARR, and CSDARR			*
+C* I. Durham/GSC	 3/98	Added FHASH, FSHASH, and FQHASH		*
+C* I. Durham/GSC	 3/98	Added CHASH, and CSHASH			*
+C* I. Durham/GSC	 3/98	Added FSCLR2, FQCLR2, CSCLR2, and CQCLR2*
+C* S. Jacobs/NCEP	 6/98	Removed FSDATT				*
+C* S. Jacobs/NCEP	 6/98	Removed FOUTP and COUTP			*
+C* S. Jacobs/NCEP	 6/98	Changed F/CSCTBL from CONTROL to COLORS	*
+C* T. Lee/GSC		 7/98	Added FQCVSC				*
+C* A. Hardy/GSC		10/98	Added F/CCMBO, F/CSCMBO and FQCMBO	*
+C* D.W.Plummer/NCEP	11/98	Added FCFDRV, FCFFIL and FCFLIN		*
+C* S. Jacobs/NCEP	 5/99	Added FSRDUC, FQRDUC and CSRDUC		*
+C* T. Lee/GSC		 9/99	Added FSATPX, CSATPX			*
+C* M. Li/GSC		 1/00	Added FCNTLN, FCNTBX and FCNTFL		*
+C* A. Hardy/GSC		 6/00	Added FARC and CARC			*
+C* M. Li/GSC		04/01	Added FFLBND 				*
+C* D. Kidwell/NCEP	 6/02	Added FSGTGN and CSGTGN                 *
+C* C. Bailey/HPC	 1/05	Added FGSAVE and CGSAVE			*
+C************************************************************************
+	INTEGER ACCESS, CONTRL, BOUNDS, MAP, SATLTE, GRAPH
+	INTEGER GRID, PLOT, TRNSFM, ATTRBT, UTILTY, COLORS
+	INTEGER	CURVE, CONTOR
+C*
+	INTEGER	FINITP, FENDP,  FSMODE, FQMODE
+	INTEGER	FCLEAR, FCLOSP, FQDEV, FSDEVA
+	INTEGER FMESG,  FGTPNT, FSLWIN, FCLPNL, FGSAVE
+	INTEGER	FSVIEW, FQVIEW, FQBND,  FEPLOT
+	INTEGER	FSMMAP, FSMPRJ, FSMBND, FSMMGN, FSMFIL, FDRGRD, FGTMAP
+	INTEGER FDRMAP, FQMMAP, FQMPRJ, FQMBND, FQMMGN, FQMFIL
+	INTEGER FFLBND
+	INTEGER	FSATVS, FQSATN
+	INTEGER	FSGRAF, FSGMGN, FDAXIS, FAAXIS, FQGRAF, FQGMGN
+	INTEGER	FTICK,  FSATIM, FSATMG, FSATPX
+	INTEGER	FSGMAP, FSGPRJ, FSGGRF, FQGMAP, FQGPRJ, FQGGRF
+	INTEGER	FLINE,  FTEXT,  FMARK,  FBARB,  FARRW,  FCIRCL, FTEXTC
+	INTEGER	FICNG,  FSPCL,  FTURB,  FLOGO,  FARC
+	INTEGER FSKY,   FWTHR,  FPTND,  FPWTH,  FCTYP,  FFILL,  FTXSY
+	INTEGER	FTRANS, FPTVIS, FSFILL, FQFILL, FSSMTH, FQSMTH
+	INTEGER FSRDUC, FQRDUC
+	INTEGER FSDASH, FQDASH
+	INTEGER	FSLINE, FSTEXT, FSBARB, FSARRW, FSMRKR, FSTICK
+	INTEGER	FSLPAT, FQLINE, FQTEXT, FQBARB, FQARRW, FQMRKR
+	INTEGER FSSKY,  FQSKY,  FSWTHR, FQWTHR, FSPTND, FQPTND, FSPWTH
+	INTEGER FQPWTH, FSCTYP, FQCTYP, FSCNTR, FQCNTR
+	INTEGER	FQLPAT, FQSYSZ, FQSIZD
+	INTEGER	FCONTR, FSMCON, FSTRML
+	INTEGER	FQCOLR, FSCOLR, FQCOMP, FSCINT, FSCNAM
+	INTEGER	FSCRGB, FQNCOL, FSCOLB, FSBRGB, FQCLRS
+	INTEGER FCYEVL, FCURVE
+	INTEGER	FCLGRN, FCSPLN, FCBOXX, FCFILL, FCNTLN, FCNTFL, FCNTBX
+	INTEGER FSCTBL, FSPLOT, FSTANM, FENANM, FLOOPC, FSGRP, FEGRP
+        INTEGER FSROAM, FROAM,  FSGTGN
+	INTEGER FSICMN, FQDATT
+	INTEGER FSICNG, FQICNG, FSSPCL, FQSPCL, FSTURB, FQTURB
+	INTEGER FFRNT,  FSFRNT, FQFRNT
+	INTEGER FSPLN,  FSSPLN, FQSPLN
+	INTEGER FDARR,  FSDARR, FQDARR
+	INTEGER FHASH,  FSHASH, FQHASH
+	INTEGER FSCLR2, FQCLR2, FQCVSC
+	INTEGER FCMBO,  FSCMBO, FQCMBO
+C------------------------------------------------------------------------
+C*	Access subroutines
+C
+	PARAMETER ( ACCESS =   1 )
+	PARAMETER ( FINITP = 101,  FENDP = 102, FSMODE = 103,
+     +		    FQMODE = 104 )
+C
+C*	Control subroutines
+C
+	PARAMETER ( CONTRL  = 2 )
+	PARAMETER ( FCLEAR = 202,
+     +		    FCLOSP  = 204,  FQDEV  = 206,
+     +		    FEPLOT  = 207,  FMESG  = 208, FGTPNT = 209,
+     +		    FSPLOT = 212,
+     +		    FSTANM  = 213,  FENANM = 214, FLOOPC = 215,
+     +		    FSDEVA  = 216,  FSLWIN = 217, FCLPNL = 218,
+     +		    FSROAM  = 219,  FROAM  = 220, FSGRP  = 221,
+     +		    FEGRP   = 222,  FSGTGN = 223, FGSAVE = 224 )
+
+C
+C*	Bounds subroutines
+C
+	PARAMETER ( BOUNDS = 3 )
+	PARAMETER ( FSVIEW = 301, FQVIEW = 302, FQBND  = 303 )
+C
+C*	Map subroutines
+C
+	PARAMETER ( MAP    = 4 )
+	PARAMETER ( FSMMAP = 401, FSMPRJ = 402, FSMBND = 403,
+     +		    FSMMGN = 404, FSMFIL = 405, FQMMAP = 406, 
+     +		    FQMPRJ = 407, FQMBND = 408, FQMMGN = 409, 
+     +		    FQMFIL = 410 )
+C
+C*	Satellite subroutines
+C
+	PARAMETER ( SATLTE = 5 )
+	PARAMETER ( FSATVS = 502, FQSATN = 503 )
+C
+	PARAMETER ( FSATIM = 507, FSATMG = 508, FSICMN = 509,
+     +		    FSATPX = 510 )
+C
+C*	Graph subroutines
+C
+	PARAMETER ( GRAPH  = 6 )
+	PARAMETER ( FSGRAF = 601, FSGMGN = 602, FDAXIS = 603,
+     +		    FAAXIS = 604, FQGRAF = 605, FQGMGN = 606,
+     +		    FTICK  = 607 )
+C
+C*	Grid subroutines
+C
+	PARAMETER ( GRID   = 7 )
+	PARAMETER ( FSGMAP = 701, FSGPRJ = 702, FSGGRF = 703,
+     +		    FQGMAP = 704, FQGPRJ = 705, FQGGRF = 706 )
+C
+C*	Plot subroutines
+C
+	PARAMETER ( PLOT   = 8 )
+	PARAMETER ( FLINE  = 801, FTEXT = 802, FMARK  = 803,
+     +		    FBARB  = 804, FARRW = 805, FCIRCL = 806,
+     +              FSKY   = 807, FWTHR = 808, FPTND  = 809,
+     +              FPWTH  = 810, FCTYP = 811, FFILL  = 812,
+     +		    FTEXTC = 813, FICNG = 814, FSPCL  = 815,
+     +		    FTURB  = 816, FFRNT = 817, FSPLN  = 818,
+     +              FTXSY  = 819, FLOGO = 820, FDARR  = 821,
+     +              FHASH  = 822, FCMBO = 823, FARC   = 824 )
+C
+C*	Transform subroutines
+C
+	PARAMETER ( TRNSFM = 9 )
+	PARAMETER ( FTRANS = 901, FPTVIS = 902 )
+C
+C*	Attribute subroutines
+C
+	PARAMETER ( ATTRBT = 10 )
+	PARAMETER ( FSLINE = 1001, FSTEXT = 1002, FSBARB = 1003, 
+     +		    FSARRW = 1004, FSMRKR = 1005, FSLPAT = 1006, 
+     +		    FQLINE = 1007, FQTEXT = 1008, FQBARB = 1009, 
+     +		    FQARRW = 1010, FQMRKR = 1011, FQLPAT = 1012, 
+     +		    FQSYSZ = 1013, FSTICK = 1014, FSSKY  = 1015,
+     +		    FQSKY  = 1016, FSWTHR = 1017, FQWTHR = 1018,
+     +              FSPTND = 1019, FQPTND = 1020, FSPWTH = 1021,
+     +              FQPWTH = 1022, FSCTYP = 1023, FQCTYP = 1024,
+     +		    FSCNTR = 1025, FQCNTR = 1026, 
+     +		    FQDATT = 1028, FSICNG = 1029, FQICNG = 1030,
+     +		    FSSPCL = 1031, FQSPCL = 1032, FSTURB = 1033,
+     +		    FQTURB = 1034, FSFRNT = 1035, FQFRNT = 1036,
+     +		    FSSPLN = 1037, FQSPLN = 1038, FSFILL = 1039,
+     +		    FQFILL = 1040, FQSIZD = 1041, FSSMTH = 1042,
+     +		    FQSMTH = 1043, FSDASH = 1044, FQDASH = 1045,
+     +              FSDARR = 1046, FQDARR = 1047, FSHASH = 1048,
+     +              FQHASH = 1049, FQCVSC = 1050, FSCMBO = 1051,
+     +              FQCMBO = 1052, FSRDUC = 1053, FQRDUC = 1054 )
+C
+C*	Utility subroutines
+C
+	PARAMETER ( UTILTY = 11 )
+	PARAMETER ( FCONTR = 1101, FSMCON = 1102, FSTRML = 1103,
+     +		    FDRMAP = 1104, FDRGRD = 1105, FGTMAP = 1106,
+     +		    FFLBND = 1107 )
+C
+C*	Color subroutines
+C
+	PARAMETER ( COLORS = 12 )
+	PARAMETER ( FSCOLR = 1201, FSCRGB = 1202, FSCTBL = 1203,
+     +		    FSCINT = 1204, FSCNAM = 1205, FQCOMP = 1206,
+     +		    FQCOLR = 1207, FQNCOL = 1208, FSCOLB = 1209, 
+     +		    FSBRGB = 1210, FQCLRS = 1211, FSCLR2 = 1212,
+     +              FQCLR2 = 1213 )
+C
+C*	Curve subroutines
+C
+	PARAMETER ( CURVE  = 14 )
+	PARAMETER ( FCYEVL = 1401, FCURVE = 1402 )
+C
+C*	Contour subroutines
+C
+	PARAMETER ( CONTOR = 15 )
+	PARAMETER ( FCLGRN = 1501, FCSPLN = 1502, FCBOXX = 1503,
+     +		    FCFILL = 1504 )
+	PARAMETER ( FCFDRV = 1505, FCFFIL = 1506, FCFLIN = 1507 )
+        PARAMETER ( FCNTLN = 1508, FCNTFL = 1509, FCNTBX = 1560 )
+C
+C------------------------------------------------------------------------
+C*	Device Driver functions
+C
+	INTEGER DACCES, DATTRB, DCNTRL, DWINDW, DPLOT, DCOLOR
+C*
+	INTEGER	CENDD,  CINITP, CQDCHR, CINITA
+	INTEGER	CSCOLR, CSARRW, CSLINE, CSMRKR, CSTEXT
+	INTEGER	CSBARB, CSLPAT, CQLPAT
+	INTEGER	CCLEAR, CCLOSP, CEPLOT, CQDEV
+	INTEGER CMESG,  CGTPNT, CSLWIN, CCLPNL, CGSAVE
+	INTEGER	CARRW,  CBARB,  CTEXT,  CMARK,  CLINE,  CTICM, CTEXTC 
+	INTEGER	CICNG,  CSPCL,  CTURB,  CLOGO
+	INTEGER CSKY,   CWTHR,  CPTND,  CPWTH,  CCTYP,  CFILL
+	INTEGER	CSWNDW, CSCLIP, CSCRGB, CSCINT, CSCOLB, CSBRGB
+	INTEGER	CQCLRS, CSCNAM, CQCOMP, CCIRCL, CSPWTH, CSCTYP
+	INTEGER	CQCOLR, CSSKY,  CSWTHR, CSPTND, CARC
+	INTEGER	CQNCOL, CSATIM, CSICMN, CSATPX
+	INTEGER	CSCTBL, CSPLOT, CSTANM, CENANM, CLOOPC, CSGRP, CEGRP
+        INTEGER CSROAM, CROAM,  CSGTGN
+	INTEGER CSDATT, CQDATT
+	INTEGER CSICNG, CSSPCL, CSTURB
+	INTEGER CSFRNT, CFRNT
+	INTEGER CSSPLN, CSPLN
+	INTEGER CTXSY,  CSFILL, CSSMTH, CSRDUC, CSDASH
+	INTEGER CDARR,  CSDARR
+	INTEGER CHASH,  CSHASH
+	INTEGER CSCLR2, CQCLR2
+        INTEGER CCMBO,  CSCMBO
+C
+C*	Device Access subroutines
+C
+	PARAMETER ( DACCES = 1 )
+	PARAMETER ( CENDD  = 102, CINITP = 103,
+     +		    CQDCHR = 104, CINITA = 105 )
+C
+C*	Device Attribute subroutines
+C
+	PARAMETER ( DATTRB = 2 )
+	PARAMETER ( CSARRW = 201, CSLINE = 202, CSMRKR = 203,
+     +		    CSTEXT = 204, CSBARB = 205, CSLPAT = 206,
+     +		    CQLPAT = 207, CSSKY  = 208, CSWTHR = 209,
+     +              CSPTND = 210, CSPWTH = 211, CSCTYP = 212,
+     +		    CSDATT = 213, CQDATT = 214, CSICNG = 215,
+     +		    CSSPCL = 216, CSTURB = 217, CSFRNT = 218,
+     +		    CSSPLN = 219, CSFILL = 220, CSSMTH = 221,
+     +		    CSDASH = 222, CSDARR = 223, CSHASH = 224,
+     +              CSCMBO = 225, CSRDUC = 226 )
+C 
+C*	Device Control subroutines
+C
+	PARAMETER ( DCNTRL = 3 )
+	PARAMETER ( CCLEAR = 301, CCLOSP = 303,
+     +		    CEPLOT = 305, CQDEV  = 306,
+     +		    CMESG  = 307, CGTPNT = 308,
+     +		    CSPLOT = 311, CSTANM = 312,
+     +		    CENANM = 313, CLOOPC = 314, CSLWIN = 315,
+     +		    CCLPNL = 316, CSROAM = 317, CROAM  = 318,
+     +		    CSGRP  = 319, CEGRP  = 320, CSGTGN = 321,
+     +		    CGSAVE = 322 )
+
+C
+C*	Device Window subroutines
+C
+	PARAMETER ( DWINDW  = 4 )
+	PARAMETER ( CSWNDW  = 401, CSCLIP = 402 )
+C
+C*	Device Plot Subroutines
+C
+	PARAMETER ( DPLOT   = 5 )
+	PARAMETER ( CLINE   = 501, CMARK  = 502, CTEXT  = 503,
+     +		    CBARB   = 504, CARRW  = 505, CTICM  = 506,
+     +		    CCIRCL  = 507, CSKY   = 508, CWTHR  = 509,
+     +              CPTND   = 510, CPWTH  = 511, CCTYP  = 512,
+     +		    CFILL   = 513, CTEXTC = 514, CICNG  = 515,
+     +		    CSPCL   = 516, CTURB  = 517, CFRNT  = 518,
+     +		    CSPLN   = 519, CTXSY  = 520, CLOGO  = 521,
+     +		    CDARR   = 522, CHASH  = 523, CCMBO  = 524,
+     +		    CARC    = 525 )
+C
+C*	Device Color Subroutines
+C
+	PARAMETER ( DCOLOR  = 6 )
+	PARAMETER ( CSCOLR  = 601, CSCRGB = 602, CSCTBL = 603,
+     +		    CSCINT  = 604, CSCNAM = 605, CQCOMP = 606,
+     +		    CQCOLR  = 607, CQNCOL = 608, CSCOLB = 609,
+     +		    CSBRGB  = 610, CQCLRS = 611, CSCLR2 = 612,
+     +              CQCLR2  = 613 )
+C
+C*      Device Satellite Subroutines
+C
+        PARAMETER ( DSAT    = 8 )
+	PARAMETER ( CSATIM  = 801, CSICMN = 802, CSATPX = 803 )

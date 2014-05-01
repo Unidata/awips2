@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include "GeneralUtil.h"
+
+void startdb(long int *return_code)
+/*
+
+ function to open database
+
+ the database name, host, user, and part are read from the .Apps_defaults file
+
+ */
+
+#define  DB_NAME_TOKEN       "db_name"
+
+{
+
+	EXEC SQL BEGIN DECLARE SECTION;
+	char sqlstmt[STMT_LEN];
+	char * db_user;
+	EXEC SQL END DECLARE SECTION;
+
+	char * db_name = getAppDefault("db_name");
+	char * db_host = getAppDefault("pghost");
+	char * db_port = getAppDefault("pgport");
+	db_user = getAppDefault("pguser");
+
+	sprintf(sqlstmt, "tcp:postgresql://%s:%s/%s", db_host, db_port, db_name);
+
+	printf("Connecting to database '%s' as user '%s'\n", sqlstmt, db_user);
+
+	EXEC SQL CONNECT TO :sqlstmt USER :db_user;
+
+	*return_code = sqlca.sqlcode;
+
+} /*   end startdb   */

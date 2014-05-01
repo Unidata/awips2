@@ -1,0 +1,133 @@
+This example is demonstrating a WS-Notification scenario 
+when (for simplicity) QMan is at the same time consumer 
+and producer.
+
+Specifically the example shows how a requestor can create,
+pause and resume a subscription.
+Type enter to proceed...
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://romagazzarini:8080/qman/services/adapter</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsn/bw-2/NotificationProducer/SubscribeRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:485cc87c-660e-de43-e8fa-4ad5fffa95a6</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsnt:Subscribe xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2">
+            <wsnt:ConsumerReference>
+                <wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://romagazzarini:8080/qman/services/consumer</wsa:Address>
+            </wsnt:ConsumerReference>
+        </wsnt:Subscribe>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsn/bw-2/NotificationProducer/SubscribeResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:0ee610d1-e211-95c6-a498-e1084a610c44</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:485cc87c-660e-de43-e8fa-4ad5fffa95a6</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://romagazzarini:8080/qman/services/adapter</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsnt:SubscribeResponse xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2">
+            <wsnt:SubscriptionReference>
+                <wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://romagazzarini:8080/qman/services/SubscriptionManager</wsa:Address>
+                <wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                    <qman-wsa:ResourceId xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing">282f28e6-4396-4000-a19d-87a03978e8a0</qman-wsa:ResourceId>
+                </wsa:ReferenceParameters>
+            </wsnt:SubscriptionReference>
+            <wsnt:CurrentTime>2009-02-27T13:51:56+01:00</wsnt:CurrentTime>
+        </wsnt:SubscribeResponse>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://romagazzarini:8080/qman/services/SubscriptionManager</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsn/bw-2/SubscriptionManager/PauseSubscriptionRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:35cc80af-84ac-2456-3e1f-edc2a7f60970</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+        <qman-wsa:ResourceId
+            xmlns:wsa="http://www.w3.org/2005/08/addressing"
+            wsa:IsReferenceParameter="true" xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing">282f28e6-4396-4000-a19d-87a03978e8a0</qman-wsa:ResourceId>
+    </soap:Header>
+    <soap:Body>
+        <wsnt:PauseSubscription xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2"/>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsn/bw-2/SubscriptionManager/PauseSubscriptionResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:bb53d38a-428c-3d90-cc45-29d5cb27a8df</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:35cc80af-84ac-2456-3e1f-edc2a7f60970</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://romagazzarini:8080/qman/services/SubscriptionManager</wsa:Address>
+            <wsa:ReferenceParameters>
+                <qman-wsa:ResourceId wsa:IsReferenceParameter="true"
+                    xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing" xmlns:wsa="http://www.w3.org/2005/08/addressing">282f28e6-4396-4000-a19d-87a03978e8a0</qman-wsa:ResourceId>
+            </wsa:ReferenceParameters>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <muse-op:PauseSubscriptionResponse xmlns:muse-op="http://docs.oasis-open.org/wsn/b-2"/>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://romagazzarini:8080/qman/services/SubscriptionManager</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsn/bw-2/SubscriptionManager/ResumeSubscriptionRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:bfb48615-905a-e472-a9ca-5483fa592f60</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+        <qman-wsa:ResourceId
+            xmlns:wsa="http://www.w3.org/2005/08/addressing"
+            wsa:IsReferenceParameter="true" xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing">282f28e6-4396-4000-a19d-87a03978e8a0</qman-wsa:ResourceId>
+    </soap:Header>
+    <soap:Body>
+        <wsnt:ResumeSubscription xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2"/>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsn/bw-2/SubscriptionManager/ResumeSubscriptionResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:aab4cf18-3cc0-30c4-7036-009e26bb3213</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:bfb48615-905a-e472-a9ca-5483fa592f60</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://romagazzarini:8080/qman/services/SubscriptionManager</wsa:Address>
+            <wsa:ReferenceParameters>
+                <qman-wsa:ResourceId wsa:IsReferenceParameter="true"
+                    xmlns:qman-wsa="http://amqp.apache.org/qpid/management/qman/addressing" xmlns:wsa="http://www.w3.org/2005/08/addressing">282f28e6-4396-4000-a19d-87a03978e8a0</qman-wsa:ResourceId>
+            </wsa:ReferenceParameters>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <muse-op:ResumeSubscriptionResponse xmlns:muse-op="http://docs.oasis-open.org/wsn/b-2"/>
+    </soap:Body>
+</soap:Envelope>
+

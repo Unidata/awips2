@@ -1,0 +1,826 @@
+/*
+    File: Floodcat.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:22 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Floodcat.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Floodcat_t
+{
+    char		lid[9];
+    double		minor_stage;
+    double		moderate_stage;
+    double		major_stage;
+    double		minor_flow;
+    double		moderate_flow;
+    double		major_flow;
+
+    int		ind_minor_stage;
+    int		ind_moderate_stage;
+    int		ind_major_stage;
+    int		ind_minor_flow;
+    int		ind_moderate_flow;
+    int		ind_major_flow;
+} Floodcat_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Floodcat * GetFloodcat(const char * where)
+{
+
+    Floodcat * listPtr = NULL;
+    Floodcat * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Floodcat ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Floodcat_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFloodcat() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFloodcat() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFloodcat() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.minor_stage:dbs.ind_minor_stage, 
+    :dbs.moderate_stage:dbs.ind_moderate_stage, :dbs.major_stage:dbs.ind_major_stage, 
+    :dbs.minor_flow:dbs.ind_minor_flow, :dbs.moderate_flow:dbs.ind_moderate_flow, 
+    :dbs.major_flow:dbs.ind_major_flow    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetFloodcat() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Floodcat *) malloc(sizeof(Floodcat))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            structPtr->minor_stage = dbs.minor_stage;
+            setNullIfIndicated(dbs.ind_minor_stage, DOUBLE, &structPtr->minor_stage);
+
+            structPtr->moderate_stage = dbs.moderate_stage;
+            setNullIfIndicated(dbs.ind_moderate_stage, DOUBLE, &structPtr->moderate_stage);
+
+            structPtr->major_stage = dbs.major_stage;
+            setNullIfIndicated(dbs.ind_major_stage, DOUBLE, &structPtr->major_stage);
+
+            structPtr->minor_flow = dbs.minor_flow;
+            setNullIfIndicated(dbs.ind_minor_flow, DOUBLE, &structPtr->minor_flow);
+
+            structPtr->moderate_flow = dbs.moderate_flow;
+            setNullIfIndicated(dbs.ind_moderate_flow, DOUBLE, &structPtr->moderate_flow);
+
+            structPtr->major_flow = dbs.major_flow;
+            setNullIfIndicated(dbs.ind_major_flow, DOUBLE, &structPtr->major_flow);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.minor_stage:dbs.ind_minor_stage, 
+        :dbs.moderate_stage:dbs.ind_moderate_stage, :dbs.major_stage:dbs.ind_major_stage, 
+        :dbs.minor_flow:dbs.ind_minor_flow, :dbs.moderate_flow:dbs.ind_moderate_flow, 
+        :dbs.major_flow:dbs.ind_major_flow        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetFloodcat() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Floodcat * SelectFloodcat(const char * where)
+{
+
+    Floodcat * listPtr = NULL;
+    Floodcat * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Floodcat ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Floodcat_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFloodcat() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFloodcat() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFloodcat() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.minor_stage:dbs.ind_minor_stage, 
+    :dbs.moderate_stage:dbs.ind_moderate_stage, :dbs.major_stage:dbs.ind_major_stage, 
+    :dbs.minor_flow:dbs.ind_minor_flow, :dbs.moderate_flow:dbs.ind_moderate_flow, 
+    :dbs.major_flow:dbs.ind_major_flow    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectFloodcat() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Floodcat *) malloc(sizeof(Floodcat))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            structPtr->minor_stage = dbs.minor_stage;
+            setNullIfIndicated(dbs.ind_minor_stage, DOUBLE, &structPtr->minor_stage);
+
+            structPtr->moderate_stage = dbs.moderate_stage;
+            setNullIfIndicated(dbs.ind_moderate_stage, DOUBLE, &structPtr->moderate_stage);
+
+            structPtr->major_stage = dbs.major_stage;
+            setNullIfIndicated(dbs.ind_major_stage, DOUBLE, &structPtr->major_stage);
+
+            structPtr->minor_flow = dbs.minor_flow;
+            setNullIfIndicated(dbs.ind_minor_flow, DOUBLE, &structPtr->minor_flow);
+
+            structPtr->moderate_flow = dbs.moderate_flow;
+            setNullIfIndicated(dbs.ind_moderate_flow, DOUBLE, &structPtr->moderate_flow);
+
+            structPtr->major_flow = dbs.major_flow;
+            setNullIfIndicated(dbs.ind_major_flow, DOUBLE, &structPtr->major_flow);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.minor_stage:dbs.ind_minor_stage, 
+        :dbs.moderate_stage:dbs.ind_moderate_stage, :dbs.major_stage:dbs.ind_major_stage, 
+        :dbs.minor_flow:dbs.ind_minor_flow, :dbs.moderate_flow:dbs.ind_moderate_flow, 
+        :dbs.major_flow:dbs.ind_major_flow        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectFloodcat() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectFloodcatCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Floodcat ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFloodcat() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFloodcat() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFloodcat() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountFloodcat() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutFloodcat(const Floodcat * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Floodcat_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    dbs.minor_stage = structPtr->minor_stage;
+    dbs.ind_minor_stage = getIndicator(DOUBLE, (void *)&structPtr->minor_stage);
+
+    dbs.moderate_stage = structPtr->moderate_stage;
+    dbs.ind_moderate_stage = getIndicator(DOUBLE, (void *)&structPtr->moderate_stage);
+
+    dbs.major_stage = structPtr->major_stage;
+    dbs.ind_major_stage = getIndicator(DOUBLE, (void *)&structPtr->major_stage);
+
+    dbs.minor_flow = structPtr->minor_flow;
+    dbs.ind_minor_flow = getIndicator(DOUBLE, (void *)&structPtr->minor_flow);
+
+    dbs.moderate_flow = structPtr->moderate_flow;
+    dbs.ind_moderate_flow = getIndicator(DOUBLE, (void *)&structPtr->moderate_flow);
+
+    dbs.major_flow = structPtr->major_flow;
+    dbs.ind_major_flow = getIndicator(DOUBLE, (void *)&structPtr->major_flow);
+
+
+    EXEC SQL INSERT INTO Floodcat (lid,minor_stage,
+        moderate_stage,major_stage,minor_flow,
+        moderate_flow,major_flow        )
+        VALUES (
+         :dbs.lid, :dbs.minor_stage:dbs.ind_minor_stage, :dbs.moderate_stage:dbs.ind_moderate_stage,
+         :dbs.major_stage:dbs.ind_major_stage, :dbs.minor_flow:dbs.ind_minor_flow, :dbs.moderate_flow:dbs.ind_moderate_flow,
+         :dbs.major_flow:dbs.ind_major_flow);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutFloodcat() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertFloodcat(const Floodcat * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Floodcat_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    dbs.minor_stage = structPtr->minor_stage;
+    dbs.ind_minor_stage = getIndicator(DOUBLE, (void *)&structPtr->minor_stage);
+
+    dbs.moderate_stage = structPtr->moderate_stage;
+    dbs.ind_moderate_stage = getIndicator(DOUBLE, (void *)&structPtr->moderate_stage);
+
+    dbs.major_stage = structPtr->major_stage;
+    dbs.ind_major_stage = getIndicator(DOUBLE, (void *)&structPtr->major_stage);
+
+    dbs.minor_flow = structPtr->minor_flow;
+    dbs.ind_minor_flow = getIndicator(DOUBLE, (void *)&structPtr->minor_flow);
+
+    dbs.moderate_flow = structPtr->moderate_flow;
+    dbs.ind_moderate_flow = getIndicator(DOUBLE, (void *)&structPtr->moderate_flow);
+
+    dbs.major_flow = structPtr->major_flow;
+    dbs.ind_major_flow = getIndicator(DOUBLE, (void *)&structPtr->major_flow);
+
+
+    EXEC SQL INSERT INTO Floodcat (lid,minor_stage,
+        moderate_stage,major_stage,minor_flow,
+        moderate_flow,major_flow        )
+        VALUES (
+         :dbs.lid, :dbs.minor_stage:dbs.ind_minor_stage, :dbs.moderate_stage:dbs.ind_moderate_stage,
+         :dbs.major_stage:dbs.ind_major_stage, :dbs.minor_flow:dbs.ind_minor_flow, :dbs.moderate_flow:dbs.ind_moderate_flow,
+         :dbs.major_flow:dbs.ind_major_flow);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertFloodcat() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateFloodcat(const Floodcat *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Floodcat_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    dbs.minor_stage = structPtr->minor_stage;
+    dbs.ind_minor_stage = getIndicator(DOUBLE, (void *)&structPtr->minor_stage);
+
+    dbs.moderate_stage = structPtr->moderate_stage;
+    dbs.ind_moderate_stage = getIndicator(DOUBLE, (void *)&structPtr->moderate_stage);
+
+    dbs.major_stage = structPtr->major_stage;
+    dbs.ind_major_stage = getIndicator(DOUBLE, (void *)&structPtr->major_stage);
+
+    dbs.minor_flow = structPtr->minor_flow;
+    dbs.ind_minor_flow = getIndicator(DOUBLE, (void *)&structPtr->minor_flow);
+
+    dbs.moderate_flow = structPtr->moderate_flow;
+    dbs.ind_moderate_flow = getIndicator(DOUBLE, (void *)&structPtr->moderate_flow);
+
+    dbs.major_flow = structPtr->major_flow;
+    dbs.ind_major_flow = getIndicator(DOUBLE, (void *)&structPtr->major_flow);
+
+
+    sprintf(queryBuffer, " UPDATE Floodcat SET " );
+    strcat(queryBuffer, "lid = ? , minor_stage = ? , moderate_stage = ? , major_stage = ? , minor_flow = ? ,     ");
+    strcat(queryBuffer, "moderate_flow = ? , major_flow = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateFloodcat() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.minor_stage:dbs.ind_minor_stage, :dbs.moderate_stage:dbs.ind_moderate_stage, :dbs.major_stage:dbs.ind_major_stage, :dbs.minor_flow:dbs.ind_minor_flow,
+     :dbs.moderate_flow:dbs.ind_moderate_flow, :dbs.major_flow:dbs.ind_major_flow;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateFloodcat() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteFloodcat(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Floodcat ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteFloodcat() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateFloodcatByRecord (const Floodcat * newStructPtr, const Floodcat * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetFloodcatPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateFloodcat(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateFloodcat(const Floodcat * structPtr)
+{
+    UpdateFloodcatByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertFloodcat(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueFloodcat(const Floodcat * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (FloodcatExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertFloodcat(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteFloodcatByRecord(const Floodcat * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetFloodcatPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteFloodcat(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool FloodcatExists(const Floodcat * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetFloodcatPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectFloodcatCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetFloodcatPrimaryKeyWhereString (const Floodcat * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeFloodcat( Floodcat * structPtr)
+{
+    Floodcat* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Floodcat * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetFloodcatDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetFloodcatErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

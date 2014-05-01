@@ -1,0 +1,409 @@
+C************************************************************************ 
+C* DGCMN.CMN								*
+C*									*
+C* These common areas are used in the grid diagnostics package.		*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	10/85						*
+C* M. desJardins/GSFC	 9/88	GEMPAK4 Version				*
+C* G. Huffman/GSC	 4/89	angles, CONCON, MAPSCL			*
+C* M. desJardins/GSFC	 4/89	Save user input, first and last time	*
+C* K. Brill/GSC		 9/89   Allow multiple files open		*
+C* K. Brill/NMC		 2/92	Use LLNNAV				*
+C* M. desJardins/NMC	 3/92	Eliminate scale in common		*
+C* M. desJardins/NMC	 3/92	Change MGFILE to equal MMFILE		*
+C* K. Brill/NMC		10/92	Added origin for MSFC calculation	*
+C* K. Brill/NMC		 4/93	Added useflg for grid in use		*
+C* L. Sager/NMC		 5/93   Added savflg for grid rename		*
+C* M. desJardins/NMC	 8/92	Use MMFILE for maximum number of files	*
+C* S. Jacobs/EAI	12/93	Added ADDCOL flag			*
+C* T. Lee/GSC		 2/96	Single dimension for dgg		*
+C* S. Jacobs/NCEP	 5/96	Moved LLMDGG to GEMPRM.PRM		*
+C* D.W.Plummer/NCEP	 6/98	Add DGLANC and DGLCRW for land-sea mask	*
+C* K. Brill/HPC		11/01	USEFLG->IUSESV; add ISUBID		*
+C* M. Li/SAIC		02/02	expanded the dimension of templt	*
+C* K. Brill/HPC		05/02	Eliminate LLMXGD REAL declarations	*
+C* K. Brill/HPC		08/02	Add block DGSUBG			*
+C* K. Brill/HPC		11/02	Eliminate SUBA logical array in DGAREA	*
+C* K. Brill/HPC		12/02	Added jsgxsk & jsgysk in DGSUBG		*
+C* R. Tian/SAIC		10/03	Added NFILE common block		*
+C* R. Tian/SAIC		 2/04	Removed gdfprv and gdoprv		*
+C* R. Tian/SAIC		 3/04	Removed icurfn, added irefnv   	 	*
+C* R. Tian/SAIC		 5/04	Added HINTRP common block		*
+C* T. Lee/SAIC		12/04	Removed crtmem; added mbrnum to NFILE;	*
+C*				added iensmb () to DGGRID		*
+C* T. Piper/SAIC	 6/05	Increased NDGRD from 40 to 80		*
+C* m.gamazaychikov/SAIC	09/05	Added nfargs array to DGTABL block	*
+C************************************************************************
+	INCLUDE	'GEMPRM.PRM'
+C************************************************************************
+C*  / DGGRID /								*
+C*									*
+C* This common area contains the internal grids of the DG package.	*
+C************************************************************************
+	PARAMETER	( NDGRD = 80 )
+	CHARACTER	dttimd*20, gparmd*12
+	LOGICAL		savflg
+	COMMON  / DGGRID /	
+     +			dgg (LLMDGG),
+C!						internal grids
+     +			idglst,
+C!						last grid used
+     +			dttimd (2, NDGRD),
+C!						date/times of grids
+     +			leveld (2, NDGRD),
+C!						levels of grids
+     +			ivcrdd ( NDGRD ),
+C!						vertical coordinates
+     +			gparmd ( NDGRD ),
+C! 						name of grids
+     + 			ifiled ( NDGRD ),
+C!						file #
+     +			iusesv ( NDGRD ),
+C!						flag for grid in use
+     +			savflg ( NDGRD ),
+C!						flag for grid rename
+     +			iensmb ( NDGRD ),
+C!						Ensemble member number 
+C!						associated with this grid
+     +			maxdgg,
+C!						max # of internal grids
+     +			isubid
+C!						subroutine ID number
+C************************************************************************
+C*  / DGINPT /								*
+C*									*
+C* This common area contains the user input for the grid diagnostics.	*
+C************************************************************************
+	CHARACTER	ddttim*20, ingdtm*40, inglev*(LLMXLN), invcrd*4
+	COMMON  / DGINPT /
+     +			ddttim (2),
+C!						user date/time
+     +			ldlevl (2),
+C!						user levels
+     +			lvcord,
+C!						user vertical coord
+     +			ingdtm,
+C!						input for grid time
+     +			inglev,
+C!						input for grid level
+     +			invcrd
+C!						input for vert coord
+C************************************************************************
+C*  / DGTABL /								*
+C*									*
+C* This common area contains the table generated for the user input	*
+C* of GFUNC or GVECT.							*
+C************************************************************************
+	CHARACTER	ctabl*16, clevel*24, cvcord*4,
+     +			cgdttm*48
+C*
+	PARAMETER	( LENTC = 50 )
+	COMMON  / DGTABL /
+     +			ctabl (LENTC),
+C!						character function table
+     +			ltabl,
+C!						length of table
+     +			clevel ( LENTC ),
+C!						level from @
+     +			cvcord ( LENTC ),
+C!						vcord from %
+     +			cgdttm ( LENTC ),
+C!						time from ^
+     +                  icflnm ( LENTC ),
+C!						file number from +
+     +                  nfargs ( LENTC )
+C!                                              function number of args
+C************************************************************************
+C*  / DGSTCK /								*
+C*									*
+C* This common area contains the stack used in computing diagnostics.	*
+C************************************************************************
+	PARAMETER	( LNSTK = 50 )
+	CHARACTER  	stack*12
+C*
+	COMMON  / DGSTCK /
+     +			itop,
+C!						top of stack
+     +			stack  ( LNSTK ),
+C!						character stack
+     +			istack ( LNSTK ),
+C!						integer stack
+     +			icpntr ( LNSTK )
+C!						ptr from stack to table
+C************************************************************************
+C*  / DGFILE /								*
+C*									*
+C* This common area contains information from the current grid file.	*
+C************************************************************************
+	LOGICAL		dgset, addcol, tmpflg
+	CHARACTER	cprj*4, tfirst*20, tlast*20, gdcur*72
+	CHARACTER	templt*(MXFLSZ), tdattm*20
+C*
+	COMMON  / DGFILE /
+     +			dgset,
+C!						flag indicating file set
+     +			idlun,
+C!						grid file number 
+     +			idflnm (MMFILE),
+C!						other grid file numbers
+     +			gdcur  (MMFILE),
+C!						grid file names
+     +			tmpflg  (MMFILE),
+C!						template flag
+     +			templt  (MMFILE),
+C!						template name
+     +			tdattm  (MMFILE),
+C!						template date/time
+     +			snav (LLNNAV),
+C!						raw navigation data
+     +			kxd,
+C!						# x grid points
+     +			kyd,
+C!						# y grid points
+     +			kxyd,
+C!						total # of grid points
+     +			idglat,
+C!						latitude internal grd #
+     +			idglon,
+C!						longitude internal grd #
+     +			cprj,
+C!						projection type
+     +                  ighdr (LLGDHD),
+C!						grid header
+     +			anglr1, anglr2, anglr3,
+C!						projection angles (rad.)
+     +			concon,
+C!						constant of cone
+     +			tfirst (MMFILE),
+C!						first time in file
+     +			tlast  (MMFILE),
+C!						last time in file
+     +			addcol
+C!						flag to add col of data
+C************************************************************************
+C*  / MAPSCL /								*
+C*									*
+C* This common area contains map scale factor information for the 	*
+C* current grid file.							*
+C************************************************************************
+C*
+	COMMON  / MAPSCL /
+     +			ixmscl,
+     +			iymscl,
+C!						internal grid numbers for
+C!						scale factors in x, y
+     +			ixmsdy,
+C!						y derivative of x scl fac
+C!						internal grid number
+     +                  iymsdx,
+C!  						x derivative of y scl fac
+C!						internal grid number
+     +			gddx, gddy
+C!						grid spacing in x, y
+C************************************************************************
+C*  / DGSTRM /								*
+C*									*
+C* These values are used in the HORIZON projection for polar coords	*
+C************************************************************************
+	COMMON  / DGSTRM /
+     + 			rot,
+C!						rotation
+     +			sinclt,
+C!						sin of center latitude
+     +			cosclt,
+C!						cos of center longitude
+     +			clon
+C!						center longitude
+C************************************************************************
+C*  / DGERR /								*
+C*									*
+C* This common area contains the diagnostic error string.		*
+C************************************************************************
+	CHARACTER	errst*60
+	COMMON  / DGERR /
+     +	    		errst
+C************************************************************************
+C*  / DGOVEC /								*
+C*									*
+C*  This common area contains the direction of an orientation vector,	*
+C*  for example,the tangent vector to a cross section.  This is like	*
+C*  a conventional wind direction (grid relative) with the y axis	*
+C*  pointing north.							*
+C************************************************************************
+	REAL  		ornang 	
+	COMMON / DGOVEC /
+     +          	ornang
+C!						direction angle (rad)	*
+C************************************************************************
+C*  / DGORIG /								*
+C*									*
+C*  This common area contains the latitude/longitude position of the	*
+C*  origin with respect to which to compute psuedo angular momentum.	*
+C************************************************************************
+	COMMON / DGORIG /
+     +			orglat,
+C!						latitude of origin
+     +			orglon,
+C!						longitude of origin
+     +			orgxpt,
+C!						grid x coord of origin
+     +			orgypt
+C!						grid y coord of origin
+C************************************************************************
+C*  / DGAREA /								*
+C*									*
+C*  This common area contains information about the points that should	*
+C*  be included in any diagnostics computation.				*
+C************************************************************************
+	COMMON  / DGAREA /
+     +			kgxmin, kgxmax, kgymin, kgymax,
+C!						user input area
+     +			kextnd,
+C!						number of additional pts
+     +			jgxmin, jgxmax, jgymin, jgymax,
+C!						full area
+     +			ksub1, ksub2
+C!						index range for sub area
+C************************************************************************
+C*  / DGSUBG /								*
+C*									*
+C*  This common area contains information needed for the placement of	*
+C*  data on the subset internal grid.					*
+C************************************************************************
+	LOGICAL		gwrapg, dgsubg
+	COMMON	/ DGSUBG /
+     +			tfgrid (LLMXTG),
+C!						array for transfer grid
+     +			refnav (LLNNAV),
+C!						reference navigation
+     +			gwrapg,
+C!						globe wrapping grid flg
+     +			dgsubg,
+C!						flag for DG_SUBG called
+     +			ishift,
+C!						shift position for grid
+C!						re-arrangement
+     +			jsgxmn, jsgxmx, jsgymn, jsgymx,
+C!						subset grid index bounds
+C!						on re-arranged transfer
+C!						grid
+     +			jsgxsk, jsgysk
+C!						subset stride through
+C!						transfer grid in x & y
+C************************************************************************
+C*  / DGRTWD /								*
+C*									*
+C*  This common area contains the cosines and sines of the rotation	*
+C*  angle which are the elements of the matrix for the rotation		*
+C*  transformation between grid relative and north relative and its	*
+C*  inverse.								*
+C************************************************************************
+	COMMON / DGRTWD /
+     +			irtcos,
+C!						intrnl grd # of cosines
+     +			irtsin
+C!						intrnl grd # of sines
+C************************************************************************
+C*  / DGLNDC /								*
+C*									*
+C*  This common area contains the information for the land-sea mask.	*
+C*									*
+C************************************************************************
+	COMMON / DGLANC /
+     +			ls (8136), 
+C!						land-sea mask raw array
+     +			lndsea
+C!						internal grid number of
+C!						land-sea mask grid array
+C************************************************************************
+C*  / NFILE /								*
+C*									*
+C*  This common area contains GDFILE entries.                     	*
+C************************************************************************
+	PARAMETER	( NGDFLS = MMFILE )
+	CHARACTER	ntmplt*(MXFLSZ), gflpth*(MXFLSZ), crtfnm*(MXFLSZ)
+	CHARACTER	aftrbr*20, crtgdt*20, dtmlst*20
+	LOGICAL		outflg, nucode
+	COMMON  / NFILE /	
+     +			ntmplt ( NGDFLS ),
+C!						template associated with
+C!						GDFILE entry
+     +			gflpth ( NGDFLS ),
+C!						path associated with
+C!						GDFILE entry if entry
+C!						is a template
+     +			crtfnm ( NGDFLS ),
+C!						current actual file name
+C!						associated with GDFILE
+C!						entry
+     +			aftrbr ( NGDFLS ),
+C!						the information given   
+C!						after | associated with
+C!						GDFILE entry
+     +			crtgdt ( 2, NGDFLS ),
+C!						current GEMPAK time
+C!						associated with GDFILE
+C!						entry
+     +			mbrnum ( NGDFLS ),
+C!						Number of ensemble 
+C!						member currently in use
+     +			outflg ( NGDFLS ),
+C!						write flag associated
+C!						with GDFILE entry
+     +			dtmlst ( LLMXGT, 2 ),
+C!						list of times to process
+     +			ntmlst,
+C! 						number of times in the 
+C!						list
+     +			itmlst,
+C! 						index of last time used
+C!						in dtmlst
+     +			irefnv,
+C! 						index of navagation
+C!						reference entry
+     +			nucode
+C! 						flag to use this new code
+C************************************************************************
+C*  / HINTRP /								*
+C*									*
+C*  This common area contains horizontal interporlation information.    *
+C************************************************************************
+	LOGICAL		wndrot, adcltg, gwrptg, didint
+	COMMON  / HINTRP /	
+     +			tfrnav ( LLNNAV ),
+C!						last transfer navigation
+C!						read
+     +			igrxig,
+C!						internal grd# of transfer
+C!						grid relative i index 
+C!						positions on internal
+C!						grid
+     +			igryig,
+C!						internal grd# of transfer
+C!						grid relative j index
+C!						positions on internal
+C!						grid
+     +			isnrot,
+C!						internal grd # of SINs
+C!						of rotation angle from
+C!						transfer grid to north
+C!						relative orientation
+     +			icsrot,
+C!						internal grd # of COSs
+C!						of rotation angle from
+C!						transfer grid to north
+C!						relative orientation
+     +			wndrot,
+C!						flag that wind rotation
+C!						is required
+     +			adcltg,
+C!						flag to add column to
+C!						transfer grid
+     +			gwrptg,
+C!						flag to indicate globe
+C!						wrapping transfer grid
+     +			didint
+C!						flag to indicate horz
+C!						intrp was done
+C------------------------------------------------------------------------

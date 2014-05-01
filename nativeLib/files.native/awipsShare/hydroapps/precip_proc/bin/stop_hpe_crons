@@ -1,0 +1,74 @@
+#!/bin/ksh
+
+#
+#   script for bypassing the HPE radar gather crons
+#
+#   HPE crons to gather radar information run every minute
+#  This script just creates a file the crons are looking for
+#  and if found, it will exit the gather script before beginning.
+# 
+#   David T. Miller     RSIS    OHD/HSEB
+#   October 30, 2007
+
+# This allows you to call this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for AWIPS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export HPE_LOG_DIR=$(get_apps_defaults hpe_log_dir)
+
+
+
+# this script uses the following set_hydro_env variables:
+# HPE_LOG_DIR
+#
+
+# GAD_DIR is directory which holds the gad program (get_apps_defaults.LX)
+GAD_DIR=/awips/hydroapps/public/bin
+
+#   setup log files
+#
+
+if [[ ! -d $HPE_LOG_DIR ]]
+then 
+   print "Directory specified for placing stop_hpe_crons file does not exist " $HPE_LOG_DIR
+   exit -1
+fi
+
+hpefnm=$HPE_LOG_DIR/start_hpe_log
+hpetmp=$HPE_LOG_DIR/start_hpe_tmp
+
+
+#
+#   save latest entries in log file
+#
+
+
+if [[ -s $hpefnm ]]
+then
+   tail -1200 $hpefnm > $hpetmp
+   mv $hpetmp $hpefnm
+fi
+
+echo "Attempting to create stop_hpe_crons file... " >> $hpefnm
+
+if [[ ! -r $HPE_LOG_DIR/stop_hpe_crons ]]
+then
+      touch $HPE_LOG_DIR/stop_hpe_crons
+      echo "stop_hpe_crons file has been created." >> $hpefnm
+      echo "HPE radar data processes will not be executed via cron until this file " >> $hpefnm
+      echo "removed by the start_hpe_crons script. " >> $hpefnm
+      
+# so user sees it on the screen as well since this is a manual process
+      
+      echo "stop_hpe_crons file has been created." 
+      echo "HPE radar data processes will not be executed via cron until this file " 
+      echo "removed by the start_hpe_crons script. " 
+    
+else 
+      echo "stop_hpe_crons file exists already. " >> $hpefnm
+      echo "stop_hpe_crons file exists already. " 
+
+fi
+
+exit 0

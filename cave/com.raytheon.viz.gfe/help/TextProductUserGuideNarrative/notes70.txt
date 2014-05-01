@@ -1,0 +1,2 @@
+This is initially represented in the tree as shown with a phrase, one sub-phrase, and the associated Local Effects list stored as an attribute for the phrase node. If there is an associated Local Effects list for a phrase, the ForecastNarrative Engine adds "checkLocalEffects" to the methodList for that node.  This PhraseBuilder method then checks the Local Effect criteria. 
+

@@ -1,0 +1,282 @@
+C MEMBER URHLDR
+C-----------------------------------------------------------------------
+C
+C @PROCESS LVL(77)
+C
+C                             LAST UPDATE: 04/22/94.15:00:40 BY $WC20SV
+C
+C
+      SUBROUTINE URHLDR ( NEOFRC,ISTAT )
+C
+C          SUBROUTINE:  URHLDR
+C
+C             VERSION: 1.0.1  UPDATED FOR REORDER AND COMPRESS PROGRAM
+C                      11-5-85   JF
+C             VERSION:  1.0.0
+C
+C                DATE:  5-27-82
+C
+C              AUTHOR:  JONATHAN D GERSHAN
+C                       DATA SCIENCES INC
+C                       8555 16TH ST, SILVER SPRING, MD 587-3700
+C***********************************************************************
+C
+C          DESCRIPTION:
+C
+C
+C   THIS ROUTINE COMPRESSES LOCAL DEFAULT RECORDS FOR GLOBAL
+C   DEFINITIONS IN THE INDEX FILE.
+C
+C***********************************************************************
+C
+C          ARGUMENT LIST:
+C
+C         NAME    TYPE  I/O   DIM   DESCRIPTION
+C
+C       NEOFRC     I     I    1       NEW END OF FILE POINTER
+C       IHCLDB      I     I    1       DEBUG FLAG, 1=PRINT MSGS.
+C       ISTAT      I     O    1       STATUS O=OK, NOT 0=ERROR
+C
+C
+C
+C
+C
+C
+C
+C
+C
+C***********************************************************************
+C
+C          COMMON:
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'hclcommon/hldrpt'
+      INCLUDE 'hclcommon/hcuuno'
+      INCLUDE 'hclcommon/hindx'
+C
+C***********************************************************************
+C
+C          DIMENSION AND TYPE DECLARATIONS:
+C
+       INTEGER  IBUF(4),KBUF(512),IREAD(2),IWRITE(2),IZERO(4)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/reorder/RCS/urhldr.f,v $
+     . $',                                                             '
+     .$Id: urhldr.f,v 1.1 1995/09/17 19:17:49 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+C***********************************************************************
+C
+C          DATA:
+C
+      DATA IZERO/4*0/
+       DATA IREAD/4H   R,4HHEAD /,IWRITE/4H  WR,4HHITE /
+C
+C
+C***********************************************************************
+C       VARIABLE DEFINITIONS:
+C
+C       IBUF(4)            I/O BUFFER, HOLDS A 4 WORD LREC
+C
+C       IFIRST             FIRST LDR RECORD NUMBER
+C
+C       IINNO              CURRENT RECORD NUMBER IN INPUT FILE
+C
+C       ILAST              LAST LDR RECORD NUMBER
+C
+C       IOUTNO             CURRENT RECORD NUMBER IN OUTPUT FILE
+C
+C       ISTOP              ENDING LRECNO FOR LDR COPY LOOP
+C
+C       NEOFRC             NEW END OF FILE RECORD NUMBER
+C
+C       NXTREC             NEXT LDR RECORD NUMBER
+C
+C***********************************************************************
+C
+C
+C  INITIALIZE:
+C
+       IINNO =ICTLNO
+       MAX=512
+       LRECJ=4
+       IOUTNO=0
+C
+C  READ IN CONTROL RECORD, THEN SET CONTROL VARIABLES:
+C
+       IF ( IHCLTR.EQ.1 ) WRITE ( LPD,240)
+C
+C
+       CALL UREADT(KGLXUI,IINNO,IBUF,ISTAT)
+       IF (ISTAT.EQ.0) GO TO 30
+          WRITE (LPD,10)IREAD(1),IREAD(2),KGLXUI
+10        FORMAT (' **ERROR** WHILE ',2A4,'UNIT ',I2)
+          WRITE (LPD,20)IINNO
+20        FORMAT (' THE ABOVE ERROR OCCURRED ON READING CONTROL',
+     *    ' RECORD NUMBER ',I4,' IN THE GLOBAL INDEX')
+          GO TO 230
+C
+C
+30     IF ( IHCLDB.EQ.1 ) WRITE (LPD,250)IBUF
+C
+       IFIRST=IBUF(LDRFPT)
+       ILAST =IBUF(LDRLPT)
+       IEOF  =IBUF(IEOFPT)
+       ISTOP =IFIRST - 1
+C
+       IF ( IHCLDB.EQ.1 ) WRITE ( LPD,260 )IFIRST,ILAST,IEOF,ISTOP
+C
+C
+C  LOOP AND COPY INDEX FILE UP TO FIRST LDR RECORD:
+C
+      IF ( IHCLDB.EQ.2) WRITE ( LPD,40 )
+40     FORMAT (/ '   HERE ARE THE INDEX RECORDS : ',/)
+C
+C
+       DO 80 IINNO=1,ISTOP
+C
+           CALL UREADT(KGLXUI,IINNO,IBUF,ISTAT)
+       IF (ISTAT.EQ.0) GO TO 60
+          WRITE (LPD,10)IREAD(1),IREAD(2),KGLXUI
+          WRITE (LPD,50)IINNO
+50        FORMAT (' THE ABOVE ERROR OCCURRED ON READING INDEX',
+     *    ' RECORD NUMBER ',I4,' IN THE GLOBAL INDEX')
+          GO TO 230
+C
+60         IF ( IHCLDB.EQ.2 ) WRITE ( LPD,280 ) IINNO,IBUF
+C
+           CALL UWRITT(KGLXUO,IINNO,IBUF,ISTAT)
+       IF (ISTAT.EQ.0) GO TO 80
+          WRITE (LPD,10)IWRITE (1),IWRITE (2),KGLXUO
+          WRITE (LPD,70)IINNO
+70          FORMAT (' THE ABOVE ERROR OCCURRED ON WRITING INDEX',
+     *    ' RECORD NUMBER ',I4,' TO THE GLOBAL INDEX COMPRESSED')
+          GO TO 230
+C
+80     CONTINUE
+C
+C  CHECK TO SEE IF THERE ARE LDR RECORDS, IF NOT DROP OUT:
+C
+       IF ( ILAST.LE.IFIRST ) GO TO 230
+C
+C  SET UP FOR FIRST LDR RECORD:
+C
+       IINNO=IFIRST
+       IOUTNO=IFIRST
+       HINDEX(2,8)=IFIRST
+       HINDEX(1,8)=ILAST
+C
+C  START MAIN LOOP READ AN LDR:
+C
+90     IF (IHCLDB.EQ.1) WRITE (LPD,100)
+100      FORMAT (' ABOUT TO READ AN LDR ')
+       CALL  HRLDRR( IINNO,KBUF,MAX,ISTAT)
+       IF (ISTAT.EQ.0) GO TO 120
+          WRITE (LPD,10)IREAD(1),IREAD(2),KGLXUI
+          WRITE (LPD,110)IINNO
+110       FORMAT (' THE ABOVE ERROR OCCURRED ON READING LDR',
+     *    ' RECORD NUMBER ',I4,' IN THE GLOBAL INDEX')
+          GO TO 230
+120    IF (IHCLDB.EQ.1) WRITE (LPD,130) (KBUF(I),I=1,4)
+130    FORMAT (' LDR:  # RECS: ',I4,'   TYPE: ',I1,'  NAME: ',2A4)
+C
+C
+C
+C  COMPUTE NEXT RECORD NUMBER:
+C
+       NXTREC=IINNO+KBUF(1)
+C
+C
+C   CHECK ACTUAL SIZE OF RECORD AGAINST WORD 1 AND CHANGE IF
+C   NECESSARY:
+C
+       NUMWDS=8
+       IF (KBUF(7).GT.1) NUMWDS=KBUF(7)+7
+       INTREC=NUMWDS / 4
+       IEXTRA=NUMWDS - (INTREC*4)
+       KBUF(1)=INTREC
+       IF (IEXTRA.GT.0)KBUF(1)=KBUF(1)+1
+C
+       IF (IHCLDB.EQ.1) WRITE (LPD,140) IINNO,KBUF(1),IOUTNO
+140    FORMAT (' INREC # ',I4,' SIZE IN LRECS=',I4,' OUTREC=',I4)
+C
+       IF ( IHCLDB.EQ.1 ) WRITE ( LPD,300 ) NXTREC
+C
+C
+C  CHECK FOR A DELETED RECORD (WORD 'DELETED' IN NAME FIELD)
+C  IF RECORD IS DELETED SKIP TO NEXT RECORD:
+C
+       IF (KBUF(3).EQ.IDELE.AND.KBUF(4) .EQ.ITED ) GO TO 170
+C
+C  INCREMENT OUTPUT RECORD NUMBER, WRITE OUT RECORD, AND
+C  SET THE MARKER TO THE FIRST LREC OF THE CURRENT LDR:
+C
+       CALL WVLRCD( KGLXUO,IOUTNO,KBUF(1),KBUF,LRECJ,ISTAT)
+       IF (ISTAT.EQ.0) GO TO 160
+          WRITE (LPD,10)IWRITE (1),IWRITE (2),KGLXUO
+          WRITE (LPD,150)IOUTNO
+150       FORMAT (' THE ABOVE ERROR OCCURRED ON WRITING LDR',
+     *    ' RECORD NUMBER ',I4,' TO THE GLOBAL INDEX COMPRESSED')
+          GO TO 230
+C
+160     IOUTNO=IOUTNO+KBUF(1)
+170   IF ( NXTREC.GE.ILAST ) GO TO 180
+C
+      IINNO=NXTREC
+      CALL UMEMST(0,KBUF,NUMWDS )
+      GO TO 90
+C
+C
+C
+180   IINNO=4
+C
+      CALL UREADT(KGLXUI,IINNO,IBUF,ISTAT)
+       IF (ISTAT.EQ.0) GO TO 200
+          WRITE (LPD,10)IREAD(1),IREAD(2),KGLXUI
+          WRITE (LPD,190)IOUTNO
+190       FORMAT (' THE ABOVE ERROR OCCURRED ON READING CONTROL',
+     *    ' RECORD NUMBER ',I4,' IN THE GLOBAL INDEX')
+          GO TO 230
+200    IBUF(LDRLPT)=IOUTNO - 1
+       WRITE (LPD,210) IBUF(LDRLPT)
+210     FORMAT (/ ' THE NEW LAST LDR RECORD NUMBER IS:', I5,/)
+C
+C   FILE EXPANSION SECTION:
+C
+       IF (NEOFRC.GT.IBUF(1)) IBUF(1)=NEOFRC
+C
+       ICONT=IOUTNO
+       IMAX=IBUF(1)
+C
+       IF (IHCLDB.GT.0) WRITE (LPD,330) ICONT,IMAX,KGLXUO
+       DO 220 IOUTNO=ICONT,IMAX
+            CALL UWRITT ( KGLXUO,IOUTNO,IZERO,ISTAT )
+220    CONTINUE
+C
+       CALL UWRITT (KGLXUO,4,IBUF,ISTAT )
+C
+230     WRITE (LPD,320)IBUF(IEOFPT)
+        IF (IHCLTR.GT.0) WRITE (LPD,310)
+C
+C
+       RETURN
+C
+240     FORMAT (' ENTERING SUBROUTINE URHLDR')
+250     FORMAT (' IBUF=',4(I6,2X) )
+260     FORMAT (/ '  IFIRST=',I6,'  ILAST=',I6,2X,
+     *  'IEOF=',I6,'  ISTOP=',I6)
+280     FORMAT (' RECORD # ',I6,10X,'IBUF=',2A4,2(2X,I7) )
+300     FORMAT (' NEXT REC. #=',I6)
+310     FORMAT (' EXITING SUBROUTINE URHLDR')
+320     FORMAT (' THE END OF FILE RECORD NUMBER IS - ',I5)
+330     FORMAT (' ABOUT TO INITIALIZE RECORDS ',I4,' THRU ',
+     *   I4,' FOR FILE ON UNIT ',I2)
+C
+      END

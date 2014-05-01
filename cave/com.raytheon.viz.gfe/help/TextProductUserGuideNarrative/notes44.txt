@@ -1,0 +1,2 @@
+It is the responsibility of the method using the threshold to apply it to each value.  The library method, "self.nlValue" takes a non-linear value and a weather element value and returns the potentially non-linear result. 
+

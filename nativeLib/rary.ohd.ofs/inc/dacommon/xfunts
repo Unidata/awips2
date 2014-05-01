@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.XFUNTS
+C  ASAP I/O UNITS COMMON
+      COMMON /XFUNTS/ INMCH,INMCC,IRFCC,IRFCP,IMSGL,IAFS,IDBG
+C

@@ -1,0 +1,43 @@
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+
+<html>
+<body>
+<p/>A framework for testing Qpid, built around a standard 'test circuit' design. The idea behind this framework is the
+use of a test circuit which is configured by a set of test parameters, that may be projected onto a topology of
+test nodes, with tests scripted to run over test circuits, making as few assumptions as possible about the underlying
+topology. The standardization of the design, whilst limiting in some respectes, allows a large variety of test 
+scenarios to be written with minimal amounts of coding.
+
+<p/>The standard consruction block for a test, is a test circuit. This consists of a publisher, and a receiver. The
+publisher and receiver may reside on the same machine, or may be distributed. Will use a standard set of properties to
+define the desired circuit topology.
+
+<p/>Tests are always to be controlled from the publishing side only. The receiving end of the circuit is to be exposed
+to the test code through an interface, that abstracts as much as possible the receiving end of the test. The interface
+exposes a set of 'assertions' that may be applied to the receiving end of the test circuit.
+
+<p/>In the case where the receiving end of the circuit resides on the same JVM, the assertions will call the receivers
+code locally. Where the receiving end is distributed accross one or more machines, the assertions will be applied to a
+test report gethered from all of the receivers. Test code will be written to the assertions making as few assumptions
+as possible about the exact test topology.
+</body>
+</html>

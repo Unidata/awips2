@@ -1,0 +1,233 @@
+C MEMBER RPDHSH
+C  (from old member PDCOIO2)
+C-----------------------------------------------------------------------
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE RPDHSH (IDXTYP,ISTAT)
+C
+C          ROUTINE:  RPDHSH
+C
+C             VERSION:  1.0.0
+C
+C                DATE:  01-05-83
+C
+C              AUTHOR:  SONJA R SIEGEL
+C                       DATA SCIENCES INC
+C
+C***********************************************************************
+C
+C          DESCRIPTION:
+C
+C   THIS ROUTINE WILL READ THE PREPROCESSOR DATA BASE CHARACTER AND
+C   INTEGER INDEX ARRAYS FROM THE DATA FILE.
+C
+C***********************************************************************
+C
+C          ARGUMENT LIST:
+C
+C         NAME    TYPE  I/O   DIM   DESCRIPTION
+C
+C        IDXTYP     I    I    1     INDEX TYPE
+C                                     0=READ CHARACTER AND INTEGER
+C                                       INDEX
+C                                     1=READ CHARACTER INDEX
+C                                     2=READ INTEGER INDEX
+C        ISTAT      I    O    1     STATUS
+C                                     0=OK
+C                                    >0=ERROR
+C
+C***********************************************************************
+C
+C          DIMENSION:
+C
+      INTEGER*2 IARR(32)
+C
+C***********************************************************************
+C
+C          COMMON:
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'ucommon/uordrx'
+      INCLUDE 'pdbcommon/pdsifc'
+      INCLUDE 'pdbcommon/pdunts'
+      INCLUDE 'pdbcommon/pdhshc'
+      INCLUDE 'pdbcommon/pdhshi'
+      INCLUDE 'urcommon/ursifc'
+      INCLUDE 'urcommon/urunts'
+      INCLUDE 'urcommon/urhshc'
+      INCLUDE 'urcommon/urhshi'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_pdbrw/RCS/rpdhsh.f,v $
+     . $',                                                             '
+     .$Id: rpdhsh.f,v 1.1 1995/09/17 18:44:39 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C***********************************************************************
+C
+C
+      IF (IPDTR.GT.0) WRITE (IOGDB,110) IDXTYP
+C
+      ISTAT=0
+C
+      LARR=32
+      IF (IAMORD.EQ.0) IUNIT=KPDSIF
+      IF (IAMORD.EQ.1) IUNIT=KURSIF
+C
+C  INDEXES ARE STORED AS I*2 VARIABLES
+      IF (IAMORD.EQ.0) LRCPD2=LRCPDI*2
+      IF (IAMORD.EQ.1) LRCPD2=LRLURI*2
+C
+C  COMPUTE NUMBER OF RECORDS TO BE READ
+      IF (IAMORD.EQ.0) MHASHR=NHASHR
+      IF (IAMORD.EQ.1) MHASHR=IHASHR
+      NREC=IUNRCD(MHASHR,LRCPD2)
+C
+C  COMPUTE MAXIMUM NUMBER OF STATIONS
+      MAXSTA=MHASHR/2
+      IF (IPDDB.GT.0) WRITE (IOGDB,120) MHASHR,MAXSTA
+C
+C  CHECK IF BOTH CHARACTER AND INTEGER INDEX ARRAYS TO BE FILLED
+      IF (IDXTYP.NE.0) GO TO 10
+C
+C  CHECK IF MAXIMUM STATIONS IN CHARACTER INDEX SAME AS INTEGER INDEX
+      IF (IAMORD.EQ.0.AND.MXHSHC.EQ.MXHSHI) GO TO 10
+      IF (IAMORD.EQ.1.AND.MURHSC.EQ.MURHSI) GO TO 10
+         IF (IAMORD.EQ.0) WRITE (LP,140) MXHSHC,MXHSHI
+         IF (IAMORD.EQ.1) WRITE (LP,140) MURHSC,MURHSI
+         ISTAT=2
+         GO TO 100
+C
+C  CHECK IF MAXIMUM WORDS IN INDEXES EXCEEDED
+10    NWORDS=NREC*LRCPD2
+      ILAST=0
+      IPOS=0
+      NPOS=0
+      IF (IAMORD.EQ.0.AND.NWORDS.LE.MXHSHC) GO TO 20
+      IF (IAMORD.EQ.1.AND.NWORDS.LE.MURHSC) GO TO 20
+C
+C  CHECK LENGTH OF ARRAY
+      IF (LRCPD2.GT.LARR) THEN
+         WRITE (LP,160) LRCPD2,LARR
+         ISTAT=2
+         GO TO 100
+         ENDIF
+C
+C  SET VARIABLES FOR READING INDEX POSITIONS FROM LAST RECORD
+      ILAST=1
+      NREC=NREC-1
+      IPOS=NREC*LRCPD2
+      NPOS=MHASHR-IPOS
+C
+20    IF (IPDDB.GT.0)
+     *   WRITE (IOGDB,170) NREC,LRCPD2,NWORDS,MHASHR,ILAST
+C
+C  CHECK IF CHARACTER INDEX RECORDS TO BE READ
+      IF (IDXTYP.EQ.2) GO TO 60
+C
+C  CHECK IF MAXIMUM STATIONS IS GREATER THAN ARRAY DIMENSION
+      IF (IAMORD.EQ.0.AND.MAXSTA.LE.MXHSHC) GO TO 30
+      IF (IAMORD.EQ.1.AND.MAXSTA.LE.MURHSC) GO TO 30
+         IF (IAMORD.EQ.0) WRITE (LP,150) MAXSTA,MXHSHC
+         IF (IAMORD.EQ.1) WRITE (LP,150) MAXSTA,MURHSC
+         ISTAT=2
+         GO TO 100
+C
+C  READ CHARACTER INDEX RECORDS
+30    IF (IAMORD.EQ.0)
+     *   CALL RVLRCD (IUNIT,IH8CHR,NREC,IPDHSC,LRCPDI,ISTAT)
+      IF (IAMORD.EQ.1)
+     *   CALL RVLRCD (IUNIT,NH8CHR,NREC,IURHSC,LRLURI,ISTAT)
+      IF (ISTAT.GT.0) GO TO 90
+C
+C  CHECK IF LAST RECORD NEEDS TO BE READ
+      IF (ILAST.EQ.0) GO TO 50
+C
+C  READ LAST RECORD
+      IF (IAMORD.EQ.0) IREC=IH8CHR+NREC
+      IF (IAMORD.EQ.1) IREC=NH8CHR+NREC
+      CALL UREADT (IUNIT,IREC,IARR,ISTAT)
+      IF (ISTAT.GT.0) GO TO 90
+      IF (IPDDB.GT.0)
+     *   WRITE (IOGDB,180) IUNIT,IREC,IPOS,NPOS
+      DO 40 I=1,NPOS
+         IF (IAMORD.EQ.0) IPDHSC(IPOS+I)=IARR(I)
+         IF (IAMORD.EQ.1) IURHSC(IPOS+I)=IARR(I)
+40       CONTINUE
+C
+C  CHECK IF INTEGER INDEX RECORDS TO BE READ
+50    IF (IDXTYP.EQ.1) GO TO 100
+C
+C  CHECK IF MAXIMUM STATIONS IS GREATER THAN ARRAY DIMENSION
+60    IF (IAMORD.EQ.0.AND.MAXSTA.LE.MXHSHI) GO TO 70
+      IF (IAMORD.EQ.1.AND.MAXSTA.LE.MURHSI) GO TO 70
+         IF (IAMORD.EQ.0) WRITE (LP,200) MAXSTA,MXHSHI
+         IF (IAMORD.EQ.1) WRITE (LP,200) MAXSTA,MURHSI
+         ISTAT=2
+         GO TO 100
+C
+C  READ INTEGER INDEX RECORDS
+70    IF (IAMORD.EQ.0)
+     *   CALL RVLRCD (IUNIT,IHINRC,NREC,IPDHSI,LRCPDI,ISTAT)
+      IF (IAMORD.EQ.1)
+     *   CALL RVLRCD (IUNIT,NHINRC,NREC,IURHSI,LRLURI,ISTAT)
+      IF (ISTAT.GT.0) GO TO 90
+C
+C  CHECK IF LAST RECORD NEEDS TO BE READ
+      IF (ILAST.EQ.0) GO TO 100
+C
+C  READ LAST RECORD
+      IF (IAMORD.EQ.0) IREC=IHINRC+NREC
+      IF (IAMORD.EQ.1) IREC=NHINRC+NREC
+      CALL UREADT (IUNIT,IREC,IARR,ISTAT)
+      IF (ISTAT.GT.0) GO TO 90
+      IF (IPDDB.GT.0)
+     *   WRITE (IOGDB,180) IUNIT,IREC,IPOS,NPOS
+      DO 80 I=1,NPOS
+         IF (IAMORD.EQ.0) IPDHSI(IPOS+I)=IARR(I)
+         IF (IAMORD.EQ.1) IURHSI(IPOS+I)=IARR(I)
+         IF (IPDDB.GT.0)
+     *      WRITE (IOGDB,190) IPOS,I,IAMORD,IPDHSI(IPOS+I)
+80       CONTINUE
+      GO TO 100
+C
+C  ERRORS
+90    IF (IPDDB.GT.0) WRITE (IOGDB,130) IUNIT
+      ISTAT=1
+C
+100   IF (IPDTR.GT.0) WRITE (IOGDB,210) ISTAT
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+110   FORMAT (' *** ENTER RPDHSH : IDXTYP=',I2)
+120   FORMAT (' MHASHR=',I4,3X,'MAXSTA=',I5)
+130   FORMAT ('0*** ERROR - IN RPDHSH - READING PPDB HASH RECORDS ',
+     *   'FROM UNIT ',I2,'.')
+140   FORMAT ('0*** ERROR - IN RPDHSH - MAXIMUM NUMBER OF STATIONS (',
+     *   I5,') IN CHARACTER INDEX NOT THE SAME AS THE NUMBER ',
+     *   'IN INTEGER INDEX (',I5,').')
+150   FORMAT ('0*** ERROR - IN RPDHSH - MAXIMUM NUMBER OF STATIONS (',
+     *   I5,') EXCEEDS MAXIMUM THAT CAN BE STORED IN ' /
+     *   T26,'CHARACTER INDEX ARRAY (',I5,').')
+160   FORMAT ('0*** ERROR - IN RPDHSH - LENGTH OF RECORD TO BE ',
+     *   'READ (',I3,') EXCEEDS LENGTH OF WORK ARRAY (',I3,').')
+170   FORMAT (' NREC=',I3,3X,'LRCPD2=',I2,3X,'NWORDS=',I5,3X,
+     *   'MHASHR=',I5,3X,'ILAST=',I1)
+180   FORMAT (' IUNIT=',I3,3X,'IREC=',I5,3X,'IPOS=',I5,3X,
+     *   'NPOS=',I5)
+190   FORMAT (' IPOS=',I5,3X,'I=',I5,3X,'IAMORD=',I5,3X,
+     *   'IPSHSI(IPOS+I)=',I5)
+200   FORMAT ('0*** ERROR - IN RPDHSH - MAXIMUM NUMBER OF STATIONS (',
+     *   I5,') EXCEEDS NUMBER OF STATIONS THAT CAN BE STORED IN ' /
+     *   T26,'INTEGER INDEX ARRAY (',I5,').')
+210   FORMAT (' *** EXIT RPDHSH : ISTAT=',I3)
+C
+      END

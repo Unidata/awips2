@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension-point id="renderingExtension" name="renderingExtension" schema="schema/renderingExtension.exsd"/>
+	
+	<extension 
+   		point="com.raytheon.uf.viz.collaboration.display.renderingExtension">
+	  <renderingExtension
+	        class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.GeneralRenderingHandler">
+	  </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.ImagingRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.ShapeRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.StringRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.PrimitiveRenderingHandler">
+      </renderingExtension>
+   </extension>
+ <extension point="com.raytheon.uf.viz.collaboration.xml">
+    <xmlRoot class="com.raytheon.uf.viz.collaboration.display.editor.CreateRemoteDisplay" />
+    <xmlRoot class="com.raytheon.uf.viz.collaboration.display.rsc.event.SharedResource" />
+    <xmlRoot class="com.raytheon.uf.viz.collaboration.display.rsc.event.ResourceCapabilityChanged" />
+    <xmlRoot class="com.raytheon.uf.viz.collaboration.display.rsc.event.ResourcePropertiesChanged" />
+ </extension>
+</plugin>

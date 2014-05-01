@@ -1,0 +1,19 @@
+==== client.out | remove_uuid
+Activating response queue listener for: client
+Request: Twas brillig, and the slithy toves
+Request: Did gire and gymble in the wabe.
+Request: All mimsy were the borogroves,
+Request: And the mome raths outgrabe.
+Waiting for all responses to arrive ...
+Response: TWAS BRILLIG, AND THE SLITHY TOVES
+Response: DID GIRE AND GYMBLE IN THE WABE.
+Response: ALL MIMSY WERE THE BOROGROVES,
+Response: AND THE MOME RATHS OUTGRABE.
+Shutting down listener for client
+==== server.out | remove_uuid
+Activating request queue listener for: request
+Waiting for requests
+Request: Twas brillig, and the slithy toves  (client)
+Request: Did gire and gymble in the wabe.  (client)
+Request: All mimsy were the borogroves,  (client)
+Request: And the mome raths outgrabe.  (client)

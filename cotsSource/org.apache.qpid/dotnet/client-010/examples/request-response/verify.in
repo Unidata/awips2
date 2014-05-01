@@ -1,0 +1,16 @@
+==== server_dotnet.out
+Waiting for requests
+Request: Twas brillig, and the slithy toves
+Request: Did gire and gymble in the wabe.
+Request: All mimsy were the borogroves,
+Request: And the mome raths outgrabe.
+Request: That's all, folks!
+==== client_dotnet.out
+Activating response queue listener for: clientSystem.Byte[]
+Waiting for all responses to arrive ...
+Response: TWAS BRILLIG, AND THE SLITHY TOVES
+Response: DID GIRE AND GYMBLE IN THE WABE.
+Response: ALL MIMSY WERE THE BOROGROVES,
+Response: AND THE MOME RATHS OUTGRABE.
+Shutting down listener for clientSystem.Byte[]
+Response: THAT'S ALL, FOLKS!

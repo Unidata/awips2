@@ -1,0 +1,55 @@
+==== topic_publisher.out
+==== topic_listener_java.out | remove_uuid | sort
+Listener: Closing connection
+Listener: Closing JNDI context
+Listener: Creating a Message Subscriber for topic europe
+Listener: Creating a Message Subscriber for topic news
+Listener: Creating a Message Subscriber for topic usa
+Listener: Creating a Message Subscriber for topic weather
+Listener: Creating a non-transacted, auto-acknowledged session
+Listener: Received message for topic: europe: Message 0
+Listener: Received message for topic: europe: Message 0
+Listener: Received message for topic: europe: Message 1
+Listener: Received message for topic: europe: Message 1
+Listener: Received message for topic: europe: Message 2
+Listener: Received message for topic: europe: Message 2
+Listener: Received message for topic: europe: Message 3
+Listener: Received message for topic: europe: Message 3
+Listener: Received message for topic: europe: Message 4
+Listener: Received message for topic: europe: Message 4
+Listener: Received message for topic: news: Message 0
+Listener: Received message for topic: news: Message 0
+Listener: Received message for topic: news: Message 1
+Listener: Received message for topic: news: Message 1
+Listener: Received message for topic: news: Message 2
+Listener: Received message for topic: news: Message 2
+Listener: Received message for topic: news: Message 3
+Listener: Received message for topic: news: Message 3
+Listener: Received message for topic: news: Message 4
+Listener: Received message for topic: news: Message 4
+Listener: Received message for topic: usa: Message 0
+Listener: Received message for topic: usa: Message 0
+Listener: Received message for topic: usa: Message 1
+Listener: Received message for topic: usa: Message 1
+Listener: Received message for topic: usa: Message 2
+Listener: Received message for topic: usa: Message 2
+Listener: Received message for topic: usa: Message 3
+Listener: Received message for topic: usa: Message 3
+Listener: Received message for topic: usa: Message 4
+Listener: Received message for topic: usa: Message 4
+Listener: Received message for topic: weather: Message 0
+Listener: Received message for topic: weather: Message 0
+Listener: Received message for topic: weather: Message 1
+Listener: Received message for topic: weather: Message 1
+Listener: Received message for topic: weather: Message 2
+Listener: Received message for topic: weather: Message 2
+Listener: Received message for topic: weather: Message 3
+Listener: Received message for topic: weather: Message 3
+Listener: Received message for topic: weather: Message 4
+Listener: Received message for topic: weather: Message 4
+Listener: Setting an ExceptionListener on the connection as sample uses a TopicSubscriber
+Listener: Shutting down listener for europe
+Listener: Shutting down listener for news
+Listener: Shutting down listener for usa
+Listener: Shutting down listener for weather
+Listener: Starting connection so TopicSubscriber can receive messages

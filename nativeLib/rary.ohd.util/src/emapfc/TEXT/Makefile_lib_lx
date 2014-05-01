@@ -1,0 +1,54 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-emapfc library file
+#
+#  cmt: File made on Wed Aug  6 12:56:38 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libemapfc_t.a:  \
+     $(LIB)/libemapfc_t.a(cc2gll.o)  \
+     $(LIB)/libemapfc_t.a(cc2gxy.o)  \
+     $(LIB)/libemapfc_t.a(ccurv.o)  \
+     $(LIB)/libemapfc_t.a(cg2cll.o)  \
+     $(LIB)/libemapfc_t.a(cgszll.o)  \
+     $(LIB)/libemapfc_t.a(cgszxy.o)  \
+     $(LIB)/libemapfc_t.a(cpolll.o)  \
+     $(LIB)/libemapfc_t.a(cpolxy.o)  \
+     $(LIB)/libemapfc_t.a(eqvlat.o)  \
+     $(LIB)/libemapfc_t.a(logabova.o)  \
+     $(LIB)/libemapfc_t.a(mkgeoid.o)  \
+     $(LIB)/libemapfc_t.a(stcm1p.o)  \
+     $(LIB)/libemapfc_t.a(stcm2p.o)  \
+     $(LIB)/libemapfc_t.a(stlmbr.o)  \
+     $(LIB)/libemapfc_t.a(ymercfns.o)
+

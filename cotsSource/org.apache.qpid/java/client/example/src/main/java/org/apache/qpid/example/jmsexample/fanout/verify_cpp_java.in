@@ -1,0 +1,55 @@
+==== fanout_producer.out
+==== fanout_listener_java.out | remove_uuid
+Listener: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Listener: Creating a non-transacted, auto-acknowledged session
+Listener: Creating a MessageConsumer
+Listener: Starting connection so MessageConsumer can receive messages
+Listener: Received  message:  Message 0
+Listener: Received  message:  Message 1
+Listener: Received  message:  Message 2
+Listener: Received  message:  Message 3
+Listener: Received  message:  Message 4
+Listener: Received  message:  Message 5
+Listener: Received  message:  Message 6
+Listener: Received  message:  Message 7
+Listener: Received  message:  Message 8
+Listener: Received  message:  Message 9
+Listener: Received final message That's all, folks!
+Listener: Closing connection
+Listener: Closing JNDI context
+==== fanout_listener_javaX.out | remove_uuid
+Listener: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Listener: Creating a non-transacted, auto-acknowledged session
+Listener: Creating a MessageConsumer
+Listener: Starting connection so MessageConsumer can receive messages
+Listener: Received  message:  Message 0
+Listener: Received  message:  Message 1
+Listener: Received  message:  Message 2
+Listener: Received  message:  Message 3
+Listener: Received  message:  Message 4
+Listener: Received  message:  Message 5
+Listener: Received  message:  Message 6
+Listener: Received  message:  Message 7
+Listener: Received  message:  Message 8
+Listener: Received  message:  Message 9
+Listener: Received final message That's all, folks!
+Listener: Closing connection
+Listener: Closing JNDI context
+==== fanout_listener_javaXX.out | remove_uuid
+Listener: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Listener: Creating a non-transacted, auto-acknowledged session
+Listener: Creating a MessageConsumer
+Listener: Starting connection so MessageConsumer can receive messages
+Listener: Received  message:  Message 0
+Listener: Received  message:  Message 1
+Listener: Received  message:  Message 2
+Listener: Received  message:  Message 3
+Listener: Received  message:  Message 4
+Listener: Received  message:  Message 5
+Listener: Received  message:  Message 6
+Listener: Received  message:  Message 7
+Listener: Received  message:  Message 8
+Listener: Received  message:  Message 9
+Listener: Received final message That's all, folks!
+Listener: Closing connection
+Listener: Closing JNDI context

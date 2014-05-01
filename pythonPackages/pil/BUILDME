@@ -1,0 +1,6 @@
+# $Id: BUILDME 1998 2004-09-10 01:31:07Z fredrik $
+# quick build (for lazy programmers).  for more information on the
+# build process, see the README file.
+
+python setup.py build_ext -i
+python selftest.py

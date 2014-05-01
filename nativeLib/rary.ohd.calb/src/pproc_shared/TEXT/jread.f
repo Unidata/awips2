@@ -1,0 +1,159 @@
+C
+      SUBROUTINE JREAD (MBPTS,FLAT,FLON,NBPTS,ISTRT,NFLD,ISTAT,
+     *   LDEBUG,IERR)
+C
+C THIS ROUTINE READS IN LAT-LONG COORDINATES FROM CARD @J.
+c
+c   calling routines:  mapmn2(map)  and  matmn(mat)
+c
+      DIMENSION UCHAR(2)
+      DIMENSION FLAT(MBPTS),FLON(MBPTS)
+      REAL JLABEL,LABEL
+      INCLUDE 'common/ionum'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/pproc_shared/RCS/jread.f,v $
+     . $',                                                             '
+     .$Id: jread.f,v 1.3 1999/07/06 11:49:34 page Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA JLABEL/4H@J  /
+      LABEL=JLABEL
+      NCHAR=2
+      J=1
+      IF (LDEBUG.GE.3) WRITE (IPR,60)
+C-------------------------------------------
+C READ UNTIL "@J" FOUND (READ WHILE ISTAT.EQ.7)
+10      CALL UFIELD(NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *    NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+        CALL AFTERU(LATSGN,ITYPEU,UCHAR,LABEL,3,ISTAT,LENGTH,IERR)
+        IF (ISTAT.EQ.7) GO TO 10
+C-------------------------------------------
+C READ UNTIL "(" FOUND (READ WHILE LLPAR.EQ.0)
+20      CALL UFIELD(NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     *    NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+        CALL AFTERU(LATSGN,ITYPEU,UCHAR,LABEL,2,ISTAT,LENGTH,IERR)
+        IF (ISTAT.EQ.6) ISTRT=-1
+        IF (ISTAT.EQ.6) GO TO 50
+        IF (LLPAR.EQ.0) GO TO 20
+C-------------------------------------------
+C IF "(" THAT WAS FOUND NEEDS TO BE SEPARTED FROM FIRST LATITUDE,
+C   I.E. "(45.65 ", SEPARATE THE TWO, CONVERT CHARACTER NUMBER TO REAL
+      IF (LLPAR.LT.LENGTH) THEN
+        IBEG=LLPAR+1
+        IEND=LENGTH
+        LCHAR=IEND-IBEG+1
+        NDEC=0
+        IPRERR=1
+        CALL UFA2F(UCHAR,IBEG,LCHAR,NDEC,FLAT(1),IPRERR,IPR,IRETRN)
+        IF (LDEBUG.GE.3) WRITE (IPR,70) FLAT(1)
+C
+      ELSE
+C
+C IF "(" THAT WAS FOUND IS SEPARATE FROM FIRST LATITUDE,
+C   I.E. "( 45.65 ", READ FIRST LATITUDE
+        CALL UFIELD(NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,FLAT(1),
+     *    NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+        CALL AFTERU(LATSGN,ITYPEU,UCHAR,LABEL,1,ISTAT,LENGTH,IERR)
+        IF (ISTAT.EQ.6) ISTRT=-1
+        IF (ISTAT.EQ.6) GO TO 50
+      END IF
+      IF (LDEBUG.GE.3) WRITE(IPR,100)
+      GO TO 40
+C=======================================================================
+C=======================================================================
+C ***** MAIN COORDINATE-PAIR-READING LOOP *****
+C READ NEXT LATITUDE
+30    CONTINUE
+c
+c   check for maximum number of basin boundary points
+c
+        if(j+1.eq.mbpts) then
+           write(ipr,1) mbpts
+           ierr=-1
+           go to 50
+           end if
+        CALL UFIELD(NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,FLAT(J),
+     *    NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+C     IF NEXT CARD FOUND, WRITE DEBUG
+        IF (LATSGN.NE.0.AND.LDEBUG.GE.3) WRITE (IPR,80)
+C     IF RIGHT PARENTHESIS IS MISSING AT END OF @J CARD, ISSUE WARNING
+        IF (LRPAR.EQ.0.AND.LATSGN.GT.0) WRITE (IPR,160)
+        IF (LRPAR.EQ.1) GO TO 50
+        CALL AFTERU(LATSGN,ITYPEU,UCHAR,LABEL,1,ISTAT,LENGTH,IERR)
+        IF (ISTAT.EQ.6) ISTRT=-1
+        IF (ISTAT.EQ.6) GO TO 50
+        IF (LRPAR.GT.0) GO TO 50
+C READ NEXT LONGITUDE
+40      CALL UFIELD(NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,FLON(J),
+     *    NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+        IF (LATSGN.NE.0.AND.LDEBUG.GE.3) WRITE (IPR,90)
+C     IF END OF CARD IS FOUND BUT NOT LAST LONGITUDE OR RIGHT
+C       PARENTHESIS, DELETE LAST LATITUDE AND ISSUE WARNING
+        IF (LRPAR.EQ.0.AND.LATSGN.GT.0) THEN
+          WRITE (IPR,170)
+          J=J-1
+        END IF
+        CALL AFTERU(LATSGN,ITYPEU,UCHAR,LABEL,2,ISTAT,LENGTH,IERR)
+        IF (LDEBUG.GE.3) WRITE (IPR,110) J,FLAT(J),FLON(J)
+        J=J+1
+        IF (ISTAT.EQ.6) ISTRT=-1
+        IF (ISTAT.EQ.6) GO TO 50
+C IF ")" NOT YET ENCOUNTERED, REPEAT LOOP (READ NEXT PAIR)
+      IF (LRPAR.EQ.0) GO TO 30
+C=======================================================================
+C=======================================================================
+C IF THE ")" THAT WAS FOUND NEEDS TO BE SEPARTED FROM LAST LONGITUDE,
+C   I.E., "107.66)", SEPARATE THE TWO, CONVERT CHARACTER NUMBER TO REAL
+      IF (LRPAR.GT.1) THEN
+        IBEG=1
+        IEND=LRPAR-1
+        LCHAR=IEND-IBEG+1
+        NDEC=0
+        IPRERR=1
+        CALL UFA2F(UCHAR,IBEG,LCHAR,NDEC,FLON(J-1),IPRERR,IPR,IRETRN)
+        IF (LDEBUG.GE.3) WRITE (IPR,120) FLON(J-1)
+        GO TO 50
+      END IF
+C
+C IF HERE, LAST LONGITUDE MISSING, ISSUE ERROR AND DROP LAST PAIR
+        WRITE (IPR,150)
+        IERR=0
+        J=J-1
+C-------------------------------------------
+C END: READ UNTIL NEXT CARD (NEXT "@") FOUND; SET ISTRT FLAG; SET NBPTS
+50    CONTINUE
+      CALL UFIELD(NFLD,ISTRT,LENGTH,ITYPEU,NREP,INTEGR,UREAL,
+     * NCHAR,UCHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,ISTAT)
+      IF (LDEBUG.GE.3.AND.LATSGN.NE.0) WRITE (IPR,130)
+      IF (LATSGN.EQ.0.AND.ISTAT.NE.3) GO TO 50
+      ISTRT=-1
+      NBPTS=J-1
+      IF (LDEBUG.GE.3) WRITE (IPR,140) J, NBPTS
+C-----------------------------------------------------------------------
+C DEBUG FORMATS
+60    FORMAT(//1X,'ENTERED SUBROUTINE JREAD')
+70    FORMAT(1X,'FIRST LATITUDE, SEPARATED FROM LEFT PAREN:',F5.2)
+80    FORMAT(1X,'AFTER ATTEMPTING TO READ LONGITUDE, LATSGN FOUND')
+90    FORMAT(1X,'AFTER ATTEMPTING TO READ LATITUDE, LATSGN FOUND')
+100   FORMAT(3X,'PAIR #',3X,'LATITUDE',3X,'LONGITUDE',/,3X,29('-'))
+110   FORMAT(6X,I3,6X,F5.2,6X,F6.2)
+120   FORMAT(1X,'LAST LONGITUDE, SEPARATED FROM RIGHT PAREN:',F6.2)
+130   FORMAT(1X,'FOUND LATSGN -- NOW AT BEGINNING OF NEXT CARD')
+140   FORMAT(1X,'LEAVING JREAD: J ',I3,'  NBPTS ',I3/,
+     *  ' LEAVING SUBROUTINE JREAD')
+C-----------------------------------------------------------------------
+    1 format(//,2x,'+++ ERROR -- maximum allowable number of basin',
+     *  1x,'boundary points (',i4,') exceeded. +++')
+150   FORMAT(1X,'+++ WARNING -- END OF @J CARD FOUND WHERE LONGTITUDE',
+     *    ' EXPECTED -- LAST LATITUDE IS IGNORED +++')
+160   FORMAT (1X,'+++ WARNING -- RIGHT PARENTHESIS IS MISSING ON CARD ',
+     * '@J -- THIS MAY CAUSE ERRORS IN BASIN DEFINITION +++')
+170   FORMAT(1X,'+++ WARNING -- RIGHT PARENTHESIS AND LAST LONGITUDE ',
+     * 'ARE MISSING ON CARD @J -- LAST LATITUDE IS IGNORED +++')
+C-----------------------------------------------------------------------
+      RETURN
+      END

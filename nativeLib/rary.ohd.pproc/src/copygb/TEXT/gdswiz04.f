@@ -1,0 +1,169 @@
+      SUBROUTINE GDSWIZ04(KGDS,IOPT,NPTS,FILL,XPTS,YPTS,RLON,RLAT,NRET,
+     &                    LROT,CROT,SROT)
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM:  GDSWIZ04   GDS WIZARD FOR GAUSSIAN CYLINDRICAL
+C   PRGMMR: IREDELL       ORG: W/NMC23       DATE: 96-04-10
+C
+C ABSTRACT: THIS SUBPROGRAM DECODES THE GRIB GRID DESCRIPTION SECTION
+C           (PASSED IN INTEGER FORM AS DECODED BY SUBPROGRAM W3FI63)
+C           AND RETURNS ONE OF THE FOLLOWING:
+C             (IOPT=+1) EARTH COORDINATES OF SELECTED GRID COORDINATES
+C             (IOPT=-1) GRID COORDINATES OF SELECTED EARTH COORDINATES
+C           FOR GAUSSIAN CYLINDRICAL PROJECTIONS.
+C           IF THE SELECTED COORDINATES ARE MORE THAN ONE GRIDPOINT
+C           BEYOND THE THE EDGES OF THE GRID DOMAIN, THEN THE RELEVANT
+C           OUTPUT ELEMENTS ARE SET TO FILL VALUES.
+C           THE ACTUAL NUMBER OF VALID POINTS COMPUTED IS RETURNED TOO.
+C
+C PROGRAM HISTORY LOG:
+C   96-04-10  IREDELL
+C 1999-04-08  IREDELL  USE SUBROUTINE SPLAT
+C
+C USAGE:    CALL GDSWIZ04(KGDS,IOPT,NPTS,FILL,XPTS,YPTS,RLON,RLAT,NRET,
+C    &                    LROT,CROT,SROT)
+C
+C   INPUT ARGUMENT LIST:
+C     KGDS     - INTEGER (200) GDS PARAMETERS AS DECODED BY W3FI63
+C     IOPT     - INTEGER OPTION FLAG
+C                (+1 TO COMPUTE EARTH COORDS OF SELECTED GRID COORDS)
+C                (-1 TO COMPUTE GRID COORDS OF SELECTED EARTH COORDS)
+C     NPTS     - INTEGER MAXIMUM NUMBER OF COORDINATES
+C     FILL     - REAL FILL VALUE TO SET INVALID OUTPUT DATA
+C                (MUST BE IMPOSSIBLE VALUE; SUGGESTED VALUE: -9999.)
+C     XPTS     - REAL (NPTS) GRID X POINT COORDINATES IF IOPT>0
+C     YPTS     - REAL (NPTS) GRID Y POINT COORDINATES IF IOPT>0
+C     RLON     - REAL (NPTS) EARTH LONGITUDES IN DEGREES E IF IOPT<0
+C                (ACCEPTABLE RANGE: -360. TO 360.)
+C     RLAT     - REAL (NPTS) EARTH LATITUDES IN DEGREES N IF IOPT<0
+C                (ACCEPTABLE RANGE: -90. TO 90.)
+C     LROT     - INTEGER FLAG TO RETURN VECTOR ROTATIONS IF 1
+C
+C   OUTPUT ARGUMENT LIST:
+C     XPTS     - REAL (NPTS) GRID X POINT COORDINATES IF IOPT<0
+C     YPTS     - REAL (NPTS) GRID Y POINT COORDINATES IF IOPT<0
+C     RLON     - REAL (NPTS) EARTH LONGITUDES IN DEGREES E IF IOPT>0
+C     RLAT     - REAL (NPTS) EARTH LATITUDES IN DEGREES N IF IOPT>0
+C     NRET     - INTEGER NUMBER OF VALID POINTS COMPUTED
+C     CROT     - REAL (NPTS) CLOCKWISE VECTOR ROTATION COSINES IF LROT=1
+C     SROT     - REAL (NPTS) CLOCKWISE VECTOR ROTATION SINES IF LROT=1
+C                (UGRID=CROT*UEARTH-SROT*VEARTH;
+C                 VGRID=SROT*UEARTH+CROT*VEARTH)
+C
+C SUBPROGRAMS CALLED:
+C   SPLAT      COMPUTE LATITUDE FUNCTIONS
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 77
+C
+C$$$
+      INTEGER KGDS(200)
+      REAL XPTS(NPTS),YPTS(NPTS),RLON(NPTS),RLAT(NPTS)
+      REAL CROT(NPTS),SROT(NPTS)
+      PARAMETER(PI=3.14159265358979,DPR=180./PI)
+      PARAMETER(JGMAX=2000)
+      REAL ALAT(0:JGMAX+1),BLAT(JGMAX)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IF(KGDS(1).EQ.004.AND.KGDS(10)*2.LE.JGMAX) THEN
+        IM=KGDS(2)
+        JM=KGDS(3)
+        RLAT1=KGDS(4)*1.E-3
+        RLON1=KGDS(5)*1.E-3
+        RLAT2=KGDS(7)*1.E-3
+        RLON2=KGDS(8)*1.E-3
+        JG=KGDS(10)*2
+        ISCAN=MOD(KGDS(11)/128,2)
+        JSCAN=MOD(KGDS(11)/64,2)
+        NSCAN=MOD(KGDS(11)/32,2)
+        HI=(-1.)**ISCAN
+        JH=(-1)**JSCAN
+        DLON=HI*(MOD(HI*(RLON2-RLON1)-1+3600,360.)+1)/(IM-1)
+        CALL SPLAT(4,JG,ALAT(1),BLAT)
+        DO JA=1,JG
+          ALAT(JA)=DPR*ASIN(ALAT(JA))
+        ENDDO
+        ALAT(0)=180.-ALAT(1)
+        ALAT(JG+1)=-ALAT(0)
+        J1=1
+        DOWHILE(J1.LT.JG.AND.RLAT1.LT.(ALAT(J1)+ALAT(J1+1))/2)
+          J1=J1+1
+        ENDDO
+        J2=J1+JH*(JM-1)
+        XMIN=0
+        XMAX=IM+1
+        IF(IM.EQ.NINT(360/ABS(DLON))) XMAX=IM+2
+        YMIN=0.5
+        YMAX=JM+0.5
+        NRET=0
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  TRANSLATE GRID COORDINATES TO EARTH COORDINATES
+        IF(IOPT.EQ.0.OR.IOPT.EQ.1) THEN
+          DO N=1,NPTS
+            IF(XPTS(N).GE.XMIN.AND.XPTS(N).LE.XMAX.AND.
+     &         YPTS(N).GE.YMIN.AND.YPTS(N).LE.YMAX) THEN
+              RLON(N)=MOD(RLON1+DLON*(XPTS(N)-1)+3600,360.)
+              J=MIN(INT(YPTS(N)),JM)
+              RLATA=ALAT(J1+JH*(J-1))
+              RLATB=ALAT(J1+JH*J)
+              WB=YPTS(N)-J
+              RLAT(N)=RLATA+WB*(RLATB-RLATA)
+              NRET=NRET+1
+              IF(LROT.EQ.1) THEN
+                CROT(N)=1
+                SROT(N)=0
+              ENDIF
+            ELSE
+              RLON(N)=FILL
+              RLAT(N)=FILL
+            ENDIF
+          ENDDO
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  TRANSLATE EARTH COORDINATES TO GRID COORDINATES
+        ELSEIF(IOPT.EQ.-1) THEN
+          DO N=1,NPTS
+            XPTS(N)=FILL
+            YPTS(N)=FILL
+            IF(ABS(RLON(N)).LE.360.AND.ABS(RLAT(N)).LE.90) THEN
+              XPTS(N)=1+HI*MOD(HI*(RLON(N)-RLON1)+3600,360.)/DLON
+              JA=MIN(INT((JG+1)/180.*(90-RLAT(N))),JG)
+              IF(RLAT(N).GT.ALAT(JA)) JA=MAX(JA-2,0)
+              IF(RLAT(N).LT.ALAT(JA+1)) JA=MIN(JA+2,JG)
+              IF(RLAT(N).GT.ALAT(JA)) JA=JA-1
+              IF(RLAT(N).LT.ALAT(JA+1)) JA=JA+1
+              YPTSA=1+JH*(JA-J1)
+              YPTSB=1+JH*(JA+1-J1)
+              WB=(ALAT(JA)-RLAT(N))/(ALAT(JA)-ALAT(JA+1))
+              YPTS(N)=YPTSA+WB*(YPTSB-YPTSA)
+              IF(XPTS(N).GE.XMIN.AND.XPTS(N).LE.XMAX.AND.
+     &           YPTS(N).GE.YMIN.AND.YPTS(N).LE.YMAX) THEN
+                NRET=NRET+1
+                IF(LROT.EQ.1) THEN
+                  CROT(N)=1
+                  SROT(N)=0
+                ENDIF
+              ELSE
+                XPTS(N)=FILL
+                YPTS(N)=FILL
+              ENDIF
+            ENDIF
+          ENDDO
+        ENDIF
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  PROJECTION UNRECOGNIZED
+      ELSE
+        IRET=-1
+        IF(IOPT.GE.0) THEN
+          DO N=1,NPTS
+            RLON(N)=FILL
+            RLAT(N)=FILL
+          ENDDO
+        ENDIF
+        IF(IOPT.LE.0) THEN
+          DO N=1,NPTS
+            XPTS(N)=FILL
+            YPTS(N)=FILL
+          ENDDO
+        ENDIF
+      ENDIF
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      END

@@ -1,0 +1,618 @@
+module 'XApplication'
+version = 47;
+applicationName = 'XApplication';
+generateNameC = './ffm_summary.c';
+generateNameExterns = './ffm_summary.h';
+generateNameResDB = './ffm_summary.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateGlobalFunctions = 0;
+generateMask = 65548;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+object 'ffm_summaryDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'ffm_summaryDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_ffm_summaryDS (parent)
+Widget parent;
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Summary of Latest Observed Precip and FFG Data';
+	XmNminWidth = 820;
+	XmNminHeight = 845;
+	XmNmaxWidth = 820;
+	XmNmaxHeight = 845;
+	};
+object 'ffm_summaryFO' : XmForm {
+	arguments {
+	was_selected = true;
+	lastGenName = 'ffm_summaryFO';
+	XmNautoUnmanage = false;
+	};
+object 'ffm_sourceLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_sourceLB';
+	XmNlabelString = 'DATA SOURCE:';
+	};
+};
+object 'ffm_datatypeOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ffm_datatypeOM';
+	};
+object 'ffm_datatypeLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffm_datatypeLB';
+	XmNlabelString = 'Use';
+	};
+};
+object 'ffm_datatypeCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffm_datatypeCB';
+	};
+object 'ffm_datatypePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ffm_datatypePDM';
+	};
+object 'ffm_radarPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_radarPB';
+	XmNlabelString = 'Stage 1 Radar';
+	};
+};
+object 'ffm_gagePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_gagePB';
+	XmNlabelString = 'Stage 2 Gage-Only';
+	};
+};
+object 'ffm_gageradarPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_gageradarPB';
+	XmNlabelString = 'Stage 2 Gage-Radar';
+	};
+};
+};
+};
+};
+object 'ffm_radarOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ffm_radarOM';
+	};
+object 'ffm_radarLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffm_radarLB';
+	XmNlabelString = 'Precip Data for Radar Area:';
+	};
+};
+object 'ffm_radarCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffm_radarCB';
+	};
+object 'ffm_radarPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ffm_radarPDM';
+	};
+};
+};
+};
+object 'ffm_precipLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_precipLB';
+	XmNlabelString = 'Precip
+Data:';
+	XmNalignment = 0;
+	};
+};
+object 'ffm_precipTX' : XmText {
+	arguments {
+	lastGenName = 'ffm_precipTX';
+	XmNeditable = false;
+	XmNfontList = font('-adobe-helvetica-bold-r-normal--14-140-75-75-p-82-iso8859-1');
+	XmNwordWrap = true;
+	XmNeditMode = 0;
+	};
+};
+object 'ffm_ffgLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_ffgLB';
+	XmNlabelString = 'FFG
+Data:';
+	XmNalignment = 0;
+	};
+};
+object 'ffm_ffgTX' : XmText {
+	arguments {
+	lastGenName = 'ffm_ffgTX';
+	XmNeditable = false;
+	XmNfontList = font('-adobe-helvetica-bold-r-normal--14-140-75-75-p-82-iso8859-1');
+	XmNwordWrap = true;
+	XmNeditMode = 0;
+	};
+};
+object 'ffm_sumSP1' : XmSeparator {
+	arguments {
+	lastGenName = 'ffm_sumSP1';
+	};
+};
+object 'ffm_sortLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_sortLB';
+	XmNlabelString = 'Sort By';
+	XmNalignment = 2;
+	};
+};
+object 'ffm_sortOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ffm_sortOM';
+	};
+object 'ffm_sortOLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffm_sortOLB';
+	};
+};
+object 'ffm_sortCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffm_sortCB';
+	};
+object 'ffm_sortPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ffm_sortPDM';
+	};
+object 'ffm_sort_valuePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_sort_valuePB';
+	XmNlabelString = 'Value';
+	};
+};
+object 'ffm_sort_idsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_sort_idsPB';
+	XmNlabelString = 'Area Id';
+	};
+};
+object 'ffm_sort_namePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_sort_namePB';
+	XmNlabelString = 'Area Name';
+	};
+};
+};
+};
+};
+object 'ffm_valuetypeLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_valuetypeLB';
+	XmNlabelString = 'Value
+Type:';
+	XmNalignment = 0;
+	};
+};
+object 'ffm_valuetypeRB' : XmRadioBox {
+	arguments {
+	lastGenName = 'ffm_valuetypeRB';
+	XmNnumColumns = 1;
+	XmNspacing = 0;
+	XmNmarginWidth = 0;
+	XmNmarginHeight = 0;
+	};
+object 'ffm_rate_valueTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'ffm_rate_valueTB';
+	XmNlabelString = 'PrecipRate (in/hr)';
+	};
+};
+object 'ffm_percent_valueTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'ffm_percent_valueTB';
+	XmNlabelString = 'Percent (Precip/FFG)';
+	};
+};
+object 'ffm_diff_valueTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'ffm_diff_valueTB';
+	XmNlabelString = 'Difference (Precip-FFG)';
+	};
+};
+};
+object 'ffm_listLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_listLB';
+	XmNlabelString = 'FILTER/SORT:';
+	XmNalignment = 2;
+	};
+};
+object 'ffm_areasLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_areasLB';
+	XmNlabelString = 'Show';
+	XmNalignment = 2;
+	};
+};
+object 'ffm_areasLB3' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_areasLB3';
+	XmNlabelString = 'Areas';
+	};
+};
+object 'ffm_areasOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ffm_areasOM';
+	};
+object 'ffm_areasLB2' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffm_areasLB2';
+	XmNlabelString = ' ';
+	XmNalignment = 0;
+	};
+};
+object 'ffm_areasCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffm_areasCB';
+	};
+object 'ffm_areasPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ffm_areasPDM';
+	};
+object 'ffm_basinPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_basinPB';
+	XmNlabelString = 'Basin';
+	};
+};
+object 'ffm_zonePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_zonePB';
+	XmNlabelString = 'Zone';
+	};
+};
+object 'ffm_countyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_countyPB';
+	XmNlabelString = 'County';
+	};
+};
+};
+};
+};
+object 'ffm_valcompLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_valcompLB';
+	XmNlabelString = 'Show Values';
+	XmNalignment = 2;
+	};
+};
+object 'ffm_valcompOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'ffm_valcompOM';
+	};
+object 'ffm_valcompLB2' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffm_valcompLB2';
+	XmNlabelString = ' ';
+	};
+};
+object 'ffm_valcompCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffm_valcompCB';
+	};
+object 'ffm_valcompPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ffm_valcompPDM';
+	};
+object 'ffm_valcompgePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_valcompgePB';
+	XmNlabelString = '>= ';
+	};
+};
+object 'ffm_valcomplePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_valcomplePB';
+	XmNlabelString = '<= ';
+	};
+};
+object 'ffm_valcompSP' : XmSeparator {
+	arguments {
+	lastGenName = 'ffm_valcompSP';
+	};
+};
+object 'ffm_valcompallPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_valcompallPB';
+	XmNlabelString = 'All';
+	};
+};
+};
+};
+};
+object 'ffm_valcompareTX' : XmText {
+	arguments {
+	lastGenName = 'ffm_valcompareTX';
+	XmNmaxLength = 7;
+	};
+};
+object 'ffm_sumSP2' : XmSeparator {
+	arguments {
+	lastGenName = 'ffm_sumSP2';
+	};
+};
+object 'ffm_listhdr1LB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_listhdr1LB';
+	XmNlabelString = 'Info for the Duration with the Most Critical Value';
+	XmNalignment = 0;
+	};
+};
+object 'ffm_listhdr2LB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_listhdr2LB';
+	XmNlabelString = 'Area Id   Name                         Area(mi2)   HrDur  Precip    FFG     Percent   Difference PrecipRate';
+	XmNalignment = 0;
+	};
+};
+object 'ffm_listSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ffm_listSL';
+	};
+object 'ffm_listHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ffm_listHSB';
+	};
+};
+object 'ffm_listVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ffm_listVSB';
+	};
+};
+object 'ffm_listLS' : XmList {
+	arguments {
+	lastGenName = 'ffm_listLS';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'ffm_detailsFR' : XmFrame {
+	arguments {
+	lastGenName = 'ffm_detailsFR';
+	};
+object 'ffm_detailsFO' : XmForm {
+	arguments {
+	lastGenName = 'ffm_detailsFO';
+	};
+object 'ffm_detailsSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ffm_detailsSL';
+	};
+object 'ffm_detailHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ffm_detailHSB';
+	};
+};
+object 'ffm_detailsVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ffm_detailsVSB';
+	};
+};
+object 'ffm_detailsLS' : XmList {
+	arguments {
+	lastGenName = 'ffm_detailsLS';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'ffm_detailsLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_detailsLB';
+	XmNlabelString = 'Duration  Precip         FFG     Percent    Difference    PrecipRate    PrecipMax   PrecipMin';
+	XmNalignment = 0;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -785;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -795;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    };
+};
+object 'ffm_detailsframeLB' : XmLabel {
+	arguments {
+	lastGenName = 'ffm_detailsframeLB';
+	XmNchildType = 2;
+	XmNlabelString = 'Details for Selected Id';
+	};
+};
+};
+object 'ffm_exitPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ffm_exitPB';
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -130;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -410;
+	XmNleftAttachment = 1 0 150;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -730;
+	XmNleftAttachment = 1 0 410;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -70;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -400;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -475;
+	XmNleftAttachment = 1 0 430;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -805;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -815;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -160;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 130;
+	XmNbottomAttachment = 2 0 -265;
+	XmNtopAttachment = 1 0 240;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -335;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 2 0 -270;
+	XmNtopAttachment = 1 0 235;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -505;
+	XmNleftAttachment = 1 0 455;
+	XmNbottomAttachment = 2 0 -200;
+	XmNtopAttachment = 1 0 160;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -805;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -260;
+	XmNtopAttachment = 1 0 160;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -120;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -195;
+	XmNtopAttachment = 1 0 165;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 135;
+	XmNbottomAttachment = 2 0 -195;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -365;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 2 0 -195;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -305;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 2 0 -200;
+	XmNtopAttachment = 1 0 160;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -230;
+	XmNtopAttachment = 1 0 205;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -290;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 2 0 -235;
+	XmNtopAttachment = 1 0 200;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -390;
+	XmNleftAttachment = 1 0 295;
+	XmNbottomAttachment = 2 0 -235;
+	XmNtopAttachment = 1 0 200;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -815;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -285;
+	XmNtopAttachment = 1 0 275;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -785;
+	XmNleftAttachment = 1 0 350;
+	XmNbottomAttachment = 2 0 -305;
+	XmNtopAttachment = 1 0 280;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -810;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -325;
+	XmNtopAttachment = 1 0 300;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -810;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -595;
+	XmNtopAttachment = 1 0 325;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -790;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -105;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -835;
+	XmNtopAttachment = 1 0 800;
+    };
+    };
+};
+};
+end module;

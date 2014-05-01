@@ -1,0 +1,12 @@
+<pathKeySet>
+	<pathKey>
+		<key>sectorID</key>
+		<order>0</order>
+	</pathKey>
+	
+	<pathKey>
+		<key>physicalElement</key>
+		<order>0</order>
+	</pathKey>
+</pathKeySet>
+

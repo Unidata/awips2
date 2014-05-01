@@ -1,0 +1,885 @@
+/*
+    File: Telem.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:31 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Telem.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Telem_t
+{
+    char		lid[9];
+    char		type[11];
+    char		payor[11];
+    double		cost;
+    char		criteria[51];
+    char		owner[11];
+    char		phone[13];
+    char		sensorid[11];
+    char		rptfreq[5];
+    char		notify[2];
+
+    int		ind_type;
+    int		ind_payor;
+    int		ind_cost;
+    int		ind_criteria;
+    int		ind_owner;
+    int		ind_phone;
+    int		ind_sensorid;
+    int		ind_rptfreq;
+    int		ind_notify;
+} Telem_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Telem * GetTelem(const char * where)
+{
+
+    Telem * listPtr = NULL;
+    Telem * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Telem ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Telem_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTelem() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTelem() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTelem() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.type:dbs.ind_type, 
+    :dbs.payor:dbs.ind_payor, :dbs.cost:dbs.ind_cost, 
+    :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner, 
+    :dbs.phone:dbs.ind_phone, :dbs.sensorid:dbs.ind_sensorid, 
+    :dbs.rptfreq:dbs.ind_rptfreq, :dbs.notify:dbs.ind_notify    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTelem() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Telem *) malloc(sizeof(Telem))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->type, dbs.type);
+            setNullIfIndicated(dbs.ind_type, CHAR, structPtr->type);
+
+            strcpy(structPtr->payor, dbs.payor);
+            setNullIfIndicated(dbs.ind_payor, CHAR, structPtr->payor);
+
+            structPtr->cost = dbs.cost;
+            setNullIfIndicated(dbs.ind_cost, DOUBLE, &structPtr->cost);
+
+            strcpy(structPtr->criteria, dbs.criteria);
+            setNullIfIndicated(dbs.ind_criteria, CHAR, structPtr->criteria);
+
+            strcpy(structPtr->owner, dbs.owner);
+            setNullIfIndicated(dbs.ind_owner, CHAR, structPtr->owner);
+
+            strcpy(structPtr->phone, dbs.phone);
+            setNullIfIndicated(dbs.ind_phone, CHAR, structPtr->phone);
+
+            strcpy(structPtr->sensorid, dbs.sensorid);
+            setNullIfIndicated(dbs.ind_sensorid, CHAR, structPtr->sensorid);
+
+            strcpy(structPtr->rptfreq, dbs.rptfreq);
+            setNullIfIndicated(dbs.ind_rptfreq, CHAR, structPtr->rptfreq);
+
+            strcpy(structPtr->notify, dbs.notify);
+            setNullIfIndicated(dbs.ind_notify, CHAR, structPtr->notify);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.type:dbs.ind_type, 
+        :dbs.payor:dbs.ind_payor, :dbs.cost:dbs.ind_cost, 
+        :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner, 
+        :dbs.phone:dbs.ind_phone, :dbs.sensorid:dbs.ind_sensorid, 
+        :dbs.rptfreq:dbs.ind_rptfreq, :dbs.notify:dbs.ind_notify        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetTelem() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Telem * SelectTelem(const char * where)
+{
+
+    Telem * listPtr = NULL;
+    Telem * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Telem ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Telem_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTelem() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTelem() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTelem() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.type:dbs.ind_type, 
+    :dbs.payor:dbs.ind_payor, :dbs.cost:dbs.ind_cost, 
+    :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner, 
+    :dbs.phone:dbs.ind_phone, :dbs.sensorid:dbs.ind_sensorid, 
+    :dbs.rptfreq:dbs.ind_rptfreq, :dbs.notify:dbs.ind_notify    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTelem() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Telem *) malloc(sizeof(Telem))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->type, dbs.type);
+            setNullIfIndicated(dbs.ind_type, CHAR, structPtr->type);
+
+            strcpy(structPtr->payor, dbs.payor);
+            setNullIfIndicated(dbs.ind_payor, CHAR, structPtr->payor);
+
+            structPtr->cost = dbs.cost;
+            setNullIfIndicated(dbs.ind_cost, DOUBLE, &structPtr->cost);
+
+            strcpy(structPtr->criteria, dbs.criteria);
+            setNullIfIndicated(dbs.ind_criteria, CHAR, structPtr->criteria);
+
+            strcpy(structPtr->owner, dbs.owner);
+            setNullIfIndicated(dbs.ind_owner, CHAR, structPtr->owner);
+
+            strcpy(structPtr->phone, dbs.phone);
+            setNullIfIndicated(dbs.ind_phone, CHAR, structPtr->phone);
+
+            strcpy(structPtr->sensorid, dbs.sensorid);
+            setNullIfIndicated(dbs.ind_sensorid, CHAR, structPtr->sensorid);
+
+            strcpy(structPtr->rptfreq, dbs.rptfreq);
+            setNullIfIndicated(dbs.ind_rptfreq, CHAR, structPtr->rptfreq);
+
+            strcpy(structPtr->notify, dbs.notify);
+            setNullIfIndicated(dbs.ind_notify, CHAR, structPtr->notify);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.type:dbs.ind_type, 
+        :dbs.payor:dbs.ind_payor, :dbs.cost:dbs.ind_cost, 
+        :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner, 
+        :dbs.phone:dbs.ind_phone, :dbs.sensorid:dbs.ind_sensorid, 
+        :dbs.rptfreq:dbs.ind_rptfreq, :dbs.notify:dbs.ind_notify        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectTelem() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectTelemCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Telem ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTelem() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTelem() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTelem() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTelem() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutTelem(const Telem * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Telem_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.type, structPtr->type);
+    dbs.ind_type = getIndicator(CHAR, (void *)structPtr->type);
+
+    strcpy(dbs.payor, structPtr->payor);
+    dbs.ind_payor = getIndicator(CHAR, (void *)structPtr->payor);
+
+    dbs.cost = structPtr->cost;
+    dbs.ind_cost = getIndicator(DOUBLE, (void *)&structPtr->cost);
+
+    strcpy(dbs.criteria, structPtr->criteria);
+    dbs.ind_criteria = getIndicator(CHAR, (void *)structPtr->criteria);
+
+    strcpy(dbs.owner, structPtr->owner);
+    dbs.ind_owner = getIndicator(CHAR, (void *)structPtr->owner);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.sensorid, structPtr->sensorid);
+    dbs.ind_sensorid = getIndicator(CHAR, (void *)structPtr->sensorid);
+
+    strcpy(dbs.rptfreq, structPtr->rptfreq);
+    dbs.ind_rptfreq = getIndicator(CHAR, (void *)structPtr->rptfreq);
+
+    strcpy(dbs.notify, structPtr->notify);
+    dbs.ind_notify = getIndicator(CHAR, (void *)structPtr->notify);
+
+
+    EXEC SQL INSERT INTO Telem (lid,type,
+        payor,cost,criteria,
+        owner,phone,sensorid,
+        rptfreq,notify        )
+        VALUES (
+         :dbs.lid, :dbs.type:dbs.ind_type, :dbs.payor:dbs.ind_payor,
+         :dbs.cost:dbs.ind_cost, :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner,
+         :dbs.phone:dbs.ind_phone, :dbs.sensorid:dbs.ind_sensorid, :dbs.rptfreq:dbs.ind_rptfreq,
+         :dbs.notify:dbs.ind_notify);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutTelem() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertTelem(const Telem * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Telem_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.type, structPtr->type);
+    dbs.ind_type = getIndicator(CHAR, (void *)structPtr->type);
+
+    strcpy(dbs.payor, structPtr->payor);
+    dbs.ind_payor = getIndicator(CHAR, (void *)structPtr->payor);
+
+    dbs.cost = structPtr->cost;
+    dbs.ind_cost = getIndicator(DOUBLE, (void *)&structPtr->cost);
+
+    strcpy(dbs.criteria, structPtr->criteria);
+    dbs.ind_criteria = getIndicator(CHAR, (void *)structPtr->criteria);
+
+    strcpy(dbs.owner, structPtr->owner);
+    dbs.ind_owner = getIndicator(CHAR, (void *)structPtr->owner);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.sensorid, structPtr->sensorid);
+    dbs.ind_sensorid = getIndicator(CHAR, (void *)structPtr->sensorid);
+
+    strcpy(dbs.rptfreq, structPtr->rptfreq);
+    dbs.ind_rptfreq = getIndicator(CHAR, (void *)structPtr->rptfreq);
+
+    strcpy(dbs.notify, structPtr->notify);
+    dbs.ind_notify = getIndicator(CHAR, (void *)structPtr->notify);
+
+
+    EXEC SQL INSERT INTO Telem (lid,type,
+        payor,cost,criteria,
+        owner,phone,sensorid,
+        rptfreq,notify        )
+        VALUES (
+         :dbs.lid, :dbs.type:dbs.ind_type, :dbs.payor:dbs.ind_payor,
+         :dbs.cost:dbs.ind_cost, :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner,
+         :dbs.phone:dbs.ind_phone, :dbs.sensorid:dbs.ind_sensorid, :dbs.rptfreq:dbs.ind_rptfreq,
+         :dbs.notify:dbs.ind_notify);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertTelem() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateTelem(const Telem *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Telem_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.type, structPtr->type);
+    dbs.ind_type = getIndicator(CHAR, (void *)structPtr->type);
+
+    strcpy(dbs.payor, structPtr->payor);
+    dbs.ind_payor = getIndicator(CHAR, (void *)structPtr->payor);
+
+    dbs.cost = structPtr->cost;
+    dbs.ind_cost = getIndicator(DOUBLE, (void *)&structPtr->cost);
+
+    strcpy(dbs.criteria, structPtr->criteria);
+    dbs.ind_criteria = getIndicator(CHAR, (void *)structPtr->criteria);
+
+    strcpy(dbs.owner, structPtr->owner);
+    dbs.ind_owner = getIndicator(CHAR, (void *)structPtr->owner);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.sensorid, structPtr->sensorid);
+    dbs.ind_sensorid = getIndicator(CHAR, (void *)structPtr->sensorid);
+
+    strcpy(dbs.rptfreq, structPtr->rptfreq);
+    dbs.ind_rptfreq = getIndicator(CHAR, (void *)structPtr->rptfreq);
+
+    strcpy(dbs.notify, structPtr->notify);
+    dbs.ind_notify = getIndicator(CHAR, (void *)structPtr->notify);
+
+
+    sprintf(queryBuffer, " UPDATE Telem SET " );
+    strcat(queryBuffer, "lid = ? , type = ? , payor = ? , cost = ? , criteria = ? ,     ");
+    strcat(queryBuffer, "owner = ? , phone = ? , sensorid = ? , rptfreq = ? , notify = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateTelem() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.type:dbs.ind_type, :dbs.payor:dbs.ind_payor, :dbs.cost:dbs.ind_cost, :dbs.criteria:dbs.ind_criteria,
+     :dbs.owner:dbs.ind_owner, :dbs.phone:dbs.ind_phone, :dbs.sensorid:dbs.ind_sensorid, :dbs.rptfreq:dbs.ind_rptfreq, :dbs.notify:dbs.ind_notify;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateTelem() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteTelem(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Telem ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteTelem() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateTelemByRecord (const Telem * newStructPtr, const Telem * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetTelemPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateTelem(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateTelem(const Telem * structPtr)
+{
+    UpdateTelemByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertTelem(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueTelem(const Telem * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (TelemExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertTelem(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteTelemByRecord(const Telem * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetTelemPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteTelem(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool TelemExists(const Telem * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetTelemPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectTelemCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetTelemPrimaryKeyWhereString (const Telem * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeTelem( Telem * structPtr)
+{
+    Telem* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Telem * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetTelemDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetTelemErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

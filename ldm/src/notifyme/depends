@@ -1,0 +1,11 @@
+notifyme.o: ../config/ldmconfig.h
+notifyme.o: ../misc/inetutil.h
+notifyme.o: ../protocol/atofeedt.h
+notifyme.o: ../protocol/h_clnt.h
+notifyme.o: ../protocol/ldm.h
+notifyme.o: ../protocol/ldm5.h
+notifyme.o: ../protocol/ldm5_clnt.h
+notifyme.o: ../protocol/ldmprint.h
+notifyme.o: ../protocol/timestamp.h
+notifyme.o: ../ulog/ulog.h
+notifyme.o: notifyme.c

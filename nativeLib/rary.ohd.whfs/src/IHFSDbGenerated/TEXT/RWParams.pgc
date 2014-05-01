@@ -1,0 +1,876 @@
+/*
+    File: RWParams.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:29 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "RWParams.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct RWParams_t
+{
+    float		rw_min_rain;
+    float		rw_sep_dist;
+    float		rw_lag0_ind_corr;
+    float		rw_lag0_cond_corr;
+    short		num_near_gages;
+    short		num_near_rad_bins;
+    float		def_cond_var_rad;
+    float		def_ind_corr_scl;
+    float		def_cond_corr_scl;
+    float		min_ind_corr_scl;
+    float		min_cond_corr_scl;
+    float		max_ind_corr_scl;
+    float		max_cond_corr_scl;
+    short		nn_srch_method;
+
+    int		ind_rw_min_rain;
+    int		ind_rw_sep_dist;
+    int		ind_rw_lag0_ind_corr;
+    int		ind_rw_lag0_cond_corr;
+    int		ind_num_near_gages;
+    int		ind_num_near_rad_bins;
+    int		ind_def_cond_var_rad;
+    int		ind_def_ind_corr_scl;
+    int		ind_def_cond_corr_scl;
+    int		ind_min_ind_corr_scl;
+    int		ind_min_cond_corr_scl;
+    int		ind_max_ind_corr_scl;
+    int		ind_max_cond_corr_scl;
+    int		ind_nn_srch_method;
+} RWParams_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+RWParams * GetRWParams(const char * where)
+{
+
+    RWParams * listPtr = NULL;
+    RWParams * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RWParams ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.rw_min_rain:dbs.ind_rw_min_rain, :dbs.rw_sep_dist:dbs.ind_rw_sep_dist, 
+    :dbs.rw_lag0_ind_corr:dbs.ind_rw_lag0_ind_corr, :dbs.rw_lag0_cond_corr:dbs.ind_rw_lag0_cond_corr, 
+    :dbs.num_near_gages:dbs.ind_num_near_gages, :dbs.num_near_rad_bins:dbs.ind_num_near_rad_bins, 
+    :dbs.def_cond_var_rad:dbs.ind_def_cond_var_rad, :dbs.def_ind_corr_scl:dbs.ind_def_ind_corr_scl, 
+    :dbs.def_cond_corr_scl:dbs.ind_def_cond_corr_scl, :dbs.min_ind_corr_scl:dbs.ind_min_ind_corr_scl, 
+    :dbs.min_cond_corr_scl:dbs.ind_min_cond_corr_scl, :dbs.max_ind_corr_scl:dbs.ind_max_ind_corr_scl, 
+    :dbs.max_cond_corr_scl:dbs.ind_max_cond_corr_scl, :dbs.nn_srch_method:dbs.ind_nn_srch_method    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RWParams *) malloc(sizeof(RWParams))) != NULL)
+        {
+
+            structPtr->rw_min_rain = dbs.rw_min_rain;
+            setNullIfIndicated(dbs.ind_rw_min_rain, FLOAT, &structPtr->rw_min_rain);
+
+            structPtr->rw_sep_dist = dbs.rw_sep_dist;
+            setNullIfIndicated(dbs.ind_rw_sep_dist, FLOAT, &structPtr->rw_sep_dist);
+
+            structPtr->rw_lag0_ind_corr = dbs.rw_lag0_ind_corr;
+            setNullIfIndicated(dbs.ind_rw_lag0_ind_corr, FLOAT, &structPtr->rw_lag0_ind_corr);
+
+            structPtr->rw_lag0_cond_corr = dbs.rw_lag0_cond_corr;
+            setNullIfIndicated(dbs.ind_rw_lag0_cond_corr, FLOAT, &structPtr->rw_lag0_cond_corr);
+
+            structPtr->num_near_gages = dbs.num_near_gages;
+            setNullIfIndicated(dbs.ind_num_near_gages, SHORT, &structPtr->num_near_gages);
+
+            structPtr->num_near_rad_bins = dbs.num_near_rad_bins;
+            setNullIfIndicated(dbs.ind_num_near_rad_bins, SHORT, &structPtr->num_near_rad_bins);
+
+            structPtr->def_cond_var_rad = dbs.def_cond_var_rad;
+            setNullIfIndicated(dbs.ind_def_cond_var_rad, FLOAT, &structPtr->def_cond_var_rad);
+
+            structPtr->def_ind_corr_scl = dbs.def_ind_corr_scl;
+            setNullIfIndicated(dbs.ind_def_ind_corr_scl, FLOAT, &structPtr->def_ind_corr_scl);
+
+            structPtr->def_cond_corr_scl = dbs.def_cond_corr_scl;
+            setNullIfIndicated(dbs.ind_def_cond_corr_scl, FLOAT, &structPtr->def_cond_corr_scl);
+
+            structPtr->min_ind_corr_scl = dbs.min_ind_corr_scl;
+            setNullIfIndicated(dbs.ind_min_ind_corr_scl, FLOAT, &structPtr->min_ind_corr_scl);
+
+            structPtr->min_cond_corr_scl = dbs.min_cond_corr_scl;
+            setNullIfIndicated(dbs.ind_min_cond_corr_scl, FLOAT, &structPtr->min_cond_corr_scl);
+
+            structPtr->max_ind_corr_scl = dbs.max_ind_corr_scl;
+            setNullIfIndicated(dbs.ind_max_ind_corr_scl, FLOAT, &structPtr->max_ind_corr_scl);
+
+            structPtr->max_cond_corr_scl = dbs.max_cond_corr_scl;
+            setNullIfIndicated(dbs.ind_max_cond_corr_scl, FLOAT, &structPtr->max_cond_corr_scl);
+
+            structPtr->nn_srch_method = dbs.nn_srch_method;
+            setNullIfIndicated(dbs.ind_nn_srch_method, SHORT, &structPtr->nn_srch_method);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.rw_min_rain:dbs.ind_rw_min_rain, :dbs.rw_sep_dist:dbs.ind_rw_sep_dist, 
+        :dbs.rw_lag0_ind_corr:dbs.ind_rw_lag0_ind_corr, :dbs.rw_lag0_cond_corr:dbs.ind_rw_lag0_cond_corr, 
+        :dbs.num_near_gages:dbs.ind_num_near_gages, :dbs.num_near_rad_bins:dbs.ind_num_near_rad_bins, 
+        :dbs.def_cond_var_rad:dbs.ind_def_cond_var_rad, :dbs.def_ind_corr_scl:dbs.ind_def_ind_corr_scl, 
+        :dbs.def_cond_corr_scl:dbs.ind_def_cond_corr_scl, :dbs.min_ind_corr_scl:dbs.ind_min_ind_corr_scl, 
+        :dbs.min_cond_corr_scl:dbs.ind_min_cond_corr_scl, :dbs.max_ind_corr_scl:dbs.ind_max_ind_corr_scl, 
+        :dbs.max_cond_corr_scl:dbs.ind_max_cond_corr_scl, :dbs.nn_srch_method:dbs.ind_nn_srch_method        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetRWParams() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+RWParams * SelectRWParams(const char * where)
+{
+
+    RWParams * listPtr = NULL;
+    RWParams * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RWParams ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.rw_min_rain:dbs.ind_rw_min_rain, :dbs.rw_sep_dist:dbs.ind_rw_sep_dist, 
+    :dbs.rw_lag0_ind_corr:dbs.ind_rw_lag0_ind_corr, :dbs.rw_lag0_cond_corr:dbs.ind_rw_lag0_cond_corr, 
+    :dbs.num_near_gages:dbs.ind_num_near_gages, :dbs.num_near_rad_bins:dbs.ind_num_near_rad_bins, 
+    :dbs.def_cond_var_rad:dbs.ind_def_cond_var_rad, :dbs.def_ind_corr_scl:dbs.ind_def_ind_corr_scl, 
+    :dbs.def_cond_corr_scl:dbs.ind_def_cond_corr_scl, :dbs.min_ind_corr_scl:dbs.ind_min_ind_corr_scl, 
+    :dbs.min_cond_corr_scl:dbs.ind_min_cond_corr_scl, :dbs.max_ind_corr_scl:dbs.ind_max_ind_corr_scl, 
+    :dbs.max_cond_corr_scl:dbs.ind_max_cond_corr_scl, :dbs.nn_srch_method:dbs.ind_nn_srch_method    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RWParams *) malloc(sizeof(RWParams))) != NULL)
+        {
+
+            structPtr->rw_min_rain = dbs.rw_min_rain;
+            setNullIfIndicated(dbs.ind_rw_min_rain, FLOAT, &structPtr->rw_min_rain);
+
+            structPtr->rw_sep_dist = dbs.rw_sep_dist;
+            setNullIfIndicated(dbs.ind_rw_sep_dist, FLOAT, &structPtr->rw_sep_dist);
+
+            structPtr->rw_lag0_ind_corr = dbs.rw_lag0_ind_corr;
+            setNullIfIndicated(dbs.ind_rw_lag0_ind_corr, FLOAT, &structPtr->rw_lag0_ind_corr);
+
+            structPtr->rw_lag0_cond_corr = dbs.rw_lag0_cond_corr;
+            setNullIfIndicated(dbs.ind_rw_lag0_cond_corr, FLOAT, &structPtr->rw_lag0_cond_corr);
+
+            structPtr->num_near_gages = dbs.num_near_gages;
+            setNullIfIndicated(dbs.ind_num_near_gages, SHORT, &structPtr->num_near_gages);
+
+            structPtr->num_near_rad_bins = dbs.num_near_rad_bins;
+            setNullIfIndicated(dbs.ind_num_near_rad_bins, SHORT, &structPtr->num_near_rad_bins);
+
+            structPtr->def_cond_var_rad = dbs.def_cond_var_rad;
+            setNullIfIndicated(dbs.ind_def_cond_var_rad, FLOAT, &structPtr->def_cond_var_rad);
+
+            structPtr->def_ind_corr_scl = dbs.def_ind_corr_scl;
+            setNullIfIndicated(dbs.ind_def_ind_corr_scl, FLOAT, &structPtr->def_ind_corr_scl);
+
+            structPtr->def_cond_corr_scl = dbs.def_cond_corr_scl;
+            setNullIfIndicated(dbs.ind_def_cond_corr_scl, FLOAT, &structPtr->def_cond_corr_scl);
+
+            structPtr->min_ind_corr_scl = dbs.min_ind_corr_scl;
+            setNullIfIndicated(dbs.ind_min_ind_corr_scl, FLOAT, &structPtr->min_ind_corr_scl);
+
+            structPtr->min_cond_corr_scl = dbs.min_cond_corr_scl;
+            setNullIfIndicated(dbs.ind_min_cond_corr_scl, FLOAT, &structPtr->min_cond_corr_scl);
+
+            structPtr->max_ind_corr_scl = dbs.max_ind_corr_scl;
+            setNullIfIndicated(dbs.ind_max_ind_corr_scl, FLOAT, &structPtr->max_ind_corr_scl);
+
+            structPtr->max_cond_corr_scl = dbs.max_cond_corr_scl;
+            setNullIfIndicated(dbs.ind_max_cond_corr_scl, FLOAT, &structPtr->max_cond_corr_scl);
+
+            structPtr->nn_srch_method = dbs.nn_srch_method;
+            setNullIfIndicated(dbs.ind_nn_srch_method, SHORT, &structPtr->nn_srch_method);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.rw_min_rain:dbs.ind_rw_min_rain, :dbs.rw_sep_dist:dbs.ind_rw_sep_dist, 
+        :dbs.rw_lag0_ind_corr:dbs.ind_rw_lag0_ind_corr, :dbs.rw_lag0_cond_corr:dbs.ind_rw_lag0_cond_corr, 
+        :dbs.num_near_gages:dbs.ind_num_near_gages, :dbs.num_near_rad_bins:dbs.ind_num_near_rad_bins, 
+        :dbs.def_cond_var_rad:dbs.ind_def_cond_var_rad, :dbs.def_ind_corr_scl:dbs.ind_def_ind_corr_scl, 
+        :dbs.def_cond_corr_scl:dbs.ind_def_cond_corr_scl, :dbs.min_ind_corr_scl:dbs.ind_min_ind_corr_scl, 
+        :dbs.min_cond_corr_scl:dbs.ind_min_cond_corr_scl, :dbs.max_ind_corr_scl:dbs.ind_max_ind_corr_scl, 
+        :dbs.max_cond_corr_scl:dbs.ind_max_cond_corr_scl, :dbs.nn_srch_method:dbs.ind_nn_srch_method        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectRWParams() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectRWParamsCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM RWParams ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutRWParams(const RWParams * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWParams_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    dbs.rw_min_rain = structPtr->rw_min_rain;
+    dbs.ind_rw_min_rain = getIndicator(FLOAT, (void *)&structPtr->rw_min_rain);
+
+    dbs.rw_sep_dist = structPtr->rw_sep_dist;
+    dbs.ind_rw_sep_dist = getIndicator(FLOAT, (void *)&structPtr->rw_sep_dist);
+
+    dbs.rw_lag0_ind_corr = structPtr->rw_lag0_ind_corr;
+    dbs.ind_rw_lag0_ind_corr = getIndicator(FLOAT, (void *)&structPtr->rw_lag0_ind_corr);
+
+    dbs.rw_lag0_cond_corr = structPtr->rw_lag0_cond_corr;
+    dbs.ind_rw_lag0_cond_corr = getIndicator(FLOAT, (void *)&structPtr->rw_lag0_cond_corr);
+
+    dbs.num_near_gages = structPtr->num_near_gages;
+    dbs.ind_num_near_gages = getIndicator(SHORT, (void *)&structPtr->num_near_gages);
+
+    dbs.num_near_rad_bins = structPtr->num_near_rad_bins;
+    dbs.ind_num_near_rad_bins = getIndicator(SHORT, (void *)&structPtr->num_near_rad_bins);
+
+    dbs.def_cond_var_rad = structPtr->def_cond_var_rad;
+    dbs.ind_def_cond_var_rad = getIndicator(FLOAT, (void *)&structPtr->def_cond_var_rad);
+
+    dbs.def_ind_corr_scl = structPtr->def_ind_corr_scl;
+    dbs.ind_def_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->def_ind_corr_scl);
+
+    dbs.def_cond_corr_scl = structPtr->def_cond_corr_scl;
+    dbs.ind_def_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->def_cond_corr_scl);
+
+    dbs.min_ind_corr_scl = structPtr->min_ind_corr_scl;
+    dbs.ind_min_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->min_ind_corr_scl);
+
+    dbs.min_cond_corr_scl = structPtr->min_cond_corr_scl;
+    dbs.ind_min_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->min_cond_corr_scl);
+
+    dbs.max_ind_corr_scl = structPtr->max_ind_corr_scl;
+    dbs.ind_max_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->max_ind_corr_scl);
+
+    dbs.max_cond_corr_scl = structPtr->max_cond_corr_scl;
+    dbs.ind_max_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->max_cond_corr_scl);
+
+    dbs.nn_srch_method = structPtr->nn_srch_method;
+    dbs.ind_nn_srch_method = getIndicator(SHORT, (void *)&structPtr->nn_srch_method);
+
+
+    EXEC SQL INSERT INTO RWParams (rw_min_rain,rw_sep_dist,
+        rw_lag0_ind_corr,rw_lag0_cond_corr,num_near_gages,
+        num_near_rad_bins,def_cond_var_rad,def_ind_corr_scl,
+        def_cond_corr_scl,min_ind_corr_scl,min_cond_corr_scl,
+        max_ind_corr_scl,max_cond_corr_scl,nn_srch_method        )
+        VALUES (
+         :dbs.rw_min_rain:dbs.ind_rw_min_rain, :dbs.rw_sep_dist:dbs.ind_rw_sep_dist, :dbs.rw_lag0_ind_corr:dbs.ind_rw_lag0_ind_corr,
+         :dbs.rw_lag0_cond_corr:dbs.ind_rw_lag0_cond_corr, :dbs.num_near_gages:dbs.ind_num_near_gages, :dbs.num_near_rad_bins:dbs.ind_num_near_rad_bins,
+         :dbs.def_cond_var_rad:dbs.ind_def_cond_var_rad, :dbs.def_ind_corr_scl:dbs.ind_def_ind_corr_scl, :dbs.def_cond_corr_scl:dbs.ind_def_cond_corr_scl,
+         :dbs.min_ind_corr_scl:dbs.ind_min_ind_corr_scl, :dbs.min_cond_corr_scl:dbs.ind_min_cond_corr_scl, :dbs.max_ind_corr_scl:dbs.ind_max_ind_corr_scl,
+         :dbs.max_cond_corr_scl:dbs.ind_max_cond_corr_scl, :dbs.nn_srch_method:dbs.ind_nn_srch_method);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutRWParams() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertRWParams(const RWParams * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWParams_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    dbs.rw_min_rain = structPtr->rw_min_rain;
+    dbs.ind_rw_min_rain = getIndicator(FLOAT, (void *)&structPtr->rw_min_rain);
+
+    dbs.rw_sep_dist = structPtr->rw_sep_dist;
+    dbs.ind_rw_sep_dist = getIndicator(FLOAT, (void *)&structPtr->rw_sep_dist);
+
+    dbs.rw_lag0_ind_corr = structPtr->rw_lag0_ind_corr;
+    dbs.ind_rw_lag0_ind_corr = getIndicator(FLOAT, (void *)&structPtr->rw_lag0_ind_corr);
+
+    dbs.rw_lag0_cond_corr = structPtr->rw_lag0_cond_corr;
+    dbs.ind_rw_lag0_cond_corr = getIndicator(FLOAT, (void *)&structPtr->rw_lag0_cond_corr);
+
+    dbs.num_near_gages = structPtr->num_near_gages;
+    dbs.ind_num_near_gages = getIndicator(SHORT, (void *)&structPtr->num_near_gages);
+
+    dbs.num_near_rad_bins = structPtr->num_near_rad_bins;
+    dbs.ind_num_near_rad_bins = getIndicator(SHORT, (void *)&structPtr->num_near_rad_bins);
+
+    dbs.def_cond_var_rad = structPtr->def_cond_var_rad;
+    dbs.ind_def_cond_var_rad = getIndicator(FLOAT, (void *)&structPtr->def_cond_var_rad);
+
+    dbs.def_ind_corr_scl = structPtr->def_ind_corr_scl;
+    dbs.ind_def_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->def_ind_corr_scl);
+
+    dbs.def_cond_corr_scl = structPtr->def_cond_corr_scl;
+    dbs.ind_def_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->def_cond_corr_scl);
+
+    dbs.min_ind_corr_scl = structPtr->min_ind_corr_scl;
+    dbs.ind_min_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->min_ind_corr_scl);
+
+    dbs.min_cond_corr_scl = structPtr->min_cond_corr_scl;
+    dbs.ind_min_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->min_cond_corr_scl);
+
+    dbs.max_ind_corr_scl = structPtr->max_ind_corr_scl;
+    dbs.ind_max_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->max_ind_corr_scl);
+
+    dbs.max_cond_corr_scl = structPtr->max_cond_corr_scl;
+    dbs.ind_max_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->max_cond_corr_scl);
+
+    dbs.nn_srch_method = structPtr->nn_srch_method;
+    dbs.ind_nn_srch_method = getIndicator(SHORT, (void *)&structPtr->nn_srch_method);
+
+
+    EXEC SQL INSERT INTO RWParams (rw_min_rain,rw_sep_dist,
+        rw_lag0_ind_corr,rw_lag0_cond_corr,num_near_gages,
+        num_near_rad_bins,def_cond_var_rad,def_ind_corr_scl,
+        def_cond_corr_scl,min_ind_corr_scl,min_cond_corr_scl,
+        max_ind_corr_scl,max_cond_corr_scl,nn_srch_method        )
+        VALUES (
+         :dbs.rw_min_rain:dbs.ind_rw_min_rain, :dbs.rw_sep_dist:dbs.ind_rw_sep_dist, :dbs.rw_lag0_ind_corr:dbs.ind_rw_lag0_ind_corr,
+         :dbs.rw_lag0_cond_corr:dbs.ind_rw_lag0_cond_corr, :dbs.num_near_gages:dbs.ind_num_near_gages, :dbs.num_near_rad_bins:dbs.ind_num_near_rad_bins,
+         :dbs.def_cond_var_rad:dbs.ind_def_cond_var_rad, :dbs.def_ind_corr_scl:dbs.ind_def_ind_corr_scl, :dbs.def_cond_corr_scl:dbs.ind_def_cond_corr_scl,
+         :dbs.min_ind_corr_scl:dbs.ind_min_ind_corr_scl, :dbs.min_cond_corr_scl:dbs.ind_min_cond_corr_scl, :dbs.max_ind_corr_scl:dbs.ind_max_ind_corr_scl,
+         :dbs.max_cond_corr_scl:dbs.ind_max_cond_corr_scl, :dbs.nn_srch_method:dbs.ind_nn_srch_method);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertRWParams() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRWParams(const RWParams *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    dbs.rw_min_rain = structPtr->rw_min_rain;
+    dbs.ind_rw_min_rain = getIndicator(FLOAT, (void *)&structPtr->rw_min_rain);
+
+    dbs.rw_sep_dist = structPtr->rw_sep_dist;
+    dbs.ind_rw_sep_dist = getIndicator(FLOAT, (void *)&structPtr->rw_sep_dist);
+
+    dbs.rw_lag0_ind_corr = structPtr->rw_lag0_ind_corr;
+    dbs.ind_rw_lag0_ind_corr = getIndicator(FLOAT, (void *)&structPtr->rw_lag0_ind_corr);
+
+    dbs.rw_lag0_cond_corr = structPtr->rw_lag0_cond_corr;
+    dbs.ind_rw_lag0_cond_corr = getIndicator(FLOAT, (void *)&structPtr->rw_lag0_cond_corr);
+
+    dbs.num_near_gages = structPtr->num_near_gages;
+    dbs.ind_num_near_gages = getIndicator(SHORT, (void *)&structPtr->num_near_gages);
+
+    dbs.num_near_rad_bins = structPtr->num_near_rad_bins;
+    dbs.ind_num_near_rad_bins = getIndicator(SHORT, (void *)&structPtr->num_near_rad_bins);
+
+    dbs.def_cond_var_rad = structPtr->def_cond_var_rad;
+    dbs.ind_def_cond_var_rad = getIndicator(FLOAT, (void *)&structPtr->def_cond_var_rad);
+
+    dbs.def_ind_corr_scl = structPtr->def_ind_corr_scl;
+    dbs.ind_def_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->def_ind_corr_scl);
+
+    dbs.def_cond_corr_scl = structPtr->def_cond_corr_scl;
+    dbs.ind_def_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->def_cond_corr_scl);
+
+    dbs.min_ind_corr_scl = structPtr->min_ind_corr_scl;
+    dbs.ind_min_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->min_ind_corr_scl);
+
+    dbs.min_cond_corr_scl = structPtr->min_cond_corr_scl;
+    dbs.ind_min_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->min_cond_corr_scl);
+
+    dbs.max_ind_corr_scl = structPtr->max_ind_corr_scl;
+    dbs.ind_max_ind_corr_scl = getIndicator(FLOAT, (void *)&structPtr->max_ind_corr_scl);
+
+    dbs.max_cond_corr_scl = structPtr->max_cond_corr_scl;
+    dbs.ind_max_cond_corr_scl = getIndicator(FLOAT, (void *)&structPtr->max_cond_corr_scl);
+
+    dbs.nn_srch_method = structPtr->nn_srch_method;
+    dbs.ind_nn_srch_method = getIndicator(SHORT, (void *)&structPtr->nn_srch_method);
+
+
+    sprintf(queryBuffer, " UPDATE RWParams SET " );
+    strcat(queryBuffer, "rw_min_rain = ? , rw_sep_dist = ? , rw_lag0_ind_corr = ? , rw_lag0_cond_corr = ? , num_near_gages = ? ,     ");
+    strcat(queryBuffer, "num_near_rad_bins = ? , def_cond_var_rad = ? , def_ind_corr_scl = ? , def_cond_corr_scl = ? , min_ind_corr_scl = ? ,     ");
+    strcat(queryBuffer, "min_cond_corr_scl = ? , max_ind_corr_scl = ? , max_cond_corr_scl = ? , nn_srch_method = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRWParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.rw_min_rain:dbs.ind_rw_min_rain, :dbs.rw_sep_dist:dbs.ind_rw_sep_dist, :dbs.rw_lag0_ind_corr:dbs.ind_rw_lag0_ind_corr, :dbs.rw_lag0_cond_corr:dbs.ind_rw_lag0_cond_corr, :dbs.num_near_gages:dbs.ind_num_near_gages,
+     :dbs.num_near_rad_bins:dbs.ind_num_near_rad_bins, :dbs.def_cond_var_rad:dbs.ind_def_cond_var_rad, :dbs.def_ind_corr_scl:dbs.ind_def_ind_corr_scl, :dbs.def_cond_corr_scl:dbs.ind_def_cond_corr_scl, :dbs.min_ind_corr_scl:dbs.ind_min_ind_corr_scl,
+     :dbs.min_cond_corr_scl:dbs.ind_min_cond_corr_scl, :dbs.max_ind_corr_scl:dbs.ind_max_ind_corr_scl, :dbs.max_cond_corr_scl:dbs.ind_max_cond_corr_scl, :dbs.nn_srch_method:dbs.ind_nn_srch_method;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRWParams() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRWParams(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM RWParams ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteRWParams() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeRWParams( RWParams * structPtr)
+{
+    RWParams* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( RWParams * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetRWParamsDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetRWParamsErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

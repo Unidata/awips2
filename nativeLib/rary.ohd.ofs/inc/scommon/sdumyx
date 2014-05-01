@@ -1,0 +1,4 @@
+C                                           *--> FROM SCOMMON.SDUMYX
+C  DUMMY COMMON BLOCK
+      COMMON /SDUMYX/ IDUMMY(10)
+C

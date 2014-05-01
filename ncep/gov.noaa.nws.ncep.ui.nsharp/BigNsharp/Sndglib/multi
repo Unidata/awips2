@@ -1,0 +1,65 @@
+Need to be able to load an array of soundings
+
+this means load_sounding should probably be rewritten to take a list of times
+
+another way to do it would be to change the curdataptr stuff to take a
+list of times. that probably makes the most sense since at any one time you
+would want to load multiple times from a single file versus multiple times
+from multiple files
+
+What about the situation of overlaying multiple soundings from multiple files?
+
+Do we want to keep the limitation of 1 overlay at a time? if so, that makes
+life a lot easier.
+
+Do we want to implement a history mechanism to quickly recall previous
+soundings? that would be cool. You'd have to store 
+filename, time, and station, and data type. essentially a copy of curdataptr.
+neato. give it some thought.
+Yes. I've decided that we want this. this is more for NSHARP than for the
+library though. at least the GUI part. the logic needs implementation here.
+Think about having the ability to cache the sounding data so we don't have
+to reread the datafile instead. think of the memory implications of doing it
+this way.
+
+
+loadalltimes()
+{
+  foreach time
+    set curdatatype_ptr->time to $time
+    load_sounding()
+    copy sounding into array of loaded soundings (pointer actually)
+  endforeach
+
+  reassign curdatatype_ptr->time to $time[0]
+}
+
+i guess you could do the same thing but do loadallstations() for a single time
+yes. do this.
+you'll load all stations within mapbounds. This requires some thought though.
+Don't wanna load all PFCs though! yikes!
+
+keep track of:
+current index
+number of soundings loaded
+
+if (numberloaded == 1) then
+  load into index 1 so that we can overlay with the sounding in index 0
+elseif (numberloaded == 0) then
+  load into index 0
+else
+  load onto the end
+endif
+
+What to do about having a sounding loaded but then on your next go around
+loading numerous times?
+
+at what point do you zero out numberofsoundingsloaded?
+
+I guess some data stuff like this makes sense:
+
+#define MAXSNDG 128
+short nsndgloaded=0;     /* # of soundings loaded */
+short cursndgidx=0;      /* The index of the the currently loaded sounding */
+Sounding *allsoundings[MAXSNDG];
+make sure you initialize each pointer to NULL!

@@ -1,0 +1,57 @@
+#
+# Official .Apps_defaults_site file for a generic site for AWIPS Build 4.2
+# Also see .Apps_defaults for other settings
+# This file was last updated 29 January 1999  
+# ===========================================
+
+# --------TOKENS THAT SHOULD BE AT ALL SITES-----------
+#  database selection tokens
+db_name           : hd_ob83oax   # ihfs database name
+damcat_db_name    : dc_ob7oax	# Dam Catalog database name
+
+# ===========================================================================
+#  WHFS Local Customization
+# ===========================================================================
+hv_refresh_minutes     : 15    # HydroView auto refresh time (minutes) 
+pproc_s2_gridgen_hrs   : 5    # WHFS Stage II lookback (hours) 
+whfs_tz                : CST6CDT    # WHFS time zone code 
+hv_center_lat          : 41.0    # HydroView center latitude 
+hv_center_lon          : -95.0   # HydroView center longitude 
+hv_map_width           : 860     # HydroView map width (nautical miles) 
+whfs_primary_radar     : OAX     # WHFS primary radar id, for Stage II 
+whfs_editor            : whfs_editor 
+#whfs_editor            : whfs_editor.nedit 
+#whfs_printcommand_LX   : "lp"      # command used to print WHFS apps report on LX
+whfs_print_command_LX :  "lp -d lp2"
+timeseries_mode        : STATION 
+# ----END TOKENS THAT SHOULD BE AT ALL SITES------------
+
+# --------TOKENS FOR DECODEHDP--------
+dpa_filter_decode   :  ON             # flag for non-top-of-hour
+				      #   filter for decoding products
+dpa_filter_window   :  5             # number of minutes around top
+				      #  of hour for filtering products
+                                      # allowable values = 0 - 30
+
+# --------TOKENS FOR  DEFINING THE LIST OF RFC GRIDDED FFG PRODUCTS FOR MOSAICS ---
+gaff_rfc_list   :  MBRFC,NCRFC        # list of RFC's to be mosaicked
+gaff_execution  :  ON                 # Token to enable gaff
+
+shef_post_unk : NONE # NONE - do not post to the UnkStn nor UnkStnValue tables
+                          # IDS_ONLY - post only location identifiers for unknown
+                          #            stations to the UnkStn table
+                          # IDS_AND_DATA - post all data from unknown stations to
+                          #                the UnkStnValue table
+shef_post_latest: ON
+
+sshp_invoke_map_preprocess : ON
+
+# --------TOKENS FOR METAR2SHEF OPTIONS--------------
+metar2shef_options   : " -a -b -p1 -p6 -q1 "
+
+# --------EVENT END TIME TOKEN------------------------
+#rpf_endtime_shifthrs : 6
+ 
+mpe_site_id     : oax
+
+fxa_local_site  : OAX

@@ -1,0 +1,55 @@
+==== topic_publisher.py.out
+==== topic_subscriber.py.out | remove_uuid | sort
+europe.news 0
+europe.news 0
+europe.news 1
+europe.news 1
+europe.news 2
+europe.news 2
+europe.news 3
+europe.news 3
+europe.news 4
+europe.news 4
+europe.weather 0
+europe.weather 0
+europe.weather 1
+europe.weather 1
+europe.weather 2
+europe.weather 2
+europe.weather 3
+europe.weather 3
+europe.weather 4
+europe.weather 4
+Messages on 'europe' queue:
+Messages on 'news' queue:
+Messages on 'usa' queue:
+Messages on 'weather' queue:
+Queues created - please start the topic producer
+Subscribing local queue 'local_europe' to europe-'
+Subscribing local queue 'local_news' to news-'
+Subscribing local queue 'local_usa' to usa-'
+Subscribing local queue 'local_weather' to weather-'
+That's all, folks!
+That's all, folks!
+That's all, folks!
+That's all, folks!
+usa.news 0
+usa.news 0
+usa.news 1
+usa.news 1
+usa.news 2
+usa.news 2
+usa.news 3
+usa.news 3
+usa.news 4
+usa.news 4
+usa.weather 0
+usa.weather 0
+usa.weather 1
+usa.weather 1
+usa.weather 2
+usa.weather 2
+usa.weather 3
+usa.weather 3
+usa.weather 4
+usa.weather 4

@@ -1,0 +1,1 @@
+jarsigner -keystore jaxb.keys -storepass testyajsw ../wrapperWS.jar https://jaxb-workshop.dev.java.net/

@@ -1,0 +1,154 @@
+printUsage()
+{
+cat 1>&2 <<EOF
+Usage: $0 [-b start] [-e stop] [file ...]
+Options:
+    -b start    UTC start-time of data as YYYYMMDD[.hh[mm[ss]]].  Default is
+                start of data.
+    -e stop     UTC stop-time of data as YYYYMMDD[.hh[mm[ss]]].  Default is
+                end of data.
+Arguments:
+    file ...    Pathnames of data-files.  Default is "$HOME/logs/metrics.txt".
+EOF
+}
+
+# Static initialization:
+start=19700101
+stop=30000101
+files=$HOME/logs/metrics.txt
+
+# Dynamic initialization:
+while getopts h:f:b:e:u: id; do
+    case $id in
+        b)      start="$OPTARG";;
+        e)      stop="$OPTARG";;
+        *)      printUsage
+                exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
+if test "$1"; then
+    files="$@"
+fi
+datafile=/tmp/metrics.txt
+
+# Input datafile format (space separated):
+#       FIELD#  VALUE
+#       1       time as YYYYMMDD.hhmmss
+#       2       1 minute load average
+#       3       5 minutes load average
+#       4       15 minutes load average
+#       5       number of connections to the local LDM port (outgoing data)
+#       6       number of connections to remote LDM ports (incoming data)
+#       7       age of the oldest data-product in the product-queue
+#       8       number of data-products in the product-queue
+#       9       number of bytes used in the product-queue
+#       10      percent of CPU time in user mode
+#       11      percent of CPU time in system mode
+#       12      percent of CPU time in idle mode
+#       13      percent of CPU time in I/O wait
+#       14      amount of used physical memory in bytes
+#       15      amount of free physical memory in bytes
+#       16      amount of used swap space in bytes
+#       17      amount of free swap space in bytes
+#       18      number of CPU context switches per second
+
+awk "\$1>$start && \$1<$stop" `ls -rt $files` >$datafile
+if test ! -s $datafile; then
+    echo 1>&2 "No matching data"
+    rm -f $datafile
+else
+    if gnuplot -persist <<EOF
+        set grid
+        set key below
+        #set nokey
+        set xdata time
+        set timefmt "%Y%m%d.%H%M%S"
+        set format x "%m/%d\n%H:%M"
+        set format y "%5g"
+        set format y2 "%5g"
+        set xlabel "UTC Time"
+        set tics out
+
+        set terminal x11 1 title "Queue Size"
+        #set terminal png medium
+        set title "Number of Bytes Used in Queue vs. Time"
+        set ylabel "Bytes / 1 GB"
+        plot "$datafile" u 1:(\$9/1e9) title "Bytes Used" with lines
+
+        set terminal x11 2 title "Product Count"
+        #set terminal png medium
+        set title "Number of Products in Queue vs. Time"
+        set ylabel "Count"
+        plot "$datafile" u 1:(\$8) title "Number of Products" with lines
+
+        set terminal x11 3 title "LDM Connections"
+        #set terminal png medium
+        set title "LDM Connections vs. Time"
+        set ylabel "Count"
+        plot \
+             "$datafile" u 1:5 title "Local LDM Port" with lines, \
+             "$datafile" u 1:6 title "Remote LDM Port" with lines, \
+             "$datafile" u 1:(\$5+\$6) title "Total" with lines
+
+        set terminal x11 4 title "Space"
+        #set terminal png medium
+        set title "Space vs. Time"
+        set ylabel "Space / 1 GB"
+        plot \
+            "$datafile" u 1:(\$14 < 0 ? 1/0 : \$14/1e9) \
+                title "Used Memory" with lines, \
+            "$datafile" u 1:(\$15 < 0 ? 1/0 : \$15/1e9) \
+                title "Free Memory" with lines, \
+            "$datafile" u 1:(\$16 < 0 ? 1/0 : \$16/1e9) \
+                title "Used Swap" with lines, \
+            "$datafile" u 1:(\$17 < 0 ? 1/0 : \$17/1e9) \
+                title "Free Swap" with lines, \
+            "$datafile" u 1:(((\$14 < 0) || \
+                (\$16 < 0)) ? 1/0 : (\$16+\$14)/1e9) \
+                title "Used (Memory+Swap)" with lines
+
+        set terminal x11 5 title "CPU-Modes"
+        #set terminal png medium
+        set title "CPU-Modes vs. Time"
+        set ylabel "%"
+        plot \
+             "$datafile" u 1:((\$12 < 0 || \$12 > 100) ? 1/0 : \$12) \
+                 title "Idle" with lines, \
+             "$datafile" u 1:((\$11 < 0 || \$11 > 100) ? 1/0 : \$11) \
+                 title "System" with lines, \
+             "$datafile" u 1:((\$10 < 0 || \$10 > 100) ? 1/0 : \$10) \
+                 title "User" with lines, \
+             "$datafile" u 1:((\$13 < 0 || \$13 > 100) ? 1/0 : \$13) \
+                 title "I/O Wait" with lines
+
+        set terminal x11 6 title "Context Switches"
+        #set terminal png medium
+        set title "CPU Context Switch Rate vs. Time"
+        set ylabel "1/s"
+        plot "$datafile" u 1:18 title "CPU Context Switches" with lines
+
+        set terminal x11 7 title "Load-Average"
+        #set terminal png medium
+        set title "Load-Average vs. Time"
+        set ylabel "Process Count"
+        plot \
+             "$datafile" u 1:(\$2 < 1e7 ? \$2 : 1/0) \
+                 title "1 m" with lines, \
+             "$datafile" u 1:(\$3 < 1e7 ? \$3 : 1/0) \
+                 title "5 m" with lines, \
+             "$datafile" u 1:(\$4 < 1e7 ? \$4 : 1/0) \
+                 title "15 m" with lines
+
+        set terminal x11 8 title "Age"
+        #set terminal png medium
+        set title "Age of Oldest Product in Queue vs. Time"
+        set ylabel "Age / 1 h"
+        plot "$datafile" u 1:(\$7/3600) title "Age" with lines
+EOF
+    then
+        rm $datafile
+    else
+        echo 1>&2 "Verify the format of temporary data-file $datafile"
+    fi
+fi

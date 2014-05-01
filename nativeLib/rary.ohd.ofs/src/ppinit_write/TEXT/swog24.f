@@ -1,0 +1,136 @@
+C MEMBER SWOG24
+C-----------------------------------------------------------------------
+C
+C @PROCESS LVL(77)
+C
+C DESC WRITE STATION GRID-POINT ALPHABETICAL ORDER
+C
+      SUBROUTINE SWOG24 (IVOG24,UNUSED,IORDER,IPNTRS,NUMSTA,
+     *   LARRAY,ARRAY,DISP,ISTAT)
+C
+C
+      CHARACTER*4 DISP
+      CHARACTER*8 BLNK8/' '/
+      INTEGER*2 IPNTRS(1)
+C
+      DIMENSION ARRAY(LARRAY)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_write/RCS/swog24.f,v $
+     . $',                                                             '
+     .$Id: swog24.f,v 1.1 1995/09/17 19:16:18 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,40)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('OG24')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,50) IVOG24,UNUSED,NUMSTA,LARRAY
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+C  CHECK FOR SUFFICIENT SPACE IN PARAMETER ARRAY
+      MINLEN=5+NUMSTA
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'MINLEN=',MINLEN
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (MINLEN.GT.LARRAY) THEN
+         WRITE (LP,60) LARRAY,MINLEN
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  STORE PARAMETER ARRAY VERSION NUMBER
+      ARRAY(1)=IVOG24+.01
+C
+C  STORE INDICATOR HOW LIST WAS ORDERED
+      ARRAY(2)=IORDER+.01
+C
+C  POSITIONS 3 AND 4 ARE UNUSED
+      ARRAY(3)=UNUSED
+      ARRAY(4)=UNUSED
+C
+C  STORE NUMBER STATIONS IN LIST
+      ARRAY(5)=NUMSTA+.01
+C
+      NPOS=5
+C
+C  STORE GRID-POINT ADDRESS AND RECORD LOCATION OF PARAMETERS IN
+C  PARAMETRIC DATA BASE
+      IF (NUMSTA.GT.0) THEN
+         CALL SUBSTR (IPNTRS(1),1,NUMSTA*4,ARRAY(NPOS+1),1)
+         NPOS=NPOS+NUMSTA
+         ENDIF
+C
+C  WRITE PARAMETER RECORD TO FILE
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'NPOS=',NPOS
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      CALL SUDOPN (1,'PPP ',IERR)
+      IPTR=0
+      CALL WPPREC (BLNK8,'OG24',NPOS,ARRAY,IPTR,IERR)
+      IF (IERR.GT.0) THEN
+         CALL SWPPST (BLNK8,'OG24',NPOS,IPTR,IERR)
+         ISTAT=2
+         WRITE (LP,70)
+         CALL SUERRS (LP,2,-1)
+         GO TO 10
+         ENDIF
+C
+C  PARAMETER ARRAY SUCCESSFLLY WRITTEN
+      IF (DISP.EQ.'NEW') WRITE (LP,80) 'WRITTEN'
+      IF (DISP.EQ.'OLD') WRITE (LP,80) 'UPDATED'
+      CALL SULINE (LP,2)
+      CALL SUDWRT (1,'PPP ',IERR)
+      GO TO 20
+C
+C  PARAMETER ARRAY NOT SCCESSFLLY WRITTEN
+10    IF (DISP.EQ.'NEW') WRITE (LP,90) 'WRITTEN'
+      IF (DISP.EQ.'OLD') WRITE (LP,90) 'UPDATED'
+      CALL SULINE (LP,2)
+C
+20    IF (LDEBUG.GT.0) THEN
+         CALL SUPDMP ('OG24','REAL',0,NPOS,ARRAY,ARRAY)
+         CALL SUPDMP ('OG24','INT2',0,NPOS,ARRAY,ARRAY)
+         ENDIF
+C
+30    IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,100)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+40    FORMAT (' *** ENTER SWOG24')
+50    FORMAT (' IVOG24=',I2,3X,'UNUSED=',F7.2,3X,'NUMSTA=',I4,3X,
+     *   'LARRAY=',I5)
+60    FORMAT ('0*** ERROR - IN SWOG24 - NOT ENOUGH SPACE IN PARAMETER ',
+     *   'ARRAY: NUMBER OF WORDS IN PARAMETER ARRAY=',I3,3X,
+     *   'NUMBER OF WORDS NEEDED=',I3)
+70    FORMAT ('0*** ERROR - IN SWOG24 - UNSUCCESSFUL CALL TO WPPREC.')
+80    FORMAT ('0*** NOTE - OG24 PARAMETERS SUCCESSFULLY ',A,'.')
+90    FORMAT ('0*** NOTE - OG24 PARAMETERS NOT SUCCESSFULLY ',A,'.')
+100   FORMAT (' *** EXIT SWOG24')
+C
+      END

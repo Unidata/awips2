@@ -1,0 +1,9 @@
+#!/bin/sh
+DISPLAY=$1:0.0; export DISPLAY
+if [ $6 = "kde" ]
+then
+    kstart --alldesktops $FXA_HOME/bin/showBanner $2 $3 $4 $5 &
+else
+    $FXA_HOME/bin/showBanner $2 $3 $4 $5 &
+fi
+

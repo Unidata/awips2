@@ -1,0 +1,7 @@
+      character*4 scid9c
+      character*5 abv128,abv2
+      character*50 scnam9c,des128,des2
+      character*56 tab_0,tab_a
+      
+      common /grib_tbl/ tab_0(255),tab_a(255),scid9c(255),scnam9c(255),
+     +                  abv128(255),des128(255),abv2(255),des2(255)

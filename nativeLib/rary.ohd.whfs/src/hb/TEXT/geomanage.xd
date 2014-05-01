@@ -1,0 +1,530 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'geomanage.c';
+generateNameExterns = * 'geomanage.h';
+generateNameResDB = * 'geomanage.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'geoareaDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'geoareaDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_geoareaDS (parent)
+Widget parent;
+';
+	XmNheight = 490;
+	XmNallowShellResize = true;
+	XmNtitle = 'Areal Definitions';
+	XmNminWidth = 680;
+	XmNminHeight = 490;
+	XmNmaxWidth = 680;
+	XmNmaxHeight = 490;
+	};
+object 'geoareaFO' : XmForm {
+	arguments {
+	lastGenName = 'geoareaFO';
+	XmNheight = 490;
+	XmNautoUnmanage = false;
+	};
+object 'geoareaOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'geoareaOM';
+	};
+abstract object 'geoareaLB1' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'geoareaLB1';
+	XmNlabelString = 'List:';
+	};
+};
+abstract object 'geoarea_typesCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'geoarea_typesCB';
+	};
+object 'geoarea_typesPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'geoarea_typesPDM';
+	};
+object 'types_zonesPB' : XmPushButton {
+	arguments {
+	lastGenName = 'types_zonesPB';
+	XmNlabelString = 'Zones';
+	};
+};
+object 'types_countiesPB' : XmPushButton {
+	arguments {
+	lastGenName = 'types_countiesPB';
+	XmNlabelString = 'Counties';
+	};
+};
+object 'types_basinsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'types_basinsPB';
+	XmNlabelString = 'Basins';
+	};
+};
+object 'types_reservoirsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'types_reservoirsPB';
+	XmNlabelString = 'Reservoirs';
+	};
+};
+};
+};
+};
+object 'geoarea_intLB' : XmLabel {
+	arguments {
+	lastGenName = 'geoarea_intLB';
+	XmNlabelString = 'Interior';
+	};
+};
+object 'geoareaLB2' : XmLabel {
+	arguments {
+	lastGenName = 'geoareaLB2';
+	XmNlabelString = 'Area Id  Name';
+	};
+};
+object 'geoareaLB3' : XmLabel {
+	arguments {
+	lastGenName = 'geoareaLB3';
+	XmNlabelString = 'Lat';
+	};
+};
+object 'geoareaLB4' : XmLabel {
+	arguments {
+	lastGenName = 'geoareaLB4';
+	XmNlabelString = 'Lon';
+	};
+};
+object 'geoareaSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'geoareaSL';
+	};
+abstract object 'geoareaHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'geoareaHSB';
+	};
+};
+abstract object 'geoareaVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'geoareaVSB';
+	};
+};
+abstract object 'geoareaLS' : XmList {
+	arguments {
+	lastGenName = 'geoareaLS';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'geoarea_inoutFR' : XmFrame {
+	arguments {
+	lastGenName = 'geoarea_inoutFR';
+	};
+object 'geoarea_inoutFO' : XmForm {
+	arguments {
+	lastGenName = 'geoarea_inoutFO';
+	};
+object 'area_fileLB' : XmLabel {
+	arguments {
+	lastGenName = 'area_fileLB';
+	XmNlabelString = 'Source Data File:';
+	};
+};
+object 'area_fileTX' : XmText {
+	arguments {
+	lastGenName = 'area_fileTX';
+	};
+};
+object 'area_importPB' : XmPushButton {
+	arguments {
+	lastGenName = 'area_importPB';
+	XmNlabelString = 'Create Binary Files
+Import to Database';
+	XmNalignment = 1;
+	};
+};
+object 'area_editPB' : XmPushButton {
+	arguments {
+	lastGenName = 'area_editPB';
+	XmNlabelString = 'Edit File';
+	};
+};
+object 'area_readlog_importPB' : XmPushButton {
+	arguments {
+	lastGenName = 'area_readlog_importPB';
+	XmNlabelString = 'Review Log';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -160;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -200;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 37;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -410;
+	XmNleftAttachment = 1 0 225;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -130;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -115;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -630;
+	XmNleftAttachment = 1 0 440;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 35;
+    };
+    };
+};
+object 'geoarea_inoutLB' : XmLabel {
+	arguments {
+	lastGenName = 'geoarea_inoutLB';
+	XmNchildType = 2;
+	XmNlabelString = 'Import Operations ';
+	};
+};
+};
+object 'geoarea_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'geoarea_okPB';
+	XmNlabelString = 'OK';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -286;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -41;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 460;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 429;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 51;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 512;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -270;
+	XmNtopAttachment = 1 0 75;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -670;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -435;
+	XmNtopAttachment = 1 0 280;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -475;
+	XmNtopAttachment = 1 0 445;
+    };
+    };
+};
+};
+object 'geolineDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'geolineDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_geolineDS (parent)
+Widget parent;
+';
+	XmNwidth = 520;
+	XmNheight = 250;
+	XmNallowShellResize = true;
+	XmNtitle = 'Vector Definitions';
+	XmNminWidth = 520;
+	XmNminHeight = 250;
+	XmNmaxWidth = 520;
+	XmNmaxHeight = 250;
+	};
+object 'geolineFO' : XmForm {
+	arguments {
+	lastGenName = 'geolineFO';
+	XmNwidth = 570;
+	XmNheight = 350;
+	XmNautoUnmanage = false;
+	};
+object 'geolineOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'geolineOM';
+	};
+abstract object 'geolineLB1' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'geolineLB1';
+	XmNlabelString = 'Manage:';
+	};
+};
+abstract object 'geolineCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'geolineCB';
+	};
+object 'geolinePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'geolinePDM';
+	};
+object 'types_riversPB' : XmPushButton {
+	arguments {
+	lastGenName = 'types_riversPB';
+	XmNlabelString = 'Rivers';
+	};
+};
+object 'types_streamsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'types_streamsPB';
+	XmNlabelString = 'Streams';
+	};
+};
+object 'types_SP1' : XmSeparator {
+	arguments {
+	lastGenName = 'types_SP1';
+	};
+};
+object 'types_hiwaysPB' : XmPushButton {
+	arguments {
+	lastGenName = 'types_hiwaysPB';
+	XmNlabelString = 'Highways';
+	};
+};
+object 'types_roadsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'types_roadsPB';
+	XmNlabelString = 'Roads';
+	};
+};
+};
+};
+};
+object 'geoline_inoutFO' : XmForm {
+	arguments {
+	was_selected = true;
+	lastGenName = 'geoline_inoutFO';
+	XmNwidth = 520;
+	XmNheight = 180;
+	};
+object 'line_fileTX' : XmText {
+	arguments {
+	lastGenName = 'line_fileTX';
+	};
+};
+object 'line_importPB' : XmPushButton {
+	arguments {
+	lastGenName = 'line_importPB';
+	XmNlabelString = 'Create Binary Files';
+	XmNalignment = 1;
+	};
+};
+object 'line_fileLB' : XmLabel {
+	arguments {
+	lastGenName = 'line_fileLB';
+	XmNlabelString = 'Source Data File:';
+	};
+};
+object 'line_editPB' : XmPushButton {
+	arguments {
+	lastGenName = 'line_editPB';
+	XmNlabelString = 'Edit File';
+	};
+};
+object 'geoline_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'geoline_okPB';
+	XmNlabelString = 'OK';
+	};
+};
+object 'line_readlog_importPB' : XmPushButton {
+	arguments {
+	lastGenName = 'line_readlog_importPB';
+	XmNlabelString = 'Review Log';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -330;
+	XmNleftAttachment = 1 0 165;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -230;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -105;
+	XmNtopAttachment = 1 0 70;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -475;
+	XmNleftAttachment = 1 0 350;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -100;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -155;
+	XmNtopAttachment = 1 0 125;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -475;
+	XmNleftAttachment = 1 0 275;
+	XmNbottomAttachment = 2 0 -105;
+	XmNtopAttachment = 1 0 70;
+    };
+    };
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -245;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -505;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -230;
+	XmNtopAttachment = 1 0 65;
+    };
+    };
+};
+};
+object 'geo_logviewDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'geo_logviewDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_geo_logviewDS (parent)
+Widget parent;
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Geo Data Import Log';
+	XmNminWidth = 900;
+	XmNminHeight = 460;
+	XmNmaxWidth = 900;
+	XmNmaxHeight = 460;
+	};
+object 'geo_logviewFO' : XmForm {
+	arguments {
+	lastGenName = 'geo_logviewFO';
+	XmNautoUnmanage = false;
+	};
+object 'geo_logviewST' : XmScrolledText {
+	arguments {
+	lastGenName = 'geo_logviewST';
+	};
+abstract object 'geo_viewlogHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'geo_viewlogHSB';
+	};
+};
+abstract object 'geo_logviewVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'geo_logviewVSB';
+	};
+};
+abstract object 'geo_logviewTX' : XmText {
+	arguments {
+	lastGenName = 'geo_logviewTX';
+	XmNeditable = false;
+	XmNeditMode = 0;
+	};
+};
+};
+object 'geo_logview_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'geo_logview_okPB';
+	XmNlabelString = 'OK';
+	};
+};
+object 'geo_logviewLB' : XmLabel {
+	arguments {
+	lastGenName = 'geo_logviewLB';
+	XmNlabelString = 'Log of import for dataset';
+	XmNalignment = 0;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -890;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -425;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -110;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 425;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -885;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    };
+};
+};
+end module;

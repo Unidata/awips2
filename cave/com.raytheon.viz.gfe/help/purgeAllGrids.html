@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="Author" content="Mark Mathewson">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>purgeAllGrids</title>
+</head>
+<body text="#000000" bgcolor="#ffffff" link="#0000ee" vlink="#551a8b"
+ alink="#ff0000">
+<h1>purgeAllGrids User's Guide</h1>
+January 6, 2012<br>
+<hr width="100%">
+<br>
+The purgeAllGrids program is part of the GFESuite software.&nbsp;
+It will remove all grids from all weather elements for the specfied
+database.&nbsp; The grids must not be locked or the purgeAllGrids
+program will fail.&nbsp; <span style="color: rgb(255, 0, 0);">This
+program must be used with CAUTION, since it will destroy existing grids
+with no possibility of recovery.</span><br>
+<hr width="100%">
+<h2>Running the program</h2>
+<h3>
+Command Line Switches</h3>
+The command line syntax is:
+<p><b><tt>purgeAllGrids -h hostname -p rpcPortNumber</tt></b>
+<br>
+<br>
+<table border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>Command Switch</td>
+      <td>Optional or Mandatory?</td>
+      <td>Description</td>
+    </tr>
+    <tr>
+      <td>-h</td>
+      <td>Mandatory (see Note)</td>
+      <td>Host name upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-p</td>
+      <td>Mandatory (see Note)</td>
+      <td>RPC port upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-d <br>
+      </td>
+      <td style="vertical-align: top;">Mandatory<br>
+      </td>
+      <td style="vertical-align: top;">Database identifier, from which
+to purge all grids.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"><b>Note:</b>&nbsp;The -h and -p switches are predefined
+when running in an installed GFESuite environment. They are
+defined
+to the values specified when installing the software.&nbsp; If you wish
+to connect to a different EDEX, then the switches will need to be
+specified.</font>
+</p>
+<hr width="100%">
+<h3>Sample Input</h3>
+<tt></tt>
+<p style="font-weight: bold; font-family: monospace;">purgeAllGrids -d
+BOU_GRID__Restore_00000000_0000</p>
+<br>
+</p>
+<p></p>
+<hr width="100%"><br>
+<a href="GFESuite.html">Return to TOC</a>
+</body>
+</html>

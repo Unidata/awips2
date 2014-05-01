@@ -1,0 +1,6 @@
+C                                           *--> FROM DACOMMON.DARPTS
+C  REPORT CARD COMMON BLOCK
+      COMMON /DARPTS/ NRPTS,RPTUNT,NDMRPT(5)
+      INTEGER*4 RPTUNT(99)
+C
+C

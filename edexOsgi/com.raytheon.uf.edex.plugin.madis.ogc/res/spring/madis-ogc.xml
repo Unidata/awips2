@@ -1,0 +1,28 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	   
+    <bean id="madisLayerCollector" class="com.raytheon.uf.edex.plugin.madis.ogc.MadisLayerCollector" >
+        <constructor-arg ref="layerStore" />
+    </bean>
+    
+	<bean id="madisWfsSource" class="com.raytheon.uf.edex.plugin.madis.ogc.MadisWfsSource">
+		<constructor-arg ref="madisProperties" />
+		<constructor-arg ref="madisTranslator" />
+        <constructor-arg ref="madisLayerCollector"/>
+	</bean>
+	
+	<bean id="madisTranslator" class="com.raytheon.uf.edex.plugin.madis.ogc.MadisTranslator">
+	</bean>
+
+	<bean factory-bean="wfsRegistry" factory-method="register">
+		<constructor-arg ref="madisWfsSource" />
+	</bean> 
+	
+	<bean id="madisLayerTransformer" class="com.raytheon.uf.edex.ogc.common.db.LayerTransformer" >
+  		<constructor-arg value="madis" />
+  		<constructor-arg ref="madisLayerCollector" />
+  	</bean>
+
+</beans>

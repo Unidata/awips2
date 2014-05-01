@@ -1,0 +1,48 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_ffg library file
+#
+#  cmt: File made on Wed Aug  6 12:50:10 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_ffg_t.a:  \
+     $(LIB)/libfcst_ffg_t.a(capi32.o)  \
+     $(LIB)/libfcst_ffg_t.a(ex32.o)  \
+     $(LIB)/libfcst_ffg_t.a(pedy32.o)  \
+     $(LIB)/libfcst_ffg_t.a(rcin32.o)  \
+     $(LIB)/libfcst_ffg_t.a(rcon32.o)  \
+     $(LIB)/libfcst_ffg_t.a(rhar32.o)  \
+     $(LIB)/libfcst_ffg_t.a(rhfd32.o)  \
+     $(LIB)/libfcst_ffg_t.a(rmkc32.o)  \
+     $(LIB)/libfcst_ffg_t.a(rsac32.o)  \
+     $(LIB)/libfcst_ffg_t.a(rsno32.o)  \
+     $(LIB)/libfcst_ffg_t.a(sac32.o)  \
+     $(LIB)/libfcst_ffg_t.a(sno32.o)  \
+     $(LIB)/libfcst_ffg_t.a(wrst32.o)
+

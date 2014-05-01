@@ -1,0 +1,40 @@
+#!/bin/bash
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+# $1 = Primary site
+# $2 = Failed site
+
+CAPS_FAILED_SITE=`echo ${2} | tr [a-z] [A-Z]`
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+if [ $# -ne 2 ]
+then
+  log_msg "Incorrect number of arguments. Correct usage: cleanup_svcbk primary_site failed_site"
+  exit 1
+fi
+
+#
+#-- If the SVCBU_HOME directory exists, delete the contents of it
+#
+if [ -d $SVCBU_HOME ];then
+  echo "Removing the contents of $SVCBU_HOME"
+  echo ${SVCBU_HOME}/* | xargs rm -rf
+fi
+
+#-- Remove the rsync grids
+if [ "$CAPS_FAILED_SITE" = "aer" ]
+then
+   NETCDF_PATH=${GFESUITE_HOME}/exportgrids2
+else
+   NETCDF_PATH=${GFESUITE_HOME}/exportgrids
+fi
+if [ -e ${NETCDF_PATH}/${2}Grd.netcdf ]
+then
+   mv ${NETCDF_PATH}/${2}Grd.netcdf ${NETCDF_PATH}/${2}Grd.netcdf.rm
+   rm ${NETCDF_PATH}/${2}Grd.netcdf.rm
+fi

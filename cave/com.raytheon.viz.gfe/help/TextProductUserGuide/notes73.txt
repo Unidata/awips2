@@ -1,0 +1,1 @@
+The thresholds and variables from the SampleAnalysis class have these arguments from which you can access information upon which to base returned values.  For more details see: Arguments to SampleAnalysis Methods  section of the Text Product Reference Guide.

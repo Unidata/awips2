@@ -1,0 +1,37 @@
+Index: configure.ac
+===================================================================
+--- configure.ac	(revision 782009)
++++ configure.ac	(working copy)
+@@ -66,7 +66,6 @@
+ 	# -Wunreachable-code -Wpadded -Winline
+ 	# -Wshadow - warns about boost headers.
+ 	if test "${enableval}" = yes; then
+-	    gl_COMPILER_FLAGS(-Werror)
+ 	    gl_COMPILER_FLAGS(-pedantic)
+ 	    gl_COMPILER_FLAGS(-Wall)
+ 	    gl_COMPILER_FLAGS(-Wextra)
+Index: src/Makefile.am
+===================================================================
+--- src/Makefile.am	(revision 782009)
++++ src/Makefile.am	(working copy)
+@@ -59,7 +59,7 @@
+   qpid/broker/windows/BrokerDefaults.cpp \
+   qpid/broker/windows/SaslAuthenticator.cpp
+ 
+-EXTRA_DIST= $(platform_dist) $(rgen_srcs) $(windows_dist)
++EXTRA_DIST= $(platform_dist) $(rgen_srcs) $(windows_dist) $(top_srcdir)/src/boost
+ 
+ ## Generated code
+ 
+Index: examples/makedist.mk
+===================================================================
+--- examples/makedist.mk        (revision 830311)
++++ examples/makedist.mk        (working copy)
+@@ -1,6 +1,6 @@
+ # Settings to build the examples in automake
+ AM_CXXFLAGS = $(WARNING_CFLAGS)
+-INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include
++INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include -I$(top_srcdir)/src
+ CLIENT_LIB=$(top_builddir)/src/libqpidclient.la
+ CONSOLE_LIB=$(top_builddir)/src/libqmfconsole.la
+ CLIENTFLAGS=-lqpidclient

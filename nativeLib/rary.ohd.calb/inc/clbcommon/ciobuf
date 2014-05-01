@@ -1,0 +1,4 @@
+C                                           *--> FROM CLBCOMMON.CIOBUF
+C  DATA FILE DAIO INPUT/OUTPUT COMMON BLOCK
+      COMMON /CIOBUF/ LIOBUF,IOBUF(4000)
+C

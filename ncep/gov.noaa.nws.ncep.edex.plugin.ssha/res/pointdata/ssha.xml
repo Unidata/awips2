@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pointDataDescription>
+  <parameter name="FORECASTTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="OBSTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="REFTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="DATAURI" numDims="1" type="STRING" size="128"/> 
+  <parameter name="REPORTTYPE" numDims="1" type="STRING" size="8"/> 
+  <parameter name="CLATH" numDims="1" type="FLOAT" unit="degree_N" />
+  <parameter name="CLONH" numDims="1" type="FLOAT" unit="degree_E" />
+  <parameter name="SAID" numDims="1" type="LONG" unit="" />
+  <parameter name="SIID" numDims="1" type="LONG" unit="" />
+  <parameter name="STAQ" numDims="1" type="STRING" size="20"/> 
+  <parameter name="SOFTV" numDims="1" type="STRING" size="12"/> 
+  <parameter name="SACYLN" numDims="1" type="LONG" unit="" />
+  <parameter name="ORBN" numDims="1" type="LONG" unit="" />
+  <parameter name="NUMID" numDims="1" type="STRING" size="16"/> 
+  <parameter name="RSST" numDims="1" type="LONG" unit="" />
+  <parameter name="AETP" numDims="1" type="LONG" unit="" />
+  <parameter name="DSST" numDims="1" type="LONG" unit="" />
+  <parameter name="INTF" numDims="1" type="LONG" unit="" />
+  <parameter name="EENO" numDims="1" type="LONG" unit="" />
+  <parameter name="ASFL" numDims="1" type="LONG" unit="" />
+  <parameter name="ADQF" numDims="1" type="LONG" unit="" />
+  <parameter name="ARQF" numDims="1" type="LONG" unit="" />
+  <parameter name="ALRF" numDims="1" type="LONG" unit="" />
+  <parameter name="RSFL" numDims="1" type="LONG" unit="" />
+  <parameter name="RDQF" numDims="1" type="LONG" unit="" />
+  <parameter name="RBIF" numDims="1" type="LONG" unit="" />
+  <parameter name="IPIN" numDims="1" type="LONG" unit="" />
+  <parameter name="AASF" numDims="1" type="LONG" unit="" />
+  <parameter name="MMAP" numDims="1" type="LONG" unit="" />
+  <parameter name="IFDT" numDims="1" type="LONG" unit="" />
+  <parameter name="KBOR" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RKBOR" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVPK2" numDims="1" type="LONG" unit="" />
+  <parameter name="KBIC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SBCK" numDims="1" type="FLOAT" unit="" />
+  <parameter name="KBSW" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RKSW" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVKSW" numDims="1" type="LONG" unit="" />
+  <parameter name="KNCS" numDims="1" type="FLOAT" unit="" />
+  <parameter name="KOBC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SKOBC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVPKB" numDims="1" type="LONG" unit="" />
+  <parameter name="KNIC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="ACRS1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="ACRS2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="KAGC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RKAGC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVKG" numDims="1" type="LONG" unit="" />
+  <parameter name="CBOR" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RCBOR" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVPC" numDims="1" type="LONG" unit="" />
+  <parameter name="CBIC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SBCC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="CBSW" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RCSW" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVCSW" numDims="1" type="LONG" unit="" />
+  <parameter name="CNCS" numDims="1" type="FLOAT" unit="" />
+  <parameter name="CCOB" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RCCOB" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVPCB" numDims="1" type="LONG" unit="" />
+  <parameter name="CNIA" numDims="1" type="FLOAT" unit="" />
+  <parameter name="CAGC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RCAGC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NVPCA" numDims="1" type="LONG" unit="" />
+  <parameter name="SCCF1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SCCF2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SCCF3" numDims="1" type="FLOAT" unit="" />
+  <parameter name="TMBRST1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="TMBRST2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="TMBRST3" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RWVC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RLQC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="HMSL1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="HMSL2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="WSPA" numDims="1" type="FLOAT" unit="" />
+  <parameter name="WSPR" numDims="1" type="FLOAT" unit="" />
+  <parameter name="UMWV" numDims="1" type="FLOAT" unit="" />
+  <parameter name="VWMV" numDims="1" type="FLOAT" unit="" />
+  <parameter name="MDYT" numDims="1" type="FLOAT" unit="" />
+  <parameter name="ALRE" numDims="1" type="FLOAT" unit="" />
+  <parameter name="IALR" numDims="1" type="FLOAT" unit="" />
+  <parameter name="ONAP" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SONAW" numDims="1" type="FLOAT" unit="" />
+  <parameter name="ICMK" numDims="1" type="FLOAT" unit="" />
+  <parameter name="AICK" numDims="1" type="FLOAT" unit="" />
+  <parameter name="MDTC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="MWTC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="RWTC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="MSSH" numDims="1" type="FLOAT" unit="" />
+  <parameter name="MSHA" numDims="1" type="FLOAT" unit="" />
+  <parameter name="GEODH" numDims="1" type="FLOAT" unit="" />
+  <parameter name="ODLE" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SETH" numDims="1" type="FLOAT" unit="" />
+  <parameter name="TGOTH1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="TGOTH2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="LTHS1" numDims="1" type="FLOAT" unit="" />
+  <parameter name="LTHS2" numDims="1" type="FLOAT" unit="" />
+  <parameter name="LPTH" numDims="1" type="FLOAT" unit="" />
+  <parameter name="NLTH" numDims="1" type="FLOAT" unit="" />
+  <parameter name="GPTH" numDims="1" type="FLOAT" unit="" />
+  <parameter name="IBCO" numDims="1" type="FLOAT" unit="" />
+  <parameter name="HFSTC" numDims="1" type="FLOAT" unit="" />
+  <parameter name="SSHA" numDims="1" type="FLOAT" unit="" />
+
+</pointDataDescription>

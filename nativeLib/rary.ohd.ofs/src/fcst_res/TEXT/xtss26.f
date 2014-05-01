@@ -1,0 +1,124 @@
+C MODULE XTSS26
+C------------------------------------------------------------------
+C DESC COMPUTE AND SET TIME-SERIES POINTERS
+C-------------------------------------------------------------------
+C  SUBROUTINE TO SET THE RELATIVE POSITION OF THE FIRST TIME-SERIES
+C  OF EACH S/U IN THE TIME-SERIES POINTER ARRAY. USEFUL FOR LOCATING
+C  POINTER IN IDPT ARRAY. IDPT HOLDS LOCATION IN D ARRAY OF START OF
+C  TIME-SERIES.
+C
+C  THIS VALUE IS STORED AS THE SECOND WORD OF INFO ABOUT EACH S/U
+C  IN THE WORK ARRAY, W.
+C
+C---------------------------------------------------------------------
+C  ORIGINALLY PROGRAMMED BY - JTOSTROWSKI - HRL - JULY 1983
+C---------------------------------------------------------------------
+      SUBROUTINE XTSS26(PO,W)
+C
+      INCLUDE 'common/suid26'
+      INCLUDE 'common/resv26'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/exg26'
+      COMMON/ADJ26/NTS17
+C
+      DIMENSION PO(*),W(*),NTS(27)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_res/RCS/xtss26.f,v $
+     . $',                                                             '
+     .$Id: xtss26.f,v 1.4 2000/12/19 15:03:13 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C  THE NTS VALUES ARE THE NUMBER OF TS ID'S TO BE SCANNED FOR EACH TS.
+C  EXCEPT FOR #'S 2, 3, 8, AND 16. FOR THESE THE NTS VALUES ARE THE
+C  BASE NO. OF TS ID'S. IF THE PARMS FOR THESE S/U'S INDICATE IT, THE
+C  NO. IS INCREMENTED BY ONE.
+C
+      DATA NTS/4*0,3,2,0,1,0,2,0,5,0,1,0,2,6,3,9*0/
+C
+C  SIX TIME-SERIES ARE USED BY THE GENERAL SECTION.
+C
+      NUMTS = 7
+      NTS17 = 6
+      NTS(17) = 6
+C
+C  LOOP THRU ALL DEFINED S/U'S TO SET THE TIME-SERIES POSITION.
+C
+      IF (NSUDEF .EQ. 0) GO TO 9999
+      DO 100 I=1,NSUDEF
+C
+C  MUST CONVERT THE S/U NUMBERS TO RANGE FROM 1 TO 24. THEY ARE
+C  HELD IN THE PO ARRAY AS 1010 TO 1130 FOR SCHEMES AND FROM 1510
+C  TO 1610 FOR UTILITIES.
+C
+      SUNUM = PO(LOCPTR + (I-1)*4 + 1)
+      ISUNUM=SUNUM
+      IBASE=ISUNUM/10
+      IF (IBASE .NE. 154) GO TO 40
+      NSU17=(SUNUM-IFIX(SUNUM)+0.01)*10
+      IF (NSU17 .NE. 1)  GO TO 40
+      NTS17 = 7
+      NTS(17) = 7
+   40 CONTINUE
+CCC      CALL XBLV26(SUNUM,J,LEVEL)
+
+      JMAX = 27
+      J    =  0
+   42 IF (J .GE. JMAX) GOTO 44
+        J = J + 1
+        ISUX = SUCODE(J)/10
+        IF (IBASE .EQ. ISUX) JMAX = 0
+        GOTO 42
+   44 CONTINUE
+
+C  FOR S/U'S 2,3, 8 OR 16, THE NO. OF TIME-SERIES FOR THE S/U IS MARKED
+C  BY A PARM VALUE IN THE PO ARRAY.
+C
+      LOC = (I-1)*3 + 2
+      NUMTST = NUMTS
+C  THE FOLLOWING CHANGE MADE ON 10/17/90 -- #280
+C      IF (J.EQ.2.OR.J.EQ.3.OR.J.EQ.8) GO TO 50
+      IF (J.EQ.2.OR.J.EQ.3.OR.J.EQ.8.OR.J.EQ.16) GO TO 50
+C  END OF CHANGE OF 10/17/90
+C
+C      IF (NTS(J).EQ.0) NUMTST = 0
+      NADD = NTS(J)
+      GO TO 60
+C
+C  LOOK IN PARMS FOR THE NO. OF TIME-SERIES FOR THIS S/U.
+C
+   50 CONTINUE
+      LOCP = PO(LOCPTR + (I-1)*4 + 2)
+      NTHIS = PO(LOCP)
+cc      IF (J.EQ.8) NTHIS = NTHIS - 1
+      IF (J.EQ.8) THEN
+         NADD=NTHIS
+         IF(NTHIS.GT.2) NADD=NTHIS/100
+         GO TO 60
+      ENDIF
+      IF (J.EQ.16.AND.NTHIS.LE.0) NTHIS = 0
+      NUMTST = NUMTS
+C  THE FOLLOWING CHANGE MADE ON 10/17/90 -- #280
+C      IF (NTHIS.EQ.0) NUMTST = 0
+C  END OF CHANGE OF 10/17/90
+C
+      NADD = NTS(J)
+      IF (NTHIS.GT.0) NADD = NADD + 1
+C
+C  NOW SET THE POSITION AND UPDATE THE NUMBER STORED.
+C
+   60 CONTINUE
+      W(LOC) = NUMTST + 0.01
+      NUMTS = NUMTS + NADD
+      IF (IBUG.GE.2) WRITE(IODBUG,1000) SUNUM,LOC,J,NADD,NUMTST,NUMTS
+ 1000 FORMAT(10X,'SUNUM,LOC,S/UNO,NADD,NUMTST,NUMTS= ',F10.2,5I5)
+C
+  100 CONTINUE
+C
+ 9999 CONTINUE
+      RETURN
+      END

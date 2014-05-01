@@ -1,0 +1,360 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+sourceDirectory = '/fs/hseb/pda/users/whfs/devl/src/MPEGui/';
+generateNameC = * 'display_edit_precip_poly.c';
+generateNameCMainProgram = 'display_edit_precip_poly.c';
+generateNameStubs = 'display_edit_precip_poly_stubs.c';
+generateNameExterns = * 'display_edit_precip_poly.h';
+generateNameResDB = 'display_edit_precip_poly.res';
+generateNameMakefile = 'Makefile';
+motifFlavour = 2;
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'display_edit_precip_polyDS' : XmDialogShell {
+	arguments {
+	name = 'display_edit_precip_polyDS';
+	lastGenName = 'display_edit_precip_polyDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_display_edit_precip_polyDS (Widget parent)
+';
+	XmNwidth = 300;
+	XmNheight = 650;
+	XmNallowShellResize = false;
+	XmNtitle = 'Edit Precipitation';
+	XmNminWidth = 300;
+	XmNminHeight = 650;
+	XmNmaxWidth = 300;
+	XmNmaxHeight = 650;
+	XmNbaseWidth = 300;
+	XmNbaseHeight = 650;
+	};
+object 'display_edit_precip_polyFO' : XmForm {
+	arguments {
+	name = 'display_edit_precip_polyFO';
+	lastGenName = 'display_edit_precip_polyFO';
+	XmNx = 338;
+	XmNwidth = 300;
+	XmNheight = 650;
+	XmNresizePolicy = XmRESIZE_NONE;
+	XmNautoUnmanage = false;
+	XmNnoResize = true;
+	};
+object 'edit_precip_polySubLB' : XmLabel {
+	arguments {
+	name = 'edit_precip_polySubLB';
+	lastGenName = 'edit_precip_polySubLB';
+	generateResName = true;
+	XmNwidth = 165;
+	XmNlabelString = 'Select Field To Substitute';
+	};
+};
+object 'edit_precip_polySubPB' : XmPushButton {
+	arguments {
+	name = 'edit_precip_polySubPB';
+	lastGenName = 'edit_precip_polySubPB';
+	generateResName = true;
+	XmNwidth = 80;
+	XmNlabelString = 'Substitute';
+	};
+};
+object 'edit_precip_polySP' : XmSeparator {
+	arguments {
+	name = 'edit_precip_polySP';
+	lastGenName = 'edit_precip_polySP';
+	};
+};
+object 'edit_precip_polyClosePB' : XmPushButton {
+	arguments {
+	name = 'edit_precip_polyClosePB';
+	lastGenName = 'edit_precip_polyClosePB';
+	XmNlabelString = 'Close';
+	XmNrecomputeSize = false;
+	};
+};
+object 'precipModeRB' : XmRadioBox {
+	arguments {
+	name = 'precipModeRB';
+	lastGenName = 'precipModeRB';
+	XmNheight = 360;
+	};
+object 'rMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'rMosaicTB';
+	lastGenName = 'rMosaicTB';
+	XmNx = 3;
+	XmNy = 3;
+	XmNlabelString = 'Radar Mosaic';
+	XmNrecomputeSize = false;
+	};
+};
+object 'avgRMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'avgRMosaicTB';
+	lastGenName = 'avgRMosaicTB';
+	XmNx = 3;
+	XmNy = 30;
+	XmNlabelString = 'Average Radar Mosaic';
+	};
+};
+object 'maxRMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'maxRMosaicTB';
+	lastGenName = 'maxRMosaicTB';
+	XmNx = 3;
+	XmNy = 57;
+	XmNlabelString = 'Max Radar Mosaic';
+	};
+};
+object 'bMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'bMosaicTB';
+	lastGenName = 'bMosaicTB';
+	XmNlabelString = 'Field Bias Mosaic';
+	};
+};
+object 'lMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'lMosaicTB';
+	lastGenName = 'lMosaicTB';
+	XmNlabelString = 'Local Bias Mosaic';
+	};
+};
+object 'mMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'mMosaicTB';
+	lastGenName = 'mMosaicTB';
+	XmNlabelString = 'Multisensor Mosaic';
+	};
+};
+object 'locMMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'locMMosaicTB';
+	lastGenName = 'locMMosaicTB';
+	XmNlabelString = 'Local Bias Multisensor Mosaic';
+	};
+};
+object 'gageOnlyTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'gageOnlyTB';
+	lastGenName = 'gageOnlyTB';
+	XmNlabelString = 'Gage Only Analysis';
+	};
+};
+object 'satPrecipTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'satPrecipTB';
+	lastGenName = 'satPrecipTB';
+	XmNlabelString = 'Satellite Precipitation';
+	};
+};
+object 'locSatPrecipTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'locSatPrecipTB';
+	lastGenName = 'locSatPrecipTB';
+	XmNlabelString = 'Local Bias Satellite Precipitation';
+	};
+};
+object 'xmrgTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'xmrgTB';
+	lastGenName = 'xmrgTB';
+	XmNlabelString = 'Best Estimate QPE';
+	};
+};
+object 'p3LMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'p3LMosaicTB';
+	lastGenName = 'p3LMosaicTB';
+	XmNx = 3;
+	XmNy = 300;
+	XmNlabelString = 'P3 Local Bias Mosaic';
+	};
+};
+object 'rfcMosaicTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'rfcMosaicTB';
+	lastGenName = 'rfcMosaicTB';
+	XmNlabelString = 'RFC Best Estimate Mosaic';
+	};
+};
+};
+object 'adjust_precip_valLB' : XmLabel {
+	arguments {
+	name = 'adjust_precip_valLB';
+	lastGenName = 'adjust_precip_valLB';
+	XmNlabelString = 'Adjust Precipitation Value';
+	};
+};
+object 'adjust_precip_valSC' : XmScale {
+	arguments {
+	name = 'adujst_precip_valSC';
+	was_selected = true;
+	lastGenName = 'adjust_precip_valSC';
+	XmNtitleString = ' ';
+	XmNshowValue = true;
+	XmNminimum = 0;
+	XmNmaximum = 500;
+	XmNvalue = 0;
+	XmNorientation = XmHORIZONTAL;
+	XmNprocessingDirection = XmMAX_ON_RIGHT;
+	XmNdecimalPoints = 2;
+	XmNscaleMultiple = 1;
+	};
+};
+object 'adjust_setPB' : XmPushButton {
+	arguments {
+	name = 'adjust_setPB';
+	lastGenName = 'adjust_setPB';
+	XmNlabelString = 'Set';
+	XmNrecomputeSize = false;
+	};
+};
+object 'adjust_raisePB' : XmPushButton {
+	arguments {
+	name = 'adjust_raisePB';
+	lastGenName = 'adjust_raisePB';
+	XmNlabelString = 'Raise';
+	};
+};
+object 'adjust_lowerPB' : XmPushButton {
+	arguments {
+	name = 'adjust_lowerPB';
+	lastGenName = 'adjust_lowerPB';
+	XmNlabelString = 'Lower';
+	};
+};
+object 'adjust_scalePB' : XmPushButton {
+	arguments {
+	name = 'adjust_scalePB';
+	lastGenName = 'adjust_scalePB';
+	XmNlabelString = 'Scale';
+	};
+};
+object 'adjust_precip_valSP' : XmSeparator {
+	arguments {
+	name = 'adjust_precip_valSP';
+	lastGenName = 'adjust_precip_valSP';
+	};
+};
+object 'persistentTB' : XmToggleButton {
+	arguments {
+	name = 'persistentTB';
+	lastGenName = 'persistentTB';
+	XmNlabelString = 'Make Persistent';
+	XmNrecomputeSize = false;
+	XmNset = XmUNSET;
+	};
+};
+object 'adjust_snowPB' : XmPushButton {
+	arguments {
+	name = 'adjust_snowPB';
+	lastGenName = 'adjust_snowPB';
+	XmNlabelString = 'Snow';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -241;
+	XmNleftAttachment = 1 0 41;
+	XmNbottomAttachment = 2 0 -184;
+	XmNtopAttachment = 1 0 164;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -96;
+	XmNleftAttachment = 1 0 16;
+	XmNbottomAttachment = 2 0 -588;
+	XmNtopAttachment = 1 0 558;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -299;
+	XmNleftAttachment = 1 0 12;
+	XmNbottomAttachment = 2 0 -605;
+	XmNtopAttachment = 1 0 594;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -298;
+	XmNleftAttachment = 1 0 186;
+	XmNbottomAttachment = 2 0 -645;
+	XmNtopAttachment = 1 0 612;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -243;
+	XmNleftAttachment = 1 0 42;
+	XmNbottomAttachment = 2 0 -549;
+	XmNtopAttachment = 1 0 194;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -240;
+	XmNleftAttachment = 1 0 40;
+	XmNbottomAttachment = 2 0 -31;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -260;
+	XmNleftAttachment = 1 0 25;
+	XmNbottomAttachment = 2 0 -95;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -59;
+	XmNleftAttachment = 1 0 4;
+	XmNbottomAttachment = 2 0 -132;
+	XmNtopAttachment = 1 0 102;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -119;
+	XmNleftAttachment = 1 0 64;
+	XmNbottomAttachment = 2 0 -132;
+	XmNtopAttachment = 1 0 102;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -179;
+	XmNleftAttachment = 1 0 124;
+	XmNbottomAttachment = 2 0 -132;
+	XmNtopAttachment = 1 0 102;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -240;
+	XmNleftAttachment = 1 0 185;
+	XmNbottomAttachment = 2 0 -132;
+	XmNtopAttachment = 1 0 102;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -277;
+	XmNleftAttachment = 1 0 17;
+	XmNbottomAttachment = 2 0 -155;
+	XmNtopAttachment = 1 0 145;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -197;
+	XmNleftAttachment = 1 0 69;
+	XmNbottomAttachment = 2 0 -57;
+	XmNtopAttachment = 1 0 33;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -294;
+	XmNleftAttachment = 1 0 244;
+	XmNbottomAttachment = 2 0 -133;
+	XmNtopAttachment = 1 0 102;
+    };
+    };
+};
+};
+end module;

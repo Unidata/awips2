@@ -1,0 +1,164 @@
+'\"$Header: /cvsroot/ldm/src/ulog/ulog.3,v 1.59.20.1 2009/06/18 16:23:30 steve Exp $
+.TH ULOG 3 "$Date: 2009/06/18 16:23:30 $" "Printed: \n(yr.\n(mo.\n(dy" "LDM LIBRARY FUNCTIONS"
+.SH NAME
+ulog \- Unidata ldm4 logging interface
+.SH SYNOPSIS
+.ft B
+.na
+.nh
+.HP
+#include "ulog.h"
+.HP 4
+int openulog( char *ident, int options, int facility, char *logfilename) ;
+.HP
+int closeulog(void) ;
+.HP
+int ulog(int pri, char *fmt, ...) ;
+.HP
+int vulog(int pri, const char *fmt, va_list args)
+.HP
+int setulogmask(int pmask) ;
+.HP
+void uerror(char *fmt, ...) ;
+.HP
+void serror(char *fmt, ...) ;
+.HP
+void unotice(char *fmt, ...) ;
+.HP
+void uinfo(char *fmt, ...) ;
+.HP
+void udebug(char *fmt, ...) ;
+.HP
+int rollulogpri(void) ;
+.HP
+char *ubasename(char *av0) ;
+.ad
+.hy
+.SH DESCRIPTION
+.LP
+These routines provide a consistent logging in Unidata Local Data
+Manger (ldm) applications. They reimplement the `client side' of
+syslog(3) mechanisms, with additional functionality, and, we hope,
+somewhat greater ease of use. Use of this interface allows us to
+deal with the lack of consistent implementations of syslog(3)
+between operating systems.
+.LP
+The major difference between use of this
+interface and use of syslog(3) is that these routines also allow logging
+directly to a file or standard error.
+.LP
+.B openulog(\|)
+initializes the library and returns a file descriptor corresponding to the
+error channel or -1 on error. 
+The \fIident\fP and \fIfacility\fP parameters are the same as
+in the syslog(3) function \fBopenlog\fP.
+The \fIoptions\fP parameter is a bit field which indicates logging options.
+This includes all the options used in the syslog(3) function \fBopenlog\fP,
+as well as two added by this package:
+.RS
+.TP 20
+.SB LOG_NOTIME
+Do not format and insert in the message a ctime(3) style time stamp.
+(On many systems, you will get one anyway, but it will be provided
+by the server syslogd, rather than by this client library.)
+.TP
+.SB LOG_LOCALTIME
+Use localtime(3) as the time base. The default is to use gmtime(3), so
+the default is for the time stamps to be in UTC. Note that this default
+is different than the syslog(3) package which uses localtime, and
+that the ctime(3) style formating (dictated by the protocol) includes
+no timezone field. So, mixing ulog(3) messages and syslog(3) messages in
+the same file can be confusing as you first look at the time stamps.
+.RE
+.br
+.ne 9
+.LP
+\fIident\fP is a string which will appear in each log message, typically the
+name of the program.
+The \fIfacility\fP defaults to LOG_LOCAL0 if a zero is used.
+The \fIlogfilename\fP is a the path name to a file which is opened in append
+mode for logging. It is created if necessary. If \fIlogfilename\fP is `-',
+standard error is used. If \fIlogfilename\fP is 0 or an empty string, a connection to syslogd(8) is opened. In this case this ulog() behaves as syslog(3).
+If for some reason writes to the specified log file fail, ulog() falls back
+to syslog(3) behavior as a failsafe.
+.LP
+You may override the use of the LOG_LOCAL0 facility by setting the
+environment variable
+ULOG_FACILITY_OVERRIDE to a different number n to use LOG_LOCALn.  If
+you do this, you should set the environment variable in
+the .cshrc or .profile start-up file for the ldm user; also manually
+edit the scour script to replace `local0' with `localn' where n is the
+local facility you have chosen, and use the appropriate `localn'
+instead of `local0' in the /etc/syslog.conf file.
+.LP
+.B closeulog(\|)
+simply closes the log file descriptor. Like syslog(3), subsequent calls to
+ulog() will reopen the channel.
+.LP
+.B ulog(\|)
+is analogous to the syslog() call, the arguments are the same.
+The %m format directive is not supported, but see serror() below.
+None of our programs use ulog directly. Instead, we use the convenience
+wrappers serror(), uerror(), unotice(), uinfo() and udebug() described below.
+.LP
+.B vulog(\|)
+is functionally identical to the ulog() function but for a single va_list
+argument.  See stdarg(3) for more information.  On success, the number of
+characters actually written is returned.  This number will be zero if the
+priority of the message was insufficient to have it printed.  On failure,
+the value -1 is returned.
+.LP
+.B setulogmask(\|)
+is analogous to the syslog(3) setlogmask() call, the argument is the same.
+A major difference is that this call actually sets the log priority as documented. (In the
+syslog() implementations we have seen, setlogmask() was missing or a NOOP).
+.LP
+.B uerror(\|)
+is equivalent to ulog(LOG_ERR, ...). It is used for reporting error
+conditions which are not the direct result of a system call error.
+.LP
+.B serror(\|)
+is equivalent to ulog(LOG_ERR, ...) also. However, if the global errno is not
+0, indicating a system call error, a string describing the error is appended to
+the error message in the fashion of perror(3). This function is used for
+reporting error conditions which are the direct result of a system call error.
+.LP
+.B unotice(\|)
+is equivalent to ulog(LOG_NOTICE, ...). It is used for conditions
+that are not errors but that the programmer wants the user to be aware
+of.
+.LP
+.B uinfo(\|)
+is equivalent to ulog(LOG_INFO, ...). It is used for `verbose'
+mode messages.
+.LP
+.B udebug(\|)
+is equivalent to ulog(LOG_DEBUG, ...). It is used for debug messages. 
+When logging to a file or stderr, the debug messages will appear without
+logging prefix. This is feature.
+.LP
+.B rollulogpri(\|)
+cycles through the following priority mask states: neither 
+LOG_INFO nor LOG_DEBUG; just LOG_INFO; LOG_INFO and LOG_DEBUG.
+Each call moves to the next state in the order above. If just
+LOG_DEBUG was set initially, the cycle is joined at "LOG_INFO and LOG_DEBUG"
+by a call to \fBrollulogpri(\|)\fP.
+Used for setting verbosity.
+.LP
+.B ubasename(\|)
+Strips off leading path from \fIident\fP. Useful for converting argv[0]
+to something shorter.
+.LP
+.SH COMPATIBILITY NOTE
+This package will work with old (4.2 BSD) syslogd as shipped on
+Ultrix, but the functionality is tailored to the 4.3 BSD syslog.
+You may wish to use the LOG_NOTIME option to 
+.B openulog(\|)
+to avoid having two dates per line in your logfile on such systems.
+.LP
+.LP
+.SH "SEE ALSO"
+.BR printf (3),
+.BR syslog (3),
+.BR syslogd (8),
+.BR syslog.conf (5)

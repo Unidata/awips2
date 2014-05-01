@@ -1,0 +1,140 @@
+C MODULE SSCHK
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE SSCHK (IUNIT,NCKREC,NCKPCT,IFLCHK,CALLER,ISTAT)
+C
+C  THIS ROUTINE CHECKS IF MORE RECORDS ARE ALLOCATED THAN SPECIFIED
+C  AND IF THE PERCENT SPACE USED EXECEEDS THE CRITERIA.
+C
+      CHARACTER*8 DDNAME
+      CHARACTER*8 FTXX/8HFTXXF001/
+      CHARACTER*4 RECFM/' '/,DSORG/' '/
+      CHARACTER*6 VOLUME/' '/
+      CHARACTER*8 DDN/' '/
+      CHARACTER*128 DSNAME/' '/
+C
+      INCLUDE 'uio'
+      INCLUDE 'udsatx'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/suoptx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/sschk.f,v $
+     . $',                                                             '
+     .$Id: sschk.f,v 1.2 1998/10/14 15:46:51 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,80)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('STAT')
+C
+      ISTAT=0
+      NPRINT=0
+      ICKPCT=95
+C
+C  CHECK IF NUMBER OF RECORDS ALLOCATED TO FILE TO BE CHECKED
+      IF (IFLCHK.EQ.0) GO TO 60
+      IF (NCKREC.EQ.0) GO TO 60
+C
+C  SET DDNAME
+      CALL UFXDDN (FTXX,IUNIT,IERR)
+      IF (IERR.GT.0) GO TO 60
+      DDNAME=FTXX
+C
+C  GET DATASET ATTRIBUTES
+      IPRERR=1
+      CALL UDSATR (DDNAME,DSNAME,VOLUME,RECFM,LRECL,LBLOCK,DSORG,
+     *   NTRK,NTRKU,IPRERR,IERR)
+      IF (IERR.GT.0) GO TO 60
+C
+C  GET NUMBER OF BLOCKS PER TRACK
+      LPRINT=0
+      CALL UDKBLK (DSNAME,LP,DSUNIT,LBLOCK,LPRINT,NPRTRK,
+     *   NPCT,IERR)
+      IF (IERR.GT.0) GO TO 60
+C
+C  COMPUTE NUMBER OF RECORDS IN DATASET
+      NUMREC=LBLOCK/LRECL*NPRTRK*NTRK
+C
+C  CHECK IF NUMBER OF RECORDS IN DATASET EQUAL TO NUMBER SPECIFIED
+      IF (NUMREC.EQ.NCKREC) GO TO 60
+C
+      IF (NUMREC.LT.NCKREC) GO TO 30
+C
+C  NUMBER OF RECORDS IN DATASET GREATER THAN NUMBER SPECIFIED
+      NREC=NUMREC-NCKREC
+      IF (IFLCHK.EQ.-1) GO TO 10
+         IF (IOPOVP.EQ.0) WRITE (LP,110) NREC
+         IF (IOPOVP.EQ.1) THEN
+            WRITE (LP,110) NREC
+            WRITE (LP,110) NREC
+            ENDIF
+         GO TO 20
+10    NCKREC=NUMREC
+      IF (IOPOVP.EQ.0) WRITE (LP,130) NCKREC
+      IF (IOPOVP.EQ.1) THEN
+         WRITE (LP,130) NCKREC
+         WRITE (LP,130) NCKREC
+         ENDIF
+      CALL SUDWRT (1,CALLER,IERR)
+20    NPRINT=1
+      GO TO 60
+C
+C  NUMBER OF RECORDS IN DATASET LESS THAN NUMBER SPECIFIED
+30    NREC=NCKREC-NUMREC
+      IF (IFLCHK.EQ.-1) GO TO 40
+         IF (IOPOVP.EQ.0) WRITE (LP,120) NREC
+         IF (IOPOVP.EQ.1) THEN
+            WRITE (LP,120) NREC
+            WRITE (LP,120) NREC
+            ENDIF
+         GO TO 50
+40    NCKREC=NUMREC
+      IF (IOPOVP.EQ.0) WRITE (LP,130) NCKREC
+      IF (IOPOVP.EQ.1) THEN
+         WRITE (LP,130) NCKREC
+         WRITE (LP,130) NCKREC
+         ENDIF
+      CALL SUDWRT (1,CALLER,IERR)
+50    NPRINT=1
+C
+60    IF (NCKPCT.EQ.0) GO TO 70
+C
+C  CHECK PERCENT SPACE AVAILABLE
+      IF (NCKPCT.LE.ICKPCT) GO TO 70
+      IF (NPRINT.EQ.1) THEN
+         WRITE (LP,90)
+         CALL SULINE (LP,1)
+         ENDIF
+      IF (IOPOVP.EQ.0) WRITE (LP,100) ICKPCT
+      IF (IOPOVP.EQ.1) THEN
+         WRITE (LP,100) ICKPCT
+         WRITE (LP,100) ICKPCT
+         ENDIF
+C
+70    IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,140) ISTAT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+80    FORMAT (' *** ENTER SSCHK')
+90    FORMAT (' ')
+100   FORMAT ('+',T100,'<--* GREATER THAN ',I2,'% USED')
+110   FORMAT ('+',T100,'<--* ',I5,' RECORDS UNREACHABLE')
+120   FORMAT ('+',T100,'<--* ',I5,' RECORDS OVERSPECIFIED')
+130   FORMAT ('+',T100,'<--* MAX RECORDS SET TO ',I5)
+140   FORMAT (' *** EXIT SSCHK : STATUS CODE=',I2)
+C
+      END

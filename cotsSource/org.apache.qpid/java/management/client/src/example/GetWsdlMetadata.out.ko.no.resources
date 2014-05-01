@@ -1,0 +1,58 @@
+      GetWSDLMetadataExample 
+-------------------------------------------------------------------
+
+This example shows the usage of WS-DM 
+GetResourcePropertyRequest / Response on a 
+Group service.
+The target resource is the WS-DM Adapter itself 
+and the requested property is "ws-rp:Entry".
+WS-DM Adapter is a special WS-Resource (is a Group)
+that  acts as the main entry point for retrieving
+all other managed resources.
+So clients that want to deal with QMan WS-Resources
+must first get resource identifiers sending
+a GetResourcePropertyRequest to WS-DM Adapter 
+with "ws-rp:Entry" as target target property.
+
+-------------------------------------------------------------------
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://localhost:8080/qman/services/adapter</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:7f801eff-c528-91e8-33eb-3d1dd164bce7</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourceProperty
+            xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2" xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2">wsrf-sg:Entry</wsrf-rp:GetResourceProperty>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:86a34968-38aa-83e8-47dd-8e86ffd8ac06</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:7f801eff-c528-91e8-33eb-3d1dd164bce7</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://localhost:8080/qman/services/adapter</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourcePropertyResponse xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"/>
+    </soap:Body>
+</soap:Envelope>
+
+----------------------------WARNING---------------------------
+Cannot proceed with the example... it seems
+that there are no managed WS-Resources on QMan.
+Please check QMan in order to see that it is really
+connected with a broker.
+-------------------------------------------------------------------

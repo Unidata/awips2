@@ -1,0 +1,85 @@
+                          LDM README FILE
+
+INTRODUCTION:
+
+    This package contains the source-code for the Unidata Program
+    Center's Local Data Manager (LDM).
+
+RELEASE IDENTIFICATION:
+
+    The release identifier for this package is in the file VERSION and
+    has the following form:
+
+        <major>.<minor>.<rev>
+
+    where:
+
+        <major>     Is the major release-number (e.g., 6).  Changes
+                    to this component indicate a major departure from
+                    previous releases (such as a change to the LDM
+                    protocol).  Such changes are often not compatible
+                    with previous releases.
+
+        <minor>     Is the minor release-number (e.g., 1).  Changes
+                    to this component indicate the addition of
+                    new features.  The package remains compatible
+                    with previous releases having the same major
+                    release-number.
+
+        <rev>       Is the revision-level (e.g., 0).  Changes to this
+                    component indicate bug-fixes and/or performance
+                    improvments that are functionally compatible with
+                    previous releases having the same major and minor
+                    release-numbers.
+
+LEGAL:
+
+    Licensing and copyright information are contained in the file
+    COPYRIGHT, which is in the top-level source directory.
+
+INFORMATION:
+
+    HOMEPAGE -- INCLUDING INSTALLATION & CONFIGURATION INSTRUCTIONS:
+
+        The homepage of the LDM package is
+
+                http://www.unidata.ucar.edu/software/ldm/
+
+        Click on the appropriate release identifier to go the
+        release-specific homepage, where you will find detailed LDM
+        installation and configuration instructions as well as other useful
+        information.
+
+    CHANGE LOG:
+
+        Changes to the package are documented in the file CHANGE_LOG,
+        which is in the top-level source-directory.
+
+    RELEASE NOTES:
+
+        Release-specific aspects are documented in the file
+        RELEASE_NOTES, which is in the top-level source-directory.
+
+LDM DECODERS:
+
+    LDM-compatible decoders for local processing of received data
+    products are available seperately from the Unidata Program
+    Center.  These include Unidata decoders, GEMPAK decoders and MCIDAS
+    decoders. See
+
+        Unidata Decoders:
+            http://www.unidata.ucar.edu/software/decoders/
+
+        GEMPAK Decoders:
+            http://www.unidata.ucar.edu/software/gempak/
+
+        McIDAS Decoders:
+            http://www.unidata.ucar.edu/software/mcidas/mcidd/
+
+SUPPORT:
+
+    If you are a licensed Unidata member, then you may obtain support by
+    sending an email inquiry to support-ldm@unidata.ucar.edu.  Please
+    include a description of the type of platform (hardware and
+    operating system) and any relevant information that can help us
+    answer your question (error messages, symptoms, etc.).

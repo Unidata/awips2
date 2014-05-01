@@ -1,0 +1,300 @@
+<sigWindHeightConversionList>
+	<!-- Some UAObs are incorrectly encoded so the Significant Wind heights 
+		are multiples of 300 meters when in fact the observations were really taken 
+		at multiples of 1000 feet. This list specifies all affected sites and the 
+		corresponding conversion factor. -->
+	<!--Tatoosh Island, WA -->
+	<conversion stationId="72798" factor="1.016" />
+	<!--South Vandenberg AFB -->
+	<conversion stationId="74606" factor="1.016" />
+	<!--Yuma, AZ (K1Y7) -->
+	<conversion stationId="74004" factor="1.016" />
+	<!--Yuma PG Site 2, AZ (K1Y8) -->
+	<conversion stationId="74005" factor="1.016" />
+	<!--Yuma PG Site 3, AZ (K1Y9) -->
+	<conversion stationId="74006" factor="1.016" />
+	<!--Albuquerque, NM (KABQ) -->
+	<conversion stationId="72365" factor="1.016" />
+	<!--Boise, ID (KBOI) -->
+	<conversion stationId="72681" factor="1.016" />
+	<!--Denver, CO (KDNR) -->
+	<conversion stationId="72469" factor="1.016" />
+	<!--Desert Rock, NV (KDRA) -->
+	<conversion stationId="72387" factor="1.016" />
+	<!--Edwards AFB, CA (KEDW) -->
+	<conversion stationId="72381" factor="1.016" />
+	<!--Flagstaff, AZ (KFGZ) -->
+	<conversion stationId="72376" factor="1.016" />
+	<!--Glasgow, MT (KGGW) -->
+	<conversion stationId="72768" factor="1.016" />
+	<!--Grand Junction, CO (KGJT) -->
+	<conversion stationId="72476" factor="1.016" />
+	<!--Elko, NV (KLKN) -->
+	<conversion stationId="72582" factor="1.016" />
+	<!--Las Vegas, NV (KVEF) -->
+	<conversion stationId="72388" factor="1.016" />
+	<!--Medford, OR (KMFR) -->
+	<conversion stationId="72597" factor="1.016" />
+	<!--San Diego, CA (KNKX) -->
+	<conversion stationId="72293" factor="1.016" />
+	<!--San Nicholas Island, CA (KNSI) -->
+	<conversion stationId="72291" factor="1.016" />
+	<!--Pt. Mugu NAWS, CA (KNTD) -->
+	<conversion stationId="72391" factor="1.016" />
+	<!--Oakland, CA (KOAK) -->
+	<conversion stationId="72493" factor="1.016" />
+	<!--Spokane, WA (KOTX) -->
+	<conversion stationId="72786" factor="1.016" />
+	<!--Phoenix (KPSR) -->
+	<conversion stationId="74626" factor="1.016" />
+	<!--Reno, NV (KREV) -->
+	<conversion stationId="72489" factor="1.016" />
+	<!--Riverton, WY (KRIW) -->
+	<conversion stationId="72672" factor="1.016" />
+	<!--Salt Lake City, UT (KSLC) -->
+	<conversion stationId="72572" factor="1.016" />
+	<!--Salem, OR (KSLE) -->
+	<conversion stationId="72694" factor="1.016" />
+	<!--Great Falls, MT (KTFX) -->
+	<conversion stationId="72776" factor="1.016" />
+	<!--Tucson, AZ (KTWC) -->
+	<conversion stationId="72274" factor="1.016" />
+	<!--Quillayute, WA (KUIL) -->
+	<conversion stationId="72797" factor="1.016" />
+	<!--Vanderberg AFB, CA (KVBG) -->
+	<conversion stationId="72393" factor="1.016" />
+	<!--White Sands, NM (KWSD) -->
+	<conversion stationId="72269" factor="1.016" />
+	<!--Yuma (Marine), AZ (KYUM) -->
+	<conversion stationId="72280" factor="1.016" />
+	<!--Aberdeen, SD (KABR) -->
+	<conversion stationId="72659" factor="1.016" />
+	<!--Amarillo, TX (KAMA) -->
+	<conversion stationId="72363" factor="1.016" />
+	<!--Bismarck, ND (KBIS) -->
+	<conversion stationId="72764" factor="1.016" />
+	<!--Brownsville, TX (KBRO) -->
+	<conversion stationId="72250" factor="1.016" />
+	<!--Corpus Christi, TX (KCRP) -->
+	<conversion stationId="72251" factor="1.016" />
+	<!--Dodge City, KS (KDDC) -->
+	<conversion stationId="72451" factor="1.016" />
+	<!--Del Rio, TX (KDRT) -->
+	<conversion stationId="72261" factor="1.016" />
+	<!--Quad Cities, IL (KDVN) -->
+	<conversion stationId="74455" factor="1.016" />
+	<!--El Paso, TX (KEPZ) -->
+	<conversion stationId="72364" factor="1.016" />
+	<!--Fort Worth, TX (KFWD) -->
+	<conversion stationId="72249" factor="1.016" />
+	<!--Green Bay, WI (KGRB) -->
+	<conversion stationId="72645" factor="1.016" />
+	<!--Fort Hood, TX (KHLR) -->
+	<conversion stationId="72257" factor="1.016" />
+	<!--Lincoln, IL (KILX) -->
+	<conversion stationId="74560" factor="1.016" />
+	<!--International Falls, MN (KINL) -->
+	<conversion stationId="72747" factor="1.016" />
+	<!--North Platte, NE (KLBF) -->
+	<conversion stationId="72562" factor="1.016" />
+	<!--Little Rock, AR (KLZK) -->
+	<conversion stationId="72340" factor="1.016" />
+	<!--Midland, TX (KMAF) -->
+	<conversion stationId="72265" factor="1.016" />
+	<!--Minneapolis, MN (KMPX) -->
+	<conversion stationId="72649" factor="1.016" />
+	<!--Omaha, NE (KOAX) -->
+	<conversion stationId="72558" factor="1.016" />
+	<!--Oklahoma City, OK (KOUN) -->
+	<conversion stationId="72357" factor="1.016" />
+	<!--Springfield, MO (KSGF) -->
+	<conversion stationId="72440" factor="1.016" />
+	<!--Topeka, KS (KTOP) -->
+	<conversion stationId="72456" factor="1.016" />
+	<!--Rapid City, SD (KUNR) -->
+	<conversion stationId="72662" factor="1.016" />
+	<!--Albany, NY (KALY) -->
+	<conversion stationId="72518" factor="1.016" />
+	<!--Phillips AAF, Aberdeen, MD (KAPG) -->
+	<conversion stationId="74002" factor="1.016" />
+	<!--Gaylord, MI (KAPX) -->
+	<conversion stationId="72634" factor="1.016" />
+	<!--Birmingham, AL (KBMX) -->
+	<conversion stationId="72230" factor="1.016" />
+	<!--Buffalo, NY (KBUF) -->
+	<conversion stationId="72528" factor="1.016" />
+	<!--Caribou, ME (KCAR) -->
+	<conversion stationId="72712" factor="1.016" />
+	<!--Chatham, MA (KCHH) -->
+	<conversion stationId="74494" factor="1.016" />
+	<!--Charleston, SC (KCHS) -->
+	<conversion stationId="72208" factor="1.016" />
+	<!--Detroit, MI (KDTX) -->
+	<conversion stationId="72632" factor="1.016" />
+	<!--Key West, FL (KKEY) -->
+	<conversion stationId="72201" factor="1.016" />
+	<!--Atlanta, GA (KFFC) -->
+	<conversion stationId="72215" factor="1.016" />
+	<!--Greensboro, NC (KGSO) -->
+	<conversion stationId="72317" factor="1.016" />
+	<!--Portland, ME (KGYX) -->
+	<conversion stationId="74389" factor="1.016" />
+	<!--Cincinnati, OH (KILN) -->
+	<conversion stationId="72426" factor="1.016" />
+	<!--Jackson, MS (KJAN) -->
+	<conversion stationId="72235" factor="1.016" />
+	<!--Jacksonville, FL (KJAX) -->
+	<conversion stationId="72206" factor="1.016" />
+	<!--Lake Charles, LA (KLCH) -->
+	<conversion stationId="72240" factor="1.016" />
+	<!--New Orleans, LA (KLIX) -->
+	<conversion stationId="72233" factor="1.016" />
+	<!--Wash-Dulles, VA (KIAD) -->
+	<conversion stationId="72403" factor="1.016" />
+	<!--Miami, FL (KMFL) -->
+	<conversion stationId="72202" factor="1.016" />
+	<!--Morehead City, NC (KMHX) -->
+	<conversion stationId="72305" factor="1.016" />
+	<!--Nashville, TN (KOHX) -->
+	<conversion stationId="72327" factor="1.016" />
+	<!--Upton, NY (KOKX) -->
+	<conversion stationId="72501" factor="1.016" />
+	<!--Pittsburgh, PA (KPBZ) -->
+	<conversion stationId="72520" factor="1.016" />
+	<!--Roanoke, VA (KRNK) -->
+	<conversion stationId="72318" factor="1.016" />
+	<!--Shreveport, LA (KSHV) -->
+	<conversion stationId="72248" factor="1.016" />
+	<!--Tallahasee, FL (KTAE) -->
+	<conversion stationId="72214" factor="1.016" />
+	<!--Tampa Bay, FL (KTBW) -->
+	<conversion stationId="72210" factor="1.016" />
+	<!--Valparaiso/Eglin, FL (KVPS) -->
+	<conversion stationId="72221" factor="1.016" />
+	<!--Wallops Island, VA (KWAL) -->
+	<conversion stationId="72402" factor="1.016" />
+	<!--Cape Canaveral, FL (KXMR) -->
+	<conversion stationId="74794" factor="1.016" />
+	<!--Redstone Arsenal, AL -->
+	<conversion stationId="74001" factor="1.016" />
+	<!--Eureka, NW (CWEU) -->
+	<conversion stationId="71917" factor="1.016" />
+	<!--Sachs Harbour, NW (CWSY) -->
+	<conversion stationId="71051" factor="1.016" />
+	<!--Baker Lake, NW (CYBK) -->
+	<conversion stationId="71926" factor="1.016" />
+	<!--Cambridge Bay, NW (CYCB) -->
+	<conversion stationId="71925" factor="1.016" />
+	<!--Inuvik, NW (CYEV) -->
+	<conversion stationId="71957" factor="1.016" />
+	<!--Frobisher Bay, NW (CYFB) -->
+	<conversion stationId="71909" factor="1.016" />
+	<!--Alert, NW (CYLT) -->
+	<conversion stationId="71082" factor="1.016" />
+	<!--Resolute Bay, NW (CYRB) -->
+	<conversion stationId="71924" factor="1.016" />
+	<!--Fort Smith, NW (CYSM) -->
+	<conversion stationId="71934" factor="1.016" />
+	<!--Hall Beach, NW (CYUX) -->
+	<conversion stationId="71081" factor="1.016" />
+	<!--Nonman Wells, NW (CYVQ) -->
+	<conversion stationId="71043" factor="1.016" />
+	<!--Whitehorse, YK (CYXY) -->
+	<conversion stationId="71964" factor="1.016" />
+	<!--Coral Harbour, NW (CYZS) -->
+	<conversion stationId="71915" factor="1.016" />
+	<!--Edmonton/Stony, AB (CWEG) -->
+	<conversion stationId="71119" factor="1.016" />
+	<!--Edmonton/Namao, AB (CYED) -->
+	<conversion stationId="71121" factor="1.016" />
+	<!--Edmonton Airport, AB (CYEG) -->
+	<conversion stationId="71123" factor="1.016" />
+	<!--Kelowna, BC (CYLW) -->
+	<conversion stationId="71203" factor="1.016" />
+	<!--Cold Lake, AB (CYOD) -->
+	<conversion stationId="71120" factor="1.016" />
+	<!--Edmonton, AB (CYXD) -->
+	<conversion stationId="71879" factor="1.016" />
+	<!--Prince George, BC (CYXS) -->
+	<conversion stationId="71896" factor="1.016" />
+	<!--Fort Nelson, BC (CYYE) -->
+	<conversion stationId="71945" factor="1.016" />
+	<!--Victoria, BC (CYYJ) -->
+	<conversion stationId="71799" factor="1.016" />
+	<!--Port Hardy, BC (CYZT) -->
+	<conversion stationId="71109" factor="1.016" />
+	<!--Camp Shilo, MB (CWLO) -->
+	<conversion stationId="71853" factor="1.016" />
+	<!--Pickle Lake, ON (CWPL) -->
+	<conversion stationId="71845" factor="1.016" />
+	<!--The Pas, MB (CYQD) -->
+	<conversion stationId="71867" factor="1.016" />
+	<!--Churchill, MB (CYYQ) -->
+	<conversion stationId="71913" factor="1.016" />
+	<!--Placentia, NF (CWAR) -->
+	<conversion stationId="71807" factor="1.016" />
+	<!--Maniwaki, QB (CWMW) -->
+	<conversion stationId="71722" factor="1.016" />
+	<!--Shelburne, NS (CWOS) -->
+	<conversion stationId="71399" factor="1.016" />
+	<!--Sable Island, NS (CWSA) -->
+	<conversion stationId="71600" factor="1.016" />
+	<!--Moosonee, ON (CWZC) -->
+	<conversion stationId="71836" factor="1.016" />
+	<!--La Grande 4, QB (CYAH) -->
+	<conversion stationId="71823" factor="1.016" />
+	<!--Camp Gagetown NB (CYCX) -->
+	<conversion stationId="71701" factor="1.016" />
+	<!--Halifax Metoc, NS (CYHZ) -->
+	<conversion stationId="71396" factor="1.016" />
+	<!--Stephenville, NF (CYJT) -->
+	<conversion stationId="71815" factor="1.016" />
+	<!--Inoucdjouac, QB (CYPH) -->
+	<conversion stationId="71907" factor="1.016" />
+	<!--Yarmouth, NS (CYQI) -->
+	<conversion stationId="71603" factor="1.016" />
+	<!--Montreal/Dorval, QB (CYUL) -->
+	<conversion stationId="71627" factor="1.016" />
+	<!--Fort Chimo, QB (CYVP) -->
+	<conversion stationId="71906" factor="1.016" />
+	<!--Goose Bay, NF (CYYR) -->
+	<conversion stationId="71816" factor="1.016" />
+	<!--St. Johns/Torbay, NF (CYYT) -->
+	<conversion stationId="71801" factor="1.016" />
+	<!--Toronto Int'l, ON (CYYZ) -->
+	<conversion stationId="71624" factor="1.016" />
+	<!--Sept-lies, QB (CYZV) -->
+	<conversion stationId="71811" factor="1.016" />
+	<!--Adak/Davis AFB, AK -->
+	<conversion stationId="70454" factor="1.016" />
+	<!--Barter Island, AK (PABA) -->
+	<conversion stationId="70086" factor="1.016" />
+	<!--Bethel, AK (PABE) -->
+	<conversion stationId="70219" factor="1.016" />
+	<!--Barrow, AK (PABR) -->
+	<conversion stationId="70026" factor="1.016" />
+	<!--Cold Bay, AK (PACB) -->
+	<conversion stationId="70316" factor="1.016" />
+	<!--Kodiak, AK (PADQ) -->
+	<conversion stationId="70350" factor="1.016" />
+	<!--Fairbanks, AK (PAFA) -->
+	<conversion stationId="70261" factor="1.016" />
+	<!--Anchorage, AK (PAFC) -->
+	<conversion stationId="70273" factor="1.016" />
+	<!--King Salmon, AK (PAKN) -->
+	<conversion stationId="70326" factor="1.016" />
+	<!--McGrath, AK (PAMC) -->
+	<conversion stationId="70231" factor="1.016" />
+	<!--Annette Is, AK (PANT) -->
+	<conversion stationId="70398" factor="1.016" />
+	<!--Nome, AK (PAOM) -->
+	<conversion stationId="70200" factor="1.016" />
+	<!--Kotzebue, AK (PAOT) -->
+	<conversion stationId="70133" factor="1.016" />
+	<!--St. Paul Island, AK (PASN) -->
+	<conversion stationId="70308" factor="1.016" />
+	<!--Shemya AFB, AK (PASY) -->
+	<conversion stationId="70414" factor="1.016" />
+	<!--Yakutat, AK (PAYA) -->
+	<conversion stationId="70361" factor="1.016" />
+</sigWindHeightConversionList>

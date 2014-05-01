@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+    	It has to set "true" for your desired font in Selected attribute, set 
+    	"false" for other two fonts that you don't select. 
+    	Total three fonts listed as Small, Medium, Large. 
+    	It can change the number of size on "FontSize" attribute.
+    
+        Modify:
+    	
+    	06/14/2013	Xiaochuan		DR 15733 	Initial creation
+    	07/25/2013  Greg Hull       DR 15733    Deleted. moved to TextEditorCfg.xml
+   -->
+    
+<!--<fontSizeCfg>
+   <SizeButt 
+      <LabelName>Small Font</LabelName>
+      <SizeEnabled>true</SizeEnabled>
+      <FontSize>9</FontSize>
+      <Selected>false</Selected>
+   </SizeButtonCfg>
+   <SizeButtonCfg>
+      <LabelName>Medium Font</LabelName>
+      <SizeEnabled>true</SizeEnabled>
+      <FontSize>11</FontSize>
+      <Selected>true</Selected>
+   </SizeButtonCfg>
+   <SizeButtonCfg>
+      <LabelName>Large Font</LabelName>
+      <SizeEnabled>true</SizeEnabled>
+      <FontSize>13</FontSize>
+      <Selected>false</Selected>
+   </SizeButtonCfg>
+</fontSizeCfg>-->

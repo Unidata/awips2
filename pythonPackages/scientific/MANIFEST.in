@@ -1,0 +1,13 @@
+include README README.BSP README.MPI LICENSE LICENCE MANIFEST.in HG_CHANGESET_ID
+include bsp_virtual bsp_virtual_stackless
+include scientific_win32_postinstall.py
+include Src/*.pyx
+include Src/MPI/Scientific_mpi.c Src/MPI/Scientific_mpi.export Src/MPI/mpipython.c Src/MPI/compile.py Src/MPI/impipython
+include Tests/*.py
+include Doc/CHANGELOG
+include Doc/BSP_Tutorial.pdf
+include Doc/Reference/*
+include Examples/*.c Examples/*.py Examples/BSP/*.py Examples/README
+recursive-include Include *.h
+recursive-include Tools *.py
+exclude Scientific/BSP/Tasks.py

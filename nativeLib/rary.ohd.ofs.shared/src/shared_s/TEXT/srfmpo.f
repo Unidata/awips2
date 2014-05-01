@@ -1,0 +1,115 @@
+C MEMBER SRFMPO
+C-----------------------------------------------------------------------
+C
+C DESC READ FUTURE MAP COMPUTATIONAL ORDER
+C
+      SUBROUTINE SRFMPO (LARRAY,ARRAY,IVFMPO,UNUSED,MFMPID,FMPID,NFMPID,
+     *   IPRERR,ISTAT)
+C
+C
+      DIMENSION ARRAY(LARRAY),UNUSED(2)
+      DIMENSION FMPID(2,1)
+C
+      REAL BLNKID(2)/2*4H    /
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/srfmpo.f,v $
+     . $',                                                             '
+     .$Id: srfmpo.f,v 1.1 1995/09/17 19:20:59 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) WRITE (IOSDBG,60)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG(4HFMPO)
+C
+      IF (LDEBUG.GT.0) WRITE (IOSDBG,70) LARRAY,MFMPID
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+C
+      ISTAT=0
+C
+C  READ PARAMETER ARRAY
+      CALL SUDOPN (1,4HPPP ,IERR)
+      IPTR=0
+      CALL RPPREC (BLNKID,4HFMPO,IPTR,LARRAY,ARRAY,NFILL,IPTRNX,
+     *     IERR)
+      IF (IERR.EQ.0) GO TO 10
+         ISTAT=IERR
+         IF (IPRERR.EQ.0) GO TO 55
+            CALL SRPPST (BLNKID,4HFMPO,IPTR,LARRAY,NFILL,IPTRNX,IERR)
+            IF (LDEBUG.GT.0) WRITE (IOSDBG,100) IERR
+            IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,2)
+            CALL SUERRS (LP,2,-1)
+            GO TO 50
+C
+C  SET PARAMETER ARRAY VERSION NUMBER
+10    IVFMPO=ARRAY(1)
+C
+C  POSITIONS 2 AND 3 ARE UNUSED
+      UNUSED(1)=ARRAY(2)
+      UNUSED(2)=ARRAY(3)
+C
+C  SET NUMBER OF FUTURE MAP AREAS
+      NFMPID=ARRAY(4)
+C
+      NPOS=4
+C
+      IF (NFMPID.EQ.0) GO TO 40
+C
+C  CHECK FOR SUFFIFIENT SPACE FOR FUTURE MAP IDENTIFIERS
+      IF (NFMPID.LE.MFMPID) GO TO 20
+         WRITE (LP,80) NFMPID,MFMPID
+         CALL SUERRS (LP,2,-1)
+         ISTAT=2
+         GO TO 50
+C
+C  SET MAP AREA IDENTIFIERS
+20    DO 30 I=1,NFMPID
+         NPOS=NPOS+1
+         FMPID(1,I)=ARRAY(NPOS)
+         NPOS=NPOS+1
+         FMPID(2,I)=ARRAY(NPOS)
+30       CONTINUE
+C
+40    IF (LDEBUG.EQ.0) GO TO 50
+         WRITE (IOSDBG,130) NPOS,NFILL,IPTRNX,IVFMPO,NFMPID
+         CALL SULINE (IOSDBG,1)
+         CALL SUPDMP (4HFMPO,4HREAL,0,NPOS,ARRAY,ARRAY)
+C
+         IF (ISTAT.EQ.0) WRITE (LP,120) IPTR,IPTRNX
+         IF (ISTAT.EQ.0) CALL SULINE (LP,2)
+C
+50    IF (ISTAT.NE.0) WRITE (LP,110)
+      IF (ISTAT.NE.0) CALL SULINE (LP,2)
+C
+55    IF (ISTRCE.GT.0) WRITE (IOSDBG,140)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+60    FORMAT (' *** ENTER SRFMPO')
+70    FORMAT (' LARRAY=',I5,3X,'MFMPID=',I5)
+80    FORMAT ('0*** ERROR - IN SRFMPO - ',I5,' FUTURE MAP AREAS ',
+     *   'MAXIMUM NUMBER ALLOWED IN WORK SPACE IS ',I5,'.')
+100   FORMAT ('0*** ERROR - IN SRFMPO - UNSUCCESSFUL CALL TO RPPREC ',
+     *   ': STATUS CODE=',I2)
+110   FORMAT ('0*** NOTE - FUTURE MAP COMPUTATIONAL ORDER ',
+     *   'PARAMETERS NOT SUCCESSFULLY READ .')
+120   FORMAT ('0*** NOTE - FUTURE MAP COMPUTATIONAL ORDER ',
+     *   'PARAMETERS SUCCESSFULLY READ. IPTR=',I5,3X,'IPTRNX=',I5)
+130   FORMAT (' NPOS=',I5,3X,'NFILL=',I5,3X,'IPTRNX=',I5,3X,
+     *   'IVFMPO=',I3,3X,'NFMPID=',I5)
+140   FORMAT (' *** EXIT SRFMPO')
+C
+      END

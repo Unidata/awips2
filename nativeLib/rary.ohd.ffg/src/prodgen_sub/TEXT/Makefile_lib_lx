@@ -1,0 +1,57 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ffg-prodgen_sub library file
+#
+#  cmt: File made on Thu Oct 26 14:48:25 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ffg/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ffg/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libprodgen_sub_t.a:  \
+     $(LIB)/libprodgen_sub_t.a(getgrp.o)  \
+     $(LIB)/libprodgen_sub_t.a(getprd.o)  \
+     $(LIB)/libprodgen_sub_t.a(gettxt.o)  \
+     $(LIB)/libprodgen_sub_t.a(gparea.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpcary.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpdotb.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpgffg.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpgrpp.o)  \
+     $(LIB)/libprodgen_sub_t.a(gphed.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpissu.o)  \
+     $(LIB)/libprodgen_sub_t.a(gplabl.o)  \
+     $(LIB)/libprodgen_sub_t.a(gplang.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpprod.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpsiii.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpsup.o)  \
+     $(LIB)/libprodgen_sub_t.a(gptext.o)  \
+     $(LIB)/libprodgen_sub_t.a(gpugc.o)  \
+     $(LIB)/libprodgen_sub_t.a(heada.o)  \
+     $(LIB)/libprodgen_sub_t.a(listid.o)  \
+     $(LIB)/libprodgen_sub_t.a(procid.o)  \
+     $(LIB)/libprodgen_sub_t.a(shefpe.o)  \
+     $(LIB)/libprodgen_sub_t.a(wrdota.o)  \
+     $(LIB)/libprodgen_sub_t.a(wrdotb.o)
+

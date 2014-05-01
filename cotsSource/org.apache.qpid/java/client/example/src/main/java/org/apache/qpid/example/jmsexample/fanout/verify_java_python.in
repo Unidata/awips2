@@ -1,0 +1,55 @@
+==== fanout_producer_java.out
+Producer: Creating a non-transacted, auto-acknowledged session
+Producer: Creating a Message Producer
+Producer: Creating a TestMessage to send to the destination
+Producer: Sending message: 1
+Producer: Sending message: 2
+Producer: Sending message: 3
+Producer: Sending message: 4
+Producer: Sending message: 5
+Producer: Sending message: 6
+Producer: Sending message: 7
+Producer: Sending message: 8
+Producer: Sending message: 9
+Producer: Sending message: 10
+Producer: Closing connection
+Producer: Closing JNDI context
+==== fanout_consumer.py.out | remove_uuid
+Subscribed to queue 
+Message 1
+Message 2
+Message 3
+Message 4
+Message 5
+Message 6
+Message 7
+Message 8
+Message 9
+Message 10
+That's all, folks!
+==== fanout_consumer.pyX.out | remove_uuid
+Subscribed to queue 
+Message 1
+Message 2
+Message 3
+Message 4
+Message 5
+Message 6
+Message 7
+Message 8
+Message 9
+Message 10
+That's all, folks!
+==== fanout_consumer.pyXX.out | remove_uuid
+Subscribed to queue 
+Message 1
+Message 2
+Message 3
+Message 4
+Message 5
+Message 6
+Message 7
+Message 8
+Message 9
+Message 10
+That's all, folks!

@@ -1,0 +1,95 @@
+#!/bin/sh
+
+###############################################################################
+#   run_convert_basin_format
+#
+#   This script converts a CBRFC formatted basin file to whfs formatted file.
+#  
+#   This script takes three arguments:
+#
+#   <input_file>  :   The cbrfc formatted basin file to be converted
+#                     
+#   <output_file>   :   The whfs formatted output file
+#
+#   <input_file_directory>   :   The location of the input file
+#
+#   The reformatted output file will be placed in the directory pointed to
+#   by the whfs_geodata_dir token.
+#
+#   Modification History
+#   June 5, 2006     Ram Varma   Original Coding.
+#
+###############################################################################
+
+#
+#  The user must supply the input file name, output file name and location of the input file
+
+
+
+if [[ $# -ne 3 ]]
+then
+   printf "Usage: run_convert_basin_format <input_file> <output_file> <input_file_directory> "
+   printf "\twhere input_file is the file to be converted"
+   printf "\tand output file is the converted file"
+   printf "\tand the input file directory is the location of the source file"
+   exit 1;
+fi
+
+input_file=$1
+output_file=$2
+input_file_directory=$3
+
+#
+# Set up environment variables
+# Define FILENAME variable
+
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+export WHFS_GEODATA_DIR=$(get_apps_defaults whfs_geodata_dir)
+
+printf "The geo data directory is: $WHFS_GEODATA_DIR"
+
+printf "converting $WHFS_GEODATA_DIR/$input_file to whfs basin file format and storing it in $output_file"
+
+$RUN_FROM_DIR/convert_basin_format.LX $input_file_directory/$input_file $output_file
+
+printf "done converting..."
+
+printf "checking for prior existance of $output_file in $WHFS_GEODATA_DIR/"
+
+#
+# Check for the existence of the output file.  If it exists, warn the user
+# that this file will be overwritten. If the choice is to overwrite,
+# a backup of the original file will be created wit a ".bak" extension.
+# Give the user the chance to quit.
+#
+if [[ -a $WHFS_GEODATA_DIR/$output_file ]]
+then
+
+   printf "The $WHFS_GEODATA_DIR/$output_file file exists.\n"
+   printf "It will be overwritten.  Procede?\n"
+   read overwrite?"   (Y/N):"
+
+   while [[ $overwrite != "N" && $overwrite != "Y" ]]
+   do
+      read overwrite?"  Please enter Y or N:"
+   done
+
+   if [ $overwrite == "N" ]
+   then
+      printf "The basin file conversion has been aborted.\n"
+      exit 1;
+   elif [ $overwrite == "Y" ]
+   then
+      printf "creating a backup of the original $WHFS_GEODATA_DIR/$output_file file"
+      printf "Moving the $WHFS_GEODATA_DIR/$output_file to $WHFS_GEODATA_DIR/$output_file.bak"
+      mv $WHFS_GEODATA_DIR/$output_file $WHFS_GEODATA_DIR/$output_file.bak
+   fi
+
+fi
+
+printf "\n"
+printf "Copying $output_file in $WHFS_GEODATA_DIR/"
+
+cp $output_file $WHFS_GEODATA_DIR/
+

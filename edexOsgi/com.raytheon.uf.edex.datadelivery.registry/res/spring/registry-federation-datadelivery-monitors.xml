@@ -1,0 +1,50 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<camelContext id="ebxml-federation" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		
+		<endpoint id="replicationMonitor"
+			uri="quartz://registry/replicationMonitor/?cron=0+0+0/1+*+*+?"/>
+
+		<endpoint id="updateUptime"
+			uri="quartz://registry/updateUptime/?cron=0+0/1+*+*+*+?" />
+			
+		<endpoint id="purgeExpiredReplicationEvents"
+			uri="quartz://registry/purgeExpiredReplicationEvents/?cron=0+0+0/1+*+*+?" />
+			
+		<endpoint id="processReplicationSubscriptions"
+			uri="quartz://registry/registryReplicationQuartz/?cron=${ebxml-replication-process.cron}" />
+			
+		<endpoint id="processReplicationVMQueue" uri="vm:processReplication?concurrentConsumers=2"/>
+		
+		<route id="replicationMonitorRoute">
+			<from uri="replicationMonitor"/>
+			<bean ref="RegistryFederationManager" method="verifyReplication"/>
+		</route>
+		
+		<route id="updateUptimeRoute">
+			<from uri="updateUptime" />
+			<bean ref="RegistryFederationManager" method="updateUpTime" />
+		</route>
+		
+		<route id="forwardReplication">
+			<from uri="processReplicationSubscriptions"/>
+			<to uri="processReplicationVMQueue"/>
+		</route>
+		
+		<route id="processReplication">
+			<from uri="processReplicationVMQueue"/>
+			<bean ref="RegistryFederationManager" method="processReplicationEvents"/>
+		</route>
+		
+		<route id="purgeExpiredReplicationEventsRoute">
+			<from uri="purgeExpiredReplicationEvents"/>
+			<bean ref="RegistryFederationManager" method="deleteExpiredEvents"/>
+		</route>
+	</camelContext>
+
+</beans>

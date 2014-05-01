@@ -1,0 +1,2 @@
+Instead of specifying "intersectAreas", we can compare the current area to "additionalAreas" which must be listed in the Product Component definition as shown.
+

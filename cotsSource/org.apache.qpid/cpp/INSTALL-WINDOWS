@@ -1,0 +1,153 @@
+		Installing Qpid/C++ on Windows
+		==============================
+
+Table of Contents
+=================
+1. Introduction
+
+2. Prerequisites
+   2.1. What to Install
+   2.2. Important Environment Variable Settings
+
+3. Building from a Source Distribution
+4. Building a Repository Working Copy
+5. Tests
+6. Doxygen
+7. Troubleshooting
+
+
+1. Introduction
+===============
+Note that the broker and client API can be built and installed separately.
+They both link against a common library.
+
+This document describes how to build the Qpid/C++ broker and client on
+Windows using Microsoft Visual Studio 2008 (VC9). It describes how to build
+from both a checkout of the source and from a source distribution.
+
+Please see INSTALL for information on building on Linux/UNIX.
+
+
+2. Prerequisites
+================
+We prefer to avoid spending time accommodating older versions of these
+packages, so please make sure that you have the latest stable versions.
+Known version numbers for a successful build are given in parentheses.
+Take these as a recommended minimum version.
+
+2.1. What to Install
+====================
+
+The following libraries and header files must be installed to build
+from either a source checkout or a source distribution:
+
+ * boost      <http://www.boost.org>                   	(1.35)(*)
+
+earlier versions of boost e.g. 1.33 also work
+
+To build from a source repository (SVN) checkout you will need boost plus:
+
+ * CMake      <http://www.cmake.org>                    (2.4)
+ * python     <http://www.python.org>                   (2.5.2)
+ * ruby       <http://www.ruby-lang.org>               	(1.8.4)
+
+Regardless of which type of build you perform, if you wish to run the full
+test suite, you will need to have python, listed above, installed.
+
+2.2. Important Environment Variable Settings
+============================================
+Ensure that all the build tools are available on your path, when they are
+manually installed to non-standard locations. For example:
+
+ # set PATH=C:\python25;%PATH%
+
+It is also necessary to set BOOST_ROOT to refer to the base of your Boost
+installation. The Visual Studio projects refer to it. For example:
+
+ # set BOOST_ROOT=C:\Program Files\boost\boost_1_35_0
+
+
+3. Building from a Source Distribution
+======================================
+The Qpid client/broker, examples, and tests are built with separate
+Visual Studio solution files. The procedure for all three is the same.
+
+Start the Visual Studio IDE and open the desired solution. They are located
+under the distribution directory in the following places:
+
+- broker/client:  src/qpidc.sln
+- examples:       src/examples/examples.sln
+- tests:          src/tests/tests.sln
+
+Open the desired solution, select Debug or Release, and build.
+You can build both Release and Debug from the same project.
+
+If you build all the projects you can then "Build" the RUN_TESTS project.
+This will run the test suite against the Qpid version just built.
+
+
+4. Building a Repository Working Copy
+=====================================
+This section will assume that you will create a directory for your Qpid
+work. This directory will be referred to below as C:\qpid.
+
+To get the source code from the subversion repository (trunk) do:
+
+ C:\qpid> svn checkout https://svn.apache.org/repos/asf/qpid/trunk
+
+The first step in the build is to configure and generate the Visual
+Studio projects. This step also generates a significant number of source
+files that are part of the build. 
+
+- Run CMakeSetup. The CMake binary install often leaves a shortcut to
+  CMakeSetup on the desktop - it is named CMake.
+- The CMakeSetup window has 2 directory selection areas at the top; one for
+  where the source is located (C:\qpid\trunk\qpid\cpp) and one for where you
+  wish to place the build. A directory separate from the source directory is
+  generally preferred; it can be, but need not be, a subdirectory to the
+  source. (C:\qpid\build)
+- The first time you run CMakeSetup it will ask you to select a generator.
+  You should select the method you prefer to build with: Visual Studio 2008
+  or NMake Makefiles.
+- The Cache Values area of the window is where the system and build settings
+  are displayed. You can change these by clicking on the values if desired.
+- Click the Configure button. The first time Qpid is configured this step may
+  take a few minutes and you will see lots of messages about generated source
+  files. If the Cache Values area has any red lines, change or correct the
+  value if needed (it may only be red because it's new - you only need to
+  change/correct items that correspond to errors in configuration). Click
+  Configure again. Repeat until all the Cache Values are gray.
+- Click the OK button to generate the project/make files.
+
+Now follow instruction for building from a source distribution in step (3).
+
+
+5. Tests
+========
+See src/tests/README for details.
+
+
+6. Doxygen
+==========
+Doxygen generates documentation in several formats from source code
+using special comments. You can use javadoc style comments if you know
+javadoc, if you don't or want to know the fully story on doxygen
+markup see http://www.stack.nl/~dimitri/doxygen/
+
+Even even if the code is completely uncommented, doxygen generates
+UML-esque dependency diagrams that are ''extremely'' useful in navigating
+around the code, especially for newcomers.
+
+The user-level API documentation can be generated by building the
+user-api-docs project from the generated Visual Studio solution. The
+documentation is generated into the docs/api/html directory under your
+build directory.
+
+
+7. Troubleshooting
+==================
+
+When the broker is executed it will try to store a file in the "qpidd"
+subdirectory of the current user's temporary file directory, or in
+C:\WINDOWS\TEMP. If the qpidd directory can't be created or accessed the
+broker startup will fail.

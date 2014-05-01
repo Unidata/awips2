@@ -1,0 +1,15 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+
+topic_listener_java()
+{
+java -Dlog4j.configuration=file://"$JAVA"/log4j.xml -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.pubsub.Listener
+}
+
+pubsub_producer_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-pub-sub-Publisher.exe localhost 5672
+}
+
+background "can receive messages" topic_listener_java
+clients pubsub_producer_dotnet 
+outputs pubsub_producer_dotnet.out "topic_listener_java.out | remove_uuid | sort"

@@ -1,0 +1,270 @@
+#  ============================================================================
+#  pgm: Makefile_obj_lx .. makefile to update the ofs-block object files
+#
+#  cmt: File made on Wed Aug  6 12:48:08 EDT 2008 by user "dsa"
+#  ============================================================================
+ 
+OBJ = /fs/hseb/ob83/ohd/ofs/obj/block/TEXT
+
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .o
+
+.f.o:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && chmod 664 ${*F}.o  \
+	   && echo "o - ${*F}.o" \
+	   || echo "e - ${*F}"
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+objects:  \
+     $(OBJ)/bdbatchpst.o  \
+     $(OBJ)/bdespinit.o  \
+     $(OBJ)/bdfcinit.o  \
+     $(OBJ)/bdfcst.o  \
+     $(OBJ)/bdfilecrat.o  \
+     $(OBJ)/bdfilesize.o  \
+     $(OBJ)/bdgoesdb.o  \
+     $(OBJ)/bdndfd2rfs.o  \
+     $(OBJ)/bdppdutil.o  \
+     $(OBJ)/bdppinit.o  \
+     $(OBJ)/bdprdutil.o  \
+     $(OBJ)/bdreorder.o  \
+     $(OBJ)/bdsasmdb.o  \
+     $(OBJ)/bdshefpars.o  \
+     $(OBJ)/bdshefpost.o  \
+     $(OBJ)/bdwbasmapx.o  \
+     $(OBJ)/blck31.o  \
+     $(OBJ)/dablock.o  \
+     $(OBJ)/dfblock.o  \
+     $(OBJ)/dgblock.o  \
+     $(OBJ)/dsblock.o  \
+     $(OBJ)/dsgtlubd.o  \
+     $(OBJ)/eeblocku.o  \
+     $(OBJ)/eeblockx.o  \
+     $(OBJ)/eeinbloc.o  \
+     $(OBJ)/fcbloc07.o  \
+     $(OBJ)/fcbloc26.o  \
+     $(OBJ)/fcbloc55.o  \
+     $(OBJ)/fcblocka.o  \
+     $(OBJ)/fcblock.o  \
+     $(OBJ)/fcblocko.o  \
+     $(OBJ)/fcstbloc.o  \
+     $(OBJ)/funblk.o  \
+     $(OBJ)/hclblock.o  \
+     $(OBJ)/pdbblock.o  \
+     $(OBJ)/pdtrrb.o  \
+     $(OBJ)/pppblock.o  \
+     $(OBJ)/prdblock.o  \
+     $(OBJ)/puc26bd.o  \
+     $(OBJ)/saccobd.o  \
+     $(OBJ)/sbdbbloc.o  \
+     $(OBJ)/sblock.o  \
+     $(OBJ)/sfpebd.o  \
+     $(OBJ)/ublockf.o  \
+     $(OBJ)/urblock.o  \
+     $(OBJ)/uxpdbloc.o  \
+     $(OBJ)/uxppbloc.o
+
+$(OBJ)/bdbatchpst.o: bdbatchpst.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdespinit.o: bdespinit.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdfcinit.o: bdfcinit.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdfcst.o: bdfcst.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdfilecrat.o: bdfilecrat.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdfilesize.o: bdfilesize.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdgoesdb.o: bdgoesdb.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdndfd2rfs.o: bdndfd2rfs.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdppdutil.o: bdppdutil.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdppinit.o: bdppinit.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdprdutil.o: bdprdutil.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdreorder.o: bdreorder.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdsasmdb.o: bdsasmdb.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdshefpars.o: bdshefpars.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdshefpost.o: bdshefpost.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/bdwbasmapx.o: bdwbasmapx.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/blck31.o: blck31.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/dablock.o: dablock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/dfblock.o: dfblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/dgblock.o: dgblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/dsblock.o: dsblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/dsgtlubd.o: dsgtlubd.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/eeblocku.o: eeblocku.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/eeblockx.o: eeblockx.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/eeinbloc.o: eeinbloc.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/fcbloc07.o: fcbloc07.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/fcbloc26.o: fcbloc26.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/fcbloc55.o: fcbloc55.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/fcblocka.o: fcblocka.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/fcblock.o: fcblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/fcblocko.o: fcblocko.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/fcstbloc.o: fcstbloc.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/funblk.o: funblk.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/hclblock.o: hclblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/pdbblock.o: pdbblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/pdtrrb.o: pdtrrb.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/pppblock.o: pppblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/prdblock.o: prdblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/puc26bd.o: puc26bd.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/saccobd.o: saccobd.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/sbdbbloc.o: sbdbbloc.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/sblock.o: sblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/sfpebd.o: sfpebd.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/ublockf.o: ublockf.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/urblock.o: urblock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/uxpdbloc.o: uxpdbloc.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/uxppbloc.o: uxppbloc.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+

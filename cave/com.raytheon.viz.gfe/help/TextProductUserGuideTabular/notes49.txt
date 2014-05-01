@@ -1,0 +1,3 @@
+Here is the row method for Cloud  Cover.  Notice that it calls "makeRow" to produce a row of entries for the given time ranges.  It has access to the statistics list containing weather element values for those time ranges. 
+The call to "makeRow" includes the user-supplied method, "_sky".  This method produces one entry for sky cover given an edit area, one time range and its associated statistics dictionary. 
+

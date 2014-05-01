@@ -1,0 +1,4 @@
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagRecord
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagAvg
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagK1min
+gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagK3hr

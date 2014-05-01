@@ -1,0 +1,22 @@
+<pathKeySet>
+	<pathKey>
+		<key>region</key>
+		<order>0</order>
+	</pathKey>
+	
+	<pathKey>
+		<key>channelType</key>
+		<order>0</order>
+	</pathKey>
+	
+	<pathKey>
+		<key>wavelength</key>
+		<order>0</order>
+	</pathKey>
+	
+	<pathKey>
+		<key>parameter</key>
+		<order>0</order>
+	</pathKey>
+</pathKeySet>
+

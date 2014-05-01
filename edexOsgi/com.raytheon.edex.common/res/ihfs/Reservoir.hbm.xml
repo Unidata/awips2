@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="true">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Reservoir" 
+    table="reservoir"
+>
+
+    <id
+        name="lid"
+        type="java.lang.String"
+        column="lid"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="name"
+        type="java.lang.String"
+        column="name"
+        length="20"
+    />
+    <property
+        name="deadpool"
+        type="java.lang.Double"
+        column="deadpool"
+        length="17"
+    />
+    <property
+        name="conserpool"
+        type="java.lang.Double"
+        column="conserpool"
+        length="17"
+    />
+    <property
+        name="floodpool"
+        type="java.lang.Double"
+        column="floodpool"
+        length="17"
+    />
+    <property
+        name="spillway"
+        type="java.lang.Double"
+        column="spillway"
+        length="17"
+    />
+    <property
+        name="sill"
+        type="java.lang.Double"
+        column="sill"
+        length="17"
+    />
+    <property
+        name="top"
+        type="java.lang.Double"
+        column="top"
+        length="17"
+    />
+    <property
+        name="surchg"
+        type="java.lang.Double"
+        column="surchg"
+        length="17"
+    />
+    <property
+        name="elev"
+        type="java.lang.Double"
+        column="elev"
+        length="17"
+    />
+    <property
+        name="gates"
+        type="java.lang.Integer"
+        column="gates"
+        length="10"
+    />
+    <property
+        name="impounded"
+        type="java.sql.Timestamp"
+        column="impounded"
+        length="13"
+    />
+    <property
+        name="uses"
+        type="java.lang.String"
+        column="uses"
+        length="8"
+    />
+    <property
+        name="damids"
+        type="java.lang.String"
+        column="damids"
+        length="2"
+    />
+    <property
+        name="damidn"
+        type="java.lang.String"
+        column="damidn"
+        length="5"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-one association to Location -->
+    <one-to-one
+        name="location"
+        class="com.raytheon.edex.db.objects.ihfs.Location"
+        outer-join="auto"
+        constrained="true"
+    />
+    <!-- bi-directional one-to-many association to Rescap -->
+    <set
+        name="rescaps"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="lid" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Rescap"
+        />
+    </set>
+    <!-- bi-directional many-to-one association to Damtype -->
+    <many-to-one
+        name="damtype"
+        class="com.raytheon.edex.db.objects.ihfs.Damtype"
+        not-null="true"
+    >
+        <column name="type" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Resowner -->
+    <many-to-one
+        name="resowner"
+        class="com.raytheon.edex.db.objects.ihfs.Resowner"
+        not-null="true"
+    >
+        <column name="owner" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

@@ -1,0 +1,104 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_ex library file
+#
+#  cmt: File made on Wed Aug  6 12:50:02 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_ex_t.a:  \
+     $(LIB)/libfcst_ex_t.a(abal61.o)  \
+     $(LIB)/libfcst_ex_t.a(ex10.o)  \
+     $(LIB)/libfcst_ex_t.a(ex11.o)  \
+     $(LIB)/libfcst_ex_t.a(ex13.o)  \
+     $(LIB)/libfcst_ex_t.a(ex14.o)  \
+     $(LIB)/libfcst_ex_t.a(ex15.o)  \
+     $(LIB)/libfcst_ex_t.a(ex20.o)  \
+     $(LIB)/libfcst_ex_t.a(ex23.o)  \
+     $(LIB)/libfcst_ex_t.a(ex25.o)  \
+     $(LIB)/libfcst_ex_t.a(ex27.o)  \
+     $(LIB)/libfcst_ex_t.a(ex2.o)  \
+     $(LIB)/libfcst_ex_t.a(ex30.o)  \
+     $(LIB)/libfcst_ex_t.a(ex38.o)  \
+     $(LIB)/libfcst_ex_t.a(ex39.o)  \
+     $(LIB)/libfcst_ex_t.a(ex42.o)  \
+     $(LIB)/libfcst_ex_t.a(ex45.o)  \
+     $(LIB)/libfcst_ex_t.a(ex46.o)  \
+     $(LIB)/libfcst_ex_t.a(ex48.o)  \
+     $(LIB)/libfcst_ex_t.a(ex4.o)  \
+     $(LIB)/libfcst_ex_t.a(ex52.o)  \
+     $(LIB)/libfcst_ex_t.a(ex53.o)  \
+     $(LIB)/libfcst_ex_t.a(ex56.o)  \
+     $(LIB)/libfcst_ex_t.a(ex57.o)  \
+     $(LIB)/libfcst_ex_t.a(ex59.o)  \
+     $(LIB)/libfcst_ex_t.a(ex60.o)  \
+     $(LIB)/libfcst_ex_t.a(ex61.o)  \
+     $(LIB)/libfcst_ex_t.a(ex62.o)  \
+     $(LIB)/libfcst_ex_t.a(ex63.o)  \
+     $(LIB)/libfcst_ex_t.a(ex64.o)  \
+     $(LIB)/libfcst_ex_t.a(ex6.o)  \
+     $(LIB)/libfcst_ex_t.a(ex8.o)  \
+     $(LIB)/libfcst_ex_t.a(ex9.o)  \
+     $(LIB)/libfcst_ex_t.a(fadd.o)  \
+     $(LIB)/libfcst_ex_t.a(fajmdq.o)  \
+     $(LIB)/libfcst_ex_t.a(fblend.o)  \
+     $(LIB)/libfcst_ex_t.a(fchgdt.o)  \
+     $(LIB)/libfcst_ex_t.a(frplac.o)  \
+     $(LIB)/libfcst_ex_t.a(fsactr.o)  \
+     $(LIB)/libfcst_ex_t.a(fsav2.o)  \
+     $(LIB)/libfcst_ex_t.a(fsnwtr.o)  \
+     $(LIB)/libfcst_ex_t.a(fstqco.o)  \
+     $(LIB)/libfcst_ex_t.a(mxmn59.o)  \
+     $(LIB)/libfcst_ex_t.a(rnd59.o)  \
+     $(LIB)/libfcst_ex_t.a(rndh61.o)  \
+     $(LIB)/libfcst_ex_t.a(sbal61.o)  \
+     $(LIB)/libfcst_ex_t.a(tlu53.o)  \
+     $(LIB)/libfcst_ex_t.a(set_properties_for_dhm_mods.o)
+

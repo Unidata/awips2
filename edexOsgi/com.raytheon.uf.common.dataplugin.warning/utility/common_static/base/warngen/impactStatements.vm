@@ -1,0 +1,122 @@
+ ################################################################
+## IBW IMPACT STATEMENTS                                      ##
+## FOR CR IMPACT BASED TOR/SVR INITIATIVE                     ## 
+## CREATED BY PHIL KURIMSKI - WFO DTX                         ##
+## VERSION AWIPS II 1.0 -- 2-06-2013 OB13.2.1-5               ##
+##         EDITED EVAN BOOKBINDER 2-25-13 FOR IBW 2013        ##
+## EDITED PHIL KURIMSKI 5-20-13 FOR UPDATED IMPACT STATEMENTS ##
+## EDITED PHIL KURIMSKI 9-17-13 FOR SMW IMPACT STATEMENTS     ##
+## Mike D - 1/23/2014 changed to approved torEMER CTA wording, fixed typo in one $torImpact string  
+################################################################
+##
+################################################################
+## This file is meant to be parsed into the IBW templates 
+## Changes to the IBW Impact Statements can be made to this
+## file without making changes to the main template
+################################################################
+##SET SOME INITIAL VARIABLES
+#set ($svrimpact = "")
+#set ($torimpact = "")
+#set ($smwimpact = "")
+################################################################
+## First create the Impact Statements for the SVR template
+################################################################
+###################################################
+## HANDLE WIND POSSIBILITIES ######################
+###################################################
+#set ($windImpact = "")
+#if(${windSpeed} == 60)
+#set ($windImpact = "EXPECT DAMAGE TO ROOFS...SIDING AND TREES.")
+#set ($windImpactComb = "EXPECT WIND DAMAGE TO ROOFS...SIDING AND TREES.")
+#end
+#if(${windSpeed} == 70)
+#set ($windImpact = "EXPECT CONSIDERABLE TREE DAMAGE. DAMAGE IS LIKELY TO MOBILE HOMES...ROOFS AND OUTBUILDINGS.")
+#set ($windImpactComb = "EXPECT CONSIDERABLE TREE DAMAGE. WIND DAMAGE IS ALSO LIKELY TO MOBILE HOMES...ROOFS AND OUTBUILDINGS.")
+#end
+#if(${windSpeed} == 80)
+#set ($windImpact = "MOBILE HOMES WILL BE HEAVILY DAMAGED. FLYING DEBRIS WILL BE DANGEROUS TO PEOPLE AND ANIMALS. EXPECT CONSIDERABLE DAMAGE TO ROOFS...WINDOWS AND VEHICLES. EXTENSIVE TREE DAMAGE AND POWER OUTAGES ARE LIKELY.")
+#end
+#if(${windSpeed} == 90)
+#set ($windImpact ="YOU ARE IN A LIFE-THREATENING SITUATION. MOBILE HOMES WILL BE HEAVILY DAMAGED OR DESTROYED. HOMES AND BUSINESSES WILL HAVE SUBSTANTIAL ROOF AND WINDOW DAMAGE. FLYING DEBRIS WILL BE DEADLY TO PEOPLE AND ANIMALS. EXPECT EXTENSIVE TREE DAMAGE AND POWER OUTAGES.")
+#end
+#if(${windSpeed} == 100)
+#set ($windImpact ="YOU ARE IN A LIFE-THREATENING SITUATION. MOBILE HOMES WILL BE DESTROYED. EXPECT CONSIDERABLE DAMAGE TO HOMES AND BUSINESSES. FLYING DEBRIS WILL BE DEADLY TO PEOPLE AND ANIMALS. EXPECT EXTENSIVE TREE DAMAGE AND POWER OUTAGES.")
+#end
+###################################################
+## HANDLE HAIL POSSIBILITIES ######################
+###################################################
+#set ($hailImpact = "")
+#if(${hailSize} < 1.50 && ${hailSize} >= 1)
+#set ($hailImpact = "DAMAGE TO VEHICLES IS EXPECTED.")
+#set ($hailImpactComb = "HAIL DAMAGE TO VEHICLES IS EXPECTED.")
+#end
+#if(${hailSize} >= 1.50 && ${hailSize} < 2.75)
+#set ($hailImpact = "PEOPLE AND ANIMALS OUTDOORS WILL BE INJURED. EXPECT DAMAGE TO ROOFS...SIDING...WINDOWS AND VEHICLES.")
+#set ($hailImpactComb = "PEOPLE AND ANIMALS OUTDOORS WILL BE INJURED. EXPECT HAIL DAMAGE TO ROOFS...SIDING...WINDOWS AND VEHICLES.")
+#end
+#if(${hailSize} >= 2.75)
+#set ($hailImpact = "PEOPLE AND ANIMALS OUTDOORS WILL BE SEVERELY INJURED. EXPECT SHATTERED WINDOWS...EXTENSIVE DAMAGE TO ROOFS...SIDING AND VEHICLES.")
+#end
+######################################################################
+## Setup wind/hail impact statement based on wind speed and hail size
+######################################################################
+#if (${hailSize} < 1 && ${windSpeed} < 58)
+#set ($svrimpact = "!**YOU DID NOT SELECT ANY SEVERE WIND OR HAIL THREATS. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING!**!")
+#elseif(${hailSize} >= 1 && ${windSpeed} < 58)
+#set ($svrimpact = "${hailImpact}")
+#elseif(${hailSize} < 1 && ${windSpeed} >= 58)
+#set ($svrimpact = "${windImpact}")
+#elseif(${hailSize} >= 1 && ${windSpeed} < 80 && ${hailSize} < 2.75)
+#set ($svrimpact = "${hailImpactComb} ${windImpactComb}")
+#elseif(${hailSize} > 2.50 && ${windSpeed} < 80)
+#set ($svrimpact = "${hailImpact}")
+#elseif(${windSpeed} >= 80)
+#set ($svrimpact = "${windImpact}")
+#end
+################################################################
+## Now create the Impact Statements for the TOR template
+################################################################
+## The following is the base Tornado Impact Statement
+################################################################
+#set ($torimpact = "MOBILE HOMES WILL BE DAMAGED OR DESTROYED. DAMAGE TO ROOFS...WINDOWS AND VEHICLES WILL OCCUR. FLYING DEBRIS WILL BE DEADLY TO PEOPLE AND ANIMALS. TREE DAMAGE IS LIKELY.")
+################################################################
+## IF A LANDSPOUT/VERY WEAK TORNADO IS SELECTED THE FOLLOWING
+## IMPACT STATEMENT WILL BE USED WITH TONED DOWN WORDING
+################################################################
+#if(${list.contains($bullets, "landspoutTornado")})
+#set ($torimpact = "SPORADIC DAMAGE TO MOBILE HOMES...ROOFS AND VEHICLES.")
+#end
+############################################################################
+## IF A SIGNIFICANT TORNADO IS SELECTED THE FOLLOWING IMPACT STATEMENT
+## WILL BE USED FOR HEIGHTENED AWARENESS OF THIS DANGEROUS SITUATION
+############################################################################
+#if(${list.contains($bullets, "significantTornado")})
+#set ($torimpact = "YOU ARE IN A LIFE THREATENING SITUATION. MOBILE HOMES WILL BE DESTROYED. CONSIDERABLE DAMAGE TO HOMES...BUSINESSES AND VEHICLES IS LIKELY AND COMPLETE DESTRUCTION IS POSSIBLE. FLYING DEBRIS WILL BE DEADLY TO PEOPLE AND ANIMALS. EXPECT TREES TO BE UPROOTED OR SNAPPED.")
+#end
+############################################################################
+## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING IMPACT STATEMENT 
+## WILL BE USED TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
+############################################################################
+#if(${list.contains($bullets, "torEmergency")})
+#set ($torimpact = "A LARGE...EXTREMELY DANGEROUS...AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...TAKE COVER NOW. MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.")
+#end
+############################################################################
+## Since the SVS template uses both the torimpact and svrimpact variables
+## we need to set the variable to null depending on which statement
+## you are updating determined by the phenomena variable
+############################################################################
+#if(${phenomena}=="SV")
+#set ($torimpact = "")
+#elseif(${phenomena}=="TO")
+#set ($svrimpact = "")
+#end
+################################################################
+## Finally create the Impact Statements for the SMW template
+################################################################
+#set($smwimpact = "OVERTURNED AND CAPSIZED BOATS.")
+############################################################################
+## End of File
+############################################################################
+## Make sure this file is parsed into the main IBW template in order to 
+## generate the proper Impact Statements
+############################################################################

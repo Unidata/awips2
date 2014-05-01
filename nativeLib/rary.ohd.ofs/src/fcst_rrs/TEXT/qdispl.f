@@ -1,0 +1,464 @@
+C MODULE QDISPL
+C-----------------------------------------------------------------------
+C
+C  ROUTINE QDISPL DISPLAYS THE RRS DATA BY DATA TYPE.
+C
+C  ORIGINALLY CODED BY DEBBIE VAN DEMARK - 9/4/84
+C
+C-----------------------------------------------------------------------
+C
+C  INPUT ARGUMENTS:
+C       MXTYPE - MAX NUMBER OF DATA TYPES THAT CAN FIT IN THE ARRAYS
+C        IUDTR - INDICATOR WHETHER ROUTINE UDTRRS HAS BEEN CALLED
+C       NUTYPE - NUMBER OF DATA TYPES RETURNED FROM UDTRRS
+C         TYPE - ARRAY TO HOLD DATA TYPES
+C       IPRTYP - ARRAY TO HOLD DATA PRINT CATEGORIES
+C        JMEAN - ARRAY TO HOLD MEAN DATA INDICATORS
+C        JMISS - ARRAY TO HOLD MISSING DATA ALLOWED INDICATORS
+C       AUNITI - ARRAY TO HOLD DATA INPUT UNITS
+C       AUNITO - ARRAY TO HOLD DATA OUTPUT UNITS
+C       DISTBR - ARRAY TO HOLD THE DISTRIBUTION INDICATORS
+C       LFIELD - ARRAY TO HOLD THE FIELD LENGTH TO BE USED
+C                WHEN PRINTING VALUES
+C       NUMDEC - ARRAY TO HOLD THE NUMBER OF DECIMAL PLACES TO BE
+C                USED WHEN PRINTING VALUES
+C       CHKMIN - ARRAY TO HOLD THE MINIMUM VALUES
+C       CHKMAX - ARRAY TO HOLD THE MAXIMUM VALUES
+C       NUTYPE - NUMBER OF DATA TYPES RETURNED FROM UDTRRS
+C
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE QDISPL (IUNIT,OBS,IOBS,
+     $ MXTYPE,IUDTR,NUTYPE,
+     $ TYPE,IPRTYP,JMEAN,JMISS,AUNITI,AUNITO,
+     $ DISTRB,LFIELD,NUMDEC,CHKMIN,CHKMAX)
+C
+      CHARACTER*1 CARCTL
+      CHARACTER*2 CHAR2
+      CHARACTER*8 OLDOPN,STAID,PREID
+      CHARACTER*20 DESC
+      CHARACTER*80 CPRINT
+      CHARACTER*132 STRNG,FORMT
+C
+      DIMENSION OBS(1),IOBS(1)
+      DIMENSION TYPE(1),IPRTYP(1),JMEAN(1),JMISS(1),AUNITI(1),AUNITO(1)
+      DIMENSION DISTRB(1),LFIELD(1),NUMDEC(1),CHKMIN(1),CHKMAX(1)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fctim2'
+      INCLUDE 'common/pudbug'
+      INCLUDE 'common/pptime'
+      INCLUDE 'common/qprint'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_rrs/RCS/qdispl.f,v $
+     . $',                                                             '
+     .$Id: qdispl.f,v 1.6 2000/12/19 15:59:47 jgofus Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA QUEST/4H????/
+C
+C
+      PREID=' '
+      NUM=0
+      NTIME=0
+C
+      IF (IPTRCE.GT.1) WRITE (IOPDBG,210)
+C
+      IOPNUM=-3
+      CALL FSTWHR('QDISPL  ',IOPNUM,OLDOPN,IOLDOP)
+C
+C  CHECK DEBUG CODES
+      IBUG=IPBUG('QDIS')
+C
+C  INITIALIZE THE CONVERSION FACTOR TO ONE
+      CONVRT=1.0
+C
+C  READ DATA FROM TEMPORARY FILE
+10    READ (IUNIT,END=200) STAID,ST,ISTNUM,DTYPE,DESC,NVLPOB,NCOUNT,
+     $   IBEG,(OBS(J),J=1,NCOUNT)
+      IF (IBUG.GT.0) WRITE (IOPDBG,400) (OBS(J),J=1,NCOUNT)
+      IF (IBUG.GT.0) WRITE (IOPDBG,410) (IOBS(J),J=1,NCOUNT)
+C
+      IREST=0
+      IDESC=0
+C
+      CALL QDTYPE (DTYPE,IUDTR,MXTYPE,TYPE,IPRTYP,JMEAN,JMISS,
+     $ AUNITI,AUNITO,DISTRB,LFIELD,NUMDEC,CHKMIN,CHKMAX,
+     $ NUTYPE,ITYPE,MEANS,UNITS,UNITOT,NFIELD,
+     $ NDECS,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 20
+         WRITE (IPR,220) DTYPE,ISTAT
+         CALL WARN
+         GO TO 200
+C
+20    IF (NFIELD.GT.0) GO TO 30
+         WRITE (IPR,230) DTYPE,NFIELD
+         CALL WARN
+         GO TO 200
+C
+30    IF (METRIC.EQ.1) GO TO 40
+         UNIT=UNITS
+         GO TO 50
+C
+C  GET THE DATA UNITS IN METRIC
+40    CALL FDCODE (DTYPE,UNITM,DIMM,'MSG ',NPDT,TSCALE,NUMADD,ISTAT)
+      IF (ISTAT.NE.0) THEN
+         WRITE (IPR,270) DTYPE,ISTAT
+         CALL WARN
+         UNIT=UNITS
+         GO TO 50
+         ENDIF
+      UNIT=UNITM
+C
+C  GET THE CONVERSION FACTORS FROM FCONVT
+      CALL FCONVT (UNITM,DIMM,UNITE,CONVT,ADD,ISTAT)
+      IF (ISTAT.NE.0) THEN
+         WRITE (IPR,280) UNITM,DIMM,ISTAT
+         CALL WARN
+         ENDIF
+      CONVRT=CONVT
+C
+C  GET THE RUN PERIOD
+50    IF (IPLSTD.EQ.0) GO TO 60
+         ISTFUT=((ILCRUN-1)/24)*24+1
+         INDAY=ISTFUT/24+1
+         INHR=ISTFUT-INDAY*24+24
+         GO TO 70
+60    INDAY=IDSRUN/24+1
+      INHR=IDSRUN-INDAY*24+24
+70    CALL MDYH1 (INDAY,INHR,IM,ID,IY,IH,NOUTZ,NOUTDS,TZC)
+      LADAY=IDERUN/24+1
+      LAHR=IDERUN-LADAY*24+24
+      CALL MDYH1 (LADAY,LAHR,LM,LD,LY,LH,NOUTZ,NOUTDS,TZC)
+      ILCRDY=ILCRUN/24+1
+      ILCRHR=ILCRUN-ILCRDY*24+24
+      CALL MDYH1 (ILCRDY,ILCRHR,NM,ND,NY,NH,NOUTZ,NOUTDS,TZC)
+C
+      IF (NTIME.GT.0.OR.IBEG.EQ.0) GO TO 80
+C
+      WRITE (IPR,300)
+C
+C  PRINT HEADER
+      IF (ITYPE.EQ.1) THEN
+         STRNG='STAGE DATA DISPLAY'
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         STRNG=' '
+         IF (METRIC.EQ.0) THEN
+            CALL UCNCAT (STRNG,'STG(FT)',IERR)
+            ELSE
+               CALL UCNCAT (STRNG,'STG(M)',IERR)
+            ENDIF
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         GO TO 80
+         ENDIF
+      IF (ITYPE.EQ.2) THEN
+         STRNG='INSTANTANEOUS DISCHARGE DATA DISPLAY'
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         STRNG=' '
+         IF (METRIC.EQ.0) THEN
+            CALL UCNCAT (STRNG,'DQIN(CFS)  ~',IERR)
+            CALL UCNCAT (STRNG,'QIN(CFS)   ~',IERR)
+            ELSE
+               CALL UCNCAT (STRNG,'DQIN(CMS)  ~',IERR)
+               CALL UCNCAT (STRNG,'QIN(CMS)   ~',IERR)
+            ENDIF
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         GO TO 80
+         ENDIF
+      IF (ITYPE.EQ.3) THEN
+         STRNG='MEAN DISCHARGE DATA DISPLAY'
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         STRNG=' '
+         IF (METRIC.EQ.0) THEN
+            CALL UCNCAT (STRNG,'DQME(CFS)  ~',IERR)
+            CALL UCNCAT (STRNG,'QME(CFS)   ~',IERR)
+            ELSE
+               CALL UCNCAT (STRNG,'DQME(CMS)  ~',IERR)
+               CALL UCNCAT (STRNG,'QME(CMS)   ~',IERR)
+            ENDIF
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         GO TO 80
+         ENDIF
+      IF (ITYPE.EQ.4) THEN
+         STRNG='RESERVOIR DATA DISPLAY'
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         STRNG=' '
+         IF (METRIC.EQ.0) THEN
+            CALL UCNCAT (STRNG,'FBEL(FT)   ~',IERR)
+            CALL UCNCAT (STRNG,'GATE(FT)   ~',IERR)
+            CALL UCNCAT (STRNG,'GTCS(INT)  ~',IERR)
+            CALL UCNCAT (STRNG,'LAKH(FT)   ~',IERR)
+            CALL UCNCAT (STRNG,'LELV(FT)   ~',IERR)
+            CALL UCNCAT (STRNG,'NFBD(INT)  ~',IERR)
+            CALL UCNCAT (STRNG,'PELV(FT)   ~',IERR)
+            CALL UCNCAT (STRNG,'RQGM(CFS)  ~',IERR)
+            CARCTL='0'
+            CALL QFORMT (STRNG,CARCTL,FORMT)
+            WRITE (IPR,FORMT)
+            STRNG=' '
+            CALL UCNCAT (STRNG,'RQIM(CFS)  ~',IERR)
+            CALL UCNCAT (STRNG,'RQIN(CFS)  ~',IERR)
+            CALL UCNCAT (STRNG,'RQME(CFS)  ~',IERR)
+            CALL UCNCAT (STRNG,'RQOT(CFS)  ~',IERR)
+            CALL UCNCAT (STRNG,'RQSW(CFS)  ~',IERR)
+            CALL UCNCAT (STRNG,'RSTO(CFSD) ~',IERR)
+            CALL UCNCAT (STRNG,'TWEL(FT)   ~',IERR)
+            CALL UCNCAT (STRNG,'TWSW(FT)   ~',IERR)
+            CARCTL='~'
+            CALL QFORMT (STRNG,CARCTL,FORMT)
+            WRITE (IPR,FORMT)
+            ELSE
+               CALL UCNCAT (STRNG,'FBEL(M)    ~',IERR)
+               CALL UCNCAT (STRNG,'GATE(M)    ~',IERR)
+               CALL UCNCAT (STRNG,'GTCS(INT)  ~',IERR)
+               CALL UCNCAT (STRNG,'LAKH(M)    ~',IERR)
+               CALL UCNCAT (STRNG,'LELV(M)    ~',IERR)
+               CALL UCNCAT (STRNG,'NFBD(INT)  ~',IERR)
+               CALL UCNCAT (STRNG,'PELV(M)    ~',IERR)
+               CALL UCNCAT (STRNG,'RQGM(CMS)  ~',IERR)
+               CARCTL='0'
+               CALL QFORMT (STRNG,CARCTL,FORMT)
+               WRITE (IPR,FORMT)
+               STRNG=' '
+               CALL UCNCAT (STRNG,'RQIM(CMS)  ~',IERR)
+               CALL UCNCAT (STRNG,'RQIN(CMS)  ~',IERR)
+               CALL UCNCAT (STRNG,'RQME(CMS)  ~',IERR)
+               CALL UCNCAT (STRNG,'RQOT(CMS)  ~',IERR)
+               CALL UCNCAT (STRNG,'RQSW(CMS)  ~',IERR)
+               CALL UCNCAT (STRNG,'RSTO(CMSD) ~',IERR)
+               CALL UCNCAT (STRNG,'TWEL(M)    ~',IERR)
+               CALL UCNCAT (STRNG,'TWSW(M)    ~',IERR)
+               CARCTL='~'
+               CALL QFORMT (STRNG,CARCTL,FORMT)
+               WRITE (IPR,FORMT)
+            ENDIF
+         WRITE (IPR,390)
+         GO TO 80
+         ENDIF
+      IF (ITYPE.EQ.5) THEN
+         STRNG='INSTANTANEOUS MISCELLANEOUS DATA DISPLAY'
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         STRNG=' '
+         IF (METRIC.EQ.0) THEN
+            CALL UCNCAT (STRNG,'AESC(PCTD)  ~',IERR)
+            CALL UCNCAT (STRNG,'FGDP(IN)    ~',IERR)
+            CALL UCNCAT (STRNG,'ICET(IN)    ~',IERR)
+            CALL UCNCAT (STRNG,'PCFD(PCTD)  ~',IERR)
+            CALL UCNCAT (STRNG,'SNOG(IN)    ~',IERR)
+            CALL UCNCAT (STRNG,'SNWE(IN)    ~',IERR)
+            CALL UCNCAT (STRNG,'WERL(REAL)  ~',IERR)
+            CALL UCNCAT (STRNG,'ZELV(FT)    ~',IERR)
+            ELSE
+               CALL UCNCAT (STRNG,'AESC(PCTD)  ~',IERR)
+               CALL UCNCAT (STRNG,'FGDP(CM)    ~',IERR)
+               CALL UCNCAT (STRNG,'ICET(CM)    ~',IERR)
+               CALL UCNCAT (STRNG,'PCFD(PCTD)  ~',IERR)
+               CALL UCNCAT (STRNG,'SNOG(CM)    ~',IERR)
+               CALL UCNCAT (STRNG,'SNWE(MM)    ~',IERR)
+               CALL UCNCAT (STRNG,'WERL(REAL)  ~',IERR)
+               CALL UCNCAT (STRNG,'ZELV(M)     ~',IERR)
+            ENDIF
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         GO TO 80
+         ENDIF
+      IF (ITYPE.EQ.6) THEN
+         STRNG='MEAN MISCELLANEOUS DATA DISPLAY'
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         STRNG=' '
+         IF (METRIC.EQ.0) THEN
+            CALL UCNCAT (STRNG,'PTPS(PCTD)',IERR)
+            ELSE
+               CALL UCNCAT (STRNG,'PTPS(PCTD)',IERR)
+            ENDIF
+         CARCTL='0'
+         CALL QFORMT (STRNG,CARCTL,FORMT)
+         WRITE (IPR,FORMT)
+         GO TO 80
+         ENDIF
+      WRITE (IPR,350) ITYPE,STAID,DTYPE
+      CALL WARN
+C
+80    IF (NTIME.EQ.0.AND.IBEG.NE.0) THEN
+         WRITE (IPR,310) IM,ID,IY,IH,TZC,
+     $      LM,LD,LY,LH,TZC,
+     $      NM,ND,NY,NH,TZC
+         ENDIF
+C
+      IF (IBUG.GT.0) WRITE (IOPDBG,250) IUNIT,DTYPE,UNITS,
+     $   NFIELD,NDECS,MEANS,STAID,IBEG,ITYPE
+C
+      IF (IBEG.EQ.0) GO TO 10
+C
+      J=(IBEG+1)/NVLPOB
+      IF (NVLPOB.EQ.2) J=J-1
+      NUM=NCOUNT/NVLPOB
+      NTIMES=5
+      IF (ITYPE.EQ.4) NTIMES=3
+      IF (ITYPE.EQ.3.OR.ITYPE.EQ.6) NTIMES=3
+      IF (NTIME.EQ.0.AND.NTIMES.EQ.5) WRITE (IPR,360)
+      IF (NTIME.EQ.0.AND.NTIMES.EQ.3) WRITE (IPR,370)
+      IF (NTIME.EQ.0) WRITE (IPR,380)
+      NTIME=1
+C
+C  CONVERT DATA VALUES (DIVIDE BY THE CONVERSION FACTORS
+C  BECAUSE FCONVT GOES FROM METRIC TO ENGLISH)
+      IF (METRIC.EQ.1) THEN
+         DO 90 K=2,NCOUNT,NVLPOB
+            OBS(K)=OBS(K)/CONVRT
+90          CONTINUE
+         ENDIF
+C
+100   CPRINT=' '
+C
+      DO 150 I=1,NTIMES
+         IF (J.LE.NUM-1) GO TO 110
+            IREST=1
+            GO TO 160
+C     SKIP IPT OVER 2 FIELDS (16 COLS) OR 3 FIELDS FOR NVLPOB=3
+C     (USE 3 FIELDS FOR ALL RES DATA CAUSE DATA TYPES MAY BE MIXED)
+110      IPT=16*(I-1)+1
+         IF (NVLPOB.EQ.3.OR.ITYPE.EQ.4) IPT=21*(I-1)+1
+C     CONVERT FROM INTERNAL TIME TO MMDDYYHH
+         ITIME=IOBS((J)*NVLPOB+1)-NHOPDB
+         IF (IBUG.GT.0) WRITE (IOPDBG,240) ITIME,IOBS((J)*NVLPOB+1),
+     $      NHOPDB,J,IBEG
+         INDAY=ITIME/24+1
+         INHR=ITIME-INDAY*24+24
+         CALL MDYH1 (INDAY,INHR,IM,ID,IY,IH,NOUTZ,NOUTDS,TZC)
+         CALL UINTCH (ID,2,CHAR2,NFILL,IST)
+         IF (CHAR2(1:1).EQ.' ') CHAR2(1:1)='0'
+         IF (IBUG.GT.0) WRITE (IPR,*)
+     $      ' ID=',ID,' CHAR2=',CHAR2,' IST=',IST
+         CPRINT(IPT:IPT+1)=CHAR2
+         IPT=IPT+2
+         CPRINT(IPT:IPT)='-'
+         IPT=IPT+1
+         CALL UINTCH (IH,2,CHAR2,NFILL,IST)
+         IF (CHAR2(1:1).EQ.' ') CHAR2(1:1)='0'
+         IF (IBUG.GT.0) WRITE (IPR,*)
+     $      ' ID=',ID,' CHAR2=',CHAR2,' IST=',IST
+         CPRINT(IPT:IPT+1)=CHAR2
+         IF (IST.EQ.0) GO TO 120
+            CPRINT(IPT:IPT+4)='????'
+            WRITE (IPR,290) OBS((J)*NVLPOB+3)
+            CALL WARN
+            IPT=16*(I-1)+6
+120      IF (NFIELD.GT.15) NFIELD=15
+         IPT=IPT+2
+C     CONVERT DATA VALUE
+         CALL URELCH (OBS((J)*NVLPOB+2),NFIELD,CPRINT(IPT:IPT),
+     $      NDECS,NFILL,IST)
+         IF (IST.EQ.0) GO TO 130
+            NDECS=-1
+            CALL URELCH (OBS((J)*NVLPOB+2),NFIELD,CPRINT(IPT:IPT),
+     $         NDECS,NFILL,IST)
+            IF (IST.EQ.0) GO TO 130
+               WRITE (IPR,260) OBS((J)*NVLPOB+2)
+               CALL WARN
+130      IF (NVLPOB.EQ.2) GO TO 140
+            IPT=IPT+NFIELD+1
+            CALL UINTCH (IOBS((J)*NVLPOB+3),3,CPRINT(IPT:IPT),
+     $         NFILL,IST)
+            IF (IST.EQ.0) GO TO 140
+               CPRINT(IPT:IPT+4)='????'
+               WRITE (IPR,290) OBS((J)*NVLPOB+3)
+               CALL WARN
+140      J=J+1
+150      CONTINUE
+C
+160   IF (IDESC.GT.0) THEN
+         WRITE (IPR,330) CPRINT
+         GO TO 190
+         ENDIF
+      IF (PREID.EQ.STAID) GO TO 170
+         WRITE (IPR,320) DESC,ST,STAID,ISTNUM,DTYPE,CPRINT
+         GO TO 180
+170   WRITE (IPR,340) DTYPE,CPRINT
+C
+180   PREID=STAID
+C
+190   IDESC=1
+      IF (IREST.EQ.1.OR.J.GT.NUM-1) GO TO 10
+      GO TO 100
+C
+200   CALL FSTWHR (OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+C
+      IF (IPTRCE.GT.1) WRITE (IOPDBG,420)
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+210   FORMAT (' *** ENTER QDISPL')
+220   FORMAT ('0**WARNING** DATA TYPE',A4,' HAD A STATUS CODE OF ',I3,
+     $ ' RETURNED FROM QDTYPE.  THE OBSERVED DATA FOR THIS TYPE',
+     $ ' WILL NOT BE PRINTED.')
+230   FORMAT ('0**WARNING** DATA TYPE ',A4,' HAS AN INVALID',
+     $ ' LENGTH OF',I5,' SO IT WILL NOT HAVE OBSERVED DATA',
+     $ ' PRINTED.')
+240   FORMAT (' IN QDISPL ITIME= ',I7,' IOBS= ',I7,' NHOPBD= ',I3,
+     $ ' J= ',I6,' IBEG=',I6)
+250   FORMAT (' THE VALUES IN QDISPL ARE: IUNIT=',I3,' DTYPE=',A4,
+     $ ' UNITS=',A4,' NNFIELD=',I2,' NDECS=',I2,' IMEANS=',I2,
+     $ ' STAID=',A,' IBEG=',I6,' ITYPE=',I2)
+260   FORMAT ('0**WARNING** THERE WAS AN ERROR IN CONVERTING',
+     $ ' THE REAL VALUE ',G15.7,' INTO ITS CHARACTER REPRESENTATION')
+270   FORMAT ('0**WARNING** THE DATA TYPE ',A4,' IS NOT A VALID',
+     $ ' DATA TYPE.  A STATUS CODE OF ',I3,' WAS RETURNED FROM',
+     $ ' ROUTINE FDCODE.')
+280   FORMAT ('0**WARNING** A ERROR OCCURRED IN ROUTINE FCONVT',
+     $ 'WITH UNITM= ',A4,' DIMM= ',A4,' ISTAT= ',I4 /
+     $ T17,'A CONVERSION FACTOR OF ONE WAS RETURNED.')
+290   FORMAT ('O**WARNING** THERE WAS AN ERROR IN CONVERTING',
+     $ ' THE INTEGER VALUE ',I7,' INTO ITS CHARACTER REPRESENTATION.')
+300   FORMAT ('1',132('-'))
+310   FORMAT ('0',20X,
+     $ 'PERIOD: ',
+     $     I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A4,' THRU ',
+     $     I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A4,2X,
+     $ 'LAST OBSERVED DATA: ',
+     $     I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A4)
+320   FORMAT ('0',A,1X,A2,2X,A,2X,I4,2X,A4,2X,A)
+330   FORMAT (48X,A)
+340   FORMAT (42X,A4,2X,A)
+350   FORMAT ('O**WARNING** IN QDISPL - ITYPE (',I3,' IS INVALID ',
+     $ 'FOR STATION ',A,' AND DATA TYPE ',A4,'.')
+360   FORMAT ('0DESCRIPTION',9X,1X,'ST',2X,'ID',2X,7X,'NUM',
+     $ 2X,'TYPE',5(2X,'DD-HR  VALUE/',1X))
+370   FORMAT ('0DESCRIPTION',9X,1X,'ST',2X,'ID',2X,7X,'NUM',
+     $ 2X,'TYPE',1X,3(' ','DD-HR   VALUE  PD/',2X))
+380   FORMAT (' ',20('-'),1X,2('-'),2X,8('-'),3X,3('-'),2X,4('-'))
+390   FORMAT (5X,
+     $ 'VALUES UNDER THE COLUMN ''PD'' IN THE TABLE HEADING ',
+     $ 'ARE THE TIME PERIOD OF THE OBSERVATION ',
+     $ 'AND APPEAR ONLY FOR MEAN DATA.')
+400   FORMAT (' ',10F10.2)
+410   FORMAT (' ',10I10)
+420   FORMAT (' *** EXIT QDISPL')
+C
+      END

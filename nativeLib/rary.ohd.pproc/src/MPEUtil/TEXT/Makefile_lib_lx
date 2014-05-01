@@ -1,0 +1,113 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the pproc_lib-MPEUtil library file
+#
+#  cmt: File made on Wed Aug  6 13:01:52 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/pproc_lib/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+	       -I/fs/hseb/ob83/ohd/util/inc/netcdf_inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+#	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libMPEUtil_t.a:  \
+     $(LIB)/libMPEUtil_t.a(durdec.o)  \
+     $(LIB)/libMPEUtil_t.a(getdat.o)  \
+     $(LIB)/libMPEUtil_t.a(tadj.o)  \
+     $(LIB)/libMPEUtil_t.a(write_xmrg.o)  \
+     $(LIB)/libMPEUtil_t.a(add_overlays.o)  \
+     $(LIB)/libMPEUtil_t.a(change_rc.o)  \
+     $(LIB)/libMPEUtil_t.a(clear_legend.o)  \
+     $(LIB)/libMPEUtil_t.a(close_locate.o)  \
+     $(LIB)/libMPEUtil_t.a(copy_area.o)  \
+     $(LIB)/libMPEUtil_t.a(create_gage_edit_popup.o)  \
+     $(LIB)/libMPEUtil_t.a(datimg.o)  \
+     $(LIB)/libMPEUtil_t.a(destroy_shell.o)  \
+     $(LIB)/libMPEUtil_t.a(display_no_gage.o)  \
+     $(LIB)/libMPEUtil_t.a(draw_bound.o)  \
+     $(LIB)/libMPEUtil_t.a(edit_gage.o)  \
+     $(LIB)/libMPEUtil_t.a(ffconv.o)  \
+     $(LIB)/libMPEUtil_t.a(fill_pixmap.o)  \
+     $(LIB)/libMPEUtil_t.a(fill_pixmap_radar_site.o)  \
+     $(LIB)/libMPEUtil_t.a(gage_edit_missing.o)  \
+     $(LIB)/libMPEUtil_t.a(get_mpe_product_state.o)  \
+     $(LIB)/libMPEUtil_t.a(get_reverse_color.o)  \
+     $(LIB)/libMPEUtil_t.a(gettime.o)  \
+     $(LIB)/libMPEUtil_t.a(get_vip_levels.o)  \
+     $(LIB)/libMPEUtil_t.a(hrap.o)  \
+     $(LIB)/libMPEUtil_t.a(insert_manreject.o)  \
+     $(LIB)/libMPEUtil_t.a(insert_reject.o)  \
+     $(LIB)/libMPEUtil_t.a(insert_reject_RFCW.o)  \
+     $(LIB)/libMPEUtil_t.a(mpe_field_names.o)  \
+     $(LIB)/libMPEUtil_t.a(mpe_log_utils.o)  \
+     $(LIB)/libMPEUtil_t.a(ok_quit.o)  \
+     $(LIB)/libMPEUtil_t.a(pop_down.o)  \
+     $(LIB)/libMPEUtil_t.a(popdown_edit_precip_value.o)  \
+     $(LIB)/libMPEUtil_t.a(popdown_shell.o)  \
+     $(LIB)/libMPEUtil_t.a(read_gage_edit_scale.o)  \
+     $(LIB)/libMPEUtil_t.a(read_geo_data.o)  \
+     $(LIB)/libMPEUtil_t.a(read_pseudo_scale.o)  \
+     $(LIB)/libMPEUtil_t.a(read_rwbiasstat.o)  \
+     $(LIB)/libMPEUtil_t.a(ReadSPE.o)  \
+     $(LIB)/libMPEUtil_t.a(read_tl_scale.o)  \
+     $(LIB)/libMPEUtil_t.a(read_xmrg.o)  \
+     $(LIB)/libMPEUtil_t.a(restore_date.o)  \
+     $(LIB)/libMPEUtil_t.a(save_netcdf.o)  \
+     $(LIB)/libMPEUtil_t.a(select_callback.o)  \
+     $(LIB)/libMPEUtil_t.a(set_single_site_overlays.o)  \
+     $(LIB)/libMPEUtil_t.a(show_overlays.o)  \
+     $(LIB)/libMPEUtil_t.a(show_radar_rings.o)  \
+     $(LIB)/libMPEUtil_t.a(sort_by_gageid.o)  \
+     $(LIB)/libMPEUtil_t.a(sort_by_gageval.o)  \
+     $(LIB)/libMPEUtil_t.a(sort_by_radar.o)  \
+     $(LIB)/libMPEUtil_t.a(sys_command.o)  \
+     $(LIB)/libMPEUtil_t.a(update_pseudo_RFCW.o)  \
+     $(LIB)/libMPEUtil_t.a(v_scrollbar_moved.o)  \
+     $(LIB)/libMPEUtil_t.a(xor.o)
+

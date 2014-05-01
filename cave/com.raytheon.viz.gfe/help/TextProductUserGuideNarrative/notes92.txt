@@ -1,0 +1,2 @@
+Here is a phrase definition which has a setUpMethod, a wordMethod and optional phrase methods.  The setUpMethod is called first at the phrase level.  Its job is to create the sub-phrases based on the statistics available.  The phraseMethods are called from the phrase level and the wordMethod is called at the sub-phrase level to create the words for each sub-phrase.   We will dissect this definition to see how the methods build a phrase and learn about infrastructure helper methods which they employ.
+

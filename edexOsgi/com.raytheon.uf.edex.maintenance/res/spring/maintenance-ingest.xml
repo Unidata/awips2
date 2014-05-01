@@ -1,0 +1,29 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    
+	<bean id="dataStoreRepacker" class="com.raytheon.uf.edex.maintenance.DataStoreRepacker">
+		<!--  the compression to repack at, valid values are NONE or LZF -->
+		<constructor-arg value="LZF" />
+	</bean>
+
+	<camelContext id="maintenanceContext" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+        <endpoint id="repackCron" uri="clusteredquartz://repack/repackScheduled/?cron=${repack.cron}"/>               
+
+		<!-- Repack on Scheduled timer -->
+		<route id="repackScheduled">
+			<from uri="repackCron" />
+			<doTry>
+				<bean ref="dataStoreRepacker" method="repack" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:repack?level=ERROR" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

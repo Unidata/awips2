@@ -1,0 +1,36 @@
+!
+!	gempakMarkerType.tbl
+!
+!	This table contains the mapping of gempak marker types with 
+!	real marker names used in pgen.
+!
+!*******************************************************************************
+!
+!
+!!
+! Log:
+! M. Li	 	7/2010		Initial creation	
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+1  	    PLUS_SIGN          
+2    	OCTAGON  
+3    	TRIANGLE
+4    	BOX
+5    	SMALL_X
+6    	DIAMOND
+7    	UP_ARROW
+8    	X_WITH_TOP_BAR
+9    	Z_WITH_BAR
+10    	Y
+11    	BOX_WITH_DIAGONALS
+12    	ASTERISK
+13    	HOURGLASS_X
+14    	STAR
+15    	DOT
+16    	LARGE_X
+17   	FILLED_OCTAGON
+18    	FILLED_TRIANGLE
+19    	FILLED_BOX
+20    	FILLED_DIAMOND
+21    	FILLED_STAR
+22    	MINUS_SIGN

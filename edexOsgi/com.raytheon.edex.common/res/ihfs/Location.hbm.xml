@@ -1,0 +1,452 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="false">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Location" 
+    table="location"
+>
+
+    <id
+        name="lid"
+        type="java.lang.String"
+        column="lid"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="coe"
+        type="java.lang.String"
+        column="coe"
+        length="3"
+    />
+    <property
+        name="cpm"
+        type="java.lang.String"
+        column="cpm"
+        length="3"
+    />
+    <property
+        name="detail"
+        type="java.lang.String"
+        column="detail"
+        length="10"
+    />
+    <property
+        name="elev"
+        type="java.lang.Double"
+        column="elev"
+        length="17"
+    />
+    <property
+        name="hdatum"
+        type="java.lang.String"
+        column="hdatum"
+        length="9"
+    />
+    <property
+        name="hu"
+        type="java.lang.String"
+        column="hu"
+        length="8"
+    />
+    <property
+        name="lat"
+        type="java.lang.Double"
+        column="lat"
+        length="17"
+    />
+    <property
+        name="lon"
+        type="java.lang.Double"
+        column="lon"
+        length="17"
+    />
+    <property
+        name="lremark"
+        type="java.lang.String"
+        column="lremark"
+        length="255"
+    />
+    <property
+        name="lrevise"
+        type="java.sql.Timestamp"
+        column="lrevise"
+        length="13"
+    />
+    <property
+        name="name"
+        type="java.lang.String"
+        column="name"
+        length="50"
+    />
+    <property
+        name="rb"
+        type="java.lang.String"
+        column="rb"
+        length="30"
+    />
+    <property
+        name="sbd"
+        type="java.sql.Timestamp"
+        column="sbd"
+        length="13"
+    />
+    <property
+        name="sn"
+        type="java.lang.String"
+        column="sn"
+        length="10"
+    />
+    <property
+        name="waro"
+        type="java.lang.String"
+        column="waro"
+        length="3"
+    />
+    <property
+        name="wsfo"
+        type="java.lang.String"
+        column="wsfo"
+        length="3"
+    />
+    <property
+        name="type"
+        type="java.lang.String"
+        column="type"
+        length="4"
+    />
+    <property
+        name="des"
+        type="java.lang.String"
+        column="des"
+        length="30"
+    />
+    <property
+        name="det"
+        type="java.lang.String"
+        column="det"
+        length="30"
+    />
+    <property
+        name="post"
+        type="java.lang.Integer"
+        column="post"
+        length="10"
+    />
+    <property
+        name="stntype"
+        type="java.lang.String"
+        column="stntype"
+        length="4"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to County -->
+    <many-to-one
+        name="county"
+        class="com.raytheon.edex.db.objects.ihfs.County"
+        not-null="true"
+    >
+        <column name="county" />
+        <column name="state" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Rfc -->
+    <many-to-one
+        name="rfc"
+        class="com.raytheon.edex.db.objects.ihfs.Rfc"
+        not-null="true"
+    >
+        <column name="rfc" />
+    </many-to-one>
+    <!-- bi-directional one-to-many association to Fcstptdeterm -->
+    <set
+        name="fcstptdeterms"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="upstream_seg" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Fcstptdeterm"
+        />
+    </set>
+    <!-- bi-directional one-to-one association to Rivermonlocation -->
+    <one-to-one
+        name="rivermonlocation"
+        class="com.raytheon.edex.db.objects.ihfs.Rivermonlocation"
+        outer-join="auto"
+    />
+    <!-- bi-directional one-to-one association to Telem -->
+    <one-to-one
+        name="telem"
+        class="com.raytheon.edex.db.objects.ihfs.Telem"
+        outer-join="auto"
+    />
+    <!-- bi-directional one-to-many association to Gage -->
+    <set
+        name="gages"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="lid" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Gage"
+        />
+    </set>
+    <!-- bi-directional one-to-one association to Riverstat -->
+    <one-to-one
+        name="riverstat"
+        class="com.raytheon.edex.db.objects.ihfs.Riverstat"
+        outer-join="auto"
+    />
+    <!-- bi-directional one-to-one association to Observer -->
+    <one-to-one
+        name="observer"
+        class="com.raytheon.edex.db.objects.ihfs.Observer"
+        outer-join="auto"
+    />
+    <!-- bi-directional one-to-many association to Contact -->
+    <set
+        name="contacts"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="lid" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Contact"
+        />
+    </set>
+    <!-- bi-directional one-to-one association to Reservoir -->
+    <one-to-one
+        name="reservoir"
+        class="com.raytheon.edex.db.objects.ihfs.Reservoir"
+        outer-join="auto"
+    />
+    <!-- bi-directional one-to-one association to Dcp -->
+    <one-to-one
+        name="dcp"
+        class="com.raytheon.edex.db.objects.ihfs.Dcp"
+        outer-join="auto"
+    />
+    <!-- bi-directional one-to-many association to Countynum -->
+    <set
+        name="countynums"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="lid" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Countynum"
+        />
+    </set>
+    <!-- bi-directional one-to-one association to Stnclass -->
+    <one-to-one
+        name="stnclass"
+        class="com.raytheon.edex.db.objects.ihfs.Stnclass"
+        outer-join="auto"
+    />
+    <!-- bi-directional one-to-many association to Zonenum -->
+    <set
+        name="zonenums"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="lid" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Zonenum"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Locimage -->
+    <set
+        name="locimages"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="lid" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Locimage"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Ofsstntran -->
+    <set
+        name="ofsstntrans"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="lid" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Ofsstntran"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Locextagency -->
+    <set
+        name="locextagencies"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="lid" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Locextagency"
+        />
+    </set>
+    <!-- bi-directional one-to-many association to Fcstptesp -->
+    <set
+        name="fcstptesps"
+        lazy="true"
+        inverse="true"
+		cascade="all-delete-orphan"
+    >
+        
+        <meta attribute="field-description-get">Use add/remove instead.</meta>
+        <meta attribute="field-description-set">Use add/remove instead.</meta>
+        <meta attribute="field-description-add">Used to add children to this object.</meta>
+        <meta attribute="field-description-remove">Used to remove children from this object.</meta>
+
+<key>
+            <column name="upstream_seg" />
+        </key>
+        <one-to-many 
+            class="com.raytheon.edex.db.objects.ihfs.Fcstptesp"
+        />
+    </set>
+    <!-- bi-directional many-to-one association to Timezone -->
+    <many-to-one
+        name="timezone"
+        class="com.raytheon.edex.db.objects.ihfs.Timezone"
+        not-null="true"
+    >
+        <column name="tzone" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Wfo -->
+    <many-to-one
+        name="wfo"
+        class="com.raytheon.edex.db.objects.ihfs.Wfo"
+        not-null="true"
+    >
+        <column name="wfo" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Hsa -->
+    <many-to-one
+        name="hsa"
+        class="com.raytheon.edex.db.objects.ihfs.Hsa"
+        not-null="true"
+    >
+        <column name="hsa" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Network -->
+    <many-to-one
+        name="network"
+        class="com.raytheon.edex.db.objects.ihfs.Network"
+        not-null="true"
+    >
+        <column name="network" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

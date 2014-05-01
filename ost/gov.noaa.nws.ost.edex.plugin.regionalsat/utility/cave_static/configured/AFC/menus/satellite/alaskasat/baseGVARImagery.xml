@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="GVAR">
+		<contribute xsi:type="placeholder" 
+					menuText=" GVAR " id="GVARLine"/>
+		<contribute xsi:type="subMenu" menuText=" Channel 1 VIS ">
+		<contribute xsi:type="placeholder" 
+					menuText=" 0.55-0.75 micron VISL " id="GVARch1Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="1gv" id="1gvSector">
+		        <substitute key="element" value="0.55-0.75 micron VISL"/>
+		        <substitute key="sector" value="AkSec1gv"/>
+		        <substitute key="entity" value="GVAR"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                	menuText="1j1" id="1j1Sector">
+		        <substitute key="element" value="0.55-0.75 micron VISL"/>
+		        <substitute key="sector" value="AkSec1j1"/>
+		        <substitute key="entity" value="GVAR"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText=" Channel 2 IR ">
+		<contribute xsi:type="placeholder" 
+					menuText=" 3.80-4.00 micron IRUL " id="GVARch2Line"/>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		            menuText="2j2" id="2j2Sector">
+		        <substitute key="element" value="3.80-4.00 micron IRUL"/>
+		        <substitute key="sector" value="AkSec2j2"/>
+		        <substitute key="entity" value="GVAR"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText=" Channel 3 WV ">
+		<contribute xsi:type="placeholder" 
+					menuText=" 6.50-7.00 micron IRUL " id="GVARch3Line"/>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		           		menuText="3ga" id="3gaSector">
+		        <substitute key="element" value="6.50-7.00 micron IRUL"/>
+		        <substitute key="sector" value="AkSec3ga"/>
+		        <substitute key="entity" value="GVAR"/>
+		        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor"/>
+		    </contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="Channel 4 IR ">
+		<contribute xsi:type="placeholder" 
+					menuText=" 10.20-11.20 micron IRUL " id="GVARch4Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="4b6" id="4b6Sector">
+		        <substitute key="element" value="10.20-11.20 micron IRUL"/>
+		        <substitute key="sector" value="AkSec4b6"/>
+		        <substitute key="entity" value="GVAR"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	            		menuText="4gv" id="4gvSector">
+		        <substitute key="element" value="10.20-11.20 micron IRUL"/>
+		        <substitute key="sector" value="AkSec4gv"/>
+		        <substitute key="entity" value="GVAR"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="4j2" id="4j2Sector">
+		        <substitute key="element" value="10.20-11.20 micron IRUL"/>
+		        <substitute key="sector" value="AkSec4j2"/>
+		        <substitute key="entity" value="GVAR"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute> 
+		</contribute>
+    </contribute>
+</menuTemplate>

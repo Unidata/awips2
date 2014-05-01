@@ -1,0 +1,70 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="Qpid Common Protocol Versions" default="generate">
+  <property name="topDirectoryLocation" location=".." />
+  <property name="project.build.directory" location="target" />
+  <property name="gentools.home" location="${topDirectoryLocation}/../gentools" />
+  <property name="generated.path" location="${project.build.directory}/generated-sources/gentools" />
+  <property name="generated.package" value="org/apache/qpid/framing" />
+  <property name="generated.dir" location="${generated.path}/${generated.package}" />
+  <property name="generated.timestamp" location="${generated.dir}/timestamp" />
+  <property name="xml.spec.dir" location="${topDirectoryLocation}/../specs" />
+  <property name="xml.spec.deps" value="amqp.0-8.xml amqp.0-9.xml amqp0-9-1.stripped.xml" />
+  <property name="xml.spec.list" value="${xml.spec.dir}/amqp.0-8.xml ${xml.spec.dir}/amqp.0-9.xml ${xml.spec.dir}/amqp0-9-1.stripped.xml" />
+  <property name="template.dir" value="${topDirectoryLocation}/common/templates" />
+
+  	
+  <!--<target name="generate" depends="compile_generator,check_generate_deps" unless="generation.notRequired">-->
+  <target name="generate" depends="compile_generator" unless="generation.notRequired">
+    <mkdir dir="${generated.dir}"/>
+    <java classname="org.apache.qpid.gentools.Main" fork="true" dir="${gentools.home}/src" failonerror="true">
+    	<arg line="-j -o ${generated.dir} -t ${template.dir} ${xml.spec.list}" />
+        <classpath>
+          <pathelement path="${gentools.home}/src" />
+	  <fileset dir="${gentools.home}/lib">
+	     <include name="**/*.jar"/>
+          </fileset>
+          <pathelement path="${gentools.home}/lib/velocity-1.4.jar" />
+          <pathelement path="${gentools.home}/lib/velocity-dep-1.4.jar" />
+        </classpath>
+    </java>
+    <touch file="${generated.timestamp}" />
+  </target>
+
+  <target name="check_generate_deps">
+	<uptodate property="generation.notRequired" targetfile="${generated.timestamp}">
+  	  <srcfiles dir="${xml.spec.dir}" includes="${xml.spec.deps}" />
+      <srcfiles dir="${template.dir}" includes="**/*.vm **/*.tmpl" />
+    </uptodate>
+  </target>
+  
+  <target name="compile_generator">
+  	<ant dir="${gentools.home}" />
+  </target>
+
+  <target name="precompile" depends="generate"/>
+  
+  <target name="clean">
+  	<delete dir="${generated.path}" />
+  </target>
+
+</project>
+

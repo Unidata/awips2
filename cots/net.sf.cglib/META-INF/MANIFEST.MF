@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Cglib Plug-in
+Bundle-SymbolicName: net.sf.cglib
+Bundle-Version: 2.1.3
+Bundle-ClassPath: cglib-nodep-2.1_3.jar
+Bundle-Vendor: Raytheon-bundled OSS
+Export-Package: net.sf.cglib.asm,
+ net.sf.cglib.asm.attrs,
+ net.sf.cglib.beans,
+ net.sf.cglib.core,
+ net.sf.cglib.proxy,
+ net.sf.cglib.reflect,
+ net.sf.cglib.transform,
+ net.sf.cglib.transform.hook,
+ net.sf.cglib.transform.impl,
+ net.sf.cglib.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -1,0 +1,2 @@
+Here we see these infrastructure methods in use in the "simple_vector_phrase". First, we use the "getStatDict" method to obtain the "statDict".  Then we can access the raw statistic using "getStats".  Finally, we use "getValue" to guarantee us a range with which to work.
+

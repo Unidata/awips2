@@ -1,0 +1,529 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'staffgage.c';
+generateNameExterns = * 'staffgage.h';
+generateNameResDB = * 'staffgage.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'staffGageDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'staffGageDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_staffGageDS (parent)
+Widget parent;
+';
+	XmNwidth = 800;
+	XmNheight = 850;
+	XmNallowShellResize = true;
+	XmNtitle = 'Staff Gage';
+	XmNminWidth = 800;
+	XmNminHeight = 850;
+	XmNmaxWidth = 800;
+	XmNmaxHeight = 850;
+	};
+object 'staffGageFO' : XmForm {
+	arguments {
+	lastGenName = 'staffGageFO';
+	XmNwidth = 800;
+	XmNheight = 850;
+	XmNautoUnmanage = false;
+	};
+object 'gageFR' : XmFrame {
+	arguments {
+	lastGenName = 'gageFR';
+	};
+object 'gageFRLA' : XmLabel {
+	arguments {
+	lastGenName = 'gageFRLA';
+	XmNchildType = 2;
+	XmNlabelString = 'Significant Stages';
+	};
+};
+object 'gageFO' : XmForm {
+	arguments {
+	was_selected = true;
+	lastGenName = 'gageFO';
+	};
+object 'floodTE' : XmText {
+	arguments {
+	lastGenName = 'floodTE';
+	XmNcolumns = 16;
+	};
+};
+object 'actionTE' : XmText {
+	arguments {
+	lastGenName = 'actionTE';
+	XmNcolumns = 16;
+	};
+};
+object 'bankfullTE' : XmText {
+	arguments {
+	lastGenName = 'bankfullTE';
+	XmNcolumns = 7;
+	};
+};
+object 'zeroDataTE' : XmText {
+	arguments {
+	lastGenName = 'zeroDataTE';
+	XmNcolumns = 7;
+	};
+};
+object 'minorTE' : XmText {
+	arguments {
+	lastGenName = 'minorTE';
+	XmNcolumns = 16;
+	};
+};
+object 'moderateTE' : XmText {
+	arguments {
+	lastGenName = 'moderateTE';
+	XmNcolumns = 16;
+	};
+};
+object 'majorTE' : XmText {
+	arguments {
+	lastGenName = 'majorTE';
+	XmNcolumns = 16;
+	};
+};
+object 'recordTE' : XmText {
+	arguments {
+	lastGenName = 'recordTE';
+	XmNcolumns = 16;
+	};
+};
+object 'floodLA' : XmLabel {
+	arguments {
+	lastGenName = 'floodLA';
+	XmNlabelString = 'Flood:';
+	XmNalignment = 2;
+	};
+};
+object 'actionLA' : XmLabel {
+	arguments {
+	lastGenName = 'actionLA';
+	XmNlabelString = 'Action:';
+	XmNalignment = 2;
+	};
+};
+object 'bankfullLA' : XmLabel {
+	arguments {
+	lastGenName = 'bankfullLA';
+	XmNlabelString = 'Bankfull Stage:';
+	XmNalignment = 2;
+	};
+};
+object 'zeroDatumLA' : XmLabel {
+	arguments {
+	lastGenName = 'zeroDatumLA';
+	XmNlabelString = 'Zero Datum:';
+	XmNalignment = 2;
+	};
+};
+object 'minorLA' : XmLabel {
+	arguments {
+	lastGenName = 'minorLA';
+	XmNlabelString = 'Minor Category:';
+	XmNalignment = 2;
+	};
+};
+object 'moderateLA' : XmLabel {
+	arguments {
+	lastGenName = 'moderateLA';
+	XmNlabelString = 'Moderate Category:';
+	XmNalignment = 2;
+	};
+};
+object 'majorLA' : XmLabel {
+	arguments {
+	lastGenName = 'majorLA';
+	XmNlabelString = 'Major Category:';
+	XmNalignment = 2;
+	};
+};
+object 'recordLA' : XmLabel {
+	arguments {
+	lastGenName = 'recordLA';
+	XmNlabelString = 'Record:';
+	XmNalignment = 2;
+	};
+};
+object 'staffDA' : XmDrawingArea {
+	arguments {
+	lastGenName = 'staffDA';
+	};
+};
+object 'StageFlowLA' : XmLabel {
+	arguments {
+	lastGenName = 'StageFlowLA';
+	XmNlabelString = 'Stage      Flow';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -765;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -260;
+	XmNtopAttachment = 1 0 220;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -765;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -305;
+	XmNtopAttachment = 1 0 265;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -700;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -375;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -700;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -765;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -215;
+	XmNtopAttachment = 1 0 175;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -765;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -170;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -765;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -125;
+	XmNtopAttachment = 1 0 85;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -765;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -260;
+	XmNtopAttachment = 1 0 220;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -305;
+	XmNtopAttachment = 1 0 265;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -375;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 1 0 380;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -215;
+	XmNtopAttachment = 1 0 175;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -170;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -125;
+	XmNtopAttachment = 1 0 85;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 480;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -435;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -765;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 15;
+    };
+    };
+};
+};
+object 'referenceFR' : XmFrame {
+	arguments {
+	lastGenName = 'referenceFR';
+	};
+object 'referenceFO' : XmForm {
+	arguments {
+	lastGenName = 'referenceFO';
+	};
+object 'sgNameTE' : XmText {
+	arguments {
+	lastGenName = 'sgNameTE';
+	};
+};
+object 'sgNameLA' : XmLabel {
+	arguments {
+	lastGenName = 'sgNameLA';
+	XmNlabelString = 'Name';
+	};
+};
+object 'sgBasinTE' : XmText {
+	arguments {
+	lastGenName = 'sgBasinTE';
+	};
+};
+object 'sgBasinLA' : XmLabel {
+	arguments {
+	lastGenName = 'sgBasinLA';
+	XmNlabelString = 'Basin';
+	};
+};
+object 'streamTE' : XmText {
+	arguments {
+	lastGenName = 'streamTE';
+	};
+};
+object 'streamLA' : XmLabel {
+	arguments {
+	lastGenName = 'streamLA';
+	XmNlabelString = 'Stream';
+	};
+};
+object 'countyTE' : XmText {
+	arguments {
+	lastGenName = 'countyTE';
+	};
+};
+object 'countyLA' : XmLabel {
+	arguments {
+	lastGenName = 'countyLA';
+	XmNlabelString = 'County';
+	};
+};
+object 'latlonTE' : XmText {
+	arguments {
+	lastGenName = 'latlonTE';
+	XmNvalue = '';
+	XmNmaxLength =  * 25;
+	};
+};
+object 'latlonLA' : XmLabel {
+	arguments {
+	lastGenName = 'latlonLA';
+	XmNlabelString = 'Lat/Lon';
+	};
+};
+object 'elevationTE' : XmText {
+	arguments {
+	lastGenName = 'elevationTE';
+	XmNmaxLength = 20;
+	};
+};
+object 'elevationLA' : XmLabel {
+	arguments {
+	lastGenName = 'elevationLA';
+	XmNlabelString = 'Elevation';
+	};
+};
+object 'tidalTE' : XmText {
+	arguments {
+	lastGenName = 'tidalTE';
+	XmNmaxLength = 20;
+	};
+};
+object 'tidalLA' : XmLabel {
+	arguments {
+	lastGenName = 'tidalLA';
+	XmNlabelString = 'Tidal Effects';
+	};
+};
+object 'stateTE' : XmText {
+	arguments {
+	lastGenName = 'stateTE';
+	};
+};
+object 'stateLA' : XmLabel {
+	arguments {
+	lastGenName = 'stateLA';
+	XmNlabelString = 'State';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 25;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 25;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 100;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -130;
+	XmNtopAttachment = 1 0 105;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 145;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -175;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -720;
+	XmNleftAttachment = 1 0 445;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 375;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -720;
+	XmNleftAttachment = 1 0 445;
+	XmNbottomAttachment = 2 0 -95;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -440;
+	XmNleftAttachment = 1 0 365;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -720;
+	XmNleftAttachment = 1 0 445;
+	XmNbottomAttachment = 2 0 -140;
+	XmNtopAttachment = 1 0 100;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 340;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 105;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 195;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 30;
+	XmNbottomAttachment = 2 0 -225;
+	XmNtopAttachment = 1 0 200;
+    };
+    };
+};
+object 'referenceFRLA' : XmLabel {
+	arguments {
+	lastGenName = 'referenceFRLA';
+	XmNchildType = 2;
+	XmNlabelString = 'Reference';
+	};
+};
+};
+object 'sgClosePB' : XmPushButton {
+	arguments {
+	lastGenName = 'sgClosePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -790;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -770;
+	XmNtopAttachment = 1 0 315;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -790;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -305;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 370;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 0 0 0;
+    };
+    };
+};
+};
+end module;

@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="true">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Locdatalimit" 
+    table="locdatalimits"
+>
+
+    <composite-id>
+        <key-property 
+            name="lid" 
+            column="lid" 
+            type="java.lang.String"
+            length="8"
+        />
+        <key-property 
+            name="monthdaystart" 
+            column="monthdaystart" 
+            type="java.lang.String"
+            length="5"
+        />
+        <!-- bi-directional many-to-one association to Shefdur -->
+        <key-many-to-one
+        	name="shefdur"
+	        class="com.raytheon.edex.db.objects.ihfs.Shefdur"
+	    >
+    	    <column name="dur" />
+	    </key-many-to-one>
+        <!-- bi-directional many-to-one association to Shefpe -->
+        <key-many-to-one
+        	name="shefpe"
+	        class="com.raytheon.edex.db.objects.ihfs.Shefpe"
+	    >
+    	    <column name="pe" />
+	    </key-many-to-one>
+    </composite-id>    
+
+    <property
+        name="monthdayend"
+        type="java.lang.String"
+        column="monthdayend"
+        not-null="true"
+        length="5"
+    />
+    <property
+        name="grossRangeMin"
+        type="java.lang.Double"
+        column="gross_range_min"
+        length="17"
+    />
+    <property
+        name="grossRangeMax"
+        type="java.lang.Double"
+        column="gross_range_max"
+        length="17"
+    />
+    <property
+        name="reasonRangeMin"
+        type="java.lang.Double"
+        column="reason_range_min"
+        length="17"
+    />
+    <property
+        name="reasonRangeMax"
+        type="java.lang.Double"
+        column="reason_range_max"
+        length="17"
+    />
+    <property
+        name="rocMax"
+        type="java.lang.Double"
+        column="roc_max"
+        length="17"
+    />
+    <property
+        name="alertUpperLimit"
+        type="java.lang.Double"
+        column="alert_upper_limit"
+        length="17"
+    />
+    <property
+        name="alertRocLimit"
+        type="java.lang.Double"
+        column="alert_roc_limit"
+        length="17"
+    />
+    <property
+        name="alarmUpperLimit"
+        type="java.lang.Double"
+        column="alarm_upper_limit"
+        length="17"
+    />
+    <property
+        name="alarmRocLimit"
+        type="java.lang.Double"
+        column="alarm_roc_limit"
+        length="17"
+    />
+    <property
+        name="alertLowerLimit"
+        type="java.lang.Double"
+        column="alert_lower_limit"
+        length="17"
+    />
+    <property
+        name="alarmLowerLimit"
+        type="java.lang.Double"
+        column="alarm_lower_limit"
+        length="17"
+    />
+    <property
+        name="alertDiffLimit"
+        type="java.lang.Double"
+        column="alert_diff_limit"
+        length="17"
+    />
+    <property
+        name="alarmDiffLimit"
+        type="java.lang.Double"
+        column="alarm_diff_limit"
+        length="17"
+    />
+
+    <!-- Associations -->
+  
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

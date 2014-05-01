@@ -1,0 +1,2 @@
+      character*4 txtid,txtyp,atext
+      common /txtpar/ tvers,txtid(2),txtyp,iuset,nlines,atext(450)

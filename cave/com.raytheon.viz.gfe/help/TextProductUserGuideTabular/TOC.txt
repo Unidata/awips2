@@ -1,0 +1,54 @@
+1: GFESuite Advanced Text Product User Guide for Tabular Products
+2: Overview
+3: Simple Tabular Products
+4: Simple Tabular Products|Infrastructure Engine
+5: Simple Tabular Products|QPF Table
+6: Simple Tabular Products|Simple Tabular Product
+7: Simple Tabular Products|Definition
+8: Simple Tabular Product|Definition
+9: Simple Tabular Product|Definition
+10: Simple Tabular Product|Definition
+11: Simple Tabular Product|Exercises
+12: Smart Text Products
+13: Smart Text Products|Naming Conventions
+14: Smart Text Products|Standard Product Main Method 
+15: Smart Text Products|Setting Variables
+16: Smart Text Products|Python "exec" statement
+17: Smart Text Products|Class Objects and Data Structures
+18: Smart Text Products|TimeRange Object
+19: Smart Text Products|Set Up Edit Areas
+20: Smart Tabular Products
+21: Smart Tabular Products|SmartElementTable
+22: Smart Tabular Products|SmartElementTable
+23: Smart Tabular Products|Infrastructure Engine
+24: Smart Tabular Products|Determine Time Ranges
+25: Smart Tabular Products|Determine Time Ranges
+26: Smart Tabular Products|Determine Time Ranges
+27: Smart Tabular Products|Sample the Data
+28: Smart Tabular Products|Sample the Data
+29: Smart Tabular Products|Set Edit Areas, Determine Time Ranges, Sample the Data
+30: Smart Tabular Products|SmartElementTable
+31: Smart Tabular Products|Analyzing the Data
+32: Smart Tabular Products|Analyzing the Data
+33: Smart Tabular Products|SmartElementTable
+34: Smart Tabular Products|SmartElementTable
+35: Smart Tabular Products|String Utility Methods
+36: Smart Text Products|SmartElementTable Local
+37: Smart Text Products|Exercises
+38: Smart Tabular Products|FWFTable
+39: Smart Tabular Products|Getting Time Ranges
+40: Smart Tabular Products|Creating Time Range Labels
+41: Smart Tabular Products|Creating Time Ranges
+42: Smart Tabular Products|FWFTable Sub-Methods
+43: Smart Tabular Products FWFTable
+44: Smart Tabular Products|Displaying Dates and Times
+45: Smart Tabular Products|FWFTable Sub-Methods
+46: Smart Text Products|FWFTable
+47: Smart Tabular Products|Making Rows of a Table
+48: Smart Tabular Products|FWFTable Sub-Methods
+49: Smart Tabular Products|FWFTable Sub-Methods
+50: Smart Tabular Products|Accessing Statistics
+51: Smart Tabular Products|FWFTable Sub-Methods
+52: Smart Tabular Products|FWFTable Sub-Methods
+53: Smart Tabular Products|Exercises
+

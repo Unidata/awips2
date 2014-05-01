@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name:  Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.cwat;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.uf.viz.cwat.Activator
+Bundle-Vendor: RAYTHEON
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.core,
+ com.raytheon.uf.common.dataplugin.cwat,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.monitor,
+ com.raytheon.uf.common.style
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.cwat
+

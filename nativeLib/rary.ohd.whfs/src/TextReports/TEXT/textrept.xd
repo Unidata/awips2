@@ -1,0 +1,1095 @@
+module 'Xapplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'Xapplication';
+generateNameC = * 'textrept.c';
+generateNameExterns = * 'textrept.h';
+generateNameResDB = * 'textrept.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 4653068;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaUnselectedFiles = '';
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'textreptDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'textreptDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_textreptDS (Widget parent)
+';
+	XmNwidth = 1000;
+	XmNheight = 750;
+	XmNmappedWhenManaged = true;
+	XmNallowShellResize = true;
+	XmNtitle = 'Text Reports';
+	XmNminWidth = 1000;
+	XmNminHeight = 750;
+	XmNmaxWidth = 1000;
+	XmNmaxHeight = 750;
+	XmNdeleteResponse = 2;
+	};
+object 'textreptFO' : XmForm {
+	arguments {
+	was_selected = true;
+	lastGenName = 'textreptFO';
+	XmNwidth = 1000;
+	XmNheight = 750;
+	XmNmappedWhenManaged = true;
+	XmNautoUnmanage = false;
+	};
+object 'textreptOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'textreptOM';
+	};
+abstract object 'textreptLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'textreptLA';
+	XmNlabelString = 'Report';
+	};
+};
+abstract object 'textreptCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'textreptCB';
+	XmNlabelString = 'E-19';
+	};
+object 'textreptPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'textreptPDM';
+	};
+object 'textrept_e19PB' : XmPushButton {
+	arguments {
+	lastGenName = 'textrept_e19PB';
+	XmNlabelString = 'E-19';
+	};
+};
+object 'textrept_e19aPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textrept_e19aPB';
+	XmNlabelString = 'E-19A (Summary)';
+	};
+};
+object 'textrept_b44aPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textrept_b44aPB';
+	XmNlabelString = 'B-44A (Cooperative)';
+	};
+};
+object 'textreptsep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'textreptsep1SE';
+	};
+};
+object 'textrept_stalistPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textrept_stalistPB';
+	XmNlabelString = 'Sorted Station List';
+	};
+};
+object 'textrept_stnclassPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textrept_stnclassPB';
+	XmNlabelString = 'Station Class';
+	};
+};
+object 'textrept_servbkupPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textrept_servbkupPB';
+	XmNlabelString = 'Service Backup';
+	};
+};
+};
+};
+};
+object 'textreptSE' : XmSeparator {
+	arguments {
+	lastGenName = 'textreptSE';
+	};
+};
+object 'textreptokPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptokPB';
+	XmNwidth = 85;
+	XmNheight = 36;
+	XmNlabelString = 'Close';
+	};
+};
+object 'textreptpePB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptpePB';
+	XmNwidth = 110;
+	XmNheight = 35;
+	XmNmappedWhenManaged = true;
+	XmNlabelString = 'Print';
+	};
+};
+object 'textreptsavePB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptsavePB';
+	XmNwidth = 110;
+	XmNheight = 35;
+	XmNlabelString = 'Save';
+	};
+};
+object 'textrepthelpPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textrepthelpPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Help';
+	};
+};
+object 'textreptSW' : XmScrolledText {
+	arguments {
+	lastGenName = 'textreptSW';
+	};
+abstract object 'textreptHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'textreptHSB';
+	XmNorientation = 2;
+	};
+};
+abstract object 'textreptVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'textreptVSB';
+	XmNorientation = 1;
+	};
+};
+abstract object 'textreptTE' : XmText {
+	arguments {
+	lastGenName = 'textreptTE';
+	XmNeditable = false;
+	XmNcursorPositionVisible = true;
+	XmNeditMode = 0;
+	};
+};
+};
+object 'e19reptOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'e19reptOM';
+	};
+abstract object 'e19reptLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'e19reptLA';
+	XmNlabelString = 'Page';
+	};
+};
+abstract object 'e19reptCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'e19reptCB';
+	XmNlabelString = 'Cover';
+	};
+object 'e19reptPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'e19reptPDM';
+	};
+object 'e19coverPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19coverPB';
+	XmNlabelString = 'Cover';
+	};
+};
+object 'e19mapPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19mapPB';
+	XmNlabelString = 'Map of Gage Location';
+	};
+};
+object 'e19benchPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19benchPB';
+	XmNlabelString = 'Benchmarks';
+	};
+};
+object 'e19gagesPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19gagesPB';
+	XmNlabelString = 'Gages';
+	};
+};
+object 'e19histPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19histPB';
+	XmNlabelString = 'History';
+	};
+};
+object 'e19crestsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19crestsPB';
+	XmNlabelString = 'Crests';
+	};
+};
+object 'e19lwPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19lwPB';
+	XmNlabelString = 'Low Water Records';
+	};
+};
+object 'e19condPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19condPB';
+	XmNlabelString = 'Conditions Affecting Flow';
+	};
+};
+object 'e19damagePB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19damagePB';
+	XmNlabelString = 'Damage';
+	};
+};
+object 'e19staffPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19staffPB';
+	XmNmappedWhenManaged = true;
+	XmNlabelString = 'River Stage Data';
+	};
+};
+object 'e19contactsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'e19contactsPB';
+	XmNlabelString = 'Contacts';
+	};
+};
+};
+};
+};
+object 'stalistOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'stalistOM';
+	XmNmappedWhenManaged = false;
+	};
+abstract object 'stalistLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'stalistLA';
+	XmNlabelString = 'Sort By';
+	};
+};
+abstract object 'stalistCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'stalistCB';
+	XmNlabelString = 'Location Id';
+	};
+object 'stalistPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'stalistPDM';
+	};
+object 'stalist_lidPB' : XmPushButton {
+	arguments {
+	lastGenName = 'stalist_lidPB';
+	XmNlabelString = 'Location Id';
+	};
+};
+object 'stalist_namePB' : XmPushButton {
+	arguments {
+	lastGenName = 'stalist_namePB';
+	XmNlabelString = 'Name';
+	};
+};
+object 'stalist_countyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'stalist_countyPB';
+	XmNlabelString = 'County';
+	};
+};
+object 'stalist_basinPB' : XmPushButton {
+	arguments {
+	lastGenName = 'stalist_basinPB';
+	XmNlabelString = 'Basin';
+	};
+};
+object 'stalist_observerPB' : XmPushButton {
+	arguments {
+	lastGenName = 'stalist_observerPB';
+	XmNlabelString = 'Observer';
+	};
+};
+};
+};
+};
+object 'textreptsaveallPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptsaveallPB';
+	XmNheight = 35;
+	XmNmappedWhenManaged = false;
+	XmNlabelString = 'Save All Text Reports';
+	};
+};
+object 'servbkupOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'servbkupOM';
+	XmNmappedWhenManaged = false;
+	};
+abstract object 'servbkupLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'servbkupLA';
+	XmNlabelString = 'Sort By';
+	};
+};
+abstract object 'servbkupCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'servbkupCB';
+	XmNlabelString = 'Station';
+	};
+object 'servbkupPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'servbkupPDM';
+	};
+object 'servbkup_lidPB' : XmPushButton {
+	arguments {
+	lastGenName = 'servbkup_lidPB';
+	XmNlabelString = 'Station';
+	};
+};
+object 'servbkup_wfoPB' : XmPushButton {
+	arguments {
+	lastGenName = 'servbkup_wfoPB';
+	XmNlabelString = 'WFO';
+	};
+};
+object 'servbkup_hsaPB' : XmPushButton {
+	arguments {
+	lastGenName = 'servbkup_hsaPB';
+	XmNlabelString = 'HSA';
+	};
+};
+};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 70;
+	XmNtopAttachment = 0 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -125;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 2 0 -735;
+	XmNtopAttachment = 1 0 700;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -540;
+	XmNleftAttachment = 1 0 435;
+	XmNbottomAttachment = 2 0 -735;
+	XmNtopAttachment = 1 0 700;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 840;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 700;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -690;
+	XmNleftAttachment = 1 0 625;
+	XmNbottomAttachment = 2 0 -725;
+	XmNtopAttachment = 1 0 700;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -995;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -660;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 4 7 20;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 8 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    };
+};
+};
+object 'textreptpeDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'textreptpeDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_textreptpeDS (Widget parent)
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Print Text Report';
+	XmNminWidth = 400;
+	XmNminHeight = 690;
+	XmNmaxWidth = 400;
+	XmNmaxHeight = 690;
+	};
+object 'textreptpeFO' : XmForm {
+	arguments {
+	lastGenName = 'textreptpeFO';
+	XmNautoUnmanage = false;
+	};
+object 'servbkuppeRC' : XmRowColumn {
+	arguments {
+	lastGenName = 'servbkuppeRC';
+	XmNmappedWhenManaged = false;
+	XmNentryAlignment = 0;
+	};
+object 'servbkupincludeLA' : XmLabel {
+	arguments {
+	lastGenName = 'servbkupincludeLA';
+	XmNlabelString = 'Service Backup Report:';
+	XmNalignment = 0;
+	};
+};
+object 'servbkupsep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'servbkupsep1SE';
+	};
+};
+object 'servbkupinclude1spaceLA' : XmLabel {
+	arguments {
+	lastGenName = 'servbkupinclude1spaceLA';
+	XmNlabelString = ' ';
+	};
+};
+object 'servbkupinclude2LA' : XmLabel {
+	arguments {
+	lastGenName = 'servbkupinclude2LA';
+	XmNlabelString = 'All Service Backup Information';
+	};
+};
+object 'servbkupinclude3LA' : XmLabel {
+	arguments {
+	lastGenName = 'servbkupinclude3LA';
+	XmNlabelString = 'for station ';
+	};
+};
+object 'servbkupinclude2spaceLA' : XmLabel {
+	arguments {
+	lastGenName = 'servbkupinclude2spaceLA';
+	XmNlabelString = ' ';
+	};
+};
+object 'servbkupsep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'servbkupsep2SE';
+	};
+};
+object 'servbkupsep3SE' : XmSeparator {
+	arguments {
+	lastGenName = 'servbkupsep3SE';
+	};
+};
+};
+object 'e19reptpeRC' : XmRowColumn {
+	arguments {
+	lastGenName = 'e19reptpeRC';
+	XmNmappedWhenManaged = true;
+	};
+object 'e19includeLA' : XmLabel {
+	arguments {
+	lastGenName = 'e19includeLA';
+	XmNlabelString = 'Include the following Pages:';
+	};
+};
+object 'e19sep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'e19sep1SE';
+	};
+};
+object 'e19coverTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'e19coverTB';
+	XmNlabelString = 'COVER';
+	};
+};
+object 'e19mapTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'e19mapTB';
+	XmNlabelString = 'MAP OF GAGE LOCATION';
+	};
+};
+object 'e19benchTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'e19benchTB';
+	XmNlabelString = 'BENCHMARKS';
+	XmNselectColor = color('red');
+	};
+};
+object 'e19gagesTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'e19gagesTB';
+	XmNlabelString = 'GAGES';
+	XmNselectColor = color('red');
+	};
+};
+object 'e19histTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'e19histTB';
+	XmNlabelString = 'HISTORY';
+	XmNselectColor = color('red');
+	};
+};
+object 'e19crestsTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'e19crestsTB';
+	XmNlabelString = 'CRESTS';
+	XmNselectColor = color('red');
+	};
+};
+object 'e19lwTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'e19lwTB';
+	XmNlabelString = 'LOW WATER RECORDS';
+	XmNselectColor = color('red');
+	};
+};
+object 'e19condTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'e19condTB';
+	XmNlabelString = 'CONDITIONS AFFECTING FLOW';
+	XmNselectColor = color('red');
+	};
+};
+object 'e19damageTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'e19damageTB';
+	XmNlabelString = 'DAMAGE';
+	XmNselectColor = color('red');
+	};
+};
+object 'e19staffTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'e19staffTB';
+	XmNmappedWhenManaged = true;
+	XmNlabelString = 'RIVER STAGE DATA';
+	};
+};
+object 'e19contactsTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'e19contactsTB';
+	XmNlabelString = 'CONTACTS';
+	};
+};
+object 'e19sep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'e19sep2SE';
+	};
+};
+object 'e19sep3SE' : XmSeparator {
+	arguments {
+	lastGenName = 'e19sep3SE';
+	};
+};
+object 'e19allTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'e19allTB';
+	XmNlabelString = '(ALL PAGES)';
+	XmNset = false;
+	XmNselectColor = color('yellow');
+	};
+};
+};
+object 'e19apeRC' : XmRowColumn {
+	arguments {
+	lastGenName = 'e19apeRC';
+	XmNmappedWhenManaged = false;
+	};
+object 'e19aincludeLA' : XmLabel {
+	arguments {
+	lastGenName = 'e19aincludeLA';
+	XmNlabelString = 'E-19A (Summary) Report:';
+	};
+};
+object 'e19asep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'e19asep1SE';
+	};
+};
+object 'e19ainclude1spaceLA' : XmLabel {
+	arguments {
+	lastGenName = 'e19ainclude1spaceLA';
+	XmNlabelString = ' ';
+	};
+};
+object 'e19ainclude2LA' : XmLabel {
+	arguments {
+	lastGenName = 'e19ainclude2LA';
+	XmNlabelString = 'A single-page Summary Report';
+	};
+};
+object 'e19ainclude3LA' : XmLabel {
+	arguments {
+	lastGenName = 'e19ainclude3LA';
+	XmNlabelString = 'for station ';
+	};
+};
+object 'e19ainclude2spaceLA' : XmLabel {
+	arguments {
+	lastGenName = 'e19ainclude2spaceLA';
+	XmNlabelString = ' ';
+	};
+};
+object 'e19asep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'e19asep2SE';
+	};
+};
+object 'e19asep3SE' : XmSeparator {
+	arguments {
+	lastGenName = 'e19asep3SE';
+	};
+};
+};
+object 'b44apeRC' : XmRowColumn {
+	arguments {
+	lastGenName = 'b44apeRC';
+	XmNmappedWhenManaged = false;
+	};
+object 'b44aincludeLA' : XmLabel {
+	arguments {
+	lastGenName = 'b44aincludeLA';
+	XmNlabelString = 'B-44A (Cooperative) Report:';
+	};
+};
+object 'b44asep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'b44asep1SE';
+	};
+};
+object 'b44ainclude1spaceLA' : XmLabel {
+	arguments {
+	lastGenName = 'b44ainclude1spaceLA';
+	XmNlabelString = ' ';
+	};
+};
+object 'b44ainclude2LA' : XmLabel {
+	arguments {
+	lastGenName = 'b44ainclude2LA';
+	XmNlabelString = 'An Unofficial Cooperative Report';
+	};
+};
+object 'b44ainclude3LA' : XmLabel {
+	arguments {
+	lastGenName = 'b44ainclude3LA';
+	XmNlabelString = 'for station ';
+	};
+};
+object 'b44ainclude2spacelLA' : XmLabel {
+	arguments {
+	lastGenName = 'b44ainclude2spacelLA';
+	XmNlabelString = ' ';
+	};
+};
+object 'b44asep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'b44asep2SE';
+	};
+};
+object 'b44asep3SE' : XmSeparator {
+	arguments {
+	lastGenName = 'b44asep3SE';
+	};
+};
+};
+object 'stalistpeRC' : XmRowColumn {
+	arguments {
+	lastGenName = 'stalistpeRC';
+	XmNmappedWhenManaged = false;
+	};
+object 'stalistincludeLA' : XmLabel {
+	arguments {
+	lastGenName = 'stalistincludeLA';
+	XmNlabelString = 'Sorted Station List Report, sort by:';
+	};
+};
+object 'stalistsep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'stalistsep1SE';
+	};
+};
+object 'stalistlidTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'stalistlidTB';
+	XmNlabelString = 'LOCATION ID';
+	};
+};
+object 'stalistnameTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'stalistnameTB';
+	XmNlabelString = 'NAME';
+	XmNselectColor = color('red');
+	};
+};
+object 'stalistcountyTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'stalistcountyTB';
+	XmNlabelString = 'COUNTY';
+	XmNselectColor = color('red');
+	};
+};
+object 'stalistbasinTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'stalistbasinTB';
+	XmNlabelString = 'BASIN';
+	XmNselectColor = color('red');
+	};
+};
+object 'stalistobserverTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'stalistobserverTB';
+	XmNlabelString = 'OBSERVER';
+	};
+};
+object 'stalistsep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'stalistsep2SE';
+	};
+};
+object 'stalistsep3SE' : XmSeparator {
+	arguments {
+	lastGenName = 'stalistsep3SE';
+	};
+};
+object 'stalistallTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'stalistallTB';
+	XmNlabelString = '(ALL TYPES)';
+	XmNset = true;
+	XmNselectColor = color('yellow');
+	};
+};
+};
+object 'stnclasspeRC' : XmRowColumn {
+	arguments {
+	lastGenName = 'stnclasspeRC';
+	XmNmappedWhenManaged = false;
+	};
+object 'stnclassincludeLA' : XmLabel {
+	arguments {
+	lastGenName = 'stnclassincludeLA';
+	XmNlabelString = 'Station Class Report:';
+	};
+};
+object 'stnclasssep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'stnclasssep1SE';
+	};
+};
+object 'stnclassinclude1spaceLA' : XmLabel {
+	arguments {
+	lastGenName = 'stnclassinclude1spaceLA';
+	XmNlabelString = ' ';
+	};
+};
+object 'stnclassinclude2LA' : XmLabel {
+	arguments {
+	lastGenName = 'stnclassinclude2LA';
+	XmNlabelString = 'All Station Class Information';
+	};
+};
+object 'stnclassinclude3LA' : XmLabel {
+	arguments {
+	lastGenName = 'stnclassinclude3LA';
+	XmNlabelString = 'for station ';
+	};
+};
+object 'stnclassinclude2spaceLA' : XmLabel {
+	arguments {
+	lastGenName = 'stnclassinclude2spaceLA';
+	XmNlabelString = ' ';
+	};
+};
+object 'stnclasssep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'stnclasssep2SE';
+	};
+};
+object 'stnclasssep3SE' : XmSeparator {
+	arguments {
+	lastGenName = 'stnclasssep3SE';
+	};
+};
+};
+object 'textreptpe1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'textreptpe1SE';
+	};
+};
+object 'textreptaddrFO' : XmForm {
+	arguments {
+	lastGenName = 'textreptaddrFO';
+	XmNautoUnmanage = false;
+	};
+object 'textreptpeLA' : XmLabel {
+	arguments {
+	lastGenName = 'textreptpeLA';
+	XmNlabelString = 'Email Address:';
+	};
+};
+object 'textreptpeTE' : XmText {
+	arguments {
+	lastGenName = 'textreptpeTE';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 37;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 15;
+	XmNleftAttachment = 4 1 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 5;
+    };
+    };
+};
+object 'textreptpe2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'textreptpe2SE';
+	};
+};
+object 'textreptpeokPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptpeokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'textreptpeprintPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptpeprintPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNmappedWhenManaged = true;
+	XmNlabelString = 'Print';
+	};
+};
+object 'textreptpeemailPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptpeemailPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Email';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 5 0 87;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 33;
+    };
+    attachment {
+	XmNrightAttachment = 5 0 83;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 33;
+    };
+    attachment {
+	XmNrightAttachment = 5 0 84;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 33;
+    };
+    attachment {
+	XmNrightAttachment = 5 0 88;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 33;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 87;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 33;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 20;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 5;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 3 9 10;
+	XmNtopAttachment = 3 2 20;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 60;
+	XmNtopAttachment = 0 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -675;
+	XmNtopAttachment = 1 0 640;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 155;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 640;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 300;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 640;
+    };
+    };
+};
+};
+object 'textreptsaveDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'textreptsaveDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_textreptsaveDS (Widget parent)
+';
+	XmNwidth = 750;
+	XmNheight = 200;
+	XmNallowShellResize = true;
+	XmNtitle = 'Text Reports - Save';
+	XmNminWidth = 750;
+	XmNminHeight = 200;
+	XmNmaxWidth = 750;
+	XmNmaxHeight = 200;
+	XmNbaseWidth = 750;
+	XmNbaseHeight = 200;
+	};
+object 'textreptsaveFO' : XmForm {
+	arguments {
+	lastGenName = 'textreptsaveFO';
+	XmNwidth = 750;
+	XmNheight = 200;
+	XmNautoUnmanage = false;
+	};
+object 'textreptsaveLA' : XmLabel {
+	arguments {
+	lastGenName = 'textreptsaveLA';
+	generateResName = true;
+	XmNwidth = 710;
+	XmNheight = 21;
+	XmNlabelString = 'Save a complete E-19 Report to the following location:';
+	XmNalignment = 0;
+	};
+};
+object 'textreptsaveTE' : XmText {
+	arguments {
+	lastGenName = 'textreptsaveTE';
+	generateResName = true;
+	XmNwidth = 710;
+	XmNheight = 35;
+	XmNeditable = false;
+	XmNcursorPositionVisible = false;
+	};
+};
+object 'textreptsaveSE' : XmSeparator {
+	arguments {
+	lastGenName = 'textreptsaveSE';
+	generateResName = true;
+	XmNwidth = 750;
+	XmNheight = 14;
+	};
+};
+object 'textreptsokPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptsokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'textreptscancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'textreptscancelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 20;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 20;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 60;
+	XmNtopAttachment = 3 2 30;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 3 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 20;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 4 0;
+    };
+    };
+};
+};
+end module;

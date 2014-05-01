@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	TP24hr_avg  | |N|24hr Precip Ensemble Mean|in        |CONTOUR,IMAGE,OTHER| |   *Average|TP24hr_perts
+	
+	
+	varId: |TP24hr_avg| 
+	Cross Section (CS): | | 
+	isAttachToSource: |N| 
+	varName: |24hr Precip Ensemble Mean| 
+	units: |in| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: || 							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName: |Average|	
+	varId: |TP24hr_perts| 
+
+	
+	AWIPS II NEW FILE - TP24hr_avg.xml
+-->
+<DerivedParameter unit="mm" name="24hr Precip Ensemble Mean" abbreviation="TP24hr_avg" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Average">
+        <Field abbreviation="TP24hr_perts"/>
+    </Method>
+</DerivedParameter>

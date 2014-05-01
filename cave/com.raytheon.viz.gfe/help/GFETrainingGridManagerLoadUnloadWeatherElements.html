@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>GFESuite Documentation - Load/Unload Weather Elements</title>
+</head>
+<body>
+<h1 align="center">Load/Unload Weather Elements</h1>
+<br>
+<a href="#Load/UnloadWEsviaWEGroups">Load/Unload Weather Elements
+via Weather
+Elements Groups</a>
+<br>
+<a href="#CreateanewWeatherElementGroup">Create a new Weather Element
+Group</a><!-- Leave this comment in for formatting purposes -->
+<hr width="100%">
+<div class="Body">With over a dozen weather elements per database and
+many
+databases, displaying all of the available weather elements in the GFE
+would overly clutter the display. So, you can choose which weather
+elements
+you want to view and edit using the Weather Element Browser Dialog.
+This
+section describes how to use it.<br>
+<br>
+</div>
+<img alt="" src="images/WEBrowser.jpg" nosave=""
+ style="width: 574px; height: 548px;">
+<div class="Body">&nbsp;
+<br>
+Before you can begin editing grids of sensible weather, you need to
+load forecast weather elements into the GFE. The following set of
+exercises
+shows you how to load and unload weather elements to and from the GFE.</div>
+<ul>
+  <li class="4Heading"> <b>Purpose:</b> Make weather elements
+available for viewing and
+editing.</li>
+</ul>
+<div class="Step-First">
+<ol>
+  <li>From the main menu bar, select WeatherElement-&gt;<a
+ href="MainMenuDialogs.html#WEBrowserDialog">Weather
+Element Browser</a>. You should see a dialog appear that looks similar
+to the figure above.</li>
+  <li>Start from scratch by selecting Edit-&gt;Select None located at
+the top
+of
+the Weather Element Browser dialog.</li>
+  <li>Using the Source menu, select Fcst.</li>
+  <li>Using the Field menu, select T, Td, Wind, and Wx. Note that all
+of the
+combinations of Fcst and the weather elements you selected now appear
+in
+the lower portion of the dialog.</li>
+  <li>Select Load (in the lower left corner.)</li>
+</ol>
+</div>
+<div class="Body">Note that the combination of sources (databases) and
+weather elements listed in the lower portion of the dialog were loaded
+and are now available for viewing and editing in the GFE. If you are
+familiar
+with the AWIPS Volume Browser you may notice some similarities.</div>
+<div class="Body">Repeat this operation, but this time deselect Wind
+and
+Wx in the lower portion of the dialog by clicking with MB1. Note that
+when
+parameters are deselected, they are UNLOADED from the GFE. When the
+Weather
+Element Browser dialog first appears, the lower portion that lists
+weather
+elements reflects the list of weather elements that are currently
+loaded.
+Toggling off any weather element will cause that element to unload when
+you select the Load button.</div>
+<div class="Body">Continue to load and unload more parameters until you
+understand how this dialog behaves and how it affects the set of
+parameters
+available for viewing and editing in the GFE.</div>
+<h2 class="2Heading">
+<a name="Load/UnloadWEsviaWEGroups"></a>Load/Unload Weather Elements
+via
+Weather Element Groups</h2>
+<div class="Body">The <a href="MainMenuDialogs.html#WEBrowserDialog">Weather
+Element Browser</a> allows you to load and unload individual weather
+elements,
+but generally it is more convenient to load groups of parameters that
+are
+related. A Weather Element Group is a named group of weather elements
+that
+you can define.</div>
+<div class="Step-First">&nbsp;
+<ol>
+  <li>From the main menu bar, press and hold MB1 over the Weather
+Element
+menu
+item.</li>
+  <li>Slide the mouse cursor over the Weather Element Groups menu item.</li>
+  <li>Select one of the pre-defined Weather Element groups, such as
+Public,&nbsp;
+from the Weather Element Groups cascade menu.</li>
+</ol>
+</div>
+<div class="Body">Note that when you selected the Weather Element
+Group,
+a new set of weather elements was loaded into the GFE. Also note that
+the
+set of weather elements that was loaded is now unloaded.<br>
+<br>
+Any weather elements that were modified will always remain loaded in
+the Grid Manager.&nbsp; The GFE refuses to unload unsaved weather
+elements.&nbsp; You must <span style="font-weight: bold;">Save</span>
+or <span style="font-weight: bold;">Revert</span> them before they can
+be unloaded.<br>
+</div>
+<h2 class="2Heading">
+<a name="CreateanewWeatherElementGroup"></a>Create a new Weather
+Element
+Group</h2>
+<div class="Body">Saving a group of weather elements as a Weather
+Element
+Group is done via the Weather Element Browser Dialog. To make your own
+Weather Element Group, follow the steps below.
+<blockquote><li>Purpose: Create a Weather Element Group</li>
+</blockquote>
+</div>
+<div class="Step-First">
+<ol>
+  <li>From the main menu bar, select WeatherElement-&gt;<a
+ href="MainMenuDialogs.html#WEBrowserDialog">Weather
+Element Browser.</a></li>
+  <li>Select any group of weather elements as you did in the previous
+exercise.</li>
+  <li>From the Weather Element Browser dialog menu bar, select File-&gt;<a
+ href="MainMenuDialogs.html#SaveWEGroupDialog">Save
+Weather Element Group...</a>.</li>
+  <li>In the dialog that appears, enter a Weather Element Group name of
+your
+choice and select Save.</li>
+</ol>
+</div>
+<div class="Body">Now your new Weather Element Group has been saved and
+is ready to be used. Close the weather Element Browser by clicking
+Cancel
+in the lower right corner.&nbsp; Move your cursor to the Weather
+Element
+menu item and load your newly created Weather Element Group&nbsp; to
+verify
+that you correctly created it.
+</div>
+</body>
+</html>

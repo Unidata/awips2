@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pointDataDescription>
+  <dimension name="maxManLevel" length="15"/>
+  <dimension name="maxSigTempLevel" length="100"/>
+  <dimension name="maxSigWindLevel" length="50"/>
+  <dimension name="maxTropLevel" length="5"/>
+  <dimension name="maxWmaxLevel" length="5"/>
+  <dimension name="maxMiscLevel" length="10"/>
+  
+  <parameter name="UTC" numDims="1" type="INT" />
+  <parameter name="REPORTTYPE" numDims="1" type="STRING" size="32"/>
+  <parameter name="STATIONID" numDims="1" type="STRING" size="16"/>
+  <parameter name="ISSUETIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="OBSTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="SYNOPTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="DATAURI" numDims="1" type="STRING" size="128"/> 
+  <parameter name="DATATYPE" numDims="1" type="STRING" size="8"/> 
+  <parameter name="CORR" numDims="1" type="STRING" size="8"/>
+  <parameter name="WMOHEADER" numDims="1" type="STRING" size="32" />
+  <parameter name="STNUM" numDims="1" type="STRING" size="16"/>
+  <parameter name="LATITUDE" numDims="1" type="FLOAT" unit="degree_N" />
+  <parameter name="LONGITUDE" numDims="1" type="FLOAT" unit="degree_E" />
+  <parameter name="ELEVATION" numDims="1" type="FLOAT" unit="m" />
+  <parameter name="NIL" numDims="1" type="STRING" />
+  <parameter name="RAWDATA" numDims="1" type="STRING" size="1000"/>
+  
+  <!-- Mandatory Level Data -->
+  <parameter name="numTTAA" numDims="1" type="INT" />
+  <parameter name="TTAA_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxManLevel"/>
+  <parameter name="TTAA_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="TTAA_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="TTAA_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxManLevel"/>
+  <parameter name="TTAA_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxManLevel"/>
+  <parameter name="TTAA_HGHT" numDims="2" type="FLOAT" unit="m" dimension="maxManLevel"/>
+
+  <parameter name="numTTCC" numDims="1" type="INT" />
+  <parameter name="TTCC_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxManLevel"/>
+  <parameter name="TTCC_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="TTCC_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="TTCC_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxManLevel"/>
+  <parameter name="TTCC_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxManLevel"/>
+  <parameter name="TTCC_HGHT" numDims="2" type="FLOAT" unit="m" dimension="maxManLevel"/>
+  
+  <!-- Significant Level Temperature Pressure Data-->
+  <parameter name="numTTBB" numDims="1" type="INT" />
+  <parameter name="TTBB_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxSigTempLevel"/>
+  <parameter name="TTBB_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxSigTempLevel"/>
+  <parameter name="TTBB_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxSigTempLevel"/>
+
+  <parameter name="numTTDD" numDims="1" type="INT" />
+  <parameter name="TTDD_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxSigTempLevel"/>
+  <parameter name="TTDD_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxSigTempLevel"/>
+  <parameter name="TTDD_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxSigTempLevel"/>
+  
+  <!-- Alternative mandatory Level Data -->
+  <parameter name="numPPAA" numDims="1" type="INT" />
+  <parameter name="PPAA_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxManLevel"/>
+  <parameter name="PPAA_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="PPAA_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="PPAA_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxManLevel"/>
+  <parameter name="PPAA_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxManLevel"/>
+  <parameter name="PPAA_HGHT" numDims="2" type="FLOAT" unit="m" dimension="maxManLevel"/>
+
+  <parameter name="numPPCC" numDims="1" type="INT" />
+  <parameter name="PPCC_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxManLevel"/>
+  <parameter name="PPCC_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="PPCC_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="PPCC_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxManLevel"/>
+  <parameter name="PPCC_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxManLevel"/>
+  <parameter name="PPCC_HGHT" numDims="2" type="FLOAT" unit="m" dimension="maxManLevel"/>
+  
+  <!-- Significant Level Wind Data -->
+  <parameter name="numPPBB" numDims="1" type="INT" />
+  <parameter name="PPBB_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxSigWindLevel"/>
+  <parameter name="PPBB_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxSigWindLevel"/>
+  <parameter name="PPBB_HGHT" numDims="2" type="FLOAT" unit="m" dimension="maxSigWindLevel"/>
+
+  <parameter name="numPPDD" numDims="1" type="INT" />
+  <parameter name="PPDD_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxSigWindLevel"/>
+  <parameter name="PPDD_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxSigWindLevel"/>
+  <parameter name="PPDD_HGHT" numDims="2" type="FLOAT" unit="m" dimension="maxSigWindLevel"/>
+  
+  <!-- Tropopause Level Data -->
+  <parameter name="numTrop" numDims="1" type="INT" />
+  <parameter name="TROP_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxTropLevel"/>
+  <parameter name="TROP_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxTropLevel"/>
+  <parameter name="TROP_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxTropLevel"/>
+  <parameter name="TROP_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxTropLevel"/>
+  <parameter name="TROP_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxTropLevel"/>
+  
+  <!-- Maximum Wind Level Data -->
+  <parameter name="numWmax" numDims="1" type="INT" />
+  <parameter name="WMAX_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxWmaxLevel"/>
+  <parameter name="WMAX_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxWmaxLevel"/>
+  <parameter name="WMAX_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxWmaxLevel"/>
+  <parameter name="WMAX_LO_SHEAR" numDims="2" type="FLOAT" unit="/s" dimension="maxWmaxLevel"/>
+  <parameter name="WMAX_HI_SHEAR" numDims="2" type="FLOAT" unit="/s" dimension="maxWmaxLevel"/>
+
+  <!-- Mandatory Level Lifted Index Data -->
+  <parameter name="numMiscTTAA" numDims="1" type="INT" />  
+  <parameter name="TTAA_LIFT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxMiscLevel"/>
+  <parameter name="TTAA_LO_MEAN_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxMiscLevel"/>
+  <parameter name="TTAA_LO_MEAN_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxMiscLevel"/>
+  <parameter name="TTAA_HI_MEAN_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxMiscLevel"/>
+  <parameter name="TTAA_HI_MEAN_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxMiscLevel"/>
+  
+  <!-- Significant Level Lifted Index Data -->
+  <parameter name="numMiscTTBB" numDims="1" type="INT" /> 
+  <parameter name="TTBB_LIFT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxMiscLevel"/>
+  <parameter name="TTBB_LO_MEAN_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxMiscLevel"/>
+  <parameter name="TTBB_LO_MEAN_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxMiscLevel"/>
+  <parameter name="TTBB_HI_MEAN_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxMiscLevel"/>
+  <parameter name="TTBB_HI_MEAN_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxMiscLevel"/>
+</pointDataDescription>

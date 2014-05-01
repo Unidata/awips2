@@ -1,0 +1,826 @@
+/*
+    File: S3PostAnalPrefs.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:30 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "S3PostAnalPrefs.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct S3PostAnalPrefs_t
+{
+    char		userid[33];
+    char		state_overlay[4];
+    char		city_overlay[4];
+    char		river_overlay[4];
+    char		basin_overlay[4];
+    char		radar_overlay[4];
+    short		num_hours_wind;
+
+    int		ind_state_overlay;
+    int		ind_city_overlay;
+    int		ind_river_overlay;
+    int		ind_basin_overlay;
+    int		ind_radar_overlay;
+    int		ind_num_hours_wind;
+} S3PostAnalPrefs_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+S3PostAnalPrefs * GetS3PostAnalPrefs(const char * where)
+{
+
+    S3PostAnalPrefs * listPtr = NULL;
+    S3PostAnalPrefs * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM S3PostAnalPrefs ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetS3PostAnalPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetS3PostAnalPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetS3PostAnalPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, 
+    :dbs.city_overlay:dbs.ind_city_overlay, :dbs.river_overlay:dbs.ind_river_overlay, 
+    :dbs.basin_overlay:dbs.ind_basin_overlay, :dbs.radar_overlay:dbs.ind_radar_overlay, 
+    :dbs.num_hours_wind:dbs.ind_num_hours_wind    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetS3PostAnalPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (S3PostAnalPrefs *) malloc(sizeof(S3PostAnalPrefs))) != NULL)
+        {
+
+            strcpy(structPtr->userid, dbs.userid);
+
+            strcpy(structPtr->state_overlay, dbs.state_overlay);
+            setNullIfIndicated(dbs.ind_state_overlay, CHAR, structPtr->state_overlay);
+
+            strcpy(structPtr->city_overlay, dbs.city_overlay);
+            setNullIfIndicated(dbs.ind_city_overlay, CHAR, structPtr->city_overlay);
+
+            strcpy(structPtr->river_overlay, dbs.river_overlay);
+            setNullIfIndicated(dbs.ind_river_overlay, CHAR, structPtr->river_overlay);
+
+            strcpy(structPtr->basin_overlay, dbs.basin_overlay);
+            setNullIfIndicated(dbs.ind_basin_overlay, CHAR, structPtr->basin_overlay);
+
+            strcpy(structPtr->radar_overlay, dbs.radar_overlay);
+            setNullIfIndicated(dbs.ind_radar_overlay, CHAR, structPtr->radar_overlay);
+
+            structPtr->num_hours_wind = dbs.num_hours_wind;
+            setNullIfIndicated(dbs.ind_num_hours_wind, SHORT, &structPtr->num_hours_wind);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, 
+        :dbs.city_overlay:dbs.ind_city_overlay, :dbs.river_overlay:dbs.ind_river_overlay, 
+        :dbs.basin_overlay:dbs.ind_basin_overlay, :dbs.radar_overlay:dbs.ind_radar_overlay, 
+        :dbs.num_hours_wind:dbs.ind_num_hours_wind        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetS3PostAnalPrefs() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+S3PostAnalPrefs * SelectS3PostAnalPrefs(const char * where)
+{
+
+    S3PostAnalPrefs * listPtr = NULL;
+    S3PostAnalPrefs * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM S3PostAnalPrefs ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectS3PostAnalPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectS3PostAnalPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectS3PostAnalPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, 
+    :dbs.city_overlay:dbs.ind_city_overlay, :dbs.river_overlay:dbs.ind_river_overlay, 
+    :dbs.basin_overlay:dbs.ind_basin_overlay, :dbs.radar_overlay:dbs.ind_radar_overlay, 
+    :dbs.num_hours_wind:dbs.ind_num_hours_wind    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectS3PostAnalPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (S3PostAnalPrefs *) malloc(sizeof(S3PostAnalPrefs))) != NULL)
+        {
+
+            strcpy(structPtr->userid, dbs.userid);
+
+            strcpy(structPtr->state_overlay, dbs.state_overlay);
+            setNullIfIndicated(dbs.ind_state_overlay, CHAR, structPtr->state_overlay);
+
+            strcpy(structPtr->city_overlay, dbs.city_overlay);
+            setNullIfIndicated(dbs.ind_city_overlay, CHAR, structPtr->city_overlay);
+
+            strcpy(structPtr->river_overlay, dbs.river_overlay);
+            setNullIfIndicated(dbs.ind_river_overlay, CHAR, structPtr->river_overlay);
+
+            strcpy(structPtr->basin_overlay, dbs.basin_overlay);
+            setNullIfIndicated(dbs.ind_basin_overlay, CHAR, structPtr->basin_overlay);
+
+            strcpy(structPtr->radar_overlay, dbs.radar_overlay);
+            setNullIfIndicated(dbs.ind_radar_overlay, CHAR, structPtr->radar_overlay);
+
+            structPtr->num_hours_wind = dbs.num_hours_wind;
+            setNullIfIndicated(dbs.ind_num_hours_wind, SHORT, &structPtr->num_hours_wind);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, 
+        :dbs.city_overlay:dbs.ind_city_overlay, :dbs.river_overlay:dbs.ind_river_overlay, 
+        :dbs.basin_overlay:dbs.ind_basin_overlay, :dbs.radar_overlay:dbs.ind_radar_overlay, 
+        :dbs.num_hours_wind:dbs.ind_num_hours_wind        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectS3PostAnalPrefs() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectS3PostAnalPrefsCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM S3PostAnalPrefs ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountS3PostAnalPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountS3PostAnalPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountS3PostAnalPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountS3PostAnalPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutS3PostAnalPrefs(const S3PostAnalPrefs * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalPrefs_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    strcpy(dbs.state_overlay, structPtr->state_overlay);
+    dbs.ind_state_overlay = getIndicator(CHAR, (void *)structPtr->state_overlay);
+
+    strcpy(dbs.city_overlay, structPtr->city_overlay);
+    dbs.ind_city_overlay = getIndicator(CHAR, (void *)structPtr->city_overlay);
+
+    strcpy(dbs.river_overlay, structPtr->river_overlay);
+    dbs.ind_river_overlay = getIndicator(CHAR, (void *)structPtr->river_overlay);
+
+    strcpy(dbs.basin_overlay, structPtr->basin_overlay);
+    dbs.ind_basin_overlay = getIndicator(CHAR, (void *)structPtr->basin_overlay);
+
+    strcpy(dbs.radar_overlay, structPtr->radar_overlay);
+    dbs.ind_radar_overlay = getIndicator(CHAR, (void *)structPtr->radar_overlay);
+
+    dbs.num_hours_wind = structPtr->num_hours_wind;
+    dbs.ind_num_hours_wind = getIndicator(SHORT, (void *)&structPtr->num_hours_wind);
+
+
+    EXEC SQL INSERT INTO S3PostAnalPrefs (userid,state_overlay,
+        city_overlay,river_overlay,basin_overlay,
+        radar_overlay,num_hours_wind        )
+        VALUES (
+         :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, :dbs.city_overlay:dbs.ind_city_overlay,
+         :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay, :dbs.radar_overlay:dbs.ind_radar_overlay,
+         :dbs.num_hours_wind:dbs.ind_num_hours_wind);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutS3PostAnalPrefs() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertS3PostAnalPrefs(const S3PostAnalPrefs * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalPrefs_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    strcpy(dbs.state_overlay, structPtr->state_overlay);
+    dbs.ind_state_overlay = getIndicator(CHAR, (void *)structPtr->state_overlay);
+
+    strcpy(dbs.city_overlay, structPtr->city_overlay);
+    dbs.ind_city_overlay = getIndicator(CHAR, (void *)structPtr->city_overlay);
+
+    strcpy(dbs.river_overlay, structPtr->river_overlay);
+    dbs.ind_river_overlay = getIndicator(CHAR, (void *)structPtr->river_overlay);
+
+    strcpy(dbs.basin_overlay, structPtr->basin_overlay);
+    dbs.ind_basin_overlay = getIndicator(CHAR, (void *)structPtr->basin_overlay);
+
+    strcpy(dbs.radar_overlay, structPtr->radar_overlay);
+    dbs.ind_radar_overlay = getIndicator(CHAR, (void *)structPtr->radar_overlay);
+
+    dbs.num_hours_wind = structPtr->num_hours_wind;
+    dbs.ind_num_hours_wind = getIndicator(SHORT, (void *)&structPtr->num_hours_wind);
+
+
+    EXEC SQL INSERT INTO S3PostAnalPrefs (userid,state_overlay,
+        city_overlay,river_overlay,basin_overlay,
+        radar_overlay,num_hours_wind        )
+        VALUES (
+         :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, :dbs.city_overlay:dbs.ind_city_overlay,
+         :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay, :dbs.radar_overlay:dbs.ind_radar_overlay,
+         :dbs.num_hours_wind:dbs.ind_num_hours_wind);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertS3PostAnalPrefs() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateS3PostAnalPrefs(const S3PostAnalPrefs *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    strcpy(dbs.state_overlay, structPtr->state_overlay);
+    dbs.ind_state_overlay = getIndicator(CHAR, (void *)structPtr->state_overlay);
+
+    strcpy(dbs.city_overlay, structPtr->city_overlay);
+    dbs.ind_city_overlay = getIndicator(CHAR, (void *)structPtr->city_overlay);
+
+    strcpy(dbs.river_overlay, structPtr->river_overlay);
+    dbs.ind_river_overlay = getIndicator(CHAR, (void *)structPtr->river_overlay);
+
+    strcpy(dbs.basin_overlay, structPtr->basin_overlay);
+    dbs.ind_basin_overlay = getIndicator(CHAR, (void *)structPtr->basin_overlay);
+
+    strcpy(dbs.radar_overlay, structPtr->radar_overlay);
+    dbs.ind_radar_overlay = getIndicator(CHAR, (void *)structPtr->radar_overlay);
+
+    dbs.num_hours_wind = structPtr->num_hours_wind;
+    dbs.ind_num_hours_wind = getIndicator(SHORT, (void *)&structPtr->num_hours_wind);
+
+
+    sprintf(queryBuffer, " UPDATE S3PostAnalPrefs SET " );
+    strcat(queryBuffer, "userid = ? , state_overlay = ? , city_overlay = ? , river_overlay = ? , basin_overlay = ? ,     ");
+    strcat(queryBuffer, "radar_overlay = ? , num_hours_wind = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateS3PostAnalPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, :dbs.city_overlay:dbs.ind_city_overlay, :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay,
+     :dbs.radar_overlay:dbs.ind_radar_overlay, :dbs.num_hours_wind:dbs.ind_num_hours_wind;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateS3PostAnalPrefs() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteS3PostAnalPrefs(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM S3PostAnalPrefs ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteS3PostAnalPrefs() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateS3PostAnalPrefsByRecord (const S3PostAnalPrefs * newStructPtr, const S3PostAnalPrefs * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetS3PostAnalPrefsPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateS3PostAnalPrefs(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateS3PostAnalPrefs(const S3PostAnalPrefs * structPtr)
+{
+    UpdateS3PostAnalPrefsByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertS3PostAnalPrefs(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueS3PostAnalPrefs(const S3PostAnalPrefs * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (S3PostAnalPrefsExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertS3PostAnalPrefs(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteS3PostAnalPrefsByRecord(const S3PostAnalPrefs * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetS3PostAnalPrefsPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteS3PostAnalPrefs(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool S3PostAnalPrefsExists(const S3PostAnalPrefs * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetS3PostAnalPrefsPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectS3PostAnalPrefsCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetS3PostAnalPrefsPrimaryKeyWhereString (const S3PostAnalPrefs * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE userid = '%s' ",
+            structPtr->userid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeS3PostAnalPrefs( S3PostAnalPrefs * structPtr)
+{
+    S3PostAnalPrefs* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( S3PostAnalPrefs * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetS3PostAnalPrefsDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetS3PostAnalPrefsErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

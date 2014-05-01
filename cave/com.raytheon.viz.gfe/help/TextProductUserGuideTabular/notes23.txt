@@ -1,0 +1,2 @@
+Smart Tabular Products, like all Smart Text Products, inherit from the SampleAnalysis and TextRules libraries and  call helper methods directly to perform the steps of creating a text product and format the table as desired.  We will look at some of these helper methods and then we will see how they act together. 
+

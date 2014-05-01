@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# if you link to this script, make sure to use a symbolic link
+script_dir=$(dirname $(readlink -f $0))
+
+# awips specific directory updator configuration
+
+$script_dir/Source/DirectoryHeaderUpdater.py -f $script_dir/AWIPS/FileTypes \
+	-v -i --filters $script_dir/AWIPS/awipsFileFilter.csv \
+	--file-log=headupFileLog.txt -t $script_dir/AWIPS/awipsHeader.txt\
+	-S "(?=RAYTHEON|Raytheon)" -l 2100 "$@" 2>&1 |\
+	tee headupActivityLog.txt

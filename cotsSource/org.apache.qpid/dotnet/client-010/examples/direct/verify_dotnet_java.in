@@ -1,0 +1,20 @@
+==== declare_queues.out
+==== direct_producer_dotnet.out
+==== direct_consumer_java.out
+Consumer: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Consumer: Creating a non-transacted, auto-acknowledged session
+Consumer: Creating a MessageConsumer
+Consumer: Starting connection so MessageConsumer can receive messages
+Consumer: Received  message:  Message 0
+Consumer: Received  message:  Message 1
+Consumer: Received  message:  Message 2
+Consumer: Received  message:  Message 3
+Consumer: Received  message:  Message 4
+Consumer: Received  message:  Message 5
+Consumer: Received  message:  Message 6
+Consumer: Received  message:  Message 7
+Consumer: Received  message:  Message 8
+Consumer: Received  message:  Message 9
+Consumer: Received final message That's all, folks!
+Consumer: Closing connection
+Consumer: Closing JNDI context

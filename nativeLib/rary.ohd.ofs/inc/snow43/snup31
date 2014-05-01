@@ -1,0 +1,22 @@
+C..............................................
+C    COMMON BLOCK SNUP31
+C    DESCRIPTION:
+C    -----------
+C    This common block contains parameters required to 
+C    perform updating.
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      mfc               Melt factor correction
+C      sfallx            Snowfall correction 
+C      windc             Wind correction
+C      sctol             Tolerance for updating snow cover
+C      wetol             Tolerance for updating Water Equivalent 
+C      snof              Minimum snow to leave ADC
+C..............................................
+C
+      real    mfc, sfallx, windc, sctol, 
+     1        wetol, snof
+C
+      common/snup31/mfc, sfallx, windc, sctol,
+     1              wetol, snof

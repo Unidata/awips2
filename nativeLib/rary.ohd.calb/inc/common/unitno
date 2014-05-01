@@ -1,0 +1,30 @@
+C MODULE UNITNO
+C-----------------------------------------------------------------------
+C notes: (1) This common block stores the keys used with files.
+C            The NWSRFS system file FILEUNIT contains the unit
+C            number definitions for each file to be opened.
+C        (2) The dimension of the arrays should match the dimension
+C            of the IFILES array in the "ufiles" common block.
+C-----------------------------------------------------------------------
+C variables:
+C
+C filekeys      .... each value corresponds to the key that was used 
+C                    when opening the file on unit number corresponding 
+C                    to the array dimension
+C fileiotype    .... file input/output type
+C fileintypes   .... each value corresponds to the fileiotype that was 
+C                    used when opening the file on unit number 
+C                    corresponding the array dimension
+C igziord       .... indicator if to read files using gzip routines
+C igziowt       .... indicator if to write files using gzip routines
+C iascii        .... indicator if to write ascii or binary files
+C-----------------------------------------------------------------------
+
+      character*20 filekeys(256)
+      character*10 fileiotype,fileiotypes(256)
+
+      common /unitno/ filekeys,fileiotype,fileiotypes,
+     *   igziord,igziowt,iascii
+      
+CCC      data igziord/-1/,igziowt/-1/
+CCC      data iascii/1/

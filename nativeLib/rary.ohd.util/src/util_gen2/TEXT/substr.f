@@ -1,0 +1,119 @@
+C MEMBER SUBSTR
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO MOVE CHARACTERS FROM ONE VARIABLE TO ANOTHER.
+C
+      SUBROUTINE SUBSTR (STRNG1,IBEG1,NUM,STRNG2,IBEG2)
+C
+C  INPUT ARGUMENTS
+C     STRNG1 - VARIABLE FROM WHICH POSITIONS ARE TO BE MOVED.
+C     IBEG1  - LOCATION OF FIRST CHARACTER TO BE MOVED.
+C     NUM    - NUMBER OF POSITIONS TO BE MOVED.
+C     IBEG2  - STARTING LOCATION IN STRNG2 WHERE CHARACTER TO BE MOVED.
+C              IF NEGATIVE, ANY POSITIONS NOT FILLED BY THIS ROUTINE
+C              WILL NOT BE FILLED WITH BLANKS.
+C
+C  OUTPUT ARGUMENTS
+C     STRNG2 - VARIABLE TO WHICH POSITIONS HAVE BEEN MOVED.
+C
+      CHARACTER*1 STRNG1(1),STRNG2(1)
+C
+      INCLUDE 'ucmdbx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/util/src/util_gen2/RCS/substr.f,v $
+     . $',                                                             '
+     .$Id: substr.f,v 1.1 1995/09/17 19:02:21 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ICMTRC.GT.2) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,96)
+         ENDIF
+C
+      IF (ICMDBG.GT.2) THEN
+         IEND1=IBEG1+NUM-1
+         WRITE (ICMPRU,97) IBEG1,NUM,IEND1,
+     *      (STRNG1(I),I=IBEG1,IEND1)
+         ENDIF
+C
+      ISTRT2=IABS(IBEG2)
+C
+C  CHECK NUMBER OF POSITIONS TO BE MOVED
+      IF (NUM.LE.0) GO TO 50
+C
+C  CHECK IF SHOULD FILL BLANKS AT BEGINNING OF VARIABLE
+      IF (IBEG2.LT.0) GO TO 20
+C
+C  CHECK IF STARTING IF FIRST CHARACTER OF STRNG2
+      IFILL=0
+      IF (IFILL.EQ.0) GO TO 20
+      IF (IBEG2.EQ.1) GO TO 20
+C
+C  COMPUTE NUMBER OF POSITIONS TO BE FILLED
+      NFILL=ISTRT2-1
+C
+C  FILL POSITIONS WITH BLANKS
+      DO 10 I=1,NFILL
+         STRNG2(I)=' '
+10       CONTINUE
+C
+C  SET BEGINNING POSITIONS
+20    NBEG1=IBEG1-1
+      NBEG2=ISTRT2-1
+C
+C  MOVE POSITIONS
+      DO 30 NPOS=1,NUM
+         STRNG2(NBEG2+NPOS)=STRNG1(NBEG1+NPOS)
+30       CONTINUE
+C
+C  CHECK IF SHOULD FILL BLANKS AT END OF VARIABLE
+      IF (IBEG2.LT.0) GO TO 50
+C
+C  COMPUTE NUMBER OF POSITIONS TO BE FILLED
+      IEND=ISTRT2+NUM-1
+      NBYTE=(IEND+3)/4*4
+      NFILL=NBYTE-IEND
+      IF (ICMDBG.GT.2) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,98) NBYTE,IEND,NFILL
+         ENDIF
+C
+C  CHECK NUMBER OF LOCATIONS TO BE FILLED
+      IF (NFILL.EQ.0) GO TO 50
+C
+C  FILL POSITIONS WITH BLANKS
+      DO 40 I=1,NFILL
+         STRNG2(IEND+I)=' '
+40       CONTINUE
+C
+50    IF (ICMDBG.GT.2) THEN
+         IEND2=ISTRT2+NUM-1
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,99) ISTRT2,NUM,IEND2,
+     *      (STRNG2(I),I=ISTRT2,IEND2)
+         ENDIF
+C
+      IF (ICMTRC.GT.2) THEN
+         CALL ULINE (ICMPRU,1)
+         WRITE (ICMPRU,95)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+96    FORMAT (' *** ENTER SUBSTR')
+97    FORMAT (' IBEG1=',I4,3X,'NUM=',I4,3X,
+     *   'IEND1=',I4,3X,'STRNG1(IBEG1...IBEG1+NUM)=',50A1)
+98    FORMAT (' NBYTE=',I3,3X,'IEND=',I3,3X,'NFILL=',I3)
+99    FORMAT (' ISTRT2=',I4,3X,'NUM=',I4,3X,
+     *   'IEND2=',I4,3X,'STRNG2(ISTRT2...ISTRT2+NUM)=',50A1)
+95    FORMAT (' *** EXIT SUBSTR')
+C
+      END

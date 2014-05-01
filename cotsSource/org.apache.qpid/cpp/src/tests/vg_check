@@ -1,0 +1,24 @@
+# Check for valgrind errors. Sourced by test scripts.
+
+vg_failed() {
+    echo "Valgrind error log in $VG_LOG." 1>&2
+    cat $VG_LOG 1>&2
+    echo $1 1>&2
+    exit 1
+}
+
+vg_check()
+{
+    test -z "$1" || VG_LOG=$1
+    test -f $VG_LOG || vg_failed Valgrind log file $VG_LOG missing.
+    # Ensure there is an ERROR SUMMARY line.
+    grep -E '^==[0-9]+== ERROR SUMMARY:' $VG_LOG > /dev/null || \
+	vg_failed "No valgrind ERROR SUMMARY line in $VG_LOG."
+    # Ensure that the number of errors is 0.
+    grep -E '^==[0-9]+== ERROR SUMMARY: [^0]' $VG_LOG > /dev/null && \
+	vg_failed "Valgrind reported errors in $VG_LOG; see above." 
+    # Check for leaks.
+    grep -E '^==[0-9]+== +.* lost: [^0]' $VG_LOG && \
+	vg_failed "Found memory leaks (see log file, $VG_LOG); see above."
+    true
+}

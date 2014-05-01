@@ -1,0 +1,423 @@
+C MODULE SMPPDD
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO PRINT STATISTICS FOR PCPN STATIONS 24-HR TOTAL.
+C
+      SUBROUTINE SMPPDD (LARAY,IARAY,SUMARY,SORT,NFLD,ISTRT,ISTAT)
+C
+      CHARACTER*4 SUMARY,SORT
+      PARAMETER (MOPTN=2)
+      CHARACTER*8 OPTN(MOPTN)
+     *    /'STATE   ','NEWPAGE '/
+      CHARACTER*20 CHAR/' '/,CHK/' '/
+      PARAMETER (LSIBUF=128)
+      INTEGER*2 ISIBUF(LSIBUF)
+      INTEGER*2 NSTATE,ISTATE(1)
+C
+      DIMENSION IARAY(3,1)
+      DIMENSION ARRAY(1),ISRTBY(1),IPNTRS(1)
+      DIMENSION UNUSED(10)
+C      
+      INCLUDE 'scommon/dimstan'
+      INCLUDE 'scommon/dimpcpn'
+C
+      EQUIVALENCE (ISTATE(1),STATNW(1))
+      EQUIVALENCE (IPNTRS(1),PP24NW(1))
+      EQUIVALENCE (ISRTBY(1),STIDNW(1,1))
+      EQUIVALENCE (ARRAY(1),SWORK(1))
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/sntwkx'
+      INCLUDE 'scommon/sworkx'
+      INCLUDE 'pdbcommon/pdunts'
+      INCLUDE 'pdbcommon/pdrrsc'
+      INCLUDE 'pdbcommon/pdsifc'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_dump/RCS/smppdd.f,v $
+     . $',                                                             '
+     .$Id: smppdd.f,v 1.4 1998/04/07 17:56:10 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,240)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DUMP')
+C
+      ISTAT=0
+C
+      LCHAR=LEN(CHAR)/4
+      LCHK=LEN(CHK)/4
+C      
+      NUMERR=0
+      NUMWRN=0
+      IENDIN=0
+      IPASS=0
+      INDOPT=0
+      IALL=1
+      IFILL=0
+      LARRAY=LSWORK
+      ILPFND=0
+      IRPFND=0
+C
+C  SET INDICATOR TO REREAD CURRENT FIELD
+      ISTRT=-1
+C
+C  SET SORT OPTION
+      ISORT=1
+      IF (SORT.EQ.'ID') ISORT=1
+      IF (SORT.EQ.'DESC') ISORT=2
+      IF (SORT.EQ.'NUM') ISORT=3
+C
+C  PRINT HEADER LINE
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR DUMP STATS OPTIONS
+C
+10    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,
+     *   CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (NFLD.NE.-1) GO TO 20
+         IENDIN=1
+         GO TO 40
+20    IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,
+     *      CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+      IF (IERR.EQ.1) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,260) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 10
+         ENDIF
+C
+C  CHECK FOR DEBUG
+      CALL SUIDCK ('CMDS',CHAR,NFLD,0,ICMD,IERR)
+      IF (ICMD.EQ.1) THEN
+         CALL SBDBUG (NFLD,ISTRT,IERR)
+         LDEBUG=ISBUG('DUMP')
+         GO TO 10
+         ENDIF
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'CHK=',CHK
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK FOR PAIRED PARENTHESES
+      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) THEN
+         WRITE (LP,250) NFLD
+         CALL SULINE (LP,2)
+         ILPFND=1
+         IRPFND=1
+         ENDIF
+      IF (LLPAR.GT.0) ILPFND=1
+C
+C  CHECK FOR OPTION
+      DO 30 IOPTN=1,MOPTN
+         NWORDS=2
+         CALL SUCOMP (NWORDS,CHK,OPTN(IOPTN),IMATCH)
+         IF (IMATCH.EQ.0) GO TO 30
+            IF (IOPTN.EQ.1) GO TO 50
+            IF (IOPTN.EQ.2) GO TO 70
+30       CONTINUE
+C
+C  CHECK FOR GROUP
+      CALL SUIDCK ('DUMP',CHK,NFLD,0,IKEYWD,IERR)
+      IF (IERR.GT.0) THEN
+         IENDIN=1
+         GO TO 40
+         ENDIF
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.GT.0) IENDIN=1
+C
+C  CHECK IF END OF INPUT
+40    IF (IENDIN.EQ.1.AND.IPASS.EQ.1) GO TO 220
+      IF (IALL.EQ.1) GO TO 90
+C
+C  INVALID OPTION
+      IF (NFLD.EQ.1) CALL SUPCRD
+      WRITE (LP,280) CHK
+      CALL SUWRNS (LP,2,-1)
+      GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  STATE OPTION
+C
+50    IF (NFLD.EQ.1) CALL SUPCRD
+      IF (LLPAR.EQ.0) THEN
+         IALL=-1
+         WRITE (LP,310) OPTN(IOPTN),'ALL'
+         CALL SUWRNS (LP,2,-1)
+         GO TO 60
+         ENDIF
+      IF (LRPAR.GT.0) IRPFND=1
+      IF (LRPAR.EQ.0) THEN
+         WRITE (LP,250) NFLD
+         CALL SULINE (LP,2)
+         LRPAR=LENGTH+1
+         ENDIF
+      CALL UFPACK (LCHK,CHK,ISTRT,LLPAR+1,LRPAR-1,IERR)
+      IF (CHK.EQ.'ALL') THEN
+         IALL=-1
+         WRITE (LP,320)
+         CALL SULINE (LP,2)
+         GO TO 60
+         ENDIF
+      CALL SUBSTR (CHK,1,2,NSTATE,1)
+      IALL=0
+      WRITE (LP,330) NSTATE
+      CALL SULINE (LP,2)
+C
+60    GO TO 80
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  NEWPAGE OPTION
+C
+70    NEWPAG=0
+      CALL SUNEWP (NFLD,ISTRT,CHK,LCHK,LLPAR,LRPAR,LENGTH,IRPFND,
+     *   OPTN(IOPTN),NUMERR,NUMWRN,NEWPAG,IERR)
+      GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+80    INDOPT=1
+C
+90    IPASS=1
+      IF (IALL.EQ.1) GO TO 160
+C
+C  PROCESS STATIONS FOR SPECIFIED STATE
+C
+C  CHECK IF SORT OPTION SPECIFIED
+      IF (ISORT.EQ.0) GO TO 160
+         IF (IFILL.EQ.1) GO TO 120
+            ISTATE(1)=1
+            IPNTRS(1)=1
+            IF (ISORT.EQ.1) NWORDS=2
+            IF (ISORT.EQ.2) NWORDS=5
+            IF (ISORT.EQ.3) NWORDS=3
+            IPRMSG=1
+            IPRERR=0
+            CALL SURIDS ('PCPN',ISORT,MAXSNW,ISTATE,NWORDS,ISRTBY,
+     *         IPNTRS,NUMID,LARRAY,ARRAY,IPRMSG,IPRERR,IERR)
+            IF (IERR.NE.0) THEN
+               IF (IERR.NE.2) GO TO 100
+                  IF (NUMID.GT.0) GO TO 110
+                     WRITE (LP,300)
+                     CALL SULINE (LP,2)
+                     IF (IENDIN.EQ.1) GO TO 220
+                     GO TO 10
+100            WRITE (LP,290)
+               CALL SUWRNS (LP,2,-1)
+               ISORT=0
+               GO TO 160
+               ENDIF
+110         INWFIL=0
+            IFILL=1
+C
+C  OPEN DATA BASE
+      CALL SUDOPN (1,'PPD ',IERR)
+      IF (IERR.GT.0) THEN
+         ISTAT=1
+         GO TO 230
+         ENDIF
+C
+120   IPOS=0
+      NSTA=0
+      IF (SUMARY.EQ.'NO') ISUMRY=0
+      IF (SUMARY.EQ.'YES') ISUMRY=1
+C
+C  CHECK FOR SPECIFIED STATE
+130   IPOS=IPOS+1
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,380) NUMID,IPOS
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (IPOS.GT.NUMID) GO TO 150
+      IF (IALL.EQ.-1) GO TO 140
+      IF (ISTATE(IPOS).EQ.NSTATE) GO TO 140
+         IF (IPOS.LT.NUMID) GO TO 130
+         GO TO 150
+C
+C  READ PCPN PARAMETERS TO GET STATION IDENTIFIER AND DESCRIPTION
+140   CALL UREPET (' ',STAID,8)
+      IPTR=IPNTRS(IPOS)
+      IPRERR=1
+      IREAD=1
+      INCLUDE 'scommon/callsrpcpn'
+C
+C  GET STATION INFORMATION RECORD STATION FROM PREPROCESSOR DATA BASE
+      CALL PDFNDR (STAID,LSIBUF,IFIND,ISIREC,ISIBUF,IFREE,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,400) 'PDFNDR',IERR
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 130
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,390) STATE,STAID,IFIND
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      NSTA=NSTA+1
+      CALL SMPPD2 (NSTA,STATE,DESCRP,ISUMRY,ISIBUF,IERR)
+      GO TO 130
+C
+150   IF (IALL.EQ.0) THEN
+         IF (NSTA.EQ.0) THEN
+            WRITE (LP,340) NSTATE
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+         IF (NSTA.GT.0) THEN
+            WRITE (LP,350) NSTA,NSTATE
+            CALL SULINE (LP,2)
+            ENDIF
+         ENDIF
+      IF (IALL.EQ.-1.OR.IALL.GT.0) THEN
+         IF (NSTA.EQ.0) THEN
+            WRITE (LP,360)
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+         IF (NSTA.GT.0) THEN
+            WRITE (LP,370) NSTA
+            CALL SULINE (LP,2)
+            ENDIF
+         ENDIF
+      IF (IENDIN.EQ.1) GO TO 220
+      GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PROCESS ALL STATIONS
+C
+C  OPEN DATA BASE
+160   CALL SUDOPN (1,'PPD ',IERR)
+      IF (IERR.GT.0) THEN
+         ISTAT=1
+         GO TO 230
+         ENDIF
+C
+C  CHECK IF ANY STATIONS DEFINED
+      IF (NPDSTA.EQ.0) THEN
+         WRITE (LP,410)
+         CALL SULINE (LP,2)
+         GO TO 230
+         ENDIF
+C
+C  GET LIST OF PPDB IDENTIFIERS AND RECORD LOCATIONS
+      MAXID=LARAY/3
+      NUMID=0
+      IREC=INFREC+1
+170   CALL PDRSIF (IREC,NXREC,LSIBUF,ISIBUF,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,400) 'PDRSIF',IERR
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 220
+         ENDIF
+      IF (ISIBUF(8).EQ.0) GO TO 190
+      CALL SUBSTR (ISIBUF(2),1,8,STAID,1)
+      IF (STAID.EQ.'DELETED') GO TO 190
+         NUMID=NUMID+1
+         IF (NUMID.LE.MAXID) GO TO 180
+            WRITE (LP,420) MAXID
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 220
+180      CALL SUBSTR (STAID,1,8,IARAY(1,NUMID),1)
+         IARAY(3,NUMID)=IREC
+190   IF (NXREC.GT.LSTSIF) GO TO 200
+         IREC=NXREC
+         GO TO 170
+C
+C  SORT IDENTIFIERS
+200   NWORDS=3
+      ISPTR=0
+      CALL SUSORT (NWORDS,NUMID,IARAY,IARAY,ISPTR,IERR)
+C
+C  CHECK SUMMARY OPTION
+      IF (SUMARY.EQ.'YES') THEN
+         WRITE (LP,430)
+         CALL SUWRNS (LP,2,-1)
+         ENDIF
+      ISUMRY=0
+C
+C  CHECK LINES LEFT ON PAGE
+      IF (ISLEFT(15).GT.0) CALL SUPAGE
+C
+C  PRINT ALL PP24 STATISTICS
+      DO 210 NSTA=1,NUMID
+         IREC=IARAY(3,NSTA)
+         CALL PDRSIF (IREC,NXREC,LSIBUF,ISIBUF,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (LP,400) 'PDRSIF',IERR
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 220
+            ENDIF
+         IF (ISIBUF(8).EQ.0) GO TO 210
+         CALL SMPPD2 (NSTA,STATE,DESCRP,ISUMRY,ISIBUF,IERR)
+210      CONTINUE
+C
+      WRITE (LP,440) NUMID,MAXID
+      CALL SULINE (LP,2)
+C
+220   IF (NUMERR.GT.0) ISTAT=1
+C
+C  CHECK IF NEED TO SET INDICATOR TO REREAD CURRENT FIELD
+230   IF (INDOPT.EQ.1) ISTRT=-1
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,450) ISTAT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+240   FORMAT (' *** ENTER SMPPDD')
+250   FORMAT ('0*** NOTE - RIGHT PARENTHESIS ASSUMED IN FIELD ',I2,'.')
+260   FORMAT (' BLANK STRING FOUND IN FIELD ',I2)
+280   FORMAT ('0*** WARNING - INVALID DUMP STATS OPTION : ',A)
+290   FORMAT ('0*** WARNING - SORTED LIST OF STATIONS NOT ',
+     *   'SUCCESSFULLY OBTAINED. SORT OPTION CANCELLED.')
+300   FORMAT ('0*** NOTE - NO STATIONS ARE DEFINED.')
+310   FORMAT ('0*** WARNING - NO LEFT PARENTHESES FOUND. ',A,
+     *   ' OPTION SET TO ',A,'.')
+320   FORMAT ('0*** NOTE - ALL STATES WILL BE PROCESSED.')
+330   FORMAT ('0*** NOTE - STATIONS FOR STATE ',A2,' WILL BE ',
+     *   'PROCESSED.')
+340   FORMAT ('0*** WARNING - NO STATIONS PROCESSED FOR STATE ',
+     *   A2,'.')
+350   FORMAT ('0*** NOTE - ',I4,' STATIONS PROCESSED FOR STATE ',
+     *   A2,'.')
+360   FORMAT ('0*** WARNING - NO STATIONS PROCESSED.')
+370   FORMAT ('0*** NOTE - ',I4,' STATIONS PROCESSED.')
+380   FORMAT (' NUMID=',I4,3X,'IPOS=',I4)
+390   FORMAT (' STATE=',A2,3X,'STAID=',2A4,3X,'IFIND=',I5)
+400   FORMAT ('0*** ERROR - IN SMPPDD - CALLING ROUTINE ',A,'. ',
+     *   'STATUS CODE=',I4)
+410   FORMAT ('0*** NOTE - NO STATIONS ARE DEFINED.')
+420   FORMAT ('0*** ERROR - IN SMPPDD - MAXIMUM NUMBER OF IDENTIFIERS ',
+     *   'THAT CAN BE PROCESSED (',I5,') EXCEEDED.')
+430   FORMAT ('0*** WARNING - SUMMARY OPTION NOT VALID UNLESS STATE ',
+     *   'OPTION SPECIFIED. SUMMARY OPTION IGNORED.')
+440   FORMAT ('0*** NOTE - ',I5,' STATIONS PROCESSED. ',
+     *   'A MAXIMUM OF ',I5,' STATIONS CAN BE PROCESSED.')
+450   FORMAT (' *** EXIT SMPPDD : STATUS CODE=',I2)
+C
+      END

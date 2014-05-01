@@ -1,0 +1,6 @@
+# Product Discipline 0: Meteorological products, Parameter Category 5: Long-wave Radiation
+#192-254 Reserved for local use
+192:192:Downward Long-W/m^2:DLWRF
+193:193:Upward Long-W/m^2:ULWRF
+255:255:Missing
+

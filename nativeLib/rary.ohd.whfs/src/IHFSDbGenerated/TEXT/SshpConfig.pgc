@@ -1,0 +1,831 @@
+/*
+    File: SshpConfig.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:31 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "SshpConfig.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct SshpConfig_t
+{
+    char		lid[9];
+    char		basin_id[9];
+    dtime_t		postingtime;
+    char		model_pref[11];
+    char		auto_process[2];
+    char		source_pref[21];
+    char		use_static_evap[2];
+    char		use_blend[2];
+    char		blend_method[11];
+    long		blend_hours;
+
+} SshpConfig_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+SshpConfig * GetSshpConfig(const char * where)
+{
+
+    SshpConfig * listPtr = NULL;
+    SshpConfig * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM SshpConfig ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SshpConfig_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSshpConfig() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSshpConfig() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSshpConfig() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.basin_id, 
+    :dbs.postingtime, :dbs.model_pref, 
+    :dbs.auto_process, :dbs.source_pref, 
+    :dbs.use_static_evap, :dbs.use_blend, 
+    :dbs.blend_method, :dbs.blend_hours    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSshpConfig() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (SshpConfig *) malloc(sizeof(SshpConfig))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->basin_id, dbs.basin_id);
+
+            structPtr->postingtime = dbs.postingtime;
+
+            strcpy(structPtr->model_pref, dbs.model_pref);
+
+            strcpy(structPtr->auto_process, dbs.auto_process);
+
+            strcpy(structPtr->source_pref, dbs.source_pref);
+
+            strcpy(structPtr->use_static_evap, dbs.use_static_evap);
+
+            strcpy(structPtr->use_blend, dbs.use_blend);
+
+            strcpy(structPtr->blend_method, dbs.blend_method);
+
+            structPtr->blend_hours = dbs.blend_hours;
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.basin_id, 
+        :dbs.postingtime, :dbs.model_pref, 
+        :dbs.auto_process, :dbs.source_pref, 
+        :dbs.use_static_evap, :dbs.use_blend, 
+        :dbs.blend_method, :dbs.blend_hours        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetSshpConfig() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+SshpConfig * SelectSshpConfig(const char * where)
+{
+
+    SshpConfig * listPtr = NULL;
+    SshpConfig * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM SshpConfig ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SshpConfig_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSshpConfig() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSshpConfig() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSshpConfig() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.basin_id, 
+    :dbs.postingtime, :dbs.model_pref, 
+    :dbs.auto_process, :dbs.source_pref, 
+    :dbs.use_static_evap, :dbs.use_blend, 
+    :dbs.blend_method, :dbs.blend_hours    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSshpConfig() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (SshpConfig *) malloc(sizeof(SshpConfig))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->basin_id, dbs.basin_id);
+
+            structPtr->postingtime = dbs.postingtime;
+
+            strcpy(structPtr->model_pref, dbs.model_pref);
+
+            strcpy(structPtr->auto_process, dbs.auto_process);
+
+            strcpy(structPtr->source_pref, dbs.source_pref);
+
+            strcpy(structPtr->use_static_evap, dbs.use_static_evap);
+
+            strcpy(structPtr->use_blend, dbs.use_blend);
+
+            strcpy(structPtr->blend_method, dbs.blend_method);
+
+            structPtr->blend_hours = dbs.blend_hours;
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.basin_id, 
+        :dbs.postingtime, :dbs.model_pref, 
+        :dbs.auto_process, :dbs.source_pref, 
+        :dbs.use_static_evap, :dbs.use_blend, 
+        :dbs.blend_method, :dbs.blend_hours        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectSshpConfig() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectSshpConfigCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM SshpConfig ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSshpConfig() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSshpConfig() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSshpConfig() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSshpConfig() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutSshpConfig(const SshpConfig * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SshpConfig_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.basin_id, structPtr->basin_id);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    strcpy(dbs.model_pref, structPtr->model_pref);
+
+    strcpy(dbs.auto_process, structPtr->auto_process);
+
+    strcpy(dbs.source_pref, structPtr->source_pref);
+
+    strcpy(dbs.use_static_evap, structPtr->use_static_evap);
+
+    strcpy(dbs.use_blend, structPtr->use_blend);
+
+    strcpy(dbs.blend_method, structPtr->blend_method);
+
+    dbs.blend_hours = structPtr->blend_hours;
+
+
+    EXEC SQL INSERT INTO SshpConfig (lid,basin_id,
+        postingtime,model_pref,auto_process,
+        source_pref,use_static_evap,use_blend,
+        blend_method,blend_hours        )
+        VALUES (
+         :dbs.lid, :dbs.basin_id, :dbs.postingtime,
+         :dbs.model_pref, :dbs.auto_process, :dbs.source_pref,
+         :dbs.use_static_evap, :dbs.use_blend, :dbs.blend_method,
+         :dbs.blend_hours);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutSshpConfig() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertSshpConfig(const SshpConfig * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SshpConfig_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.basin_id, structPtr->basin_id);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    strcpy(dbs.model_pref, structPtr->model_pref);
+
+    strcpy(dbs.auto_process, structPtr->auto_process);
+
+    strcpy(dbs.source_pref, structPtr->source_pref);
+
+    strcpy(dbs.use_static_evap, structPtr->use_static_evap);
+
+    strcpy(dbs.use_blend, structPtr->use_blend);
+
+    strcpy(dbs.blend_method, structPtr->blend_method);
+
+    dbs.blend_hours = structPtr->blend_hours;
+
+
+    EXEC SQL INSERT INTO SshpConfig (lid,basin_id,
+        postingtime,model_pref,auto_process,
+        source_pref,use_static_evap,use_blend,
+        blend_method,blend_hours        )
+        VALUES (
+         :dbs.lid, :dbs.basin_id, :dbs.postingtime,
+         :dbs.model_pref, :dbs.auto_process, :dbs.source_pref,
+         :dbs.use_static_evap, :dbs.use_blend, :dbs.blend_method,
+         :dbs.blend_hours);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertSshpConfig() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateSshpConfig(const SshpConfig *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SshpConfig_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.basin_id, structPtr->basin_id);
+
+    dbs.postingtime = structPtr->postingtime;
+
+    strcpy(dbs.model_pref, structPtr->model_pref);
+
+    strcpy(dbs.auto_process, structPtr->auto_process);
+
+    strcpy(dbs.source_pref, structPtr->source_pref);
+
+    strcpy(dbs.use_static_evap, structPtr->use_static_evap);
+
+    strcpy(dbs.use_blend, structPtr->use_blend);
+
+    strcpy(dbs.blend_method, structPtr->blend_method);
+
+    dbs.blend_hours = structPtr->blend_hours;
+
+
+    sprintf(queryBuffer, " UPDATE SshpConfig SET " );
+    strcat(queryBuffer, "lid = ? , basin_id = ? , postingtime = ? , model_pref = ? , auto_process = ? ,     ");
+    strcat(queryBuffer, "source_pref = ? , use_static_evap = ? , use_blend = ? , blend_method = ? , blend_hours = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateSshpConfig() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.basin_id, :dbs.postingtime, :dbs.model_pref, :dbs.auto_process,
+     :dbs.source_pref, :dbs.use_static_evap, :dbs.use_blend, :dbs.blend_method, :dbs.blend_hours;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateSshpConfig() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteSshpConfig(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM SshpConfig ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteSshpConfig() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateSshpConfigByRecord (const SshpConfig * newStructPtr, const SshpConfig * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetSshpConfigPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateSshpConfig(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateSshpConfig(const SshpConfig * structPtr)
+{
+    UpdateSshpConfigByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertSshpConfig(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueSshpConfig(const SshpConfig * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (SshpConfigExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertSshpConfig(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteSshpConfigByRecord(const SshpConfig * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetSshpConfigPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteSshpConfig(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool SshpConfigExists(const SshpConfig * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetSshpConfigPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectSshpConfigCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetSshpConfigPrimaryKeyWhereString (const SshpConfig * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeSshpConfig( SshpConfig * structPtr)
+{
+    SshpConfig* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( SshpConfig * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetSshpConfigDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetSshpConfigErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

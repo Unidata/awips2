@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <inventoryEnabled>true</inventoryEnabled>
+    <resourceDefnName>HPCMOS</resourceDefnName>
+    <resourceCategory>SURFACE</resourceCategory>
+	<resourceParameters>
+pluginName=bufrmosHPC
+spiFile=MTR.spi
+legendString=HPCMOS
+legendColor=RGB {0, 255, 0}
+	</resourceParameters>
+    <rscImplementation>MosPlot</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
+    <dfltFrameCount>999</dfltFrameCount>
+    <!-- 3 days 12 hours -->
+    <dfltTimeRange>84</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

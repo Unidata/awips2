@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ShefIssue>
+	<distributeProduct>true</distributeProduct>
+	<dirCopy>true</dirCopy>
+	<internalDirectory>
+		<directory>/tmp/shef</directory>
+	</internalDirectory>
+</ShefIssue>

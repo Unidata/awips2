@@ -1,0 +1,23 @@
+1
+**************************************
+1
+**************************************
+20:46:21: RiverMonitor Started
+1
+**************************************
+20:46:22: RiverMonitorDataManager.readValidHeightAndDischargePE():  Where Clause:where pe like 'H%' or pe like 'Q%'
+1
+**************************************
+20:46:22: OfficeNotesDataManager.readDataFromOfficeNotes():  Where Clause:order by topic, id, postingtime
+1
+**************************************
+20:46:22: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/DerivedColumns.txt]
+1
+**************************************
+20:46:22: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/DerivedColumns.txt]
+1
+**************************************
+20:46:22: RiverMonitorSettings.startRiverMonitor(): Trying to load from file :/awips/hydroapps/whfs/local/data/app/rivermon/DefaultRiverMonitorSettings.txt
+1
+**************************************
+20:46:26: Launch PRECIP Monitor [cmd:/home/ebabin/workspace/ohd.hseb.rivermonitor/src/scripts/start_rivermonitor Precip]

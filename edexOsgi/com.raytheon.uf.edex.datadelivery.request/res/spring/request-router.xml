@@ -1,0 +1,46 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"    
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="requestDataDeliveryRouter" class="com.raytheon.uf.edex.auth.RemoteServerRequestRouter">
+        <constructor-arg value="${DATADELIVERY_SERVER}" />
+    </bean>
+    
+    <bean id="requestRegistryRouter" class="com.raytheon.uf.edex.auth.RemoteServerRequestRouter">
+        <constructor-arg value="${EBXML_REGISTRY_SERVICE}" />
+    </bean>
+    
+    <!-- Registers the IRequestRouter handler for data delivery -->
+    <bean id="registerRequestDataDeliveryRouter" factory-bean="requestRouterRegistry" factory-method="register">
+        <constructor-arg ref="dataDeliveryServerKey" />
+        <constructor-arg ref="requestDataDeliveryRouter" />
+    </bean>
+    
+    <bean id="registerRequestRegistryRouter" factory-bean="requestRouterRegistry" factory-method="register">
+        <constructor-arg ref="ebxmlRegistryServiceKey" />
+        <constructor-arg ref="requestRegistryRouter" />
+    </bean>
+    
+    <!-- Registry service location registration -->
+    <bean factory-bean="serverLocationRegistry" factory-method="register">
+        <constructor-arg ref="ebxmlRegistryServiceKey" />
+        <constructor-arg value="${EBXML_REGISTRY_SERVICE}" />
+    </bean>
+
+    <bean factory-bean="serverLocationRegistry" factory-method="register">
+        <constructor-arg ref="ebxmlLcmServiceKey" />
+        <constructor-arg value="${EBXML_REGISTRY_LCM_SERVICE}" />
+    </bean>
+
+    <bean factory-bean="serverLocationRegistry" factory-method="register">
+        <constructor-arg ref="ebxmlQueryServiceKey" />
+        <constructor-arg value="${EBXML_REGISTRY_QUERY_SERVICE}" />
+    </bean>
+
+    <!-- Data Delivery server location registration -->
+    <bean factory-bean="serverLocationRegistry" factory-method="register">
+        <constructor-arg ref="dataDeliveryServerKey" />
+        <constructor-arg value="${DATADELIVERY_SERVER}" />
+    </bean>
+
+</beans>

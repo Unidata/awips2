@@ -1,0 +1,110 @@
+." $Id: pqmon.1,v 1.4.20.1.2.2 2009/06/18 16:19:02 steve Exp $
+.TH PQMON 1 "$Date: 2009/06/18 16:19:02 $"
+.SH NAME
+pqmon - program to monitor the state of an LDM product queue
+.SH SYNOPSIS
+.HP
+.ft B
+pqmon
+.nh
+\%[-l\ \fIlogfile\fP]
+\%[-q\ \fIpqfname\fP]
+\%[-i\ \fIinterval\fP]
+\%[\fIoutputfile\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This program writes to \fIoutputfile\fP statistics to monitor the
+state of a local
+LDM product queue (see \fBpq\fP(3)). If no \fIoutputfile\fP is specified,
+the data is written to standard output.  The program may be used to
+display the current state of a product queue, to periodically
+sample the product queue's state, or to help determine the parameters
+that should be used for pqcreate, to create a product queue that will
+not run out of product slots or waste space for unused product slots.
+After reporting on the current state of the queue, pqmon exits,
+unless a non zero \fIinterval\fP is specified.
+.LP
+.B pqmon
+is typically used to verify that the product queue is peforming
+adequately, is not close to running out of product slots, and is large
+enough to hold products for a desired time period.
+.SH OPTIONS
+.TP
+.BI "-l " logfile
+The path name of a file to be used as the log file for the process.  The
+default is to use standard error when interactive and syslogd(8) otherwise.
+To use syslogd from the command line, enter ``pqmon ... >& /dev/null''.
+.TP
+.BI "-q " pqfname
+The filename of the product queue.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP.
+.TP
+.BI \-i " interval"
+Polling interval, in seconds.  The program sleeps and
+reports on the state of the product queue every \fIinterval\fP seconds.
+If the \fIinterval\fP is 0, the program exits after one report (this
+is the default if the "-i" option is missing).
+
+.SH SIGNALS
+.TP
+.BR SIGTERM
+Normal termination.
+.TP
+.BR SIGINT
+Immediate termination.
+.TP
+.B SIGUSR1
+Write status and product statistics to log output.
+
+.SH EXAMPLE
+
+The following invocation will report on the status of the default product
+queue to stderr and then exit.
+.RS +4
+  pqmon
+.RE
+The following example will emit to stderr information about the
+current state of the product queue in /tmp/ldm.pq, updated every 5
+seconds:
+.RS +4
+  pqmon -q /tmp/ldm.pq -i 5
+.RE
+The following line in the ldmd.conf configuration file will cause a 
+report of the status of the product queue to be logged every 10
+minutes.
+.RS +4
+  exec "pqmon -i 600"
+.RE
+
+.SH FILES
+.LP
+
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR pqact(1),
+.BR ulog (3),
+.BR pq (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm/\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information -- to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP
+.RE

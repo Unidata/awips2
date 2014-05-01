@@ -1,0 +1,135 @@
+######################################################
+## AIRPORT WEATHER WARNING TEMPLATE                 ##
+## EXAMPLE TEMPLATE USING HUNTSVILLE PRODUCT        ##
+## CREATED BY PHIL KURIMSKI - WFO DTX               ##
+##     UPDATED EVAN BOOKBINDER 9-18-2013 Implemented config.vm
+##################################################################
+##
+#parse("config.vm")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+AWW${siteId}
+#if(${productClass}=="T")
+TEST...AIRPORT WEATHER WARNING...TEST##
+#else
+AIRPORT WEATHER WARNING##
+#end
+
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+ 
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+#end
+
+${ugcline}
+#foreach (${area} in ${areas})
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#######################################################################
+## Set initial variables for initial issuance
+#######################################################################
+#set ($cancel = "")
+#set ($issue = "ISSUED AN")
+#######################################################################
+## Override initial variables if a cancellation is selected
+#######################################################################
+#if(${list.contains(${bullets}, "cancelAWW")})
+#set ($cancel = " CANCELLED")
+#set ($issue = "CANCELLED THE")
+#end
+#######################################################################
+## Set the airport based on selection in template 
+## Sites can use different airports by modifying the code below
+#######################################################################
+#set ($site = "!** YOU DIDN'T SELECT AN AIRPORT **!")
+#if(${list.contains(${bullets}, "HSV")})
+  #set ($site = "HUNTSVILLE INTERNATIONAL AIRPORT /HSV/")
+#end
+#if(${list.contains(${bullets}, "MSL")})
+  #set ($site = "NORTHWEST ALABAMA REGIONAL AIRPORT (IN MUSCLE SHOALS) /MSL/") 
+#end
+######################################################
+###### Storm current location description   ##########
+######################################################
+...AIRPORT WEATHER WARNING${cancel}...
+
+THE NATIONAL WEATHER SERVICE IN ${officeLoc} HAS ${issue} AIRPORT WEATHER WARNING FOR...
+
+${site}
+
+####################################################
+############# SECOND BULLET ########################
+####################################################
+## If cancelling the AWW do not output any text
+####################################################
+#if(${list.contains(${bullets}, "cancelAWW")})
+!** GIVE REASON FOR CANCELLATION **!
+#else
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+
+
+FOR THE FOLLOWING THREATS...
+
+###################################################################
+## Create threats based on selections in the xml file
+## Sites can add or modify threats by changing the code below
+###################################################################
+#if(${list.contains(${bullets}, "wind")})
+* WIND GUSTS 30 KNOTS OR HIGHER.
+
+#end
+#if(${list.contains(${bullets}, "lightning")})
+* CLOUD TO GROUND LIGHTNING WITHIN 5 NM OF THE AIRPORT.
+
+#end
+#if(${list.contains(${bullets}, "hail")})
+* HAIL OF 1/2 INCH OR GREATER.
+
+#end
+#if(${list.contains(${bullets}, "freezingRain")})
+* ONSET OF FREEZING RAIN.
+
+#end
+#if(${list.contains(${bullets}, "sleetSnow")})
+* ONSET OF ACCUMULATING SLEET OR SNOW.
+
+#end
+
+#end
+#############
+## WATCHES ##
+#############
+#######################################################################
+## If sites do not want watches in their AWW product comment out the
+## section below
+#######################################################################
+#if(${list.contains(${includedWatches}, "torWatches")} && ${list.contains(${bullets}, "includeTorWatches")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+
+#end
+#if(${list.contains(${includedWatches}, "svrWatches")} && ${list.contains(${bullets}, "includeSvrWatches")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+
+#end
+
+###printcoords(${areaPoly}, ${list})
+
+$$
+
+#parse("forecasterName.vm")

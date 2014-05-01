@@ -1,0 +1,101 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="JMX Management Console MacOSX Binary Release" default="release-bin">
+
+   <import file="build-release.xml"/>
+
+   <property name="release.app" value="${release.subdir}/${application.dir}"/>
+
+   <target name="release-bin-qpid-mc-plugin">
+        <available file="${build.lib}/qpid-management-eclipse-plugin-${project.version}.jar" property="management-eclipse-plugin.jar.present"/>
+        <fail unless="management-eclipse-plugin.jar.present" message="Please run ant build for the management-eclipse-plugin module"/>
+
+        <!-- Copy the qpid management-eclipse-plugin module jar -->
+        <copy tofile="${release.app}/plugins/${mcplugin.filename}.jar" flatten="true" failonerror="true">
+            <fileset file="${build.lib}/qpid-management-eclipse-plugin-${project.version}.jar"/>
+        </copy>
+   </target>
+
+   <target name="release-bin-jmxremote-plugin">
+       <!-- Copy the jmxremote.sasl plugin's manifest, creating its plugin directory -->
+       <copy todir="${release.app}/plugins/jmxremote.sasl_1.0.1/META-INF" flatten="true" failonerror="true">
+           <fileset file="${jmxremote.sasl.manifest}"/>
+       </copy>
+   </target>
+
+   <target name="release-bin-qpid-management-common-plugin">
+        <available file="${build.lib}/qpid-management-common_${project.version}.0.osgi.jar" property="management-common.jar.present"/>
+        <fail unless="management-common.jar.present" message="Please run ant bundle for the management-common module"/>
+
+        <!-- Copy the qpid-management-common module osgi jar -->
+       <copy todir="${release.app}/plugins" flatten="true" failonerror="true">
+           <fileset file="${build.lib}/qpid-management-common_${project.version}.0.osgi.jar"/>
+       </copy>
+   </target>
+
+
+   <target name="release-bin-rcp-deps" description="copy eclipse-rcp dependencies into module release">    	
+       
+       <!-- Copy Eclipse binary and start-up files -->
+       <copy todir="${release.app}/Contents/MacOS" flatten="true" failonerror="true">
+           <fileset file="${qpidmc.ini}"/>
+           <fileset file="${qpidmc.executable}"/>
+       </copy>
+
+       <chmod dir="${release.app}/Contents/MacOS" perm="u+rx" includes="**/*"/>
+
+       <!-- Copy MacOS plist file -->
+       <copy todir="${release.app}/Contents" flatten="true" failonerror="true">
+           <fileset file="${macosx.plist}"/>
+       </copy>
+
+       <!-- Copy Icns icon file -->
+       <copy todir="${release.app}/Contents/Resources" flatten="true" failonerror="true">
+           <fileset file="${eclipse.icns}"/>
+       </copy>
+
+       <!-- Copy the eclipse rcp module libs -->
+       <copy todir="${release.app}/plugins" failonerror="true">
+           <fileset dir="${project.root}" includes="${rcp.libs}"/>
+           <globmapper from="lib${file.separator}*" to="*"/>
+       </copy>
+
+       <!-- Copy the relevant configuration dir -->
+       <copy todir="${release.app}/Configuration" failonerror="true">
+           <fileset dir="${rcp.configuration.dir}"/>
+       </copy>
+       <chmod dir="${release.app}/Configuration" perm="ugo+r" includes="**/*"/>
+   </target>
+
+    <target name="release-bin-zip" if="release.zip" description="build mc zip archive">
+
+        <zip destfile="${release.zip}">
+            <zipfileset dir="${release.subdir}" filemode="755">
+                <include name="${application.dir}/Contents/MacOS/**"/>
+            </zipfileset>
+
+            <zipfileset dir="${release.subdir}" filemode="644" dirmode="755">
+                <exclude name="${application.dir}/Contents/MacOS/**"/>
+            </zipfileset>
+        </zip>
+    </target>    		
+
+</project>

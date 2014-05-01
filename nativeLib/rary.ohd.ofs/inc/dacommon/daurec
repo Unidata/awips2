@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.DAUREC
+C  ASAP CONTROL FILE, USER CNTROL RECORDS
+      COMMON /DAUREC/ MXUREC,IUCREC(16,60)
+C

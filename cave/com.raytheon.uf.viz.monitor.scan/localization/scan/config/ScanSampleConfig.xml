@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ScanSampleConfig>
+	<cellSampleConfig>
+		<parameter name="Storm Id" key="ident" display="true"/>
+		<parameter name="rank" key="rank" display="true"/>
+		<parameter name="TVS" key="tvs" display="true"/>
+		<parameter name="mdaSR" key="mdaSR" display="true"/>
+		<parameter name="POSH" key="posh" display="true"/>
+		<parameter name="POH" key="poh" display="true"/>
+		<parameter name="POLH" key="polh" display="true"/>		
+		<parameter name="Hail Size" key="hsize" display="true"/>		
+		<parameter name="dbz" key="dbz" display="true"/>		
+		<parameter name="dbzHt" key="dbzHt" display="true"/>		
+		<parameter name="top" key="top" display="true"/>		
+		<parameter name="azm15" key="azm15" display="true"/>		
+		<parameter name="rng15" key="rng15" display="true"/>		
+		<parameter name="azm30" key="azm30" display="true"/>		
+		<parameter name="rng30" key="rng30" display="true"/>		
+		<parameter name="asm45" key="azm45" display="true"/>		
+		<parameter name="rng45" key="rng45" display="true"/>		
+		<parameter name="azm60" key="azm60" display="true"/>		
+		<parameter name="rng60" key="rng60" display="true"/>		
+		<parameter name="mvtErr" key="mvtErr" display="true"/>		
+		<parameter name="mvtMn" key="mvtMn" display="true"/>		
+		<parameter name="svrwx" key="svrwx" display="true"/>		
+		<parameter name="hvyPr" key="heavyPr" display="true"/>		
+		<parameter name="%Pos" key="pPos" display="true"/>		
+		<parameter name="cgRate" key="cgRate" display="true"/>		
+		<parameter name="VCP" key="vcp" display="false"/>		
+		<parameter name="CAPE" key="cape" display="false"/>		
+		<parameter name="SREH" key="sreh" display="false"/>		
+	</cellSampleConfig>
+	<dmdSampleConfig>
+		<parameter name="ident" key="ident" display="true" line="1"/>
+		<parameter name="Storm ID" key="strmID" display="true" line="1"/>
+		<parameter name="status" key="status" display="true" line="2"/>
+		<parameter name="base" key="base" display="true" line="3"/>
+		<parameter name="depth" key="depth" display="true" line="3"/>
+		<parameter name="stRank" key="rank" display="true" line="4"/>
+		<parameter name="msi" key="msi" display="true" line="4"/>
+		<parameter name="llVr" key="llVr" display="true"/>
+		<parameter name="llgtg" key="llgtg" display="true"/>
+		<parameter name="llConv" key="llConv" display="true"/>
+		<parameter name="llShear" key="llShear" display="true"/>
+		<parameter name="mlConv" key="mlConv" display="true"/>
+		<parameter name="llDiam" key="llDiam" display="false"/>
+		<parameter name="relDepth" key="relDepth" display="false"/>
+		<parameter name="maxVr" key="maxVr" display="false"/>
+		<parameter name="htMxVr" key="htMxVr" display="false"/>
+		<parameter name="TVS" key="tvs" display="false"/>
+		<parameter name="msi" key="msi" display="false"/>
+		<parameter name="age" key="age" display="false"/>
+		<parameter name="elev0" key="elev0" display="false"/>
+		<parameter name="status" key="status" display="false"/>
+		<parameter name="rankType" key="rankType" display="false"/>
+	</dmdSampleConfig>
+</ScanSampleConfig>

@@ -1,0 +1,2 @@
+The phrase-level method "fillNulls" examines the sub-phrases and fills in the appropriate words according to the "first_null_phrase" and "null_phrase" dictionaries.  It then flags the sub-phrase as a "null" phrase for subsequent methods.  The phrase-level methods use this attribute information to handle "null" sub-phrases appropriately. 
+

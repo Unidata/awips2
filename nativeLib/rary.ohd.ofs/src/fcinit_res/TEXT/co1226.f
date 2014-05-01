@@ -1,0 +1,318 @@
+C MEMBER CO1226
+C  (from old member FCCO1226)
+C
+      SUBROUTINE CO1226(WORK,IUSEW,LEFTW,NC12,SMALL,GATE,GATMAX,
+     .                  LENDSU,JDEST,IERR)
+C---------------------------------------------------------------------
+C  SUBROUTINE TO READ AND INTERPRET CARRYOVER INPUT FOR S/U #12
+C    FLASHBOARDS SCHEME
+C---------------------------------------------------------------------
+C  JTOSTROWSKI - HRL - DECEMBER 1983
+C----------------------------------------------------------------
+C
+      INCLUDE 'common/comn26'
+C
+C
+      INCLUDE 'common/err26'
+C
+C
+      INCLUDE 'common/fld26'
+C
+C
+      INCLUDE 'common/read26'
+C
+C
+      INCLUDE 'common/suid26'
+C
+C
+      INCLUDE 'common/suin26'
+C
+C
+      INCLUDE 'common/suky26'
+C
+C
+      INCLUDE 'common/warn26'
+C
+      DIMENSION INPUT(3),LINPUT(3),IC(3),
+     . WORK(1),OK(3)
+      LOGICAL ENDFND,ALLOK,OK,SMALL,GATE
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_res/RCS/co1226.f,v $
+     . $',                                                             '
+     .$Id: co1226.f,v 1.1 1995/09/17 18:51:25 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA INPUT/4HDOWN,4HGATE,4HOLDQ/
+      DATA LINPUT/1,1,1/
+      DATA NINPUT/3/
+      DATA NDINPU/1/
+C
+C
+C  INITIALIZE LOCAL VARIABLES AND COUNTERS
+C
+      NC12 = 0
+      ALLOK = .TRUE.
+      DNLARG = 0.01
+      DNSMAL = 0.01
+      GATEOP = -999.0
+      GSTAT = 0.01
+      OLDQ = 0.00
+C
+      DO 1 I=1,3
+      OK(I) = .TRUE.
+      IC(I) = 0
+    1 CONTINUE
+C
+C  NOW PROCESS INPUT UP TO 'ENDC'.
+C
+      IERR = 0
+C
+C  CO FOUND, LOOKING FOR ENDC
+C
+      LPOS = LSPEC + NCARD + 1
+      LASTCD = LENDSU
+      IBLOCK = 1
+C
+    5 IF (NCARD .LT. LASTCD) GO TO 8
+           CALL STRN26(59,1,SUKYWD(1,11),3)
+           IERR = 99
+           GO TO 9
+    8 NUMFLD = 0
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF .GT. 0 ) GO TO 9000
+      NUMWD = (LEN -1)/4 + 1
+      IDEST = IKEY26(CHAR,NUMWD,SUKYWD,LSUKEY,NSUKEY,NDSUKY)
+      IF (IDEST.EQ.0) GO TO 5
+C
+C  IDEST = 11 IS FOR ENDC
+C
+      IF (IDEST.EQ.11.OR.IDEST.EQ.12) GO TO 9
+          CALL STRN26(59,1,SUKYWD(1,11),3)
+          JDEST = IDEST
+          IERR = 89
+    9 LENDC = NCARD
+C
+C  ENDC CARD OR TS OR PARMS FOUND AT LENDC,
+C  ALSO ERR RECOVERY IF NEITHER ONE OF THEM FOUND.
+C
+C
+      IBLOCK = 2
+      CALL POSN26(MUNI26,LPOS)
+      NCARD = LPOS - LSPEC -1
+C
+   10 CONTINUE
+      NUMFLD = 0
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF .GT. 0) GO TO 9000
+      NUMWD = (LEN -1)/4 + 1
+      IDEST = IKEY26(CHAR,NUMWD,INPUT,LINPUT,NINPUT,NDINPU)
+      IF(IDEST .GT. 0) GO TO 50
+      IF(NCARD .GE. LENDC) GO TO 900
+C
+C  NO VALID KEYWORD FOUND
+C
+      CALL STER26(1,1)
+      ALLOK = .FALSE.
+      GO TO 10
+C
+C  NOW SEND CONTROL TO PROPER LOCATION FOR PROCESSING EXPECTED INPUT
+C
+   50 CONTINUE
+      GO TO (100,200,300) , IDEST
+C
+C-----------------------------------------------------------------------
+C  'DOWN' FOUND.
+C
+  100 CONTINUE
+      IC(1) = IC(1) + 1
+      IF (IC(1).GT.1) CALL STER26(39,1)
+C
+      OK(1) = .FALSE.
+      NUMFLD = -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF (IERF.GT.1) GO TO 9000
+      IF (IERF.EQ.1) GO TO 150
+C
+C  MUST BE INTEGER SPEC FOR # LARGE BDS DOWN
+C
+      IF (ITYPE.LE.0) GO TO 110
+C
+      CALL STER26(5,1)
+      GO TO 10
+C
+C  MUST BE POSITIVE VALUE
+C
+  110 CONTINUE
+      IF (INTEGR .GE. 0) GO TO 120
+C
+      CALL STER26(61,1)
+      GO TO 10
+C
+C  GET # OF SMALL BOARDS DOWN IF SMALL BOARDS USED
+C
+  120 CONTINUE
+      DNLARG = INTEGR + 0.01
+      IF (.NOT.SMALL) GO TO 150
+C
+      NUMFLD = -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF (IERF.GT.1) GO TO 9000
+      IF (IERF.EQ.1) GO TO 150
+C
+C  NEED POSITIVE INTEGER
+C
+      IF (ITYPE.LE.0) GO TO 130
+      CALL STER26(5,1)
+      GO TO 10
+C
+  130 CONTINUE
+      IF (INTEGR .GE. 0) GO TO 140
+      CALL STER26(61,1)
+      GO TO 10
+C
+  140 CONTINUE
+      DNSMAL = INTEGR + 0.01
+C
+  150 CONTINUE
+      OK(1) = .TRUE.
+      GO TO 10
+C
+C-----------------------------------------------------------------
+C  'GATE' KEYWORD FOUND. ONLY NEEDED IF GATE SPECIFIED IN PARM SECTION.
+C
+  200 CONTINUE
+C
+      IC(2) = IC(2) + 1
+      IF (IC(2).GT.1) CALL STER26(39,1)
+      IF (.NOT.GATE) CALL STRN26(60,1,INPUT(2),LINPUT(2))
+C
+C  READ NEXT FIELD. LOOKING FOR REAL POSITIVE VALUE.
+C
+      OK(2) = .FALSE.
+      NUMFLD= -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF.GT.1)GO TO 9000
+      IF (IERF .EQ. 1) GO TO 250
+C
+      IF(ITYPE.LE.1)GO TO 220
+      CALL STER26(4,1)
+      GO TO 10
+C
+  220 CONTINUE
+      IF(REAL.GE.0.0)GO TO 230
+      CALL STER26(61,1)
+      GO TO 10
+C
+C  GATE OPENING MUST BE .LE. THAN MAX GATE OPENING
+C
+  230 CONTINUE
+      GATEOP = REAL/CONVL
+      IF (GATEOP .LE. GATMAX) GO TO 250
+      CALL STER26(72,1)
+      GO TO 10
+C
+C  EVERYTHING IS OK
+C
+  250 CONTINUE
+      OK(2) = .TRUE.
+      GO TO 10
+C
+C----------------------------------------------------------------------
+C  'OLDQ' FOUND. GET THE CO INFO FROM THE REST OF THE LINE.
+C
+  300 CONTINUE
+      IC(3) = IC(3) + 1
+      IF (IC(3) .GT. 1) CALL STER26(39,1)
+C
+      OK(3) = .FALSE.
+      NUMFLD = -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF (IERF.GT.1) GO TO 9000
+      IF (IERF .EQ. 1) GO TO 330
+C
+C  OLD Q MUST BE REAL AND POSITIVE.
+C
+      IF (ITYPE.LE.1) GO TO 310
+      CALL STER26(4,1)
+      GO TO 10
+C
+  310 CONTINUE
+      IF (REAL.GE.0.00) GO TO 320
+      CALL STER26(95,1)
+      GO TO 10
+C
+  320 CONTINUE
+      OLDQ = REAL /CONVL3
+C
+C  EVERYTHING IS OK
+C
+  330 CONTINUE
+      OK(3) = .TRUE.
+      GO TO 10
+C
+C--------------------------------------------------------------------
+C  END OF INPUT. STORE VALUES IN WORK ARRAY IF EVERYTHING WAS ENTERED
+C  WITHOUT ERROR.
+C
+  900 CONTINUE
+C
+      DO 910 I=1,3
+      IF (.NOT.OK(I)) GO TO 9999
+  910 CONTINUE
+      IF (.NOT.ALLOK) GO TO 9999
+C
+C  STORE ALL CARRYOVER VALUES, EITHER THOSE INPUT OR DEFAULT VALUES.
+C  FIRST VALUE IS 'FALSE' NEED OF FLASHBOARDS
+C
+      NC12 = 2
+      IADD = 0
+      CALL FLWK26(WORK,IUSEW,LEFTW,0.01,501)
+      CALL FLWK26(WORK,IUSEW,LEFTW,DNLARG,501)
+      IF (SMALL) CALL FLWK26(WORK,IUSEW,LEFTW,DNSMAL,501)
+      IF (SMALL) NC12 = NC12 + 1
+C
+      IF (.NOT.GATE) GO TO 950
+C
+C  COMPUTE GATE STATUS
+C
+      IF (0.00.LT.GATEOP .AND. GATEOP.LT.GATMAX) GSTAT = 1.01
+      IF (GATEOP .EQ. GATMAX) GSTAT = 2.01
+C
+      CALL FLWK26(WORK,IUSEW,LEFTW,GATEOP,501)
+      CALL FLWK26(WORK,IUSEW,LEFTW,GSTAT,501)
+      IADD = 2
+C
+  950 CONTINUE
+      NC12 = NC12 + IADD
+C
+C  STORE OLD DISCHARGE HERE
+C
+      CALL FLWK26(WORK,IUSEW,LEFTW,OLDQ,501)
+      NC12 = NC12 + 1
+C
+      GO TO 9999
+C
+C-----------------------------------------------------------------
+C
+C  ERROR IN UFLD26
+C
+ 9000 CONTINUE
+      IF (IERF.EQ.1) CALL STER26(19,1)
+      IF (IERF.EQ.2) CALL STER26(20,1)
+      IF (IERF.EQ.3) CALL STER26(21,1)
+      IF (IERF.EQ.4) CALL STER26( 1,1)
+C
+      IF (NCARD.GE.LASTCD) GO TO 9100
+      IF (IBLOCK.EQ.1)  GO TO 5
+      IF (IBLOCK.EQ.2)  GO TO 10
+C
+ 9100 USEDUP = .TRUE.
+C
+ 9999 CONTINUE
+      RETURN
+      END

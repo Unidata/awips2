@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	COMMENT:
+	//
+	// max ThetaE in 0-3 km AGL
+	//
+	
+	
+	AWIPS 1 format
+	maxEPT| | |Max ThetaE 0-3km |K     |CONTOUR,IMAGE,OTHER|0-3kmAgl|     *Union,0-3kmAgl,S|EPT|    *Max|maxEPT,0-3kmAgl
+	
+	
+	abbreviation: |maxEPT| 
+	Notused1: | | 
+	Notused2: | | 
+	name: |Max ThetaE 0-3km | 
+	FIELD: |K| 
+	FIELD: |CONTOUR,IMAGE,OTHER| 
+	FIELD: |0-3kmAgl| 
+	FIELD: |EPT| 
+	FIELD: |maxEPT,0-3kmAgl| 
+	
+	
+	NEW FILE - maxEPT.xml
+ -->
+<DerivedParameter unit="K" name="Max ThetaE 0-3km" abbreviation="maxEPT" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="0-3kmAgl" name="Union">
+        <Field abbreviation="EPT"/>
+    </Method>
+    <Method name="Max">
+        <Field level="0-3kmAgl" abbreviation="maxEPT"/>
+    </Method>
+</DerivedParameter>

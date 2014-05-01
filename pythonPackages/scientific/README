@@ -1,0 +1,155 @@
+ScientificPython is a collection of Python modules that are useful for
+scientific applications. Most of them need the Numerical Python
+extension (aka NumPy), which is available at http://numpy.scipy.org/.
+
+This is release 2.8 of ScientificPython. All the documentation is in
+Doc. To browse the reference manual for all the modules, point your
+browser at Doc/Reference/index.html.
+
+Release 2.8 is identical to the development release 2.7.10 except that
+the default numerics package is NumPy instead of Numeric. Compared to
+previous stable release series 2.6.x, there are numerous new features,
+most notable the subpackages Scientific.DistributedComputing and
+Scientific.Clustering.
+
+If you find bugs, please tell me, and if you improve something, please
+send me the modified version. I don't promise anything, but since I
+use these modules a lot for my own work, I have an interest in keeping
+them bug-free and usable.
+
+For updates, check
+
+  http://dirac.cnrs-orleans.fr/ScientificPython/
+
+from time to time.
+
+
+Konrad Hinsen
+Centre de Biophysique MolÅÈculaire (CNRS)
+and Synchrotron Soleil
+E-Mail: hinsen@cnrs-orleans.fr
+
+---------------------------------------------------------------------------
+
+Installation:
+-------------
+
+Required: Python 2.2 or higher. Most modules also require Numerical
+Python. If you want to use the netCDF interface module, you also need
+the netCDF library, version 3.0 or higher.
+
+1) Unix-like systems, including Linux and MacOS X
+
+Installation is as simple as
+
+    python setup.py build
+    python setup.py install
+
+(the second command requires root privileges on many installations).
+This will build the netCDF module if it can find a netCDF installation
+in either /usr/local or in /usr. If your netCDF installation is elsewhere,
+set the environment variable "NETCDF_PREFIX" to the directory in which
+"include/netcdf.h" and "lib/netcdf.so" are located.
+
+2) Windows
+
+To build the netCDF interface module, you must have a binary version
+of netCDF. You can either compile it yourself, or download the
+precompiled netcdf.dll from the netCDF Web site. You also need the
+file netcdf.h, which you can find in the netCDF source code
+distribution. PLEASE MAKE SURE THAT NETCDF.DLL AND NETCDF.H ARE FOR
+THE SAME NETCDF RELEASE!
+
+Installation is as simple as
+
+    python setup.py build --netcdf_prefix=dir_h --netcdf_dll=dir_dll
+    python setup.py install --netcdf_prefix=dir_h --netcdf_dll=dir_dll
+
+where "dir_h" is the directory in which netcdf.h is located and
+"dir_dll" is the the directory in which netcdf.dll is located.
+
+Alternatively, you can create a binary installer using
+
+    python setup.py bdist_wininst --netcdf_prefix=dir_h --netcdf_dll=dir_dll
+
+
+
+Using numpy or Numeric:
+-----------------------
+
+There are three nearly compatible implementations of numeric arrays for
+Python: the original one, Numerical Python (module name "Numeric"),
+a later rewrite called numarray, and an evolution of Numeric that integrates
+features from numarray, called numpy. Numeric and numarray are no longer
+supported. It is expected that in the near future, most applications
+still using Numeric or numarray will migrate to NumPy.
+
+Starting with release 2.8, Scientific Python uses numpy by default.
+However, the support for Numeric and the partial support for numarray
+are still there. The choice between one of the three packages is made
+at installation time. To use Numeric, install using
+
+    python setup.py build --numeric
+    python setup.py install
+
+To use numarray, install using
+
+    python setup.py build --numarray
+    python setup.py install
+
+
+Note that the modules
+
+  Scientific.Functions.Derivatives
+  Scientific.Functions.FirstDerivatives
+  Scientific.Functions.LeastSquares
+
+do not work correctly with numarray because they rely on a feature of
+Numeric/numpy that is missing in numarray. For the same reason, the modules
+
+  Scientific.Functions.Interpolation
+  Scientific.Physics.PhysicalQuantities
+
+can be used only partially with numarray, the application of mathematical
+functions to the defined objects does not work.
+
+
+The BSPlib interface:
+----------------------
+
+Earlier releases of ScientificPython contained an interface to the
+BSPlib library as implemented by the Oxford BSP Toolset. This library
+is no longer maintained and cannot be installed easily on most of
+today's computers. The BSPlib interface was therefore temporarily
+removed from ScientificPython.
+
+There are two other implementations of BSPlib: the PUB library, which
+doesn't seem to be maintained any more either, and the BSPonMPI library.
+I am investigating the possibility of porting the BSPlib interface to
+BSPonMPI, but this will only be in the development releases initially.
+
+Note that the package Scientific.BSP is not concerned by the absence
+of BSPlib. It has always had a low-level interface based on MPI, which
+is in fact what most users have preferred. This MPI-based interface
+continues to work.
+
+---------------------------------------------------------------------------
+
+Examples:
+---------
+
+The directory Examples provides a few simple example applications,
+including a C extension module that uses the netCDF C-API.
+
+
+Using Scientific.Visualization.VMD under Windows
+------------------------------------------------
+
+If VMD is installed in its default location, everything should work
+fine automatically. Otherwise, an error message will be printed. The
+default location is
+
+	c:\Program Files\University of Illinois\VMD\vmd.exe
+
+or its equivalent on non-English Windows versions ("Program Files"
+changes its name).

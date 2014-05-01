@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.OMIN26
+      COMMON/OMIN26/EUPRMN,ELWRMN,IOPTF,IOPTM,IOPTR,NPERDF,NPERDR,
+     $NTOTLQ,PCTERM
+C

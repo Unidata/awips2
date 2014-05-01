@@ -1,0 +1,95 @@
+==== topic_publisher_java.out
+Publisher: Creating a non-transacted, auto-acknowledged session
+Publisher: Creating a TestMessage to send to the topics
+Publisher: Creating a Message Publisher for topic usa.weather
+Publisher: Sending message 1
+Publisher: Sending message 2
+Publisher: Sending message 3
+Publisher: Sending message 4
+Publisher: Sending message 5
+Publisher: Sending message 6
+Publisher: Creating a Message Publisher for topic usa.news
+Publisher: Sending message 1
+Publisher: Sending message 2
+Publisher: Sending message 3
+Publisher: Sending message 4
+Publisher: Sending message 5
+Publisher: Sending message 6
+Publisher: Creating a Message Publisher for topic europe.weather
+Publisher: Sending message 1
+Publisher: Sending message 2
+Publisher: Sending message 3
+Publisher: Sending message 4
+Publisher: Sending message 5
+Publisher: Sending message 6
+Publisher: Creating a Message Publisher for topic europe.news
+Publisher: Sending message 1
+Publisher: Sending message 2
+Publisher: Sending message 3
+Publisher: Sending message 4
+Publisher: Sending message 5
+Publisher: Sending message 6
+Publisher: Closing connection
+Publisher: Closing JNDI context
+==== topic_subscriber.py.out | remove_uuid | sort
+message 1
+message 1
+message 1
+message 1
+message 1
+message 1
+message 1
+message 1
+message 2
+message 2
+message 2
+message 2
+message 2
+message 2
+message 2
+message 2
+message 3
+message 3
+message 3
+message 3
+message 3
+message 3
+message 3
+message 3
+message 4
+message 4
+message 4
+message 4
+message 4
+message 4
+message 4
+message 4
+message 5
+message 5
+message 5
+message 5
+message 5
+message 5
+message 5
+message 5
+message 6
+message 6
+message 6
+message 6
+message 6
+message 6
+message 6
+message 6
+Messages on 'europe' queue:
+Messages on 'news' queue:
+Messages on 'usa' queue:
+Messages on 'weather' queue:
+Queues created - please start the topic producer
+Subscribing local queue 'local_europe' to europe-'
+Subscribing local queue 'local_news' to news-'
+Subscribing local queue 'local_usa' to usa-'
+Subscribing local queue 'local_weather' to weather-'
+That's all, folks!
+That's all, folks!
+That's all, folks!
+That's all, folks!

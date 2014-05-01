@@ -1,0 +1,10 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+py=$PYTHON_EXAMPLES/direct
+
+direct_producer_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-direct-Producer.exe localhost 5672
+}
+
+clients $py/declare_queues.py direct_producer_dotnet $py/direct_consumer.py
+outputs $py/declare_queues.py.out ./direct_producer_dotnet.out $py/direct_consumer.py.out

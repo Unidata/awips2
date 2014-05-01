@@ -1,0 +1,86 @@
+========== SRC MODULE == for   system: ofs   source: db_hclrw
+hcmpsu.f        37:      DIMENSION ISVRAY(2,MSVRAY)
+hcmpsu.f       113:      CALL UMEMST (0,ISVRAY,N)
+hcmpsu.f       176:         ISVRAY(1,IAX)=IFBUF(IX)
+hcmpsu.f       178:            ISVRAY(2,IAX)=ITECH(IFBUF(IX))
+hcmpsu.f       180:100      ISVRAY(2,IAX)=IGTECH(-IFBUF(IX))
+hcmpsu.f       187:      ISVRAY(1,1)=IAX
+hcmpsu.f       189:C  CHECK THROUGH ISVRAY FOR TECHNIQUE NUMBERS
+hcmpsu.f       193:         CALL HGTDIN (ISVRAY(1,I),IX,IRECX,IRECD,ITBUF,MTBUF,ISTAT)
+hcmpsu.f       203:         IPTRAY(NPTRAY+4)=ISVRAY(1,I)
+hcmpsu.f       257:         ISVRAY(1,IAX1)=ITBUF(14)
+hcmpsu.f       258:         ISVRAY(2,IAX1)=NARGWD
+hcmpsu.f       260:            CALL UMEMOV (IARG(ITBUF(14)),ISVRAY(1,IAX1+1),NARGWD)
+hcmpsu.f       262:210      CALL UMEMOV (IGARG(-ITBUF(14)),ISVRAY(1,IAX1+1),NARGWD)
+hcmpsu.f       277:      ISVRAY(2,1)=IAX1
+hcmpsu.f       278:250   CALL HSAVED (ISVRAY,IAX1,ISTAT)
+hcmpsu.f       311:360   FORMAT ('0**ERROR** IN HCMPSU - ARRAY ISVRAY IS FULL.')
+hgetta.f        18:      DIMENSION ISVRAY(2,80)
+hgetta.f        42:      READ (KTMPSV) ISVRAY
+hgetta.f        46:      NT=ISVRAY(1,1)
+hgetta.f        47:      NA=ISVRAY(2,1)
+hgetta.f        56:10    IT=ISVRAY(1,I)
+hgetta.f        57:      IF (IT.GT.0) ITECH(IT)=ISVRAY(2,I)
+hgetta.f        58:      IF (IT.LT.0) IGTECH(-IT)=ISVRAY(2,I)
+hgetta.f        59:          IF (IHCLDB.GT.1) WRITE (LPD,20) (ISVRAY(J,I),J=1,2)
+hgetta.f        68:      READ (KTMPSV) ISVRAY
+hgetta.f        73:C NA IS LAST USED 2 WORD PAIR IN ISVRAY
+hgetta.f        79:      READ (KTMPSV) ISVRAY
+hgetta.f        81:50    IA=ISVRAY(1,I)
+hgetta.f        82:      N=ISVRAY(2,I)
+hgetta.f       100:      IF (IA.GT.0) CALL UMEMOV (ISVRAY(1,I+1),IARG(IA),N1)
+hgetta.f       101:      IF (IA.LT.0) CALL UMEMOV (ISVRAY(1,I+1),IGARG(-IA),N1)
+hgetta.f       106:     *   ((ISVRAY(L,J),L=1,2),J=M,MM)
+hgetta.f       111:70    READ (KTMPSV) ISVRAY
+hgetta.f       118:      IF (IA.GT.0) CALL UMEMOV (ISVRAY(1,M),IARG(IA+N1),N)
+hgetta.f       119:      IF (IA.LT.0) CALL UMEMOV (ISVRAY(1,M),IGARG(-IA+N1),N)
+hgetta.f       125:     *   ((ISVRAY(L,J),L=1,2),J=M,MM)
+hsaved.f         9:      SUBROUTINE HSAVED (ISVRAY,IAX,ISTAT)
+hsaved.f        14:C  ISVRAY=ARRAY, IAX=NUMBER OF WORDS, ISTAT=STATUS
+hsaved.f        19:      DIMENSION ISVRAY(160)
+hsaved.f        38:         WRITE (KTMPSV) (ISVRAY(I),I=J,JJ)
+hsaved.f        43:      IF (IHCLDB.GT.0) WRITE (IOGDB,20) (ISVRAY(J),J=1,N)
+hsaved.f        44:20    FORMAT (' IN HSAVED - ISVRAY=',20I5 / (20X,20I5))
+======== INCLUDE FILE == for   system: ofs   subdir: hclcommon
+out              2:hcmpsu.f        37:      DIMENSION ISVRAY(2,MSVRAY)
+out              3:hcmpsu.f       113:      CALL UMEMST (0,ISVRAY,N)
+out              4:hcmpsu.f       176:         ISVRAY(1,IAX)=IFBUF(IX)
+out              5:hcmpsu.f       178:            ISVRAY(2,IAX)=ITECH(IFBUF(IX))
+out              6:hcmpsu.f       180:100      ISVRAY(2,IAX)=IGTECH(-IFBUF(IX))
+out              7:hcmpsu.f       187:      ISVRAY(1,1)=IAX
+out              8:hcmpsu.f       189:C  CHECK THROUGH ISVRAY FOR TECHNIQUE NUMBERS
+out              9:hcmpsu.f       193:         CALL HGTDIN (ISVRAY(1,I),IX,IRECX,IRECD,ITBUF,MTBUF,ISTAT)
+out             10:hcmpsu.f       203:         IPTRAY(NPTRAY+4)=ISVRAY(1,I)
+out             11:hcmpsu.f       257:         ISVRAY(1,IAX1)=ITBUF(14)
+out             12:hcmpsu.f       258:         ISVRAY(2,IAX1)=NARGWD
+out             13:hcmpsu.f       260:            CALL UMEMOV (IARG(ITBUF(14)),ISVRAY(1,IAX1+1),NARGWD)
+out             14:hcmpsu.f       262:210      CALL UMEMOV (IGARG(-ITBUF(14)),ISVRAY(1,IAX1+1),NARGWD)
+out             15:hcmpsu.f       277:      ISVRAY(2,1)=IAX1
+out             16:hcmpsu.f       278:250   CALL HSAVED (ISVRAY,IAX1,ISTAT)
+out             17:hcmpsu.f       311:360   FORMAT ('0**ERROR** IN HCMPSU - ARRAY ISVRAY IS FULL.')
+out             18:hgetta.f        18:      DIMENSION ISVRAY(2,80)
+out             19:hgetta.f        42:      READ (KTMPSV) ISVRAY
+out             20:hgetta.f        46:      NT=ISVRAY(1,1)
+out             21:hgetta.f        47:      NA=ISVRAY(2,1)
+out             22:hgetta.f        56:10    IT=ISVRAY(1,I)
+out             23:hgetta.f        57:      IF (IT.GT.0) ITECH(IT)=ISVRAY(2,I)
+out             24:hgetta.f        58:      IF (IT.LT.0) IGTECH(-IT)=ISVRAY(2,I)
+out             25:hgetta.f        59:          IF (IHCLDB.GT.1) WRITE (LPD,20) (ISVRAY(J,I),J=1,2)
+out             26:hgetta.f        68:      READ (KTMPSV) ISVRAY
+out             27:hgetta.f        73:C NA IS LAST USED 2 WORD PAIR IN ISVRAY
+out             28:hgetta.f        79:      READ (KTMPSV) ISVRAY
+out             29:hgetta.f        81:50    IA=ISVRAY(1,I)
+out             30:hgetta.f        82:      N=ISVRAY(2,I)
+out             31:hgetta.f       100:      IF (IA.GT.0) CALL UMEMOV (ISVRAY(1,I+1),IARG(IA),N1)
+out             32:hgetta.f       101:      IF (IA.LT.0) CALL UMEMOV (ISVRAY(1,I+1),IGARG(-IA),N1)
+out             33:hgetta.f       106:     *   ((ISVRAY(L,J),L=1,2),J=M,MM)
+out             34:hgetta.f       111:70    READ (KTMPSV) ISVRAY
+out             35:hgetta.f       118:      IF (IA.GT.0) CALL UMEMOV (ISVRAY(1,M),IARG(IA+N1),N)
+out             36:hgetta.f       119:      IF (IA.LT.0) CALL UMEMOV (ISVRAY(1,M),IGARG(-IA+N1),N)
+out             37:hgetta.f       125:     *   ((ISVRAY(L,J),L=1,2),J=M,MM)
+out             38:hsaved.f         9:      SUBROUTINE HSAVED (ISVRAY,IAX,ISTAT)
+out             39:hsaved.f        14:C  ISVRAY=ARRAY, IAX=NUMBER OF WORDS, ISTAT=STATUS
+out             40:hsaved.f        19:      DIMENSION ISVRAY(160)
+out             41:hsaved.f        38:         WRITE (KTMPSV) (ISVRAY(I),I=J,JJ)
+out             42:hsaved.f        43:      IF (IHCLDB.GT.0) WRITE (IOGDB,20) (ISVRAY(J),J=1,N)
+out             43:hsaved.f        44:20    FORMAT (' IN HSAVED - ISVRAY=',20I5 / (20X,20I5))

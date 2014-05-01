@@ -1,0 +1,1 @@
+How do we determine what thresholds and variables to override? The weather elements and associated phrase methods are listed in the Text Rules Reference section of the Text Product Reference Guide.

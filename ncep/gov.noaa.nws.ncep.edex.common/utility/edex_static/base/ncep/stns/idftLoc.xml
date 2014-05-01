@@ -1,0 +1,1868 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stationList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="stns.xsd">
+<!--This is idft station point location data-->
+     <station>
+          <stid>0001</stid>
+          <stnnum>000001</stnnum>
+          <stnname>POINT 1</stnname>
+          <latitude>48.88</latitude>
+          <longitude>-60.02</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0002</stid>
+          <stnnum>000002</stnnum>
+          <stnname>POINT 2</stnname>
+          <latitude>46.24</latitude>
+          <longitude>-51.39</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0003</stid>
+          <stnnum>000003</stnnum>
+          <stnname>POINT 3</stnname>
+          <latitude>54.46</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0004</stid>
+          <stnnum>000004</stnnum>
+          <stnname>POINT 4</stnname>
+          <latitude>50.58</latitude>
+          <longitude>-53.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0005</stid>
+          <stnnum>000005</stnnum>
+          <stnname>POINT 5</stnname>
+          <latitude>49.02</latitude>
+          <longitude>-49.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0006</stid>
+          <stnnum>000006</stnnum>
+          <stnname>POINT 6</stnname>
+          <latitude>47.27</latitude>
+          <longitude>-45.01</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0007</stid>
+          <stnnum>000007</stnnum>
+          <stnname>POINT 7</stnname>
+          <latitude>57.63</latitude>
+          <longitude>-86.34</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0008</stid>
+          <stnnum>000008</stnnum>
+          <stnname>POINT 8</stnname>
+          <latitude>57.82</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0009</stid>
+          <stnnum>000009</stnnum>
+          <stnname>POINT 9</stnname>
+          <latitude>56.18</latitude>
+          <longitude>-61.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0010</stid>
+          <stnnum>000010</stnnum>
+          <stnname>POINT 10</stnname>
+          <latitude>54.97</latitude>
+          <longitude>-56.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0011</stid>
+          <stnnum>000011</stnnum>
+          <stnname>POINT 11</stnname>
+          <latitude>53.48</latitude>
+          <longitude>-50.95</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0012</stid>
+          <stnnum>000012</stnnum>
+          <stnname>POINT 12</stnname>
+          <latitude>51.76</latitude>
+          <longitude>-46.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0013</stid>
+          <stnnum>000013</stnnum>
+          <stnname>POINT 13</stnname>
+          <latitude>49.86</latitude>
+          <longitude>-42.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0014</stid>
+          <stnnum>000014</stnnum>
+          <stnname>POINT 14</stnname>
+          <latitude>60.39</latitude>
+          <longitude>-94.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0015</stid>
+          <stnnum>000015</stnnum>
+          <stnname>POINT 15</stnname>
+          <latitude>61.03</latitude>
+          <longitude>-87.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0016</stid>
+          <stnnum>000016</stnnum>
+          <stnname>POINT 16</stnname>
+          <latitude>61.24</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0017</stid>
+          <stnnum>000017</stnnum>
+          <stnname>POINT 17</stnname>
+          <latitude>61.03</latitude>
+          <longitude>-72.88</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0018</stid>
+          <stnnum>000018</stnnum>
+          <stnname>POINT 18</stnname>
+          <latitude>60.39</latitude>
+          <longitude>-65.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0019</stid>
+          <stnnum>000019</stnnum>
+          <stnname>POINT 19</stnname>
+          <latitude>59.37</latitude>
+          <longitude>-59.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0020</stid>
+          <stnnum>000020</stnnum>
+          <stnname>POINT 20</stnname>
+          <latitude>58.01</latitude>
+          <longitude>-53.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0021</stid>
+          <stnnum>000021</stnnum>
+          <stnname>POINT 21</stnname>
+          <latitude>56.36</latitude>
+          <longitude>-47.99</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0022</stid>
+          <stnnum>000022</stnnum>
+          <stnname>POINT 22</stnname>
+          <latitude>54.46</latitude>
+          <longitude>-43.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0023</stid>
+          <stnnum>000023</stnnum>
+          <stnname>POINT 23</stnname>
+          <latitude>64.46</latitude>
+          <longitude>-88.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0024</stid>
+          <stnnum>000024</stnnum>
+          <stnname>POINT 24</stnname>
+          <latitude>64.71</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0025</stid>
+          <stnnum>000025</stnnum>
+          <stnname>POINT 25</stnname>
+          <latitude>64.46</latitude>
+          <longitude>-71.87</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0026</stid>
+          <stnnum>000026</stnnum>
+          <stnname>POINT 26</stnname>
+          <latitude>63.74</latitude>
+          <longitude>-64.05</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0027</stid>
+          <stnnum>000027</stnnum>
+          <stnname>POINT 27</stnname>
+          <latitude>62.57</latitude>
+          <longitude>-56.80</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0028</stid>
+          <stnnum>000028</stnnum>
+          <stnname>POINT 28</stnname>
+          <latitude>61.03</latitude>
+          <longitude>-50.26</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0029</stid>
+          <stnnum>000029</stnnum>
+          <stnname>POINT 29</stnname>
+          <latitude>59.18</latitude>
+          <longitude>-44.46</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0030</stid>
+          <stnnum>000030</stnnum>
+          <stnname>POINT 30</stnname>
+          <latitude>57.08</latitude>
+          <longitude>-39.40</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0031</stid>
+          <stnnum>000031</stnnum>
+          <stnname>POINT 31</stnname>
+          <latitude>67.08</latitude>
+          <longitude>-98.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0032</stid>
+          <stnnum>000032</stnnum>
+          <stnname>POINT 32</stnname>
+          <latitude>67.94</latitude>
+          <longitude>-89.46</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0033</stid>
+          <stnnum>000033</stnnum>
+          <stnname>POINT 33</stnname>
+          <latitude>68.23</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0034</stid>
+          <stnnum>000034</stnnum>
+          <stnname>POINT 34</stnname>
+          <latitude>67.08</latitude>
+          <longitude>-61.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0035</stid>
+          <stnnum>000035</stnnum>
+          <stnname>POINT 35</stnname>
+          <latitude>65.73</latitude>
+          <longitude>-53.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0036</stid>
+          <stnnum>000036</stnnum>
+          <stnname>POINT 36</stnname>
+          <latitude>63.98</latitude>
+          <longitude>-46.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0037</stid>
+          <stnnum>000037</stnnum>
+          <stnname>POINT 37</stnname>
+          <latitude>61.90</latitude>
+          <longitude>-40.19</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0038</stid>
+          <stnnum>000038</stnnum>
+          <stnname>POINT 38</stnname>
+          <latitude>59.58</latitude>
+          <longitude>-35.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0039</stid>
+          <stnnum>000039</stnnum>
+          <stnname>POINT 39</stnname>
+          <latitude>68.83</latitude>
+          <longitude>-110.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0040</stid>
+          <stnnum>000040</stnnum>
+          <stnname>POINT 40</stnname>
+          <latitude>70.42</latitude>
+          <longitude>-101.80</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0041</stid>
+          <stnnum>000041</stnnum>
+          <stnname>POINT 41</stnname>
+          <latitude>71.44</latitude>
+          <longitude>-91.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0042</stid>
+          <stnnum>000042</stnnum>
+          <stnname>POINT 42</stnname>
+          <latitude>71.79</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0043</stid>
+          <stnnum>000043</stnnum>
+          <stnname>POINT 43</stnname>
+          <latitude>71.44</latitude>
+          <longitude>-68.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0044</stid>
+          <stnnum>000044</stnnum>
+          <stnname>POINT 44</stnname>
+          <latitude>70.42</latitude>
+          <longitude>-58.20</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0045</stid>
+          <stnnum>000045</stnnum>
+          <stnname>POINT 45</stnname>
+          <latitude>64.46</latitude>
+          <longitude>-35.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0046</stid>
+          <stnnum>000046</stnnum>
+          <stnname>POINT 46</stnname>
+          <latitude>61.90</latitude>
+          <longitude>-29.81</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0047</stid>
+          <stnnum>000047</stnnum>
+          <stnname>POINT 47</stnname>
+          <latitude>69.45</latitude>
+          <longitude>-125.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0048</stid>
+          <stnnum>000048</stnnum>
+          <stnname>POINT 48</stnname>
+          <latitude>71.79</latitude>
+          <longitude>-116.87</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0049</stid>
+          <stnnum>000049</stnnum>
+          <stnname>POINT 49</stnname>
+          <latitude>73.69</latitude>
+          <longitude>-106.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0050</stid>
+          <stnnum>000050</stnnum>
+          <stnname>POINT 50</stnname>
+          <latitude>74.95</latitude>
+          <longitude>-94.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0051</stid>
+          <stnnum>000051</stnnum>
+          <stnname>POINT 51</stnname>
+          <latitude>75.39</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0052</stid>
+          <stnnum>000052</stnnum>
+          <stnname>POINT 52</stnname>
+          <latitude>74.95</latitude>
+          <longitude>-65.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0053</stid>
+          <stnnum>000053</stnnum>
+          <stnname>POINT 53</stnname>
+          <latitude>73.69</latitude>
+          <longitude>-53.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0054</stid>
+          <stnnum>000054</stnnum>
+          <stnname>POINT 54</stnname>
+          <latitude>66.81</latitude>
+          <longitude>-28.66</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0055</stid>
+          <stnnum>000055</stnnum>
+          <stnname>POINT 55</stnname>
+          <latitude>63.98</latitude>
+          <longitude>-23.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0056</stid>
+          <stnnum>000056</stnnum>
+          <stnname>POINT 56</stnname>
+          <latitude>68.83</latitude>
+          <longitude>-139.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0057</stid>
+          <stnnum>000057</stnnum>
+          <stnname>POINT 57</stnname>
+          <latitude>71.79</latitude>
+          <longitude>-133.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0058</stid>
+          <stnnum>000058</stnnum>
+          <stnname>POINT 58</stnname>
+          <latitude>74.51</latitude>
+          <longitude>-125.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0059</stid>
+          <stnnum>000059</stnnum>
+          <stnname>POINT 59</stnname>
+          <latitude>76.82</latitude>
+          <longitude>-113.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0060</stid>
+          <stnnum>000060</stnnum>
+          <stnname>POINT 60</stnname>
+          <latitude>78.43</latitude>
+          <longitude>-98.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0061</stid>
+          <stnnum>000061</stnnum>
+          <stnname>POINT 61</stnname>
+          <latitude>79.02</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0062</stid>
+          <stnnum>000062</stnnum>
+          <stnname>POINT 62</stnname>
+          <latitude>71.79</latitude>
+          <longitude>-26.87</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0063</stid>
+          <stnnum>000063</stnnum>
+          <stnname>POINT 63</stnname>
+          <latitude>68.83</latitude>
+          <longitude>-20.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0064</stid>
+          <stnnum>000064</stnnum>
+          <stnname>POINT 64</stnname>
+          <latitude>65.73</latitude>
+          <longitude>-16.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0065</stid>
+          <stnnum>000065</stnnum>
+          <stnname>POINT 65</stnname>
+          <latitude>62.57</latitude>
+          <longitude>-13.20</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0066</stid>
+          <stnnum>000066</stnnum>
+          <stnname>POINT 66</stnname>
+          <latitude>70.42</latitude>
+          <longitude>-148.20</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0067</stid>
+          <stnnum>000067</stnnum>
+          <stnname>POINT 67</stnname>
+          <latitude>73.69</latitude>
+          <longitude>-143.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0068</stid>
+          <stnnum>000068</stnnum>
+          <stnname>POINT 68</stnname>
+          <latitude>76.82</latitude>
+          <longitude>-136.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0069</stid>
+          <stnnum>000069</stnnum>
+          <stnname>POINT 69</stnname>
+          <latitude>79.64</latitude>
+          <longitude>-125.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0070</stid>
+          <stnnum>000070</stnnum>
+          <stnname>POINT 70</stnname>
+          <latitude>81.80</latitude>
+          <longitude>-106.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0071</stid>
+          <stnnum>000071</stnnum>
+          <stnname>POINT 71</stnname>
+          <latitude>82.67</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0072</stid>
+          <stnnum>000072</stnnum>
+          <stnname>POINT 72</stnname>
+          <latitude>81.80</latitude>
+          <longitude>-53.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0073</stid>
+          <stnnum>000073</stnnum>
+          <stnname>POINT 73</stnname>
+          <latitude>76.82</latitude>
+          <longitude>-23.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0074</stid>
+          <stnnum>000074</stnnum>
+          <stnname>POINT 74</stnname>
+          <latitude>73.69</latitude>
+          <longitude>-16.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0075</stid>
+          <stnnum>000075</stnnum>
+          <stnname>POINT 75</stnname>
+          <latitude>70.42</latitude>
+          <longitude>-11.80</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0076</stid>
+          <stnnum>000076</stnnum>
+          <stnname>POINT 76</stnname>
+          <latitude>67.08</latitude>
+          <longitude>-8.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0077</stid>
+          <stnnum>000077</stnnum>
+          <stnname>POINT 77</stnname>
+          <latitude>54.30</latitude>
+          <longitude>-164.29</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0078</stid>
+          <stnnum>000078</stnnum>
+          <stnname>POINT 78</stnname>
+          <latitude>57.63</latitude>
+          <longitude>-163.66</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0079</stid>
+          <stnnum>000079</stnnum>
+          <stnname>POINT 79</stnname>
+          <latitude>61.03</latitude>
+          <longitude>-162.88</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0080</stid>
+          <stnnum>000080</stnnum>
+          <stnname>POINT 80</stnname>
+          <latitude>64.46</latitude>
+          <longitude>-161.87</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0081</stid>
+          <stnnum>000081</stnnum>
+          <stnname>POINT 81</stnname>
+          <latitude>67.94</latitude>
+          <longitude>-160.54</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0082</stid>
+          <stnnum>000082</stnnum>
+          <stnname>POINT 82</stnname>
+          <latitude>71.44</latitude>
+          <longitude>-158.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0083</stid>
+          <stnnum>000083</stnnum>
+          <stnname>POINT 83</stnname>
+          <latitude>74.95</latitude>
+          <longitude>-155.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0084</stid>
+          <stnnum>000084</stnnum>
+          <stnname>POINT 84</stnname>
+          <latitude>78.43</latitude>
+          <longitude>-151.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0085</stid>
+          <stnnum>000085</stnnum>
+          <stnname>POINT 85</stnname>
+          <latitude>81.80</latitude>
+          <longitude>-143.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0086</stid>
+          <stnnum>000086</stnnum>
+          <stnname>POINT 86</stnname>
+          <latitude>84.81</latitude>
+          <longitude>-125.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0087</stid>
+          <stnnum>000087</stnnum>
+          <stnname>POINT 87</stnname>
+          <latitude>86.33</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0088</stid>
+          <stnnum>000088</stnnum>
+          <stnname>POINT 88</stnname>
+          <latitude>84.81</latitude>
+          <longitude>-35.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0089</stid>
+          <stnnum>000089</stnnum>
+          <stnname>POINT 89</stnname>
+          <latitude>81.80</latitude>
+          <longitude>-16.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0090</stid>
+          <stnnum>000090</stnnum>
+          <stnname>POINT 90</stnname>
+          <latitude>78.43</latitude>
+          <longitude>-8.43</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0091</stid>
+          <stnnum>000091</stnnum>
+          <stnname>POINT 91</stnname>
+          <latitude>74.95</latitude>
+          <longitude>-4.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0092</stid>
+          <stnnum>000092</stnnum>
+          <stnname>POINT 92</stnname>
+          <latitude>71.44</latitude>
+          <longitude>-1.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0093</stid>
+          <stnnum>000093</stnnum>
+          <stnname>POINT 93</stnname>
+          <latitude>54.46</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0094</stid>
+          <stnnum>000094</stnnum>
+          <stnname>POINT 94</stnname>
+          <latitude>57.82</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0095</stid>
+          <stnnum>000095</stnnum>
+          <stnname>POINT 95</stnname>
+          <latitude>61.24</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0096</stid>
+          <stnnum>000096</stnnum>
+          <stnname>POINT 96</stnname>
+          <latitude>64.71</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0097</stid>
+          <stnnum>000097</stnnum>
+          <stnname>POINT 97</stnname>
+          <latitude>68.23</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0098</stid>
+          <stnnum>000098</stnnum>
+          <stnname>POINT 98</stnname>
+          <latitude>71.79</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0099</stid>
+          <stnnum>000099</stnnum>
+          <stnname>POINT 99</stnname>
+          <latitude>75.39</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0100</stid>
+          <stnnum>000100</stnnum>
+          <stnname>POINT 100</stnname>
+          <latitude>79.02</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0101</stid>
+          <stnnum>000101</stnnum>
+          <stnname>POINT 101</stnname>
+          <latitude>82.67</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0102</stid>
+          <stnnum>000102</stnnum>
+          <stnname>POINT 102</stnname>
+          <latitude>86.33</latitude>
+          <longitude>-170.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0103</stid>
+          <stnnum>000103</stnnum>
+          <stnname>POINT 103</stnname>
+          <latitude>90.00</latitude>
+          <longitude>-80.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0104</stid>
+          <stnnum>000104</stnnum>
+          <stnname>POINT 104</stnname>
+          <latitude>86.33</latitude>
+          <longitude>10.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0105</stid>
+          <stnnum>000105</stnnum>
+          <stnname>POINT 105</stnname>
+          <latitude>82.67</latitude>
+          <longitude>10.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0106</stid>
+          <stnnum>000106</stnnum>
+          <stnname>POINT 106</stnname>
+          <latitude>79.02</latitude>
+          <longitude>10.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0107</stid>
+          <stnnum>000107</stnnum>
+          <stnname>POINT 107</stnname>
+          <latitude>75.39</latitude>
+          <longitude>10.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0108</stid>
+          <stnnum>000108</stnnum>
+          <stnname>POINT 108</stnname>
+          <latitude>71.79</latitude>
+          <longitude>10.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0109</stid>
+          <stnnum>000109</stnnum>
+          <stnname>POINT 109</stnname>
+          <latitude>57.82</latitude>
+          <longitude>10.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0110</stid>
+          <stnnum>000110</stnnum>
+          <stnname>POINT 110</stnname>
+          <latitude>54.46</latitude>
+          <longitude>10.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0111</stid>
+          <stnnum>000111</stnnum>
+          <stnname>POINT 111</stnname>
+          <latitude>54.30</latitude>
+          <longitude>-175.71</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0112</stid>
+          <stnnum>000112</stnnum>
+          <stnname>POINT 112</stnname>
+          <latitude>57.63</latitude>
+          <longitude>-176.34</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0113</stid>
+          <stnnum>000113</stnnum>
+          <stnname>POINT 113</stnname>
+          <latitude>61.03</latitude>
+          <longitude>-177.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0114</stid>
+          <stnnum>000114</stnnum>
+          <stnname>POINT 114</stnname>
+          <latitude>64.46</latitude>
+          <longitude>-178.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0115</stid>
+          <stnnum>000115</stnnum>
+          <stnname>POINT 115</stnname>
+          <latitude>67.94</latitude>
+          <longitude>-179.46</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0116</stid>
+          <stnnum>000116</stnnum>
+          <stnname>POINT 116</stnname>
+          <latitude>71.44</latitude>
+          <longitude>178.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0117</stid>
+          <stnnum>000117</stnnum>
+          <stnname>POINT 117</stnname>
+          <latitude>74.95</latitude>
+          <longitude>175.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0118</stid>
+          <stnnum>000118</stnnum>
+          <stnname>POINT 118</stnname>
+          <latitude>78.43</latitude>
+          <longitude>171.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0119</stid>
+          <stnnum>000119</stnnum>
+          <stnname>POINT 119</stnname>
+          <latitude>81.80</latitude>
+          <longitude>163.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0120</stid>
+          <stnnum>000120</stnnum>
+          <stnname>POINT 120</stnname>
+          <latitude>84.81</latitude>
+          <longitude>145.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0121</stid>
+          <stnnum>000121</stnnum>
+          <stnname>POINT 121</stnname>
+          <latitude>86.33</latitude>
+          <longitude>100.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0122</stid>
+          <stnnum>000122</stnnum>
+          <stnname>POINT 122</stnname>
+          <latitude>84.81</latitude>
+          <longitude>55.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0123</stid>
+          <stnnum>000123</stnnum>
+          <stnname>POINT 123</stnname>
+          <latitude>81.80</latitude>
+          <longitude>36.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0124</stid>
+          <stnnum>000124</stnnum>
+          <stnname>POINT 124</stnname>
+          <latitude>78.43</latitude>
+          <longitude>28.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0125</stid>
+          <stnnum>000125</stnnum>
+          <stnname>POINT 125</stnname>
+          <latitude>74.95</latitude>
+          <longitude>24.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0126</stid>
+          <stnnum>000126</stnnum>
+          <stnname>POINT 126</stnname>
+          <latitude>71.44</latitude>
+          <longitude>21.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0127</stid>
+          <stnnum>000127</stnnum>
+          <stnname>POINT 127</stnname>
+          <latitude>61.03</latitude>
+          <longitude>17.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0128</stid>
+          <stnnum>000128</stnnum>
+          <stnname>POINT 128</stnname>
+          <latitude>57.63</latitude>
+          <longitude>16.34</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0129</stid>
+          <stnnum>000129</stnnum>
+          <stnname>POINT 129</stnname>
+          <latitude>54.30</latitude>
+          <longitude>15.71</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0130</stid>
+          <stnnum>000130</stnnum>
+          <stnname>POINT 130</stnname>
+          <latitude>53.80</latitude>
+          <longitude>178.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0131</stid>
+          <stnnum>000131</stnnum>
+          <stnname>POINT 131</stnname>
+          <latitude>57.08</latitude>
+          <longitude>177.47</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0132</stid>
+          <stnnum>000132</stnnum>
+          <stnname>POINT 132</stnname>
+          <latitude>60.39</latitude>
+          <longitude>175.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0133</stid>
+          <stnnum>000133</stnnum>
+          <stnname>POINT 133</stnname>
+          <latitude>70.42</latitude>
+          <longitude>168.20</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0134</stid>
+          <stnnum>000134</stnnum>
+          <stnname>POINT 134</stnname>
+          <latitude>73.69</latitude>
+          <longitude>163.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0135</stid>
+          <stnnum>000135</stnnum>
+          <stnname>POINT 135</stnname>
+          <latitude>76.82</latitude>
+          <longitude>156.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0136</stid>
+          <stnnum>000136</stnnum>
+          <stnname>POINT 136</stnname>
+          <latitude>79.64</latitude>
+          <longitude>145.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0137</stid>
+          <stnnum>000137</stnnum>
+          <stnname>POINT 137</stnname>
+          <latitude>81.80</latitude>
+          <longitude>126.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0138</stid>
+          <stnnum>000138</stnnum>
+          <stnname>POINT 138</stnname>
+          <latitude>82.67</latitude>
+          <longitude>100.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0139</stid>
+          <stnnum>000139</stnnum>
+          <stnname>POINT 139</stnname>
+          <latitude>81.80</latitude>
+          <longitude>73.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0140</stid>
+          <stnnum>000140</stnnum>
+          <stnname>POINT 140</stnname>
+          <latitude>79.64</latitude>
+          <longitude>55.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0141</stid>
+          <stnnum>000141</stnnum>
+          <stnname>POINT 141</stnname>
+          <latitude>76.82</latitude>
+          <longitude>43.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0142</stid>
+          <stnnum>000142</stnnum>
+          <stnname>POINT 142</stnname>
+          <latitude>73.69</latitude>
+          <longitude>36.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0143</stid>
+          <stnnum>000143</stnnum>
+          <stnname>POINT 143</stnname>
+          <latitude>70.42</latitude>
+          <longitude>31.80</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0144</stid>
+          <stnnum>000144</stnnum>
+          <stnname>POINT 144</stnname>
+          <latitude>63.74</latitude>
+          <longitude>25.95</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0145</stid>
+          <stnnum>000145</stnnum>
+          <stnname>POINT 145</stnname>
+          <latitude>60.39</latitude>
+          <longitude>24.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0146</stid>
+          <stnnum>000146</stnnum>
+          <stnname>POINT 146</stnname>
+          <latitude>57.08</latitude>
+          <longitude>22.53</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0147</stid>
+          <stnnum>000147</stnnum>
+          <stnname>POINT 147</stnname>
+          <latitude>56.18</latitude>
+          <longitude>171.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0148</stid>
+          <stnnum>000148</stnnum>
+          <stnname>POINT 148</stnname>
+          <latitude>59.37</latitude>
+          <longitude>169.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0149</stid>
+          <stnnum>000149</stnnum>
+          <stnname>POINT 149</stnname>
+          <latitude>71.79</latitude>
+          <longitude>153.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0150</stid>
+          <stnnum>000150</stnnum>
+          <stnname>POINT 150</stnname>
+          <latitude>74.51</latitude>
+          <longitude>145.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0151</stid>
+          <stnnum>000151</stnnum>
+          <stnname>POINT 151</stnname>
+          <latitude>76.82</latitude>
+          <longitude>133.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0152</stid>
+          <stnnum>000152</stnnum>
+          <stnname>POINT 152</stnname>
+          <latitude>78.43</latitude>
+          <longitude>118.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0153</stid>
+          <stnnum>000153</stnnum>
+          <stnname>POINT 153</stnname>
+          <latitude>79.02</latitude>
+          <longitude>100.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0154</stid>
+          <stnnum>000154</stnnum>
+          <stnname>POINT 154</stnname>
+          <latitude>78.43</latitude>
+          <longitude>81.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0155</stid>
+          <stnnum>000155</stnnum>
+          <stnname>POINT 155</stnname>
+          <latitude>76.82</latitude>
+          <longitude>66.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0156</stid>
+          <stnnum>000156</stnnum>
+          <stnname>POINT 156</stnname>
+          <latitude>74.51</latitude>
+          <longitude>55.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0157</stid>
+          <stnnum>000157</stnnum>
+          <stnname>POINT 157</stnname>
+          <latitude>71.79</latitude>
+          <longitude>46.87</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0158</stid>
+          <stnnum>000158</stnnum>
+          <stnname>POINT 158</stnname>
+          <latitude>68.83</latitude>
+          <longitude>40.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0159</stid>
+          <stnnum>000159</stnnum>
+          <stnname>POINT 159</stnname>
+          <latitude>65.73</latitude>
+          <longitude>36.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0160</stid>
+          <stnnum>000160</stnnum>
+          <stnname>POINT 160</stnname>
+          <latitude>59.37</latitude>
+          <longitude>30.56</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0161</stid>
+          <stnnum>000161</stnnum>
+          <stnname>POINT 161</stnname>
+          <latitude>54.97</latitude>
+          <longitude>166.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0162</stid>
+          <stnnum>000162</stnnum>
+          <stnname>POINT 162</stnname>
+          <latitude>58.01</latitude>
+          <longitude>163.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0163</stid>
+          <stnnum>000163</stnnum>
+          <stnname>POINT 163</stnname>
+          <latitude>61.03</latitude>
+          <longitude>160.26</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0164</stid>
+          <stnnum>000164</stnnum>
+          <stnname>POINT 164</stnname>
+          <latitude>71.79</latitude>
+          <longitude>136.87</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0165</stid>
+          <stnnum>000165</stnnum>
+          <stnname>POINT 165</stnname>
+          <latitude>73.69</latitude>
+          <longitude>126.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0166</stid>
+          <stnnum>000166</stnnum>
+          <stnname>POINT 166</stnname>
+          <latitude>74.95</latitude>
+          <longitude>114.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0167</stid>
+          <stnnum>000167</stnnum>
+          <stnname>POINT 167</stnname>
+          <latitude>74.95</latitude>
+          <longitude>85.96</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0168</stid>
+          <stnnum>000168</stnnum>
+          <stnname>POINT 168</stnname>
+          <latitude>73.69</latitude>
+          <longitude>73.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0169</stid>
+          <stnnum>000169</stnnum>
+          <stnname>POINT 169</stnname>
+          <latitude>71.79</latitude>
+          <longitude>63.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0170</stid>
+          <stnnum>000170</stnnum>
+          <stnname>POINT 170</stnname>
+          <latitude>69.45</latitude>
+          <longitude>55.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0171</stid>
+          <stnnum>000171</stnnum>
+          <stnname>POINT 171</stnname>
+          <latitude>66.81</latitude>
+          <longitude>48.66</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0172</stid>
+          <stnnum>000172</stnnum>
+          <stnname>POINT 172</stnname>
+          <latitude>45.87</latitude>
+          <longitude>28.44</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0173</stid>
+          <stnnum>000173</stnnum>
+          <stnname>POINT 173</stnname>
+          <latitude>42.90</latitude>
+          <longitude>27.10</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0174</stid>
+          <stnnum>000174</stnnum>
+          <stnname>POINT 174</stnname>
+          <latitude>53.48</latitude>
+          <longitude>160.95</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0175</stid>
+          <stnnum>000175</stnnum>
+          <stnname>POINT 175</stnname>
+          <latitude>59.18</latitude>
+          <longitude>154.46</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0176</stid>
+          <stnnum>000176</stnnum>
+          <stnname>POINT 176</stnname>
+          <latitude>70.42</latitude>
+          <longitude>78.20</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0177</stid>
+          <stnnum>000177</stnnum>
+          <stnname>POINT 177</stnname>
+          <latitude>68.83</latitude>
+          <longitude>69.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0178</stid>
+          <stnnum>000178</stnnum>
+          <stnname>POINT 178</stnname>
+          <latitude>66.81</latitude>
+          <longitude>61.34</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0179</stid>
+          <stnnum>000179</stnnum>
+          <stnname>POINT 179</stnname>
+          <latitude>44.77</latitude>
+          <longitude>32.62</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0180</stid>
+          <stnnum>000180</stnnum>
+          <stnname>POINT 180</stnname>
+          <latitude>41.89</latitude>
+          <longitude>31.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0181</stid>
+          <stnnum>000181</stnnum>
+          <stnname>POINT 181</stnname>
+          <latitude>49.02</latitude>
+          <longitude>159.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0182</stid>
+          <stnnum>000182</stnnum>
+          <stnname>POINT 182</stnname>
+          <latitude>51.76</latitude>
+          <longitude>156.31</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0183</stid>
+          <stnnum>000183</stnnum>
+          <stnname>POINT 183</stnname>
+          <latitude>54.46</latitude>
+          <longitude>153.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0184</stid>
+          <stnnum>000184</stnnum>
+          <stnname>POINT 184</stnname>
+          <latitude>57.08</latitude>
+          <longitude>149.40</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0185</stid>
+          <stnnum>000185</stnnum>
+          <stnname>POINT 185</stnname>
+          <latitude>59.58</latitude>
+          <longitude>145.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0186</stid>
+          <stnnum>000186</stnnum>
+          <stnname>POINT 186</stnname>
+          <latitude>46.24</latitude>
+          <longitude>38.61</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0187</stid>
+          <stnnum>000187</stnnum>
+          <stnname>POINT 187</stnname>
+          <latitude>43.47</latitude>
+          <longitude>36.57</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0188</stid>
+          <stnnum>000188</stnnum>
+          <stnname>POINT 188</stnname>
+          <latitude>47.27</latitude>
+          <longitude>155.01</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0189</stid>
+          <stnnum>000189</stnnum>
+          <stnname>POINT 189</stnname>
+          <latitude>49.86</latitude>
+          <longitude>152.13</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0190</stid>
+          <stnnum>000190</stnnum>
+          <stnname>POINT 190</stnname>
+          <latitude>52.38</latitude>
+          <longitude>148.81</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0191</stid>
+          <stnnum>000191</stnnum>
+          <stnname>POINT 191</stnname>
+          <latitude>54.80</latitude>
+          <longitude>145.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0192</stid>
+          <stnnum>000192</stnnum>
+          <stnname>POINT 192</stnname>
+          <latitude>57.08</latitude>
+          <longitude>140.60</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0193</stid>
+          <stnnum>000193</stnnum>
+          <stnname>POINT 193</stnname>
+          <latitude>45.37</latitude>
+          <longitude>151.34</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0194</stid>
+          <stnnum>000194</stnnum>
+          <stnname>POINT 194</stnname>
+          <latitude>47.80</latitude>
+          <longitude>148.37</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0195</stid>
+          <stnnum>000195</stnnum>
+          <stnname>POINT 195</stnname>
+          <latitude>50.14</latitude>
+          <longitude>145.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0196</stid>
+          <stnnum>000196</stnnum>
+          <stnname>POINT 196</stnname>
+          <latitude>52.38</latitude>
+          <longitude>141.19</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0197</stid>
+          <stnnum>000197</stnnum>
+          <stnname>POINT 197</stnname>
+          <latitude>54.46</latitude>
+          <longitude>136.87</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0198</stid>
+          <stnnum>000198</stnnum>
+          <stnname>POINT 198</stnname>
+          <latitude>43.35</latitude>
+          <longitude>148.01</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0199</stid>
+          <stnnum>000199</stnnum>
+          <stnname>POINT 199</stnname>
+          <latitude>45.62</latitude>
+          <longitude>145.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0200</stid>
+          <stnnum>000200</stnnum>
+          <stnname>POINT 200</stnname>
+          <latitude>47.80</latitude>
+          <longitude>141.63</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0201</stid>
+          <stnnum>000201</stnnum>
+          <stnname>POINT 201</stnname>
+          <latitude>45.37</latitude>
+          <longitude>138.66</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0202</stid>
+          <stnnum>000202</stnnum>
+          <stnname>POINT 202</stnname>
+          <latitude>42.90</latitude>
+          <longitude>136.03</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0203</stid>
+          <stnnum>000203</stnnum>
+          <stnname>POINT 203</stnname>
+          <latitude>40.39</latitude>
+          <longitude>133.69</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0204</stid>
+          <stnnum>000204</stnnum>
+          <stnname>POINT 204</stnname>
+          <latitude>42.00</latitude>
+          <longitude>130.26</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0205</stid>
+          <stnnum>000205</stnnum>
+          <stnname>POINT 205</stnname>
+          <latitude>39.36</latitude>
+          <longitude>128.30</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0206</stid>
+          <stnnum>000206</stnnum>
+          <stnname>POINT 206</stnname>
+          <latitude>37.96</latitude>
+          <longitude>123.20</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+     <station>
+          <stid>0207</stid>
+          <stnnum>000207</stnnum>
+          <stnname>POINT 207</stnname>
+          <latitude>39.05</latitude>
+          <longitude>119.65</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+     </station>
+ </stationList>

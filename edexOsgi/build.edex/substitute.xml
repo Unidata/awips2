@@ -1,0 +1,190 @@
+<!--
+    This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+    pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+    
+    U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+    This_software_product_contains_export-restricted_data_whose
+    export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+    to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+    an_export_license_or_other_authorization.
+    
+    Contractor_Name:________Raytheon_Company
+    Contractor_Address:_____6825_Pine_Street,_Suite_340
+    ________________________Mail_Stop_B8
+    ________________________Omaha,_NE_68106
+    ________________________402.291.0100
+    
+    See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+    further_licensing_information.
+-->
+
+<!--
+ * Defines substitutions that may be performed during the deploy process.
+ *
+ * Current substitutions supported based on the installer flag:
+ *   Macro        flag set              flag not set
+ *  ===========   =================     =============================
+ *  DB_ADDR       $databaseAddress      localhost
+ *  DB_PORT       $databasePort         5432
+ *  PY_HOME       $pythonHome           $HOME/awips
+ *
+ * These substitutions are enabled by nesting the following in a <copy> tag
+ *     <filterset refid="installer.filter.set"/>
+ *
+ * To set the substitution flag, add "-Dinstaller=true" to the build command
+ * line. 
+ *
+ * SOFTWARE HISTORY:
+ *   Date     PTR#   INIT                 DESCRIPTION
+ * 06May2008  1080   MW Fegan        Initial Creation.
+-->
+    <!-- Set the database host name for the copy filter -->
+	<property name="def.db.host" value="localhost" />
+	<condition property="db.host" value="$databaseAddress" else="${def.db.host}">
+		<isset property="installer"/>
+	</condition>
+
+	<!-- Set the database port for the copy filter -->
+	<property name="def.db.port" value="5432" />
+	<condition property="db.port" value="$databasePort" else="${def.db.port}">
+		<isset property="installer"/>
+	</condition>
+
+	<!-- Set the database port for the copy filter - 
+	     percent version for installer shell scripts variable replacement -->
+	<property name="def.db.port.p" value="5432" />
+	<condition property="db.port.p" value="%databasePort" else="${def.db.port}">
+		<isset property="installer"/>
+	</condition>	
+	
+	<!-- set the Python home location for the copy filter -->
+	<property name="def.py.home" value="$awips_home/python" />
+	<condition property="py.home" value="%{PYTHON_INSTALL}%" else="${def.py.home}">
+		<isset property="installer"/>
+	</condition>
+	
+	<!-- set the PSQL home location for the copy filter -->
+	<property name="def.psql.home" value="$awips_home/psql"/>
+	<condition property="psql.home" value="%{PSQL_INSTALL}%" else="${def.psql.home}">
+		<isset property="installer"/>
+	</condition>
+	
+	<!-- set the Java home location for the copy filter -->
+	<property name="def.java.home" value="$awips_home/java" />
+	<condition property="sub.java.home" value="%{JAVA_INSTALL}%" else="${def.java.home}">
+		<isset property="installer"/>
+	</condition> 
+	
+    <!-- Set the data archive location for the copy filter -->
+    <property name="def.data.arch.loc" value="/tmp/sbn" />
+    <condition property="data.arch.loc" value="%archiveLocation" else="${def.data.arch.loc}">
+    	<isset property="installer"/>
+    </condition>
+	
+	<!-- Set the database machine name for the copy filter -->
+	<property name="def.db.machine.name" value="localhost" />
+	<condition property="db.machine.name" value="$dbMachineName" else="${def.db.machine.name}">
+		<isset property="installer"/>
+	</condition>	
+	
+	<!-- Set the database machine name for the copy filter - 
+	     percent version for installer shell scripts variable replacement -->
+	<property name="def.db.machine.name.p" value="localhost" />
+	<condition property="db.machine.name.p" value="%dbMachineName" else="${def.db.machine.name}">
+		<isset property="installer"/>
+	</condition>
+	
+	<!-- Set the edex master server name for the copy filter -->
+	<property name="def.edex.server" value="localhost" />
+	<condition property="edex.server" value="$edexServer" else="${def.edex.server}">
+		<isset property="installer"/>
+	</condition>
+	
+	<!-- Set the edex master server name for the copy filter
+	     percent version for installer shell scripts variable replacement -->
+	<property name="def.edex.server.p" value="localhost" />
+	<condition property="edex.server.p" value="%edexServer" else="${def.edex.server}">
+		<isset property="installer"/>
+	</condition>
+	
+	<!-- Set the rcm server name for the copy filter -->
+    <property name="def.radar.server" value="localhost" />
+    <condition property="radar.server" value="$radarServer" else="${def.radar.server}">
+        <isset property="installer"/>
+    </condition>
+    
+    <!-- Set the mcast_port for the copy filter -->
+    <condition property="mcast.port" value="%cacheMcastPort" else="${mcast.port}">
+        <isset property="installer"/>
+    </condition>
+    
+    <!-- Set the damCatalog database name -->
+    <property name="def.dc.db.name" value="dc_ob7oax"/>
+    <condition property="dc.db.name" value="%dcDbName" else="${def.dc.db.name}">
+    	<isset property="installer"/>
+    </condition>
+
+    <!-- Set the fxatext database name -->
+    <property name="def.fxa.db.name" value="fxatext"/>
+    <condition property="fxa.db.name" value="%fxaDbName" else="${def.fxa.db.name}">
+    	<isset property="installer"/>
+    </condition>
+
+    <!-- Set the hmdb database name -->
+    <property name="def.hm.db.name" value="hmdb"/>
+    <condition property="hm.db.name" value="%hmDbName" else="${def.hm.db.name}">
+    	<isset property="installer"/>
+    </condition>
+
+    <!-- Set the ihfs database -->
+    <property name="def.ih.db.name" value="hd_ob83oax"/>
+    <condition property="ih.db.name" value="%ihDbName" else="${def.ih.db.name}">
+    	<isset property="installer"/>
+    </condition>
+    
+    <!-- Set the edex localization site -->
+    <property name="def.site.identifier" value="OAX"/>
+    <condition property="site.identifier" value="%siteIdentifier" else="${def.site.identifier}">
+    	<isset property="installer"/>
+    </condition>
+    
+    <!--  Set the installation root -->
+    <!-- 
+    Note: The $ is used for replacement in non-script files and the % is used
+    for replacement in script files.
+     -->
+    <property name="def.install.path" value="$awips_home"/>
+    <condition property="install.path" value="%INSTALL_PATH" else="${def.install.path}">
+    	<isset property="installer"/>
+    </condition>
+    
+    <property name="def.install.path.d" value="$awips_home"/>
+    <condition property="install.path.d" value="$INSTALL_PATH" else="${def.install.path.d}">
+    	<isset property="installer"/>
+    </condition>
+    
+
+	<!-- Create the copy filter -->	
+	<!-- filter set -->
+	<filterset id="installer.filter.set">
+		<filter token="DB_ADDR" value="${db.host}"/>
+		<filter token="DB_PORT" value="${db.port}"/>
+		<filter token="DB_PORT_P" value="${db.port.p}"/>
+		<filter token="MCAST_PORT" value="${mcast.port}"/>
+		<filter token="PY_HOME" value="${py.home}" />
+		<filter token="JAVA_HOME" value="${sub.java.home}"/>
+		<filter token="PSQL_HOME" value="${psql.home}"/>
+		<filter token="DB_MACHINE" value="${db.machine.name}" />
+		<filter token="DB_MACHINE_P" value="${db.machine.name.p}" />
+		<filter token="EDEX_SERVER" value="${edex.server}" />
+		<filter token="EDEX_SERVER_P" value="${edex.server.p}" />
+		<filter token="RADAR_SERVER" value="${radar.server}" />
+		<filter token="DATA_ARCH_LOC" value="${data.arch.loc}"/>
+		<filter token="DC_DB_NAME" value="${dc.db.name}" />
+		<filter token="FXA_DB_NAME" value="${fxa.db.name}" />
+		<filter token="HM_DB_NAME" value="${hm.db.name}" />
+		<filter token="IH_DB_NAME" value="${ih.db.name}" />
+		<filter token="SITE_IDENTIFIER" value="${site.identifier}" />
+		<filter token="INSTALL_PATH" value="${install.path}" />
+		<filter token="INSTALL_PATH_D" value="${install.path.d}" />
+	</filterset>

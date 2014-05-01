@@ -1,0 +1,92 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-reorder library file
+#
+#  cmt: File made on Wed Aug  6 12:52:17 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libreorder_t.a:  \
+     $(LIB)/libreorder_t.a(ugetpc.o)  \
+     $(LIB)/libreorder_t.a(urarea.o)  \
+     $(LIB)/libreorder_t.a(urcpya.o)  \
+     $(LIB)/libreorder_t.a(urcpyr.o)  \
+     $(LIB)/libreorder_t.a(urcrrs.o)  \
+     $(LIB)/libreorder_t.a(urcrrx.o)  \
+     $(LIB)/libreorder_t.a(urcsif.o)  \
+     $(LIB)/libreorder_t.a(urcspp.o)  \
+     $(LIB)/libreorder_t.a(urdbug.o)  \
+     $(LIB)/libreorder_t.a(urddta.o)  \
+     $(LIB)/libreorder_t.a(urdfut.o)  \
+     $(LIB)/libreorder_t.a(urdptr.o)  \
+     $(LIB)/libreorder_t.a(urecpy.o)  \
+     $(LIB)/libreorder_t.a(ureor2.o)  \
+     $(LIB)/libreorder_t.a(ureord.o)  \
+     $(LIB)/libreorder_t.a(urfc0.o)  \
+     $(LIB)/libreorder_t.a(urfc1.o)  \
+     $(LIB)/libreorder_t.a(urfcb.o)  \
+     $(LIB)/libreorder_t.a(urfcca.o)  \
+     $(LIB)/libreorder_t.a(urfccb.o)  \
+     $(LIB)/libreorder_t.a(urfcc.o)  \
+     $(LIB)/libreorder_t.a(urfcrc.o)  \
+     $(LIB)/libreorder_t.a(urfcrl.o)  \
+     $(LIB)/libreorder_t.a(urford.o)  \
+     $(LIB)/libreorder_t.a(urfprd.o)  \
+     $(LIB)/libreorder_t.a(urgenl.o)  \
+     $(LIB)/libreorder_t.a(urgtfc.o)  \
+     $(LIB)/libreorder_t.a(urgtts.o)  \
+     $(LIB)/libreorder_t.a(urhckp.o)  \
+     $(LIB)/libreorder_t.a(urhclf.o)  \
+     $(LIB)/libreorder_t.a(urhcpy.o)  \
+     $(LIB)/libreorder_t.a(urhctg.o)  \
+     $(LIB)/libreorder_t.a(urhgdn.o)  \
+     $(LIB)/libreorder_t.a(urhgtu.o)  \
+     $(LIB)/libreorder_t.a(urhldn.o)  \
+     $(LIB)/libreorder_t.a(urhldr.o)  \
+     $(LIB)/libreorder_t.a(urhord.o)  \
+     $(LIB)/libreorder_t.a(urhpsl.o)  \
+     $(LIB)/libreorder_t.a(urmain.o)  \
+     $(LIB)/libreorder_t.a(urmmch.o)  \
+     $(LIB)/libreorder_t.a(uroe24.o)  \
+     $(LIB)/libreorder_t.a(urop24.o)  \
+     $(LIB)/libreorder_t.a(urordr.o)  \
+     $(LIB)/libreorder_t.a(urot24.o)  \
+     $(LIB)/libreorder_t.a(urpord.o)  \
+     $(LIB)/libreorder_t.a(urrdcn.o)  \
+     $(LIB)/libreorder_t.a(urrdts.o)  \
+     $(LIB)/libreorder_t.a(urtspm.o)  \
+     $(LIB)/libreorder_t.a(urtsrd.o)  \
+     $(LIB)/libreorder_t.a(urucpy.o)  \
+     $(LIB)/libreorder_t.a(urudgl.o)  \
+     $(LIB)/libreorder_t.a(urvcmp.o)  \
+     $(LIB)/libreorder_t.a(urwlog.o)  \
+     $(LIB)/libreorder_t.a(urwptr.o)  \
+     $(LIB)/libreorder_t.a(urwrts.o)  \
+     $(LIB)/libreorder_t.a(usetdb.o)  \
+     $(LIB)/libreorder_t.a(util_to_reorder.o)
+

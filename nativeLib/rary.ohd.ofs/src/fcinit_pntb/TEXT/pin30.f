@@ -1,0 +1,403 @@
+C MEMBER FCPIN30
+C-----------------------------------------------------------------------
+C                             LAST UPDATE: 10/24/95.11:22:22 BY $WC21DT
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE PIN30(PO,LEFTP,IUSEP)
+C
+C     THE FUNCTION OF THIS SUBROUTINE IS TO READ ALL INPUT CARDS AND
+C     FILL THE PO ARRAY FOR THE MERGE-TS OPERATION.
+C
+C     THIS SUBROUTINE WAS WRITTEN BY:
+C     ROBERT M. HARPER     HRL     NOVEMBER, 1990     VERSION NO. 1
+C
+C     THIS ROUTINE WAS MODIFIED BY:
+C     BRYCE FINNERTY, HRL, APRIL, 1995, VERSION NO. 2
+C     VERSION 2 INCORPORATES THE SWITCH TIME SERIES CAPABILITIES.
+C
+C     VERSION 3.  ADDED CHECK FOR SECONDARY INPUT TIME SERIES AND 
+C     OUTPUT TIME SERIES DATA TYPE CODES.  (INITIAL 11/98)
+C         TIM SWEENEY, HRL                              MAY 1999
+C**************************************
+C
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+C
+      COMMON/IONUM/IN,IPR,IPU
+C
+      DIMENSION PO(*),TSOUT(2),TSINP(2),SNAME(2)
+C
+      CHARACTER*4 DTMPIN,DTOUT
+      CHARACTER*8 TEMPIN,TMPOUT
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_pntb/RCS/pin30.f,v $
+     . $',                                                             '
+     .$Id: pin30.f,v 1.4 2006/03/16 16:34:04 xfan Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SNAME/4HPIN3,4H0   /
+      DATA YES/4HYES /,FNO/4HNO  /,XX/4HXXXX/
+      DATA DIMIQ/4HL3/T/,DIMPCP/4HL   /
+C**************************************
+C
+C     THE CONTENTS OF THE PO ARRAY ARE AS FOLLOWS:
+C
+C     POSITION                              CONTENTS
+C
+C        1              VERSION NUMBER OF THE OPERATION
+C
+C        2              NUMBER OF TIME SERIES TO BE MERGED
+C
+C       3-4             OUTPUT TIME SERIES IDENTIFIER
+C
+C        5              OUTPUT TIME SERIES DATA TYPE
+C
+C        6              TIME INTERVAL
+C
+C        7              NUMBER OF VALUES PER TIME INTERVAL
+C
+C        8              UNITS
+C
+C        9              MISSING DATA ALLOWED FOR OUTPUT T.S.
+C                       (YES,NO)
+C
+C       10              MISSING DATA FLAG FOR OUTPUT TIME SERIES;
+C                       =0 NO MISSING DATA ALLOWED;
+C                       =1 YES MISSING DATA ALLOWED.
+C
+C       11              CASE OPTION FLAG; =0 FOR CASE 1; =1 FOR CASE 2
+C                       AND PRECIPITATION T.S.; =2 FOR CASE 2 AND
+C                       INSTANTANEOUS DISCHARGE T.S.; DEFAULT VALUE =0.
+C
+C       12              VACANT POSITION
+C
+C      13-14            INPUT TIME SERIES IDENTIFIER
+C
+C       15              INPUT TIME SERIES DATA TYPE
+C
+C       16              MISSING DATA ALLOWED FOR INPUT TIME SERIES
+C                       (YES,NO)
+C
+C     * PO(13)-PO(16) ARE REPEATED FOR EACH OF THE INPUT TIME SERIES.
+C**********************************************************************
+C
+      CALL FPRBUG(SNAME,1,30,IBUG)
+      IF(IBUG .EQ. 1) WRITE(IODBUG,1001)
+ 1001 FORMAT(/,10X,'DEBUG INPUT SUBROUTINE FOR FOR OPERATION MERGE-TS:
+     & CARD IMAGES')
+      IF(IBUG .EQ. 1) WRITE(IODBUG,1002)
+ 1002 FORMAT(/,18X,'10',8X,'20',8X,'30')
+      IF(IBUG .EQ. 1) WRITE(IODBUG,1003)
+ 1003 FORMAT(10X,'----+----+----+----+----+----+')
+C
+      NVALS=0
+C**************************************
+C
+C     READ IN THE TOTAL NUMBER OF TIME SERIES TO BE MERGED AND OUTPUT
+C     T.S. INFORMATION.
+C
+      READ(IN,1004) NTS,TSOUT,OUTDT,INTRVL,ISWICH
+ 1004 FORMAT(I5,2X,2A4,1X,A4,I5,4X,I1)
+      IF(IBUG .EQ. 1) WRITE(IODBUG,1005) NTS,TSOUT,OUTDT,INTRVL,ISWICH
+ 1005 FORMAT(/,10X,I5,2X,2A4,1X,A4,I5,4X,I1)
+C
+C  CHECK VALUE OF ISWICH AND NUMBER OF TIME SERIES AND NUMBER OF VALUES
+      IF ((ISWICH.LT.0).OR.(ISWICH.GT.2)) THEN
+        WRITE(IODBUG,200)ISWICH
+        CALL WARN
+ 200    FORMAT(/,'**WARNING** CASE OPTION FLAG =',I2,' IN COLUMN 30',
+     &  ' OF INPUT CARD 1 MUST BE SET TO 0, 1, OR 2.',/,
+     &  'A DEFAULT VALUE OF 0=CASE 1 IS ASSUMED')
+        ISWICH=0
+      END IF
+C
+      IF (ISWICH.GT.0) THEN
+        IF (NTS.NE.2) THEN
+        WRITE(IODBUG,202)
+        CALL WARN
+ 202      FORMAT(/,'**WARNING** 2 INPUT TIME SERIES (PRIMARY',
+     &    ' AND SECONDARY) MUST BE SPECIFIED IN COLUMNS 1-5',/,
+     &    'ON INPUT CARD 1 FOR CASE 2 APPLICATIONS.  DEFAULT VALUE',
+     &    ' OF 2 IS ASSUMED.')
+          NTS=2
+        END IF
+      END IF
+C**************************************
+C
+C     CHECK OUTPUT T.S. INFORMATION
+C
+      IMIS=1
+      IF (ISWICH.GE.1) IMIS=0
+      CALL CHEKTS(TSOUT,OUTDT,INTRVL,0,DIMS,IMIS,NVALS,NERR)
+C
+      CALL FDCODE(OUTDT,OUTUNT,DIMS,MSGOUT,NVALS,TSCALE,NELSE,NERR)
+C
+C     ERROR CHECKS ON MISSING DATA AND VALUES PER DT IF CASE 2
+C
+      IF (ISWICH.GE.1) THEN
+        IF (MSGOUT.EQ.1) THEN
+          WRITE(IODBUG,204)
+          CALL ERROR
+C         NERR=1
+ 204      FORMAT(/,'**ERROR** OUTPUT TIME SERIES CANNOT CONTAIN',
+     &    ' MISSING DATA FOR CASE 2 APPLICATIONS')
+        END IF
+C
+        IF (NVALS.NE.1) THEN
+          WRITE(IODBUG,206)
+          CALL ERROR
+C         NERR=1
+ 206      FORMAT(/,'**ERROR** ONLY ONE VALUE PER TIME INTERVAL IS ',
+     &    'PERMITTED FOR OUTPUT T.S. WITH CASE 2 APPLICATIONS')
+        END IF
+C
+        IF (IBUG.GT.0) THEN
+          WRITE(IODBUG,207)DIMS,DIMPCP,DIMIQ
+ 207      FORMAT(/,'CASE 2 OUTPUT DIMS=',A4,' DIMPCP=',A4,' DIMIQ=',A4)
+        END IF
+C
+        IF ((DIMS.NE.DIMPCP).AND.(DIMS.NE.DIMIQ)) THEN
+          WRITE(IODBUG,208) DIMS
+          CALL ERROR
+C          NERR=1
+ 208      FORMAT(/,'**ERROR** FOR CASE 2 THE OUTPUT TIME SERIES UNITS=',
+     &    A4,' MUST BE OF DATA TYPE PRECIPITATION ',/,
+     &    '(DIMN=L, STANDARD UNITS=MM)  OR DATA TYPE INSTANTANEOUS',
+     &    ' DISCHARGE (DIMN=L3/T, STANDARD UNITS=CMS)')
+        END IF
+C  SET ISWICH ACCORDING TO OUTPUT DATA TYPE.
+        IF (DIMS.EQ.DIMPCP) ISWICH=1
+        IF (DIMS.EQ.DIMIQ) ISWICH=2
+      END IF
+C**************************************
+C
+C     CHECK FOR AVAILABLE SPACE IN THE PO ARRAY
+C
+      IUSEP=12
+      CALL CHECKP(IUSEP,LEFTP,NERR)
+      IF(NERR .EQ. 1) IUSEP=0
+      IF(NERR .EQ. 1) GO TO 70
+C**************************************
+C
+      FLAG=YES
+C
+C     STORE DATA IN THE PO ARRAY
+C
+      PO(1)=3
+      PO(2)=NTS+0.01
+      PO(3)=TSOUT(1)
+      PO(4)=TSOUT(2)
+      PO(5)=OUTDT
+      PO(6)=INTRVL+0.01
+      PO(7)=NVALS+0.01
+      PO(8)=OUTUNT
+      PO(9)=FLAG
+      PO(10)=MSGOUT
+      PO(11)=ISWICH+0.01
+      PO(12)=0.01
+C
+      K=IUSEP
+      ERR=0
+C**************************************
+C
+C     READ IN INPUT TIME SERIES ID. AND DATA TYPE
+C
+      DO 20 I=1,NTS
+        READ(IN,1006) TSINP,DTINP
+ 1006   FORMAT(2A4,3X,A4)
+        IF(IBUG .EQ. 1) WRITE(IODBUG,1007) TSINP,DTINP
+ 1007   FORMAT(10X,2A4,3X,A4)
+C**************************************
+C
+C       CHECK INPUT T.S. INFORMATION
+C
+        IMISS=1
+        IF (ISWICH.GE.1) IMISS=0
+        CALL CHEKTS(TSINP,DTINP,INTRVL,1,DIMS,IMISS,NVALS,NERR)
+        CALL FDCODE(DTINP,UNTINP,DIMS,MSG,NVALS,TSCALE,NELSE,NERR)
+C
+        CALL UMEMOV(TSINP,TEMPIN,2)
+        CALL UMEMOV(DTINP,DTMPIN,1)
+        CALL UMEMOV(TSOUT,TMPOUT,2)
+        CALL UMEMOV(OUTDT,DTOUT,1)
+C
+        IF (IBUG.GT.0) WRITE(IODBUG,245)TEMPIN,DTMPIN,TMPOUT,DTOUT
+ 245    FORMAT(/,10X,'TSINP=',A8,3X,'DTINP=',A4,5X,'TSOUT=',A8,
+     &         3X,'OUTDT=',A4)
+C
+        IF ((I.GT.1).AND.(TEMPIN.EQ.TMPOUT)) THEN
+          IF (DTMPIN.EQ.DTOUT) THEN
+            CALL ERROR
+            WRITE(IPR,250)I
+ 250      FORMAT(/,5X,'**ERROR** INPUT TIME SERIES NO.',I3,
+     &    ' CAN NOT HAVE THE SAME TIME SERIES IDENTIFIER ',
+     &    'AND DATA TYPE CODE',/,10X,
+     &    'AS THE OUTPUT TIME SERIES, FOR ANY CASE OF THE OPERATION')
+          ENDIF
+        ENDIF
+C
+        FLAG=FNO
+        IF (MSG .EQ. 1) FLAG=YES
+        IF(DTINP .EQ. OUTDT) GO TO 5
+        IF(UNTINP .EQ. OUTUNT) GO TO 5
+        WRITE(IPR,1008) TSINP,DTINP,UNTINP,OUTUNT
+ 1008   FORMAT(/,5X,'**ERROR** UNITS FOR THE INPUT TIME SERIES(ID= ',2A4
+     &,', DATA TYPE = ',A4,') (',A4,') DOES NOT MATCH UNITS FOR',/,10X
+     &,'THE OUTPUT TIME SERIES (',A4,')')
+        CALL ERROR
+        ERR=1
+C**************************************
+C
+C       CHECK SPACE AVAILABLE IN THE PO ARRAY
+C
+    5   IUSEP=IUSEP+4
+        CALL CHECKP(IUSEP,LEFTP,NERR)
+        IF(NERR .EQ. 1) IUSEP=0
+        IF(NERR .EQ. 1) GO TO 70
+C**************************************
+C
+C       STORE DATA IN THE PO ARRAY
+C
+        DO 10 J=1,2
+          K=K+1
+   10     PO(K)=TSINP(J)
+          K=K+1
+          PO(K)=DTINP
+          K=K+1
+          PO(K)=FLAG
+C
+C     CHECK FOR INPUT TIME SERIES ERRORS
+C
+        IF (ISWICH.GE.1) THEN
+C
+          IF (MSG.EQ.1) THEN
+            WRITE(IODBUG,210)
+            CALL ERROR
+C           ERR=1
+ 210        FORMAT(/,'**ERROR**  THE PRIMARY AND SECONDARY INPUT TIME',
+     &      ' SERIES CANNOT CONTAIN MISSING DATA',/,'FOR CASE 2',
+     &      ' OF THE OPERATION')
+          END IF
+C
+          IF (IBUG.GT.0) THEN
+           WRITE(IODBUG,211)DIMS,DIMPCP,DIMIQ
+ 211       FORMAT(/,'CASE 2 INPUT DIMS=',A4,' DIMPCP=',A4,' DIMIQ=',A4)
+          END IF
+C
+          IF ((DIMS.NE.DIMPCP).AND.(DIMS.NE.DIMIQ)) THEN
+            WRITE(IODBUG,212) DIMS
+            CALL ERROR
+            ERR=1
+ 212        FORMAT(/,'**ERROR** FOR CASE 2 THE INPUT TIME SERIES ',
+     &      'UNITS=',A4,' MUST BE OF DATA TYPE PRECIPITATION',/,
+     &      '(DIMN=L, STANDARD UNITS=MM) OR DATA TYPE INSTANTANEOUS',
+     &      ' DISCHARGE (DIMN=L3/T, STANDARD UNITS=CMS)')
+          END IF
+C
+          IF (NVALS.NE.1) THEN
+            WRITE(IODBUG,214)
+            CALL ERROR
+            ERR=1
+ 214        FORMAT(/,'**ERROR** ONLY ONE VALUE PER TIME INTERVAL IS',
+     &      ' PERMITTED FOR INPUT T.S. WITH CASE 2 APPLICATIONS')
+          END IF
+C
+        END IF
+C
+        IF(I .NE. 1) GO TO 12
+        IF(FLAG .NE. FNO) GO TO 12
+        IF (ISWICH.LT.1) THEN
+          WRITE(IPR,1015)
+ 1015     FORMAT(/,'**ERROR** THE FIRST INPUT T.S. ALWAYS HAS TO',
+     &    ' ALLOW MISSING DATA FOR CASE 1 OF THE OPERATION')
+          CALL ERROR
+          ERR=1
+        END IF
+C
+   12   IF(I .EQ. NTS) GO TO 15
+        IF(FLAG .NE. FNO) GO TO 20
+        IF (ISWICH.LT.1) THEN
+          WRITE(IPR,1016)
+ 1016     FORMAT(/,'**ERROR** ONLY THE LAST INPUT T.S. MAY BE OF THE',
+     &    ' NO-MISSING DATA TYPE FOR CASE 1 OF THE OPERATION')
+          CALL ERROR
+          ERR=1
+        END IF
+C
+   15   IF(FLAG .EQ. FNO) PO(9)=FLAG
+C
+   20 CONTINUE
+C
+C     INPUT OUTPUT DATA TYPE CHECK
+C
+      IF(FLAG .EQ. FNO) GO TO 25
+      CHKOUT=1
+      IF(PO(10) .EQ. CHKOUT) GO TO 25
+      WRITE(IPR,1017) OUTDT,OUTDT
+ 1017 FORMAT(/,5X,'**ERROR** THE OUTPUT TIME SERIES DATA TYPE ',A4,' CAN
+     &NOT CONTAIN MISSING DATA.',/,10X,A4,' CANNOT BE CREATED FROM TIME
+     &SERIES WHICH CAN CONTAIN MISSING DATA IN CASE 1')
+      CALL ERROR
+      ERR=1
+C
+      IF(ERR .NE. 1) GO TO 25
+      FLAG=XX
+      PO(9)=FLAG
+C**************************************
+C
+C     CHECK TO MAKE SURE THAT NO TWO INPUT T.S. HAVE THE SAME
+C     COMBINATION
+C     OF I.D. AND DATA TYPE.
+C
+
+C dws    Renamed variables A1-A4 and B1-B4 to J1-J4 and K1-K4 to make
+C dws     them integers to aviod compiler warnings ... 2006-01-23
+
+   25 DO 40 K=1,NTS
+        J1=13+(K-1)*4
+        J2=14+(K-1)*4
+        J3=15+(K-1)*4
+        J4=16+(K-1)*4
+        DO 30 L=1,NTS
+          IF(L .EQ. K) GO TO 30
+          K1=13+(L-1)*4
+          K2=14+(L-1)*4
+          K3=15+(L-1)*4
+          K4=16+(L-1)*4
+          IF((PO(K1) .NE. PO(J1)) .OR. (PO(K2) .NE. PO(J2)) .OR.
+     &    (PO(K3) .NE. PO(J3)) .OR. (PO(K4) .NE. PO(J4)))
+     &        GO TO 30
+
+          WRITE(IPR,1009)
+ 1009     FORMAT(/,'**ERROR** NO TWO INPUT T.S. CAN HAVE THE SAME COM',
+     &    'BINATION OF IDENTIFIER AND DATA TYPE.')
+          CALL ERROR
+          GO TO 70
+   30   CONTINUE
+   40 CONTINUE
+C
+C     DEBUG OUTPUT
+C
+      IF(IBUG .NE. 1) GO TO 70
+      WRITE(IODBUG,1011)
+ 1011 FORMAT(/,10X,'DEBUG INPUT SUBROUTINE FOR MERGE-TS OPERATION:',
+     &' PO ARRAY')
+      WRITE(IODBUG,1012) (PO(K), K=1,12)
+ 1012 FORMAT(/,10X,F5.0,2X,F6.2,2X,A4,2X,A4,2X,A4,2X,F6.2,2X,F6.2,2X,
+     & A4,2X,A4,2X,F5.2,2X,F5.2,2X,F5.2)
+      K=12
+      DO 50 I=1,NTS
+        WRITE(IODBUG,1013) PO(K+1),PO(K+2),PO(K+3),PO(K+4)
+ 1013   FORMAT(10X,A4,2X,A4,2X,A4,2X,A4)
+        K=K+4
+   50 CONTINUE
+C
+   70 IF(ITRACE .EQ. 1) WRITE(IODBUG,1014) SNAME
+ 1014 FORMAT(/,10X,'**',2A4,' EXITED',//)
+      RETURN
+      END

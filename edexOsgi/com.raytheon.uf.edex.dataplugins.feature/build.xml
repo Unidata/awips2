@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.raytheon.uf.edex.dataplugins.feature" default="build.update.jar" basedir=".">
+
+	<target name="init">
+		<property name="feature.temp.folder" value="${basedir}/feature.temp.folder"/>
+		<property name="feature.destination" value="${basedir}"/>
+		<property name="p2.build.repo" value="file:${buildDirectory}/buildRepo"/>
+		<condition property="p2.publish.parts" value="true"		>
+			<istrue value="${p2.gathering}"/>
+		</condition>
+	</target>
+
+	<target name="all.plugins" depends="init">
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.ldad" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.ldadhydro" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.airep" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.poessounding" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.acars" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.goessounding" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.obs" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.airep" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.recco" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.pirep" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.acarssounding" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.ccfp" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.loctables" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.vaa" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.mesowest" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.pirep" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.acars" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.level" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.ldadmanual" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.taf" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.level.handler" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.binlightning" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.qc" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.acarssounding" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.sfcobs" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.qc" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.tcg" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.tcg" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.obs" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.profiler" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.svrwx" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.svrwx" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.ldadhydro" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.goessounding" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.poessounding" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.lsr" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.lsr" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.cwa" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.cwa" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.ldadmesonet" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.ldadmesonet" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.vaa" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.profiler" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.sfcobs" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.common.dataplugin.tcs" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.uf.edex.plugin.tcs" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.modelsounding" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.redbook" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+		<ant antfile="build.xml" dir="../com.raytheon.edex.plugin.ldadprofiler" target="${target}">
+			<property name="arch" value="x86"/>
+			<property name="ws" value="gtk"/>
+			<property name="os" value="linux"/>
+		</ant>
+	</target>
+	<target name="all.features" depends="init">
+	</target>
+	<target name="update.feature" depends="init">
+	</target>
+
+	<target name="all.children" depends="init,all.features,all.plugins,update.feature">
+	</target>
+
+	<target name="children" if="include.children">
+		<antcall target="all.children"/>
+	</target>
+
+	<target name="build.jars" depends="init" description="Build all the jars for the feature: com.raytheon.uf.edex.dataplugins.feature.">
+		<antcall target="all.children">
+			<param name="target" value="build.jars"/>
+		</antcall>
+	</target>
+
+	<target name="build.sources" depends="init">
+		<antcall target="all.children">
+			<param name="target" value="build.sources"/>
+		</antcall>
+	</target>
+
+	<target name="build.zips" depends="init">
+		<antcall target="all.children">
+			<param name="target" value="build.zips"/>
+		</antcall>
+	</target>
+
+	<target name="build.update.jar" depends="init" description="Build the feature jar of: com.raytheon.uf.edex.dataplugins.feature for an update site.">
+		<antcall target="all.children">
+			<param name="target" value="build.update.jar"/>
+		</antcall>
+		<property name="feature.base" value="${feature.temp.folder}"/>
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635"/>
+		<antcall target="gather.bin.parts" inheritAll="false">
+			<param name="os" value="*"/>
+			<param name="feature.base" value="${feature.temp.folder}"/>
+			<param name="updateJar.omitRootfiles" value="true"/>
+			<param name="ws" value="*"/>
+			<param name="arch" value="*"/>
+			<param name="nl" value="*"/>
+		</antcall>
+		<jar destfile="${feature.destination}/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635.jar" basedir="${feature.temp.folder}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="publish.bin.parts" depends="init" if="p2.publish.parts">
+		<mkdir dir="${feature.temp.folder}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635"/>
+		<copy todir="${feature.temp.folder}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635" failonerror="true" overwrite="true">
+			<fileset dir="${basedir}">
+				<include name="feature.xml"/>
+			</fileset>
+		</copy>
+		<eclipse.idReplacer featureFilePath="${feature.temp.folder}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635/feature.xml"  selfVersion="1.0.0.201206061635" featureIds="" pluginIds="com.raytheon.uf.common.dataplugin.acars:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.acarssounding:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.binlightning:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.cwa:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.ldadhydro:0.0.0,1.0.0.201206061635,com.raytheon.uf.common.dataplugin.ldadmesonet:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.lsr:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.profiler:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.qc:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.sfcobs:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.svrwx:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.tcg:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.tcs:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.vaa:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.goessounding:0.0.0,1.0.0.201206061635,com.raytheon.edex.plugin.airep:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ccfp:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.goessounding:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ldadhydro:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ldad:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ldadmanual:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ldadprofiler:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.modelsounding:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.obs:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.pirep:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.poessounding:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.profiler:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.recco:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.redbook:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.sfcobs:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.taf:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.acars:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.acarssounding:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.cwa:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.ldadmesonet:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.level.handler:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.level:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.loctables:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.lsr:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.mesowest:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.qc:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.svrwx:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.tcg:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.tcs:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.vaa:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.poessounding:0.0.0,1.0.0.201206061635,com.raytheon.uf.common.dataplugin.airep:0.0.0,1.0.0.201206061635,com.raytheon.uf.common.dataplugin.pirep:0.0.0,1.0.0.201206061635,com.raytheon.uf.common.dataplugin.obs:0.0.0,1.0.0.201206061635,"/>
+		<eclipse.gatherFeature 
+		   metadataRepository="${p2.build.repo}"
+		   artifactRepository="${p2.build.repo}"
+		   buildResultFolder="${feature.temp.folder}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635"
+		   baseDirectory="${basedir}"
+		/>
+	</target>
+
+	<target name="gather.bin.parts" depends="init" if="feature.base">
+		<mkdir dir="${feature.base}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635"/>
+		<antcall target="children">
+			<param name="target" value="gather.bin.parts"/>
+			<param name="destination.temp.folder" value="${feature.base}/plugins"/>
+		</antcall>
+		<copy todir="${feature.base}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635" failonerror="true" overwrite="false">
+			<fileset dir="${basedir}">
+				<include name="feature.xml"/>
+			</fileset>
+		</copy>
+		<eclipse.idReplacer featureFilePath="${feature.base}/features/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635/feature.xml"  selfVersion="1.0.0.201206061635" featureIds="" pluginIds="com.raytheon.uf.common.dataplugin.acars:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.acarssounding:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.binlightning:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.cwa:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.ldadhydro:0.0.0,1.0.0.201206061635,com.raytheon.uf.common.dataplugin.ldadmesonet:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.lsr:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.profiler:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.qc:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.sfcobs:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.svrwx:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.tcg:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.tcs:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.vaa:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.goessounding:0.0.0,1.0.0.201206061635,com.raytheon.edex.plugin.airep:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ccfp:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.goessounding:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ldadhydro:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ldad:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ldadmanual:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.ldadprofiler:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.modelsounding:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.obs:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.pirep:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.poessounding:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.profiler:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.recco:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.redbook:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.sfcobs:0.0.0,1.12.1174.201206061635,com.raytheon.edex.plugin.taf:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.acars:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.acarssounding:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.cwa:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.ldadmesonet:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.level.handler:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.level:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.loctables:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.lsr:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.mesowest:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.qc:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.svrwx:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.tcg:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.tcs:0.0.0,1.12.1174.201206061635,com.raytheon.uf.edex.plugin.vaa:0.0.0,1.12.1174.201206061635,com.raytheon.uf.common.dataplugin.poessounding:0.0.0,1.0.0.201206061635,com.raytheon.uf.common.dataplugin.airep:0.0.0,1.0.0.201206061635,com.raytheon.uf.common.dataplugin.pirep:0.0.0,1.0.0.201206061635,com.raytheon.uf.common.dataplugin.obs:0.0.0,1.0.0.201206061635,"/>
+		<antcall target="rootFiles">
+			<param name="rootTarget" value="rootFiles${os}_${ws}_${arch}"/>
+		</antcall>
+	</target>
+	<target name="rootFiles" unless="updateJar.omitRootfiles">
+		<antcall target="${rootTarget}"/>
+	</target>
+
+	<target name="rootFileslinux_gtk_x86">
+	</target>
+	<target name="rootFilesgroup_group_group">
+		<antcall target="rootFileslinux_gtk_x86"/>
+	</target>
+
+	<target name="zip.distribution" depends="init" description="Create a zip containing all the plug-ins and features for the feature: com.raytheon.uf.edex.dataplugins.feature.">
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="gather.bin.parts">
+			<param name="feature.base" value="${feature.temp.folder}"/>
+			<param name="os" value="*"/>
+			<param name="arch" value="*"/>
+			<param name="ws" value="*"/>
+			<param name="nl" value="*"/>
+			<param name="include.children" value="true"/>
+		</antcall>
+		<zip destfile="${feature.destination}/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635.bin.dist.zip" basedir="${feature.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="zip.sources" depends="init">
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="all.children">
+			<param name="target" value="gather.sources"/>
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins/com.raytheon.uf.edex.dataplugins.feature.source_1.0.0.201206061635/src"/>
+			<param name="include.children" value="true"/>
+		</antcall>
+		<zip destfile="${feature.destination}/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635.src.zip" basedir="${feature.temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="zip.logs" depends="init">
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<condition property="logExtension.param" value="logExtension" else="logExtension.param"		>
+			<isset property="logExtension"/>
+		</condition>
+		<antcall target="all.children" inheritAll="false">
+			<param name="target" value="gather.logs"/>
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins"/>
+			<param name="include.children" value="true"/>
+			<param name="${logExtension.param}" value="${logExtension}"/>
+		</antcall>
+		<zip destfile="${feature.destination}/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635.log.zip" basedir="${feature.temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="clean" depends="init" description="Clean the feature: com.raytheon.uf.edex.dataplugins.feature of all the zips, jars and logs created.">
+		<delete file="${feature.destination}/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635.jar"/>
+		<delete file="${feature.destination}/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635.bin.dist.zip"/>
+		<delete file="${feature.destination}/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635.log.zip"/>
+		<delete file="${feature.destination}/com.raytheon.uf.edex.dataplugins.feature_1.0.0.201206061635.src.zip"/>
+		<delete dir="${feature.temp.folder}"/>
+		<antcall target="all.children">
+			<param name="target" value="clean"/>
+		</antcall>
+	</target>
+
+	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
+		<eclipse.convertPath fileSystemPath="/var/git/COMMON/edexOsgi/com.raytheon.uf.edex.dataplugins.feature/" property="resourcePath"/>
+		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
+		<antcall target="all.children">
+			<param name="target" value="refresh"/>
+		</antcall>
+	</target>
+	<target name="gather.sources">
+		<antcall target="children">
+			<param name="target" value="gather.sources"/>
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins/com.raytheon.uf.edex.dataplugins.feature.source_1.0.0.201206061635/src"/>
+		</antcall>
+	</target>
+
+	<target name="gather.logs" depends="init">
+		<mkdir dir="${feature.temp.folder}/plugins"/>
+		<property name="destination.temp.folder" value="${feature.temp.folder}/plugins"/>
+		<condition property="logExtension.param" value="logExtension" else="logExtension.param"		>
+			<isset property="logExtension"/>
+		</condition>
+		<antcall target="all.children" inheritAll="false">
+			<param name="target" value="gather.logs"/>
+			<param name="${logExtension.param}" value="${logExtension}"/>
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins"/>
+		</antcall>
+	</target>
+
+</project>

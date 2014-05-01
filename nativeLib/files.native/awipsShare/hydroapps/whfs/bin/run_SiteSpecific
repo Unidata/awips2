@@ -1,0 +1,34 @@
+#!/bin/ksh
+# file name: run_SiteSpecific
+# Created: 12/15/2003
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export SSHP_LOG_DIR=$(get_apps_defaults sshp_log_dir)
+export SYS_JAVA_DIR=$(get_apps_defaults sys_java_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+
+
+# set initial lid to the first command line argument passed into the script
+LID_PASSED_IN=$1
+
+export CLASSPATH=$DB_DRIVER_PATH
+# need to add a path to the jar file for this application
+CLASSPATH=$CLASSPATH:$WHFS_BIN_DIR/SiteSpecific.jar
+
+# Java bin directory
+JBINDIR=$SYS_JAVA_DIR/bin
+
+# trim log file
+SSHPLOGFILE=$SSHP_LOG_DIR/SSHP.log
+SSHPTMPFILE=$SSHP_LOG_DIR/SSHP.tmp
+tail -1200 $SSHPLOGFILE > $SSHPTMPFILE
+mv $SSHPTMPFILE $SSHPLOGFILE
+
+# set up an X Terminal window to write stdout and run the SiteSpecific
+# application using java
+xterm -T "SiteSpecific standard output window" -iconic \
+-e $JBINDIR/java ohd.hseb.sshp.SSHP $JDBCURL $SSHP_LOG_DIR $LID_PASSED_IN &

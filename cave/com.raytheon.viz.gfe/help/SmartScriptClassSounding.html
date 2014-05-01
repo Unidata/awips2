@@ -1,0 +1,59 @@
+<html>
+<title>Smart Script Class - Sounding Methods</title>
+<body>
+
+<h1><a name="Sounding"></a>Sounding Methods</h1>
+<a href="#makeNumericSounding">makeNumericSounding
+(numeric only)</a>
+<br>
+<a href="#getNumericMeanValue">getNumericMeanValue
+(numeric only)</a>
+<br>
+
+<hr width="100%">
+
+<h2><a name="makeNumericSounding"></a>makeNumericSounding (numeric only)</h2>
+def makeNumericSounding(self, model, element, levels, timeRange,
+noDataError=1,
+mostRecentModel=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make a numeric sounding for the given
+model, element, and levels
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # levels =
+["MB850","MB800","MB750","MB700","MB650","MB600"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # gh_Cube, rh_Cube =
+self.makeNumericSounding(
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # model, "rh", levels, GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Arguments:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The "levels" argument is a Python
+list of levels INCREASING
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # in height.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This method returns two numeric cubes:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # ghCube of geopotential heights for
+the given levels
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # valueCube of values for the given
+levels
+<h2><a name="getNumericMeanValue"></a>getNumericMeanValue (numeric only)</h2>
+def getNumericMeanValue(self, model, element, levels, timeRange,
+noDataError=1):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a numeric array of mean values
+for the given element between and including
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the given levels
+

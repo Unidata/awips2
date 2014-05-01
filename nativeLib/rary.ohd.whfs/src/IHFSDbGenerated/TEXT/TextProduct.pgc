@@ -1,0 +1,821 @@
+/*
+    File: TextProduct.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:31 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "TextProduct.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct TextProduct_t
+{
+    char		product_id[11];
+    dtime_t		producttime;
+    dtime_t		postingtime;
+    char		prodtype[2];
+    long		issnum;
+    char *		product;
+
+    int		ind_issnum;
+    int		ind_product;
+} TextProduct_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+TextProduct * GetTextProduct(const char * where)
+{
+
+    TextProduct * listPtr = NULL;
+    TextProduct * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM TextProduct ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct TextProduct_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTextProduct() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTextProduct() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTextProduct() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.product_id, :dbs.producttime, 
+    :dbs.postingtime, :dbs.prodtype, 
+    :dbs.issnum:dbs.ind_issnum, :dbs.product:dbs.ind_product    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetTextProduct() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (TextProduct *) malloc(sizeof(TextProduct))) != NULL)
+        {
+
+            strcpy(structPtr->product_id, dbs.product_id);
+
+            structPtr->producttime = dbs.producttime;
+
+            structPtr->postingtime = dbs.postingtime;
+
+            strcpy(structPtr->prodtype, dbs.prodtype);
+
+            structPtr->issnum = dbs.issnum;
+            setNullIfIndicated(dbs.ind_issnum, INT, &structPtr->issnum);
+
+            if (dbs.product != NULL)
+            {
+                structPtr->product = malloc(strlen(dbs.product) + 1);
+                memset(structPtr->product, '\0', strlen(dbs.product) +1); 
+                strcpy(structPtr->product, dbs.product);
+                free(dbs.product);
+            }
+            setNullIfIndicated(dbs.ind_product, CHAR, structPtr->product);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.product_id, :dbs.producttime, 
+        :dbs.postingtime, :dbs.prodtype, 
+        :dbs.issnum:dbs.ind_issnum, :dbs.product:dbs.ind_product        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetTextProduct() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+TextProduct * SelectTextProduct(const char * where)
+{
+
+    TextProduct * listPtr = NULL;
+    TextProduct * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM TextProduct ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct TextProduct_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTextProduct() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTextProduct() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTextProduct() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.product_id, :dbs.producttime, 
+    :dbs.postingtime, :dbs.prodtype, 
+    :dbs.issnum:dbs.ind_issnum, :dbs.product:dbs.ind_product    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectTextProduct() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (TextProduct *) malloc(sizeof(TextProduct))) != NULL)
+        {
+
+            strcpy(structPtr->product_id, dbs.product_id);
+
+            structPtr->producttime = dbs.producttime;
+
+            structPtr->postingtime = dbs.postingtime;
+
+            strcpy(structPtr->prodtype, dbs.prodtype);
+
+            structPtr->issnum = dbs.issnum;
+            setNullIfIndicated(dbs.ind_issnum, INT, &structPtr->issnum);
+
+            if (dbs.product != NULL)
+            {
+                structPtr->product = malloc(strlen(dbs.product) + 1);
+                memset(structPtr->product, '\0', strlen(dbs.product) +1); 
+                strcpy(structPtr->product, dbs.product);
+                free(dbs.product);
+            }
+            setNullIfIndicated(dbs.ind_product, CHAR, structPtr->product);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.product_id, :dbs.producttime, 
+        :dbs.postingtime, :dbs.prodtype, 
+        :dbs.issnum:dbs.ind_issnum, :dbs.product:dbs.ind_product        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectTextProduct() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectTextProductCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM TextProduct ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTextProduct() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTextProduct() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTextProduct() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountTextProduct() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutTextProduct(const TextProduct * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct TextProduct_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.product_id, structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+
+    dbs.postingtime = structPtr->postingtime;
+
+    strcpy(dbs.prodtype, structPtr->prodtype);
+
+    dbs.issnum = structPtr->issnum;
+    dbs.ind_issnum = getIndicator(INT, (void *)&structPtr->issnum);
+
+    dbs.product = malloc(strlen(structPtr->product) + 1);
+    memset(dbs.product, '\0', strlen(structPtr->product) +1); 
+    strcpy(dbs.product, structPtr->product);
+    dbs.ind_product = getIndicator(CHAR, (void *)structPtr->product);
+
+
+    EXEC SQL INSERT INTO TextProduct (product_id,producttime,
+        postingtime,prodtype,issnum,
+        product        )
+        VALUES (
+         :dbs.product_id, :dbs.producttime, :dbs.postingtime,
+         :dbs.prodtype, :dbs.issnum:dbs.ind_issnum, :dbs.product:dbs.ind_product);
+
+    if (dbs.product != NULL)
+    {
+        free(dbs.product);
+    }
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutTextProduct() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertTextProduct(const TextProduct * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct TextProduct_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.product_id, structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+
+    dbs.postingtime = structPtr->postingtime;
+
+    strcpy(dbs.prodtype, structPtr->prodtype);
+
+    dbs.issnum = structPtr->issnum;
+    dbs.ind_issnum = getIndicator(INT, (void *)&structPtr->issnum);
+
+    dbs.product = malloc(strlen(structPtr->product) + 1);
+    memset(dbs.product, '\0', strlen(structPtr->product) +1); 
+    strcpy(dbs.product, structPtr->product);
+    dbs.ind_product = getIndicator(CHAR, (void *)structPtr->product);
+
+
+    EXEC SQL INSERT INTO TextProduct (product_id,producttime,
+        postingtime,prodtype,issnum,
+        product        )
+        VALUES (
+         :dbs.product_id, :dbs.producttime, :dbs.postingtime,
+         :dbs.prodtype, :dbs.issnum:dbs.ind_issnum, :dbs.product:dbs.ind_product);
+
+    if (dbs.product != NULL)
+    {
+        free(dbs.product);
+    }
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertTextProduct() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateTextProduct(const TextProduct *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct TextProduct_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+
+    dbs.postingtime = structPtr->postingtime;
+
+    strcpy(dbs.prodtype, structPtr->prodtype);
+
+    dbs.issnum = structPtr->issnum;
+    dbs.ind_issnum = getIndicator(INT, (void *)&structPtr->issnum);
+
+    dbs.product = malloc(strlen(structPtr->product) + 1);
+    memset(dbs.product, '\0', strlen(structPtr->product) +1); 
+    strcpy(dbs.product, structPtr->product);
+    dbs.ind_product = getIndicator(CHAR, (void *)structPtr->product);
+
+
+    sprintf(queryBuffer, " UPDATE TextProduct SET " );
+    strcat(queryBuffer, "product_id = ? , producttime = ? , postingtime = ? , prodtype = ? , issnum = ? ,     ");
+    strcat(queryBuffer, "product = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateTextProduct() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.product_id, :dbs.producttime, :dbs.postingtime, :dbs.prodtype, :dbs.issnum:dbs.ind_issnum,
+     :dbs.product:dbs.ind_product;
+
+    if (dbs.product != NULL)
+    {
+        free(dbs.product);
+    }
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateTextProduct() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteTextProduct(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM TextProduct ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteTextProduct() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateTextProductByRecord (const TextProduct * newStructPtr, const TextProduct * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetTextProductPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateTextProduct(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateTextProduct(const TextProduct * structPtr)
+{
+    UpdateTextProductByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertTextProduct(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueTextProduct(const TextProduct * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (TextProductExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertTextProduct(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteTextProductByRecord(const TextProduct * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetTextProductPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteTextProduct(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool TextProductExists(const TextProduct * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetTextProductPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectTextProductCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetTextProductPrimaryKeyWhereString (const TextProduct * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    char time_buffer1[40];
+    sprintf(returnWhereString, "WHERE product_id = '%s'  AND producttime = '%s'  AND postingtime = '%s' ",
+            structPtr->product_id, dtimet_to_ansi(structPtr->producttime, time_buffer0), dtimet_to_ansi(structPtr->postingtime, time_buffer1));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeTextProduct( TextProduct * structPtr)
+{
+    TextProduct* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( TextProduct * ) ListNext ( &structPtr->node );
+        if (structPtr->product != NULL)
+        {
+            free(structPtr->product);
+        }
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetTextProductDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetTextProductErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

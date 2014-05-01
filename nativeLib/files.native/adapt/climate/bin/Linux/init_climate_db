@@ -1,0 +1,88 @@
+#!/bin/sh
+
+##############################################################################
+#
+# init_climate_db
+#
+# This is the script to run the program to allow a user to manually
+# initialize historical climate data (records and normals) in database.
+#
+#
+# Modification History:
+# ---------------------
+# 12/05/2002  OB2  Bob Morris         - Changed from csh to sh
+#                                     - Removed CLIMATE_BIN_DIR definition, it
+#                                       is set in readenv.sh.  General cleanup.
+#                                     - Replace -a's in tests.
+#
+##############################################################################
+
+#
+# Set the file path environment variables
+#
+
+if [ "$CLIMATE_DIR" = "" ]
+then
+  echo "Fatal error in init_climate_db: CLIMATE_DIR not defined in environment!  Exiting."
+  exit 1
+fi
+
+CLIMATE_DATA_DIR=${CLIMATE_DIR}/data; export CLIMATE_DATA_DIR
+CLIMATE_TMP_DIR=${CLIMATE_DIR}/tmp; export CLIMATE_TMP_DIR
+
+if [ ! -d ${CLIMATE_DATA_DIR} ]
+then
+   echo "Directory ${CLIMATE_DATA_DIR} does not exist." 
+   echo "Check installation and setup of Climate routines."
+   echo "Halting init_climate_db script execution .... "
+   exit 1
+fi
+
+if [ ! -d ${CLIMATE_TMP_DIR} ]
+then
+   echo "Directory ${CLIMATE_TMP_DIR} does not exist." 
+   echo "Check installation and setup of Climate routines."
+   echo "Halting init_climate_db script execution .... "
+   exit 1
+fi
+
+#
+# Check that environment variable for path to climate executables is set
+#
+if [ "$CLIMATE_BIN_DIR" = "" ]
+then
+  echo "In init_climate_db: CLIMATE_BIN_DIR not defined in environment!  Exiting."
+  exit 1
+else
+  echo "In init_climate_db: CLIMATE_BIN_DIR = $CLIMATE_BIN_DIR \n"
+fi
+
+#
+# Change the directory to the temporary climate directory
+#
+cd ${CLIMATE_TMP_DIR}
+
+if [ ! -s ${CLIMATE_BIN_DIR}/init_climate ]
+then
+   echo "${CLIMATE_BIN_DIR}/init_climate executable does not exist!"
+   echo "Halting init_climate_db script execution .... "
+   exit 1
+else if [ ! -x ${CLIMATE_BIN_DIR}/init_climate ]
+   then 
+      echo "${CLIMATE_BIN_DIR}/init_climate does not have execute permission!"
+      echo "Halting init_climate_db script execution .... "
+      exit 1
+   fi
+fi
+
+#
+# Execute init_climate 
+#
+${CLIMATE_BIN_DIR}/init_climate
+
+#
+# Restart the main climate menu and exit script
+#
+exec ${CLIMATE_BIN_DIR}/climate &
+
+exit 0

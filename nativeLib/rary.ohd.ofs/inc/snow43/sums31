@@ -1,0 +1,30 @@
+C..............................................
+C    COMMON BLOCK SUMS31
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      SPX               Sum of precipitation
+C      SSFALL            Sum of snowfall
+C      SRM               Sum of Rain + Melt
+C      SMELT             Sum of melt under non-rain conditions
+C      SMELTR            Sum of melt under rain-on-snow conditions
+C      SROBG             Sum of rain on bare ground
+C      DSFALL            Daily snowfall
+C      DRAIN             Daily rain
+C      DQNET             Daily net heat transfer
+C      DRSL              Daily Sum of RSL
+C      NDRSP             Number of values summed in DRSL, used
+C                        to compute daily average RSL
+C..............................................
+C
+C
+C
+      real    SPX, SSFALL, SRM, SMELT,
+     1        SMELTR, SROBG, DSFALL, 
+     2        DRAIN, DQNET, DRSL
+      integer NDRSP
+C
+      COMMON/SUMS31/SPX, SSFALL, SRM, SMELT,
+     1              SMELTR, SROBG, DSFALL,
+     2              DRAIN, DQNET, DRSL, NDRSP
+C

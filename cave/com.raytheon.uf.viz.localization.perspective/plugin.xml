@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<?eclipse version="3.2"?>
+<plugin>
+	<extension
+      point="org.eclipse.ui.contexts">
+	   <context
+	         description="Localization Context"
+	         id="com.raytheon.uf.viz.localization"
+	         name="Localization Context">
+	   </context>
+    </extension>
+    <extension point="org.eclipse.ui.actionSets">
+		<actionSet id="com.raytheon.uf.viz.localization.LocalizationActionSet"
+			label="Localization Action Set" visible="false">
+		</actionSet>
+	</extension>
+	<extension point="org.eclipse.core.expressions.definitions">
+		<definition id="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+			<with variable="activeContexts">
+				<iterate operator="or">
+					<equals value="com.raytheon.uf.viz.localization.LocalizationActionSet">
+					</equals>
+				</iterate>
+			</with>
+		</definition>
+	</extension>
+	<extension point="org.eclipse.ui.perspectives">
+		<perspective
+			class="com.raytheon.uf.viz.localization.perspective.LocalizationPerspective"
+			id="com.raytheon.uf.viz.ui.LocalizationPerspective" name="Localization"
+		    icon="icons/localization.gif"
+            singleton="true">
+		</perspective>
+	</extension>
+	<extension point="org.eclipse.ui.perspectiveExtensions">
+		<perspectiveExtension targetID="com.raytheon.uf.viz.ui.LocalizationPerspective">
+			<actionSet id="com.raytheon.uf.viz.localization.LocalizationActionSet">
+			</actionSet>
+		</perspectiveExtension>
+		<perspectiveExtension targetID="*">
+			<perspectiveShortcut id="com.raytheon.uf.viz.ui.LocalizationPerspective">
+			</perspectiveShortcut>
+		</perspectiveExtension>
+	</extension>
+	<extension
+	      point="com.raytheon.uf.viz.core.classContext">
+	      <classContext
+             class="com.raytheon.uf.viz.localization.perspectives.LocalizationPerspectiveManager">
+	          <contextId
+	                id="com.raytheon.uf.viz.localization">
+	          </contextId>
+	      </classContext>
+	</extension>
+	
+	<!-- Set up localization ui -->
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=CAVE">
+            <!-- File menu -->
+			<menu id="file" label="File" mnemonic="F">
+				<visibleWhen>
+					<reference
+						definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+					</reference>
+				</visibleWhen>
+				
+				<!-- separator group Open File... will attach to -->
+				<separator name="new.ext" visible="false">
+				</separator>
+				
+				<!-- Close -->
+    			<command
+             commandId="org.eclipse.ui.file.close"
+             label="Close"
+             mnemonic="C"
+             style="push">
+    			</command>
+    			<command
+             commandId="org.eclipse.ui.file.closeAll"
+             label="Close All"
+             mnemonic="l"
+             style="push">
+    			</command>
+				<separator name="close_save" visible="true">
+				</separator>
+				
+				<!-- Save -->
+			    <command
+             commandId="org.eclipse.ui.file.save"
+             label="Save"
+             mnemonic="S"
+             style="push">
+			    </command>
+			    <menu label="Save As...">
+			        <dynamic
+                 		class="com.raytheon.uf.viz.localization.perspective.ui.LocalizationSaveAsPopulator"
+                 		id="com.raytheon.uf.viz.localization.dynamicSaveAs">
+			        </dynamic>
+			    </menu>
+			    <command
+             commandId="org.eclipse.ui.file.saveAll"
+             label="Save All"
+             mnemonic="e"
+             style="push">
+			    </command>
+			    <separator name="save_print" visible="true">
+				</separator>
+				<!-- Refresh -->
+				<command
+		          commandId="org.eclipse.ui.file.refresh"
+		          mnemonic="f"
+		          style="push">
+				</command>
+				
+			    <!-- Print -->
+				<command
+		          commandId="org.eclipse.ui.file.print"
+		          label="Print..."
+		          mnemonic="P"
+		          style="push">
+				</command>
+			</menu>
+			
+			<!-- Edit menu -->
+			<menu id="edit" label="Edit" mnemonic="E">
+				<visibleWhen>
+					<reference
+						definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+					</reference>
+				</visibleWhen>
+				<separator name="top" visible="false">
+				</separator>
+		
+				<!-- Undo/Redo -->
+				<command
+          commandId="org.eclipse.ui.edit.undo"
+          label="Undo"
+          mnemonic="U"
+          style="push">
+				</command>
+				<command
+          commandId="org.eclipse.ui.edit.redo"
+          label="Redo"
+          mnemonic="R"
+          style="push">
+				</command>
+				<separator name="copy" visible="true">
+				</separator>
+				
+				<!-- Cut/Copy/Paste -->
+				<command
+          commandId="org.eclipse.ui.edit.cut"
+          label="Cut"
+          mnemonic="t"
+          style="push">
+				</command>
+				<command
+          commandId="org.eclipse.ui.edit.copy"
+          label="Copy"
+          mnemonic="C"
+          style="push">
+				</command>
+				<command
+          commandId="org.eclipse.ui.edit.paste"
+          label="Paste"
+          mnemonic="P"
+          style="push">
+				</command>
+				<separator name="copy_select" visible="true">
+				</separator>
+				
+				<!-- Select/Delete -->
+				<command
+          commandId="org.eclipse.ui.edit.delete"
+          label="Delete"
+          mnemonic="D"
+          style="push">
+				</command>
+				<command
+          commandId="org.eclipse.ui.edit.selectAll"
+          label="Select All"
+          mnemonic="A"
+          style="push">
+				</command>
+				<separator name="find.ext" visible="true">
+				</separator>
+				
+				<!-- Find/Replace -->
+				<command
+          commandId="org.eclipse.ui.edit.findReplace"
+          label="Find/Replace..."
+          mnemonic="F"
+          style="push">
+				</command>
+			</menu>
+			<!-- Navigate menu -->
+			<menu id="navigate" label="Navigate" mnemonic="N">
+				<visibleWhen>
+					<reference
+						definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+					</reference>
+				</visibleWhen>
+				<separator name="additions">
+				</separator>
+				<separator name="open.ext">
+				</separator>
+			</menu>
+			<!-- Search menu -->
+			<menu id="search" label="Search" mnemonic="S">
+				<visibleWhen>
+					<reference
+						definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+					</reference>
+				</visibleWhen>
+				<separator name="additions">
+				</separator>
+			</menu>
+		</menuContribution>
+		
+		<!-- TOOL BAR ENTRIES -->
+		<menuContribution 
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+            <toolbar id="loc-bar">
+               <visibleWhen checkEnabled="false">
+                  <reference
+                        definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                  </reference>
+               </visibleWhen>
+               <command
+                     commandId="org.eclipse.ui.file.save"
+                     label="Save"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.file.saveAll"
+                     label="Save All"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.file.print"
+                     label="Print..."
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <separator
+                     name="editSeparator">
+               </separator>
+               <command
+                     commandId="org.eclipse.ui.edit.cut"
+                     label="Cut"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.edit.copy"
+                     label="Copy"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.edit.paste"
+                     label="Paste"
+                     style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.edit.undo"
+                     label="Undo"
+                     style="push">
+                  <visibleWhen
+                        checkEnabled="false">
+                     <reference
+                           definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.edit.redo"
+                     label="Redo"
+                     style="push">
+                  <visibleWhen
+                        checkEnabled="false">
+                     <reference
+                           definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+            </toolbar>
+        </menuContribution>
+	</extension>
+	
+	<extension point="org.eclipse.ui.actionSets">
+		<actionSet
+       		id="org.eclipse.ui.openLocalFile"
+       		label="label">
+       		<menu
+               id="com.raytheon.uf.viz.localization.openLocalFile"
+               label="Open File...">
+               
+       		</menu>
+		</actionSet>
+	</extension>
+	
+	<!-- Viz Localization Perspective Manager -->
+	<extension point="com.raytheon.viz.ui.perspectiveManager">
+		<perspectiveManager perspectiveId="com.raytheon.uf.viz.ui.LocalizationPerspective"
+			class="com.raytheon.uf.viz.localization.perspective.LocalizationPerspectiveManager"
+			name="LocalizationPerspectiveManager">
+		</perspectiveManager>
+	</extension>
+	
+	<!-- Defines the package explorer view clone -->
+	<extension point="org.eclipse.ui.views">
+		<view allowMultiple="false" category="com.raytheon.viz.ui"
+			class="com.raytheon.uf.viz.localization.perspective.view.FileTreeView"
+			id="com.raytheon.uf.viz.localization.filetreeview.FileTreeView" name="File Browser"
+			icon="icons/browser.gif"
+			restorable="true" />
+	</extension>
+ 
+	<extension point="org.eclipse.core.contenttype.contentTypes"> 
+      <content-type id="com.raytheon.uf.viz.core.colormaps" name="Colormap Description Files"
+         base-type="org.eclipse.core.runtime.xml"      
+         file-extensions="cmap">
+      </content-type> 
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            default="true" icon="icons/cmapIcon.gif"
+            id="com.raytheon.viz.ui.colormaps.editor"
+            name="ColorMap Editor" extensions="cmap" 
+            class="com.raytheon.uf.viz.localization.perspective.ui.custom.ColorMapMultiPageEditorPart">
+      </editor>
+       <editor
+            default="true" icon="icons/velocityLogo.gif"
+            id="com.raytheon.viz.ui.velocity.editor"
+            name="Velocity Editor" extensions="vm" 
+            class="com.raytheon.uf.viz.localization.perspective.ui.custom.velocity.VelocityTemplateEditor">
+      </editor>
+   </extension>
+   <extension
+   		point="com.raytheon.uf.viz.localization.localizationpath">
+      <path
+            application="CAVE"
+            localizationType="CAVE_CONFIG"
+            name="Plugin Configs"
+            value="/"
+            recursive="true"
+            extensionFilter="config.xml">
+      </path>
+   </extension>
+   <extension
+   		point="org.eclipse.ui.elementFactories">
+   		<factory
+           class="com.raytheon.uf.viz.localization.perspective.LocalizationFileInputFactory"
+           id="com.raytheon.uf.viz.localizationInputFactoryId">
+   		</factory>
+   </extension>
+   <extension point="org.eclipse.ui.handlers">
+      <handler
+            commandId="org.eclipse.ui.file.refresh"
+            class="com.raytheon.uf.viz.localization.perspective.ui.LocalizationRefreshHandler">
+            <activeWhen>
+				<reference
+					definitionId="com.raytheon.uf.viz.localization.inLocalizationActionSet">
+				</reference>
+            </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.activities">
+      <activity
+            id="com.raytheon.uf.viz.localization.perspective.stopPydev"
+            name="com.raytheon.uf.viz.localization.perspective.stopPydev">
+      </activity>
+      <activityPatternBinding
+            activityId="com.raytheon.uf.viz.localization.perspective.stopPydev"
+            pattern="org.python.pydev.debug.*">
+      </activityPatternBinding>
+   </extension>
+</plugin>

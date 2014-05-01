@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	AWIPS I format
+	minEPT| | |Min ThetaE |K     |CONTOUR,IMAGE,OTHER|3-6kmAgl|     *Union,3-6kmAgl,S|EPT|    *Min|minEPT,3-6kmAgl
+	
+	
+	varId: |minEPT| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Min ThetaE | 
+	units: |K| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |3-6kmAgl| 					//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, planeList, source: |Union, 3-6kmAgl,S| 
+	varId: |EPT| 
+	
+	functionName: |Min|
+	varId, plane: |minEPT,3-6kmAgl| 
+
+	AWIPS II NEW FILE - minEPT.xml
+ -->
+<DerivedParameter unit="K" name="Min ThetaE" abbreviation="minEPT" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="3-6kmAgl" name="Min">
+    	<Field abbreviation="EPT" level="3kmAgl"/>
+        <Field abbreviation="EPT" level="3.5kmAgl"/>
+        <Field abbreviation="EPT" level="4kmAgl"/>
+        <Field abbreviation="EPT" level="4.5kmAgl"/>
+        <Field abbreviation="EPT" level="5kmAgl"/>
+        <Field abbreviation="EPT" level="6.5kmAgl"/>
+        <Field abbreviation="EPT" level="6kmAgl"/>
+    </Method>
+</DerivedParameter>

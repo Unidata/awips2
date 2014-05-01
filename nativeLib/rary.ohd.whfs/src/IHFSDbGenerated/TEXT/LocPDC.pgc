@@ -1,0 +1,560 @@
+/* This is a view record ! */
+/*
+    File: LocPDC.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:34 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "LocPDC.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct LocPDC_t
+{
+    char		lid[9];
+    char		name[51];
+    double		lat;
+    double		lon;
+    char		hsa[4];
+    long		post;
+    double		elev;
+    char		primary_pe[3];
+    double		fs;
+    double		fq;
+    char		disp_class[11];
+    char		is_dcp[2];
+    char		is_observer[2];
+    char		telem_type[11];
+
+    int		ind_lid;
+    int		ind_name;
+    int		ind_lat;
+    int		ind_lon;
+    int		ind_hsa;
+    int		ind_post;
+    int		ind_elev;
+    int		ind_primary_pe;
+    int		ind_fs;
+    int		ind_fq;
+    int		ind_disp_class;
+    int		ind_is_dcp;
+    int		ind_is_observer;
+    int		ind_telem_type;
+} LocPDC_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+LocPDC * GetLocPDC(const char * where)
+{
+
+    LocPDC * listPtr = NULL;
+    LocPDC * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LocPDC ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocPDC_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocPDC() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocPDC() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocPDC() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+    :dbs.hsa:dbs.ind_hsa, :dbs.post:dbs.ind_post, 
+    :dbs.elev:dbs.ind_elev, :dbs.primary_pe:dbs.ind_primary_pe, 
+    :dbs.fs:dbs.ind_fs, :dbs.fq:dbs.ind_fq, 
+    :dbs.disp_class:dbs.ind_disp_class, :dbs.is_dcp:dbs.ind_is_dcp, 
+    :dbs.is_observer:dbs.ind_is_observer, :dbs.telem_type:dbs.ind_telem_type    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocPDC() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LocPDC *) malloc(sizeof(LocPDC))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            structPtr->post = dbs.post;
+            setNullIfIndicated(dbs.ind_post, INT, &structPtr->post);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            strcpy(structPtr->primary_pe, dbs.primary_pe);
+            setNullIfIndicated(dbs.ind_primary_pe, CHAR, structPtr->primary_pe);
+
+            structPtr->fs = dbs.fs;
+            setNullIfIndicated(dbs.ind_fs, DOUBLE, &structPtr->fs);
+
+            structPtr->fq = dbs.fq;
+            setNullIfIndicated(dbs.ind_fq, DOUBLE, &structPtr->fq);
+
+            strcpy(structPtr->disp_class, dbs.disp_class);
+            setNullIfIndicated(dbs.ind_disp_class, CHAR, structPtr->disp_class);
+
+            strcpy(structPtr->is_dcp, dbs.is_dcp);
+            setNullIfIndicated(dbs.ind_is_dcp, CHAR, structPtr->is_dcp);
+
+            strcpy(structPtr->is_observer, dbs.is_observer);
+            setNullIfIndicated(dbs.ind_is_observer, CHAR, structPtr->is_observer);
+
+            strcpy(structPtr->telem_type, dbs.telem_type);
+            setNullIfIndicated(dbs.ind_telem_type, CHAR, structPtr->telem_type);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+        :dbs.hsa:dbs.ind_hsa, :dbs.post:dbs.ind_post, 
+        :dbs.elev:dbs.ind_elev, :dbs.primary_pe:dbs.ind_primary_pe, 
+        :dbs.fs:dbs.ind_fs, :dbs.fq:dbs.ind_fq, 
+        :dbs.disp_class:dbs.ind_disp_class, :dbs.is_dcp:dbs.ind_is_dcp, 
+        :dbs.is_observer:dbs.ind_is_observer, :dbs.telem_type:dbs.ind_telem_type        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetLocPDC() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+LocPDC * SelectLocPDC(const char * where)
+{
+
+    LocPDC * listPtr = NULL;
+    LocPDC * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LocPDC ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocPDC_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocPDC() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocPDC() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocPDC() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+    :dbs.hsa:dbs.ind_hsa, :dbs.post:dbs.ind_post, 
+    :dbs.elev:dbs.ind_elev, :dbs.primary_pe:dbs.ind_primary_pe, 
+    :dbs.fs:dbs.ind_fs, :dbs.fq:dbs.ind_fq, 
+    :dbs.disp_class:dbs.ind_disp_class, :dbs.is_dcp:dbs.ind_is_dcp, 
+    :dbs.is_observer:dbs.ind_is_observer, :dbs.telem_type:dbs.ind_telem_type    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocPDC() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LocPDC *) malloc(sizeof(LocPDC))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            structPtr->post = dbs.post;
+            setNullIfIndicated(dbs.ind_post, INT, &structPtr->post);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            strcpy(structPtr->primary_pe, dbs.primary_pe);
+            setNullIfIndicated(dbs.ind_primary_pe, CHAR, structPtr->primary_pe);
+
+            structPtr->fs = dbs.fs;
+            setNullIfIndicated(dbs.ind_fs, DOUBLE, &structPtr->fs);
+
+            structPtr->fq = dbs.fq;
+            setNullIfIndicated(dbs.ind_fq, DOUBLE, &structPtr->fq);
+
+            strcpy(structPtr->disp_class, dbs.disp_class);
+            setNullIfIndicated(dbs.ind_disp_class, CHAR, structPtr->disp_class);
+
+            strcpy(structPtr->is_dcp, dbs.is_dcp);
+            setNullIfIndicated(dbs.ind_is_dcp, CHAR, structPtr->is_dcp);
+
+            strcpy(structPtr->is_observer, dbs.is_observer);
+            setNullIfIndicated(dbs.ind_is_observer, CHAR, structPtr->is_observer);
+
+            strcpy(structPtr->telem_type, dbs.telem_type);
+            setNullIfIndicated(dbs.ind_telem_type, CHAR, structPtr->telem_type);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+        :dbs.hsa:dbs.ind_hsa, :dbs.post:dbs.ind_post, 
+        :dbs.elev:dbs.ind_elev, :dbs.primary_pe:dbs.ind_primary_pe, 
+        :dbs.fs:dbs.ind_fs, :dbs.fq:dbs.ind_fq, 
+        :dbs.disp_class:dbs.ind_disp_class, :dbs.is_dcp:dbs.ind_is_dcp, 
+        :dbs.is_observer:dbs.ind_is_observer, :dbs.telem_type:dbs.ind_telem_type        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectLocPDC() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectLocPDCCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM LocPDC ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocPDC() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocPDC() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocPDC() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocPDC() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeLocPDC( LocPDC * structPtr)
+{
+    LocPDC* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( LocPDC * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetLocPDCDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetLocPDCErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

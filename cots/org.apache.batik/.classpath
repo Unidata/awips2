@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="batik-awt-util.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-bridge.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-css.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-dom.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-ext.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-extension.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-gui-util.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-gvt.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-parser.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-rasterizer-ext.jar" sourcepath="org.apache.batiksrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-rasterizer.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-script.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-svg-dom.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-svggen.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-svgpp.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-transcoder.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-ttf2svg.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-util.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik-xml.jar" sourcepath="batik-src-1.6.zip"/>
+	<classpathentry exported="true" kind="lib" path="batik.jar" sourcepath="org.apache.batiksrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="xercesImpl-2.7.0.jar" sourcepath="Xerces-J-src.2.7.0.zip"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

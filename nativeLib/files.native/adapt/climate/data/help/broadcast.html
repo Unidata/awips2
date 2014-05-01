@@ -1,0 +1,59 @@
+<HTML>
+<HEAD>
+<title>HWR NWR Broadcast Format Editor</title>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<IMG align=left SRC="roundup_cloud.gif"</A><P>
+<center>
+<h3><b><a name=defin>HWR NWR Broadcast Format Editor</a></b></h3>
+</center>
+<hr>
+<A HREF="productnwr.html">Broadcast Format</A>,
+<a href="stationnwr.html">Station Format</a>,
+<a href="default.html">Default Format</a>,
+<a href="confignwr.html">Configuration</a>,
+<a href="threshnwr.html">Thresholds</a>,
+<a href="helpnwr.html">Home</a>
+<hr>
+<br>
+The weather element phrases for fixed stations and marine stations
+are defined in one or more broadcast records per product.  Some of the phrases 
+will only be formatted if threshold criteria for selected weather elements are met. Program hwrnwr will select the 
+correct sky/weather format based on the current sky/weather condition.<br>
+<br>
+Product "CCCHWRXXX" contains a template for the broadcast format. You can copy and modify the template 
+to meet your needs, or you may create your own broadcast records.<br>
+<br>
+/KDCA/At %ID%, { %SW% was falling; %SW% was reported; it was %SW% skies; %SW% were reported}<br>
+  ([VV], reducing the visibility to %VV%U).<br>
+  The temperature was %TF%U, the dewpoint %DF%, and the relative humidity %RR% percent,	<br>
+  ([HF], producing a heat index of %HF%). <br>
+  ([FF]The wind was %DD% at %FF%U([GG], gusting to %GG%),<br>
+  ([WF] producing a wind chill of %WF%).<br> 
+  The pressure was %PP%U and %PT%.$$<br>
+<br>  
+%ID%, %SW%, %VV% are some of the symbolic words described in Figure 1-1 of the user documentation.  For
+example %ID% will be replaced with the station name for the station identifier "KDCA"
+(e.g., Reagan National Airport).<br>
+<br>
+"{%SW% was falling; %SW% was reported; it was %SW%; %SW% were reported}" are four possible 
+phrases for the program hwrnwr to output depending on the observed weather.  The first phrase will be used when 
+precipitation is falling (e.g., heavy snow was falling).  The second phrase will be used generally for 
+obstructions to vision (e.g., blowing snow was reported). The third phrase will be used to broadcast sky
+conditions (e.g., it was partly cloudy).  The fourth phrase will be used to report weather conditions
+stated in the plural (e.g., drizzle and fog were reported).<br>
+<br>
+The phrases in parentheses (e.g., visibility) are threshold phrases will only be output if the weather element in the brackets 
+reaches or exceeds a forecaster-specified threshold.  The threshold is specified in the GUI.<br>
+<br>
+The above examples contain threshold phrases imbedded within other threshold phrases. Consequently, in the 
+above example, the gust phrase will be broadcast only if the wind speed meets or exceeds 
+the forecaster-specified threshold (e.g., [FF]) and if the gust speed meets or exceeds the forecaster-specified 
+threshold (e.g., [GG]).<br>
+<br>
+"~$$" signifies the end of the station's phrases.<br>
+<br>
+<br>
+<center><a href="helpnwr.html">Home</a></center>
+</body>
+</HTML>

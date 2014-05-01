@@ -1,0 +1,1148 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'river.c';
+generateNameExterns = * 'river.h';
+generateNameResDB = * 'river.res';
+generateCPixmapFile = '';
+generateCHeaderFile = 'river.h';
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'riverDS' : XmDialogShell {
+	arguments {
+	name = 'riverDS';
+	lastGenName = 'riverDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_riverDS (Widget parent)
+';
+	XmNwidth = 900;
+	XmNheight = 670;
+	XmNallowShellResize = true;
+	XmNtitle = 'River Gage';
+	XmNminWidth = 900;
+	XmNminHeight = 670;
+	XmNmaxWidth = 900;
+	XmNmaxHeight = 670;
+	XmNdeleteResponse = 2;
+	};
+object 'riverFM' : XmForm {
+	arguments {
+	name = 'riverFM';
+	lastGenName = 'riverFM';
+	XmNwidth = 900;
+	XmNheight = 670;
+	XmNautoUnmanage = false;
+	};
+object 'rvrOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'rvrOM';
+	};
+abstract object 'rvrLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'rvrLbl';
+	XmNlabelString = 'Page';
+	};
+};
+abstract object 'rvrCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'rvrCB';
+	};
+object 'rvrPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'rvrPDM';
+	};
+object 'rvrgeoPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rvrgeoPB';
+	XmNlabelString = 'Geophysical';
+	};
+};
+object 'rvraddPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rvraddPB';
+	XmNlabelString = 'Additional Info';
+	};
+};
+};
+};
+};
+object 'rvr1SP' : XmSeparator {
+	arguments {
+	lastGenName = 'rvr1SP';
+	};
+};
+object 'rmainFrm' : XmFrame {
+	arguments {
+	name = 'rmainFrm';
+	lastGenName = 'rmainFrm';
+	XmNmappedWhenManaged = true;
+	};
+object 'rmainFM' : XmForm {
+	arguments {
+	name = 'rmainFM';
+	lastGenName = 'rmainFM';
+	XmNwidth = 869;
+	XmNheight = 344;
+	XmNmappedWhenManaged = true;
+	};
+object 'rrvsTB' : XmToggleButton {
+	arguments {
+	name = 'rrvsTB';
+	lastGenName = 'rrvsTB';
+	XmNlabelString = 'Revise Date:';
+	};
+};
+object 'rrvsTxt' : XmText {
+	arguments {
+	name = 'rrvsTxt';
+	lastGenName = 'rrvsTxt';
+	XmNmaxLength = 10;
+	XmNcolumns = 10;
+	};
+};
+object 'rstrmLbl' : XmLabel {
+	arguments {
+	name = 'rstrmLbl';
+	lastGenName = 'rstrmLbl';
+	XmNlabelString = 'Stream:';
+	XmNalignment = 2;
+	};
+};
+object 'rstrmTxt' : XmText {
+	arguments {
+	name = 'rstrmTxt';
+	lastGenName = 'rstrmTxt';
+	XmNmaxLength = 32;
+	XmNcolumns = 51;
+	};
+};
+object 'rlatLbl' : XmLabel {
+	arguments {
+	name = 'rlatLbl';
+	lastGenName = 'rlatLbl';
+	XmNlabelString = 'Lat/Lon:';
+	XmNalignment = 2;
+	};
+};
+object 'rlatTxt' : XmText {
+	arguments {
+	name = 'rlatTxt';
+	lastGenName = 'rlatTxt';
+	XmNmaxLength = 9;
+	XmNcolumns = 16;
+	};
+};
+object 'rlonTxt' : XmText {
+	arguments {
+	name = 'rlonTxt';
+	lastGenName = 'rlonTxt';
+	XmNmaxLength = 10;
+	XmNcolumns = 16;
+	};
+};
+object 'rdaLbl' : XmLabel {
+	arguments {
+	name = 'rdaLbl';
+	lastGenName = 'rdaLbl';
+	XmNlabelString = 'Drainage Area:';
+	XmNalignment = 2;
+	};
+};
+object 'rdaTxt' : XmText {
+	arguments {
+	name = 'rdaTxt';
+	lastGenName = 'rdaTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 14;
+	};
+};
+object 'rmileLbl' : XmLabel {
+	arguments {
+	name = 'rmileLbl';
+	lastGenName = 'rmileLbl';
+	XmNlabelString = 'River Mile:';
+	XmNalignment = 2;
+	};
+};
+object 'rmileTxt' : XmText {
+	arguments {
+	name = 'rmileTxt';
+	lastGenName = 'rmileTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 14;
+	};
+};
+object 'rgroupTxt' : XmText {
+	arguments {
+	name = 'rgroupTxt';
+	lastGenName = 'rgroupTxt';
+	XmNmaxLength = 22;
+	XmNcolumns = 23;
+	XmNeditable = false;
+	XmNcursorPositionVisible = false;
+	XmNautoShowCursorPosition = false;
+	};
+};
+object 'rgroupPB' : XmPushButton {
+	arguments {
+	name = 'rgroupPB';
+	lastGenName = 'rgroupPB';
+	XmNlabelString = 'Forecast Point
+Group Assignment';
+	};
+};
+object 'rfloodsLbl' : XmLabel {
+	arguments {
+	name = 'rfloodLbl';
+	lastGenName = 'rfloodsLbl';
+	XmNlabelString = 'Flood Stage:';
+	XmNalignment = 2;
+	};
+};
+object 'rfloodsTxt' : XmTextField {
+	arguments {
+	name = 'rfloodTxt';
+	lastGenName = 'rfloodsTxt';
+	XmNmaxLength = 9;
+	XmNcolumns = 11;
+	};
+};
+object 'rfflowLbl' : XmLabel {
+	arguments {
+	name = 'rflowLbl';
+	lastGenName = 'rfflowLbl';
+	XmNlabelString = 'Flow:';
+	XmNalignment = 2;
+	};
+};
+object 'rfflowTxt' : XmTextField {
+	arguments {
+	name = 'rflowTxt';
+	lastGenName = 'rfflowTxt';
+	XmNmaxLength = 9;
+	XmNcolumns = 9;
+	};
+};
+object 'ractionsLbl' : XmLabel {
+	arguments {
+	name = 'ractionLbl';
+	lastGenName = 'ractionsLbl';
+	XmNlabelString = 'Action Stage:';
+	XmNalignment = 2;
+	};
+};
+object 'ractionsTxt' : XmTextField {
+	arguments {
+	name = 'ractionTxt';
+	lastGenName = 'ractionsTxt';
+	XmNmaxLength = 9;
+	XmNcolumns = 11;
+	};
+};
+object 'ractionfLbl' : XmLabel {
+	arguments {
+	lastGenName = 'ractionfLbl';
+	XmNlabelString = 'Flow:';
+	XmNalignment = 2;
+	};
+};
+object 'ractionfTxt' : XmTextField {
+	arguments {
+	lastGenName = 'ractionfTxt';
+	XmNmaxLength = 9;
+	};
+};
+object 'rzdLbl' : XmLabel {
+	arguments {
+	name = 'rzdLbl';
+	lastGenName = 'rzdLbl';
+	XmNlabelString = 'Zero Datum:';
+	XmNalignment = 2;
+	};
+};
+object 'rzdTxt' : XmText {
+	arguments {
+	name = 'rzdTxt';
+	lastGenName = 'rzdTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 14;
+	};
+};
+object 'rtrLbl' : XmLabel {
+	arguments {
+	name = 'rtrLbl';
+	lastGenName = 'rtrLbl';
+	XmNlabelString = 'Threshold Runoff:';
+	XmNalignment = 2;
+	};
+};
+object 'rtrTxt' : XmText {
+	arguments {
+	name = 'rtrTxt';
+	lastGenName = 'rtrTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 14;
+	};
+};
+object 'rpeLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rpeLbl';
+	XmNlabelString = 'Primary Stage/Flow Physical Element';
+	};
+};
+object 'riverinfo_SW' : XmScrolledList {
+	arguments {
+	lastGenName = 'riverinfo_SW';
+	};
+abstract object 'riverinfo_HSb' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'riverinfo_HSb';
+	};
+};
+abstract object 'riverinfo_VSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'riverinfo_VSB';
+	};
+};
+abstract object 'riverinfo_peLI' : XmList {
+	arguments {
+	lastGenName = 'riverinfo_peLI';
+	};
+};
+};
+object 'riverFcstTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'riverFcstTB';
+	XmNlabelString = 'Use Latest Forecast When';
+	};
+};
+object 'riverFcstLB' : XmLabel {
+	arguments {
+	lastGenName = 'riverFcstLB';
+	XmNlabelString = 'Computing Maximum Forecast Value';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 555;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 685;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -535;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -295;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -440;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -125;
+	XmNtopAttachment = 1 0 90;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -125;
+	XmNtopAttachment = 1 0 90;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -165;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -165;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -865;
+	XmNleftAttachment = 1 0 685;
+	XmNbottomAttachment = 2 0 -95;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 525;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -205;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -205;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -340;
+	XmNleftAttachment = 1 0 290;
+	XmNbottomAttachment = 2 0 -205;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -470;
+	XmNleftAttachment = 1 0 350;
+	XmNbottomAttachment = 2 0 -205;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -245;
+	XmNtopAttachment = 1 0 210;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -245;
+	XmNtopAttachment = 1 0 210;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -340;
+	XmNleftAttachment = 1 0 290;
+	XmNbottomAttachment = 2 0 -245;
+	XmNtopAttachment = 1 0 210;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -470;
+	XmNleftAttachment = 1 0 350;
+	XmNbottomAttachment = 2 0 -245;
+	XmNtopAttachment = 1 0 210;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -285;
+	XmNtopAttachment = 1 0 250;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -285;
+	XmNtopAttachment = 1 0 250;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -325;
+	XmNtopAttachment = 1 0 290;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -325;
+	XmNtopAttachment = 1 0 290;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -832;
+	XmNleftAttachment = 1 0 525;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 120;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -830;
+	XmNleftAttachment = 1 0 525;
+	XmNbottomAttachment = 2 0 -275;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -774;
+	XmNleftAttachment = 1 0 525;
+	XmNbottomAttachment = 2 0 -301;
+	XmNtopAttachment = 1 0 275;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -856;
+	XmNleftAttachment = 1 0 542;
+	XmNbottomAttachment = 2 0 -329;
+	XmNtopAttachment = 1 0 301;
+    };
+    };
+};
+object 'rmainLbl' : XmLabel {
+	arguments {
+	name = 'rmainLbl';
+	lastGenName = 'rmainLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Geographic/Physical';
+	};
+};
+};
+object 'rrmkFrm' : XmFrame {
+	arguments {
+	name = 'rrmkFrm';
+	lastGenName = 'rrmkFrm';
+	};
+object 'rrmkFM' : XmForm {
+	arguments {
+	name = 'rrmkFM';
+	lastGenName = 'rrmkFM';
+	};
+object 'rrmkTxt' : XmText {
+	arguments {
+	name = 'rrmkTxt';
+	lastGenName = 'rrmkTxt';
+	XmNmaxLength = 255;
+	XmNwordWrap = true;
+	XmNeditMode = 0;
+	XmNrows = 9;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 1 0;
+    };
+    };
+};
+object 'rrmkLbl' : XmLabel {
+	arguments {
+	name = 'rrmkLbl';
+	lastGenName = 'rrmkLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Remarks';
+	};
+};
+};
+object 'rvr2SP' : XmSeparator {
+	arguments {
+	lastGenName = 'rvr2SP';
+	};
+};
+object 'rvokPB' : XmPushButton {
+	arguments {
+	name = 'rvokPB';
+	lastGenName = 'rvokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNresizable = true;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'rvapplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rvapplyPB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNresizable = true;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'rvclosePB' : XmPushButton {
+	arguments {
+	name = 'rvclosePB';
+	lastGenName = 'rvclosePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'rvdelPB' : XmPushButton {
+	arguments {
+	name = 'rvdelPB';
+	lastGenName = 'rvdelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'rvhelpPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rvhelpPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Help';
+	};
+};
+object 'rsFrm' : XmFrame {
+	arguments {
+	name = 'rsFrm';
+	lastGenName = 'rsFrm';
+	XmNmappedWhenManaged = true;
+	};
+object 'rsFM' : XmForm {
+	arguments {
+	name = 'rsFM';
+	lastGenName = 'rsFM';
+	XmNheight = 302;
+	XmNmappedWhenManaged = true;
+	};
+object 'rsgsnoLbl' : XmLabel {
+	arguments {
+	name = 'rsgsnoLbl';
+	lastGenName = 'rsgsnoLbl';
+	XmNlabelString = 'USGS No:';
+	};
+};
+object 'rsgsnoTxt' : XmText {
+	arguments {
+	name = 'rsgsnoTxt';
+	lastGenName = 'rsgsnoTxt';
+	XmNmaxLength = 10;
+	XmNcolumns = 10;
+	};
+};
+object 'rsbfLbl' : XmLabel {
+	arguments {
+	name = 'rsbfLbl';
+	lastGenName = 'rsbfLbl';
+	XmNlabelString = 'Bankfull:';
+	};
+};
+object 'rsbfTxt' : XmText {
+	arguments {
+	name = 'rsbfTxt';
+	lastGenName = 'rsbfTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	};
+};
+object 'rscbLbl' : XmLabel {
+	arguments {
+	name = 'rscbLbl';
+	lastGenName = 'rscbLbl';
+	XmNlabelString = 'Check Bar:';
+	};
+};
+object 'rscbTxt' : XmText {
+	arguments {
+	name = 'rscbTxt';
+	lastGenName = 'rscbTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	};
+};
+object 'rspoolLbl' : XmLabel {
+	arguments {
+	name = 'rspoolLbl';
+	lastGenName = 'rspoolLbl';
+	XmNlabelString = 'Pool:';
+	};
+};
+object 'rspoolTxt' : XmText {
+	arguments {
+	name = 'rspoolTxt';
+	lastGenName = 'rspoolTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	};
+};
+object 'rslevelLbl' : XmLabel {
+	arguments {
+	name = 'rslevelLbl';
+	lastGenName = 'rslevelLbl';
+	XmNlabelString = 'Level:';
+	};
+};
+object 'rslevelTxt' : XmText {
+	arguments {
+	name = 'rslevelTxt';
+	lastGenName = 'rslevelTxt';
+	XmNmaxLength = 20;
+	};
+};
+object 'rsporLbl' : XmLabel {
+	arguments {
+	name = 'rsporLbl';
+	lastGenName = 'rsporLbl';
+	XmNlabelString = 'Period of Record:';
+	};
+};
+object 'rsporTxt' : XmText {
+	arguments {
+	name = 'rsporTxt';
+	lastGenName = 'rsporTxt';
+	XmNmaxLength = 30;
+	XmNcolumns = 30;
+	};
+};
+object 'rsratedLbl' : XmLabel {
+	arguments {
+	name = 'rsratedLbl';
+	lastGenName = 'rsratedLbl';
+	XmNlabelString = 'Rated:';
+	};
+};
+object 'rsratedTxt' : XmText {
+	arguments {
+	name = 'rsratedTxt';
+	lastGenName = 'rsratedTxt';
+	XmNmaxLength = 20;
+	};
+};
+object 'rssrcLbl' : XmLabel {
+	arguments {
+	name = 'rssrcLbl';
+	lastGenName = 'rssrcLbl';
+	XmNlabelString = 'Lat/Lon Source:';
+	};
+};
+object 'rssrcTxt' : XmText {
+	arguments {
+	name = 'rssrcTxt';
+	lastGenName = 'rssrcTxt';
+	XmNmaxLength = 20;
+	};
+};
+object 'rsvdatumLbl' : XmLabel {
+	arguments {
+	name = 'rsvdatumLbl';
+	lastGenName = 'rsvdatumLbl';
+	XmNlabelString = 'Vertical Datum:';
+	};
+};
+object 'rtidalLbl' : XmLabel {
+	arguments {
+	name = 'rtidalLbl';
+	lastGenName = 'rtidalLbl';
+	XmNlabelString = 'Tidal Effect:';
+	};
+};
+object 'rsvdatumTxt' : XmText {
+	arguments {
+	name = 'rsvdatumTxt';
+	lastGenName = 'rsvdatumTxt';
+	XmNmaxLength = 20;
+	};
+};
+object 'rtidalOM' : XmOptionMenu {
+	arguments {
+	name = 'rtidalOM';
+	lastGenName = 'rtidalOM';
+	};
+abstract object 'rtidalOMLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'rtidalOMLbl';
+	XmNlabelString = ' ';
+	};
+};
+abstract object 'rtidalCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'rtidalCB';
+	};
+object 'rtidalPDM' : XmPulldownMenu {
+	arguments {
+	name = 'rtidalPDM';
+	lastGenName = 'rtidalPDM';
+	XmNmappedWhenManaged = true;
+	};
+object 'rnonePB' : XmPushButton {
+	arguments {
+	name = 'rnonePB';
+	lastGenName = 'rnonePB';
+	XmNwidth = 84;
+	XmNheight = 27;
+	XmNlabelString = 'None';
+	};
+};
+object 'rminorPB' : XmPushButton {
+	arguments {
+	name = 'rminorPB';
+	lastGenName = 'rminorPB';
+	XmNlabelString = 'Slight';
+	};
+};
+object 'rmodPB' : XmPushButton {
+	arguments {
+	name = 'rmodPB';
+	lastGenName = 'rmodPB';
+	XmNlabelString = 'Moderate';
+	};
+};
+object 'rmajorPB' : XmPushButton {
+	arguments {
+	name = 'rmajorPB';
+	lastGenName = 'rmajorPB';
+	XmNlabelString = 'Major';
+	};
+};
+};
+};
+};
+object 'rsrdateLbl' : XmLabel {
+	arguments {
+	name = 'rsrdateLbl';
+	lastGenName = 'rsrdateLbl';
+	XmNlabelString = 'Date of Rating:';
+	};
+};
+object 'rsrdateTxt' : XmText {
+	arguments {
+	name = 'rsrdateTxt';
+	lastGenName = 'rsrdateTxt';
+	XmNmaxLength = 10;
+	XmNcolumns = 10;
+	};
+};
+object 'rbckwtrLbl' : XmLabel {
+	arguments {
+	name = 'rbckwtrLbl';
+	lastGenName = 'rbckwtrLbl';
+	XmNlabelString = 'Backwater:';
+	};
+};
+object 'rsratenumLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rsratenumLbl';
+	XmNlabelString = 'USGS Rating No.:';
+	XmNalignment = 2;
+	};
+};
+object 'rsratenumTxt' : XmText {
+	arguments {
+	lastGenName = 'rsratenumTxt';
+	XmNmaxLength = 5;
+	};
+};
+object 'rbckwtrOM' : XmOptionMenu {
+	arguments {
+	name = 'rbckwtrOM';
+	lastGenName = 'rbckwtrOM';
+	};
+abstract object 'rbckwtrOMLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'rbckwtrOMLbl';
+	XmNlabelString = ' ';
+	};
+};
+abstract object 'rbckwtrCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'rbckwtrCB';
+	};
+object 'rbckwtrPDM' : XmPulldownMenu {
+	arguments {
+	name = 'rbckwtrPDM';
+	lastGenName = 'rbckwtrPDM';
+	};
+object 'rbckwtrnonePB' : XmPushButton {
+	arguments {
+	lastGenName = 'rbckwtrnonePB';
+	XmNlabelString = 'None';
+	};
+};
+object 'rbckwtrminorPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rbckwtrminorPB';
+	XmNlabelString = 'Minor';
+	};
+};
+object 'rbckwtrmodPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rbckwtrmodPB';
+	XmNlabelString = 'Moderate';
+	};
+};
+object 'rbckwtrmajorPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rbckwtrmajorPB';
+	XmNlabelString = 'Major';
+	};
+};
+};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 3 2 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 17;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 3 4 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 58;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 2 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 51;
+    };
+    attachment {
+	XmNrightAttachment = 3 6 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 99;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 2 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 92;
+    };
+    attachment {
+	XmNrightAttachment = 3 8 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 140;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 2 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 133;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 105;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 100;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 90;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 25;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 105;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 175;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -409;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 35;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 45;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 140;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -130;
+	XmNleftAttachment = 1 0 35;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 310;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -275;
+	XmNleftAttachment = 1 0 140;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 300;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 215;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 210;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 50;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 355;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -160;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -280;
+	XmNtopAttachment = 1 0 255;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 2 0 -285;
+	XmNtopAttachment = 1 0 250;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -275;
+	XmNleftAttachment = 1 0 140;
+	XmNbottomAttachment = 2 0 -380;
+	XmNtopAttachment = 1 0 345;
+    };
+    };
+};
+object 'rsLbl' : XmLabel {
+	arguments {
+	name = 'rsLbl';
+	lastGenName = 'rsLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Information';
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -890;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -420;
+	XmNtopAttachment = 3 2 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -889;
+	XmNleftAttachment = 1 0 24;
+	XmNbottomAttachment = 2 0 -604;
+	XmNtopAttachment = 1 0 419;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 596;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 3 4 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 6 115;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 6 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 7 115;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 7 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 8 115;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 8;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 4 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -890;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -605;
+	XmNtopAttachment = 3 2 10;
+    };
+    };
+};
+};
+end module;

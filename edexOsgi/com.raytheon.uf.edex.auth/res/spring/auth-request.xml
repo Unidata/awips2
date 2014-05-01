@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+            
+    <bean id="binaryHttpBinding" class="com.raytheon.uf.edex.esb.camel.http.BinaryHttpBinding"/>
+
+	<camelContext id="server-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<endpoint id="thriftService_from"
+			uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+
+		<route id="thriftService" streamCache="false">
+			<from uri="ref:thriftService_from" />
+			<removeHeaders pattern="CamelHttp*"/>
+			<bean ref="routeWrapper" method="executeThrift"/>
+		</route>
+
+	</camelContext>
+
+  	<bean id="webservice" class="com.raytheon.uf.edex.auth.RemoteServiceRequestHandler"/>
+
+	<bean factory-bean="handlerRegistry" factory-method="register">
+	  	<constructor-arg value="com.raytheon.uf.common.serialization.comm.RemoteServiceRequest"/>
+	  	<constructor-arg ref="webservice"/>
+  	</bean>
+    
+    <bean factory-bean="serverLocationRegistry" factory-method="register">
+        <constructor-arg ref="requestServerKey" />
+        <constructor-arg value="${HTTP_SERVER}" />
+    </bean>
+</beans>

@@ -1,0 +1,141 @@
+module '*Hb'
+applicationName = '*Hb';
+generateNameC = 'grp.c';
+generateNameExterns = 'grp.h';
+generateNameResDB = 'grp.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+value
+object 'glDS' : XmDialogShell {
+	arguments {
+	name = 'glDS';
+	XmNwidth =  * 282;
+	XmNheight =  * 271;
+	XmNallowShellResize = true;
+	XmNtitle =  * 'Fcst Point Group Assignment';
+	XmNminWidth = 300;
+	XmNminHeight = 260;
+	XmNmaxWidth = 300;
+	XmNmaxHeight = 260;
+	XmNbaseWidth = 0;
+	XmNbaseHeight = 0;
+	};
+object 'glFM' : XmForm {
+	arguments {
+	name = 'glFM';
+	XmNwidth =  * 282;
+	XmNheight =  * 271;
+	XmNdialogStyle = 2;
+	XmNautoUnmanage = false;
+	};
+object 'glLbl' : XmLabel {
+	arguments {
+	name = 'glLbl';
+	XmNlabelString =  * 'Group';
+	};
+};
+object 'glSLB' : XmScrolledList {
+	arguments {
+	name = 'glSLB';
+	XmNwidth =  * 260;
+	XmNheight =  * 162;
+	};
+object 'glHSB' : XmScrollBar {
+	arguments {
+	name = 'glHSB';
+	};
+};
+object 'glVSB' : XmScrollBar {
+	arguments {
+	name = 'glVSB';
+	};
+};
+object 'glLB' : XmList {
+	arguments {
+	name = 'glLB';
+	XmNvisibleItemCount =  * 6;
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'glSP' : XmSeparator {
+	arguments {
+	};
+};
+object 'glokPB' : XmPushButton {
+	arguments {
+	name = 'glokPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Ok';
+	};
+};
+object 'glclearPB' : XmPushButton {
+	arguments {
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Clear';
+	};
+};
+object 'glclosePB' : XmPushButton {
+	arguments {
+	name = 'glclosePB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Cancel';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 80;
+	XmNtopAttachment = 1 0 38;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 60;
+	XmNtopAttachment = 0 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 3 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 4 13;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 3 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 3 10;
+    };
+    };
+};
+};
+end module;

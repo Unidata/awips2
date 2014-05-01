@@ -1,0 +1,3 @@
+Next, the SampleAnalysis component of the Infrastructure generates summary statistics from the histogram information. For example, we can generate averages, minimum values, maximum values, modes, etc.  The SampleAnalysis component is written in Python and is thus, extendable. 
+The summary statistics are then examined by a set of Text Rules which produce either the rows of a table or a set of narrative phrases representing the data. 
+The Simple Table or Smart Text Product Python modules specifiy which areas are sampled, what statistics are generated, and what Text Rules to employ to produce the desired product. 

@@ -1,0 +1,2 @@
+The "getWeekday" method can be used to create labels for a given time range taking into account weekday names and holidays.
+

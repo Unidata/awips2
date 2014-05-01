@@ -1,0 +1,260 @@
+#!/bin/ksh
+# 
+# rpf_sendbackup
+#
+# version: July 06, 2006
+#
+# This script is used to send RiverPro product issuance info
+# to other offices so that they can have the data to support RiverPro 
+# product issuances in the event that they need to provide service
+# backup for the source office.  This is normally executed from RiverPro.
+# This script is called under two circumstances:
+# 1) It is called when issuing a product.  It is called once for each
+#   office to which is should send data to; so for a given Riverpro
+#   product which may include forecast points with differing backup
+#   office assignment, this script will be called more than once.
+# 2) A site performing backup service for an office can send the info 
+#   for any product it issued for that office back to the backed-up
+#   office after that has is restored to service level
+#
+# It dumps info for the given product_id/time from the tables 
+# VTECevent, FpPrevProd, TextProduct, and only rows for the forecast points
+# which have a service backup relationship with the given destination
+# office.  It packages this info and then sends it to the destination.
+#
+# 
+# Usage:
+#  rpf_sendbackup  product_id  product_time  wfo_source  wfo_destination
+#
+# where:
+#   product_id   - is the official identifier for the product, whether
+#                  it be the 10-character WMO id or the 9-character CRS id
+#   product_time - yyyy-mm-dd hh:mm:ss
+#   wfo_source       - office identifier sending data from
+#   wfo_destination  - office identifier to send data to
+#
+#
+#--------------------------------------------------------------------
+#
+# Log file discussion:
+#
+# when sending files to remote WFOs, the distributeProduct script is
+# used.  it returns 0 for success, -1 for error. its log files are in:
+#
+#    ds1-xxx:/data/logs/fxa/yymmdd/dis* (where yymmdd is the date info).
+#
+# if not there, try looking on local workstation in:
+#    ws#-xxx:/data/logs/fxa/display/ws#-xxx:0.0/yymmdd
+#
+# distributeProduct uses the msg_send program to actually send the
+# message across the WAN.    its log files for msg_send can be found in:
+#
+#    /awips/ops/logs/ds1-xxx, the filenames are either
+#       msgreq_svr.log for sending and 
+#       msgrcv_svr.log for receiving. 
+#
+# Note that the locations given above are dependent upon instructions
+# given in scripts outside of the WHFS control and are subject to change.
+#
+#--------------------------------------------------------------------
+#
+# set up SOME environment variables for WHFS applications
+#
+
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../../set_hydro_env
+export RPF_LOG_DIR=$(get_apps_defaults rpf_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+
+#
+# Initialize the status to bad
+#
+
+RETURN_STATUS=1
+
+#
+# define the log file name, use the same log that is used for local
+# riverpro issuances.
+
+DATESTR=`date -u +%Y%m%d`
+LOGNAME=$RPF_LOG_DIR/rpf_issue.log.$DATESTR
+
+#
+# Load the arguments into local variables
+
+PRODUCT_ID=$1
+PRODUCT_TIME=$2
+WFO_SOURCE=$3
+WFO_DESTINATION=$4
+
+#
+# log the initial info
+#
+
+print "**************"
+print Sending backup info for $PRODUCT_ID $PRODUCT_TIME from $WFO_SOURCE to $WFO_DESTINATION 
+
+echo ">>>>>>>>>>>> " >> $LOGNAME
+Dte=`date -u`
+echo Invoking rpf_sendbackup at: $Dte >> $LOGNAME
+echo Sending backup info for $PRODUCT_ID $PRODUCT_TIME from $WFO_SOURCE to $WFO_DESTINATION >> $LOGNAME
+
+#
+# check that the source and the destination are not the same
+#
+
+if [[ $WFO_SOURCE = $WFO_DESTINATION ]]
+then
+  print Source and destination are identical. Send aborted.
+  echo Source and destination are identical. Send aborted. >> $LOGNAME
+  return $RETURN_STATUS
+fi
+
+#
+# define the input file which contains the dynamic SQL commands
+# the check for an hsa is needed for the special case of the 
+# restoration of service backup information.
+#
+
+SQL_INPUT_FILE=$WHFS_PRODUCT_DIR/rpf_sendbackup_sql.$WFO_DESTINATION
+
+echo "Write SQL commands to " $SQL_INPUT_FILE >> $LOGNAME
+
+if [ -f $SQL_INPUT_FILE ]
+then
+   rm -f $SQL_INPUT_FILE
+fi   
+
+echo "SELECT * INTO TEMP vtecevent_temp FROM VTECevent \
+WHERE producttime='"$PRODUCT_TIME"' AND geoid IN \
+(SELECT lid FROM FpInfo WHERE hsa='"$WFO_DESTINATION"' OR \
+primary_back='"$WFO_DESTINATION"' OR \
+secondary_back='"$WFO_DESTINATION"');" >  $SQL_INPUT_FILE
+
+echo "\COPY vtecevent_temp TO vtecevent_temp.output USING DELIMITERS '|' \
+WITH NULL as ''" >> $SQL_INPUT_FILE
+
+
+echo "SELECT * INTO TEMP fpprevprod_temp from FpPrevProd WHERE \
+producttime='"$PRODUCT_TIME"' AND lid IN (SELECT lid FROM FpInfo \
+WHERE hsa='"$WFO_DESTINATION"' OR primary_back='"$WFO_DESTINATION"' OR \
+secondary_back='"$WFO_DESTINATION"');" >> $SQL_INPUT_FILE
+
+echo "\COPY fpprevprod_temp to fpprevprod_temp.output USING DELIMITERS '|' \
+WITH NULL as ''" >> $SQL_INPUT_FILE
+
+
+echo "SELECT * INTO TEMP textproduct_temp FROM TextProduct WHERE \
+product_id='"$PRODUCT_ID"' AND producttime='"$PRODUCT_TIME"';" >> $SQL_INPUT_FILE
+
+echo "\COPY textproduct_temp TO textproduct_temp.output USING DELIMITERS '|' \
+WITH NULL as ''" >> $SQL_INPUT_FILE
+
+#
+# define the output data file names
+# the product time is expected to be passed in with 
+# the format YYYY-MM-DD HH:MM:SS
+
+VTECEVENT_FILE=$WHFS_PRODUCT_DIR/VTECevent.$WFO_DESTINATION.unload
+FPPREVPROD_FILE=$WHFS_PRODUCT_DIR/FpPrevProd.$WFO_DESTINATION.unload
+TEXTPRODUCT_FILE=$WHFS_PRODUCT_DIR/TextProduct.$WFO_DESTINATION.unload
+
+PACKED_TIME=`echo $PRODUCT_TIME | cut -c1-4,6-7,9-10,12-13,15-16,18-19`
+  
+MHS_FILE=$WHFS_PRODUCT_DIR/$PRODUCT_ID.$PACKED_TIME.to$WFO_DESTINATION
+
+print MHS transmit file $MHS_FILE
+echo MHS transmit file $MHS_FILE >> $LOGNAME
+
+#
+# extract the necessary data from the database. 
+# note that for a site providing backup, RiverPro will not invoke this
+# script to have info sent back to the out-of-operation host office.
+# this info needs to be sent by invoking the restoration button in the gui.
+# this may be changed in the future with a change to RiverPro.
+#
+
+print $POSTGRESQLBINDIR/psql -d $DB_NAME -f $SQL_INPUT_FILE
+echo $POSTGRESQLBINDIR/psql -d $DB_NAME -f $SQL_INPUT_FILE >> $LOGNAME
+
+$POSTGRESQLBINDIR/psql -d $DB_NAME -f $SQL_INPUT_FILE >> $LOGNAME 2>&1
+
+# 
+# move the temporary files to the three files in product directory
+#
+
+echo Move vtecevent_temp.output to $VTECEVENT_FILE >> $LOGNAME
+echo Move fpprevprod_temp.output to $FPPREVPROD_FILE >> $LOGNAME
+echo Move textproduct_temp.output to $TEXTPRODUCT_FILE >> $LOGNAME
+print Move three temporary files to product directory and rename
+
+if [ -f vtecevent_temp.output ]
+then
+   mv vtecevent_temp.output $VTECEVENT_FILE
+else
+   echo vtecevent_temp.output can not be found.
+fi   
+
+if [ -f fpprevprod_temp.output ]
+then
+   mv fpprevprod_temp.output $FPPREVPROD_FILE
+else
+   echo fpprevprod_temp.output can not be found.
+fi  
+
+if [ -f textproduct_temp.output ]
+then
+   mv textproduct_temp.output $TEXTPRODUCT_FILE
+else
+   echo textproduct_temp.output can not be found.   
+fi 
+
+#
+# concatenate the 3 data sets into one file.
+# the header lines preceding each data set are set specifically
+# to match the header lines searched for by the receive 
+# script which later processes this data 
+#
+
+echo "table:vtecevent"   >  $MHS_FILE
+cat $VTECEVENT_FILE      >> $MHS_FILE
+echo "table:fpprevprod"  >> $MHS_FILE
+cat $FPPREVPROD_FILE     >> $MHS_FILE
+echo "table:textproduct" >> $MHS_FILE
+cat $TEXTPRODUCT_FILE    >> $MHS_FILE
+
+#
+# prepare the environment for the actions to come
+#
+
+. $FXA_HOME/readenv.sh >> $LOGNAME 2>&1
+
+#
+# send the data set
+# the subject line content is specifically recognized by the receive script
+# 
+
+SUBJECT="$PRODUCT_ID $PACKED_TIME $WFO_SOURCE"
+
+print Using distributeProduct with subject $SUBJECT
+echo  Using distributeProduct with subject $SUBJECT >> $LOGNAME
+
+/awips/fxa/bin/distributeProduct -c RIVPROD_BACKUP -a $WFO_DESTINATION -s "$SUBJECT" $PRODUCT_ID $MHS_FILE >> $LOGNAME 2>>$LOGNAME
+RETURN_STATUS=$?
+
+if [ $RETURN_STATUS -eq 0 ]
+then
+   echo Send backup info request success >> $LOGNAME   
+   print Send backup info request success 
+   
+else
+   echo Send backup info request failed status= $RETURN_STATUS >> $LOGNAME   
+   print Send backup info request failed status= $RETURN_STATUS   
+fi
+
+#
+
+return $RETURN_STATUS
+#

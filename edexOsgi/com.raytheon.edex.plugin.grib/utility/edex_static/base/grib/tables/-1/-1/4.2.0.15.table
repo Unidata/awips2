@@ -1,0 +1,13 @@
+# Product Discipline 0 - Meteorological products, Parameter Category 15: Radar
+0:0:Base spectrum width:m/s:BASSW
+1:1:Base reflectivity:dB:BASR
+2:2:Base radial velocity:m/s:BASRV
+3:3:Vertically-integrated liquid:kg/m:VILIQ
+4:4:Layer-maximum base reflectivity:dB:LMBSR
+5:5:Precipitation:mm:PRCP
+6:6:Radar spectra (1)::RDSP1
+7:7:Radar spectra (2)::RDSP2
+8:8:Radar spectra (3)::RDSP3
+# 9-191 Reserved
+255:255:Missing
+

@@ -1,0 +1,4 @@
+! Attributes for the HPCMOS resource with "standard" plot model
+plotModel=@PlotModels/bufrmosHPC/standard.xml
+plotDensity=10
+conditionalFilter=

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    COMMENT:
+    
+    
+    AWIPS 1 format
+    QPV2 |9| |Negative EPV*   | |CONTOUR,IMAGE,OTHER|MB |   *Test|MpV|1.|-1.e37|.0|MpV|1.|.0|1.e37|0.  
+    
+    
+    abbreviation: |QPV2| 
+    Notused1: |9| 
+    Notused2: | | 
+    name: |Negative EPV*   | 
+    FIELD: || 
+    FIELD: |CONTOUR,IMAGE,OTHER| 
+    FIELD: |MB| 
+    FIELD: |MpV| 
+    FIELD: |1.| 
+    FIELD: |-1.e37| 
+    FIELD: |.0| 
+    FIELD: |MpV| 
+    FIELD: |1.| 
+    FIELD: |.0| 
+    FIELD: |1.e37| 
+    FIELD: |0.| 
+    
+    
+    NEW FILE - QPV2.xml
+    -->
+<DerivedParameter name="Negative EPV*" abbreviation="QPV2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field abbreviation="MpV"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="0.0"/>
+        <Field abbreviation="MpV"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1e37"/>
+        <ConstantField value="0.0"/>
+    </Method>
+</DerivedParameter>

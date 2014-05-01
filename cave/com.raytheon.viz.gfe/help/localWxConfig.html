@@ -1,0 +1,440 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>localWxConfig.py</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<h1>localWxConfig.py - Local Server Database Configuration (Weather
+Definition)</h1>
+December 30, 2011<br>
+<br>
+
+<br>
+Table of Contents
+<p><a href="#Overview">Overview</a>
+<br>
+<a href="#AddingYourOwnlocalConfig.pyFile">Adding Your Own
+localWxConfig.py
+File</a>
+<br>
+<a href="#Testing">Testing Your localWxConfig.py File</a>
+<br>
+<a href="#WhatcanyoucontrolfromyourcustomlocalConfig">What
+can you control from your custom localWxConfig.py file?</a>
+<br>
+<a href="#ChangingVisibility">Changing Visibilities</a>
+<br>
+<a href="#ChangingCoverages">Changing Coverages and Probabilities</a>
+<br>
+<a href="#ChangingIntensity">Changing Intensities</a>
+<br>
+<a href="#ChaingAttributes">Changing Optional Attributes</a>
+<br>
+<a href="#ChangingDefinition">Changing Weather Type Definition</a>
+<br>
+&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+<div class="Body">The localWxConfig.py file is one of several
+configuration
+files for GFE. The localWxConfig
+file is optional, and is not provided with the install or
+release.
+It is added by the field site to override certain features of the GFE
+database configuration that are defined in the <a
+ href="serverConfig.html">serverConfig.py</a>
+file. <b><font color="#ff0000">You should NEVER change the
+original
+serverConfig.py since your changes will be overwritten with the next
+upgrade.
+See the <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration overview</a> for information on how to make changes that
+are supported to the server.</font></b>
+<p>The localWxConfig.py file can be used to override the weather
+definitions
+in <a href="serverConfig.html">serverConfig.py</a>. This document
+will describe what you can, and what you cannot override. If you
+need to override an element that is not supported by <a
+ href="localConfig.html">localConfig.py</a>
+or localWxConfig.py, then refer to the <font color="#000000"><a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration overview</a> for details.</font><font color="#000000"></font>
+</p>
+<p><b><font color="#ff0000"><b>Note:</b> Changing weather definitions can
+cause problems when sending these grids to other sites via Intersite
+Coordination.
+If another site receives grids that do not contain valid Weather
+Definitions
+at that site, the grid will be rejected.</font></b>
+</p>
+<hr width="100%">
+<h2><a name="AddingYourOwnlocalConfig.pyFile"></a>Adding Your Own
+localWxConfig.py
+File</h2>
+If you want to make changes to the server database weather definitions,
+then you will want to add your own localWxConfig.py file. Refer
+to the <a href="serverConfiguration.html#LocationofFiles">server
+configuration
+overview file location section</a> for details on where the
+localWxConfig.py
+file should be located.
+<p>The first lines of the localWxConfig.py <i>must</i> have the
+following
+format. Failure to do so will not let you refer to any of the
+definitions
+in serverConfig.py:
+</p>
+<p><tt>from serverConfig import *</tt>
+<br>
+<tt>import serverConfig</tt>
+</p>
+<p>The syntax appearing in localWxConfig.py varies depending whether
+you
+are adding new definitions, or changing existing definitions.
+Typically
+when changing existing definitions you will need to prefix the
+serverConfig
+to the name of the variable. For example,
+</p>
+<p><tt>var = (a,b,c,d)</tt> refers to a local copy of this definition
+and
+doesn't override the definition in serverConfig.py
+</p>
+<p><tt>serverConfig.var = (a,b,c,d) </tt>refers to the variable in the
+serverConfig and overrides it.
+</p>
+<p>The localWxConfig.py file is created through your favorite text
+editor.
+</p>
+<p><a href="EXAMPLElocalWxConfig.py">Example localWxConfig.py file</a>
+</p>
+<p><i>Note that the format of localWxConfig is difficult, due to the
+fact
+that the weather definition in serverConfig.py is a composite of many
+different
+objects.&nbsp; This makes it more difficult to override or redefine
+fields.</i>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="Testing"></a>Testing Your Own localWxConfig.py File</h2>
+The recommended way to test your localWxConfig.py file is to start EDEX
+while running a tail command on the /awips2/edex/logs/edex-request-<i>date</i>.log.
+If no exceptions result from the changes, you should be fine to proceed into GFE for
+further testing.
+<p></p>
+<hr width="100%">
+<h2><a name="WhatcanyoucontrolfromyourcustomlocalConfig"></a>What
+can
+you control from your custom localWxConfig.py file?</h2>
+The following table describes what can be done using a custom
+localWxConfig.py
+file. If the override capability is marked as "NO" and you still
+need the modification, you will need to review <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">methods
+of modifying database configurations</a> for alternative choices.
+<br>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Item</b></td>
+      <td><b>localWxConfig.py override</b></td>
+      <td><b>Link to serverConfig info</b></td>
+    </tr>
+    <tr>
+      <td>Visibilities</td>
+      <td>YES</td>
+      <td><a href="serverConfig.html#PossibleVisibilities">Possible
+Visibilities</a></td>
+    </tr>
+    <tr>
+      <td>Coverages and Probabilities</td>
+      <td>YES</td>
+      <td><a href="serverConfig.html#PossibleCoveragesandProbabilities">Possible
+Coverages and Probabilities</a></td>
+    </tr>
+    <tr>
+      <td>Possible Intensities</td>
+      <td>YES</td>
+      <td><a href="serverConfig.html#PossibleIntensities">Possible
+Intensities</a></td>
+    </tr>
+    <tr>
+      <td>Optional Attributes</td>
+      <td>YES</td>
+      <td><a href="serverConfig.html#OptionalAttributes">Optional
+Attributes</a></td>
+    </tr>
+    <tr>
+      <td>Weather Type Definition</td>
+      <td>YES</td>
+      <td><a href="serverConfig.html#WeatherTypeDefinitions">Weather
+Type Definitions</a></td>
+    </tr>
+  </tbody>
+</table>
+<p>
+</p>
+<hr width="100%">
+<h3><a name="ChangingVisibility"></a>Changing Visibilities</h3>
+Visibilities are very easy to change.&nbsp; Basically you redefine the
+set of visibilities and prefix the entry with serverConfig.&nbsp; For
+example,
+the following line changes the set of possible visibilities to values
+without
+the default "SM":
+<p><tt>serverConfig.visibilities = ['&lt;NoVis&gt;', '0', '1/4', '1/2',
+'3/4',
+'1', '11/2',</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'2', '21/2', '3', '4', '5', '6', 'P6']</tt>
+</p>
+<p></p>
+<hr width="100%">
+<h3><a name="ChangingCoverages"></a>Changing Coverages and Probabilities</h3>
+If you are adding a new coverage or probability, the syntax is straight
+forward.&nbsp; In order to use the new coverage or probability, you
+will
+need to also provide a new weather type definition.&nbsp; Here is an
+example
+of adding a new coverage called "Sparse":
+<p><tt>SPARSE = ('Sparse', 'Sparse')</tt>
+</p>
+<p>Note there is not a serverConfig. in front of the command.&nbsp;
+That
+is because you are not overridding an existing definition.
+</p>
+<p>If you want to change an existing definition, the syntax is
+basically
+the same as above.&nbsp; You will not need to put serverConfig. in
+front
+of it, but you will need to redefine all of the weather types
+completely.&nbsp;
+Here is an example of modifying isolated coverage to use a different
+symbol:
+</p>
+<p><tt>ISOD = ('Isod', 'Isolated')</tt>
+</p>
+<p>This statement by itself will not do anything.&nbsp; You will need
+to
+use the new definition later on in the file.
+</p>
+<p>In serverConfig.py, there are convenient groupings, such as COV,
+that
+group several coverages and probabilities together.&nbsp; If you want
+to
+change the definition of those, or you want to change the definition of
+a coverage or probability inside of those, then you have to completely
+redefine the individual coverage (as shown above) and redefine the
+grouping.&nbsp;
+In this case, we want to redefine the COV to contain SPARSE and our new
+definition of ISOD.
+</p>
+<p><tt>COV = [ISOD, SCT, NUM, WIDE, SPARSE]</tt>
+</p>
+<p>Note that ISOD is referring to the localWxConfig's definition of
+ISOD,
+and not the server config's definition.&nbsp; Also note that COV is a
+modified
+local copy of the server's COV definition.&nbsp; To use these
+definitions,
+you will have to refer to them later in the file.
+<br>
+</p>
+<hr width="100%">
+<h2><a name="ChangingIntensity"></a>Changing Intensities</h2>
+If you are adding a new intensity, the syntax is straight
+forward.&nbsp;
+In order to use the new intensity, you will need to also provide a new
+weather type definition.&nbsp; Here is an example of adding a new
+intensity
+called "Super Heavy":
+<p><tt>SUPERHEAVY = ('+++', "Super Heavy")</tt>
+</p>
+<p>Note there is not a serverConfig. in front of the command.&nbsp;
+That
+is because you are not overridding an existing definition.
+</p>
+<p>If you want to change an existing definition, the syntax is
+basically
+the same as above.&nbsp; You will not need to put serverConfig. in
+front
+of it, but you will need to redefine all of the weather types
+completely.&nbsp;
+Here is an example of modifying isolated coverage to use a different
+symbol:
+</p>
+<p><tt>INTEN_MOD = ('mod', 'Moderate')</tt>
+</p>
+<p>This statement by itself will not do anything.&nbsp; You will need
+to
+use the new definition later on in the file.
+</p>
+<p>In serverConfig.py, there are convenient groupings, such as
+PCPINTEN,
+that group several intensities together.&nbsp; If you want to change
+the
+definition of those, or you want to change the definition of a
+intensity
+inside of those, then you have to completely redefine the individual
+intensity
+(as shown above) and redefine the grouping.&nbsp; In this case, we want
+to redefine the PCPINTEN to contain SUPERHEAVY and our new definition
+of
+INTEN_MOD.
+</p>
+<p><tt>PCPINTEN = [INTEN_VERYLIGHT, INTEN_LIGHT, INTEN_MOD,
+INTEN_HEAVY,
+SUPERHEAVY]</tt>
+</p>
+<p>Note that INTEN_MOD is referring to the localWxConfig's definition
+of
+INTEN_MOD, and not the server config's definition, since serverConfig.
+was not placed in front of it.&nbsp; Also note that PCPINTEN is a
+modified
+local copy of the server's PCPINTEN definition.&nbsp; To use these
+definitions,
+you will have to refer to them later in the file.
+<br>
+</p>
+<hr width="100%">
+<h3><a name="ChaingAttributes"></a>Changing Optional Attributes</h3>
+If you are adding a new optional attribute, the syntax is straight
+forward.&nbsp;
+In order to use the new attribute, you will need to also provide a new
+weather type definition.&nbsp; Here is an example of adding a new
+intensity
+called "Lousy":
+<p><tt>LOUSY = ('Lsy', 'Lousy')</tt>
+</p>
+<p>Note there is not a serverConfig. in front of the command.&nbsp;
+That
+is because you are not overridding an existing definition.
+</p>
+<p>If you want to change an existing definition, the syntax is
+basically
+the same as above.&nbsp; You will not need to put serverConfig. in
+front
+of it, but you will need to redefine all of the weather types
+completely.&nbsp;
+Here is an example of modifying Frequent Lightning to use a different
+symbol:
+</p>
+<p><tt>FQTLTG = ('FqLt', 'Frequent Lightning')</tt>
+</p>
+<p>This statement by itself will not do anything.&nbsp; You will need
+to
+use the new definition later on in the file.
+</p>
+<p></p>
+<hr width="100%">
+<h3><a name="ChangingDefinition"></a>Changing Weather Type Definition</h3>
+This is the section where all of the type definitions come
+together.&nbsp;
+Based on what you enter in this section, you can remove, change, or add
+new weather type definitions.&nbsp; You will have to completely define
+all of the weather types you need for the GFE in this section.&nbsp; Do
+not try to simply append or remove entries from the existing list.
+<p>The format of the entries are:
+<br>
+<tt>TypeSymbol = ('Symbol', 'Description', [coverages], [intensities],
+[optional attributes])</tt>
+</p>
+<p>Remember to refer to symbols without serverConfig. in front of it to
+refer to the modified or added values in your localWxConfig file.&nbsp;
+You can also refer to unchanged symbols from serverConfig in the same
+manner.&nbsp;
+Normally you should not need to place serverConfig. in front of any
+entry.&nbsp;
+The rule is if you are redefining a coverage/probability, intensity,
+optional
+attribute, or grouping of these, then you will use that symbol name in
+the weather type definition.
+</p>
+<p>The next step is to define each weather type.&nbsp; For example, we
+want to keep the &lt;NoWx&gt; definition. Since we have not made any
+modifications
+to the possible coverages, intensities, attributes from what was in
+serverConfig.py,
+we can simply refer to it with NOWX.&nbsp; We also want to allow just
+RAIN
+and SNOW.&nbsp; These will need to be redefined to use our FQTLTG,
+LOUSY,
+PCPINTEN, and modified COV values.&nbsp; Here are the entries:
+</p>
+<p><tt>RAIN = ('R', 'Rain', COV, PCPINTEN, [FQTLTG])</tt>
+<br>
+<tt>SNOW = ('S', 'Snow', [WIDE, SPARSE], [INTEN_LIGHT, INTEN_HEAVY],
+[LOUSY, OVRPASS])</tt>
+</p>
+<p>Then tie it all together with the types command. <font
+ color="#ff0000">Note
+that the "types =" must be exactly that in order for serverConfig.py to
+pick up your definitions</font>:
+</p>
+<p><tt>types = [NOWX, RAIN, SNOW]</tt>
+</p>
+<p>The result of the statements identified in this file is shown in the
+following table:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Weather Type</b></td>
+      <td><b>Coverages</b></td>
+      <td><b>Intentities</b></td>
+      <td><b>Attributes</b></td>
+    </tr>
+    <tr>
+      <td>No Weather</td>
+      <td>&lt;NoCov&gt;</td>
+      <td>&lt;NoInten&gt;</td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <td>Rain</td>
+      <td>Modified definition of Isolated with 'Isod', existing
+serverConfig
+definition of WSCT, SCT, NUM, WIDE, and new definition of SPARSE.</td>
+      <td>Existing serverConfig definition of INTEN_VERYLIGHT,
+INTEN_LIGHT, modified
+definition of moderate ('mod'), serverConfig definition of INTEN_HEAVY,
+and new definition of SUPERHEAVY.</td>
+      <td>Modified attribute of FQTLTG.</td>
+    </tr>
+    <tr>
+      <td>Snow</td>
+      <td>Existing serverConfig definition of WIDE, new definition of
+SPARSE.</td>
+      <td>Existing serverConfig definition of INTEN_LIGHT and
+INTEN_HEAVY.</td>
+      <td>New definiton of LOUSY, existing serverConfig definition of
+OVRPASS.</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>In addition, the set of visibilities will be changed to:
+['&lt;NoVis&gt;',
+'0', '1/4', '1/2', '3/4', '1', '11/2', '2', '21/2', '3', '4', '5', '6',
+'P6']
+</p>
+<hr width="100%"><br>
+<br>
+</div>
+<div class="Body"><a href="#Overview">Back To Top</a>
+<br>
+<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</div>
+</body>
+</html>

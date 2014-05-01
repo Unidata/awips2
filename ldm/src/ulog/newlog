@@ -1,0 +1,34 @@
+#! /bin/sh
+#
+# $Id: newlog,v 6.4 2002/10/17 15:03:03 steve Exp $
+#
+# Script to shift log file names.  If $logfile doesn't exist, then it will
+# be created; otherwise, if the file has non-zero size, then the file
+# $logfile.$nback will be removed if it exists, all files whose name matches
+# $logfile.#, where "#" is a number less than $nback, will be renamed with a
+# higher number, $logfile will be renamed $logfile.1, and an empty $logfile will
+# be created.
+#
+# Usage: $0 logpath [nback]
+
+logpath=${1?}
+nback=${2-7}
+
+logdir=`dirname $logpath`
+logfile=`basename $logpath`
+
+cd $logdir || exit 1
+if test ! -f "$logfile"; then
+    touch "$logfile";
+elif test -s "$logfile"; then
+    while test $nback -ge 2; do
+	to=$logfile.$nback
+	nback=`expr $nback - 1`
+	from=$logfile.$nback
+	if [ -f $from ]; then
+	    mv $from $to || exit 1
+	fi
+    done
+    mv $logfile $logfile.1 || exit 1
+    touch $logfile || exit 1
+fi

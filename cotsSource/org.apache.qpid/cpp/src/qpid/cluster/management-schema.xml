@@ -1,0 +1,61 @@
+<schema package="org.apache.qpid.cluster">
+
+  <!--
+      Licensed to the Apache Software Foundation (ASF) under one
+      or more contributor license agreements.  See the NOTICE file
+      distributed with this work for additional information
+      regarding copyright ownership.  The ASF licenses this file
+      to you under the Apache License, Version 2.0 (the
+      "License"); you may not use this file except in compliance
+      with the License.  You may obtain a copy of the License at
+      
+      http://www.apache.org/licenses/LICENSE-2.0
+      
+      Unless required by applicable law or agreed to in writing,
+      software distributed under the License is distributed on an
+      "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+      KIND, either express or implied.  See the License for the
+      specific language governing permissions and limitations
+      under the License.
+  -->
+
+  <!-- Type information:
+
+Numeric types with "_wm" suffix are watermarked numbers.  These are compound
+values containing a current value, and a low and high water mark for the reporting
+interval.  The low and high water marks are set to the current value at the
+beginning of each interval and track the minimum and maximum values of the statistic
+over the interval respectively.
+
+Access rights for configuration elements:
+
+RO => Read Only
+RC => Read/Create, can be set at create time only, read-only thereafter
+RW => Read/Write
+
+If access rights are omitted for a property, they are assumed to be RO.
+
+  -->
+
+  <class name="Cluster">
+    <property name="brokerRef"        type="objId"  references="Broker" access="RC" index="y" parentRef="y"/>
+    <property name="clusterName"      type="sstr"   access="RC" desc="Name of cluster this server is a member of"/>
+    <property name="clusterID"        type="sstr"   access="RO" desc="Globally unique ID (UUID) for this cluster instance"/>
+    <property name="memberID"         type="sstr"   access="RO" desc="ID of this member of the cluster"/>
+    <property name="publishedURL"     type="sstr"   access="RC" desc="URL this node advertizes itself as"/>
+    <property name="clusterSize"      type="uint16" access="RO" desc="Number of brokers currently in the cluster"/>
+    <property name="status"           type="sstr"   access="RO" desc="Cluster node status (STALLED,ACTIVE,JOINING)"/>
+    <property name="members"          type="lstr"   access="RO" desc="List of member URLs delimited by ';'"/> 
+    <property name="memberIDs"        type="lstr"   access="RO" desc="List of member IDs delimited by ';'"/> 
+
+    <method name="stopClusterNode">
+      <arg name="brokerId" type="sstr" dir="I"/>
+    </method>
+    <method name="stopFullCluster"/>
+
+  </class>
+
+
+
+</schema>
+

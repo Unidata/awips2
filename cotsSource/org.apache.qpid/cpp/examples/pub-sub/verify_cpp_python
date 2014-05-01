@@ -1,0 +1,6 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify 
+py=$PYTHON_EXAMPLES/pubsub
+background "Queues created" $py/topic_subscriber.py
+clients ./topic_publisher
+outputs ./topic_publisher.out "$py/topic_subscriber.py.out | remove_uuid | sort"
+

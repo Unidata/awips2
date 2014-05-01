@@ -1,0 +1,2 @@
+Here's the Local file for the SmartElementTable.  Notice that it, like all Local files, imports and inherits from the Standard file.  It can override the Definition section.  In this case, that means the "elementList" can be changed to produce different table configurations.
+

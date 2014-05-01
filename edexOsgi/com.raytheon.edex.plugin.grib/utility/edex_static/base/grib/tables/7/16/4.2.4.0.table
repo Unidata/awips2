@@ -1,0 +1,10 @@
+# Product Discipline 4: Space Weather Products, Parameter Category 0: Temperature
+0:0:Temperature:K:TMPSWP
+1:1:Electron Temperature:K:ELECTMP
+2:2:Proton Temperature:K:PROTTMP
+3:3:Ion Temperature:K:IONTMP
+4:4:Parallel Temperature:K:PRATMP
+5:5:Perpendicular Temperature:K:PRPTMP
+# 6-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing

@@ -1,0 +1,1193 @@
+/*
+    File: DPARadar.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:20 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DPARadar.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DPARadar_t
+{
+    char		radid[4];
+    dtime_t		obstime;
+    short		minoff;
+    float		maxvalh;
+    float		maxvald;
+    float		s1_bias_value;
+    dtime_t		producttime;
+    short		nisolbin;
+    short		noutint;
+    short		noutrep;
+    float		areared;
+    float		biscanr;
+    long		block_bins_reject;
+    long		clutter_bins_rej;
+    long		bins_smoothed;
+    float		scan_bins_filled;
+    float		high_elev_angle;
+    float		scan_rain_area;
+    short		nbadscan;
+    short		nhourout;
+    short		volcovpat;
+    short		opermode;
+    char		missper[2];
+    short		supplmess;
+    char		grid_filename[21];
+
+    int		ind_minoff;
+    int		ind_maxvalh;
+    int		ind_maxvald;
+    int		ind_s1_bias_value;
+    int		ind_producttime;
+    int		ind_nisolbin;
+    int		ind_noutint;
+    int		ind_noutrep;
+    int		ind_areared;
+    int		ind_biscanr;
+    int		ind_block_bins_reject;
+    int		ind_clutter_bins_rej;
+    int		ind_bins_smoothed;
+    int		ind_scan_bins_filled;
+    int		ind_high_elev_angle;
+    int		ind_scan_rain_area;
+    int		ind_nbadscan;
+    int		ind_nhourout;
+    int		ind_volcovpat;
+    int		ind_opermode;
+    int		ind_missper;
+    int		ind_supplmess;
+    int		ind_grid_filename;
+} DPARadar_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DPARadar * GetDPARadar(const char * where)
+{
+
+    DPARadar * listPtr = NULL;
+    DPARadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DPARadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDPARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDPARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDPARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, 
+    :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value, 
+    :dbs.producttime:dbs.ind_producttime, :dbs.nisolbin:dbs.ind_nisolbin, 
+    :dbs.noutint:dbs.ind_noutint, :dbs.noutrep:dbs.ind_noutrep, 
+    :dbs.areared:dbs.ind_areared, :dbs.biscanr:dbs.ind_biscanr, 
+    :dbs.block_bins_reject:dbs.ind_block_bins_reject, :dbs.clutter_bins_rej:dbs.ind_clutter_bins_rej, 
+    :dbs.bins_smoothed:dbs.ind_bins_smoothed, :dbs.scan_bins_filled:dbs.ind_scan_bins_filled, 
+    :dbs.high_elev_angle:dbs.ind_high_elev_angle, :dbs.scan_rain_area:dbs.ind_scan_rain_area, 
+    :dbs.nbadscan:dbs.ind_nbadscan, :dbs.nhourout:dbs.ind_nhourout, 
+    :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+    :dbs.missper:dbs.ind_missper, :dbs.supplmess:dbs.ind_supplmess, 
+    :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDPARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DPARadar *) malloc(sizeof(DPARadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->minoff = dbs.minoff;
+            setNullIfIndicated(dbs.ind_minoff, SHORT, &structPtr->minoff);
+
+            structPtr->maxvalh = dbs.maxvalh;
+            setNullIfIndicated(dbs.ind_maxvalh, FLOAT, &structPtr->maxvalh);
+
+            structPtr->maxvald = dbs.maxvald;
+            setNullIfIndicated(dbs.ind_maxvald, FLOAT, &structPtr->maxvald);
+
+            structPtr->s1_bias_value = dbs.s1_bias_value;
+            setNullIfIndicated(dbs.ind_s1_bias_value, FLOAT, &structPtr->s1_bias_value);
+
+            structPtr->producttime = dbs.producttime;
+            setNullIfIndicated(dbs.ind_producttime, DATETIME, &structPtr->producttime);
+
+            structPtr->nisolbin = dbs.nisolbin;
+            setNullIfIndicated(dbs.ind_nisolbin, SHORT, &structPtr->nisolbin);
+
+            structPtr->noutint = dbs.noutint;
+            setNullIfIndicated(dbs.ind_noutint, SHORT, &structPtr->noutint);
+
+            structPtr->noutrep = dbs.noutrep;
+            setNullIfIndicated(dbs.ind_noutrep, SHORT, &structPtr->noutrep);
+
+            structPtr->areared = dbs.areared;
+            setNullIfIndicated(dbs.ind_areared, FLOAT, &structPtr->areared);
+
+            structPtr->biscanr = dbs.biscanr;
+            setNullIfIndicated(dbs.ind_biscanr, FLOAT, &structPtr->biscanr);
+
+            structPtr->block_bins_reject = dbs.block_bins_reject;
+            setNullIfIndicated(dbs.ind_block_bins_reject, INT, &structPtr->block_bins_reject);
+
+            structPtr->clutter_bins_rej = dbs.clutter_bins_rej;
+            setNullIfIndicated(dbs.ind_clutter_bins_rej, INT, &structPtr->clutter_bins_rej);
+
+            structPtr->bins_smoothed = dbs.bins_smoothed;
+            setNullIfIndicated(dbs.ind_bins_smoothed, INT, &structPtr->bins_smoothed);
+
+            structPtr->scan_bins_filled = dbs.scan_bins_filled;
+            setNullIfIndicated(dbs.ind_scan_bins_filled, FLOAT, &structPtr->scan_bins_filled);
+
+            structPtr->high_elev_angle = dbs.high_elev_angle;
+            setNullIfIndicated(dbs.ind_high_elev_angle, FLOAT, &structPtr->high_elev_angle);
+
+            structPtr->scan_rain_area = dbs.scan_rain_area;
+            setNullIfIndicated(dbs.ind_scan_rain_area, FLOAT, &structPtr->scan_rain_area);
+
+            structPtr->nbadscan = dbs.nbadscan;
+            setNullIfIndicated(dbs.ind_nbadscan, SHORT, &structPtr->nbadscan);
+
+            structPtr->nhourout = dbs.nhourout;
+            setNullIfIndicated(dbs.ind_nhourout, SHORT, &structPtr->nhourout);
+
+            structPtr->volcovpat = dbs.volcovpat;
+            setNullIfIndicated(dbs.ind_volcovpat, SHORT, &structPtr->volcovpat);
+
+            structPtr->opermode = dbs.opermode;
+            setNullIfIndicated(dbs.ind_opermode, SHORT, &structPtr->opermode);
+
+            strcpy(structPtr->missper, dbs.missper);
+            setNullIfIndicated(dbs.ind_missper, CHAR, structPtr->missper);
+
+            structPtr->supplmess = dbs.supplmess;
+            setNullIfIndicated(dbs.ind_supplmess, SHORT, &structPtr->supplmess);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, 
+        :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value, 
+        :dbs.producttime:dbs.ind_producttime, :dbs.nisolbin:dbs.ind_nisolbin, 
+        :dbs.noutint:dbs.ind_noutint, :dbs.noutrep:dbs.ind_noutrep, 
+        :dbs.areared:dbs.ind_areared, :dbs.biscanr:dbs.ind_biscanr, 
+        :dbs.block_bins_reject:dbs.ind_block_bins_reject, :dbs.clutter_bins_rej:dbs.ind_clutter_bins_rej, 
+        :dbs.bins_smoothed:dbs.ind_bins_smoothed, :dbs.scan_bins_filled:dbs.ind_scan_bins_filled, 
+        :dbs.high_elev_angle:dbs.ind_high_elev_angle, :dbs.scan_rain_area:dbs.ind_scan_rain_area, 
+        :dbs.nbadscan:dbs.ind_nbadscan, :dbs.nhourout:dbs.ind_nhourout, 
+        :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+        :dbs.missper:dbs.ind_missper, :dbs.supplmess:dbs.ind_supplmess, 
+        :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDPARadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DPARadar * SelectDPARadar(const char * where)
+{
+
+    DPARadar * listPtr = NULL;
+    DPARadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DPARadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDPARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDPARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDPARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, 
+    :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value, 
+    :dbs.producttime:dbs.ind_producttime, :dbs.nisolbin:dbs.ind_nisolbin, 
+    :dbs.noutint:dbs.ind_noutint, :dbs.noutrep:dbs.ind_noutrep, 
+    :dbs.areared:dbs.ind_areared, :dbs.biscanr:dbs.ind_biscanr, 
+    :dbs.block_bins_reject:dbs.ind_block_bins_reject, :dbs.clutter_bins_rej:dbs.ind_clutter_bins_rej, 
+    :dbs.bins_smoothed:dbs.ind_bins_smoothed, :dbs.scan_bins_filled:dbs.ind_scan_bins_filled, 
+    :dbs.high_elev_angle:dbs.ind_high_elev_angle, :dbs.scan_rain_area:dbs.ind_scan_rain_area, 
+    :dbs.nbadscan:dbs.ind_nbadscan, :dbs.nhourout:dbs.ind_nhourout, 
+    :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+    :dbs.missper:dbs.ind_missper, :dbs.supplmess:dbs.ind_supplmess, 
+    :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDPARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DPARadar *) malloc(sizeof(DPARadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->minoff = dbs.minoff;
+            setNullIfIndicated(dbs.ind_minoff, SHORT, &structPtr->minoff);
+
+            structPtr->maxvalh = dbs.maxvalh;
+            setNullIfIndicated(dbs.ind_maxvalh, FLOAT, &structPtr->maxvalh);
+
+            structPtr->maxvald = dbs.maxvald;
+            setNullIfIndicated(dbs.ind_maxvald, FLOAT, &structPtr->maxvald);
+
+            structPtr->s1_bias_value = dbs.s1_bias_value;
+            setNullIfIndicated(dbs.ind_s1_bias_value, FLOAT, &structPtr->s1_bias_value);
+
+            structPtr->producttime = dbs.producttime;
+            setNullIfIndicated(dbs.ind_producttime, DATETIME, &structPtr->producttime);
+
+            structPtr->nisolbin = dbs.nisolbin;
+            setNullIfIndicated(dbs.ind_nisolbin, SHORT, &structPtr->nisolbin);
+
+            structPtr->noutint = dbs.noutint;
+            setNullIfIndicated(dbs.ind_noutint, SHORT, &structPtr->noutint);
+
+            structPtr->noutrep = dbs.noutrep;
+            setNullIfIndicated(dbs.ind_noutrep, SHORT, &structPtr->noutrep);
+
+            structPtr->areared = dbs.areared;
+            setNullIfIndicated(dbs.ind_areared, FLOAT, &structPtr->areared);
+
+            structPtr->biscanr = dbs.biscanr;
+            setNullIfIndicated(dbs.ind_biscanr, FLOAT, &structPtr->biscanr);
+
+            structPtr->block_bins_reject = dbs.block_bins_reject;
+            setNullIfIndicated(dbs.ind_block_bins_reject, INT, &structPtr->block_bins_reject);
+
+            structPtr->clutter_bins_rej = dbs.clutter_bins_rej;
+            setNullIfIndicated(dbs.ind_clutter_bins_rej, INT, &structPtr->clutter_bins_rej);
+
+            structPtr->bins_smoothed = dbs.bins_smoothed;
+            setNullIfIndicated(dbs.ind_bins_smoothed, INT, &structPtr->bins_smoothed);
+
+            structPtr->scan_bins_filled = dbs.scan_bins_filled;
+            setNullIfIndicated(dbs.ind_scan_bins_filled, FLOAT, &structPtr->scan_bins_filled);
+
+            structPtr->high_elev_angle = dbs.high_elev_angle;
+            setNullIfIndicated(dbs.ind_high_elev_angle, FLOAT, &structPtr->high_elev_angle);
+
+            structPtr->scan_rain_area = dbs.scan_rain_area;
+            setNullIfIndicated(dbs.ind_scan_rain_area, FLOAT, &structPtr->scan_rain_area);
+
+            structPtr->nbadscan = dbs.nbadscan;
+            setNullIfIndicated(dbs.ind_nbadscan, SHORT, &structPtr->nbadscan);
+
+            structPtr->nhourout = dbs.nhourout;
+            setNullIfIndicated(dbs.ind_nhourout, SHORT, &structPtr->nhourout);
+
+            structPtr->volcovpat = dbs.volcovpat;
+            setNullIfIndicated(dbs.ind_volcovpat, SHORT, &structPtr->volcovpat);
+
+            structPtr->opermode = dbs.opermode;
+            setNullIfIndicated(dbs.ind_opermode, SHORT, &structPtr->opermode);
+
+            strcpy(structPtr->missper, dbs.missper);
+            setNullIfIndicated(dbs.ind_missper, CHAR, structPtr->missper);
+
+            structPtr->supplmess = dbs.supplmess;
+            setNullIfIndicated(dbs.ind_supplmess, SHORT, &structPtr->supplmess);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, 
+        :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value, 
+        :dbs.producttime:dbs.ind_producttime, :dbs.nisolbin:dbs.ind_nisolbin, 
+        :dbs.noutint:dbs.ind_noutint, :dbs.noutrep:dbs.ind_noutrep, 
+        :dbs.areared:dbs.ind_areared, :dbs.biscanr:dbs.ind_biscanr, 
+        :dbs.block_bins_reject:dbs.ind_block_bins_reject, :dbs.clutter_bins_rej:dbs.ind_clutter_bins_rej, 
+        :dbs.bins_smoothed:dbs.ind_bins_smoothed, :dbs.scan_bins_filled:dbs.ind_scan_bins_filled, 
+        :dbs.high_elev_angle:dbs.ind_high_elev_angle, :dbs.scan_rain_area:dbs.ind_scan_rain_area, 
+        :dbs.nbadscan:dbs.ind_nbadscan, :dbs.nhourout:dbs.ind_nhourout, 
+        :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+        :dbs.missper:dbs.ind_missper, :dbs.supplmess:dbs.ind_supplmess, 
+        :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDPARadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDPARadarCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DPARadar ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDPARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDPARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDPARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDPARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDPARadar(const DPARadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPARadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.minoff = structPtr->minoff;
+    dbs.ind_minoff = getIndicator(SHORT, (void *)&structPtr->minoff);
+
+    dbs.maxvalh = structPtr->maxvalh;
+    dbs.ind_maxvalh = getIndicator(FLOAT, (void *)&structPtr->maxvalh);
+
+    dbs.maxvald = structPtr->maxvald;
+    dbs.ind_maxvald = getIndicator(FLOAT, (void *)&structPtr->maxvald);
+
+    dbs.s1_bias_value = structPtr->s1_bias_value;
+    dbs.ind_s1_bias_value = getIndicator(FLOAT, (void *)&structPtr->s1_bias_value);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.nisolbin = structPtr->nisolbin;
+    dbs.ind_nisolbin = getIndicator(SHORT, (void *)&structPtr->nisolbin);
+
+    dbs.noutint = structPtr->noutint;
+    dbs.ind_noutint = getIndicator(SHORT, (void *)&structPtr->noutint);
+
+    dbs.noutrep = structPtr->noutrep;
+    dbs.ind_noutrep = getIndicator(SHORT, (void *)&structPtr->noutrep);
+
+    dbs.areared = structPtr->areared;
+    dbs.ind_areared = getIndicator(FLOAT, (void *)&structPtr->areared);
+
+    dbs.biscanr = structPtr->biscanr;
+    dbs.ind_biscanr = getIndicator(FLOAT, (void *)&structPtr->biscanr);
+
+    dbs.block_bins_reject = structPtr->block_bins_reject;
+    dbs.ind_block_bins_reject = getIndicator(INT, (void *)&structPtr->block_bins_reject);
+
+    dbs.clutter_bins_rej = structPtr->clutter_bins_rej;
+    dbs.ind_clutter_bins_rej = getIndicator(INT, (void *)&structPtr->clutter_bins_rej);
+
+    dbs.bins_smoothed = structPtr->bins_smoothed;
+    dbs.ind_bins_smoothed = getIndicator(INT, (void *)&structPtr->bins_smoothed);
+
+    dbs.scan_bins_filled = structPtr->scan_bins_filled;
+    dbs.ind_scan_bins_filled = getIndicator(FLOAT, (void *)&structPtr->scan_bins_filled);
+
+    dbs.high_elev_angle = structPtr->high_elev_angle;
+    dbs.ind_high_elev_angle = getIndicator(FLOAT, (void *)&structPtr->high_elev_angle);
+
+    dbs.scan_rain_area = structPtr->scan_rain_area;
+    dbs.ind_scan_rain_area = getIndicator(FLOAT, (void *)&structPtr->scan_rain_area);
+
+    dbs.nbadscan = structPtr->nbadscan;
+    dbs.ind_nbadscan = getIndicator(SHORT, (void *)&structPtr->nbadscan);
+
+    dbs.nhourout = structPtr->nhourout;
+    dbs.ind_nhourout = getIndicator(SHORT, (void *)&structPtr->nhourout);
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    strcpy(dbs.missper, structPtr->missper);
+    dbs.ind_missper = getIndicator(CHAR, (void *)structPtr->missper);
+
+    dbs.supplmess = structPtr->supplmess;
+    dbs.ind_supplmess = getIndicator(SHORT, (void *)&structPtr->supplmess);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DPARadar (radid,obstime,
+        minoff,maxvalh,maxvald,
+        s1_bias_value,producttime,nisolbin,
+        noutint,noutrep,areared,
+        biscanr,block_bins_reject,clutter_bins_rej,
+        bins_smoothed,scan_bins_filled,high_elev_angle,
+        scan_rain_area,nbadscan,nhourout,
+        volcovpat,opermode,missper,
+        supplmess,grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.minoff:dbs.ind_minoff,
+         :dbs.maxvalh:dbs.ind_maxvalh, :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value,
+         :dbs.producttime:dbs.ind_producttime, :dbs.nisolbin:dbs.ind_nisolbin, :dbs.noutint:dbs.ind_noutint,
+         :dbs.noutrep:dbs.ind_noutrep, :dbs.areared:dbs.ind_areared, :dbs.biscanr:dbs.ind_biscanr,
+         :dbs.block_bins_reject:dbs.ind_block_bins_reject, :dbs.clutter_bins_rej:dbs.ind_clutter_bins_rej, :dbs.bins_smoothed:dbs.ind_bins_smoothed,
+         :dbs.scan_bins_filled:dbs.ind_scan_bins_filled, :dbs.high_elev_angle:dbs.ind_high_elev_angle, :dbs.scan_rain_area:dbs.ind_scan_rain_area,
+         :dbs.nbadscan:dbs.ind_nbadscan, :dbs.nhourout:dbs.ind_nhourout, :dbs.volcovpat:dbs.ind_volcovpat,
+         :dbs.opermode:dbs.ind_opermode, :dbs.missper:dbs.ind_missper, :dbs.supplmess:dbs.ind_supplmess,
+         :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDPARadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDPARadar(const DPARadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPARadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.minoff = structPtr->minoff;
+    dbs.ind_minoff = getIndicator(SHORT, (void *)&structPtr->minoff);
+
+    dbs.maxvalh = structPtr->maxvalh;
+    dbs.ind_maxvalh = getIndicator(FLOAT, (void *)&structPtr->maxvalh);
+
+    dbs.maxvald = structPtr->maxvald;
+    dbs.ind_maxvald = getIndicator(FLOAT, (void *)&structPtr->maxvald);
+
+    dbs.s1_bias_value = structPtr->s1_bias_value;
+    dbs.ind_s1_bias_value = getIndicator(FLOAT, (void *)&structPtr->s1_bias_value);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.nisolbin = structPtr->nisolbin;
+    dbs.ind_nisolbin = getIndicator(SHORT, (void *)&structPtr->nisolbin);
+
+    dbs.noutint = structPtr->noutint;
+    dbs.ind_noutint = getIndicator(SHORT, (void *)&structPtr->noutint);
+
+    dbs.noutrep = structPtr->noutrep;
+    dbs.ind_noutrep = getIndicator(SHORT, (void *)&structPtr->noutrep);
+
+    dbs.areared = structPtr->areared;
+    dbs.ind_areared = getIndicator(FLOAT, (void *)&structPtr->areared);
+
+    dbs.biscanr = structPtr->biscanr;
+    dbs.ind_biscanr = getIndicator(FLOAT, (void *)&structPtr->biscanr);
+
+    dbs.block_bins_reject = structPtr->block_bins_reject;
+    dbs.ind_block_bins_reject = getIndicator(INT, (void *)&structPtr->block_bins_reject);
+
+    dbs.clutter_bins_rej = structPtr->clutter_bins_rej;
+    dbs.ind_clutter_bins_rej = getIndicator(INT, (void *)&structPtr->clutter_bins_rej);
+
+    dbs.bins_smoothed = structPtr->bins_smoothed;
+    dbs.ind_bins_smoothed = getIndicator(INT, (void *)&structPtr->bins_smoothed);
+
+    dbs.scan_bins_filled = structPtr->scan_bins_filled;
+    dbs.ind_scan_bins_filled = getIndicator(FLOAT, (void *)&structPtr->scan_bins_filled);
+
+    dbs.high_elev_angle = structPtr->high_elev_angle;
+    dbs.ind_high_elev_angle = getIndicator(FLOAT, (void *)&structPtr->high_elev_angle);
+
+    dbs.scan_rain_area = structPtr->scan_rain_area;
+    dbs.ind_scan_rain_area = getIndicator(FLOAT, (void *)&structPtr->scan_rain_area);
+
+    dbs.nbadscan = structPtr->nbadscan;
+    dbs.ind_nbadscan = getIndicator(SHORT, (void *)&structPtr->nbadscan);
+
+    dbs.nhourout = structPtr->nhourout;
+    dbs.ind_nhourout = getIndicator(SHORT, (void *)&structPtr->nhourout);
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    strcpy(dbs.missper, structPtr->missper);
+    dbs.ind_missper = getIndicator(CHAR, (void *)structPtr->missper);
+
+    dbs.supplmess = structPtr->supplmess;
+    dbs.ind_supplmess = getIndicator(SHORT, (void *)&structPtr->supplmess);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DPARadar (radid,obstime,
+        minoff,maxvalh,maxvald,
+        s1_bias_value,producttime,nisolbin,
+        noutint,noutrep,areared,
+        biscanr,block_bins_reject,clutter_bins_rej,
+        bins_smoothed,scan_bins_filled,high_elev_angle,
+        scan_rain_area,nbadscan,nhourout,
+        volcovpat,opermode,missper,
+        supplmess,grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.minoff:dbs.ind_minoff,
+         :dbs.maxvalh:dbs.ind_maxvalh, :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value,
+         :dbs.producttime:dbs.ind_producttime, :dbs.nisolbin:dbs.ind_nisolbin, :dbs.noutint:dbs.ind_noutint,
+         :dbs.noutrep:dbs.ind_noutrep, :dbs.areared:dbs.ind_areared, :dbs.biscanr:dbs.ind_biscanr,
+         :dbs.block_bins_reject:dbs.ind_block_bins_reject, :dbs.clutter_bins_rej:dbs.ind_clutter_bins_rej, :dbs.bins_smoothed:dbs.ind_bins_smoothed,
+         :dbs.scan_bins_filled:dbs.ind_scan_bins_filled, :dbs.high_elev_angle:dbs.ind_high_elev_angle, :dbs.scan_rain_area:dbs.ind_scan_rain_area,
+         :dbs.nbadscan:dbs.ind_nbadscan, :dbs.nhourout:dbs.ind_nhourout, :dbs.volcovpat:dbs.ind_volcovpat,
+         :dbs.opermode:dbs.ind_opermode, :dbs.missper:dbs.ind_missper, :dbs.supplmess:dbs.ind_supplmess,
+         :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDPARadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDPARadar(const DPARadar *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.minoff = structPtr->minoff;
+    dbs.ind_minoff = getIndicator(SHORT, (void *)&structPtr->minoff);
+
+    dbs.maxvalh = structPtr->maxvalh;
+    dbs.ind_maxvalh = getIndicator(FLOAT, (void *)&structPtr->maxvalh);
+
+    dbs.maxvald = structPtr->maxvald;
+    dbs.ind_maxvald = getIndicator(FLOAT, (void *)&structPtr->maxvald);
+
+    dbs.s1_bias_value = structPtr->s1_bias_value;
+    dbs.ind_s1_bias_value = getIndicator(FLOAT, (void *)&structPtr->s1_bias_value);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.nisolbin = structPtr->nisolbin;
+    dbs.ind_nisolbin = getIndicator(SHORT, (void *)&structPtr->nisolbin);
+
+    dbs.noutint = structPtr->noutint;
+    dbs.ind_noutint = getIndicator(SHORT, (void *)&structPtr->noutint);
+
+    dbs.noutrep = structPtr->noutrep;
+    dbs.ind_noutrep = getIndicator(SHORT, (void *)&structPtr->noutrep);
+
+    dbs.areared = structPtr->areared;
+    dbs.ind_areared = getIndicator(FLOAT, (void *)&structPtr->areared);
+
+    dbs.biscanr = structPtr->biscanr;
+    dbs.ind_biscanr = getIndicator(FLOAT, (void *)&structPtr->biscanr);
+
+    dbs.block_bins_reject = structPtr->block_bins_reject;
+    dbs.ind_block_bins_reject = getIndicator(INT, (void *)&structPtr->block_bins_reject);
+
+    dbs.clutter_bins_rej = structPtr->clutter_bins_rej;
+    dbs.ind_clutter_bins_rej = getIndicator(INT, (void *)&structPtr->clutter_bins_rej);
+
+    dbs.bins_smoothed = structPtr->bins_smoothed;
+    dbs.ind_bins_smoothed = getIndicator(INT, (void *)&structPtr->bins_smoothed);
+
+    dbs.scan_bins_filled = structPtr->scan_bins_filled;
+    dbs.ind_scan_bins_filled = getIndicator(FLOAT, (void *)&structPtr->scan_bins_filled);
+
+    dbs.high_elev_angle = structPtr->high_elev_angle;
+    dbs.ind_high_elev_angle = getIndicator(FLOAT, (void *)&structPtr->high_elev_angle);
+
+    dbs.scan_rain_area = structPtr->scan_rain_area;
+    dbs.ind_scan_rain_area = getIndicator(FLOAT, (void *)&structPtr->scan_rain_area);
+
+    dbs.nbadscan = structPtr->nbadscan;
+    dbs.ind_nbadscan = getIndicator(SHORT, (void *)&structPtr->nbadscan);
+
+    dbs.nhourout = structPtr->nhourout;
+    dbs.ind_nhourout = getIndicator(SHORT, (void *)&structPtr->nhourout);
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    strcpy(dbs.missper, structPtr->missper);
+    dbs.ind_missper = getIndicator(CHAR, (void *)structPtr->missper);
+
+    dbs.supplmess = structPtr->supplmess;
+    dbs.ind_supplmess = getIndicator(SHORT, (void *)&structPtr->supplmess);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    sprintf(queryBuffer, " UPDATE DPARadar SET " );
+    strcat(queryBuffer, "radid = ? , obstime = ? , minoff = ? , maxvalh = ? , maxvald = ? ,     ");
+    strcat(queryBuffer, "s1_bias_value = ? , producttime = ? , nisolbin = ? , noutint = ? , noutrep = ? ,     ");
+    strcat(queryBuffer, "areared = ? , biscanr = ? , block_bins_reject = ? , clutter_bins_rej = ? , bins_smoothed = ? ,     ");
+    strcat(queryBuffer, "scan_bins_filled = ? , high_elev_angle = ? , scan_rain_area = ? , nbadscan = ? , nhourout = ? ,     ");
+    strcat(queryBuffer, "volcovpat = ? , opermode = ? , missper = ? , supplmess = ? , grid_filename = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDPARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.obstime, :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, :dbs.maxvald:dbs.ind_maxvald,
+     :dbs.s1_bias_value:dbs.ind_s1_bias_value, :dbs.producttime:dbs.ind_producttime, :dbs.nisolbin:dbs.ind_nisolbin, :dbs.noutint:dbs.ind_noutint, :dbs.noutrep:dbs.ind_noutrep,
+     :dbs.areared:dbs.ind_areared, :dbs.biscanr:dbs.ind_biscanr, :dbs.block_bins_reject:dbs.ind_block_bins_reject, :dbs.clutter_bins_rej:dbs.ind_clutter_bins_rej, :dbs.bins_smoothed:dbs.ind_bins_smoothed,
+     :dbs.scan_bins_filled:dbs.ind_scan_bins_filled, :dbs.high_elev_angle:dbs.ind_high_elev_angle, :dbs.scan_rain_area:dbs.ind_scan_rain_area, :dbs.nbadscan:dbs.ind_nbadscan, :dbs.nhourout:dbs.ind_nhourout,
+     :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, :dbs.missper:dbs.ind_missper, :dbs.supplmess:dbs.ind_supplmess, :dbs.grid_filename:dbs.ind_grid_filename;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDPARadar() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDPARadar(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DPARadar ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDPARadar() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDPARadarByRecord (const DPARadar * newStructPtr, const DPARadar * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDPARadarPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDPARadar(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDPARadar(const DPARadar * structPtr)
+{
+    UpdateDPARadarByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDPARadar(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDPARadar(const DPARadar * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DPARadarExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDPARadar(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDPARadarByRecord(const DPARadar * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDPARadarPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDPARadar(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DPARadarExists(const DPARadar * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDPARadarPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDPARadarCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDPARadarPrimaryKeyWhereString (const DPARadar * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND obstime = '%s' ",
+            structPtr->radid, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDPARadar( DPARadar * structPtr)
+{
+    DPARadar* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DPARadar * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDPARadarDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDPARadarErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

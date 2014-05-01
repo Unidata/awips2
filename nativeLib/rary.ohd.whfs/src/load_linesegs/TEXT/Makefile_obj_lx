@@ -1,0 +1,61 @@
+#  ============================================================================
+#  pgm: Makefile_obj_lx .. makefile to update the whfs-load_linesegs object files
+#
+#  cmt: File made on Wed Aug  6 12:58:24 EDT 2008 by user "dsa"
+#  ============================================================================
+ 
+OBJ = /fs/hseb/ob83/ohd/whfs/obj/load_linesegs/TEXT
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/usr/local/netcdf/include
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o
+
+.c.o:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && chmod 664 ${*F}.o  \
+	   && echo "o - ${*F}.o" \
+	   || echo "e - ${*F}"
+	@echo "--------------------------------"
+
+objects:  \
+     $(OBJ)/create_geoarea_linesegs.o  \
+     $(OBJ)/lineseg_main.o  \
+     $(OBJ)/write_lineseg.o
+
+$(OBJ)/create_geoarea_linesegs.o: create_geoarea_linesegs.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/lineseg_main.o: lineseg_main.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/write_lineseg.o: write_lineseg.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+

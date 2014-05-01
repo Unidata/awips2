@@ -1,0 +1,174 @@
+C MODULE SFULLM
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO DEFINE GENERAL USER LAT/LON LIMITS PARAMETERS.
+C
+      SUBROUTINE SFULLM (PRNOTE,INULL,NUMFLD,NFLD,REAL,ITYPE,NUMERR,
+     *   NUMWRN,ULLCHK,ULLMTS,IOFSET,ISTAT)
+C
+      CHARACTER*4 PRNOTE
+C
+      DIMENSION ULLCHK(*),ULLMTS(*)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_define/RCS/sfullm.f,v $
+     . $',                                                             '
+     .$Id: sfullm.f,v 1.2 1998/04/07 15:14:04 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,180)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('UGNL')
+C
+      ISTAT=0
+C
+      NFIELD=NUMFLD-IOFSET
+      GO TO (10,50,90,130),NFIELD
+         WRITE (LP,190) NFIELD
+         ISTAT=1
+         GO TO 170
+C
+C  NORTHERN LATITUDE LIMIT
+10    IF (INULL.EQ.0) GO TO 20
+         REAL=ULLCHK(1)
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,200) NUMFLD,REAL
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 30
+20    IF (ITYPE.NE.2) GO TO 30
+         WRITE (LP,210) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 170
+30    ULLMTS(1)=REAL
+      IF (ULLMTS(1).GE.ULLCHK(2).AND.ULLMTS(1).LE.ULLCHK(1)) GO TO 40
+         WRITE (LP,230) ULLMTS(1),ULLCHK(2),ULLCHK(1)
+         CALL SUWRNS (LP,2,NUMWRN)
+         ULLMTS(1)=ULLCHK(1)
+         WRITE (LP,310) ULLCHK(1)
+         CALL SULINE (LP,1)
+40    IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,240) ULLMTS(1)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 170
+C
+C  SOUTHERN LATITUDE LIMIT
+50    IF (INULL.EQ.0) GO TO 60
+         REAL=ULLCHK(2)
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,200) NUMFLD,REAL
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 70
+60    IF (ITYPE.NE.2) GO TO 70
+         WRITE (LP,210) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 170
+70    ULLMTS(2)=REAL
+      IF (ULLMTS(2).GE.ULLCHK(2).AND.ULLMTS(2).LE.ULLCHK(1)) GO TO 80
+         WRITE (LP,250) ULLMTS(2),ULLCHK(2),ULLCHK(1)
+         CALL SUWRNS (LP,2,NUMWRN)
+         ULLMTS(2)=ULLCHK(2)
+         WRITE (LP,310) ULLCHK(2)
+         CALL SULINE (LP,1)
+80    IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,260) ULLMTS(2)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 170
+C
+C  EASTERN LONGITUDE LIMIT
+90    IF (INULL.EQ.0) GO TO 100
+         REAL=ULLCHK(3)
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,200) NUMFLD,REAL
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 110
+100   IF (ITYPE.NE.2) GO TO 110
+         WRITE (LP,210) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 170
+110   ULLMTS(3)=REAL
+      IF (ULLMTS(3).GE.ULLCHK(3).AND.ULLMTS(3).LE.ULLCHK(4)) GO TO 120
+         WRITE (LP,270) ULLMTS(3),ULLCHK(3),ULLCHK(4)
+         CALL SUWRNS (LP,2,NUMWRN)
+         ULLMTS(3)=ULLCHK(3)
+         WRITE (LP,310) ULLCHK(3)
+         CALL SULINE (LP,1)
+120   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,280) ULLMTS(3)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 170
+C
+C  WESTERN LONGITUDE LIMIT
+130   IF (INULL.EQ.0) GO TO 140
+         REAL=ULLCHK(4)
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,200) NUMFLD,REAL
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 150
+140   IF (ITYPE.NE.2) GO TO 150
+         WRITE (LP,210) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 170
+150   ULLMTS(4)=REAL
+      IF (ULLMTS(4).GE.ULLCHK(3).AND.ULLMTS(4).LE.ULLCHK(4)) GO TO 160
+         WRITE (LP,290) ULLMTS(4),ULLCHK(3),ULLCHK(4)
+         CALL SUWRNS (LP,2,NUMWRN)
+         ULLMTS(4)=ULLCHK(4)
+         WRITE (LP,310) ULLCHK(4)
+         CALL SULINE (LP,1)
+160   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,300) ULLMTS(4)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 170
+C
+170   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,320)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+180   FORMAT (' *** ENTER SFULLM')
+190   FORMAT ('0*** ERROR - IN SFULLM - ',I2,' IS AN INVALID FIELD ',
+     *   'NUMBER.')
+200   FORMAT ('0*** NOTE - NO VALUE FOUND FOR REQUIRED FIELD ',I2,
+     *   '. DEFAULT VALUE (',F8.2,') WILL BE USED.')
+210   FORMAT ('0*** ERROR - NON-CHARACTER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+230   FORMAT ('0*** WARNING - NORTHERN LATITUDE LIMIT (',F9.2,
+     *   ') DOES NOT FALL BETWEEN ',F7.2,' AND ',F7.2,' DEGREES.')
+240   FORMAT (' NORTHERN LATITUDE LIMIT SET TO ',F7.2)
+250   FORMAT ('0*** WARNING - SOUTHERN LATITUDE LIMIT (',F9.2,
+     *   ') DOES NOT FALL BETWEEN ',F7.2,' AND ',F7.2,' DEGREES.')
+260   FORMAT (' SOUTHERN LATITUDE LIMIT SET TO ',F7.2)
+270   FORMAT ('0*** WARNING - EASTERN LONGITUDE LIMIT (',F9.2,
+     *   ') DOES NOT FALL BETWEEN ',F7.2,' AND ',F7.2,' DEGREES.')
+280   FORMAT (' EASTERN LONGITUDE LIMIT SET TO ',F7.2)
+290   FORMAT ('0*** WARNING - WESTERN LONGITUDE LIMIT (',F9.2,
+     *   ') DOES NOT FALL BETWEEN ',F7.2,' AND ',F7.2,' DEGREES.')
+300   FORMAT (' WESTERN LONGITUDE LIMIT SET TO ',F7.2)
+310   FORMAT (T16,'THE DEFAULT VALUE (',F7.2,') WILL BE USED.')
+320   FORMAT (' *** EXIT SFULLM')
+C
+      END

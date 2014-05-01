@@ -1,0 +1,16 @@
+
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title></title>
+</head>
+<body>
+<center>
+<h2> Text Formatter User Guide</h2>
+<h3>14. Introduction - Inheritance Hierarchy for Smart Text Products - Classes</h3>
+<hr>
+<a href=Slide13.html>Previous Slide</a> <a href=Slide15.html>Next Slide</a> <br><img SRC=Slide14.JPG border=1><br></center>
+<p><p><big>The Text Product Infrastructure consists of dozens of modules each of which performs a particular set of tasks.  While the structure is complex, the entire infrastructure can be viewed conceptually as functional groups.  Here we see the CommonUtils, SampleAnalysis and TextRules classes which have the jobs of generating summary statistics and creating text representations of the data.  We also see the class for a Text Product, which specifies the data and format for a particular product.  Note the "inheritance" symbol connecting the TextProduct class to the SampleAnalysis and TextRules classes.  This relationship implies that the Text Product class has access to, or "inherits", ALL of the functionality of the other two classes. Finally, we have the Local Text Product class which, in turn, inherits the functionality of ALL the classes above it in the hierarchy.  The CommonUtils, SampleAnalysis , TextRules, and TextProduct classes are read-only and you cannot modify them directly.  However, you may "override" any method in these read-only classes by copying the code into the Local Text Product class and making modifications there. The version in the Local class will supercede the original, thus allowing you to customize the formatter to you liking. <br>This inheritance scheme has several advantages.  It allows flexibility for each local site to tailor virtually any part of the product to their unique requirements.  At the same time, by restricting  all customizations to the Local file, we can isolate problems when they arise.  The site can revert to the baseline Text Product, if necessary.  Then, as a trouble-shooting technique, we can begin to introduce the customizations one at a time in order to isolate the problem. <br><br></big>
+</body>
+</html>

@@ -1,0 +1,5 @@
+C                                           *--> FROM GCOMMON.GCPUCHK
+C
+C.....PERFORM A CPU TIME CHECK IF THE DEBUG CODE SO DICTATES.
+C
+      IF(JCPBUG .EQ. 1) CALL GCPUCK(SNAME)

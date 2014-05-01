@@ -1,0 +1,17 @@
+#!/bin/ksh
+
+export HOME_DIR=/fs/hseb/${DS_BUILD}/ohd
+export RUN_FROM_DIR=`dirname $0`
+export PROJECTS_DIR=$RUN_FROM_DIR/../..
+
+export IHFS_TABLE_DIR=$HOME_DIR/whfs/schema/DamCrest/tables
+export VIEW_DIR=$HOME_DIR/whfs/schema/DamCrest/views
+
+export TABLE_FILE_TEMP=$PROJECTS_DIR/damcrestdb/scripts/PreferredTableNames.txt.temp
+export TABLE_IHFS_FILE=$PROJECTS_DIR/damcrestdb/scripts/PreferredTableNames.txt
+export LS="ls"
+export CAT="cat"
+
+$LS $IHFS_TABLE_DIR $VIEW_DIR > $TABLE_FILE_TEMP
+$CAT $TABLE_FILE_TEMP | grep -v '^s\.' | grep '\.t' |/usr/bin/cut -d. -f1  > $TABLE_IHFS_FILE
+echo TABLE_IHFS_FILE = $TABLE_IHFS_FILE

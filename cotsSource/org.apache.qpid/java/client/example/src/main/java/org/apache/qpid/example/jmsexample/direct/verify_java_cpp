@@ -1,0 +1,10 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+cpp=$CPP/direct
+
+direct_producer_java(){
+java -Dlog4j.configuration=$LOG4J -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.direct.Producer
+}
+
+clients $cpp/declare_queues direct_producer_java $cpp/listener
+outputs $cpp/declare_queues.out ./direct_producer_java.out $cpp/listener.out
+

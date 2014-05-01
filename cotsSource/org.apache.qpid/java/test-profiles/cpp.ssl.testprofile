@@ -1,0 +1,11 @@
+include=cpp
+
+broker.modules=--load-module ${broker.module.ssl} --ssl-cert-name localhost.localdomain --ssl-cert-password-file ${test.profiles}/test_resources/ssl/pfile --ssl-cert-db ${test.profiles}/test_resources/ssl/server_db/ --ssl-require-client-authentication --ssl-port @SSL_PORT
+
+profile.use_ssl=true
+broker.ready= Listening for SSL connections
+
+javax.net.ssl.keyStore=${test.profiles}/test_resources/ssl/keystore.jks
+javax.net.ssl.keyStorePassword=password
+javax.net.ssl.trustStore=${test.profiles}/test_resources/ssl/certstore.jks
+javax.net.ssl.trustStorePassword=password

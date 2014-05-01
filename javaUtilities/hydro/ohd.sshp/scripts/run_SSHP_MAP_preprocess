@@ -1,0 +1,37 @@
+#!/bin/ksh
+# file name: run_MapPreprocessor
+# Created: 12/15/2003
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+
+
+# set initial lid to the first command line argument passed into the script
+LID_PASSED_IN=$1
+
+export CLASSPATH=.
+CLASSPATH=$CLASSPATH:$DB_DRIVER_PATH
+# need to add a path to the jar file for this application
+CLASSPATH=$CLASSPATH:$WHFS_BIN_DIR/SiteSpecific.jar
+
+# Java bin directory
+JBINDIR=$SYS_JAVA_DIR/bin
+
+
+# Trims, but keeps the last 12000 lines of the internal, java-created log file
+tail -12000 $SSHP_LOG_DIR/MAPPreprocessor.log > $SSHP_LOG_DIR/MAPPreprocessor.log.tmp
+mv  $SSHP_LOG_DIR/MAPPreprocessor.log.tmp $SSHP_LOG_DIR/MAPPreprocessor.log
+     
+# Trims, but keeps the last 12000 lines of the stdout and stderr log file
+export LOGFILE=$SSHP_LOG_DIR/MAPPreprocessor.stdout2.log
+export TMPFILE=$SSHP_LOG_DIR/MAPPreprocessor.stdout2.tmp
+tail -12000 $LOGFILE > $TMPFILE
+mv $TMPFILE $LOGFILE
+
+# run the MPEPreprocessor	
+$JBINDIR/java ohd.hseb.sshp.precip.MPEPreprocessor $JDBCURL $SSHP_LOG_DIR >>$LOGFILE 2>&1
+     
+

@@ -1,0 +1,55 @@
+==== topic_publisher.out
+==== pubsub_listener_dotnet.out | remove_uuid | sort
+Declaring queue: europe
+Declaring queue: news
+Declaring queue: usa
+Declaring queue: weather
+Listening for messages ...
+Message: Message 0 from europe
+Message: Message 0 from europe
+Message: Message 0 from news
+Message: Message 0 from news
+Message: Message 0 from usa
+Message: Message 0 from usa
+Message: Message 0 from weather
+Message: Message 0 from weather
+Message: Message 1 from europe
+Message: Message 1 from europe
+Message: Message 1 from news
+Message: Message 1 from news
+Message: Message 1 from usa
+Message: Message 1 from usa
+Message: Message 1 from weather
+Message: Message 1 from weather
+Message: Message 2 from europe
+Message: Message 2 from europe
+Message: Message 2 from news
+Message: Message 2 from news
+Message: Message 2 from usa
+Message: Message 2 from usa
+Message: Message 2 from weather
+Message: Message 2 from weather
+Message: Message 3 from europe
+Message: Message 3 from europe
+Message: Message 3 from news
+Message: Message 3 from news
+Message: Message 3 from usa
+Message: Message 3 from usa
+Message: Message 3 from weather
+Message: Message 3 from weather
+Message: Message 4 from europe
+Message: Message 4 from europe
+Message: Message 4 from news
+Message: Message 4 from news
+Message: Message 4 from usa
+Message: Message 4 from usa
+Message: Message 4 from weather
+Message: Message 4 from weather
+Message: That's all, folks! from europe
+Message: That's all, folks! from news
+Message: That's all, folks! from usa
+Message: That's all, folks! from weather
+Shutting down listener for control
+Shutting down listener for control
+Shutting down listener for control
+Shutting down listener for control

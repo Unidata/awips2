@@ -1,0 +1,366 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'filteroptions.c';
+generateNameExterns = * 'filteroptions.h';
+generateNameResDB = * 'filteroptions.res';
+generateCHeaderFile = 'filteroptions.h';
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'hbsbfilterDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'hbsbfilterDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_hbsbfilterDS (Widget parent)
+';
+	XmNwidth = 250;
+	XmNallowShellResize = true;
+	XmNtitle = 'Station List Filter Options';
+	XmNminWidth = 395;
+	XmNminHeight = 415;
+	XmNmaxWidth = 450;
+	XmNmaxHeight = 415;
+	};
+object 'hbfiltermainFO' : XmForm {
+	arguments {
+	name = 'hbfiltermainFO';
+	lastGenName = 'hbfiltermainFO';
+	XmNwidth = 430;
+	XmNheight = 415;
+	XmNautoUnmanage = false;
+	};
+object 'hbsbfilterFO' : XmForm {
+	arguments {
+	lastGenName = 'hbsbfilterFO';
+	XmNautoUnmanage = false;
+	};
+object 'hbsbfhsaSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'hbsbfwfoSL';
+	};
+abstract object 'hbsbfhsaHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'hbsbfwfoHSB';
+	};
+};
+abstract object 'hbsbfhsaVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'hbsbfwfoVSB';
+	};
+};
+abstract object 'hbsbfhsaLI' : XmList {
+	arguments {
+	lastGenName = 'hbsbfwfoLI';
+	XmNselectionPolicy = 1;
+	};
+};
+};
+object 'hbsbLB' : XmLabel {
+	arguments {
+	name = 'hbsbLB';
+	was_selected = true;
+	lastGenName = 'hbsbLB';
+	XmNlabelString = 'Filter by HSA';
+	};
+};
+object 'hbpostTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'hbpostTB';
+	XmNlabelString = 'Show SHEF Post';
+	XmNalignment = 0;
+	};
+};
+object 'hbnopostTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'hbnopostTB';
+	XmNlabelString = 'Show SHEF No Post';
+	XmNalignment = 0;
+	};
+};
+object '4' : XmSeparator {
+	arguments {
+	lastGenName = 'separator4';
+	XmNorientation = 1;
+	};
+};
+object 'hbshefLB' : XmLabel {
+	arguments {
+	name = 'hbshefLB';
+	lastGenName = 'hbshefLB';
+	XmNlabelString = 'Filter by SHEF Post Switch';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -153;
+	XmNleftAttachment = 1 0 25;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 35;
+	XmNbottomAttachment = 3 1;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 210;
+	XmNbottomAttachment = 3 4;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 210;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 95;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -190;
+	XmNleftAttachment = 1 0 175;
+	XmNbottomAttachment = 2 0 -165;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 5;
+    };
+    };
+};
+object 'hblatlonfilterFO' : XmForm {
+	arguments {
+	lastGenName = 'hblatlonfilterFO';
+	XmNwidth = 400;
+	XmNautoUnmanage = false;
+	};
+object 'latfilterLB' : XmLabel {
+	arguments {
+	name = 'latfilterLB';
+	lastGenName = 'latfilterLB';
+	generateResName = true;
+	XmNheight = 25;
+	XmNlabelString = 'Latitude';
+	XmNalignment = 2;
+	};
+};
+object 'lonfilterLB' : XmLabel {
+	arguments {
+	name = 'lonfilterLB';
+	lastGenName = 'lonfilterLB';
+	XmNlabelString = 'Longitude';
+	XmNalignment = 2;
+	};
+};
+object 'offsetfilterLB' : XmLabel {
+	arguments {
+	name = 'offsetfilterLB';
+	lastGenName = 'offsetfilterLB';
+	XmNlabelString = 'Offset';
+	XmNalignment = 2;
+	};
+};
+object 'latfilterTX' : XmText {
+	arguments {
+	name = 'latfilterTX';
+	lastGenName = 'latfilterTX';
+	XmNmaxLength = 10;
+	XmNcolumns = 12;
+	XmNeditMode = 1;
+	};
+};
+object 'lonfilterTX' : XmText {
+	arguments {
+	name = 'lonfilterTX';
+	lastGenName = 'lonfilterTX';
+	XmNmaxLength = 10;
+	XmNcolumns = 12;
+	XmNeditMode = 1;
+	};
+};
+object 'offsetlatTX' : XmText {
+	arguments {
+	name = 'offsetlatTX';
+	lastGenName = 'offsetlatTX';
+	XmNmaxLength = 10;
+	XmNcolumns = 12;
+	};
+};
+object 'centerLB' : XmLabel {
+	arguments {
+	name = 'centerLB';
+	lastGenName = 'centerLB';
+	XmNlabelString = 'Center';
+	};
+};
+object 'offsetlonTX' : XmText {
+	arguments {
+	name = 'offsetlonTX';
+	lastGenName = 'offsetlonTX';
+	XmNmaxLength = 10;
+	XmNcolumns = 12;
+	};
+};
+object 'latlonTB' : XmToggleButton {
+	arguments {
+	name = 'latlonTB';
+	lastGenName = 'latlonTB';
+	XmNlabelString = 'Enable';
+	};
+};
+object 'latlonfilterLB' : XmLabel {
+	arguments {
+	lastGenName = 'latlonfilterLB';
+	XmNlabelString = 'Filter by Lat/Lon';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 120;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 310;
+	XmNbottomAttachment = 3 6;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -395;
+	XmNleftAttachment = 1 0 265;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 55;
+	XmNbottomAttachment = 3 4;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -395;
+	XmNleftAttachment = 1 0 265;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 165;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 0;
+    };
+    };
+};
+object 'hbsbfapplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsbfapplyPB';
+	generateResName = true;
+	XmNwidth = 64;
+	XmNheight = 30;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'hbsbfcancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hbsbfcancelPB';
+	generateResName = true;
+	XmNwidth = 64;
+	XmNheight = 30;
+	XmNlabelString = 'Close';
+	};
+};
+object '1' : XmSeparator {
+	arguments {
+	lastGenName = 'separator1';
+	};
+};
+object '3' : XmSeparator {
+	arguments {
+	lastGenName = 'separator3';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -430;
+	XmNleftAttachment = 1 0;
+	XmNbottomAttachment = 2 0 -160;
+	XmNtopAttachment = 1 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -430;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -350;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 115;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 375;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 235;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 375;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -430;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 3 2;
+	XmNtopAttachment = 3 1;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -430;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -365;
+	XmNtopAttachment = 3 2;
+    };
+    };
+};
+};
+end module;

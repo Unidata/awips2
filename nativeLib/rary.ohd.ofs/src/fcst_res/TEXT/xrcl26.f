@@ -1,0 +1,149 @@
+C MEMBER XRCL26
+C  (from old member FCXRCL26)
+C
+C DESC SCAN RCL TO DETERMINE RES-SNGL MODEL OUTPUTS
+C--------------------------------------------------------------------
+      SUBROUTINE XRCL26(PO,W,D,IDPT,LOCWS,LOCOWS)
+C---------------------------------------------------------------------
+C  SUBROUTINE TO SCAN RCL TO DETERMINE THE PATH OF EXECUTION.
+C  THIS SUBROUTINE STARTS AT THE FIRST LOCATION OF THE RCL, AND LOOKS
+C  (AND MUST FIND) EITHER A 'DO' OR 'IF' STATEMENT. WHEN A DO STATEMENT
+C  IS FOUND, THE PROPER COMPUTATIONAL ROUTINE IS CALLED. WHEN AN IF
+C  STATEMENT IS FOUND, ANOTHER SUBROUTINE IS CALLED TO PROCESS THE
+C  ENTIRED IF GROUP (INCLUDING IMBEDDED IF GROUPS). UPON RETURN FROM
+C  XIF26, THIS ROUTINE WILL LOOK FOR ANOTHER 'DO', 'IF' OR 'ENDRCL'.
+C--------------------------------------------------------------------
+C  WRITTEN BY - JOE OSTROWSKI - HRL - JULY 1983
+C--------------------------------------------------------------------
+C
+      INCLUDE 'common/exg26'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/resv26'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fprog'
+      INCLUDE 'common/espres'
+C
+      DIMENSION PO(1),W(1),D(1),IDPT(1),LOCWS(1),LOCOWS(1)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_res/RCS/xrcl26.f,v $
+     . $',                                                             '
+     .$Id: xrcl26.f,v 1.2 2004/03/30 13:28:03 hsu Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,1600)
+ 1600 FORMAT('   *** ENTER XRCL26 ***')
+C
+      IF (IBUG.GE.2) WRITE(IODBUG,1601) NS2
+ 1601 FORMAT('    ** SCANNING RCL FOR TIME INTERVAL NO. ',I2)
+C
+C   CHECK IF ITS AN ESP RUN. IF IT IS AND THE REGULATE SWITCH IS OFF,
+C   USE PASSFLOW SCHEME.
+C
+      IF(MAINUM.EQ.2.AND.IREG.EQ.0) GO TO 9010
+C
+C  INITIALIZE THE SCHEME EXECUTION COUNTER TO ZERO. THIS WILL BE USED
+C  LATER TO SEE IF AT LEAST ONE SCHEME HAS BEEN EXECUTED.
+C
+      NSCHEX = 0
+C
+C  NOW LOOP THRU ALL RCL STATEMENTS UNTIL WE HIT 'ENDRCL'.
+C
+      IPTR = IOFRCL
+C
+   10 CONTINUE
+C
+C     IF (IBUG.GE.2) WRITE(IODBUG,1605) (W(J),J=1,40)
+C1605 FORMAT(10F12.3)
+C
+      IPTR = IPTR + 1
+      ICODE = PO(IPTR)
+C
+      IF (ICODE.EQ.9) GO TO 9000
+      IF (ICODE.EQ.5) GO TO 50
+      IF (ICODE.EQ.10) GO TO 100
+C
+C---------------------------------------------------------
+C  'DO' STATEMENT FOUND.
+C
+   50 CONTINUE
+      IPTR = IPTR + 1
+      CALL XDO26(PO(IPTR),PO,W,D,IDPT,LOCWS,LOCOWS)
+      GO TO 10
+C
+C---------------------------------------------------------
+C  'IF' STATEMENT FOUND. PROCESS ALL RCL UP TO THE MATCHING
+C  'ENDIF' STATEMENT.
+C
+  100 CONTINUE
+      CALL XIF26(PO,IPTR,W,D,IDPT,LOCWS,LOCOWS)
+      GO TO 10
+C
+C----------------------------------------------------------
+C  'ENDRCL' FOUND. CHECK TO SEE IF AT LEAST ONE SCHEME HAS BEEN
+C   EXECUTED. IF NOT, CALL THE ROUTINE TO PASS INFLOW TO SUPPLY
+C   OUTPUT VALUES FOR THIS TIME STEP. ALSO, PRINT WARNING TO THE
+C   USER ABOUT THE SITUATION.
+C
+ 9000 CONTINUE
+      IF (NSCHEX.GT.0) GO TO 9999
+C
+ 9010 CALL XS0126(SUNUM,PO,W)
+C
+C-----------------------------------
+C  STORE THESE QUANTITIES (ALL AT END OF PERIOD EXCEPT WHERE
+C  OTHERWISE NOTED):
+C            1) S/U #
+C            2) MEAN DISCHARGE
+C            3) INST. DISCHARGE
+C            4) BEG. PERIOD ELEVATION
+C            5) END PERIOD ELEVATION
+C            6) END PERIOD ELEVATION
+C
+      IOFF = LOCWS(3)
+C
+      NSCHEX = 1
+      W(LOCWS(3)) = 1.01
+C
+      W(IOFF+1) = SUNUM
+      W(IOFF+2) = QOM
+      W(IOFF+3) = QO2
+      W(IOFF+4) = ELEV1
+      W(IOFF+5) = ELEV2
+      W(IOFF+6) = S2
+C
+      IF (IBUG.GE.2) WRITE(IODBUG,1690) SUNUM,NSCHEX,QOM,QO2,ELEV2,S2
+ 1690 FORMAT(10X,'SCHEME OUTPUTS FOR S/U NO. ',F5.0,' NO. OF SCHEMES ',
+     .       'EXECUTED = ',I2,/,10X,'   QOM       QO2      ELEV2       '
+     .       ,'S2',/,10X,4F10.2)
+C
+C   IF ITS AN ESP RUN THATS NOT REGULATED, THERE IS NO NEED TO WRITE
+C   MESSAGE.
+      IF(MAINUM.EQ.2.AND.IREG.EQ.0) GO TO 9999
+C
+C  GET MONTH, DAY AND YEAR FOR MESSAGE.
+C
+      NHRS = NS2*MINODT
+      JULHR = LDA*24 + LHR + NHRS
+      JULDA = JULHR/24
+      JHR   = MOD(JULHR,24)
+      CALL MDYH1(JULDA,JHR,JM,JD,JY,JH,NOUTZ,NOUTDS,TZCS)
+C
+      WRITE(IPR,690) JM,JD,JY,JH,TZCS
+  690 FORMAT(10X,'*** WARNING ***',/22X,
+     .'PROCESSING OF RCL STATEMENTS HAS RESULTED IN NO EXECUTION ',
+     ./22X,'OF ANY DEFINED SCHEME ON ',I2,'/',I2,'/',I4,'-',I2,A4,'.',
+     ./22X,'A PASS INFLOW SCHEME HAS BEEN EXECUTED TO SUPPLY ',
+     .'COMPUTED VALUES',/22X,'FOR OPERATION OUTPUT.')
+      CALL WARN
+C
+ 9999 CONTINUE
+      IF (IBUG.GE.1) WRITE(IODBUG,1699)
+ 1699 FORMAT('    *** EXIT XRCL26 ***')
+      RETURN
+      END

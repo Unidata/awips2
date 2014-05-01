@@ -1,0 +1,275 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-resj_topology library file
+#
+#  cmt: File made on Wed Aug  6 12:52:52 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CXX      = /usr/bin/g++ -Wno-deprecated
+CXXOPTIM =
+CXXFLAGS = $(CXXOPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CXX  = -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/include/informix/esql/  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .cxx .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.cxx.a:
+	@echo "-------------------------------- $<"
+	@-$(CXX) $(CXXFLAGS) $(INSERTS_CXX) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libresj_topology_t.a:  \
+     $(LIB)/libresj_topology_t.a(intfgq.o)  \
+     $(LIB)/libresj_topology_t.a(intfrc.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_construct.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_copy.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_print.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Adjust_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(Balance_construct.o)  \
+     $(LIB)/libresj_topology_t.a(Balance_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Balance_copy.o)  \
+     $(LIB)/libresj_topology_t.a(Balance_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Balance_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Balance_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(Balance_print.o)  \
+     $(LIB)/libresj_topology_t.a(Balance_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_construct.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_copy.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_print.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(CalcInflow_transferCO.o)  \
+     $(LIB)/libresj_topology_t.a(ComboMethod_construct.o)  \
+     $(LIB)/libresj_topology_t.a(ComboMethod_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(ComboMethod_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(ComboMethod_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(ComboMethod_setGroup.o)  \
+     $(LIB)/libresj_topology_t.a(Component_buildSubTree.o)  \
+     $(LIB)/libresj_topology_t.a(Component_checkMaxStageUS.o)  \
+     $(LIB)/libresj_topology_t.a(Component_checkMethods.o)  \
+     $(LIB)/libresj_topology_t.a(Component_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Component_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Component_finalize.o)  \
+     $(LIB)/libresj_topology_t.a(Component_findRoot.o)  \
+     $(LIB)/libresj_topology_t.a(Component_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Component_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(Component_Operators.o)  \
+     $(LIB)/libresj_topology_t.a(Component_printComponent.o)  \
+     $(LIB)/libresj_topology_t.a(Component_print.o)  \
+     $(LIB)/libresj_topology_t.a(Component_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Component_solve.o)  \
+     $(LIB)/libresj_topology_t.a(Component_sumInflow.o)  \
+     $(LIB)/libresj_topology_t.a(Component_transferCO.o)  \
+     $(LIB)/libresj_topology_t.a(Component_verifyExpressions.o)  \
+     $(LIB)/libresj_topology_t.a(getElevStor.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_construct.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_copy.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_makeStorageVSOutflowTable.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_print.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(LagK_transferCO.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_construct.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_copy.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_print.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(Lookup3_transferCO.o)  \
+     $(LIB)/libresj_topology_t.a(MaxDecrease_construct.o)  \
+     $(LIB)/libresj_topology_t.a(MaxDecrease_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(MaxDecrease_copy.o)  \
+     $(LIB)/libresj_topology_t.a(MaxDecrease_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(MaxDecrease_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(MaxDecrease_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(MaxDecrease_print.o)  \
+     $(LIB)/libresj_topology_t.a(MaxDecrease_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(MaxIncrease_construct.o)  \
+     $(LIB)/libresj_topology_t.a(MaxIncrease_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(MaxIncrease_copy.o)  \
+     $(LIB)/libresj_topology_t.a(MaxIncrease_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(MaxIncrease_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(MaxIncrease_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(MaxIncrease_print.o)  \
+     $(LIB)/libresj_topology_t.a(MaxIncrease_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_construct.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_copy.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_print.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(MaxStage_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(Method_allocateDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Method_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Method_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Method_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(Method_isConstructed.o)  \
+     $(LIB)/libresj_topology_t.a(Method_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Node_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Node_copy.o)  \
+     $(LIB)/libresj_topology_t.a(Node_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Node_finalizeSolution.o)  \
+     $(LIB)/libresj_topology_t.a(Node_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Node_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(Node_Operators.o)  \
+     $(LIB)/libresj_topology_t.a(Node_printContents.o)  \
+     $(LIB)/libresj_topology_t.a(Node_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Node_transferCO.o)  \
+     $(LIB)/libresj_topology_t.a(Passflow_construct.o)  \
+     $(LIB)/libresj_topology_t.a(Passflow_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Passflow_copy.o)  \
+     $(LIB)/libresj_topology_t.a(Passflow_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Passflow_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Passflow_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(Passflow_print.o)  \
+     $(LIB)/libresj_topology_t.a(Passflow_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(PrintNWSError.o)  \
+     $(LIB)/libresj_topology_t.a(PrintNWSWarning.o)  \
+     $(LIB)/libresj_topology_t.a(RainEvap_construct.o)  \
+     $(LIB)/libresj_topology_t.a(RainEvap_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(RainEvap_copy.o)  \
+     $(LIB)/libresj_topology_t.a(RainEvap_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(RainEvap_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(RainEvap_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(RainEvap_print.o)  \
+     $(LIB)/libresj_topology_t.a(RainEvap_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_copy.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_finalizeSolution.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(ReachMethod_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(ReachMethod_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(ReachMethod_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(ReachMethod_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_Operators.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_printContents.o)  \
+     $(LIB)/libresj_topology_t.a(Reach_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_copy.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_finalizeSolution.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(ReservoirMethod_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(ReservoirMethod_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(ReservoirMethod_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(ReservoirMethod_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_Operators.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_printContents.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Reservoir_setStates.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_construct.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_copy.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_print.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(SetElevation_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(SetMax_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(SetMax_copy.o)  \
+     $(LIB)/libresj_topology_t.a(SetMax_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(SetMax_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(SetMax_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(SetMax_print.o)  \
+     $(LIB)/libresj_topology_t.a(SetMax_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(SetMax_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(SetMin_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(SetMin_copy.o)  \
+     $(LIB)/libresj_topology_t.a(SetMin_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(SetMin_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(SetMin_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(SetMin_print.o)  \
+     $(LIB)/libresj_topology_t.a(SetMin_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(SetMin_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_construct.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_copy.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_print.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(SetRelease_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(SetSum_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(SetSum_copy.o)  \
+     $(LIB)/libresj_topology_t.a(SetSum_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(SetSum_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(SetSum_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(SetSum_print.o)  \
+     $(LIB)/libresj_topology_t.a(SetSum_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(SetSum_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_construct.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_copy.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_print.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(SetWithdraw_transferCO.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_construct.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_Constructors.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_copy.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_Destructor.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_freeDataSpace.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_initialize.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_print.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_SetGet.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_solveMethod.o)  \
+     $(LIB)/libresj_topology_t.a(Spillway_transferCO.o)
+

@@ -1,0 +1,4 @@
+C                                           *--> FROM URCOMMON.URFTBL
+C  REORDER PROGRAM PROCESSED DATA BASE DATA TYPE INDEX
+      COMMON /URFTBL/ IDATFL(18,100)
+C

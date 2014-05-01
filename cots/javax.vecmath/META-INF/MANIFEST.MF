@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Vecmath Plug-in
+Bundle-SymbolicName: javax.vecmath
+Bundle-Version: 1.3.1
+Bundle-ClassPath: vecmath-1.3.1.jar
+Export-Package: javax.vecmath
+Bundle-Vendor: Raytheon-bundled OSS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

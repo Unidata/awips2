@@ -1,0 +1,21 @@
+C Common block:  rdwtco
+C------------------------------------------------------------------------------
+C notes:        (1)     This common block stores the information used when
+C                       reading/writing the carryover array from/to an external
+C                       file.
+C               (2)     The NWSRFS system file FILEUNIT contains the unit
+C                       number definitions for each file to be opened.
+C------------------------------------------------------------------------------
+C variables:
+C
+C jrdco         .... flag indicating whether carryover is to be read (0 or 1)
+C jwtco         .... flag indicating whether carryover is to be written
+C                    (0 or 1).
+C rdcofl        .... name of file from which to read carryover
+C wtcofl        .... name of file to which to write carryover
+C------------------------------------------------------------------------------
+
+      character rdcofl*32, wtcofl*32
+      integer   jrdco, jwtco
+
+      common / rdwtco / jrdco, jwtco, rdcofl, wtcofl

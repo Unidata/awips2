@@ -1,0 +1,115 @@
+C MODULE POST26
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO COMPUTE WORK SPACE NEEDED FOR THIS DEFINITION OF THE
+C  RESERVOIR OPERATION AND TO DO SOME OTHER MISCELLANEOUS POST-INPUT
+C  PROCESSING.
+C
+      SUBROUTINE POST26 (PO,NWKSP,OKPOST)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/suin26'
+      INCLUDE 'common/err26'
+      INCLUDE 'common/warn26'
+      INCLUDE 'common/suid26'
+      INCLUDE 'common/comn26'
+      INCLUDE 'common/cmpv26'
+C
+      DIMENSION PO(*)
+      LOGICAL OKPOST
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_res/RCS/post26.f,v $
+     . $',                                                             '
+     .$Id: post26.f,v 1.5 2001/06/13 10:11:20 mgm Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IBUG.GE.1) WRITE (IODBUG,*) 'ENTER POST26'
+C
+C  INITIALIZE VARIABLES
+C
+      NUMERR = 0
+      NUMWRN = 0
+      OKPOST = .TRUE.
+C
+C  COMPUTE THE AMOUNT OF WORK SPACE NEEDED
+      CALL WKSP26(PO,NWKSP)
+C
+C  DO POST PROCESSING HERE
+C
+C  FIRST THING IS TO SEE IF ALL DEFINED S/U'S THAT NEED A 'DO' STATEMENT
+C  TO BE EXECUTED HAVE BEEN EXECUTED WITH A 'DO'.
+C
+      IF (NSUIN.EQ.0) GO TO 9999
+C
+      DO 100 I=1,NSUIN
+C     DETERMINE THE S/U NUMBER.
+CCC      CALL XBLV26(DEFCDE(I),IBASE,LEVEL)
+         IBASE=DEFCDE(I)/10
+         IMAX = 27
+         ISUN =  0
+   38    IF (ISUN .GE. IMAX) GO TO 40
+            ISUN = ISUN + 1
+            ISUX = SUCODE(ISUN)/10
+            IF (IBASE .EQ. ISUX) IMAX = 0
+            GO TO 38
+   40    IF (IBASE.EQ.157) GO TO 50
+         IF (IBASE.GT.150.AND.IBASE.LT.158) GO TO 100
+         IF (IBASE.EQ.104 .OR. IBASE.EQ.107) GO TO 100
+         IF (IFNDDO(I).EQ.1) GO TO 100
+            CALL STRN26 (88,1,SUID(1,ISUN),LSUID(ISUN))
+            GO TO 100
+C     IF IBASE=157 THE S/U IS 'MAXQ' AND THIS IS EXECUTED WITHIN 
+C     AN IF CLAUSE - CHEFK IF IT HAS BEEN USED THERE
+   50    IF (NUMCMP.GT.0) GO TO 55
+            CALL STRN26 (88,1,SUID(1,ISUN),LSUID(ISUN))
+            GO TO 100
+C     LOOP THROUGH ALL COMPARISON VARIABLES LOOKING FOR THE 'MAXQ' AT
+C     THE LEVEL OF THE DEFINED 'MAXQ'
+   55    DO 70 J=1,NUMCMP
+            IF (ICTARY(J).NE.3) GO TO 70
+            DIF = DEFCDE(I) - CMNAME(1,J)
+            IF (ABS(DIF).GT.0.01) GO TO 70
+C        FOUND THE PROPER 'MAXQ'
+            GO TO 100
+   70       CONTINUE
+C     NO 'MAXQ' FOUND
+         CALL STRN26 (88,1,SUID(1,ISUN),LSUID(ISUN))
+  100    CONTINUE
+C
+C  LOOK FOR POWERGEN-SUMINF AND MINQ-SUMINF COUPLING
+C
+      DO 200 I=1,NSUIN
+         IBASE=DEFCDE(I)/10
+CCC         CALL XBLV26(DEFCDE(I),IBASE,LEVEL)
+         IF (IBASE.NE.113 .AND. IBASE.NE.109) GO TO 200
+C     LOOK FOR SUMINF
+         DO 250 J=1,NSUIN
+            JBASE=DEFCDE(j)/10
+CCC         CALL XBLV26(DEFCDE(J),JBASE,JEVEL)
+            IF (JBASE.EQ.152) GO TO 200
+  250       CONTINUE
+C     NO SUMINF FOUND, BUT A POWERGEN OR MINQ WAS FOUND
+         CALL STER26(89,1)
+  200    CONTINUE
+C
+C  CHECK NUMBER OF ERRORS AND WARNING
+ 9999 IF (NUMERR.GT.0) OKPOST = .FALSE.
+      IF (NUMERR.GT.0.OR.NUMWRN.GT.0) THEN
+         WRITE(IPR,699)
+  699 FORMAT ('0**NOTE** THE FOLLOWING ERRORS AND/OR WARNINGS WERE ',
+     * 'GENERATED DURING POST-INPUT PROCESSING OF OPERATION RES-SNGL:')
+         CALL EROT26
+         CALL WNOT26
+         ENDIF
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,*) 'EXIT POST26'
+C
+      RETURN
+C
+      END

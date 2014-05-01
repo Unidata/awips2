@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+    <!--
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+
+<!-- Regional Satellite Rules -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 11 micron IR</parameter>
+      <creatingEntity>GOESR-PG</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>128</minValue>
+        <maxValue>-127</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap> 
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager Based Derived Precipitable Water (PW)</parameter>
+      <creatingEntity>Blended2</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Precip Water Default</defaultColormap> 
+  </imageStyle>
+</styleRule>
+</styleRuleset>

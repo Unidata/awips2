@@ -1,0 +1,44 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ifp-Changed library file
+#
+#  cmt: File made on Thu Oct 26 14:48:57 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ifp/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ifp/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/calb/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libChanged_t.a:  \
+     $(LIB)/libChanged_t.a(fcfaze2.o)  \
+     $(LIB)/libChanged_t.a(fcfcargs.o)  \
+     $(LIB)/libChanged_t.a(fcfdriv2.o)  \
+     $(LIB)/libChanged_t.a(fcfdrive.o)  \
+     $(LIB)/libChanged_t.a(fcfdrvwy.o)  \
+     $(LIB)/libChanged_t.a(fcfshfrc.o)  \
+     $(LIB)/libChanged_t.a(fcfstgq.o)  \
+     $(LIB)/libChanged_t.a(filcom.o)  \
+     $(LIB)/libChanged_t.a(stubs.o)
+

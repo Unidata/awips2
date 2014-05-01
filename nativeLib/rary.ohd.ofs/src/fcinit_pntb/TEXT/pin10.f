@@ -1,0 +1,172 @@
+C MEMBER PIN10
+C  (from old member FCPIN10)
+C
+      SUBROUTINE PIN10(PO,LEFTP,IUSEP,CO,LEFTC,IUSEC)
+C.......................................
+C     THIS IS THE INPUT SUBROUTINE FOR THE ADD/SUBTRACT TIME SERIES
+C        OPERATION.  THIS OPERATION ADDS OR SUBTRACTS ANY TWO
+C        TIME SERIES WITH THE SAME DIMENSIONS.  THE FORM OF
+C        THE OPERATION IS B=B+OR -A.  THE OPERATION CAN ONLY
+C        BE USED FOR TIME SERIES WITH ONE VALUE PER TIME
+C        INTERVAL.
+C.......................................
+C     SUBROUTINE INITIALLY WRITTEN BY. . .
+C        ERIC ANDERSON - HRL   OCT. 1979
+C.......................................
+      DIMENSION PO(1),CO(1)
+      DIMENSION SNAME(2),BID(2),AID(2)
+C
+C     COMMON BLOCKS.
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_pntb/RCS/pin10.f,v $
+     . $',                                                             '
+     .$Id: pin10.f,v 1.1 1995/09/17 18:48:02 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS
+      DATA SNAME/4HPIN1,4H0   /
+      DATA SUB,YES/3HSUB,3HYES/
+      DATA BLANK,DL3T/4H    ,4HL3/T/
+C.......................................
+C     TRACE LEVEL FOR SUBROUTINE=1, DEBUG SWITCH=IBUG
+      CALL FPRBUG(SNAME,1,10,IBUG)
+C.......................................
+C     INITIALIZE VARIABLES
+      IUSEP=0
+      IUSEC=0
+      IVER=1
+C.......................................
+C     READ INPUT CARD
+      READ(IN,900) BID,BTYPE,ITB,AID,ATYPE,ITA,ADDSUB,ANEG,RDCO,PQ
+  900 FORMAT(2X,2A4,1X,A4,3X,I2,2X,2A4,1X,A4,3X,I2,2X,A3,2X,A3,7X,A3,
+     1F10.0)
+      IADD=1
+      IF(ADDSUB.EQ.SUB) IADD=0
+      NEG=0
+      IF(ANEG.EQ.YES) NEG=1
+C.......................................
+C     CHECK THE TIME SERIES.
+      CALL CHEKTS(BID,BTYPE,ITB,0,DIMB,1,1,IERROR)
+      CALL FDCODE(BTYPE,UNITB,DIM,MSG,NPDT,TSCALE,NADD,IERR)
+      ICK=1
+      IF(DIMB.EQ.BLANK) ICK=0
+      CALL CHEKTS(AID,ATYPE,ITA,ICK,DIMB,MSG,1,IERR)
+      IF(IERR.EQ.1) IERROR=1
+      CALL FDCODE(ATYPE,UNITA,DIM,MSG,NPDT,TSCALE,NADD,IERR)
+C.......................................
+C     CHECK IF AN ERROR OCCURRED.
+      IF(IERROR.EQ.0) GO TO 101
+      WRITE(IPR,901)
+  901 FORMAT(1H0,10X,64HTHIS OPERATION WILL BE IGNORED BECAUSE OF THE PR
+     1ECEEDING ERRORS.)
+      RETURN
+C.......................................
+C     CHECK THAT BOTH TIME SERIES HAVE THE SAME UNITS.
+  101 IF (UNITB.EQ.UNITA) GO TO 106
+      WRITE(IPR,905) UNITB,UNITA
+  905 FORMAT (1H0,10X,76H**ERROR** TIME SERIES TO BE ADDED OR SUBTRACTED
+     1 DO NOT HAVE THE SAME UNITS (,A4,1X,3HAND,1X,A4,2H).)
+      CALL ERROR
+C.......................................
+C     CHECK DIMENSIONS IF(ITB.NE.ITA).
+  106 IF(ITB.EQ.ITA) GO TO 102
+      IF(DIMB.EQ.DL3T) GO TO 102
+      WRITE(IPR,902)
+  902 FORMAT(1H0,10X,67H**WARNING** CHECK THAT BOTH TIME SERIES CONTAIN
+     1INSTANTANEOUS DATA.,/16X,110HONLY TIME SERIES CONTAINING INSTANTAN
+     2EOUS VALUES SHOULD BE ADDED OR SUBTRACTED WHEN THE TIME INTERVALS
+     3DIFFER.)
+      CALL WARN
+C.......................................
+C     CHECK THAT SPACE EXISTS IN THE P AND C ARRAYS.
+  102 NEEDP=13
+      CALL CHECKP(NEEDP,LEFTP,IERR)
+      IF(IERR.EQ.1) IERROR=1
+C.......................................
+C     CHECK IF CARRYOVER VALUE NEEDED.
+      IF(ITB.GE.ITA) GO TO 104
+C
+C     CARRYOVER NEEDED.
+      NEEDC=1
+      CALL CHECKC(NEEDC,LEFTC,IERR)
+      IF(IERR.EQ.1) IERROR=1
+      IF(RDCO.EQ.YES) GO TO 103
+C
+C     DEFAULT CARRYOVER
+      PREVQ=0.0
+      IRDCO=0
+      GO TO 105
+C
+C     USE CARRYOVER READ ON INPUT CARD.
+  103 PREVQ=PQ
+      IRDCO=1
+      GO TO 105
+C
+C     CARRYOVER NOT NEEDED.
+  104 NEEDC=0
+      IRDCO=0
+C.......................................
+C     CHECK IF OKAY TO LOAD VALUES INTO PO() AND CO().
+  105 IF(IERROR.EQ.0) GO TO 100
+      WRITE(IPR,901)
+      RETURN
+C
+C     LOAD INFORMATION INTO PO().
+  100 PO(1)=IVER+0.01
+      PO(2)=IADD+0.01
+      PO(3)=BID(1)
+      PO(4)=BID(2)
+      PO(5)=BTYPE
+      PO(6)=ITB+0.01
+      PO(7)=AID(1)
+      PO(8)=AID(2)
+      PO(9)=ATYPE
+      PO(10)=ITA+0.01
+      PO(11)=NEEDC+0.01
+      PO(12)=NEG+0.01
+      PO(13)=IRDCO+0.01
+      IF(NEEDC.EQ.0) GO TO 110
+C
+C     LOAD CARRYOVER VALUE INTO CO().
+      CO(1)=PREVQ
+  110 IUSEP=NEEDP
+      IUSEC=NEEDC
+C     ALL ENTERIES HAVE BEEN MADE INTO THE PO AND CO ARRAYS.
+C.......................................
+      IF(IBUG.EQ.0) GO TO 199
+C     DEBUG OUTPUT
+      WRITE(IODBUG,903)
+  903 FORMAT(1H0,44HADD/SUB DEBUG--CONTENTS OF PO AND CO ARRAYS.)
+      WRITE(IODBUG,904) (PO(I),I=1,IUSEP)
+  904 FORMAT(1H0,15F8.3)
+      IF(IUSEC.EQ.0) GO TO 199
+      WRITE(IODBUG,904) CO(1)
+C.......................................
+C     CONTENTS OF THE PO ARRAY--ADD/SUB OPERATION.
+C
+C     POSITION                    CONTENTS
+C        1         VERSION NUMBER FOR THE OPERATION
+C        2         ADD/SUB INDICATOR,=1 ADD, =0 SUBTRACT.
+C      3-4         IDENTIFIER FOR TIME SERIES B.
+C        5         DATA TYPE FOR TIME SERIES B.
+C        6         TIME INTERVAL FOR TIME SERIES B.
+C      7-8         IDENTIFIER FOR TIME SERIES A.
+C        9         DATA TYPE FOR TIME SERIES A.
+C        10        TIME INTERVAL FOR TIME SERIES A.
+C        11        CARRYOVER INDICATOR,=1 CARRYOVER NEEDED,
+C                      =0 NO CARRYOVER.
+C        12        NEGATIVE RESULT INDICATOR, =1 RESULT CAN BE NEGATIVE,
+C                      =0 RESULT CANNOT BE NEGATIVE.
+C        13        SOURCE OF INITIAL CARRYOVER, =1 VALUE READ IN,
+C                      =0 DEFAULT VALUE USED.
+C.......................................
+  199 CONTINUE
+      RETURN
+      END

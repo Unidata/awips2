@@ -1,0 +1,148 @@
+diff -crB a/lapack-3.4.2/BLAS/SRC/Makefile b/lapack-3.4.2/BLAS/SRC/Makefile
+*** a/lapack-3.4.2/BLAS/SRC/Makefile	2008-11-07 11:35:57.000000000 -0600
+--- b/lapack-3.4.2/BLAS/SRC/Makefile	2013-07-09 12:13:26.863067146 -0500
+***************
+*** 55,61 ****
+  #
+  #######################################################################
+  
+! all: $(BLASLIB)
+   
+  #---------------------------------------------------------
+  #  Comment out the next 6 definitions if you already have
+--- 55,61 ----
+  #
+  #######################################################################
+  
+! all: $(BLASLIB) libblas.so
+   
+  #---------------------------------------------------------
+  #  Comment out the next 6 definitions if you already have
+***************
+*** 137,146 ****
+--- 137,153 ----
+  	$(CBLAS1) $(CBLAS2) $(CBLAS3) $(ZBLAS1) \
+  	$(ZBLAS2) $(ZBLAS3) $(ALLBLAS)
+  
++ SHAREDOBJ=$(SBLAS1) $(SBLAS2) $(SBLAS3) $(DBLAS1) $(DBLAS2) $(DBLAS3)	\
++ 	$(CBLAS1) $(CBLAS2) $(CBLAS3) $(ZBLAS1) $(ZBLAS2) $(ZBLAS3)	\
++ 	$(ALLBLAS)
++ 
+  $(BLASLIB): $(ALLOBJ)
+  	$(ARCH) $(ARCHFLAGS) $@ $(ALLOBJ)
+  	$(RANLIB) $@
+  
++ libblas.so: $(SHAREDOBJ)
++ 	cc -shared -Wl,-soname,$@ -lgfortran -lg2c -o $@ $(SHAREDOBJ)
++ 
+  single: $(SBLAS1) $(ALLBLAS) $(SBLAS2) $(SBLAS3)
+  	$(ARCH) $(ARCHFLAGS) $(BLASLIB) $(SBLAS1) $(ALLBLAS) \
+  	$(SBLAS2) $(SBLAS3)
+***************
+*** 166,171 ****
+--- 173,179 ----
+  
+  clean:
+  	rm -f *.o
++ 	rm -f *.so
+  
+  .f.o: 
+  	$(FORTRAN) $(OPTS) -c $< -o $@
+diff -crB a/lapack-3.4.2/INSTALL/Makefile b/lapack-3.4.2/INSTALL/Makefile
+*** a/lapack-3.4.2/INSTALL/Makefile	2011-09-30 21:37:03.000000000 -0500
+--- b/lapack-3.4.2/INSTALL/Makefile	2013-07-09 12:13:26.932066851 -0500
+***************
+*** 31,35 ****
+  .f.o: 
+  	$(FORTRAN) $(OPTS) -c $< -o $@
+  
+! slamch.o: slamch.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+! dlamch.o: dlamch.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+--- 31,35 ----
+  .f.o: 
+  	$(FORTRAN) $(OPTS) -c $< -o $@
+  
+! slamch.o: slamch.f ; $(FORTRAN) $(NOOPT) -fPIC -c $< -o $@
+! dlamch.o: dlamch.f ; $(FORTRAN) $(NOOPT) -fPIC -c $< -o $@
+Only in b/lapack-3.4.2: make.inc
+diff -crB a/lapack-3.4.2/make.inc.example b/lapack-3.4.2/make.inc.example
+*** a/lapack-3.4.2/make.inc.example	2012-04-13 13:13:07.000000000 -0500
+--- b/lapack-3.4.2/make.inc.example	2013-07-09 12:44:29.779849806 -0500
+***************
+*** 13,19 ****
+  #  desired load options for your machine.
+  #
+  FORTRAN  = gfortran 
+! OPTS     = -O2
+  DRVOPTS  = $(OPTS)
+  NOOPT    = -O0
+  LOADER   = gfortran
+--- 13,19 ----
+  #  desired load options for your machine.
+  #
+  FORTRAN  = gfortran 
+! OPTS     = -O2 -fPIC
+  DRVOPTS  = $(OPTS)
+  NOOPT    = -O0
+  LOADER   = gfortran
+diff -crB a/lapack-3.4.2/SRC/Makefile b/lapack-3.4.2/SRC/Makefile
+*** a/lapack-3.4.2/SRC/Makefile	2012-04-02 14:06:36.000000000 -0500
+--- b/lapack-3.4.2/SRC/Makefile	2013-07-09 12:13:26.946066791 -0500
+***************
+*** 405,416 ****
+  ALLXOBJ = $(SXLASRC) $(DXLASRC) $(CXLASRC) $(ZXLASRC)
+  endif
+  
+! all: ../$(LAPACKLIB)
+  
+  ../$(LAPACKLIB): $(ALLOBJ) $(ALLXOBJ)
+  	$(ARCH) $(ARCHFLAGS) $@ $(ALLOBJ) $(ALLXOBJ)
+  	$(RANLIB) $@
+  
+  single: $(SLASRC) $(DSLASRC) $(SXLASRC) $(SCLAUX) $(ALLAUX)
+  	$(ARCH) $(ARCHFLAGS) ../$(LAPACKLIB) $(SLASRC) $(DSLASRC) \
+  	$(SXLASRC) $(SCLAUX) $(ALLAUX) $(ALLXAUX)
+--- 405,419 ----
+  ALLXOBJ = $(SXLASRC) $(DXLASRC) $(CXLASRC) $(ZXLASRC)
+  endif
+  
+! all: ../$(LAPACKLIB) liblapack.so
+  
+  ../$(LAPACKLIB): $(ALLOBJ) $(ALLXOBJ)
+  	$(ARCH) $(ARCHFLAGS) $@ $(ALLOBJ) $(ALLXOBJ)
+  	$(RANLIB) $@
+  
++ liblapack.so: $(ALLOBJ)
++ 	cc -shared -Wl,-soname,$@ -lgfortran -lg2c -o $@ $(ALLOBJ)
++ 
+  single: $(SLASRC) $(DSLASRC) $(SXLASRC) $(SCLAUX) $(ALLAUX)
+  	$(ARCH) $(ARCHFLAGS) ../$(LAPACKLIB) $(SLASRC) $(DSLASRC) \
+  	$(SXLASRC) $(SCLAUX) $(ALLAUX) $(ALLXAUX)
+***************
+*** 452,463 ****
+  
+  clean:
+  	rm -f *.o
+  
+  .f.o: 
+  	$(FORTRAN) $(OPTS) -c $< -o $@
+  
+! slaruv.o: slaruv.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+! dlaruv.o: dlaruv.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+  sla_wwaddw.o: sla_wwaddw.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+  dla_wwaddw.o: dla_wwaddw.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+  cla_wwaddw.o: cla_wwaddw.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+--- 455,467 ----
+  
+  clean:
+  	rm -f *.o
++ 	rm -f *.so
+  
+  .f.o: 
+  	$(FORTRAN) $(OPTS) -c $< -o $@
+  
+! slaruv.o: slaruv.f ; $(FORTRAN) $(NOOPT) -fPIC -c $< -o $@
+! dlaruv.o: dlaruv.f ; $(FORTRAN) $(NOOPT) -fPIC -c $< -o $@
+  sla_wwaddw.o: sla_wwaddw.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+  dla_wwaddw.o: dla_wwaddw.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+  cla_wwaddw.o: cla_wwaddw.f ; $(FORTRAN) $(NOOPT) -c $< -o $@

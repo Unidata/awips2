@@ -1,0 +1,384 @@
+#!/usr/bin/perl
+#
+# $Id: netcheck.in,v 1.1 1996/01/16 22:32:48 mitch Exp $
+#
+# File:		netcheck
+# Version:      1.02
+#
+# Copyright 1995 University Corporation for Atmospheric Research
+# See ../COPYRIGHT file for copying and redistribution conditions.
+#
+# Description: This perl script checks the network connections between IDD
+#  hosts.  It uses ping(1), and traceroute(1).  Packet loss, as reported by
+#  ping(1), above 20% to any one host causes a warning email to be sent
+#  and forces a non-zero return status that will indicate the number of hosts
+#  checked that had failures.  Output is both to stdout, as well as appended
+#  to a file.
+#
+# Files:
+#
+#  netcheck.conf - netcheck configuration file - should be in $LDMHOME/etc
+#  .netcheck     - marker file in $LDMHOME/logs - created if netcheck fails
+#  netcheck.log  - netcheck log file
+#
+# Environment Variables:
+#
+#  LDMHOME - path to LDM home directory
+#
+# Usage:
+#
+#  netcheck [-u] [-v] [-l logfile] [-c conffile] [-t percent] [-m] [-o] [-n]
+#
+#       -u             print usage message
+#       -v             verbose flag
+#       -l logfile     logfile (default: $LDMHOME/logs/netcheck.log)
+#       -c conffile  configuration file (default: $LDMHOME/etc/netcheck.conf)
+#       -t percent     percent packet loss threshold (default: 20%)
+#       -m             turn off mail notification
+#       -n             suppress output to <STDOUT>
+#       -o             suppress output to logfile
+###############################################################################
+
+# set identification information
+
+$PROGNAME = "netcheck";
+$VERSION = "1.02";
+
+# we need the LDMHOME path
+
+$ldmhome = "/usr/local/ldm";
+
+# we need both the operating system and the hostname
+
+($os,$hostname) = split(/ /,`uname -a`);
+
+# and some initialization
+
+$loss_threshold = 20;
+
+# get and process command line
+
+while ($_ = $ARGV[0]) {
+    shift;
+    /^-u/ && &usage();
+    /^-v/ && $verbose++;
+    /^-l/ && ($logpath = shift);
+    /^-c/ && ($confpath = shift);
+    /^-t/ && ($loss_threshold = shift);
+    /^-m/ && $mail_switch++;
+    /^-n/ && $no_stdout++;
+    /^-o/ && $no_log++;
+}
+
+# set up the executable paths
+
+$ENV{ 'PATH' } =
+    "/usr/local/bin:/usr/sbin:/etc:/usr/etc:/opt/bin:$ENV{ 'PATH' }";
+
+# set the file paths
+
+unless (($logpath) || ($no_log)) {
+   $logpath = "$ldmhome/logs/netcheck.log";
+}
+
+unless ($confpath) {
+    $confpath = "$ldmhome/etc/netcheck.conf";
+}
+
+# open logfile unless -o, exit if failure
+
+unless ($no_log) {
+    open(LOGFILE,">>$logpath") || &bad_exit("Could not open $logpath");
+}
+
+# read in the configuration file
+
+open(CONF_FILE,$confpath) || &bad_exit("Could not open $confpath");
+
+while (<CONF_FILE>) {
+
+    $line_num++;
+    unless (/^#.*/ || /^\n/ || / /) {
+       ($section,$value) = split(/:/);
+
+       if ($section ne "upstream" && $section ne "downstream" &&
+	   $section ne "mailname") {
+           &bad_exit("$confpath: Invalid tag at line $line_num: $section");
+       }
+
+       chop($value);
+       $sections{$section} .= $value.' ';
+  }
+}
+
+close (CONF_FILE);
+
+# change the spaces to commas in the mailname list
+
+$sections{"mailname"} =~ s/ /,/;
+chop($sections{"mailname"});
+
+# print header information
+
+unless ($no_stdout) {
+    $^ = "NONE";
+    $~ = "PROGRAM_BODY";
+    write;
+}
+
+unless ($no_log) {
+    select(LOGFILE);
+    $| = 1;
+    $^ = "NONE";
+    $~ = "PROGRAM_BODY";
+    write;
+    select(STDOUT);
+}
+
+# process upstream hosts
+
+unless ($no_stdout) {
+    $| = 1;
+    print "Upstream Hosts:\n\n";
+}
+
+unless ($no_log) {
+    print LOGFILE "Upstream Hosts:\n\n";
+}
+
+@uphosts = split(/ /,$sections{"upstream"});
+
+foreach $host (@uphosts) {
+    &process_host($host);
+}
+
+# process downstream hosts
+
+unless ($no_stdout) {
+    print "Downstream Hosts:\n\n";
+}
+
+unless ($no_log) {
+    print LOGFILE "Downstream Hosts:\n\n";
+}
+
+@downhosts = split(/ /,$sections{"downstream"});
+
+foreach $host (@downhosts) {
+    &process_host($host);
+}
+
+# do we need to send email
+
+if ($loss_flag && !$mail_switch) {
+    &error_mail();
+}
+
+# that's all folks
+
+exit 0;
+
+###############################################################################
+# Print usage and exit.
+###############################################################################
+
+sub usage {
+
+    print "\n$PROGNAME $VERSION\n";
+    print "Usage: $PROGNAME [-u] [-v] [-l logfile] [-c conffile] [-t percent] [-m] [-o] [-n]";
+    print "\n\t-u\t\tprint this screen\n";
+    print "\t-v\t\tverbose flag\n";
+    print "\t-l logfile\tlogfile (default: \$LDMHOME/logs/netcheck.log)\n";
+    print "\t-c conffile\tconfiguration file\n";
+    print "\t\t\t    (default: \$LDMHOME/etc/netcheck.conf)\n";
+    print "\t-t percent\tpercent packet loss threshold (default 20)\n";
+    print "\t-m\t\tturn off mail notification\n";
+    print "\t-n\t\tsuppress output to <STDOUT>\n";
+    print "\t-o\t\tsuppress output to logfile\n\n";
+
+    exit(0);
+}
+
+###############################################################################
+# Error Routine.  Writes error message and exits.
+###############################################################################
+
+sub bad_exit {
+
+    local($err_str) = @_;
+    local($date_str) = &get_date();
+
+    print STDERR "$date_str $hostname $PROGNAME[$<]: $err_str\a\n";
+
+    unless ($no_log) {
+	print LOGFILE "$date_str $hostname $PROGNAME[$<]: $err_str\n";
+    }
+
+    exit -1;
+
+}
+
+###############################################################################
+# Date routine.  Gets date and time as GMT in the same format as the LDM log
+# file.
+###############################################################################
+
+sub get_date {
+
+    @month_array = (Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec);
+
+    local($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+	gmtime(time());
+
+    local($date_string) =
+	sprintf("%s %d %02d:%02d:%02d UTC", $month_array[$mon], $mday,
+		$hour, $min,$sec);
+
+    return $date_string;
+
+}
+
+##############################################################################
+# Main host processing routine.
+##############################################################################
+
+sub process_host {
+
+    local($host) = @_;
+
+# first do a ping, using 10 packets
+
+    if ($os eq "SunOS") {
+	$ping_cmd = "ping -s $host 64 10";
+    }
+
+    elsif ($os eq "HP-UX") {
+	$ping_cmd = "ping $host 64 10";
+    }
+
+    else {
+	$ping_cmd = "ping -c 10 -s 64 $host";
+    }
+
+    @ping_str = split(/\n/,`$ping_cmd`);
+
+# we need the packet loss figure, so copy the output array from ping and
+# process the copy.
+
+    @ping_2 = @ping_str;
+
+    while (@ping_2) {
+	$ping_out = shift(@ping_2);
+	if ($ping_out =~ /^-/) {
+	    $ping_out = shift(@ping_2);
+	    last;
+	}
+    }
+
+    ($dummy,$packet_loss) = $ping_out =~ /(.*) (\d{1,3})%/;
+
+    if ($packet_loss > $loss_threshold) {
+	$loss_flag++;
+	$error_list{$host} = $packet_loss;
+    }
+
+# next, do a traceroute.
+
+    $trace_cmd = "traceroute $host";
+    $trace_str = `$trace_cmd 2>&1`;
+
+# now print the results
+
+    $date_out = &get_date();
+
+    unless ($no_stdout) {
+	print "$date_out: $host\n________________________\n\n";
+	print "$ping_cmd:\n";
+    }
+
+    unless ($no_log) {
+        print LOGFILE "$date_out: $host\n________________________\n\n";
+	print LOGFILE "$ping_cmd:\n";
+    }
+
+    if ($verbose) {
+	$ping_idx = @ping_str;
+	for ($i = 0;$i <= $ping_idx;$i++) {
+	    unless ($no_stdout) {
+		print "$ping_str[$i]\n";
+	    }
+	    unless ($no_log) {
+		print LOGFILE "$ping_str[$i]\n";
+	    }
+	}
+    }
+
+    else {
+	while (@ping_str) {
+	    $ping_out = shift(@ping_str);
+	    if (length($ping_out) < 1) {
+		last;
+	    }
+	}
+	$ping_idx = @ping_str;
+	for ($i = 0;$i <= $ping_idx;$i++) {
+	    unless ($no_stdout) {
+		print "$ping_str[$i]\n";
+	    }
+	    unless ($no_log) {
+		print LOGFILE "$ping_str[$i]\n";
+	    }
+	}
+    }
+
+    unless ($no_stdout) {
+	print "\n";
+	print "$trace_cmd:\n";
+	print "$trace_str\n\n";
+    }
+
+    unless ($no_log) {
+	print LOGFILE "\n";
+	print LOGFILE "$trace_cmd:\n";
+	print LOGFILE "$trace_str\n\n";
+    }
+}
+
+###############################################################################
+# error notification routine
+###############################################################################
+
+sub error_mail {
+
+    open(MAIL,"| /usr/lib/sendmail $sections{'mailname'}");
+
+    print MAIL "Subject: Netcheck Results\n\n";
+
+    local($head_str) = &get_date();
+    print MAIL "$PROGNAME Version $VERSION: $head_str\n\n";
+
+    foreach $target (sort keys(%error_list)) {
+	$percent = $error_list{$target};
+	print MAIL "$target: $percent% packet loss\n";
+    }
+
+    print MAIL ".";
+
+    close MAIL;
+
+}
+
+###############################################################################
+# FORMATS
+###############################################################################
+
+format NONE =
+.
+
+format PROGRAM_BODY =
+
+@<<<<<<<<<<<                  @|||||||||||||||||||               Version:@>>>>>
+$PROGNAME,                    &get_date(),                       $VERSION
+===============================================================================
+
+.

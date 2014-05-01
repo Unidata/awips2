@@ -1,0 +1,26 @@
+!
+! Restore File : 0_xrayrad
+!
+! Log:
+! S. Gurung 	9/2013	Initial creation
+!
+GLEVEL=0
+GVCORD=spxx
+SKIP=
+FILTER=y
+SCALE=0     
+GDPFUN=xrayrad
+TYPE=f   
+CINT=1/6/1000
+LINE=31/1/1/1
+FINT=8/0/255
+FLINE=0;30;4;24;25;26;27;28;29;7;8;9;10;11;12;19;20;21;22;23;13;14;15;16;17;18;2;3;5;6;1;31;0
+HILO=
+HLSYM=
+CLRBAR=1
+WIND=
+TITLE=5/-1/~ X-Ray Radiance
+TEXT=1/21/1/hw
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

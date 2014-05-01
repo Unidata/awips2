@@ -1,0 +1,186 @@
+C MODULE MERIZR
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE MERIZR (IMO,IYR,LMO,LYR,NSTA,PXNAME,NWSST,NWSSTA,
+     *   AREAID,DUNITS,ISORM,ARNAME,IMOW,IMOS)
+C
+C  ROUTINE TO PRINT MONTHLY SUMMARY INFORMATION
+C
+      INCLUDE 'uiox'
+      COMMON /MEAPPX/ APPE(25,600)
+      COMMON /MEAREX/ PEAREA(10,600),MFLAG(600)
+C
+      CHARACTER*12 AREAID(*)
+      CHARACTER*20 ARNAME(*)
+C
+      CHARACTER*20 PXNAME(*)
+C
+      DIMENSION NWSST(*),NWSSTA(*)
+      DIMENSION RIZMO(13),RIZTOT(12),IRIZ(12)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/mape/RCS/merizr.f,v $
+     . $',                                                             '
+     .$Id: merizr.f,v 1.2 2001/06/13 08:49:10 mgm Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+C  ISORM IS SET TO 1 FOR STATION SUMMARIES AND 0 FOR AREA SUMMARIES
+      IF (ISORM.EQ.0) CALL UPAGE (LP)
+C
+      IRG=1
+C
+10    IF (ISORM.EQ.1) THEN
+         WRITE (LP,20) IMO,IYR,LMO,LYR
+20    FORMAT (' ',30X,'EVAPORATION DATA SUMMARY FOR PERIOD ',2I5,
+     *   ' TO ',2I5)
+         WRITE (LP,30) PXNAME(IRG),NWSST(IRG),NWSSTA(IRG)
+30    FORMAT (' ',30X,A,10X,'I.D.',2I5)
+         WRITE (LP,40) DUNITS
+40    FORMAT (' ',30X,'STATION SUMMARY FOR PERIOD OF ANALYSIS',9X,
+     *   'UNITS ARE ',A4 //)
+         ENDIF
+      IF (ISORM.EQ.0) THEN
+         WRITE (LP,50) IRG,IMO,IYR,LMO,LYR
+50    FORMAT (' ',5X,'MAPE AREA ',I5,10X,'MEAN AREAL EVAPORATION ',
+     *   'SUMMARY FOR PERIOD ',2I5,' TO ',2I5)
+         WRITE (LP,60) ARNAME(IRG),AREAID(IRG)
+60    FORMAT (' ',30X,A,10X,'I.D.',A)
+         WRITE (LP,70) DUNITS
+70    FORMAT (' ',30X,'MAPE SUMMARY FOR PERIOD OF ANALYSIS',9X,
+     *   'UNITS ARE ',A4 //)
+         ENDIF
+      WRITE (LP,80)
+80    FORMAT (' EVAPORATION    YEAR/MONTH',11X,
+     *   '1',6X,'2',6X,'3',6X,'4',6X,'5',6X,'6',6X,
+     *   '7',6X,'8',6X,'9',5X,'10',5X,'11',5X,'12',
+     *   11X,'TOTAL')
+C
+      MO=IMO
+      KYR=IYR
+      DO 90 II=1,12
+         IRIZ(II)=0
+         RIZTOT(II)=0.0
+90       CONTINUE
+      IRYR=LYR-IYR+1
+      FINAL=(LYR*12+LMO)-(IYR*12+IMO)+1
+      NM=1
+C
+      DO 180 I=1,IRYR
+         DO 100 KK=1,12
+            RIZMO(KK)=999.99
+100        CONTINUE
+         RIZMO(13)=0.0
+         DO 130 J=1,12
+            IF (NM.GT.FINAL) GO TO 130
+            IF ((J.LT.MO).AND.(KYR.EQ.IYR)) GO TO 130
+            IF (ISORM.LT.1) GO TO 110
+C        PERFORM CALCULATIONS FOR STATION SUMMARY TABLE
+C        APPE IS THE STATION MONTHLY SUMS
+            RIZMO(J)=APPE(IRG,NM)
+            GO TO 120
+C        PERFORM COMPUTATIONS FOR THE MAPE SUMMARY TABLE
+C        PEAREA IS THE MONTHLY SUMS
+110         RIZMO(J)=PEAREA(IRG,NM)
+C        CALCULATE THE YEARLY TOTAL
+120         RIZMO(13)=RIZMO(13)+RIZMO(J)
+C        COUNT THE NUMBER OF MONTHS (JAN,FEB,ETC.)
+            IRIZ(J)=IRIZ(J)+1
+C        CALCULATE THE TOTAL FOR THE MONTHS (JAN,FEB,ETC.)
+            RIZTOT(J)=RIZTOT(J)+RIZMO(J)
+            NM=NM+1
+            MO=MO+1
+            IF (MO.LE.12) GO TO 130
+            MO=1
+130         CONTINUE
+C     SET ANNUAL TOTAL EQUAL TO 999 IF A MONTH IS MISSING
+         DO 140 JI=1,12
+            IF (RIZMO(JI).GE.990.) GO TO 150
+140         CONTINUE
+         GO TO 160
+150      RIZMO(13)=999.99
+160      CONTINUE
+         WRITE (LP,170) KYR,(RIZMO(IX),IX=1,12),RIZMO(13)
+170      FORMAT (' ',14X,I5,13X,12F7.2,7X,F7.2)
+         KYR=KYR+1
+180      CONTINUE
+C
+      WRITE (LP,190)
+190   FORMAT ('0',20X,'MONTH',11X,
+     *   '1',6X,'2',6X,'3',6X,'4',6X,'5',6X,'6',6X,
+     *   '7',6X,'8',6X,'9',5X,'10',5X,'11',5X,'12',
+     *   8X,'ANNUAL AVG')
+      WRITE (LP,200) (IRIZ(I),I=1,12)
+200   FORMAT (' NUMBER OF MONTHS',14X,12I7)
+C
+      DO 210 I=1,12
+         IF (IRIZ(I).EQ.0) GO TO 210
+C     CALCULATE THE AVERAGES OF THE MONTHS (JAN,FEB,ETC.)
+         RIZTOT(I)=RIZTOT(I)/IRIZ(I)
+210      CONTINUE
+C
+C  CALCULATE THE AVERAGE ANNUAL VALUE AS THE SUM OF THE MONTLY AVERAGES
+      TOEAR=0.0
+      DO 220 JJ=1,12
+         TOEAR=TOEAR+RIZTOT(JJ)
+220      CONTINUE
+C
+C  IF ONE OF THE MONTHLY AVERAGES EQUAL TO 0, SET THE ANNUAL TO 0
+      DO 230 JN=1,12
+         IF (RIZTOT(JN).EQ.0.) TOEAR=0.0
+230      CONTINUE
+C
+      WRITE (LP,240) (RIZTOT(I),I=1,12),TOEAR
+240   FORMAT (' AVERAGE EVAPORATION',13X,12F7.2,7X,F7.2 //)
+C
+      IF ((IMOW.EQ.0).OR.(IMOS.EQ.0)) GO TO 290
+C
+      SUMM=0.0
+      WINT=0.0
+      LMOS=IMOW-1
+      LMOW=IMOS-1
+C
+C  CALCULATE THE SUM OF THE SUMMER MONTHLY AVERAGES
+      DO 250 I=IMOS,LMOS
+         SUMM=SUMM+RIZTOT(I)
+250      CONTINUE
+C
+C  CALCULATE THE SUM OF THE WINTER MONTHLY AVERAGES
+      DO 260 I=1,LMOW
+         WINT=WINT+RIZTOT(I)
+260      CONTINUE
+      DO 270 I=IMOW,12
+         WINT=WINT+RIZTOT(I)
+270      CONTINUE
+C
+      WRITE (LP,280) SUMM,WINT
+280   FORMAT (' SEASONAL EVAPORATION',20X,'SUMMER = ',F10.2,5X,
+     *   'WINTER = ',F10.2  //)
+C
+290   IF (ISORM.NE.0) GO TO 320
+C
+      NTMO=FINAL
+C
+      DO 310 I=1,NTMO
+         IF (MFLAG(I).EQ.0) GO TO 310
+         NCMO=IYR*12+IMO+I-1
+         ICYR=(NCMO-1)/12
+         ICMO=NCMO-ICYR*12
+         CALL UWARN (LP,0,-1)
+         WRITE (LP,300) ICMO,ICYR
+300   FORMAT ('0*** WARNING - THE MONTHLY NORMALS INPUT ',
+     *      'WERE USED TO CALCULATE A SIGNIFICANT PORTION OF THE MAPE ',
+     *      'FOR ',I2,'/',I4)
+310      CONTINUE
+C
+320   IF (IRG.EQ.NSTA) GO TO 330
+         IRG=IRG+1
+         GO TO 10
+C
+330   RETURN
+C
+      END

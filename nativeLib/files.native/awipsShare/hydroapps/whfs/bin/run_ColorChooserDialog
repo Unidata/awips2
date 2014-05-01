@@ -1,0 +1,44 @@
+#!/bin/ksh
+# file name: run_ColorChooserDialog
+# Created: 07/12/2007
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export SYS_JAVA_DIR=$(get_apps_defaults sys_java_dir)
+export WHFS_LOCAL_DATA_DIR=$(get_apps_defaults whfs_local_data_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+
+
+# need to add a path to the jar file for this application
+export CLASSPATH=$CLASSPATH:$WHFS_BIN_DIR/MiscDialogs.jar:$DB_DRIVER_PATH
+
+# Java bin directory
+JBINDIR=$SYS_JAVA_DIR/bin
+
+Dte=`date +%m%d%Y`
+
+LOG_FILE=$WHFS_LOCAL_DATA_DIR/log/color_scale/ColorChooserDialog_$Dte.log
+TMPLOGFILE=$WHFS_LOCAL_DATA_DIR/log/color_scale/ColorChooserDialog.tmp
+
+tail -1200 $LOG_FILE > $TMPLOGFILE
+mv $TMPLOGFILE $LOG_FILE
+
+if [ $# -ne 3 ]
+then
+        echo "run_ColorChooserDialog <application name> <default color file path> <rgb.txt file path>"
+        exit 1
+else
+	APPLICATION_NAME=$1
+	LOGIN_ID=`whoami`
+	DEFAULT_COLOR_SCALE_FILE=$2
+	RGB_COLOR_FILE=$3
+fi
+
+########################################################################
+
+# set up an X Terminal window to write stdout and run the ColorChooser Dialog
+# application using java
+xterm -T ColorChooserDialog -iconic -n ColorChooserDialog -e $JBINDIR/java ohd.hseb.color_chooser.ColorChooserDialog $JDBCURL $LOG_FILE $APPLICATION_NAME $LOGIN_ID $DEFAULT_COLOR_SCALE_FILE $RGB_COLOR_FILE

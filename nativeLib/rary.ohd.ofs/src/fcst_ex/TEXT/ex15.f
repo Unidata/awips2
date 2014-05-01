@@ -1,0 +1,123 @@
+C MEMBER EX15
+C  (from old member FCEX15)
+C
+      SUBROUTINE EX15(PO,OUT,LOCD,D,MD)
+C
+C             THE FUNCTION OF THIS SUBROUTINE IS TO COMPUTE AN OUTPUT
+C              TIME SERIES BY WEIGHTING THE INPUT TIME SERIES.
+C
+C             THIS SUBROUTINE WAS WRITTEN BY:
+C              JAN LEWIS        HRL      MARCH,1980      VERSION NO. 1
+C
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fctime'
+C
+      DIMENSION PO(1),OUT(1),LOCD(1),D(MD),SNAME(2),SWITCH(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_ex/RCS/ex15.f,v $
+     . $',                                                             '
+     .$Id: ex15.f,v 1.2 2003/03/14 16:49:54 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SNAME/4HEX15,4H    /
+      DATA SWITCH/4H    ,4HAREA/
+C
+      CALL FPRBUG(SNAME,1,15,IBUG)
+C
+      NTS=PO(2)
+      WTS=PO(3)
+      IDT=PO(7)
+      N=PO(8)
+      MSG=PO(9)
+C
+C        COMPUTE THE TOTAL NUMBER PERIODS.
+C
+      NPD=(LDA-IDA)*24/IDT+(LHR-IHR)/IDT+1
+C
+C        FIND STARTING LOCATION OF COMPUTED VALUE.
+C
+      ILOC=(IDA-IDADAT)*24/IDT*N+(IHR-1)/IDT*N
+      ILOCS=ILOC+1
+      IF(IBUG.EQ.1) WRITE(IODBUG,1100) IDA,IHR,IDT,N,ILOC,LDA,LHR,IDADAT
+     1 ,NPD
+ 1100 FORMAT(1H0,10X,49HDEBUG EXECUTION SUBROUTINE FOR WEIGH-TS OPERATIO
+     1N//11X,4HIDA=,I5,5X,4HIHR=,I5,5X,4HIDT=,3X,I5,5X,2HN=,2X,I5,5X,
+     2 5HILOC=,I5/11X,4HLDA=,I5,5X,4HLHR=,I5,5X,7HIDADAT=,I5,5X,4HNPD=,
+     3 I5)
+C
+      IF(IBUG.EQ.0) GO TO 5
+      WRITE(IODBUG,1200)
+ 1200 FORMAT(1H0,10X,8HPO ARRAY)
+      WRITE(IODBUG,1000) (PO(K),K=1,10)
+ 1000 FORMAT(1H ,10X,F5.0,2X,F6.2,2X,A4,2X,A4,2X,A4,2X,A4,2X,F6.2,2X,
+     1 F6.2,2X,F6.2,2X,A4)
+      K=11
+      DO 90 I=1,NTS
+      IF(WTS.EQ.SWITCH(2)) GO TO 85
+      WRITE(IODBUG,2100) PO(K),PO(K+1),PO(K+2),PO(K+3)
+ 2100 FORMAT(1H ,10X,A4,3X,A4,3X,A4,3X,F5.3)
+      K=K+4
+      GO TO 90
+   85 WRITE(IODBUG,3100) PO(K),PO(K+1),PO(K+2),PO(K+3),PO(K+4),PO(K+5)
+ 3100 FORMAT(1H ,10X,A4,3X,A4,3X,A4,3X,F5.3,2X,A4,3X,A4)
+      K=K+6
+   90 CONTINUE
+C
+      WRITE(IODBUG,2200)
+ 2200 FORMAT(1H0,10X,54HSTARTING LOCATIONS OF INPUT TIME SERIES IN THE D
+     1 ARRAY)
+      WRITE(IODBUG,2210) (LOCD(I),I=1,NTS)
+ 2210 FORMAT(1H ,10X,14I5)
+C
+      DO 95 I=1,NTS
+      J=ILOC+LOCD(I)
+      KK=NPD*N+J-1
+      WRITE(IODBUG,1500) I
+ 1500 FORMAT(1H0,10X,31HVALUES OF INPUT TIME SERIES NO.,I5)
+      WRITE(IODBUG,2000) (D(IK),IK=J,KK)
+ 2000 FORMAT(1H ,10X,10F10.2)
+   95 CONTINUE
+C
+C        COMPUTE WEIGTHED OUTPUT T.S.
+C
+    5 DO 10 L=1,NPD
+      DO 10 J=1,N
+      TEMP=0.
+      DO 20 K=1,NTS
+      I1=LOCD(K)+ILOC
+C
+C        CHECK FOR MISSING VALUES.
+C
+      IF(MSG.EQ.0) GO TO 30
+      I=IFMSNG(D(I1))
+      IF(I.EQ.0) GO TO 30
+      TEMP=D(I1)
+      GO TO 15
+C
+   30 IF(WTS.EQ.SWITCH(1)) I2=14+(K-1)*4
+      IF(WTS.EQ.SWITCH(2)) I2=14+(K-1)*6
+      TEMP=TEMP+D(I1)*PO(I2)
+   20 CONTINUE
+   15 ILOC=ILOC+1
+C LC make sure computed != -999 for types thad don't allow missing
+      IF(MSG.EQ.0)THEN
+        IF ((TEMP.LT.-998.99).AND.(TEMP.GT.-999.01).AND.I.NE.0)THEN
+         TEMP=TEMP+1.0
+        ENDIF
+      ENDIF
+      OUT(ILOC)=TEMP
+   10 CONTINUE
+      NN=NPD*N+ILOCS-1
+      IF(IBUG.EQ.1) WRITE(IODBUG,3500)
+      IF(IBUG.EQ.1) WRITE(IODBUG,2000) (OUT(I),I=ILOCS,NN)
+ 3500 FORMAT(1H0,10X,19HOUTPUT TIME SERIES:)
+      IF(ITRACE.EQ.1) WRITE(IODBUG,100) SNAME
+  100 FORMAT(1H0,2H**,1X,2A4,8H EXITED.)
+      RETURN
+      END

@@ -1,0 +1,540 @@
+/* This is a view record ! */
+/*
+    File: StatProf.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:34 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "StatProf.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct StatProf_t
+{
+    char		lid[9];
+    char		name[51];
+    char		primary_pe[3];
+    char		stream[33];
+    double		fs;
+    double		wstg;
+    double		fq;
+    double		action_flow;
+    double		zd;
+    double		mile;
+    char		reach[81];
+    char		proximity[7];
+
+    int		ind_lid;
+    int		ind_name;
+    int		ind_primary_pe;
+    int		ind_stream;
+    int		ind_fs;
+    int		ind_wstg;
+    int		ind_fq;
+    int		ind_action_flow;
+    int		ind_zd;
+    int		ind_mile;
+    int		ind_reach;
+    int		ind_proximity;
+} StatProf_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+StatProf * GetStatProf(const char * where)
+{
+
+    StatProf * listPtr = NULL;
+    StatProf * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM StatProf ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct StatProf_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetStatProf() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetStatProf() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetStatProf() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.primary_pe:dbs.ind_primary_pe, :dbs.stream:dbs.ind_stream, 
+    :dbs.fs:dbs.ind_fs, :dbs.wstg:dbs.ind_wstg, 
+    :dbs.fq:dbs.ind_fq, :dbs.action_flow:dbs.ind_action_flow, 
+    :dbs.zd:dbs.ind_zd, :dbs.mile:dbs.ind_mile, 
+    :dbs.reach:dbs.ind_reach, :dbs.proximity:dbs.ind_proximity    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetStatProf() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (StatProf *) malloc(sizeof(StatProf))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->primary_pe, dbs.primary_pe);
+            setNullIfIndicated(dbs.ind_primary_pe, CHAR, structPtr->primary_pe);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            structPtr->fs = dbs.fs;
+            setNullIfIndicated(dbs.ind_fs, DOUBLE, &structPtr->fs);
+
+            structPtr->wstg = dbs.wstg;
+            setNullIfIndicated(dbs.ind_wstg, DOUBLE, &structPtr->wstg);
+
+            structPtr->fq = dbs.fq;
+            setNullIfIndicated(dbs.ind_fq, DOUBLE, &structPtr->fq);
+
+            structPtr->action_flow = dbs.action_flow;
+            setNullIfIndicated(dbs.ind_action_flow, DOUBLE, &structPtr->action_flow);
+
+            structPtr->zd = dbs.zd;
+            setNullIfIndicated(dbs.ind_zd, DOUBLE, &structPtr->zd);
+
+            structPtr->mile = dbs.mile;
+            setNullIfIndicated(dbs.ind_mile, DOUBLE, &structPtr->mile);
+
+            strcpy(structPtr->reach, dbs.reach);
+            setNullIfIndicated(dbs.ind_reach, CHAR, structPtr->reach);
+
+            strcpy(structPtr->proximity, dbs.proximity);
+            setNullIfIndicated(dbs.ind_proximity, CHAR, structPtr->proximity);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.primary_pe:dbs.ind_primary_pe, :dbs.stream:dbs.ind_stream, 
+        :dbs.fs:dbs.ind_fs, :dbs.wstg:dbs.ind_wstg, 
+        :dbs.fq:dbs.ind_fq, :dbs.action_flow:dbs.ind_action_flow, 
+        :dbs.zd:dbs.ind_zd, :dbs.mile:dbs.ind_mile, 
+        :dbs.reach:dbs.ind_reach, :dbs.proximity:dbs.ind_proximity        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetStatProf() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+StatProf * SelectStatProf(const char * where)
+{
+
+    StatProf * listPtr = NULL;
+    StatProf * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM StatProf ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct StatProf_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectStatProf() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectStatProf() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectStatProf() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.primary_pe:dbs.ind_primary_pe, :dbs.stream:dbs.ind_stream, 
+    :dbs.fs:dbs.ind_fs, :dbs.wstg:dbs.ind_wstg, 
+    :dbs.fq:dbs.ind_fq, :dbs.action_flow:dbs.ind_action_flow, 
+    :dbs.zd:dbs.ind_zd, :dbs.mile:dbs.ind_mile, 
+    :dbs.reach:dbs.ind_reach, :dbs.proximity:dbs.ind_proximity    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectStatProf() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (StatProf *) malloc(sizeof(StatProf))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->primary_pe, dbs.primary_pe);
+            setNullIfIndicated(dbs.ind_primary_pe, CHAR, structPtr->primary_pe);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            structPtr->fs = dbs.fs;
+            setNullIfIndicated(dbs.ind_fs, DOUBLE, &structPtr->fs);
+
+            structPtr->wstg = dbs.wstg;
+            setNullIfIndicated(dbs.ind_wstg, DOUBLE, &structPtr->wstg);
+
+            structPtr->fq = dbs.fq;
+            setNullIfIndicated(dbs.ind_fq, DOUBLE, &structPtr->fq);
+
+            structPtr->action_flow = dbs.action_flow;
+            setNullIfIndicated(dbs.ind_action_flow, DOUBLE, &structPtr->action_flow);
+
+            structPtr->zd = dbs.zd;
+            setNullIfIndicated(dbs.ind_zd, DOUBLE, &structPtr->zd);
+
+            structPtr->mile = dbs.mile;
+            setNullIfIndicated(dbs.ind_mile, DOUBLE, &structPtr->mile);
+
+            strcpy(structPtr->reach, dbs.reach);
+            setNullIfIndicated(dbs.ind_reach, CHAR, structPtr->reach);
+
+            strcpy(structPtr->proximity, dbs.proximity);
+            setNullIfIndicated(dbs.ind_proximity, CHAR, structPtr->proximity);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.primary_pe:dbs.ind_primary_pe, :dbs.stream:dbs.ind_stream, 
+        :dbs.fs:dbs.ind_fs, :dbs.wstg:dbs.ind_wstg, 
+        :dbs.fq:dbs.ind_fq, :dbs.action_flow:dbs.ind_action_flow, 
+        :dbs.zd:dbs.ind_zd, :dbs.mile:dbs.ind_mile, 
+        :dbs.reach:dbs.ind_reach, :dbs.proximity:dbs.ind_proximity        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectStatProf() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectStatProfCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM StatProf ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountStatProf() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountStatProf() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountStatProf() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountStatProf() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeStatProf( StatProf * structPtr)
+{
+    StatProf* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( StatProf * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetStatProfDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetStatProfErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

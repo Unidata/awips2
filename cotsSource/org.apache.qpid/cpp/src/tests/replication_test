@@ -1,0 +1,182 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Run a test of the replication feature
+
+source ./test_env.sh
+
+trap stop_brokers INT TERM QUIT
+
+stop_brokers() {
+    if [ x$BROKER_A != x ]; then
+        $QPIDD_EXEC --no-module-dir -q --port $BROKER_A
+        unset BROKER_A
+    fi      
+    if [ x$BROKER_B != x ]; then
+        $QPIDD_EXEC --no-module-dir -q --port $BROKER_B
+        unset BROKER_B
+    fi
+}
+
+if test -d ${PYTHON_DIR} && test -f "$REPLICATING_LISTENER_LIB" && test -f "$REPLICATION_EXCHANGE_LIB";  then
+    rm -f queue-*.repl replication-*.log #cleanup from any earlier runs
+
+    $QPIDD_EXEC --daemon --port 0 --no-data-dir --no-module-dir --auth no --load-module $REPLICATING_LISTENER_LIB --replication-queue replication --create-replication-queue true  --log-enable info+ --log-to-file replication-source.log  --log-to-stderr 0 > qpidd.port
+    BROKER_A=`cat qpidd.port`
+
+    $QPIDD_EXEC --daemon --port 0 --no-data-dir --no-module-dir --auth no --load-module $REPLICATION_EXCHANGE_LIB  --log-enable info+ --log-to-file replication-dest.log  --log-to-stderr 0 > qpidd.port
+    BROKER_B=`cat qpidd.port`
+    echo "Running replication test between localhost:$BROKER_A and localhost:$BROKER_B"
+
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add exchange replication replication
+    $PYTHON_COMMANDS/qpid-route --ack 5 queue add "localhost:$BROKER_B" "localhost:$BROKER_A" replication replication
+
+    #create test queues
+
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_A" add queue queue-a --generate-queue-events 2
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_A" add queue queue-b --generate-queue-events 2
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_A" add queue queue-c --generate-queue-events 1
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_A" add queue queue-d --generate-queue-events 2
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_A" add queue queue-e --generate-queue-events 1
+
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add queue queue-a
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add queue queue-b
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add queue queue-c
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add queue queue-e
+    #queue-d deliberately not declared on DR; this error case should be handled
+
+    #publish and consume from test queues on broker A:
+    i=1
+    while [ $i -le 10 ]; do
+        echo Message $i for A >> queue-a-input.repl
+        i=`expr $i + 1`
+    done
+    i=1
+    while [ $i -le 20 ]; do
+        echo Message $i for B >> queue-b-input.repl 
+        i=`expr $i + 1`
+    done
+    i=1
+    while [ $i -le 15 ]; do
+        echo Message $i for C >> queue-c-input.repl 
+        i=`expr $i + 1`
+    done
+
+    ./sender --port $BROKER_A --routing-key queue-a --send-eos 1 < queue-a-input.repl
+    ./sender --port $BROKER_A --routing-key queue-b --send-eos 1 < queue-b-input.repl
+    ./sender --port $BROKER_A --routing-key queue-c --send-eos 1 < queue-c-input.repl
+    echo dummy | ./sender --port $BROKER_A --routing-key queue-d --send-eos 1
+
+    ./receiver --port $BROKER_A --queue queue-a --messages 5 > /dev/null 
+    ./receiver --port $BROKER_A --queue queue-b --messages 10 > /dev/null
+    ./receiver --port $BROKER_A --queue queue-c --messages 10 > /dev/null
+    ./receiver --port $BROKER_A --queue queue-d > /dev/null
+    
+
+    # What we are doing is putting a message on the end of repliaction queue & waiting for it on remote side
+    # making sure all the messages have been flushed from the replication queue.
+    echo dummy | ./sender --port $BROKER_A --routing-key queue-e --send-eos 1
+    ./receiver --port $BROKER_B --queue queue-e --messages 1 > /dev/null
+
+    #shutdown broker A then check that broker Bs versions of the queues are as expected
+    $QPIDD_EXEC --no-module-dir -q --port $BROKER_A
+    unset BROKER_A
+
+    #validate replicated queues:
+    ./receiver --port $BROKER_B --queue queue-a > queue-a-backup.repl
+    ./receiver --port $BROKER_B --queue queue-b > queue-b-backup.repl
+    ./receiver --port $BROKER_B --queue queue-c > queue-c-backup.repl
+
+
+    tail -5 queue-a-input.repl > queue-a-expected.repl
+    tail -10 queue-b-input.repl > queue-b-expected.repl
+    diff queue-a-backup.repl queue-a-expected.repl || FAIL=1
+    diff queue-b-backup.repl queue-b-expected.repl || FAIL=1
+    diff queue-c-backup.repl queue-c-input.repl || FAIL=1
+
+    grep 'queue-d does not exist' replication-dest.log > /dev/null || echo "WARNING: Expected error to be logged!"
+
+    stop_brokers
+
+    # now check offsets working (enqueue based on position being set, not queue abs position)
+    
+    $QPIDD_EXEC --daemon --port 0 --no-data-dir --no-module-dir --auth no --load-module $REPLICATING_LISTENER_LIB --replication-queue replication --create-replication-queue true  --log-enable info+ --log-to-file replication-source.log  --log-to-stderr 0 > qpidd.port 
+    BROKER_A=`cat qpidd.port`
+
+    $QPIDD_EXEC --daemon --port 0 --no-data-dir --no-module-dir --auth no --load-module $REPLICATION_EXCHANGE_LIB  --log-enable info+ --log-to-file replication-dest.log  --log-to-stderr 0 > qpidd.port
+    BROKER_B=`cat qpidd.port`
+
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add exchange replication replication
+    $PYTHON_COMMANDS/qpid-route --ack 5 queue add "localhost:$BROKER_B" "localhost:$BROKER_A" replication replication
+
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_A" add queue queue-e --generate-queue-events 2
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add queue queue-e
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_A" add queue queue-d --generate-queue-events 1
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add queue queue-d
+
+    i=1
+    while [ $i -le 10 ]; do
+        echo Message $i for A >> queue-e-input.repl
+        i=`expr $i + 1`
+    done
+
+    ./sender --port $BROKER_A --routing-key queue-e --send-eos 1 < queue-e-input.repl
+    ./receiver --port $BROKER_A --queue queue-e --messages 10 > /dev/null
+    
+    # What we are doing is putting a message on the end of repliaction queue & waiting for it on remote side
+    # making sure all the messages have been flushed from the replication queue.
+    echo dummy | ./sender --port $BROKER_A --routing-key queue-d --send-eos 1
+    ./receiver --port $BROKER_B --queue queue-d --messages 1 > /dev/null
+
+    # now check offsets working
+    $QPIDD_EXEC --no-module-dir -q --port $BROKER_B
+    unset BROKER_B
+    $QPIDD_EXEC --daemon --port 0 --no-data-dir --no-module-dir --auth no --load-module $REPLICATION_EXCHANGE_LIB  --log-enable info+ --log-to-file replication-dest.log  --log-to-stderr 0 > qpidd.port
+    BROKER_B=`cat qpidd.port`
+
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add queue queue-e
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add exchange replication replication
+    $PYTHON_COMMANDS/qpid-route --ack 5 queue add "localhost:$BROKER_B" "localhost:$BROKER_A" replication replication
+    # now send another 15
+    i=11
+    while [ $i -le 15 ]; do
+        echo Message $i for A >> queue-e1-input.repl
+        i=`expr $i + 1`
+    done
+    ./sender --port $BROKER_A --routing-key queue-e --send-eos 1 < queue-e1-input.repl
+    
+    ./receiver --port $BROKER_B --queue queue-e > queue-e-backup.repl
+    diff queue-e-backup.repl queue-e1-input.repl || FAIL=1
+    
+    stop_brokers
+
+    if [ x$FAIL != x ]; then
+        echo replication test failed: expectations not met!
+        exit 1
+    else 
+        echo queue state replicated as expected
+        rm -f queue-*.repl replication-*.log
+    fi
+
+else
+    echo "Skipping replication test, plugins not built or python utils not located"
+fi
+

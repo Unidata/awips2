@@ -1,0 +1,151 @@
+C MODULE PRP7
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE PRP7 (P)
+C.......................................................................
+C
+C   THIS ROUTINE PRINTS THE CARRYOVER FOR THE LAG/K OPERATION.
+C.......................................................................
+C
+C   ROUTINE ORIGINALLY PROGRAMMED BY
+C          GEORGE F. SMITH - HRL -   NOVEMBER, 1979.
+C   UPDATED MARCH 1982 TO PRINT IN ENGLISH AND METRIC UNITS
+C   UPDATED JUNE 1989 TO ALLOW FT. WORTH TRANSMISSION LOSS COMPUTATIONS
+C.......................................................................
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fengmt'
+C
+      DIMENSION P(1)
+      DIMENSION IUNITS(2)
+      CHARACTER*8 SNAME/'PRP7'/
+      LOGICAL FOP7
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_prpc/RCS/prp7.f,v $
+     . $',                                                             '
+     .$Id: prp7.f,v 1.3 2000/03/13 20:49:04 page Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA IUNITS/4HCFS ,4HCMS /
+      DATA RES,SNGL/4HRES-,4HSNGL/
+C
+C
+C.......................................................................
+C
+C      PRINT DEBUG INFORMATION AND TURN ON DEBUG FLAG.
+C.......................................................................
+C
+      LTRACE=1
+      NOP=7
+      CALL FPRBUG (SNAME,LTRACE,NOP,IBUG)
+C
+      WRITE (IPR,600)
+  600 FORMAT ('0',11X,'LAG AND/OR K OPERATION')
+C
+      ITA=P(5)
+      ITB=P(9)
+      IMETR=P(10)
+      TLRC=P(11)
+      QBNTL=P(12)
+      IF (TLRC.EQ.0.0.OR.IMETR.EQ.1) GO TO 5
+         CALL FCONVT(4HCMS ,4HL3/T,IUENG,CFSM,CFSA,IER)
+         QBNTL=QBNTL*CFSM
+ 5    NP=P(16)
+      NDFLT=P(17)
+      LBK=P(18)
+      LBK1=LBK+1
+      NPLQ=P(19)
+      NPKQ=P(LBK)
+C
+      IF (METRIC.EQ.0)IMETR=0
+      IF (METRIC.EQ.1)IMETR=1
+C
+      WRITE (IPR,601)ITA
+  601 FORMAT (16X,31HCOMPUTATIONAL TIME INTERVAL IS ,I2,7H HOURS.)
+C
+      IF (P(2).EQ.RES.AND.P(3).EQ.SNGL) THEN
+         WRITE (IPR,602)(P(I),I=2,4),ITA
+         GO TO 670
+         ENDIF
+      IF (ITB.GT.0)WRITE (IPR,602)(P(I),I=2,4),ITA,(P(I),I=6,8),ITB
+  602 FORMAT (18X,35HTIME SERIES USED BY THIS OPERATION./
+     1  21X,4HI.D.,7X,22HTYPE     TIME INTERVAL/
+     2  (19X,2A4,5X,A4,7X,I2,6H HOURS))
+C
+      IF (ITB.EQ.0)WRITE (IPR,602)(P(I),I=2,4),ITA
+C
+ 670  IF (TLRC.GT.0.0) GO TO 6
+      WRITE (IPR,611)
+ 611  FORMAT (1H0,15X,'NO FORT WORTH RFC TRANSMISSION LOSS ',
+     1 'COMPUTATIONS WILL BE DONE.')
+      GO TO 8
+C
+ 6    IF (QBNTL.GT.0.0) GO TO 7
+      WRITE (IPR,613)TLRC
+ 613  FORMAT (1H0,15X,'FORT WORTH RFC TRANSMISSION LOSS ',
+     1 'COMPUTATIONS WILL BE DONE'/16X,'FOR ALL FLOWS ',
+     2 'WITH A TRANSMISSION LOSS RECESSION ',
+     3 'COEFFICIENT OF ',F5.2,1H.)
+      GO TO 8
+C
+ 7    IX=IMETR+1
+      WRITE (IPR,612)QBNTL,IUNITS(IX),TLRC
+ 612  FORMAT (1H0,15X,'FORT WORTH RFC TRANSMISSION LOSS ',
+     1 'COMPUTATIONS WILL BE DONE'/16X,'FOR FLOWS GREATER THAN ',
+     2 F10.1,1X,A4,'WITH A TRANSMISSION LOSS RECESSION ',
+     3 'COEFFICIENT OF ',F5.2,1H.)
+C
+ 8    IF (FOP7(P(19),P(20))) GO TO 10
+C
+      WRITE (IPR,603)
+  603 FORMAT (1H0,15X,36HLAG OPERATION WILL NOT BE PERFORMED.)
+      GO TO 100
+C
+   10 WRITE (IPR,604)
+  604 FORMAT (1H0,15X,32HLAG OPERATION WILL BE PERFORMED.)
+C
+      IF (NPLQ.GT.0) GO TO 20
+C
+      WRITE (IPR,605)P(20)
+  605 FORMAT (16X,18HA CONSTANT LAG OF ,F6.2,
+     1  23H HOURS WILL BE APPLIED.)
+      GO TO 100
+C
+   20 WRITE (IPR,606)NPLQ
+  606 FORMAT (16X,31HA VARIABLE LAG WILL BE APPLIED./
+     1  16X,34HTHE VARIABLE LAG TABLE CONTAINING ,I3,
+     2  29H PAIRS OF LAG AND Q VALUES IS)
+C
+      CALL FPRLQ7(P(20),NPLQ,IPR,IMETR)
+C
+  100 IF (FOP7(P(LBK),P(LBK1))) GO TO 110
+C
+      WRITE (IPR,607)
+  607 FORMAT (1H0,15X,34HK OPERATION WILL NOT BE PERFORMED.)
+      RETURN
+C
+  110 WRITE (IPR,608)
+  608 FORMAT (1H0,15X,30HK OPERATION WILL BE PERFORMED.)
+C
+      IF (NPKQ.GT.0) GO TO 120
+C
+      WRITE (IPR,609)P(LBK1)
+  609 FORMAT (16X,16HA CONSTANT K OF ,F6.2,
+     1  23H HOURS WILL BE APPLIED.)
+      RETURN
+C
+  120 WRITE (IPR,610)NPKQ
+  610 FORMAT (16X,29HA VARIABLE K WILL BE APPLIED./
+     1  16X,32HTHE VARIABLE K TABLE CONTAINING ,I3,
+     2  27H PAIRS OF K AND Q VALUES IS)
+C
+      CALL FPRKQ7(P(LBK1),NPKQ,IPR,IMETR)
+C
+      RETURN
+C
+      END

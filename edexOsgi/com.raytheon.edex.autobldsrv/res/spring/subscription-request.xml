@@ -1,0 +1,21 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="subscription" class="com.raytheon.edex.services.SubscribeManager"/>
+	<camelContext id="subscription-camel" 
+	              xmlns="http://camel.apache.org/schema/spring" 
+	              errorHandlerRef="errorHandler">
+	    <endpoint id="subscriptionHTTP_from"
+	    	uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/subscribe?disableStreamCache=true" />          
+	    
+		<!-- SubscriptionSrv routes -->
+		<route id="subscriptionHTTP">
+			<from uri="ref:subscriptionHTTP_from" />
+			<bean ref="subscription" method="processRequest"/>
+			<bean ref="serializationUtil" method="marshalToXml" />
+		</route>
+	</camelContext>
+ </beans>

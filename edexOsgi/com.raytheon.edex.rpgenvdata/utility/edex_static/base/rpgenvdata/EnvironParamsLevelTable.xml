@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<configuration>
+    <model name="RUC130" description="RUC 13km" />
+    
+    <!-- <inventoryHint levelType="MB" nLevels="36" /> -->
+    <inventoryHint levelType="SFC" nLevels="1" />
+    <timeStepHint>3600</timeStepHint>    
+    
+    <clipRadius value="400" units="km" />
+    <!-- EDEX unit is actually "gpm" -->
+    <field name="GH" units="m" description="Geopotential Height">
+        <level name="MB" description="Pressure Level" units="mb"
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
+    </field> 
+    <field name="RH" units="%" description="Relative Humidity">
+        <level name="MB" description="Pressure Level" units="mb"
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
+    </field> 
+    <field name="T" units="K" description="Temperature">
+        <level name="MB" description="Pressure Level" units="mb"
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
+    </field> 
+    <field name="uW" description="U Wind Component" units="m/s">
+        <level name="MB" description="Pressure Level" units="mb"
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
+    </field> 
+    <field name="vW" description="V Wind Component" units="m/s">
+        <level name="MB" description="Pressure Level" units="mb"
+        levels="1000 975 950 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 475 450 425 400 375 350 325 300 250 200 150 100" />
+    </field>
+    <field name="P" units="Pa" description="Pressure">
+        <level name="SFC" description="Surface Level" units="" />
+    </field> 
+
+    <parameter id="mod_name" name="Model Name" type="string" />
+    <parameter id="mod_run_date" name="Model Run Date" type="string" />
+    <parameter id="mod_run_time" name="Model Run Time" type="string" />
+    <parameter id="val_date" name="Valid Date" type="string" />
+    <parameter id="val_time" name="Valid Time" type="string" />
+    <parameter id="forecast_hr" name="Forecast Hour" type="int" />
+    <parameter id="coord_system" name="Coordinate System" type="string" value="Cartesian"/>
+    <parameter id="proj" name="Projection" type="string" />
+    <parameter id="lat_lower_left" name="Latitude Lower Left Corner" units="degrees" type="float" />
+    <parameter id="lon_lower_left" name="Longitude Lower Left Corner" units="degrees" type="float" />
+    <parameter id="lat_upper_right" name="Latitude Upper Right Corner" units="degrees" type="float" />
+    <parameter id="lon_upper_right" name="Longitude Upper Right Corner" units="degrees" type="float" />
+    <parameter id="lat_tang_pt" name="Latitude of Tangent point" units="degrees" type="float" />
+    <parameter id="lon_tang_pt" name="Longitude of Tangent point" units="degrees" type="float" />
+    <parameter id="numXpts" name="Number of points in X direction" type="int" />
+    <parameter id="numYpts" name="Number of points in Y direction" type="int" />
+</configuration>

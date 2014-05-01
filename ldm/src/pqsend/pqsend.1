@@ -1,0 +1,155 @@
+." $Id: pqsend.1,v 1.7.20.1.2.2 2009/06/18 16:19:12 steve Exp $
+.TH PQSEND 1 "$Date: 2009/06/18 16:19:12 $"
+.SH NAME
+pqsend - program to send products from a local product queue to an LDM server
+.SH SYNOPSIS
+.HP
+.ft B
+pqsend
+.nh
+\%-h\ \fIremote\fP
+\%[-v]
+\%[-x]
+\%[-l\ \fIlogpath\fP]
+\%[-f\ \fIfeedtype\fP]
+\%[-q\ \fIqueue\fP]
+\%[-T\ \fITotalTimeo\fP]
+\%[-o\ \fIoffset\fP]
+\%[-t\ \fItimeout\fP]
+\%[-i\ \fIinterval\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This program sends LDM data from a local product queue (see \fBpq(3)\fP)
+to an LDM server, \fBrpc.ldmd(1)\fP.
+The server would be on another machine, or the queue
+used by \fBpqsend\fP would not be the queue in use by the server.
+.LP
+This program "offers" data, and is an alternative to the "request" mechanism
+used by server to ask for data. In most cases, the "request" method would
+be preferred. This program would typically be used with \fBpqing(1)\fP to
+distribute the ingesters to various machines in a tightly coupled local network.
+.B pqsend
+may also be used for one time synchronization product queues after outages
+or reconfigurations.
+.SH OPTIONS
+.TP
+.BI \-h " remote"
+Attempts to send data to LDM server on \fIremote\fR.
+This is a required argument.
+.TP
+.B \-v
+Verbose logging.  A line is emitted for every product in the queue that is
+sent.  The emitted line contains the UTC date and time, the program name,
+the product ingest time, feedtype, sequence number, size in bytes, and the
+product identifier.
+.TP
+.B \-x
+Debugging information is also emitted.
+.TP
+.BI \-l " logpath"
+The path name of a file to be used as the log file for the process.  The
+default is to use syslogd(8) if no logfile is provided.  Specifying `-' logs
+messages to stderr.
+.TP
+.BI \-f " feedtype"
+Offers only products that have a feedtype that is a
+member of the \fIfeedtype\fP set.  The default is `ANY', specifying all
+feed types.  See \fBpqact\fP(1) for a list of basic feed types
+and the use of feedtype expressions to specify combinations of basic
+feed types.
+.TP
+.BI \-q " queue"
+The pathname of the data product queue.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP.  The compiled in default can
+be overridden by setting the environment variable \fBLDMPQFNAME\fP.
+.TP
+.BI \-i " interval"
+Polling interval, in seconds.  When the end of the queue is reached, the
+program sleeps and
+checks for new products in the product queue every \fIinterval\fP seconds.
+When
+.B pqsend
+is run in the same process group as the programs that insert products into
+the product queue, a signal informs
+.B pqsend
+and all other interested processes in the process group
+whenever a new product is available, so polling is not necessary in this
+case.  The default
+interval is 15 seconds.
+.TP
+.BI \-T " TotalTimeo"
+Total timeout, in seconds.  
+Maximum time to attempt to make a connection, and the maximum
+time to spend trying to send a given product. This should be
+less than the \fIage\fP parameter to \fBpqexpire(1)\fP.
+The default total timeout is 3600 seconds (1 hour).
+.TP
+.BI \-o " offset"
+Offset time, in seconds.
+Offer products created \fIoffset\fP
+seconds earlier than the current time.
+The default value is \fITotalTimeo\fP.
+.TP
+.BI \-t " timeout"
+Remote procedure call (RPC) timeout, in seconds.
+The default RPC timeout is 25 seconds.
+
+.SH SIGNALS
+.TP
+.BR SIGTERM
+Normal termination.
+.TP
+.BR SIGINT
+Immediate termination.
+.TP
+.B SIGUSR1
+Write status and product statistics to log output.
+.TP
+.B SIGUSR2
+Cyclically increment the verbosity of the program. Assumming the program was
+started without the \fB-v\fP or \fB-x\fP switches, the first \fBSIGUSR2\fP will
+make it verbose and \fBLOG_INFO\fP priority messages will appear.
+The second will turn on the \fBLOG_DEBUG\fP priority messages as well.
+A third will take it back to the normal state.
+.TP
+.B SIGCONT
+Wake up if sleeping, because there is a new product in the queue.
+
+.SH "ACCESS CONTROL"
+An ACCEPT line in the ldmd.conf file used by the \fIremote\fR will
+effect what data is actually sent. This program signs on with a HIYA remote
+procedure call to determine this. The remote performs an intersection
+of the command line feedtype specification and the data which the remote
+is willing to accept, suppling its pattern specifications.  Any pattern
+supplied on the command line by this program is not used.
+
+.SH EXAMPLES
+.LP
+The following invocation will offer IDS products from the product queue
+/tmp/ldm.pq and send them to an LDM server running on host
+ldmhost.dept.univ.edu
+.RS +4
+  pqsend -q /tmp/ldm.pq -f IDS -h ldmhost.dept.univ.edu
+.RE
+.LP
+The following invocation will attempt to send the last hour's data of any type
+from the default product queue to an LDM server running on host
+ldmhost.dept.univ.edu
+.RS +4
+  pqsend -xvl - -o 3600 -T 3600 -h ldmhost.dept.univ.edu
+.RE
+Log info will come to the controlling terminal.
+The program should be terminated manually when \`End of Queue\' message
+is displayed.
+
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR pqing (1),
+.BR ulog (3),
+.BR pq (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.

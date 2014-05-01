@@ -1,0 +1,341 @@
+module 'Hb'
+version = 48;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'hgstation.c';
+generateNameExterns = * 'hgstation.h';
+generateNameResDB = * 'hgstation.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'hgstationDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'hgstationDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_hgstationDS (Widget parent)
+';
+	XmNwidth = 645;
+	XmNheight = 630;
+	XmNallowShellResize = true;
+	XmNtitle = 'HydroGen Configuration';
+	XmNminWidth = 645;
+	XmNminHeight = 630;
+	XmNmaxWidth = 645;
+	XmNmaxHeight = 630;
+	XmNbaseWidth = 645;
+	XmNbaseHeight = 630;
+	};
+object 'hgstationFO' : XmForm {
+	arguments {
+	lastGenName = 'hgstationFO';
+	XmNwidth = 645;
+	XmNheight = 630;
+	XmNresizePolicy = XmRESIZE_NONE;
+	XmNautoUnmanage = false;
+	};
+object 'hgstationFR' : XmFrame {
+	arguments {
+	lastGenName = 'hgstationFR';
+	};
+object 'hgslistFO' : XmForm {
+	arguments {
+	lastGenName = 'hgslistFO';
+	};
+object 'hgslistLA' : XmLabel {
+	arguments {
+	lastGenName = 'hgslistLA';
+	XmNwidth = 510;
+	XmNlabelString = 'Location    HSA    PE     TS    Forecast TS';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'hgslistSW' : XmScrolledList {
+	arguments {
+	lastGenName = 'hgslistSW';
+	XmNheight = 305;
+	};
+abstract object 'hgslistHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'hgslistHSB';
+	XmNheight = 1;
+	XmNmappedWhenManaged = false;
+	};
+};
+abstract object 'hgslistVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'hgslistVSB';
+	};
+};
+abstract object 'hgslistLI' : XmList {
+	arguments {
+	lastGenName = 'hgslistLI';
+	XmNautomaticSelection = XmAUTO_SELECT;
+	XmNselectionPolicy = XmBROWSE_SELECT;
+	XmNlistSizePolicy = XmCONSTANT;
+	XmNscrollBarDisplayPolicy = XmAS_NEEDED;
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -20;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -622;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -279;
+	XmNtopAttachment = 1 0 20;
+    };
+    };
+};
+object 'hgsummaryLA' : XmLabel {
+	arguments {
+	lastGenName = 'hgsummaryLA';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Summary by Location of HgStation';
+	};
+};
+};
+object 'hgsitemFR' : XmFrame {
+	arguments {
+	lastGenName = 'hgsitemFR';
+	XmNheight = 200;
+	};
+object 'hgsitemFO' : XmForm {
+	arguments {
+	was_selected = true;
+	lastGenName = 'hgsitemFO';
+	XmNheight = 200;
+	};
+object 'hgsitem_locLA' : XmLabel {
+	arguments {
+	lastGenName = 'hgsitem_locLA';
+	XmNlabelString = 'Location:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'hgsitem_locTE' : XmText {
+	arguments {
+	lastGenName = 'hgsitem_locTE';
+	XmNvalue = '';
+	XmNmaxLength = 8;
+	XmNcolumns = 9;
+	};
+};
+object 'hgsitem_tsOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'hgsitem_tsOM';
+	XmNspacing = 10;
+	};
+abstract object 'hgsitem_tsLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'hgsitem_tsLA';
+	XmNlabelString = 'TypeSource:';
+	};
+};
+abstract object 'hgsitem_tsCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'hgsitem_tsCB';
+	XmNwidth = 188;
+	XmNheight = 33;
+	};
+object 'hgsitem_tsPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hgsitem_tsPDM';
+	};
+};
+};
+};
+object 'hgsitem_fcsttsOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'hgsitem_fcsttsOM';
+	};
+abstract object 'hgsitem_fcsttsLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'hgsitem_fcsttsLA';
+	XmNlabelString = 'Forecast TypeSource:';
+	};
+};
+abstract object 'hgsitem_fcsttsCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'hgsitem_fcsttsCB';
+	};
+object 'hgsitem_fcsttsPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'hgsitem_fcsttsPDM';
+	};
+};
+};
+};
+object 'hgsitem_peLA' : XmLabel {
+	arguments {
+	lastGenName = 'hgsitem_peLA';
+	XmNlabelString = 'Physical Elements:';
+	};
+};
+object 'hgsitem_peSW' : XmScrolledList {
+	arguments {
+	lastGenName = 'hgsitem_peSW';
+	};
+abstract object 'hgsitem_peHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'hgsitem_peHSB';
+	};
+};
+abstract object 'hgsitem_peVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'hgsitem_peVSB';
+	};
+};
+abstract object 'hgsitem_peLI' : XmList {
+	arguments {
+	lastGenName = 'hgsitem_peLI';
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -114;
+	XmNleftAttachment = 1 0 46;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 4;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -194;
+	XmNleftAttachment = 1 0 116;
+	XmNbottomAttachment = 2 0 -34;
+	XmNtopAttachment = 1 0 4;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -378;
+	XmNleftAttachment = 1 0 42;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 48;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 245;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 42;
+	XmNbottomAttachment = 2 0 -126;
+	XmNtopAttachment = 1 0 102;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -426;
+	XmNleftAttachment = 1 0 186;
+	XmNbottomAttachment = 2 0 -186;
+	XmNtopAttachment = 1 0 102;
+    };
+    };
+};
+object 'hgsitemLA' : XmLabel {
+	arguments {
+	lastGenName = 'hgsitemLA';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Selected Item';
+	};
+};
+};
+object 'hgssepSE' : XmSeparator {
+	arguments {
+	lastGenName = 'hgssepSE';
+	};
+};
+object 'hgs_applyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hgs_applyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Save';
+	};
+};
+object 'hgs_closePB' : XmPushButton {
+	arguments {
+	lastGenName = 'hgs_closePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'hgs_deletePB' : XmPushButton {
+	arguments {
+	name = 'hgs_deletePB';
+	lastGenName = 'hgs_deletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -640;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -312;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -642;
+	XmNleftAttachment = 1 0 3;
+	XmNbottomAttachment = 2 0 -540;
+	XmNtopAttachment = 1 0 318;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -641;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -561;
+	XmNtopAttachment = 1 0 546;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -195;
+	XmNleftAttachment = 1 0 40;
+	XmNbottomAttachment = 2 0 -605;
+	XmNtopAttachment = 1 0 570;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -590;
+	XmNleftAttachment = 1 0 435;
+	XmNbottomAttachment = 2 0 -605;
+	XmNtopAttachment = 1 0 570;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -390;
+	XmNleftAttachment = 1 0 235;
+	XmNbottomAttachment = 2 0 -605;
+	XmNtopAttachment = 1 0 570;
+    };
+    };
+};
+};
+end module;

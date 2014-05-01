@@ -1,0 +1,167 @@
+C MEMBER PRP8
+C  (from old member FCPRP8)
+C.......................................................................
+C
+      SUBROUTINE PRP8(PLOSS)
+C
+C     SUBROUTINE PRP8 PRINTS THE INFORMATION STORED IN THE P (PLOSS)
+C     ARRAY FOR THE LOSS OPERATION .
+C
+C.......................................................................
+C     PROGRAMMED BY KAY KROUSE   OCTOBER 1979
+C.......................................................................
+C     VARIABLES IN ARGUMENT LIST:
+C                1)PLOSS    -ARRAY CONTAINING PARAMETERS, TIME
+C                            SERIES IDENTIFIERS, OPTIONS, ETC. FOR
+C                            LOSS OPERATION
+C
+C.......................................................................
+C
+      DIMENSION PLOSS(1)
+      INTEGER PEDATA,SSWCH,PCENT,ESWCH
+C
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_prpc/RCS/prp8.f,v $
+     . $',                                                             '
+     .$Id: prp8.f,v 1.1 1995/09/17 18:50:26 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF(ITRACE.GE.1) WRITE(IODBUG,900)
+ 900  FORMAT(1H0,15H** PRP8 ENTERED)
+C.......................................................................
+C     PRINT HEADING
+C
+      WRITE(IPR,910) (PLOSS(I),I=2,6)
+  910 FORMAT(1H0,10X,69HCHANNEL LOSS OPERATION -- LOSS(OR GAIN) OF WATER
+     1 IN THE CHANNEL ABOVE/37X,5A4,39H AS A RESULT OF FLOW THROUGH THE
+     2WETTED/38X,51HPERIMETER AND/OR EVAPORATION FROM THE WATER SURFACE)
+C.......................................................................
+C     PRINT TIME SERIES INFORMATION
+C
+      WRITE(IPR,920)
+ 920  FORMAT(1H0,10X,71HTIME SERIES USED:         ID                 TYP
+     1E              TIME(HR))
+      ITQ=PLOSS(10)
+      WRITE(IPR,925) PLOSS(7),PLOSS(8),PLOSS(9),ITQ
+  925 FORMAT(1H ,36X,2A4,11X,A4,14X,I2)
+C     IS PE TIME SERIES USED?
+      WSAREA=PLOSS(11)
+      IF(WSAREA.LE.0.0) GO TO 10
+      PEDATA=PLOSS(12)
+      IF(PEDATA.EQ.0) GO TO 12
+C     PRINT PE TIME SERIES INFORMATION
+      ITPE=PLOSS(16)
+      WRITE(IPR,925) PLOSS(13),PLOSS(14),PLOSS(15),ITPE
+C.......................................................................
+C     LOCATE SSOUT INFORMATION IN P ARRAY
+C
+      SSOUT=PLOSS(18)
+      SSWCH=PLOSS(19)
+      M=19
+      GO TO 15
+ 10   SSOUT=PLOSS(12)
+      SSWCH=PLOSS(13)
+      M=13
+      GO TO 15
+ 12   SSOUT=PLOSS(13)
+      SSWCH=PLOSS(14)
+      M=14
+C.......................................................................
+C     PRINT CHANNEL BOTTOM LOSS PARAMETERS
+C
+ 15   CONTINUE
+      WRITE(IPR,927) ITQ
+ 927  FORMAT(1H0,10X,47HCOMPUTATIONAL TIME INTERVAL FOR THE OPERATION =,
+     1 I3,7H HOURS.)
+      IF(SSWCH.EQ.0) WRITE(IPR,928)
+ 928  FORMAT(1H0,10X,39HSSOUT=0  NO CHANNEL BOTTOM LOSS OCCURS.)
+      IF(SSWCH.EQ.1) WRITE(IPR,930) SSOUT
+ 930  FORMAT(1H0,10X,39HCHANNEL BOTTOM LOSS PARAMETER (SSOUT) =,F7.2,
+     1 5H CMS.)
+      PCENT=SSOUT*100
+      IF(SSWCH.EQ.2) WRITE(IPR,935) PCENT
+ 935  FORMAT(1H0,10X,39HCHANNEL BOTTOM LOSS PARAMETER (SSOUT) =,I3,
+     1 37H PERCENT OF INSTANTANEOUS FLOW VALUE.)
+C
+      IF(SSWCH.NE.3) GO TO 20
+ 18   WRITE(IPR,945)
+ 945  FORMAT(1H0,10X,50HCHANNEL BOTTOM LOSS PARAMETER (SSOUT) IS VARIABL
+     1E.)
+      WRITE(IPR,950)
+ 950  FORMAT(1H ,30X,48HVARIABLE SSOUT VALUES FOR THE 16TH OF EACH MONTH
+     1)
+      WRITE(IPR,955)
+ 955  FORMAT(1H ,33X,78H1      2      3      4      5      6      7
+     1 8      9     10     11     12)
+      M=M+1
+      M11=M+11
+      WRITE(IPR,960) (PLOSS(I),I=M,M11)
+ 960  FORMAT(1H ,10X,17HSSOUT LOSS IN CMS,1X,12F7.1)
+C
+      M=M+23
+ 20   IF(SSWCH.NE.4) GO TO 25
+      WRITE(IPR,971)
+ 971  FORMAT(1H0,10X,80HCHANNEL BOTTOM LOSS PARAMETER (SSOUT) IS A VARIA
+     1BLE PERCENTAGE OF THE DISCHARGE.)
+      WRITE(IPR,972)
+ 972  FORMAT(1H ,30X,61HVARIABLE PERCENTAGES(PERCENT/100) FOR THE 16TH O
+     1F EACH MONTH.)
+      WRITE(IPR,955)
+      M=M+1
+      M11=M+11
+      WRITE(IPR,973) (PLOSS(I),I=M,M11)
+ 973  FORMAT(1H ,10X,13H(PERCENT/100),5X,12F7.2)
+C
+      M=M+23
+   25 WRITE(IPR,940)
+ 940  FORMAT(1H0,15X,56HNOTE: NEGATIVE SSOUT INDICATES A GAIN INSTEAD OF
+     1 A LOSS.)
+C.......................................................................
+C     PRINT EVAPORATION LOSS PARAMETERS
+C
+      IF(WSAREA.GT.0.0) GO TO 35
+      WRITE(IPR,975) WSAREA
+ 975  FORMAT(1H0,10X,29HWATER SURFACE AREA (WSAREA) =,F5.2,
+     1 34H. NO EVAPORATION LOSS IS COMPUTED.,/)
+      GO TO 100
+   35 ESWCH=PLOSS(M+1)
+      WRITE(IPR,980) WSAREA
+ 980  FORMAT(1H0,10X,29HWATER SURFACE AREA (WSAREA) =,F5.2,7H SQ.KM.)
+C
+      IF(ESWCH.EQ.1) GO TO 45
+      WRITE(IPR,985) PLOSS(M+2)
+ 985  FORMAT(1H ,10X,39HEVAPORATION ADJUSTMENT FACTOR (PEADJ) =,F6.2,
+     1 4X,44HUNIFORM DAILY EVAPORATION DISTRIBUTION USED.)
+      GO TO 50
+ 45   WRITE(IPR,990)  PLOSS(M+2)
+ 990  FORMAT(1H ,10X,39HEVAPORATION ADJUSTMENT FACTOR (PEADJ) =,F6.2,
+     1 4X,44HDIURNAL DAILY EVAPORATION DISTRIBUTION USED.)
+ 50   CONTINUE
+C
+      M=M+3
+      M11=M+11
+      IF(PEDATA.EQ.1) GO TO 65
+      WRITE(IPR,996)
+ 996  FORMAT(1H0,10X,72HPE DATA NOT USED    EVAPORATION DEMAND VALUES FO
+     1R THE 16TH OF EACH MONTH)
+      WRITE(IPR,955)
+      WRITE(IPR,997) (PLOSS(I),I=M,M11)
+ 997  FORMAT(1H ,10X,16HEVAP RATE-MM/DAY,2X,12F7.2)
+      GO TO 100
+ 65   WRITE(IPR,1015)
+ 1015 FORMAT(1H0,10X,68HPE DATA ARE USED     PE-ADJUSTMENT VALUES FOR TH
+     1E 16TH OF EACH MONTH)
+      WRITE(IPR,955)
+      WRITE(IPR,1020) (PLOSS(I),I=M,M11)
+ 1020 FORMAT(1H ,10X,13HPE-ADJUSTMENT,5X,12F7.3)
+C.......................................................................
+ 100  CONTINUE
+      RETURN
+      END

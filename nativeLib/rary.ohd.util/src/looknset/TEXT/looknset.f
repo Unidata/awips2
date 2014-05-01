@@ -1,0 +1,357 @@
+C MODULE LOOKNSET
+C-----------------------------------------------------------------------
+C  PROGRAM LOOKNSET CAN BE USED TO PRINT AND/OR CHANGE RECORDS IN A
+C  DAIO DATASET.
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE LOOKNSET
+C
+      CHARACTER*4   XOPT,XPRIN
+      CHARACTER*1   XBLNK,XYES,XANS
+      INTEGER*4     I4BUF(8190)
+      INTEGER*2     I2BUF(16380)
+      LOGICAL*1     L1WORD
+      LOGICAL*1     L1BUF(32760)
+      LOGICAL*1     DSN(44)
+      REAL          R4BUF(8190),R2BUF(8190),R1BUF(8190)
+      EQUIVALENCE  (I4BUF(1),R4BUF(1)),(I2BUF(1),R2BUF(1)),
+     .             (L1BUF(1),R1BUF(1))
+C
+          CHARACTER*32  FILNAM
+          CHARACTER*128 NEWN
+          INTEGER       LRECLX,LBLKSX,IC,JU
+          CHARACTER*4   KEYX
+C
+      INCLUDE 'uiox'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/util/src/looknset/RCS/looknset.f,v $
+     . $',                                                             '
+     .$Id: looknset.f,v 1.4 2004/07/23 14:36:38 dsa Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA XPRIN,XBLNK,XYES / 'PRIN', ' ', 'Y' /
+C
+C
+C     Subroutine ARGVER outputs the version/date info and exits the
+C      program if the first command line argument is "-version"
+C
+      CALL ARGVER()
+C
+      LP2=ICDPUN
+      IF( LP2 .EQ. LP ) LP2 = 0
+      LWORD1=0
+      LWORD2=0
+      INDCLB=0
+      NPRTRK=0
+C
+C  PRINT PAGE HEADER
+      CALL USETO1 ('NOPAGNUM',IERR)
+      CALL UPAGE (LP)
+      CALL USETO1 ('NOPAGHDR',IERR)
+C
+   30     CALL UPFNIN(ICD,LP,FILNAM,JU,KEYX)
+            IF( FILNAM.EQ.'QUIT' .OR. FILNAM.EQ.'quit' ) GO TO 330
+            IF( FILNAM.EQ.'END'  .OR. FILNAM.EQ.'end'  ) GO TO 330
+            IF( FILNAM.EQ.'Q'    .OR. FILNAM.EQ.'q'    ) GO TO 330
+          CALL UPFNCU(KEYX,FILNAM,JU,NEWN,NUNIT,LRECLX,LBLKSX,IC)
+            IF( IC .NE. 0 ) GO TO 30
+            IF( NEWN.EQ.'    ' .AND. NUNIT.LE.0 ) GO TO 30
+          CALL KKTRIM(NEWN,IBEG,IEND)
+          WRITE(LP,32) NEWN(IBEG:IEND),NUNIT
+   32     FORMAT(' File to be accessed is: ',A,' on unit:',I3/)
+C
+          CALL UDOPEN(NUNIT,6,NEWN,LRECL,ISTAT)
+          IF( ISTAT .NE. 0) THEN
+            WRITE(LP,'(''  WARNING, Cannot open desired file'')')
+            GO TO 30
+          ENDIF
+          LRECL = 4*LRECL
+C
+C  READ WORD LENGTH
+60    WRITE (LP,420)
+      READ (ICD,*) ILENTH
+      IF (ILENTH .EQ. -1) GOTO 30
+      IF (ILENTH .EQ. -2) THEN
+        WRITE(LP,72)
+   72   FORMAT(/'  On the PRIME, need to re-execute LOOKNSET with new',
+     $          ' file level.'/)
+        GO TO 60
+      ENDIF
+      IF (ILENTH .EQ. -3) THEN
+         WRITE (LP,470)
+         READ (ICD,*) LWORD1,LWORD2
+         WRITE (LP,480) LWORD1,LWORD2
+         GO TO 60
+      ENDIF
+      IF (ILENTH .EQ. -4) THEN
+         WRITE (LP,490)
+         INDCLB=1
+         GO TO 60
+      ENDIF
+      IF (ILENTH .EQ. -5) THEN
+         WRITE (LP,500)
+         LWORD1=0
+         LWORD2=0
+         INDCLB=0
+         GO TO 60
+      ENDIF
+      IF (ILENTH .EQ. -6) THEN
+         WRITE (LP,380) FILNAM,NUNIT
+  380    FORMAT('  File to be accessed is:  ',A,'   on unit:',I4/)
+         WRITE (LP,390) NRECS
+         GO TO 60
+      ENDIF
+      IF (ILENTH.EQ.0) GO TO 330
+      IF (ILENTH.EQ.4) NWORDS=LRECL/4
+      IF (ILENTH.EQ.2) NWORDS=LRECL/2
+      IF (ILENTH.EQ.1) NWORDS=LRECL
+C
+C  READ SIZE FOR PRINT FORMAT
+      WRITE (LP,530)
+      READ (ICD,*) ISIZE
+C
+C  READ OPTION TO PROCESS AS REAL OR INTEGER
+140   WRITE (LP,610)
+      READ (ICD,*) IOPT
+      IF (IOPT.LT.1.OR.IOPT.GT.5) GO TO 140
+C
+C  READ PRINT OPTION
+150   WRITE (LP,620)
+      WRITE (LP,630)
+      READ (ICD,'(A)') XOPT
+C
+C  READ RECORD NUMBER
+160   WRITE (LP,560)
+      READ (ICD,*) NREC
+      IF (NREC.EQ.0) GO TO 60
+      IF (NREC .EQ. -1) THEN
+         CALL UCLOSL ()
+         WRITE (LP,510) NUNIT
+         GO TO 160
+      ENDIF
+      IF (NREC.EQ.-2) GO TO 150
+C
+C  CHECK NWSRFS CALIBRATION DATASET OPTION
+      IF (INDCLB .NE. 0) THEN
+C
+C  CALCULATE BLOCK NUMBER FOR RECORD SPECIFIED
+        NPRREC=31
+        NPACK=LBLOCK/4/NPRREC
+        NBLK=(NREC+(NPACK-1))/NPACK
+C
+C  CALCULATE FIRST AND LAST WORDS IN RECORD
+        LWORD1=(NREC-((NBLK-1)*NPACK)-1)*NPRREC+1
+        LWORD2=LWORD1+(NPRREC-1)
+        NREC=NBLK
+        IF (NREC.EQ.0) NREC=1
+        WRITE (LP,520) NREC
+        WRITE (LP,480) LWORD1,LWORD2
+      ENDIF
+C
+      IF (ILENTH.EQ.4) CALL UREADT (NUNIT,NREC,I4BUF,IERR)
+      IF (ILENTH.EQ.2) CALL UREADT (NUNIT,NREC,I2BUF,IERR)
+      IF (ILENTH.EQ.1) CALL UREADT (NUNIT,NREC,L1BUF,IERR)
+      IF (IERR .NE. 0) THEN
+         WRITE (LP,580) IERR
+         IF (NPRTRK .NE. 0) THEN
+            ITRK=(NREC/(LBLOCK/LRECL*NPRTRK))+1
+            WRITE (LP,590) ITRK,DSN
+         ENDIF
+         WRITE (LP,600)
+         READ (ICD,'(A)') XANS
+         IF (XANS.EQ.XBLNK) GO TO 160
+         IF (XANS.EQ.XYES) GO TO 220
+         GO TO 160
+      ENDIF
+      WRITE (LP,570) NREC,NUNIT
+C
+C  CHECK PRINT OPTION
+220   IF (XOPT .EQ. XPRIN) THEN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT VALUES IN RECORD
+C
+C  READ FIRST AND LAST WORD TO BE PRINTED
+230     WRITE (LP,660)
+        READ (ICD,*) NWORD1,NWORD2
+        IF (NWORD1.EQ.0) GO TO 160
+        NWORD1=1
+        NWORD2=NWORDS
+        IF (LWORD1.GT.0) NWORD1=LWORD1
+        IF (LWORD2.GT.0) NWORD2=LWORD2
+        IF (NWORD1.LE.NWORD2) GO TO 240
+           WRITE (LP,640) NWORD1,NWORD2,NWORD2
+           NWORD1=NWORD2
+240     IF (NWORD2.LE.NWORDS) GO TO 250
+           WRITE (LP,650) NWORD2,NWORDS,NWORDS
+           NWORD2=NWORDS
+250     CALL PRTVAL (LP,NREC,IOPT,ISIZE,ILENTH,I4BUF,I2BUF,L1BUF,
+     *     NWORD1,NWORD2,R4BUF,R2BUF,R1BUF)
+        IF (LP2.GT.0)
+     *     CALL PRTVAL (LP2,NREC,IOPT,ISIZE,ILENTH,I4BUF,I2BUF,L1BUF,
+     *      NWORD1,NWORD2,R4BUF,R2BUF,R1BUF)
+        GO TO 230
+      ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHANGE VALUES IN RECORD
+      ICHNGE=0
+270   WRITE (LP,670)
+      IF ((IOPT.EQ.1.OR.IOPT.EQ.2).AND.ILENTH.NE.1)
+     *   READ (ICD,*) IPOS,IWORD
+      IF ((IOPT.EQ.1.OR.IOPT.EQ.2).AND.ILENTH.EQ.1)
+     *   READ (ICD,*) IPOS,L1WORD
+      IF (IOPT.EQ.3.OR.IOPT.EQ.4) READ (ICD,*) IPOS,WORD
+      IF (IPOS.EQ.0) GO TO 300
+      IF (IPOS.GT.0) GO TO 280
+         NWORD1=1
+         NWORD2=NWORDS
+         IF (LWORD1.GT.0) NWORD1=LWORD1
+         IF (LWORD2.GT.0) NWORD2=LWORD2
+         CALL PRTVAL (LP,NREC,IOPT,ISIZE,ILENTH,I4BUF,I2BUF,L1BUF,
+     *      NWORD1,NWORD2,R4BUF,R2BUF,R1BUF)
+         IF (LP2.GT.0)
+     *      CALL PRTVAL (LP2,NREC,IOPT,ISIZE,ILENTH,I4BUF,I2BUF,L1BUF,
+     *         NWORD1,NWORD2,R4BUF,R2BUF,R1BUF)
+         GO TO 270
+280   IF (IPOS.GE.1.AND.IPOS.LE.NWORDS) GO TO 290
+         WRITE (LP,680) LRECL
+         GO TO 270
+290   LPOS=IPOS+LWORD1
+      IF (LWORD1.GT.0) LPOS=LPOS-1
+      IF ((IOPT.EQ.1.OR.IOPT.EQ.2).AND.ILENTH.EQ.4)
+     *   I4BUF(LPOS)=IWORD
+      IF ((IOPT.EQ.1.OR.IOPT.EQ.2).AND.ILENTH.EQ.2)
+     *   I2BUF(LPOS)=IWORD
+      IF ((IOPT.EQ.1.OR.IOPT.EQ.2).AND.ILENTH.EQ.1)
+     *   L1BUF(LPOS)=L1WORD
+      IF ((IOPT.EQ.3.OR.IOPT.EQ.4).AND.ILENTH.EQ.4)
+     *   CALL PUTVAL (WORD,I4BUF(LPOS))
+      IF ((IOPT.EQ.3.OR.IOPT.EQ.4).AND.ILENTH.EQ.2)
+     *   CALL PUTVAL (WORD,I2BUF(LPOS))
+      IF ((IOPT.EQ.3.OR.IOPT.EQ.4).AND.ILENTH.EQ.1)
+     *   CALL PUTVAL (WORD,L1BUF(LPOS))
+      ICHNGE=1
+      GO TO 270
+C
+C  CHECK IF OKAY TO WRITE RECORD
+300   WRITE (LP,690)
+      READ (ICD,*) IANS
+C
+      IF (IANS .LT. 0) THEN
+         NWORD1=1
+         NWORD2=NWORDS
+         IF (LWORD1.GT.0) NWORD1=LWORD1
+         IF (LWORD2.GT.0) NWORD2=LWORD2
+         CALL PRTVAL (LP,NREC,IOPT,ISIZE,ILENTH,I4BUF,I2BUF,L1BUF,
+     *      NWORD1,NWORD2,R4BUF,R2BUF,R1BUF)
+         IF (LP2.GT.0)
+     *      CALL PRTVAL (LP2,NREC,IOPT,ISIZE,ILENTH,I4BUF,I2BUF,L1BUF,
+     *         NWORD1,NWORD2,R4BUF,R2BUF,R1BUF)
+         GO TO 300
+      ELSEIF (IANS .EQ. 1) THEN
+         IF (ILENTH.EQ.4) CALL UWRITT (NUNIT,NREC,I4BUF,IERR)
+         IF (ILENTH.EQ.2) CALL UWRITT (NUNIT,NREC,I2BUF,IERR)
+         IF (ILENTH.EQ.1) CALL UWRITT (NUNIT,NREC,L1BUF,IERR)
+         IF (IERR.GT.0) WRITE (LP,710) IERR
+         IF (IERR.EQ.0) WRITE (LP,720) NREC,NUNIT
+      ELSE
+         IF (ICHNGE .NE. 0) THEN
+            WRITE (LP,700)
+            READ (ICD,*) IANS
+            IF (IANS .NE. 0) THEN
+               IF (ILENTH.EQ.4) CALL UWRITT (NUNIT,NREC,I4BUF,IERR)
+               IF (ILENTH.EQ.2) CALL UWRITT (NUNIT,NREC,I2BUF,IERR)
+               IF (ILENTH.EQ.1) CALL UWRITT (NUNIT,NREC,L1BUF,IERR)
+               IF (IERR.GT.0) WRITE (LP,710) IERR
+               IF (IERR.EQ.0) WRITE (LP,720) NREC,NUNIT
+            ENDIF
+         ENDIF
+      ENDIF
+      GO TO 160
+C
+C  CLOSE UNIT
+330   CALL UCLOSL
+C
+      WRITE (LP,730)
+      IF (LP2.GT.0) WRITE (LP2,730)
+C
+          IF( ICD    .NE. 1 ) CALL UPCLOS(ICD,'  ',ISTAT)
+          IF( LP     .NE. 1 ) CALL UPCLOS(LP,'  ',ISTAT)
+          IF( ICDPUN .NE. 1 ) CALL UPCLOS(ICDPUN,'  ',ISTAT)
+C
+      STOP
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+390   FORMAT (' *** NOTE - NUMBER OF LOGICAL RECORDS IN DATASET IS ',
+     *   I6,'.')
+420   FORMAT (' ENTER  0 TO END EXECUTION,' /
+     *   7X,' 1 FOR I*1, ',
+     *      '2 FOR I*2, ',
+     *      '4 FOR I*4 RECORDS,' /
+     *   7X,'-1 FOR NEW INPUT UNIT,' /
+     *   7X,'-2 FOR NEW DATASET ON SAME VOLUME,' /
+     *   7X,'-3 TO SPECIFY DEFAULT WORD RANGE,' /
+     *   7X,'-4 IF PROCESSING NWSRFS CALIBRATION DATASET,' /
+     *   7X,'-5 TO RESET OPTIONS, OR' /
+     *   7X,'-6 TO PRINT DATASET NAME AND ATTRIBUTES')
+470   FORMAT (' ENTER NUMBER OF FIRST AND LAST WORDS TO BE PRINTED')
+480   FORMAT (' *** NOTE - DEFAULT WORD RANGE FOR PRINTING IS ',I5,
+     *   ' THRU ',I5,'.')
+490   FORMAT (' *** NOTE - NWSRFS CALIBRATION DATASET OPTION SET.')
+500   FORMAT (' *** NOTE - NWSRFS CALIBRATION DATASET AND ',
+     *   'FIRST AND LAST WORDS TO BE PROCESSED OPTIONS RESET.')
+510   FORMAT (' UNIT ',I3,' SUCCESSFULLY CLOSED')
+520   FORMAT (' *** NOTE - RECORD NUMBER SET TO ',I6,'.')
+530   FORMAT (' ENTER 1 FOR PRINT IN I5 OR F5, 2 FOR I10 OR F10')
+560   FORMAT (' ENTER  0 TO END,' /
+     *   7X,'-1 TO CLOSE FILE,' /
+     *   7X,'-2 TO CHANGE PRINT OPTION, OR' /
+     *   7X,'RECORD NUMBER')
+570   FORMAT (' RECORD ',I6,' SUCCESSFULLY READ FROM UNIT ',I3)
+580   FORMAT ('0*** ERROR - DAIO READ ERROR : IERR=',I6)
+590   FORMAT ('0*** NOTE - DAIO READ ERROR OCCURRED IN TRACK ',I4,
+     *   ' OF DATASET ',44A1)
+600   FORMAT (' OKAY TO CONTINUE (<RETURN> FOR NO)')
+610   FORMAT (' ENTER 1 FOR INTEGER,' /
+     *   7X,'2 FOR INTEGER OR CHARACTER ',
+     *      '(ENTER CHARACTER DATA IN QUOTES),' /
+     *   7X,'3 FOR REAL, OR' /
+     *   7X,'4 FOR REAL OR CHARACTER ',
+     *      '(ENTER CHARACTER DATA IN QUOTES)' /
+     *   7X,'5 FOR INTEGER AND REAL')
+620   FORMAT (' ENTER ''PRINT'' TO ONLY PRINT RECORDS ',
+     *   'OR <RETURN> TO CHANGE RECORDS')
+630   FORMAT (' ?')
+640   FORMAT ('0*** WARNING - FIRST WORD TO BE PROCESSED (',I4,
+     *   ') EXCEEDS LAST WORD TO BE PROCESSED (',I4,
+     *   '). FIRST WORD SET TO ',I4,'.')
+650   FORMAT ('0*** WARNING - LAST WORD TO BE PROCESSED (',I4,
+     *   ') EXCEEDS MAXIMUM WORDS IN RECORD (',I4,
+     *   '). LAST WORD SET TO ',I4,'.')
+660   FORMAT (' ENTER FIRST AND LAST WORD POSITION, ',
+     *   '''-1 0'' FOR ALL OR ',
+     *   '''0 0'' TO END PRINTING')
+670   FORMAT (' ENTER WORD POSITION AND NEW VALUE, ' /
+     *   7X,'''-1 0'' TO PRINT OR ' /
+     *   7X,'''0 0'' TO END CHANGES')
+680   FORMAT (' *** ERROR - INVALID WORD POSITION. LRECL IS ',I5,'.')
+690   FORMAT (' ENTER  0 FOR NEW RECORD, ' /
+     *   7X,'-1 TO PRINT, ' /
+     *   7X,' 1 TO WRITE RECORD OR,' /
+     *   7X,' 2 FOR SAME RECORD')
+700   FORMAT ('0*** WARNING - RECORD WAS CHANGED BUT WAS NOT WRITTEN.' /
+     *   ' ENTER 0 TO CONTINUE OR ' /
+     *   7X,'1 TO WRITE RECORD')
+710   FORMAT ('0*** ERROR - DAIO WRITE ERROR : IERR=',I6)
+720   FORMAT (' RECORD ',I6,' SUCCESSFULLY WRITTEN TO UNIT ',I3)
+730   FORMAT ('0- PROCESSING COMPLETED -')
+C
+      END

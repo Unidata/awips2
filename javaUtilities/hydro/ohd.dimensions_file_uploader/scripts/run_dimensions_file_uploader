@@ -1,0 +1,60 @@
+#!/bin/ksh
+# file name: run_pvcs_file_uploader
+# Created: 11/09/2006
+
+# need to add a path to the jar file for this application
+umask 006
+
+export CLASSPATH=$CLASSPATH:/awips/hydroapps/PVCSFileQueue/dimensions_file_uploader.jar
+
+date=`date +%Y%m%d`
+LOGFILE=log/upload_file_to_dimensions.log.${DR_DCS_NUMBER}
+
+machine_name=`uname -n`
+
+if [[ $machine_name != dx1-nhdr ]]
+then
+   echo "You must be logged onto DX1-nhdr in order to use this script"
+   exit
+fi
+# Keeps the last 1200 lines of the log file
+
+LOGFILE=log/dimensions_file_uploader.log
+
+echo "\nIs this for a DR or DCS?  Enter 'DR' for DR or 'DCS' for DCS:  "
+read Ans
+Ans=$(echo $Ans | tr a-z A-Z)
+while [[ $Ans != "DR" && $Ans != "DCS" ]]; do
+   echo "\n    ERROR: Bad DR/DCS character identifier given! Please try again."
+   echo "\nIs this for a DR or DCS?  Enter 'DR' for DR or 'DCS' for DCS:"
+   read Ans
+   Ans=$(echo $Ans | tr a-z A-Z)
+done
+
+PREFIX=$Ans
+
+
+echo "\nEnter the DR/DCS number (or hit enter to quit):  "
+read Ans
+while [[ $Ans != [0-9] &&
+         $Ans != [0-9][0-9] &&
+         $Ans != [0-9][0-9][0-9] &&
+         $Ans != [0-9][0-9][0-9][0-9] &&
+         $Ans != [0-9][0-9][0-9][0-9][0-9] ]]; do
+    echo "\n    ERROR: Bad DR/DCS number given! Please try again."
+    echo "\nEnter the DR/DCS number."
+    read Ans
+done
+
+DRDCSNUM=$Ans
+
+LOGFILE=log/upload_file_to_dimensions.log.${DRDCSNUM}
+
+INPUT_DIR_NAME=$PREFIX"_"$DRDCSNUM
+
+echo "=================================================" >>$LOGFILE
+echo "==== Starting run_dimensions_file_uploader at ${date}" >> $LOGFILE
+echo "=================================================" >>$LOGFILE
+
+java ohd.hseb.dimensions_file_uploader.Dimensions_File_Uploader $INPUT_DIR_NAME 1>>$LOGFILE 2>&1
+#java ohd.hseb.dimensions_file_uploader.Dimensions_File_Uploader $INPUT_DIR_NAME 

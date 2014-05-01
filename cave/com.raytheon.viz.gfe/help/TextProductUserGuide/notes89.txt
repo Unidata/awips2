@@ -1,0 +1,2 @@
+We say that the phrases of the narrative products are “analysis-driven” because if we change the analysis method in the product component, the character of the phrase will change.
+Here we are asking to have a minimum and maximum value reported for the Wind.  

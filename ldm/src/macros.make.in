@@ -1,0 +1,46 @@
+# This file contains make(1) macro definitions.
+
+SHELL	= /bin/sh
+INSTALL	= cp
+YACC	= @YACC@
+CC	= @CC@
+RPCGEN	= rpcgen
+AR	= ar
+ARFLAGS	= @ARFLAGS@
+RANLIB	= @RANLIB@
+
+CFLAGS	= @CFLAGS@
+CONFIGURE_CPPFLAGS	= @CPPFLAGS@
+GDBMLIB	= @GDBMLIB@
+CONFIGURE_LIBS	= @LIBS@
+
+LD_YACC	= @LD_YACC@
+LD_GEN	= @LD_GEN@
+
+PACKAGE	= ldm
+
+prefix	= @prefix@
+exec_prefix	= $(prefix)
+ldmhome	= @LDMHOME@
+pq_dir	= @PQ_DIR@
+
+PROGRAM		= dummy_program
+HEADER		= dummy_header
+ETC_FILE	= dummy_etc_file
+MANUAL		= dummy_manual
+
+INCDIR	= $(prefix)/include
+LIBDIR	= $(exec_prefix)/lib
+BINDIR	= $(exec_prefix)/bin
+ETCDIR	= $(ldmhome)/etc
+MANDIR	= $(prefix)/man
+# only used to update the release at the source site
+FTPDIR	= /home/ftp/pub/ldm
+
+# Manual pages:
+WHATIS		= @WHATIS@
+# The following macro should be empty on systems that don't
+# allow users to create their own manual-page indexes.
+MAKEWHATIS_CMD	= @MAKEWHATIS_CMD@
+
+LIBRARY	= ../libldm.a

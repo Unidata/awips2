@@ -1,0 +1,55 @@
+==== topic_publisher.py.out
+==== pubsub_listener_dotnet.out | remove_uuid | sort
+Declaring queue: europe
+Declaring queue: news
+Declaring queue: usa
+Declaring queue: weather
+Listening for messages ...
+Message: europe.news 0 from europe
+Message: europe.news 0 from news
+Message: europe.news 1 from europe
+Message: europe.news 1 from news
+Message: europe.news 2 from europe
+Message: europe.news 2 from news
+Message: europe.news 3 from europe
+Message: europe.news 3 from news
+Message: europe.news 4 from europe
+Message: europe.news 4 from news
+Message: europe.weather 0 from europe
+Message: europe.weather 0 from weather
+Message: europe.weather 1 from europe
+Message: europe.weather 1 from weather
+Message: europe.weather 2 from europe
+Message: europe.weather 2 from weather
+Message: europe.weather 3 from europe
+Message: europe.weather 3 from weather
+Message: europe.weather 4 from europe
+Message: europe.weather 4 from weather
+Message: That's all, folks! from europe
+Message: That's all, folks! from news
+Message: That's all, folks! from usa
+Message: That's all, folks! from weather
+Message: usa.news 0 from news
+Message: usa.news 0 from usa
+Message: usa.news 1 from news
+Message: usa.news 1 from usa
+Message: usa.news 2 from news
+Message: usa.news 2 from usa
+Message: usa.news 3 from news
+Message: usa.news 3 from usa
+Message: usa.news 4 from news
+Message: usa.news 4 from usa
+Message: usa.weather 0 from usa
+Message: usa.weather 0 from weather
+Message: usa.weather 1 from usa
+Message: usa.weather 1 from weather
+Message: usa.weather 2 from usa
+Message: usa.weather 2 from weather
+Message: usa.weather 3 from usa
+Message: usa.weather 3 from weather
+Message: usa.weather 4 from usa
+Message: usa.weather 4 from weather
+Shutting down listener for control
+Shutting down listener for control
+Shutting down listener for control
+Shutting down listener for control

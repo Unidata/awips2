@@ -1,0 +1,327 @@
+C MEMBER PIN8
+C  (from old member FCPIN8)
+C.......................................................................
+C
+      SUBROUTINE PIN8(PLOSS,LEFTP,IUSEP,CLOSS,LEFTC,IUSEC)
+C
+C     SUBROUTINE PIN8 READS FROM CARDS OR GENERATES ALL OF THE
+C     INFORMATION NEEDED BY THE LOSS OPERATION.
+C
+C.......................................................................
+C     PROGRAMMED BY KAY KROUSE   OCTOBER 1979
+C.......................................................................
+C
+      REAL NOPE,IDFQ,IDPE
+      DIMENSION PLOSS(1),ND(12),ANAME(5),IDFQ(2),IDPE(2),DIM(2),CLOSS(1)
+C
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_pntb/RCS/pin8.f,v $
+     . $',                                                             '
+     .$Id: pin8.f,v 1.1 1995/09/17 18:48:52 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA ND/31,28,31,30,31,30,31,31,30,31,30,31/
+      DATA DIM/4HL3/T,4HL   /
+      DATA VARP,VARC,DIUR,NOPE,FIXP/4HVARP,4HVARC,4HDIUR,4HNOPE,4HFIXP/
+      DATA PARM,CARY/1HP,1HC/
+C
+      IF(ITRACE.GE.1) WRITE(IODBUG,900)
+  900 FORMAT(1H0,15H** PIN8 ENTERED)
+C.......................................................................
+C     DEBUG OUTPUT? IF IBUG=1,PRINT DEBUG INFORMATION.
+      IBUG=0
+      IF(IDBALL.GT.0) IBUG=1
+      IF(NDEBUG.EQ.0) GO TO 12
+      DO 10 I=1,NDEBUG
+      IF(IDEBUG(I).EQ.8) GO TO 11
+   10 CONTINUE
+      GO TO 12
+   11 IBUG=1
+   12 CONTINUE
+C.......................................................................
+C     INITIALIZE VARIABLES.  CHECK TO SEE IF ARRAY PLOSS HAS
+C     AT LEAST 12 POSITIONS-THE MINIMUM STORAGE NEEDED
+C     FOR LOSS OPERATION INFORMATION.
+C
+      MM=6
+C     MM IS ALWAYS THE LAST USED POSITION IN THE PLOSS ARRAY.
+      IUSEP=0
+      IUSEC=0
+      NROOM=0
+      MADD=13
+      IF(LEFTP.GE.MADD) GO TO 15
+      WRITE(IPR,905)PARM
+  905 FORMAT(1H0,10X,67H**ERROR** THIS OPERATION NEEDS MORE SPACE THAN I
+     1S AVAILABLE IN THE ,A1,7H ARRAY.)
+      CALL ERROR
+      NROOM=1
+   15 CONTINUE
+C.......................................................................
+C     READ IN OPTIONS FOR LOSS FUNCTIONS.
+C
+      READ(IN,910)(ANAME(I),I=1,5),SSWCH,SSOUT,WSAREA,PEDATA
+  910 FORMAT(5A4,1X,A4,5X,F10.2,5X,F10.1,1X,A4)
+C     DOES ARRAY PLOSS HAVE ENOUGH SPACE FOR OPTIONS CHOSEN?
+      IF(WSAREA.GT.0.0)MADD=MADD+27
+      IF(WSAREA.EQ.0.0)PEDATA=NOPE
+      IF(PEDATA.NE.NOPE)MADD=MADD+4
+      IF((SSWCH.EQ.VARC).OR.(SSWCH.EQ.VARP))MADD=MADD+24
+      IF(LEFTP.GE.MADD) GO TO 20
+      WRITE(IPR,905) PARM
+      CALL ERROR
+      NROOM=1
+   20 CONTINUE
+C.......................................................................
+C     READ IN DISCHARGE AND, IF AVAILABLE, PE TIME
+C     SERIES INFORMATION
+C
+      IF(PEDATA.EQ.NOPE) GO TO 30
+      READ(IN,915) IDFQ(1),IDFQ(2),QTYPE,ITQ,IDPE(1),IDPE(2),
+     1 PETYPE,ITPE,ICRY
+  915 FORMAT(2A4,3X,A4,I5,5X,2A4,3X,A4,2I5)
+      GO TO 35
+  30  READ(IN,915) IDFQ(1),IDFQ(2),QTYPE,ITQ
+C
+C     CHECK TO SEE IF REQUESTED TIME SERIES HAVE BEEN
+C     DEFINED AND IF THE DIMENSIONS ARE CORRECT
+C
+   35 CALL CHEKTS(IDFQ,QTYPE,ITQ,1,DIM(1),0,1,IFLAG)
+      IF(PEDATA.EQ.NOPE) GO TO 55
+      CALL CHEKTS(IDPE,PETYPE,ITPE,1,DIM(2),0,1,IFLAG)
+      IF(ITPE.EQ.24) GO TO 55
+      WRITE(IPR,917)
+  917 FORMAT(1H0,10X,82H**ERROR** THE PE TIME SERIES IS NOT A DAILY SERI
+     1ES-TIME INTERVAL MUST BE 24 HOURS.)
+      CALL ERROR
+C     EVEN IF TIME SERIES ERROR FOUND AND OPERATION WILL NOT
+C     BE EXECUTED, CONTINUE CHECKING INPUT FOR FURTHER ERRORS.
+   55 CONTINUE
+C.......................................................................
+C     STORE OPTIONS AND T.S. INFORMATION IN PLOSS ARRAY
+C
+      IF(NROOM.EQ.1) GO TO 120
+      PLOSS(1)=1+.01
+C
+      DO 56 I=2,6
+      PLOSS(I)=ANAME(I-1)
+   56 CONTINUE
+      PLOSS(MM+1)=IDFQ(1)
+      PLOSS(MM+2)=IDFQ(2)
+      PLOSS(MM+3)=QTYPE
+      PLOSS(MM+4)=ITQ+.01
+      PLOSS(MM+5)=WSAREA
+      MM=MM+5
+      IF(WSAREA.LE.0.0) GO TO 57
+      PLOSS(MM+1)=1+.01
+      IF(PEDATA.EQ.NOPE)PLOSS(MM+1)=0+.01
+      MM=MM+1
+      IF(PEDATA.EQ.NOPE) GO TO 57
+      PLOSS(MM+1)=IDPE(1)
+      PLOSS(MM+2)=IDPE(2)
+      PLOSS(MM+3)=PETYPE
+      PLOSS(MM+4)=ITPE+.01
+      PLOSS(MM+5)=ICRY+.01
+      MM=MM+5
+   57 CONTINUE
+C.......................................................................
+C     IS SSOUT CONSTANT, VARIABLE OR A PERCENTAGE OF
+C     THE FLOW?
+C     NOTE**A NEGATIVE SSOUT INDICATES A GAIN INSTEAD OF A LOSS.
+C
+      PLOSS(MM+1)=SSOUT
+      MM=MM+1
+      IF((SSWCH.EQ.VARC).OR.(SSWCH.EQ.VARP))GO TO 75
+      IF(SSWCH.EQ.FIXP) GO TO 65
+      IF(SSOUT.GT.-.001.AND.SSOUT.LT..001) GO TO 60
+C     SSOUT IS CONSTANT
+      PLOSS(MM+1)=1+.01
+      MM=MM+1
+      GO TO 100
+C     SSOUT IS ZERO--NO LOSS(OR GAIN) OCCURS THROUGH CHANNEL BOTTOM.
+   60 PLOSS(MM+1)=0+.01
+      MM=MM+1
+      GO TO 100
+C     SSOUT IS A FIXED PERCENTAGE
+   65 PLOSS(MM+1)=2+.01
+      MM=MM+1
+      GO TO 100
+C     VARIABLE SSOUT IS BEING USED.  READ 12 MID-MONTH VALUES
+C     DETERMINE IF VARIABLE SSOUT EXPRESSED AS A PERCENTAGE
+C     OR A CONSTANT
+   75 PLOSS(MM+1)=3+.01
+      IF(SSWCH.EQ.VARP) PLOSS(MM+1)=4+.01
+      MM=MM+1
+      READ(IN,930) (PLOSS(MM+J),J=1,12)
+  930 FORMAT(6F10.2)
+C     COMPUTE DAILY INCREMENT OF SSOUT AS IT VARIES FROM MID-MONTH TO
+C     MID-MONTH.  FIRST VALUE IS INCREMENT BETWEEN 1/16 AND 2/16.
+      LL=MM+12
+      DO 80 I=2,13
+      NDAYS=ND(I-1)
+      K=I-1
+      M=I
+      IF(I.EQ.13)M=1
+      PLOSS(LL+K)=(PLOSS(MM+M)-PLOSS(MM+K))/NDAYS
+   80 CONTINUE
+      MM=MM+24
+      IF(IBUG.EQ.0)GO TO 100
+      WRITE(IODBUG,970)
+  970 FORMAT(1H ,10X,88HDAILY INCREMENTS BETWEEN MID-MONTH SSOUT VALUES-
+     1FIRST INCREMENT IS FOR PERIOD 1/16-2/16.)
+      WRITE(IODBUG,975) (PLOSS(LL+K),K=1,12)
+  975 FORMAT(1H ,10X,12F7.2)
+C.......................................................................
+C     IF WATER SURFACE AREA (WSAREA) >0, READ IN EVAPORATION LOSS
+C     PARAMETERS
+C
+  100 IF(WSAREA.LE.0.0) GO TO 150
+      READ(IN,935) PEADJ,ESWCH
+  935 FORMAT(F5.2,6X,A4)
+C
+C     CHECK EVAP-DISTRIBUTION SWITCH FOR DIURNAL OR EVEN DISTRIBUTION
+      PLOSS(MM+1)=0+.01
+      IF(ESWCH.EQ.DIUR)PLOSS(MM+1)=1+.01
+      MM=MM+1
+C
+C     PARAMETER VALUE CHECK
+      IF(PEADJ.GT.0.0) GO TO 105
+      WRITE(IPR,940) PEADJ
+  940 FORMAT(1H0,10X,44H**WARNING** THE PE ADJUSTMENT FACTOR, PEADJ=,
+     1 F5.3,23H IS AN ERRONEOUS VALUE.)
+      CALL WARN
+  105 PLOSS(MM+1)=PEADJ
+      MM=MM+1
+C
+C     READ IN 12 MID-MONTH VALUES ON EVAP-DEMAND/PE-ADJUSTMENT CURVE.
+C     IF PE DATA IS AVAILABLE, VALUES ARE PE-ADJ CURVE  OTHERWISE,
+C     VALUES REPRESENT EVAP-DEMAND.
+      READ(IN,945) (PLOSS(MM+J),J=1,12)
+  945 FORMAT(12F5.3)
+C     COMPUTE DAILY INCREMENT IN ABOVE CURVE.  FIRST VALUE IS
+C     INCREMENT BETWEEN 1/16 AND 2/16.
+      LL=MM+12
+      DO 110 I=2,13
+      NDAYS=ND(I-1)
+      K=I-1
+      M=I
+      IF(I.EQ.13)M=1
+      PLOSS(LL+K)=(PLOSS(MM+M)-PLOSS(MM+K))/NDAYS
+  110 CONTINUE
+      MM=MM+24
+      IF(IBUG.EQ.0)GO TO 150
+      WRITE(IODBUG,980)
+  980 FORMAT(1H ,10X,95HDAILY INCREMENT BETWEEN MID-MONTH PE-ADJ / EVAP
+     1VALUES-FIRST INCREMENT IS FOR PERIOD 1/16-2/16.)
+      WRITE(IODBUG,985) (PLOSS(LL+K),K=1,12)
+  985 FORMAT(1H ,10X,12F7.3)
+C.......................................................................
+C     TOTAL SPACE USED BY PLOSS ARRAY FOR LOSS OPERATION.
+ 150  IUSEP=MM
+C.......................................................................
+C
+C                  **CONTENTS OF PLOSS ARRAY**
+C
+C        1                   VERSION NUMBER
+C        2-6       ANAME     GENERAL NAME OF POINT ABOVE WHICH CHANNEL
+C                            LOSS OCCURS
+C        7-8       IDFQ      IDENTIFIER FOR Q TIME SERIES
+C        9         QTYPE     DATA TYPE CODE FOR Q T.S.
+C        10        ITQ       TIME INTERVAL OF Q T.S.
+C        11        WSAREA    WATER SURFACE AREA
+C
+C IF WSAREA >0, THE NEXT POSITION CONTAINS:
+C        12        PEDATA    =1 PE TIME SERIES AVAILABLE
+C                            =0 NO
+C IF PEDATA=1, THE NEXT 5 POSITIONS CONTAIN:
+C        13-14     IDPE      IDENTIFIER FOR PE TIME SERIES
+C        15        PETYPE    DATA TYPE CODE FOR PE T.S.
+C        16        ITPE      TIME INTERVAL FOR PE T.S.
+C        17        ICRY      =1 READ IN INITIAL CARRYOVER VALUE
+C                            =0 USE DEFAULT CARRYOVER VALUE
+C
+C        18        SSOUT     CHANNEL BOTTOM LOSS PARAMETER
+C        19        SSWCH     =0 NO LOSS (SSOUT=0)
+C                            =1 CONSTANT SSOUT(CMS)
+C                            =2 CONSTANT SSOUT(PERCENTAGE)
+C                            =3 VARIABLE SSOUT(CMS)
+C                            =4 VARIABLE SSOUT(PERCENTAGE)
+C
+C IF SSWCH=3 0R 4, THEN THE NEXT 24 POSITIONS CONTAIN:
+C        20-43               12 MIN-MONTH SSOUT VALUES, JAN
+C                            THRU DEC, FOLLOWED BY 12
+C                            INCREMENTS BETWEEN THESE VALUES
+C                            WITH THE FIRST BEING THE
+C                            INCREMENT BETWEEN 1/16 AND 2/16.
+C
+C IF WSAREA >0, THEN THE NEXT 26 POSITIONS CONTAIN:
+C        44        ESWCH     =1 DIURNAL EVAP DISTRIBUTION
+C                            =0 EVEN EVAP DISTRIBUTION
+C        45        PEADJ     PE ADJUSTMENT FACTOR
+C        46-69               12 MIN-MONTH PE-ADJ OR
+C                            EVAP-DEMAND VALUES FOLLOWED BY
+C                            12 INCREMENTS BETWEEN MID-
+C                            MONTH VALUES-THE FIRST IS
+C                            BETWEEN 1/16 AND 2/16.
+C
+C**********************************************************************
+C***********************************************************************
+C     IF USING A PE TIME SERIES, SPECIFY CARRYOVER VALUE.
+C
+      IF(PEDATA.EQ.NOPE)GO TO 190
+C     READ IN VALUE
+      IF(LEFTC.LT.1)GO TO 175
+      IF(ICRY.EQ.0)GO TO 170
+      READ(IN,960) CLOSS(1)
+ 960  FORMAT(F5.3)
+C     CHECK FOR NEGATIVE VALUE. IF NEGATIVE, CHANGE TO 0.0 .
+      IF(CLOSS(1).GE.0.)GO TO 180
+      CLOSS(1)=0.0
+      WRITE(IPR,965)
+ 965  FORMAT(1H0,10X,79H**WARNING** THE PE CARRYOVER VALUE WAS NEGATIVE.
+     1 THE VALUE WAS CHANGED TO ZER0.)
+      CALL WARN
+      GO TO 180
+ 175  WRITE(IPR,905) CARY
+      CALL ERROR
+      GO TO 190
+C     DEFAULT VALUE
+ 170  CLOSS(1)=0.0
+ 180  IUSEC=1
+ 190  CONTINUE
+C***********************************************************************
+C
+C                  **CONTENTS OF CLOSS ARRAY**
+C
+C        1         PE        PE VALUE FOR LAST DAY(LDA). IF LHR
+C                            LESS THAN 24, CONTAINS PE VALUE FOR
+C                            PREVIOUS DAY(LDA-1).
+C
+C***********************************************************************
+C
+C     CHECK TO SEE IF DEBUG OUTPUT REQUESTED.
+      IF(IBUG.EQ.0) GO TO 120
+C.......................................................................
+C
+C     DEBUG OUTPUT REQUESTED-PRINT CONTENTS OF PLOSS ARRAY.
+      WRITE(IODBUG,950)IUSEP
+  950 FORMAT(1H0,24HCONTENTS OF PLOSS ARRAY.,5X,24HNUMBER OF VALUES--PLO
+     1SS=,I3)
+      WRITE(IODBUG,955) (PLOSS(I),I=1,IUSEP)
+  955 FORMAT(1H ,15F8.3)
+      IF(PEDATA.EQ.NOPE)GO TO 120
+      WRITE(IODBUG,990) IUSEC
+ 990  FORMAT(1H0,24HCONTENTS OF CLOSS ARRAY.,5X,24HNUMBER OF VALUES--CLO
+     1SS=,I3)
+      WRITE(IODBUG,995) CLOSS(1)
+ 995  FORMAT(1H ,F5.3)
+C
+  120 CONTINUE
+      RETURN
+      END

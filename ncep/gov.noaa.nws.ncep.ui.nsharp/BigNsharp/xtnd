@@ -1,0 +1,105 @@
+
+void xtnd_sndg(void)
+	/*************************************************************/
+	/*  XTND_SNDG                                                */
+	/*  John Hart  NSSFC KCMO                                    */
+	/*                                                           */
+	/*  This routine will extend a sounding to 50mb, if the      */
+	/*  sounding made it at least to 150mb.                      */
+	/*                                                           */
+	/*  An isothermal/hydrostatic layer is assumed above the     */
+	/*  last observed level.                                     */
+	/*************************************************************/
+{
+	short above, below;
+	double nm1, nm2, nm4;
+
+	if (sndg[numlvl-1][1] <= 150.0 && sndg[numlvl-1][1] >= 100.0) {
+	   sndg[numlvl][0] = -999.0;
+	   sndg[numlvl][1] = 75.0;
+	   sndg[numlvl][3] = i_temp(150);
+	   sndg[numlvl][4] = i_dwpt(150);
+	   sndg[numlvl][5] = i_wdir(150);
+	   sndg[numlvl][6] = i_wspd(150);
+
+	   above = numlvl-1;
+	   below = numlvl-2;
+	   nm1 = sndg[above][2] - sndg[below][2];
+	   nm2 = log( sndg[below][1] / sndg[above][1] );
+	   nm4 = log( sndg[below][1] / sndg[numlvl][1] );
+	   sndg[numlvl][2] = (float)(sndg[below][2] + (( nm4 / nm2) * nm1));
+	   numlvl++;
+
+	   sndg[numlvl][0] = -999.0;
+	   sndg[numlvl][1] = 50.0;
+	   sndg[numlvl][3] = i_temp(150);
+	   sndg[numlvl][4] = i_dwpt(150);
+	   sndg[numlvl][5] = i_wdir(150);
+	   sndg[numlvl][6] = i_wspd(150);
+
+	   above = numlvl-1;
+	   below = numlvl-2;
+	   nm1 = sndg[above][2] - sndg[below][2];
+	   nm2 = log( sndg[below][1] / sndg[above][1] );
+	   nm4 = log( sndg[below][1] / sndg[numlvl][1] );
+	   sndg[numlvl][2] = (float)(sndg[below][2] + (( nm4 / nm2) * nm1));
+	   numlvl++;
+	}
+}
+
+void interp_sndg(void)
+	/*************************************************************/
+	/*  INTERP_SNDG                                              */
+	/*  John Hart  NSSFC KCMO                                    */
+	/*                                                           */
+	/*  This routine take the current sounding array and         */
+	/*  interpolate it to 25mb increments.                       */
+	/*************************************************************/
+{
+	float nsndg[200][7], sfclvl, pres, cint, p1;
+	short newnum, i, j;
+
+	cint = 25.0;
+
+	/* ----- Copy surface conditions to new array ----- */
+	newnum = 0;
+	sfclvl = sndg[sfc()][1];
+	nsndg[newnum][0] = i_omeg( sfclvl );
+	nsndg[newnum][1] = sfclvl;
+	nsndg[newnum][2] = i_hght( sfclvl );
+	nsndg[newnum][3] = i_temp( sfclvl );
+	nsndg[newnum][4] = i_dwpt( sfclvl );
+	nsndg[newnum][5] = i_wdir( sfclvl );
+	nsndg[newnum][6] = i_wspd( sfclvl );
+
+	/* ----- Determine first interpolated level above surface ----- */
+	pres = (float)((short)((sfclvl / cint) + 0) * cint);
+	if( pres == sfclvl ) { pres -= cint; }
+
+	/* ----- Interpolate NSNDG array to prescribed increments ----- */
+	for (p1 = pres; p1 >= sndg[numlvl-1][1]; p1 -= cint) {
+	   newnum++;
+	   nsndg[newnum][0] = i_omeg(p1);
+	   nsndg[newnum][1] = p1;
+	   nsndg[newnum][2] = i_hght(p1);
+	   nsndg[newnum][3] = i_temp(p1);
+	   nsndg[newnum][4] = i_dwpt(p1);
+	   nsndg[newnum][5] = i_wdir(p1);
+	   nsndg[newnum][6] = i_wspd(p1);
+	}
+
+	/* ----- Copy NSNDG to SNDG array ----- */
+	for (i=0; i <= newnum; i++) {
+	   for (j=0; j<=6; j++) {
+	      sndg[i][j] = nsndg[i][j];
+	   }
+	}
+        numlvl = newnum + 1;
+
+	/* ----- NULL out two levels above highest observation ----- */
+	for (i=numlvl; i <= numlvl + 2; i++) {
+	   for (j=0; j<=6; j++) {
+	      sndg[i][j] = -999.0;
+	   }
+	}
+}

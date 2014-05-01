@@ -1,0 +1,249 @@
+      SUBROUTINE MIX55(PO,JNK,J,LRT,IRT1,IRTN,YD,YU,QU,QD,DDX,HS,AS,IFR,
+     * KSP,KS1,KSN,LRMIX,ICTR,YCR,KRCH,MIXF,DFR,FRC,K1,K2,K5,K7,K8,K9)
+
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/M3055/EPSY,EPSQ,EPSQJ,THETA,XFACT
+      COMMON/SS55/NCS,A,B,DB,R,DR,AT,BT,P,DP,ZH
+
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ofs55'
+
+      DIMENSION PO(*)
+      DIMENSION YD(K2,K1),YU(K2,K1),QU(K2,K1),QD(K2,K1)
+      DIMENSION DDX(K2,K1),HS(K9,K2,K1),AS(K9,K2,K1)
+      DIMENSION IFR(K2,K1),KSP(K2,K5,K1),KS1(K2,K5,K1),KSN(K2,K5,K1)
+      DIMENSION LRMIX(K5,K1),ICTR(K2,K5,K1)
+      DIMENSION YCR(K2,K1),KRCH(K2,K1),MIXF(K1)
+      CHARACTER*8 SNAME
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_fldwav/RCS/mix55.f,v $
+     . $',                                                             '
+     .$Id: mix55.f,v 1.2 2000/12/19 15:54:07 dws Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA SNAME/ 'MIX55   '  /
+C
+      CALL FPRBUG(SNAME,1,55,IBUG)
+
+      DFRM=FRC-DFR
+      DFRP=FRC+DFR
+      L=1
+      LN=KSN(1,LRT,J)
+      DO 10 I=IRT1,IRTN
+      Y=YU(I,J)
+      CALL SECT55(PO(LCPR),PO(LOAS),PO(LOBS),PO(LOHS),PO(LOASS),
+     * PO(LOBSS),J,I,Y,PO(LCHCAV),PO(LCIFCV),K1,K2,K9)
+      F=ABS(QU(I,J)/(A*SQRT(32.2*A/B)))
+      IFR(I,J)=2
+      IF(F.LT.DFRM) IFR(I,J)=0
+      IF(F.GT.DFRP) IFR(I,J)=1
+CC    LJSKP=0
+      IF(AS(1,I,J).GE.0.01) THEN
+CC      LJSKP=1
+        YCR(I,J)=HS(1,I,J)
+        IFR(I,J)=0
+        GO TO 10
+      END IF
+      YMN=HS(1,I,J)
+      DO 2 LL=1,NCS
+      LST=NCS-LL+1
+      IF(HS(LST,I,J).GT.0.0001) GO TO 4
+    2 CONTINUE
+    4 YMX=HS(LST,I,J)
+      QIX=QU(I,J)
+      YC=YCR(I,J)
+      CALL HCRIT55(PO,1,J,I,YC,QIX,YMN,YMX,ITC,K1,K2,K9)
+      YCR(I,J)=YC
+   10 CONTINUE
+      IB=IRT1+1
+      IE=IRTN-1
+      KS1(1,LRT,J)=1
+      IDMM=0
+      IF(JNK.GT.9) WRITE(IPR,4097) (IFR(I,J),I=IRT1,IRTN)
+      IF(KRCH(IRT1,J).GE.10.AND.KRCH(IRT1,J).LE.30) THEN
+        IF(IRT1.EQ.1) THEN
+          IFR(IRT1,J)=0
+          IDMM=1
+        ELSEIF(KRCH(IRT1-1,J).EQ.4) THEN
+          IFR(IRT1,J)=0
+          IFR(IRT1-1,J)=0
+        ENDIF
+CC        IF(IRT1.EQ.1.OR.KRCH(IRT1-1,J).EQ.4) IB=IB+1
+      ENDIF
+      IF(IB.GT.IE) GO TO 8
+      DO 11 I=IB,IE
+      CALL MIX155(J,I,KFRM,KFR,KFRP,IFR,K1,K2)
+      IF(KFRM.NE.KFRP) GO TO 11
+      IF(KFR.EQ.KFRM) GO TO 11
+      IF(KFR.GE.1) IFR(I,J)=2
+   11 CONTINUE
+      IF(KRCH(IB,J).GE.10.AND.KRCH(IB,J).LE.30) IFR(IB,J)=0
+    8 ICTRL=0
+      LR=LRMIX(LRT,J)
+      DO 1010 L=1,LR
+      IF(ICTR(L,LRT,J).LE.0) GO TO 1010
+      ICTRL=L
+ 1010 CONTINUE
+      IF(ICTRL.LE.0) GO TO 1110
+      I=ICTR(ICTRL,LRT,J)
+      IM=I-1
+      KSUPC=KSP(ICTRL,LRT,J)
+      IF(KRCH(I,J).GE.10.AND.KRCH(I,J).LE.30) THEN
+        IFR(I,J)=0
+        GO TO 1110
+      ENDIF
+      IF(KSUPC.EQ.1) GO TO 1090
+      IFR(I,J)=2
+      IF(IM.GE.1) IFR(IM,J)=2
+      GO TO 1110
+ 1090 IFR(I,J)=0
+      IF(IM.GE.1) IFR(IM,J)=0
+ 1110 CONTINUE
+      IF(JNK.GT.9) WRITE(IPR,4096) (ICTR(I,LRT,J),I=1,LR)
+ 4096 FORMAT(5X,'ICTR= ',21I5)
+      IF(JNK.GT.9) WRITE(IPR,4097) (IFR(I,J),I=IRT1,IRTN)
+      DO 138 L=1,LR
+      L1=KS1(L,LRT,J)
+      LN=KSN(L,LRT,J)
+      LN1=LN-L1
+      IF(LN1.LE.1) GO TO 138
+      KSUPC=KSP(L,LRT,J)
+      IST=L1+1
+      IEND=LN-1
+      IF(ICTRL.NE.0) GO TO 112
+      IRISE=0
+      DO 110 I=IST,IEND
+      DUMQ=QU(I,J)-QD(I,J)
+      IDUM=0
+      IF(DUMQ.GT.EPSQ) IDUM=1
+      IF(DUMQ.LT.-EPSQ) IDUM=-1
+  110 IRISE=IRISE+IDUM
+      IF(IRISE.GT.0) KSUPC=1
+      IF(IRISE.LT.0) KSUPC=0
+C  SWEEP FROM U/S TO D/S IF SUPERCRITICAL FLOW
+  112 IF (KSUPC.EQ.0) GO TO 122
+      DO 116 I=IST,IEND
+      IF(I.EQ.1) GO TO 116
+      K=I
+      KK=K-1
+      CALL MIX155(J,K,KFRM,KFR,KFRP,IFR,K1,K2)
+      IF(KFRM.NE.KFRP) GO TO 116
+      IF(KFR.EQ.KFRP) GO TO 116
+      IF(KFR.GE.1) GO TO 116
+      KRA=IABS(KRCH(K,J))
+      IF(KRA.LT.10 .OR. KRA.GT.30) THEN
+        IFR(K,J)=IFR(KK,J)
+      ELSE
+        IF(K.EQ.1.OR.KRCH(KK,J).EQ.4) IFR(K,J)=0
+      ENDIF
+  116 CONTINUE
+      IF(KRCH(IST,J).GE.10.AND.KRCH(IST,J).LE.30) IFR(IST,J)=0
+C  SWEEP FROM D/S TO U/S IF SUBCRITICAL
+  122 DO 126 I=IST,IEND
+      IF(I.EQ.IRTN) GO TO 126
+      K=LN-I+L1
+      KK=K+1
+      CALL MIX155(J,K,KFRM,KFR,KFRP,IFR,K1,K2)
+      IF(I.EQ.L1) GO TO 126
+      IF(KFRM .NE. KFRP) GO TO 126
+      IF(KFR.EQ.KFRM) GO TO 126
+      IF(KFR.LE.0) GO TO 126
+      KRA=IABS(KRCH(K,J))
+      IF(KRA.LT.10 .OR. KRA.GT.30) THEN
+        IFR(K,J)=IFR(KK,J)
+      ELSE
+        IF(K.EQ.1.OR.KRCH(KK,J).EQ.4) IFR(K,J)=0
+      ENDIF
+  126 CONTINUE
+      IF(KRCH(IST,J).GE.10.AND.KRCH(IST,J).LE.30) IFR(IST,J)=0
+  138 CONTINUE
+      IF(JNK.GT.9) WRITE(IPR,4097) (IFR(I,J),I=IRT1,IRTN)
+      IF(IB.GT.IE) GO TO 13
+      DO 12 I=IB,IE
+      CALL MIX155(J,I,KFRM,KFR,KFRP,IFR,K1,K2)
+      IF(KFRM.NE.KFRP) GO TO 12
+      IF(KFR.EQ.KFRM) GO TO 12
+      KRA=IABS(KRCH(I,J))
+      IF(KRA.LT.10 .OR. KRA.GT.30) THEN
+        IFR(I,J)=IFR(I-1,J)
+      ELSE
+        IF(I.EQ.1.OR.KRCH(I-1,J).EQ.4) IFR(I,J)=0
+      ENDIF
+   12 CONTINUE
+   13 LR=1
+CC      IF(KRCH(1,J).LT.10 .OR. KRCH(1,J).GT.30) IFR(1,J)=IFR(2,J)
+      IF(KRCH(1,J).LT.10.OR.KRCH(1,J).GT.30) THEN
+        IFR(1,J)=IFR(2,J)
+      ELSE
+        IFR(1,J)=0
+      ENDIF
+      IFR(IRTN,J)=IFR(IE,J)
+      KS1(1,LRT,J)=1
+      KSP(1,LRT,J)=0
+      IF(IFR(1,J).GE.1) KSP(1,LRT,J)=1
+      IF(IB.GT.IE) GO TO 55
+      DO 50 I=IB,IE
+      CALL MIX155(J,I,KFRM,KFR,KFRP,IFR,K1,K2)
+      IF(KFRM.EQ.KFR) GO TO 50
+      IF(KFR.EQ.1) GO TO 30
+C         SUPER TO SUB
+      KSN(LR,LRT,J)=I-1
+      LR=LR+1
+      KS1(LR,LRT,J)=I
+      KSP(LR,LRT,J)=0
+      GO TO 50
+C         SUB TO SUPER
+   30 KSN(LR,LRT,J)=I
+      LR=LR+1
+      KS1(LR,LRT,J)=I
+      KSP(LR,LRT,J)=1
+   50 CONTINUE
+   55 LRMIX(LRT,J)=LR
+      KSN(LR,LRT,J)=IRTN
+      IF(JNK.GT.9) WRITE(IPR,4097) (IFR(I,J),I=IRT1,IRTN)
+      IF(JNK.GE.9) THEN
+        DO 60 L=1,LR
+        IF(L.EQ.1) WRITE(IPR,4098)
+        WRITE(IPR,4099) L,KSP(L,LRT,J),KS1(L,LRT,J),KSN(L,LRT,J)
+   60   CONTINUE
+      ENDIF
+ 4097 FORMAT(10X,4HIFR=,50I2)
+ 4098 FORMAT(1X)
+ 4099 FORMAT(10X,2HL=,I5,5X,4HKSP=,I3,5X,4HKS1=,I3,5X,4HKSN=,I3)
+C      MOVING HYDRAULIC JUMP ANALYSIS
+C
+C
+      IF(LR.EQ.1 .OR. ICTRL.GT.0) GO TO 90
+      LR1=LR-1
+      DO 70 L=1,LR1
+      IF(KSP(L,LRT,J).EQ.1.AND.KSP(L+1,LRT,J).EQ.0) GO TO 65
+      GO TO 70
+   65 IS=KS1(L,LRT,J)
+      KJP=KSN(L,LRT,J)
+      IND=KSN(L,LRT,J)
+      IS1=KJP-4
+      IF(IS1.LT.1) IS1=1
+      IN1=KJP+4
+      IF(IN1.GT.IRTN) IN1=IRTN
+      Y=YU(IS1,J)
+      CALL SECT55(PO(LCPR),PO(LOAS),PO(LOBS),PO(LOHS),PO(LOASS),
+     * PO(LOBSS),J,IS1,Y,PO(LCHCAV),PO(LCIFCV),K1,K2,K9)
+      F=ABS(QU(IS1,J)/(A*SQRT(32.2*A/B)))
+      IF(MIXF(J).GE.3) GO TO 70
+      DO 66 I=IS1,IN1
+      IF(IFR(I,J).EQ.2) GO TO 70
+   66 CONTINUE
+      INN=KSN(L,LRT,J)+1
+      CALL LJUMP55(PO,JNK,NCS,IS,IND,INN,KJP,J,YD,YU,QU,HS,
+     1 DDX,IFR,YCR,KRCH,PO(LONQCM),K1,K2,K7,K8,K9)
+      KSN(L,LRT,J)=KJP
+      KS1(L+1,LRT,J)=KJP+1
+   70 CONTINUE
+   90 CONTINUE
+      RETURN
+      END

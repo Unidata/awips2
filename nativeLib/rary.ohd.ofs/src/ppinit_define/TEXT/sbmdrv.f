@@ -1,0 +1,136 @@
+C MODULE SBMDRV
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE SBMDRV (X,Y,NBPTS,MDR,MDRDIM,NMDR,IY,IXB,IXE,NSEGS,
+     *   LFACTR,ISTAT)
+C
+C  THIS ROUTINE IS THE DRIVER ROUTINE FOR THE ALGORITHM TO SAVE
+C  THE APPROPRIATE MDR BOXES FOR A PARTICULAR BASIN.
+C
+      INCLUDE 'scommon/sudbgx'
+C
+      DIMENSION X(NBPTS),Y(NBPTS)
+      DIMENSION MDR(MDRDIM)
+      DIMENSION IY(NSEGS),IXB(NSEGS),IXE(NSEGS)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_define/RCS/sbmdrv.f,v $
+     . $',                                                             '
+     .$Id: sbmdrv.f,v 1.2 1999/07/07 11:25:31 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SBMDRV'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      LDEBUG=ISBUG('GRID')
+C
+      IF (LDEBUG.GT.0) THEN
+         DO 20 I=1,NBPTS
+            WRITE (IOSDBG,'(1X,A,I4,2(1X,A,F7.2))')
+     *        'I=',I,'X(I)=',X(I),'Y(I)=',Y(I)
+20          CONTINUE
+         DO 40 I=1,NSEGS
+            WRITE (IOSDBG,'(1X,A,I4,4(1X,A,I4))')
+     *         'I=',I,'IY(I)=',IY(I),'IXB(I)=',IXB(I),'IXE(I)=',IXE(I)
+40          CONTINUE
+         WRITE (IOSDBG,*) 'LFACTR=',LFACTR
+         ENDIF
+C
+      ISTAT=0
+C
+C  DETERMINE MIN AND MAX POINTS IN BASIN FOR X AND Y DIRECTIONS
+      CALL SBFMIN (X,NBPTS,XMIN,ISTAT)
+      CALL SBFMAX (X,NBPTS,XMAX,ISTAT)
+      CALL SBFMIN (Y,NBPTS,YMIN,ISTAT)
+      CALL SBFMAX (Y,NBPTS,YMAX,ISTAT)
+C
+C  DETERMINE MDR BOXES SURROUNDING THE BASIN
+      CALL SBMDRS (XMIN,YMIN,MXMIN,MYMIN,ISTAT)
+      CALL SBMDRS (XMAX,YMAX,MXMAX,MYMAX,ISTAT)
+C
+      MX=MXMIN
+      MY=MYMAX
+C
+      IMDR=1
+C
+C  COMPUTE CRITERIA FOR INCLUDING MDR BOX:
+C   1. BASIN COVERS MORE THAN HALF OF MDR BOX
+C   2. MDR BOX COVERS MORE THAN 20% OF BASIN
+C   3. IF NEITHER 1 OR 2 SATISFIED, MDR BOX WITH MOST POINTS IS SAVED
+C
+      IF (LFACTR.EQ.0) GO TO 90
+         IF (LFACTR.EQ.1) LPTS=60
+         IF (LFACTR.EQ.2) LPTS=18
+         IF (LFACTR.GE.3.AND.LFACTR.LE.5) LPTS=4
+         IF (LFACTR.GE.6.AND.LFACTR.LE.10) LPTS=2
+         IF (LFACTR.GT.10) LPTS=1
+C
+C  COMPUTE NUMBER OF POINTS WITHIN BASIN
+      IPTS=0
+      DO 80 I=1,NSEGS
+         IPTS=IPTS+((IXE(I)-IXB(I))/LFACTR)+1
+80       CONTINUE
+C
+      JPTS=0.2*IPTS
+      MPTS=0
+C
+C  CHECK ALL BOXES WITHIN SUBSET TO SEE IF THEY SHOULD BE SAVED.
+90    CALL SBBXCK (MX,MY,IY,IXB,IXE,NSEGS,LFACTR,NPTS,ISTAT)
+C
+C  CHECK NUMBER OF POINTS AND DETERMINE IF BOX IS TO BE SAVED.
+      IF (NPTS.GE.LPTS) GO TO 100
+      IF (NPTS.LT.JPTS) GO TO 110
+C
+100   IF (IMDR.GT.MDRDIM) THEN
+         WRITE (LP,105) MDRDIM
+105   FORMAT ('0*** ERROR - IN SBMDRV - DIMENSION (',I4,') OF MDR ',
+     *   'ARRAY HAS BEEN EXCEEDED.')
+         CALL SUERRS (LP,2,-1)
+         GO TO 170
+         ENDIF
+C
+      CALL SBMNUM (MX,MY,MDR(IMDR),ISTAT)
+      IMDR=IMDR+1
+C
+C  COMPUTE BOX NUMBER
+110   IF (NPTS.LT.MPTS) GO TO 120
+         MXMOST=MX
+         MYMOST=MY
+         MPTS=NPTS
+120   MX=MX+1
+      IF (MX.LE.MXMAX) GO TO 90
+      MX=MXMIN
+      MY=MY-1
+      IF (MY.GE.MYMIN) GO TO 90
+C
+      IF (IMDR.NE.1) GO TO 130
+         CALL SBMNUM (MX,MY,MDR(IMDR),ISTAT)
+         IMDR=IMDR+1
+C
+130   NMDR=IMDR-1
+      GO TO 160
+C
+160   IF (LDEBUG.GT.0) THEN
+         NPER=10
+         NLINE=NMDR/NPER
+         IF (NMDR/NPER*NPER.NE.NMDR) NLINE=NLINE+1
+         WRITE (IOSDBG,'(1X,A,I3,1X,A,I3,A,(10(1X,I5)))')
+     *      'NMDR=',NMDR,
+     *      'MDR(1...',NMDR,')=',(MDR(I),I=1,NMDR)
+         CALL SULINE (LP,NLINE)
+         ENDIF
+C
+170   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SBMDRV'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+      END

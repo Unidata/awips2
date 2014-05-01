@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="true">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Rpffcstpoint" 
+    table="rpffcstpoint"
+>
+
+    <id
+        name="lid"
+        type="java.lang.String"
+        column="lid"
+    >
+        <generator class="assigned" />
+    </id>
+
+    <property
+        name="ordinal"
+        type="java.lang.Integer"
+        column="ordinal"
+        length="10"
+    />
+    <property
+        name="chgThreshold"
+        type="java.lang.Double"
+        column="chg_threshold"
+        length="17"
+    />
+    <property
+        name="recType"
+        type="java.lang.String"
+        column="rec_type"
+        length="3"
+    />
+    <property
+        name="secondaryBack"
+        type="java.lang.String"
+        column="secondary_back"
+        not-null="true"
+        length="3"
+    />
+    <property
+        name="backhrs"
+        type="java.lang.Integer"
+        column="backhrs"
+        length="10"
+    />
+    <property
+        name="forwardhrs"
+        type="java.lang.Integer"
+        column="forwardhrs"
+        length="10"
+    />
+    <property
+        name="adjustendhrs"
+        type="java.lang.Double"
+        column="adjustendhrs"
+        length="17"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional one-to-one association to Riverstat -->
+    <one-to-one
+        name="riverstat"
+        class="com.raytheon.edex.db.objects.ihfs.Riverstat"
+        outer-join="auto"
+        constrained="true"
+    />
+    <!-- bi-directional many-to-one association to Rpffcstgroup -->
+    <many-to-one
+        name="rpffcstgroup"
+        class="com.raytheon.edex.db.objects.ihfs.Rpffcstgroup"
+        not-null="true"
+    >
+        <column name="group_id" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Hsa -->
+    <many-to-one
+        name="hsa"
+        class="com.raytheon.edex.db.objects.ihfs.Hsa"
+        not-null="true"
+    >
+        <column name="primary_back" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

@@ -1,0 +1,309 @@
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */ 
+
+##############################################
+  qrsh: a Qpid-based remote shell utility
+
+  Last updated:  3 Aug 09    Mick Goulish
+##############################################
+
+
+
+=============================
+Overview
+=============================
+
+  You're writing a multi-box test, and you want to write a 
+  shell script in which you start processes on other boxes 
+  and kill them (or send arbitrary signals to them).  
+
+  But ssh doesn't let you signal them, and bash isn't the 
+  greatest language in the world for creating data structures 
+  (like you need to associate the PIDs with box names and 
+  executable names.)
+
+  Qsh is a utility implemented on Qpid that you can use from 
+  within your bash script, or any other scripting language.
+  With it, you can:
+
+    1. run any executable on any box in your cluster.
+
+    2. don't worry about PIDs and box-names.  You associate 
+       your own abstract names with the executable instances, 
+       and then use those names in the rest of your script.  
+       I.e. "broker_1" "sender_3" etc.
+
+    3. Launch the executable and wait until it returns, and
+       get its exit code.
+
+    4. Launch your executable and do other stuff, then come 
+       back later and see if it has exited.
+
+    5. Get whatever it sent to stdout or stderr.
+
+    6. Get the contents of any other file.
+
+    7. send a command to all your boxes at once
+
+    8. send a command to a randomly selected box.
+
+    9. define groups of boxes, and send a command simultaneously
+       to all boxes in a given group.
+
+
+
+
+=============================
+Using It
+=============================
+
+   1. You need to run a Qpid broker.
+
+   2. You start a Qpid client ( which is called a qrsh_server )
+      on all the boxes you care about.  And you give them all 
+      names like "mrg13", "mrg14" etc.  The names can be anything
+      you want, but I've always used one qrsh_server per box, 
+      and given it the box name.   ( However, you can run two on
+      one box, they won't collide. )
+
+   3. After you start all servers, send a "start" command to any
+      one of them:
+
+   4. The qrsh_servers use the fanout exchange to talk to each 
+      other.
+
+   5. In your script, you run an executable called "qrsh".  It knows
+      how to talk to the servers, do what you want, and retrieve 
+      the data you want.
+
+
+   example start script:  (this does 4 servers on the same box)
+   -------------------------------------------------------------
+
+       echo "Starting server mrg22 ..."
+       ./qrsh_server mrg22  ./qrsh_run 127.0.0.1  5813  &
+
+       echo "Starting server mrg23 ..."
+       ./qrsh_server mrg23  ./qrsh_run 127.0.0.1  5813  &
+
+       echo "Starting server mrg24 ..."
+       ./qrsh_server mrg24  ./qrsh_run 127.0.0.1  5813  &
+
+       echo "Starting server mrg25 ..."
+       ./qrsh_server mrg25  ./qrsh_run 127.0.0.1  5813  &
+
+       echo "Issuing start command..."
+       sleep 2
+       ./qrsh 127.0.0.1  5813 mrg22 start
+       sleep 1
+
+       echo "Ready."
+
+       # end of script.
+
+
+
+
+
+
+=============================
+Qrsh Syntax
+=============================
+  
+     qrsh  host port server_name  command_name  arg*
+
+
+       "host" and "port" specify the Qpid server to connect to.
+
+       "server_name" can be anything you want.  I always use the name 
+         of the box that the server is running on.
+
+       "command_name" is the name that you choose to assign to 
+         the process you are running.  Each process that you decide
+         to name must have a unique name within this script.
+
+         Or it could be a reserved command name, that Qsh 
+         interprets in a special way.
+
+         Reserved command names are:
+             
+             exec
+             exec_wait
+             exited
+             get
+
+         "exec" means "interpret the rest of the command line as a
+           command to be executed by the designated server.
+
+         "exec_wait" means same as "exec", but wait for the command
+           to terminate, and return its exit code.
+
+         "exited" -- you provide 1 arg, which is an abstract 
+           process name.  qrsh returns 1 if that process has exited, 
+           else 0.
+
+         "get" -- you provide one arg which is a path.  qrsh returns
+           (by printing to stdout) the contents of that file.
+
+       "arg*" is zero or more arguments.  They are interpreted 
+         differently depending on whether you are using one of
+         the above reserved command names, or making up your own
+         abstract name for a command.
+
+
+
+
+=============================
+Examples
+=============================
+
+  1. Run a process on a remote box.
+     
+         qrsh mrg23 command_1 /usr/sbin/whatever foo bar baz
+
+     Returns immediately.
+
+
+
+  2. Kill a process that you started earlier:
+
+         qrsh mrg23 exec kill -9 command_1
+
+     After the word "exec" put any command line you want.
+     The server you're sending this to will replace all abstract
+     names in the command with process IDs.  ( In this example, 
+     just the word "command_1" will be replaced. )  Then it will 
+     execute the command.
+
+
+
+  3. Execute a command, and wait for it to finish
+
+         qrsh mrg23 exec_wait command_name args
+
+
+
+  4. Check on whether a command you issude earlier has exited.
+
+         ./qrsh mrg23 exited command_3
+
+     Returns 1 if it has exited, else 0.
+
+
+
+  5. Get the contents of a file from the remote system:
+
+        ./qrsh mrg23 get /tmp/foo
+
+     Prints the contents to stdout.
+
+
+
+  6. Send a command to all servers at once:
+
+        # This example causes them all to print thir names to stderr.
+        ./qrsh all sayName
+
+
+  7. Define a group of servers and send a command to that group.
+
+      #! /bin/bash
+      
+      # Make a group of two of the servers, using "alias",
+      # and send the group a command.
+      
+      qrsh 127.0.0.1 5813 \
+           mrg22 alias group_1
+
+      qrsh 127.0.0.1 5813 \
+          mrg23 alias group_1
+      
+      echo "Asking group_1 to say their names... "
+      qrsh 127.0.0.1 5813 \
+           group_1 sayName
+
+      # end of script.
+      
+  
+
+
+  8. Execute a command and get its stdout and stderr contents.
+
+        #! /bin/bash
+
+        echo "Run a command..."
+        ./qrsh 127.0.0.1 5813 \
+               mrg23 command_4 my_command foo bar baz
+
+        echo "Wait for a while..."
+        sleep 10
+
+        echo "Get stderr output:"
+        echo "-------------  begin stderr ---------------"
+        ./qrsh 127.0.0.1 5813 \
+               mrg23 get command_4 stderr
+        echo "-------------  end stderr ---------------"
+        echo " "
+
+        echo " "
+        echo "Get stdout output:"
+        echo "-------------  begin stdout ---------------"
+        ./qrsh 127.0.0.1 5813 \
+               mrg23 get command_4 stdout
+        echo "-------------  end stdout ---------------"
+
+        # end of script.
+    
+
+
+
+  9. Send a command to one of your servers, selected
+     at random.
+
+           #! /bin/bash
+
+           # I do it multiple times here, so I can see 
+           # that it really is selecting randomly.
+
+          echo "asking any server to say his name ..."
+          ./qrsh 127.0.0.1 5813 \
+                 any sayName
+          sleep 1
+
+          echo "asking any server to say his name ..."
+          ./qrsh 127.0.0.1 5813 \
+                 any sayName
+          sleep 1
+
+          echo "asking any server to say his name ..."
+          ./qrsh 127.0.0.1 5813 \
+                 any sayName
+          sleep 1
+
+          echo "asking any server to say his name ..."
+          ./qrsh 127.0.0.1 5813 \
+                 any sayName
+
+        # end of script.
+
+
+
+

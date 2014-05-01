@@ -1,0 +1,127 @@
+C MEMBER FSTQCO
+C  (from old member FCFSTQCO)
+C
+      SUBROUTINE FSTQCO(HDATA,QDATA,ICONV,ITSPOS,IDADAT,INTVAL,COLD,
+     1   IBUG)
+C.......................................
+C     THIS SUBROUTINE COMPUTES CARRYOVER FOR STAGE-DISCHARGE
+C         CONVERSION USING FSTGQ SUBROUTINE AND CALLS THE FCWTCO
+C         SUBROUTINE TO SAVE THE CARRYOVER.
+C.......................................
+C     ORIGINALLY WRITTEN BY JOHANTHAN WETMORE  -  HRL
+C     MODIFIED BY ERIC ANDERSON - HRL  JUNE 1981
+C.......................................
+C      ARGUMENTS ARE:
+C           HDATA  - STAGE DATA ARRAY
+C           QDATA  - DISCHARGE DATA ARRAY
+C           ICONV  - CONVERSION INDICATOR
+C           ITSPOS - INITIAL DATA POSITION IN DATA ARRAYS
+C           IDADAT - FROM COMMON/FCTIME/
+C           INTVAL - TIME INTERVAL OF DATA
+C           COLD   - FSTGQ CARRYOVER FOR THE BEGINNING OF THE RUN.
+C.......................................
+C
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/FCARY/IFILLC,NCSTOR,ICDAY(20),ICHOUR(20)
+C
+      DIMENSION HDATA(1),QDATA(1),COLD(4),CTEMP(4)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_ex/RCS/fstqco.f,v $
+     . $',                                                             '
+     .$Id: fstqco.f,v 1.1 1995/09/17 18:58:18 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF(ITRACE.GT.0)WRITE(IODBUG,600)
+  600 FORMAT(1H0,' **FSTQCO ENTERED')
+C.......................................
+C     CHECK IF CARRYOVER SHOULD BE SAVED.
+      IF (NCSTOR.EQ.0) GO TO 199
+C.......................................
+C     SAVE CO FO DATES IN ICDAY AND ICHOUR
+      ISTART=ITSPOS
+      IFOUR=4
+      DO 500 I=1,NCSTOR
+      ICDATE=ICDAY(I)
+      ICOHR=ICHOUR(I)
+      ISAVTS=(ICDATE-IDADAT)*24/INTVAL+ICOHR/INTVAL
+C
+C  LOOK BACK FROM CSAVE CO DATE TO FIND PREVIOUS DISCHARGE AND STAGE
+C
+      IBACK=ISAVTS
+      MISING=0
+ 110  IF((IFMSNG(HDATA(IBACK)).EQ.0).AND.(IFMSNG(QDATA(IBACK)).EQ.0))
+     1              GO TO 120
+      MISING=MISING+1
+      IBACK=IBACK-1
+      IF(IBACK.LT.ISTART)GO TO 112
+      GO TO 110
+C
+ 112  CONTINUE
+C
+C  SAVE ORIGINAL CO - ALL VALS ARE MISSING FROM ISTART TO ISAVTS.
+      DO 114 J=1,3
+ 114  CTEMP(J)=COLD(J)
+      CTEMP(4)=COLD(4)+MISING+0.01
+      GO TO 145
+C
+ 120  CONTINUE
+C  DET. RATE OF CHANGE IN STAGE/DISCHARGE
+C
+      IBKEEP=IBACK
+      IBAC2=IBACK-1
+      MSNG2=0
+  130 IF(IBAC2.LT.ISTART) GO TO 135
+      IF((IFMSNG(HDATA(IBAC2)).EQ.0).AND.(IFMSNG(QDATA(IBAC2)).EQ.0))
+     1              GO TO 140
+C  MOVE BACK ANOTHER SPACE
+      IBAC2=IBAC2-1
+      MSNG2=MSNG2+1
+      GO TO 130
+C
+C     ONLY ONE NEW VALUE FROM ISTART TO ISAVTS.
+ 135  CONTINUE
+      CTEMP(1)=HDATA(IBKEEP)
+      CTEMP(2)=QDATA(IBKEEP)
+      IF(ICONV.EQ.1)CTEMP(3)=(QDATA(IBKEEP)-COLD(2))/
+     1                       (COLD(4)+MSNG2+1.0)
+      IF(ICONV.EQ.2)CTEMP(3)=(HDATA(IBKEEP)-COLD(1))/
+     1                       (COLD(4)+MSNG2+1.0)
+      CTEMP(4)=MISING+0.01
+      GO TO 145
+C
+ 140  CONTINUE
+C
+C     AT LEAST TWO NEW VALUES FROM ISTART TO ISAVTS.
+      CTEMP(1)=HDATA(IBKEEP)
+      CTEMP(2)=QDATA(IBKEEP)
+      IF(ICONV.EQ.1) CTEMP(3)=(QDATA(IBKEEP)-QDATA(IBAC2))/(IBKEEP-
+     1IBAC2)
+      IF(ICONV.EQ.2) CTEMP(3)=(HDATA(IBKEEP)-HDATA(IBAC2))/(IBKEEP-
+     1IBAC2)
+      CTEMP(4)=MISING+0.01
+C
+  145 CONTINUE
+C
+      IF (IBUG.EQ.1) WRITE(IODBUG,605) ICDATE,ICOHR,ISAVTS,IBKEEP,
+     1  IBAC2,CTEMP
+  605 FORMAT (1H0,27HFSTGCO DEBUG--CO SAVE DATE=,I8,I4,
+     117HSAVE CO T.S. POS=,I5,/6X,7HIBKEEP=,I5,2X,6HIBAC2=,I5,3X,
+     29HSAVED CO=,4F10.2)
+C.......................................
+      CALL FCWTCO(ICDATE,ICOHR,CTEMP,IFOUR)
+C.......................................
+      ISTART=ISAVTS+1
+      DO 146 J=1,4
+  146 COLD(J)=CTEMP(J)
+  500 CONTINUE
+C.......................................
+  199 IF(ITRACE.GT.0)WRITE(IODBUG,601)
+  601 FORMAT(1H0,' **EXIT FSTQCO')
+C
+      RETURN
+      END

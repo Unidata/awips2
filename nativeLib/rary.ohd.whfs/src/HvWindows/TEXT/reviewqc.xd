@@ -1,0 +1,493 @@
+module 'Reviewqc'
+version = 48;
+xdesigned = 1;
+applicationName = 'Reviewqc';
+sourceDirectory = '/fs/hseb/ob72/wfo_rfc/whfs/source/utilfunc/hv_windows/src/';
+generateNameC = * 'reviewqc.c';
+generateNameExterns = * 'reviewqc.h';
+generateNameResDB = * 'reviewqc.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 4390920;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'reviewqcDS' : XmDialogShell {
+	arguments {
+	was_selected = true;
+	lastGenName = 'reviewqcDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_reviewqcDS (parent)
+Widget parent;
+';
+	XmNwidth = 1030;
+	XmNallowShellResize = true;
+	XmNtitle = 'Questionable and Bad Data';
+	XmNminWidth = 1100;
+	XmNminHeight = 500;
+	XmNmaxWidth = 1100;
+	XmNmaxHeight = 500;
+	XmNbaseWidth = 1100;
+	XmNbaseHeight = 500;
+	};
+object 'reviewqcFO' : XmForm {
+	arguments {
+	lastGenName = 'reviewqcFO';
+	XmNmarginWidth = 10;
+	XmNmarginHeight = 10;
+	XmNautoUnmanage = false;
+	XmNnoResize = false;
+	XmNhorizontalSpacing = 10;
+	XmNverticalSpacing = 10;
+	};
+object 'obstablesOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'obstablesOM';
+	};
+abstract object 'obstablesLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'obstablesLB';
+	XmNlabelString = ' ';
+	};
+};
+abstract object 'obstablesCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'obstablesCB';
+	};
+object 'obstablesPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'obstablesPDM';
+	XmNspacing = 0;
+	};
+object 'agriculturePB' : XmPushButton {
+	arguments {
+	lastGenName = 'agriculturePB';
+	XmNlabelString = 'Agriculture';
+	};
+};
+object 'dischargePB' : XmPushButton {
+	arguments {
+	lastGenName = 'dischargePB';
+	XmNlabelString = 'Discharge';
+	};
+};
+object 'evaporationPB' : XmPushButton {
+	arguments {
+	lastGenName = 'evaporationPB';
+	XmNlabelString = 'Evaporation';
+	};
+};
+object 'fishcountPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fishcountPB';
+	XmNlabelString = 'FishCount';
+	};
+};
+object 'gatedamPB' : XmPushButton {
+	arguments {
+	lastGenName = 'gatedamPB';
+	XmNlabelString = 'Gate Dam';
+	};
+};
+object 'groundPB' : XmPushButton {
+	arguments {
+	lastGenName = 'groundPB';
+	XmNlabelString = 'Ground';
+	};
+};
+object 'heightPB' : XmPushButton {
+	arguments {
+	lastGenName = 'heightPB';
+	XmNlabelString = 'Height (Stage)';
+	};
+};
+object 'icePB' : XmPushButton {
+	arguments {
+	lastGenName = 'icePB';
+	XmNlabelString = 'Ice';
+	};
+};
+object 'lakePB' : XmPushButton {
+	arguments {
+	lastGenName = 'lakePB';
+	XmNlabelString = 'Lake';
+	};
+};
+object 'moisturePB' : XmPushButton {
+	arguments {
+	lastGenName = 'moisturePB';
+	XmNlabelString = 'Moisture';
+	};
+};
+object 'powerPB' : XmPushButton {
+	arguments {
+	lastGenName = 'powerPB';
+	XmNlabelString = 'Power';
+	};
+};
+object 'precipPCPB' : XmPushButton {
+	arguments {
+	lastGenName = 'precipPCPB';
+	XmNlabelString = 'Precipitation (PC)';
+	};
+};
+object 'precipPPPB' : XmPushButton {
+	arguments {
+	lastGenName = 'precipPPPB';
+	XmNlabelString = 'Precipitation (PP)';
+	};
+};
+object 'precipOPB' : XmPushButton {
+	arguments {
+	lastGenName = 'precipOPB';
+	XmNlabelString = 'Precipitation (Other)';
+	};
+};
+object 'pressurePB' : XmPushButton {
+	arguments {
+	lastGenName = 'pressurePB';
+	XmNlabelString = 'Pressure';
+	};
+};
+object 'radiationPB' : XmPushButton {
+	arguments {
+	lastGenName = 'radiationPB';
+	XmNlabelString = 'Radiation';
+	};
+};
+object 'snowPB' : XmPushButton {
+	arguments {
+	lastGenName = 'snowPB';
+	XmNlabelString = 'Snow';
+	};
+};
+object 'temperaturePB' : XmPushButton {
+	arguments {
+	lastGenName = 'temperaturePB';
+	XmNlabelString = 'Temperature';
+	};
+};
+object 'waterqualityPB' : XmPushButton {
+	arguments {
+	lastGenName = 'waterqualityPB';
+	XmNlabelString = 'WaterQuality';
+	};
+};
+object 'weatherPB' : XmPushButton {
+	arguments {
+	lastGenName = 'weatherPB';
+	XmNlabelString = 'Weather';
+	};
+};
+object 'windPB' : XmPushButton {
+	arguments {
+	lastGenName = 'windPB';
+	XmNlabelString = 'Wind';
+	};
+};
+object 'yuniquePB' : XmPushButton {
+	arguments {
+	lastGenName = 'yuniquePB';
+	XmNlabelString = 'YUnique';
+	};
+};
+};
+};
+};
+object 'qclistLB' : XmLabel {
+	arguments {
+	lastGenName = 'qclistLB';
+	XmNlabelString = 'Location    Name                         PE      Dur  TS   Ext      Value       Observation Time      RV   SQ    QC     Product         Time             Posted';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'qclistSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'qclistSL';
+	};
+abstract object 'qclistHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'qclistHSB';
+	};
+};
+abstract object 'qclistVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'qclistVSB';
+	};
+};
+abstract object 'qclistLS' : XmList {
+	arguments {
+	lastGenName = 'qclistLS';
+	XmNselectionPolicy = XmEXTENDED_SELECT;
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	};
+};
+};
+object 'reviewfilterLB' : XmLabel {
+	arguments {
+	lastGenName = 'reviewfilterLB';
+	XmNlabelString = 'Filter By: ';
+	};
+};
+object 'filterlocationTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'filterlocationTB';
+	XmNlabelString = 'Location';
+	};
+};
+object 'listlocTX' : XmText {
+	arguments {
+	lastGenName = 'listlocTX';
+	XmNmaxLength = 8;
+	};
+};
+object 'lastLB' : XmLabel {
+	arguments {
+	lastGenName = 'lastLB';
+	XmNlabelString = 'Last';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'daysTX' : XmText {
+	arguments {
+	lastGenName = 'daysTX';
+	XmNvalue = '1';
+	XmNmaxLength = 2;
+	};
+};
+object 'daysLB' : XmLabel {
+	arguments {
+	lastGenName = 'daysLB';
+	XmNlabelString = 'days';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'reviewsortLB' : XmLabel {
+	arguments {
+	lastGenName = 'reviewsortLB';
+	XmNlabelString = 'Sort By:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'review_closePB' : XmPushButton {
+	arguments {
+	lastGenName = 'review_closePB';
+	XmNlabelString = 'Close';
+	};
+};
+object 'review_graphPB' : XmPushButton {
+	arguments {
+	lastGenName = 'review_graphPB';
+	XmNlabelString = 'Graphical Time Series';
+	};
+};
+object 'review_tablePB' : XmPushButton {
+	arguments {
+	lastGenName = 'review_tablePB';
+	XmNlabelString = 'Tabular Time Series';
+	};
+};
+object 'iqdescriptionLA' : XmLabel {
+	arguments {
+	lastGenName = 'iqdescriptionLA';
+	XmNlabelString = 'QC Description';
+	};
+};
+object 'iqdescriptionTE' : XmTextField {
+	arguments {
+	lastGenName = 'iqdescriptionTE';
+	XmNmaxLength = 200;
+	};
+};
+object 'review_setmissingPB' : XmPushButton {
+	arguments {
+	lastGenName = 'review_setmissingPB';
+	XmNlabelString = 'Set Missing';
+	};
+};
+object 'review_deletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'review_deletePB';
+	XmNlabelString = 'Delete Selected';
+	};
+};
+object 'reviewsortRB' : XmRadioBox {
+	arguments {
+	lastGenName = 'reviewsortRB';
+	XmNwidth = 450;
+	XmNspacing = 11;
+	XmNmarginWidth = 5;
+	XmNmarginHeight = 2;
+	XmNorientation = XmHORIZONTAL;
+	};
+object 'sortlocationTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'sortlocationTB';
+	XmNx = 5;
+	XmNy = 2;
+	XmNwidth = 76;
+	XmNheight = 25;
+	XmNlabelString = 'Location';
+	};
+};
+object 'sorttimeTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'sorttimeTB';
+	XmNx = 114;
+	XmNy = 2;
+	XmNwidth = 75;
+	XmNheight = 16;
+	XmNlabelString = 'Time';
+	};
+};
+object 'sort_shef_qualTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'sort_shef_qualTB';
+	XmNwidth = 83;
+	XmNheight = 16;
+	XmNlabelString = 'Shef Quality';
+	};
+};
+object 'sort_quality_codeTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'sort_quality_codeTB';
+	XmNx = 332;
+	XmNy = 2;
+	XmNwidth = 52;
+	XmNheight = 1;
+	XmNlabelString = 'Quality Code';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -455;
+	XmNleftAttachment = 1 0 271;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1080;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -63;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1080;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -378;
+	XmNtopAttachment = 1 0 75;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -80;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -175;
+	XmNleftAttachment = 1 0 80;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -268;
+	XmNleftAttachment = 1 0 175;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -510;
+	XmNleftAttachment = 1 0 460;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -550;
+	XmNleftAttachment = 1 0 510;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -590;
+	XmNleftAttachment = 1 0 550;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -643;
+	XmNleftAttachment = 1 0 590;
+	XmNbottomAttachment = 2 0 -38;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -870;
+	XmNleftAttachment = 1 0 760;
+	XmNbottomAttachment = 2 0 -490;
+	XmNtopAttachment = 1 0 460;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -400;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -490;
+	XmNtopAttachment = 1 0 460;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -185;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -490;
+	XmNtopAttachment = 1 0 460;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -130;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -450;
+	XmNtopAttachment = 1 0 415;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1080;
+	XmNleftAttachment = 1 0 130;
+	XmNbottomAttachment = 2 0 -450;
+	XmNtopAttachment = 1 0 410;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -560;
+	XmNleftAttachment = 1 0 420;
+	XmNbottomAttachment = 2 0 -490;
+	XmNtopAttachment = 1 0 460;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -740;
+	XmNleftAttachment = 1 0 580;
+	XmNbottomAttachment = 2 0 -490;
+	XmNtopAttachment = 1 0 460;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1080;
+	XmNleftAttachment = 1 0 644;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 11;
+    };
+    };
+};
+};
+end module;

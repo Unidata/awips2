@@ -1,0 +1,207 @@
+C MODULE SMPPDT
+C----------------------------------------------------------------------
+C
+C  ROUTINE TO PRINT PREPROCESSOR DATA BASE TYPE SUMMARY INFORMATION.
+C
+      SUBROUTINE SMPPDT (ITYPE,MTYPES,ITYPES,NTYPES,IERR)
+C
+      CHARACTER*4 XTYPE
+      CHARACTER*4 XPP24/'PP24'/
+      CHARACTER*4 XPPVR/'PPVR'/
+      CHARACTER*4 XPP01/'PP01'/,XPP03/'PP03'/,XPP06/'PP06'/
+      CHARACTER*4 XTM24/'TM24'/
+      CHARACTER*4 XTAVR/'TAVR'/
+      CHARACTER*4 XTA01/'TA01'/,XTA03/'TA03'/,XTA06/'TA06'/
+      CHARACTER*4 XTF24/'TF24'/
+      CHARACTER*4 XEA24/'EA24'/
+      INTEGER IBLNK/4H    /
+      INTEGER IINIT/4HINIT/
+      INTEGER IPRNT/4HPRNT/
+C
+      DIMENSION ITYPES(2,1)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'pdbcommon/pdsifc'
+      INCLUDE 'pdbcommon/pddtdr'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/smppdt.f,v $
+     . $',                                                             '
+     .$Id: smppdt.f,v 1.4 2002/02/11 21:03:46 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SMPPDT'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DUMP')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,150) ITYPE,NTYPES,MTYPES
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+C  CHECK IF ARRAYS TO BE INITIALIZED
+      IF (ITYPE.EQ.IINIT) THEN
+         DO 10 I=1,MTYPES
+            ITYPES(1,I)=IBLNK
+            ITYPES(2,I)=0
+10          CONTINUE
+         GO TO 130
+         ENDIF
+C
+C  CHECK IF LIST OF TYPES TO BE PRINTED
+      IF (ITYPE.EQ.IPRNT) GO TO 80
+C
+C  CHECK IF ANY TYPES ALREADY FOUND
+      IF (NTYPES.EQ.0) GO TO 60
+C
+C  CHECK IF TYPE ALREADY FOUND
+      DO 40 IPOS=1,NTYPES
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,160) IPOS,ITYPES(1,IPOS)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (ITYPES(1,IPOS).EQ.ITYPE) GO TO 50
+40       CONTINUE
+         GO TO 60
+C
+C  TYPE FOUND
+50    ITYPES(2,IPOS)=ITYPES(2,IPOS)+1
+      GO TO 130
+C
+C  TYPE NOT FOUND
+60    NTYPES=NTYPES+1
+      IF (NTYPES.GT.MTYPES) THEN
+         WRITE (LP,170) MTYPES
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 130
+         ENDIF
+      ITYPES(1,NTYPES)=ITYPE
+      ITYPES(2,NTYPES)=ITYPES(2,NTYPES)+1
+      GO TO 130
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C
+C  PRINT DATA TYPES FOUND
+C
+C  CHECK NUMBER OF TYPES
+80    IF (NTYPES.EQ.0) THEN
+         WRITE (LP,180)
+         CALL SULINE (LP,2)
+         GO TO 130
+         ENDIF
+C
+C  SORT TYPES
+      NSWORD=2
+      ISPTR=0
+      CALL SUSORT (NSWORD,NTYPES,ITYPES,ITYPES,ISPTR,IERR)
+C
+C  PRINT TYPES
+      NPP24=0
+      NPP01=0
+      NPP03=0
+      NPP06=0
+      NTM24=0
+      NTA01=0
+      NTA03=0
+      NTA06=0
+      NTF24=0
+      NEA24=0
+      DO 100 I=1,NTYPES
+         WRITE (LP,190) ITYPES(2,I),ITYPES(1,I)
+         CALL SULINE (LP,2)
+         CALL SUBSTR (ITYPES(1,I),1,4,XTYPE,1)
+         IF (XTYPE.EQ.XPP24) NPP24=ITYPES(2,I)
+         IF (XTYPE.EQ.XPP01) NPP01=ITYPES(2,I)
+         IF (XTYPE.EQ.XPP03) NPP03=ITYPES(2,I)
+         IF (XTYPE.EQ.XPP06) NPP06=ITYPES(2,I)
+         IF (XTYPE.EQ.XTM24) NTM24=ITYPES(2,I)
+         IF (XTYPE.EQ.XTA01) NTA01=ITYPES(2,I)
+         IF (XTYPE.EQ.XTA03) NTA03=ITYPES(2,I)
+         IF (XTYPE.EQ.XTA06) NTA06=ITYPES(2,I)
+         IF (XTYPE.EQ.XTF24) NTF24=ITYPES(2,I)
+         IF (XTYPE.EQ.XEA24) NEA24=ITYPES(2,I)
+100      CONTINUE
+C
+      NPPVR=NPP01+NPP03+NPP06
+      NTAVR=NTA01+NTA03+NTA06
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,200) NPP24,NPP01,NPP03,NPP06
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,210) NTM24,NTA01,NTA03,NTA06
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,220) NTF24,NEA24
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,230) NPPVR,NTAVR
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK TOTALS AGAINST DIRECTORY
+      CALL SUDOPN (1,'PPD ',IERR)
+      IF (IERR.GT.0) GO TO 130
+      DO 120 I=1,NMDTYP
+         CALL SUBSTR (IDDTDR(2,I),1,4,XTYPE,1)
+         IF (XTYPE.EQ.XPP24.AND.NPP24.NE.IDDTDR(17,I)) THEN
+            WRITE (LP,240) XTYPE,NPP24,IDDTDR(17,I)
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+         IF (XTYPE.EQ.XPPVR.AND.NPPVR.NE.IDDTDR(17,I)) THEN
+            WRITE (LP,240) XTYPE,NPPVR,IDDTDR(17,I)
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+         IF (XTYPE.EQ.XTM24.AND.NTM24.NE.IDDTDR(17,I)) THEN
+            WRITE (LP,240) XTYPE,NTM24,IDDTDR(17,I)
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+         IF (XTYPE.EQ.XTAVR.AND.NTAVR.NE.IDDTDR(17,I)) THEN
+            WRITE (LP,240) XTYPE,NTAVR,IDDTDR(17,I)            
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+         IF (XTYPE.EQ.XTF24.AND.NTF24.NE.IDDTDR(17,I)) THEN
+            WRITE (LP,240) XTYPE,NTF24,IDDTDR(17,I)
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+         IF (XTYPE.EQ.XEA24.AND.NEA24.NE.IDDTDR(17,I)) THEN
+            WRITE (LP,240) XTYPE,NEA24,IDDTDR(17,I)
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+120      CONTINUE
+C
+130   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SMPPDT'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+150   FORMAT (' ITYPE=',A4,3X,'NTYPES=',I3,3X,'MTYPES=',I3)
+160   FORMAT (' IPOS=',I3,3X,'ITYPES(1,IPOS)=',A4)
+170   FORMAT ('0*** ERROR - IN SMPPDT - MAXIMUM NUMBER OF TYPES THAT ',
+     *   'CAN BE PROCESSED (',I3,') EXCEEDED.')
+180   FORMAT ('0*** NOTE - NO DATA TYPES TO BE PROCESSED.')
+190   FORMAT ('0*** NOTE - ',I4,' STATIONS WITH ',A4,' DATA ARE ',
+     *   'DEFINED.')
+200   FORMAT (' NPP24=',I4,3X,'NPP01=',I4,3X,'NPP03=',I4,3X,'NPP06=',I4)
+210   FORMAT (' NTM24=',I4,3X,'NTA01=',I4,3X,'NTA03=',I4,3X,'NTA06=',I4)
+220   FORMAT (' NTF24=',I4,3X,'NEA24=',I4)
+230   FORMAT (' NPPVR=',I4,3X,'NTAVR=',I4)
+240   FORMAT ('0*** WARNING - NUMBER OF STATIONS FOUND WITH ',A4,
+     *   ' DATA (',I4,
+     *   ') DOES NOT EQUAL NUMBER IN THE DATA TYPE DIRECTORY (',I4,').')
+C
+      END

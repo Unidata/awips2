@@ -1,0 +1,72 @@
+#!/bin/ksh
+
+#
+#   script for allowing the restart of the HPE crons
+#
+#  HPE crons to gather radar information run every minute
+#  This script just removes the stop file if present which the crons 
+#  are looking for so that they can start again via the cron.
+# 
+#  David T. Miller   RSIS    OHD/HSEB
+#  October 31, 2007 
+
+# This allows you to call this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for AWIPS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export HPE_LOG_DIR=$(get_apps_defaults hpe_log_dir)
+
+# this script uses the following set_hydro_env variables:
+# HPE_LOG_DIR
+#
+
+# GAD_DIR is directory which holds the gad program (get_apps_defaults.LX)
+GAD_DIR=/awips/hydroapps/public/bin
+
+#   setup log files
+#
+
+if [[ ! -d $HPE_LOG_DIR ]]
+then 
+   print "Directory specified for placing stop_hpe_crons file does not exist " $HPE_LOG_DIR
+   echo "Directory specified for placing stop_hpe_crons file does not exist " $HPE_LOG_DIR
+
+   exit -1
+fi
+
+hpefnm=$HPE_LOG_DIR/start_hpe_log
+hpetmp=$HPE_LOG_DIR/start_hpe_tmp
+
+
+#
+#   save latest entries in log file
+#
+
+
+if [[ -s $hpefnm ]]
+then
+   tail -1200 $hpefnm > $hpetmp
+   mv $hpetmp $hpefnm
+fi
+
+echo "Attempting to remove stop_hpe_crons file... " >> $hpefnm
+
+if [[ -r $HPE_LOG_DIR/stop_hpe_crons ]]
+then
+      rm -f $HPE_LOG_DIR/stop_hpe_crons
+      echo "stop_hpe_crons file has been removed." >> $hpefnm
+      echo "HPE radar data processes should now restart via cron " >> $hpefnm
+
+# so user will see this on the screen as well since this is a manual process
+      
+      echo "stop_hpe_crons file has been removed." 
+      echo "HPE radar data processes should now restart via cron " 
+      
+else 
+      echo "stop_hpe_crons file does not exist. " >> $hpefnm
+      echo "stop_hpe_crons file does not exist. " 
+
+fi
+
+exit 0

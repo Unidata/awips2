@@ -1,0 +1,99 @@
+November 20, 2004
+
+For the latest documentation and release notes on the CBRFC METAR
+decoder, please consult the LATEST documentation file:
+
+
+        Program History			Release Date
+        & Documentation
+        Name
+        ________________________________________
+
+        metar_ver1.0.doc        04/01/96
+        metar_ver1.1.doc        04/02/96
+        metar_ver1.2.doc        04/15/96
+        metar_ver1.3.doc        04/17/96
+        metar_ver1.4.doc        04/22/96
+        metar_ver1.5.doc        04/23/96
+        metar_ver1.6.doc        05/02/96 
+        metar_ver1.7.doc        05/02/96
+        metar_ver1.8.doc        05/28/96
+        metar_ver1.9.doc        06/03/96 
+        metar_ver2.0.doc        06/04/96
+        metar_ver2.1.doc        06/10/96      
+        metar_ver2.2.doc        06/18/96
+        metar_ver2.3.doc        06/20/96
+        metar_ver2.4.doc        07/03/96
+        metar_ver2.5.doc        07/03/96
+        metar_ver2.6.doc        07/09/96
+        metar_ver2.7.doc        07/12/96
+        metar_ver2.8.doc        07/15/96
+        metar_ver2.9.doc        07/19/96         
+        metar_ver3.0.doc        07/22/96
+        metar_ver3.1.doc        07/28/96
+        metar_ver3.2.doc        09/18/96
+        metar_ver3.3.doc        10/31/96
+        metar_ver3.4.doc        11/08/96
+        metar_ver3.5.doc        11/24/96
+        metar_ver3.6.doc        12/22/96
+        metar_ver3.7.doc        12/24/96
+        metar_ver3.8.doc        01/09/97
+        metar_ver3.9.doc        01/22/97
+        metar_ver4.0.doc        02/27/97
+        metar_ver4.1.doc        06/04/97
+        metar_ver4.2.doc        10/10/97
+        metar_ver4.3.doc        11/10/97
+        metar_ver4.4.doc        01/05/98 
+        metar_ver4.5.doc        02/25/98 
+        metar_ver4.6.doc        04/04/98
+        metar_ver4.7.doc        05/15/98
+        metar_ver4.8.doc        07/01/98
+        metar_ver4.9.doc        08/05/98
+        metar_ver5.0.doc        08/05/98
+        metar_ver5.1.doc        11/17/98
+        metar_ver5.2.doc        01/04/99
+        metar_ver5.3.doc        10/26/99
+        metar_ver5.4.doc        12/13/99
+        metar_ver5.5.doc        01/10/00
+	metar_ver5.6.doc        02/04/00
+	metar_ver5.7.doc        02/18/00
+	metar_ver5.8.doc        10/31/00
+	metar_ver5.9.doc        10/31/00
+	metar_ver6.0.doc        12/01/00
+	metar_ver6.1.doc        02/02/01
+	metar_ver6.2.doc        09/16/01
+        metar_ver6.3.doc        02/26/02
+        metar_ver6.4.doc        06/02/02
+        metar_ver6.5.doc        08/09/02
+        metar_ver6.6.doc        04/03/03
+        metar_ver6.7.doc        12/17/03
+        metar_ver6.8.doc        01/16/04
+        metar_ver6.8.doc        11/20/04
+	
+	      
+Instructions for Getting and Extracting All files and Documentation
+
+   FTP:   ftp.cbrfc.noaa.gov
+   Login: ftp
+   Pass:  < anything >
+   CD  .../pub/metar
+
+   FTP/get file:  metar.tar.Z
+  
+   Move the metar.tar.Z file to the directory where you keep the metar files.
+
+   CD to the local directory where you keep the metar files.
+   
+   Uncompress the files by entering:      uncompress metar.tar.Z
+  
+   Un tar the files by entering:          tar -xvf metar.tar
+  
+
+
+
+
+CBRFC Instructions for TARing and Compressing Files
+
+  tar -cvf metar.tar *
+    
+  compress metar.tar     (output file called metar.tar.Z)

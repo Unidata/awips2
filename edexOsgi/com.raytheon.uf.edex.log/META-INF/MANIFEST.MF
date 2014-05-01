@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Log Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.log
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: com.raytheon.edex.msg,
+ com.raytheon.uf.common.alertmonitor,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database.purge
+Require-Bundle: org.apache.commons.collections,
+ ch.qos.logback;bundle-version="1.0.13",
+ org.slf4j;bundle-version="1.7.5",
+ org.apache.commons.cxf;bundle-version="2.5.10"
+Export-Package: com.raytheon.uf.edex.log,
+ com.raytheon.uf.edex.log.cxf

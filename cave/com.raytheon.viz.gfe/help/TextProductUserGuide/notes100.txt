@@ -1,0 +1,1 @@
+The phrases will automatically use this additional information to report more detail. For example, we will now see phrases that distinguish between morning and afternoon Wind values.  Of course, the code checks for similar values across time periods and reports the simpler phrase if appropriate.

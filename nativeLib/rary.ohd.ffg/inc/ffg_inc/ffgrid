@@ -1,0 +1,1 @@
+      common /ffgrid/ gg(5,500,500)

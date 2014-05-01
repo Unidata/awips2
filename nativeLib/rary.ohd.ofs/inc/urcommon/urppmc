@@ -1,0 +1,4 @@
+C                                           *--> FROM URCOMMON.URPPMC
+C  REORDER PROGRAM PARAMETRIC DATA BASE DATA FILE CONTROL
+      COMMON /URPPMC/ JPMCTL(8,9)
+C

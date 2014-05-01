@@ -1,0 +1,5 @@
+      character*4 wsid,wstyp,sdesc,sarid,wsbid
+      common /wsparm/ wvers,wsid(2),wstyp,iuses,sdesc(5),lwcpd,
+     1                wsup(6),sarea,wsbid(2),lro,
+     2                nsars,swt(16),sarid(2,16)
+     

@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="dependencies" default="help">
+    <dirname property="dependencies.basedir" file="${ant.file.dependencies}"/>
+
+    <property environment="env"/>
+
+    <property name="projects.basedir" value="../"/>
+
+     <!-- ================================================================== -->
+    <target name="help">
+        <echo message = "ant - builds the local project only"/> 	
+	    <echo message = "ant build - builds the local project only (same as above)"/> 
+	    <echo message = "ant build.full - builds the local project and its dependencies"/> 
+	    <echo message = "ant clean - deletes the local project's classes directory"/> 
+	    <echo message = "ant scrub - deletes the local project's classes and other_classes directories"/> 	
+	    <echo message = ""/> 
+    	<echo message = "ant build.all - builds everything"/> 
+    	<echo message = "ant clean.all - cleans everything  (deletes all class and other_classes directories)" /> 
+    	<echo message = ""/>
+    	<echo message = "ant clean.build.all - cleans and builds everything"/> 
+    </target>
+    
+    
+    <target name="build.all" depends="project.all"/>
+  
+    <target name="clean.build.all" depends="clean.all, build.all"/>
+   
+	<!--
+    <target name="project.all"
+           depends="project.pdc_pp, project.rivermonitor, project.sshp, project.var, project.tsl,
+                    project.fcstservice,  project.rax_apps,
+                    project.bias_trans, project.misc_dialogs, project.damcrest, project.mpe">
+    </target>
+    -->
+	
+    <target name="project.all"
+           depends="project.pdc_pp, project.rivermonitor, project.sshp, project.var, project.tsl,
+                    project.rax_apps,
+                    project.bias_trans, project.misc_dialogs, project.damcrest, project.mpe">
+    </target>
+    
+
+    <!-- Clean Target for all projects ================================================= -->
+ 
+   <target name="clean.all"> 
+   
+       <ant dir="${projects.basedir}/ohd.db" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.ihfsdb" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.raxdb" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.rax_apps" target="scrub" inheritAll="false"/>
+       <ant dir="${projects.basedir}/ohd.common" target="scrub" inheritAll="false"/> 
+	   <ant dir="${projects.basedir}/ohd.pdc_pp" target="scrub" inheritAll="false"/> 
+	   <ant dir="${projects.basedir}/ohd.rivermonitor" target="scrub" inheritAll="false"/> 
+   	   <ant dir="${projects.basedir}/ohd.sshp" target="scrub" inheritAll="false"/> 
+   	   <ant dir="${projects.basedir}/ohd.var" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.tsl" target="scrub" inheritAll="false"/> 
+       <ant dir="${projects.basedir}/ohd.prism" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.bias_trans" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.mpe" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.damcrest" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.damcrestdb" target="scrub" inheritAll="false"/>
+	   <ant dir="${projects.basedir}/ohd.fcstservice" target="scrub" inheritAll="false"/> 
+       <ant dir="${projects.basedir}/ohd.misc_dialogs" target="scrub" inheritAll="false"/>
+  		
+   </target>	
+
+   
+   <!-- does this really need to exist?         ========================== -->
+   <target name="prepare.compile.all_java">
+       <delete dir="${classes.dir}" />
+       <delete dir="${other.classes.dir}" />
+   </target>	
+    
+
+
+    <!-- dependency targets (most are projects)  ========================== -->   
+        
+    <!-- ================================================================== -->
+    <target name="project.pdc_pp"
+            depends="project.db, project.ihfsdb, project.common">
+        <ant dir="${projects.basedir}/ohd.pdc_pp" inheritAll="false"/>
+    </target>
+
+    <target name="prepare.compile.pdc_pp"> 	
+	    <copy todir="../ohd.pdc_pp/other_classes">
+    		<fileset dir="../ohd.db/classes"/>
+		    <fileset dir="../ohd.ihfsdb/classes"/>
+		    <fileset dir="../ohd.common/classes"/>
+  	    </copy>
+    </target>
+
+    <target name="jar.pdc_pp"> 
+     	<jar destfile="${devlib.dir}/pdc_pp.jar" basedir="${classes.dir}" />
+   	    <jar destfile="${devlib.dir}/pdc_pp.jar" basedir="${other.classes.dir}" update="true" />
+    </target>	
+ 
+    <target name="deliver.pdc_pp"> 
+        <copy file="${devlib.dir}/pdc_pp.jar" todir="${release.dir}"/>
+	    <copy todir="${release.dir}">
+    		<fileset dir="scripts"/>
+	    </copy>
+	
+	    <copy file="${devlib.dir}/pdc_pp.jar" todir="${bin.dir}" overwrite="true"/>
+	    <copy todir="${bin.dir}" overwrite="true">
+    		<fileset dir="scripts"/>
+	    </copy>
+        <chmod file="${bin.dir}/run_pdc_pp" perm="755"/>	
+	
+    </target>	
+
+    
+
+    <!-- ================================================================== -->
+
+    <target name="project.rivermonitor"  
+    	    depends="project.db, project.ihfsdb, project.common, project.pdc_pp, project.tsl, project.sshp">
+        <ant dir="${projects.basedir}/ohd.rivermonitor" inheritAll="false"/>
+    </target>
+
+    <target name="prepare.compile.rivermonitor"> 
+   	    <unjar src="${exlib.dir}/bsf.jar" 
+   	    	dest="${other.classes.dir}" overwrite="false" />
+	    <unjar src="${exlib.dir}/bsh-2.0b4.jar" 
+	    	dest="${other.classes.dir}" overwrite="false" />
+	    <unjar src="${exlib.dir}/netcdfUI-2.2.22.jar" 
+	    	dest="${other.classes.dir}" overwrite="false" />
+	    <unjar src="${exlib.dir}/nlog4j-1.2.21.jar" 
+	    	dest="${other.classes.dir}" overwrite="false" />
+    	<unjar src="${exlib.dir}/jdom.jar"
+    		dest="${other.classes.dir}" overwrite="false" />
+		
+	    <copy todir="../ohd.rivermonitor/other_classes">
+    		<fileset dir="../ohd.db/classes"/>
+		    <fileset dir="../ohd.ihfsdb/classes"/>
+		    <fileset dir="../ohd.common/classes"/>
+		    <fileset dir="../ohd.tsl/classes"/>
+		    <fileset dir="../ohd.pdc_pp/classes"/>
+		    <fileset dir="../ohd.sshp/classes"/>
+  	    </copy>
+    </target>	
+
+
+
+    <target name="jar.rivermonitor"> 
+        <jar destfile="${devlib.dir}/RiverMonitor.jar" basedir="${classes.dir}"/>
+   	    <jar destfile="${devlib.dir}/RiverMonitor.jar" basedir="${other.classes.dir}" update="true" />
+    </target>
+
+
+ 
+   <target name="deliver.rivermonitor"> 
+        <copy file="${devlib.dir}/RiverMonitor.jar" todir="${release.dir}"/>
+	    <copy todir="${release.dir}">
+    		<fileset dir="scripts"/>
+	    </copy>
+        <copy file="${devlib.dir}/RiverMonitor.jar" todir="${bin.dir}" overwrite="true"/>
+	    <copy todir="${bin.dir}" overwrite="true">
+    		<fileset dir="scripts"/>
+	    </copy>
+        <chmod file="${bin.dir}/start_rivermonitor" perm="755"/>
+
+   </target>	
+
+
+    <!-- ================================================================== -->
+ 
+    <target name="project.sshp"   
+     	    depends="project.db, project.ihfsdb, project.common">
+
+            <ant dir="${projects.basedir}/ohd.sshp" inheritAll="false"/>
+    </target>
+
+
+    <target name="prepare.compile.sshp"> 
+   	    <unjar src="${exlib.dir}/jdom.jar" dest="${other.classes.dir}" overwrite="false" />
+	    <unjar src="${exlib.dir}/junit.jar" dest="${other.classes.dir}" overwrite="false" />
+		
+	    <copy todir="../ohd.sshp/other_classes">
+    		<fileset dir="../ohd.db/classes"/>
+		    <fileset dir="../ohd.ihfsdb/classes"/>
+		    <fileset dir="../ohd.common/classes"/>
+  	    </copy>
+    </target>	
+
+
+   <target name="jar.sshp"> 
+	 <jar destfile="${devlib.dir}/SiteSpecific.jar" basedir="${classes.dir}" />
+	 <jar destfile="${devlib.dir}/SiteSpecific.jar" basedir="${other.classes.dir}" update="true" />
+   </target>	
+ 
+   <target name="deliver.sshp"> 
+       <copy file="${devlib.dir}/SiteSpecific.jar" todir="${release.dir}"/>
+	   <copy todir="${release.dir}">
+    		<fileset dir="scripts" />
+	   </copy>
+	
+	   <copy file="${devlib.dir}/SiteSpecific.jar" todir="${bin.dir}" overwrite="true"/>
+	   <copy todir="${bin.dir}" overwrite="true">
+    		<fileset dir="scripts"/>
+  	   </copy>
+
+       <chmod file="${bin.dir}/process_hydro_model_data" perm="755"/>
+	   <chmod file="${bin.dir}/run_SiteSpecific" perm="755"/>
+	   <chmod file="${bin.dir}/run_SSHP_data_decode" perm="755"/>
+	   <chmod file="${bin.dir}/run_SSHP_data_send" perm="755"/>
+	   <chmod file="${bin.dir}/run_SSHP_data_transfer" perm="755"/>
+	   <chmod file="${bin.dir}/run_SSHP_MAP_preprocess" perm="755"/>
+	   <chmod file="${bin.dir}/run_SSHP_SAC_state_update" perm="755"/>
+	   <chmod file="${bin.dir}/run_UnitHydrographEditor" perm="755"/>
+
+   </target>	
+
+
+    <!-- ================================================================== -->
+    <target name="project.var" 
+    	    depends="project.db, project.ihfsdb, project.common, project.sshp">
+
+        <ant dir="${projects.basedir}/ohd.var" inheritAll="false"/>
+    </target>
+
+    <target name="prepare.compile.var"> 
+		
+	    <copy todir="../ohd.var/other_classes">
+    		<fileset dir="../ohd.db/classes"/>
+		    <fileset dir="../ohd.ihfsdb/classes"/>
+		    <fileset dir="../ohd.common/classes"/>
+		    <fileset dir="../ohd.sshp/classes"/>
+  	    </copy>
+
+   </target>	
+
+
+   <target name="jar.var"> 
+	 <jar destfile="${devlib.dir}/sshp_var.jar" basedir="${classes.dir}" />
+	 <jar destfile="${devlib.dir}/sshp_var.jar" basedir="${other.classes.dir}" update="true" />
+   </target>	
+   	
+   <target name="deliver.var"> 
+        <copy file="${devlib.dir}/sshp_var.jar" todir="${release.dir}"/>
+        <copy todir="${release.dir}">
+    		<fileset dir="scripts"/>
+	    </copy>
+
+    	<copy file="${devlib.dir}/sshp_var.jar" todir="${bin.dir}" overwrite="true"/>
+    
+	    <copy todir="${bin.dir}" overwrite="true">
+    		<fileset dir="scripts"/>
+	    </copy>
+
+        <chmod file="${bin.dir}/run_SSHP_var" perm="755"/>
+	    <chmod file="${bin.dir}/run_var_assimilator" perm="755"/>	
+        <chmod file="${bin.dir}/var_assimilator" perm="755"/>	
+   </target>	
+
+
+    <!-- ================================================================== -->
+   <target name="project.tsl"
+            depends="project.db, project.ihfsdb, project.common, project.pdc_pp">
+        <ant dir="${projects.basedir}/ohd.tsl" inheritAll="false"/>
+   </target>
+
+   <target name="prepare.compile.tsl"> 
+   		
+       <copy todir="../ohd.tsl/other_classes">
+    		<fileset dir="../ohd.db/classes"/>
+		    <fileset dir="../ohd.ihfsdb/classes"/>
+		    <fileset dir="../ohd.common/classes"/>
+		    <fileset dir="../ohd.pdc_pp/classes"/>
+  	   </copy>
+	
+   </target>	
+
+
+   <target name="jar.tsl"> 
+     	<jar destfile="${devlib.dir}/timeserieslite.jar" basedir="${classes.dir}" />
+     	<jar destfile="${devlib.dir}/timeserieslite.jar" basedir="${other.classes.dir}" update="true" />
+  </target>	
+
+ 
+  <target name="deliver.tsl"> 
+        <copy file="${devlib.dir}/timeserieslite.jar" todir="${release.dir}"/>
+	    
+        <copy todir="${release.dir}">
+    		<fileset dir="scripts"/>
+	    </copy>
+
+  	    <copy file="${devlib.dir}/timeserieslite.jar" todir="${bin.dir}" overwrite="true"/>
+	
+        <copy todir="${bin.dir}" overwrite="true">
+    		<fileset dir="scripts"/>
+	    </copy>
+
+        <chmod file="${bin.dir}/run_pdc_tsl" perm="755"/>	
+   </target>	
+
+
+    <!-- ================================================================== -->
+     <target name="project.rax_apps"
+            depends="project.db, project.ihfsdb, project.raxdb, project.common, project.misc_dialogs">
+        <ant dir="${projects.basedir}/ohd.rax_apps" inheritAll="false"/>
+    </target>
+
+    <target name="prepare.compile.rax_apps"> 	
+        <unjar src="${exlib.dir}/rfc_util.jar" dest="${other.classes.dir}" overwrite="false" />
+        <unjar src="${exlib.dir}/ChartDirector.jar" dest="${other.classes.dir}" overwrite="false" />
+	    <copy todir="../ohd.rax_apps/other_classes">
+    		<fileset dir="../ohd.db/classes"/>
+		    <fileset dir="../ohd.ihfsdb/classes"/>
+		    <fileset dir="../ohd.raxdb/classes"/>
+		    <fileset dir="../ohd.common/classes"/>
+		    <fileset dir="../ohd.misc_dialogs/classes"/>
+  	    </copy>
+    </target>	
+
+
+    <target name="jar.rax_apps"> 
+        <jar destfile="${devlib.dir}/rax_apps.jar" basedir="${classes.dir}" />
+   	    <jar destfile="${devlib.dir}/rax_apps.jar" basedir="${other.classes.dir}" update="true" />
+   </target>
+
+   <target name="deliver.rax_apps"> 
+       <copy file="${devlib.dir}/rax_apps.jar" todir="${release.dir}"/>
+	   <copy todir="${release.dir}">
+           <fileset dir="scripts"/>
+	   </copy>
+       <copy file="${devlib.dir}/rax_apps.jar" todir="${bin.dir}" overwrite="true"/>
+	   <copy todir="${bin.dir}" overwrite="true">
+           <fileset dir="scripts"/>
+	   </copy>
+       <chmod file="${bin.dir}/run_raxdb_sync" perm="755"/>
+	   <chmod file="${bin.dir}/start_raxbase" perm="755"/>
+   </target>	
+
+    <!-- ================================================================== -->
+   <target name="project.fcstservice"
+            depends="project.db, project.ihfsdb, project.common">
+        <ant dir="${projects.basedir}/ohd.fcstservice" inheritAll="false"/>
+   </target>
+
+
+
+   <target name="prepare.compile.fcstservice"> 
+		
+	<copy todir="../ohd.fcstservice/other_classes">
+    	<fileset dir="../ohd.db/classes"/>
+		<fileset dir="../ohd.ihfsdb/classes"/>
+		<fileset dir="../ohd.common/classes"/>
+  	</copy>
+	
+   </target>	
+
+   <target name="jar.fcstservice"> 
+     	<jar destfile="${devlib.dir}/fcstservice.jar" basedir="${classes.dir}"/>
+   	    <jar destfile="${devlib.dir}/fcstservice.jar" basedir="${other.classes.dir}" update="true" />
+   </target>	
+  
+   <target name="deliver.fcstservice"> 
+        <copy file="${devlib.dir}/fcstservice.jar" todir="${release.dir}"/>
+     	<copy todir="${release.dir}">
+    		<fileset dir="scripts"/>
+	    </copy>
+        <copy file="${devlib.dir}/fcstservice.jar" todir="${bin.dir}" overwrite="true"/>
+	    <copy todir="${bin.dir}" overwrite="true">
+    		<fileset dir="scripts"/>
+	    </copy>
+        <chmod file="${bin.dir}/start_fcstservice" perm="755"/>
+
+   </target>	
+
+
+    <!-- ================================================================== -->
+   <target name="project.dimensions_file_uploader"
+            depends="project.common">
+        <ant dir="${projects.basedir}/ohd.dimensions_file_uploader" inheritAll="false"/>
+   </target>
+
+   <target name="prepare.compile.dimensions_file_uploader">
+        <unjar src="${exlib.dir}/rfc_util.jar" dest="${other.classes.dir}" overwrite="false" />
+
+        <copy todir="../ohd.dimensions_file_uploader/other_classes">
+                <fileset dir="../ohd.common/classes"/>
+        </copy>
+   </target>
+
+
+   <target name="jar.dimensions_file_uploader">
+        <jar destfile="${devlib.dir}/dimensions_file_uploader.jar" basedir="${classes.dir}" />
+        <jar destfile="${devlib.dir}/dimensions_file_uploader.jar" basedir="${other.classes.dir}" update="true" />
+  </target>
+
+ 
+   <target name="deliver.dimensions_file_uploader">
+        <copy file="${devlib.dir}/dimensions_file_uploader.jar" todir="/awips/hydroapps/PVCSFileQueue/"/>
+   </target>
+
+ 
+
+   <!-- ================================================================== -->
+   <target name="project.damcrest"
+            depends="project.db, project.damcrestdb, project.common">
+        <ant dir="${projects.basedir}/ohd.damcrest" inheritAll="false"/>
+   </target>
+
+     
+   <target name="prepare.compile.damcrest">
+        <unjar src="${exlib.dir}/jcchart.jar" dest="${other.classes.dir}" overwrite="false" />
+        <unjar src="${exlib.dir}/fldat.jar" dest="${other.classes.dir}" overwrite="false" />
+        <copy todir="../ohd.damcrest/other_classes">
+            <fileset dir="../ohd.damcrestdb/classes"/>
+            <fileset dir="../ohd.common/classes"/>
+            <fileset dir="../ohd.db/classes"/>
+        </copy>
+   </target>
+
+   <target name="jar.damcrest">
+        <jar destfile="${devlib.dir}/damcrest.jar" basedir="${classes.dir}" />
+        <jar destfile="${devlib.dir}/damcrest.jar" basedir="${other.classes.dir}" update="true" />
+   </target>
+
+
+   <target name="deliver.damcrest">
+        <copy file="${devlib.dir}/damcrest.jar" todir="${release.dir}"/>
+        <copy todir="${release.dir}">
+            <fileset dir="scripts" />
+        </copy>
+        <copy file="${devlib.dir}/damcrest.jar" todir="${bin.dir}" overwrite="true"/>
+        <echo> ------------------ ${projects.basedir} </echo>
+	    
+        <copy file="${exlib.dir}/fldat.jar" todir="${bin.dir}" overwrite="true"/>
+        <copy todir="${bin.dir}" overwrite="true">
+		    <fileset dir="scripts"/>
+	    </copy>
+   </target>
+
+   <!-- ================================================================== -->
+   <target name="project.bias_trans" 
+ 	    depends="project.db, project.ihfsdb, project.common">
+        <ant dir="${projects.basedir}/ohd.bias_trans" inheritAll="false"/>
+   </target>
+
+  
+   <target name="prepare.compile.bias_trans"> 
+       <copy todir="../ohd.bias_trans/other_classes">
+           <fileset dir="../ohd.db/classes"/>
+		   <fileset dir="../ohd.ihfsdb/classes"/>
+	       <fileset dir="../ohd.common/classes"/>
+       </copy>
+   </target>
+   
+   <target name="jar.bias_trans">
+        <jar destfile="${devlib.dir}/bias_trans.jar" basedir="${classes.dir}" />
+        <jar destfile="${devlib.dir}/bias_trans.jar" basedir="${other.classes.dir}" update="true" />
+   </target>
+
+   <target name="deliver.bias_trans"> 
+        <copy file="${devlib.dir}/bias_trans.jar" todir="${release.dir}"/>
+	    <copy todir="${release.dir}">
+    		<fileset dir="scripts"/>
+	    </copy>
+	
+        <copy file="${devlib.dir}/bias_trans.jar" todir="${pproc.bin.dir}" overwrite="true"/>
+	    <copy todir="${pproc.bin.dir}" overwrite="true">
+    		<fileset dir="scripts"/>
+	    </copy>
+
+        <chmod file="${pproc.bin.dir}/transmit_rfc_bias" perm="755"/>
+        <chmod file="${pproc.bin.dir}/process_rfc_bias" perm="755"/>
+   </target>
+
+   <!-- ================================================================== -->
+   <target name="project.mpe" 
+ 	    depends="project.db, project.ihfsdb, project.common, project.sshp">
+        <ant dir="${projects.basedir}/ohd.mpe" inheritAll="false"/>
+   </target>
+
+   <target name="prepare.compile.mpe"> 
+       <copy todir="../ohd.mpe/other_classes">
+           <fileset dir="../ohd.db/classes"/>
+		   <fileset dir="../ohd.ihfsdb/classes"/>
+		   <fileset dir="../ohd.common/classes"/>
+		   <fileset dir="../ohd.sshp/classes"/>
+  	   </copy>
+   </target>
+   
+
+   <target name="jar.mpe">
+        <jar destfile="${devlib.dir}/mpe.jar" basedir="${classes.dir}" />
+        <jar destfile="${devlib.dir}/mpe.jar" basedir="${other.classes.dir}" update="true" />
+   </target>
+
+
+   <target name="deliver.mpe"> 
+        <copy file="${devlib.dir}/mpe.jar" todir="${release.dir}"/>
+	    <copy file="${devlib.dir}/mpe.jar" todir="${pproc.bin.dir}" overwrite="true"/>
+   </target>
+  
+
+   <!-- ================================================================== -->
+   <target name="project.misc_dialogs"
+	 depends="project.db, project.ihfsdb, project.common, project.tsl, project.pdc_pp">
+	<ant dir="${projects.basedir}/ohd.misc_dialogs" inheritAll="false"/>
+   </target>
+
+   <target name="prepare.compile.misc_dialogs">
+        <copy todir="../ohd.misc_dialogs/other_classes">
+                <fileset dir="../ohd.db/classes"/>
+                <fileset dir="../ohd.ihfsdb/classes"/>
+                <fileset dir="../ohd.common/classes"/>
+                <fileset dir="../ohd.tsl/classes"/>
+                <fileset dir="../ohd.pdc_pp/classes"/>
+        </copy>
+   </target>
+   
+   <target name="jar.misc_dialogs">
+         <jar destfile="${devlib.dir}/MiscDialogs.jar" basedir="${classes.dir}" />
+         <jar destfile="${devlib.dir}/MiscDialogs.jar" basedir="${other.classes.dir}" update="true" />
+   </target> 
+
+   <target name="deliver.misc_dialogs">
+        <copy file="${devlib.dir}/MiscDialogs.jar" todir="${release.dir}"/>
+        <copy todir="${release.dir}">
+            <fileset dir="scripts" />
+        </copy>
+
+        <copy file="${devlib.dir}/MiscDialogs.jar" todir="${bin.dir}" overwrite="true"/>
+        <copy todir="${bin.dir}" overwrite="true">
+            <fileset dir="scripts"/>
+        </copy>
+        <chmod file="${bin.dir}/run_ColorChooserDialog" perm="755"/>
+
+   </target>
+
+
+
+   <!-- ================================================================== -->
+    <target name="project.db">
+        <ant dir="${projects.basedir}/ohd.db" inheritAll="false"/>
+   </target>
+
+   <target name="prepare.compile.db" /> 
+   <target name="jar.db" />   
+   <target name="deliver.db" /> 
+
+   <!-- ================================================================== -->
+
+   <target name="project.common"
+         depends="project.db">
+        <ant dir="${projects.basedir}/ohd.common" inheritAll="false"/>
+   </target>
+
+   
+   <target name="prepare.compile.common"> 	
+	<copy todir="../ohd.common/other_classes">
+    	<fileset dir="../ohd.db/classes"/>
+		<fileset dir="../ohd.ihfsdb/classes"/>
+  	</copy>
+   </target>	
+ 
+   <target name="jar.common" /> 
+   <target name="deliver.common" />  
+ 
+
+   <!-- ================================================================== -->
+   <target name="project.ihfsdb" depends="project.db">
+        <ant dir="${projects.basedir}/ohd.ihfsdb" inheritAll="false"/>
+   </target>
+
+   <target name="prepare.compile.ihfsdb"> 	
+       <copy todir="../ohd.ihfsdb/other_classes">
+           <fileset dir="../ohd.db/classes"/>
+  	   </copy>
+   </target>	
+   
+   
+   <target name="jar.ihfsdb"> 
+        <jar destfile="${devlib.dir}/ihfsdb.jar" basedir="${classes.dir}" />
+   	    <jar destfile="${devlib.dir}/ihfsdb.jar" basedir="${other.classes.dir}" update="true" />
+   </target>
+  
+
+   <target name="deliver.ihfsdb" />  
+
+  
+
+   <!-- ================================================================== -->
+
+   <target name="project.damcrestdb" depends="project.db">
+        <ant dir="${projects.basedir}/ohd.damcrestdb" inheritAll="false"/>
+   </target>
+
+
+   <target name="prepare.compile.damcrestdb">
+        <copy todir="../ohd.damcrestdb/other_classes">
+            <fileset dir="../ohd.db/classes"/>
+        </copy>
+   </target>
+   
+  
+
+   <target name="jar.damcrestdb"> 
+        <jar destfile="${devlib.dir}/damcrestdb.jar" basedir="${classes.dir}" />
+        <jar destfile="${devlib.dir}/damcrestdb.jar" basedir="${other.classes.dir}" update="true" />
+   </target>
+
+   <target name="deliver.damcrestdb" />
+
+   <!-- ================================================================== -->
+
+   <target name="project.raxdb" depends="project.db">
+       <ant dir="${projects.basedir}/ohd.raxdb" inheritAll="false"/>
+   </target>
+
+
+   <target name="prepare.compile.raxdb"> 	
+       <copy todir="../ohd.raxdb/other_classes">
+           <fileset dir="../ohd.db/classes"/>
+       </copy>
+   </target>	
+ 
+
+   <target name="jar.raxdb"> 
+       <jar destfile="${devlib.dir}/raxdb.jar" basedir="${classes.dir}" />
+       <jar destfile="${devlib.dir}/raxdb.jar" basedir="${other.classes.dir}" update="true" />
+   </target>
+
+   <target name="deliver.raxdb" />  
+  
+    <!-- ================================================================== -->
+ 
+</project>

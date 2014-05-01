@@ -1,0 +1,140 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="smartInitQueue" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue" factory-method="createQueue"/>
+    <bean id="smartInitThreadPool" class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="${smartinit.threads}" />
+        <property name="maxPoolSize" value="${smartinit.threads}" />
+    </bean>
+    <bean id="smartInitSrvCfg" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrvConfig">
+        <property name="executor" ref="smartInitThreadPool"/>
+        <property name="threads" value="${smartinit.threads}"/>
+        <property name="pendingInitMinTimeMillis" value="120000"/>
+        <property name="runningInitTimeOutMillis" value="600000"/>
+        <property name="threadSleepInterval" value="30000"/>
+    </bean>
+
+    <bean depends-on="smartInitQueue" id="gfeSitesActiveIngest" factory-bean="siteAwareRegistry" factory-method="register">
+        <constructor-arg ref="gfeSiteActivation"/>
+    </bean>
+
+    <bean depends-on="gfeDbRegistered, gfeSitesActiveIngest" id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv">
+        <constructor-arg ref="smartInitSrvCfg"/>
+    </bean>
+
+    <bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.spc.SPCWatchSrv"/>
+    <bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.tpc.TPCWatchSrv"/>
+    <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.wcl.WCLWatchSrv"/>
+
+    <bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
+
+    <camelContext id="gfe-camel-spring" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="SPCWatch">
+            <from uri="vm:gfe.spcWatch"/>
+            <doTry>
+                <bean ref="spcWatch" method="handleSpcWatch"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:gfeWatch?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="TPCWatch">
+            <from uri="vm:gfe.tpcWatch"/>
+            <doTry>
+                <bean ref="tpcWatch" method="handleTpcWatch"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:gfeWatch?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="WCLWatch">
+            <from uri="direct-vm:wclWatch"/>
+            <doTry>
+                <bean ref="wclWatch" method="handleWclWatch"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:gfeWatch?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="smartInitTrigger">
+            <from uri="timer://smartInitTimer?fixedRate=true&amp;period=30000"/>
+            <bean ref="smartInitQueue" method="fireSmartInit"/>
+        </route>
+
+        <route id="gfeIngestNotification">
+            <!-- Data from plugin notification -->
+            <from
+                uri="jms-durable:queue:gfeDataURINotification"/>
+            <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift"/>
+                <bean ref="ifpServer" method="filterDataURINotifications"/>
+
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:ifpServer?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="ifpServerPurgeNotification">
+            <from uri="jms-generic:queue:gfePurgeNotification"/>
+            <doTry>
+                <bean ref="ifpServer" method="pluginPurged"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:ifpServer?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+
+    <camelContext id="clusteredGfeIngestRoutes" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler" autoStartup="false">
+
+        <!-- Smart Init Routes -->
+        <!-- main route now handled through the gfeIngestNotification -->
+        <route id="manualSmartInit">
+            <from uri="jms-durable:queue:manualSmartInit?threadName=smartInitManual" />
+            <doTry>
+                <bean ref="smartInitQueue" method="addManualInit"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:smartinit?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="gfeVtecChangeNotification">
+            <from uri="jms-generic:topic:edex.alerts.vtec?threadName=gfe-edex.alerts.vtec"/>
+            <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift"/>
+                <bean ref="vtecChangeListener" method="handleNotification"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:vtecChangeListener?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+
+    <bean factory-bean="clusteredCamelContextMgr" factory-method="register">
+        <constructor-arg ref="clusteredGfeIngestRoutes"/>
+    </bean>
+</beans>

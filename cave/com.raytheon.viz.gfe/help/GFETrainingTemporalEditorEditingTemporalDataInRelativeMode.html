@@ -1,0 +1,64 @@
+<html>
+<title>GFESuite Documentation - Editing Temporal Data in Relative Mode</title>
+<body>
+<h1 align=center>Editing Temporal Data in Relative Mode</h1>
+<hr width="100%">
+
+<ul>
+<li CLASS="4Heading">
+<b>Purpose:</b> Modify scalar grid values in Relative Edit mode</li>
+</ul>
+
+<div CLASS="Body">The previous temporal editor exercises demonstrated how
+TE Absolute mode works. Every time you make a change to the temporal value,
+that value is assigned to the entire area you selected in the spatial editor.
+TE Relative mode works differently in that the relative change is applied
+to the selected area. For example, if you made a +5 degree change to your
+temperature time-series, 5 degrees is added to every point in the selected
+area. This preserves the relative gradients in the area which is sometimes
+very desirable.</div>
+
+<div CLASS="Body">Before you begin: Set up your GFE so that the spatial
+and temporal editors are visible. Load T (temperature) via the Weather
+Element->Weather Element Browser... dialog if T is not loaded already.</div>
+
+<div CLASS="Step-First">From the main menu, check to make sure that GFE->Editing
+Preferences->Temporal Editor Mode: Relative is on.</div>
+
+<ol>
+<li CLASS="Step">
+Make, or find a temperature grid and display it as an image in the spatial
+editor.</li>
+
+<li CLASS="Step">
+Use the Select Points tool to define an edit area the size of a few counties.
+Try to select an area where there is a temperature gradient.</li>
+
+<li CLASS="Step">
+Find the T (temperature) weather element in the temporal editor. Vertically
+stretch the size of the temporal editor pane so that there's plenty of
+room to see the time series display.</li>
+
+<li CLASS="Step">
+In the temporal scale, located to the left of the time series display,
+click MB2 to zoom in until the minimum and maximum values are about 20
+degrees F apart.</li>
+
+<li CLASS="Step">
+Find the data point in the time series that represents the grid displayed
+in the spatial editor. This point is identified by the dotted yellow line.</li>
+
+<li CLASS="Step">
+Adjust this data point about 5 to 10 degrees higher. Note the change in
+the spatial editor display. The 5-10 degree change you applied to the time-series
+point has been applied to all of the points inside the selected area. The
+gradient that was present before the temporal edit should still exist.</li>
+
+<li CLASS="Step">
+Use the MB1 drag operation in the temporal editor to modify several grids
+with the same operation. Step through these edited grids to verify that
+the data were modified inside the selected area.</li>
+</ol>
+
+</body>
+</html>

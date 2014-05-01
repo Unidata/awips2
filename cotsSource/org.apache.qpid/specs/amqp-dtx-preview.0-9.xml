@@ -1,0 +1,1077 @@
+<?xml version = "1.0"?>
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<amqp major = "0" minor = "9" port = "5672" comment = "AMQ Protocol version 0-9">
+
+  <!-- ==  DTX SUPPORT, 0-10 PREVIEW ========================================== -->
+
+  
+<!--
+   This xml describes the dtx classes: dtxDemarcation and dtxCoordination 
+   version: 1.6 by Arnaud Simon 
+-->
+
+  <!--
+      ======================================================
+      ==       CONSTANTS
+      ======================================================
+  -->
+
+ <!-- XA constants -->
+
+  <constant name = "xa-rbrollback" value = "1">
+    <doc>
+       The rollback was caused by an unspecified reason.
+    </doc>
+  </constant>
+  <constant name = "xa-rbtimeout" value = "2">
+    <doc>
+      A transaction branch took too long.
+    </doc>
+  </constant>
+  <constant name = "xa-heurhaz" value = "3">
+    <doc>
+      The transaction branch may have been heuristically completed.
+    </doc>
+  </constant>
+  <constant name = "xa-heurcom" value = "4">
+    <doc>
+      The transaction branch has been heuristically committed.
+    </doc>
+  </constant>
+  <constant name = "xa-heurrb" value = "5">
+    <doc>
+     The transaction branch has been heuristically rolled back.
+    </doc>
+  </constant>
+  <constant name = "xa-heurmix" value = "6">
+    <doc>
+     The transaction branch has been heuristically committed and rolled back.
+    </doc>
+  </constant>
+  <constant name = "xa-rdonly" value = "7">
+    <doc>
+     The transaction branch was read-only and has been committed. 
+    </doc>
+  </constant>
+  <constant name = "xa-ok" value = "8">
+    <doc>
+     Normal execution. 
+    </doc>
+  </constant>
+
+  
+  <!--
+      ======================================================
+      ==       DOMAIN TYPES
+      ======================================================
+  -->
+
+  <domain name = "Xid" type = "longstr" label = "Transaction branch identifier">
+     <doc>
+	An Xid uniquely identifies a transaction branch.   
+    </doc>
+    <rule name = "implementation">
+      <doc>
+        Xid contains a format identifier, two length fields and a data field: 	
+	format_id  	long
+	gtrid_length 	octet   
+	bqual_length    octet  
+	data            
+        
+        format_id is an implementation specific format identifier
+	the data field is a sequence of octets of at most 128 bytes containing the txn id and the branch id
+	gtrid_length field indicates how many bytes of this form the transaction id
+	bqual_length field indicates how many bytes of this form the branch id
+	The sum of the two lengths must equal the length of the data field
+      </doc>      
+    </rule>   
+  </domain>
+ 
+  <!-- ==  dtx-demarcation  ========================================================== -->
+
+ 
+  <class name = "dtx-demarcation" handler = "channel" index = "101" label = "demarcates distributed transaction branches">
+    <doc>
+ 	This class is part of the X-Open XA distributed transaction protocol support. It allows a channel to be 
+	selected for use with distributed transactions and the transactional boundaries for work on that channel
+	to be demarcated.
+    </doc>
+    <doc type = "grammar">
+      dtx-demarcation     = C:SELECT S:SELECT-OK *demarcation
+
+      demarcation         = C:START S:START-OK C:END S:END-OK                            
+    </doc>
+
+   
+    <chassis name = "server" implement = "MAY" />
+    <chassis name = "client" implement = "MAY" />
+
+    <rule name = "access-control">
+      <doc>
+ 	Access-tickets are propagated with XA association methods with the aim of 
+	restricting which users are allowed to control which transactions. 
+	The server MAY restrict transaction association to a particular identity.       
+      </doc>
+    </rule>   	
+
+    <rule name = "transactionality">
+      <doc>
+ 	Enabling XA transaction support on a channel implies that the server MUST manage transactions demarcated by start-end blocks. That is to say that on this XA-enabled channel, work undergone within transactional blocks is performed on behalf a transaction branch whereas work performed outside of transactional blocks is NOT transactional.     
+      </doc>
+    </rule>   	
+
+ 
+    <!-- - - - SELECT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "select" synchronous = "1" index = "10" label = "select distributed transaction mode">
+      <doc>
+         This method sets the channel to use distributed transactions. The client must use this method at least once on a channel before using XA demarcation operations.
+      </doc>
+      <chassis name = "server" implement = "MAY" />
+      <response name = "select-ok" />
+    </method>
+
+    <!-- - - - SELECT-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "select-ok" synchronous = "1" index = "11" label = "confirm distributed transaction mode">
+      <doc>
+        This method confirms to the client that the channel was successfully set to use distributed transactions.
+      </doc>
+      <chassis name = "client" implement = "MAY" />
+    </method>
+
+    <!-- - - START - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "start" synchronous = "1" index = "20" label = "Start a transaction branch">
+      <doc>
+        This method is called when messages should be produced and consumed on behalf a transaction branch identified by xid. 
+      </doc>
+      <chassis name = "server" implement = "MAY" />
+      <response name = "start-ok" />
+      <!-- rules -->
+      <rule name = "commandInvalid ">
+         <doc>
+        If the method is invoked in an improper context (see class grammar) then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>     
+	<rule name = "alreadyAssociated">
+        <doc>
+         If neither join nor resume is specified is specified and the transaction branch specified by xid has previously been seen then the server MUST raise a channel exception with reply code 530 (not allowed).
+	 </doc>
+      </rule>	
+        <rule name = "joinAndresume">
+         <doc>
+        If join and resume are specified then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>   
+
+      <field name = "ticket" domain = "access-ticket" label = "Access-ticket granted by the server for a specific realm">
+        <doc>
+          Access-ticket granted by the server for a specific realm. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "xid" domain = "Xid" label = "Start any work associated with transaction branch with Xid xid">
+        <doc>
+          Specifies the xid of the transaction branch to be started. 
+        </doc>
+        <assert check = "notnull" />
+	 <!-- rules -->
+	<rule name = "unknownXid">
+        <doc>
+         If Xid is already known by the broker then the server MUST raise a channel exception with reply code 530 (not allowed).
+	 </doc>
+        </rule>		
+      </field>
+
+      <field name = "join" domain = "bit" label = "Indicate whether this is joining an already associated  Xid">
+        <doc>    
+	  Indicate that the start applies to joining a transaction previously seen. 
+        </doc>	
+      <!-- rules -->     
+      <rule name = "unsupported">
+        <doc>        
+	  If the broker does not support join the server MUST raise a channel exception with reply code 540 (not implemented).
+	</doc>
+      </rule>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "resume" domain = "bit" label = "Indicate whether this is resuming a suspended transaction branch">
+        <doc>    
+	  Indicate that the start applies to resuming a suspended transaction branch specified.
+        </doc>	      
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+     <!-- - - - START-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "start-ok" synchronous = "1" index = "21" label = "confirm distributed transaction start">
+      <doc>
+        This method confirms to the client that the transaction branch is started or specify the error condition. 
+      </doc>
+      <chassis name = "client" implement = "MAY" />
+      
+      <field name = "flags" domain = "short" label = "xa-ok or xa-rbrollback">
+        <doc> 
+         xa-ok: Normal execution. 
+         xa-rbrollback: The broker marked the transaction branch rollback-only for an unspecified reason.	   
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+
+    <!-- - - END - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "end" synchronous = "1" index = "30" label = "End a transaction branch">
+      <doc>
+        This method is called when the work done on behalf a transaction branch finishes or needs to be suspended. 	
+      </doc>
+      <chassis name = "server" implement = "MAY" />
+      <response name = "end-ok" />
+
+      <rule name = "commandInvalid ">
+         <doc>
+        If the method is invoked in an improper context (see class grammar) then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>   
+
+      <rule name = "suspendAndfail">
+         <doc>
+        If suspend and fail are specified then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>    
+	 
+      <rule name = "internalError ">
+         <doc>
+        If an error occurs in ending the transaction branch then the server MUST raise a channel exception with reply code 541 (internal error)
+         </doc>
+      </rule> 
+
+      <rule name = "success ">
+         <doc>
+        If neither fail nor suspend are specified then the portion of work has completed successfully
+         </doc>
+      </rule> 
+
+      <field name = "ticket" domain = "access-ticket" label = "Access-ticket granted by the server for a specific realm">
+        <doc>
+          Access-ticket granted by the server for a specific realm. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "xid" domain = "Xid" label = "End any work associated with transaction branch with Xid xid">
+        <doc>
+          Specifies the xid of the transaction branch to be ended. 
+        </doc>
+        <assert check = "notnull" />	
+	 <!-- rules -->
+	<rule name = "unknownXid">
+        <doc>
+         If Xid is unknown (the transaction branch has not been started or has already been ended) then the server MUST raise a channel exception with reply code 404 (not found).
+	 </doc>
+         </rule>
+      </field>
+
+      <field name = "fail" domain = "bit" label = "Indicate whether the portion of work has failed">
+        <doc>    
+	  Indicates that the portion of work has failed otherwise the portion of work has completed successfully.
+        </doc>	     
+      <rule name = "failure">
+        <doc>
+         If fail is specified then the transaction should be marked as rollback-only.     
+	 </doc>
+      </rule>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "suspend" domain = "bit" label = "Indicate that the transaction branch is temporarily suspended in an incomplete state">
+        <doc>    
+	  Indicates that the transaction branch is temporarily suspended in an incomplete state. 
+        </doc>	     
+      <rule name = "resume">
+        <doc>
+         The transaction context is in a suspended state and must be resumed via the start method with resume specified.   
+	 </doc>
+      </rule>
+        <assert check = "notnull" />	
+      </field>
+
+    </method>
+   
+     <!-- - - - END-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "end-ok" synchronous = "1" index = "31" label = "confirm distributed transaction end">
+      <doc>
+        This method confirms to the client that the transaction branch is ended or specify the error condition. 
+      </doc>
+      <chassis name = "client" implement = "MAY" />
+      
+       <field name = "flags" domain = "short" label = "xa-ok, xa-rbrollback, xa-rbtimeout">
+        <doc> 
+         xa-ok: Normal execution. 
+         xa-rbrollback: The broker marked the transaction branch rollback-only for an unspecified reason.
+	 xa-rbtimeout: The work represented by this transaction branch took too long.
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method> 
+   </class>
+
+ <!-- ==  dtx-coordination   ========================================================== -->
+
+
+  <class name = "dtx-coordination" handler = "channel" index = "105" label = "coordinate transaction outcomes">
+    <doc>
+      This class is part of the X-Open XA distributed transaction protocol support. 
+      It allows the transaction manager to coordinate transaction outcomes. 
+    </doc>
+ 
+    <doc type = "grammar">
+
+      dtx-coordination    = *coordination
+
+      coordination        =  command 
+                          /  outcome
+                          /  recovery
+
+      command             = C:SET-TIMEOUT S:SET-TIMEOUT-OK
+ 			  / C:GET-TIMEOUT S:GET-TIMEOUT-OK
+                          
+      outcome             = one-phase-commit
+                          / one-phase-rollback
+                          / two-phase-commit
+                          / two-phase-rollback
+
+      one-phase-commit    = C:COMMIT S:COMMIT-OK
+
+      one-phase-rollback  = C:ROLLBACK S:ROLLBACK-OK
+
+      two-phase-commit    = C:PREPARE S:PREPARE-OK C:COMMIT S:COMMIT-OK
+
+      two-phase-rollback  = C:PREPARE S:PREPARE-OK C:ROLLBACK S:ROLLBACK-OK
+
+      recovery       	  = C:RECOVER S:RECOVER-OK *recovery-outcome
+
+      recovery-outcome    = one-phase-commit
+                          / one-phase-rollback
+                          / C:FORGET S:FORGET-OK
+    </doc>
+
+    <chassis name = "server" implement = "MAY" />
+    <chassis name = "client" implement = "MAY" />
+
+    <rule name = "security">
+      <doc>
+ 	Access-tickets are propagated with XA demarcation methods with the aim of 
+	restricting which users are allowed to control which transactions. 
+	The server MAY restrict transaction coordination to a particular identity.       
+      </doc>
+      <doc type = "scenario">        
+      </doc>
+    </rule>   	
+
+   
+    <!-- - - COMMIT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "commit" synchronous = "1" index = "10" label = "Commit the work done on behalf a transaction branch ">
+      <doc>
+        This method commits the work associated with xid. Any produced messages are made available and any consumed messages are discarded. 
+      </doc>
+      <chassis name = "server" implement = "MAY" />
+      <response name = "commit-ok" />
+      
+      <rule name = "internalError">
+         <doc>
+        If an error occurs in committing the transaction branch then the server MUST raise a channel exception with reply code 541 (internal error)
+         </doc>
+      </rule> 
+
+      <rule name = "commandInvalid">
+         <doc>
+        If the method is invoked in an improper context (see class grammar) then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>
+    
+      <field name = "ticket" domain = "access-ticket" label = "Access-ticket granted by the server for a specific realm">
+        <doc>
+          Access-ticket granted by the server for a specific realm. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "xid" domain = "Xid" label = "Commit the work associated with Xid xid">
+        <doc> 
+          Specifies the Xid of the transaction branch to be committed. 
+        </doc>
+        <assert check = "notnull" />	
+	 <!-- rules -->
+	<rule name = "unknownXid">
+        <doc>
+         If Xid is unknown (the transaction branch has not been started or has already been ended) then the server MUST raise a channel exception with reply code 404 (not found).
+	 </doc>
+      </rule>
+      <rule name = "notdisassociated">
+         <doc>
+        If this method is called when Xid is still associated with a channel then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>
+      </field>
+
+      <field name = "one-phase" domain = "bit" label = "Indicate that one-phase optimization must be used">
+        <doc>
+          When set then one-phase commit optimization is used.  
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+    <!-- - - - COMMIT-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "commit-ok" synchronous = "1" index = "11" label = "confirm distributed transaction commit">
+      <doc>
+        This method confirms to the client that the transaction branch is committed or specify the error condition. 
+      </doc>
+      <chassis name = "client" implement = "MAY" />
+      
+       <field name = "flags" domain = "short" label = "xa-ok, xa-heurhaz, xa-heurcom, xa-heurrb, xa-heurmix, xa-rbrollback">
+        <doc> 
+         xa-ok: Normal execution,
+	 xa-heurhaz: Due to some failure, the work done on behalf of the specified transaction branch may have been heuristically completed.
+        xa-heurcom: Due to a heuristic decision, the work done on behalf of the specified transaction
+   branch was committed.
+	xa-heurrb: Due to a heuristic decision, the work done on behalf of the specified transaction
+   branch was rolled back.
+	xa-heurmix: Due to a heuristic decision, the work done on behalf of the specified transaction
+   branch was partially committed and partially rolled back.
+        xa-rbrollback: The broker marked the transaction branch rollback-only for an unspecified reason.	  
+	xa-rbtimeout: The work represented by this transaction branch took too long.    
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+
+    <!-- - - FORGET - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "forget" synchronous = "1" index = "20" label = "Discard knowledge of a heuristically-completed transaction branch">
+      <doc>
+        This method is called to forget about a heuristically completed transaction branch.       
+      </doc>
+      <chassis name = "server" implement = "MAY" />
+      <response name = "forget-ok" />
+
+      <rule name = "internalError ">
+         <doc>
+        If an error occurs in forgetting the transaction branch then the server MUST raise a channel exception with reply code 541 (internal error)
+         </doc>
+      </rule>  
+      
+      <rule name = "commandInvalid ">
+         <doc>
+        If the method is invoked in an improper context (see class grammar) then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>
+
+      <field name = "ticket" domain = "access-ticket" label = "Access-ticket granted by the server for a specific realm">
+        <doc>
+          Access-ticket granted by the server for a specific realm. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "xid" domain = "Xid" label = "Erase RM its knowledge of Xid xid">
+        <doc> 
+          Specifies the xid of the transaction branch to be forgotten. 
+        </doc>
+        <assert check = "notnull" />	
+	 <!-- rules -->
+      <rule name = "unknownXid">
+        <doc>
+         If Xid is unknown (the transaction branch has not been started or has already been ended) then the server MUST raise a channel exception with reply code 404 (not found).
+	 </doc>
+      </rule>
+      <rule name = "notdisassociated">
+         <doc>
+        If this method is called when Xid is still associated with a channel then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>
+      </field>
+    </method>
+
+    <!-- - - - FORGET-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "forget-ok" synchronous = "1" index = "21" label = "Confirm distributed transaction forget">
+      <doc>
+        This method confirms to the client that the transaction branch is forgotten or specify the error condition. 
+      </doc>
+      <chassis name = "client" implement = "MAY" />          
+    </method>
+ 
+    <!-- - - - get-Timeout - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "get-timeout" synchronous = "1" index = "30" label = "Obtain the transaction timeout value in seconds">
+      <doc>
+        This method obtains the current transaction timeout value in seconds. 
+	If setTimeout was not used prior to invoking this method, the return value is the default timeout; otherwise, the value used in the previous setTimeout call is returned.
+      </doc>
+      <chassis name = "server" implement = "MAY" />
+      <response name = "get-timeout-ok" />
+
+
+      <field name = "xid" domain = "Xid" label = "Xid of the branch to get the timeout value">
+        <doc> 
+          Specifies the Xid of the transaction branch for getting the timeout.
+        </doc>
+        <assert check = "notnull" />	
+	 <!-- rules -->
+      <rule name = "unknownXid">
+        <doc>
+         If Xid is unknown (the transaction branch has not been started or has already been ended) then the server MUST raise a channel exception with reply code 404 (not found).
+	 </doc>
+      </rule>
+      </field>
+
+      <rule name = "internalError ">
+         <doc>
+        If an error occurs in setting the transaction timeout then the server MUST raise a channel exception with reply code 541 (internal error)
+         </doc>
+      </rule> 
+    </method>
+
+    <!-- - - - get-Timeout-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "get-timeout-ok" synchronous = "1" index = "31" label = "Return transaction timeout">
+      <doc>
+        This method returns the current transaction timeout value in seconds. 
+      </doc>
+      <chassis name = "client" implement = "MAY" />
+      
+       <field name = "timeout" domain = "long" label = "The current transaction timeout value">
+        <doc> 
+        The current transaction timeout value in seconds. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+ 
+    <!-- - - PREPARE - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "prepare" synchronous = "1" index = "40" label = "Ask to prepare a transaction branch">
+      <doc>
+        This method prepares for commitment any message produced or consumed on behalf of xid. 	 
+      </doc>
+	
+      <rule name = "internalError">
+         <doc>
+        If an error occurs in preparing the transaction branch then the server MUST raise a channel exception with reply code 541 (internal error). The specified Xid may or may not have been prepared.
+         </doc>
+      </rule> 
+
+      <rule name = "commandInvalid">
+         <doc>
+        If the method is invoked in an improper context (see class grammar) then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>
+
+      <rule name = "obligation1">
+        <doc>
+          Once this method successfully returns it is guaranteed that the transaction branch may be either 
+	  committed or rolled back regardless of failures.
+        </doc>
+      </rule>
+
+      <rule name = "obligation2">
+        <doc>
+          The knowledge of xid cannot be erased before commit or rollback complete the branch. 
+        </doc>
+      </rule>
+
+      <chassis name = "server" implement = "MAY" />
+      <response name = "prepare-ok" />
+
+      <field name = "ticket" domain = "access-ticket" label = "Access-ticket granted by the server for a specific realm">
+        <doc>
+          Access-ticket granted by the server for a specific realm. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "xid" domain = "Xid" label = "Prepare for commitment any work associated with Xid xid">
+        <doc> 
+          Specifies the Xid of the transaction branch that can be prepared.
+        </doc>
+        <assert check = "notnull" />	
+	 <!-- rules -->
+	<rule name = "unknownXid">
+        <doc>
+         If Xid is unknown (the transaction branch has not been started or has already been ended) then the server MUST raise a channel exception with reply code 404 (not found).
+	 </doc>
+        </rule>
+          <rule name = "notdisassociated">
+         <doc>
+        If this method is called when Xid is still associated with a channel then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+        </rule>
+      </field>
+     </method>
+
+
+    <!-- - - - PREPARE-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "prepare-ok" synchronous = "1" index = "41" label = "confirm distributed transaction prepare">
+      <doc>
+        This method confirms to the client that the transaction branch is prepared or specify the error condition. 
+      </doc>
+      <chassis name = "client" implement = "MAY" />
+      
+       <field name = "flags" domain = "short" label = "xa-ok, xa-rdonly, xa-rbrollback, xa-rbtimeout">
+        <doc> 
+         xa-ok: Normal execution.
+         xa-rdonly: The transaction branch was read-only and has been committed.
+         xa-rbrollback: The broker marked the transaction branch rollback-only for an unspecified reason.    
+	 xa-rbtimeout: The work represented by this transaction branch took too long.    	 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+
+    <!-- - - RECOVER - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "recover" synchronous = "1" index = "50" label = "Get a list of Xids the RM has prepared or  heuristically completed">
+      <doc>
+       This method is called to obtain a list of transaction branches that are in a 
+       prepared or heuristically completed state.
+      </doc>
+	
+      <rule name = "internalError ">
+         <doc>
+        If an error occurs in recovering then the server MUST raise a channel exception with reply code 541 (internal error)
+         </doc>
+      </rule> 
+
+      <rule name = "startEnd">
+          <doc>
+             If this endscan is used in conjunction with startscan then a single call starts and then ends a scan.	
+          </doc>
+      </rule>
+
+      <rule name = "mustBeStarted">
+          <doc>
+             If none of endscan and startscan are set then a recovery scan must already be started otherwise the server MUST raise a channel exception with reply code 503 (command invalid)
+          </doc>
+      </rule>
+
+      <chassis name = "server" implement = "MAY" />
+      <response name = "recover-ok" />
+
+      <field name = "ticket" domain = "access-ticket" label = "Access-ticket granted by the server for a specific realm">
+        <doc>
+          Access-ticket granted by the server for a specific realm. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "startscan" domain = "bit" label = "Indicates that recovery scan should start">
+        <doc> 
+          Indicates that recovery scan should start. 
+        </doc>
+	<rule name = "recoveryAlreadyOpen">
+          <doc>
+           If a recovery scan is already open, the effect is as if the recovery scan were ended and then restarted.
+          </doc>
+        </rule>
+        <assert check = "notnull" />	
+      </field>
+      
+      <field name = "endscan" domain = "long" label = "indicates that the recovery scan should end after returning the Xids">
+        <doc>           
+	  Indicates that the recovery scan should end after returning the Xids. 	  
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+    <!-- - - RECOVER-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "recover-ok" synchronous = "1" index = "51" label = "list of Xids to be recovered">
+      <doc>
+       Returns to the client a table of transaction Xids that are in a prepared or heuristically completed state.
+      </doc>
+
+      <chassis name = "client" implement = "MAY" />
+     
+      <field name = "xids" domain = "table" label = "Table of xids to be recovered">
+        <doc>
+          table containing transaction Xids that are in a prepared or heuristically completed state.
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+    <!-- - - ROLLBACK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "rollback" synchronous = "1" index = "60" label = "Rollback a transaction branch">
+      <doc>
+        This method rolls back the work associated with xid. Any produced messages are discarded 
+	and any consumed messages are re-enqueued.	
+      </doc>
+
+      <rule name = "internalError">
+         <doc>
+        If an error occurs in rolling back the transaction branch then the server MUST raise a channel exception with reply code 541 (internal error)
+         </doc>
+      </rule> 
+
+      <rule name = "commandInvalid">
+         <doc>
+        If the method is invoked in an improper context (see class grammar) then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>
+
+      <chassis name = "server" implement = "MAY" />
+      <response name = "rollback-ok" />
+
+      <field name = "ticket" domain = "access-ticket" label = "Access-ticket granted by the server for a specific realm">
+        <doc>
+          Access-ticket granted by the server for a specific realm. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+
+      <field name = "xid" domain = "Xid" label = "Rollback any work associated with Xid xid">
+        <doc> 
+          Specifies the Xid of the transaction branch that can be rolled back.
+        </doc>
+        <assert check = "notnull" />	
+	 <!-- rules -->
+      <rule name = "unknownXid">
+        <doc>
+         If Xid is unknown (the transaction branch has not been started or has already been ended) then the server MUST raise a channel exception with reply code 404 (not found).
+	 </doc>
+      </rule>
+      <rule name = "notdisassociated">
+         <doc>
+        If this method is called when Xid is still associated with a channel then the server MUST raise a channel exception with reply code 503 (command invalid)
+         </doc>
+      </rule>
+      </field>
+    </method>
+
+  <!-- - - - ROLLBACK-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "rollback-ok" synchronous = "1" index = "61" label = "confirm distributed transaction rollback">
+      <doc>
+        This method confirms to the client that the transaction branch is rolled back or specify the error condition. 
+      </doc>
+      <chassis name = "client" implement = "MAY" />
+      
+       <field name = "flags" domain = "short" label = "xa-ok, xa-heurhaz, xa-heurcom, xa-heurrb, xa-heurmix, xa-rbrollback">
+        <doc> 
+         xa-ok: Normal execution,
+	 xa-heurhaz: Due to some failure, the work done on behalf of the specified transaction branch may have been heuristically completed.
+        xa-heurcom: Due to a heuristic decision, the work done on behalf of the specified transaction
+   branch was committed.
+	xa-heurrb: Due to a heuristic decision, the work done on behalf of the specified transaction
+   branch was rolled back.
+	xa-heurmix: Due to a heuristic decision, the work done on behalf of the specified transaction
+   branch was partially committed and partially rolled back.
+        xa-rbrollback: The broker marked the transaction branch rollback-only for an unspecified reason. 
+	xa-rbtimeout: The work represented by this transaction branch took too long.        
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+
+
+   <!-- - - SETTIMEOUT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "set-timeout" synchronous = "1" index = "70" label = "Set the transaction timeout value">
+      <doc>
+        Sets the specified transaction branch timeout value in seconds.	
+      </doc>
+
+      <rule name = "internalError ">
+         <doc>
+        If an error occurs in setting the transaction timeout then the server MUST raise a channel exception with reply code 541 (internal error)
+         </doc>
+      </rule> 
+
+      <rule name = "effective">
+        <doc>
+          Once set, this timeout value is effective until this method is reinvoked with a different value.
+        </doc>
+      </rule>
+
+      <rule name = "reset">
+        <doc>
+          A value of zero resets the timeout value to the default value.
+        </doc>
+      </rule>
+
+      <chassis name = "server" implement = "MAY" />
+      <response name = "set-timeout-ok" />
+
+      <field name = "ticket" domain = "access-ticket" label = "Access-ticket granted by the server for a specific realm">
+        <doc>
+          Access-ticket granted by the server for a specific realm. 
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+
+       <field name = "xid" domain = "Xid" label = "Xid of the branch to set the timeout value">
+        <doc> 
+          Specifies the Xid of the transaction branch for setting the timeout.
+        </doc>
+        <assert check = "notnull" />	
+	 <!-- rules -->
+      <rule name = "unknownXid">
+        <doc>
+         If Xid is unknown (the transaction branch has not been started or has already been ended) then the server MUST raise a channel exception with reply code 404 (not found).
+	 </doc>
+      </rule>
+      </field>
+
+      <field name = "timeout" domain = "long" label = "The transaction timeout value in seconds">
+        <doc> 
+          The transaction timeout value in seconds.
+        </doc>
+        <assert check = "notnull" />	
+      </field>
+    </method>
+
+    <!-- - - - SETTIMEOUT-OK - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name = "set-timeout-ok" synchronous = "1" index = "71" label = "confirm timeout set">
+      <doc>
+        This method confirms that the timeout has been set. 
+      </doc>
+      <chassis name = "client" implement = "MAY" />
+    </method> 
+   </class>
+
+<!-- Some other 0-10 previews: -->
+
+  <class name="binding" handler="binding" index="130"
+    label="provides the ability to query bindings">
+    <doc>
+      This is a utility class for querying and exchange about its bindings to queues.
+    </doc>
+
+    <chassis name="server" implement="MUST" />
+    <chassis name="client" implement="MAY" />
+
+    <method name="query" synchronous="1" index="10"
+      label="request information about bindings to an exchange">
+      <doc>
+        This method is used to request information on the bindings to a particular exchange.  That
+        information is conveyed in a query-ok method.
+      </doc>
+
+      <chassis name="server" implement="MUST" />
+      <response name="query-ok" />
+
+      <field name="ticket" domain="access-ticket">
+        <rule name="validity" on-failure="access-refused">
+          <doc>
+            A valid ticket should be provided.
+          </doc>
+        </rule>
+      </field>
+
+      <field name="exchange" domain="shortstr" label="the exchange name">
+        <doc>
+           The name of the exchange for which binding information is being requested. If not
+           specified explicitly the default exchange is implied.
+        </doc>
+      </field>
+
+      <field name="queue" domain="shortstr" label="a queue name">
+        <doc>
+          If populated then determine whether the given queue is bound to the exchange.
+        </doc>
+      </field>
+
+      <field name="routing-key" domain="shortstr" label="a routing-key">
+        <doc>
+         If populated defines the routing key of the binding of interest, if not populated the
+         request will ignore the routing key on bindings when searching for a match.
+        </doc>
+      </field>
+
+      <field name="arguments" domain="table" label="a set of binding arguments">
+        <doc>
+          If populated defines the arguments of the binding of interest if not populated the request
+          will ignore the arguments on bindings when searching for a match
+        </doc>
+      </field>
+    </method>
+
+    <method name="query-ok" synchronous="1" index="11"
+      label="returns information about bindings to exchange">
+      <doc>
+        This method is used in response to a query and conveys information on the bindings to a
+        particular exchange.
+      </doc>
+
+      <chassis name="client" implement="MUST" />
+
+      <field name="exchange-not-found" domain="bit" label="indicate an unknown exchange">
+        <doc>
+           If set, the exchange for which information was requested is not known.
+        </doc>
+      </field>
+
+      <field name="queue-not-found" domain="bit" label="indicate an unknown queue">
+        <doc>
+           If set, the queue specified is not known.
+        </doc>
+      </field>
+
+      <field name="queue-not-matched" domain="bit" label="indicate no matching queue">
+        <doc>
+          A bit which if set indicates that no binding was found from the specified exchange to the
+          specified queue.
+        </doc>
+      </field>
+
+      <field name="key-not-matched" domain="bit" label="indicate no matching routing key">
+        <doc>
+          A bit which if set indicates that no binding was found from the specified exchange with
+          the specified routing key.
+        </doc>
+      </field>
+
+      <field name="args-not-matched" domain="bit" label="indicate no matching args">
+        <doc>
+          A bit which if set indicates that no binding was found from the specified exchange with
+          the specified arguments.
+        </doc>
+      </field>
+     </method>
+  </class>
+
+
+
+  <class name="exchange" handler="channel" index="40" label="work with exchanges">
+    <method name="query" synchronous="1" index="30" label="request information about an exchange">
+      <doc>
+        This method is used to request information on a particular exchange. That information is
+        conveyed by an query-ok method.
+      </doc>
+
+      <chassis name="server" implement="MUST" />
+      <response name="query-ok" />
+
+      <field name="ticket" domain="access-ticket">
+        <rule name="validity" on-failure="access-refused">
+          <doc>
+            A valid ticket should be provided.
+          </doc>
+        </rule>
+      </field>
+
+      <field name="name" domain="shortstr" label="the exchange name">
+        <doc>
+           The name of the exchange for which information is requested. If not specified explicitly
+           the default exchange is implied.
+        </doc>
+      </field>
+    </method>
+
+    <method name="query-ok" synchronous="1" index="31" label="return exchange information">
+      <doc>
+        This method is used in response to a query request and conveys information on a particular
+        exchange.
+      </doc>
+
+      <chassis name="client" implement="MUST" />
+
+      <field name="type" domain="shortstr" label="indicate the exchange type">
+        <doc>
+           The type of the exchange. Will be empty if the exchange is not found.
+        </doc>
+      </field>
+
+      <field name="durable" domain="bit" label="indicate the durability">
+        <doc>
+           The durability of the exchange, i.e. if set the exchange is durable. Will not be set if
+           the exchange is not found.
+        </doc>
+      </field>
+
+      <field name="not-found" domain="bit" label="indicate an unknown exchange">
+        <doc>
+           If set, the exchange for which information was requested is not known.
+        </doc>
+      </field>
+
+      <field name="arguments" domain="table" label="other unspecified exchange properties">
+        <doc>
+          A set of properties of the exchange whose syntax and semantics depends on the server
+          implementation. Will be empty if the exchange is not found.
+        </doc>
+      </field>
+    </method>
+  </class>
+
+  <class name="execution" handler="execution" index="140">
+    <doc>
+      This class allows for efficiently communicating information
+      about completion of processing.  
+    </doc>
+
+    <chassis name="server" implement="MUST"/>
+    <chassis name="client" implement="MUST"/>
+
+    <method name="flush" index="10" label="request an execution.complete return method">
+      <chassis name="server" implement="MUST"/>
+      <chassis name="client" implement="MUST"/>
+    </method>
+
+    <method name="complete" index="20">
+      <chassis name="server" implement="MUST"/>
+      <chassis name="client" implement="MUST"/>
+
+      
+      <field name="cumulative-execution-mark" domain="long" label="Low-water mark for command ids">
+        <doc>
+          The low-water mark for executed command-ids. All ids below this mark have been executed;
+          above this mark, there are gaps containing unexecuted command ids (i.e. discontinuous). By
+          definition, the first id above this mark (if it exists) is an unexecuted command-id.
+        </doc>
+      </field>
+
+
+      <!-- The ranged mark on the complete method has been temporarily removed -->
+    </method>
+
+  </class>
+
+
+</amqp>

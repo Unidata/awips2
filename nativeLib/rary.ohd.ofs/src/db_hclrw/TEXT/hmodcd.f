@@ -1,0 +1,143 @@
+C MODULE HMODCD
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE HMODCD (NNC,IOPTRC,NXOPT,MOPTRC,ISTAT)
+C
+C  THIS ROUTINE READS MOD CARDS, PACKS THEM AND STORES THEM IN
+C  THE OPTION RECORD.  IT WILL KEEP READING CARDS UNTIL IT
+C  FINDS AN ENDMOD CARD AND WILL THEN RETURN.  IT WILL ALSO CHECK
+C  FOR A .INCLUDE LINE (FOR REFERENCE TO EXTERNAL FILE BASED MOD
+C  STATEMENTS) AND EXTRACT THOSE STATEMENTS AND PLACE THEM INTO
+C  THE OPTION RECORD
+C
+C         NAME    TYPE   I/O   DIM   CONTENTS
+C         ------  ----   ---   ---   ------
+C         NNC      I     I/O    1    CARD NUMBER TO BE READ
+C         IOPTRC   I     I/O    ?    OPTION RECORD FOR MOD CARDS
+C         NXOPT    I     I/O    1    LAST USED LOCATION IN IOPTRC
+C         MOPTRC   I      I     1    SIZE OF IOPTRC
+C         ISTAT    I      O     1    STATUS: 0=OK, 1=ERROR
+C
+      CHARACTER*8 RTNNAM,RTNOLD
+C
+      DIMENSION IOPTRC(MOPTRC)
+      DIMENSION ITEMP(2),INCLUD(2),MODEND(2)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udebug'
+      INCLUDE 'ufreei'
+      INCLUDE 'udatas'
+      INCLUDE 'hclcommon/hcomnd'
+      INCLUDE 'hclcommon/hword2'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_hclrw/RCS/hmodcd.f,v $
+     . $',                                                             '
+     .$Id: hmodcd.f,v 1.3 2001/06/13 13:42:54 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA INCLUD/4H.INC,4HLUDE/
+      DATA MODEND/4HENDM,4HOD  /
+C
+C
+      RTNNAM='HMODCD'
+C
+      IF (IHCLTR.GT.1) WRITE (LP,*) 'ENTER ',RTNNAM
+C
+      IOPNUM=0
+      CALL FSTWHR (RTNNAM,IOPNUM,RTNOLD,IOLDOP)
+C
+      NXSAV=NXOPT+1
+      NMC=0
+      IFULL=0
+C
+C  SET FIRST WORD TO ZERO TO INDICATE MOD
+      NX1=NXOPT+2
+C
+C  INITIALIZE COMPARISON VARIABLE
+10    CALL UMEMST (IBLNK,ITEMP,2)
+      IF (NNC.EQ.NCARD) GO TO 60
+      NNC=NNC+1
+      CALL HCARDR (NNC,IERR)
+      IF (IERR.NE.0) GO TO 60
+C
+C CHECK FOR ENDMOD AND .INCLUDE (IF FIRST FIELD IS 4 CHARS)
+      J=IFSTRT(1)
+      LEN1=IFSTOP(1)-IFSTRT(1)+1
+      MIN1=MIN0(LEN1,4)
+      CALL UPACK1 (IBUF(J),ITEMP(1),MIN1)
+      IF (LEN1.LE.4) GO TO 20
+C
+      IADN=LEN1-4
+      IADN1=MIN0(IADN,4)
+      CALL UPACK1 (IBUF(J+4),ITEMP(2),IADN1)
+C
+C  CHECK FOR 'ENDMOD'
+      CALL UNAMCP (ITEMP,MODEND,IMATCH)
+      IF (IMATCH.EQ.0) GO TO 50
+C
+C  CHECK FOR '.INCLUDE'
+      CALL UNAMCP (ITEMP,INCLUD,IMATCH)
+      IF (IMATCH.NE.0) GO TO 20
+C
+C  READ MODS from FILE
+      CALL HINCMD (IOPTRC,NMC,NX1,MOPTRC,ISTAT)
+      GO TO 10
+C
+C  NORMAL MOD STATEMENT. PLACE INTO OPTION RECORD
+20    NUM=72-J+1
+      IF (NX1+NUM.GT.MOPTRC) GO TO 80
+      CALL HPTSTR (IBUF(J),NUM,IOPTRC(NX1+1),IERR)
+      IOPTRC(NX1)=NUM
+      IF (IERR.EQ.0) GO TO 40
+         WRITE (LP,30) IERR
+30    FORMAT ('0**ERROR** STORING MOD CARD - IERR=',I3)
+         CALL ERROR
+         ISTAT=1
+         GO TO 100
+C
+C  UPDATE LAST USED
+40    NX1=NX1+NUM+1
+      NMC=NMC+1
+      GO TO 10
+C
+C  END CARD
+50    IOPTRC(NXSAV)=NMC
+      NXOPT=NX1-1
+      GO TO 110
+C
+60    WRITE (LP,70)
+70    FORMAT ('0**ERROR** ENDMOD CARD MISSING.')
+      CALL ERROR
+      ISTAT=1
+      GO TO 110
+C
+80    IF (IFULL.EQ.0) THEN
+         WRITE (LP,90) MOPTRC
+90    FORMAT ('0**ERROR** IN HMODCD - ',
+     *   'NUMBER OF WORDS IN OPTION ARRAY (',I6,') EXCEEDED. ',
+     *   'NO ADDITIONAL RUN-TIME OPTIONS WILL BE STORED.')
+         CALL ERROR
+         ENDIF
+      IFULL=1
+C
+100   ISTAT=1
+C
+C  READ TO END CARD
+      GO TO 10
+C
+110   CALL FSTWHR (RTNOLD,IOLDOP,RTNOLD,IOLDOP)
+C
+      IF (IHCLDB.GT.0) WRITE (IOGDB,120) RTNNAM,NNC,NXOPT,MOPTRC,
+     *   (IOPTRC(J),J=1,NXOPT)
+120   FORMAT (' IN ',A,' - NNC=',I3,' NXOPT=',I4,' MOPTRC=',I5 /
+     *  ' IOPTRC=',16(1X,I5) / (8X,16(1X,I5)))
+C
+      IF (IHCLTR.GT.1) WRITE (LP,*) 'EXIT ',RTNNAM
+C
+      RETURN
+C
+      END

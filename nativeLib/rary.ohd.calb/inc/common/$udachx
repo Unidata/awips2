@@ -1,0 +1,29 @@
+C                                                *--> FROM CMS($UDACHX)
+C     DESCRIPTION OF VARIABLES:
+C        VARIABLE   TYPE   I/O   DIM      CONTENTS
+C        --------   ----   ---   -------   --------
+C        ICHKDA     I*4    I     1         INDICATOR IF DAIO USAGE
+C                                          INFORMATION TO BE KEPT:
+C                                           0=NO
+C                                           1=YES
+C        IDSN       I*4    I     (11,99)   DATASET NAME
+C        IVOL       I*4    I     (2,99)    VOLUME NUMBER
+C        IRECFM     I*4    I     (99)      RECORD FORMAT
+C        IUSEDA     I*2    I     (99)      INDICIATOR IF DATASET
+C                                          ATTRIBUTES OBATINED:
+C                                           0=NO
+C                                           1=YES
+C        LRECAC     I*2    I     (99)      LAST RECORD NUMBER ACCESSED
+C        LRECL      I*4    I     (99)      LOGICAL RECORD LENGTH
+C        LBLOCK     I*4    I     (99)      BLOCK SIZE
+C        NRD        I*4    I     (99,2)    NUMBER OF READS
+C        NWT        I*4    I     (99,2)    NUMBER OF WRITES
+C        NRIBLK     I*2    I     (99,2)    NUMBER OF READS IN NEW BLOCK
+C        NWIBLK     I*2    I     (99,2)    NUMBER OF WRITES IN NEW BLOCK
+C        NFRD       I*2    I     (99,2)    NUMBER OF FORCED READS
+C        NFWT       I*2    I     (99,2)    NUMBER OF FORCED WRITES
+C        NTIMOP     I*2    I     (99,2)    NUMBER OF OPENS
+C        NTIMCL     I*2    I     (99,2)    NUMBER OF CLOSES
+C  FIRST COLUMN OF ARRAYS NRD THROUGH NTIMCL HOLDS INTERIM VALUES.
+C  SECOND COLUMN HOLDS TOTAL VALUES FOR RUN.
+C

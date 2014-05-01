@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+<!-- The order of the monitors determines the order on the TAF monitor display -->
+
+<TafMonitorConfig>    
+    <Monitor>
+        <LabelName>Current Observation</LabelName>
+        <ClassName>MetarMonitor</ClassName>
+        <MonitorItems>tempo,vsby,wind,wx,sky,cat</MonitorItems>
+        <MonitorLabels>tpo,vis,wnd,wx,cig,cat</MonitorLabels>
+        <LabelMenu/>
+        <!-- tempograceperiod value in seconds default 1 hour (3600).
+             Must be between 0.5 and 1.5 hours (1800 to 5400)
+        -->
+        <Args name="tempograceperiod" value="3600"/>
+    </Monitor>
+    <Monitor>
+        <LabelName>1-h Persistence</LabelName>
+        <ClassName>PersistMonitor</ClassName>
+        <MonitorItems>vsby,wind,wx,sky,cat</MonitorItems>
+        <MonitorLabels>vis,wnd,wx,cig,cat</MonitorLabels>
+        <LabelMenu menuName = "1-h Persistence" value = "1"/>
+        <LabelMenu menuName = "2-h Persistence" value = "2"/>
+        <LabelMenu menuName = "3-h Persistence" value = "3"/>        
+        <Args name="nhours" value="1" />
+    </Monitor>
+    <Monitor>
+        <LabelName>ltg</LabelName>
+        <ClassName>LtgMonitor</ClassName>
+        <MonitorItems>wx</MonitorItems>
+        <MonitorLabels>ts</MonitorLabels>
+        <LabelMenu/>
+        <Args/>
+    </Monitor>
+    <Monitor>
+        <LabelName>rltg</LabelName>
+        <ClassName>RadLtgMonitor</ClassName>
+        <MonitorItems>wx</MonitorItems>
+        <MonitorLabels>ts</MonitorLabels>
+        <LabelMenu/>
+        <Args/>
+    </Monitor>
+    <Monitor>
+        <LabelName>ccfp</LabelName>
+        <ClassName>CCFPMonitor</ClassName>
+        <MonitorItems>wx</MonitorItems>
+        <MonitorLabels>ts</MonitorLabels>
+        <LabelMenu/>
+        <Args/>
+    </Monitor>
+    <Monitor>
+        <LabelName>NDFD Grids</LabelName>
+        <ClassName>GridMonitor</ClassName>
+        <MonitorItems>vsby,wind,wx,sky</MonitorItems>
+        <MonitorLabels>vis,wnd,wx,sky</MonitorLabels>
+        <LabelMenu/>
+        <Args name = "from" value = "2"/>
+        <Args name = "to" value = "6"/>
+    </Monitor>
+    <Monitor>
+        <LabelName>llws</LabelName>
+        <ClassName>LLWSMonitor</ClassName>
+        <MonitorItems>wind</MonitorItems>
+        <MonitorLabels>ws</MonitorLabels>
+        <LabelMenu/>
+        <Args/>
+    </Monitor>
+</TafMonitorConfig>

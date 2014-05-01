@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType">
+    <resource>DGEX_US</resource>
+    <attrSetGroupName>standard</attrSetGroupName>
+    <attrSetNames>pmsl_1000-500thk,500mb_hght_absv_wnd,700mb_hght_tmp_wind,850mb_hght_tmp_wind,850mb_thtae_advection,250mb_hght_wind</attrSetNames>
+</AttributeSetGroup>

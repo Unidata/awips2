@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+
+<!-- QPF % probability of rainfall 1hr -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>QPF .10 1hr probability</parameter>
+     <parameter>QPF .25 1hr probability</parameter>
+     <parameter>QPF .50 1hr probability</parameter>
+     <parameter>QPF .75 1hr probability</parameter>
+  </paramLevelMatches>
+  <contourStyle>
+     <displayUnits>%</displayUnits>
+     <contourLabeling>
+        <values>10 20 30 40 50 60 70 80 90 100</values>
+     </contourLabeling>
+  </contourStyle>
+</styleRule>
+
+<!-- QPF 1hr categorical forecast -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>QPF 1hr categorical rain fcst.</parameter>
+  </paramLevelMatches>
+  <contourStyle>
+     <displayUnits>in</displayUnits>
+     <contourLabeling>
+        <values>0.1 0.2 0.3 0.4 0.5 0.6 0.7</values>
+     </contourLabeling>
+  </contourStyle>
+</styleRule>
+
+</styleRuleset>

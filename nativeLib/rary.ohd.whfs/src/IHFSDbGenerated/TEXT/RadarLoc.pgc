@@ -1,0 +1,908 @@
+/*
+    File: RadarLoc.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:27 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "RadarLoc.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct RadarLoc_t
+{
+    char		radid[4];
+    char		name[21];
+    char		radid_prefix[2];
+    short		radar_num;
+    char		state[3];
+    double		lat;
+    double		lon;
+    double		elev;
+    double		tower_ht;
+    char		use_radar[2];
+    char		office_id[6];
+
+    int		ind_name;
+    int		ind_radid_prefix;
+    int		ind_radar_num;
+    int		ind_state;
+    int		ind_lat;
+    int		ind_lon;
+    int		ind_elev;
+    int		ind_tower_ht;
+    int		ind_use_radar;
+    int		ind_office_id;
+} RadarLoc_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+RadarLoc * GetRadarLoc(const char * where)
+{
+
+    RadarLoc * listPtr = NULL;
+    RadarLoc * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RadarLoc ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RadarLoc_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRadarLoc() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRadarLoc() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRadarLoc() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.name:dbs.ind_name, 
+    :dbs.radid_prefix:dbs.ind_radid_prefix, :dbs.radar_num:dbs.ind_radar_num, 
+    :dbs.state:dbs.ind_state, :dbs.lat:dbs.ind_lat, 
+    :dbs.lon:dbs.ind_lon, :dbs.elev:dbs.ind_elev, 
+    :dbs.tower_ht:dbs.ind_tower_ht, :dbs.use_radar:dbs.ind_use_radar, 
+    :dbs.office_id:dbs.ind_office_id    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRadarLoc() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RadarLoc *) malloc(sizeof(RadarLoc))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->radid_prefix, dbs.radid_prefix);
+            setNullIfIndicated(dbs.ind_radid_prefix, CHAR, structPtr->radid_prefix);
+
+            structPtr->radar_num = dbs.radar_num;
+            setNullIfIndicated(dbs.ind_radar_num, SHORT, &structPtr->radar_num);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            structPtr->tower_ht = dbs.tower_ht;
+            setNullIfIndicated(dbs.ind_tower_ht, DOUBLE, &structPtr->tower_ht);
+
+            strcpy(structPtr->use_radar, dbs.use_radar);
+            setNullIfIndicated(dbs.ind_use_radar, CHAR, structPtr->use_radar);
+
+            strcpy(structPtr->office_id, dbs.office_id);
+            setNullIfIndicated(dbs.ind_office_id, CHAR, structPtr->office_id);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.name:dbs.ind_name, 
+        :dbs.radid_prefix:dbs.ind_radid_prefix, :dbs.radar_num:dbs.ind_radar_num, 
+        :dbs.state:dbs.ind_state, :dbs.lat:dbs.ind_lat, 
+        :dbs.lon:dbs.ind_lon, :dbs.elev:dbs.ind_elev, 
+        :dbs.tower_ht:dbs.ind_tower_ht, :dbs.use_radar:dbs.ind_use_radar, 
+        :dbs.office_id:dbs.ind_office_id        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetRadarLoc() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+RadarLoc * SelectRadarLoc(const char * where)
+{
+
+    RadarLoc * listPtr = NULL;
+    RadarLoc * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RadarLoc ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RadarLoc_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRadarLoc() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRadarLoc() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRadarLoc() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.name:dbs.ind_name, 
+    :dbs.radid_prefix:dbs.ind_radid_prefix, :dbs.radar_num:dbs.ind_radar_num, 
+    :dbs.state:dbs.ind_state, :dbs.lat:dbs.ind_lat, 
+    :dbs.lon:dbs.ind_lon, :dbs.elev:dbs.ind_elev, 
+    :dbs.tower_ht:dbs.ind_tower_ht, :dbs.use_radar:dbs.ind_use_radar, 
+    :dbs.office_id:dbs.ind_office_id    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRadarLoc() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RadarLoc *) malloc(sizeof(RadarLoc))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->radid_prefix, dbs.radid_prefix);
+            setNullIfIndicated(dbs.ind_radid_prefix, CHAR, structPtr->radid_prefix);
+
+            structPtr->radar_num = dbs.radar_num;
+            setNullIfIndicated(dbs.ind_radar_num, SHORT, &structPtr->radar_num);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            structPtr->elev = dbs.elev;
+            setNullIfIndicated(dbs.ind_elev, DOUBLE, &structPtr->elev);
+
+            structPtr->tower_ht = dbs.tower_ht;
+            setNullIfIndicated(dbs.ind_tower_ht, DOUBLE, &structPtr->tower_ht);
+
+            strcpy(structPtr->use_radar, dbs.use_radar);
+            setNullIfIndicated(dbs.ind_use_radar, CHAR, structPtr->use_radar);
+
+            strcpy(structPtr->office_id, dbs.office_id);
+            setNullIfIndicated(dbs.ind_office_id, CHAR, structPtr->office_id);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.name:dbs.ind_name, 
+        :dbs.radid_prefix:dbs.ind_radid_prefix, :dbs.radar_num:dbs.ind_radar_num, 
+        :dbs.state:dbs.ind_state, :dbs.lat:dbs.ind_lat, 
+        :dbs.lon:dbs.ind_lon, :dbs.elev:dbs.ind_elev, 
+        :dbs.tower_ht:dbs.ind_tower_ht, :dbs.use_radar:dbs.ind_use_radar, 
+        :dbs.office_id:dbs.ind_office_id        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectRadarLoc() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectRadarLocCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM RadarLoc ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRadarLoc() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRadarLoc() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRadarLoc() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRadarLoc() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutRadarLoc(const RadarLoc * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RadarLoc_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.radid_prefix, structPtr->radid_prefix);
+    dbs.ind_radid_prefix = getIndicator(CHAR, (void *)structPtr->radid_prefix);
+
+    dbs.radar_num = structPtr->radar_num;
+    dbs.ind_radar_num = getIndicator(SHORT, (void *)&structPtr->radar_num);
+
+    strcpy(dbs.state, structPtr->state);
+    dbs.ind_state = getIndicator(CHAR, (void *)structPtr->state);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    dbs.tower_ht = structPtr->tower_ht;
+    dbs.ind_tower_ht = getIndicator(DOUBLE, (void *)&structPtr->tower_ht);
+
+    strcpy(dbs.use_radar, structPtr->use_radar);
+    dbs.ind_use_radar = getIndicator(CHAR, (void *)structPtr->use_radar);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+
+    EXEC SQL INSERT INTO RadarLoc (radid,name,
+        radid_prefix,radar_num,state,
+        lat,lon,elev,
+        tower_ht,use_radar,office_id        )
+        VALUES (
+         :dbs.radid, :dbs.name:dbs.ind_name, :dbs.radid_prefix:dbs.ind_radid_prefix,
+         :dbs.radar_num:dbs.ind_radar_num, :dbs.state:dbs.ind_state, :dbs.lat:dbs.ind_lat,
+         :dbs.lon:dbs.ind_lon, :dbs.elev:dbs.ind_elev, :dbs.tower_ht:dbs.ind_tower_ht,
+         :dbs.use_radar:dbs.ind_use_radar, :dbs.office_id:dbs.ind_office_id);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutRadarLoc() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertRadarLoc(const RadarLoc * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RadarLoc_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.radid_prefix, structPtr->radid_prefix);
+    dbs.ind_radid_prefix = getIndicator(CHAR, (void *)structPtr->radid_prefix);
+
+    dbs.radar_num = structPtr->radar_num;
+    dbs.ind_radar_num = getIndicator(SHORT, (void *)&structPtr->radar_num);
+
+    strcpy(dbs.state, structPtr->state);
+    dbs.ind_state = getIndicator(CHAR, (void *)structPtr->state);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    dbs.tower_ht = structPtr->tower_ht;
+    dbs.ind_tower_ht = getIndicator(DOUBLE, (void *)&structPtr->tower_ht);
+
+    strcpy(dbs.use_radar, structPtr->use_radar);
+    dbs.ind_use_radar = getIndicator(CHAR, (void *)structPtr->use_radar);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+
+    EXEC SQL INSERT INTO RadarLoc (radid,name,
+        radid_prefix,radar_num,state,
+        lat,lon,elev,
+        tower_ht,use_radar,office_id        )
+        VALUES (
+         :dbs.radid, :dbs.name:dbs.ind_name, :dbs.radid_prefix:dbs.ind_radid_prefix,
+         :dbs.radar_num:dbs.ind_radar_num, :dbs.state:dbs.ind_state, :dbs.lat:dbs.ind_lat,
+         :dbs.lon:dbs.ind_lon, :dbs.elev:dbs.ind_elev, :dbs.tower_ht:dbs.ind_tower_ht,
+         :dbs.use_radar:dbs.ind_use_radar, :dbs.office_id:dbs.ind_office_id);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertRadarLoc() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRadarLoc(const RadarLoc *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RadarLoc_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+    strcpy(dbs.radid_prefix, structPtr->radid_prefix);
+    dbs.ind_radid_prefix = getIndicator(CHAR, (void *)structPtr->radid_prefix);
+
+    dbs.radar_num = structPtr->radar_num;
+    dbs.ind_radar_num = getIndicator(SHORT, (void *)&structPtr->radar_num);
+
+    strcpy(dbs.state, structPtr->state);
+    dbs.ind_state = getIndicator(CHAR, (void *)structPtr->state);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.elev = structPtr->elev;
+    dbs.ind_elev = getIndicator(DOUBLE, (void *)&structPtr->elev);
+
+    dbs.tower_ht = structPtr->tower_ht;
+    dbs.ind_tower_ht = getIndicator(DOUBLE, (void *)&structPtr->tower_ht);
+
+    strcpy(dbs.use_radar, structPtr->use_radar);
+    dbs.ind_use_radar = getIndicator(CHAR, (void *)structPtr->use_radar);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+
+    sprintf(queryBuffer, " UPDATE RadarLoc SET " );
+    strcat(queryBuffer, "radid = ? , name = ? , radid_prefix = ? , radar_num = ? , state = ? ,     ");
+    strcat(queryBuffer, "lat = ? , lon = ? , elev = ? , tower_ht = ? , use_radar = ? ,     ");
+    strcat(queryBuffer, "office_id = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRadarLoc() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.name:dbs.ind_name, :dbs.radid_prefix:dbs.ind_radid_prefix, :dbs.radar_num:dbs.ind_radar_num, :dbs.state:dbs.ind_state,
+     :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.elev:dbs.ind_elev, :dbs.tower_ht:dbs.ind_tower_ht, :dbs.use_radar:dbs.ind_use_radar,
+     :dbs.office_id:dbs.ind_office_id;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRadarLoc() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRadarLoc(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM RadarLoc ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteRadarLoc() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRadarLocByRecord (const RadarLoc * newStructPtr, const RadarLoc * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRadarLocPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateRadarLoc(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateRadarLoc(const RadarLoc * structPtr)
+{
+    UpdateRadarLocByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertRadarLoc(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueRadarLoc(const RadarLoc * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (RadarLocExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertRadarLoc(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRadarLocByRecord(const RadarLoc * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRadarLocPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteRadarLoc(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool RadarLocExists(const RadarLoc * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetRadarLocPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectRadarLocCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetRadarLocPrimaryKeyWhereString (const RadarLoc * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE radid = '%s' ",
+            structPtr->radid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeRadarLoc( RadarLoc * structPtr)
+{
+    RadarLoc* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( RadarLoc * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetRadarLocDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetRadarLocErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

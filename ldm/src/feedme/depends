@@ -1,0 +1,11 @@
+feedme.o: ../config/ldmconfig.h
+feedme.o: ../misc/inetutil.h
+feedme.o: ../protocol/atofeedt.h
+feedme.o: ../protocol/h_clnt.h
+feedme.o: ../protocol/ldm.h
+feedme.o: ../protocol/ldm5.h
+feedme.o: ../protocol/ldm5_clnt.h
+feedme.o: ../protocol/ldmprint.h
+feedme.o: ../protocol/timestamp.h
+feedme.o: ../ulog/ulog.h
+feedme.o: feedme.c

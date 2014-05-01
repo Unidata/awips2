@@ -1,0 +1,55 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+      http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven transaction-manager="metadataTxManager"
+        proxy-target-class="true" />
+
+    <!-- Stores beans that are used in bandwidth-datadelivery.xml, but that 
+        have different implementations between production code and test code -->
+    <bean
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
+        <!-- This bean version is used to set the EDEX instance of BandwidthManager -->
+        <constructor-arg ref="bandwidthManager" />
+    </bean>
+
+    <bean id="hibernateBandwidthDbInit"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthDbInit">
+        <property name="dao" ref="bandwidthAllocationDao" />
+    </bean>
+
+    <bean id="retrievalAgentManager"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalAgentManager"
+        init-method="start">
+        <constructor-arg ref="retrievalAgentNotifier" />
+        <constructor-arg ref="retrievalAgents" />
+        <constructor-arg ref="retrievalDao" />
+    </bean>
+
+    <!-- Used as the context for creating the BandwidthManager -->
+    <bean id="bandwidthContextFactory"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
+        <!-- The bandwidth dao implementation -->
+        <constructor-arg ref="hibernateBandwidthDao" />
+        <!-- TODO: Switch to use database bandwidth buckets 
+        <constructor-arg ref="hibernateBandwidthBucketDao" /> -->
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthBucketDao" />
+        </constructor-arg>
+        <!-- The bandwidth manager initializer -->
+        <constructor-arg ref="bandwidthInitializer" />
+        <!-- The strategy for how to create the bandwidth manager -->
+        <constructor-arg ref="bandwidthManagerCreator" />
+        <!-- The db initializer -->
+        <constructor-arg ref="hibernateBandwidthDbInit" />
+        <!-- Registry handlers required for EdexBandwidthManager -->
+        <constructor-arg ref="DataSetMetaDataHandler" />
+        <constructor-arg ref="SubscriptionHandler" />
+        <constructor-arg ref="AdhocSubscriptionHandler" />
+        <constructor-arg ref="subscriptionNotificationService" />
+        <constructor-arg ref="findActiveSubscriptionsForRoute" />
+    </bean>
+</beans>

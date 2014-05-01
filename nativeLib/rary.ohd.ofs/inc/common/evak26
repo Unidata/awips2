@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.EVAK26
+      COMMON/EVAK26/ELRES1,ELRES2,FRPD,IOPTEV,IOUT,QIMSUR,QQIM,QQO1,
+     $QQO2,SFRPD,SS1,SS2
+C

@@ -1,0 +1,821 @@
+/*
+    File: PseudoGageVal.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:27 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "PseudoGageVal.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct PseudoGageVal_t
+{
+    char		pseudo_gage_id[9];
+    dtime_t		obstime;
+    double		lat;
+    double		lon;
+    float		gage_value;
+    char		man_edited[2];
+    float		prev_gage_value;
+
+    int		ind_lat;
+    int		ind_lon;
+    int		ind_gage_value;
+    int		ind_man_edited;
+    int		ind_prev_gage_value;
+} PseudoGageVal_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+PseudoGageVal * GetPseudoGageVal(const char * where)
+{
+
+    PseudoGageVal * listPtr = NULL;
+    PseudoGageVal * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM PseudoGageVal ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PseudoGageVal_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPseudoGageVal() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPseudoGageVal() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPseudoGageVal() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.pseudo_gage_id, :dbs.obstime, 
+    :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+    :dbs.gage_value:dbs.ind_gage_value, :dbs.man_edited:dbs.ind_man_edited, 
+    :dbs.prev_gage_value:dbs.ind_prev_gage_value    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPseudoGageVal() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (PseudoGageVal *) malloc(sizeof(PseudoGageVal))) != NULL)
+        {
+
+            strcpy(structPtr->pseudo_gage_id, dbs.pseudo_gage_id);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            structPtr->gage_value = dbs.gage_value;
+            setNullIfIndicated(dbs.ind_gage_value, FLOAT, &structPtr->gage_value);
+
+            strcpy(structPtr->man_edited, dbs.man_edited);
+            setNullIfIndicated(dbs.ind_man_edited, CHAR, structPtr->man_edited);
+
+            structPtr->prev_gage_value = dbs.prev_gage_value;
+            setNullIfIndicated(dbs.ind_prev_gage_value, FLOAT, &structPtr->prev_gage_value);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.pseudo_gage_id, :dbs.obstime, 
+        :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+        :dbs.gage_value:dbs.ind_gage_value, :dbs.man_edited:dbs.ind_man_edited, 
+        :dbs.prev_gage_value:dbs.ind_prev_gage_value        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetPseudoGageVal() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+PseudoGageVal * SelectPseudoGageVal(const char * where)
+{
+
+    PseudoGageVal * listPtr = NULL;
+    PseudoGageVal * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM PseudoGageVal ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PseudoGageVal_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPseudoGageVal() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPseudoGageVal() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPseudoGageVal() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.pseudo_gage_id, :dbs.obstime, 
+    :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+    :dbs.gage_value:dbs.ind_gage_value, :dbs.man_edited:dbs.ind_man_edited, 
+    :dbs.prev_gage_value:dbs.ind_prev_gage_value    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPseudoGageVal() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (PseudoGageVal *) malloc(sizeof(PseudoGageVal))) != NULL)
+        {
+
+            strcpy(structPtr->pseudo_gage_id, dbs.pseudo_gage_id);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            structPtr->gage_value = dbs.gage_value;
+            setNullIfIndicated(dbs.ind_gage_value, FLOAT, &structPtr->gage_value);
+
+            strcpy(structPtr->man_edited, dbs.man_edited);
+            setNullIfIndicated(dbs.ind_man_edited, CHAR, structPtr->man_edited);
+
+            structPtr->prev_gage_value = dbs.prev_gage_value;
+            setNullIfIndicated(dbs.ind_prev_gage_value, FLOAT, &structPtr->prev_gage_value);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.pseudo_gage_id, :dbs.obstime, 
+        :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+        :dbs.gage_value:dbs.ind_gage_value, :dbs.man_edited:dbs.ind_man_edited, 
+        :dbs.prev_gage_value:dbs.ind_prev_gage_value        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectPseudoGageVal() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectPseudoGageValCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM PseudoGageVal ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPseudoGageVal() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPseudoGageVal() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPseudoGageVal() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPseudoGageVal() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutPseudoGageVal(const PseudoGageVal * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PseudoGageVal_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.pseudo_gage_id, structPtr->pseudo_gage_id);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.gage_value = structPtr->gage_value;
+    dbs.ind_gage_value = getIndicator(FLOAT, (void *)&structPtr->gage_value);
+
+    strcpy(dbs.man_edited, structPtr->man_edited);
+    dbs.ind_man_edited = getIndicator(CHAR, (void *)structPtr->man_edited);
+
+    dbs.prev_gage_value = structPtr->prev_gage_value;
+    dbs.ind_prev_gage_value = getIndicator(FLOAT, (void *)&structPtr->prev_gage_value);
+
+
+    EXEC SQL INSERT INTO PseudoGageVal (pseudo_gage_id,obstime,
+        lat,lon,gage_value,
+        man_edited,prev_gage_value        )
+        VALUES (
+         :dbs.pseudo_gage_id, :dbs.obstime, :dbs.lat:dbs.ind_lat,
+         :dbs.lon:dbs.ind_lon, :dbs.gage_value:dbs.ind_gage_value, :dbs.man_edited:dbs.ind_man_edited,
+         :dbs.prev_gage_value:dbs.ind_prev_gage_value);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutPseudoGageVal() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertPseudoGageVal(const PseudoGageVal * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PseudoGageVal_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.pseudo_gage_id, structPtr->pseudo_gage_id);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.gage_value = structPtr->gage_value;
+    dbs.ind_gage_value = getIndicator(FLOAT, (void *)&structPtr->gage_value);
+
+    strcpy(dbs.man_edited, structPtr->man_edited);
+    dbs.ind_man_edited = getIndicator(CHAR, (void *)structPtr->man_edited);
+
+    dbs.prev_gage_value = structPtr->prev_gage_value;
+    dbs.ind_prev_gage_value = getIndicator(FLOAT, (void *)&structPtr->prev_gage_value);
+
+
+    EXEC SQL INSERT INTO PseudoGageVal (pseudo_gage_id,obstime,
+        lat,lon,gage_value,
+        man_edited,prev_gage_value        )
+        VALUES (
+         :dbs.pseudo_gage_id, :dbs.obstime, :dbs.lat:dbs.ind_lat,
+         :dbs.lon:dbs.ind_lon, :dbs.gage_value:dbs.ind_gage_value, :dbs.man_edited:dbs.ind_man_edited,
+         :dbs.prev_gage_value:dbs.ind_prev_gage_value);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertPseudoGageVal() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdatePseudoGageVal(const PseudoGageVal *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PseudoGageVal_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.pseudo_gage_id, structPtr->pseudo_gage_id);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.gage_value = structPtr->gage_value;
+    dbs.ind_gage_value = getIndicator(FLOAT, (void *)&structPtr->gage_value);
+
+    strcpy(dbs.man_edited, structPtr->man_edited);
+    dbs.ind_man_edited = getIndicator(CHAR, (void *)structPtr->man_edited);
+
+    dbs.prev_gage_value = structPtr->prev_gage_value;
+    dbs.ind_prev_gage_value = getIndicator(FLOAT, (void *)&structPtr->prev_gage_value);
+
+
+    sprintf(queryBuffer, " UPDATE PseudoGageVal SET " );
+    strcat(queryBuffer, "pseudo_gage_id = ? , obstime = ? , lat = ? , lon = ? , gage_value = ? ,     ");
+    strcat(queryBuffer, "man_edited = ? , prev_gage_value = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdatePseudoGageVal() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.pseudo_gage_id, :dbs.obstime, :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.gage_value:dbs.ind_gage_value,
+     :dbs.man_edited:dbs.ind_man_edited, :dbs.prev_gage_value:dbs.ind_prev_gage_value;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdatePseudoGageVal() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeletePseudoGageVal(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM PseudoGageVal ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeletePseudoGageVal() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdatePseudoGageValByRecord (const PseudoGageVal * newStructPtr, const PseudoGageVal * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetPseudoGageValPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdatePseudoGageVal(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdatePseudoGageVal(const PseudoGageVal * structPtr)
+{
+    UpdatePseudoGageValByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertPseudoGageVal(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniquePseudoGageVal(const PseudoGageVal * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (PseudoGageValExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertPseudoGageVal(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeletePseudoGageValByRecord(const PseudoGageVal * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetPseudoGageValPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeletePseudoGageVal(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool PseudoGageValExists(const PseudoGageVal * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetPseudoGageValPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectPseudoGageValCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetPseudoGageValPrimaryKeyWhereString (const PseudoGageVal * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE pseudo_gage_id = '%s'  AND obstime = '%s' ",
+            structPtr->pseudo_gage_id, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreePseudoGageVal( PseudoGageVal * structPtr)
+{
+    PseudoGageVal* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( PseudoGageVal * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetPseudoGageValDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetPseudoGageValErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

@@ -1,0 +1,226 @@
+C************************************************************************
+C* ERROR.PRM								*
+C*									*
+C* This is the error parameter file for GEMPLT.  It assigns names to	*
+C* GEMPLT error numbers.  When this file is modified, corresponding	*
+C* modifications must be made to file GEMPLT.ERR.			*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	 4/85						*
+C* M. Vilardo/RDS	 8/85	Added errors -104 to -106		*
+C* M. desJardins/GSFC	12/85	Added error for curve fitting		*
+C* M. desJardins/GSFC	 2/86	Added errors for satellite navigation	*
+C* M. desJardins/GSFC	 9/88	Added NOBNDS				*
+C* G. Huffman/GSC	 1/89	NLBLEX					*
+C* M. desJardins/GSFC	 5/89	NILOGP					*
+C* S. Jacobs/EAI	 6/93	NGTPNT					*
+C* D  Himes/Comet	 8/94	NCLRAL and NWINDW			*
+C* G. Krueger/EAI	12/94	NCTRLP for CLDRIV			*
+C* M. Linda/GSC		 3/96	NXDBUF, NDWTBL, usage parms -60 to -64	*
+C* M. Linda/GSC		 3/96	Added NEWWIN				*
+C* S. Jacobs/NCEP	 4/96	Added NOPSFL				*
+C* E. Wehner/EAi	 7/96	Added fax errors			*
+C* M. Linda/GSC		12/96	Corrected NLBLEX message from 50 to 530	*
+C* S. Jacobs/NCEP	 1/97	Added error -77: BADPXV			*
+C* S. Jacobs/NCEP	 1/97	Added error +3: NEVENT			*
+C* E. Safford/GSC	 2/97	Added error -78: NOUTFL	and -79: NAFSMX	*
+C* C. Lin/EAI	 	 6/97	Added error -80: NROAM			*
+C* G. Krueger/EAI	 7/97	Added -81: NNMAPPT and -82: NNMAPPL	*
+C* T. Piper/GSC		11/00	Added error -83: NDISP			*
+C************************************************************************
+C------------------------------------------------------------------------
+	PARAMETER	( NEVENT =   +3 )
+C!						Events not supported
+	PARAMETER	( NDWTBL =   +2 )
+C!						No dwell table
+	PARAMETER	( NCTRLP =   +1 )
+C!						Broke out of contour loop
+	PARAMETER	( NORMAL =    0 )
+C!						Normal
+	PARAMETER	( NMBRER =   -1 )
+C!						Mailbox read
+	PARAMETER	( NMBWER =   -2 )
+C!						Mailbox write
+	PARAMETER	( NEXQUO =   -3 )
+C!						Exceed quota
+	PARAMETER	( NFNCCD =   -4 )
+C!						Invalid function code
+	PARAMETER	( NOMFIL =   -5 )
+C!						No map file
+	PARAMETER	( NOCORD =   -6 )
+C!						Invalid coordinate system
+	PARAMETER 	( NOBUFF =   -7 )
+C!						G buffer length exceeded
+	PARAMETER	( NDVICE =   -8 )
+C!						Device not set
+	PARAMETER 	( NDCHAR =   -9 )
+C!						No device characteristics
+	PARAMETER	( NIVIEW =  -10 )
+C!						Invalid view region
+	PARAMETER	( NOLUN  =  -11	)
+C!						Invalid logical unit number
+	PARAMETER 	( NIMODE =  -12 )
+C!						Invalid mode
+	PARAMETER 	( NINVAL =  -13 )
+C!						Invalid input parameter
+	PARAMETER 	( NOGRAF =  -14 )
+C!						No graph defined
+	PARAMETER	( NIPROJ =  -15 )
+C!						Invalid projection
+	PARAMETER	( NIPBND =  -16 )
+C!						Invalid projection bnds
+	PARAMETER	( NIPOSN =  -17 )
+C!						Invalid position in proj
+	PARAMETER	( NIGDSZ =  -18 )
+C!						Invalid grid size
+	PARAMETER	( NOPFIL =  -19	)
+C!						No plot file
+	PARAMETER 	( NGINIT =  -20 )
+C!						GINITP not called
+	PARAMETER	( NODEVC =  -21 )
+C!						Invalid device selected
+	PARAMETER	( NICOLR =  -22 )
+C!						Invalid color name selected
+	PARAMETER	( NOCOLR =  -23 )
+C!						Invalid color component
+	PARAMETER	( NOCTBL =  -24 )
+C!						No color table
+	PARAMETER	( NICNUM =  -25 )
+C!						Invalid color number
+	PARAMETER	( NOGFIL =  -26 )
+C!						No graphics file
+	PARAMETER	( NSATNV =  -27 )
+C!						Sat nav not defined
+	PARAMETER	( NOPNTS =  -28 )
+C!						Not enough points
+	PARAMETER	( NIPNTS =  -29 )
+C!						Too many points
+	PARAMETER	( NOMONO =  -30 )
+C!						Points not monotonic
+	PARAMETER	( NOIMGF =  -31 )
+C!						Invalid image file
+	PARAMETER	( NONAVF =  -32 )
+C!						Invalid navigation file
+	PARAMETER	( NOMAPP =  -33 )
+C!						No plotable points
+	PARAMETER	( NOBNDS =  -34 )
+C!						No grid points in range
+	PARAMETER	( NMAPFR =  -35 )
+C!						Map file read error
+	PARAMETER	( NLBLEX =  -36 )
+C!						Num of labels exceeds 530
+	PARAMETER	( NILOGP =  -37 )
+C!						Invalid LOG axis
+	PARAMETER	( NNPNTS = -38  )
+C!						Too many points for fill
+	PARAMETER	( NWSIZE = -39 )
+C!						Device has been resized
+	PARAMETER	( NOINIT = -40 )
+C!						GINITP not called
+	PARAMETER	( NGTPNT = -41 )
+C!						Error getting cursor point
+	PARAMETER	( NOMETA = -42 )
+C!						Error opening metafile
+	PARAMETER	( NMAXFR = -43 )
+C!						Too many frames
+	PARAMETER	( NMDATA = -44 )
+C!						Too much data for metafile
+	PARAMETER	( NWINDW = -45 )
+C!						Maximum number of windows open
+	PARAMETER	( NCLRAL = -46 )
+C!						Color cell allocation failure
+	PARAMETER	( NIWNAM = -47 )
+C!						Invalid window name
+	PARAMETER	( NIMGFL = -48 )
+C!						Can not open image file
+	PARAMETER	( NIMGTBL= -49 )
+C!						Can not find image table file
+	PARAMETER	( NIMGENT= -50 )
+C!						Cannot find the image table entry
+	PARAMETER	( NWUSED = -51 )
+C!						Window is already in use
+	PARAMETER	( NMEMRY = -52 )
+C!						Memory allocation failure
+	PARAMETER	( BADATOM= -53 )
+C!						Error of interning an atom
+	PARAMETER	( NSRDAT = -54 )
+C!						Can not get shared data
+	PARAMETER	( NGRAFCOL= -55 )
+C!						Not enough graphic colors
+	PARAMETER	( NIMGTYP = -56 )
+C!						Unknown image type
+	PARAMETER	( NLUTFL = -57 )
+C!						Can not find lookup table file
+	PARAMETER	( NFILENM= -58 )
+C!						File name is too long
+	PARAMETER	( NIMGCOL= -59 )
+C!						Not enough image colors
+	PARAMETER	( NIMCORD = -60 )
+C!						Bad image coordinates
+	PARAMETER	( NIMGFMT = -61 )
+C!						Invalid image format
+	PARAMETER	( ZEROCB  = -62 )
+C!						Zero colors specified
+	PARAMETER	( NIDSIZ  = -63 )
+C!						Invalid device size
+	PARAMETER	( NCBALOC = -64 )
+C!						Color bank not allocated
+	PARAMETER	( NEWWIN  = -65 )
+C!						New window was created
+	PARAMETER	( NOPSFL  = -66 )
+C!						Error opening PS file
+	PARAMETER	( NOCLOS  = -67 )
+C!						Cannot close last window
+	PARAMETER	( NOFNTFL = -68 )
+C!						No font file found
+	PARAMETER	( NOBITMP = -69 )
+C!						No open bitmap found
+	PARAMETER	( NORDOPN = -70 )
+C!						Could not open raster for read
+	PARAMETER	( NOWROPN = -71 )
+C!						Could not open 6 bit for write
+	PARAMETER	( NOPROD  = -72 )
+C!						No matching product in table
+	PARAMETER	( NOTBL   = -73 )
+C!						Product table not found
+	PARAMETER	( NOEDGE  = -74 )
+C!						Missing Edge table
+	PARAMETER	( NOISCHD = -75 )
+C!						No matching record in ISCHED array
+	PARAMETER	( BADSUB  = -76 )
+C!						Bad or invalid subset requested 
+	PARAMETER	( BADPXV  = -77 )
+C!						Bad min/max pixel values in image table
+	PARAMETER	( NOUTFL  = -78 )
+C!						Cannot open UTF output file
+	PARAMETER	( NAFSMX  = -79 )
+C!						Maximum size for AFOS file exceeded
+	PARAMETER	( NROAM   = -80 )
+C!						Roam window out of pixmap bounds
+	PARAMETER	( NNMAPPT = -81 )
+C!						Too many points in map
+	PARAMETER	( NNMAPPL = -82 )
+C!						Too many polygons in map
+	PARAMETER	( NDISP   = -83 )
+C!						DISPLAY not set or invalid
+C------------------------------------------------------------------------
+	PARAMETER	( NOPROC = -101 )
+C!						Nonexistent executable
+	PARAMETER	( NSYSTM = -102 )
+C!						System service error
+	PARAMETER	( NSTRER = -103 )
+C!						String error
+	PARAMETER	( NNODEV = -104 )
+C!						Nonexistent device
+	PARAMETER	( NDEVNA = -105 )
+C!						Device not allocated
+	PARAMETER	( NNOOWN = -106 )
+C!						Device already allocated
+	PARAMETER	( NXDBUF = -107 )
+C!						D buffer length exceeded
+C------------------------------------------------------------------------
+	PARAMETER	( FLENGF = -120 )
+C!						File Extension not .gif
+	PARAMETER	( NOCWIN = -121 )
+C!						No current X Window displayed
+C------------------------------------------------------------------------

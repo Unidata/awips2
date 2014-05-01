@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+ 
+    http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.apache.qpid.management.ui.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="Qpid Management"
+            icon="icons/mbean_view.png"
+            class="org.apache.qpid.management.ui.Perspective"
+            id="org.apache.qpid.management.ui.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="org.apache.qpid.management.ui.viewcategory"
+            name="Qpid Management Console"/>
+      <view
+            allowMultiple="false"
+            category="org.apache.qpid.management.ui.viewcategory"
+            class="org.apache.qpid.management.ui.views.NavigationView"
+            icon="icons/qpidConnections.gif"
+            id="org.apache.qpid.management.ui.navigationView"
+            name="Qpid Connections">
+      </view>
+      <view
+            allowMultiple="false"
+            category="org.apache.qpid.management.ui.viewcategory"
+            class="org.apache.qpid.management.ui.views.MBeanView"
+            icon="icons/mbean_view.png"
+            id="org.apache.qpid.management.ui.mbeanView"
+            name="Qpid Management">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            name="qpid.manager.commands"
+            id="org.apache.qpid.management.ui.category">
+      </category>
+      <command
+            name="New Connection"
+            description="Created a new Qpid server connection"
+            categoryId="org.apache.qpid.management.ui.category"
+            id="org.apache.qpid.management.ui.actions.cmd_add">
+      </command>
+      <command
+            categoryId="org.apache.qpid.management.ui.category"
+            description="Reconnect the Qpid server connection"
+            id="org.apache.qpid.management.ui.actions.cmd_reconnect"
+            name="Reconnect"/>
+      <command
+            categoryId="org.apache.qpid.management.ui.category"
+            description="Disconnects the Qpid server connection"
+            id="org.apache.qpid.management.ui.actions.cmd_disconnect"
+            name="Disconnect"/>
+      <command
+            categoryId="org.apache.qpid.management.ui.category"
+            description="Removes the server from management console"
+            id="org.apache.qpid.management.ui.actions.cmd_remove"
+            name="Remove Connection"/>
+      <command
+            categoryId="org.apache.qpid.management.ui.category"
+            description="refreshes the views"
+            id="org.apache.qpid.management.ui.actions.cmd_refresh"
+            name="Refresh"/>
+      <command
+            categoryId="org.apache.qpid.management.ui.category"
+            description="About Qpid Management Console"
+            id="qpidmc.about"
+            name="About"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.apache.qpid.management.ui.actions.cmd_add"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+Alt+N">
+      </key>
+      <key
+            commandId="org.apache.qpid.management.ui.actions.cmd_reconnect"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+Alt+C"/>
+      <key
+            commandId="org.apache.qpid.management.ui.actions.cmd_disconnect"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+Alt+D">
+      </key>
+      <key
+            commandId="org.apache.qpid.management.ui.actions.cmd_remove"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+Alt+R"/>
+      <key
+            commandId="org.apache.qpid.management.ui.actions.cmd_refresh"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+Alt+F5"/>
+      <key
+            commandId="org.eclipse.ui.file.exit"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+Alt+X">
+      </key>
+   </extension>
+   
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.apache.qpid.management.ui.application"
+            name="Qpid Management Console">
+         <property
+               name="windowImages"
+               value="icons/qpidmc16.gif,icons/qpidmc32.gif">
+         </property>
+         <property
+               name="aboutText"
+               value="Qpid Management Console"/>
+      </product>
+   </extension>
+
+   <extension point="org.eclipse.ui.menus">
+       <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+           <toolbar id="qpidMC">
+               <separator name="qpidActionsGroup" visible="false"/>
+               <separator name="refresh" visible="true"/>
+               <separator name="refresh2" visible="false"/>
+               <separator name="additions" visible="false"/>
+           </toolbar>
+       </menuContribution>
+       <menuContribution locationURI="toolbar:qpidMC?after=refresh">
+           <control
+               class="org.apache.qpid.management.ui.RefreshIntervalComboPanel">
+           </control>
+       </menuContribution>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.apache.qpid.management.ui.actionSet"
+            label="Qpid Action Set"
+            visible="true">
+         <menu
+               id="qpidmanager"
+               label="&amp;Qpid Manager">
+            <separator name="qpidActionsGroup"/>
+         </menu>
+         <action
+               class="org.apache.qpid.management.ui.actions.Refresh"
+               definitionId="org.apache.qpid.management.ui.actions.cmd_refresh"
+               icon="icons/refresh.gif"
+               id="org.apache.qpid.management.ui.actions.refresh"
+               label="Refresh"
+               menubarPath="qpidmanager/additions"
+               style="push"
+               toolbarPath="qpidMC/refresh2"
+               tooltip="Refresh Now"/>
+         <action
+               class="org.apache.qpid.management.ui.actions.RemoveServer"
+               definitionId="org.apache.qpid.management.ui.actions.cmd_remove"
+               icon="icons/delete.gif"
+               id="org.apache.qpid.management.ui.actions.remove"
+               label="Remove Connection"
+               menubarPath="qpidmanager/additions"
+               style="push"
+               toolbarPath="qpidMC/qpidActionsGroup"
+               tooltip="Remove Server"/>
+         <action
+               class="org.apache.qpid.management.ui.actions.CloseConnection"
+               definitionId="org.apache.qpid.management.ui.actions.cmd_disconnect"
+               icon="icons/stop.gif"
+               id="org.apache.qpid.management.ui.disconnect"
+               label="Disconnect"
+               menubarPath="qpidmanager/additions"
+               toolbarPath="qpidMC/qpidActionsGroup"
+               tooltip="Disconnect"/>
+         <action
+               class="org.apache.qpid.management.ui.actions.ReconnectServer"
+               definitionId="org.apache.qpid.management.ui.actions.cmd_reconnect"
+               icon="icons/reconnect.gif"
+               id="org.apache.qpid.management.ui.reconnect"
+               label="Reconnect"
+               menubarPath="qpidmanager/additions"
+               toolbarPath="qpidMC/qpidActionsGroup"
+               tooltip="Reconnect"/>
+         <action
+               class="org.apache.qpid.management.ui.actions.AddServer"
+               definitionId="org.apache.qpid.management.ui.actions.cmd_add"
+               icon="icons/add.gif"
+               id="org.apache.qpid.management.ui.add"
+               label="New Connection"
+               menubarPath="qpidmanager/additions"
+               toolbarPath="qpidMC/qpidActionsGroup"
+               tooltip="New Connection"/>        
+      </actionSet>
+   </extension>
+   
+</plugin>

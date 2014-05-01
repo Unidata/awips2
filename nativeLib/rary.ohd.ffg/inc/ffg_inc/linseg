@@ -1,0 +1,2 @@
+      common /linseg/ mlseg,nlrow(150),nlbeg(150),nlend(150)
+      

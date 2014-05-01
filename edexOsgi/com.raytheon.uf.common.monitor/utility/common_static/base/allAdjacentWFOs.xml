@@ -1,0 +1,931 @@
+<adjacentWFO>
+  <cwa id="ABQ">
+    <adjId>TWC</adjId>
+    <adjId>FGZ</adjId>
+    <adjId>PUB</adjId>
+    <adjId>GJT</adjId>
+    <adjId>EPZ</adjId>
+    <adjId>MAF</adjId>
+    <adjId>AMA</adjId>
+    <adjId>LUB</adjId>
+  </cwa>
+  <cwa id="ABR">
+    <adjId>FSD</adjId>
+    <adjId>FGF</adjId>
+    <adjId>MPX</adjId>
+    <adjId>BIS</adjId>
+    <adjId>UNR</adjId>
+  </cwa>
+  <cwa id="AFC">
+    <adjId>AJK</adjId>
+    <adjId>AFG</adjId>
+    <marId>AJK</marId>
+    <marId>AFG</marId>
+  </cwa>
+  <cwa id="AFG">
+    <adjId>AFC</adjId>
+    <marId>AFC</marId>
+  </cwa>
+  <cwa id="AJK">
+    <adjId>AFC</adjId>
+    <marId>AFC</marId>
+  </cwa>
+  <cwa id="AKQ">
+    <adjId>LWX</adjId>
+    <adjId>MHX</adjId>
+    <adjId>PHI</adjId>
+    <adjId>RAH</adjId>
+    <adjId>RNK</adjId>
+    <marId>LWX</marId>
+    <marId>MHX</marId>
+    <marId>PHI</marId>
+  </cwa>
+  <cwa id="ALY">
+    <adjId>BOX</adjId>
+    <adjId>OKX</adjId>
+    <adjId>GYX</adjId>
+    <adjId>BGM</adjId>
+    <adjId>BUF</adjId>
+    <adjId>BTV</adjId>
+  </cwa>
+  <cwa id="AMA">
+    <adjId>PUB</adjId>
+    <adjId>DDC</adjId>
+    <adjId>ABQ</adjId>
+    <adjId>OUN</adjId>
+    <adjId>LUB</adjId>
+  </cwa>
+  <cwa id="APX">
+    <adjId>MQT</adjId>
+    <adjId>DTX</adjId>
+    <adjId>GRR</adjId>
+    <adjId>GRB</adjId>
+    <adjId>MKX</adjId>
+    <marId>MQT</marId>
+    <marId>DTX</marId>
+    <marId>GRR</marId>
+    <marId>GRB</marId>
+    <marId>MKX</marId>
+  </cwa>
+  <cwa id="ARX">
+    <adjId>DVN</adjId>
+    <adjId>DMX</adjId>
+    <adjId>DLH</adjId>
+    <adjId>MPX</adjId>
+    <adjId>GRB</adjId>
+    <adjId>MKX</adjId>
+  </cwa>
+  <cwa id="BGM">
+    <adjId>OKX</adjId>
+    <adjId>PHI</adjId>
+    <adjId>ALY</adjId>
+    <adjId>BUF</adjId>
+    <adjId>CTP</adjId>
+  </cwa>
+  <cwa id="BIS">
+    <adjId>FGF</adjId>
+    <adjId>ABR</adjId>
+    <adjId>GGW</adjId>
+    <adjId>BYZ</adjId>
+    <adjId>UNR</adjId>
+  </cwa>
+  <cwa id="BMX">
+    <adjId>MOB</adjId>
+    <adjId>HUN</adjId>
+    <adjId>TAE</adjId>
+    <adjId>JAN</adjId>
+    <adjId>MEG</adjId>
+    <adjId>FFC</adjId>
+  </cwa>
+  <cwa id="BOI">
+    <adjId>REV</adjId>
+    <adjId>MFR</adjId>
+    <adjId>MSO</adjId>
+    <adjId>PIH</adjId>
+    <adjId>LKN</adjId>
+    <adjId>PDT</adjId>
+  </cwa>
+  <cwa id="BOU">
+    <adjId>PUB</adjId>
+    <adjId>GLD</adjId>
+    <adjId>GJT</adjId>
+    <adjId>LBF</adjId>
+    <adjId>CYS</adjId>
+  </cwa>
+  <cwa id="BOX">
+    <adjId>GYX</adjId>
+    <adjId>OKX</adjId>
+    <adjId>ALY</adjId>
+    <marId>GYX</marId>
+    <marId>OKX</marId>
+  </cwa>
+  <cwa id="BRO">
+    <adjId>CRP</adjId>
+    <marId>CRP</marId>
+  </cwa>
+  <cwa id="BTV">
+    <adjId>GYX</adjId>
+    <adjId>ALY</adjId>
+    <adjId>BUF</adjId>
+  </cwa>
+  <cwa id="BUF">
+    <adjId>CLE</adjId>
+    <adjId>CTP</adjId>
+    <adjId>PBZ</adjId>
+    <adjId>BGM</adjId>
+    <adjId>ALY</adjId>
+    <marId>CLE</marId>
+  </cwa>
+  <cwa id="BYZ">
+    <adjId>GGW</adjId>
+    <adjId>TFX</adjId>
+    <adjId>BIS</adjId>
+    <adjId>UNR</adjId>
+    <adjId>RIW</adjId>
+  </cwa>
+  <cwa id="CAE">
+    <adjId>CHS</adjId>
+    <adjId>FFC</adjId>
+    <adjId>GSP</adjId>
+    <adjId>ILM</adjId>
+    <adjId>RAH</adjId>
+  </cwa>
+  <cwa id="CAR">
+    <adjId>GYX</adjId>
+    <marId>GYX</marId>
+  </cwa>
+  <cwa id="CHS">
+    <adjId>ILM</adjId>
+    <adjId>JAX</adjId>
+    <adjId>FFC</adjId>
+    <adjId>CAE</adjId>
+    <marId>ILM</marId>
+    <marId>JAX</marId>
+  </cwa>
+  <cwa id="CLE">
+    <adjId>DTX</adjId>
+    <adjId>IWX</adjId>
+    <adjId>PBZ</adjId>
+    <adjId>ILN</adjId>
+    <adjId>BUF</adjId>
+    <adjId>CTP</adjId>
+    <marId>DTX</marId>
+    <marId>IWX</marId>
+  </cwa>
+  <cwa id="CRP">
+    <adjId>HGX</adjId>
+    <adjId>BRO</adjId>
+    <adjId>EWX</adjId>
+    <marId>HGX</marId>
+    <marId>BRO</marId>
+  </cwa>
+  <cwa id="CTP">
+    <adjId>LWX</adjId>
+    <adjId>PHI</adjId>
+    <adjId>PBZ</adjId>
+    <adjId>BGM</adjId>
+    <adjId>BUF</adjId>
+    <adjId>CLE</adjId>
+  </cwa>
+  <cwa id="CYS">
+    <adjId>BOU</adjId>
+    <adjId>GJT</adjId>
+    <adjId>LBF</adjId>
+    <adjId>UNR</adjId>
+    <adjId>RIW</adjId>
+  </cwa>
+  <cwa id="DDC">
+    <adjId>PUB</adjId>
+    <adjId>GLD</adjId>
+    <adjId>GID</adjId>
+    <adjId>ICT</adjId>
+    <adjId>OUN</adjId>
+    <adjId>AMA</adjId>
+  </cwa>
+  <cwa id="DLH">
+    <adjId>MQT</adjId>
+    <adjId>ARX</adjId>
+    <adjId>FGF</adjId>
+    <adjId>MPX</adjId>
+    <adjId>GRB</adjId>
+    <marId>MQT</marId>
+  </cwa>
+  <cwa id="DMX">
+    <adjId>DVN</adjId>
+    <adjId>OAX</adjId>
+    <adjId>ARX</adjId>
+    <adjId>FSD</adjId>
+    <adjId>EAX</adjId>
+    <adjId>MPX</adjId>
+  </cwa>
+  <cwa id="DTX">
+    <adjId>APX</adjId>
+    <adjId>CLE</adjId>
+    <adjId>IWX</adjId>
+    <adjId>GRR</adjId>
+    <marId>APX</marId>
+    <marId>CLE</marId>
+  </cwa>
+  <cwa id="DVN">
+    <adjId>DMX</adjId>
+    <adjId>ARX</adjId>
+    <adjId>LSX</adjId>
+    <adjId>ILX</adjId>
+    <adjId>LOT</adjId>
+    <adjId>EAX</adjId>
+    <adjId>MKX</adjId>
+  </cwa>
+  <cwa id="EAX">
+    <adjId>DVN</adjId>
+    <adjId>DMX</adjId>
+    <adjId>OAX</adjId>
+    <adjId>LSX</adjId>
+    <adjId>TOP</adjId>
+    <adjId>ICT</adjId>
+    <adjId>SGF</adjId>
+  </cwa>
+  <cwa id="EKA">
+    <adjId>MTR</adjId>
+    <adjId>MFR</adjId>
+    <adjId>STO</adjId>
+    <marId>MTR</marId>
+    <marId>MFR</marId>
+  </cwa>
+  <cwa id="EPZ">
+    <adjId>TWC</adjId>
+    <adjId>ABQ</adjId>
+    <adjId>MAF</adjId>
+  </cwa>
+  <cwa id="EWX">
+    <adjId>MAF</adjId>
+    <adjId>SJT</adjId>
+    <adjId>FWD</adjId>
+    <adjId>HGX</adjId>
+    <adjId>CRP</adjId>
+  </cwa>
+  <cwa id="KEY">
+    <adjId>MFL</adjId>
+    <marId>MFL</marId>
+  </cwa>
+  <cwa id="FFC">
+    <adjId>HUN</adjId>
+    <adjId>TAE</adjId>
+    <adjId>BMX</adjId>
+    <adjId>JAX</adjId>
+    <adjId>CHS</adjId>
+    <adjId>CAE</adjId>
+    <adjId>GSP</adjId>
+    <adjId>MRX</adjId>
+  </cwa>
+  <cwa id="FGF">
+    <adjId>DLH</adjId>
+    <adjId>MPX</adjId>
+    <adjId>ABR</adjId>
+    <adjId>BIS</adjId>
+  </cwa>
+  <cwa id="FGZ">
+    <adjId>TWC</adjId>
+    <adjId>PSR</adjId>
+    <adjId>VEF</adjId>
+    <adjId>GJT</adjId>
+    <adjId>SLC</adjId>
+    <adjId>ABQ</adjId>
+  </cwa>
+  <cwa id="FSD">
+    <adjId>DMX</adjId>
+    <adjId>OAX</adjId>
+    <adjId>MPX</adjId>
+    <adjId>ABR</adjId>
+    <adjId>LBF</adjId>
+    <adjId>UNR</adjId>
+  </cwa>
+  <cwa id="FWD">
+    <adjId>TSA</adjId>
+    <adjId>SHV</adjId>
+    <adjId>OUN</adjId>
+    <adjId>SJT</adjId>
+    <adjId>HGX</adjId>
+    <adjId>EWX</adjId>
+  </cwa>
+  <cwa id="GGW">
+    <adjId>TFX</adjId>
+    <adjId>BYZ</adjId>
+    <adjId>BIS</adjId>
+  </cwa>
+  <cwa id="GID">
+    <adjId>GLD</adjId>
+    <adjId>OAX</adjId>
+    <adjId>TOP</adjId>
+    <adjId>ICT</adjId>
+    <adjId>DDC</adjId>
+    <adjId>LBF</adjId>
+  </cwa>
+  <cwa id="GJT">
+    <adjId>FGZ</adjId>
+    <adjId>BOU</adjId>
+    <adjId>PUB</adjId>
+    <adjId>SLC</adjId>
+    <adjId>CYS</adjId>
+    <adjId>ABQ</adjId>
+    <adjId>RIW</adjId>
+  </cwa>
+  <cwa id="GLD">
+    <adjId>BOU</adjId>
+    <adjId>PUB</adjId>
+    <adjId>GID</adjId>
+    <adjId>DDC</adjId>
+    <adjId>LBF</adjId>
+  </cwa>
+  <cwa id="GRB">
+    <adjId>MQT</adjId>
+    <adjId>MKX</adjId>
+    <adjId>ARX</adjId>
+    <adjId>DLH</adjId>
+    <marId>MQT</marId>
+    <marId>MKX</marId>
+    <marId>ARX</marId>
+    <marId>DLH</marId>
+  </cwa>
+  <cwa id="GRR">
+    <adjId>IWX</adjId>
+    <adjId>APX</adjId>
+    <adjId>GRB</adjId>
+    <adjId>MKX</adjId>
+    <adjId>LOT</adjId>
+    <adjId>DTX</adjId>
+    <marId>IWX</marId>
+    <marId>APX</marId>
+    <marId>GRB</marId>
+    <marId>MKX</marId>
+  </cwa>
+  <cwa id="GSP">
+    <adjId>FFC</adjId>
+    <adjId>CAE</adjId>
+    <adjId>RAH</adjId>
+    <adjId>MRX</adjId>
+    <adjId>RNK</adjId>
+  </cwa>
+  <cwa id="GUM">
+  </cwa>
+  <cwa id="GYX">
+    <adjId>CAR</adjId>
+    <adjId>BOX</adjId>
+    <adjId>ALY</adjId>
+    <adjId>BTV</adjId>
+    <marId>CAR</marId>
+    <marId>BOX</marId>
+  </cwa>
+  <cwa id="HGX">
+    <adjId>LCH</adjId>
+    <adjId>CRP</adjId>
+    <adjId>SHV</adjId>
+    <adjId>FWD</adjId>
+    <adjId>EWX</adjId>
+    <marId>LCH</marId>
+    <marId>CRP</marId>
+  </cwa>
+  <cwa id="HFO">
+  </cwa>
+  <cwa id="HNX">
+    <adjId>VEF</adjId>
+    <adjId>STO</adjId>
+    <adjId>LOX</adjId>
+    <adjId>REV</adjId>
+    <adjId>MTR</adjId>
+  </cwa>
+  <cwa id="HUN">
+    <adjId>BMX</adjId>
+    <adjId>MEG</adjId>
+    <adjId>FFC</adjId>
+    <adjId>MRX</adjId>
+    <adjId>OHX</adjId>
+  </cwa>
+  <cwa id="ICT">
+    <adjId>TSA</adjId>
+    <adjId>GID</adjId>
+    <adjId>TOP</adjId>
+    <adjId>EAX</adjId>
+    <adjId>DDC</adjId>
+    <adjId>SGF</adjId>
+    <adjId>OUN</adjId>
+  </cwa>
+  <cwa id="ILM">
+    <adjId>MHX</adjId>
+    <adjId>CHS</adjId>
+    <adjId>CAE</adjId>
+    <adjId>RAH</adjId>
+    <marId>MHX</marId>
+    <marId>CHS</marId>
+  </cwa>
+  <cwa id="ILN">
+    <adjId>IWX</adjId>
+    <adjId>IND</adjId>
+    <adjId>LMK</adjId>
+    <adjId>RLX</adjId>
+    <adjId>JKL</adjId>
+    <adjId>PBZ</adjId>
+    <adjId>CLE</adjId>
+  </cwa>
+  <cwa id="ILX">
+    <adjId>DVN</adjId>
+    <adjId>LSX</adjId>
+    <adjId>LOT</adjId>
+    <adjId>PAH</adjId>
+    <adjId>IND</adjId>
+  </cwa>
+  <cwa id="IND">
+    <adjId>ILX</adjId>
+    <adjId>LOT</adjId>
+    <adjId>PAH</adjId>
+    <adjId>IWX</adjId>
+    <adjId>ILN</adjId>
+    <adjId>LMK</adjId>
+  </cwa>
+  <cwa id="IWX">
+    <adjId>LOT</adjId>
+    <adjId>IND</adjId>
+    <adjId>ILN</adjId>
+    <adjId>GRR</adjId>
+    <adjId>DTX</adjId>
+    <adjId>CLE</adjId>
+  </cwa>
+  <cwa id="JAN">
+    <adjId>MOB</adjId>
+    <adjId>BMX</adjId>
+    <adjId>LZK</adjId>
+    <adjId>SHV</adjId>
+    <adjId>MEG</adjId>
+    <adjId>LIX</adjId>
+    <adjId>LCH</adjId>
+  </cwa>
+  <cwa id="JAX">
+    <adjId>CHS</adjId>
+    <adjId>MLB</adjId>
+    <adjId>TAE</adjId>
+    <adjId>TBW</adjId>
+    <adjId>FFC</adjId>
+    <marId>CHS</marId>
+    <marId>MLB</marId>
+  </cwa>
+  <cwa id="JKL">
+    <adjId>ILN</adjId>
+    <adjId>LMK</adjId>
+    <adjId>RLX</adjId>
+    <adjId>MRX</adjId>
+    <adjId>OHX</adjId>
+  </cwa>
+  <cwa id="LBF">
+    <adjId>BOU</adjId>
+    <adjId>GLD</adjId>
+    <adjId>OAX</adjId>
+    <adjId>FSD</adjId>
+    <adjId>GID</adjId>
+    <adjId>CYS</adjId>
+    <adjId>UNR</adjId>
+  </cwa>
+  <cwa id="LCH">
+    <adjId>LIX</adjId>
+    <adjId>HGX</adjId>
+    <adjId>SHV</adjId>
+    <adjId>JAN</adjId>
+    <marId>LIX</marId>
+    <marId>HGX</marId>
+  </cwa>
+  <cwa id="LIX">
+    <adjId>MOB</adjId>
+    <adjId>LCH</adjId>
+    <adjId>JAN</adjId>
+    <marId>MOB</marId>
+    <marId>LCH</marId>
+  </cwa>
+  <cwa id="LKN">
+    <adjId>VEF</adjId>
+    <adjId>REV</adjId>
+    <adjId>BOI</adjId>
+    <adjId>PIH</adjId>
+    <adjId>SLC</adjId>
+  </cwa>
+  <cwa id="LMK">
+    <adjId>PAH</adjId>
+    <adjId>IND</adjId>
+    <adjId>ILN</adjId>
+    <adjId>JKL</adjId>
+    <adjId>OHX</adjId>
+  </cwa>
+  <cwa id="LOT">
+    <adjId>MKX</adjId>
+    <adjId>IWX</adjId>
+    <adjId>GRR</adjId>
+    <adjId>DVN</adjId>
+    <adjId>ILX</adjId>
+    <adjId>IND</adjId>
+    <marId>MKX</marId>
+    <marId>IWX</marId>
+  </cwa>
+  <cwa id="LOX">
+    <adjId>SGX</adjId>
+    <adjId>MTR</adjId>
+    <adjId>VEF</adjId>
+    <adjId>HNX</adjId>
+    <marId>SGX</marId>
+    <marId>MTR</marId>
+  </cwa>
+  <cwa id="LSX">
+    <adjId>DVN</adjId>
+    <adjId>ILX</adjId>
+    <adjId>PAH</adjId>
+    <adjId>EAX</adjId>
+    <adjId>SGF</adjId>
+  </cwa>
+  <cwa id="LUB">
+    <adjId>ABQ</adjId>
+    <adjId>MAF</adjId>
+    <adjId>OUN</adjId>
+    <adjId>AMA</adjId>
+    <adjId>SJT</adjId>
+  </cwa>
+  <cwa id="LWX">
+    <adjId>PHI</adjId>
+    <adjId>AKQ</adjId>
+    <adjId>RLX</adjId>
+    <adjId>PBZ</adjId>
+    <adjId>RNK</adjId>
+    <adjId>CTP</adjId>
+    <marId>PHI</marId>
+    <marId>AKQ</marId>
+  </cwa>
+  <cwa id="LZK">
+    <adjId>TSA</adjId>
+    <adjId>SHV</adjId>
+    <adjId>JAN</adjId>
+    <adjId>MEG</adjId>
+    <adjId>SGF</adjId>
+  </cwa>
+  <cwa id="MAF">
+    <adjId>ABQ</adjId>
+    <adjId>EPZ</adjId>
+    <adjId>SJT</adjId>
+    <adjId>LUB</adjId>
+    <adjId>EWX</adjId>
+  </cwa>
+  <cwa id="MEG">
+    <adjId>HUN</adjId>
+    <adjId>BMX</adjId>
+    <adjId>LZK</adjId>
+    <adjId>JAN</adjId>
+    <adjId>PAH</adjId>
+    <adjId>SGF</adjId>
+    <adjId>OHX</adjId>
+  </cwa>
+  <cwa id="MFL">
+    <adjId>MLB</adjId>
+    <adjId>KEY</adjId>
+    <adjId>TBW</adjId>
+    <marId>MLB</marId>
+    <marId>KEY</marId>
+    <marId>TBW</marId>
+  </cwa>
+  <cwa id="MFR">
+    <adjId>EKA</adjId>
+    <adjId>PQR</adjId>
+    <adjId>STO</adjId>
+    <adjId>REV</adjId>
+    <adjId>BOI</adjId>
+    <adjId>PDT</adjId>
+    <marId>EKA</marId>
+    <marId>PQR</marId>
+  </cwa>
+  <cwa id="MHX">
+    <adjId>AKQ</adjId>
+    <adjId>ILM</adjId>
+    <adjId>RAH</adjId>
+    <marId>AKQ</marId>
+    <marId>ILM</marId>
+  </cwa>
+  <cwa id="MKX">
+    <adjId>GRB</adjId>
+    <adjId>LOT</adjId>
+    <adjId>DVN</adjId>
+    <adjId>ARX</adjId>
+    <marId>GRB</marId>
+    <marId>LOT</marId>
+    <marId>DVN</marId>
+  </cwa>
+  <cwa id="MLB">
+    <adjId>JAX</adjId>
+    <adjId>MFL</adjId>
+    <adjId>TBW</adjId>
+    <marId>JAX</marId>
+    <marId>MFL</marId>
+  </cwa>
+  <cwa id="MOB">
+    <adjId>TAE</adjId>
+    <adjId>LIX</adjId>
+    <adjId>BMX</adjId>
+    <adjId>JAN</adjId>
+    <marId>TAE</marId>
+    <marId>LIX</marId>
+  </cwa>
+  <cwa id="MPX">
+    <adjId>DMX</adjId>
+    <adjId>ARX</adjId>
+    <adjId>FSD</adjId>
+    <adjId>FGF</adjId>
+    <adjId>DLH</adjId>
+    <adjId>ABR</adjId>
+  </cwa>
+  <cwa id="MQT">
+    <adjId>DLH</adjId>
+    <adjId>GRB</adjId>
+    <adjId>APX</adjId>
+    <marId>DLH</marId>
+    <marId>GRB</marId>
+    <marId>APX</marId>
+  </cwa>
+  <cwa id="MRX">
+    <adjId>HUN</adjId>
+    <adjId>FFC</adjId>
+    <adjId>GSP</adjId>
+    <adjId>RLX</adjId>
+    <adjId>JKL</adjId>
+    <adjId>RNK</adjId>
+    <adjId>OHX</adjId>
+  </cwa>
+  <cwa id="MSO">
+    <adjId>OTX</adjId>
+    <adjId>BOI</adjId>
+    <adjId>PIH</adjId>
+    <adjId>TFX</adjId>
+    <adjId>PDT</adjId>
+  </cwa>
+  <cwa id="MTR">
+    <adjId>LOX</adjId>
+    <adjId>EKA</adjId>
+    <adjId>HNX</adjId>
+    <adjId>STO</adjId>
+    <marId>LOX</marId>
+    <marId>EKA</marId>
+  </cwa>
+  <cwa id="OAX">
+    <adjId>DMX</adjId>
+    <adjId>FSD</adjId>
+    <adjId>GID</adjId>
+    <adjId>TOP</adjId>
+    <adjId>EAX</adjId>
+    <adjId>LBF</adjId>
+  </cwa>
+  <cwa id="OHX">
+    <adjId>HUN</adjId>
+    <adjId>MEG</adjId>
+    <adjId>PAH</adjId>
+    <adjId>LMK</adjId>
+    <adjId>JKL</adjId>
+    <adjId>MRX</adjId>
+  </cwa>
+  <cwa id="OKX">
+    <adjId>BOX</adjId>
+    <adjId>PHI</adjId>
+    <adjId>BGM</adjId>
+    <adjId>ALY</adjId>
+    <marId>BOX</marId>
+    <marId>PHI</marId>
+  </cwa>
+  <cwa id="OTX">
+    <adjId>MSO</adjId>
+    <adjId>PDT</adjId>
+    <adjId>SEW</adjId>
+  </cwa>
+  <cwa id="OUN">
+    <adjId>TSA</adjId>
+    <adjId>ICT</adjId>
+    <adjId>DDC</adjId>
+    <adjId>AMA</adjId>
+    <adjId>SJT</adjId>
+    <adjId>LUB</adjId>
+    <adjId>FWD</adjId>
+  </cwa>
+  <cwa id="PAH">
+    <adjId>MEG</adjId>
+    <adjId>LSX</adjId>
+    <adjId>ILX</adjId>
+    <adjId>IND</adjId>
+    <adjId>LMK</adjId>
+    <adjId>SGF</adjId>
+    <adjId>OHX</adjId>
+  </cwa>
+  <cwa id="PBZ">
+    <adjId>LWX</adjId>
+    <adjId>ILN</adjId>
+    <adjId>RLX</adjId>
+    <adjId>CLE</adjId>
+    <adjId>CTP</adjId>
+  </cwa>
+  <cwa id="PDT">
+    <adjId>MFR</adjId>
+    <adjId>OTX</adjId>
+    <adjId>MSO</adjId>
+    <adjId>BOI</adjId>
+    <adjId>PQR</adjId>
+    <adjId>SEW</adjId>
+  </cwa>
+  <cwa id="PHI">
+    <adjId>OKX</adjId>
+    <adjId>LWX</adjId>
+    <adjId>AKQ</adjId>
+    <adjId>BGM</adjId>
+    <adjId>CTP</adjId>
+    <marId>OKX</marId>
+    <marId>LWX</marId>
+    <marId>AKQ</marId>
+  </cwa>
+  <cwa id="PIH">
+    <adjId>MSO</adjId>
+    <adjId>BOI</adjId>
+    <adjId>SLC</adjId>
+    <adjId>TFX</adjId>
+    <adjId>LKN</adjId>
+    <adjId>RIW</adjId>
+  </cwa>
+  <cwa id="PPG">
+  </cwa>
+  <cwa id="PQR">
+    <adjId>MFR</adjId>
+    <adjId>SEW</adjId>
+    <adjId>PDT</adjId>
+    <marId>MFR</marId>
+    <marId>SEW</marId>
+  </cwa>
+  <cwa id="PSR">
+    <adjId>TWC</adjId>
+    <adjId>FGZ</adjId>
+    <adjId>VEF</adjId>
+    <adjId>SGX</adjId>
+  </cwa>
+  <cwa id="PUB">
+    <adjId>BOU</adjId>
+    <adjId>GLD</adjId>
+    <adjId>GJT</adjId>
+    <adjId>DDC</adjId>
+    <adjId>ABQ</adjId>
+    <adjId>AMA</adjId>
+  </cwa>
+  <cwa id="RAH">
+    <adjId>CAE</adjId>
+    <adjId>GSP</adjId>
+    <adjId>AKQ</adjId>
+    <adjId>MHX</adjId>
+    <adjId>ILM</adjId>
+    <adjId>RNK</adjId>
+  </cwa>
+  <cwa id="REV">
+    <adjId>VEF</adjId>
+    <adjId>HNX</adjId>
+    <adjId>STO</adjId>
+    <adjId>MFR</adjId>
+    <adjId>BOI</adjId>
+    <adjId>LKN</adjId>
+  </cwa>
+  <cwa id="RIW">
+    <adjId>GJT</adjId>
+    <adjId>PIH</adjId>
+    <adjId>SLC</adjId>
+    <adjId>TFX</adjId>
+    <adjId>BYZ</adjId>
+    <adjId>CYS</adjId>
+    <adjId>UNR</adjId>
+  </cwa>
+  <cwa id="RLX">
+    <adjId>LWX</adjId>
+    <adjId>ILN</adjId>
+    <adjId>JKL</adjId>
+    <adjId>PBZ</adjId>
+    <adjId>MRX</adjId>
+    <adjId>RNK</adjId>
+  </cwa>
+  <cwa id="RNK">
+    <adjId>LWX</adjId>
+    <adjId>GSP</adjId>
+    <adjId>RLX</adjId>
+    <adjId>AKQ</adjId>
+    <adjId>RAH</adjId>
+    <adjId>MRX</adjId>
+  </cwa>
+  <cwa id="SEW">
+    <adjId>PQR</adjId>
+    <adjId>OTX</adjId>
+    <adjId>PDT</adjId>
+    <marId>PQR</marId>
+  </cwa>
+  <cwa id="SGF">
+    <adjId>LZK</adjId>
+    <adjId>TSA</adjId>
+    <adjId>MEG</adjId>
+    <adjId>LSX</adjId>
+    <adjId>PAH</adjId>
+    <adjId>TOP</adjId>
+    <adjId>EAX</adjId>
+    <adjId>ICT</adjId>
+  </cwa>
+  <cwa id="SGX">
+    <adjId>LOX</adjId>
+    <adjId>PSR</adjId>
+    <adjId>VEF</adjId>
+    <marId>LOX</marId>
+  </cwa>
+  <cwa id="SHV">
+    <adjId>LZK</adjId>
+    <adjId>TSA</adjId>
+    <adjId>JAN</adjId>
+    <adjId>LCH</adjId>
+    <adjId>FWD</adjId>
+    <adjId>HGX</adjId>
+  </cwa>
+  <cwa id="SJT">
+    <adjId>MAF</adjId>
+    <adjId>OUN</adjId>
+    <adjId>LUB</adjId>
+    <adjId>FWD</adjId>
+    <adjId>EWX</adjId>
+  </cwa>
+  <cwa id="SJU">
+  </cwa>
+  <cwa id="SLC">
+    <adjId>FGZ</adjId>
+    <adjId>VEF</adjId>
+    <adjId>GJT</adjId>
+    <adjId>PIH</adjId>
+    <adjId>LKN</adjId>
+    <adjId>RIW</adjId>
+  </cwa>
+  <cwa id="STO">
+    <adjId>HNX</adjId>
+    <adjId>EKA</adjId>
+    <adjId>REV</adjId>
+    <adjId>MTR</adjId>
+    <adjId>MFR</adjId>
+  </cwa>
+  <cwa id="TAE">
+    <adjId>TBW</adjId>
+    <adjId>MOB</adjId>
+    <adjId>BMX</adjId>
+    <adjId>JAX</adjId>
+    <adjId>FFC</adjId>
+    <marId>TBW</marId>
+    <marId>MOB</marId>
+  </cwa>
+  <cwa id="TBW">
+    <adjId>MFL</adjId>
+    <adjId>TAE</adjId>
+    <adjId>MLB</adjId>
+    <adjId>JAX</adjId>
+    <marId>MFL</marId>
+    <marId>TAE</marId>
+  </cwa>
+  <cwa id="TFX">
+    <adjId>MSO</adjId>
+    <adjId>PIH</adjId>
+    <adjId>GGW</adjId>
+    <adjId>BYZ</adjId>
+    <adjId>RIW</adjId>
+  </cwa>
+  <cwa id="TOP">
+    <adjId>OAX</adjId>
+    <adjId>GID</adjId>
+    <adjId>EAX</adjId>
+    <adjId>ICT</adjId>
+    <adjId>SGF</adjId>
+  </cwa>
+  <cwa id="TSA">
+    <adjId>LZK</adjId>
+    <adjId>SHV</adjId>
+    <adjId>ICT</adjId>
+    <adjId>SGF</adjId>
+    <adjId>OUN</adjId>
+    <adjId>FWD</adjId>
+  </cwa>
+  <cwa id="TWC">
+    <adjId>PSR</adjId>
+    <adjId>FGZ</adjId>
+    <adjId>ABQ</adjId>
+    <adjId>EPZ</adjId>
+  </cwa>
+  <cwa id="UNR">
+    <adjId>FSD</adjId>
+    <adjId>ABR</adjId>
+    <adjId>BYZ</adjId>
+    <adjId>BIS</adjId>
+    <adjId>LBF</adjId>
+    <adjId>CYS</adjId>
+    <adjId>RIW</adjId>
+  </cwa>
+  <cwa id="VEF">
+    <adjId>PSR</adjId>
+    <adjId>FGZ</adjId>
+    <adjId>SGX</adjId>
+    <adjId>HNX</adjId>
+    <adjId>LOX</adjId>
+    <adjId>REV</adjId>
+    <adjId>SLC</adjId>
+    <adjId>LKN</adjId>
+  </cwa>
+</adjacentWFO>

@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="Author" content="Mark Mathewson">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>sendGfeMessage</title>
+</head>
+<body alink="#ff0000" bgcolor="#ffffff" link="#0000ee" text="#000000"
+ vlink="#551a8b">
+<h1>sendGfeMessage User's Guide</h1>
+January 4, 2012<br>
+<hr width="100%">
+<br>
+The sendGfeMessage program is part of the GFESuite software.
+It takes a message specified on the command line and broadcasts it to
+all connected clients through EDEX. The message, when
+received by the GFE, is displayed in AlertViz.<br>
+<hr width="100%">
+<h2>Running the program</h2>
+<h3>
+Command Line Switches</h3>
+The command line syntax is:
+<br>
+<p><b><tt>sendGfeMessage -h hostname -p rpcport [-r] [-s] [-u] [-a] [-c
+class] -m message</tt></b>
+</p>
+<p>&nbsp;
+&nbsp;<br>
+<table border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>Command Switch</td>
+      <td>Optional or Mandatory?</td>
+      <td>Description</td>
+    </tr>
+    <tr>
+      <td>-h</td>
+      <td>Mandatory (see Note)</td>
+      <td>Host name upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-p</td>
+      <td>Mandatory (see Note)</td>
+      <td>RPC port upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-r<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Send as a routine message.
+(default)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-s<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Send as a significant message.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-u<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Send as an urgent message.
+Urgent messages in the GFE will display a red banner.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-a<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Send as an alert message.&nbsp;
+Alert messages in the GFE only appear in AlertViz.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-c<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Message class, used by GFE to
+determine whether message should appear in the left or right AlertViz
+bar. Default is "GFE", which appears in the left AlertViz bar.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-m<br>
+      </td>
+      <td style="vertical-align: top;">Mandatory<br>
+      </td>
+      <td style="vertical-align: top;">Message contents.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff"><b>Note:</b> The -h and -p switches are predefined
+when running in an installed GFESuite environment. They are
+defined to the values specified when installing the software. If you wish
+to connect to a different EDEX, then the switches will need to be
+specified.<br>
+</font></p>
+<p><font color="#3366ff"><span style="color: rgb(0, 0, 0);">The Message
+Classes that the GFE currently uses are shown in the following table:</span></font></p>
+<p><font color="#3366ff"><span style="color: rgb(0, 0, 0);"></span></font></p>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Message Class<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Appearance on
+GFE Status Bar<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SMARTINIT<br>
+      </td>
+      <td style="vertical-align: top;">Used by smart initialization
+processes to inform the forecaster that new model data has been
+processed.<br>
+      </td>
+      <td style="vertical-align: top;">Right status bar<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ISC<br>
+      </td>
+      <td style="vertical-align: top;">Used by the ISC processing that
+new ISC data has been received and processed.<br>
+      </td>
+      <td style="vertical-align: top;">Right status bar<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">NDFD<br>
+      </td>
+      <td style="vertical-align: top;">Message used by the NDFD central
+server to alert forecasters to NDFD issues on missing grids, etc.<br>
+      </td>
+      <td style="vertical-align: top;">Right status bar<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">GFE<br>
+      </td>
+      <td style="vertical-align: top;">General GFE status messages.<br>
+      </td>
+      <td style="vertical-align: top;">Left status bar<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p><font color="#3366ff"><span style="color: rgb(0, 0, 0);"><br>
+</span></font></p>
+<hr width="100%">
+<h3>Example Input</h3>
+<tt></tt>
+<p style="font-weight: bold; font-family: monospace;">sendGfeMessage -r
+-c GFE -m "test from sendGfeMessage"</p>
+<p></p>
+<hr width="100%"><br>
+<a href="GFESuite.html">Return to TOC</a>
+</body>
+</html>

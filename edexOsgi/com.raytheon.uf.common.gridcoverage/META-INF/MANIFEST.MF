@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Grid Coverage
+Bundle-SymbolicName: com.raytheon.uf.common.gridcoverage
+Bundle-Version: 1.13.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
+Export-Package: com.raytheon.uf.common.gridcoverage,
+ com.raytheon.uf.common.gridcoverage.convert,
+ com.raytheon.uf.common.gridcoverage.exception,
+ com.raytheon.uf.common.gridcoverage.lookup,
+ com.raytheon.uf.common.gridcoverage.request,
+ com.raytheon.uf.common.gridcoverage.subgrid
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.units,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataquery,
+ org.apache.commons.lang,
+ org.apache.commons.beanutils

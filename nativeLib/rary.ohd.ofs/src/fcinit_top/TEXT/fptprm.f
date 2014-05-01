@@ -1,0 +1,522 @@
+C MODULE FPTPRM
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE FPTPRM (ICARD,LASTCD,NCARD,ISTAT)
+C
+C  ROUTINE TO PRINT SEGMENT INFORMATION.
+C
+C  ARGUMENT LIST:
+C
+C      ICARD  - CARD SEQUENCE NUMBER
+C      LASTCD - TOTAL NUMBER OF CARDS
+C      NCARD  - ARRAY HOLDING CARD IMAGES
+C      ISTAT  - ERROR CODE
+C                0=NO ERRORS
+C                1=ERRORS
+C
+      PARAMETER (NCOMD=27)
+C
+      CHARACTER*8 OLDNAM
+      CHARACTER*8 BLNK8/' '/
+      CHARACTER*10 XCOMD(NCOMD)/
+     *   'SEGS',
+     *   'SEGMENTS',
+     *   'SEGMENT',
+     *   'SEG',
+     *   'S',
+     *   'FGROUP',
+     *   'FGROUPS',
+     *   'FG',
+     *   'F',
+     *   'CGROUP',
+     *   'CGROUPS',
+     *   'CG',
+     *   'C',
+     *   'ALLSEGS',
+     *   'OPERATIONS',
+     *   'OPERATION',
+     *   'OPS',
+     *   'OP',
+     *   'O',
+     *   'ALLOPS',
+     *   'PRINT',
+     *   'CARRYOVER',
+     *   'CARRY',
+     *   'CO',
+     *   'UNITS',
+     *   'U',
+     *   '$'
+     *   /
+      CHARACTER*80 NCARD(LASTCD),IBUF,WORD
+C
+      PARAMETER (LISTM=100)
+C
+      DIMENSION LIST(5,LISTM),LISTA(5,LISTM),LOLIST(2,LISTM)
+      DIMENSION LISTYP(LISTM),NUMC(LISTM),KISTOP(LISTM)
+      DIMENSION IPRSEG(2),INFG(2),INCG(2)
+      DIMENSION ITEMP(3)
+C
+      INTEGER NVAR(NCOMD)/
+     *   2,2,2,2,2,2,2,2,2,2,2,2,2,0,2,2,2,2,2,0,0,5,5,5,2,2,0
+     *   /
+      INTEGER IUNITS(4)/4HENGL,4HE   ,4HMETR,4HM   /
+      INTEGER IOBSLT(2)/4HOBSO,4HLETE/
+C
+      LOGICAL ALLOP,OPERS,ALLSEG,RECENT,CARRYO
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_top/RCS/fptprm.f,v $
+     . $',                                                             '
+     .$Id: fptprm.f,v 1.6 2001/06/14 19:27:13 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      INCLUDE 'common/where'
+      INCLUDE 'common/fengmt'
+      INCLUDE 'common/oplist'
+      INCLUDE 'common/fccgd'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fctim2'
+      INCLUDE 'common/fcrunc'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/errdat'
+      INCLUDE 'common/fsglst'
+      INCLUDE 'common/fd'
+      INCLUDE 'common/fcsegp'
+      INCLUDE 'common/ft'
+      INCLUDE 'common/fp'
+      INCLUDE 'common/fc'
+      INCLUDE 'common/fts'
+      INCLUDE 'common/fcunit'
+      INCLUDE 'common/fcsegc'
+      INCLUDE 'common/fcsegn'
+C
+C
+      CALL UMEMOV (OPNAME,OLDNAM,2)
+      CALL UMEMOV ('FPTPRM  ',OPNAME,2)
+      IOLDOP=IOPNUM
+      IOPNUM=0
+C
+      IBUG=IFBUG('PSEG')
+C
+      ISTAT=0
+C
+      IF (ITRACE.GE.1) WRITE (IODBUG,10)
+10    FORMAT ('*** ENTER FPTPRM')
+C
+      CALL UMEMOV (NCARD(ICARD),IBUF,20)
+C
+      ALLOP=.FALSE.
+      OPERS=.TRUE.
+      RECENT=.TRUE.
+      CARRYO=.FALSE.
+      NDATES=1
+      ALLSEG=.FALSE.
+      LASLIS=0
+      NUMLIS=1
+C
+C  SET 'METRIC' TO DEFAULT INDICATING THAT PARMS ARE TO BE
+C  PRINTED IN UNITS USED TO DEFINE OPERATION
+      METRIC=-1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+20    ICARD=ICARD+1
+      IF (ICARD.GT.LASTCD) GO TO 260
+C
+      CALL UMEMOV (NCARD(ICARD),IBUF,20)
+      IF (IBUG.GE.1) WRITE (IODBUG,*)
+     *   ' ICARD=',ICARD,
+     *   ' LASTCD=',LASTCD
+C
+C  GET FIRST FIELD
+      CALL USCAN2 (IBUF,' ',1,WORD,LWORD,IERR)
+      NCHAR=LWORD
+
+      IF (IBUG.GE.1) WRITE (IODBUG,*)
+     *   ' NCHAR=',NCHAR,
+     *   ' WORD=',WORD
+C
+      IDEST=0
+      DO 30 J=1,NCOMD
+         IF (WORD(1:1).EQ.'$') GO TO 250
+         IF (WORD.EQ.XCOMD(J)) IDEST=J
+30       CONTINUE
+      IF (IBUG.GE.1) WRITE (IODBUG,*) 'IDEST=',IDEST
+C
+C  CHECK IF 'CARRYOVER' FOUND
+      IF (IDEST.GE.22.AND.IDEST.LE.24) CARRYO=.TRUE.
+C
+      ID=IDEST+1
+      GO TO (40,40,40,40,40,40,40,40,40,40,
+     *       40,40,40,220,40,40,40,40,40,240,
+     *       260,40,40,40,40,40,250),IDEST
+      GO TO 690
+C
+C  GET LIST OF IDENTIFIERS
+40    NVA=NVAR(IDEST)
+      CALL RDLIST (ICARD,LASTCD,NCARD,LISTA,NLIST,NVA,NUMC,IERR)
+      IF (NLIST.EQ.0) GO TO 20
+      IF (IERR.GT.0) THEN
+         WRITE (IPR,50)
+50    FORMAT ('0**ERROR** ERROR IN READING LIST ON ABOVE CARDS.')
+         CALL ERROR
+         GO TO 710
+         ENDIF
+      IF (IDEST.GE.15.AND.IDEST.LE.19) GO TO 80
+      IF (IDEST.GE.22.AND.IDEST.LE.24) GO TO 180
+      IF (IDEST.GE.25) GO TO 140
+      LASLIS=NUMLIS+NLIST-1
+      DO 70 I=NUMLIS,LASLIS
+         J=I-NUMLIS+1
+         DO 60 K=1,NVA
+            LIST(K,I)=LISTA(K,J)
+60          CONTINUE
+         LISTYP(I)=ID/11+2
+         IF (ID.LE.6) LISTYP(I)=1
+70       CONTINUE
+      NUMLIS=NUMLIS+NLIST
+      GO TO 20
+C
+C  GET LIST OF OPERATION NAMES
+80    OPERS=.TRUE.
+      NOLIST=NLIST
+      DO 110 I=1,NLIST
+         LOLIST(1,I)=LISTA(1,I)
+         LOLIST(2,I)=LISTA(2,I)
+         CALL FOPCDE (LOLIST(1,I),LISTOP(I))
+         IF (IBUG.GE.1) WRITE (IODBUG,90) I,(LOLIST(KD,I),KD=1,2),
+     *     LISTOP(I)
+90    FORMAT (' I=',I3,' OPERATION NAME=',2A4,' NUMBER=',I2)
+         IF (LISTOP(I).GT.0) GO TO 110
+            NOLIST=NOLIST-1
+            WRITE (IPR,100) LOLIST(1,I),LOLIST(2,I)
+100   FORMAT ('0**WARNING** ',2A4,' IS NOT A VALID OPERATION.')
+            CALL WARN
+110      CONTINUE
+      IF (NOLIST.EQ.0.OR.NLIST.EQ.NOLIST) GO TO 20
+C  REMOVE BAD NAMES FROM LIST
+      IOPX=0
+      DO 120 I=1,NLIST
+         IF (LISTOP(I).EQ.0) GO TO 120
+         IOPX=IOPX+1
+         KISTOP(IOPX)=LISTOP(I)
+120      CONTINUE
+C  RESET LIST OF OPERATIONS
+      DO 130 I=1,IOPX
+         LISTOP(I)=KISTOP(I)
+130      CONTINUE
+      GO TO 20
+C
+C  UNITS SUBCOMMAND
+140   DO 150 I=1,4
+         IF (LISTA(1,1).EQ.IUNITS(I)) GO TO 170
+150      CONTINUE
+         WRITE (IPR,160) LISTA(1,1),LISTA(2,1)
+160   FORMAT ('0**WARNING** THE UNITS TYPE ',2A4,
+     * ' IS NOT VALID. VALID VALUES ARE ''METRIC'', ''ENGLISH'' ',
+     *  'OR BLANK. DEFAULT UNITS WILL BE USED.')
+         CALL WARN
+         METRIC=-1
+         GO TO 20
+170   METRIC=(I-1)/2
+      IF (IBUG.GE.1) WRITE (IODBUG,*) 'METRIC=',METRIC
+      GO TO 20
+C
+C  GET CARRYOVER DATE
+180   CARRYO=.TRUE.
+      CALL HDATEA (NUMC,LISTA(1,1),1,0,1,1,JULIAN,IHRP,JTHR,IERZ)
+      IF (IERZ.LE.0) GO TO 210
+         WRITE (IPR,190) IBUF
+190   FORMAT ('0**WARNING** ABOVE ERROR OCCURRED WITH THE DATE ',
+     *   'ON THE FOLLOWING CARD:' /
+     *   1X,A)
+         WRITE (IPR,200)
+200   FORMAT ('0**NOTE** THE MOST RECENT DATE OF CARRYOVER ',
+     *   'WILL BE PRINTED.')
+         CALL WARN
+         JULIAN=-1
+210   RECENT=.FALSE.
+      IF (JULIAN.EQ.-1) RECENT=.TRUE.
+      GO TO 20
+C
+C  ALL SEGMENTS TO BE PROCESSED
+220   IF (IBUG.GE.1) WRITE (IODBUG,230)
+230   FORMAT (' *** ALL SEGMENTS TO BE PRINTED ***')
+      ALLSEG=.TRUE.
+      NLIST=1
+      LISTYP(NUMLIS)=4
+      NUMLIS=NUMLIS+NLIST
+      LASLIS=NUMLIS+NLIST-1
+      GO TO 20
+C
+C  ALL OPERATIONS TO BE PROCESSED
+240   ALLOP=.TRUE.
+      OPERS =.TRUE.
+      NOLIST=0
+      GO TO 20
+C
+C  COMMENT
+250   GO TO 20
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+260   ICARD=ICARD-1
+      IF (LASLIS.GT.0) GO TO 280
+         WRITE (IPR,270)
+270   FORMAT ('0**WARNING** NOTHING REQUESTED FOR PRINTING.')
+         CALL WARN
+         GO TO 720
+C
+280   IF (NOLIST.GT.0.OR.ALLOP) GO TO 300
+         WRITE (IPR,290)
+290   FORMAT ('0**WARNING** NO VALID OPERATIONS ARE REQUESTED ',
+     *  'FOR DISPLAY.')
+         CALL WARN
+         GO TO 720
+C
+300   IF (OPERS) GO TO 320
+         WRITE (IPR,310)
+310   FORMAT ('0**WARNING** NO ''OPERATIONS'' SUBCOMMAND INPUT.')
+         CALL WARN
+         GO TO 720
+320   IF (ALLSEG) GO TO 510
+C
+C  PROCESS EACH SEGMENT
+      DO 500 I=1,LASLIS
+         ILD=LISTYP(I)
+         GO TO (330,400,450,510),ILD
+C     AN INDIVIDUAL SEGMENT IS TO BE PRINTED
+330      IF (IBUG.GE.1) WRITE (IODBUG,340) (LIST(K,I),K=1,2)
+340   FORMAT (' SINGLE SEGMENT TO BE PRINTED - ID=',2A4)
+         IPRSEG(1)=LIST(1,I)
+         IPRSEG(2)=LIST(2,I)
+         CALL FLOCSG (IPRSEG,IREC)
+         IF  (IREC.GT.0) GO TO 360
+            WRITE (IPR,350) IPRSEG
+350   FORMAT ('0**ERROR** SEGMENT ',2A4,' NOT FOUND.')
+            CALL ERROR
+            GO TO 390
+360      IOPT=1
+         NOPARM=0
+         CALL FGETSG (IDSEGN,IREC,MP,P,MT,T,MTS,TS,IOPT,NOPARM,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (IPR,370) IPRSEG
+370   FORMAT ('0**ERROR** THE SEGMENT DEFINITION FOR SEGMENT ',2A4,
+     *   ' NOT SUCESSFULLY READ.')
+            CALL ERROR
+            GO TO 390
+            ENDIF
+         GO TO 560
+380      CONTINUE
+390      GO TO 500
+C     PRINT SEGMENTS IN A FORECAST GROUP
+400      IF (IBUG.GE.1) WRITE (IODBUG,410) (LIST(K,I),K=1,2)
+410   FORMAT (' FORECAST GROUP TO BE PRINTED - ID=',2A4)
+         INFG(1)=LIST(1,I)
+         INFG(2)=LIST(2,I)
+         ITY=2
+         CALL FCORDR (ITY,INFG,IERR,D,MD)
+         IF (IERR.GT.0) THEN
+            WRITE (IPR,420) INFG
+420   FORMAT ('0**ERROR** SEGMENTS IN FORECAST GROUP ',2A4,
+     *   ' NOT SUCCESSFULLY ORDERED BY ROUTINE FCORDR.')
+            CALL ERROR
+            GO TO 500
+            ENDIF
+         NSEGS=NSEGEX
+         DO 440 K=1,NSEGS
+            CALL FGETSG (IDSEGN,IRSGEX(K),MP,P,MT,T,MTS,TS,1,0,IERR)
+            IF (IERR.GT.0) THEN
+               WRITE (IPR,370) IDSEGN
+               CALL ERROR
+               GO TO 440
+               ENDIF
+            IPRSEG(1)=IDSEGN(1)
+            IPRSEG(2)=IDSEGN(2)
+            GO TO 560
+430         CONTINUE
+440         CONTINUE
+         GO TO 500
+C     PRINT SEGMENTS IN A CARRYOVER GROUP
+450      IF (IBUG.GE.1) WRITE (IODBUG,460) (LIST(K,I),K=1,2)
+460   FORMAT (' CARRYOVER GROUP TO BE PRINTED - ID=',2A4)
+         INCG(1)=LIST(1,I)
+         INCG(2)=LIST(2,I)
+         ITY=1
+         CALL FCORDR (ITY,INCG,IERR,D,MD)
+            IF (IERR.GT.0) THEN
+               WRITE (IPR,470) INCG
+470   FORMAT ('0**ERROR** SEGMENTS FOR CARRYOVER GROUP ',2A4,
+     *   ' NOT SUCCESSFULLY ORDERED BY ROUTINE FCORDR.')
+               CALL ERROR
+               GO TO 500
+               ENDIF
+         NSEGS=NSEGEX
+         DO 490 K=1,NSEGS
+            CALL FGETSG (IDSEGN,IRSGEX(K),MP,P,MT,T,MTS,TS,1,0,IERR)
+            IF (IERR.GT.0) THEN
+               WRITE (IPR,370) IDSEGN
+               CALL ERROR
+               GO TO 490
+               ENDIF
+            IPRSEG(1)=IDSEGN(1)
+            IPRSEG(2)=IDSEGN(2)
+            GO TO 560
+480         CONTINUE
+490         CONTINUE
+500      CONTINUE
+C
+      GO TO 720
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  ALL SEGMENTS ARE TO BE PRINTED
+C
+510   I=1
+      LISTYP(1)=4
+      NLIST=NS
+      IF (NLIST.GT.MLIST) NLIST=MLIST
+C
+C  PROCESS EACH SEGMENT IN LIST
+      DO 530 L=1,NLIST
+         IPRSEG(1)=IDZ(1,L)
+         IPRSEG(2)=IDZ(2,L)
+         IRECP=IDZ(3,L)
+         CALL FGETSG (IDSEGN,IRECP,MP,P,MT,T,MTS,TS,1,0,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (IPR,370) IPRSEG
+            CALL ERROR
+            GO TO 530
+            ENDIF
+            GO TO 560
+520      CONTINUE
+530      CONTINUE
+C
+C  CHECK IF ALL SEGMENTS READ FROM ARRAY
+      IF (NLIST.EQ.NS) GO TO 720
+      I=1
+      LISTYP(I)=5
+      I2=NLIST+1
+C
+C  PROCESS REMAINDER OF SEGMENTS
+      DO 550 J=I2,NS
+         JJ=J+2
+         CALL UREADT (KFSGPT,J,ITEMP,IERR)
+         IPRSEG(1)=ITEMP(1)
+         IPRSEG(2)=ITEMP(2)
+         IRECP=ITEMP(3)
+         CALL FGETSG (IDSEGN,IRECP,MP,P,MT,T,MTS,TS,1,0,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (IPR,370) IPRSEG
+            CALL ERROR
+            GO TO 550
+            ENDIF
+         GO TO 560
+540      CONTINUE
+550      CONTINUE
+      GO TO 720
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SEGMENT PARAMETERS AND CARRYOVER (IF REQUESTED) ARE PRINTED HERE.
+C
+560   IOPT=2
+      ITOP=0
+      IF (IPRSEG(1).EQ.IOBSLT(1).AND.IPRSEG(2).EQ.IOBSLT(2)) GO TO 680
+C
+      WRITE (IPR,570) IPRSEG
+570   FORMAT ('1',80('*')/' ','*',78X,'*'/' ','*',22X,
+     *   24HSEGMENT TO BE PRINTED - ,2A4,02H .,22X,'*'/' *',78X,'*'/
+     *  ,' ',80('*')/)
+C
+      IF (.NOT.CARRYO) GO TO 660
+C
+C  CHCEK IF TO USE MOST RECENT CARRYOVER
+      IF (.NOT.RECENT) GO TO 600
+C
+C  FIND MOST RECENT CARRYOVER DATE
+      CALL FCDATE (IPRSEG,0)
+      CALL FCOBBL (ICDAYC,ICHRC,NSLOTS)
+      DO 580 NI=1,NSLOTS
+         NJ=NSLOTS-NI+1
+         IF (ICDAYC(NJ).LE.0) GO TO 580
+            JULIAN=ICDAYC(NJ)
+            IHRP=ICHRC(NJ)
+            GO TO 600
+580      CONTINUE
+C
+      WRITE (IPR,590) IPRSEG
+590   FORMAT ('0**WARNING** NO DATED CARRYOVER EXISTS FOR SEGMENT ',
+     *   2A4,'.')
+      CALL WARN
+      GO TO 660
+C
+C  CHECK IF ANY OPERATIONS HAVE CARRYOVER
+600   IF (NCOPS.LT.1) GO TO 620
+C
+      IF (IBUG.GE.1) WRITE (IODBUG,*)
+     *   ' JULIAN=',JULIAN,
+     *   ' IHRP=',IHRP
+      IOPT=1
+      CALL UMEMOV (BLNK8,IDC,2)
+      CALL FGETCO (IPRSEG,JULIAN,IHRP,C,MC,'ERROR',IERR)
+      IF (IERR.LE.1) GO TO 640
+         CALL MDYH2 (JULIAN,IHRP,MX,MDX,MYX,MHX,NDUMZ,NDUMDS,INPTZC)
+         WRITE (IPR,610) IPRSEG,MX,MDX,MYX,MHX,INPTZC
+610   FORMAT ('0**ERROR** CARRYOVER FOR SEGMENT ',2A4,
+     *   ' FOR ',I2.2,'/',I2.2,'/',I4.4,
+     *   ' NOT SUCCESFULLY READ.')
+         CALL ERROR
+         IOPT=2
+         GO TO 640
+C
+C  CARRYOVER PRINT REQUESTED BUT THERE ARE NO OPERATIONS WITH CARRYOVER
+620   CALL MDYH2 (JULIAN,IHRP,MX,MDX,MYX,MHX,NDUMZ,NDUMDS,INPTZC)
+      WRITE (IPR,630) MX,MDX,MYX,MHX,INPTZC
+630   FORMAT ('0**NOTE** CARRYOVER REQUESTED FOR ',
+     *   I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A4,' ',
+     *   'BUT NO OPERATIONS IN THIS SEGMENT HAVE CARRYOVER.')
+      GO TO 660
+C
+C   PRINT PARAMETERS AND CARRYOVER
+640   CALL MDYH2 (JULIAN,IHRP,MX,MDX,MYX,MHX,NDUMZ,NDUMDS,INPTZC)
+      WRITE (IPR,650) MX,MDX,MYX,MHX,INPTZC
+650   FORMAT ('0',80('*') /
+     *   ' *',78X,'*'  /
+     *   ' *',16X,
+     *      'CARRYOVER TO BE PRINTED FOR ',
+     *      I2.2,'/',I2.2,'/',I4.4,'-',I2.2,A4,' ',
+     *      16X,'*' /
+     *   ' *',78X,'*' /
+     *   ' ',80('*') /)
+C
+660   IPRINT=1
+      IPUNCH=0
+      CALL FCPPTS (TS,MTS,IPRINT,IPUNCH)
+      WRITE (IPR,670)
+670   FORMAT ('0OPERATIONS USED BY SEGMENT:')
+      CALL PROPTB (P,MP,C,MC,T,MT,TS,MTS,MD,MINDT,IOPT,ITOP)
+C
+680   IRET=LISTYP(I)
+      GO TO (380,430,480,520,540),IRET
+C
+690   WRITE (IPR,700) IBUF
+700   FORMAT ('0**ERROR** INVALID COMMAND ON FOLLOWING CARD:' /
+     *   1X,A)
+      CALL ERROR
+C
+710   ISTAT=2
+C
+720   CALL UMEMOV (OLDNAM,OPNAME,2)
+      IOPNUM=IOLDOP
+C
+      IF (ITRACE.GE.1) WRITE (IODBUG,730)
+730   FORMAT (' *** EXIT FPTPRM')
+C
+      RETURN
+C
+      END

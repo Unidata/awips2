@@ -1,0 +1,88 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the pproc_lib-GageQCGui library file
+#
+#  cmt: File made on Wed Aug  6 13:01:18 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/pproc_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libGageQCGui_t.a:  \
+     $(LIB)/libGageQCGui_t.a(change_freezing_mode.o)  \
+     $(LIB)/libGageQCGui_t.a(change_freezing_time.o)  \
+     $(LIB)/libGageQCGui_t.a(change_gage_character.o)  \
+     $(LIB)/libGageQCGui_t.a(change_pcpn_zoom_mode.o)  \
+     $(LIB)/libGageQCGui_t.a(change_precip_mode.o)  \
+     $(LIB)/libGageQCGui_t.a(colormaps.o)  \
+     $(LIB)/libGageQCGui_t.a(contour_freezing.o)  \
+     $(LIB)/libGageQCGui_t.a(contour_precip.o)  \
+     $(LIB)/libGageQCGui_t.a(contour_temperature.o)  \
+     $(LIB)/libGageQCGui_t.a(daily_qc_utils.o)  \
+     $(LIB)/libGageQCGui_t.a(display_pcpn_options.o)  \
+     $(LIB)/libGageQCGui_t.a(display_pdc_tsl_jni.o)  \
+     $(LIB)/libGageQCGui_t.a(draw_dqc_stations.o)  \
+     $(LIB)/libGageQCGui_t.a(draw_freezing_legend.o)  \
+     $(LIB)/libGageQCGui_t.a(draw_precip_legend.o)  \
+     $(LIB)/libGageQCGui_t.a(draw_temperature_legend.o)  \
+     $(LIB)/libGageQCGui_t.a(edit_freezing_level_gages.o)  \
+     $(LIB)/libGageQCGui_t.a(edit_maxminstations.o)  \
+     $(LIB)/libGageQCGui_t.a(edit_precip_gages.o)  \
+     $(LIB)/libGageQCGui_t.a(edit_stations.o)  \
+     $(LIB)/libGageQCGui_t.a(edit_temperature_gages.o)  \
+     $(LIB)/libGageQCGui_t.a(edit_zstations.o)  \
+     $(LIB)/libGageQCGui_t.a(elevation_filter.o)  \
+     $(LIB)/libGageQCGui_t.a(gage_filter.o)  \
+     $(LIB)/libGageQCGui_t.a(gageqc_expose.o)  \
+     $(LIB)/libGageQCGui_t.a(gageqc_select.o)  \
+     $(LIB)/libGageQCGui_t.a(get_climate_source.o)  \
+     $(LIB)/libGageQCGui_t.a(get_legend.o)  \
+     $(LIB)/libGageQCGui_t.a(group_edit_calls.o)  \
+     $(LIB)/libGageQCGui_t.a(group_edit_precip_stations.o)  \
+     $(LIB)/libGageQCGui_t.a(group_edit_temperature_stations.o)  \
+     $(LIB)/libGageQCGui_t.a(initialize_gageqc_gui.o)  \
+     $(LIB)/libGageQCGui_t.a(other_pcpn_options.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_freezing_stations.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_gridded_freezing.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_gridded_precip.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_gridded_temperature.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_mean_area_freezing.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_mean_area_precip.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_mean_area_temperature.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_precip_stations.o)  \
+     $(LIB)/libGageQCGui_t.a(plot_temperature_stations.o)  \
+     $(LIB)/libGageQCGui_t.a(save_level2_data.o)  \
+     $(LIB)/libGageQCGui_t.a(screening_options.o)  \
+     $(LIB)/libGageQCGui_t.a(Wait.o)
+

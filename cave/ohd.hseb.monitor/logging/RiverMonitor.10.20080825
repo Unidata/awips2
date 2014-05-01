@@ -1,0 +1,35 @@
+10
+**************************************
+10
+**************************************
+14:55:58: RiverMonitor Started
+10
+**************************************
+14:55:59: RiverMonitorDataManager.readValidHeightAndDischargePE():  Where Clause:where pe like 'H%' or pe like 'Q%'
+10
+**************************************
+14:55:59: OfficeNotesDataManager.readDataFromOfficeNotes():  Where Clause:order by topic, id, postingtime
+10
+**************************************
+14:55:59: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/DerivedColumns.txt]
+10
+**************************************
+14:55:59: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/DerivedColumns.txt]
+10
+**************************************
+14:55:59: RiverMonitorSettings.startRiverMonitor(): Trying to load from file :/awips/hydroapps/whfs/local/data/app/rivermon/DefaultRiverMonitorSettings.txt
+10
+**************************************
+14:56:12: RiverMonitorDataManager.createRiverMonitorRowDataList():  Memory Info before creating rowdata list:Free:64030096 Max:1023934464 total:65536000
+10
+**************************************
+14:56:15: RiverMonitorDataManager.readConfigFileAndFormConfigMap(): ConfigFile [awips/hydroapps/whfs/local/data/app/rivermon/RiverMonitorPEConfig.txt] doesn't exist
+10
+**************************************
+14:56:16: RiverMonLocGroupDataManager.initRiverMonGroupMap():  Where Clause:order by ordinal
+10
+**************************************
+14:56:16: RiverMonitorLocGroupDataManager.initRiverMonLocationMap():  Where Clause:where group_id not like 'DEFAULT' order by ordinal
+10
+**************************************
+14:56:16: RiverMonitorDataManager.createRiverMonitorRowDataList():  Here 1: Free:151008992 Max:1023934464 total:158990336

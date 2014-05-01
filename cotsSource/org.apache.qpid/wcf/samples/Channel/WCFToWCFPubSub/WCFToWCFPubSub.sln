@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+
+# 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License
+#
+
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Topic_Consumer", "Topic_Consumer\Topic_Consumer.csproj", "{248A3A0B-FDC4-4E70-8428-BE0AF5AB021B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Topic_Producer", "Topic_Producer\Topic_Producer.csproj", "{67B413EF-3B9C-4988-87DE-0386C209D368}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Another_Topic_Consumer", "Another_Topic_Consumer\Another_Topic_Consumer.csproj", "{6AC32E9D-EFB2-4DEF-81D7-F70A0D7A606F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{248A3A0B-FDC4-4E70-8428-BE0AF5AB021B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{248A3A0B-FDC4-4E70-8428-BE0AF5AB021B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{248A3A0B-FDC4-4E70-8428-BE0AF5AB021B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{248A3A0B-FDC4-4E70-8428-BE0AF5AB021B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67B413EF-3B9C-4988-87DE-0386C209D368}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67B413EF-3B9C-4988-87DE-0386C209D368}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67B413EF-3B9C-4988-87DE-0386C209D368}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67B413EF-3B9C-4988-87DE-0386C209D368}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AC32E9D-EFB2-4DEF-81D7-F70A0D7A606F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AC32E9D-EFB2-4DEF-81D7-F70A0D7A606F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AC32E9D-EFB2-4DEF-81D7-F70A0D7A606F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AC32E9D-EFB2-4DEF-81D7-F70A0D7A606F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

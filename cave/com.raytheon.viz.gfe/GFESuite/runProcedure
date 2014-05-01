@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# get path to cave
+path_to_script=`readlink -f $0`
+RUN_FROM_DIR=`dirname $path_to_script`
+
+# cave directory
+CAVE_DIR=/awips2/cave
+
+# execute the runProcedure module
+_GFECLI="${RUN_FROM_DIR}/gfeclient.sh"
+_MODULE="${RUN_FROM_DIR}/src/runprocedure/runProcedure.py"
+
+# quoting of '$@' is used to prevent command line interpretation
+if [ ! -f $_GFECLI ] || [ ! -d $CAVE_DIR ]
+then
+  echo "CAVE and/or gfeclient not installed on this workstation ..exiting"
+  exit 1
+else
+  $_GFECLI $_MODULE "$@"
+fi
+

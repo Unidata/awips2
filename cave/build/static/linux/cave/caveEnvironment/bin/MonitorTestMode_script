@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Need to make sure we determine what TMCP_HOME should
+# be if it is not set.
+dir=${0%/*}
+if [ "$dir" = "$0" ]; then
+ dir="."
+fi
+cd "$dir/.."
+
+if [ ! -n "${TMCP_HOME}" ]
+then
+    export TMCP_HOME=.
+fi
+
+DISPLAY=$1:0.0; export DISPLAY
+$TMCP_HOME/bin/MonitorTestMode  &

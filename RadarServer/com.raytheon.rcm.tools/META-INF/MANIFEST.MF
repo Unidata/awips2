@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tools
+Bundle-SymbolicName: com.raytheon.rcm.tools
+Bundle-Version: 1.12.1174.qualifier

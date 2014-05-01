@@ -1,0 +1,481 @@
+<html>
+<title>Smart Script Class - Utilities</title>
+<body>
+
+<h1><a name="Util"></a>Utilities</h1>
+<br>
+<a href="#findDatabase">findDatabase</a>
+<br>
+<a href="#getDatabase">getDatabase</a>
+<br>
+<a href="#getTimeRange">getTimeRange</a>
+<br>
+<a href="#createTimeRange">createTimeRange</a>
+<br>
+<a href="#getSamplePoints">getSamplePoints</a>
+<br>
+<a href="#dayTime">dayTime</a>
+<br>
+<a href="#determineTimeShift">determineTimeShift</a>
+<br>
+<a href="#getEditArea">getEditArea</a>
+<br>
+<a href="#saveEditArea">saveEditArea</a>
+<br>
+<a href="#setActiveEditArea">setActiveEditArea</a>
+<br>
+<a href="#clearActiveEditArea">clearActiveEditArea</a>
+<br>
+<a href="#setActiveElement">setActiveElement</a>
+<br>
+<a href="#getActiveElement">getActiveElement</a>
+<br>
+<a href="#getGridCellSwath">getGridCellSwath</a>
+<br>
+<a href="#getLatLon">getLatLon</a>
+<br>
+<a href="#getLatLonGrids">getLatLonGrids</a>
+<br>
+<a href="#getGridCell">getGridCell</a>
+<br>
+<a href="#getGrid2DBit">getGrid2DBit</a>
+<br>
+<a href="#getGridTimes">getGridTimes</a>
+<br>
+<a href="#getExprName">getExprName</a>
+<br>
+<a href="#getModelName">getModelName</a>
+<br>
+<a href="#getD2Dmodel">getD2Dmodel</a>
+<br>
+<a href="#getParm">getParm</a>
+<br>
+<a href="#getParmByExpr">getParmByExpr</a>
+<br>
+<a href="#cacheElements">cacheElements</a>
+<br>
+<a href="#unCacheElements">unCacheElements</a>
+<br>
+<a href="#loadWEGroup">loadWEGroup</a>
+<br>
+<a href="#unloadWE">unloadWE</a>
+<br>
+<a href="#saveElements">saveElements</a>
+<br>
+<a href="#publishElements">publishElements</a>
+<br>
+<a href="#combineMode_">combineMode</a>
+<br>
+<a href="#setCombineMode">setCombineMode</a>
+<br>
+<a href="#getVectorEditMode">getVectorEditMode</a>
+<br>
+<a href="#setVectorEditMode">setVectorEditMode</a>
+<br>
+<a href="#getConfigItem">getConfigItem</a>
+<br>
+<a href="#esat">esat</a>
+<!-- Leave this comment for formatting purposes -->
+<hr width="100%">
+
+
+<h2>
+<a name="findDatabase"></a>findDatabase</h2>
+def findDatabase(self, databaseName, version=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a database id.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # databaseName can have the appended
+type. E.g. "NAM" or "D2D_NAM"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # version is 0 (most recent), -1
+(previous),
+-2, etc.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # E.g.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # databaseID =
+self.findDatabase("NAM",0)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # returns most recent NAM model
+<h2><a name="getDatabase"></a>getDatabase</h2>
+def getDatabase(self, databaseString):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a database id.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # databaseString is the result of a
+VariableList entry of type
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "model" or "D2D_model"
+<h2><a name="getTimeRange"></a>getTimeRange</h2>
+def getTimeRange(self, timeRangeName):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns TimeRange given
+a time range name
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # as defined in the GFE
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # E.g.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # timeRange = self.getTimeRange("Today")
+<h2><a name="createTimeRange"></a>createTimeRange</h2>
+def createTimeRange(self, startHour, endHour, mode="LT", dbID=None):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns TimeRange given
+by:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # startHour, endHour
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # (range is startHour up to and not
+including endHour)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # startHour and endHour are relative
+to midnight of the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # current day either in Local or Zulu
+time (see below)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # mode can be:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "LT" : the startHour and endHour are
+relative to local time
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "Zulu": relative to Zulu time,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "Database": relative to a database
+(e.g. model time.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # In this case, the databaseID for the
+model must
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # be supplied (see findDatabase)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # E.g.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # timeRange =
+self.createTimeRange(0,121,"Zulu")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # databaseID = self.findDatabase("NAM")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # timeRange =
+self.createTimeRange(120,241,"Database",databaseID)
+<h2><a name="getSamplePoints"></a>getSamplePoints</h2>
+def getSamplePoints(self, sampleSetName=None):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a list of x,y tuples
+representing
+sample points
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # sampleSet is the name of a saved
+sample
+set
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # if sampleSet is None, the sample
+points
+will be
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # those currently displayed on the GFE
+
+
+<h2><a name="dayTime"></a>dayTime</h2>
+def dayTime(self, timeRange, startHour=6, endHour=18):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return 1 if start of timeRange is
+between the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # startHour and endHour, Return 0
+otherwise.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assume timeRange is GMT and convert
+to local time.
+<h2><a name="determineTimeShift"></a>determineTimeShift</h2>
+def determineTimeShift(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns the difference: Local time
+- GMT in seconds
+<h2><a name="getEditArea"></a>getEditArea</h2>
+def getEditArea(self, editAreaName):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a ReferenceData object
+given an edit area name
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # as defined in the GFE
+<h2><a name="saveEditArea"></a>saveEditArea</h2>
+def saveEditArea(self, editAreaName, refData):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Saves the ReferenceData object
+with the given name
+<h2><a name="setActiveEditArea"></a>setActiveEditArea</h2>
+def setActiveEditArea(self, area):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set the ReferenceData area to
+be the active one in the GFE
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Note: This will not take effect until
+AFTER the smart tool or
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # procedure is finished executing.
+<h2><a name="clearActiveEditArea"></a>clearActiveEditArea</h2>
+def clearActiveEditArea(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Clear the active edit area in the
+GFE
+<h2><a name="setActiveElement"></a>setActiveElement</h2>
+def setActiveElement(self, model, element, level, timeRange,
+colorTable=None,
+minMax=None, fitToData=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set the given element to the active
+one in the GFE
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # A colorTable name may be given.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # A min/max range for the colorTable
+may be given.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # If fitToData = 1, the color table
+is fit to the data
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # self.setActiveElement("ISCDisc",
+WEname+"Disc",
+"SFC", GridTimeRange,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # colorTable="Discrepancy",
+minMax=(-20,+20),
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # fitToData=1)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="getActiveElement"></a>getActiveElement</h2>
+def getActiveElement(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the parm for the current active
+element
+<h2><a name="getGridCellSwath"></a>getGridCellSwath</h2>
+def getGridCellSwath(self, editArea, cells):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a ReferenceData swath
+of the given
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # number of cells around the given an
+edit area.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The edit area must not be a query.
+<h2><a name="getLatLon"></a>getLatLon</h2>
+def getLatLon(self, x, y):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the latitude/longitude values
+for the given grid point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; coords = Coordinate(float(x), float(y))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cc2D = self.getGridLoc().latLonCenter(coords)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return cc2D.y, cc2D.x
+
+
+<h2><a name="getLatLonGrids"></a>getLatLonGrids</h2>
+def getLatLonGrids(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the latitude/longitude grids<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gridLoc = self.getGridLoc()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; latLonGrid = gridLoc.getLatLonGrid().__numpy__[0];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  gridLoc.getNx().intValue()), order='F')<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return latLonGrid[1], latLonGrid[0]
+
+<h2><a name="getGridCell"></a>getGridCell</h2>
+def getGridCell(self, lat, lon):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the corresponding x,y values for
+the given lat/lon
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return None, None if the lat/lon is
+outside the grid domain
+<h2><a name="getGrid2DBit"></a>getGrid2DBit</h2>
+def getGrid2DBit(self, editArea):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a Grid of on/off values
+indicating
+whether
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # or not the grid point is in the given
+edit area.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This could be used as follows in a
+Smart Tool:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def preProcessGrid(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # editArea = self.getEditArea("Area1")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # self.__area1Bits =
+self.getGrid2DBit(editArea)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # editArea = self.getEditArea("Area2")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # self.__area2Bits =
+self.getGrid2DBit(editArea)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # if self.__area1Bits.get(x,y) == 1:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;<process a="" point="" in=""
+ area1="">
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # elif self.__area2Bits.get(x,y) ==
+1:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;<process a="" point="" in=""
+ area2="">
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;</process></process>
+<h2><a name="getGridTimes"></a>getGridTimes</h2>
+def getGridTimes(self, model, element, level, startTime, hours):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the timeRange and gridTimes
+for the number of hours
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # FOLLOWING the given startTime
+<h2><a name="getExprName"></a>getExprName</h2>
+def getExprName(self, model, element, level="SFC", mostRecent=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return an expressionName for the
+element
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This method is complicated because
+it is handling all the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # variations for the "model" argument.
+For a description
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # of the variations, see the "getValue"
+documentation above.
+<h2><a name="getModelName"></a>getModelName</h2>
+def getModelName(self, databaseString):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the model name.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # databaseString is the result of a
+VariableList entry of type
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "model" or "D2D_model"
+<h2><a name="getD2Dmodel"></a>getD2Dmodel</h2>
+def getD2Dmodel(self, model):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Given a GFE Surface model, return
+the corresponding D2D model
+<h2><a name="getParm"></a>getParm</h2>
+def getParm(self, model, element, level, timeRange=None, mostRecent=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns the parm object for the given
+model, element, and level
+
+<h2><a name="getParmByExpr"></a>getParmByExpr</h2>
+def getParmByExpr(self, exprName):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns the parm object for the given expression
+<h2><a name="cacheElements"></a>cacheElements</h2>
+def cacheElements(self, elementNames):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This routine is deprecated - caching is controlled by the system.
+<h2><a name="unCacheElements"></a>unCacheElements</h2>
+def unCacheElements(self, elementNames):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This routine is deprecated<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Users may still call this method<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # to delete temporary parms in the parm manager.
+<h2><a name="loadWEGroup"></a>loadWEGroup</h2>
+def loadWEGroup(self, groupName):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Load the given weather element group
+into the GFE
+<h2><a name="unloadWE"></a>unloadWE</h2>
+def unloadWE(self, model, element, level, mostRecent=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Unload the given weather element from GFE
+<h2><a name="saveElements"></a>saveElements</h2>
+def saveElements(self, elementList):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Save the given Fcst elements to the
+server
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # self.saveElements(["T","Td"])
+<h2><a name="publishElements"></a>publishElements</h2>
+def publishElements(self, elementList, timeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Publish the given Fcst elements to
+the server
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # over the given time range
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # self.publishElements(["T","Td"],
+timeRange)
+<h2><a name="combineMode_"></a><a name="combineMode"></a>combineMode</h2>
+def combineMode(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # returns 1 if we are in COMBINE mode
+and 0 if not
+<br>
+&nbsp;
+<h2><a name="setCombineMode"></a>setCombineMode</h2>
+def setCombineMode(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # call it like this
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.setCombineMode("Replace")
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #or
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.setCombineMode("Combine")
+<br>
+&nbsp;
+</p>
+<h2><a name="getVectorEditMode"></a>getVectorEditMode</h2>
+def getVectorEditMode(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns Vector Edit mode in
+the GFE
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # mode:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+"Magnitude
+Only"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; "Vector
+Only"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; "Both"
+<h2><a name="setVectorEditMode"></a>setVectorEditMode</h2>
+def setVectorEditMode(self, mode):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Sets the Vector Edit mode in
+the GFE
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # mode:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
+"Magnitude
+only"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; "Vector
+only"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; "Both"
+<h2><a name="getConfigItem"></a>getConfigItem</h2>
+def getConfigItem(elf, itemName, default=None):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the configuration file value for "itemName"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # If not found, return the default given
+<h2><a name="esat"></a>esat</h2>
+def esat(self, temp):

@@ -1,0 +1,14 @@
+RPS List KXXX.maint created 24-MAY-1995 19:51:48... 19 products
+ An RPS list contains the following fields: Product Name, Product
+ Mnemonic, Product Code, Number of Data Levels, Resolution, Elevation,
+ Layer Code, Contour Interval, Priority, Req Interval, and Map
+ The record format is: '%-39s  %-3s%4d%4d%6d %c%6d%7d%2d%2d%c'
+Base Reflectivity  (Z)                   Z    19  16   100 -     5      0 0 1N
+Base Reflectivity  (Z)                   Z    19  16   100 -    24      0 0 1N
+Base Reflectivity  (Z)                   Z    19  16   100 -    99      0 0 1N
+Base Velocity  (V)                       V    27  16   100 -     5      0 0 1N
+Base Velocity  (V)                       V    27  16   100 -    24      0 0 1N
+Base Velocity  (V)                       V    27  16   100 -    99      0 0 1N
+Spectrum Width (SW)                     SW    30   8   100 -     5      0 0 1N
+Spectrum Width (SW)                     SW    30   8   100 -    24      0 0 1N
+Spectrum Width (SW)                     SW    30   8   100 -    99      0 0 1N

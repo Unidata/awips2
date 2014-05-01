@@ -1,0 +1,53 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-db_ppprw library file
+#
+#  cmt: File made on Wed Aug  6 12:48:30 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libdb_ppprw_t.a:  \
+     $(LIB)/libdb_ppprw_t.a(ipckdt.o)  \
+     $(LIB)/libdb_ppprw_t.a(ppckid.o)  \
+     $(LIB)/libdb_ppprw_t.a(ppfndr.o)  \
+     $(LIB)/libdb_ppprw_t.a(ppputr.o)  \
+     $(LIB)/libdb_ppprw_t.a(rpp1ch.o)  \
+     $(LIB)/libdb_ppprw_t.a(rpp1mt.o)  \
+     $(LIB)/libdb_ppprw_t.a(rppchr.o)  \
+     $(LIB)/libdb_ppprw_t.a(rppmt.o)  \
+     $(LIB)/libdb_ppprw_t.a(rpppco.o)  \
+     $(LIB)/libdb_ppprw_t.a(rpprec.o)  \
+     $(LIB)/libdb_ppprw_t.a(wpp1ch.o)  \
+     $(LIB)/libdb_ppprw_t.a(wpp1mt.o)  \
+     $(LIB)/libdb_ppprw_t.a(wppcof.o)  \
+     $(LIB)/libdb_ppprw_t.a(wppdch.o)  \
+     $(LIB)/libdb_ppprw_t.a(wppdel.o)  \
+     $(LIB)/libdb_ppprw_t.a(wppdmt.o)  \
+     $(LIB)/libdb_ppprw_t.a(wpppco.o)  \
+     $(LIB)/libdb_ppprw_t.a(wpprec.o)
+

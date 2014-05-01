@@ -1,0 +1,91 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_top library file
+#
+#  cmt: File made on Wed Aug  6 12:49:44 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_top_t.a:  \
+     $(LIB)/libfcinit_top_t.a(cgdef.o)  \
+     $(LIB)/libfcinit_top_t.a(cgdela.o)  \
+     $(LIB)/libfcinit_top_t.a(cgdelb.o)  \
+     $(LIB)/libfcinit_top_t.a(cgdelc.o)  \
+     $(LIB)/libfcinit_top_t.a(cgdel.o)  \
+     $(LIB)/libfcinit_top_t.a(cgdseg.o)  \
+     $(LIB)/libfcinit_top_t.a(cretrv.o)  \
+     $(LIB)/libfcinit_top_t.a(csave.o)  \
+     $(LIB)/libfcinit_top_t.a(csrset.o)  \
+     $(LIB)/libfcinit_top_t.a(del32.o)  \
+     $(LIB)/libfcinit_top_t.a(delseg.o)  \
+     $(LIB)/libfcinit_top_t.a(fcdelt.o)  \
+     $(LIB)/libfcinit_top_t.a(fcdmp3.o)  \
+     $(LIB)/libfcinit_top_t.a(fcinit.o)  \
+     $(LIB)/libfcinit_top_t.a(fcktsx.o)  \
+     $(LIB)/libfcinit_top_t.a(fcoseg.o)  \
+     $(LIB)/libfcinit_top_t.a(fcppts.o)  \
+     $(LIB)/libfcinit_top_t.a(fcrcds.o)  \
+     $(LIB)/libfcinit_top_t.a(fcwtrc.o)  \
+     $(LIB)/libfcinit_top_t.a(fdefrc.o)  \
+     $(LIB)/libfcinit_top_t.a(fdelrc.o)  \
+     $(LIB)/libfcinit_top_t.a(fgdef.o)  \
+     $(LIB)/libfcinit_top_t.a(fgdel.o)  \
+     $(LIB)/libfcinit_top_t.a(fgetfg.o)  \
+     $(LIB)/libfcinit_top_t.a(fgget.o)  \
+     $(LIB)/libfcinit_top_t.a(fgsgls.o)  \
+     $(LIB)/libfcinit_top_t.a(fgspun.o)  \
+     $(LIB)/libfcinit_top_t.a(fmcops.o)  \
+     $(LIB)/libfcinit_top_t.a(fobssg.o)  \
+     $(LIB)/libfcinit_top_t.a(fpdbio.o)  \
+     $(LIB)/libfcinit_top_t.a(fppprm.o)  \
+     $(LIB)/libfcinit_top_t.a(fppseg.o)  \
+     $(LIB)/libfcinit_top_t.a(fprrc.o)  \
+     $(LIB)/libfcinit_top_t.a(fprtop.o)  \
+     $(LIB)/libfcinit_top_t.a(fprtrc.o)  \
+     $(LIB)/libfcinit_top_t.a(fptcry.o)  \
+     $(LIB)/libfcinit_top_t.a(fptprm.o)  \
+     $(LIB)/libfcinit_top_t.a(fpuncg.o)  \
+     $(LIB)/libfcinit_top_t.a(fpunfg.o)  \
+     $(LIB)/libfcinit_top_t.a(fpunrc.o)  \
+     $(LIB)/libfcinit_top_t.a(fpurc.o)  \
+     $(LIB)/libfcinit_top_t.a(frcerr.o)  \
+     $(LIB)/libfcinit_top_t.a(frcfq.o)  \
+     $(LIB)/libfcinit_top_t.a(frcid.o)  \
+     $(LIB)/libfcinit_top_t.a(frcopt.o)  \
+     $(LIB)/libfcinit_top_t.a(frcrdc.o)  \
+     $(LIB)/libfcinit_top_t.a(frcshf.o)  \
+     $(LIB)/libfcinit_top_t.a(frcun.o)  \
+     $(LIB)/libfcinit_top_t.a(frcupd.o)  \
+     $(LIB)/libfcinit_top_t.a(frestr.o)  \
+     $(LIB)/libfcinit_top_t.a(fsgdat.o)  \
+     $(LIB)/libfcinit_top_t.a(fsgdef.o)  \
+     $(LIB)/libfcinit_top_t.a(fupdco.o)  \
+     $(LIB)/libfcinit_top_t.a(rdlist.o)  \
+     $(LIB)/libfcinit_top_t.a(tsdef.o)  \
+     $(LIB)/libfcinit_top_t.a(tsprt.o)
+

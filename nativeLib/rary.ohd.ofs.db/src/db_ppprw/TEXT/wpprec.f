@@ -1,0 +1,182 @@
+C MODULE WPPREC
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE WPPREC (ID,ITYPE,LARRAY,ARRAY,IPTR,ISTAT)
+C
+C  THIS ROUTINE WRITES A PARAMETER ARRAY TO THE PREPROCESSOR
+C  PARAMETRIC DATA BASE.
+C
+C  IF THE ARRAY IS NEW, IT WILL BE ADDED.
+C  IF THE ARRAY IS ALREADY THERE, IT WILL BE REPLACED.
+C
+C  ARGUMENT LIST:
+C
+C       NAME      TYPE  I/O   DIM   DESCRIPTION
+C       ------    ----  ---   ---   ----------- 
+C       ID         I     I    2     PARAMETER IDENTIFIER
+C       ITYPE      I     I    1     PARAMETER TYPE
+C       LARRAY     I     I    1     LENGTH OF PARAMETER ARRAY
+C       ARRAY      R     I  LARRAY  PARAMETER ARRAY
+C       IPTR       I    I/O   1     RECORD NUMBER OF PARAMETER ARRAY
+C                                     LE 0=LOCATION UNKNOWN OR NEW
+C                                     GT 0=RECORD NUMBER
+C       ISTAT      I     O    1     STATUS CODE
+C                                     0=NORMAL RETURN
+C                                     1=SYSTEM ERROR
+C                                     2=FILE FULL
+C                                     3=ID IS RESERVED WORD
+C                                     4=PARAMETER RECORD DOES NOT
+C                                       MATCH ID AND TYPE
+C                                     5=TYPE NOT IN DIRECTORY
+C                                     6=RECORD NUMBER OUT OF RANGE
+C
+      DIMENSION ID(2)
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION IWORK(16)
+      DIMENSION IXBUF(4)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udebug'
+      INCLUDE 'pppcommon/ppunts'
+      INCLUDE 'pppcommon/ppdtdr'
+      INCLUDE 'pppcommon/ppmctl'
+      INCLUDE 'pppcommon/pppdta'
+      INCLUDE 'ucommon/uordrx'
+      INCLUDE 'urcommon/urunts'
+      INCLUDE 'urcommon/urppdt'
+      INCLUDE 'urcommon/urppmc'
+      INCLUDE 'urcommon/urcdta'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_ppprw/RCS/wpprec.f,v $
+     . $',                                                             '
+     .$Id: wpprec.f,v 1.3 2002/02/11 19:20:28 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IPPTR.GT.0) WRITE (IOGDB,80) ID,ITYPE
+C
+      ISTAT=0
+C
+C  CHECK FOR VALID DATA TYPE
+      IDXDAT=IPCKDT(ITYPE)
+      IF (IDXDAT.EQ.0) THEN
+         ISTAT=5
+         GO TO 70
+         ENDIF
+C
+C  CHECK ID AGAINST RESERVED WORDS
+      CALL PPCKID (ID,ISTAT)
+      IF (ISTAT.NE.0) GO TO 70
+C
+C  GET UNIT NUMBER
+      IF (IAMORD.EQ.0) LUPRMF=KPPRMU(IPDTDR(2,IDXDAT))
+      IF (IAMORD.EQ.1) LUPRMF=KUPRMI(JPDTDR(2,IDXDAT))
+C
+C  CHECK IF PARAMETER ARRAY RECORD NUMBER SPECIFIED
+      IF (IPTR.GT.0) GO TO 30
+C
+20    IPTR=0
+C
+C  CHECK IF PARAMETER ARRAY EXISTS
+      IFIND=0
+      CALL PPFNDR (ID,ITYPE,IFIND,IXBUF,IFREE,ISTAT)
+      IXREC=IFIND
+      IF (ISTAT.NE.0) GO TO 70
+C
+      IF (IXREC.NE.0) GO TO 40
+C
+C  PARAMETER ARRAY NOT FOUND
+      CALL PPPUTR (IDXDAT,IFREE,ID,ARRAY,LARRAY,IWORK,IPTR,ISTAT)
+      GO TO 70
+C
+C  USER SPECFIED RECORD NUMBER
+30    IXBUF(4)=IPTR
+C
+C  PARAMETER RECORD FOUND - READ FIRST PART OF PARAMETER ARRAY
+40    IF (IAMORD.EQ.0.AND.IXBUF(4).GT.IPMCTL(2,IPDTDR(2,IDXDAT)))
+     *   GO TO 65
+      IF (IAMORD.EQ.1.AND.IXBUF(4).GT.JPMCTL(2,JPDTDR(2,IDXDAT)))
+     *   GO TO 65
+      IF (IPPDB.GT.0) WRITE (IOGDB,90) LUPRMF,IXBUF(4)
+      CALL UREADT (LUPRMF,IXBUF(4),IWORK,ISTAT)
+      IF (ISTAT.NE.0) GO TO 70
+C
+C  CHECK IF SAME IDENTIFIER AND TYPE AS THAT REQUESTED
+      IF (IWORK(2).EQ.ID(1).AND.IWORK(3).EQ.ID(2).AND.
+     *   IWORK(4).EQ.ITYPE) GO TO 50
+      IF (IPPDB.GT.0) WRITE (IOGDB,100) ID,ITYPE,IXBUF(4),
+     *   (IWORK(I),I=2,4)
+      IF (IPTR.GT.0) GO TO 20
+      ISTAT=4
+      GO TO 70
+C
+C  CHECK IF NUMBER OF RECORDS NEEDED FOR PARAMETER ARRAY IS DIFFERENT
+50    NUMOLD=IUNRCD(IWORK(1),LRECPP)
+      NUMNEW=IUNRCD(LARRAY+NPPHED,LRECPP)
+      IF (IPPDB.GT.0) WRITE (IOGDB,110) NUMOLD,NUMNEW
+      IF (NUMNEW.GT.NUMOLD) GO TO 60
+C
+C  CAN WRITE IN PLACE - INDEX DOES NOT NEED TO BE CHANGED
+      N=LRECPP-NPPHED
+      CALL UMEMOV (ARRAY,IWORK(NPPHED+1),N)
+      NUMNEW=NUMNEW-1
+      IWORK(1)=LARRAY+NPPHED
+      IF (IPPDB.GT.0) WRITE (IOGDB,120) IWORK
+C
+C  CHECK RECORD NUMBER
+      IF (IAMORD.EQ.0.AND.IXBUF(4).GT.IPMCTL(2,IPDTDR(2,IDXDAT)))
+     *   GO TO 65
+      IF (IAMORD.EQ.1.AND.IXBUF(4).GT.JPMCTL(2,JPDTDR(2,IDXDAT)))
+     *   GO TO 65
+C
+C  WRITE PARAMETER ARRAY
+      CALL UWRITT (LUPRMF,IXBUF(4),IWORK,ISTAT)
+      IF (ISTAT.NE.0) GO TO 70
+      IPTR=IXBUF(4)
+      IF (NUMNEW.LT.1) GO TO 70
+      IREC=IXBUF(4)+1
+      CALL WVLRCD (LUPRMF,IREC,NUMNEW,ARRAY(N+1),LRECPP,ISTAT)
+      GO TO 70
+C
+C  NOT ENOUGH ROOM - MUST ADD TO END OF FILE
+60    IFIND=1
+      CALL PPFNDR (ID,ITYPE,IFIND,IXBUF,IFREE,ISTAT)
+      IXREC=IFIND
+      IF (ISTAT.NE.0) GO TO 70
+      CALL PPPUTR (IDXDAT,IXREC,ID,ARRAY,LARRAY,IWORK,IPTR,ISTAT)
+      IF (ISTAT.NE.0) GO TO 70
+C
+C  SET OLD RECORD TO DELETED
+      CALL UREADT (LUPRMF,IXBUF(4),IWORK,ISTAT)
+      CALL UMEMOV ('DELETED ',IWORK(2),2)
+      CALL UWRITT (LUPRMF,IXBUF(4),IWORK,ISTAT)
+      IF (ISTAT.NE.0) GO TO 70
+      IF (IAMORD.EQ.0) IPDTDR(5,IDXDAT)=IPDTDR(5,IDXDAT)-1
+      IF (IAMORD.EQ.1) JPDTDR(5,IDXDAT)=JPDTDR(5,IDXDAT)-1
+      GO TO 70
+C
+C  RECORD NUMBER OUT OF RANGE
+65    IPTR=IXBUF(4)
+      ISTAT=6
+C
+70    IF (ISTAT.NE.0) IWURFL=1
+C
+      IF (IPPTR.GT.0) WRITE (IOGDB,130) ISTAT
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+80    FORMAT (' ENTER WPPREC - ID=',2A4,3X,'ITYPE=',A4)
+90    FORMAT (' LUPRMF=',I2,3X,'IXBUF(4)=',I6)
+100   FORMAT (' ID=',2A4,' ITYPE=',A4,' IXBUF(4)=',I6,
+     *   ' IWORK(2...4)=',2A4,1X,A4)
+110   FORMAT (' NUMOLD=',I4,3X,'NUMNEW=',I4)
+120   FORMAT (' IWORK=',I4,3A4,I4,11A4)
+130   FORMAT (' EXIT WPPREC : ISTAT=',I2)
+C
+      END

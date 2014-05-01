@@ -1,0 +1,2 @@
+Narrative Phrases are built by a collection of Python methods which cooperate to piece together the desired words.  We have discussed Narrative Strategies which give us some insight into the complexities and dependencies involved in building a phrase.  Though we cannot cover all the logic and code used to build the core products, we will find it very instructive to walk through the definition of an example phrase which has an "anatomy" very similar to other phrases.
+

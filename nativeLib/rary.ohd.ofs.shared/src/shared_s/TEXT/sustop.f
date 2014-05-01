@@ -1,0 +1,387 @@
+C$PRAGMA C (DATIM2)
+C MODULE SUSTOP
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE SUSTOP (ISTOP)
+C
+C  THIS ROUTINE PRINTS A SUMMARY OF ERRORS AND WARNINGS AND STOPS THE
+C  PROGRAM EXECUTION.
+C
+C  SPECIAL VALUES OF ISTOP:
+C     -1 = DO NO SET OR PRINT COMPLETION CODE
+C     -2 = SET CPU TIME USED TO CPU TIME FOR RUN
+C
+      CHARACTER*28 DATE2
+C
+      INCLUDE 'uiox'
+      INCLUDE 'upagex'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/suerrx'
+      INCLUDE 'scommon/suoptx'
+      INCLUDE 'scommon/sutmrx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/sustop.f,v $
+     . $',                                                             '
+     .$Id: sustop.f,v 1.6 2003/03/14 18:51:40 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SUSTOP'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C         
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('SYS')
+C
+      IF (ISLEFT(15).GT.0) CALL SUPAGE
+C
+      INDSTP=ISTOP
+C
+C  CHECK IF TSO OPTION SPECIFIED
+      IF (IOPTSO.EQ.1) GO TO 30
+C
+C  CHECK LINES LEFT ON PAGE
+      IF (ISLEFT(4).EQ.0) THEN
+         DO 10 I=1,2
+            WRITE (LP,240)
+            CALL SULINE (LP,2)
+10          CONTINUE
+         ELSE
+C        START NEW PAGE
+            CALL SUPAGE
+         ENDIF
+C
+C  PRINT BLANK LINES ON ERROR UNIT
+      IF (LP.NE.LPE) THEN
+         IF (NTERR.EQ.0.AND.NTWARN.EQ.0) THEN
+            ELSE
+               DO 20 I=1,2
+                  WRITE (LPE,240)
+                  CALL SULINE (LPE,2)
+20                CONTINUE
+            ENDIF
+         ENDIF
+C
+30    IF (NPGERR.EQ.0) GO TO 60
+      IF (NTERR.EQ.0) GO TO 60
+C
+C  PRINT PAGE NUMBERS ON WHICH ERRORS OCCURRED
+      IUNIT=LP
+      NPASS=1
+40    NUM=NPGERR
+      NPER=15
+      IF (NUM.GT.NPER) NUM=NPER
+      NTIME=(NPGERR-NPER)/NPER
+      IF (MOD(NPGERR,NPER).NE.0) NTIME=NTIME+1
+      WRITE (IUNIT,280) (LPGERR(I),I=1,NUM)
+      CALL SULINE (IUNIT,2)
+      IF (NPGERR.GT.NPER) THEN
+         NUM1=NPER+1
+         NUM2=NPER*2
+         DO 50 J=1,NTIME
+            IF (NUM2.GT.NPGERR) NUM2=NPGERR
+            WRITE (IUNIT,290) (LPGERR(I),I=NUM1,NUM2)
+            CALL SULINE (IUNIT,1)
+            NUM1=NUM1+NPER
+            NUM2=NUM2+NPER
+50          CONTINUE
+         ENDIF
+C
+      IF (NPASS.EQ.2) GO TO 60
+      IF (LP.EQ.LPE) GO TO 60
+      IF (IOPTSO.EQ.1) GO TO 60
+      IUNIT=LPE
+      NPASS=2
+      GO TO 40
+C
+60    IF (NPGWRN.EQ.0) GO TO 90
+      IF (NTWARN.EQ.0) GO TO 90
+C
+C  PRINT PAGES ON WHICH WARNINGS OCCURRED
+      IUNIT=LP
+      NPASS=1
+70    NUM=NPGWRN
+      NPER=15
+      IF (NUM.GT.NPER) NUM=NPER
+      NTIME=(NPGWRN-NPER)/NPER
+      IF (MOD(NPGWRN,NPER).NE.0) NTIME=NTIME+1
+      NLINE=2+NTIME*2
+      IF (ISLEFT(NLINE).GT.0) CALL SUPAGE
+      WRITE (IUNIT,270) (LPGWRN(I),I=1,NUM)
+      CALL SULINE (IUNIT,2)
+      IF (NPGWRN.GT.NPER) THEN
+         NUM1=NPER+1
+         NUM2=NPER*2
+         DO 80 J=1,NTIME
+            IF (NUM2.GT.NPGWRN) NUM2=NPGWRN
+            WRITE (IUNIT,290) (LPGWRN(I),I=NUM1,NUM2)
+            CALL SULINE (IUNIT,1)
+            NUM1=NUM1+NPER
+            NUM2=NUM2+NPER
+80          CONTINUE
+         ENDIF
+C
+      IF (NPASS.EQ.2) GO TO 90
+      IF (LP.EQ.LPE) GO TO 90
+      IF (IOPTSO.EQ.1) GO TO 90
+      IUNIT=LPE
+      NPASS=2
+      GO TO 70
+C
+C  GET CURRENT CLOCK TIME
+90    CALL UDATEI (NMONTH,NDAY,NYEAR,NHRMIN,NSEC,JULDAY,IERR)
+C
+C  CHECK IF END OF RUN
+      IF (INDSTP.EQ.-2) THEN
+         IDAY=ISTDAY
+         IHMS=ISTHMS
+         GO TO 100
+         ENDIF
+      IDAY=IELDAY
+      IHMS=IELHMS
+C
+C  CALCULATE ELAPSED CLOCK TIME USED
+100   NHR=NHRMIN/100
+      NMIN=NHRMIN-NHR*100
+      NHMS=(NHR*10000+NMIN*100)+(NSEC/100)
+      IF (JULDAY.NE.IDAY) NHMS=NHMS+2400*100
+      CALL SUSECS (IHMS,NSEC1)
+      CALL SUSECS (NHMS,NSEC2)
+      NSEC=NSEC2-NSEC1
+      NETMIN=NSEC/60
+      NETSEC=NSEC-NETMIN*60
+      ETUSD=NETMIN*1.+NSEC/60.
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,250) NHMS,IHMS,NETMIN,NETSEC,ETUSD
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK IF END OF RUN
+      IF (INDSTP.EQ.-2) THEN
+         ITMTOT=ITMRUN
+         GO TO 110
+         ENDIF
+C
+C  GET CPU TIME USED
+      IUNIT=-1
+      CALL SUTIMR (IUNIT,ITMELA,ITMTOT)
+C
+C  CALCULATE CPU TIME USED
+110   NSEC=(ITMTOT+50)/100
+      NCPMIN=NSEC/60
+      NCPSEC=NSEC-NCPMIN*60
+      CPUSD=ITMTOT/100.
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,260) ITMTOT,NCPMIN,NCPSEC,CPUSD
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK NUMBER OF LINES LEFT ON PAGE
+      IF (ISLEFT(18).GT.0) CALL SUPAGE
+C
+      DO 120 I=1,2
+         WRITE (LP,240)
+         CALL SULINE (LP,2)
+120      CONTINUE
+C
+      WRITE (LP,230)
+      CALL SULINE (LP,2)
+C
+C  SET NUMBER OF WARNINGS AND ERRORS ENCOUNTERED
+      NUMERR=NTERR
+      NUMWRN=NTWARN
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'NTWARN=',NTWARN,' NTERR=',NTERR
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK IF END OF RUN
+      IF (KLSTOP.EQ.1) THEN
+         NUMERR=NRERR
+         NUMWRN=NRWARN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,*) 'NRWARN=',NRWARN,' NRERR=',NRERR
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         ENDIF
+C
+      IF (INDSTP.EQ.-1) GO TO 140
+C
+C  SET COMPLETION CODE
+      IF (NTERR.GT.0) THEN
+         ISTOP=8
+         IF (KLCODE.EQ.16) ISTOP=16
+         GO TO 160
+         ENDIF
+      IF (NTWARN.GT.0) THEN
+         ISTOP=4
+         IF (KLCODE.EQ.16) ISTOP=16
+         GO TO 160
+         ENDIF
+C
+140   ISTOP=0
+C
+C  CHECK IF END OF RUN
+      IF (KLSTOP.EQ.0) GO TO 150
+C
+C  CHECK IF HIGHEST CONDITION CODE ENCOUNTERED FOR RUN GREATER THAN
+C  CURRENT CONDITION CODE
+      IF (IRNCDE.GT.ISTOP) ISTOP=IRNCDE
+C
+C  CHECK IF TSO OPTION SPECIFIED
+150   IF (IOPTSO.EQ.1) THEN
+         WRITE (LP,310)
+         CALL SULINE (LP,2)
+         WRITE (LP,320) NUMERR
+         CALL SULINE (LP,2)
+         WRITE (LP,330) NUMWRN
+         CALL SULINE (LP,2)
+         WRITE (LP,340) NCPMIN,NCPMIN
+         CALL SULINE (LP,2)
+         WRITE (LP,350) NETMIN,NETMIN
+         CALL SULINE (LP,2)
+         WRITE (LP,360) ISTOP
+         CALL SULINE (LP,2)
+         GO TO 170
+         ENDIF
+C
+160   IF (NUMERR.LT.0.AND.NUMWRN.LT.0) THEN
+         ELSE
+            WRITE (LP,310)
+            CALL SULINE (LP,2)
+            WRITE (LP,320) NUMERR
+            CALL SULINE (LP,2)
+            WRITE (LP,330) NUMWRN
+            CALL SULINE (LP,2)
+         ENDIF
+      WRITE (LP,340) NCPMIN,NCPSEC
+      CALL SULINE (LP,2)
+      WRITE (LP,350) NETMIN,NETSEC
+      CALL SULINE (LP,2)
+      IF (ISTOP.GE.0) THEN
+         WRITE (LP,360) ISTOP
+         CALL SULINE (LP,2)
+         ENDIF
+      CALL DATIM2 (DATE2)
+      WRITE (LP,420) DATE2(2:24)
+      CALL SULINE (LP,2)
+      WRITE (LP,230)
+      CALL SULINE (LP,0)
+C LC    (1/24/2003) added next write statement for ofs work in CAP
+C LC    writes the ofs return value at the end of the output file
+      WRITE(LP,*)ISTOP
+
+C  CHECK IF COMMAND LOG OPTION SPEFICIED
+170   IF (IOPCLG(1).EQ.1) THEN
+         IUNIT=IOPCLG(2)
+         WRITE (IUNIT,370) NUMWRN
+         WRITE (IUNIT,380) NUMERR
+         WRITE (IUNIT,390) NCPMIN,NCPSEC
+         WRITE (IUNIT,400) NETMIN,NETSEC
+         WRITE (IUNIT,410) ISTOP
+         ENDIF
+C
+C  CHECK IF OPTION SPECIFIED TO ALWAYS PRINT TO ERROR MESSAGE FILE
+      IF (IOPSTP.EQ.1) GO TO 180
+C
+C  CHECK IF TSO OPTION SPECIFIED
+      IF (IOPTSO.EQ.1) GO TO 200
+C
+C  CHECK NUMBER OF ERRORS AND WARNINGS ENCOUNTERED
+      IF (NUMERR.EQ.0.AND.NUMWRN.EQ.0) GO TO 200
+C
+C  PRINT TO ERROR MESSAGE FILE
+180   IF (LP.NE.LPE) THEN
+         DO 190 I=1,2
+            WRITE (LPE,240)
+            CALL SULINE (LPE,2)
+190         CONTINUE
+         WRITE (LPE,230)
+         CALL SULINE (LPE,2)
+         IF (IOPSTP.EQ.1.AND.INDSTP.EQ.-2) THEN
+            ELSE
+               WRITE (LPE,300) PUSRID
+               CALL SULINE (LPE,2)
+            ENDIF
+         WRITE (LPE,310)
+         CALL SULINE (LPE,2)
+         WRITE (LPE,320) NUMERR
+         CALL SULINE (LPE,2)
+         WRITE (LPE,330) NUMWRN
+         CALL SULINE (LPE,2)
+         IF (ISTOP.GE.0) THEN
+            WRITE (LPE,360) ISTOP
+            CALL SULINE (LPE,2)
+            ENDIF
+         WRITE (LPE,340) NCPMIN,NCPSEC
+         CALL SULINE (LPE,2)
+         WRITE (LPE,350) NETMIN,NETSEC
+         CALL SULINE (LPE,2)
+         WRITE (LPE,420) DATE2(2:24)
+         CALL SULINE (LPE,2)
+         WRITE (LPE,240)
+         CALL SULINE (LPE,2)
+         WRITE (LPE,230)
+         CALL SULINE (LPE,0)
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF TO STOP
+200   IF (KLSTOP.EQ.0) THEN
+         KLCODE=ISTOP
+         IF (ISTOP.GT.IRNCDE) IRNCDE=ISTOP
+         GO TO 210
+         ENDIF
+C
+      INCLUDE 'cluprimc'
+C
+C  STOP THE PROGRAM
+      IF (ISTOP.EQ.16) STOP 16
+      IF (ISTOP.EQ.8) STOP 8
+      IF (ISTOP.EQ.4) STOP 4
+      STOP 0
+C
+210   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SUSTOP'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+230   FORMAT ('0',132('*'))
+240   FORMAT ('0')
+250   FORMAT (' NHMS=',I8,3X,'IHMS=',I8,3X,'NETMIN=',I6,3X,
+     *   'NETSEC=',I6,3X,'ETUSD=',F8.2)
+260   FORMAT (' ITMTOT=',I4,3X,'NCPMIN=',I4,3X,'NCPSEC=',I4,3X,
+     *   'CPUSD=',F6.2)
+270   FORMAT ('0*** NOTE - WARNINGS OCCURRED ON THE FOLLOWING ',
+     *   'PAGES :  ',15(I4,1X))
+280   FORMAT ('0*** NOTE - ERRORS   OCCURRED ON THE FOLLOWING ',
+     *   'PAGES :  ',15(I4,1X))
+290   FORMAT (T57,15(I4,1X))
+300   FORMAT ('0',15X,'USER NAME = ',2A4)
+310   FORMAT ('0',15X,'SUMMARY OF ERRORS AND WARNINGS FOR THIS RUN :')
+320   FORMAT ('0',23X,'TOTAL NUMBER OF ERRORS   = ',I4)
+330   FORMAT ('0',23X,'TOTAL NUMBER OF WARNINGS = ',I4)
+340   FORMAT ('0',15X,'CPU   TIME USED = ',I4,' MINUTES,',1X,
+     *   I2,' SECONDS')
+350   FORMAT ('0',15X,'CLOCK TIME USED = ',I4,' MINUTES,',1X,
+     *   I2,' SECONDS')
+360   FORMAT ('0',15X,'COMPLETION CODE = ',I2)
+370   FORMAT (' TOTAL NUMBER OF WARNINGS = ',I4)
+380   FORMAT (' TOTAL NUMBER OF ERRORS   = ',I4)
+390   FORMAT (' CPU   TIME USED = ',I4,' MINUTES,',1X,I2,' SECONDS')
+400   FORMAT (' CLOCK TIME USED = ',I4,' MINUTES,',1X,I2,' SECONDS')
+410   FORMAT (' ','COMPLETION CODE = ',I2)
+420   FORMAT ('0',15X,'NATIONAL WEATHER SERVICE   -   RIVER FORECAST ',
+     *   'SYSTEM',15X,'DATE: ',A)
+C
+      END

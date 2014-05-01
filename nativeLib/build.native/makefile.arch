@@ -1,0 +1,27 @@
+# This script will currently only influence how various cdt
+# project dependencies are built rather than the cdt builds
+# themselves.
+
+# leave blank to let the OS determine the architecture or
+# set to one of: {-m32, -m64} to specify the architecture.
+# setting the flag to anything other than -m32 or -m64 will
+# cause unknown, potentially chaotic, build results.
+ARCHFLAGS = -m32
+
+# ARCHFLAGS is set into the build environment so that scripts
+# that utilize this script can execute their own architecture
+# specific steps.
+
+ifndef ARCHFLAGS
+	ARCH ?= $(shell uname -i)
+	ifeq ($(ARCH),x86_64)
+		export CFLAGS := $(CFLAGS) -m64
+		export ARCHFLAGS := -m64
+	else
+		export CFLAGS := $(CFLAGS) -m32
+		export ARCHFLAGS := -m32 
+	endif
+else
+	export CFLAGS := $(CFLAGS) $(ARCHFLAGS)
+	export ARCHFLAGS := $(ARCHFLAGS)
+endif

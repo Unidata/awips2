@@ -1,0 +1,386 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'damDisplayControl.c';
+generateNameCMainProgram = 'ffgcontrol.c';
+generateNameExterns = * 'damDisplayControl.h';
+generateNameResDB = * 'damDisplayControl.res';
+generateCHeaderFile = 'ffgcontrol.h';
+generateNameMakefile = 'Makefile';
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaUnselectedFiles = '';
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'damDisplayControlDS' : XmDialogShell {
+	arguments {
+	name = 'damDisplayControlDS';
+	lastGenName = 'damDisplayControlDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_damDisplayControlDS (Widget parent)
+';
+	XmNwidth = 300;
+	XmNheight = 300;
+	XmNallowShellResize = false;
+	XmNminWidth = 300;
+	XmNminHeight = 300;
+	XmNmaxWidth = 300;
+	XmNmaxHeight = 300;
+	XmNbaseWidth = 300;
+	XmNbaseHeight = 300;
+	};
+object 'damDisplayControlFO' : XmForm {
+	arguments {
+	name = 'ffg_displayControlFO';
+	lastGenName = 'damDisplayControlFO';
+	XmNwidth = 300;
+	XmNheight = 300;
+	XmNdialogTitle = 'Dam Display Control';
+	XmNresizePolicy = 0;
+	XmNautoUnmanage = false;
+	XmNnoResize = true;
+	};
+object 'dam_closeDisplayPB' : XmPushButton {
+	arguments {
+	name = 'dam_closeDisplayPB';
+	lastGenName = 'dam_closeDisplayPB';
+	XmNlabelString = 'Close';
+	};
+};
+object 'dam_clearDisplayPB' : XmPushButton {
+	arguments {
+	name = 'dam_clearDisplayPB';
+	lastGenName = 'dam_clearDisplayPB';
+	generateResName = true;
+	XmNwidth = 60;
+	XmNheight = 30;
+	XmNlabelString = 'Clear Data';
+	};
+};
+object 'dam_mapDisplayPB' : XmPushButton {
+	arguments {
+	name = 'dam_mapDisplayPB';
+	lastGenName = 'dam_mapDisplayPB';
+	generateResName = true;
+	XmNwidth = 60;
+	XmNheight = 30;
+	XmNlabelString = 'Map Data';
+	};
+};
+object 'damDisplayOptionFO' : XmForm {
+	arguments {
+	lastGenName = 'damDisplayOptionFO';
+	};
+object 'damOptionLA' : XmLabel {
+	arguments {
+	lastGenName = 'damOptionLA';
+	XmNlabelString = 'Display:';
+	};
+};
+object 'damDisplayIdTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'damDisplayIdTB';
+	XmNlabelString = 'Id';
+	};
+};
+object 'damDisplayNameTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'damDisplayNameTB';
+	XmNlabelString = 'Name';
+	};
+};
+object 'damDisplayIconTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'damDisplayIconTB';
+	XmNlabelString = 'Icon';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -60;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -130;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -205;
+	XmNleftAttachment = 1 0 145;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 220;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    };
+};
+object '3' : XmLabel {
+	arguments {
+	lastGenName = 'label3';
+	XmNlabelString = 'Filter by:';
+	};
+};
+object 'damFilterOperatorOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'damFilterOperatorOM';
+	};
+abstract object '4' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'label4';
+	};
+};
+abstract object 'damFilterOperatorCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'damFilterOperatorCB';
+	};
+object 'damFilterOperatorPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'damFilterOperatorPDM';
+	};
+object 'damGreaterThanPB' : XmPushButton {
+	arguments {
+	lastGenName = 'damGreaterThanPB';
+	XmNlabelString = 'greater than';
+	};
+};
+object 'damEqualsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'damEqualsPB';
+	XmNlabelString = 'equal to';
+	};
+};
+object 'DamLessThanPB' : XmPushButton {
+	arguments {
+	lastGenName = 'DamLessThanPB';
+	XmNlabelString = 'less than';
+	};
+};
+object 'damAllPB' : XmPushButton {
+	arguments {
+	lastGenName = 'damAllPB';
+	XmNlabelString = 'All';
+	};
+};
+};
+};
+};
+object 'damFilterValueTE' : XmTextField {
+	arguments {
+	lastGenName = 'damFilterValueTE';
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	};
+};
+object '2' : XmLabel {
+	arguments {
+	was_selected = true;
+	lastGenName = 'label2';
+	XmNlabelString = 'Dam Volume
+(acre-ft.)';
+	};
+};
+object 'damLatCenterTE' : XmTextField {
+	arguments {
+	lastGenName = 'text2';
+	XmNmaxLength = 6;
+	};
+};
+object 'damLonCenterTE' : XmTextField {
+	arguments {
+	lastGenName = 'text3';
+	XmNmaxLength = 6;
+	};
+};
+object 'damLatOffsetTE' : XmTextField {
+	arguments {
+	lastGenName = 'text4';
+	XmNmaxLength = 6;
+	};
+};
+object 'damLonOffsetTE' : XmTextField {
+	arguments {
+	lastGenName = 'text5';
+	XmNmaxLength = 6;
+	};
+};
+object '5' : XmLabel {
+	arguments {
+	lastGenName = 'label5';
+	XmNlabelString = 'Latitude';
+	};
+};
+object '6' : XmLabel {
+	arguments {
+	lastGenName = 'label6';
+	XmNlabelString = 'Longitude';
+	};
+};
+object '7' : XmLabel {
+	arguments {
+	lastGenName = 'label7';
+	XmNlabelString = 'Center Point';
+	};
+};
+object '8' : XmLabel {
+	arguments {
+	lastGenName = 'label8';
+	XmNlabelString = 'Offset';
+	};
+};
+object '1' : XmSeparator {
+	arguments {
+	lastGenName = 'separator1';
+	};
+};
+object '2' : XmSeparator {
+	arguments {
+	lastGenName = 'separator2';
+	};
+};
+object 'enableLatLonTB' : XmToggleButton {
+	arguments {
+	XmNlabelString = 'Enable';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -175;
+	XmNleftAttachment = 1 0 115;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 265;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 200;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 265;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -100;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -295;
+	XmNtopAttachment = 1 0 265;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -295;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -250;
+	XmNtopAttachment = 1 0 220;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -70;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -220;
+	XmNleftAttachment = 1 0 95;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -295;
+	XmNleftAttachment = 1 0 225;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -85;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -85;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -195;
+	XmNtopAttachment = 1 0 160;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 155;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 155;
+	XmNbottomAttachment = 2 0 -195;
+	XmNtopAttachment = 1 0 160;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 120;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 2 0 -190;
+	XmNtopAttachment = 1 0 165;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -85;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -115;
+	XmNtopAttachment = 1 0 95;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 155;
+	XmNbottomAttachment = 2 0 -115;
+	XmNtopAttachment = 1 0 95;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -295;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -265;
+	XmNtopAttachment = 1 0 250;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -295;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -220;
+	XmNtopAttachment = 1 0 205;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 220;
+	XmNbottomAttachment = 2 0 -170;
+	XmNtopAttachment = 1 0 140;
+    };
+    };
+};
+};
+end module;

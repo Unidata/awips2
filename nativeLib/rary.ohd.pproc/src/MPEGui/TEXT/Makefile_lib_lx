@@ -1,0 +1,147 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the pproc_lib-MPEGui library file
+#
+#  cmt: File made on Wed Aug  6 13:01:36 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/pproc_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libMPEGui_t.a:  \
+     $(LIB)/libMPEGui_t.a(add_pseudo_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(arrow_button_callbacks.o)  \
+     $(LIB)/libMPEGui_t.a(cancel_edit.o)  \
+     $(LIB)/libMPEGui_t.a(choose_date.o)  \
+     $(LIB)/libMPEGui_t.a(choose_rfcwide_date.o)  \
+     $(LIB)/libMPEGui_t.a(clear_data_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(create_ss_interface_rfcwide.o)  \
+     $(LIB)/libMPEGui_t.a(delete_polygons.o)  \
+     $(LIB)/libMPEGui_t.a(delete_polygons_show.o)  \
+     $(LIB)/libMPEGui_t.a(display7x7.o)  \
+     $(LIB)/libMPEGui_t.a(display7x7_show.o)  \
+     $(LIB)/libMPEGui_t.a(display_accum_show.o)  \
+     $(LIB)/libMPEGui_t.a(display_adapt_param.o)  \
+     $(LIB)/libMPEGui_t.a(display_avgrmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_bias_table.o)  \
+     $(LIB)/libMPEGui_t.a(display_bmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_control_endtime.o)  \
+     $(LIB)/libMPEGui_t.a(display_control_interval.o)  \
+     $(LIB)/libMPEGui_t.a(display_control_precip.o)  \
+     $(LIB)/libMPEGui_t.a(display_edit_precip_poly.o)  \
+     $(LIB)/libMPEGui_t.a(display_endtime_show.o)  \
+     $(LIB)/libMPEGui_t.a(display_field.o)  \
+     $(LIB)/libMPEGui_t.a(display_gageonly.o)  \
+     $(LIB)/libMPEGui_t.a(display_gage_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(display_height.o)  \
+     $(LIB)/libMPEGui_t.a(display_index.o)  \
+     $(LIB)/libMPEGui_t.a(display_interval_show.o)  \
+     $(LIB)/libMPEGui_t.a(display_lmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_locbias.o)  \
+     $(LIB)/libMPEGui_t.a(display_locspan.o)  \
+     $(LIB)/libMPEGui_t.a(display_lsatpre.o)  \
+     $(LIB)/libMPEGui_t.a(display_maxrmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_max_temp_prism.o)  \
+     $(LIB)/libMPEGui_t.a(display_mean_areal_precip.o)  \
+     $(LIB)/libMPEGui_t.a(display_min_temp_prism.o)  \
+     $(LIB)/libMPEGui_t.a(display_mlmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_mmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_p3lmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_prism.o)  \
+     $(LIB)/libMPEGui_t.a(display_rfcbmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_rfcmmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_rfcmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_rmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_satpre.o)  \
+     $(LIB)/libMPEGui_t.a(display_sgmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_srgmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_srmosaic.o)  \
+     $(LIB)/libMPEGui_t.a(display_suppl_data.o)  \
+     $(LIB)/libMPEGui_t.a(display_xmrg.o)  \
+     $(LIB)/libMPEGui_t.a(drawMpeLegend.o)  \
+     $(LIB)/libMPEGui_t.a(draw_precip_poly_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(edit_bias_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(find_dates.o)  \
+     $(LIB)/libMPEGui_t.a(gage_table_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(get_last_times.o)  \
+     $(LIB)/libMPEGui_t.a(get_loc_latlon.o)  \
+     $(LIB)/libMPEGui_t.a(get_mpe_colors.o)  \
+     $(LIB)/libMPEGui_t.a(ignore_radar_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(initMpeControl.o)  \
+     $(LIB)/libMPEGui_t.a(insert_pseudo_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(launch_fieldgen_dialog.o)  \
+     $(LIB)/libMPEGui_t.a(loop_callback.o)  \
+     $(LIB)/libMPEGui_t.a(mpe_bad_gage_list.o)  \
+     $(LIB)/libMPEGui_t.a(mpe_bad_gage_list_show.o)  \
+     $(LIB)/libMPEGui_t.a(mpegui_save_gif.o)  \
+     $(LIB)/libMPEGui_t.a(mpegui_save_jpeg.o)  \
+     $(LIB)/libMPEGui_t.a(newhour_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(ok_callback.o)  \
+     $(LIB)/libMPEGui_t.a(plot_topography.o)  \
+     $(LIB)/libMPEGui_t.a(polygon_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(quit_rfcwide.o)  \
+     $(LIB)/libMPEGui_t.a(read_ab_zrcoef.o)  \
+     $(LIB)/libMPEGui_t.a(read_adapt_param_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(read_bias_table_param.o)  \
+     $(LIB)/libMPEGui_t.a(read_default_bias.o)  \
+     $(LIB)/libMPEGui_t.a(read_dpa_fname.o)  \
+     $(LIB)/libMPEGui_t.a(read_edit_precip_value.o)  \
+     $(LIB)/libMPEGui_t.a(read_field_data_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(read_numpseudo_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(read_precip_data.o)  \
+     $(LIB)/libMPEGui_t.a(read_product_dt.o)  \
+     $(LIB)/libMPEGui_t.a(read_radar_grids.o)  \
+     $(LIB)/libMPEGui_t.a(read_radarloc.o)  \
+     $(LIB)/libMPEGui_t.a(read_radar_results_table.o)  \
+     $(LIB)/libMPEGui_t.a(read_radcov_grids.o)  \
+     $(LIB)/libMPEGui_t.a(read_rresult.o)  \
+     $(LIB)/libMPEGui_t.a(read_rwprefs.o)  \
+     $(LIB)/libMPEGui_t.a(read_suppl_data.o)  \
+     $(LIB)/libMPEGui_t.a(rerun_rfcwgen.o)  \
+     $(LIB)/libMPEGui_t.a(restore_bias_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(rfcwide_callbacks.o)  \
+     $(LIB)/libMPEGui_t.a(rfcwide_interface.o)  \
+     $(LIB)/libMPEGui_t.a(save_rfcwide.o)  \
+     $(LIB)/libMPEGui_t.a(select_poly_for_edit.o)  \
+     $(LIB)/libMPEGui_t.a(select_site_rfcwide.o)  \
+     $(LIB)/libMPEGui_t.a(set_colorvalues.o)  \
+     $(LIB)/libMPEGui_t.a(time_lapse_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(transmit_rfc_bias.o)  \
+     $(LIB)/libMPEGui_t.a(transmit_rfc_qpe.o)  \
+     $(LIB)/libMPEGui_t.a(update_bias_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(update_flig_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(update_numpseudo_RFCW.o)  \
+     $(LIB)/libMPEGui_t.a(update_rawPP.o)  \
+     $(LIB)/libMPEGui_t.a(update_rwr_save.o)
+

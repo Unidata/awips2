@@ -1,0 +1,297 @@
+void showdatachooser(int dataset)
+{
+	Widget    form, rowcol1, rowcol4, button, label;
+	Widget    option, maparea, mapform, timeform;
+	XmString  str;
+	Arg       args[5];
+	Dimension w_width;
+	char      gemdevice[80];
+	int       mapwidth = 600, mapheight = 400, i, iret;
+
+	if (chooser_dialog == NULL) {
+
+	  chooser_dialog = XmCreateBulletinBoardDialog(toplevel, "chooser",
+	    NULL, 0);
+/*
+For forcing the user to use the dialog
+	  XtVaSetValues(chooser_dialog, XmNdialogStyle, 
+	    XmDIALOG_PRIMARY_APPLICATION_MODAL, NULL);
+*/
+
+	  str = XmStringCreateLocalized("NSHARP: Data Selection");
+	  XtVaSetValues(chooser_dialog, XmNdialogTitle, str, NULL);
+	  XmStringFree(str);
+
+	  /* Create a form to hold everything */
+	  form = XtVaCreateManagedWidget("dataform", xmFormWidgetClass,
+	    chooser_dialog, XmNfractionBase, 100, 
+	    XmNnoResize,    True, /* Don't allow this dialog to be resized */
+	    NULL);
+
+	  /*
+	   * Do the stuff at the top related to the data type and stuff
+	   */
+
+	  /* Create a rowcol to hold the stuff at the top */
+	  rowcol1 = XtVaCreateManagedWidget("datarowcol", 
+	    xmRowColumnWidgetClass, form, 
+	    XmNorientation,     XmHORIZONTAL, 
+	    XmNleftAttachment,  XmATTACH_FORM,
+	    XmNrightAttachment, XmATTACH_FORM,
+	    XmNtopAttachment,   XmATTACH_FORM,
+	    NULL);
+
+	  /* Create stuff in the dialog for choosing data types and files */
+          str = XmStringCreateLocalized("Data:");
+
+	  /* The types of data available */
+
+	  /* Create pulldown to hold our option menu */
+	  option_menu = XmCreatePulldownMenu(rowcol1, "opt_menu", NULL, 0);
+
+	  i=0;
+	  XtSetArg(args[i], XmNsubMenuId,   option_menu); i++;
+	  XtSetArg(args[i], XmNlabelString, str); i++;
+
+	  option = XmCreateOptionMenu(rowcol1, "dataoptions", args, i);
+
+	  for (i=0;i<ndatatypes;i++) {
+	    button = XtVaCreateManagedWidget(datatype[i].menuname,
+	      xmPushButtonGadgetClass, option_menu, NULL);
+	    XtAddCallback(button, XmNactivateCallback,
+	      datatypechange, (XtPointer)datatype[i].id);
+	  }
+
+	  XtManageChild(option);
+
+	  /* Create filename text area */
+	  chooser_text = XtVaCreateManagedWidget ("datafile",
+	    xmTextFieldWidgetClass, rowcol1, 
+	    XmNcolumns, 35, NULL);
+	  XtAddCallback(chooser_text, XmNactivateCallback,
+			get_datafile_text, NULL);
+
+	  /* Create a button for changing the file */
+	  button = XtVaCreateManagedWidget("Change File", 
+	    xmPushButtonWidgetClass, rowcol1, NULL);
+	  XtAddCallback(button, XmNactivateCallback, 
+	    load_datafile, (XtPointer)dataset);
+
+	  /* Done with top area now. */
+
+	  /* Start on the third area: the map */
+	  mapform = XtVaCreateManagedWidget("mapform", 
+	    xmFormWidgetClass,   form, 
+	    XmNtopAttachment,    XmATTACH_WIDGET,
+	    XmNtopWidget,        rowcol1,
+	    XmNbottomAttachment, XmATTACH_FORM,
+	    XmNrightAttachment,  XmATTACH_FORM,
+	    XmNentryAlignment,   XmALIGNMENT_CENTER,
+	    XmNfractionBase,     100,
+	    NULL);
+
+	  /* create stations label */
+	  str = XmStringCreateSimple ("Available Stations");
+	  label = XtVaCreateManagedWidget("datastations",
+	    xmLabelWidgetClass, mapform, 
+	    XmNlabelString,     str, 
+	    XmNtopAttachment,   XmATTACH_FORM, 
+	    NULL);
+	  XmStringFree(str);
+
+	  /* Align our label in the middle of the map */
+	  XtVaGetValues(label, XmNwidth, &w_width, NULL);
+	  XtVaSetValues(label, XmNx, (mapwidth - w_width)/2, NULL);
+
+	  /* Add map here */
+	  maparea = XtVaCreateManagedWidget("datamap",
+            xmDrawingAreaWidgetClass, mapform,
+	    XmNtopAttachment,         XmATTACH_WIDGET,
+	    XmNrightAttachment,       XmATTACH_FORM,
+	    XmNtopWidget,             label,
+	    XmNwidth,                 mapwidth,
+	    XmNheight,                mapheight,
+            XmNbackground,            pixels[0],
+            NULL);
+
+	  /* Callbacks for map stuff */
+	  XtAddCallback(maparea, XmNexposeCallback,
+	    mapw_exposeCb, NULL);
+	    plotData.mode = STNSELECT;
+	  XtAddEventHandler(maparea, ButtonPressMask,
+	    FALSE, mapw_pickstnCb, NULL);
+	  XtAddCallback(maparea, XmNresizeCallback,
+	    mapw_resizeCb, NULL);
+
+	  /* Create zoom buttons */
+	  rowcol4 = XtVaCreateManagedWidget("zoomrc", 
+	    xmRowColumnWidgetClass, mapform, 
+	    XmNorientation,      XmHORIZONTAL, 
+	    XmNtopAttachment,    XmATTACH_WIDGET,
+	    XmNtopWidget,        maparea,
+	    XmNbottomAttachment, XmATTACH_FORM,
+	    XmNleftAttachment,   XmATTACH_POSITION,
+	    XmNleftPosition,     30,
+	    XmNrightAttachment,  XmATTACH_POSITION,
+	    XmNrightPosition,    70,
+	    NULL);
+
+	  button = XtVaCreateManagedWidget("Zoom", xmPushButtonWidgetClass,
+	    rowcol4, NULL);
+	  XtAddCallback(button, XmNactivateCallback, 
+	    (XtCallbackProc)zoommapwindow, maparea);
+
+	  button = XtVaCreateManagedWidget("Un-Zoom", xmPushButtonWidgetClass,
+	    rowcol4, NULL);
+	  XtAddCallback(button, XmNactivateCallback, 
+	    (XtCallbackProc)unzoommapwindow, maparea);
+
+	  button = XtVaCreateManagedWidget("Cancel", xmPushButtonWidgetClass,
+	    rowcol4, NULL);
+	  XtAddCallback(button, XmNactivateCallback, 
+	    (XtCallbackProc)cancel_chooser, NULL);
+
+	  /* Done with that section now */
+
+	  /* 
+	   * Now do the left hand side which includes 
+	   * the scrolling list of times and the button
+	   * to update the time list
+	   */
+	  timeform = XtVaCreateManagedWidget("timerc", 
+	    xmRowColumnWidgetClass, form, 
+	    XmNleftAttachment,      XmATTACH_FORM,
+	    XmNtopAttachment,       XmATTACH_WIDGET,
+	    XmNtopWidget,           rowcol1,
+	    XmNbottomAttachment,    XmATTACH_FORM,
+	    XmNrightAttachment,     XmATTACH_WIDGET,
+	    XmNrightWidget,         mapform,
+	    XmNentryAlignment,      XmALIGNMENT_CENTER,
+	    NULL);
+
+	  /* create time label */
+	  str = XmStringCreateLocalized("Times");
+	  label = XtVaCreateManagedWidget("datatime",
+  	    xmLabelWidgetClass,  timeform,
+	    XmNlabelString,      str, 
+	    XmNtopAttachment,    XmATTACH_FORM,
+	    NULL);
+	  XmStringFree(str);
+
+	  /* Create our timelist */
+	  chooser_timelist = XmCreateScrolledList(timeform, "datatimes", 
+	    NULL, 0);
+	  XtVaSetValues(chooser_timelist, XmNvisibleItemCount, 15, NULL);
+	  XtVaSetValues(XtParent(chooser_timelist), 
+	    XmNleftAttachment,      XmATTACH_FORM,
+	    XmNtopAttachment,       XmATTACH_WIDGET,
+	    XmNtopWidget,           label,
+	    XmNbottomAttachment,    XmATTACH_WIDGET,
+	    XmNbottomWidget,        label,
+	    NULL);
+	  XtManageChild(chooser_timelist);
+
+	  XtAddCallback(chooser_timelist, XmNbrowseSelectionCallback, 
+	    (XtCallbackProc)timeselected, (XtPointer)dataset);
+
+	  /* Create a button for updating the list of times */
+	  button = XtVaCreateManagedWidget("Update Times", 
+	    xmPushButtonWidgetClass, timeform, 
+	    XmNtopAttachment,    XmATTACH_WIDGET,
+	    XmNtopWidget,        chooser_timelist,
+	    XmNbottomAttachment, XmATTACH_FORM,
+	    NULL);
+	  XtAddCallback(button, XmNactivateCallback, 
+	    (XtCallbackProc)updatetimes, NULL);
+
+	  /* Done with that area now */
+
+/* Along the bottom */
+	  visform = XtVaCreateManagedWidget("visform", 
+	    xmFormWidgetClass,      form, 
+	    XmNleftAttachment,      XmATTACH_FORM,
+	    XmNtopAttachment,       XmATTACH_WIDGET,
+	    XmNtopWidget,           rowcol1,
+	    XmNbottomAttachment,    XmATTACH_FORM,
+	    XmNrightAttachment,     XmATTACH_WIDGET,
+	    XmNrightWidget,         mapform,
+	    XmNentryAlignment,      XmALIGNMENT_CENTER,
+	    NULL);
+
+form to hold this attach to bottom
+	  button = XtVaCreateManagedWidget("Keep Visible",
+                                            xmToggleButtonWidgetClass, rowcol,
+                                            NULL);
+	   XtAddCallback(button, XmNvalueChangedCallback,
+                         (XtCallbackProc)set_chooser_visibleCb,
+                         NULL);
+
+	  /* Manage it so that the next few routines work */
+	  XtManageChild(chooser_dialog);
+
+	  /* Register our map w/ GEMPAK */
+	  i = mapw_rgstr(maparea); 
+
+	  /* Initialize it */
+	  map_init(&iret, "maptop", strlen("maptop"));
+
+	  /* 
+	   * Now select it. Go ahead and do it here since this
+	   * is the only GEMPAK window we'll be dealing with
+	   */
+	  strcpy(gemdevice, "maptop");
+	  gslwin(gemdevice, &iret, strlen(gemdevice));
+
+	  resetmapinfo(0);
+	}
+
+	/*
+	 * 
+	 * Reconfiguration stuff
+	 *
+	 * Things to do:
+	 *
+	 * Change the filename in the text box
+	 * Change the patterns and stuff in the search dialog
+	 * Change the times in the time list
+	 * Clear the map
+	 *
+	 * Change the selected index in the option menu to reflect the
+	 * data type
+	 */
+
+	if (dataset != -1)
+	  setconfigdatapointer(dataset);
+
+	if (curdatatype_ptr != NULL && dataset != -1) {
+
+	  setsoundingtype(curdatatype_ptr->stype);
+
+	  /* Set XmNuserData for the things */
+	  XtVaSetValues(chooser_dialog, XmNuserData, curdatatype_ptr->stype, 
+	    NULL);
+
+	  if (curdatatype_ptr->filename[0] != '\0') {
+	    int ntimes;
+
+	    /* Set filename */
+	    XmTextSetString(chooser_text, curdatatype_ptr->filename);
+
+	    /* Retrieve the times from the file */
+	    ntimes = getdatatimes(curdatatype_ptr->filename, 
+	      curdatatype_ptr->timelist, curdatatype_ptr->stype);
+
+	    curdatatype_ptr->ntimes = ntimes;
+
+	    configtimelist(curdatatype_ptr->timelist, curdatatype_ptr->ntimes);
+	  }
+
+	  /* Draw a blank map */
+	  drawdatamap(0, NULL, NULL);
+
+	}
+
+	if (!XtIsManaged(chooser_dialog)) {
+	  XtManageChild(chooser_dialog);
+	}
+}

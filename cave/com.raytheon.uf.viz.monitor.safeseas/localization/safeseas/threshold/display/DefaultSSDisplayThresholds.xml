@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<Thresholds>
+    <Area>
+        <AreaID>DefaultValues</AreaID>
+        <AreaThreshold key = "Display.Product.SCA.wind_speed" red = "18" yellow = "13"/>
+        <AreaThreshold key = "Display.Product.SCA.gust_speed" red = "18" yellow = "13"/>
+        <AreaThreshold key = "Display.Product.SCA.peak_wind_speed" red = "18" yellow = "13"/>
+        <AreaThreshold key = "Display.Product.SCA.wave_height" red = "4" yellow = "3"/>
+        <AreaThreshold key = "Display.Product.Gale.wind_speed" red = "34" yellow = "29"/>
+        <AreaThreshold key = "Display.Product.Gale.gust_speed" red = "34" yellow = "29"/>
+        <AreaThreshold key = "Display.Product.Gale.peak_wind_speed" red = "34" yellow = "29"/>
+        <AreaThreshold key = "Display.Product.Storm.wind_speed" red = "48" yellow = "43"/>
+        <AreaThreshold key = "Display.Product.Storm.gust_speed" red = "48" yellow = "43"/>
+        <AreaThreshold key = "Display.Product.Storm.peak_wind_speed" red = "48" yellow = "43"/>
+        <AreaThreshold key = "Display.Product.Hurricane.wind_speed" red = "64" yellow = "59"/>
+        <AreaThreshold key = "Display.Product.Hurricane.gust_speed" red = "64" yellow = "59"/>
+        <AreaThreshold key = "Display.Product.Hurricane.peak_wind_speed" red = "64" yellow = "59"/>                
+        <AreaThreshold key = "Display.Wind.wind_speed" red = "18" yellow = "13"/>
+        <AreaThreshold key = "Display.Wind.peak_wind_speed" red = "18" yellow = "13"/>
+        <AreaThreshold key = "Display.Wind.gust_speed" red = "18" yellow = "13"/>
+        <AreaThreshold key = "Display.Wind.dirFrom" red = "0" yellow = "0"/>
+        <AreaThreshold key = "Display.Wind.dirTo" red = "0" yellow = "0"/>                
+        <AreaThreshold key = "Display.Meteo.visibility" red = "4" yellow = "8"/>
+        <AreaThreshold key = "Display.Meteo.temperature" red = "90" yellow = "80"/>
+        <AreaThreshold key = "Display.Meteo.dewpoint" red = "90" yellow = "80"/>
+        <AreaThreshold key = "Display.Meteo.slp" red = "980" yellow = "1000"/>
+        <AreaThreshold key = "Display.Meteo.sea_surface_temp" red = "80" yellow = "70"/>
+        <AreaThreshold key = "Display.Meteo.wave_height" red = "0" yellow = "0"/>
+        <AreaThreshold key = "Display.Meteo.wave_steepness" red = "7" yellow = "5"/>                
+        <AreaThreshold key = "Display.Swell.Primary.height" red = "4" yellow = "3"/>
+        <AreaThreshold key = "Display.Swell.Primary.period" red = "10" yellow = "15"/>
+        <AreaThreshold key = "Display.Swell.Primary.dirFrom" red = "0" yellow = "0"/>
+        <AreaThreshold key = "Display.Swell.Primary.dirTo" red = "0" yellow = "0"/>
+        <AreaThreshold key = "Display.Swell.Secondary.height" red = "7" yellow = "5"/>
+        <AreaThreshold key = "Display.Swell.Secondary.period" red = "10" yellow = "15"/>
+        <AreaThreshold key = "Display.Swell.Secondary.dirFrom" red = "0" yellow = "0"/>
+        <AreaThreshold key = "Display.Swell.Secondary.dirTo" red = "0" yellow = "0"/>
+    </Area>
+</Thresholds>

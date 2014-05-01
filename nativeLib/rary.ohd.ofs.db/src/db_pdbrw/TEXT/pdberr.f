@@ -1,0 +1,353 @@
+C MODULE PDBERR
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE PDBERR (STAID,NTYPES,ITYPE,JULTME,VALBUF,IUNIT,NUMOBS,
+     *   NVLPOB,MINS,RLATLN,IREV,IFUT,IWRITE,ISTAT)
+C
+C  THIS ROUTINE PRINTS THE ERROR MESSAGES FOR THE PPDB ROUTINES
+C  THAT WRITE DATA TO THE DATABASE.
+C
+C  ARGUMENT LIST:
+C
+C       NAME     TYPE  I/O    DIM   DESCRIPTION
+C       ------   ---   ---    ---   ----------
+C       STAID     A8     I     2     STATION ID
+C       NTYPES    I      I     1     NUMBER OF DATA TYPES
+C       ITYPE     A4     I   NTYPES  DATA TYPE
+C       JULTME    I      I   NUMOBS  JULIAN HOUR OF DATA WRITTEN
+C       VALBUF    R      I   NUMOBS  VALUES TO BE WRITTEN
+C       IUNIT     A      I   NTYPES  UNITS OF DATA TYPES
+C       NUMOBS    I      I     1     NUMBER OF DATA VALUES WRITTEN
+C       NVLPOB    I      I   NTYPES  # OF VALUES PER OBSERVATION (RRS)
+C       MINS      I      I   NUMOBS/ MINS OF WRITTEN DATA (RRS ONLY)
+C                            NVLPOB
+C       RLATLN    R4     I     2     LAT/LON OF STRANGER STATION REPORT
+C       IREV      I      I     1     REVISION FLAG (0=OFF,1=ON)
+C       IFUT      I      I     1     FUTURE FLAG
+C       IWRITE    I      I   NTYPES  WRITE STATUS FLAG
+C       ISTAT     I      I      1    STATUS FLAG
+C
+      CHARACTER*4 ITYPE(*),IUNIT(*)
+      CHARACTER*8 STAID
+      DIMENSION JULTME(*),VALBUF(*),NVLPOB(*),MINS(*),RLATLN(2)
+      DIMENSION IWRITE(*)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udebug'
+      INCLUDE 'hclcommon/hdflts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_pdbrw/RCS/pdberr.f,v $
+     . $',                                                             '
+     .$Id: pdberr.f,v 1.3 2001/06/13 13:49:27 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IPDTR.GT.0) WRITE (IOGDB,*) 'ENTER PDBERR'
+C
+      IF (IPDDB.GT.0) THEN
+         WRITE (IOGDB,340) STAID,NTYPES,NUMOBS,ISTAT,IFUT,IREV
+         WRITE (IOGDB,350) (ITYPE(I),I=1,NTYPES)
+         WRITE (IOGDB,355) (NVLPOB(I),I=1,NTYPES)
+         WRITE (IOGDB,360) (JULTME(I),I=1,NUMOBS)
+         WRITE (IOGDB,370) (IWRITE(I),I=1,NTYPES)
+         WRITE (IOGDB,380) (VALBUF(I),I=1,NUMOBS)
+         WRITE (IOGDB,390) (VALBUF(I),I=1,NUMOBS)
+         WRITE (IOGDB,400) (MINS(I),I=1,NUMOBS)
+         ENDIF
+C
+      CALL JLMDYH (JULTME(1),IMO,IDAY,IYR,IHR)
+      CALL JLMDYH (JULTME(NUMOBS),LMO,LDAY,LYR,LHR)
+C
+C  CHECK IF RRS TYPE
+      IRX=IPDCKR(ITYPE(1))
+      IF (IRX.NE.0) GO TO 170
+C
+C  DAILY DATA TYPE - CHECK IF FUTURE TYPE OR STRANGER STATION
+      IF (ITYPE(1).EQ.'TF24'.OR.
+     *    ITYPE(1).EQ.'TFMN'.OR.
+     *    ITYPE(1).EQ.'TFMX')
+     *   GO TO 150
+      IF (ITYPE(1).EQ.'PPSR') GO TO 110
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK STATUS FOR DAILY DATA TYPE AND PRINT ERROR MESSAGE
+C
+      WRITE (LP,410) STAID,
+     *   IMO,IDAY,IYR,IHR,TIME(3),
+     *   LMO,LDAY,LYR,LHR,TIME(3),
+     *   (ITYPE(I),I=1,NTYPES)
+      WRITE (LP,420) (VALBUF(I),I=1,NUMOBS)
+      IF (LPE.EQ.LP) CALL ULINE (LP,3)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'ISTAT=',ISTAT
+      IF (ISTAT.GE.100) GO TO 30
+      IF (ISTAT.GE.30) GO TO 20
+      IF (ISTAT.GE.20) GO TO 10
+      GO TO (40,50,70,80,50,50,70,50,50,310,100,10,20),ISTAT
+      WRITE (LP,430) ISTAT
+      CALL UWARN (LP,0,-1)
+      GO TO 320
+C
+10    WRITE (LP,440)
+      CALL UWARN (LP,0,-1)
+      GO TO 320
+C
+20    WRITE (LP,450)
+      CALL UWARN (LP,0,-1)
+      GO TO 320
+C
+30    WRITE (LP,460)
+      CALL UWARN (LP,0,-1)
+      GO TO 320
+C
+40    WRITE (LP,470)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+50    DO 60 I=1,NTYPES
+         IF (IWRITE(I).NE.1) GO TO 60
+         WRITE (LP,480) ITYPE(I)
+         IF (LPE.EQ.LP) CALL ULINE (LP,1)
+         CALL UEROR (LP,0,-1)
+60       CONTINUE
+      GO TO 320
+C
+70    WRITE (LP,490)
+      IF (LPE.EQ.LP) CALL ULINE (LP,1)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+80    DO 90 I=1,NTYPES
+         IF (IWRITE(I).NE.3) GO TO 90
+         WRITE (LP,500) IUNIT(I)
+         CALL UEROR (LP,0,-1)
+90       CONTINUE
+      GO TO 320
+C
+100   WRITE (LP,510)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  STRANGER STATION - CONVERT DATE AND PRINT MESSAGE
+C
+110   WRITE (LP,520) RLATLN,ITYPE(1),IMO,IDAY,IYR,IHR,TIME(3),VALBUF(1)
+      IF (LPE.EQ.LP) CALL ULINE (LP,2)
+      CALL UEROR (LP,0,-1)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'ISTAT=',ISTAT
+      IF (ISTAT.EQ.20) GO TO 10
+      GO TO (120,130,80,310,140,70),ISTAT
+      WRITE (LP,430) ISTAT
+      CALL UWARN (LP,0,-1)
+      GO TO 320
+C
+120   WRITE (LP,530)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+130   WRITE (LP,540) 'PPSR'
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+140   WRITE (LP,550)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FUTURE DATA TYPES
+C
+150   WRITE (LP,410) STAID,
+     *   IMO,IDAY,IYR,IHR,TIME(3),
+     *   LMO,LDAY,LYR,LHR,TIME(3),
+     *   (ITYPE(I),I=1,NTYPES)
+      WRITE (LP,420) (VALBUF(I),I=1,NUMOBS)
+      IF (LPE.EQ.LP) CALL ULINE (LP,3)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'ISTAT=',ISTAT
+      IF (ISTAT.GE.30) GO TO 20
+      IF (ISTAT.GE.20) GO TO 10
+      GO TO (40,50,70,310,160,100),ISTAT
+      WRITE (LP,430) ISTAT
+      CALL UWARN (LP,0,-1)
+      GO TO 320
+C
+160   WRITE (LP,560)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  RRS TYPES
+C
+170   IF (ISTAT.EQ.-99) GO TO 175
+C
+C  INVALID VALUE MESSAGE WRITTEN FROM RRS WRITE ROUTINE
+      IF (NTYPES.EQ.1.AND.IWRITE(1).EQ.8) GO TO 320
+C
+175   WRITE (LP,570) STAID,
+     *   IMO,IDAY,IYR,IHR,MINS(1),TIME(3),
+     *   LMO,LDAY,LYR,LHR,MINS(NUMOBS),TIME(3),
+     *   (ITYPE(I),I=1,NTYPES)
+      WRITE (LP,420) (VALBUF(I),I=1,NUMOBS)
+      IF (LPE.EQ.LP) CALL ULINE (LP,3)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'ISTAT=',ISTAT
+      IF (ISTAT.EQ.-99) GO TO 325
+      IF (ISTAT.LT.0) GO TO 300
+      IF (ISTAT.GT.10) GO TO 240
+      GO TO (40,180,70,310,180,220,230,240,280,290),ISTAT
+      WRITE (LP,430) ISTAT
+      CALL UWARN (LP,0,-1)
+      GO TO 320
+C
+180   IF (NTYPES.GT.1) GO TO 200
+      IF (ISTAT.EQ.5.AND.IWRITE(1).LT.0) GO TO 300
+      IF (IWRITE(1).NE.3) GO TO 190
+      WRITE (LP,580) NVLPOB(1)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+190   IF (IWRITE(1).EQ.1) GO TO 50
+      IF (IWRITE(1).NE.4) GO TO 320
+      WRITE (LP,590) IUNIT(1)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+C  MORE THAN ONE RRS TYPE PRESENT
+200   DO 210 JJ=1,NTYPES
+         IF (IWRITE(JJ).LT.0) GO TO 300
+         IF (IWRITE(JJ).EQ.0) GO TO 210
+         IF (IWRITE(JJ).EQ.3) THEN
+            WRITE (LP,580) NVLPOB(JJ)
+            CALL UEROR (LP,0,-1)
+            ENDIF
+         IF (IWRITE(JJ).EQ.4) THEN
+            WRITE (LP,590) IUNIT(JJ)
+            CALL UEROR (LP,0,-1)
+            ENDIF
+210      CONTINUE
+      GO TO 320
+C
+220   WRITE (LP,600)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+230   WRITE (LP,610)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+240   IF (NTYPES.GT.1) GO TO 260
+      IF (IWRITE(1).EQ.8) GO TO 320
+      IF (IWRITE(1).NE.6) GO TO 250
+      WRITE (LP,440)
+      CALL UWARN (LP,0,-1)
+      GO TO 320
+C
+250   IF (IWRITE(1).NE.7) GO TO 320
+      WRITE (LP,620)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+C  MORE THAN ONE RRS TYPE ENTERED
+260   DO 270 KK=1,NTYPES
+         IF (IWRITE(KK).EQ.0) GO TO 270
+         IF (IWRITE(KK).EQ.8) GO TO 270
+         IF (IWRITE(KK).EQ.6) THEN
+            WRITE (LP,440)
+            CALL UWARN (LP,0,-1)
+            ENDIF
+         IF (IWRITE(KK).EQ.7) THEN
+            WRITE (LP,620) MINS(KK)
+            CALL UEROR (LP,0,-1)
+            ENDIF
+270      CONTINUE
+      GO TO 320
+C
+280   WRITE (LP,630)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+290   WRITE (LP,640) IREV,IFUT
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+300   WRITE (LP,650)
+      CALL UEROR (LP,0,-1)
+      GO TO 320
+C
+310   WRITE (LP,660)
+      CALL UEROR (LP,0,-1)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+320   IF (LPE.EQ.LP) CALL ULINE (LP,1)
+C
+325   IF (IPDTR.GT.0) WRITE (IOGDB,*) 'EXIT PDBERR'
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+340   FORMAT (' STAID=',A,3X,'NTYPES=',I2,3X,'NUMOBS=',I2,3X,
+     *   'ISTAT=',I2,3X,'IFUT=',I2,3X,'IREV=',I2)
+350   FORMAT (' ITYPE=',10(1X,A))
+355   FORMAT (' NVLPOB=',10(1X,I2))
+360   FORMAT (' JULTME=',10(1X,I7))
+370   FORMAT (' IWRITE=',10(1X,I5))
+380   FORMAT (' VALBUF=',15(1X,F7.2))
+390   FORMAT (' VALBUF=',15(1X,I7))
+400   FORMAT (' MINS=',10(1X,I5))
+410   FORMAT ('0STATION: ',A,' DATE: ',
+     *   2(I2.2,'/'),I2.2,'-',I2.2,A3,' TO ',
+     *   2(I2.2,'/'),I2.2,'-',I2.2,A3,
+     *   5X,'TYPES:',8(1X,A))
+420   FORMAT (' VALUES: ',10F12.2 / (9X,10F12.2))
+430   FORMAT ('0**WARNING** IN PDBERR - STATUS CODE ',I3,'  NOT ',
+     *   'RECOGNIZED.')
+440   FORMAT ('0**WARNING** DATA EXISTS FOR ALL OR PART OF THE TIME ',
+     *   'PERIOD BEING WRITTEN.')
+450   FORMAT ('0**WARNING** DATA VALUES OUTSIDE OF VALID RANGE.')
+460   FORMAT ('0**WARNING** ATTEMPT TO WRITE SOME DATA BEFORE EARLIEST',
+     *   ' DATE ON PPDB. DATA THAT WAS TOO EARLY HAS BEEN IGNORED.')
+470   FORMAT ('0**ERROR** STATION NOT FOUND IN THE PPDB.')
+480   FORMAT ('0**ERROR** DATA TYPE ',A,' NOT FOUND FOR THIS STATION',
+     *   ' IN THE PPDB.')
+490   FORMAT ('0**ERROR** TIME DOES NOT CORRESPOND TO THE TIME ',
+     *   'INTERVAL FOR THIS STATION OR ',
+     *   'DATE IS OUTSIDE THE RANGE ALLOWED ON THE PPDB.')
+500   FORMAT ('0**ERROR** INVALID UNITS (',A,') FOR THIS TYPE.')
+510   FORMAT ('0**ERROR** NOT ENOUGH DATA SUPPLIED TO POST VALUES FOR ',
+     *   'THE TIME INTERVAL DEFINED ON THE PPDB.')
+520   FORMAT ('0LAT: ',F5.2,' LON:',F6.2,' TYPE: ',A,' DATE:',
+     *   2(I2.2,'/'),I2.2,'-',I2.2,1X,A3 /
+     *   ' VALUE: ',F12.2)
+530   FORMAT ('0**ERROR** DATE NOT CONTINUOUS. NO VALUES WRITTEN FOR ',
+     *   'THIS STRANGER STATION.')
+540   FORMAT ('0**ERROR** ',A,' NOT DEFINED ON PPDB.')
+550   FORMAT ('0**ERROR** MAXIMUM NUMBER OF STRANGER STATION REPORTS ',
+     *   'ALREADY ENTERED FOR THIS DAY.')
+560   FORMAT ('0**ERROR** FUTURE TYPE NOT FOUND OR DATE OUT OF RANGE.')
+570   FORMAT ('0STATION: ',A,' DATE: ',1X,
+     *   2(I2.2,'/'),I2.2,'-',I2.2,':',I2.2,A3,' TO ',
+     *   2(I2.2,'/'),I2.2,'-',I2.2,':',I2.2,A3,
+     *   5X,'TYPES:',8(1X,A))
+580   FORMAT ('0**ERROR** NUMBER OF VALUES PER OBSERVATION SET IS ',I3,
+     *   ' THIS IS THE WRONG SPECIFICATION FOR THIS TYPE.')
+590   FORMAT ('0**ERROR** CONVERSION TO ',A,' INVALID FOR THIS TYPE.')
+600   FORMAT ('0**ERROR** WORK BUFFER TOO SMALL FOR DATA.')
+610   FORMAT ('0**ERROR** FUTURE DATA BEFORE OBSERVED FOR THIS ',
+     *   'STATION.')
+620   FORMAT ('0**ERROR** MINUTES ARE INVALID FOR ONE OR MORE VALUES. ',
+     *   'DATA NOT WRITTEN.')
+630   FORMAT ('0**ERROR** NOT ENOUGH MINUTE VALUES.')
+640   FORMAT ('0**ERROR** INVALID REVISION (',I2,') OR FUTURE (',I2,
+     *   ') FLAG.')
+650   FORMAT ('0**ERROR** WRITE ERROR FOR RRS DATA. SOME DATA NOT ',
+     *   'WRITTEN.')
+660   FORMAT ('0**ERROR** SYSTEM ERROR FOR PPDB WRITE ROUTINE. ',
+     *   'NO DATA WRITTEN FOR THIS TYPE IN THIS STATION.')
+C
+      END

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	// Apparent Temperature
+	// Populate with WindChl =< 50F, Surface T 51-69F, Heat Index =>70F
+	
+	
+	AWIPS I format
+	AppT| | |Apparent Temperature  |F       |CONTOUR,IMAGE,OTHER|Surface|      *Test,Surface|WndChl,925MB|1.|51.|69.|WndChl,925MB|1.|70.|1.e37|HIdx,1000MB|1.|-1.e37|50.|WndChl,875MB
+	
+	
+	varId: |AppT| 
+	Cross Section (CS): | | 
+	isAttachToSource: | | 
+	varName: |Apparent Temperature  | 
+	units: |F| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |Surface| 					//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+	
+	functionName, planeList: |Test,Surface|
+	varId, plane: |WndChl,925MB| 
+	const: |1| 
+	const: |51| 
+	const: |69| 
+	varId, plane: |WndChl,925MB| 
+	const: |1| 
+	const: |70| 
+	const: |1.e37| 
+	varId, plane: |HIdx,1000MB| 
+	const: |1| 
+	const: |-1.e37| 
+	const: |50| 
+	varId, plane: |WndChl,875MB| 
+	
+	
+	AWIPS II NEW FILE - AppT.xml
+-->
+<DerivedParameter unit="°F" name="Apparent Temperature" abbreviation="AppT" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method levels="Surface" name="Test">
+        <Field level="925MB" abbreviation="WndChl"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="51.0"/>
+        <ConstantField value="69.0"/>
+        <Field level="925MB" abbreviation="WndChl"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="70.0"/>
+        <ConstantField value="1e37"/>
+        <Field level="1000MB" abbreviation="HIdx"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="50.0"/>
+        <Field level="875MB" abbreviation="WndChl"/>
+    </Method>
+</DerivedParameter>

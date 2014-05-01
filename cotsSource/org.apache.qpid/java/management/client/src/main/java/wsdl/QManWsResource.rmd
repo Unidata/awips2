@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Definitions xmlns="http://docs.oasis-open.org/wsrf/rmd-1" >
+	<MetadataDescriptor 
+						xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"
+						xmlns:wsrl="http://docs.oasis-open.org/wsrf/rl-2" 	
+					    xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2" 
+					    xmlns:wst="http://docs.oasis-open.org/wsn/t-1" 
+					    xmlns:muws1="http://docs.oasis-open.org/wsdm/muws1-2.xsd" 
+					    xmlns:muws2="http://docs.oasis-open.org/wsdm/muws2-2.xsd"
+						xmlns:qman="http://amqp.apache.org/qpid/management/qman"                        
+                        name="QManWsResourceMetadata" 
+	                    interface="qman:QManWsResourcePortType" 
+	                    wsdlLocation="http://ws.apache.org/muse/test/wsrf QManWsResource.wsdl" >
+		<Property name="wsrf-rp:QueryExpressionDialect" modifiability="read-only" mutability="constant" />
+	</MetadataDescriptor>
+	
+</Definitions>

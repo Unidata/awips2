@@ -1,0 +1,250 @@
+C MEMBER WTWY40
+C  (from old member MCEX40)
+C
+C @PROCESS OPT(0)
+      SUBROUTINE WTWY40(PO,P,MP,C,MC,LOCPS,LOCPL,LOCCS,LOCCL,NREC,NOSUB,
+     &IBUG,IAPI,NVAL)
+C***************************************
+C
+C     THIS SUBROUTINE COMPUTES THE MONTHLY SUMS FOR EACH OF THE VALUES
+C     IN TABLES 1-3 FOR EACH SUBAREA AND WRITES THE SUMS TO THE WATER
+C     YEAR SCRATCH FILE.
+C
+C     THIS SUBROUTINE WAS INITALLY WRITTEN BY:
+C     ROBERT M. HARPER     HRL     APRIL, 1991
+C***************************************
+C
+      DIMENSION PO(1),P(MP),C(MC),SNAME(2)
+      DIMENSION LOCPS(1),LOCPL(1),LOCCS(1),LOCCL(1)
+      DIMENSION VAL(30)
+C
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/FCTIME/IDARUN,IHRRUN,LDARUN,LHRRUN,LDACPD,LHRCPD,NOW(5),
+     &LOCAL,NOUTZ,NOUTDS,NLSTZ,IDA,IHR,LDA,LHR,IDADAT
+      COMMON/FWYDS/IRWY,NXWY,NTWY,IDEFWY
+      COMMON/FWYDAT/WY(372)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/calb_waterbal/RCS/wtwy40.f,v $
+     . $',                                                             '
+     .$Id: wtwy40.f,v 1.3 1996/07/15 15:26:45 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA BLANK/'    '/
+      DATA SNAME/'WTWY','40  '/
+C***************************************
+C
+C     TRACE LEVEL=1
+      IF(ITRACE .GE. 1) WRITE(IODBUG,780) SNAME
+  780 FORMAT(/1X,'** ',2A4,' ENTERED')
+C***************************************
+C
+C     OBTAIN AND COMPUTE VALUES FOR TABLES 1-3 FOR EACH SUBAREA. WRITE
+C     VALUES FOR EACH SUBAREA TO WATER YEAR SCRATCH FILE.
+      DO 10 I=1,NOSUB
+        I1=23+(I-1)*17
+C
+        DO 20 J=1,NVAL
+          VAL(J)=0.0
+   20   CONTINUE
+C
+C       POINTERS FOR THE PS,PL,CS,CL ARRAYS
+        LPL=LOCPL(I)
+        LCL=LOCCL(I)
+        LPLS=LPL+PO(I1+15)-1
+        LPLP=LPL+PO(I1+16)-1
+        IF(PO(I1+6) .EQ. BLANK) GO TO 25
+C       SNOW MODEL POINTERS
+        LPS=LOCPS(I)
+        LCS=LOCCS(I)
+        LPSS=LPS+PO(I1+10)-1
+C
+C       OBTAIN AND COMPUTE MONTHLY SUMS FROM PS,PL,CS,CL ARRAYS.
+C       TABLE 1 - COMPUTATIONS COMMON TO BOTH SAC-SMA AND API-CONT
+   25   IF(PO(I1+6) .NE. BLANK) GO TO 30
+C       RAIN
+        VAL(1)=P(LPLS)
+        GO TO 40
+   30   VAL(1)=P(LPSS)-P(LPSS+1)
+   40   IF(PO(I1+6) .NE. BLANK) GO TO 50
+        DO 60 K=2,5
+          VAL(K)=0.0
+   60   CONTINUE
+        GO TO 70
+C       SNOW
+   50   VAL(2)=P(LPSS+1)
+C       RAIN+MELT
+        VAL(3)=P(LPSS+2)
+C
+C       COMPUTING LAGGED EXCESS LIQUID WATER FOR CHANGE W.E. VALUE.
+        L1=LCS+10
+        ITP=P(LPS+9)
+        N=5/ITP+2
+        L2=L1+N-1
+        ELAGG=0.0
+        DO 80 L=L1,L2
+          ELAGG=ELAGG+C(L)
+   80   CONTINUE
+C       END OF MONTH WATER EQUIVALENT
+        VAL(4)=C(LCS)+C(LCS+2)+C(LCS+8)+ELAGG
+C       CHANGE IN WATER EQUIVALENT
+        VAL(5)=P(LPSS)-P(LPSS+2)
+        IF(IAPI .EQ. 0) GO TO 70
+C
+C       COMPUTATIONS FOR API-CONT ONLY
+C       TOTAL RUNOFF
+        VAL(6)=P(LPLS+1)
+C       IMPERVIOUS RUNOFF
+        VAL(7)=P(LPLS+2)
+C       SURFACE RUNOFF
+        VAL(8)=P(LPLS+3)
+C       BASEFLOW RUNOFF
+        VAL(9)=P(LPLS+4)
+        GO TO 85
+C
+C       COMPUTATIONS FOR SAC-SMA ONLY
+C       RUNOFF
+   70   VAL(6)=P(LPLS+1)
+C       CHANGE IN STORAGE
+        VAL(7)=P(LPLS)-(P(LPLS+1)+P(LPLS+2)+P(LPLS+3))
+C       RECHARGE
+        VAL(8)=P(LPLS+2)
+C       ET DEMAND
+        VAL(9)=P(LPLS+11)
+C       ET ACTUAL
+        VAL(10)=P(LPLS+3)
+C       UPPER ZONE
+        VAL(11)=P(LPLS+12)
+C       LOWER ZONE
+        VAL(12)=P(LPLS+13)
+C       ADIMP
+        VAL(13)=P(LPLS+14)
+C       RIPARIAN
+        VAL(14)=P(LPLS+15)
+C
+C       TABLE 2 - COMPUTATIONS FOR SAC-SMA ONLY
+C       TOTAL RUNOFF
+        VAL(15)=P(LPLS+1)
+C       IMPERVIOUS
+        VAL(16)=P(LPLS+5)
+C       DIRECT
+        VAL(17)=P(LPLS+6)
+C       SURFACE
+        VAL(18)=P(LPLS+7)
+C       INTERFLOW
+        VAL(19)=P(LPLS+8)
+C       PRIMARY
+        VAL(20)=P(LPLS+10)
+C       SUPPLEMENTAL
+        VAL(21)=P(LPLS+9)
+C
+C       TABLE 3 - COMPUTATIONS FOR SAC-SMA ONLY
+C       UZTWC
+        VAL(22)=C(LCL)
+C       UZTD
+        VAL(23)=P(LPLP+2)-C(LCL)
+C       UZFWC
+        VAL(24)=C(LCL+1)
+C       LZTWC
+        VAL(25)=C(LCL+2)
+C       LZTD
+        VAL(26)=P(LPLP+10)-C(LCL+2)
+C       LZFPC
+        VAL(27)=C(LCL+4)
+C       LZFSC
+        VAL(28)=C(LCL+3)
+C       LZDR
+        VAL(29)=1.0-(C(LCL+2)+C(LCL+3)+C(LCL+4))/(P(LPLP+10)+P(LPLP+11)+
+     &P(LPLP+12))
+C       ADIMC
+        VAL(30)=C(LCL+5)
+        GO TO 110
+C
+C       TABLE 2 - COMPUTATIONS FOR API-CONT ONLY
+C       API
+   85   VAL(10)=C(LCL)
+C       SMI
+        VAL(11)=C(LCL+1)
+C       SMI/SMIX
+        VAL(12)=VAL(11)/P(LPLP+6)
+C       BFSC
+        VAL(13)=C(LCL+2)
+C       BFI
+        VAL(14)=C(LCL+3)
+C       FI
+        VAL(15)=C(LCL+5)
+C       AEI OR ATI
+        VAL(16)=C(LCL+4)
+C***************************************
+C
+C       DEBUG OUTPUT-APPROPRIATE CONTENTS OF PS,PL/PO,CS,CL/CO ARRAYS
+C       AND THE CONTENTS OF VAL() BEFORE IT IS WRITTEN TO WY().
+  110   IF(IBUG .EQ. 0) GO TO 95
+        ISR=14
+        ICR=12
+        IF(IAPI .NE. 1) GO TO 115
+        ISR=4
+        ICR=5
+  115   IF(I .GT. 1) GO TO 100
+        WRITE(IODBUG,790)
+  790   FORMAT(/5X,'WTWY40 DEBUG OUTPUT')
+  100   WRITE(IODBUG,1000)
+ 1000   FORMAT(//5X,'I1,NOSUB')
+        WRITE(IODBUG,1010) I1,NOSUB
+ 1010   FORMAT(5X,I5,5X,I5)
+        WRITE(IODBUG,1020)
+ 1020   FORMAT(/5X,'LPL,LCL,LPLS,PO(I1+15),LPLP,PO(I1+16)')
+        WRITE(IODBUG,1030) LPL,LCL,LPLS,PO(I1+15),LPLP,PO(I1+16)
+ 1030   FORMAT(5X,I5,5X,I5,5X,I5,5X,F7.2,5X,I5,5X,F7.2)
+         WRITE(IODBUG,1040)
+ 1040   FORMAT(/5X,'LPS,LCS,LPSS,PO(I1+10)')
+        WRITE(IODBUG,1050) LPS,LCS,LPSS,PO(I1+10)
+ 1050   FORMAT(5X,I5,5X,I5,5X,I5,5X,F7.2)
+        WRITE(IODBUG,800) I
+  800   FORMAT(/5X,'DEBUG- ARRAY CONTENTS FOR SUBAREA NO.',I3)
+        WRITE(IODBUG,810)
+  810   FORMAT(/,5X,'THE WATER BALANCE SUMS IN THE PL/PO ARRAY ARE AS FO
+     &LLOWS;')
+        L=LPLS+ISR
+        WRITE(IODBUG,820) (P(K),K=LPLS,L)
+  820   FORMAT(3X,16(F7.2,1X))
+        WRITE(IODBUG,830)
+  830   FORMAT(/,5X,'THE CARRYOVER VALUES IN THE CL/CO ARRAY ARE AS FOLL
+     &OWS;')
+        IC=LCL+ICR
+        WRITE(IODBUG,840) (C(K),K=LCL,IC)
+  840   FORMAT(5X,14(F7.2,1X))
+        WRITE(IODBUG,850)
+  850   FORMAT(/,5X,'THE WATER BALANCE SUMS IN THE PS ARRAY ARE AS FOLLO
+     &WS;')
+        LL=LPSS+6
+        WRITE(IODBUG,860) (P(K),K=LPSS,LL)
+  860   FORMAT(5X,7(F9.2,1X))
+        WRITE(IODBUG,870)
+  870   FORMAT(/,5X,'THE CARRYOVER VALUES IN THE CS ARRAY ARE AS FOLLOWS
+     &;')
+        ICC=LCS+11
+        WRITE(IODBUG,880) (C(K),K=LCS,ICC)
+  880   FORMAT(5X,12(F9.2,1X))
+        WRITE(IODBUG,890)
+  890   FORMAT(/,5X,'THE CONTENTS OF THE VAL ARRAY ARE AS FOLLOWS;')
+        WRITE(IODBUG,900) (VAL(K),K=1,NVAL)
+  900   FORMAT(5X,10(F7.2,1X),/,5X,10(F7.2,1X),/,5X,10(F7.2,1X))
+C***************************************
+C
+C       WRITE NVAL MONTHLY SUMS TO WY().
+   95   DO 90 M=1,NVAL
+          WY(M)=VAL(M)
+   90   CONTINUE
+C
+C       WRITE WY() TO WATER YEAR SCRATCH FILE FOR EACH SUBAREA DURING
+C       CURRENT MONTH.
+        WRITE(IRWY,REC=NREC) WY
+        NREC=NREC+1
+   10 CONTINUE
+      RETURN
+      END

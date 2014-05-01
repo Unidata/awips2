@@ -1,0 +1,98 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="ddRetrievalDatabaseProperties"
+        class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN"
+            value="com.raytheon.uf.edex.datadelivery.retrieval" />
+        <property name="database" value="metadata" />
+    </bean>
+
+    <bean factory-bean="dbPluginRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval" />
+        <constructor-arg ref="ddRetrievalDatabaseProperties" />
+    </bean>
+
+    <bean id="serviceFactoryRegistry"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory"
+        factory-method="getServiceTypeRegistry" />
+
+    <bean id="metadataAdapterRegistry"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.AbstractMetadataAdapter"
+        factory-method="getMetadataAdapterRegistry" />
+
+    <!-- Register service factories -->
+    <bean factory-bean="serviceFactoryRegistry" factory-method="register">
+        <constructor-arg value="OPENDAP" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapServiceFactory" type="java.lang.Class" />
+    </bean>
+
+    <bean factory-bean="serviceFactoryRegistry" factory-method="register">
+        <constructor-arg value="WCS" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.wcs.WcsServiceFactory" type="java.lang.Class" />
+    </bean>
+
+    <bean factory-bean="serviceFactoryRegistry" factory-method="register">
+        <constructor-arg value="WMS" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.wms.WmsServiceFactory" type="java.lang.Class" />
+    </bean>
+
+    <bean factory-bean="serviceFactoryRegistry" factory-method="register">
+        <constructor-arg value="WXXM" />
+        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.wxxm.WxxmServiceFactory" type="java.lang.Class" />
+    </bean>
+    <!-- End service factories -->
+
+    <bean id="subNotifyTask"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionNotifyTask">
+        <constructor-arg ref="retrievalDao" />
+    </bean>
+
+    <bean id="scheduledExecutorService" class="java.util.concurrent.Executors"
+        factory-method="newScheduledThreadPool">
+        <constructor-arg value="${retrieval-subNotify.threads}" />
+    </bean>
+
+    <bean id="retrievalHandler"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalHandler">
+        <constructor-arg ref="scheduledExecutorService" />
+        <constructor-arg ref="retrievalDao" />
+        <!-- How often to execute the subscription notify tasks -->
+        <constructor-arg>
+            <bean class="com.raytheon.uf.common.time.domain.Durations"
+                factory-method="fromString">
+                <constructor-arg value="${subnotify.task.frequency}" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="subNotifyTask" />
+	<constructor-arg ref="retrievalTaskFactoryMap" />
+    </bean>
+    
+	<camelContext id="dataDeliveryNotify-camel" xmlns="http://camel.apache.org/schema/spring"
+	errorHandlerRef="errorHandler">
+	<endpoint id="notifyRetrievalQueue"
+		uri="jms-durable:queue:notifyRetrieval?concurrentConsumers=${retrieval-process.threads}" />
+	<!-- SendToRetrievals method from RetrievalGeneratorUtilities links to this 
+		queue -->
+	<route id="notifyRetrieval">
+		<from ref="notifyRetrievalQueue" />
+		<doTry>
+			<pipeline>
+				<bean ref="retrievalHandler" method="notify" />
+			</pipeline>
+			<doCatch>
+				<exception>java.lang.Throwable</exception>
+				<to uri="log:notifyRetrieval?level=ERROR" />
+			</doCatch>
+		</doTry>
+	</route>
+	<!-- event bus messages -->
+	<route id="dataDeliveryNotify">
+		<from uri="direct-vm:dataDeliveryNotify" />
+		<to uri="direct-vm:stageNotification" />
+	</route>
+</camelContext>
+
+</beans>

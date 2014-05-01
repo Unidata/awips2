@@ -1,0 +1,6 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify 
+py=$PYTHON_EXAMPLES/pubsub
+background "Listening" ./topic_listener
+clients $py/topic_publisher.py
+outputs $py/topic_publisher.py.out "topic_listener.out | remove_uuid | sort"
+

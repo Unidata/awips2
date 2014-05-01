@@ -1,0 +1,4 @@
+To change the phrase method, override the ENTIRE product component in yourOverrides file and change the “phraseList” there. 
+
+The phrase methods in the “phraseList” show the ordering of phrases as they appear in the component product.  To change this ordering...
+

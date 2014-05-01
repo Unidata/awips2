@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mule-configuration PUBLIC "-//MuleSource //DTD mule-configuration XML V1.0//EN" "http://mule.mulesource.org/dtds/mule/mule-1.4.0-spring-configuration.dtd">
+
+<!-- ==================================================================== -->
+<!-- Defines endpoint configuration for nctaf ingest                       -->
+<!--                                                                      -->
+<!-- File History:                                                        -->
+<!--  Date:     Ticket     Engineer      Description                      -->
+<!--  ========= =========  ============  ==============================   -->
+<!--  09/2011   458        S. Gurung     Initial Creation              -->
+<!-- ==================================================================== -->
+<mule-configuration version="1.0">
+    <model name="edex" type="seda">
+
+        <mule-descriptor name="Awips.Mule.Service.StagingSrv-nctaf"
+            singleton="true"
+            implementation="com.raytheon.edex.services.StagingSrv"
+            outboundEndpoint="jms://ar/nctaf">
+            <inbound-router>
+                <endpoint name="nctafIngestEndpoint"
+                    address="file://../../data/sbn/nctaf/?transformers=NoActionTransformer">
+                    <properties>
+						<property name="autoDelete" value="false" />
+						<property name="moveToDirectory"
+							value="../../processing" />
+                    </properties>
+                </endpoint>
+            </inbound-router>
+            <threading-profile maxThreadsActive="1" maxThreadsIdle="1" />
+        </mule-descriptor>
+        
+		<!-- Endpoint to archive nctaf Data -->
+		<mule-descriptor name="Awips.Edex.Service.ArchiveSrv-nctaf"
+			singleton="false"
+			implementation="com.raytheon.edex.services.ArchiveSrv"
+			outboundEndpoint="jms://cp/nctaf">
+			<inbound-router>
+				<endpoint name="AR-Nctaf" address="jms://ar/nctaf" />
+			</inbound-router>
+			<threading-profile maxThreadsActive="4" maxThreadsIdle="4" />
+			<properties>
+				<property name="pluginName" value="nctaf" />
+				<property name="archiveDirectoryLocation" value="../../data/archive/nctaf/" />
+				<property name="jmxModeOn" value="true" />
+			</properties>
+		</mule-descriptor>
+
+        <!-- Endpoint to ingest Nctaf data -->
+		<mule-descriptor name="Awips.Edex.Service.IngestSrv-nctaf"
+			singleton="false"
+			implementation="com.raytheon.edex.services.IngestSrv">
+			<inbound-router>
+				<endpoint name="CP-Nctaf" address="jms://cp/nctaf" transformers="MessageToObject FilePathToBytes" />
+			</inbound-router>
+			<outbound-router>
+				<router
+					className="org.mule.routing.outbound.FilteringListMessageSplitter">
+					<endpoint address="vm://indexVMQueue" />
+				</router>
+			</outbound-router>
+			<threading-profile maxThreadsActive="4" maxThreadsIdle="4" />
+			<properties>
+                <property name="pluginName" value="nctaf" />
+			</properties>
+		</mule-descriptor>
+    </model>
+</mule-configuration>

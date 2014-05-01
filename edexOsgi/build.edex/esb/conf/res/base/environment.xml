@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+<properties>
+	<Name>ENVIRONMENT</Name>
+	<logDir>${env:edex.home}/logs</logDir>
+	<pluginDirectory>${env:edex.home}/lib/plugins/</pluginDirectory>
+	<servicesDirectory>${env:edex.home}/lib/services/</servicesDirectory>
+	<pluginResDirectory>res/</pluginResDirectory>
+	<httpProxySet>true</httpProxySet>
+	<httpProxyHost>proxy.ext.ray.com</httpProxyHost>
+	<httpProxyPort>80</httpProxyPort>
+	<gribJars>${env:edex.home}/lib</gribJars>
+	<uengineOutDir>${env:edex.home}/data/uEngine</uengineOutDir>
+	<defaultDataDir>${env:edex.home}/data/</defaultDataDir>
+	<archiveDir>${env:data.archive.root}</archiveDir>
+	<jsLibraryDir>${env:edex.home}/esb/js/</jsLibraryDir>
+	<customLib>${env:edex.home}/lib/</customLib>
+	<bindAddr>bindaddr</bindAddr>
+	<adapterServiceQueue>edex.AdapterSrv</adapterServiceQueue>
+	<resFolder>../conf/res</resFolder>
+	<pluginScriptFolder>${env:edex.home}/conf/db/commonScripts/</pluginScriptFolder>
+	<!-- 
+		hdf5Dir now refers only to the local hdf5 directory; pypies keeps track
+		of its own hdf5 directory. The local hdf5 directory will only be used
+		by plugins that do not store / retrieve their data through pypies
+		(ex: QC).
+	 -->
+	<hdf5Dir>${env:edex.home}/data/hdf5</hdf5Dir>
+	<shareDir>${env:edex.home}/data/share</shareDir>
+	<utilityDir>${env:edex.home}/data/utility</utilityDir>
+	<staticDir>${env:edex.home}/data/static</staticDir>
+	<gfeSmartInitEnable>true</gfeSmartInitEnable>
+	<fxaDebugSaveBadTextFiles>false</fxaDebugSaveBadTextFiles>
+	<svcBackupDir>${env:edex.home}/../GFESuite/</svcBackupDir>
+	<mhsData>/data/fxa/mhs</mhsData>
+</properties>
+
+

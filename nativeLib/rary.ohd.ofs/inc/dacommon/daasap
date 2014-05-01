@@ -1,0 +1,9 @@
+C                                           *--> FROM DACOMMON.DAASAP
+C  ASAP UNIT COMMON BLOCK
+      COMMON /DAASAP/ MXASAP,NMASAP,
+     *       USERID(15),PPDBID(15),ITPROD(15),
+     *       IONMCX(15),IERPRS(15),IOPOST(15),IERPST(15),ITPARS(15),
+     *       ITPOST(15)
+      CHARACTER*8 USERID,PPDBID
+C
+C

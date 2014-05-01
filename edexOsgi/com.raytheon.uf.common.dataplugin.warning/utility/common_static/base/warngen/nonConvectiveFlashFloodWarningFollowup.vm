@@ -1,0 +1,927 @@
+#####################################################
+## DAM BREAK FFW FOLLOW-UP                         ##
+## CREATED BY PHIL KURIMSKI - WFO DTX              ##
+## VERSION AWIPS II 1.0 -- APR 14 2011  OB11.4     ##
+##                      -- JUL 14 2011  OB11.7     ##
+##                      -- AUG 18 2011  OB11.0.8-4 ##
+##      Evan Bookbinder -- SEP 16 2011  OB11.0.8-8 ##
+##      Phil Kurimski   -- SEP 23 2011  OB11.0.8-8 ##
+##      Mike Rega      -- MAY 03 2012 DR 14885 MND ##
+##      Phil Kurimski  -- FEB 08 2013 CTA stmnts   ##
+##      Phil Kurimski  -- SEP 17 2013 FFW Emerg    ##
+##      Mike Rega      -- JAN 18 2014 14.2.1       ##
+##                        added Alaska GP changes  ##
+#####################################################
+##
+#parse("config.vm")
+#set($headline = "")
+## set reportType2 to a default value in case nothing is selected for site specific
+#set($reportType2 = "THE FAILURE OF")
+#####################################################################
+## set variables to be used in site specific dam break selections
+#####################################################################
+#set($addInfo = "")
+#set($scenario = "")
+#set($ruleofthumb = "")
+#set($sitespecCTA = "")
+#set($addInfo = "")
+#set($volcanoCTA = "")
+#set($emergencyHeadline = "!** ENTER LOCATION **!")
+#if(${list.contains(${bullets}, "levee")})
+	#set($ic = "DM")
+	#set($hycType = "A LEVEE FAILURE")
+        #set($headline = "FOR A LEVEE FAILURE ")
+	#set($reportType1 = "A LEVEE ON THE !** **! RIVER AT !** **! FAILED CAUSING FLASH FLOODING OF IMMEDIATELY SURROUNDING AREAS")
+#elseif(${list.contains(${bullets}, "floodgate")})
+	#set($ic = "DR")
+	#set($hycType = "A DAM FLOODGATE RELEASE")
+        #set($headline = "FOR A DAM FLOODGATE RELEASE ")
+	#set($reportType1 = "THE FLOODGATES ON THE !** **! DAM WERE OPENED CAUSING FLASH FLOODING DOWNSTREAM ON THE !** **! RIVER")
+#elseif(${list.contains(${bullets}, "glacier")})
+	#set($ic = "GO")
+### modified by GP
+	#set($hycType = "A GLACIAL DAMMED LAKE OUTBURST")
+        #set($headline = "FOR A GLACIAL DAMMED LAKE OUTBURST ")
+	#set($reportType1 = "A GLACIER DAMMED LAKE AT !** **! IS RAPIDLY RELEASING LARGE QUANTITIES OF IMPOUNDED WATER RESULTING IN FLASH FLOODING !** **!")
+### GP end
+###	#set($reportType1 = "A GLACIER AT !** **! HAS MELTED...RELEASING LARGE QUANTITIES OF IMPOUNDED WATER AND CAUSING FLASH FLOODING !** **!")
+#elseif(${list.contains(${bullets}, "icejam")})
+	#set($ic = "IJ")
+	#set($hycType = "ICE JAM FLOODING")
+	    #set($headline = "FOR AN ICE JAM ")
+	#set($reportType1 = "AN ICE JAM ON THE !** **! RIVER AT !** **! BROKE CAUSING FLASH FLOODING DOWNSTREAM")
+#elseif(${list.contains(${bullets}, "rain")})
+	#set($ic = "RS")
+	#set($hycType = "EXTREMELY RAPID RAIN SNOWMELT")
+        #set($headline = "FOR EXTREMELY RAPID SNOWMELT ")
+	#set($reportType1 = "RAIN FALLING ON EXISTING SNOWPACK WAS GENERATING FLASH FLOODING FROM EXCESSIVE RUNOFF")
+#elseif(${list.contains(${bullets}, "volcano")})
+	#set($ic = "SM")
+### modified by GP
+	#set($hycType = "VOLCANIC INDUCED SNOWMELT")
+        #set($headline = "FOR VOLCANIC INDUCED SNOWMELT ")
+	#set($ctaSelected = "YES")
+	#set($reportType1 = "ACTIVITY OF THE !** **! VOLCANO WAS CAUSING RAPID SNOWMELT ON ITS SLOPES AND GENERATING FLASH FLOODING")
+	#set($volcanoCTA = "PERSONS IN THE VICINITY OF !** DRAINAGE **! SHOULD HEAD TO HIGHER GROUND IMMEDIATELY.")
+### GP end
+#elseif(${list.contains(${bullets}, "volcanoLahar")})
+	#set($ic = "SM")
+### modified by GP
+	#set($hycType = "VOLCANIC INDUCED DEBRIS FLOW")
+		#set($headline = "FOR VOLCANIC INDUCED DEBRIS FLOW ")
+### GP end
+	#set($ctaSelected = "YES")
+	#set($reportType1 = "ACTIVITY OF THE !** **! VOLCANO WAS CAUSING RAPID MELTING OF SNOW AND ICE ON THE MOUNTAIN. THIS WILL RESULT IN A TORRENT OF MUD...ASH...ROCK AND HOT WATER TO FLOW DOWN THE MOUNTAIN THROUGH !** DRAINAGE **! AND GENERATE FLASH FLOODING")
+	#set($volcanoCTA = "PERSONS IN THE VICINITY OF !** DRAINAGE **! SHOULD HEAD TO HIGHER GROUND IMMEDIATELY.")
+#elseif(${list.contains(${bullets}, "dam")})
+	#set($ic = "DM")
+	#set($hycType = "A DAM FAILURE")
+        #set($headline = "FOR A DAM FAILURE ")
+        ## The next line should be the headline but will not currently work
+        ##set($headline = "FOR THE FAILURE OF !**DAM NAME**! ON !**STREAM NAME**! ")
+	#set($reportType1 = "THE !** **! DAM FAILED CAUSING FLASH FLOODING DOWNSTREAM ON THE !** **! RIVER")
+#elseif(${list.contains(${bullets}, "siteimminent")})
+	#set($ic = "DM")
+	#set($hycType = "A DAM BREAK")
+        #set($headline = "FOR A DAM BREAK ")
+        ## The next line should be the headline but will not currently work
+        ##set($headline = "FOR THE IMMINENT FAILURE OF !**DAM NAME**! ON !**STREAM NAME**! ")
+	#set($reportType1 = "THE IMMINENT FAILURE OF !** **! DAM")
+	#set($reportType2 = "THE IMMINENT FAILURE OF")
+#elseif(${list.contains(${bullets}, "sitefailed")})
+	#set($ic = "DM")
+	#set($hycType = "A DAM BREAK")
+        #set($headline = "FOR A DAM BREAK ")
+        ## The next line should be the headline but will not currently work
+        ##set($headline = "FOR THE FAILURE OF !**DAM NAME**! ON !**STREAM NAME**! ")
+	#set($reportType1 = "THE FAILURE OF !** **! DAM")
+	#set($reportType2 = "THE FAILURE OF")
+#else
+	#set($ic = "ER")
+	#set($hycType = "EXCESSIVE RAIN")
+	#set($reportType1 = "EXCESSIVE RAIN CAUSING FLASH FLOODING WAS OCCURING OVER THE WARNED AREA")
+#end
+#set($endwarning = "THE WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A SIGNIFICANT THREAT. PLEASE CONTINUE TO HEED ALL ROAD CLOSURES.")
+#if(${list.contains(${bullets}, "warnend1")})
+	#set($endwarning = "THE WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A SIGNIFICANT THREAT. PLEASE CONTINUE TO HEED ALL ROAD CLOSURES.")
+#end
+#if(${list.contains(${bullets}, "warnend2")})
+	#set($endwarning = "FLOODING ON THE !** **! RIVER HAS RECEDED AND IS NO LONGER EXPECTED TO POSE A SIGNIFICANT THREAT. PLEASE CONTINUE TO HEED ALL ROAD CLOSURES.")
+#end
+#if(${floodic})
+	#set($ic = ${floodic})
+#end
+#########################################################################
+## Parse command to include a damInfo.vm file with site specific dam
+## information. Sites can include their information in this file.
+#########################################################################
+#parse ("damInfo.vm")
+####################################
+## DAM BREAK FFW FOLLOW-UP HEADER ##
+####################################
+#if(${action}=="COR" && ${cancelareas})
+#set($CORCAN = "true")
+#else
+#set($CORCAN = "false")
+#end
+#if(${action}!="CANCON" && ${CORCAN}!="true")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FFS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLASH FLOOD STATEMENT...TEST
+#else
+FLASH FLOOD STATEMENT
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${areas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#end
+##########################
+## DAM BREAK FFW CANCEL ##
+##########################
+#if(${action}=="CAN")
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
+### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+##
+### GP end
+
+########### END NEW HEADLINE CODE ####################
+
+
+## Explanation
+${endwarning}
+
+#end
+#######################
+## DAM BREAK FFW CON ##
+#######################
+#if(${action}=="CON" || (${action}=="COR" && ${CORCAN}=="false"))
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+#####################################
+## Flash Flood Emergency Headline   #
+#####################################
+#if(${list.contains(${bullets}, "ffwEmergency")})
+
+...FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}...
+
+#end
+...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+##
+### GP end
+
+########### END NEW HEADLINE CODE ####################
+
+#####################################################
+## Changed report to match selections in template
+#####################################################
+#set($report = "${reportType1}")
+#if(${list.contains(${bullets}, "county")})
+  #set($report = "COUNTY DISPATCH REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($report = "LOCAL LAW ENFORCEMENT REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "corps")})
+  #set($report = "CORPS OF ENGINEERS REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "damop")})
+  #set($report = "DAM OPERATORS REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "bureau")})
+  #set($report = "BUREAU OF RECLAMATION REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "public")})
+  #set($report = "THE PUBLIC REPORTED ${reportType1}") 
+#end
+### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "GAUGES INDICATED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "CAP")})
+  #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "alaskaVoc")})
+  #set($report = "THE ALASKA VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "cascadeVoc")})
+  #set($report = "THE CASCADES VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+### GP end
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}) ${report}.
+
+##########################################################################
+## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
+##########################################################################
+#if(${list.contains(${bullets}, "ffwEmergency")})
+THIS IS A FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}. SEEK HIGHER GROUND NOW!
+
+#end
+#set($phenomena = "FLASH FLOOD") 
+#set($warningType = "WARNING") 
+##########################################################################
+## Optional 4th bullet...comment out if needed.
+##########################################################################
+## This first if loop will override the locations impacted statement
+## with the site specific information in the 4th bullet.
+##########################################################################
+#if(${sitespecSelected} == "YES")
+${addInfo} 
+
+${scenario}
+
+${ruleofthumb}
+
+##########################################################################
+## Continue with the regular 4th bullet information
+##########################################################################
+#elseif(${list.contains(${bullets}, "pathcast")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("THE FLOOD WILL BE NEAR..." "THIS FLOODING" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#elseif(${list.contains(${bullets}, "listofcities")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("LOCATIONS IMPACTED INCLUDE..." "THIS FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+############################ End of Optional 4th Bullet ###########################
+#if(${list.contains(${bullets}, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
+#if(${list.contains(${bullets}, "floodMoving")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
+
+#end
+
+#####################
+## CALL TO ACTIONS ##
+#####################
+#######################################################################
+## Check to see if we've selected any calls to action. In our .xml file
+## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#######################################################################
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES")
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+#end
+##
+
+${sitespecCTA}
+
+${volcanoCTA}
+
+#if(${list.contains(${bullets}, "ffwEmergencyCTA")} || ${list.contains(${bullets}, "ffwEmergency")})
+#if(${list.contains(${bullets}, "ffwEmergency")})
+MOVE TO HIGHER GROUND NOW. THIS IS AN EXTREMELY DANGEROUS AND LIFE THREATENING SITUATION. DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER.
+
+#else
+!** YOU SELECTED THE FLASH FLOOD EMERGENCY CTA WITHOUT SELECTING THE FLASH FLOOD EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
+
+#end
+#end
+#if(${list.contains(${bullets}, "actQuicklyCTA")})
+MOVE TO HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE.
+
+#end
+#if(${list.contains(${bullets}, "childSafetyCTA")})
+KEEP CHILDREN AWAY FROM STORM DRAINS...CULVERTS...CREEKS AND STREAMS. WATER LEVELS CAN RISE RAPIDLY AND SWEEP CHILDREN AWAY.
+
+#end
+#if(${list.contains(${bullets}, "nighttimeCTA")})
+BE ESPECIALLY CAUTIOUS AT NIGHT WHEN IT IS HARDER TO RECOGNIZE THE DANGERS OF FLOODING. 
+
+#end
+#if(${list.contains(${bullets}, "safetyCTA")})
+DO NOT ENTER OR CROSS FLOWING WATER OR WATER OF UNKNOWN DEPTH. 
+
+#end
+#if(${list.contains(${bullets}, "stayAwayCTA")})
+STAY AWAY OR BE SWEPT AWAY. RIVER BANKS AND CULVERTS CAN BECOME UNSTABLE AND UNSAFE. 
+
+#end
+#if(${list.contains(${bullets}, "turnAroundCTA")})
+TURN AROUND...DONT DROWN WHEN ENCOUNTERING FLOODED ROADS. MOST FLOOD DEATHS OCCUR IN VEHICLES.
+
+#end
+#if(${list.contains(${bullets}, "arroyosCTA")})
+REMAIN ALERT FOR FLOODING EVEN IN LOCATIONS NOT RECEIVING RAIN. ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS IN A MATTER OF MINUTES...EVEN FROM DISTANT RAINFALL.
+
+#end
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+MOVE AWAY FROM RECENTLY BURNED AREAS. LIFE THREATENING FLOODING OF CREEKS...ROADS AND NORMALLY DRY ARROYOS IS LIKELY. THE HEAVY RAINS WILL LIKELY TRIGGER ROCKSLIDES...MUDSLIDES AND DEBRIS FLOWS IN STEEP TERRAIN...ESPECIALLY IN AND AROUND THESE AREAS.
+
+#end
+### added by GP
+#if(${list.contains(${bullets}, "glacierOutburstCTA")})
+STAY AWAY FROM IMPACTED WATERWAYS. WATER LEVELS CAN RISE VERY RAPIDLY EVEN IN DRY WEATHER. VERY COLD GLACIAL MELT WATER INCREASES THE RISK FOR HYPOTHERMIA.
+
+#end
+### GP end
+#if(${list.contains(${bullets}, "reportFloodingCTA")})
+PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN DO SO SAFELY. 
+
+#end
+#if(${ctaSelected} == "YES")
+&&
+#end
+
+#end
+###########################
+## DAM BREAK FFW CAN/CON ##
+###########################
+#if(${action}=="CANCON")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FFS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLASH FLOOD STATEMENT...TEST
+#else
+FLASH FLOOD STATEMENT
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+${ugclinecan}
+/${productClass}.CAN.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${cancelareas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
+### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${cancelaffectedCounties} true true true false)...
+#else
+#headlineLocList(${cancelareas} true true true false)...
+#end
+##
+### GP end
+##
+########### END NEW HEADLINE CODE ####################
+
+
+## Explanation
+${endwarning}
+
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+${ugcline}
+/${productClass}.CON.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${areas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+###################################
+## Flash Flood Emergency Headline #
+###################################
+#if(${list.contains(${bullets}, "ffwEmergency")})
+
+...FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}...
+
+#end
+...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+#### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+##
+### GP end
+########### END NEW HEADLINE CODE ####################
+
+#####################################################
+## Changed report to match selections in template
+#####################################################
+#set($report = "${reportType1}")
+#if(${list.contains(${bullets}, "county")})
+  #set($report = "COUNTY DISPATCH REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($report = "LOCAL LAW ENFORCEMENT REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "corps")})
+  #set($report = "CORPS OF ENGINEERS REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "damop")})
+  #set($report = "DAM OPERATORS REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "bureau")})
+  #set($report = "BUREAU OF RECLAMATION REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "public")})
+  #set($report = "THE PUBLIC REPORTED ${reportType1}") 
+#end
+### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "GAUGES INDICATED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "CAP")})
+  #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
+#end
+### GP end
+
+## Storm current location description
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}) ${report}.
+
+##########################################################################
+## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
+##########################################################################
+#if(${list.contains(${bullets}, "ffwEmergency")})
+THIS IS A FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}. SEEK HIGHER GROUND NOW!
+
+#end
+#set($phenomena = "FLASH FLOOD") 
+#set($warningType = "WARNING") 
+##########################################################################
+## Optional 4th bullet...comment out if needed.
+##########################################################################
+## This first if loop will override the locations impacted statement
+## with the site specific information in the 4th bullet.
+##########################################################################
+#if(${sitespecSelected} == "YES")
+${addInfo} 
+
+${scenario}
+
+${ruleofthumb}
+
+##########################################################################
+## Continue with the regular 4th bullet information
+##########################################################################
+#elseif(${list.contains(${bullets}, "pathcast")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("THE FLOOD WILL BE NEAR..." "THIS FLOODING" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat})
+
+#elseif(${list.contains(${bullets}, "listofcities")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("LOCATIONS IMPACTED INCLUDE..." "THIS FLOODING WILL AFFECT MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat})
+
+#end
+############################ End of Optional 4th Bullet ###########################
+#if(${list.contains(${bullets}, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+
+#####################
+## CALL TO ACTIONS ##
+#####################
+#######################################################################
+## Check to see if we've selected any calls to action. In our .xml file
+## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#######################################################################
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES")
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+#end
+##
+
+${sitespecCTA}
+
+${volcanoCTA}
+
+#if(${list.contains(${bullets}, "ffwEmergencyCTA")} || ${list.contains(${bullets}, "ffwEmergency")})
+#if(${list.contains(${bullets}, "ffwEmergency")})
+MOVE TO HIGHER GROUND NOW. THIS IS AN EXTREMELY DANGEROUS AND LIFE THREATENING SITUATION. DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER.
+
+#else
+!** YOU SELECTED THE FLASH FLOOD EMERGENCY CTA WITHOUT SELECTING THE FLASH FLOOD EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
+
+#end
+#end
+#if(${list.contains(${bullets}, "actQuicklyCTA")})
+MOVE TO HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE.
+
+#end
+#if(${list.contains(${bullets}, "childSafetyCTA")})
+KEEP CHILDREN AWAY FROM STORM DRAINS...CULVERTS...CREEKS AND STREAMS. WATER LEVELS CAN RISE RAPIDLY AND SWEEP CHILDREN AWAY.
+
+#end
+#if(${list.contains(${bullets}, "nighttimeCTA")})
+BE ESPECIALLY CAUTIOUS AT NIGHT WHEN IT IS HARDER TO RECOGNIZE THE DANGERS OF FLOODING. 
+
+#end
+#if(${list.contains(${bullets}, "safetyCTA")})
+DO NOT ENTER OR CROSS FLOWING WATER OR WATER OF UNKNOWN DEPTH. 
+
+#end
+#if(${list.contains(${bullets}, "stayAwayCTA")})
+STAY AWAY OR BE SWEPT AWAY. RIVER BANKS AND CULVERTS CAN BECOME UNSTABLE AND UNSAFE. 
+
+#end
+#if(${list.contains(${bullets}, "turnAroundCTA")})
+TURN AROUND...DONT DROWN WHEN ENCOUNTERING FLOODED ROADS. MOST FLOOD DEATHS OCCUR IN VEHICLES.
+
+#end
+#if(${list.contains(${bullets}, "arroyosCTA")})
+REMAIN ALERT FOR FLOODING EVEN IN LOCATIONS NOT RECEIVING RAIN. ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS IN A MATTER OF MINUTES...EVEN FROM DISTANT RAINFALL.
+
+#end
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+MOVE AWAY FROM RECENTLY BURNED AREAS. LIFE THREATENING FLOODING OF CREEKS...ROADS AND NORMALLY DRY ARROYOS IS LIKELY. THE HEAVY RAINS WILL LIKELY TRIGGER ROCKSLIDES...MUDSLIDES AND DEBRIS FLOWS IN STEEP TERRAIN...ESPECIALLY IN AND AROUND THESE AREAS.
+
+#end
+### added by GP
+#if(${list.contains(${bullets}, "volcanicFloodCTA")})
+STAY WELL AWAY FROM IMPACTED WATERWAYS AND GET TO HIGHER GROUND IMMEDIATELY. FLOODS DUE TO VOLCANO INDUCED SNOWMELT CAN OCCUR VERY RAPIDLY AND IMPACT AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.
+
+#end
+#if(${list.contains(${bullets}, "volcanicLaharCTA")})
+VOLCANIC DEBRIS FLOWS ARE EXTREMELY DANGEROUS. STAY WELL AWAY FROM IMPACTED WATERWAYS AND GET TO HIGHER GROUND IMMEDIATELY. LAHARS CAN FLOOD AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.
+
+#end
+#if(${list.contains(${bullets}, "glacierOutburstCTA")})
+STAY AWAY FROM IMPACTED WATERWAYS. WATER LEVELS CAN RISE VERY RAPIDLY EVEN IN DRY WEATHER. VERY COLD GLACIAL MELT WATER INCREASES THE RISK FOR HYPOTHERMIA.
+
+#end
+### GP end
+#if(${list.contains(${bullets}, "reportFloodingCTA")})
+PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN DO SO SAFELY. 
+
+#end
+#if(${ctaSelected} == "YES")
+&&
+#end
+
+#elseif(${CORCAN}=="true")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FFS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLASH FLOOD STATEMENT...TEST
+#else
+FLASH FLOOD STATEMENT
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${cancelareas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
+###headlineLocList(${cancelareas} true true true false)
+#headlineLocList(${cancelaffectedCounties} true true true false)
+...##
+########### END NEW HEADLINE CODE ####################
+
+
+## Explanation
+${endwarning}
+
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+${ugcline}
+/${productClass}.COR.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${areas}) 
+${area.name}##
+#if(${includeStateAbbreviation}==true)
+ ${area.stateabbr}##
+#end
+-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+###################################
+## Flash Flood Emergency Headline #
+###################################
+#if(${list.contains(${bullets}, "ffwEmergency")})
+
+...FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}...
+
+#end
+...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+#headlineLocList(${areas} true true true false)
+...##
+########### END NEW HEADLINE CODE ####################
+
+#####################################################
+## Changed report to match selections in template
+#####################################################
+#set($report = "${reportType1}")
+#if(${list.contains(${bullets}, "county")})
+  #set($report = "COUNTY DISPATCH REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($report = "LOCAL LAW ENFORCEMENT REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "corps")})
+  #set($report = "CORPS OF ENGINEERS REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "damop")})
+  #set($report = "DAM OPERATORS REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "bureau")})
+  #set($report = "BUREAU OF RECLAMATION REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "public")})
+  #set($report = "THE PUBLIC REPORTED ${reportType1}") 
+#end
+### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "GAUGES INDICATED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "CAP")})
+  #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
+#end
+### GP end
+
+## Storm current location description
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}) ${report}.
+
+##########################################################################
+## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
+##########################################################################
+#if(${list.contains(${bullets}, "ffwEmergency")})
+THIS IS A FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}. SEEK HIGHER GROUND NOW!
+
+#end
+#set($phenomena = "FLASH FLOOD") 
+#set($warningType = "WARNING") 
+##########################################################################
+## Optional 4th bullet...comment out if needed.
+##########################################################################
+## This first if loop will override the locations impacted statement
+## with the site specific information in the 4th bullet.
+##########################################################################
+#if(${sitespecSelected} == "YES")
+${addInfo} 
+
+${scenario}
+
+${ruleofthumb}
+
+##########################################################################
+## Continue with the regular 4th bullet information
+##########################################################################
+#elseif(${list.contains(${bullets}, "pathcast")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("THE FLOOD WILL BE NEAR..." "THIS FLOODING" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat})
+
+#elseif(${list.contains(${bullets}, "listofcities")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("LOCATIONS IMPACTED INCLUDE..." "THIS FLOODING WILL AFFECT MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat})
+
+#end
+############################ End of Optional 4th Bullet ###########################
+#if(${list.contains(${bullets}, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+
+#####################
+## CALL TO ACTIONS ##
+#####################
+#######################################################################
+## Check to see if we've selected any calls to action. In our .xml file
+## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#######################################################################
+#foreach (${bullet} in ${bullets})
+#if(${bullet.endsWith("CTA")})
+#set($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES")
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+#end
+##
+
+${sitespecCTA}
+
+${volcanoCTA}
+
+#if(${list.contains(${bullets}, "ffwEmergencyCTA")} || ${list.contains(${bullets}, "ffwEmergency")})
+#if(${list.contains(${bullets}, "ffwEmergency")})
+MOVE TO HIGHER GROUND NOW. THIS IS AN EXTREMELY DANGEROUS AND LIFE THREATENING SITUATION. DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER.
+
+#else
+!** YOU SELECTED THE FLASH FLOOD EMERGENCY CTA WITHOUT SELECTING THE FLASH FLOOD EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
+
+#end
+#end
+#if(${list.contains(${bullets}, "actQuicklyCTA")})
+MOVE TO HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE.
+
+#end
+#if(${list.contains(${bullets}, "childSafetyCTA")})
+KEEP CHILDREN AWAY FROM STORM DRAINS...CULVERTS...CREEKS AND STREAMS. WATER LEVELS CAN RISE RAPIDLY AND SWEEP CHILDREN AWAY.
+
+#end
+#if(${list.contains(${bullets}, "nighttimeCTA")})
+BE ESPECIALLY CAUTIOUS AT NIGHT WHEN IT IS HARDER TO RECOGNIZE THE DANGERS OF FLOODING. 
+
+#end
+#if(${list.contains(${bullets}, "safetyCTA")})
+DO NOT ENTER OR CROSS FLOWING WATER OR WATER OF UNKNOWN DEPTH. 
+
+#end
+#if(${list.contains(${bullets}, "stayAwayCTA")})
+STAY AWAY OR BE SWEPT AWAY. RIVER BANKS AND CULVERTS CAN BECOME UNSTABLE AND UNSAFE. 
+
+#end
+#if(${list.contains(${bullets}, "turnAroundCTA")})
+TURN AROUND...DONT DROWN WHEN ENCOUNTERING FLOODED ROADS. MOST FLOOD DEATHS OCCUR IN VEHICLES.
+
+#end
+#if(${list.contains(${bullets}, "arroyosCTA")})
+REMAIN ALERT FOR FLOODING EVEN IN LOCATIONS NOT RECEIVING RAIN. ARROYOS...STREAMS AND RIVERS CAN BECOME RAGING KILLER CURRENTS IN A MATTER OF MINUTES...EVEN FROM DISTANT RAINFALL.
+
+#end
+#if(${list.contains(${bullets}, "burnAreasCTA")})
+MOVE AWAY FROM RECENTLY BURNED AREAS. LIFE THREATENING FLOODING OF CREEKS...ROADS AND NORMALLY DRY ARROYOS IS LIKELY. THE HEAVY RAINS WILL LIKELY TRIGGER ROCKSLIDES...MUDSLIDES AND DEBRIS FLOWS IN STEEP TERRAIN...ESPECIALLY IN AND AROUND THESE AREAS.
+
+#end
+### added by GP
+#if(${list.contains(${bullets}, "volcanicFloodCTA")})
+STAY WELL AWAY FROM IMPACTED WATERWAYS AND GET TO HIGHER GROUND IMMEDIATELY. FLOODS DUE TO VOLCANO INDUCED SNOWMELT CAN OCCUR VERY RAPIDLY AND IMPACT AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.
+
+#end
+#if(${list.contains(${bullets}, "volcanicLaharCTA")})
+VOLCANIC DEBRIS FLOWS ARE EXTREMELY DANGEROUS. STAY WELL AWAY FROM IMPACTED WATERWAYS AND GET TO HIGHER GROUND IMMEDIATELY. LAHARS CAN FLOOD AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.
+
+#end
+#if(${list.contains(${bullets}, "glacierOutburstCTA")})
+STAY AWAY FROM IMPACTED WATERWAYS. WATER LEVELS CAN RISE VERY RAPIDLY EVEN IN DRY WEATHER. VERY COLD GLACIAL MELT WATER INCREASES THE RISK FOR HYPOTHERMIA.
+
+#end
+### GP end
+#if(${list.contains(${bullets}, "reportFloodingCTA")})
+PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN DO SO SAFELY. 
+
+#end
+#if(${ctaSelected} == "YES")
+&&
+#end
+
+#end
+#######################
+## DAM BREAK FFW EXP ##
+#######################
+#if(${action}=="EXP")
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE FLASH FLOOD WARNING ${headline}##
+#if(${now.compareTo(${expire})} > -1)
+EXPIRED AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#else
+WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#end
+#headlineLocList(${areas} true true true false)
+...##
+########### END NEW HEADLINE CODE ####################
+
+
+## Explaination
+${endwarning}
+
+#end
+##########################
+## END OF DAM BREAK FFW ##
+##########################
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+#parse("forecasterName.vm")

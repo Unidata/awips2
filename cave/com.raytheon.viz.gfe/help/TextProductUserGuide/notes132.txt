@@ -1,0 +1,1 @@
+To include other hazards, we can copy the method into our Local file and then add to it.  There is much more information about Headlines, VTEC codes and special considerations for Marine Headlines in the Text Reference Guide.

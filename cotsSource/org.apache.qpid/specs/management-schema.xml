@@ -1,0 +1,360 @@
+<schema package="org.apache.qpid.broker">
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+  <!-- Type information:
+
+       Numeric types with "_wm" suffix are watermarked numbers.  These are compound
+       values containing a current value, and a low and high water mark for the reporting
+       interval.  The low and high water marks are set to the current value at the
+       beginning of each interval and track the minimum and maximum values of the statistic
+       over the interval respectively.
+
+       Access rights for configuration elements:
+
+           RO => Read Only
+           RC => Read/Create, can be set at create time only, read-only thereafter
+           RW => Read/Write
+
+           If access rights are omitted for a property, they are assumed to be RO.
+
+  -->
+
+  <!-- Questions:  Does C++ broker round-robin dests on queues? -->
+
+  <!--
+  ===============================================================
+  System
+  ===============================================================
+  -->
+  <class name="System">
+    <property name="systemId" index="y" type="uuid" access="RC"/>
+
+    <property name="osName"   type="sstr" access="RO" desc="Operating System Name"/>
+    <property name="nodeName" type="sstr" access="RO" desc="Node Name"/>
+    <property name="release"  type="sstr" access="RO"/>
+    <property name="version"  type="sstr" access="RO"/>
+    <property name="machine"  type="sstr" access="RO"/>
+
+  </class>
+
+  <!--
+  ===============================================================
+  Broker
+  ===============================================================
+  -->
+  <class name="Broker">
+    <property name="systemRef"        type="objId"  references="System" access="RC" index="y" desc="System ID" parentRef="y"/>
+    <property name="port"             type="uint16" access="RC" index="y" desc="TCP Port for AMQP Service"/>
+    <property name="workerThreads"    type="uint16" access="RO" desc="Thread pool size"/>
+    <property name="maxConns"         type="uint16" access="RO" desc="Maximum allowed connections"/>
+    <property name="connBacklog"      type="uint16" access="RO" desc="Connection backlog limit for listening socket"/>
+    <property name="stagingThreshold" type="uint32" access="RO" desc="Broker stages messages over this size to disk"/>
+    <property name="mgmtPubInterval"  type="uint16" access="RW" unit="second" min="1" desc="Interval for management broadcasts"/>
+    <property name="version"          type="sstr"   access="RO" desc="Running software version"/>
+    <property name="dataDir"          type="sstr"   access="RO" optional="y" desc="Persistent configuration storage location"/>
+    <statistic name="uptime" type="deltaTime"/>
+
+    <method name="echo" desc="Request a response to test the path to the management broker">
+      <arg name="sequence" dir="IO" type="uint32" default="0"/>
+      <arg name="body"     dir="IO" type="lstr"   default=""/>
+    </method>
+
+    <method name="connect" desc="Establish a connection to another broker">
+      <arg name="host"          dir="I" type="sstr"/>
+      <arg name="port"          dir="I" type="uint32"/>
+      <arg name="durable"       dir="I" type="bool"/>
+      <arg name="authMechanism" dir="I" type="sstr"/>
+      <arg name="username"      dir="I" type="sstr"/>
+      <arg name="password"      dir="I" type="sstr"/>
+      <arg name="transport"     dir="I" type="sstr"/>
+    </method>
+
+    <method name="queueMoveMessages" desc="Move messages from one queue to another">
+      <arg name="srcQueue"          dir="I" type="sstr" desc="Source queue"/>
+      <arg name="destQueue"         dir="I" type="sstr" desc="Destination queue"/>
+      <arg name="qty"               dir="I" type="uint32" desc="# of messages to move. 0 means all messages"/>
+    </method>
+
+  </class>
+
+  <!--
+  ===============================================================
+  Management Agent
+  ===============================================================
+  -->
+  <class name="Agent">
+    <property name="connectionRef" type="objId"  references="Connection" access="RO" index="y"/>
+    <property name="label"         type="sstr"   access="RO"           desc="Label for agent"/>
+    <property name="registeredTo"  type="objId"  references="Broker" access="RO" desc="Broker agent is registered to"/>
+    <property name="systemId"      type="uuid"   access="RO"           desc="Identifier of system where agent resides"/>
+    <property name="brokerBank"    type="uint32" access="RO"           desc="Assigned object-id broker bank"/>
+    <property name="agentBank"     type="uint32" access="RO"           desc="Assigned object-id agent bank"/>
+  </class>
+
+  <!--
+  ===============================================================
+  Virtual Host
+  ===============================================================
+  -->
+  <class name="Vhost">
+    <property name="brokerRef"     type="objId" references="Broker" access="RC" index="y" parentRef="y"/>
+    <property name="name"          type="sstr"  access="RC" index="y"/>
+    <property name="federationTag" type="sstr"  access="RO"/>
+  </class>
+
+  <!--
+  ===============================================================
+  Queue
+  ===============================================================
+  -->
+  <class name="Queue">
+    <property name="vhostRef"   type="objId" references="Vhost" access="RC" index="y" parentRef="y"/>
+    <property name="name"       type="sstr"  access="RC" index="y"/>
+
+    <property name="durable"     type="bool"  access="RC"/>
+    <property name="autoDelete"  type="bool"  access="RC"/>
+    <property name="exclusive"   type="bool"  access="RC"/>
+    <property name="arguments"   type="map"   access="RO" desc="Arguments supplied in queue.declare"/>
+    <property name="altExchange" type="objId" references="Exchange" access="RO" optional="y"/>
+
+    <statistic name="msgTotalEnqueues"    type="count64"  unit="message"     desc="Total messages enqueued"/>
+    <statistic name="msgTotalDequeues"    type="count64"  unit="message"     desc="Total messages dequeued"/>
+    <statistic name="msgTxnEnqueues"      type="count64"  unit="message"     desc="Transactional messages enqueued"/>
+    <statistic name="msgTxnDequeues"      type="count64"  unit="message"     desc="Transactional messages dequeued"/>
+    <statistic name="msgPersistEnqueues"  type="count64"  unit="message"     desc="Persistent messages enqueued"/>
+    <statistic name="msgPersistDequeues"  type="count64"  unit="message"     desc="Persistent messages dequeued"/>
+    <statistic name="msgDepth"            type="count32"  unit="message"     desc="Current size of queue in messages" assign="msgTotalEnqueues - msgTotalDequeues"/>
+    <statistic name="byteDepth"           type="count32"  unit="octet"       desc="Current size of queue in bytes"    assign="byteTotalEnqueues - byteTotalDequeues"/>
+    <statistic name="byteTotalEnqueues"   type="count64"  unit="octet"       desc="Total messages enqueued"/>
+    <statistic name="byteTotalDequeues"   type="count64"  unit="octet"       desc="Total messages dequeued"/>
+    <statistic name="byteTxnEnqueues"     type="count64"  unit="octet"       desc="Transactional messages enqueued"/>
+    <statistic name="byteTxnDequeues"     type="count64"  unit="octet"       desc="Transactional messages dequeued"/>
+    <statistic name="bytePersistEnqueues" type="count64"  unit="octet"       desc="Persistent messages enqueued"/>
+    <statistic name="bytePersistDequeues" type="count64"  unit="octet"       desc="Persistent messages dequeued"/>
+    <statistic name="consumerCount"       type="hilo32"   unit="consumer"    desc="Current consumers on queue"/>
+    <statistic name="bindingCount"        type="hilo32"   unit="binding"     desc="Current bindings"/>
+    <statistic name="unackedMessages"     type="hilo32"   unit="message"     desc="Messages consumed but not yet acked"/>
+    <statistic name="messageLatency"      type="mmaTime"  unit="nanosecond"  desc="Broker latency through this queue"/>
+
+    <method name="purge" desc="Discard all or some messages on a queue">
+      <arg name="request"          dir="I" type="uint32" desc="0 for all messages or n>0 for n messages"/>
+    </method>
+  </class>
+
+  <!--
+  ===============================================================
+  Exchange
+  ===============================================================
+  -->
+  <class name="Exchange">
+    <property name="vhostRef"    type="objId" references="Vhost" access="RC" index="y" parentRef="y"/>
+    <property name="name"        type="sstr"  access="RC" index="y"/>
+    <property name="type"        type="sstr"  access="RO"/>
+    <property name="durable"     type="bool"  access="RO"/>
+    <property name="autoDelete"  type="bool"  access="RO"/>
+    <property name="altExchange" type="objId" references="Exchange" access="RO" optional="y"/>
+    <property name="arguments"   type="map"   access="RO" desc="Arguments supplied in exchange.declare"/>
+
+    <statistic name="producerCount" type="hilo32"  desc="Current producers on exchange"/>
+    <statistic name="bindingCount"  type="hilo32"  desc="Current bindings"/>
+    <statistic name="msgReceives"   type="count64" desc="Total messages received"/>
+    <statistic name="msgDrops"      type="count64" desc="Total messages dropped (no matching key)"/>
+    <statistic name="msgRoutes"     type="count64" desc="Total routed messages"/>
+    <statistic name="byteReceives"  type="count64" desc="Total bytes received"/>
+    <statistic name="byteDrops"     type="count64" desc="Total bytes dropped (no matching key)"/>
+    <statistic name="byteRoutes"    type="count64" desc="Total routed bytes"/>
+  </class>
+
+  <!--
+  ===============================================================
+  Binding
+  ===============================================================
+  -->
+  <class name="Binding">
+    <property name="exchangeRef" type="objId" references="Exchange" access="RC" index="y" parentRef="y"/>
+    <property name="queueRef"    type="objId" references="Queue"    access="RC" index="y"/>
+    <property name="bindingKey"  type="sstr"  access="RC" index="y"/>
+    <property name="arguments"   type="map"   access="RC"/>
+    <property name="origin"      type="sstr"  access="RO" optional="y"/>
+
+    <statistic name="msgMatched" type="count64"/>
+  </class>
+  
+  <!--
+  ===============================================================
+  Subscription
+  ===============================================================
+  -->
+  <class name="Subscription">
+    <property name="sessionRef"     type="objId"    references="Session" access="RC" index="y" parentRef="y"/>
+    <property name="queueRef"       type="objId"    references="Queue"   access="RC" index="y"/>
+    <property name="name"           type="sstr"     access="RC" index="y"/>
+    <property name="browsing"       type="bool"     access="RC"/>
+    <property name="acknowledged"   type="bool"     access="RC"/>
+    <property name="exclusive"      type="bool"     access="RC"/>
+    <property name="creditMode"     type="sstr"     access="RO" desc="WINDOW or CREDIT"/>
+    <property name="arguments"      type="map"      access="RC"/>
+    <statistic name="delivered"     type="count64"  unit="message" desc="Messages delivered"/>
+  </class>
+  
+  <!--
+  ===============================================================
+  Connection
+  ===============================================================
+  -->
+  <class name="Connection">
+    <property name="vhostRef" type="objId"  references="Vhost" access="RC" index="y" parentRef="y"/>
+    <property name="address"  type="sstr"   access="RC" index="y"/>
+    <property name="incoming" type="bool"   access="RC"/>
+    <property name="SystemConnection"   type="bool"   access="RC" desc="Infrastucture/ Inter-system connection (Cluster, Federation, ...)"/>
+    <property name="federationLink"     type="bool"   access="RO" desc="Is this a federation link"/>
+    <property name="authIdentity"       type="sstr"   access="RO" desc="authId of connection if authentication enabled"/>
+    <property name="remoteProcessName"  type="sstr"   access="RO" optional="y" desc="Name of executable running as remote client"/>
+    <property name="remotePid"          type="uint32" access="RO" optional="y" desc="Process ID of remote client"/>
+    <property name="remoteParentPid"    type="uint32" access="RO" optional="y" desc="Parent Process ID of remote client"/>
+    <statistic name="closing"          type="bool" desc="This client is closing by management request"/>
+    <statistic name="framesFromClient" type="count64"/>
+    <statistic name="framesToClient"   type="count64"/>
+    <statistic name="bytesFromClient"  type="count64"/>
+    <statistic name="bytesToClient"    type="count64"/>
+
+    <method name="close"/> 
+  </class>
+
+  <!--
+  ===============================================================
+  Link
+  ===============================================================
+  -->
+  <class name="Link">
+
+    This class represents an inter-broker connection.
+
+    <property name="vhostRef"  type="objId"  references="Vhost" access="RC" index="y" parentRef="y"/>
+    <property name="host"      type="sstr"   access="RC" index="y"/>
+    <property name="port"      type="uint16" access="RC" index="y"/>
+    <property name="transport" type="sstr"   access="RC"/>
+    <property name="durable"   type="bool"   access="RC"/>
+
+    <statistic name="state"       type="sstr" desc="Operational state of the link"/>
+    <statistic name="lastError"   type="sstr" desc="Reason link is not operational"/>
+
+    <method name="close"/> 
+
+    <method name="bridge" desc="Bridge messages over the link">
+      <arg name="durable"     dir="I" type="bool"/>
+      <arg name="src"         dir="I" type="sstr"/>
+      <arg name="dest"        dir="I" type="sstr"/>
+      <arg name="key"         dir="I" type="sstr"/>
+      <arg name="tag"         dir="I" type="sstr"/>
+      <arg name="excludes"    dir="I" type="sstr"/>
+      <arg name="srcIsQueue"  dir="I" type="bool"/>
+      <arg name="srcIsLocal"  dir="I" type="bool"/>
+      <arg name="dynamic"     dir="I" type="bool"/>
+      <arg name="sync"        dir="I" type="uint16"/>
+    </method>
+  </class>
+
+
+  <!--
+  ===============================================================
+  Bridge
+  ===============================================================
+  -->
+  <class name="Bridge">
+    <property name="linkRef"     type="objId"  references="Link" access="RC" index="y" parentRef="y"/>
+    <property name="channelId"   type="uint16" access="RC" index="y"/>
+    <property name="durable"     type="bool"   access="RC"/>
+    <property name="src"         type="sstr"   access="RC"/>
+    <property name="dest"        type="sstr"   access="RC"/>
+    <property name="key"         type="sstr"   access="RC"/>
+    <property name="srcIsQueue"  type="bool"   access="RC"/>
+    <property name="srcIsLocal"  type="bool"   access="RC"/>
+    <property name="tag"         type="sstr"   access="RC"/>
+    <property name="excludes"    type="sstr"   access="RC"/>
+    <property name="dynamic"     type="bool"   access="RC"/>
+    <property name="sync"        type="uint16" access="RC"/>
+    <method name="close"/> 
+  </class>
+
+
+  <!--
+  ===============================================================
+  Session
+  ===============================================================
+  -->
+  <class name="Session">
+    <property name="vhostRef"         type="objId"   references="Vhost" access="RC" index="y" parentRef="y"/>
+    <property name="name"             type="sstr"    access="RC" index="y"/>
+    <property name="channelId"        type="uint16"  access="RO"/>
+    <property name="connectionRef"    type="objId"   references="Connection" access="RO"/>
+    <property name="detachedLifespan" type="uint32"  access="RO" unit="second"/>
+    <property name="attached"         type="bool"    access="RO"/>
+    <property name="expireTime"       type="absTime" access="RO" optional="y"/>
+    <property name="maxClientRate"    type="uint32"  access="RO" unit="msgs/sec" optional="y"/>
+
+    <statistic name="framesOutstanding" type="count32"/>
+
+    <statistic name="TxnStarts"    type="count64"  unit="transaction" desc="Total transactions started "/>
+    <statistic name="TxnCommits"   type="count64"  unit="transaction" desc="Total transactions committed"/>
+    <statistic name="TxnRejects"   type="count64"  unit="transaction" desc="Total transactions rejected"/>
+    <statistic name="TxnCount"     type="count32"  unit="transaction" desc="Current pending transactions"/>
+
+    <statistic name="clientCredit" type="count32" unit="message" desc="Client message credit"/>
+
+    <method name="solicitAck"/>
+    <method name="detach"/>
+    <method name="resetLifespan"/>
+    <method name="close"/>
+  </class>
+
+  <eventArguments>
+    <arg name="altEx"   type="sstr"   desc="Name of the alternate exchange"/>
+    <arg name="args"    type="map"    desc="Supplemental arguments or parameters supplied"/>
+    <arg name="autoDel" type="bool"   desc="Created object is automatically deleted when no longer in use"/>
+    <arg name="dest"    type="sstr"   desc="Destination tag for a subscription"/>
+    <arg name="disp"    type="sstr"   desc="Disposition of a declaration: 'created' if object was created, 'existing' if object already existed"/>
+    <arg name="durable" type="bool"   desc="Created object is durable"/>
+    <arg name="exName"  type="sstr"   desc="Name of an exchange"/>
+    <arg name="exType"  type="sstr"   desc="Type of an exchange"/>
+    <arg name="excl"    type="bool"   desc="Created object is exclusive for the use of the owner only"/>
+    <arg name="key"     type="lstr"   desc="Key text used for routing or binding"/>
+    <arg name="qName"   type="sstr"   desc="Name of a queue"/>
+    <arg name="reason"  type="lstr"   desc="Reason for a failure"/>
+    <arg name="rhost"   type="sstr"   desc="Address (i.e. DNS name, IP address, etc.) of a remotely connected host"/>
+    <arg name="user"    type="sstr"   desc="Authentication identity"/>
+  </eventArguments>
+
+  <event name="clientConnect"     sev="inform" args="rhost, user"/>
+  <event name="clientConnectFail" sev="warn"   args="rhost, user, reason"/>
+  <event name="clientDisconnect"  sev="inform" args="rhost, user"/>
+  <event name="brokerLinkUp"      sev="inform" args="rhost"/>
+  <event name="brokerLinkDown"    sev="warn"   args="rhost"/>
+  <event name="queueDeclare"      sev="inform" args="rhost, user, qName, durable, excl, autoDel, args, disp"/>
+  <event name="queueDelete"       sev="inform" args="rhost, user, qName"/>
+  <event name="exchangeDeclare"   sev="inform" args="rhost, user, exName, exType, altEx, durable, autoDel, args, disp"/>
+  <event name="exchangeDelete"    sev="inform" args="rhost, user, exName"/>
+  <event name="bind"              sev="inform" args="rhost, user, exName, qName, key, args"/>
+  <event name="unbind"            sev="inform" args="rhost, user, exName, qName, key"/>
+  <event name="subscribe"         sev="inform" args="rhost, user, qName, dest, excl, args"/>
+  <event name="unsubscribe"       sev="inform" args="rhost, user, dest"/>
+</schema>
+

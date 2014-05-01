@@ -1,0 +1,2 @@
+To do this, we use the special "exec" Python command.  This is a very handy command which you will see in use throughout the text products.  You build a text string of the Python code you would like to execute and then submit it to the "exec" command.  So in this case, we loop through the entries of the Definition section creating variables.  For example, if we have a Definition entry of "type", we build an exec string that sets the variable, "self._type" to its Definition value. 
+

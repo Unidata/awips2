@@ -1,0 +1,1 @@
+Alternatively, you may specify the edit area by giving a (latitude, longitude, dimension) tuple.  The dimension is in kilometers and the the system will create a temporary edit area on-the-fly which is a square of the given dimension with the lat/lon as center.  An example is shown here.  Be sure that your dimension is large enough to include at least on grid point!

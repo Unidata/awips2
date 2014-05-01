@@ -1,0 +1,860 @@
+/*
+    File: Descrip.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:19 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Descrip.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Descrip_t
+{
+    char		lid[9];
+    char		bed[61];
+    char		divert[61];
+    char		remark[256];
+    char		ice[161];
+    char		proximity[7];
+    char		reach[81];
+    char		res[256];
+    char		topo[256];
+
+    int		ind_bed;
+    int		ind_divert;
+    int		ind_remark;
+    int		ind_ice;
+    int		ind_reach;
+    int		ind_res;
+    int		ind_topo;
+} Descrip_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Descrip * GetDescrip(const char * where)
+{
+
+    Descrip * listPtr = NULL;
+    Descrip * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Descrip ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Descrip_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDescrip() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDescrip() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDescrip() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.bed:dbs.ind_bed, 
+    :dbs.divert:dbs.ind_divert, :dbs.remark:dbs.ind_remark, 
+    :dbs.ice:dbs.ind_ice, :dbs.proximity, 
+    :dbs.reach:dbs.ind_reach, :dbs.res:dbs.ind_res, 
+    :dbs.topo:dbs.ind_topo    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDescrip() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Descrip *) malloc(sizeof(Descrip))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->bed, dbs.bed);
+            setNullIfIndicated(dbs.ind_bed, CHAR, structPtr->bed);
+
+            strcpy(structPtr->divert, dbs.divert);
+            setNullIfIndicated(dbs.ind_divert, CHAR, structPtr->divert);
+
+            strcpy(structPtr->remark, dbs.remark);
+            setNullIfIndicated(dbs.ind_remark, CHAR, structPtr->remark);
+
+            strcpy(structPtr->ice, dbs.ice);
+            setNullIfIndicated(dbs.ind_ice, CHAR, structPtr->ice);
+
+            strcpy(structPtr->proximity, dbs.proximity);
+
+            strcpy(structPtr->reach, dbs.reach);
+            setNullIfIndicated(dbs.ind_reach, CHAR, structPtr->reach);
+
+            strcpy(structPtr->res, dbs.res);
+            setNullIfIndicated(dbs.ind_res, CHAR, structPtr->res);
+
+            strcpy(structPtr->topo, dbs.topo);
+            setNullIfIndicated(dbs.ind_topo, CHAR, structPtr->topo);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.bed:dbs.ind_bed, 
+        :dbs.divert:dbs.ind_divert, :dbs.remark:dbs.ind_remark, 
+        :dbs.ice:dbs.ind_ice, :dbs.proximity, 
+        :dbs.reach:dbs.ind_reach, :dbs.res:dbs.ind_res, 
+        :dbs.topo:dbs.ind_topo        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDescrip() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Descrip * SelectDescrip(const char * where)
+{
+
+    Descrip * listPtr = NULL;
+    Descrip * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Descrip ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Descrip_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDescrip() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDescrip() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDescrip() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.bed:dbs.ind_bed, 
+    :dbs.divert:dbs.ind_divert, :dbs.remark:dbs.ind_remark, 
+    :dbs.ice:dbs.ind_ice, :dbs.proximity, 
+    :dbs.reach:dbs.ind_reach, :dbs.res:dbs.ind_res, 
+    :dbs.topo:dbs.ind_topo    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDescrip() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Descrip *) malloc(sizeof(Descrip))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->bed, dbs.bed);
+            setNullIfIndicated(dbs.ind_bed, CHAR, structPtr->bed);
+
+            strcpy(structPtr->divert, dbs.divert);
+            setNullIfIndicated(dbs.ind_divert, CHAR, structPtr->divert);
+
+            strcpy(structPtr->remark, dbs.remark);
+            setNullIfIndicated(dbs.ind_remark, CHAR, structPtr->remark);
+
+            strcpy(structPtr->ice, dbs.ice);
+            setNullIfIndicated(dbs.ind_ice, CHAR, structPtr->ice);
+
+            strcpy(structPtr->proximity, dbs.proximity);
+
+            strcpy(structPtr->reach, dbs.reach);
+            setNullIfIndicated(dbs.ind_reach, CHAR, structPtr->reach);
+
+            strcpy(structPtr->res, dbs.res);
+            setNullIfIndicated(dbs.ind_res, CHAR, structPtr->res);
+
+            strcpy(structPtr->topo, dbs.topo);
+            setNullIfIndicated(dbs.ind_topo, CHAR, structPtr->topo);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.bed:dbs.ind_bed, 
+        :dbs.divert:dbs.ind_divert, :dbs.remark:dbs.ind_remark, 
+        :dbs.ice:dbs.ind_ice, :dbs.proximity, 
+        :dbs.reach:dbs.ind_reach, :dbs.res:dbs.ind_res, 
+        :dbs.topo:dbs.ind_topo        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDescrip() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDescripCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Descrip ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDescrip() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDescrip() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDescrip() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDescrip() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDescrip(const Descrip * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Descrip_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.bed, structPtr->bed);
+    dbs.ind_bed = getIndicator(CHAR, (void *)structPtr->bed);
+
+    strcpy(dbs.divert, structPtr->divert);
+    dbs.ind_divert = getIndicator(CHAR, (void *)structPtr->divert);
+
+    strcpy(dbs.remark, structPtr->remark);
+    dbs.ind_remark = getIndicator(CHAR, (void *)structPtr->remark);
+
+    strcpy(dbs.ice, structPtr->ice);
+    dbs.ind_ice = getIndicator(CHAR, (void *)structPtr->ice);
+
+    strcpy(dbs.proximity, structPtr->proximity);
+
+    strcpy(dbs.reach, structPtr->reach);
+    dbs.ind_reach = getIndicator(CHAR, (void *)structPtr->reach);
+
+    strcpy(dbs.res, structPtr->res);
+    dbs.ind_res = getIndicator(CHAR, (void *)structPtr->res);
+
+    strcpy(dbs.topo, structPtr->topo);
+    dbs.ind_topo = getIndicator(CHAR, (void *)structPtr->topo);
+
+
+    EXEC SQL INSERT INTO Descrip (lid,bed,
+        divert,remark,ice,
+        proximity,reach,res,
+        topo        )
+        VALUES (
+         :dbs.lid, :dbs.bed:dbs.ind_bed, :dbs.divert:dbs.ind_divert,
+         :dbs.remark:dbs.ind_remark, :dbs.ice:dbs.ind_ice, :dbs.proximity,
+         :dbs.reach:dbs.ind_reach, :dbs.res:dbs.ind_res, :dbs.topo:dbs.ind_topo);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDescrip() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDescrip(const Descrip * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Descrip_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.bed, structPtr->bed);
+    dbs.ind_bed = getIndicator(CHAR, (void *)structPtr->bed);
+
+    strcpy(dbs.divert, structPtr->divert);
+    dbs.ind_divert = getIndicator(CHAR, (void *)structPtr->divert);
+
+    strcpy(dbs.remark, structPtr->remark);
+    dbs.ind_remark = getIndicator(CHAR, (void *)structPtr->remark);
+
+    strcpy(dbs.ice, structPtr->ice);
+    dbs.ind_ice = getIndicator(CHAR, (void *)structPtr->ice);
+
+    strcpy(dbs.proximity, structPtr->proximity);
+
+    strcpy(dbs.reach, structPtr->reach);
+    dbs.ind_reach = getIndicator(CHAR, (void *)structPtr->reach);
+
+    strcpy(dbs.res, structPtr->res);
+    dbs.ind_res = getIndicator(CHAR, (void *)structPtr->res);
+
+    strcpy(dbs.topo, structPtr->topo);
+    dbs.ind_topo = getIndicator(CHAR, (void *)structPtr->topo);
+
+
+    EXEC SQL INSERT INTO Descrip (lid,bed,
+        divert,remark,ice,
+        proximity,reach,res,
+        topo        )
+        VALUES (
+         :dbs.lid, :dbs.bed:dbs.ind_bed, :dbs.divert:dbs.ind_divert,
+         :dbs.remark:dbs.ind_remark, :dbs.ice:dbs.ind_ice, :dbs.proximity,
+         :dbs.reach:dbs.ind_reach, :dbs.res:dbs.ind_res, :dbs.topo:dbs.ind_topo);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDescrip() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDescrip(const Descrip *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Descrip_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.bed, structPtr->bed);
+    dbs.ind_bed = getIndicator(CHAR, (void *)structPtr->bed);
+
+    strcpy(dbs.divert, structPtr->divert);
+    dbs.ind_divert = getIndicator(CHAR, (void *)structPtr->divert);
+
+    strcpy(dbs.remark, structPtr->remark);
+    dbs.ind_remark = getIndicator(CHAR, (void *)structPtr->remark);
+
+    strcpy(dbs.ice, structPtr->ice);
+    dbs.ind_ice = getIndicator(CHAR, (void *)structPtr->ice);
+
+    strcpy(dbs.proximity, structPtr->proximity);
+
+    strcpy(dbs.reach, structPtr->reach);
+    dbs.ind_reach = getIndicator(CHAR, (void *)structPtr->reach);
+
+    strcpy(dbs.res, structPtr->res);
+    dbs.ind_res = getIndicator(CHAR, (void *)structPtr->res);
+
+    strcpy(dbs.topo, structPtr->topo);
+    dbs.ind_topo = getIndicator(CHAR, (void *)structPtr->topo);
+
+
+    sprintf(queryBuffer, " UPDATE Descrip SET " );
+    strcat(queryBuffer, "lid = ? , bed = ? , divert = ? , remark = ? , ice = ? ,     ");
+    strcat(queryBuffer, "proximity = ? , reach = ? , res = ? , topo = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDescrip() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.bed:dbs.ind_bed, :dbs.divert:dbs.ind_divert, :dbs.remark:dbs.ind_remark, :dbs.ice:dbs.ind_ice,
+     :dbs.proximity, :dbs.reach:dbs.ind_reach, :dbs.res:dbs.ind_res, :dbs.topo:dbs.ind_topo;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDescrip() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDescrip(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Descrip ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDescrip() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDescripByRecord (const Descrip * newStructPtr, const Descrip * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDescripPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDescrip(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDescrip(const Descrip * structPtr)
+{
+    UpdateDescripByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDescrip(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDescrip(const Descrip * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DescripExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDescrip(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDescripByRecord(const Descrip * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDescripPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDescrip(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DescripExists(const Descrip * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDescripPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDescripCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDescripPrimaryKeyWhereString (const Descrip * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDescrip( Descrip * structPtr)
+{
+    Descrip* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Descrip * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDescripDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDescripErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

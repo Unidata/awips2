@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    COMMENT:
+    
+    
+    AWIPS 1 format
+    QPV4 |9| |QG-EPV, RH>75%      | |CONTOUR,IMAGE,OTHER| MB|   *Test|RH|1.|-1.e37|74.99|0.|1.|75.|104.9|QPV3|1.|105.|1.e37|0.
+
+
+abbreviation: |QPV4| 
+Notused1: |9| 
+Notused2: | | 
+name: |QG-EPV, RH>75%      | 
+FIELD: || 
+FIELD: |CONTOUR,IMAGE,OTHER| 
+FIELD: |MB| 
+FIELD: |RH| 
+FIELD: |1.| 
+FIELD: |-1.e37| 
+FIELD: |74.99| 
+FIELD: |0.| 
+FIELD: |1.| 
+FIELD: |75.| 
+FIELD: |104.9| 
+FIELD: |QPV3| 
+FIELD: |1.| 
+FIELD: |105.| 
+FIELD: |1.e37| 
+FIELD: |0.| 
+
+
+NEW FILE - QPV4.xml
+-->
+<DerivedParameter name="QG-EPV, RH&gt;75%" abbreviation="QPV4" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Test">
+        <Field abbreviation="RH"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="-1e37"/>
+        <ConstantField value="74.99"/>
+        <ConstantField value="0.0"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="75.0"/>
+        <ConstantField value="104.9"/>
+        <Field abbreviation="QPV3"/>
+        <ConstantField value="1.0"/>
+        <ConstantField value="105.0"/>
+        <ConstantField value="1e37"/>
+        <ConstantField value="0.0"/>
+    </Method>
+</DerivedParameter>

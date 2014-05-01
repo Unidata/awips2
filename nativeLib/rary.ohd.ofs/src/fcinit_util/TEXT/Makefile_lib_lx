@@ -1,0 +1,54 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_util library file
+#
+#  cmt: File made on Wed Aug  6 12:49:50 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_util_t.a:  \
+     $(LIB)/libfcinit_util_t.a(checkc.o)  \
+     $(LIB)/libfcinit_util_t.a(checkp.o)  \
+     $(LIB)/libfcinit_util_t.a(checkt.o)  \
+     $(LIB)/libfcinit_util_t.a(chekmv.o)  \
+     $(LIB)/libfcinit_util_t.a(chekrc.o)  \
+     $(LIB)/libfcinit_util_t.a(chekts.o)  \
+     $(LIB)/libfcinit_util_t.a(ckinpt.o)  \
+     $(LIB)/libfcinit_util_t.a(cvtidx.o)  \
+     $(LIB)/libfcinit_util_t.a(defwy.o)  \
+     $(LIB)/libfcinit_util_t.a(extrts.o)  \
+     $(LIB)/libfcinit_util_t.a(fcidck.o)  \
+     $(LIB)/libfcinit_util_t.a(fclcd.o)  \
+     $(LIB)/libfcinit_util_t.a(fcwtck.o)  \
+     $(LIB)/libfcinit_util_t.a(ffrdin.o)  \
+     $(LIB)/libfcinit_util_t.a(ffrdrl.o)  \
+     $(LIB)/libfcinit_util_t.a(flcmpl.o)  \
+     $(LIB)/libfcinit_util_t.a(fmvtsl.o)  \
+     $(LIB)/libfcinit_util_t.a(rdvcin.o)  \
+     $(LIB)/libfcinit_util_t.a(rdvcrl.o)
+

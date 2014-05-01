@@ -1,0 +1,16 @@
+C
+C Common block to be used with the version of the ESP function implemented
+C by RTi.
+C
+C Make sure that "maxets", as initialized in "eeblockx", agrees with the
+C dimension on "ieunit".
+
+cew add indir and outdir parameters for the espotdir and espindir techniques
+      character*104 esp_in_dir, esp_out_dir
+      integer preadj
+
+cew added preadj
+C
+      common / etsunt / maxets, nepts, ieunit(100),
+     +                 esp_in_dir, esp_out_dir, indirlen, ioutdirlen,
+     +                 preadj

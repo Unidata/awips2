@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+	Omega due to Diabatic Effects
+	Isentropic Omega Eq: Net Omega=local+presAdv+Diabatic
+	Build 5.2.2 will give Net Omega, local,preAdv on K surface so residual is
+	diabatic term.
+	
+	
+	AWIPS I format
+	DIABi|0| |Omega from Diabatic Effects |ubar/s|CONTOUR,IMAGE,OTHER|K|       *Difference|PVV|NetIO
+	
+	
+	varId: |DIABi| 
+	Cross Section (CS): |0|					//according to implemented IoCape.xml, CS = 0 is not in the derivedParameter definition 
+	isAttachToSource: | | 
+	varName: |Omega from Diabatic Effects | 
+	units: |ubar/s| 
+	displayTypes: |CONTOUR,IMAGE,OTHER| 	//Handled via fieldDisplayTypes.xml under Volume Browser in AWIPS II
+	planeList: |K| 							//No longer used, planes are available and determined by levels attribute in the Method tag, 
+											//default is all levels.  DerivedParameter planes are limited to the sum of all of its 
+											//method levels
+
+	functionName: |Difference|
+	varId: |PVV| 
+	varId: |NetIO| 
+	
+	
+	AWIPS II NEW FILE - DIABi.xml
+ -->
+<DerivedParameter unit="dPa/s" name="Omega from Diabatic Effects" abbreviation="DIABi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Method name="Difference">
+        <Field abbreviation="PVV"/>
+        <Field abbreviation="NetIO"/>
+    </Method>
+</DerivedParameter>

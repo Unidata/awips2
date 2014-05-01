@@ -1,0 +1,58 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_rrs library file
+#
+#  cmt: File made on Wed Aug  6 12:51:05 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_rrs_t.a:  \
+     $(LIB)/libfcst_rrs_t.a(fun011.o)  \
+     $(LIB)/libfcst_rrs_t.a(qdispl.o)  \
+     $(LIB)/libfcst_rrs_t.a(qdnorm.o)  \
+     $(LIB)/libfcst_rrs_t.a(qdsply.o)  \
+     $(LIB)/libfcst_rrs_t.a(qdtype.o)  \
+     $(LIB)/libfcst_rrs_t.a(qextrp.o)  \
+     $(LIB)/libfcst_rrs_t.a(qformt.o)  \
+     $(LIB)/libfcst_rrs_t.a(qinput.o)  \
+     $(LIB)/libfcst_rrs_t.a(qinstm.o)  \
+     $(LIB)/libfcst_rrs_t.a(qinstn.o)  \
+     $(LIB)/libfcst_rrs_t.a(qistft.o)  \
+     $(LIB)/libfcst_rrs_t.a(qmean.o)  \
+     $(LIB)/libfcst_rrs_t.a(qmeanm.o)  \
+     $(LIB)/libfcst_rrs_t.a(qobsda.o)  \
+     $(LIB)/libfcst_rrs_t.a(qovlap.o)  \
+     $(LIB)/libfcst_rrs_t.a(qprnt.o)  \
+     $(LIB)/libfcst_rrs_t.a(qprtts.o)  \
+     $(LIB)/libfcst_rrs_t.a(qsetmg.o)  \
+     $(LIB)/libfcst_rrs_t.a(qsprrs.o)  \
+     $(LIB)/libfcst_rrs_t.a(qsrprd.o)  \
+     $(LIB)/libfcst_rrs_t.a(qswprd.o)  \
+     $(LIB)/libfcst_rrs_t.a(qwrits.o)  \
+     $(LIB)/libfcst_rrs_t.a(qxwprd.o)
+

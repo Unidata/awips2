@@ -1,0 +1,115 @@
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6E0374D9-99BE-4D4F-B41D-B227E37E04C6}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TestClient</RootNamespace>
+    <AssemblyName>TestClient</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\net-2.0\debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\net-2.0\release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Qpid.Buffer.Tests\Qpid.Buffer.Tests.csproj">
+      <Project>{74640962-99D0-4D06-B57A-9CD66517CF52}</Project>
+      <Name>Qpid.Buffer.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Buffer\Qpid.Buffer.csproj">
+      <Project>{44384DF2-B0A4-4580-BDBC-EE4BAA87D995}</Project>
+      <Name>Qpid.Buffer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Client.Tests\Qpid.Client.Tests.csproj">
+      <Project>{BA1B0032-4CE6-40DD-A2DC-119F0FFA0A1D}</Project>
+      <Name>Qpid.Client.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Client\Qpid.Client.csproj">
+      <Project>{68987C05-3768-452C-A6FC-6BA1D372852F}</Project>
+      <Name>Qpid.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Codec\Qpid.Codec.csproj">
+      <Project>{22D0D0C2-77AF-4DE3-B456-7FF3893F9F88}</Project>
+      <Name>Qpid.Codec</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Common.Tests\Qpid.Common.Tests.csproj">
+      <Project>{F83624B0-762B-4D82-900D-FF4C1B36E36E}</Project>
+      <Name>Qpid.Common.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Common\Qpid.Common.csproj">
+      <Project>{77064C42-24D2-4CEB-9EA2-0EF481A43205}</Project>
+      <Name>Qpid.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Messaging\Qpid.Messaging.csproj">
+      <Project>{6688F826-C58E-4C1B-AA1F-22AFAB4B7D07}</Project>
+      <Name>Qpid.Messaging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Sasl.Tests\Qpid.Sasl.Tests.csproj">
+      <Project>{587B3520-EBB9-41ED-B019-E96116B651CE}</Project>
+      <Name>Qpid.Sasl.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Qpid.Sasl\Qpid.Sasl.csproj">
+      <Project>{1465B0EE-6452-42A6-AB73-B2F9EABEEE75}</Project>
+      <Name>Qpid.Sasl</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

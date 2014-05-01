@@ -1,0 +1,64 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppdutil library file
+#
+#  cmt: File made on Wed Aug  6 12:51:29 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libppdutil_t.a:  \
+     $(LIB)/libppdutil_t.a(pd24st.o)  \
+     $(LIB)/libppdutil_t.a(pdchob.o)  \
+     $(LIB)/libppdutil_t.a(pdchsp.o)  \
+     $(LIB)/libppdutil_t.a(pdcmnd.o)  \
+     $(LIB)/libppdutil_t.a(pdcmxd.o)  \
+     $(LIB)/libppdutil_t.a(pddtyp.o)  \
+     $(LIB)/libppdutil_t.a(pdedly.o)  \
+     $(LIB)/libppdutil_t.a(pdeftp.o)  \
+     $(LIB)/libppdutil_t.a(pdeltp.o)  \
+     $(LIB)/libppdutil_t.a(pdemdr.o)  \
+     $(LIB)/libppdutil_t.a(pdepsr.o)  \
+     $(LIB)/libppdutil_t.a(pderrs.o)  \
+     $(LIB)/libppdutil_t.a(pdlrrs.o)  \
+     $(LIB)/libppdutil_t.a(pdlyfl.o)  \
+     $(LIB)/libppdutil_t.a(pdplot.o)  \
+     $(LIB)/libppdutil_t.a(pdrlsf.o)  \
+     $(LIB)/libppdutil_t.a(pdrrsd.o)  \
+     $(LIB)/libppdutil_t.a(pdrrsf.o)  \
+     $(LIB)/libppdutil_t.a(pdrrst.o)  \
+     $(LIB)/libppdutil_t.a(pdrset.o)  \
+     $(LIB)/libppdutil_t.a(pdsrst.o)  \
+     $(LIB)/libppdutil_t.a(pdstat.o)  \
+     $(LIB)/libppdutil_t.a(pdunsf.o)  \
+     $(LIB)/libppdutil_t.a(pdutmain.o)  \
+     $(LIB)/libppdutil_t.a(prtmdr.o)  \
+     $(LIB)/libppdutil_t.a(prtobs.o)  \
+     $(LIB)/libppdutil_t.a(prtpsr.o)  \
+     $(LIB)/libppdutil_t.a(rdlytp.o)  \
+     $(LIB)/libppdutil_t.a(ridcrd.o)
+

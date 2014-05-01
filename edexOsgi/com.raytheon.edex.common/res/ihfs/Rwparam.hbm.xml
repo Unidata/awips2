@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="true">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Rwparam" 
+    table="rwparams"
+>
+
+    <composite-id>
+        <key-property 
+            name="rwMinRain" 
+            column="rw_min_rain" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="rwSepDist" 
+            column="rw_sep_dist" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="rwLag0IndCorr" 
+            column="rw_lag0_ind_corr" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="rwLag0CondCorr" 
+            column="rw_lag0_cond_corr" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="numNearGages" 
+            column="num_near_gages" 
+            type="java.lang.Short"
+            length="5"
+        />
+        <key-property 
+            name="numNearRadBins" 
+            column="num_near_rad_bins" 
+            type="java.lang.Short"
+            length="5"
+        />
+        <key-property 
+            name="defCondVarRad" 
+            column="def_cond_var_rad" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="defIndCorrScl" 
+            column="def_ind_corr_scl" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="defCondCorrScl" 
+            column="def_cond_corr_scl" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="minIndCorrScl" 
+            column="min_ind_corr_scl" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="minCondCorrScl" 
+            column="min_cond_corr_scl" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="maxIndCorrScl" 
+            column="max_ind_corr_scl" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="maxCondCorrScl" 
+            column="max_cond_corr_scl" 
+            type="java.lang.Float"
+            length="8"
+        />
+        <key-property 
+            name="nnSrchMethod" 
+            column="nn_srch_method" 
+            type="java.lang.Short"
+            length="5"
+        />
+    </composite-id>    
+
+
+    <!-- Associations -->
+  
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

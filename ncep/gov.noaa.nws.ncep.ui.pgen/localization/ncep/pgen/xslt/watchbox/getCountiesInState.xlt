@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method = "text"/>
+<xsl:variable name="newline"><xsl:text>
+ </xsl:text></xsl:variable>
+
+<!--
+        getCountiesInState.xlt
+                - generate the county list in the watch are in the input state.
+
+        Change Log:
+
+        B. Yin/Chugach  03/10   Initial Coding
+-->
+
+  <xsl:template name="getCountiesInState">
+	 <xsl:param name="state"/>
+
+	 <xsl:for-each select="/Products/Product/Layer/DrawableElement/DECollection/DrawableElement/WatchBox/Counties[substring(.,8,2) = $state]">
+		<!-- get the county string -->
+                <xsl:variable name="cntystr" select="substring(.,13)"/>
+
+		<!-- get the county name -->
+		<xsl:variable name="county">
+		   <xsl:call-template name="getCntyName">
+			<xsl:with-param name="cnty" select="$cntystr"/>
+			<xsl:with-param name="idx" select="1"/>
+		   </xsl:call-template>
+		</xsl:variable>
+
+		<xsl:value-of select="$county"/>
+
+		<!-- add space to line up the counties-->
+		<xsl:call-template name="addSpace">
+			<xsl:with-param name="cnt" select="20 - string-length($county)"/>
+		</xsl:call-template>
+
+		<!-- add a line break every three counties-->
+		<xsl:if test="position() mod 3 = 0 and not(position() = last())">
+          		<xsl:value-of select="$newline"/>
+		</xsl:if>
+        </xsl:for-each>
+  </xsl:template>
+
+<!--
+        getSpace
+                - add spaces at the current position.
+		- cnt: number of spaces to add.
+
+        Change Log:
+
+        B. Yin/Chugach  03/10   Initial Coding
+-->
+  <xsl:template name="addSpace">
+	<xsl:param name="cnt"/>
+
+	<xsl:if test="$cnt > 0 ">
+		<xsl:text> </xsl:text>
+		<xsl:call-template name="addSpace">
+			<xsl:with-param name="cnt" select="$cnt - 1"/>
+		</xsl:call-template>
+	</xsl:if>
+
+  </xsl:template>
+
+<!--
+        getCntyName
+                - get the county from the county string in watch element xml.
+		- cnty: county string
+		- idx: the county string is looped thrugh from position idx.
+		- in the watch element county name is followed by lat/lon
+		  the county string is looped until a digital is found,
+
+        Change Log:
+
+        B. Yin/Chugach  03/10   Initial Coding
+-->
+
+  <xsl:template name="getCntyName">
+	<xsl:param name="cnty"/>
+	<xsl:param name="idx"/>
+
+	<xsl:if test="string-length($cnty) > $idx">
+
+	     <!-- get one character at position idx -->
+	     <xsl:variable name="oneChar" select="substring($cnty,$idx,1)"/>
+	
+	     <!-- if the character is a number, stop, return string before the position.
+		  otherwise, continue searching.
+	     -->
+	     <xsl:choose>
+		<xsl:when test="$oneChar=1 or $oneChar=2 or $oneChar=3 or $oneChar=4
+			or $oneChar=5 or $oneChar=6 or $oneChar=7 or $oneChar=8
+			or $oneChar=9"> 
+			<xsl:value-of select="substring($cnty,1,$idx - 1)"/>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:call-template name="getCntyName">
+				<xsl:with-param name="cnty" select="$cnty"/>
+				<xsl:with-param name="idx" select="$idx + 1"/>
+			</xsl:call-template>
+		</xsl:otherwise>
+	    </xsl:choose>
+	</xsl:if>
+	
+  </xsl:template>
+</xsl:stylesheet>

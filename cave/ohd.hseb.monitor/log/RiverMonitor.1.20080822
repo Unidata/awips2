@@ -1,0 +1,38 @@
+1
+**************************************
+1
+**************************************
+16:01:32: RiverMonitor Started
+1
+**************************************
+16:01:32: RiverMonitorDataManager.readValidHeightAndDischargePE():  Where Clause:where pe like 'H%' or pe like 'Q%'
+1
+**************************************
+16:01:32: OfficeNotesDataManager.readDataFromOfficeNotes():  Where Clause:order by topic, id, postingtime
+1
+**************************************
+16:01:33: Derived columns file doesnt exist :[/home/ebabin/workspace/ohd.hseb.river_monitor/config/DerivedColumns.txt]
+1
+**************************************
+16:01:33: Derived columns file doesnt exist :[/home/ebabin/workspace/ohd.hseb.river_monitor/config/DerivedColumns.txt]
+1
+**************************************
+16:01:33: RiverMonitorSettings.startRiverMonitor(): Trying to load from file :/home/ebabin/workspace/ohd.hseb.river_monitor/config/DefaultRiverMonitorSettings.txt
+1
+**************************************
+16:01:33: SettingsFileManager.isValidSettingsFile(): [/home/ebabin/workspace/ohd.hseb.river_monitor/config/DefaultRiverMonitorSettings.txt] doesn't exist
+1
+**************************************
+16:01:33: RiverMonitorDataManager.createRiverMonitorRowDataList():  Memory Info before creating rowdata list:Free:64159664 Max:1023934464 total:65536000
+1
+**************************************
+16:01:35: RiverMonitorDataManager.readConfigFileAndFormConfigMap(): ConfigFile [/home/ebabin/workspace/ohd.hseb.river_monitor/config/RiverMonitorPEConfig.txt] doesn't exist
+1
+**************************************
+16:01:37: RiverMonLocGroupDataManager.initRiverMonGroupMap():  Where Clause:order by ordinal
+1
+**************************************
+16:01:37: RiverMonitorLocGroupDataManager.initRiverMonLocationMap():  Where Clause:where group_id not like 'DEFAULT' order by ordinal
+1
+**************************************
+16:01:37: RiverMonitorDataManager.createRiverMonitorRowDataList():  Here 1: Free:150936656 Max:1023934464 total:158793728

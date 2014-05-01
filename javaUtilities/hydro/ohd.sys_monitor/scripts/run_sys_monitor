@@ -1,0 +1,27 @@
+#!/bin/ksh
+# file name: run_sys_monitor
+# Created: 2/24/2009
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+
+# need to add a path to the jar file for this application
+export CLASSPATH=$WHFS_BIN_DIR/sys_monitor.jar
+CLASSPATH=$CLASSPATH:$WHFS_BIN_DIR/activation.jar:$WHFS_BIN_DIR/mail-1.4.1.jar
+
+# Java bin directory
+JBINDIR=$SYS_JAVA_DIR/bin
+
+# trim log file
+LOGFILE=$WHFS_UTIL_LOG_DIR/sys_monitor.log
+TEMPLOGFILE=$LOGFILE.temp
+tail -1200 $LOGFILE > $TEMPLOGFILE
+mv $TEMPLOGFILE $LOGFILE
+
+# set up an X Terminal window to write stdout and run the SiteSpecific
+# application using java
+echo $JBINDIR/java ohd.hseb.monitor.MonitorManager "$@" >> $LOGFILE 
+$JBINDIR/java ohd.hseb.monitor.MonitorManager "$@" >> $LOGFILE  2>&1 & 

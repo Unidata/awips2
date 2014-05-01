@@ -1,0 +1,10 @@
+      common /uinfo/uvers,usrid(2),usrtyp,iuseu,idurt(5),irctlg,irctlh,
+     +               iqctlg,iqctlh,iweout,singid,ext(20),nfeat,
+     +               pmaxg(5),pming(5),mxdurg,pmaxh(5),pminh(5),mxdurh,
+     +               iameth,gbank,iofs,usrnam,cpzone,loclo,nlstzo,
+     +               lffcpd,kgridf,ngfil,ickval,mwcol,ncol,msrow,nrow,
+     +               ising,icom,iffpe,icent,igduty,mdf,fcstr(320),
+     +               iwats,rnfl(6),lslide
+      character*4 usrtyp,usrid,cpzone,fcstr
+      character*8 singid,usrnam
+

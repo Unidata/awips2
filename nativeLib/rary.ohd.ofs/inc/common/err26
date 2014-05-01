@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.ERR26
+      COMMON/ERR26/NUMERR,IERTYP(50),IERLN(50),IERFLD(50),IERPOS(50),
+     .   IERNME(3,50)
+C

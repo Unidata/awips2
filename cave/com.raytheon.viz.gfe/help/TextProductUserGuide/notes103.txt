@@ -1,0 +1,1 @@
+Wx is a parameter for which we would like more temporal resolution.  The length of the Wx grids can often be meaningful in representing the duration of the weather event.  The special “[0]” temporal resolution entry tells the system to produce the analysis (in this case, “rankedWx” keys) for EACH grid within the component time range.

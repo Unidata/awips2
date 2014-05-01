@@ -1,0 +1,2 @@
+If so, the phrase node is split so that there is a node for each Local Effect area (or areas) that meet the Local Effect criteria.  A label is added as an attribute to be used when assembling the final phrase.
+

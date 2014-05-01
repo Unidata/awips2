@@ -1,0 +1,169 @@
+C MEMBER OCCEUA
+C  (from old member OSCEUA)
+C
+C======================================================================
+C @PROCESS LVL(77)
+      SUBROUTINE OCCEUA(NOPT,NPS,S,SF,SPBIAS,SRCOF,BL,BU,XNSTD,ICALL,
+     *                  ISEED1,A,MA,OPTIM,PBIAS,RCOF,ISTEP)
+C
+C  ALGORITHM GENERATE A NEW POINT(S) FROM A SUB-COMPLEX
+C
+      integer, parameter::MaxNopt=100
+	  integer, parameter::MaxNpg=2*MaxNopt+1,MaxNpt=MaxNopt*MaxNpg
+C
+C  SUB-COMPLEX VARIABLES
+C      DIMENSION S(33,16),SF(33),BU(16),BL(16),XNSTD(16),A(MA),
+       DIMENSION S(MaxNpg,MaxNopt),SF(MaxNpg),BU(MaxNopt),BL(MaxNopt),
+     *          XNSTD(MaxNopt),A(MA),SPBIAS(MaxNpg),SRCOF(MaxNpg)
+C
+C  LIST OF LOCAL VARIABLES
+C    WO(.) = THE WORST POINT OF THE SUB-COMPLEX
+C    FW = FUNCTION VALUE OF THE WORST POINT
+C    CE(.) = THE CENTROID OF THE SUB-COMPLEX EXCLUDING WO
+C    EX(.) = THE EXPANDED POINT FROM REFLECTION
+C    SNEW(.) = NEW POINT GENERATED FROM THE SUB-COMPLEX
+C    STEP(.) = VECTOR FROM WO TO CE
+C
+C      DIMENSION WO(16),CE(16),EX(16),SNEW(16),STEP(16)
+       DIMENSION WO(MaxNopt),CE(MaxNopt),EX(MaxNopt),SNEW(MaxNopt),
+     &           STEP(MaxNopt)
+      SAVE
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/opt3_shared/RCS/occeua.f,v $
+     . $',                                                             '
+     .$Id: occeua.f,v 1.4 2003/08/26 17:42:51 wkwock Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C  EQUIVALENCE OF VARIABLES FOR READABILTY OF CODE
+      N = NPS
+      M = NOPT
+C
+      IFLAG = ISTEP + 1
+      GO TO (1000,2000,3000,4000),IFLAG
+ 1000 CONTINUE
+C
+C  IDENTIFY THE WORST POINT WO OF THE SUB-COMPLEX S
+C  COMPUTE THE CENTROID CE OF THE REMAINING POINTS
+C  COMPUTE STEP, THE VECTOR BETWEEN WO AND CE
+C  IDENTIFY THE WORST FUNCTION VALUE FW
+      DO 20 J = 1, M
+        WO(J) = S(N,J)
+        CE(J) = 0.0
+        DO 10 I = 1, N-1
+          CE(J) = CE(J) + S(I,J)
+   10   CONTINUE
+        CE(J) = CE(J)/FLOAT(N-1)
+        STEP(J) = CE(J) - WO(J)
+   20 CONTINUE
+      FW = SF(N)
+C
+C  COMPUTE THE TRIAL POINT A(.)
+C
+C  FIRST TRY A REFLECTION STEP
+      DO 30 J = 1, M
+        A(J) = WO(J) + 2. * STEP(J)
+   30 CONTINUE
+C
+C  CHECK IF A(.) IS WITHIN BOUND
+      IBOUND = 0
+      DO 40 J = 1, M
+        IF (A(J) .GT. BU(J) .OR. A(J) .LT. BL(J)) THEN
+          IBOUND = 1
+          GO TO 50
+        END IF
+   40 CONTINUE
+   50 CONTINUE
+C
+C
+C  IF A(.) IS OUTSIDE THE BOUND,
+C  CHOOSE A POINT AT RANDOM WITHIN FEASIBLE REGION
+C  ACCORDING TO A NORMAL DISTRIBUTION WITH BEST POINT OF THE SUB-
+C  COMPLEX AS MEAN AND STANDARD DEVIATION OF THE POPULATION AS STD
+      IF (IBOUND .EQ. 1) THEN
+        DO 80 J = 1, M
+   70     R = GASDEV(ISEED1)
+          A(J) = S(1,J) + XNSTD(J)*R*(BU(J)-BL(J))
+          IF (A(J) .GT. BU(J) .OR. A(J) .LT. BL(J)) GO TO 70
+   80   CONTINUE
+      END IF
+      ISTEP = 1
+      GO TO 8888
+C
+C
+C  COMPUTE THE NEW FUNCTION VALUE
+ 2000 CONTINUE
+      DO 85 J = 1, M
+        SNEW(J) = A(J)
+   85 CONTINUE
+      FNEW = OPTIM
+      ICALL = ICALL + 1
+C
+C  COMPARE FNEW WITH THE WORST FUNCTION VALUE
+C
+C  FNEW IS LESS THAN THE WORST FUNCTION VALUE, ACCEPT THE NEW POINT
+      IF (FNEW .LE. FW) GO TO 9000
+C
+C
+C  FNEW IS GREATER THAN FW, SO TRY A CONTRACTION STEP
+      DO 120 J = 1, M
+        A(J) = WO(J) + 0.5 * STEP(J)
+  120 CONTINUE
+      ISTEP = 2
+      GO TO 8888
+C
+C  COMPUTE THE FUNCTION VALUE OF THE CONTRACTED POINT
+ 3000 CONTINUE
+      DO 125 J = 1, M
+        SNEW(J) = A(J)
+  125 CONTINUE
+      FNEW = OPTIM
+      ICALL = ICALL + 1
+C
+C  COMPARE FNEW TO THE WORST VALUE FW
+C  IF FNEW IS LESS THAN OR EQUAL TO FW, THEN ACCEPT THE POINT AND RETURN
+      IF (FNEW .LE. FW) THEN
+        GO TO 9000
+      END IF
+C
+C
+C  IF BOTH REFLECTION AND CONTRACTION FAIL,
+C  CHOOSE ANOTHER POINT ACCORDING TO A NORMAL DISTRIBUTION
+C  WITH BEST POINT OF THE SUB-COMPLEX AS MEAN AND STANDARD DEVIATION
+C  OF THE POPULATION AS STD
+      DO 150 J = 1, M
+  140   R = GASDEV(ISEED1)
+        A(J) = S(1,J) + XNSTD(J)*R*(BU(J)-BL(J))
+        IF (A(J) .GT. BU(J) .OR. A(J) .LT. BL(J)) GO TO 140
+  150 CONTINUE
+      ISTEP = 3
+      GO TO 8888
+C
+C  COMPUTE THE FUNCTION VALUE AT THE RANDOM POINT
+ 4000 CONTINUE
+      DO 155 J = 1, M
+        SNEW(J) = A(J)
+  155 CONTINUE
+      FNEW = OPTIM
+      ICALL = ICALL + 1
+C
+C
+C  REPLACE THE WORST POINT BY THE NEW POINT
+ 9000 CONTINUE
+      ISTEP = 4
+      DO 160 J = 1, M
+        S(N,J) = SNEW(J)
+  160 CONTINUE
+      SF(N) = FNEW
+      SPBIAS(N) = PBIAS
+      SRCOF(N) = RCOF
+C
+ 8888 CONTINUE
+C
+C  END OF SUBROUTINE OCCEUA
+      RETURN
+      END

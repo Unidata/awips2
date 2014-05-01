@@ -1,0 +1,5 @@
+C                                           *--> FROM CLBCOMMON.CPGMNM
+C  CALIBRATION SYSTEM PROGRAM NAMES
+      COMMON /CPGMNM/ PGMNM(15),I1,I2
+      CHARACTER*8 PGMNM
+C

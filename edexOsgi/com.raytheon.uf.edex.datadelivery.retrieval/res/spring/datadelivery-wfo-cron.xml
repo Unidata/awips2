@@ -1,0 +1,46 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- Cleans up old Adhoc subscriptions in the registry when the data for 
+		them expires This only runs within the WFO registry mode (Adhoc subscriptions 
+		are only allowed there) -->
+
+	<bean id="AdhocSubscriptionCleaner"
+		class="com.raytheon.uf.edex.datadelivery.retrieval.adhoc.AdhocSubscriptionCleaner" />
+
+	<!--  Subscription check bean.  Functions the check subscriptions should be placed in this file. -->
+	<bean id="subscriptionChecker" class="com.raytheon.uf.edex.datadelivery.retrieval.util.SubscriptionChecker">
+        <constructor-arg type="java.lang.String" value="jms-generic:topic:notify.msg" />
+        <property name="notificationDao" ref="notificationDao" />
+    </bean>
+    
+	<camelContext id="wfo-cron" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<endpoint id="processAdhocSubscriptions"
+			uri="quartz://registry/processAdhocSubscriptions/?cron=${adhocsubscription-process.cron}" />
+        
+        <endpoint id="checkSubscriptions"
+            uri="quartz://registry/checkExpiredSubscriptions/?cron=${checkExpiredSubscription.cron}" />
+        
+        <endpoint id="checkEndingSubscriptions"
+            uri="quartz://registry/checkEndingSubscriptions/?cron=${checkEndingSubscription.cron}" />
+            
+		<route id="processSubscriptionsFromQuartz">
+			<from uri="processAdhocSubscriptions" />
+			<bean ref="AdhocSubscriptionCleaner" method="processSubscriptions" />
+		</route>
+		
+        <route id="subscriptionEndingCheckFromQuartz">
+            <from uri="checkEndingSubscriptions" />
+            <bean ref="subscriptionChecker" method="activePeriodEndCheck" />
+        </route>
+        
+        <route id="subscriptionCheckFromQuartz">
+            <from uri="checkSubscriptions" />
+            <bean ref="subscriptionChecker" method="expirationCheck" />
+        </route>
+	</camelContext>
+	
+</beans>

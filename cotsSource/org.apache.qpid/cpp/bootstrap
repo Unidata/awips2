@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+aclocal -I m4
+autoheader
+libtoolize --automake
+
+# Create initial Makefile fragments that will force make to generate
+# the real ones.
+cat > src/rubygen.mk <<EOF
+\$(srcdir)/rubygen.mk: force
+	\$(rgen_cmd)  \$(srcdir)/rubygen.mk
+EOF
+cat > src/managementgen.mk <<EOF
+\$(srcdir)/managementgen.mk: force
+	\$(mgen_cmd)
+EOF
+
+
+automake
+autoconf
+
+if [ "$1" = "-build" -o "$1" = "--build" ] ; then
+    shift
+    ./configure "$@"
+    make
+    make check
+fi

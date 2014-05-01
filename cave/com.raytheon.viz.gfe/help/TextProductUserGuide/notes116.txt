@@ -1,0 +1,1 @@
+You must add two items to the Product component definition. First, include a Local Effects list with the phrase method listed in the “phraseList”.  

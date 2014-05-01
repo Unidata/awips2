@@ -1,0 +1,11 @@
+<pluginNotificationList>
+    <pluginNotification>
+        <endpointName>edex.alerts</endpointName>
+        <format>DATAURI</format>
+        <endpointType>TOPIC</endpointType>
+        <durable>false</durable>
+        <timeToLive>120000</timeToLive>
+        <metadataMap>
+        </metadataMap>
+    </pluginNotification>
+</pluginNotificationList>

@@ -1,0 +1,34 @@
+==== client.py.out | remove_uuid
+Request: Twas brillig, and the slithy toves
+Request: Did gyre and gimble in the wabe.
+Request: All mimsy were the borogroves,
+Request: And the mome raths outgrabe.
+Messages on queue: reply_to:
+Response: TWAS BRILLIG, AND THE SLITHY TOVES
+Response: DID GYRE AND GIMBLE IN THE WABE.
+Response: ALL MIMSY WERE THE BOROGROVES,
+Response: AND THE MOME RATHS OUTGRABE.
+No more messages!
+==== server_java.out | remove_uuid
+Server: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Server: Creating a non-transacted, auto-acknowledged session
+Server: Creating a MessageConsumer
+Server: Creating a MessageProducer
+Server: Starting connection so MessageConsumer can receive messages
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = TWAS BRILLIG, AND THE SLITHY TOVES
+
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = DID GYRE AND GIMBLE IN THE WABE.
+
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = ALL MIMSY WERE THE BOROGROVES,
+
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = AND THE MOME RATHS OUTGRABE.
+
+Server: Receiving the message

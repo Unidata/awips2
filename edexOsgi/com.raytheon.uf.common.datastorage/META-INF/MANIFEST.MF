@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Datastorage Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.datastorage
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Eclipse-BuddyPolicy: registered, ext, global
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.datastorage.locking,
+ com.raytheon.uf.common.datastorage.records
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
+ org.apache.commons.lang;bundle-version="2.3.0",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.11.17"
+Import-Package: com.raytheon.uf.common.status

@@ -1,0 +1,149 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ifp-PlotTulsa library file
+#
+#  cmt: File made on Thu Oct 26 14:49:04 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ifp/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ifp/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/calb/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/X11R6/include  \
+               -I/usr/include/pgsql  \
+               -I/usr/include/pgsql/informix/esql  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libPlotTulsa_t.a:  \
+     $(LIB)/libPlotTulsa_t.a(fcshft.o)  \
+     $(LIB)/libPlotTulsa_t.a(assign_ts_colors.o)  \
+     $(LIB)/libPlotTulsa_t.a(cex25.o)  \
+     $(LIB)/libPlotTulsa_t.a(change_bb_data.o)  \
+     $(LIB)/libPlotTulsa_t.a(change_ts.o)  \
+     $(LIB)/libPlotTulsa_t.a(change_val.o)  \
+     $(LIB)/libPlotTulsa_t.a(change_vert_axis_max.o)  \
+     $(LIB)/libPlotTulsa_t.a(compute_num_vis_cols_rows.o)  \
+     $(LIB)/libPlotTulsa_t.a(copy_one_rc_drawing_area.o)  \
+     $(LIB)/libPlotTulsa_t.a(copy_one_tulplot_drawing_area.o)  \
+     $(LIB)/libPlotTulsa_t.a(Create_A2_mods.o)  \
+     $(LIB)/libPlotTulsa_t.a(create_rc_plot.o)  \
+     $(LIB)/libPlotTulsa_t.a(Create_ts_array.o)  \
+     $(LIB)/libPlotTulsa_t.a(crosshairs.o)  \
+     $(LIB)/libPlotTulsa_t.a(date_hr.o)  \
+     $(LIB)/libPlotTulsa_t.a(draw_axes.o)  \
+     $(LIB)/libPlotTulsa_t.a(draw_graph_line.o)  \
+     $(LIB)/libPlotTulsa_t.a(draw_info_lines.o)  \
+     $(LIB)/libPlotTulsa_t.a(draw_lines.o)  \
+     $(LIB)/libPlotTulsa_t.a(draw_rectangles.o)  \
+     $(LIB)/libPlotTulsa_t.a(event_loop.o)  \
+     $(LIB)/libPlotTulsa_t.a(exit_tulplot_cb.o)  \
+     $(LIB)/libPlotTulsa_t.a(FillDecPlaceArray.o)  \
+     $(LIB)/libPlotTulsa_t.a(fill_px_ro_ts.o)  \
+     $(LIB)/libPlotTulsa_t.a(fill_tables_data.o)  \
+     $(LIB)/libPlotTulsa_t.a(fill_tschng_keywords.o)  \
+     $(LIB)/libPlotTulsa_t.a(fill_ts_lengths.o)  \
+     $(LIB)/libPlotTulsa_t.a(FindDecimalPlaces.o)  \
+     $(LIB)/libPlotTulsa_t.a(FindMDH.o)  \
+     $(LIB)/libPlotTulsa_t.a(find_menu_index.o)  \
+     $(LIB)/libPlotTulsa_t.a(find_num_rrm.o)  \
+     $(LIB)/libPlotTulsa_t.a(find_plot_delta_t.o)  \
+     $(LIB)/libPlotTulsa_t.a(find_rrm_io_ts.o)  \
+     $(LIB)/libPlotTulsa_t.a(FindTSInfo.o)  \
+     $(LIB)/libPlotTulsa_t.a(getrundates.o)  \
+     $(LIB)/libPlotTulsa_t.a(get_warning_flow.o)  \
+     $(LIB)/libPlotTulsa_t.a(h_scrollbar_moved.o)  \
+     $(LIB)/libPlotTulsa_t.a(is_focus_in_widget_tree.o)  \
+     $(LIB)/libPlotTulsa_t.a(is_valid_number.o)  \
+     $(LIB)/libPlotTulsa_t.a(label_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(linear_int.o)  \
+     $(LIB)/libPlotTulsa_t.a(log_int.o)  \
+     $(LIB)/libPlotTulsa_t.a(Make_ts_menu_names.o)  \
+     $(LIB)/libPlotTulsa_t.a(Make_ts_name.o)  \
+     $(LIB)/libPlotTulsa_t.a(mouse_fcns.o)  \
+     $(LIB)/libPlotTulsa_t.a(pixel_to_val.o)  \
+     $(LIB)/libPlotTulsa_t.a(plot_horiz_scrollbar_moved.o)  \
+     $(LIB)/libPlotTulsa_t.a(plot_vertical_scrollbar_moved.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_crosshairs.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_draw_graph_line.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_draw_info_lines.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_draw_x_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_horiz_scrollbar_moved.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_info.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_label_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_mousetracker.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_scale_height_changed.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_scale_width_changed.o)  \
+     $(LIB)/libPlotTulsa_t.a(rc_vert_scrollbar_moved.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_discharge_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_drawa.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_form_widget.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_hydrograph.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_px_label.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_px_x_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_px_y_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_rc_form_widget.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_rc_graph.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_rc_x_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_rc_y_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_ro_label.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_ro_x_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_ro_y_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_stage_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_stage_label.o)  \
+     $(LIB)/libPlotTulsa_t.a(resize_x_axis.o)  \
+     $(LIB)/libPlotTulsa_t.a(rubberband.o)  \
+     $(LIB)/libPlotTulsa_t.a(rz_discharge_label.o)  \
+     $(LIB)/libPlotTulsa_t.a(rz_rc_x_axis_label.o)  \
+     $(LIB)/libPlotTulsa_t.a(rz_rc_y_axis_label.o)  \
+     $(LIB)/libPlotTulsa_t.a(scale_height_changed.o)  \
+     $(LIB)/libPlotTulsa_t.a(scale_width_changed.o)  \
+     $(LIB)/libPlotTulsa_t.a(segment_status_from_d_array.o)  \
+     $(LIB)/libPlotTulsa_t.a(tschng_mod_made.o)  \
+     $(LIB)/libPlotTulsa_t.a(tulplot.o)  \
+     $(LIB)/libPlotTulsa_t.a(tultable.o)  \
+     $(LIB)/libPlotTulsa_t.a(undo_change_ts.o)  \
+     $(LIB)/libPlotTulsa_t.a(update_plot.o)  \
+     $(LIB)/libPlotTulsa_t.a(update_table.o)  \
+     $(LIB)/libPlotTulsa_t.a(val_to_pixel.o)  \
+     $(LIB)/libPlotTulsa_t.a(v_scrollbar_moved.o)  \
+     $(LIB)/libPlotTulsa_t.a(xs_get_string.o)
+

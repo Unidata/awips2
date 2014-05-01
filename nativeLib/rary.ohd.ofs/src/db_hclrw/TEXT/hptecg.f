@@ -1,0 +1,226 @@
+C MODULE HPTECG
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO PRINT TECHNIQUE DEFINITIONS.
+C
+      SUBROUTINE HPTECG (KBUF)
+C
+C  ARGUMENT LIST:
+C
+C    NAME     TYPE   I/O   DIM   DESCRIPTION
+C    ------   ----   ---   ---   ------------
+C    KBUF       I     I     ?    ARRAY CONTAINING TECHNIQUE RECORD
+C
+      CHARACTER*4 TECHPASS,ARGTYPE,TZCODE
+      CHARACTER*8 RTNNAM,RTNOLD
+      CHARACTER*8 TECHNAME,TECHTYPE
+      CHARACTER*8 ARGNAME,DFLTTYPE,LOGLVAL
+      CHARACTER*80 TARGB
+C
+      DIMENSION KBUF(16)
+      PARAMETER (MLBUF=320)
+      DIMENSION LBUF(MLBUF),LBUF2(MLBUF)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udebug'
+      INCLUDE 'udatas'
+      INCLUDE 'hclcommon/hwords'
+      INCLUDE 'hclcommon/hword2'
+      INCLUDE 'hclcommon/hword3'
+      INCLUDE 'hclcommon/hunits'
+      INCLUDE 'hclcommon/hdflts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_hclrw/RCS/hptecg.f,v $
+     . $',                                                             '
+     .$Id: hptecg.f,v 1.3 2001/06/13 13:37:33 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C   
+      RTNNAM='HPTECG'
+C
+      IF (IHCLTR.GT.1) WRITE (IOGDB,*) 'ENTER ',RTNNAM
+C
+      IOPNUM=-1
+      CALL FSTWHR (RTNNAM,IOPNUM,RTNOLD,IOLDOP)
+C
+      LDF=0
+      LGFLAG=0
+C
+C  GET TECHNIQUE NAME
+      CALL UMEMOV (KBUF(4),TECHNAME,2)
+C
+C  GET TECHNIQUE TYPE
+      CALL UMEMOV (LLOCAL,TECHTYPE,2)
+      IF (KBUF(3).GT.0) LGFLAG=1
+      IF (LGFLAG.EQ.0) CALL UMEMOV (LGLOBL,TECHTYPE,2)
+C
+C  GET TECHNIQUE PASSWORD
+      CALL UMEMOV (KBUF(6),TECHPASS,1)
+      IF (KBUF(6).EQ.IBLNK) CALL UMEMOV (LNONE,TECHPASS,1)
+C
+C  CHECK IF UNIVERSAL
+      IUF=LNO
+      IF (KBUF(7).EQ.1) IUF=LYES
+C
+C  GET ARGUMENT ARRAY LENGTH
+      CALL HGARSZ (KBUF,ISIZE)
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,20)
+20    FORMAT ('0',105('-'))
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,30) TECHNAME,TECHTYPE,TECHPASS,IUF,ISIZE
+30    FORMAT ('0',
+     *   'TECHNIQUE = ',A,3X,
+     *   'TYPE = ',A7,3X,
+     *   'PASSWORD = ',A4,3X,
+     *   'UNIVERSAL = ',A4,3X,
+     *   'ARGUMENT ARRAY LENGTH = ',I3)
+      IF (IHCLDB.GT.1) WRITE (IOGDB,40) KBUF(2)
+40    FORMAT (34X,'TECHNIQUE INDEX = ',I4)
+C
+C  PRINT ARGUMENTS
+      NUM=KBUF(10)
+      IF (NUM.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,280)
+280   FORMAT ('0',15X,'TECHNIQUE HAS NO ARGUMENTS')
+         GO TO 320
+         ENDIF
+C
+C  GET THE DEFAULTS
+      IREC=KBUF(8)
+      IUNIT=KDEFNL
+      IF (LGFLAG.EQ.1) GO TO 50
+         IREC=KBUF(9)
+         IUNIT=KDEFNG
+50    IF (IREC.LE.0) GO TO 290
+      CALL HGTRDN (IUNIT,IREC,LBUF,MLBUF,ISTAT)
+      IF (ISTAT.NE.0) GO TO 290
+      CALL UNAMCP (LBUF(4),TECHNAME,ISTAT)
+      IF (ISTAT.NE.0) GO TO 290
+      IF (LGFLAG.EQ.1.OR.KBUF(1).LT.0) GO TO 60
+      IREC=KBUF(8)
+      IF (IREC.LE.0) GO TO 290
+      CALL HGTRDN (KLDFGD,IREC,LBUF2,MLBUF,ISTAT)
+      IF (ISTAT.NE.0) GO TO 290
+      IF (LBUF2(1).EQ.0) GO TO 60
+      CALL UNAMCP (LBUF2(4),TECHNAME,ISTAT)
+      IF (ISTAT.NE.0) GO TO 290
+      LDF=1
+C
+60    CALL ULINE (LP,3)
+      WRITE (LP,70)
+70    FORMAT ('0',15X,'ARGUMENT','  TYPE','  DEFAULT TYPE',2X,
+     *      'DEFAULT' /
+     *   16X,8('-'),2X,4('-'),2X,12('-'),2X,16('-'))
+C
+      J=0
+      ILPOS=8
+      DO 260 I=1,NUM
+          K=KBUF(13+J)
+          IF (K.LT.0) K=3
+          CALL UMEMOV (KBUF(11+J),ARGNAME,2)
+          IARGPT=IABS(KBUF(14+J))
+          NWDSL=LBUF(ILPOS+1)
+          ISTRTL=ILPOS+2
+          CALL HPPLDF (LDF,LGFLAG,LBUF(ILPOS),LBUF2,DFLTTYPE)
+          ILPOS=ILPOS+NWDSL+2
+          GO TO (80,100,120,140,160),K
+C      INTEGER
+80        CALL UMEMOV ('I   ',ARGTYPE,1)
+          IF (NWDSL.NE.1) GO TO 290
+          IVALUE=LBUF(ISTRTL)
+          CALL ULINE (LP,1)
+          WRITE (LP,90) I,ARGNAME,ARGTYPE,DFLTTYPE,IVALUE
+90     FORMAT (12X,I3,1X,A,2X,A,2X,A,4X,2X,I16)
+          GO TO 240
+C      REAL
+100       CALL UMEMOV ('R   ',ARGTYPE,1)
+          IF (NWDSL.NE.1) GO TO 290
+          CALL USWITC (LBUF(ISTRTL),TARGR)
+          CALL ULINE (LP,1)
+          WRITE (LP,110) I,ARGNAME,ARGTYPE,DFLTTYPE,TARGR
+110    FORMAT (12X,I3,1X,A,2X,A,2X,A,4X,2X,F16.3)
+          GO TO 240
+C      CHARACTER
+120       CALL UMEMOV ('A   ',ARGTYPE,1)
+          IMAX=-KBUF(13+J)
+          IF (NWDSL.LT.1) GO TO 290
+          MTARGB=LEN(TARGB)/4
+          CALL HGTSTR (MTARGB,LBUF(ISTRTL),TARGB,LENG,ISTAT)
+          IF (ISTAT.NE.0) GO TO 290
+          CALL ULINE (LP,1)
+          WRITE (LP,130) I,ARGNAME,ARGTYPE,IMAX,DFLTTYPE,TARGB(1:LENG)
+130    FORMAT (12X,I3,1X,A,2X,A1,I2,1X,2X,A,4X,2X,A)
+          GO TO 240
+C      LOGICAL
+140       CALL UMEMOV ('L   ',ARGTYPE,1)
+          IF (NWDSL.NE.1) GO TO 290
+          IVALUE=LBUF(ISTRTL)
+          CALL UMEMOV (LTRUE,LOGLVAL,2)
+          IF (IVALUE.EQ.0) CALL UMEMOV (LFALSE,LOGLVAL,2)
+          CALL ULINE (LP,1)
+          WRITE (LP,150) I,ARGNAME,ARGTYPE,DFLTTYPE,LOGLVAL
+150    FORMAT (12X,I3,1X,A,2X,A,2X,A,4X,2X,A)
+          GO TO 240
+C      DATE
+160       CALL UMEMOV ('D   ',ARGTYPE,1)
+          IF (NWDSL.NE.7) GO TO 290
+          CALL HSETHR(LBUF(ISTRTL))
+          IMO=LBUF(ISTRTL+1)
+          IDAY=LBUF(ISTRTL+2)
+          IYR=LBUF(ISTRTL+3)
+          IHR=LBUF(ISTRTL+4)
+          IMIN=LBUF(ISTRTL+6)
+          CALL UMEMOV (LBUF(ISTRTL+5),TZCODE,1)
+          ITIME=IHR*100+IMIN
+          IF (IMO.EQ.LSTAR) GO TO 180
+          CALL ULINE (LP,1)
+          WRITE (LP,170) I,ARGNAME,ARGTYPE,DFLTTYPE,
+     *       IMO,IDAY,IYR,ITIME,TZCODE
+170    FORMAT (12X,I3,1X,A,2X,A,2X,A,4X,2X,
+     *       I2.2,'/',I2.2,'/',I4.4,'-',I4.4,A4)
+          GO TO 240
+180       IF (IDAY.EQ.0) GO TO 200
+          IF (IDAY.LT.0) GO TO 220
+          CALL ULINE (LP,1)
+          WRITE (LP,190) I,ARGNAME,ARGTYPE,DFLTTYPE,IDAY,ITIME,TZCODE
+190    FORMAT (12X,I3,1X,A,2X,A,2X,A,4X,2X,'*+',I2.2,'-',I4.4,A4)
+          GO TO 240
+200       CALL ULINE (LP,1)
+          WRITE (LP,210) I,ARGNAME,ARGTYPE,DFLTTYPE,ITIME,TZCODE
+210    FORMAT (12X,I3,1X,A,2X,A,2X,A,4X,2X,'*/',I4.4,A4)
+          GO TO 240
+220       IDAY=-IDAY
+          CALL ULINE (LP,1)
+          WRITE (LP,230) I,ARGNAME,ARGTYPE,DFLTTYPE,IDAY,ITIME,TZCODE
+230    FORMAT (12X,I3,1X,A,2X,A,2X,A,4X,2X,'*-',I2.2,'-',I4.4,A4)
+240       J=J+4
+          IF (IHCLDB.GT.1) WRITE (IOGDB,250) IARGPT
+250    FORMAT (19X,'ARGUMENT INDEX=',I4)
+260      CONTINUE
+C
+      GO TO 320
+C
+C  SYSTEM ERROR
+290   CALL ULINE (LP,3)
+      WRITE (LP,300) KBUF
+300   FORMAT ('0**ERROR** IN HPTECG - SYSTEM ERROR' /
+     *   'TECHNIQUE RECORD=',3I4,1X,3A4,(1X,10I6))
+      CALL ULINE (LP,2)
+      IF (IHCLTR.GT.1) WRITE (IOGDB,310) LBUF
+310   FORMAT (' LOCAL DEFAULT ',3I4,1X,2A4 / (1X,20I5))
+C
+320   CALL FSTWHR (RTNOLD,IOLDOP,RTNOLD,IOLDOP)
+C
+      IF (IHCLTR.GT.1) WRITE (IOGDB,*) 'EXIT ',RTNNAM
+C
+      RETURN
+C
+      END

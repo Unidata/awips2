@@ -1,0 +1,44 @@
+#  ============================================================================
+#  pgm: Makefile_obj_lx .. makefile to update the ffg-ffguid_main object files
+#
+#  cmt: File made on Thu Oct 26 14:48:22 EDT 2006 by user "dsa"
+#  ============================================================================
+ 
+OBJ = /fs/hseb/ob81/ohd/ffg/obj/ffguid_main/TEXT
+
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ffg/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .o
+
+.f.o:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && chmod 664 ${*F}.o  \
+	   && echo "o - ${*F}.o" \
+	   || echo "e - ${*F}"
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+objects:  \
+     $(OBJ)/ffguid_stubs.o  \
+     $(OBJ)/ffmain.o
+
+$(OBJ)/ffguid_stubs.o: ffguid_stubs.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/ffmain.o: ffmain.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="${icao}"
+		id="${icao}RadarARSR4UnitStatus">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+			menuText="${icao} Z" id="${icao}ARSR4Reflectivity\">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="500" />
+			<substitute key="elevation" value="0.0--360.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml"
+			id="${icao}ARSR4UnitStatus" editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor" menuText="ARSR-4 Unit Status">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product" value="2" />
+			<substitute key="insetMap" value="false"/>
+		</contribute>
+	</contribute>
+</menuTemplate>

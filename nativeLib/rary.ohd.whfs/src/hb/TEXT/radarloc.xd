@@ -1,0 +1,450 @@
+module 'Hb'
+version = 48;
+xdesigned = 1;
+applicationName = 'Hb';
+sourceDirectory = '/fs/hseb/pda/users/lawrence/devl/src/hb/';
+generateNameC = * 'radarloc.c';
+generateNameExterns = * 'radarloc.h';
+generateNameResDB = * 'radarloc.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256301;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'radarlocDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'radarlocDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_radarlocDS (parent)
+Widget parent;
+';
+	XmNwidth = 870;
+	XmNallowShellResize = true;
+	XmNtitle = 'Radar Locations';
+	XmNminWidth = 870;
+	XmNminHeight = 550;
+	XmNmaxWidth = 870;
+	XmNmaxHeight = 550;
+	};
+object 'radarlocFO' : XmForm {
+	arguments {
+	lastGenName = 'radarlocFO';
+	XmNwidth = 870;
+	XmNautoUnmanage = false;
+	};
+object 'radarlocLB' : XmLabel {
+	arguments {
+	lastGenName = 'radarlocLB';
+	XmNlabelString = 'ID  Num Prefix  Name                         State    Latitude     Longitude     Elevation   Height  Active  Bias Source';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'radarlocSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'radarlocSL';
+	};
+abstract object 'radarlocHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'radarlocHSB';
+	};
+};
+abstract object 'radarlocVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'radarlocVSB';
+	};
+};
+abstract object 'radarlocLS' : XmList {
+	arguments {
+	lastGenName = 'radarlocLS';
+	XmNautomaticSelection = XmNO_AUTO_SELECT;
+	XmNselectionPolicy = XmSINGLE_SELECT;
+	XmNlistSizePolicy = XmCONSTANT;
+	XmNscrollBarDisplayPolicy = XmAS_NEEDED;
+	};
+};
+};
+object 'radarlocFR' : XmFrame {
+	arguments {
+	lastGenName = 'radarlocFR';
+	};
+object 'radarlocradFO' : XmForm {
+	arguments {
+	lastGenName = 'radarlocradFO';
+	};
+object 'radidLB' : XmLabel {
+	arguments {
+	lastGenName = 'radidLB';
+	XmNlabelString = 'Identifier:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radidTX' : XmText {
+	arguments {
+	lastGenName = 'radidTX';
+	XmNmaxLength = 3;
+	XmNcolumns = 5;
+	};
+};
+object 'radnumLB' : XmLabel {
+	arguments {
+	lastGenName = 'radnumLB';
+	XmNlabelString = 'Number:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radnumTX' : XmText {
+	arguments {
+	lastGenName = 'radnumTX';
+	XmNmaxLength = 3;
+	};
+};
+object 'radidprefixLB' : XmLabel {
+	arguments {
+	lastGenName = 'radidprefixLB';
+	XmNlabelString = 'Prefix:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radidprefixTX' : XmTextField {
+	arguments {
+	lastGenName = 'radidprefixTX';
+	XmNmaxLength = 1;
+	};
+};
+object 'radactiveTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'radactiveTB';
+	XmNlabelString = 'Active';
+	};
+};
+object 'radnameLB' : XmLabel {
+	arguments {
+	lastGenName = 'radnameLB';
+	XmNlabelString = 'Name:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radnameTX' : XmText {
+	arguments {
+	lastGenName = 'radnameTX';
+	XmNmaxLength = 20;
+	XmNcolumns = 32;
+	};
+};
+object 'radstateLB' : XmLabel {
+	arguments {
+	lastGenName = 'radstateLB';
+	XmNlabelString = 'State:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radstateTX' : XmText {
+	arguments {
+	lastGenName = 'radstateTX';
+	XmNmaxLength = 2;
+	XmNcolumns = 5;
+	};
+};
+object 'radlatLB' : XmLabel {
+	arguments {
+	lastGenName = 'radlatLB';
+	XmNlabelString = 'Latitude:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radlatTX' : XmText {
+	arguments {
+	lastGenName = 'radlatTX';
+	XmNmaxLength = 9;
+	XmNcolumns = 18;
+	};
+};
+object 'radlonLB' : XmLabel {
+	arguments {
+	lastGenName = 'radlonLB';
+	XmNlabelString = 'Longitude:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radlonTX' : XmText {
+	arguments {
+	lastGenName = 'radlonTX';
+	XmNmaxLength = 10;
+	XmNcolumns = 18;
+	};
+};
+object 'radelevLB' : XmLabel {
+	arguments {
+	lastGenName = 'radelevLB';
+	XmNlabelString = 'Elevation:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radelevTX' : XmText {
+	arguments {
+	lastGenName = 'radelevTX';
+	XmNmaxLength = 9;
+	XmNcolumns = 18;
+	};
+};
+object 'radheightLB' : XmLabel {
+	arguments {
+	lastGenName = 'radheightLB';
+	XmNlabelString = 'Tower Height:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'radheightTX' : XmText {
+	arguments {
+	lastGenName = 'radheightTX';
+	XmNmaxLength = 6;
+	};
+};
+object 'radaddPB' : XmPushButton {
+	arguments {
+	lastGenName = 'radaddPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Add';
+	};
+};
+object 'radupdatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'radupdatePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Update';
+	};
+};
+object 'raddeletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'raddeletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'radbiasLB' : XmLabel {
+	arguments {
+	name = 'radbiasLB';
+	lastGenName = 'radbiasLB';
+	XmNlabelString = 'Bias Source:';
+	};
+};
+object 'radbiasTX' : XmText {
+	arguments {
+	name = 'radbiasTX';
+	was_selected = true;
+	lastGenName = 'radbiasTX';
+	XmNmaxLength = 3;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -245;
+	XmNleftAttachment = 1 0 165;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 255;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 167;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 14;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 35;
+	XmNbottomAttachment = 2 0 -130;
+	XmNtopAttachment = 1 0 100;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -340;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 95;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 45;
+	XmNbottomAttachment = 2 0 -175;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -180;
+	XmNtopAttachment = 1 0 140;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -575;
+	XmNleftAttachment = 1 0 485;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -725;
+	XmNleftAttachment = 1 0 585;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -575;
+	XmNleftAttachment = 1 0 485;
+	XmNbottomAttachment = 2 0 -85;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -725;
+	XmNleftAttachment = 1 0 585;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -575;
+	XmNleftAttachment = 1 0 485;
+	XmNbottomAttachment = 2 0 -130;
+	XmNtopAttachment = 1 0 105;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -725;
+	XmNleftAttachment = 1 0 585;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 100;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -575;
+	XmNleftAttachment = 1 0 460;
+	XmNbottomAttachment = 2 0 -175;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -725;
+	XmNleftAttachment = 1 0 585;
+	XmNbottomAttachment = 2 0 -180;
+	XmNtopAttachment = 1 0 145;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 40;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 200;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 325;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 200;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 605;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 200;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -175;
+	XmNtopAttachment = 1 0 150;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -310;
+	XmNleftAttachment = 1 0 255;
+	XmNbottomAttachment = 2 0 -180;
+	XmNtopAttachment = 1 0 140;
+    };
+    };
+};
+object 'radarlocradLB' : XmLabel {
+	arguments {
+	lastGenName = 'radarlocradLB';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Parameters for Selected Radar';
+	};
+};
+};
+object 'radarloc_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'radarloc_okPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -865;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -865;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -225;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -805;
+	XmNleftAttachment = 1 0 65;
+	XmNbottomAttachment = 2 0 -505;
+	XmNtopAttachment = 1 0 240;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -475;
+	XmNleftAttachment = 1 0 395;
+	XmNbottomAttachment = 2 0 -545;
+	XmNtopAttachment = 1 0 510;
+    };
+    };
+};
+};
+end module;

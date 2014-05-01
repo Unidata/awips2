@@ -1,0 +1,11 @@
+pqmon.o: ../config/ldmconfig.h
+pqmon.o: ../misc/paths.h
+pqmon.o: ../pq/pq.h
+pqmon.o: ../protocol/atofeedt.h
+pqmon.o: ../protocol/ldm.h
+pqmon.o: ../protocol/ldmprint.h
+pqmon.o: ../protocol/md5.h
+pqmon.o: ../protocol/prod_class.h
+pqmon.o: ../protocol/timestamp.h
+pqmon.o: ../ulog/ulog.h
+pqmon.o: pqmon.c

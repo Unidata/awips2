@@ -1,0 +1,29 @@
+2
+**************************************
+2
+**************************************
+21:11:15: PrecipMonitor Started
+2
+**************************************
+21:11:15: OfficeNotesDataManager.readDataFromOfficeNotes():  Where Clause:order by topic, id, postingtime
+2
+**************************************
+21:11:15: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/PrecipDerivedColumns.txt]
+2
+**************************************
+21:11:15: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/PrecipDerivedColumns.txt]
+2
+**************************************
+21:11:15: PrecipMonitorSettings.startPrecipMonitor(): Trying to load from file :/awips/hydroapps/whfs/local/data/app/rivermon/DefaultPrecipMonitorSettings.txt
+2
+**************************************
+21:11:34: RiverMonGroupDataManager.readDataFromRiverMonGroup():  Where Clause:order by group_id
+2
+**************************************
+21:11:35: RiverMonGroupDataManager.readDataFromRiverMonGroup():  Where Clause:order by group_id
+2
+**************************************
+21:11:51: PrecipMonitor Application Exiting....
+2
+**************************************
+21:11:51: ====================================

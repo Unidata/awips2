@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenGL Plug-in
+Bundle-SymbolicName: javax.media.opengl
+Bundle-Version: 1.1.0
+Bundle-ClassPath: gluegen-rt.jar,
+ jogl.jar
+Export-Package: com.sun.gluegen.runtime,
+ com.sun.opengl.cg,
+ com.sun.opengl.impl,
+ com.sun.opengl.impl.error,
+ com.sun.opengl.impl.glue,
+ com.sun.opengl.impl.macosx,
+ com.sun.opengl.impl.mipmap,
+ com.sun.opengl.impl.packrect,
+ com.sun.opengl.impl.registry,
+ com.sun.opengl.impl.tessellator,
+ com.sun.opengl.impl.windows,
+ com.sun.opengl.impl.x11,
+ com.sun.opengl.util,
+ com.sun.opengl.util.j2d,
+ com.sun.opengl.util.texture,
+ com.sun.opengl.util.texture.spi,
+ javax.media.opengl,
+ javax.media.opengl.glu
+Bundle-Vendor: Raytheon-bundled OSS
+Edex-Deploy: gluegen-rt.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

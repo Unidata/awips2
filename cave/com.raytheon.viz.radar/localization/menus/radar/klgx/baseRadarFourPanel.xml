@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="titleItem" id="${icao}4PanelZ+SRMZDR+VKDP+HCCC+SW"
+		titleText="------ 4-Panel Z+SRM/ZDR+V/KDP+HC/CC+SW ------" />
+	<contribute xsi:type="bundleItem"
+		file="bundles/DefaultRadarDualPolBaseData.xml" menuText="0.0 base data"
+		id="00dualpolbasedata">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.0--0.0" />
+	</contribute>
+	<contribute xsi:type="bundleItem"
+		file="bundles/DefaultRadarDualPolBaseData.xml" menuText="0.5 base data"
+		id="05dualpolbasedata">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.5--0.5" />
+	</contribute>
+	<contribute xsi:type="bundleItem"
+		file="bundles/DefaultRadarDualPolBaseData.xml" menuText="0.9 base data"
+		id="09dualpolbasedata">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.9--0.9" />
+	</contribute>
+	<contribute xsi:type="bundleItem"
+		file="bundles/DefaultRadarDualPolBaseData.xml" menuText="All Tilts base data"
+		id="AllTiltsdualpolbasedata">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.0--360.0" />
+	</contribute>
+	<contribute xsi:type="subMenu" id="${icao}HibasedatatiltsSubmenu"
+		menuText="${icao} Hi base data tilts">
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="1.5 base data"
+			id="15dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="1.8 base data"
+			id="18dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="2.4 base data"
+			id="24dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="3.4 base data"
+			id="34dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="4.3 base data"
+			id="43dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="5.3 base data"
+			id="53dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="6.0 base data"
+			id="60dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="7.5 base data"
+			id="75dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="8.7 base data"
+			id="87dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="10.0 base data"
+			id="100dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="12.0 base data"
+			id="120dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="14.0 base data"
+			id="140dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="16.7 base data"
+			id="167dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarDualPolBaseData.xml" menuText="19.5 base data"
+			id="195dualpolbasedata">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="separator" id="${icao}4PanelZZDRHCKDPCC" />
+	<contribute xsi:type="titleItem" id="${icao}4PanelZZDRHC+KDPCC"
+		titleText="------ 4-Panel Z/ZDR/HC+KDP/CC ------" />
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+		menuText="0.0 HC analysis" id="00dualpolHCanalysis">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.0--0.0" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+		menuText="0.5 HC analysis" id="05dualpolHCanalysis">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.5--0.5" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+		menuText="0.9 HC analysis" id="09dualpolHCanalysis">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.9--0.9" />
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+		menuText="All Tilts HC analysis" id="AllTiltsdualpolHCanalysis">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="elevation" value="0.0--360.0" />
+	</contribute>
+	<contribute xsi:type="subMenu" id="${icao}HiHCnalysistiltsSubmenu"
+		menuText="${icao} Hi HC analysis tilts">
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="1.5 HC analysis" id="15dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="1.8 HC analysis" id="18dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="1.8--1.8" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="2.4 HC analysis" id="24dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="2.4--2.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="3.4 HC analysis" id="34dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="3.4--3.4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="4.3 HC analysis" id="43dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="4.3--4.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="5.3 HC analysis" id="53dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="5.3--5.3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="6.0 HC analysis" id="60dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="6.0--6.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="7.5 HC analysis" id="75dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="7.5--7.5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="8.7 HC analysis" id="87dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="8.7--8.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="10.0 HC analysis" id="100dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="10.0--10.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="12.0 HC analysis" id="120dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="12.0--12.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="14.0 HC analysis" id="140dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="14.0--14.0" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="16.7 HC analysis" id="167dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="16.7--16.7" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarDualPolHCA.xml"
+			menuText="19.5 HC analysis" id="195dualpolHCanalysis">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="elevation" value="19.5--19.5" />
+		</contribute>
+	</contribute>
+</menuTemplate>

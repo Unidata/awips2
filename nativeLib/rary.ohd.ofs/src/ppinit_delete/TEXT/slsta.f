@@ -1,0 +1,309 @@
+C MODULE SLSTA
+C-----------------------------------------------------------------------
+C
+C  ROUTINE FOR DELETING STATION PARAMETERS.
+C
+      SUBROUTINE SLSTA (LARRAY,ARRAY,NFLD,IRUNCK,ISTAT)
+C
+
+      CHARACTER*3 XCKREF/' '/,XRNTWK/' '/
+      CHARACTER*4 TYPE
+      CHARACTER*8 XTYPE
+      CHARACTER*8 ZCKREF/'CHECKREF'/,ZRNTWK/'RUNNTWK'/
+      CHARACTER*20 STRNG,STRNG2
+C
+      DIMENSION ARRAY(LARRAY)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_delete/RCS/slsta.f,v $
+     . $',                                                             '
+     .$Id: slsta.f,v 1.3 2001/06/13 14:00:57 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SLSTA'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DELT')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*)
+     *      'LARRAY=',LARRAY,
+     *      'NFLD=',NFLD,
+     *      ' '
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+      ISTRT=-1
+      LSTRNG=LEN(STRNG)/4
+      LSTRNG2=LEN(STRNG2)/4
+      LXTYPE=LEN(XTYPE)/4
+      ILPFND=0
+      IRPFND=0
+      TYPE=' '
+      XTYPE=' '
+      NUMKEY=0
+      NUMERR=0
+      NUMWRN=0
+      IFLAG=0
+      IPOPTN=1
+      ICKREF=1
+      XCKREF='YES'
+      IRNTWK=1
+      XRNTWK='YES'
+C
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR DELETE STATION OPTIONS
+C
+10    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *   LSTRNG,STRNG,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *      LSTRNG,STRNG,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+C
+C  CHECK FOR NULL FIELD
+      IF (IERR.EQ.1) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,180) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 10
+         ENDIF
+C
+C  CHECK FOR END IF INPUT
+      IF (NFLD.EQ.-1) GO TO 120
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 120
+      IF (IFLAG.EQ.1) GO TO 10
+C
+C  CHECK FOR PAIRED PARENTHESIS
+      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) THEN
+         WRITE (LP,190) NFLD
+         CALL SULINE (LP,2)
+         ILPFND=0
+         IRPFND=0
+         ENDIF
+      IF (LLPAR.GT.0) ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LSTRNG2,STRNG2,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LSTRNG2,STRNG2,ISTRT,1,LENGTH,IERR)
+C
+C  CHECK FOR OPTION
+      IF (STRNG2.EQ.ZCKREF) GO TO 40
+      IF (STRNG2.EQ.ZRNTWK) GO TO 60
+C
+C  CHECK PARAMETER TYPE
+      IF (STRNG2.EQ.'PCPN'.OR.
+     *    STRNG2.EQ.'TEMP'.OR.
+     *    STRNG2.EQ.'PE'.OR.
+     *    STRNG2.EQ.'RRS'.OR.
+     *    STRNG2.EQ.'ALL'.OR.
+     *    STRNG2.EQ.ZCKREF.OR.
+     *    STRNG2.EQ.ZRNTWK) GO TO 20
+         CALL SUIDCK ('DELT',STRNG2,NFLD,0,IKEYWD,IERR)
+         IF (IERR.EQ.2) GO TO 130
+         WRITE (LP,150) STRNG2
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 30
+20    TYPE=STRNG2
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,160) TYPE
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+30    IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,170) STRNG2
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      GO TO 80
+C
+C  CHECKREF OPTION
+40    IF (NFLD.EQ.1) CALL SUPCRD
+      IF (LLPAR.EQ.0) THEN
+         STRNG2='YES'
+         WRITE (LP,200) ZCKREF(1:LENSTR(ZCKREF)),
+     *      STRNG2(1:LENSTR(STRNG2))
+         CALL SULINE (LP,2)
+         GO TO 50
+         ENDIF
+      IF (LRPAR.GT.0) IRPFND=1
+      IF (LRPAR.EQ.0) THEN
+         WRITE (LP,210) NFLD
+         CALL SULINE (LP,2)
+         LRPAR=LENGTH+1
+         ENDIF
+      CALL UFPACK (LSTRNG2,STRNG2,ISTRT,LLPAR+1,LRPAR-1,IERR)
+      IF (STRNG2.EQ.'NO'.OR.STRNG2.EQ.'YES') GO TO 50
+         WRITE (LP,220) ZCKREF(1:LENSTR(ZCKREF)),
+     *      STRNG2(1:LENSTR(STRNG2))
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 10
+50    IF (STRNG2.EQ.'NO') ICKREF=0
+      IF (STRNG2.EQ.'YES') ICKREF=1
+      XCKREF=STRNG2
+      WRITE (LP,230) ZCKREF(1:LENSTR(ZCKREF)),STRNG2(1:LENSTR(STRNG2))
+      CALL SULINE (LP,2)
+      IPOPTN=1
+      GO TO 10
+C
+C  RUNNTWK OPTION
+60    IF (NFLD.EQ.1) CALL SUPCRD
+      IF (LLPAR.EQ.0) THEN
+         STRNG2='YES'
+         WRITE (LP,200) ZRNTWK(1:LENSTR(ZRNTWK)),
+     *      STRNG2(1:LENSTR(STRNG2))
+         CALL SULINE (LP,2)
+         GO TO 70
+         ENDIF
+      IF (LRPAR.GT.0) IRPFND=1
+      IF (LRPAR.EQ.0) THEN
+         WRITE (LP,210) NFLD
+         CALL SULINE (LP,2)
+         LRPAR=LENGTH+1
+         ENDIF
+      CALL UFPACK (LSTRNG2,STRNG2,ISTRT,LLPAR+1,LRPAR-1,IERR)
+      IF (STRNG2.EQ.'NO'.OR.STRNG2.EQ.'YES') GO TO 70
+         WRITE (LP,220) ZRNTWK(1:LENSTR(ZRNTWK)),
+     *      STRNG2(1:LENSTR(STRNG2))
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 10
+70    IF (STRNG2.EQ.'NO') IRNTWK=0
+      IF (STRNG2.EQ.'YES') IRNTWK=1
+      XRNTWK=STRNG2
+      WRITE (LP,230) ZRNTWK(1:LENSTR(ZRNTWK)),STRNG2(1:LENSTR(STRNG2))
+      CALL SULINE (LP,2)
+      IPOPTN=1
+      GO TO 10
+C
+80    IF (IPOPTN.EQ.1) THEN
+C     PRINT OPTIONS IN EFFECT
+         WRITE (LP,240)
+     *     ZCKREF(1:LENSTR(ZCKREF)),'=',XCKREF,
+     *     ZRNTWK(1:LENSTR(ZRNTWK)),'=',XRNTWK,
+     *     ' '
+         CALL SULINE (LP,2)
+         IPOPTN=0
+         ENDIF
+C
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      XTYPE=TYPE
+C
+C  ALL STATION PARAMETERS
+      IF (TYPE(1:3).EQ.'ALL') THEN
+         CALL SLSTAN (LARRAY,ARRAY,NFLD,IRUNCK,
+     *      ZCKREF,XCKREF,ICKREF,ZRNTWK,XRNTWK,IRNTWK,IERR)
+         GO TO 110
+         ENDIF
+C
+C  STATION PCPN PARAMETERS
+      IF (TYPE.EQ.'PCPN') THEN
+         CALL SUSPCK ('DELSPCPN',XTYPE,LXTYPE,'OPTION  ',IRUNCK,
+     *      INDERR,NCSKIP,IRETRN)
+         IF (IRETRN.EQ.1) GO TO 100
+         CALL SLPCPN (LARRAY,ARRAY,NFLD,IRUNCK,IERR)
+         GO TO 110
+         ENDIF
+C
+C  STATION TEMP PARAMETERS
+      IF (TYPE.EQ.'TEMP') THEN
+         CALL SUSPCK('DELSTEMP',XTYPE,LXTYPE,'OPTION  ',IRUNCK,
+     *      INDERR,NCSKIP,IRETRN)
+         IF (IRETRN.EQ.1) GO TO 100
+         CALL SLTEMP (LARRAY,ARRAY,NFLD,IRUNCK,IERR)
+         GO TO 110
+         ENDIF
+C
+C  STATION PE PARAMETERS
+      IF (TYPE.EQ.'PE') THEN
+         CALL SUSPCK('DELSPE  ',XTYPE,LXTYPE,'OPTION  ',IRUNCK,
+     *      INDERR,NCSKIP,IRETRN)
+         IF (IRETRN.EQ.1) GO TO 100
+         CALL SLPE (LARRAY,ARRAY,NFLD,IRUNCK,IERR)
+         GO TO 110
+         ENDIF
+C
+C  RRS STA PARAMETERS
+      IF (TYPE.EQ.'RRS') THEN
+         CALL SUSPCK('DELSRRS ',XTYPE,LXTYPE,'OPTION  ',IRUNCK,
+     *      INDERR,NCSKIP,IRETRN)
+         IF (IRETRN.EQ.1) GO TO 100
+         CALL SLRRS (LARRAY,ARRAY,NFLD,IRUNCK,IERR)
+         GO TO 110
+         ENDIF
+C
+C  INVALID PARAMETER TYPE
+90    WRITE (LP,260) TYPE
+      CALL SUERRS (LP,2,NUMERR)
+      GO TO 10
+C
+100   WRITE (LP,270) TYPE
+      CALL SUERRS (LP,2,NUMERR)
+      IFLAG=1
+      NUMKEY=NUMKEY+1
+      GO TO 10
+C
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+110    NUMKEY=NUMKEY+1
+C
+C  CHECK IF END OF INPUT FOUND
+      IF (NFLD.EQ.-1) GO TO 120
+C
+C  SET INDICATOR TO RE-READ FIELD READ BY DELETE ROUTINE
+      ISTRT=-1
+      GO TO 10
+C
+C  CHECK NUMBER OF KEYWORDS FOUND
+120   IF (NUMKEY.EQ.0) THEN
+         WRITE (LP,250)
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+C
+130   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SLSTA'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+150   FORMAT ('0*** ERROR - INVALID STATION PARAMETER TYPE : ',A4)
+160   FORMAT (' TYPE=',A)
+170   FORMAT (' STRNG2=',A)
+180   FORMAT (' NULL FIELD FOUND IN FIELD ',I2)
+190   FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN FIELD ',
+     *   I2,'.')
+200   FORMAT ('0*** NOTE - NO LEFT PARENTHESIS FOUND. ',A,
+     *   'OPTION SET TO ',A,'.')
+210   FORMAT ('0*** NOTE - RIGHT PARENTHESIS ASSUMED IN FIELD ',I2,
+     *   '.')
+220   FORMAT ('0*** ERROR - INVALID ',A,' OPTION : ',A)
+230   FORMAT ('0*** NOTE - ',A,' OPTION SET TO ',A,'.')
+240   FORMAT ('0DELETE STATION OPTIONS IN EFFECT : ',10(A,A,A,3X))
+250   FORMAT ('0*** WARNING - NO PARAMETER TYPE KEYWORD ',
+     *   '(PCPN, TEMP, PE, RRS OR ALL) WAS FOUND.')
+260   FORMAT ('0*** ERROR - IN SLSTA - PARAMETER TYPE ',A,' CANNOT ',
+     *   'BE PROCESSED.')
+270   FORMAT ('0*** ERROR - IN SLSTA - ',A4,' OPTION IS NOT ',
+     *   'CURRENTLY AVAILABLE.')
+C
+      END
