@@ -136,6 +136,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  *                                     re-query with every update.
  * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Apr 24, 2014 2940       dhladky     Prevent storage of bad records.
  * </pre>
  * 
  * @author dhladky
@@ -697,10 +698,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     FFMPProcessor ffmp = new FFMPProcessor(config, generator,
                             ffmpRec, template);
                     ffmpRec = ffmp.processFFMP(ffmpProduct);
-                    ffmpRec.constructDataURI();
-
+                    
                     if (ffmpRec != null) {
 
+                        ffmpRec.constructDataURI();
                         persistRecord(ffmpRec);
                         processDataContainer(ffmpRec, siteKey);
                         // Now that we have the data container,
