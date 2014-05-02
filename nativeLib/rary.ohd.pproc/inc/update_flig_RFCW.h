@@ -19,4 +19,7 @@
 void update_flig_RFCW ( short ignore_radar_flag, char * rid , 
                         char * datetime );
 
+void update_flig_dp_RFCW ( short ignore_radar_flag, char * rid ,
+                        char * datetime );
+
 #endif /* #ifndef UPDATE_FLIG_RFCW_H */

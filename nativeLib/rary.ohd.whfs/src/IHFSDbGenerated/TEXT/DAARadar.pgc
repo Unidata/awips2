@@ -1,0 +1,880 @@
+/*
+    File: DAARadar.pgc
+    Author  : CDBGEN
+    Created : Wed Dec 04 19:07:08 EST 2013 using database hd_ob9eempty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DAARadar.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DAARadar_t
+{
+    char		radid[4];
+    dtime_t		obstime;
+    short		minoff;
+    float		maxvalh;
+    float		maxvald;
+    float		s1_bias_value;
+    dtime_t		producttime;
+    short		null_product_flag;
+    long		coverage_dur;
+    char		grid_filename[21];
+
+    int		ind_minoff;
+    int		ind_maxvalh;
+    int		ind_maxvald;
+    int		ind_s1_bias_value;
+    int		ind_producttime;
+    int		ind_null_product_flag;
+    int		ind_coverage_dur;
+    int		ind_grid_filename;
+} DAARadar_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DAARadar * GetDAARadar(const char * where)
+{
+
+    DAARadar * listPtr = NULL;
+    DAARadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DAARadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDAARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDAARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDAARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, 
+    :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value, 
+    :dbs.producttime:dbs.ind_producttime, :dbs.null_product_flag:dbs.ind_null_product_flag, 
+    :dbs.coverage_dur:dbs.ind_coverage_dur, :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDAARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DAARadar *) malloc(sizeof(DAARadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->minoff = dbs.minoff;
+            setNullIfIndicated(dbs.ind_minoff, SHORT, &structPtr->minoff);
+
+            structPtr->maxvalh = dbs.maxvalh;
+            setNullIfIndicated(dbs.ind_maxvalh, FLOAT, &structPtr->maxvalh);
+
+            structPtr->maxvald = dbs.maxvald;
+            setNullIfIndicated(dbs.ind_maxvald, FLOAT, &structPtr->maxvald);
+
+            structPtr->s1_bias_value = dbs.s1_bias_value;
+            setNullIfIndicated(dbs.ind_s1_bias_value, FLOAT, &structPtr->s1_bias_value);
+
+            structPtr->producttime = dbs.producttime;
+            setNullIfIndicated(dbs.ind_producttime, DATETIME, &structPtr->producttime);
+
+            structPtr->null_product_flag = dbs.null_product_flag;
+            setNullIfIndicated(dbs.ind_null_product_flag, SHORT, &structPtr->null_product_flag);
+
+            structPtr->coverage_dur = dbs.coverage_dur;
+            setNullIfIndicated(dbs.ind_coverage_dur, INT, &structPtr->coverage_dur);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, 
+        :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value, 
+        :dbs.producttime:dbs.ind_producttime, :dbs.null_product_flag:dbs.ind_null_product_flag, 
+        :dbs.coverage_dur:dbs.ind_coverage_dur, :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDAARadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DAARadar * SelectDAARadar(const char * where)
+{
+
+    DAARadar * listPtr = NULL;
+    DAARadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DAARadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDAARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDAARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDAARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, 
+    :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value, 
+    :dbs.producttime:dbs.ind_producttime, :dbs.null_product_flag:dbs.ind_null_product_flag, 
+    :dbs.coverage_dur:dbs.ind_coverage_dur, :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDAARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DAARadar *) malloc(sizeof(DAARadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->minoff = dbs.minoff;
+            setNullIfIndicated(dbs.ind_minoff, SHORT, &structPtr->minoff);
+
+            structPtr->maxvalh = dbs.maxvalh;
+            setNullIfIndicated(dbs.ind_maxvalh, FLOAT, &structPtr->maxvalh);
+
+            structPtr->maxvald = dbs.maxvald;
+            setNullIfIndicated(dbs.ind_maxvald, FLOAT, &structPtr->maxvald);
+
+            structPtr->s1_bias_value = dbs.s1_bias_value;
+            setNullIfIndicated(dbs.ind_s1_bias_value, FLOAT, &structPtr->s1_bias_value);
+
+            structPtr->producttime = dbs.producttime;
+            setNullIfIndicated(dbs.ind_producttime, DATETIME, &structPtr->producttime);
+
+            structPtr->null_product_flag = dbs.null_product_flag;
+            setNullIfIndicated(dbs.ind_null_product_flag, SHORT, &structPtr->null_product_flag);
+
+            structPtr->coverage_dur = dbs.coverage_dur;
+            setNullIfIndicated(dbs.ind_coverage_dur, INT, &structPtr->coverage_dur);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, 
+        :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value, 
+        :dbs.producttime:dbs.ind_producttime, :dbs.null_product_flag:dbs.ind_null_product_flag, 
+        :dbs.coverage_dur:dbs.ind_coverage_dur, :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDAARadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDAARadarCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DAARadar ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDAARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDAARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDAARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDAARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDAARadar(const DAARadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.minoff = structPtr->minoff;
+    dbs.ind_minoff = getIndicator(SHORT, (void *)&structPtr->minoff);
+
+    dbs.maxvalh = structPtr->maxvalh;
+    dbs.ind_maxvalh = getIndicator(FLOAT, (void *)&structPtr->maxvalh);
+
+    dbs.maxvald = structPtr->maxvald;
+    dbs.ind_maxvald = getIndicator(FLOAT, (void *)&structPtr->maxvald);
+
+    dbs.s1_bias_value = structPtr->s1_bias_value;
+    dbs.ind_s1_bias_value = getIndicator(FLOAT, (void *)&structPtr->s1_bias_value);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.null_product_flag = structPtr->null_product_flag;
+    dbs.ind_null_product_flag = getIndicator(SHORT, (void *)&structPtr->null_product_flag);
+
+    dbs.coverage_dur = structPtr->coverage_dur;
+    dbs.ind_coverage_dur = getIndicator(INT, (void *)&structPtr->coverage_dur);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DAARadar (radid,obstime,
+        minoff,maxvalh,maxvald,
+        s1_bias_value,producttime,null_product_flag,
+        coverage_dur,grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.minoff:dbs.ind_minoff,
+         :dbs.maxvalh:dbs.ind_maxvalh, :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value,
+         :dbs.producttime:dbs.ind_producttime, :dbs.null_product_flag:dbs.ind_null_product_flag, :dbs.coverage_dur:dbs.ind_coverage_dur,
+         :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDAARadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDAARadar(const DAARadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.minoff = structPtr->minoff;
+    dbs.ind_minoff = getIndicator(SHORT, (void *)&structPtr->minoff);
+
+    dbs.maxvalh = structPtr->maxvalh;
+    dbs.ind_maxvalh = getIndicator(FLOAT, (void *)&structPtr->maxvalh);
+
+    dbs.maxvald = structPtr->maxvald;
+    dbs.ind_maxvald = getIndicator(FLOAT, (void *)&structPtr->maxvald);
+
+    dbs.s1_bias_value = structPtr->s1_bias_value;
+    dbs.ind_s1_bias_value = getIndicator(FLOAT, (void *)&structPtr->s1_bias_value);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.null_product_flag = structPtr->null_product_flag;
+    dbs.ind_null_product_flag = getIndicator(SHORT, (void *)&structPtr->null_product_flag);
+
+    dbs.coverage_dur = structPtr->coverage_dur;
+    dbs.ind_coverage_dur = getIndicator(INT, (void *)&structPtr->coverage_dur);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DAARadar (radid,obstime,
+        minoff,maxvalh,maxvald,
+        s1_bias_value,producttime,null_product_flag,
+        coverage_dur,grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.minoff:dbs.ind_minoff,
+         :dbs.maxvalh:dbs.ind_maxvalh, :dbs.maxvald:dbs.ind_maxvald, :dbs.s1_bias_value:dbs.ind_s1_bias_value,
+         :dbs.producttime:dbs.ind_producttime, :dbs.null_product_flag:dbs.ind_null_product_flag, :dbs.coverage_dur:dbs.ind_coverage_dur,
+         :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDAARadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDAARadar(const DAARadar *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DAARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.minoff = structPtr->minoff;
+    dbs.ind_minoff = getIndicator(SHORT, (void *)&structPtr->minoff);
+
+    dbs.maxvalh = structPtr->maxvalh;
+    dbs.ind_maxvalh = getIndicator(FLOAT, (void *)&structPtr->maxvalh);
+
+    dbs.maxvald = structPtr->maxvald;
+    dbs.ind_maxvald = getIndicator(FLOAT, (void *)&structPtr->maxvald);
+
+    dbs.s1_bias_value = structPtr->s1_bias_value;
+    dbs.ind_s1_bias_value = getIndicator(FLOAT, (void *)&structPtr->s1_bias_value);
+
+    dbs.producttime = structPtr->producttime;
+    dbs.ind_producttime = getIndicator(DATETIME, (void *)&structPtr->producttime);
+
+    dbs.null_product_flag = structPtr->null_product_flag;
+    dbs.ind_null_product_flag = getIndicator(SHORT, (void *)&structPtr->null_product_flag);
+
+    dbs.coverage_dur = structPtr->coverage_dur;
+    dbs.ind_coverage_dur = getIndicator(INT, (void *)&structPtr->coverage_dur);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    sprintf(queryBuffer, " UPDATE DAARadar SET " );
+    strcat(queryBuffer, "radid = ? , obstime = ? , minoff = ? , maxvalh = ? , maxvald = ? ,     ");
+    strcat(queryBuffer, "s1_bias_value = ? , producttime = ? , null_product_flag = ? , coverage_dur = ? , grid_filename = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDAARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.obstime, :dbs.minoff:dbs.ind_minoff, :dbs.maxvalh:dbs.ind_maxvalh, :dbs.maxvald:dbs.ind_maxvald,
+     :dbs.s1_bias_value:dbs.ind_s1_bias_value, :dbs.producttime:dbs.ind_producttime, :dbs.null_product_flag:dbs.ind_null_product_flag, :dbs.coverage_dur:dbs.ind_coverage_dur, :dbs.grid_filename:dbs.ind_grid_filename;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDAARadar() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDAARadar(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DAARadar ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDAARadar() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDAARadarByRecord (const DAARadar * newStructPtr, const DAARadar * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDAARadarPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDAARadar(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDAARadar(const DAARadar * structPtr)
+{
+    UpdateDAARadarByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDAARadar(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDAARadar(const DAARadar * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DAARadarExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDAARadar(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDAARadarByRecord(const DAARadar * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDAARadarPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDAARadar(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DAARadarExists(const DAARadar * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDAARadarPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDAARadarCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDAARadarPrimaryKeyWhereString (const DAARadar * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND obstime = '%s' ",
+            structPtr->radid, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDAARadar( DAARadar * structPtr)
+{
+    DAARadar* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DAARadar * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDAARadarDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDAARadarErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

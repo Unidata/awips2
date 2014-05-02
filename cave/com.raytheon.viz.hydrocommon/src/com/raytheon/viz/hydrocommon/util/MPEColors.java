@@ -82,6 +82,117 @@ public class MPEColors {
     static final double precip_levels[] = { -9999.0, -8888.0, 0.00, 0.01, 0.10,
             0.20, 0.30, 0.40, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00, 2.50,
             3.00 };
+    
+ 
+    static final String precip_bias_colors[] ={"DarkGray", "Gray", "Light Gray", "DarkBlue", 
+    	"Blue", "DarkCyan", "Cyan",  "DarkGreen", "Green",
+        "Yellow", "Orange", "Red", "Dark Red", "Magenta", "White" };
+
+    static final double precip_bias_levels[] ={ 0.0, 0.05, 0.1, .2, .4, 0.8, 1.2, 2.0, 3.0, 4.0, 5.0, 8.0, 16.0, 32.0, 100.0};
+
+    
+
+    static final String precip_diff_colors[] = 
+    	{
+    	"GRAY30", "GRAY30",
+    	
+    	"MAGENTA1", "MEDIUMORCHID", "DARKORCHID",
+    	"MEDIUMBLUE", "BLUE", "DODGERBLUE", "DARKTURQUOISE",
+    	
+    	"CYAN",
+        
+    	"BLACK", "BLACK",
+        "GREEN", "GREENYELLOW","YELLOW",
+        
+        "DARKORANGE1",
+        "ORANGERED", "RED2", "RED3",
+         
+         };
+
+    static final double precip_diff_levels[] =
+    	
+    	 { -9999.0, -8888.0,
+    	
+    	-10.0, -0.75, -0.5, 
+    	-.25,-0.1, -0.08, -0.06, -0.03,
+    	
+    	-0.01, //CYAN
+    	
+    	0.0, 0.01,
+    	
+    	0.03,
+    	
+    	0.06, 0.08,
+    	0.1,0.25, 0.50
+    	
+    	};
+
+    static final String precip_ratio_colors[] =     	
+    { 
+        	"GRAY30", "GRAY30",
+        	
+        	"MAGENTA1", "MEDIUMORCHID", "DARKORCHID",
+            "BLUE", "DODGERBLUE", "DARKTURQUOISE",
+        	
+        	"CYAN", "BLACK",
+            "GREEN", "GREENYELLOW","YELLOW",
+            
+            "DARKORANGE1",
+            "ORANGERED", "RED2", "RED3",  	
+    };
+
+    static final double precip_ratio_levels[] =
+    	
+    	{
+    	
+    	-9999.0, -8888.0, 
+    	0.0, 0.1, 0.2, 0.3,
+    	
+    	0.5, 0.6, 0.75, 
+    	
+    	0.95, 1.05, //between this number shows up as black	
+    	1.5, 2.0, 4.0,
+    	
+    	6.0,
+    	8.0, 16.0
+    	
+    	};
+    
+    /*
+     * static final String precip_ratio_colors[] =     	
+    { 
+        	"GRAY30", "GRAY30",
+        	
+        	"MAGENTA1", "MEDIUMORCHID", "DARKORCHID",
+        	"MEDIUMBLUE", "BLUE", "DODGERBLUE", "DARKTURQUOISE",
+        	
+        	"CYAN", "BLACK",
+            "GREEN", "GREENYELLOW","YELLOW",
+            
+            "DARKORANGE1",
+            "ORANGERED", "RED2", "RED3",  	
+    };
+
+    static final double precip_ratio_levels[] =
+    	
+    	{
+    	
+    	-9999.0, -8888.0, 
+    	0.1, 0.2, 0.3, 0.4,
+    	
+    	0.5, 0.6, 0.75, 0.85, 
+    	
+    	0.95, 1.05, //between this number shows up as black	
+    	1.5, 2.0, 4.0,
+    	
+    	6.0,
+    	8.0, 16.0
+    	
+    	};
+
+     * 
+     * 
+     */
 
     static final String prism_colors[] = { "GRAY30", "GRAY20", "GRAY10",
             "DODGERBLUE1", "CYAN", "DARKGREEN", "GREEN", "GREENYELLOW",
@@ -266,6 +377,86 @@ public class MPEColors {
 
         /* Create a color use group for each of the MPE products. */
 
+        
+       /* PRECIP_BIAS */
+        pColorUseSet = new NamedColorUseSet("PRECIP_BIAS", "Precip Bias",
+                precip_bias_levels, precip_bias_colors, "GRAY30", "GRAY10", 3600);
+        pColorSetGroup.add(pColorUseSet);
+       
+        
+
+        pColorUseSet = new NamedColorUseSet("PRECIP_DIFF", "Precip Difference",
+                precip_diff_levels, precip_diff_colors, "GRAY30", "GRAY30", 3600);
+        pColorSetGroup.add(pColorUseSet);
+        
+        pColorUseSet = new NamedColorUseSet("PRECIP_RATIO", "Precip Ratio",
+                precip_ratio_levels, precip_ratio_colors, "GRAY30", "GRAY30", 3600);
+        pColorSetGroup.add(pColorUseSet);
+        
+               
+        pColorUseSet = new NamedColorUseSet("PRECIP_ACCUM", "Precip Accumulated",
+                precip_levels, precip_colors, "GRAY30", "GRAY30", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        
+        /* Radar Mosaic */
+        pColorUseSet = new NamedColorUseSet("RMOSAIC", "Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY30", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+  
+        /* DP Radar Mosaic */
+        pColorUseSet = new NamedColorUseSet("RDMOSAIC", "DP Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY30", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        
+        pColorUseSet = new NamedColorUseSet("AVGRDMOSAIC", "DP Avg Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        
+        pColorUseSet = new NamedColorUseSet("MAXRDMOSAIC", "DP Max Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        pColorUseSet = new NamedColorUseSet("BDMOSAIC", "DP Field Bias Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        
+        pColorUseSet = new NamedColorUseSet("LDMOSAIC", "DP Local Bias Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        pColorUseSet = new NamedColorUseSet("MDMOSAIC", "DP Field Bias Multisensor Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        pColorUseSet = new NamedColorUseSet("MLDMOSAIC", "DP Local Bias Multisensor Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        
+        pColorUseSet = new NamedColorUseSet("SRDMOSAIC", "DP Satellite Radar Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+        
+        pColorUseSet = new NamedColorUseSet("SRDGMOSAIC", "DP Satellite Radar Gage Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorSetGroup.add(pColorUseSet);
+  
+        
         /* Radar Mosaic */
         pColorUseSet = new NamedColorUseSet("RMOSAIC", "Radar Mosaic",
                 precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);

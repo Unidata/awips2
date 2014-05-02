@@ -53,4 +53,4 @@ void MPEFieldGen_readRWParams ( RWParams * pRWParams, long int * ircpar )
       FreeRWParams ( pRWParamsHead );
       pRWParamsHead = NULL;
    }
-}
+} /* end MPEFieldGen_readRWParams */
