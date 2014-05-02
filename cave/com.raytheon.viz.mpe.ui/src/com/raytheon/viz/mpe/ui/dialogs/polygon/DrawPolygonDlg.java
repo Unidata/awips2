@@ -31,6 +31,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -75,6 +76,9 @@ public class DrawPolygonDlg extends CaveSWTDialog {
 
     private static final String MAKE_PERSISTENT = "Make Persistent";
 
+	private DisplayFieldData[] displayFieldDataArray;
+    private String[] displayTypeNameArray;
+	
     /**
      * Bold Font.
      */
@@ -85,6 +89,11 @@ public class DrawPolygonDlg extends CaveSWTDialog {
      */
     private Font font = null;
 
+    /**
+     * The field type selection Combo control.
+     */
+	private Combo fieldTypeCombo = null;
+    
     /**
      * The precip value spinner control.
      */
@@ -191,7 +200,7 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         GridData gd = new GridData(345, SWT.DEFAULT);
         subGroup.setLayoutData(gd);
 
-        getSubChecks(subGroup);
+        createFieldCombo(subGroup);
 
         // Create Substitute button
         final Button subBtn = new Button(subGroup, SWT.PUSH);
@@ -313,398 +322,80 @@ public class DrawPolygonDlg extends CaveSWTDialog {
      * @param groupComp
      *            The group composite
      */
-    private void getSubChecks(Group groupComp) {
+    private void createFieldCombo(Group groupComp) {
         // Spacer
-        Label spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
+    	
+        // Create a container to hold the label and the combo box.
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Composite prodListComp = new Composite(shell, SWT.NONE);
+        GridLayout prodListCompLayout = new GridLayout(2, false);
+        prodListComp.setLayout(prodListCompLayout);
+        prodListComp.setLayoutData(gd);
 
-        Button radarMosaicChk = new Button(groupComp, SWT.RADIO);
-        GridData gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        radarMosaicChk.setLayoutData(gd);
-        radarMosaicChk.setText("Radar Mosaic");
-        radarMosaicChk.setFont(font);
-        radarMosaicChk.setLayoutData(gd);
-        // Default to radar mosaic on dialog creation
-        radarMosaicChk.setSelection(true);
-        subType = DisplayFieldData.rMosaic;
-        radarMosaicChk.addSelectionListener(new SelectionAdapter() {
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        Label fieldTypeLabel = new Label(prodListComp, SWT.CENTER);
+        fieldTypeLabel.setText(SUBSTITUTE_VALUE_TEXT);
+        fieldTypeLabel.setLayoutData(gd);
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        fieldTypeCombo = new Combo(groupComp, SWT.LEFT | SWT.DROP_DOWN
+                | SWT.READ_ONLY);
+        
+        if (displayFieldDataArray == null)
+        {
+        	  displayFieldDataArray = MPEDisplayManager.mpe_qpe_fields;
+        }
+         	
+  //      Label spaceLabel = new Label(groupComp, SWT.NONE);
+  //      spaceLabel.setText("*****  ");
+        
+        int selectedFieldIndex = 0;
+        
+        //find the index of the selected field
+        for (selectedFieldIndex = 0; selectedFieldIndex < displayFieldDataArray.length; selectedFieldIndex++)
+        {
+            if (displayFieldDataArray[selectedFieldIndex] == subType)
+            {
+                break;
+            }
+        }
+        
+        //create and initialize the display field type name array
+        displayTypeNameArray = new String[displayFieldDataArray.length];
+        
+        for (int i = 0; i < displayFieldDataArray.length; i++) {
+        	
+        	String fieldName = displayFieldDataArray[i].toString();
+       // 	System.out.println("DrawPolygon.createFieldCombo():  FieldName = :" + fieldName + ":");       	
+            displayTypeNameArray[i] = fieldName;
+        }
+        
+        //select the field
+        fieldTypeCombo.setTextLimit(35);
+        fieldTypeCombo.setLayoutData(gd);
+        fieldTypeCombo.setItems(displayTypeNameArray);
+        fieldTypeCombo.select(selectedFieldIndex);
+        
+        fieldTypeCombo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.rMosaic;
-            }
+            	String selectedFieldString = fieldTypeCombo.getText();
+ //           	System.out.println("DrawPolygon.createFieldCombo(): selectedFieldString =  " +
+ //           						selectedFieldString);
+            	
+            	subType = DisplayFieldData.fromDisplayNameString(selectedFieldString);
+            	
+ //           	if (subType != null)
+//            	{
+ //           		System.out.println("DrawPolygon.createFieldCombo(): subType =  " +
+ //           			subType.toString());
+ //           	}
+          }
         });
 
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button avgRadarMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        avgRadarMosaicChk.setLayoutData(gd);
-        avgRadarMosaicChk.setText("Average Radar Mosaic");
-        avgRadarMosaicChk.setFont(font);
-        avgRadarMosaicChk.setLayoutData(gd);
-        avgRadarMosaicChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.avgrMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button maxRadarMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        maxRadarMosaicChk.setLayoutData(gd);
-        maxRadarMosaicChk.setText("Max Radar Mosaic");
-        maxRadarMosaicChk.setFont(font);
-        maxRadarMosaicChk.setLayoutData(gd);
-        maxRadarMosaicChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.maxrMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button fieldBiasRadarMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        fieldBiasRadarMosaicChk.setLayoutData(gd);
-        fieldBiasRadarMosaicChk.setText("Field Bias Radar Mosaic");
-        fieldBiasRadarMosaicChk.setFont(font);
-        fieldBiasRadarMosaicChk.setLayoutData(gd);
-        fieldBiasRadarMosaicChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.bMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button localBiasRadarMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        localBiasRadarMosaicChk.setLayoutData(gd);
-        localBiasRadarMosaicChk.setText("Local Bias Radar Mosaic");
-        localBiasRadarMosaicChk.setFont(font);
-        localBiasRadarMosaicChk.setLayoutData(gd);
-        localBiasRadarMosaicChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.lMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button gageOnlyChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        gageOnlyChk.setLayoutData(gd);
-        gageOnlyChk.setText("Gage Only Analysis");
-        gageOnlyChk.setFont(font);
-        gageOnlyChk.setLayoutData(gd);
-        gageOnlyChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.gageOnly;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button multiSensorMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        multiSensorMosaicChk.setLayoutData(gd);
-        multiSensorMosaicChk.setText("Multisensor Mosaic");
-        multiSensorMosaicChk.setFont(font);
-        multiSensorMosaicChk.setLayoutData(gd);
-        multiSensorMosaicChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.mMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button localBiasMultiSensorMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        localBiasMultiSensorMosaicChk.setLayoutData(gd);
-        localBiasMultiSensorMosaicChk.setText("Local Bias Multisensor Mosaic");
-        localBiasMultiSensorMosaicChk.setFont(font);
-        localBiasMultiSensorMosaicChk.setLayoutData(gd);
-        localBiasMultiSensorMosaicChk
-                .addSelectionListener(new SelectionAdapter() {
-                    @Override
-                    public void widgetSelected(SelectionEvent event) {
-                        subType = DisplayFieldData.mlMosaic;
-                    }
-                });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button satPrecipChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        satPrecipChk.setLayoutData(gd);
-        satPrecipChk.setText("Satellite Precip");
-        satPrecipChk.setFont(font);
-        satPrecipChk.setLayoutData(gd);
-        satPrecipChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.satPre;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button localBiasSatPrecipChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        localBiasSatPrecipChk.setLayoutData(gd);
-        localBiasSatPrecipChk.setText("Local Bias Satellite Precip");
-        localBiasSatPrecipChk.setFont(font);
-        localBiasSatPrecipChk.setLayoutData(gd);
-        localBiasSatPrecipChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.lsatPre;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button satRadarMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        satRadarMosaicChk.setLayoutData(gd);
-        satRadarMosaicChk.setText("Satellite Radar Mosaic");
-        satRadarMosaicChk.setFont(font);
-        satRadarMosaicChk.setLayoutData(gd);
-        satRadarMosaicChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.srMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button satGageMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        satGageMosaicChk.setLayoutData(gd);
-        satGageMosaicChk.setText("Satellite Gage Mosaic");
-        satGageMosaicChk.setFont(font);
-        satGageMosaicChk.setLayoutData(gd);
-        satGageMosaicChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.sgMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button satRadarGageMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        satRadarGageMosaicChk.setLayoutData(gd);
-        satRadarGageMosaicChk.setText("Satellite Radar Gage Mosaic");
-        satRadarGageMosaicChk.setFont(font);
-        satRadarGageMosaicChk.setLayoutData(gd);
-        satRadarGageMosaicChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.srgMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button triangulatedLocalBiasMosaicChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        triangulatedLocalBiasMosaicChk.setLayoutData(gd);
-        triangulatedLocalBiasMosaicChk
-                .setText("Triangulated Local Bias Mosaic");
-        triangulatedLocalBiasMosaicChk.setFont(font);
-        triangulatedLocalBiasMosaicChk.setLayoutData(gd);
-        triangulatedLocalBiasMosaicChk
-                .addSelectionListener(new SelectionAdapter() {
-                    @Override
-                    public void widgetSelected(SelectionEvent event) {
-                        subType = DisplayFieldData.p3lMosaic;
-                    }
-                });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button bestEstQPEChk = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        bestEstQPEChk.setLayoutData(gd);
-        bestEstQPEChk.setText("Best Estimate QPE");
-        bestEstQPEChk.setFont(font);
-        bestEstQPEChk.setLayoutData(gd);
-        bestEstQPEChk.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.Xmrg;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button rfcFieldBiasMosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        rfcFieldBiasMosaic.setLayoutData(gd);
-        rfcFieldBiasMosaic.setText("RFC Field Bias Mosaic");
-        rfcFieldBiasMosaic.setFont(font);
-        rfcFieldBiasMosaic.setLayoutData(gd);
-        rfcFieldBiasMosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.rfcbMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button rfcMultiSensorMosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        rfcMultiSensorMosaic.setLayoutData(gd);
-        rfcMultiSensorMosaic.setText("RFC Multisensor Mosaic");
-        rfcMultiSensorMosaic.setFont(font);
-        rfcMultiSensorMosaic.setLayoutData(gd);
-        rfcMultiSensorMosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.rfcmMosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button rawQ2Mosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        rawQ2Mosaic.setLayoutData(gd);
-        rawQ2Mosaic.setText("Raw Q2 Mosaic");
-        rawQ2Mosaic.setFont(font);
-        rawQ2Mosaic.setLayoutData(gd);
-        rawQ2Mosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.qmosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button localBQ2Mosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        localBQ2Mosaic.setLayoutData(gd);
-        localBQ2Mosaic.setText("Local Bias Q2 Mosaic");
-        localBQ2Mosaic.setFont(font);
-        localBQ2Mosaic.setLayoutData(gd);
-        localBQ2Mosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.lqmosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button mQ2Mosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        mQ2Mosaic.setLayoutData(gd);
-        mQ2Mosaic.setText("Multisensor Q2 Mosaic");
-        mQ2Mosaic.setFont(font);
-        mQ2Mosaic.setLayoutData(gd);
-        mQ2Mosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.mlqmosaic;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button local1Mosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        local1Mosaic.setLayoutData(gd);
-        local1Mosaic.setText("Local Field #1");
-        local1Mosaic.setFont(font);
-        local1Mosaic.setLayoutData(gd);
-        local1Mosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.localField1;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button local2Mosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        local2Mosaic.setLayoutData(gd);
-        local2Mosaic.setText("Local Field #2");
-        local2Mosaic.setFont(font);
-        local2Mosaic.setLayoutData(gd);
-        local2Mosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.localField2;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button local3Mosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        local3Mosaic.setLayoutData(gd);
-        local3Mosaic.setText("Local Field #3");
-        local3Mosaic.setFont(font);
-        local3Mosaic.setLayoutData(gd);
-        local3Mosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.localField3;
-            }
-        });
-
-        spaceLabel = new Label(groupComp, SWT.NONE);
-        spaceLabel.setText("    ");
-
-        Button rfcQpeMosaic = new Button(groupComp, SWT.RADIO);
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        rfcQpeMosaic.setLayoutData(gd);
-        rfcQpeMosaic.setText("RFC QPE Mosaic");
-        rfcQpeMosaic.setFont(font);
-        rfcQpeMosaic.setLayoutData(gd);
-        rfcQpeMosaic.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                subType = DisplayFieldData.rfcMosaic;
-            }
-        });
     }
+    
+    
 
     /**
      * Process the selection.

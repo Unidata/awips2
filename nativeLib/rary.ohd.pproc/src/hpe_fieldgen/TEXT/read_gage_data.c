@@ -118,6 +118,8 @@ void readGageData(const run_date_struct * pRunDate ,
 
     time_in_ticks = pRunDate->tRunTime;
 
+
+
     for(i = runHours - 1; i >= 0; i--)
     {
         datetimes[i] = 
@@ -136,6 +138,9 @@ void readGageData(const run_date_struct * pRunDate ,
             "%Y-%m-%d %H:00:00", pRunTime ) ;
         time_in_ticks -= SECONDS_PER_HOUR;
     }
+
+
+
 
     /*
      * Read the pseudo gage values for this hour.  This now uses the
@@ -279,8 +284,20 @@ void readGageData(const run_date_struct * pRunDate ,
                      "for %s", currTime, datetimes[i]) ;
             hpe_fieldgen_printMessage( message);
 
+            sprintf( message , "STATUS:mpe_fieldgen  in readGageData() before call to checkSpatialConsistency() - 6.5 \n");
+                            printMessage( message, logFile );
+                            fflush(logFile);
+                            fflush(stdout);
+
+
             checkSpatialConsistency(pMPEParams, pGeoData,
                                     pGageTable[i], gageqc); 
+
+            sprintf( message , "STATUS:mpe_fieldgen  in readGageData() after call to checkSpatialConsistency() - 6.6 \n");
+                                      printMessage( message, logFile );
+                                      fflush(logFile);
+                                      fflush(stdout);
+
 
             hpe_fieldgen_getCurrentTime(currTime) ;
             sprintf( message , "%s = time end spatial consistency check "
