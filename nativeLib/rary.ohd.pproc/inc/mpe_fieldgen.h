@@ -52,11 +52,12 @@
 
 /* Ordering of the elements in this list must be the same as the beginning
  * of the enum DisplayFieldData type in the mpe_field_names.h header file. */
-typedef enum {rmosaic = 0, avgrmosaic, maxrmosaic, bmosaic, lmosaic, gaugeonly,
-				satpre, lsatpre, mmosaic, mlmosaic, p3lmosaic, srmosaic, sgmosaic, srgmosaic,
-              qmosaic, lqmosaic, mlqmosaic, rfcmosaic, rfcbmosaic, rfcmmosaic, num_mosaics
+typedef enum {rmosaic = 0, avgrmosaic, maxrmosaic, gaugeonly, bmosaic, lmosaic,
+              mmosaic, mlmosaic, satpre, lsatpre, p3lmosaic, srmosaic, sgmosaic, srgmosaic,
+              qmosaic, lqmosaic, mlqmosaic, rdmosaic, avgrdmosaic, maxrdmosaic,
+              bdmosaic, ldmosaic, mdmosaic, mldmosaic, srdmosaic, srdgmosaic,
+              rfcmosaic, rfcbmosaic, rfcmmosaic, num_mosaics
              }mosaicType ;
-
 
 extern char    currTime[HHMMSS_LEN + 1];
 extern char    message[MESSAGE_LEN] ;
@@ -100,7 +101,8 @@ typedef struct _radar_result_struct
 {
     char  radID[ RADAR_ID_LEN + 1];
     short edit_bias;
-    short ignore_radar;
+    short ignore_dpa_radar;
+    short ignore_daa_radar;
     float bias ;
 
 } radar_result_struct;
@@ -303,6 +305,19 @@ void MPEFieldGen_runRMosaic(const run_date_struct * pRunDate,
                 double ** QPEMosaic,
                 int * blnMosaic) ;
 
+void MPEFieldGen_runRDMosaic(const run_date_struct * pRunDate,
+                const geo_data_struct * pGeoData,
+                mpe_params_struct * pMPEParams,
+                const radarLoc_table_struct * pRadarLocTable ,
+                const gage_table_struct * pGageTable,
+                const gage_table_struct * pGageTableP3,
+                const gage_table_struct * pQCGageTable,
+                double * meanFieldBias,
+                int ** IDDP,
+                double ** RDMosaic,
+                double ** QPEMosaic,
+                int * blnMosaic) ;
+
 void MPEFieldGen_readRadarLoc ( radarLoc_table_struct * pRadarLocTable ) ;
 
 void MPEFieldGen_readRadarResult (const char * datetime,
@@ -326,7 +341,23 @@ void readDPARadar(const char * rad,
                   int * itim,
                   long int * irc) ;
 
-void MPEFieldGen_readMisc(const radarLoc_table_struct * pRadarLocTable,
+void MPEFieldGen_readDAARadar(const char * rad, 
+                  const char * datetime, 
+                  const int idpawind,
+                  double * maxvald,
+                  double * bias,
+                  char * fname,
+                  int * itim,
+                  int * coverageDur,
+                  int * nullProductFlag,
+                  long int * irc) ;
+
+void MPEFieldGen_readDAARadarResult (const char * datetime,
+                      radar_result_struct * pRadarResult,
+                      short * count ,
+                      long int * irc);
+
+void MPEFieldGen_readMisc(const radarLoc_table_struct * pRadarLocTable, 
               const char * os,
               short int ** radarMiscBins ) ;
 
@@ -341,8 +372,19 @@ void MPEFieldGen_getMeanBias(const radarLoc_record_struct * pRadarLocRecord,
                 double * memSpanBias,
                 int *  gageRadarPairNum) ;
 
-void MPEFieldGen_pairGageRadar(const radarLoc_record_struct * pRadarLocRecord,
+void MPEFieldGen_getMeanBiasDP(const radarLoc_record_struct * pRadarLocRecord,
+                const char * datetime ,
                 short int radarMiscBins [][NUM_DPA_COLS] ,
+                float radar [][NUM_DPA_COLS] ,
+                const geo_data_struct * pGeoData ,
+                const gage_table_struct * pGageArray ,
+                const mpe_params_struct * pMPEParams ,
+                double * meanBias,
+                double * memSpanBias,
+                int *  gageRadarPairNum) ;
+                
+void MPEFieldGen_pairGageRadar(const radarLoc_record_struct * pRadarLocRecord,
+                short int radarMiscBins [][NUM_DPA_COLS] , 
                 float radar [][NUM_DPA_COLS] ,
                 const geo_data_struct * pGeoData ,
                 const gage_table_struct * pGageArray ,
@@ -358,6 +400,14 @@ void MPEFieldGen_calculatePixelHeight(const double lon_coord,
                           double * pixelHeight  ) ;
 
 void MPEFieldGen_calculateMeanBias(const char * radarID,
+                    const char * datetime ,
+                    const mpe_params_struct * pMPEParams ,
+                    const gage_table_struct * pGageArray,
+                    gage_radar_pair_table_struct * pGageRadarPairTable ,
+                    double * meanBias,
+                    double * memSpanBias ) ;
+
+void MPEFieldGen_calculateMeanBiasDP(const char * radarID,
                     const char * datetime ,
                     const mpe_params_struct * pMPEParams ,
                     const gage_table_struct * pGageArray,
@@ -388,7 +438,17 @@ void MPEFieldGen_write_rwbiasdyn(const char *rad,
                     double * bb,
                     long int *irc) ;
 
-void MPEFieldGen_read_rwbiasdyn2(const char *rad,
+void MPEFieldGen_write_daabiasdyn(const char *rad,
+                    const char * site_id,
+                    const char * dt,
+                    const int num_span,
+                    double * num_pairs,
+                    double * sumgag, 
+                    double * sumrad,
+                    double * bb,
+                    long int *irc) ;
+
+void MPEFieldGen_read_rwbiasdyn2(const char *rad, 
                     const char * site_id,
                     const char * str,
                     const int lag_cut,
@@ -396,6 +456,18 @@ void MPEFieldGen_read_rwbiasdyn2(const char *rad,
                     double *sumgag,
                     double *sumrad,
                     double *bias,
+                    int *lag,
+                    char sstr1[19],
+                    long int *irc) ;
+
+void MPEFieldGen_read_daabiasdyn(const char *rad, 
+                    const char * site_id, 
+                    const char * str,
+                    const int lag_cut,
+                    double *num_pairs,
+                    double *sumgag,
+                    double *sumrad,
+                    double *bias, 
                     int *lag,
                     char sstr1[19],
                     long int *irc) ;
@@ -456,6 +528,41 @@ void runBMosaic(const run_date_struct * pRunDate ,
                 double ** BMosaic,
                 double ** QPEMosaic) ;
 
+void runBDMosaic(const run_date_struct * pRunDate ,
+                const geo_data_struct * pGeoData ,
+                const mpe_params_struct * pMPEParams ,
+                double * meanFieldBias ,
+                int ** ID ,
+                double ** RDMosaic ,
+                double ** BDMosaic,
+                double ** QPEMosaic) ;
+
+void runMLDMosaic(const run_date_struct * pRunDate ,
+                const geo_data_struct * pGeoData ,
+                mpe_params_struct * pMPEParams ,
+                const int gageSize,
+                short * iug ,
+                short * ivg ,
+                float * zg ,
+                int ** ID ,
+                double ** RDMosaic ,
+                double ** LDMosaic ,
+                double ** umeang ,
+                double ** QPEMosaic) ;
+
+void runMDMosaic(const run_date_struct * pRunDate ,
+                const geo_data_struct * pGeoData ,
+                mpe_params_struct * pMPEParams ,
+                const int gageSize,
+                short * iug ,
+                short * ivg ,
+                float * zg ,
+                int ** ID ,
+                double ** RDMosaic ,
+                double ** BDMosaic ,
+                double ** umeang ,
+                double ** QPEMosaic) ;
+
 void MPEFieldGen_runLMosaic(const run_date_struct * pRunDate ,
                 const geo_data_struct * pGeoData ,
                 mpe_params_struct * pMPEParams ,
@@ -466,6 +573,18 @@ void MPEFieldGen_runLMosaic(const run_date_struct * pRunDate ,
                 double ** RMosaic ,
                 double ** LMosaic,
                 double ** QPEMosaic) ;
+
+void runLDMosaic(const run_date_struct * pRunDate ,
+                const geo_data_struct * pGeoData ,
+                mpe_params_struct * pMPEParams ,
+                const int gageSize,
+                short * iug ,
+                short * ivg ,
+                float * zg ,
+                double ** RDMosaic ,
+                double ** LDMosaic,
+                double ** QPEMosaic) ;
+
 void runQMosaic(const run_date_struct * pRunDate ,
                 const geo_data_struct * pGeoData ,
                 const mpe_params_struct * pMPEParams ,
@@ -482,6 +601,7 @@ void runLQMosaic(const run_date_struct * pRunDate ,
                 double ** QMosaic ,
                 double ** LQMosaic,
                 double ** MPEFieldGen_QPEMosaic) ;
+
 void MPEFieldGen_lb_gr_pairs ( float gr_min_value ,
                    const int gageSize,
                    short * iug ,
@@ -515,6 +635,7 @@ void MPEFieldGen_runMLMosaic(const run_date_struct * pRunDate ,
                 double ** LMosaic ,
                 double ** umeang ,
                 double ** QPEMosaic) ;
+
 void runMLQMosaic(const run_date_struct * pRunDate ,
                 const geo_data_struct * pGeoData ,
                 mpe_params_struct * pMPEParams ,
@@ -527,6 +648,7 @@ void runMLQMosaic(const run_date_struct * pRunDate ,
                 double ** LQMosaic ,
                 double ** umeang ,
                 double ** MPEFieldGen_QPEMosaic) ;
+
 void runSatpre ( const run_date_struct * pRunDate,
                  const geo_data_struct * pGeoData,
                  mpe_params_struct * pMPEParams,
@@ -572,6 +694,15 @@ void runSRGMosaic(const run_date_struct * pRunDate ,
                  double ** umeang ,
                  double ** QPEMosaic) ;
 
+void runSRDGMosaic(const run_date_struct * pRunDate ,
+                 const geo_data_struct * pGeoData ,
+                 mpe_params_struct * pMPEParams ,
+                 const int gageSize,
+                 short * iug ,
+                 short * ivg ,
+                 float * zg ,
+                 double ** umeang ,
+                 double ** QPEMosaic) ;
 
 int MPEFieldGen_runP3LMosaic ( const run_date_struct * pRunDate,
                    const mpe_params_struct * pMPEParams,
@@ -715,6 +846,24 @@ void MPEFieldGen_createMosaic(const radarLoc_record_struct * pRadarLocRecord,
                   int     ** AvgMosaicNumRadars,
                   int     *  blnMosaic);
 
+void createRDMosaic(const radarLoc_record_struct * pRadarLocRecord,
+                  float radar [ ][ NUM_DPA_COLS ] ,
+                  short int radarMiscBins [ ][ NUM_DPA_COLS],
+                  const int index ,
+                  const geo_data_struct * pGeoData ,
+                  double ** RDMosaic ,
+                  double ** MHeight,
+                  int     ** radarIDDP,
+                  double  ** MaxRDMosaic,
+                  double  ** AvgRDMosaic,
+                  int     ** AvgRDMosaicNumRadars,
+                  int     *  blnMosaic);
+
 void MPEFieldGen_rfcw_load_static ( int * status );
 void get_rgb(const char* color_name, int *r, int *g, int *b);
+void read_daa_decoded ( const char * filename ,
+                        const int * fname_length ,
+                        float radar [ ] [ NUM_DPA_COLS ] , 
+                        int * ierr ) ; 
+
 #endif /* #ifndef MPE_FIELDGEN_H */

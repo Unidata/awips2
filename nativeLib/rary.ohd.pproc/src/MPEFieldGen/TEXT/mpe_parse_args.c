@@ -175,10 +175,4 @@ void parseArgs(const int argc ,
      **/
     pRunDate->tRunTime = gm_mktime(&time_struct) ;
 
-
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source$";
- static char rcs_id2[] = "$Id$";}
-/*  ===================================================  */
-
-}
+} /* end parseArgs */

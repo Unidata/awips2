@@ -27,4 +27,8 @@ void read_stage1_decoded_ ( const char * filename ,
                             float radar [ ] [ NUM_DPA_COLS ] ,
                             int * ierr ) ;
 
+void read_daa_decoded_file ( const char * filename ,
+                            const int * fname_length ,
+                            float radar [ ] [ NUM_DPA_COLS ] ,
+                            int * ierr ) ;
 #endif /* #ifndef READ_STAGE1_DATA_H */

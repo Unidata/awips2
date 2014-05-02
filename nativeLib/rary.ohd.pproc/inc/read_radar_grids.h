@@ -20,5 +20,6 @@
 #define READ_RADAR_GRIDS_H
 
 void read_radar_grids ( int ss_number ) ;
+void read_dp_radar_grids ( int ss_number ) ;
 
 #endif /* #ifndef READ_RADAR_GRIDS_H */

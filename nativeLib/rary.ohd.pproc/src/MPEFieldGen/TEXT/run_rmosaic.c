@@ -174,7 +174,7 @@ void MPEFieldGen_runRMosaic(const run_date_struct * pRunDate,
             MHeight[k][j] = MOSAIC_DEFAULT ;
             tempID[k][j] = 0.0 ;
             ID[k][j] = 0 ;
-	    MPEFieldGen_P3Mosaic[i][j] = MOSAIC_DEFAULT;
+	    MPEFieldGen_P3Mosaic[k][j] = MOSAIC_DEFAULT;
         }
     }
 
@@ -208,7 +208,7 @@ void MPEFieldGen_runRMosaic(const run_date_struct * pRunDate,
     {
         memset(&(pRadarResult[i].radID), '\0', RADAR_ID_LEN + 1) ;
         pRadarResult[i].edit_bias = 0;
-        pRadarResult[i].ignore_radar = 0;
+        pRadarResult[i].ignore_dpa_radar = 0;
         pRadarResult[i].bias = 0.0 ;
     }
 
@@ -260,7 +260,7 @@ void MPEFieldGen_runRMosaic(const run_date_struct * pRunDate,
         {
             editBiasValue   = pRadarInfo->bias;
             blnEditBias       = pRadarInfo->edit_bias;
-            blnIgnoreRadar = pRadarInfo->ignore_radar;
+            blnIgnoreRadar = pRadarInfo->ignore_dpa_radar;
         }
 
         /**
