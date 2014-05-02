@@ -116,11 +116,7 @@ void MPEFieldGen_getMeanBias(const radarLoc_record_struct * pRadarLocRecord,
             free(pGageRadarPairTable) ;
             pGageRadarPairTable = NULL ;
         }
-    }
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source$";
- static char rcs_id2[] = "$Id$";}
-/*  ===================================================  */
+    } /* if(pairSize > 0) */
 
-}
+} /* end MPEFieldGen_getMeanBias */

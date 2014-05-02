@@ -27,4 +27,5 @@
     <preciprate>true</preciprate>
     <scan>true</scan>
     <fssobs>true</fssobs>
+    <hydrodualpol>true</hydrodualpol>
 </MonitorState>

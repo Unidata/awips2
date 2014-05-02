@@ -1,0 +1,27 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+   <bean id="hydrodualpolGenerator" class="gov.noaa.nws.ohd.edex.plugin.hydrodualpol.HydroDualPolGenerator"/>
+       
+    <bean factory-bean="cpgSrvDispatcher" factory-method="register">
+		<constructor-arg ref="hydrodualpolGenerator"/>
+	</bean>
+	
+	<camelContext id="hydrodualpol-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+        <route id="HydroDualPolGenerate">
+        	<from uri="jms-generic:queue:hydrodualpolGenerate?destinationResolver=#qpidDurableResolver" />
+            <doTry>
+	          	<bean ref="serializationUtil" method="transformFromThrift" />
+	        	<bean ref="hydrodualpolGenerator" method="generate" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:hydroDualPol?level=ERROR"/>
+                    <!--to uri="log:hydroDualPol?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/-->
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>	
+</beans>
