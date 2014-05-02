@@ -2,6 +2,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <bean class="com.raytheon.uf.common.status.logback.ThreadBasedAppender" factory-method="registerThreadPattern">
+        <constructor-arg value="text" />
+        <constructor-arg value="Ingest.Text.*" />
+    </bean>
 
 	<bean id="textDecoder" class="com.raytheon.edex.plugin.text.TextDecoder">
 		<property name="pluginName" value="text" />
