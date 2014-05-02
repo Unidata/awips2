@@ -44,6 +44,12 @@ com.raytheon.uf.common.dataplugin.shef.tables.Curpc
 com.raytheon.uf.common.dataplugin.shef.tables.CurpcId
 com.raytheon.uf.common.dataplugin.shef.tables.Curpp
 com.raytheon.uf.common.dataplugin.shef.tables.CurppId
+com.raytheon.uf.common.dataplugin.shef.tables.DAABiasDyn
+com.raytheon.uf.common.dataplugin.shef.tables.DAABiasDynId
+com.raytheon.uf.common.dataplugin.shef.tables.DAARadar
+com.raytheon.uf.common.dataplugin.shef.tables.DAARadarId
+com.raytheon.uf.common.dataplugin.shef.tables.DAARadarResult
+com.raytheon.uf.common.dataplugin.shef.tables.DAARadarResultId
 com.raytheon.uf.common.dataplugin.shef.tables.Dailypp
 com.raytheon.uf.common.dataplugin.shef.tables.DailyppId
 com.raytheon.uf.common.dataplugin.shef.tables.Damtypes
@@ -65,6 +71,12 @@ com.raytheon.uf.common.dataplugin.shef.tables.Dpaadapt
 com.raytheon.uf.common.dataplugin.shef.tables.DpaadaptId
 com.raytheon.uf.common.dataplugin.shef.tables.Dparadar
 com.raytheon.uf.common.dataplugin.shef.tables.DparadarId
+com.raytheon.uf.common.dataplugin.shef.tables.DPRRadar
+com.raytheon.uf.common.dataplugin.shef.tables.DPRRadarId
+com.raytheon.uf.common.dataplugin.shef.tables.DSAAdapt
+com.raytheon.uf.common.dataplugin.shef.tables.DSAAdaptId
+com.raytheon.uf.common.dataplugin.shef.tables.DSARadar
+com.raytheon.uf.common.dataplugin.shef.tables.DSARadarId
 com.raytheon.uf.common.dataplugin.shef.tables.Dspadapt
 com.raytheon.uf.common.dataplugin.shef.tables.DspadaptId
 com.raytheon.uf.common.dataplugin.shef.tables.Dspradar
