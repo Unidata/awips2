@@ -15,6 +15,7 @@
 void readRadarResult (const char * datetime,
                       radar_result_struct * pRadarResult,
 					  short * count ,
+		      int   * dual_pol_flag,
                       long int * irc)
 {
     char editb [ BOOL_LEN + 1 ] = {'\0'};
@@ -53,6 +54,7 @@ void readRadarResult (const char * datetime,
         pRadarResult[num].bias = pRWRadarResultNode->rw_bias_val_used ;
 
         pRadarResult[num].edit_bias = 0;
+	    dual_pol_flag[num] = 0;
 
         /*
          * Has the radar bias value been edited?

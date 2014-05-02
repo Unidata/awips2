@@ -75,12 +75,13 @@
 * 03/24/1999  Jay Breidenbach   modification
 * 03/04/2005  Guoxian Zhou      finish conversion to C Language 
 * 10/05/2006  Guoxian Zhou      modification for empe version 
-*
+* 07/2013     JingtaoD          dual pol
 ***********************************************************************/
 
 void retrieveMeanBias(const char * radarID,
                       const char * datetime ,
                       const empe_params_struct * pMPEParams ,
+		              int   dualpol_data_avail,
                       double * meanBias,
                       double * memSpanBias )
 {
@@ -153,7 +154,7 @@ void retrieveMeanBias(const char * radarID,
 
     readRWBiasDyn(radarID, pMPEParams->fxa_local_site, datehour, 
              lag_cut, num_pairs, sumGage, 
-             sumRadar, bias, &lag, datetime1, &irc) ;
+             sumRadar, bias, &lag, datetime1, dualpol_data_avail, &irc) ;
 
     if((lag > 1) && (lag < lag_cut))
     {

@@ -11,14 +11,15 @@
 *
 * input variables
 *
-* datetime - date and time of current run in Informix datetime format
+* datetime - date and time of current run
 *          - minutes and seconds set to 00
 *
 * dpa_wind -  parameters
 *
-* ignoreRadarFlag - ignore radar flag defined in rfcwdisp
-*        = 0 -- use radar (default)
-*        = 1 -- ignore radar
+* ignoreDPARadar - Ignore DPA Radar Product Flag
+*                - the DPA Radar product can be set to "ignored" via the 4-panel "single-site" window   
+*                = 0 -- ignore flag not set (use radar) (default)
+*                = 1 -- ignore flag set via 4-panel window
 *
 * output variables
 *
@@ -43,7 +44,7 @@
 void readRadarData(const char * radarID,
                 const char * datetime,
                 const int    dpa_wind, 
-                const int    ignoreRadarFlag,
+                const int    ignoreDPARadarFlag,
                 float radar [ ] [ NUM_DPA_COLS ] ,
                 int *    radarAvailFlag)
 {
@@ -67,17 +68,17 @@ void readRadarData(const char * radarID,
     *radarAvailFlag = 0 ;
 
     /**
-     * if ignore radar flag set ON, 
+     * if ignore DPA radar flag set ON, 
      * return all missing values
      **/
-    if(ignoreRadarFlag == 1)
+    if(ignoreDPARadarFlag == 1)
     {
         for( i = 0; i < NUM_DPA_COLS; i++)
         {
             for( j = 0; j < NUM_DPA_COLS; j++)
                 radar[i][j] = RADAR_DEFAULT ;
         }
-        sprintf ( message , "STATUS: radar marked as ignored.") ;
+        sprintf ( message , "STATUS: SP radar product marked as ignored.") ;
         printMessage(message, logFile);
         return ;
     }

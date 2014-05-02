@@ -1,3 +1,6 @@
+#ifndef DISAGG_H
+#define DISAGG_H
+
 #include <time.h>
 
 #include "HourlyPP.h"
@@ -43,8 +46,11 @@ void Read1hrGageVals();
 void Disagg6hr();
 void DisaggPointMethod();
 void DisaggGridMethod();
+void Delete1hrDisaggValues();
 void Write1hrValuesFor6hrGages();
 int GetQPEGrids(int, int);
 void free_1hr_station_list();
 void disagg_cleanup();
 void grid_cleanup();
+
+#endif /* ifndef DISAGG_H */

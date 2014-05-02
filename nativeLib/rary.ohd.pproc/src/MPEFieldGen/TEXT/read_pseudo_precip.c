@@ -352,7 +352,7 @@ void MPEFieldGen_readPseudoPrecip( const int runHours ,
         }      
 
         pPseudoNode = ( PseudoGageVal * ) ListNext ( & pPseudoNode->node ) ;
-    }
+    } /* while ( pPseudoNode != NULL ) */
 
     for(i = 0; i < runHours; i++)
     {
@@ -373,10 +373,4 @@ void MPEFieldGen_readPseudoPrecip( const int runHours ,
        num_gages_p3 = NULL ;
     }
 
-
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source$";
- static char rcs_id2[] = "$Id$";}
-/*  ===================================================  */
-
-}
+} /* end MPEFieldGen_readPseudoPrecip */
