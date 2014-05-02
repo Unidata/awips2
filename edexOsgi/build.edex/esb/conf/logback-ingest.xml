@@ -22,32 +22,8 @@
       </encoder>
    </appender>
 
-   <!-- radar log --> 
-   <appender name="RadarLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-radar-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-
-   <!-- satellite log --> 
-   <appender name="SatelliteLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-satellite-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-
    <!-- shef log --> 
-   <appender name="ShefLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+   <appender name="shef" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
          <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-shef-%d{yyyyMMdd}.log</fileNamePattern>
          <maxHistory>30</maxHistory>
@@ -58,20 +34,8 @@
       </encoder>
    </appender> 
 
-   <!-- smartInit log --> 
-   <appender name="SmartInitLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-smartInit-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-      
    <!-- Purge log --> 
-   <appender name="PurgeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+   <appender name="purge" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
          <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-purge-%d{yyyyMMdd}.log</fileNamePattern>
          <maxHistory>30</maxHistory>
@@ -82,18 +46,6 @@
       </encoder>
    </appender> 
    
-   <!-- Archive log --> 
-   <appender name="ArchiveLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-archive-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-
    <!-- RouteFailedLog log --> 
    <appender name="RouteFailedLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -141,18 +93,6 @@
       </encoder>
    </appender> 
    
-   <!-- Text log --> 
-   <appender name="TextLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-text-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
-      </rollingPolicy> 
-
-      <encoder> 
-         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
-      </encoder>
-   </appender> 
-
    <!-- Trigger log --> 
    <appender name="FailedTriggerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -178,16 +118,13 @@
    </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
-      <threadPatterns>RadarLog:Ingest.Radar.*;SatelliteLog:Ingest.Satellite.*;ShefLog:Ingest.Shef.*;TextLog:Ingest.Text.*;SmartInitLog:smartInit.*;PurgeLog:Purge.*;ArchiveLog:Archive.*</threadPatterns>
-      <defaultAppender>asyncConsole</defaultAppender>
+      <maxHistory>30</maxHistory>
+      <patternLayout>%-5p %d [%t] %c{0}: %m%n</patternLayout>
+      <fileNameBase>${edex.home}/logs/edex-${edex.run.mode}-%s{name}-%d{yyyyMMdd}.log</fileNameBase>
+      <defaultAppenderName>asyncConsole</defaultAppenderName>
       <appender-ref ref="asyncConsole"/>
-      <appender-ref ref="RadarLog"/>
-      <appender-ref ref="SatelliteLog"/>
-      <appender-ref ref="ShefLog"/>
-      <appender-ref ref="SmartInitLog"/>
-      <appender-ref ref="TextLog"/>
-      <appender-ref ref="PurgeLog"/>
-      <appender-ref ref="ArchiveLog"/>
+      <appender-ref ref="shef"/>
+      <appender-ref ref="purge"/>
    </appender>
 
    <appender name="PerformanceLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -214,7 +151,7 @@
    </logger>
    <logger name="com.raytheon.edex.plugin.shef" additivity="false">
       <level value="INFO"/>
-      <appender-ref ref="ShefLog" />
+      <appender-ref ref="shef" />
    </logger>
    <logger name="com.raytheon.edex.services.ArchiveSrv">
       <level value="WARN"/>
@@ -273,22 +210,22 @@
    
    <logger name="com.raytheon.uf.edex.purgesrv" additivity="false">
    		<level value="INFO"/>
-   		<appender-ref ref="PurgeLog"/>
+   		<appender-ref ref="purge"/>
    </logger>
    
    <logger name="com.raytheon.uf.edex.database.purge" additivity="false">
    		<level value="INFO"/>
-   		<appender-ref ref="PurgeLog"/>
+   		<appender-ref ref="purge"/>
    </logger>
    
    <logger name="com.raytheon.edex.db.purge.DataPurgeRegistry" additivity="false">
    		<level value="INFO"/>
-   		<appender-ref ref="PurgeLog"/>
+   		<appender-ref ref="purge"/>
    </logger>
 
    <logger name="com.raytheon.edex.textdb.dao.StdTextProductDao.PurgeLogger" additivity="false">
    		<level value="INFO"/>
-   		<appender-ref ref="PurgeLog"/>
+   		<appender-ref ref="purge"/>
    </logger>
    
    <logger name="RouteFailedLog" additivity="false">
