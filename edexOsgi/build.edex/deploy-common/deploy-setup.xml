@@ -7,24 +7,42 @@
 			<not><equals arg1="${wa.to.deploy}" arg2="" /></not>
 		</condition>
 	
-		<!-- Determine where we are. -->
- 		<!-- actually evaluate the directory instead of using relative pathing. -->
- 		<shellscript shell="bash" 
- 		outputproperty="awips.baseline.directory"
- 		dir="${basedir}">
-			cd ../
- 			dirpath=`pwd`
- 			dir=`basename ${dirpath}`
- 			if [ "${dir}" = "edexOsgi" ]; then
- 			   # we are in the distributed development environment
- 			   cd ../
- 			   pwd
- 			else
- 			   # all of the projects are in the workspace or one single directory
- 			   echo ${dirpath}
- 			fi
- 		</shellscript>
-		
+		<dirname property="antfile.dir" file="${ant.file}" />
+		<echo message="ANT FILE DIR:${antfile.dir}"/>
+		<dirname property="base.dir" file="${antfile.dir}" />
+		<echo message="BASE DIR:${base.dir}"/>
+		<basename property="base.name" file="${base.dir}"/>
+		<echo message="BASE NAME:${base.name}"/>
+		<if>
+			<equals arg1="${base.name}" arg2="edexOsgi" />
+			<then>
+				<!-- we are in the distributed development environment -->
+				<echo message="BUILDING: in distributed development environment"/>
+				<dirname property="awips.baseline.directory" file="${base.dir}" />
+				<dirname property="git.directory" file="${awips.baseline.directory}" />
+				<echo message="GIT.DIRECTORY:${git.directory}"/>
+				<var name="repository.directories"
+					value="${awips.baseline.directory}" />
+				<for list="${core.repositories}" param="repo.directory">
+					<sequential>
+						<var name="repository.directories"
+							value="${repository.directories},${git.directory}${file.separator}@{repo.directory}" />
+					</sequential>
+				</for>
+			</then>
+			<else>
+				<!-- all of the projects are in the workspace or one single directory -->
+				<echo message="BUILDING: in workspace or flattened directory structure"/>
+				<var property="awips.baseline.directory"
+					value="${base.dir}" />
+				<var name="repository.directories"
+					value="${base.dir}" />
+			</else>
+		</if>
+
+		<echo message="AWIPS.BASELINE.DIRECTORY:${awips.baseline.directory}"/>
+		<echo message="REPOSITORY.DIRECTORIES:${repository.directories}"/>
+
 		<!-- construct the list of "basedirectories" -->
  		<propertyselector property="baseline.variables"
  			delimiter="${path.separator}"
@@ -41,16 +59,20 @@
  				<propertycopy property="variable.name"
  					override="true"
  					from="dir.@{index}" />
- 				<var name="base.directory"
- 					value="${awips.baseline.directory}/${variable.name}" />
- 				
- 				<if>
- 					<available file="${base.directory}" type="dir" />
- 					<then>
- 						<var name="basedirectories"
- 							value="${base.directory};${basedirectories}" />
- 					</then>
- 				</if>
+ 				<for list="${repository.directories}" param="repo.directory">
+ 		 		    <sequential>
+ 				       <var name="base.directory"
+ 					      value="@{repo.directory}/${variable.name}" />
+ 				       <if>
+ 					       <available file="${base.directory}" type="dir" />
+ 					       <then>
+ 	 	  			           <echo message="BASE.DIRECTORY:${base.directory}"/>
+ 						       <var name="basedirectories"
+ 							       value="${base.directory};${basedirectories}" />
+ 					       </then>
+ 				       </if>
+				   </sequential>
+ 				</for>
  				
  				<!-- Loop through the WA directories, if they exist. -->
  				<if>
