@@ -135,7 +135,7 @@ void readDHRData(const char * radarID,
 
     if(ignoreRadarFlag == 1)
     {
-        sprintf ( message , "STATUS: radar marked as ignored.") ;
+        sprintf ( message , "STATUS: Single Pol DHR radar marked as ignored. Stop") ;
         hpe_fieldgen_printMessage( message);
 
         return ;
@@ -174,7 +174,7 @@ void readDHRData(const char * radarID,
             {
                 sprintf ( message , "ERROR: #%d encountered reading radar file"
                                     " = %s -- missing data substituted.",
-                                    status, filename ) ;
+                                    status, prev_filename ) ;
                 hpe_fieldgen_printMessage( message);
             }
             else
@@ -270,7 +270,7 @@ void readDHRData(const char * radarID,
             {
                 sprintf ( message , "ERROR: #%d encountered reading radar file"
                                     " = %s -- missing data substituted.",
-                                    status, filename ) ;
+                                    status, prev_filename ) ;
                 hpe_fieldgen_printMessage( message);
             }
             else

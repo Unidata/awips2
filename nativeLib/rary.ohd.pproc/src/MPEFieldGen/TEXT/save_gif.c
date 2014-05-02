@@ -466,7 +466,7 @@ if(clr_val_head != NULL)
 	 int lenf = strlen(filename);
      filename[lenf] = '\0';
                                
-out = fopen(filename,"wb");
+     out = fopen(filename,"wb");
      if(!out) 
      {
          *irc = -1;
@@ -477,7 +477,7 @@ out = fopen(filename,"wb");
 
    gdImageDestroy(gim);
    
-}   
+} /* end MPEFieldGen_saveGif */   
 
 /********************************************************************/
 
@@ -587,7 +587,8 @@ void MPEFieldGen_rfcw_load_static(int *irc)
     
    j = 0;
 
-   while(!feof(in_file)){
+   while(!feof(in_file))
+   {
    
       
       if((fread(&dummy_id, sizeof(char), 9, in_file)) == 0) break;
@@ -610,10 +611,4 @@ void MPEFieldGen_rfcw_load_static(int *irc)
     gdata.nstates = j-1;
     *irc = 0;
     
-
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source$";
- static char rcs_id2[] = "$Id$";}
-/*  ===================================================  */
-
-}     
+} /* end MPEFieldGen_rfcw_load_static */     

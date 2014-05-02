@@ -41,6 +41,7 @@
 *                                          static parameters
 * pGageRadarPairTable
 *                 Input        gage_radar_pair_table_struct *
+* dualpol_data_avail Input     int         0/1 represents if dualpol data available
 *                                          array of positive gage/radar pair
 * meanBias        Output       double*     the mean field bias value
 * memSpanBias     Output       double*     the mean field bias value
@@ -82,6 +83,7 @@ void calculateMeanBias(const char * radarID,
                        const empe_params_struct * pMPEParams ,
                        const gage_table_struct * pGageArray,
                        gage_radar_pair_table_struct * pGageRadarPairTable ,
+		               int   dualpol_data_avail ,
                        double * meanBias,
                        double * memSpanBias )
 {
@@ -174,7 +176,7 @@ void calculateMeanBias(const char * radarID,
 
     readRWBiasDyn(radarID, pMPEParams->fxa_local_site, datehour, 
              lag_cut, num_pairs, sumGage, 
-             sumRadar, bias, &lag, datetime1, &irc) ;
+             sumRadar, bias, &lag, datetime1, dualpol_data_avail, &irc) ;
 
     if((lag > 1) && (lag < lag_cut))
     {

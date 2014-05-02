@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hydrodualpol Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ohd.edex.plugin.hydrodualpol
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.geotools;bundle-version="2.6.4",
+ com.raytheon.edex.common;bundle-version="1.12.1174",
+ org.dom4j;bundle-version="1.0.0",
+ org.apache.commons.logging,
+ javax.measure;bundle-version="1.0.0",
+ javax.persistence;bundle-version="1.0.0",
+ com.raytheon.uf.common.monitor.cpg;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.cpgsrv;bundle-version="1.12.1174",
+ org.eclipse.ui;bundle-version="3.6.1",
+ org.eclipse.core.runtime;bundle-version="3.6.0",
+ com.raytheon.uf.common.monitor;bundle-version="1.12.1174",
+ com.raytheon.edex.plugin.radar,
+ com.raytheon.uf.common.ohd;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.shef
+Import-Package: com.raytheon.edex.plugin.radar,
+ com.raytheon.uf.edex.plugin.scan.common

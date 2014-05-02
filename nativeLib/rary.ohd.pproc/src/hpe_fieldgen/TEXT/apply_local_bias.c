@@ -70,11 +70,13 @@
 * Modification History:
 * Date        Developer         Action
 * 08/16/2007  Guoxian Zhou      first version 
-*
+* 07/2013     JingtaoD          dual pol
 ***********************************************************************/
 
 static double  ** origLocBias = NULL;
 static double  ** locBias = NULL ;
+
+extern int dualpol_used;
 
 static void initArrays(const geo_data_struct * pGeoData,
                        const int hrap_grid_factor) ;
@@ -86,6 +88,7 @@ int applyLocalBias(const time_t tRunTime ,
                    double ** EBMosaic)
 {
     const char * LOCBIAS_DIR_TOKEN  = "mpe_locbias_dir";
+    const char * LOCBIASDP_DIR_TOKEN ="mpe_locbiasdp_dir";
     const int LOCBIAS_HOURS = 3;
 
     const int rowSize = pGeoData->num_rows;
@@ -99,6 +102,7 @@ int applyLocalBias(const time_t tRunTime ,
     struct tm * pRunTime = NULL ;
 
     static int first = 0;
+    char prefix[10] = {'\0'};
 
     int i, j ;
 
@@ -109,17 +113,43 @@ int applyLocalBias(const time_t tRunTime ,
 
     time_t currTime = tRunTime ;
 
-    if(first == 0)
+    if (dualpol_used == 1)
     {
-        if(hpe_fieldgen_getAppsDefaults(LOCBIAS_DIR_TOKEN, localBiasDir) == -1)
+        if(hpe_fieldgen_getAppsDefaults(LOCBIASDP_DIR_TOKEN, localBiasDir) == -1)
         {
             sprintf ( message , "WARNING: token \"%s\" not available"
-                      " - using mean field bias.", LOCBIAS_DIR_TOKEN) ;
+                      " - using mean field bias.", LOCBIASDP_DIR_TOKEN) ;
             hpe_fieldgen_printMessage( message );
 
             return 0;
 
-        }
+            }
+	    else
+	    {
+	      strcpy(prefix, "LOCBIASDP");
+	      sprintf ( message , "STATUS: using dual pol local bias.") ;
+              printMessage( message );
+            }		
+	
+	}
+	else
+	{
+	    if(getAppsDefaults(LOCBIAS_DIR_TOKEN, localBiasDir) == -1)
+            {
+        	sprintf ( message , "WARNING: token \"%s\" not available"
+                	  " - using mean field bias.", LOCBIAS_DIR_TOKEN) ;
+        	printMessage( message );
+
+        	return 0;
+
+            }
+	    else
+	    {
+	       strcpy(prefix, "LOCBIAS");
+	       sprintf ( message , "STATUS: using single pol local bias.") ;
+              printMessage( message );
+	    }
+	}
 
         i = 0;
         int status = 0;    
@@ -130,7 +160,10 @@ int applyLocalBias(const time_t tRunTime ,
             strftime(strDateTime, ANSI_YEARSEC_TIME_LEN + 1,
                      "%Y%m%d%H", pRunTime);
         
-            sprintf(fileName, "%s/LOCBIAS%sz", localBiasDir, strDateTime ); 
+            sprintf(fileName, "%s/%s%sz", localBiasDir, prefix, strDateTime ); 
+	        sprintf(message, "STATUS: local bias file name is %s.", fileName);
+	        hpe_fieldgen_printMessage( message );
+	    
     
             /*
              * Check to determine if the local bias file exists
@@ -187,7 +220,7 @@ int applyLocalBias(const time_t tRunTime ,
                            BIAS_DEFAULT ,
                            rowSize , colSize ,
                            locBias );
-    }
+  /*  }*/
 
     for(i = 0; i < rowSize; i ++)
     {
