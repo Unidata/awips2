@@ -37,7 +37,7 @@ void MPEFieldGen_readRadarResult (const char * datetime,
 
     pRWRadarResultHead = GetRWRadarResult ( where );
 
-    *irc = SQLCODE;
+    *irc = 0;
 
     if ( pRWRadarResultHead != NULL )
     {
@@ -58,11 +58,11 @@ void MPEFieldGen_readRadarResult (const char * datetime,
         if ( strcmp ( editb, "y" ) == 0 )
 			pRadarResult[num].edit_bias = 1;
 
-        pRadarResult[num].ignore_radar = 0;
+        pRadarResult[num].ignore_dpa_radar = 0;
 
         /* Is this radar being ignored? */
         if ( strcmp ( ignrad, "y" ) == 0 )
-			pRadarResult[num].ignore_radar = 1;
+			pRadarResult[num].ignore_dpa_radar = 1;
 
 		num ++ ;
 	

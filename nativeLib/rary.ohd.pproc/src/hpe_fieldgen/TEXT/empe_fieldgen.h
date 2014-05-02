@@ -10,7 +10,7 @@
 * MACHINE:               Dell-Redhat Linux
 * MODIFICATION HISTORY:
 *   DATE         PROGRAMMER        DESCRIPTION/REASON
-*
+*   07/2013      JingtaoD          add prototypes for dual pol proudcts DSA/DPR
 ********************************************************************************
 */
 
@@ -239,7 +239,15 @@ void readRadarLoc ( radarLoc_table_struct * pRadarLocTable ) ;
 void readRadarResult (const char * datetime,
                       radar_result_struct * pRadarResult,
                       short * count ,
+                      int * dual_pol_flag,
                       long int * irc) ;
+
+
+void readDAARadarResult(const char * datetime,
+                        radar_result_struct * pRadarResult,
+                        short * count,
+                        int * dual_pol_flag,
+                        long int * irc);
 
 void readRadarData(const char * radarID,
                 const char * datetime,
@@ -269,6 +277,7 @@ void getMeanBias(const radarLoc_record_struct * pRadarLocRecord,
                  const geo_data_struct * pGeoData ,
                  const gage_table_struct * pGageArray ,
                  const empe_params_struct * pMPEParams ,
+                 int dualpol_data_avail,
                  double * meanBias,
                  double * memSpanBias,
                  int *  gageRadarPairNum) ;
@@ -276,13 +285,15 @@ void getMeanBias(const radarLoc_record_struct * pRadarLocRecord,
 void retrieveMeanBias(const char * radarID,
                       const char * datetime ,
                       const empe_params_struct * pMPEParams ,
+                      int dualpol_data_avail,
                       double * meanBias,
                       double * memSpanBias );
 
 void readMeanBias(const run_date_struct * pRunDate,
                   const radarLoc_table_struct * pRadarLocTable ,
                   const empe_params_struct * pMPEParams ,
-                  double * meanFieldBias );
+                  double * meanFieldBias,
+                  int    dualpol_data_avail);
 
 void pairGageRadar(const radarLoc_record_struct * pRadarLocRecord,
                    const int grid_rows,
@@ -307,6 +318,7 @@ void calculateMeanBias(const char * radarID,
                     const empe_params_struct * pMPEParams ,
                     const gage_table_struct * pGageArray,
                     gage_radar_pair_table_struct * pGageRadarPairTable ,
+                    int dualpol_data_avail,
                     double * meanBias,
                     double * memSpanBias ) ;
 
@@ -342,7 +354,21 @@ void readRWBiasDyn(const char *radar_id,
                      double *bias,
                      int *lag,
                      char sstr1[19],
+                     int dualpol_data_avail,
                      long int *irc) ;
+
+void readDAABiasDyn(const char *radar_id,
+                    const char *office_id,
+                    const char * str,
+		    const int lag_cut,
+		    double *num_pairs,
+		    double *sumgag,
+                    double *sumrad,
+		    double *bias,
+		    int *lag,
+		    char sstr1[19],
+		    long int *irc);	
+
 
 void read_spe ( const char * satpre_filename ,
                 const geo_data_struct * pGeoData,
@@ -586,6 +612,7 @@ void runDHRMosaic(const run_date_struct * pRunDate,
                 const geo_data_struct * pGeoData,
                 empe_params_struct * pMPEParams,
                 const radarLoc_table_struct * pRadarLocTable ,
+                double * meanFieldBias,
                 double ** radar_bean_height,
                 int    ** ID,
                 double ** DHRMosaic,
@@ -618,7 +645,26 @@ void readDHRData(const char * radarID,
                  float ** radar,
                  int *    radarAvailFlag);
 
+void readDPRData(const char * radarID,
+                 const char * datetime,
+                 const int dhr_wind,
+                 const int ignoreRadarFlag,
+                 float ** radar,
+                 int * radarAvailFlag);
+
+
 void readDHRRadar(const char * radid,
+                  const char * datetime,
+                  const int dhr_window,
+                  double * prev_bias,
+                  double * post_bias,
+                  char * prev_filename,
+                  char * post_filename,
+                  int * prev_offset,
+                  int * post_offset,
+                  int * status);
+
+void readDPRRadar(const char * radid,
                   const char * datetime,
                   const int dhr_window,
                   double * prev_bias,
@@ -633,19 +679,35 @@ void readDecodedDHR(const char * filename,
                     float ** radar ,
                     int * status);
 
+void readDecodedDPR(const char * filename,
+                   float ** radar,
+                   int * status);
+
 void readDecodedDSP(const char * filename,
-                    float ** radar ,
+                    float ** radar,
                     int * status);
 
-void readDSPRadar(const char * radid,
-                 const char * datetime,
-                 const int dsp_window,
-                 const int dsp_duration,
-                 const int ignoreRadarFlag,
-                 float ** radar,
-                 int * radarAvailFlag);
+void readDecodedDSA(const char * filename,
+                   float ** radar,
+                   int * status);
 
-void loadRadarBeamHeight(double ** radar_bean_height ,
+void readDSPRadar(const char * radid,
+                  const char * datetime,
+                  const int dsp_window,
+                  const int dsp_duration,
+                  const int ignoreRadarFlag,
+                  float ** radar,
+                  int * radarAvailFlag);
+	
+void readDSARadar(const char * radid,
+                  const char * datetime,
+                  const int dsp_window,
+                  const int dsp_duration,
+                  const int ignoreRadarFlag,
+                  float ** radar,
+                  int * radarAvailFlag);	
+
+void loadRadarBeamHeight(double ** radar_bean_height,
                          const int grid_rows,
                          const int grid_cols);
 
@@ -663,5 +725,23 @@ void writeFormattedXMRG(const empe_params_struct * pEMPEParams,
                         const char * netcdf_id_token,
                         const char * save_jpeg_token,
                         double ** pMosaic);
+
+void read_daabiasdyn(const char *radar_id, 
+                     const char *office_id,
+                     const char * str,
+                     const int lag_cut,
+                     double *num_pairs,
+                     double *sumgag,
+                     double *sumrad,
+                     double *bias, 
+                     int *lag,
+                     char sstr1[19],
+                     long int *irc);	
+		     
+		     
+void wrtodb_HPERadarResult(const char   * hpe_productname,
+		           const char   * producttime,
+                           const empe_params_struct * pEMPEParams,
+			   const int    radar_data_source);
 
 #endif /* #ifndef MPE_FIELDGEN_H */
