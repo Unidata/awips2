@@ -106,6 +106,7 @@
 		<exclude>fog-ingest.xml</exclude>
 		<exclude>vil-ingest.xml</exclude>
 		<exclude>preciprate-ingest.xml</exclude>
+		<exclude>hydrodualpol-ingest.xml</exclude>
 		<exclude>qpf-ingest.xml</exclude>
 		<exclude>fssobs-ingest.xml</exclude>
 		<exclude>cpgsrv-spring.xml</exclude>
@@ -239,6 +240,7 @@
 		<include>fssobs-ingest.xml</include>
 		<include>fssobs-common.xml</include>
 		<include>ldadmesonet-common.xml</include>
+		<include>hydrodualpol-ingest.xml</include>
 		<include>manualIngest-common.xml</include>
 		<include>dataaccess-common.xml</include>
 		<exclude>nctext-common.xml</exclude>

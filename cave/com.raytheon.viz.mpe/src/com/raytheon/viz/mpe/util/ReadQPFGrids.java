@@ -64,6 +64,8 @@ public class ReadQPFGrids {
 
     public int read_qpf_grids(int num, String dbuf) {
 
+    	System.out.println("ReadQPFGrids.read_qpf_grids(): num = " + num);
+    	
         int i, j;
         hrap_grid = DailyQcUtils.getHrap_grid();
         String kbuf = "";

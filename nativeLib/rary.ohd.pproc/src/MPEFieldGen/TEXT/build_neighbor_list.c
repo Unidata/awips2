@@ -23,12 +23,7 @@ void allocNeighborList(const geo_data_struct * pGeoData) ;
 void  MPEFieldGen_buildNeighborList (const geo_data_struct * pGeoData ,
                          mpe_params_struct * pMPEParams,
                          const int gageSize, short * iug,  short * ivg, float * zg )
-{
-	if(pMPEParams->build_neighbor_list == 1)
-		return ;
-
-	pMPEParams->build_neighbor_list = 1 ;
-    
+{   
     const int rowSize = pGeoData->num_rows;
     const int colSize = pGeoData->num_cols;
 
@@ -49,6 +44,20 @@ void  MPEFieldGen_buildNeighborList (const geo_data_struct * pGeoData ,
     double flat, flon, rmesh;
     double mid_hrap ;
     int indx;
+
+    if ((pMPEParams->polarizationType == SinglePol) && (pMPEParams->build_neighbor_list_SP == 1)) return;
+
+    if((pMPEParams->polarizationType == DualPol) && (pMPEParams->build_neighbor_list_DP == 1)) return;
+
+    if (pMPEParams->polarizationType == SinglePol) 
+    { 
+            pMPEParams->build_neighbor_list_SP = 1;
+    }
+
+    if (pMPEParams->polarizationType == DualPol) 
+    { 
+            pMPEParams->build_neighbor_list_DP = 1;
+    }
 
     getCurrentTime(currTime) ;
     sprintf( message , "%s = time begin building neighbor list." , 
