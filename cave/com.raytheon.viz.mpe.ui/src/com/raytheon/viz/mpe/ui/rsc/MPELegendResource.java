@@ -73,6 +73,7 @@ import com.raytheon.viz.mpe.MPEInterrogationConstants;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.MPEDisplayManager.AvailableRadarGridType;
 import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
@@ -286,10 +287,14 @@ public class MPELegendResource extends
                         null);
                 int offset = 0;
                 RGB textColor = new RGB(255, 255, 255);
+                RGB productTypeTextColor = new RGB(0, 0, 0);
                 DrawableString strings = new DrawableString("", textColor);
                 strings.font = font;
-                if (displayMgr.getDisplayFieldType().equals(
-                        DisplayFieldData.Index)) {
+                
+                // Radar Coverage Map's type is called "Index"
+               
+                if (displayMgr.getDisplayFieldType().equals(DisplayFieldData.Index))
+                {
                     offset = (int) (rsc.getCapability(ColorMapCapability.class)
                             .getColorMapParameters().getLabels().get(1)
                             .getLocation()
@@ -297,15 +302,24 @@ public class MPELegendResource extends
                 }
 
                 int i = 0;
-                for (LabelEntry entry : rsc
-                        .getCapability(ColorMapCapability.class)
-                        .getColorMapParameters().getLabels()) {
+                
+                
+                List<LabelEntry>  labelEntryList = rsc.getCapability(ColorMapCapability.class)
+                        .getColorMapParameters().getLabels();
+                
+                
+                for (LabelEntry entry :labelEntryList)
+                {
 
-                    if (entry.getText().length() > 10) {
+                    if (entry.getText().length() > 10)
+                    {
                         break;
-                    } else {
+                    } 
+                    else
+                    {
                         double cbarSize = (width / cm.getSize());
                         double xLoc = xMin + offset + (cbarSize * i);
+                    //    strings.setText(entry.getText(), textColor);
                         strings.setText(entry.getText(), textColor);
                         strings.horizontalAlignment = HorizontalAlignment.CENTER;
                         strings.verticallAlignment = VerticalAlignment.TOP;
@@ -315,12 +329,63 @@ public class MPELegendResource extends
                     i++;
                 }
 
+                //draw color bars
                 y1 += textSpace;
                 cmap.extent = new PixelExtent(xMin, xMin + width, y1, y1
                         + cmapHeight);
                 target.drawColorRamp(cmap);
-                y1 += cmapHeight;
+               
+                if (displayMgr.getDisplayFieldType().equals(DisplayFieldData.Index))
+                {
+                	//draw radar product type indicator (S,D, M) for Single Pol, Dual Pol, or Missing
+                	//this is drawn on top of the color bars
+                	AvailableRadarGridType availableRadarGridType = AvailableRadarGridType.MISSING;
+                	String typeString = null;
+                	
+                	int offsetRadarList = 2;
+                	for (int index = offsetRadarList; index < labelEntryList.size(); index++)
+                	{
+                		LabelEntry entry = labelEntryList.get(index);
+                		String radarId = entry.getText();
 
+                		if (radarId != "")
+                		{
+                			availableRadarGridType = displayMgr.getAvailableRadarType(radarId);
+
+                			if (availableRadarGridType.equals(AvailableRadarGridType.SINGLE_AND_DUAL_POL))
+                			{
+                				typeString = "SD";
+                			}
+                			else if (availableRadarGridType.equals(AvailableRadarGridType.DUAL_POL))
+                			{
+                				typeString = "D";
+                			}
+                			else if (availableRadarGridType.equals(AvailableRadarGridType.SINGLE_POL))
+                			{
+                				typeString = "S";
+                			}
+                			else //missing
+                			{
+                				typeString = "M";
+                			}
+
+                			//System.out.println("radarid = " + radarId + "   type = " + typeString);
+
+                			double cbarSize = (width / cm.getSize());
+                			int offsetForTypeString = offset + (int)(2*cbarSize);
+                			double xLoc = xMin + offsetForTypeString + (cbarSize * (index - 2));
+                			strings.setText(typeString, productTypeTextColor);
+                			strings.horizontalAlignment = HorizontalAlignment.CENTER;
+                			strings.verticallAlignment = VerticalAlignment.TOP;
+                			strings.setCoordinates(xLoc, y1);
+                			target.drawStrings(strings);
+                		}
+                	}
+
+                }
+                
+                y1 += cmapHeight;
+                
                 int accum = 0;
                 if (rsc instanceof MPEFieldResource) {
                     // IMPEResource.getAccumulationInterval()?
@@ -329,11 +394,11 @@ public class MPELegendResource extends
                 }
 
                 String dateStr = legendFormat.format(paintProps.getFramesInfo()
-                        .getTimeForResource(rsc).getRefTime())
-                        + "z";
+                        .getTimeForResource(rsc).getRefTime()) + "Z";
+                
                 if (accum > 0) {
                     String qpeString = String.format(
-                            "%d hr Accumulated %s For %s Ending %sz (in)",
+                            "%d hr Accumulated %s For %s Ending %s (in)",
                             accum, rsc.getName(), rfc, dateStr);
 
                     double xLoc = xMin + padding;
@@ -838,7 +903,7 @@ public class MPELegendResource extends
                             DataTime date = frameInfo.getTimeForResource(rsc);
                             String time = " No Data Available";
                             if (date != null) {
-                                time = " - " + date.getLegendString() + "z";
+                                time = " - " + date.getLegendString();
                             }
                             legend.label += time;
                         }
