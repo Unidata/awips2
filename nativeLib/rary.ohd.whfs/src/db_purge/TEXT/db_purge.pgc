@@ -13,7 +13,6 @@
 #include "GeneralUtil.h"
 #include "LoadUnique.h"
 #include "time_convert.h"
-#include "interval.h"
 #include "dt.h"
 #include "pgtypes_interval.h"
 #include "pgtypes_timestamp.h"
@@ -83,7 +82,7 @@ int db_purge_main(int argc, const char ** argv) {
 
 	char tabname[20], timecol[20], strhr[20], strday[13];
 	char where_clause[80], where_clause_host[60], where_clause_backup[60];
-	char delete_stmt[120], strdelt_host[22], strdelt_backup[22];
+      char delete_stmt[120], strdelt_host[32] , strdelt_backup[32];  
 	char * pDate = NULL;
 	int num_lid, numhr_host, numhr_backup;
 	timestamp dtcurrent, dtcur, delete_time_host, delete_time_backup;
@@ -111,7 +110,7 @@ int db_purge_main(int argc, const char ** argv) {
 	/*-------------------------------------------*/
 
 	FORMAT_TIME ( ibegt , dttm2 );
-	printf("IHFS Database Purge  AWIPS OB8.1  March 26, 2007\n");
+	printf("IHFS Database Purge Changed for AWIPS II OB14.3.1  April 18, 2014\n");
 	printf("\nbegin time = %s GMT\n", dttm2);
 
 	/*-----------------------------------*/
@@ -150,8 +149,7 @@ int db_purge_main(int argc, const char ** argv) {
 
 	if (strcmp(cback, "ON") == 0 || strcmp(cback, "on") == 0) {
 		backup_use = 1;
-		printf(
-				"Using num_hours_backup field to determine retention for backup stations\n");
+		printf("Using num_hours_backup field to determine retention for backup stations\n");
 
 		if (get_admin_hsa(admin_hsa) == 0)
 			printf("hsa (from Admin table) = %s\n", admin_hsa);
@@ -161,8 +159,7 @@ int db_purge_main(int argc, const char ** argv) {
 			printf("All deletes will be based on num_hours_host values\n");
 		}
 	} else
-		printf(
-				"Using num_hours_host field to determine retention for all records\n");
+		printf("Using num_hours_host field to determine retention for all records\n");
 
 	/*------------------------------------------------------------------------------*/
 	/*   declare and open purgedyn_cursor for select of PurgeDynData records        */
@@ -196,15 +193,12 @@ int db_purge_main(int argc, const char ** argv) {
 
 		printf("\n number\n");
 		printf(" deleted  table name          time column   time cutoff\n");
-		printf(
-				"---------------------------------------------------------------\n");
+		printf("---------------------------------------------------------------\n");
 
 	} else {
 		printf("\n number\n");
-		printf(
-				" deleted  table name          time column   time cutoff (host)   time cutoff (backup)\n");
-		printf(
-				"-------------------------------------------------------------------------------------\n");
+	   printf(" deleted  table name          time column   time cutoff (host)   time cutoff (backup)\n");
+		printf("-------------------------------------------------------------------------------------\n");
 	}
 	fflush(NULL);
 
@@ -397,6 +391,14 @@ int db_purge_main(int argc, const char ** argv) {
 
 			lower_trim(tabname);
 			delete_files(tabname, strdelt_host);
+
+       /*-------------------------------------------------------------------*/
+       /*   delete files associated with records from the DAARadar table    */
+       /*   record contains the filename                                    */
+       /*-------------------------------------------------------------------*/
+
+             lower_trim(tabname);
+             delete_daa_files(tabname, strdelt_host);
 
 			/*------------------------------------------------------------------------*/
 			/*   determine if table has lid column                                    */

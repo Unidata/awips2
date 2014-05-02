@@ -12,9 +12,23 @@ import ohd.hseb.util.AppsDefaults;
 
 /**
  * 
- * @author lawrence
  * 
- * Represents an MPE Product.
+ * /**
+ * Class to handle MPE Product information, including product generation dependencies, for MPE. 
+ * <p>
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * May 2013 DCS 167    C. Gobs    Initial Creation
+ * 
+ * </pre>
+ * 
+ * 
+ * @author Chip Gobs
+ */
+
  * 
  */
 public class MPEProductDescriptor implements Comparable<MPEProductDescriptor>
