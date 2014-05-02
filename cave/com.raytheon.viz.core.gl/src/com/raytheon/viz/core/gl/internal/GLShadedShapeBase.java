@@ -41,7 +41,6 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.IShape;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.Activator;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
@@ -61,6 +60,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Apr 25, 2013 1954       bsteffen    Speed up creation of      
  *                                     GLColormapShadedShapes.
  * Apr 15, 2014 2956       njensen     Safety check of buffers before glMultiDrawArray
+ * May 01, 2014 2956       njensen     Removed unsafe glMultiDrawArrays()
  * 
  * 
  * </pre>
@@ -318,8 +318,7 @@ public class GLShadedShapeBase implements IShape {
     }
 
     protected synchronized void paint(GL gl,
-            boolean cardSupportsHighEndFeatures, float brightness)
-            throws VizException {
+            boolean cardSupportsHighEndFeatures, float brightness) {
         if (!polygons.isEmpty()) {
             compile();
         }
@@ -357,23 +356,9 @@ public class GLShadedShapeBase implements IShape {
         } else {
             contourLengthBuffer.rewind();
             contourStartBuffer.rewind();
-            if (cardSupportsHighEndFeatures) {
-                if (contourStartBuffer.capacity() > 0
-                        && contourLengthBuffer.capacity() > 0) {
-                    gl.glMultiDrawArrays(GL.GL_POLYGON, contourStartBuffer,
-                            contourLengthBuffer, contourLengthBuffer.capacity());
-                } else {
-                    throw new VizException(
-                            "Dangerous parameters passed to glMultiDrawArrays: contourStartBufferCapacity="
-                                    + contourStartBuffer.capacity()
-                                    + ", contourLengthBufferCapacity="
-                                    + contourLengthBuffer.capacity());
-                }
-            } else {
-                while (contourLengthBuffer.hasRemaining()) {
-                    gl.glDrawArrays(GL.GL_POLYGON, contourStartBuffer.get(),
-                            contourLengthBuffer.get());
-                }
+            while (contourLengthBuffer.hasRemaining()) {
+                gl.glDrawArrays(GL.GL_POLYGON, contourStartBuffer.get(),
+                        contourLengthBuffer.get());
             }
         }
 
