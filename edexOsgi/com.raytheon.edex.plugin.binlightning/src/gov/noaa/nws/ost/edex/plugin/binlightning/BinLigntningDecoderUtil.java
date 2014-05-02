@@ -43,7 +43,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20130503        DCS 112 Wufeng Zhou To handle both the new encrypted data and legacy bit-shifted data
- * 
+ * 20140501	               Wufeng Zhou Fix the encrypted decoding with correct offset	
  * </pre>
  * 
  * @author Wufeng Zhou
@@ -143,7 +143,8 @@ public class BinLigntningDecoderUtil {
 			ByteBuffer buffer = ByteBuffer.allocate(dataLen);
 			buffer.order(ByteOrder.LITTLE_ENDIAN);
 	
-			// put the data into ByteBuffer			
+			// put the data into ByteBuffer
+			offset = i * BINLIGHTNING_RECORD_SIZE;
 			buffer.put(data, offset + 2, dataLen);
 
 			// Reset buffer position to read in data we just stored.
