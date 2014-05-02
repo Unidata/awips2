@@ -104,7 +104,7 @@ MPEFieldGen_date_string ()
    }
 
    sz = strftime (mystr, 100, "%Y%m\%d%H", mpe_run_time);
-}
+} /* end MPEFieldGen_date_string */
 
 
 
@@ -143,7 +143,7 @@ MPEFieldGen_readstagei (double **AvgMosaic)
 	 counter++;
       }
    }
-}
+} /* end MPEFieldGen_readstagei */
 
 
 
@@ -223,7 +223,7 @@ MPEFieldGen_readgages (const gage_table_struct * ptrGageTablePtr)
 
    MPEFieldGen_cleanupgages ();
    return 1;
-}
+} /* end MPEFieldGen_readgages */
 
 
 /***************************************************************************************/
@@ -251,7 +251,7 @@ MPEFieldGen_write_p3_xmrg (double **P3Mosaic, double **QPEMosaic)
    int len;
    double temp2;
    char filename[150], pdir[150];
-   //extern int replace_missing;
+/*   extern int replace_missing;*/
    long int irc;
    const int replace_missing = 0;
 
@@ -275,7 +275,7 @@ MPEFieldGen_write_p3_xmrg (double **P3Mosaic, double **QPEMosaic)
    MPEFieldGen_writeArray (MPEFieldGen_pGeoData_p3, pdir, filename, FACTOR_PRECIP, replace_missing,
 	       MPEFieldGen_pMPEParams_p3->user, MPEFieldGen_pRunDate_p3->tRunTime, PROC_FLAG,
 	       P3Mosaic, &irc);
-}
+} /* MPEFieldGen_write_p3_xmrg */
 
 
 /***********************************************************************
@@ -324,7 +324,7 @@ MPEFieldGen_write_gage_triangles ()
       sprintf (message, "error opening file %s but continuing..\n", filename);
       printMessage (message, logFile);
    }
-}
+} /* MPEFieldGen_write_gage_triangles */
 
 
 void
@@ -376,11 +376,6 @@ MPEFieldGen_cleanupgages ()
       }
    }
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEFieldGen/RCS/work.c,v $";
- static char rcs_id2[] = "$Id: work.c,v 1.1 2007/10/15 12:19:17 dsa Exp $";}
-/*  ===================================================  */
-
-}
+} /* end MPEFieldGen_cleanupgages */
 
 /*********************************************************************************/

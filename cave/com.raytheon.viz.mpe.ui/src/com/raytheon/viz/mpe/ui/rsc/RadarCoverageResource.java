@@ -282,8 +282,8 @@ public class RadarCoverageResource extends
             for (int i = 0; i < 131; i++) {
                 for (int j = 0; j < 131; j++) {
                     float f = -9999;
-                    if (data[i][j] != -9999) {
-                        f = (float) Math.floor(cvt.convert(data[i][j]));
+                    if (data[130-i][j] != -9999) {
+                        f = (float) Math.floor(cvt.convert(data[130-i][j]));
                     }
 
                     int dx = i - 66;
@@ -403,7 +403,8 @@ public class RadarCoverageResource extends
         string.verticallAlignment = VerticalAlignment.TOP;
         target.drawStrings(string);
 
-        if (missingData) {
+        if (missingData)
+        {
             string.setText(MISSING_DATA, textColor);
             string.setCoordinates(screenExtent.getMinX() + 350,
                     screenExtent.getMinY() + 550);

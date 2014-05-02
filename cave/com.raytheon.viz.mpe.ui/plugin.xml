@@ -199,6 +199,28 @@
             </command>
             <command
                   commandId="com.raytheon.viz.mpe.ui.actions.setDisplayField"
+                  label="DP Local Span"
+                  mnemonic="L">
+               <parameter
+                     name="Field"
+                     value="LocspanDP">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.setDisplayField"
+                  label="DP Local Bias"
+                  mnemonic="L">
+               <parameter
+                     name="Field"
+                     value="LocbiasDP">
+               </parameter>
+            </command>
+             <separator
+                  name="separator6"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.setDisplayField"
                   label="Height Field"
                   mnemonic="H">
                <parameter
@@ -215,6 +237,42 @@
                      value="Index">
                </parameter>
             </command>
+             <separator
+                  name="separator4"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.setDisplayField"
+                  label="Precip Difference Field"
+                  mnemonic="L">
+               <parameter
+                     name="Field"
+                     value="precipDifferenceField">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.setDisplayField"
+                  label="Precip Ratio Field"
+                  mnemonic="L">
+               <parameter
+                     name="Field"
+                     value="precipRatioField">
+               </parameter>
+            </command>
+              <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.selectComparisonFields"
+                  label="Select Comparison Fields"
+                  mnemonic="C">
+            </command>
+             <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.reverseComparisonFields"
+                  label="Reverse Comparison Fields"
+                  mnemonic="R">
+            </command>
+             <separator
+                  name="separator5"
+                  visible="true">
+            </separator>
             <dynamic
          		class="com.raytheon.viz.mpe.ui.BaseFieldsPopulator"
          		id="com.raytheon.viz.mpe.ui.baseFieldsPopulator">
@@ -897,6 +955,17 @@
             id="com.raytheon.viz.mpe.ui.actions.fullScreen"
             name="Full Screen">
       </command>
+      
+      <command
+            id="com.raytheon.viz.mpe.ui.actions.selectComparisonFields"
+            name="Select Comparison Fields">
+      </command>
+      
+      
+      <command
+            id="com.raytheon.viz.mpe.ui.actions.reverseComparisonFields"
+            name="Reverse Comparison Fields">
+      </command>
       <command
             id="com.raytheon.viz.mpe.ui.actions.setDisplayField"
             name="Set Display Field">
@@ -1198,6 +1267,29 @@
                </reference>
             </activeWhen>
       </handler>
+      
+      <handler
+            class="com.raytheon.viz.mpe.ui.actions.SelectComparisonFields"
+            commandId="com.raytheon.viz.mpe.ui.actions.selectComparisonFields">
+            <activeWhen>
+            
+               <reference
+                     definitionId="com.raytheon.viz.inMPEActionSet">
+               </reference>
+            </activeWhen>
+      </handler>
+      
+        <handler
+            class="com.raytheon.viz.mpe.ui.actions.ReverseComparisonFields"
+            commandId="com.raytheon.viz.mpe.ui.actions.reverseComparisonFields">
+            <activeWhen>
+            
+               <reference
+                     definitionId="com.raytheon.viz.inMPEActionSet">
+               </reference>
+            </activeWhen>
+      </handler>
+      
       <handler
             class="com.raytheon.viz.mpe.ui.actions.SetDisplayField"
             commandId="com.raytheon.viz.mpe.ui.actions.setDisplayField">
@@ -1558,6 +1650,21 @@
              name="MPEPolygonResource"
              renderingOrderId="PLOT">
        </resource>
+        <resource
+             class="com.raytheon.viz.mpe.ui.rsc.PAAsciiXmrgResource"
+             name="MA_PRECIP"
+             renderingOrderId="IMAGE_REGION"
+             resourceType="PLAN_VIEW">
+       </resource>
+            <resource
+             class="com.raytheon.viz.mpe.ui.rsc.PAXmrgResource"
+             name="MA_PRECIP"
+             renderingOrderId="IMAGE_REGION"
+             resourceType="PLAN_VIEW">
+       </resource>
+       
+       PAAsciiXmrgResource
+       
     </extension>
     <extension
           point="org.eclipse.ui.perspectiveExtensions">

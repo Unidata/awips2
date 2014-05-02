@@ -48,8 +48,9 @@
 * ARGUMENTS:
 *
 *   TYPE   DATA TYPE  NAME       DESCRIPTION/UNITS
+* 
 *   Input  char *     filename   Full pathname (without "00.multi") of the netCDF file containing
-*
+*                                the SPE CONUS grid   
 *   Input  int *      xor        The originating national grid column of the
 *                                site's MPE forecast grid.
 *   Input  int *      yor        The originating national grid row of the
@@ -337,8 +338,8 @@ void ReadSPE ( const char * filename , const int * xor , const int * yor ,
 
 
 /*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEUtil/RCS/ReadSPE.c,v $";
- static char rcs_id2[] = "$Id: ReadSPE.c,v 1.3 2008/01/11 20:08:34 lawrence Exp $";}
+{static char rcs_id1[] = "$Source: /fs/hseb/ob92/ohd/pproc_lib/src/MPEUtil/RCS/ReadSPE.c,v $";
+ static char rcs_id2[] = "$Id: ReadSPE.c,v 1.5 2009/07/27 17:03:15 pst Exp $";}
 /*  ===================================================  */
 
 }
