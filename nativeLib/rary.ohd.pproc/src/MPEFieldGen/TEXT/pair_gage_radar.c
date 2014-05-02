@@ -132,13 +132,15 @@ void MPEFieldGen_pairGageRadar(const radarLoc_record_struct * pRadarLocRecord,
     if(pair_num > 0)
     {
         sprintf ( message , "*** gage-radar pairs ***"
-            "\n\tGageID\tgage value\tradar value");
+            "\n\tGageID\tHRAPx\tHRAPy\tgage value\tradar value");
         printMessage(message, logFile);
 
         for(i = 0 ; i < pair_num ; i++)
         {
-            sprintf ( message , "\t%s\t%10.2f\t %10.2f", 
+            sprintf ( message , "\t%s\t%d\t%d\t%10.2f\t %10.2f", 
                 pGageRadarPairTable->ptrGageRadarPair[i].lid, 
+                pGageRadarPairTable->ptrGageRadarPair[i].hrap_x, 
+                pGageRadarPairTable->ptrGageRadarPair[i].hrap_y, 
                 pGageRadarPairTable->ptrGageRadarPair[i].gageValue, 
                 pGageRadarPairTable->ptrGageRadarPair[i].radarValue ) ;
             printMessage(message, logFile);        
