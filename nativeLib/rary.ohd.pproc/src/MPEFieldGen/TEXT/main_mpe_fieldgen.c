@@ -29,35 +29,52 @@ char * MPEFieldGen_Mosaics[num_mosaics] = {"rmosaic", "avgrmosaic", "maxrmosaic"
                                "mmosaic", "mlmosaic", "satpre", "lsatpre", "p3lmosaic",
                                "srmosaic", "sgmosaic", "srgmosaic",
                                "qmosaic", "lqmosaic", "mlqmosaic",
+                               "rdmosaic", "avgrdmosaic", "maxrdmosaic",
+                               "bdmosaic", "ldmosaic", "mdmosaic", "mldmosaic",
+                               "srdmosaic", "srdgmosaic", 
                                "rfcmosaic", "rfcbmosaic", "rfcmmosaic"};
 
 double ** MPEFieldGen_BaseRMosaic = NULL;
+double ** MPEFieldGen_BaseRDMosaic = NULL;
+
 
 double ** MPEFieldGen_RMosaic = NULL ;
+double ** MPEFieldGen_RDMosaic = NULL ;
+
+double ** MPEFieldGen_QMosaic = NULL ;
 
 double ** MPEFieldGen_BMosaic = NULL ;
-
-double ** QMosaic = NULL ;
+double ** MPEFieldGen_BDMosaic = NULL ;
 
 // Added by Bryon L on 5/16/2007.
 //
 double ** RfcBMosaic = NULL;
 
 double ** MPEFieldGen_LMosaic = NULL ;
+double ** MPEFieldGen_LDMosaic = NULL ;
 
-double ** LQMosaic = NULL ;
+
+double ** MPEFieldGen_LQMosaic = NULL ;
 
 double ** SRMosaic = NULL ;
+double ** SRDMosaic = NULL ;
 
 // Added by Ram for the average and max mosaic calculation
 // ------------
 // structure to hold the max mosaic values throughout the program run
 double  ** MPEFieldGen_MaxMosaic = NULL;
+double  ** MPEFieldGen_MaxRDMosaic = NULL;
+
+
 // structure to hold the average mosaic values
 double  ** MPEFieldGen_AvgMosaic = NULL;
+double  ** MPEFieldGen_AvgRDMosaic = NULL;
+
 // structure to hold the number of radars contributed to a hrap grid bin
 // this will be used to calculate the average mosaic.
 int     ** MPEFieldGen_AvgMosaicNumRadars = NULL;
+int     ** MPEFieldGen_AvgRDMosaicNumRadars = NULL;
+
 // -----------
 // variable for the p3 lmosaic calculation
 double  ** MPEFieldGen_P3Mosaic = NULL;
@@ -67,6 +84,7 @@ int MPEFieldGen_p3_return_value = -1;
 
 
 int ** MPEFieldGen_ID = NULL ;
+int ** MPEFieldGen_IDDP = NULL ;
 int ** Q2ID = NULL ;
 
 /*This two dimensional array hold the "best estimate" mosaic*/
@@ -100,6 +118,7 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
     enum DisplayFieldData radar_display_type = display_rMosaic;
     mosaicType indexMosaic;
     mosaicType indexBaseRadar = rmosaic;
+    mosaicType indexBaseRadarDP = rdmosaic;
 
     int i, j, status;
     int blnMosaic[num_mosaics];
@@ -108,21 +127,25 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
     static char strTempTime[50] ;
     long irc;
     int flag , mosaicLength ;
-    int radar_processed;
+    int radar_processed, radardp_processed;
     int mpe_base_radar_len = BESTFIELD_LEN;
     int overwrite_flag;
     int verbose = VERBOSE ;
     static char mpe_base_radar_mosaic [ BESTFIELD_LEN ] = {'\0'};
+    static char mpe_base_radardp_mosaic [ BESTFIELD_LEN ] = {'\0'};
     struct tm * pRunTime = NULL ;
     char datetime[ANSI_YEARSEC_TIME_LEN + 1] ;
     int ioverwrt = 1 ; /* 0 = overwrite best xmrg; 1 = don't overwrite */
 
     short iug[GAGE_NUMBER], ivg[GAGE_NUMBER];
     float zg[GAGE_NUMBER];
-    int gageSize;
+    short iugd[GAGE_NUMBER], ivgd[GAGE_NUMBER];
+    float zgd[GAGE_NUMBER];
+    int gageSize, gageSizeDP; 
     int gageSizeP3;
 
     static int readradartri_error;
+
     int ret = 1;
 
     int var = 0;
@@ -144,44 +167,57 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
     init_timer(&perflog_table_timer);
     start_timer(&perflog_table_timer);
 
+
     for(i = 0; i < GAGE_NUMBER; i ++)
     {
         iug[i] = 0 ;
         ivg[i] = 0 ;
          zg[i] = 0.0 ;
+     
+    /* Added by PaulT */
+        iugd[i] = 0 ;
+        ivgd[i] = 0 ;
+         zgd[i] = 0.0 ;
     }
+
 
     time(&start_time);
 
     /********************************************************************
      * allocates memory for global struct data and initialization.
      **/
+
+
     constructor() ;
 
     /***************************************************
      * Verify the argument list
      * and parse the values into variable ptrRunDate.
      **/
+
+
     parseArgs(num_args, args, ptrRunDate) ;
 
     /************************
      * open the log file.
      **/
+
+
     mpe_fg_openLogFile(ptrRunDate->tRunTime, ptrRunDate->hourNum);
 
     time(&tmpTime);
+
     strftime(strTempTime, 50, "%Y-%m-%d %X %Z", gmtime(&tmpTime));
     sprintf ( message , "\t\tMPE Precip Processing -- %s\n", strTempTime) ;
     printMessage( message, logFile );
 
-    sprintf ( message , "\t\tLast Modification: September 19, 2013 \n") ;
-    printMessage( message, logFile );
-    sprintf ( message , "\t\t \n") ;
+    sprintf ( message , "\t\tVersion ob9e -- May 01, 2012 (dual-pol)\n\n") ;
     printMessage( message, logFile );
 
     sprintf( message , "STATUS: Processing %d hour(s)\n",
              ptrRunDate->hourNum) ;
     printMessage( message, logFile );
+
 
     /*******************************************************
      * retrieve the value of the base radar product.
@@ -234,6 +270,58 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
               mpe_base_radar_mosaic );
     printMessage ( message, logFile );
 
+    /*******************************************************
+     * retrieve the value of the base radar product for rdmosaic.
+     **/
+    mpe_base_radar_len = BESTFIELD_LEN;
+    get_mpe_base_radardp ( &verbose, mpe_base_radardp_mosaic, 
+                         &mpe_base_radar_len, &status );
+
+    if ( status != 0 )
+    {
+       sprintf ( message, "Error occurred when retrieving base radardp "
+                          "mosaic.\n\tProgram Exit." );
+       shutDownMPE ( message, logFile );
+    }
+   
+    status = strcmp ( mpe_base_radardp_mosaic, "RDMOSAIC" );
+
+    if ( status == 0 )
+    {
+       indexBaseRadarDP = rdmosaic;
+       radar_display_type = display_rdMosaic;
+    }
+    else
+    {
+       status = strcmp ( mpe_base_radardp_mosaic, "AVGRDMOSAIC" ); 
+
+       if ( status == 0 )
+       {
+          indexBaseRadarDP = avgrdmosaic;
+          radar_display_type = display_avgrdMosaic;
+       }
+       else
+       {
+         status = strcmp ( mpe_base_radardp_mosaic, "MAXRDMOSAIC" );
+ 
+         if ( status == 0 )
+         {
+            indexBaseRadarDP = maxrdmosaic;
+            radar_display_type = display_maxrdMosaic;
+         }
+         else
+         {
+               sprintf ( message, "Error: Unrecognized base radardp mosaic %s.\n"
+                                  "\tProgram Exit.", mpe_base_radardp_mosaic );
+               shutDownMPE ( message, logFile );
+          }
+       }
+    }
+
+    sprintf ( message, "STATUS:  Using %s as the base radardp mosaic...",
+              mpe_base_radardp_mosaic );
+    printMessage ( message, logFile );
+
     /********************************************************
      * read status for qpe generate types.
      * and flag indicates if need calculate mean field bias.
@@ -242,6 +330,7 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
     printMessage( message, logFile );
 
     ptrMPEParams->blnMeanFieldBias = 0;
+    ptrMPEParams->blnMeanFieldBiasDP = 0;
 
     for( indexMosaic = rmosaic; indexMosaic < num_mosaics; indexMosaic++)
     {
@@ -279,6 +368,10 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
              && blnMosaic[indexMosaic] == 1)
             ptrMPEParams->blnMeanFieldBias = 1;
 
+        if((indexMosaic == bdmosaic)
+             && blnMosaic[indexMosaic] == 1)
+            ptrMPEParams->blnMeanFieldBiasDP = 1;
+
         /***************************************
          * check if the prism data needs to be read in.
          * when mmosiac or mlmosaic or gageonly is ON
@@ -286,6 +379,7 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
         if((indexMosaic == mmosaic ||
             indexMosaic == mlmosaic ||
             indexMosaic == mlqmosaic ||
+            indexMosaic == mdmosaic ||
             indexMosaic == gaugeonly )
              && blnMosaic[indexMosaic] == 1)
             blnGetPrism = 1;
@@ -313,7 +407,7 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
        printMessage ( message, logFile );
     }
 
-    /*********************************************************
+     /*********************************************************
      * allocate memory and Initialize the struct data
      * which are determined by the geographic grid data.
      **/
@@ -351,7 +445,10 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
 
     /************************************************************
      * read in gage data for entire area and whole time range.
+     * print list of all gages available in this hour
+     * remove multiple gages in the same HRAP bin (after print of list)
      **/
+
 
     MPEFieldGen_readGageData(ptrRunDate, ptrMPEParams, ptrGeoData,
         ptrGageTable, ptrGageTableP3, ptrQCGageTable);
@@ -361,7 +458,6 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
      * store in radarloc struct variable
      **/
     MPEFieldGen_readRadarLoc(ptrRadarLocTable) ;
-
     /*********************************************************
      * allocate memory and Initialize the struct data
      * which are determined by the radarLoc number.
@@ -378,17 +474,27 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
     for( i=0; i < ptrRunDate->hourNum; i++)
     {
         radar_processed = 0;
+        radardp_processed = 0;
         ptrMPEParams->sat_avail = 0;
-		ptrMPEParams->build_neighbor_list = 0 ;
+	     ptrMPEParams->build_neighbor_list_SP = 0 ;
+	     ptrMPEParams->build_neighbor_list_DP = 0 ;
 
 		gageSize = ptrGageTable[i]->totalGageNum ;
+	   gageSizeDP = gageSize ;
 		gageSizeP3 = ptrGageTableP3[i]->totalGageNum ;
+
     	for(j = 0; j < gageSize; j ++)
     	{
         	iug[j] = ptrGageTable[i]->ptrGageRecords[j].hrap_x ;
         	ivg[j] = ptrGageTable[i]->ptrGageRecords[j].hrap_y ;
         	 zg[j] = ptrGageTable[i]->ptrGageRecords[j].gageValue ;
+
+         /* Added by PaulT */
+        	iugd[j] = ptrGageTable[i]->ptrGageRecords[j].hrap_x ;
+        	ivgd[j] = ptrGageTable[i]->ptrGageRecords[j].hrap_y ;
+        	 zgd[j] = ptrGageTable[i]->ptrGageRecords[j].gageValue ;
     	}
+
 
         pRunTime = gmtime(&(ptrRunDate->tRunTime));
 
@@ -400,10 +506,9 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
          **/
         if(blnGetPrism == 1)
         {
-
             MPEFieldGen_get_climate(ptrMPEParams->os , ptrGeoData->num_rows,
                 ptrGeoData->num_cols, pRunTime->tm_mon, MPEFieldGen_umeang) ;
-        }
+       }
 
         /**
         * for this hour, check the autosave flag in the rwresult table.
@@ -419,6 +524,7 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
 	/********************************************************************
          * run mosaic functions based on mosaic status value.
          **/
+
         for( indexMosaic = rmosaic; indexMosaic < num_mosaics; indexMosaic++)
         {
             if(blnMosaic[indexMosaic] == 0)
@@ -428,9 +534,12 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
             {
                 case avgrmosaic:
                 case maxrmosaic:
+                case avgrdmosaic:
+                case maxrdmosaic:
                 case rmosaic :
                     if ( radar_processed == 0 )
                     {
+
                         MPEFieldGen_runRMosaic(ptrRunDate,
                                    ptrGeoData,
                                    ptrMPEParams,
@@ -443,6 +552,7 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                                    MPEFieldGen_RMosaic,
                                    MPEFieldGen_QPEMosaic,
                                    blnMosaic) ;
+
                         /**
                           * Assign the base radar mosaic.  This radar mosaic
                           * will be used as the base for all of the radar
@@ -477,8 +587,14 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                           * time will delete bad values
                           **/
                 		if( ptrMPEParams->del_gage_zeros == 1 )
+                		{
+
                     		MPEFieldGen_deleteZeros( &gageSize, iug, ivg, zg,
                                              MPEFieldGen_BaseRMosaic) ;
+
+                		}
+
+
                     }
 
                     radar_processed = 1;
@@ -522,23 +638,28 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                     break;
 
                 case gaugeonly :
-                     MPEFieldGen_runGageonly(ptrRunDate,
+
+	                  ptrMPEParams->polarizationType = SinglePol ;
+	                  MPEFieldGen_runGageonly(ptrRunDate,
                                  ptrGeoData,
                                  ptrMPEParams,
                                  gageSize, iug, ivg, zg,
                                  MPEFieldGen_umeang,
                                  MPEFieldGen_QPEMosaic) ;
+
                     break ;
 
                 case qmosaic :
                      runQMosaic ( ptrRunDate,
                                   ptrGeoData,
                                   ptrMPEParams,
-                                  QMosaic,
+                                  MPEFieldGen_QMosaic,
                                   MPEFieldGen_QPEMosaic) ;
                      break;
 
                 case bmosaic :
+
+
                     runBMosaic(ptrRunDate,
                                ptrGeoData,
                                ptrMPEParams,
@@ -547,31 +668,49 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                                MPEFieldGen_BaseRMosaic,
                                MPEFieldGen_BMosaic,
                                MPEFieldGen_QPEMosaic) ;
+
                    break ;
 
                 case lmosaic :
-                    MPEFieldGen_runLMosaic( ptrRunDate,
+
+	                 ptrMPEParams->polarizationType = SinglePol ;
+	                 MPEFieldGen_runLMosaic( ptrRunDate,
                                 ptrGeoData,
                                 ptrMPEParams,
                                 gageSize, iug, ivg, zg,
                                 MPEFieldGen_BaseRMosaic,
                                 MPEFieldGen_LMosaic,
                                 MPEFieldGen_QPEMosaic) ;
+
+
                     break ;
 
+                case ldmosaic :
+	                 ptrMPEParams->polarizationType = SinglePol ;
+                    runLDMosaic( ptrRunDate, 
+                                ptrGeoData, 
+                                ptrMPEParams,
+                                gageSizeDP, iugd, ivgd, zgd,
+                                MPEFieldGen_BaseRDMosaic, 
+                                MPEFieldGen_LDMosaic, 
+                                MPEFieldGen_QPEMosaic) ;
+                    break ;
 
                 case lqmosaic :
+	                ptrMPEParams->polarizationType = SinglePol ;
                    runLQMosaic( ptrRunDate,
                                 ptrGeoData,
                                 ptrMPEParams,
                                 gageSize, iug, ivg, zg,
-                                QMosaic,
-                                LQMosaic,
+                                MPEFieldGen_QMosaic,
+                                MPEFieldGen_LQMosaic,
                                 MPEFieldGen_QPEMosaic) ;
                     break ;
 
                 case mmosaic :
-                    MPEFieldGen_runMMosaic(ptrRunDate,
+
+	                 ptrMPEParams->polarizationType = SinglePol ;
+	                 MPEFieldGen_runMMosaic(ptrRunDate,
                                ptrGeoData,
                                ptrMPEParams,
                                gageSize, iug, ivg, zg,
@@ -580,10 +719,12 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                                MPEFieldGen_BMosaic ,
                                MPEFieldGen_umeang ,
                                MPEFieldGen_QPEMosaic) ;
-                    break ;
+
+                   break ;
 
                 case mlmosaic :
-                    MPEFieldGen_runMLMosaic( ptrRunDate,
+	                 ptrMPEParams->polarizationType = SinglePol ;
+	                 MPEFieldGen_runMLMosaic( ptrRunDate,
                                  ptrGeoData,
                                  ptrMPEParams,
                                  gageSize, iug, ivg, zg,
@@ -594,14 +735,28 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                                  MPEFieldGen_QPEMosaic) ;
                     break ;
 
+                case mldmosaic :
+	                 ptrMPEParams->polarizationType = DualPol ;
+                    runMLDMosaic( ptrRunDate, 
+                                 ptrGeoData, 
+                                 ptrMPEParams,
+                                 gageSizeDP, iugd, ivgd, zgd,
+                                 MPEFieldGen_ID,
+                                 MPEFieldGen_BaseRDMosaic ,
+                                 MPEFieldGen_LDMosaic ,
+                                 MPEFieldGen_umeang ,
+                                 MPEFieldGen_QPEMosaic) ;
+                    break ;
+
                 case mlqmosaic :
+	                 ptrMPEParams->polarizationType = SinglePol ;
                     runMLQMosaic( ptrRunDate,
                                   ptrGeoData,
                                   ptrMPEParams,
                                   gageSize, iug, ivg, zg,
                                   Q2ID,
-                                  QMosaic ,
-                                  LQMosaic ,
+                                  MPEFieldGen_QMosaic ,
+                                  MPEFieldGen_LQMosaic ,
                                   MPEFieldGen_umeang ,
                                   MPEFieldGen_QPEMosaic) ;
 
@@ -621,7 +776,8 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                      break;
 
                 case lsatpre :
-                     MPEFieldGen_runLSatpre ( ptrRunDate,
+	                  ptrMPEParams->polarizationType = SinglePol ;
+                     runLSatpre ( ptrRunDate,
                                   ptrGeoData,
                                   ptrMPEParams,
                                   gageSize, iug, ivg, zg,
@@ -641,6 +797,8 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                     break ;
 
                 case sgmosaic :
+                    /* call to deleteZero function (if requested) uses single pol radar */
+	                 ptrMPEParams->polarizationType = SinglePol ;
                     runSGMosaic( ptrRunDate,
                                  ptrGeoData,
                                  ptrMPEParams,
@@ -651,12 +809,118 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                     break ;
 
                 case srgmosaic :
+	                 ptrMPEParams->polarizationType = SinglePol ;
                     runSRGMosaic( ptrRunDate,
                                   ptrGeoData,
                                   ptrMPEParams,
                                   gageSize, iug, ivg, zg,
                                   MPEFieldGen_umeang ,
                                   MPEFieldGen_QPEMosaic) ;
+                    break ;
+
+                case srdmosaic :
+                    runSRDMosaic( ptrRunDate,
+                                 ptrGeoData,
+                                 ptrMPEParams,
+                                 MPEFieldGen_IDDP,
+                                 MPEFieldGen_LSatpre,
+                                 MPEFieldGen_LDMosaic,
+                                 MPEFieldGen_QPEMosaic) ;
+                    break ;
+
+
+                case srdgmosaic :
+	            ptrMPEParams->polarizationType = DualPol ;
+
+                    runSRDGMosaic( ptrRunDate,
+                                  ptrGeoData,
+                                  ptrMPEParams,
+                                  gageSizeDP, iugd, ivgd, zgd,
+                                  MPEFieldGen_umeang ,
+                                  MPEFieldGen_QPEMosaic) ;
+                    break ;
+
+                case rdmosaic :
+                    if ( radardp_processed == 0 )
+                    {
+
+                    	runRDMosaic(ptrRunDate,
+                                   ptrGeoData, 
+                                   ptrMPEParams,
+                                   ptrRadarLocTable, 
+                                   ptrGageTable[i], 
+                                   ptrGageTableP3[i], 
+                                   ptrQCGageTable[i],
+                                   MPEFieldGen_meanFieldBias,
+                                   MPEFieldGen_IDDP,
+                                   MPEFieldGen_RDMosaic,
+                                   MPEFieldGen_QPEMosaic,
+                                   blnMosaic) ;
+
+                    	/**
+                          * Assign the base radar mosaic.  This radar mosaic
+                          * will be used as the base for all of the radar
+                          * derived DP MPE products.
+                          **/
+                        switch ( indexBaseRadarDP )
+                        {
+                           case rdmosaic:
+                        	  MPEFieldGen_BaseRDMosaic = MPEFieldGen_RDMosaic;
+                              break;
+
+                           case avgrdmosaic:
+                        	  MPEFieldGen_BaseRDMosaic = MPEFieldGen_AvgRDMosaic;
+                              break;
+
+                           case maxrdmosaic:
+                        	  MPEFieldGen_BaseRDMosaic = MPEFieldGen_MaxRDMosaic;
+                              break;
+
+                           default:
+                              sprintf ( message, "Error: Unrecognized base "
+                                                 "radar dp mosaic index.\n\t"
+                                                 "Program Exit." );
+                              shutDownMPE ( message, logFile );
+                              break;
+                        }
+                        
+                        /**      
+                          * delete zero gage values where radar says that 
+                          * it is raining note that this will delete good 
+                          * gage values in ap and virga but most of the 
+                          * time will delete bad values
+                          **/
+                		if( ptrMPEParams->del_gage_zeros == 1 )
+                    		deleteZeros( &gageSizeDP, iugd, ivgd, zgd, 
+                    				MPEFieldGen_BaseRDMosaic) ;
+                    }
+
+                    radardp_processed = 1;  
+                    break ;
+                case bdmosaic :
+
+                	runBDMosaic(ptrRunDate,
+                               ptrGeoData, 
+                               ptrMPEParams,
+                               MPEFieldGen_meanFieldBias,
+                               MPEFieldGen_IDDP,
+                               MPEFieldGen_BaseRDMosaic,
+                               MPEFieldGen_BDMosaic,
+                               MPEFieldGen_QPEMosaic) ;
+
+                   break ;
+
+                case mdmosaic :
+	                 ptrMPEParams->polarizationType = DualPol ;
+                    runMDMosaic(ptrRunDate, 
+                               ptrGeoData, 
+                               ptrMPEParams,
+                               gageSizeDP, iugd, ivgd, zgd,
+                               MPEFieldGen_IDDP,
+                               MPEFieldGen_BaseRDMosaic ,
+                               MPEFieldGen_BDMosaic ,
+                               MPEFieldGen_umeang ,
+                               MPEFieldGen_QPEMosaic) ;
                     break ;
 
                 case rfcmosaic :
@@ -685,7 +949,9 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                     break;
 
                 case rfcmmosaic :
+	                 ptrMPEParams->polarizationType = SinglePol ;
 
+                    /* note: BMOSAIC generated outside of this local MPE - may not jibe with iug,ivg,zg gage list */
                     runRfcMMosaic ( ptrRunDate,
                                     ptrGeoData,
                                     ptrMPEParams,
@@ -703,9 +969,11 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                 default:
                     sprintf ( message , "ERROR: Unknown mosaic type!");
                     printMessage( message, logFile );
-            }
-        }
+                    break;
 
+            } /* end switch-case */
+
+        } /* end for indexMosaic loop */
 
         /*************************************
          * Write out the "best estimate" data.
@@ -760,7 +1028,8 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
          * Modify the run time to one hour great than the current run time.
          **/
         ptrRunDate->tRunTime += SECONDS_PER_HOUR;
-    }
+
+    } /* end for run hour loop */
 
     MPEFieldGen_free_tr();
 
@@ -789,14 +1058,8 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
        CloseDbms();
     }
 
-//stop_timer_and_print_elapsed_time ( & timer1, "Elapsed Time for mpe_fieldgen", stdout );
+    //stop_timer_and_print_elapsed_time ( & timer1, "Elapsed Time for mpe_fieldgen", stdout );
 
     return;
 
-
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEFieldGen/RCS/main_mpe_fieldgen.c,v $";
- static char rcs_id2[] = "$Id: main_mpe_fieldgen.c,v 1.7 2008/03/25 13:23:30 lawrence Exp $";}
-/*  ===================================================  */
-
-}
+} /* end main_mpe_fieldgen_for_calls_from_editor */

@@ -8,6 +8,7 @@
 #define HPE_RFC_BIAS_LAG 2    // default number of bias lag hours
 
 RadarLoc * pRadarLocHead = NULL ;
+extern int dualpol_on_flag;
 
 void retrieveOfficeIDByRadarID(const char * radarID,
                                char * officeID,
@@ -35,6 +36,7 @@ void readRWBiasDyn(const char *radar_id,
                    double *bias, 
                    int *lag,
                    char datetime1[19],
+		           int  dualpol_data_avail,
                    long int *irc)
 
 {
@@ -121,12 +123,54 @@ void readRWBiasDyn(const char *radar_id,
 
     if(strcmp(bias_source, "local") == 0)
     {
-        sprintf ( message , "STATUS: loading bias value based on FXA_LOCAL_SITE.") ;
+        sprintf ( message , "STATUS: in readRWBiasDyn,loading bias value based on FXA_LOCAL_SITE.") ;
         hpe_fieldgen_printMessage( message );
     	
-        read_rwbiasdyn2(radar_id, site_id, datehour, 
-                 lag_cut, num_pairs, sumgag,
-                 sumrad, bias, lag, datetime1, irc) ;
+        if (dualpol_on_flag == 0)
+        {
+  	        read_rwbiasdyn2(radar_id, site_id, datehour, 
+                           lag_cut, num_pairs, sumgag,
+                           sumrad, bias, lag, datetime1, irc) ;
+  
+            sprintf (message, " STATUS:in readRWBiasDyn, dualpol_on_flag is NO, loading bias value from RWBiasDyn table.");
+            hpe_fieldgen_printMessage( message ); 
+         }
+        else
+	    { 
+	        sprintf (message, "STATUS: in readRWBiasDyn, dualpol_on_flag is YES, loading bias value from DAABiasDyn table");
+            hpe_fieldgen_printMessage( message ); 
+	    			   
+	        read_daabiasdyn(radar_id, site_id, datehour, 
+                            lag_cut, num_pairs, sumgag,
+                            sumrad, bias, lag, datetime1, irc) ;
+	        if (*irc != 0)	 
+            { 
+               read_rwbiasdyn2(radar_id, site_id, datehour, 
+                               lag_cut, num_pairs, sumgag,
+                               sumrad, bias, lag, datetime1, irc) ;
+			       
+               sprintf(message, "STATUS: in readRWBiasDyn, dualpol_on_flag is YES. Fail to load bias value from DAABiasDyn table. Try RWBiasDyn table");
+               hpe_fieldgen_printMessage( message );			                     
+            }
+            else
+            {
+	           if (dualpol_data_avail == 0)
+	           {
+	               read_rwbiasdyn2(radar_id, site_id, datehour, 
+                               lag_cut, num_pairs, sumgag,
+                               sumrad, bias, lag, datetime1, irc) ;
+			       
+		           sprintf( message, "STATUS: in readRWBiasDyn, bias value is found in DAABiasDyn table.But dualpol raw data is not available. "
+		                    "Try RWBiasDyn table.");
+                  hpe_fieldgen_printMessage( message );	       
+	            }
+	            else
+	            {
+	               sprintf( message, "STATUS: in readRWBiasDyn, bias value is found in DAABiasDyn table. Dualpol raw data is available.");
+                   hpe_fieldgen_printMessage( message );
+	            }
+            } 
+        }			   
     }
     else
     {
@@ -162,22 +206,103 @@ void readRWBiasDyn(const char *radar_id,
 	                            " %s and lag time: %d",
 	                            officeID, rfc_bias_lag) ;
 	        hpe_fieldgen_printMessage( message );
-	    	
-            read_rwbiasdyn2(radar_id, officeID, datehour, 
-                     rfc_bias_lag, num_pairs, sumgag,
-                     sumrad, bias, lag, datetime1, irc) ;
-
+	   
+	    if (dualpol_on_flag == 0)
+	    {
+	        read_rwbiasdyn2(radar_id, officeID, datehour, 
+                                rfc_bias_lag, num_pairs, sumgag,
+                                sumrad, bias, lag, datetime1, irc) ;
+                sprintf (message, "STATUS: in readRWBiasDyn, dualpol_on_flag is NO, loading bias value from RWBiasDyn table.");
+                hpe_fieldgen_printMessage( message ); 				
+				
+            }				
+            else
+	        {			        
+	            sprintf (message, "STATUS: in readRWBiasDyn, dualpol_on_flag is YES, loading bias value from DAABiasDyn table");
+                hpe_fieldgen_printMessage( message );
+	
+		        read_daabiasdyn(radar_id, officeID, datehour, 
+                                rfc_bias_lag, num_pairs, sumgag,
+                                sumrad, bias, lag, datetime1, irc) ;
+	   
+	            if (*irc != 0)	
+		        {		
+                   read_rwbiasdyn2(radar_id, officeID, datehour, 
+                                   rfc_bias_lag, num_pairs, sumgag,
+                                   sumrad, bias, lag, datetime1, irc) ;
+		           sprintf(message, "STATUS: in readRWBiasDyn, Fail to load bias value from DAABiasDyn table. Try RWBiasDyn table");
+                   hpe_fieldgen_printMessage( message );		   
+                }
+		        else
+		        {
+                   if (dualpol_data_avail == 0)
+		           {
+		                read_rwbiasdyn2(radar_id, officeID, datehour, 
+                                   rfc_bias_lag, num_pairs, sumgag,
+                                   sumrad, bias, lag, datetime1, irc) ;
+		                sprintf( message, "STATUS: in readRWBiasDyn, bias value is found in DAABiasDyn table.But dualpol data is not available. "
+		                        "Try RWBiasDyn table.");
+                        hpe_fieldgen_printMessage( message );	
+		           }
+		           else
+		           {
+		              sprintf( message, "STATUS: in readRWBiasDyn, bias value is found in DAABiasDyn table. Dualpol data is available.");
+                      hpe_fieldgen_printMessage( message );
+		           }
+		        }				   
+            }
         }
         else
         {
-	        sprintf ( message , "STATUS: loading bias value based on"
-	                            " %s and lag time: %d",
-	                            officeID, lag_cut) ;
+	        sprintf ( message , "STATUS: in readRWBiasDyn, loading bias value based on"
+	                        " %s and lag time: %d",
+	                        officeID, lag_cut) ;
 	        hpe_fieldgen_printMessage( message );
-	    	
-            read_rwbiasdyn2(radar_id, officeID, datehour, 
-                     lag_cut, num_pairs, sumgag,
-                     sumrad, bias, lag, datetime1, irc) ;
+		
+	        if (dualpol_on_flag == 0)
+	        {
+	           read_rwbiasdyn2(radar_id, officeID, datehour, 
+                               lag_cut, num_pairs, sumgag,
+                               sumrad, bias, lag, datetime1, irc) ;
+	           sprintf (message, "STATUS: in readRWBiasDyn, dualpol_on_flag is NO. Loading bias value from RWBiasDyn table.");
+               hpe_fieldgen_printMessage( message ); 		       
+            }			       
+            else
+	        { 				
+               sprintf (message, "STATUS: in readRWBiasDyn, dualpol_on_flag is YES. Loading bias value from DAABiasDyn table");
+               hpe_fieldgen_printMessage( message ); 
+	       
+	           read_daabiasdyn(radar_id, officeID, datehour, 
+                               lag_cut, num_pairs, sumgag,
+                               sumrad, bias, lag, datetime1, irc) ;
+	           if (*irc != 0)
+	           {
+	              sprintf(message, "STATUS: in readRWBiasDyn, faild to load bias value from DAABiasDyn table. Try RWBiasDyn table.");
+                  hpe_fieldgen_printMessage( message );
+		  
+		          read_rwbiasdyn2(radar_id, officeID, datehour, 
+                                  lag_cut, num_pairs, sumgag,
+                                  sumrad, bias, lag, datetime1, irc) ;	
+				                   				  			                    				                    				 
+               }
+	           else
+	           {
+	              if (dualpol_data_avail == 0)
+		          {
+		              read_rwbiasdyn2(radar_id, officeID, datehour, 
+                                     rfc_bias_lag, num_pairs, sumgag,
+                                     sumrad, bias, lag, datetime1, irc) ;
+		              sprintf( message, "STATUS: in readRWBiasDyn, bias value is found in DAABiasDyn table.But dualpol data is not available. "
+		                       "Try RWBiasDyn table.");
+                      hpe_fieldgen_printMessage( message );	
+		          }
+		          else
+		          {
+	                 sprintf(message, "STATUS: in readRWBiasDyn, bias value is found in DAABiasDyn table. Dualpol data is available.");
+                     hpe_fieldgen_printMessage( message );
+		          }
+	           }				     
+            }				
 
         }
 
@@ -192,16 +317,56 @@ void readRWBiasDyn(const char *radar_id,
 
             if(strcmp(officeID, site_id) != 0)
             {
-		        sprintf ( message , "STATUS: Record not found in"
-		                            " RWBiasDyn table based on %s."
-		                            " try to pick up the bias value"
-		                            " based on the %s",
-		                            officeID, site_id) ;
+		        sprintf ( message , "STATUS: in readRWBiasDyn,Record not found in"
+		                    " RWBiasDyn table based on %s."
+		                    " try to pick up the bias value"
+		                    " based on the %s",
+		                    officeID, site_id) ;
 		        hpe_fieldgen_printMessage( message );
-		    	
-                read_rwbiasdyn2(radar_id, site_id, datehour, 
-                         lag_cut, num_pairs, sumgag, 
-                         sumrad, bias, lag, datetime1, irc) ;
+		
+		        if (dualpol_on_flag == 0)
+		        {
+		            read_rwbiasdyn2(radar_id, site_id, datehour, 
+                                   lag_cut, num_pairs, sumgag, 
+                                   sumrad, bias, lag, datetime1, irc) ;
+                    sprintf (message, "STATUS: in readRWBiasDyn, dualpol_on_flag is NO. Loading bias value from RWBiasDyn table.");
+                    hpe_fieldgen_printMessage( message ); 				   
+                }
+		        else
+		        {
+		            sprintf (message, "STATUS: in readRWBiasDyn, dualpol_on_flag is YES. Loading bias value from DAABiasDyn table.");
+                    hpe_fieldgen_printMessage( message ); 	
+		   			    
+		            read_daabiasdyn(radar_id, site_id, datehour, 
+                                   lag_cut, num_pairs, sumgag, 
+                                   sumrad, bias, lag, datetime1, irc) ;    	
+		            if (*irc != 0)	
+                    {
+		               sprintf(message, "STATUS: in readRWBiasDyn, faild to find bias value in DAABiasDyn table. Try RWBiasDyn table.");
+                       hpe_fieldgen_printMessage( message );
+		               read_rwbiasdyn2(radar_id, site_id, datehour, 
+                                      lag_cut, num_pairs, sumgag, 
+                                      sumrad, bias, lag, datetime1, irc) ;                      				      				      
+                    }
+		            else
+		            {
+		               if (dualpol_data_avail == 0)
+		               {
+	        	           read_rwbiasdyn2(radar_id, site_id, datehour, 
+                        	      lag_cut, num_pairs, sumgag,
+                        	      sumrad, bias, lag, datetime1, irc) ;
+
+			               sprintf( message, "STATUS: in readRWBiasDyn, bias value is found in DAABiasDyn table.But dualpol data is not available. "
+		                	      "Try RWBiasDyn table.");
+                	       hpe_fieldgen_printMessage( message );	       
+		               }
+		               else
+		               {
+		                   sprintf(message, "STATUS: in readRWBiasDyn, bias value is found in DAABiasDyn table. Dualpol data is available.s");
+                           hpe_fieldgen_printMessage( message );
+		               }	 
+		            } 				      
+                }				    
             }
         }
     }

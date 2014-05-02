@@ -93,6 +93,20 @@ public class GageTableDataManager {
     private short[][] mMosaic = null;
 
     private short[][] mlMosaic = null;
+    
+    // Dual Pol Fields
+    
+    private short[][] rdMosaic = null;
+    private short[][] avgrdMosaic = null;
+    private short[][] maxrdMosaic = null;
+    private short[][] bdMosaic = null;
+    private short[][] ldMosaic = null;
+    private short[][] mdMosaic = null;
+    private short[][] mldMosaic = null;
+    private short[][] srdMosaic = null;
+    private short[][] srdgMosaic = null;
+    
+    //
 
     private short[][] p3Mosaic = null;
 
@@ -476,6 +490,113 @@ public class GageTableDataManager {
                 mMosaic = file.getData(extent);
             }
             return mMosaic;
+            
+            
+            //---------------------------------------
+            // Dual Pol Fields
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_RDMOSAIC)) {
+            if ((rdMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                rdMosaic = file.getData(extent);
+            }
+            return rdMosaic;
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_BDMOSAIC)) {
+            if ((bdMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                bdMosaic = file.getData(extent);
+            }
+            return bdMosaic;
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_LDMOSAIC)) {
+            if ((ldMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                ldMosaic = file.getData(extent);
+            }
+            return ldMosaic;
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_MDMOSAIC)) {
+            if ((mdMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                mdMosaic = file.getData(extent);
+            }
+            return mdMosaic;
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_MLDMOSAIC)) {
+            if ((mldMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                mldMosaic = file.getData(extent);
+            }
+            return mldMosaic;
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_AVGRDMOSAIC)) {
+            if ((avgrdMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                avgrdMosaic = file.getData(extent);
+            }
+            return avgrdMosaic;
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_MAXRDMOSAIC)) {
+            if ((maxrdMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                maxrdMosaic = file.getData(extent);
+            }
+            return maxrdMosaic;
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_SRDMOSAIC)) {
+            if ((srdMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                srdMosaic = file.getData(extent);
+            }
+            return srdMosaic;
+            
+        } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_SRDGMOSAIC)) {
+            if ((srdgMosaic == null) || !currentDate.equals(dataDate)) {
+                // Set the dataDate
+                dataDate = currentDate;
+
+                XmrgFile file = new XmrgFile(path);
+                file.load();
+                srdgMosaic = file.getData(extent);
+            }
+            return srdgMosaic;
+            
+            //------------------------------------------------------
+            
+            //
         } else if (type.equalsIgnoreCase(GageTableProductManager.MPE_P3LMOSAIC)) {
             if ((p3Mosaic == null) || !currentDate.equals(dataDate)) {
                 // Set the dataDate
@@ -689,6 +810,75 @@ public class GageTableDataManager {
                             GageTableProductManager.MPE_MMOSAIC,
                             getData(DisplayFieldData.mMosaic, gage,
                                     GageTableProductManager.MPE_MMOSAIC));
+                    
+                    //-------------------------------------------
+                    // Dual Pol Fields
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_RDMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_RDMOSAIC,
+                            getData(DisplayFieldData.rdMosaic, gage,
+                                    GageTableProductManager.MPE_RDMOSAIC));
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_BDMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_BDMOSAIC,
+                            getData(DisplayFieldData.bdMosaic, gage,
+                                    GageTableProductManager.MPE_BDMOSAIC));
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_LDMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_LDMOSAIC,
+                            getData(DisplayFieldData.ldMosaic, gage,
+                                    GageTableProductManager.MPE_LDMOSAIC));
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_MDMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_MDMOSAIC,
+                            getData(DisplayFieldData.mdMosaic, gage,
+                                    GageTableProductManager.MPE_MDMOSAIC));
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_MLDMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_MLDMOSAIC,
+                            getData(DisplayFieldData.mldMosaic, gage,
+                                    GageTableProductManager.MPE_MLDMOSAIC));
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_AVGRDMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_AVGRDMOSAIC,
+                            getData(DisplayFieldData.avgrdMosaic, gage,
+                                    GageTableProductManager.MPE_AVGRDMOSAIC));
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_MAXRDMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_MAXRDMOSAIC,
+                            getData(DisplayFieldData.maxrdMosaic, gage,
+                                    GageTableProductManager.MPE_MAXRDMOSAIC));
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_SRDMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_SRDMOSAIC,
+                            getData(DisplayFieldData.srdMosaic, gage,
+                                    GageTableProductManager.MPE_SRDMOSAIC));
+                    
+                } else if (col
+                        .equalsIgnoreCase(GageTableProductManager.MPE_SRDGMOSAIC)) {
+                    productValueMap.put(
+                            GageTableProductManager.MPE_SRDGMOSAIC,
+                            getData(DisplayFieldData.srdgMosaic, gage,
+                                    GageTableProductManager.MPE_SRDGMOSAIC));
+                    
+                    //-------------------------------------------
+                    
                 } else if (col
                         .equalsIgnoreCase(GageTableProductManager.MPE_P3LMOSAIC)) {
                     productValueMap.put(

@@ -47,7 +47,8 @@ double ** gag = NULL ;
 *
 * est      - [rowSize][colSize] array of estimated rainfall in mm
 *
-* errFlag  - error flag; 0 if OK, 1 if not
+* errFlag  - error flag; 0 if OK, 1 if setting multi-sensor field to radar based field
+*                        2 if error in multi-sensor field generation
 *
 * MODIFICATION HISTORY:
 *   DATE           PROGRAMMER        DESCRIPTION/REASON
@@ -111,7 +112,7 @@ void MPEFieldGen_multi_sensor(const geo_data_struct * pGeoData ,
     int nbrs_gag = pRWParams->num_near_gages ;
     int nbrs_rad = pRWParams->num_near_rad_bins ;
 
-    int i, j ;
+    int i, j, errFl = 0;
     short iur[nbrs_rad], ivr[nbrs_rad] ;
     short ilist_g[gageSize] ;
 
@@ -124,11 +125,10 @@ void MPEFieldGen_multi_sensor(const geo_data_struct * pGeoData ,
      * substituted for the multisensor field.
      **/
     if(gageSize < 1)
-
     {
         sprintf( message , "no gages available - "
             "setting multisensor field"
-            " to raw radar field.") ;
+            " to radar based field.") ;
         printMessage( message, logFile );
         *errFlag = 1 ;
 
@@ -192,9 +192,8 @@ void MPEFieldGen_multi_sensor(const geo_data_struct * pGeoData ,
     {
         sprintf( message , "undefined option for"
             " nearest neighbor search\n"
-            "no gages available - "
             "setting multisensor field"
-            " to raw radar field") ;
+            " to radar based field") ;
         printMessage( message, logFile );
 
         for(i = 0; i < rowSize; i ++)
@@ -445,12 +444,12 @@ void MPEFieldGen_multi_sensor(const geo_data_struct * pGeoData ,
             if(ndata[j][i] < 0)
             {
                 /**
-                 * this is an impossible event: substitute raw radar field
+                 * this is an impossible event: substitute radar based field
                  * for multisensor field and return
                  **/
                 sprintf( message , "ndata[%d][%d]: %d less than 0..."
                     "impossible\n no gages available "
-                    " - setting multisensor field to raw radar field.",
+                    " - setting multisensor field to radar based field.",
                      j, i, ndata[j][i]) ;
                 printMessage( message, logFile );
 
@@ -526,9 +525,17 @@ void MPEFieldGen_multi_sensor(const geo_data_struct * pGeoData ,
                             cor0pig, cor0ig, rngig, cor0pic, cor0ic, rngic,
                             cor0pir, cor0ir, rngir, cor0pcg, cor0cg, rngcg,
                             cor0pcc, cor0cc, rngcc, cor0pcr, cor0cr, rngcr,
-                            iug, ivg, zg, iur, ivr, zr, ilist_g, &tempEst);
+                            iug, ivg, zg, iur, ivr, zr, ilist_g, &tempEst, &errFl);
 
+                        if(errFl == 0)
+                        {
                         est[j][i] = tempEst ;
+                        }
+                        else
+                        {
+                           *errFlag = 2;
+                           return;
+                        }
                     }
                 }
             }
@@ -580,9 +587,17 @@ void MPEFieldGen_multi_sensor(const geo_data_struct * pGeoData ,
                                 cor0ic, rngic, cor0pir, cor0ir, rngir,
                                 cor0pcg, cor0cg, rngcg, cor0pcc, cor0cc,
                                 rngcc, cor0pcr, cor0cr, rngcr, iug, ivg, zg,
-                                iur, ivr, zr, ilist_g, &tempEst);
+                                iur, ivr, zr, ilist_g, &tempEst, &errFl);
 
+                            if(errFl == 0)
+                            {
                             est[j][i] = tempEst ;
+                            }
+                            else
+                            {
+                               *errFlag = 2;
+                               return;
+                            }
 
                         }
                     }
@@ -616,9 +631,17 @@ void MPEFieldGen_multi_sensor(const geo_data_struct * pGeoData ,
                             cor0ig, rngig,    cor0pic, cor0ic, rngic, cor0pir,
                             cor0ir, rngir, cor0pcg, cor0cg, rngcg, cor0pcc,
                             cor0cc,rngcc, cor0pcr, cor0cr, rngcr, iug, ivg,
-                            zg, iur, ivr, zr, ilist_g, &tempEst);
+                            zg, iur, ivr, zr, ilist_g, &tempEst, &errFl);
 
+                        if(errFl == 0)
+                        {
                         est[j][i] = tempEst ;
+                        }
+                        else
+                        {
+                           *errFlag = 2;
+                           return;
+                        }
                     }
                 }
             }
@@ -711,7 +734,8 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
             const double cor0cr, const double rngcr,
             short * iug, short * ivg, float * zg,
             short * iur, short * ivr, float * zr,
-            short * ilist_g, double * est)
+            short * ilist_g, double * est,
+            int   * errFlag)
 {
     const int ndim = nbrs_g + nbrs_r + 1;
     double *b = NULL;
@@ -721,7 +745,7 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
     double **covi = NULL;
 
     int ictr, jctr ;
-    int ii, errFlag ;
+    int ii, errFl;
     double var = 1.0 ;
     /**
      * allocate memory
@@ -732,7 +756,8 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
         sprintf ( message , "ERROR: memory allocation failure"
             " in ms_soe function."
             "\n\tProgram exit.") ;
-        shutDownMPE( message, logFile );
+        *errFlag = 1;         
+        return;         
     }
 
     bi = (double *)malloc(ndim * sizeof(double));
@@ -741,7 +766,8 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
         sprintf ( message , "ERROR: memory allocation failure"
             " in ms_soe function."
             "\n\tProgram exit.") ;
-        shutDownMPE( message, logFile );
+        *errFlag = 1;         
+        return;         
     }
 
     w = (double *)malloc(ndim * sizeof(double));
@@ -750,7 +776,8 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
         sprintf ( message , "ERROR: memory allocation failure"
             " in ms_soe function."
             "\n\tProgram exit.") ;
-        shutDownMPE( message, logFile );
+        *errFlag = 1;         
+        return;         
     }
 
     cov = (double **)malloc(ndim * sizeof(double *));
@@ -759,7 +786,8 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
         sprintf ( message , "ERROR: memory allocation failure"
             " in ms_soe function."
             "\n\tProgram exit.") ;
-        shutDownMPE( message, logFile );
+        *errFlag = 1;         
+        return;         
     }
     for(ii = 0; ii < ndim; ii++)
     {
@@ -769,7 +797,8 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
             sprintf ( message , "ERROR: memory allocation failure"
                 " in ms_soe function."
                 "\n\tProgram exit.") ;
-            shutDownMPE( message, logFile );
+            *errFlag = 1;         
+            return;         
         }
     }
 
@@ -779,7 +808,8 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
         sprintf ( message , "ERROR: memory allocation failure"
             " in ms_soe function."
             "\n\tProgram exit.") ;
-        shutDownMPE( message, logFile );
+        *errFlag = 1;         
+        return;         
     }
     for(ii = 0; ii < ndim; ii++)
     {
@@ -789,7 +819,8 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
             sprintf ( message , "ERROR: memory allocation failure"
                 " in ms_soe function."
                 "\n\tProgram exit.") ;
-            shutDownMPE( message, logFile );
+            *errFlag = 1;         
+            return;         
         }
     }
 
@@ -890,15 +921,16 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
     /**
     * solve linear system
     **/
-    MPEFieldGen_lsolve(nbrs_g + nbrs_r + 1, cov, b, &errFlag);
+    MPEFieldGen_lsolve(nbrs_g + nbrs_r + 1, cov, b, &errFl);
 
     /**
     * check error flag here
     **/
-    if(errFlag != 0)
+    if(errFl != 0)
     {
-        sprintf ( message , "in ms_soe...error in lsolve...stop");
-        shutDownMPE( message, logFile );
+        sprintf ( message , "in ms_soe...error in lsolve");
+        *errFlag = 1;
+        return;         
     }
 
     /**
@@ -971,8 +1003,9 @@ void MPEFieldGen_ms_soe(const int rowSize , const int colSize ,
     if(var < -0.0001)
     {
         sprintf ( message , "in ms_soe...negative estimation"
-            " variance:%f...stop", var);
-        shutDownMPE( message, logFile );
+            " variance:%f\n", var);
+        *errFlag = 1;
+        return;         
     }
 
     if(*est < 0.0) *est = 0.0 ;
@@ -1449,7 +1482,7 @@ void MPEFieldGen_cor_scale_r(const double rowSize , const double colSize ,
     *rngc = -1.0 / log(rhoc) ;
     *errFlag = 0 ;
     return ;
-}
+} /* end MPEFieldGen_cor_scale_r */
 
 
 
@@ -1571,7 +1604,7 @@ void allocMultiMemory(const geo_data_struct * pGeoData)
         }
     }
 
-}
+} /* end allocMultiMemory */
 
 void releaseMultiMemory(const geo_data_struct * pGeoData)
 {
@@ -1653,9 +1686,4 @@ void releaseMultiMemory(const geo_data_struct * pGeoData)
         nposi = NULL;
     }
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source$";
- static char rcs_id2[] = "$Id$";}
-/*  ===================================================  */
-
-}
+} /* end releaseMultiMemory */

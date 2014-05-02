@@ -125,9 +125,7 @@
 #
 #10/01/09    - Added 5 tokens for arcnav application.                          //only for arcnav for raxum application
 #10/03/12    - Added token section for script execution
-#02/12/2014  - Added token for default display to replace field in rwprefs table
-#02/18/14    - Added section for run_report_alarm service configuration.
-
+#04/10/14  - Added token for DuaPol radar productts processed in MPE, HPE/HPN
 
 # ==============================================================================
 # To see syntax rules for this file, see the bottom of this file
@@ -181,42 +179,6 @@ MpeRUCFreezingLevel                            : ON
 MpeLightningSrv                                : ON
 #====================================================================================
 
-#===================== run_report_alarm Configuration ===============================
-# These settings modify behavior of the EDEX RunReportAlarmSrv service, which 
-# replaced the original run_report_alarm script ported from A1 hydro.
-#
-## Mandatory Arguments:
-##   alarm_product_id  :  The product id that will be used to write the alarm
-##                        report product into the textdb. 
-##
-## Optional Arguments:
-##   alarm_file_suffix :  A Java date/time format string that will be used as
-##                        the alarm report's file extension when the product is
-##                        written to disk. Product file path is 
-##                        ${whfs_product_dir}/PRODUCT_ID.FILE_SUFFIX.
-##
-##   alarm_report_mode :  Report mode. Valid values are one of the following:
-##                        ALL, FRESH, RECENT, UNREPORTED, NEAREST, NEAR_NOW, 
-##                        LATEST_MAXFCST, or NEW_OR_INCREASED.
-##
-##   alarm_filter      :  Additional filtering options for the product.
-##                        Valid values can one or many of the following:
-##                        'O', 'F', 'T', 'M', 'R', 'L', 'U', 'D'.
-##
-##   alarm_pe_filter   :  Physical element filter.
-##
-##   alarm_minutes     :  For certain report modes, creates a window going back
-##                        or forward the specified number of minutes.
-##                        Valid values are 1 - 999999.
-##
-##   alarm_verbose     :  Whether or not to create a "verbose mode" report.
-##                        Valid values are TRUE or FALSE.
-##
-
-alarm_product_id       : CCCACRXXX
-alarm_file_suffix      : MMdd.HHmm
-alarm_report_mode      : NEAREST
-
 # ==============================================================================
 
 #  Executable directory tokens.
@@ -242,7 +204,7 @@ server_name        : ONLINE      # Informix database server name
 db_name            : hd_ob92lwx # IHFS database name
 damcat_db_name     : dc_ob5xxx   # Dam Catalog database name
 hdb_db_name        : ob81_histdata # Historical database. 
-pghost             : dx1f         # The machine PostGres is running on
+pghost             : localhost         # The machine PostGres is running on
 pguser             : awips      # The user allowed to access PostGres
 pgport             : 5432        # The PostGres Server port
 adb_name           : adb_ob7xxx  # RFC archive database name
@@ -973,7 +935,6 @@ mpe_map_width              :   1320
 mpe_zoom_out_limit         :   20
 mpe_disclosure_limit       :   60
 mpe_map_projection         :   FLAT
-mpe_def_display            :   MMOSAIC
 
 ### Misc tokens 
 mpe_load_hourlypc          :   ON
@@ -1011,7 +972,7 @@ mpe_del_gage_zeros     :  OFF     #  ON/OFF flog to determine if a zero gage
 mpe_selected_grid_gagediff : MMOSAIC
 
 mpe_qpe_fieldtype      :  MMOSAIC # field type to be saved as qpe
-mpe_generate_list      :  BMOSAIC,GAGEONLY,LMOSAIC,LSATPRE,MLMOSAIC,MMOSAIC,RMOSAIC,SATPRE,P3LMOSAIC,SRMOSAIC,SGMOSAIC,QMOSAIC,LQMOSAIC,MLQMOSAIC,RFCBMOSAIC,RFCMMOSAIC,RFCMOSAIC,SAVELEVEL2
+mpe_generate_list      :  BMOSAIC,GAGEONLY,LMOSAIC,LSATPRE,MLMOSAIC,MMOSAIC,RMOSAIC,SATPRE,SRMOSAIC,SGMOSAIC,QMOSAIC,LQMOSAIC,MLQMOSAIC,RDMOSAIC,BDMOSAIC,LDMOSAIC,MDMOSAIC,MLDMOSAIC,AVGRDMOSAIC,MAXRDMOSAIC,SRDMOSAIC,SRDGMOSAIC
 mpe_base_radar_mosaic  :  RMOSAIC # The base radar mosaic used for the fields
                                   # that mpe_fieldgen generates
 mpe_show_missing_gage  :  None    # MPE missing gage display.
@@ -1881,12 +1842,56 @@ dhm_d2d_data_dir           : /data/fxa/Grid/LOCAL/netCDF/DHM  # d2d data dir
 dhm_d2d_notify_bin_dir     : /awips/fxa/bin              # d2d notify bin dir
 rdhm_input_dir             :  $(geo_data)
 dhm_rain_plus_melt_data_dir:  $(geo_data)
+
+# ===========================DualPol Radar processing Token ========================
+# New Tokens for DPR/DSA product processing
+hpe_dualpol_on : yes
+dpr_grid_dir  :  $(pproc_local_data)/dpr_decoded
+dsa_grid_dir  :  $(pproc_local_data)/dsa_decoded
+
+# New tokens for DAA product processing
+daa_grid_dir    : $(pproc_local_data)/daa_decoded
+
+daa_archive         :  OFF            # ON/OFF flag for archiving daa products
+daa_arch_dir        : $(pproc_local_data)/daa_archive
+daa_archive_window  :   7             # number of minutes around top of hour
+                                      #  for filtering products for archiving
+
+daa_wind            :  5
+daa_decode_window   :  5
+daa_filter_decode   :  ON  # whether time window filtering is on or off
+
+daa_min_coverage_dur  :  60
+
+mpe_rdmosaic_dir    : $(mpe_fieldgen_product_dir)/rdmosaic
+mpe_bdmosaic_dir    : $(mpe_fieldgen_product_dir)/bdmosaic
+mpe_ldmosaic_dir    : $(mpe_fieldgen_product_dir)/ldmosaic
+
+mpe_mdmosaic_dir    : $(mpe_fieldgen_product_dir)/mdmosaic
+mpe_mldmosaic_dir    : $(mpe_fieldgen_product_dir)/mldmosaic
+
+mpe_avgrdmosaic_dir    : $(mpe_fieldgen_product_dir)/avgrdmosaic
+mpe_maxrdmosaic_dir    : $(mpe_fieldgen_product_dir)/maxrdmosaic
+
+mpe_srdmosaic_dir     : $(mpe_fieldgen_product_dir)/srdmosaic
+mpe_srdgmosaic_dir    : $(mpe_fieldgen_product_dir)/srdgmosaic
+
+mpe_statevardp_dir    : $(mpe_fieldgen_product_dir)/state_var_dp
+
+mpe_locbiasdp_dir    :  $(rfcwide_output_dir)/locbiasdp
+mpe_locspandp_dir    :  $(rfcwide_output_dir)/locspandp
+
+# Post Analysis tokens
+
+mpe_post_analysis    : OFF
+
+mpe_post_output      : $(mpe_fieldgen_product_dir)/post_analysis
+
+# Modify mpe_generate_list token for DAA processing
+# add ,RDMOSAIC,BDMOSAIC,LDMOSAIC,MDMOSAIC,MLDMOSAIC,AVGRDMOSAIC,MAXRDMOSAIC,SRDMOSAIC,SRDGMOSAIC to existing mpe_generate_list token
+
 # ================== end of SSHP Directory Structure tokens ========================
-# nrldb tokens
-nrldb_log     :  $(whfs_log_dir)/nrldb
-nrldb_data    :  $(whfs_local_data_dir)/nrldb
-nrldb_config  :  $(whfs_config_dir)/nrldb
-nrldb_tmp     :  /awips/hydroapps/whfs/local/data/output
+
 
 # The syntax needed in the file is:
 #

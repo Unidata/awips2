@@ -89,13 +89,18 @@ double * meanFieldBias = NULL ;
 
 extern void free_tr();
 
+/* dual pol product switch, default is "on" */
+
+int dualpol_on_flag = 1;
+int dualpol_used = 0;
+
 int hpe_fieldgen_main(int argc, const char ** argv)
 {
     enum DisplayFieldData radar_display_type = display_erMosaic;
     mosaicType indexMosaic;
     mosaicType indexBaseRadar = ermosaic;
 
-    int i, j, status;
+    int i, j, k, status;
     int blnMosaic[num_mosaics];
     int blnGetPrism = 0 ;
     time_t tmpTime, start_time, end_time;
@@ -109,6 +114,8 @@ int hpe_fieldgen_main(int argc, const char ** argv)
     char datetime[ANSI_YEARSEC_TIME_LEN + 1] = {'\0'} ;
     int blnOverwrite = 1 ; /* 0 = overwrite best xmrg; 1 = don't overwrite */
 
+    const char * HPE_DUALPOL_ON_TOKEN = "hpe_dualpol_on";
+    char dualpol_on[TOKEN_LEN] = {'\0'};
     short * iug = NULL;
     short * ivg = NULL;
     float * zg = NULL;
@@ -127,7 +134,15 @@ int hpe_fieldgen_main(int argc, const char ** argv)
     ptrGageTableP3 = NULL ;
     ptrQCGageTable = NULL ;
 
-    time(&start_time);
+    /* determin if dual pol product can be retrived */
+    
+    getAppsDefaults(HPE_DUALPOL_ON_TOKEN, dualpol_on);
+    if (strcmp(toLowerCase(dualpol_on), "yes") != 0 )
+      dualpol_on_flag = 0;
+    else
+      dualpol_on_flag = 1;  
+            
+    time(&start_time);    
 
     /*
      * allocates memory for global struct data and initialization.
@@ -152,7 +167,7 @@ int hpe_fieldgen_main(int argc, const char ** argv)
     strftime(strTempTime, 50, "%Y-%m-%d %X %Z", gmtime(&tmpTime));
     sprintf ( message , "\n\n\tHPE Precip Processing -- %s\n", strTempTime) ;
     printLogMessage(message);
-    sprintf ( message , "\t\tVersion OB11.7 -- Jun 01, 2011 \n") ;
+    sprintf ( message , "\t\tVersion OB14.3.1 -- March 08, 2014 \n") ;
     printMessage( message, logFile );
 
 /*
@@ -427,7 +442,7 @@ int hpe_fieldgen_main(int argc, const char ** argv)
                 "%Y-%m-%d %H:%M:00", pRunTime ) ;
 
         hpe_fieldgen_getCurrentTime(currTime) ;
-        sprintf( message , "\n%s = time begin MOSAIC calculation for: %s." ,
+        sprintf( message , "\n%s = time begin HPE fieldgen MOSAIC generation for: %s." ,
                         currTime, datetime) ;
         hpe_fieldgen_printMessage( message);
 
@@ -457,14 +472,17 @@ int hpe_fieldgen_main(int argc, const char ** argv)
          * if need compute ebmosaic and/or bdhrmosaic.
          */
 
-        if( (ptrEMPEParams->blnDHRMeanFieldBias == 1) ||
-            (ptrEMPEParams->blnMeanFieldBias == 1) )
+/*        if( (ptrEMPEParams->blnDHRMeanFieldBias == 1) ||
+            (ptrEMPEParams->blnMeanFieldBias == 1) )*/
+	
+	/*if (ptrEMPEParams->blnDHRMeanFieldBias == 1)    	    
         {
             readMeanBias(ptrRunDate,
                          ptrRadarLocTable,
                          ptrEMPEParams,
-                         meanFieldBias );
-        }
+                         meanFieldBias ); 
+			 	 
+        }*/
 
         /*
          * run mosaic functions based on mosaic status value.
@@ -492,9 +510,10 @@ int hpe_fieldgen_main(int argc, const char ** argv)
                                  ptrGeoData,
                                  ptrEMPEParams,
                                  ptrRadarLocTable,
-                                 RadarBeamHeight,
-                                 ID,
-                                 DHRMosaic,
+				                 meanFieldBias,
+                                 RadarBeamHeight, 
+                                 ID, 
+                                 DHRMosaic, 
                                  QPEMosaic) ;
                     break ;
 
@@ -801,7 +820,7 @@ int hpe_fieldgen_main(int argc, const char ** argv)
         }
 
         hpe_fieldgen_getCurrentTime(currTime) ;
-        sprintf( message , "%s = time end MOSAIC calculation for: %s.\n" ,
+        sprintf( message , "%s = time end HPE Fieldgen MOSAIC generation for: %s.\n" ,
                         currTime, datetime) ;
         hpe_fieldgen_printMessage( message);
 
