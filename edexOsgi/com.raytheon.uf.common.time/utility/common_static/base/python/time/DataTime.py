@@ -28,6 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/12/12                      njensen       Initial Creation.
+#    05/01/14        3095          bsteffen      Don't default fcstTime to 0 in init.
 #    
 # 
 #
@@ -38,7 +39,7 @@ from com.raytheon.uf.common.time import DataTime as JavaDataTime
 
 class DataTime(JUtil.JavaWrapperClass):
 
-    def __init__(self, dtime, fcstTime=0):
+    def __init__(self, dtime, fcstTime=None):
         if isinstance(dtime, AbsTime.AbsTime):
             self.__dt = JavaDataTime(dtime.toJavaObj())
         elif isinstance(dtime, str):
@@ -47,8 +48,8 @@ class DataTime(JUtil.JavaWrapperClass):
             # assuming Java object
             self.__dt = dtime                        
         # TODO add support for other possible types of dtime?
-        
-        self.__dt.setFcstTime(fcstTime)
+        if fcstTime is not None:
+            self.__dt.setFcstTime(fcstTime)
         
     def __eq__(self, other):
         return self.__dt.equals(other.toJavaObj())
