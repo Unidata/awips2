@@ -23,4 +23,6 @@ enum RadarIgnoreFlag { DontIgnoreRadar , IgnoreRadar } ;
 
 void read_rresult ( char * datetime ) ;
 
+void read_DAArresult ( char * datetime ) ;
+
 #endif /* #ifndef READ_RRESULT_H */

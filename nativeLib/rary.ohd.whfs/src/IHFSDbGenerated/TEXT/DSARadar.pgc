@@ -1,0 +1,1006 @@
+/*
+    File: DSARadar.pgc
+    Author  : CDBGEN
+    Created : Wed Dec 04 19:07:10 EST 2013 using database hd_ob9eempty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DSARadar.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DSARadar_t
+{
+    char		radid[4];
+    dtime_t		obstime;
+    short		volcovpat;
+    short		opermode;
+    float		maxval;
+    float		scale;
+    float		setoff;
+    dtime_t		begin_time;
+    dtime_t		end_time;
+    short		j_beg_date;
+    short		j_beg_time;
+    short		j_end_date;
+    short		j_end_time;
+    short		mean_field_bias;
+    short		nullproductflag;
+    char		grid_filename[21];
+
+    int		ind_volcovpat;
+    int		ind_opermode;
+    int		ind_maxval;
+    int		ind_scale;
+    int		ind_setoff;
+    int		ind_begin_time;
+    int		ind_end_time;
+    int		ind_j_beg_date;
+    int		ind_j_beg_time;
+    int		ind_j_end_date;
+    int		ind_j_end_time;
+    int		ind_mean_field_bias;
+    int		ind_nullproductflag;
+    int		ind_grid_filename;
+} DSARadar_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DSARadar * GetDSARadar(const char * where)
+{
+
+    DSARadar * listPtr = NULL;
+    DSARadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DSARadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+    :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale, 
+    :dbs.setoff:dbs.ind_setoff, :dbs.begin_time:dbs.ind_begin_time, 
+    :dbs.end_time:dbs.ind_end_time, :dbs.j_beg_date:dbs.ind_j_beg_date, 
+    :dbs.j_beg_time:dbs.ind_j_beg_time, :dbs.j_end_date:dbs.ind_j_end_date, 
+    :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+    :dbs.nullproductflag:dbs.ind_nullproductflag, :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDSARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DSARadar *) malloc(sizeof(DSARadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->volcovpat = dbs.volcovpat;
+            setNullIfIndicated(dbs.ind_volcovpat, SHORT, &structPtr->volcovpat);
+
+            structPtr->opermode = dbs.opermode;
+            setNullIfIndicated(dbs.ind_opermode, SHORT, &structPtr->opermode);
+
+            structPtr->maxval = dbs.maxval;
+            setNullIfIndicated(dbs.ind_maxval, FLOAT, &structPtr->maxval);
+
+            structPtr->scale = dbs.scale;
+            setNullIfIndicated(dbs.ind_scale, FLOAT, &structPtr->scale);
+
+            structPtr->setoff = dbs.setoff;
+            setNullIfIndicated(dbs.ind_setoff, FLOAT, &structPtr->setoff);
+
+            structPtr->begin_time = dbs.begin_time;
+            setNullIfIndicated(dbs.ind_begin_time, DATETIME, &structPtr->begin_time);
+
+            structPtr->end_time = dbs.end_time;
+            setNullIfIndicated(dbs.ind_end_time, DATETIME, &structPtr->end_time);
+
+            structPtr->j_beg_date = dbs.j_beg_date;
+            setNullIfIndicated(dbs.ind_j_beg_date, SHORT, &structPtr->j_beg_date);
+
+            structPtr->j_beg_time = dbs.j_beg_time;
+            setNullIfIndicated(dbs.ind_j_beg_time, SHORT, &structPtr->j_beg_time);
+
+            structPtr->j_end_date = dbs.j_end_date;
+            setNullIfIndicated(dbs.ind_j_end_date, SHORT, &structPtr->j_end_date);
+
+            structPtr->j_end_time = dbs.j_end_time;
+            setNullIfIndicated(dbs.ind_j_end_time, SHORT, &structPtr->j_end_time);
+
+            structPtr->mean_field_bias = dbs.mean_field_bias;
+            setNullIfIndicated(dbs.ind_mean_field_bias, SHORT, &structPtr->mean_field_bias);
+
+            structPtr->nullproductflag = dbs.nullproductflag;
+            setNullIfIndicated(dbs.ind_nullproductflag, SHORT, &structPtr->nullproductflag);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+        :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale, 
+        :dbs.setoff:dbs.ind_setoff, :dbs.begin_time:dbs.ind_begin_time, 
+        :dbs.end_time:dbs.ind_end_time, :dbs.j_beg_date:dbs.ind_j_beg_date, 
+        :dbs.j_beg_time:dbs.ind_j_beg_time, :dbs.j_end_date:dbs.ind_j_end_date, 
+        :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+        :dbs.nullproductflag:dbs.ind_nullproductflag, :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDSARadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DSARadar * SelectDSARadar(const char * where)
+{
+
+    DSARadar * listPtr = NULL;
+    DSARadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DSARadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+    :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale, 
+    :dbs.setoff:dbs.ind_setoff, :dbs.begin_time:dbs.ind_begin_time, 
+    :dbs.end_time:dbs.ind_end_time, :dbs.j_beg_date:dbs.ind_j_beg_date, 
+    :dbs.j_beg_time:dbs.ind_j_beg_time, :dbs.j_end_date:dbs.ind_j_end_date, 
+    :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+    :dbs.nullproductflag:dbs.ind_nullproductflag, :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDSARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DSARadar *) malloc(sizeof(DSARadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->volcovpat = dbs.volcovpat;
+            setNullIfIndicated(dbs.ind_volcovpat, SHORT, &structPtr->volcovpat);
+
+            structPtr->opermode = dbs.opermode;
+            setNullIfIndicated(dbs.ind_opermode, SHORT, &structPtr->opermode);
+
+            structPtr->maxval = dbs.maxval;
+            setNullIfIndicated(dbs.ind_maxval, FLOAT, &structPtr->maxval);
+
+            structPtr->scale = dbs.scale;
+            setNullIfIndicated(dbs.ind_scale, FLOAT, &structPtr->scale);
+
+            structPtr->setoff = dbs.setoff;
+            setNullIfIndicated(dbs.ind_setoff, FLOAT, &structPtr->setoff);
+
+            structPtr->begin_time = dbs.begin_time;
+            setNullIfIndicated(dbs.ind_begin_time, DATETIME, &structPtr->begin_time);
+
+            structPtr->end_time = dbs.end_time;
+            setNullIfIndicated(dbs.ind_end_time, DATETIME, &structPtr->end_time);
+
+            structPtr->j_beg_date = dbs.j_beg_date;
+            setNullIfIndicated(dbs.ind_j_beg_date, SHORT, &structPtr->j_beg_date);
+
+            structPtr->j_beg_time = dbs.j_beg_time;
+            setNullIfIndicated(dbs.ind_j_beg_time, SHORT, &structPtr->j_beg_time);
+
+            structPtr->j_end_date = dbs.j_end_date;
+            setNullIfIndicated(dbs.ind_j_end_date, SHORT, &structPtr->j_end_date);
+
+            structPtr->j_end_time = dbs.j_end_time;
+            setNullIfIndicated(dbs.ind_j_end_time, SHORT, &structPtr->j_end_time);
+
+            structPtr->mean_field_bias = dbs.mean_field_bias;
+            setNullIfIndicated(dbs.ind_mean_field_bias, SHORT, &structPtr->mean_field_bias);
+
+            structPtr->nullproductflag = dbs.nullproductflag;
+            setNullIfIndicated(dbs.ind_nullproductflag, SHORT, &structPtr->nullproductflag);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+        :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale, 
+        :dbs.setoff:dbs.ind_setoff, :dbs.begin_time:dbs.ind_begin_time, 
+        :dbs.end_time:dbs.ind_end_time, :dbs.j_beg_date:dbs.ind_j_beg_date, 
+        :dbs.j_beg_time:dbs.ind_j_beg_time, :dbs.j_end_date:dbs.ind_j_end_date, 
+        :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+        :dbs.nullproductflag:dbs.ind_nullproductflag, :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDSARadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDSARadarCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DSARadar ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSARadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSARadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDSARadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDSARadar(const DSARadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSARadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.maxval = structPtr->maxval;
+    dbs.ind_maxval = getIndicator(FLOAT, (void *)&structPtr->maxval);
+
+    dbs.scale = structPtr->scale;
+    dbs.ind_scale = getIndicator(FLOAT, (void *)&structPtr->scale);
+
+    dbs.setoff = structPtr->setoff;
+    dbs.ind_setoff = getIndicator(FLOAT, (void *)&structPtr->setoff);
+
+    dbs.begin_time = structPtr->begin_time;
+    dbs.ind_begin_time = getIndicator(DATETIME, (void *)&structPtr->begin_time);
+
+    dbs.end_time = structPtr->end_time;
+    dbs.ind_end_time = getIndicator(DATETIME, (void *)&structPtr->end_time);
+
+    dbs.j_beg_date = structPtr->j_beg_date;
+    dbs.ind_j_beg_date = getIndicator(SHORT, (void *)&structPtr->j_beg_date);
+
+    dbs.j_beg_time = structPtr->j_beg_time;
+    dbs.ind_j_beg_time = getIndicator(SHORT, (void *)&structPtr->j_beg_time);
+
+    dbs.j_end_date = structPtr->j_end_date;
+    dbs.ind_j_end_date = getIndicator(SHORT, (void *)&structPtr->j_end_date);
+
+    dbs.j_end_time = structPtr->j_end_time;
+    dbs.ind_j_end_time = getIndicator(SHORT, (void *)&structPtr->j_end_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.nullproductflag = structPtr->nullproductflag;
+    dbs.ind_nullproductflag = getIndicator(SHORT, (void *)&structPtr->nullproductflag);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DSARadar (radid,obstime,
+        volcovpat,opermode,maxval,
+        scale,setoff,begin_time,
+        end_time,j_beg_date,j_beg_time,
+        j_end_date,j_end_time,mean_field_bias,
+        nullproductflag,grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat,
+         :dbs.opermode:dbs.ind_opermode, :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale,
+         :dbs.setoff:dbs.ind_setoff, :dbs.begin_time:dbs.ind_begin_time, :dbs.end_time:dbs.ind_end_time,
+         :dbs.j_beg_date:dbs.ind_j_beg_date, :dbs.j_beg_time:dbs.ind_j_beg_time, :dbs.j_end_date:dbs.ind_j_end_date,
+         :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, :dbs.nullproductflag:dbs.ind_nullproductflag,
+         :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDSARadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDSARadar(const DSARadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSARadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.maxval = structPtr->maxval;
+    dbs.ind_maxval = getIndicator(FLOAT, (void *)&structPtr->maxval);
+
+    dbs.scale = structPtr->scale;
+    dbs.ind_scale = getIndicator(FLOAT, (void *)&structPtr->scale);
+
+    dbs.setoff = structPtr->setoff;
+    dbs.ind_setoff = getIndicator(FLOAT, (void *)&structPtr->setoff);
+
+    dbs.begin_time = structPtr->begin_time;
+    dbs.ind_begin_time = getIndicator(DATETIME, (void *)&structPtr->begin_time);
+
+    dbs.end_time = structPtr->end_time;
+    dbs.ind_end_time = getIndicator(DATETIME, (void *)&structPtr->end_time);
+
+    dbs.j_beg_date = structPtr->j_beg_date;
+    dbs.ind_j_beg_date = getIndicator(SHORT, (void *)&structPtr->j_beg_date);
+
+    dbs.j_beg_time = structPtr->j_beg_time;
+    dbs.ind_j_beg_time = getIndicator(SHORT, (void *)&structPtr->j_beg_time);
+
+    dbs.j_end_date = structPtr->j_end_date;
+    dbs.ind_j_end_date = getIndicator(SHORT, (void *)&structPtr->j_end_date);
+
+    dbs.j_end_time = structPtr->j_end_time;
+    dbs.ind_j_end_time = getIndicator(SHORT, (void *)&structPtr->j_end_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.nullproductflag = structPtr->nullproductflag;
+    dbs.ind_nullproductflag = getIndicator(SHORT, (void *)&structPtr->nullproductflag);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DSARadar (radid,obstime,
+        volcovpat,opermode,maxval,
+        scale,setoff,begin_time,
+        end_time,j_beg_date,j_beg_time,
+        j_end_date,j_end_time,mean_field_bias,
+        nullproductflag,grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat,
+         :dbs.opermode:dbs.ind_opermode, :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale,
+         :dbs.setoff:dbs.ind_setoff, :dbs.begin_time:dbs.ind_begin_time, :dbs.end_time:dbs.ind_end_time,
+         :dbs.j_beg_date:dbs.ind_j_beg_date, :dbs.j_beg_time:dbs.ind_j_beg_time, :dbs.j_end_date:dbs.ind_j_end_date,
+         :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, :dbs.nullproductflag:dbs.ind_nullproductflag,
+         :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDSARadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDSARadar(const DSARadar *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DSARadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.maxval = structPtr->maxval;
+    dbs.ind_maxval = getIndicator(FLOAT, (void *)&structPtr->maxval);
+
+    dbs.scale = structPtr->scale;
+    dbs.ind_scale = getIndicator(FLOAT, (void *)&structPtr->scale);
+
+    dbs.setoff = structPtr->setoff;
+    dbs.ind_setoff = getIndicator(FLOAT, (void *)&structPtr->setoff);
+
+    dbs.begin_time = structPtr->begin_time;
+    dbs.ind_begin_time = getIndicator(DATETIME, (void *)&structPtr->begin_time);
+
+    dbs.end_time = structPtr->end_time;
+    dbs.ind_end_time = getIndicator(DATETIME, (void *)&structPtr->end_time);
+
+    dbs.j_beg_date = structPtr->j_beg_date;
+    dbs.ind_j_beg_date = getIndicator(SHORT, (void *)&structPtr->j_beg_date);
+
+    dbs.j_beg_time = structPtr->j_beg_time;
+    dbs.ind_j_beg_time = getIndicator(SHORT, (void *)&structPtr->j_beg_time);
+
+    dbs.j_end_date = structPtr->j_end_date;
+    dbs.ind_j_end_date = getIndicator(SHORT, (void *)&structPtr->j_end_date);
+
+    dbs.j_end_time = structPtr->j_end_time;
+    dbs.ind_j_end_time = getIndicator(SHORT, (void *)&structPtr->j_end_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.nullproductflag = structPtr->nullproductflag;
+    dbs.ind_nullproductflag = getIndicator(SHORT, (void *)&structPtr->nullproductflag);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    sprintf(queryBuffer, " UPDATE DSARadar SET " );
+    strcat(queryBuffer, "radid = ? , obstime = ? , volcovpat = ? , opermode = ? , maxval = ? ,     ");
+    strcat(queryBuffer, "scale = ? , setoff = ? , begin_time = ? , end_time = ? , j_beg_date = ? ,     ");
+    strcat(queryBuffer, "j_beg_time = ? , j_end_date = ? , j_end_time = ? , mean_field_bias = ? , nullproductflag = ? ,     ");
+    strcat(queryBuffer, "grid_filename = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDSARadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, :dbs.maxval:dbs.ind_maxval,
+     :dbs.scale:dbs.ind_scale, :dbs.setoff:dbs.ind_setoff, :dbs.begin_time:dbs.ind_begin_time, :dbs.end_time:dbs.ind_end_time, :dbs.j_beg_date:dbs.ind_j_beg_date,
+     :dbs.j_beg_time:dbs.ind_j_beg_time, :dbs.j_end_date:dbs.ind_j_end_date, :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, :dbs.nullproductflag:dbs.ind_nullproductflag,
+     :dbs.grid_filename:dbs.ind_grid_filename;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDSARadar() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDSARadar(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DSARadar ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDSARadar() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDSARadarByRecord (const DSARadar * newStructPtr, const DSARadar * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDSARadarPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDSARadar(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDSARadar(const DSARadar * structPtr)
+{
+    UpdateDSARadarByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDSARadar(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDSARadar(const DSARadar * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DSARadarExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDSARadar(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDSARadarByRecord(const DSARadar * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDSARadarPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDSARadar(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DSARadarExists(const DSARadar * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDSARadarPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDSARadarCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDSARadarPrimaryKeyWhereString (const DSARadar * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND obstime = '%s' ",
+            structPtr->radid, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDSARadar( DSARadar * structPtr)
+{
+    DSARadar* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DSARadar * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDSARadarDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDSARadarErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
