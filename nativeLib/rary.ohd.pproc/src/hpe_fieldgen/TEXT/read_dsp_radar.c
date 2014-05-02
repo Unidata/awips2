@@ -165,7 +165,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 
 	if (ignoreRadarFlag == 1)
 	{
-		sprintf(message, "STATUS: radar marked as ignored.") ;
+		sprintf(message, "STATUS:Single Pol DSP radar product marked as ignored. Stop. ") ;
 		hpe_fieldgen_printMessage(message);
 
 		return;
@@ -211,7 +211,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 		 * there is no record found.
 		 */
 
-		sprintf(message, "STATUS: no radar data for current run time.") ;
+		sprintf(message, "STATUS: no single pol DSP radar data for current run time.") ;
 		hpe_fieldgen_printMessage(message);
 
 		freeDSPMemory() ;
@@ -560,7 +560,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 
 	if ( (foundLaterRecord == 0) && (prev_diff < RADAR_LAG_TIME))
 	{
-		sprintf(message, "STATUS: no radar data after the run time. "
+		sprintf(message, "STATUS: no single pol DSP radar data after the run time. "
 			"Use the latest record before the run time.");
 		hpe_fieldgen_printMessage(message);
 
@@ -581,7 +581,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 			if (status != 0)
 			{
 				sprintf(message, "ERROR: #%d encountered reading"
-					" radar file = %s -- missing data substituted.", status,
+					" DSP radar file as post_filename = %s -- missing data substituted.", status,
 						post_filename) ;
 				hpe_fieldgen_printMessage(message);
 				fill2DFloatArray(radar, RADAR_DEFAULT, NUM_DSP_ROWS,
@@ -601,7 +601,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 			}
 		} else
 		{
-			sprintf(message, "STATUS: no radar file: %s", post_filename) ;
+			sprintf(message, "STATUS: no DSP radar file as post_filename: %s", post_filename) ;
 			hpe_fieldgen_printMessage(message);
 			fill2DFloatArray(radar, RADAR_DEFAULT, NUM_DSP_ROWS, NUM_DSP_COLS);
 
@@ -769,7 +769,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 		 * there is no record found. Something is wrong.
 		 */
 
-		sprintf(message, "STATUS: no radar data in duration time.") ;
+		sprintf(message, "STATUS: no single pol DSP radar data in duration time.") ;
 		hpe_fieldgen_printMessage(message);
 		fill2DFloatArray(radar, RADAR_DEFAULT, NUM_DSP_ROWS, NUM_DSP_COLS);
 
@@ -831,7 +831,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 					}
 				} else
 				{
-					sprintf(message, "ERROR: no radar file: %s", prev_filename) ;
+					sprintf(message, "ERROR: no DSP radar file as prev_filename: %s", prev_filename) ;
 					hpe_fieldgen_printMessage(message);
 					*radarAvailFlag = 0;
 					fill2DFloatArray(radar, RADAR_DEFAULT, NUM_DSP_ROWS,
@@ -919,7 +919,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 							}
 						} else
 						{
-							sprintf(message, "ERROR: no radar file: %s",
+							sprintf(message, "ERROR: no DSP radar file as prev_filename: %s",
 									prev_filename);
 							hpe_fieldgen_printMessage(message);
 							*radarAvailFlag = 0;
@@ -1007,7 +1007,7 @@ void readDSPRadar(const char * radid, const char * datetime,
 
 							} else
 							{
-								sprintf(message, "ERROR: no radar file: %s",
+								sprintf(message, "ERROR: no DSP radar file as prev_filename: %s",
 										prev_filename);
 								hpe_fieldgen_printMessage(message);
 								*radarAvailFlag = 0;

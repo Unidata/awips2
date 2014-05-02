@@ -44,6 +44,7 @@
 *                                          info from gage table
 * pMPEParams      Input        const mpe_params_struct *
 *                                          static parameters
+* dualpol_data_avail Input     int         0/1 if dual pol data avialable
 * meanBias        Output       double*     mean bias data array
 * memSpanBias     Output       double*     memory span bias data
 * gageRadarPairNum Output      int *       gage/radar pair number
@@ -73,7 +74,7 @@
 * Date        Developer     Action
 * March 2005  Guoxian Zhou  finish conversion to C Language
 * 9/28/2006   Guoxian Zhou  Modified for dynamic grid for empe
-*
+* 07/2013     JingtaoD      modified for dual pol
 ***********************************************************************/
 
 void getMeanBias(const radarLoc_record_struct * pRadarLocRecord,
@@ -85,6 +86,7 @@ void getMeanBias(const radarLoc_record_struct * pRadarLocRecord,
                  const geo_data_struct   * pGeoData ,
                  const gage_table_struct * pGageArray ,
                  const empe_params_struct * pMPEParams ,
+		         int   dualpol_data_avail ,
                  double * meanBias,
                  double * memSpanBias,
                  int *  gageRadarPairNum)
@@ -140,7 +142,7 @@ void getMeanBias(const radarLoc_record_struct * pRadarLocRecord,
 
     calculateMeanBias(pRadarLocRecord->radarID, datetime,
                 pMPEParams, pGageArray, pGageRadarPairTable,
-                meanBias, memSpanBias ) ;
+                dualpol_data_avail, meanBias, memSpanBias ) ;
 
     /*
      * release memory for gage radar pair struct data
