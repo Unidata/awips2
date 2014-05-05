@@ -37,6 +37,7 @@
 #                                                 to get correct offsets for Alaska
 #    01/17/2014          #2719     randerso       Added NHA domain
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
+#    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
 #
 ########################################################################
 
@@ -1126,7 +1127,7 @@ elif SID in CONUS_EAST_SITES:
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
                  'AKwave10',
@@ -1175,7 +1176,7 @@ else:   #######DCS3501 WEST_CONUS
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
                  'WCwave10',
