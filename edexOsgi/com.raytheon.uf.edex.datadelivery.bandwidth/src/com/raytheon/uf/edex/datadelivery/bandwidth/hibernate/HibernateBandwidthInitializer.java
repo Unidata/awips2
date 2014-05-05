@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
  * Feb 06, 2014 2636       bgonzale     Use scheduling initialization method after registry init.
  * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
  * Feb 14, 2014 2636       mpduff       Clean up logging
+ * Apr 09, 2014 3012       dhladky      Adhoc firing prevention.
  * </pre>
  * 
  * @author djohnson
@@ -102,19 +103,22 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
     @Override
     public void executeAfterRegistryInit() {
         try {
+
             Map<Network, List<Subscription>> subMap = findSubscriptionsStrategy
                     .findSubscriptionsToSchedule();
 
             List<String> unscheduled = instance.initializeScheduling(subMap);
 
             if (!unscheduled.isEmpty()) {
-                StringBuilder sb = new StringBuilder("The following subscriptions could not be scheduled at startup: ");
+                StringBuilder sb = new StringBuilder(
+                        "The following subscriptions could not be scheduled at startup: ");
                 sb.append(StringUtil.NEWLINE);
                 for (String subscription : unscheduled) {
                     sb.append(subscription).append(" ");
                 }
                 statusHandler.handle(Priority.INFO, sb.toString());
             }
+
         } catch (Exception e) {
             statusHandler.error(
                     "Failed to query for subscriptions to schedule", e);
