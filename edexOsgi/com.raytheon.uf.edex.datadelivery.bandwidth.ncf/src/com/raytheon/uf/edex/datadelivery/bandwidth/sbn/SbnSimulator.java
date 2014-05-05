@@ -29,7 +29,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * The SBN simulator. Reads files from a configured directory, and then places
@@ -103,7 +103,7 @@ public class SbnSimulator {
      */
     public SbnSimulator() {
         this(new File(System.getProperty("sbn.retrieval.transfer.directory")),
-                new CopyFileToManualIngest(), DataDeliveryIdUtil.getId());
+                new CopyFileToManualIngest(), RegistryIdUtil.getId());
     }
 
     /**
