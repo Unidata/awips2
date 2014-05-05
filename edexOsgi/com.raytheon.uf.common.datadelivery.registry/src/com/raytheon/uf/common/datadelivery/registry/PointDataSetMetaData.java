@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Aug 20, 2012  754      dhladky     Initial creation
  * Sept 30, 2013 1797     dhladky     Generics
+ * Apr 14, 2014  3012      dhladky     Unneeded method removed.
  * 
  * </pre>
  * 
@@ -50,10 +51,5 @@ public class PointDataSetMetaData extends DataSetMetaData<PointTime> {
     public PointDataSetMetaData() {
         
     }
-    
-    @Override
-    public void accept(IDataSetMetaDataVisitor visitor) {
-        // TODO: not sure what this does?
-    }
-
+  
 }
