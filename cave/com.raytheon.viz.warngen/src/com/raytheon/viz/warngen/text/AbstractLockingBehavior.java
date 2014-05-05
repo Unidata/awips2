@@ -54,6 +54,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  *                                      bulletIndices(), header(), firstBullet(), secondBullet(), getImmediateCausesPtrn();
  *                                      updated body(), header(), and secondBullet();
  * Mar 13, 2013  DR 15892  D. Friedman  Fix bullet parsing.
+ * May  1, 2014  DR 16627  Qinglu Lin   Added hasStateAbbrev(), isOtherType(), lockListOfNames(), and updated lock(). 
  * 
  * </pre>
  * 
@@ -115,7 +116,11 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
         ugc();
         htec();
         vtec();
-        areaNames();
+        if (isDesiredPil() && !hasStateAbbrev()) {
+            lockListOfNames();
+        } else {
+            areaNames();
+        }
         mnd();
         date();
         body();
@@ -129,9 +134,9 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
     }
 
     protected void body() {
-    	header();
-    	firstBullet();
-    	secondBullet();
+        header();
+        firstBullet();
+        secondBullet();
     }
 
     /**
@@ -532,6 +537,63 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
         }
 
         return false;
+    }
+
+    /**
+     * Check out if warning text has state abbreviations, e.g., " MD".
+     */
+    private boolean hasStateAbbrev() {
+        Pattern stateAbbrevPtrn = Pattern.compile(listOfAreaName + newline,
+                Pattern.MULTILINE);
+        Matcher m = stateAbbrevPtrn.matcher(this.text);
+        if (m.find()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check out if pil of the product is SPS or NOW.
+     */
+    public boolean isDesiredPil() {
+        String[] type = {"SPS", "NOW"};
+        int index = text.indexOf("000000") + 8;
+        String pilAndCWA = text.substring(index, index + 6);
+        for (String s: type) {
+            if (pilAndCWA.contains(s)) {
+                return true;
+            } 
+        }
+        return false;
+    }
+
+    /**
+     * Locks the list of area names in which state abbreviations, e.g., " MD", 
+     * are not included.
+     */
+    private void lockListOfNames() {
+        String[] timePattern = {" AM ", " PM ", "NOON", "MIDNIGHT"};
+        String text1 = "";
+        int indexOfDash = text.indexOf('-');
+        String text2 = text.substring(indexOfDash, text.length() - 1);
+        int indexOfTimePattern;
+        for (String s: timePattern) {
+            indexOfTimePattern = text2.indexOf(s);
+            if (indexOfTimePattern != -1) {
+                text1 = text2.substring(0, indexOfTimePattern);
+                break;
+            }
+        }
+        int index1, index2;
+        if (text1.length() > 0) {
+            index1 = text1.indexOf("</L>");
+            index2 = text1.lastIndexOf("-");
+            text2 = text1.substring(index1 + 4, index2 + 1);
+            index1 = text.indexOf(text2);
+            text = text.substring(0, index1) + "<L>" + text2 + "</L>" 
+                    + text.substring(index1 + text2.length(), text.length() - 1);
+        }
     }
 
 }
