@@ -28,6 +28,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jul 18, 2013 1653       mpduff       Add GET_SUBSCRIPTION_STATUS.
  * Oct 2   2013 1797       dhladky      generic attempt
  * Feb 11, 2014 2771       bgonzale     Added GET_DATADELIVERY_ID to RequestTypes.
+ * Apr 22, 2014 2992       dhladky      This is not an interface, changed to be correct naming.
  * 
  * </pre>
  * 
@@ -35,7 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class IBandwidthRequest<T extends Time, C extends Coverage> extends AbstractPrivilegedRequest {
+public class BandwidthRequest<T extends Time, C extends Coverage> extends AbstractPrivilegedRequest {
 
     public static enum RequestType {
         // Get the current retrieval plan for the
@@ -48,7 +49,7 @@ public class IBandwidthRequest<T extends Time, C extends Coverage> extends Abstr
         /**
          * Request information.
          */
-        GET_ESTIMATED_COMPLETION, GET_BANDWIDTH_GRAPH_DATA, GET_SUBSCRIPTION_STATUS, GET_DATADELIVERY_ID
+        GET_ESTIMATED_COMPLETION, GET_BANDWIDTH_GRAPH_DATA, GET_SUBSCRIPTION_STATUS, GET_DATADELIVERY_ID, GET_DATADELIVERY_REGISTRIES
     }
 
     @DynamicSerializeElement
