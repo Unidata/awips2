@@ -246,6 +246,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CGM">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
+<!--
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CMCE_AVGSPR_NT">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
@@ -381,6 +382,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="VAFTAD_NT">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
+-->
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAMSND">
 <filters>Forecast,MODEL</filters>
 </ResourceDefinitionFilter>
