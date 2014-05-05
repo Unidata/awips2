@@ -152,6 +152,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Sep 24, 2013 #2401       lvenable    Fixed font memory leak.
  *  Oct 01, 2013 DR16612 m.gamazaychikov Fixed inconsistencies with track locking and updateListSelected method
  *  Oct 29, 2013 DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the polygon the be used.
+ *  Apr 24, 2014 DR 16356    Qinglu Lin  Updated selectOneStorm() and selectLineOfStorms().
  * </pre>
  * 
  * @author chammack
@@ -1323,6 +1324,8 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     private void selectOneStorm() {
         if (warngenLayer.state.followupData == null) {
+            warngenLayer.resetState();
+            warngenLayer.reset("oneStorm");
             warngenLayer.clearWarningGeometries();
             warngenLayer.getStormTrackState().dragMeLine = null;
             warngenLayer.getStormTrackState().dragMeGeom = null;
@@ -1338,6 +1341,8 @@ public class WarngenDialog extends CaveSWTDialog implements
      */
     private void selectLineOfStorms() {
         if (warngenLayer.state.followupData == null) {
+            warngenLayer.resetState();
+            warngenLayer.reset("lineOfStorms");
             warngenLayer.clearWarningGeometries();
             warngenLayer.getStormTrackState().dragMeLine = null;
             warngenLayer.getStormTrackState().dragMeGeom = null;
