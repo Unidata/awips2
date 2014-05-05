@@ -45,6 +45,8 @@ if [ $? -ne 0 ]; then
 fi
 
 %install
+dataserver_project="%{_baseline_workspace}/rpms/awips2.core/Installer.collab-dataserver"
+config_directory="${dataserver_project}/configuration"
 cd %{_baseline_workspace}/collaboration.dataserver
 export ANT_OPTS="%{_ant_opts}"
 /awips2/ant/bin/ant -f build.xml deploy 
@@ -52,9 +54,23 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+cp -r ${config_directory}/etc ${RPM_BUILD_ROOT}
+
 %pre
 %post
+chmod ug+x /awips2/collab-dataserver/bin/*.sh
+chmod 755 /etc/init.d/collab-dataserver
+/sbin/chkconfig --add collab-dataserver
+
 %preun
+# Remove and unregister the collab-dataserver service.
+if [ -f /etc/init.d/collab-dataserver ]; then
+   /sbin/chkconfig collab-dataserver off
+   /sbin/chkconfig --del collab-dataserver
+
+   rm -f /etc/init.d/collab-dataserver
+fi
+
 %postun
 
 %clean
@@ -82,3 +98,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/collab-dataserver/lib/foss/*
 %dir /awips2/collab-dataserver/config
 /awips2/collab-dataserver/config/*
+
+%defattr(755,root,root,755)
+/etc/init.d/collab-dataserver
