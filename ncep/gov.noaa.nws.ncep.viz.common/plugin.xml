@@ -88,6 +88,7 @@
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.PredefinedAreasMngr"
                sourceLocation="ncep/Stations/sfstns.xml"/>   
         -->        
+        <!--
    		<areaProviderSource
                areaSourceName="GEMPAK_GEOG_AREA_NAME"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.GempakGeogAreaProviderFactory"
@@ -96,6 +97,7 @@
                areaSourceName="GEMPAK_GEOG_AREA_CODE"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.GempakGeogAreaProviderFactory"
                sourceLocation="ncep/PredefinedAreas/gempak/geog.xml"/>
+               -->
                
 <!-- The following sources read from the common_obs_spatial db table.
   Others possible for NEXRAD, WFOID, PIREP, MESONET, BUOY_MOB, SHIP_MOB and other catalogtypes. 
