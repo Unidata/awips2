@@ -19,6 +19,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12 Sept, 2012   1038      dhladky     Initial creation
  * 1  May   2013   1959      dhladky     remove backup registry references
  * 23 Oct,  2013   2361      njensen     Remove ISerializableObject
+ * 15 Apr,  2014   3012      dhladky     Added retention time for this provider in registry.
  * 
  * </pre>
  * 
@@ -37,6 +38,11 @@ public class HarvesterConfig {
     @XmlElement(name = "agent")
     @DynamicSerializeElement
     private Agent agent;
+    
+    /** default of 7 days **/
+    @XmlElement(name = "retention")
+    @DynamicSerializeElement
+    private String retention = "7";
 
     public HarvesterConfig() {
 
@@ -56,6 +62,14 @@ public class HarvesterConfig {
 
     public void setProvider(Provider provider) {
         this.provider = provider;
+    }
+
+    public String getRetention() {
+        return retention;
+    }
+
+    public void setRetention(String retention) {
+        this.retention = retention;
     }
 
 }

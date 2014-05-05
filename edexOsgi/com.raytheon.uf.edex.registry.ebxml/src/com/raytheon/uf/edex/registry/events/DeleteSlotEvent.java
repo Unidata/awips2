@@ -19,11 +19,13 @@
  **/
 package com.raytheon.uf.edex.registry.events;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import com.raytheon.uf.common.event.Event;
+import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
  * Event containing slots to be deleted by the registry garbage collector
@@ -35,6 +37,7 @@ import com.raytheon.uf.common.event.Event;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/11/2014    3011         bphillip    Initial Coding
+ * 4/17/2014    3011        bphillip    Delete slot events now contain strings
  * </pre>
  * 
  * @author bphillip
@@ -42,26 +45,31 @@ import com.raytheon.uf.common.event.Event;
  */
 public class DeleteSlotEvent extends Event {
 
-	private static final long serialVersionUID = -2818002679753482984L;
-	
-	private List<SlotType> slotsToDelete;
-	
-	public DeleteSlotEvent(){
-		super();
-	}
-	
-	public DeleteSlotEvent(List<SlotType> slotsToDelete){
-		this.slotsToDelete = slotsToDelete;
-	}
+    private static final long serialVersionUID = -2818002679753482984L;
 
-	public List<SlotType> getSlotsToDelete() {
-		return slotsToDelete;
-	}
+    private List<String> slotsToDelete;;
 
-	public void setSlotsToDelete(List<SlotType> slotsToDelete) {
-		this.slotsToDelete = slotsToDelete;
-	}
-	
-	
+    public DeleteSlotEvent() {
+        super();
+    }
+
+    public DeleteSlotEvent(List<SlotType> slotsToDelete) {
+        if (CollectionUtil.isNullOrEmpty(slotsToDelete)) {
+            slotsToDelete = new ArrayList<SlotType>();
+        } else {
+            this.slotsToDelete = new ArrayList<String>(slotsToDelete.size());
+            for (SlotType slot : slotsToDelete) {
+                this.slotsToDelete.add(slot.getId());
+            }
+        }
+    }
+
+    public List<String> getSlotsToDelete() {
+        return slotsToDelete;
+    }
+
+    public void setSlotsToDelete(List<String> slotsToDelete) {
+        this.slotsToDelete = slotsToDelete;
+    }
 
 }
