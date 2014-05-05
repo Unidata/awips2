@@ -43,7 +43,8 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Sept, 30 2013 1797      dhladky      Made generic based on Time
  * Dec 20, 2013 2636       mpduff       Add a dataset availability offset
- * jan 23, 2013   2584     dhladky     Versions.
+ * jan 23, 2013   2584     dhladky      Versions.
+ * Apr 14, 2013  3012      dhladky      Removed unused methods.
  * </pre>
  * 
  * @author dhladky
@@ -229,13 +230,4 @@ public abstract class DataSetMetaData<T extends Time> {
         return url;
     }
 
-    /**
-     * Accepts a {@link IDataSetMetaDataVisitor} which can perform arbitrary
-     * processing on this {@link DataSetMetaData} instance. Should be defined by
-     * each concrete class instance.
-     * 
-     * @param visitor
-     *            the visitor
-     */
-    public abstract void accept(IDataSetMetaDataVisitor visitor);
 }

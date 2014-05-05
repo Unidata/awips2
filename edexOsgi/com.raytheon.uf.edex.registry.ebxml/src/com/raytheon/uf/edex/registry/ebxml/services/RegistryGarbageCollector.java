@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.registry.events.DeleteSlotEvent;
  * 2/4/2014     2769        bphillip    Removed flush and clear call
  * 2/13/2014    2769        bphillip    Refactored to no longer use executor threads
  * 4/11/2014    3011        bphillip    Added slot purging via event bus notifications
+ * 4/17/2014    3011        bphillip    Delete slot events now contain strings
  * </pre>
  * 
  * @author bphillip
@@ -139,15 +140,17 @@ public class RegistryGarbageCollector {
 
     @Subscribe
     public void deleteOrphanedSlot(DeleteSlotEvent slotEvent) {
+
         if (!CollectionUtil.isNullOrEmpty(slotEvent.getSlotsToDelete())) {
             long start = TimeUtil.currentTimeMillis();
             statusHandler.info("Deleting "
                     + slotEvent.getSlotsToDelete().size() + " slots...");
-            slotDao.deleteAll(slotEvent.getSlotsToDelete());
+            slotDao.deleteBySlotId(slotEvent.getSlotsToDelete());
             statusHandler.info("Deleted " + slotEvent.getSlotsToDelete().size()
                     + " slots in " + (TimeUtil.currentTimeMillis() - start)
                     + " ms");
         }
+
     }
 
 }
