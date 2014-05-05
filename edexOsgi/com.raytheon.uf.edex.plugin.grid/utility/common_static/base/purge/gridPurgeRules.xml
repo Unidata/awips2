@@ -732,4 +732,10 @@
 		<versionsToKeep>5</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
+	<!-- Purge rule for the GFS199 (Guam-GFSDNG) model -->
+	<rule>
+		<keyValue>GFS199</keyValue>
+		<versionsToKeep>4</versionsToKeep>
+		<modTimeToWait>00-01:00:00</modTimeToWait>		
+	</rule>	
 </purgeRuleSet>
