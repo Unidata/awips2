@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * Nov 6,  2013 2525       dhladky      Stop appending "/wfs"
  * Jan 13, 2014 2679       dhladky      Multiple ingest layer windows for a single request window.
+ * Apr 13, 2014 3012       dhladky      Cleaned up.
  * 
  * </pre>
  * 
@@ -454,13 +455,15 @@ public abstract class WfsRegistryCollectorAddon<D extends SimpleDimension, L ext
             times.put(layer.getName(), new PointTime());
             // harvests the times from the layer
             setTime(layer);
+            
             // make sure you populate the metadata
             setDataSetMetaData(layer);
-            getDataSetMetaData(layer.getName()).setTime(getTime(layer.getName()));
-            ImmutableDate date = null;
-            date = new ImmutableDate(getTime(layer.getName()).getEnd());
-            getDataSetMetaData(layer.getName()).setDate(date);
-            storeMetaData(getDataSetMetaData(layer.getName()));
+            PointDataSetMetaData data = getDataSetMetaData(layer.getName());
+            PointTime time = getTime(layer.getName());
+            data.setTime(time);
+            ImmutableDate date = new ImmutableDate(time.getEnd());
+            data.setDate(date);
+            storeMetaData(data);
         }
     }
 
