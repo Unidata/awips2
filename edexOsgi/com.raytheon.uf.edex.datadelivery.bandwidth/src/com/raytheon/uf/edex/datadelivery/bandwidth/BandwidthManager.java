@@ -22,8 +22,8 @@ import com.google.common.collect.Sets;
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
 import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
@@ -80,8 +80,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * Abstract {@link IBandwidthManager} implementation which provides core
@@ -148,6 +148,8 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Feb 11, 2014 2771       bgonzale     Added handler for GET_DATADELIVERY_ID request.
  * Feb 10, 2014 2636       mpduff       Changed how retrieval plan is updated over time.
  * Apr 02, 2014  2810      dhladky      Priority sorting of subscriptions.
+ * Apr 09, 2014 3012       dhladky      Range the querries for metadata checks to subscriptions.
+ * Apr 22, 2014 2992       dhladky      Ability to get list of all registry nodes containing data.
  * 
  * </pre>
  * 
@@ -155,13 +157,16 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * @version 1.0
  */
 public abstract class BandwidthManager<T extends Time, C extends Coverage>
-        extends AbstractPrivilegedRequestHandler<IBandwidthRequest<T, C>>
+        extends AbstractPrivilegedRequestHandler<BandwidthRequest<T, C>>
         implements IBandwidthManager<T, C> {
 
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthManager.class);
 
     private static final Pattern RES_PATTERN = Pattern.compile("^res");
+    
+    /** used to query for registry subscription object owners **/
+    private static final String objectType = "'urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:com.raytheon.uf.common.datadelivery.registry.%Subscription'";
 
     // Requires package access so it can be accessed from the maintenance task
     final IBandwidthDao<T, C> bandwidthDao;
@@ -173,6 +178,14 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
     protected final BandwidthDaoUtil<T, C> bandwidthDaoUtil;
 
     private final IBandwidthDbInit dbInit;
+    
+    /** used for min time range **/
+    public static final String MIN_RANGE_TIME = "min";
+    private final RegistryIdUtil idUtil;
+
+    
+    /** used for max time range **/
+    public static final String MAX_RANGE_TIME = "max";
 
     // Instance variable and not static, because there are multiple child
     // implementation classes which should each have a unique prefix
@@ -185,11 +198,13 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
     public BandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao<T, C> bandwidthDao,
             RetrievalManager retrievalManager,
-            BandwidthDaoUtil<T, C> bandwidthDaoUtil) {
+            BandwidthDaoUtil<T, C> bandwidthDaoUtil,
+            RegistryIdUtil idUtil) {
         this.dbInit = dbInit;
         this.bandwidthDao = bandwidthDao;
         this.retrievalManager = retrievalManager;
         this.bandwidthDaoUtil = bandwidthDaoUtil;
+        this.idUtil = idUtil;
     }
 
     /**
@@ -371,7 +386,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                         .getBaseReferenceTime();
                 Calendar startTime = TimeUtil.newGmtCalendar(retrievalTime
                         .getTime());
-
+                
+                startTime.add(Calendar.MINUTE,
+                        retrieval.getDataSetAvailablityDelay());
                 int maxLatency = retrieval.getSubscriptionLatency();
                 retrieval.setStartTime(startTime);
 
@@ -450,8 +467,14 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
     @Override
     public List<BandwidthAllocation> schedule(Subscription<T, C> subscription) {
-        List<BandwidthAllocation> unscheduled = null;
 
+        List<BandwidthAllocation> unscheduled = Collections.emptyList();
+        if (subscription instanceof RecurringSubscription) {
+            if (!((RecurringSubscription<T, C>) subscription).shouldSchedule()) {
+                return unscheduled;
+            }
+        }
+        
         final DataType dataSetType = subscription.getDataSetType();
         switch (dataSetType) {
         case GRID:
@@ -470,7 +493,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
         return unscheduled;
     }
-
+    
     /**
      * Update the retrieval plan for this subscription.
      * 
@@ -728,7 +751,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             Subscription<T, C> subscription) {
         List<BandwidthAllocation> unscheduled = schedule(subscription,
                 ((PointTime) subscription.getTime()).getInterval());
-        unscheduled.addAll(getMostRecent(subscription, false));
+        // add an adhoc if one exists and isn't in startup mode
+        if (EDEXUtil.isRunning()) {
+            unscheduled.addAll(getMostRecent(subscription, false));
+        }
         return unscheduled;
     }
 
@@ -752,10 +778,20 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         if (subscribedToCycles) {
             unscheduled = schedule(subscription, Sets.newTreeSet(cycles));
         }
+        // add an adhoc if one exists and isn't in startup mode
+        if (EDEXUtil.isRunning()) {
+            unscheduled.addAll(getMostRecent(subscription, true));
+        }   
 
         return unscheduled;
     }
 
+    /**
+     * Schedule the most recent dataset update if one exists.
+     * @param subscription
+     * @param useMostRecentDataSetUpdate
+     * @return
+     */
     private List<BandwidthAllocation> getMostRecent(
             Subscription<T, C> subscription, boolean useMostRecentDataSetUpdate) {
         List<BandwidthAllocation> unscheduled = Collections.emptyList();
@@ -878,7 +914,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      * {@inheritDoc}
      */
     @Override
-    public Object handleRequest(IBandwidthRequest<T, C> request)
+    public Object handleRequest(BandwidthRequest<T, C> request)
             throws Exception {
 
         ITimer timer = TimeUtil.getTimer();
@@ -982,7 +1018,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             response = getBandwidthGraphData();
             break;
         case GET_DATADELIVERY_ID:
-            response = DataDeliveryIdUtil.getId();
+            response = RegistryIdUtil.getId();
+            break;
+        case GET_DATADELIVERY_REGISTRIES:
+            response = idUtil.getUniqueRegistries(objectType);
             break;
         case GET_SUBSCRIPTION_STATUS:
             Subscription<T, C> sub = null;
@@ -1440,7 +1479,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      */
     @Override
     public AuthorizationResponse authorized(IUser user,
-            IBandwidthRequest request) throws AuthorizationException {
+            BandwidthRequest request) throws AuthorizationException {
         return new AuthorizationResponse(true);
     }
 
@@ -1705,5 +1744,28 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         }
 
         return dataSetMetaDataTime;
+    }
+    
+    /**
+     * Sets a range based on the baseReferenceTime hour.
+     * @param baseReferenceTime
+     * @return
+     */
+    public static Map<String, Date> getBaseReferenceTimeDateRange(Calendar baseReferenceTime) {
+        
+        Map<String, Date> dates = new HashMap<String, Date>(2);
+        // Set min range to baseReferenceTime hour "00" minutes, "00" seconds
+        // Set max range to baseReferenceTime hour "59" minutes, "59" seconds
+        Calendar min = TimeUtil.newGmtCalendar(baseReferenceTime.getTime());
+        min.set(Calendar.MINUTE, 0);
+        min.set(Calendar.SECOND, 0);
+        Calendar max = TimeUtil.newGmtCalendar(baseReferenceTime.getTime());
+        max.set(Calendar.MINUTE, 59);
+        max.set(Calendar.SECOND, 59);
+        
+        dates.put(MIN_RANGE_TIME, min.getTime());
+        dates.put(MAX_RANGE_TIME, max.getTime());
+        
+        return dates;
     }
 }

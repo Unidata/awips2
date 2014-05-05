@@ -33,6 +33,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * Oct 30, 2013 2448       dhladky     Moved methods to TimeUtil.
  * Dec 20, 2013  2636      mpduff      Changed dataset delay to offset.
  * Jan 08, 2014 2615       bgonzale    Moved Calendar min and max methods to TimeUtil.
+ * Apr 09, 2014 3012       dhladky     GMT Calendar use.
  * 
  * </pre>
  * 
@@ -191,7 +192,7 @@ public class BandwidthUtil {
         dao.setDataSetName(dataSetMetaData.getDataSetName());
         dao.setProviderName(dataSetMetaData.getProviderName());
         dao.setUpdateTime(BandwidthUtil.now());
-        dao.setDataSetBaseTime(TimeUtil.newCalendar(dataSetMetaData.getDate()));
+        dao.setDataSetBaseTime(TimeUtil.newGmtCalendar(dataSetMetaData.getDate()));
         dao.setUrl(dataSetMetaData.getUrl());
 
         return dao;
