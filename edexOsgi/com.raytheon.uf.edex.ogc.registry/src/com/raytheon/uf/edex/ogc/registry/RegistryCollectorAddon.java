@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
  * Aug 08, 2013            dhladky      Made operational
  * Jan 13, 2014  #2679     dhladky      multiple layers
  * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
+ * Apr 14, 2014  3012      dhladky      Cleaned up.
  * 
  * </pre>
  * 
@@ -120,7 +121,7 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
 
         final String description = metaData.getDataSetDescription();
         statusHandler.info("Attempting store of DataSetMetaData[" + description
-                + "]");
+                + "] " + "Date: "+metaData.getDate());
 
         try {
             handler.update(RegistryUtil.registryUser, metaData);

@@ -128,6 +128,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
  * Feb 10, 2014 2636       mpduff       Pass Network map to be scheduled.
  * Feb 21, 2014, 2636      dhladky      Try catch to keep MaintTask from dying.
  * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
+ * Apr 09, 2014 3012       dhladky      Range the queries for metadata checks, adhoc firing prevention.
  * Apr 22, 2014 2992       dhladky      Added IdUtil for siteList
  * </pre>
  * 
@@ -295,7 +296,6 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
      * @param subscription
      *            The completed subscription.
      */
-    @SuppressWarnings("unchecked")
     @Subscribe
     public void subscriptionFulfilled(
             SubscriptionRetrievalFulfilled subscriptionRetrievalFulfilled) {
@@ -385,6 +385,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             Subscription<T, C> sub = getRegistryObjectById(subscriptionHandler,
                     re.getId());
             sendSubscriptionNotificationEvent(re, sub);
+            
         }
     }
 
@@ -450,9 +451,9 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                                 + dsmd.getDataSetName() + "] to [rap_f]");
                 dsmd.setDataSetName("rap_f");
             }
-            // TODO: End of hack..
 
             BandwidthEventBus.publish(dsmd);
+            
         } else {
             statusHandler.error("No DataSetMetaData found for id [" + id + "]");
         }
@@ -492,6 +493,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     @Subscribe
     public void updateGriddedDataSetMetaData(
             GriddedDataSetMetaData dataSetMetaData) throws ParseException {
+      
         // Daily/Hourly/Monthly datasets
         if (dataSetMetaData.getCycle() == GriddedDataSetMetaData.NO_CYCLE) {
             updateDataSetMetaDataWithoutCycle((DataSetMetaData<T>) dataSetMetaData);
@@ -500,6 +502,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         else {
             updateDataSetMetaDataWithCycle((DataSetMetaData<T>) dataSetMetaData);
         }
+        
     }
 
     /**
@@ -667,19 +670,20 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             DataSetMetaData<T> dataSetMetaData) throws ParseException {
         BandwidthDataSetUpdate dataset = bandwidthDao
                 .newBandwidthDataSetUpdate(dataSetMetaData);
-
-        // Looking for active subscriptions to the dataset.
-        List<SubscriptionRetrieval> subscriptions = bandwidthDao
-                .getSubscriptionRetrievals(dataset.getProviderName(),
-                        dataset.getDataSetName(), dataset.getDataSetBaseTime());
+      
+        // Range the query for subscriptions within the baseReferenceTime hour.
+        // SOME models, RAP and RTMA, come not exactly on the hour.  This causes these
+        // subscriptions to be missed because baseReferenceTimes are on the hour.
+        Map<String, Date> timeRange = getBaseReferenceTimeDateRange(dataset.getDataSetBaseTime());
+        
+        final SortedSet<SubscriptionRetrieval> subscriptions = bandwidthDao
+                .getSubscriptionRetrievals(dataset.getProviderName(), dataset.getDataSetName(),
+                        RetrievalStatus.SCHEDULED, timeRange.get(MIN_RANGE_TIME), timeRange.get(MAX_RANGE_TIME));
 
         if (!subscriptions.isEmpty()) {
             // Loop through the scheduled SubscriptionRetrievals and mark
             // the scheduled retrievals as ready for retrieval
             for (SubscriptionRetrieval retrieval : subscriptions) {
-                // TODO: Evaluate the state changes for receiving multiple
-                // dataset update messages. This seems to be happening
-                // quite a bit.
 
                 if (RetrievalStatus.SCHEDULED.equals(retrieval.getStatus())) {
                     // Need to update the Subscription Object in the
@@ -723,14 +727,12 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             }
 
         } else {
-            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                statusHandler
-                        .debug("No Subscriptions scheduled for BandwidthDataSetUpdate ["
-                                + dataset.getIdentifier()
-                                + "] base time ["
-                                + BandwidthUtil.format(dataset
-                                        .getDataSetBaseTime()) + "]");
-            }
+            statusHandler
+                    .debug("No Subscriptions scheduled for BandwidthDataSetUpdate ["
+                            + dataset.getIdentifier()
+                            + "] base time ["
+                            + BandwidthUtil.format(dataset.getDataSetBaseTime())
+                            + "]");
         }
     }
 
@@ -867,7 +869,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                                 + plan.getPlanEnd().getTime());
                         statusHandler.info("MaintenanceTask: Update schedule");
                     }
-                    // Find DEFERRED Allocations and load them into the plan...
+                    // Find DEFERRED Allocations and load them into the
+                    // plan...
                     List<BandwidthAllocation> deferred = bandwidthDao
                             .getDeferred(plan.getNetwork(), plan.getPlanEnd());
                     if (!deferred.isEmpty()) {
@@ -886,8 +889,11 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                         + " Subscriptions processed.");
 
             } catch (Throwable t) {
-                statusHandler.error("MaintenanceTask: Subscription update scheduling has failed", t);
+                statusHandler
+                        .error("MaintenanceTask: Subscription update scheduling has failed",
+                                t);
             }
         }
+
     }
 }
