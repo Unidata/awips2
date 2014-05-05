@@ -20,7 +20,7 @@
     -->
 <DerivedParameter abbreviation="uWStk" name="U Stack" unit="m/s">
     <Method name="Union" levels="0-3kmAgl">
-    	<Field abbreviation="uW" level="0kmAgl"/>
+    	<Field abbreviation="uW" level="0FHAG"/>
         <Field abbreviation="uW" level="0.5kmAgl"/>
         <Field abbreviation="uW" level="1kmAgl"/>
         <Field abbreviation="uW" level="1.5kmAgl"/>
