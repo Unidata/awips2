@@ -85,6 +85,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Oct 15, 2013  2451      skorolev     Get highlighted rows after message update.
  * Nov 01, 2013  2431      skorolev     Changed labels on the table.
  * Feb 07, 2014  2453      mpduff       Refactored.
+ * Apr 18, 2014  3012      dhladky      Null check.
  * </pre>
  * 
  * @author lvenable
@@ -941,6 +942,9 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             for (int index : indices) {
                 NotificationRowData rowData = filteredTableList
                         .getDataRow(index);
+                if (rowData == null) {
+                    continue;
+                }
                 selectedRowIds.add(rowData.getId());
             }
         }
