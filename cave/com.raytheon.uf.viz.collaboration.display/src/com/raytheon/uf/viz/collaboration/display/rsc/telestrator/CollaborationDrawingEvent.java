@@ -37,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Apr 3, 2012            mnash     Initial creation
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * May 05, 2014 3076       bclement    added DISPOSE_ALL
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class CollaborationDrawingEvent {
 
     public static enum CollaborationEventType {
-        DRAW, ERASE, REDO, UNDO, CLEAR, LOCK_USERS, UNLOCK_USERS, CLEAR_ALL, NEW_USER_ARRIVED;
+        DRAW, ERASE, REDO, UNDO, CLEAR, CLEAR_ALL, LOCK_USERS, UNLOCK_USERS, DISPOSE_ALL, NEW_USER_ARRIVED;
     }
 
     @DynamicSerializeElement
