@@ -113,6 +113,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 09/12/2013   #2348       randerso    Removed code that called getDb from  getD2DDatabaseIdsFromDb
  *                                      Added function to create a D2DGridDatabase object only if there is
  *                                      data in postgres for the desired model/reftime
+ * 04/17/2014   #2934       dgilling    Change getGridParmInfo to use D2DParm's GridParmInfo.
  * 
  * </pre>
  * 
@@ -623,98 +624,14 @@ public class D2DGridDatabase extends VGridDatabase {
 
     @Override
     public ServerResponse<GridParmInfo> getGridParmInfo(ParmID id) {
-
         ServerResponse<GridParmInfo> sr = new ServerResponse<GridParmInfo>();
         GridParmInfo gpi = null;
-        String mappedModel = config.d2dModelNameMapping(id.getDbId()
-                .getModelName());
 
-        if (id.getParmName().equalsIgnoreCase("wind")) {
-            List<TimeRange> modelTimes = GridParamInfoLookup
-                    .getInstance()
-                    .getParameterTimes(mappedModel, id.getDbId().getModelDate());
-            TimeConstraints tc = getTimeConstraints(modelTimes);
-
-            // first try getting u-component attributes
-            ParameterInfo atts = GridParamInfoLookup.getInstance()
-                    .getParameterInfo(mappedModel, "uw");
-
-            // if not found try wind speed
-            if (atts == null) {
-                atts = GridParamInfoLookup.getInstance().getParameterInfo(
-                        mappedModel, "ws");
-            }
-            float minV = 0;
-            float maxV = atts.getValid_range()[1];
-            int precision = calcPrecision(minV, maxV);
-            gpi = new GridParmInfo(id, this.outputGloc, GridType.VECTOR,
-                    atts.getUnits(), "wind", minV, maxV, precision, false, tc,
-                    false);
-            sr.setPayload(gpi);
-            return sr;
-
-        }
-
-        ParameterInfo atts = GridParamInfoLookup.getInstance()
-                .getParameterInfo(mappedModel, id.getParmName());
-
-        if (atts == null) {
-            if (gpi == null) {
-                TimeConstraints tc = new TimeConstraints(
-                        TimeUtil.SECONDS_PER_HOUR, TimeUtil.SECONDS_PER_HOUR, 0);
-                gpi = new GridParmInfo(id, this.outputGloc, GridType.SCALAR,
-                        "", "", ParameterInfo.MIN_VALUE,
-                        ParameterInfo.MAX_VALUE, 0, false, tc, false);
-            }
-
+        D2DParm parm = gfeParms.get(id);
+        if (parm != null) {
+            gpi = parm.getGpi();
         } else {
-            boolean accParm = false;
-            List<String> accumParms = config.accumulativeD2DElements(dbId
-                    .getModelName());
-            if (accumParms != null) {
-                if (accumParms.contains(atts.getShort_name())) {
-                    accParm = true;
-                }
-            }
-
-            boolean rateParm = false;
-            // List<TimeRange> times = this.getGridInventory(id).getPayload();
-            List<TimeRange> times = GridParamInfoLookup
-                    .getInstance()
-                    .getParameterTimes(mappedModel, id.getDbId().getModelDate());
-            TimeConstraints tc = getTimeConstraints(times);
-            if (accParm) {
-                tc = new TimeConstraints(tc.getRepeatInterval(),
-                        tc.getRepeatInterval(), tc.getStartTime());
-                rateParm = true;
-            }
-
-            float minV = -30;
-            float maxV = 10000;
-
-            if (atts.getValid_range() != null) {
-                minV = atts.getValid_range()[0];
-                maxV = atts.getValid_range()[1];
-            } else {
-                // This is the CDF convention. But we can't use
-                // it or the GFE will attempt to create billions and
-                // billions of contours.
-                // min = MINFLOAT;
-                // max = MAXFLOAT;
-                minV = 0;
-                maxV = 10000;
-                if (!GridPathProvider.STATIC_PARAMETERS.contains(id
-                        .getParmName())) {
-                    statusHandler.handle(Priority.VERBOSE,
-                            "[valid_range] or [valid_min] or [valid_max] "
-                                    + "not found for " + id.toString());
-                }
-            }
-
-            int precision = calcPrecision(minV, maxV);
-            gpi = new GridParmInfo(id, this.outputGloc, GridType.SCALAR,
-                    atts.getUnits(), atts.getLong_name(), minV, maxV,
-                    precision, false, tc, rateParm);
+            sr.addMessage("Unknown PID: " + id.toString());
         }
 
         sr.setPayload(gpi);
