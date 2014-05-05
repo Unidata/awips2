@@ -117,6 +117,9 @@ public final class GhgConfigXml {
 
     @XmlElement
     private boolean descending;
+    
+    @XmlElement
+    private boolean identifyTestEvents;
 
     /**
      * Default constructor.
@@ -363,4 +366,19 @@ public final class GhgConfigXml {
     public void setDescending(boolean descending) {
         this.descending = descending;
     }
+
+    /**
+     * @return the identifyTestEvents
+     */
+	public boolean isIdentifyTestEvents() {
+		return identifyTestEvents;
+	}
+
+    /**
+     * @param identifyTestEvents
+     *            the identifyTestEvents to set
+     */
+	public void setIdentifyTestEvents(boolean identifyTestEvents) {
+		this.identifyTestEvents = identifyTestEvents;
+	}
 }
