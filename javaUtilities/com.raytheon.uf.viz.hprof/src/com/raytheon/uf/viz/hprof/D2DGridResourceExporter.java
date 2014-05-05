@@ -45,6 +45,7 @@ import com.raytheon.hprof.SmartInstance;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 05, 2014  3093     bsteffen    Track sizes as longs.
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
         comment.append("#  1) Metadata maps for each resource. \n");
         comment.append("#  2) Size and type of all GeneralGridData. \n");
         comment.append("#  3) Total size of each resource. \n");
-        comment.append("#  4) Total size of all resources.\n#");
+        comment.append("#  4) Total size of all resources.\n");
 
         return comment.toString();
     }
@@ -92,9 +93,9 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
             outputResource(resource);
         }
         println("# Section 2 size and type of all GeneralGridData.");
-        Map<SmartInstance, Integer> sizes = new HashMap<SmartInstance, Integer>();
+        Map<SmartInstance, Long> sizes = new HashMap<SmartInstance, Long>();
         for (SmartInstance resource : resources) {
-            int floats = 0;
+            long floats = 0;
             List<GeneralGridDataInstance> datas = new ArrayList<GeneralGridDataInstance>();
             if (useDataMap) {
                 ConcurrentHashMap<SmartInstance, SmartInstance> dataMap = resource
@@ -147,19 +148,19 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
             println("}");
         }
         println("# Section 3 total size of each resource.");
-        List<Entry<SmartInstance, Integer>> sizesList = new ArrayList<Entry<SmartInstance, Integer>>(
+        List<Entry<SmartInstance, Long>> sizesList = new ArrayList<Entry<SmartInstance, Long>>(
                 sizes.entrySet());
         Collections.sort(sizesList,
-                new Comparator<Entry<SmartInstance, Integer>>() {
+                new Comparator<Entry<SmartInstance, Long>>() {
 
                     @Override
-                    public int compare(Entry<SmartInstance, Integer> e1,
-                            Entry<SmartInstance, Integer> e2) {
+                    public int compare(Entry<SmartInstance, Long> e1,
+                            Entry<SmartInstance, Long> e2) {
                         return e1.getValue().compareTo(e2.getValue());
                     }
                 });
-        int totalFloats = 0;
-        for (Entry<SmartInstance, Integer> entry : sizesList) {
+        long totalFloats = 0;
+        for (Entry<SmartInstance, Long> entry : sizesList) {
             SmartInstance resource = entry.getKey();
             StringBuilder modHint = new StringBuilder();
             try {
@@ -177,8 +178,8 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
             } catch (IllegalStateException e) {
                 /* heap dump is from after 14.2 */
             }
-            int floats = entry.getValue();
-            int size = floats * 4 / 1024;
+            long floats = entry.getValue();
+            long size = floats * 4 / 1024;
             String suffix = "KB";
             if (size > 1024) {
                 size /= 1024;
@@ -273,8 +274,9 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
             return 0;
         }
 
-        public int getFloatCount() {
-            return uCapacity + vCapacity + scalarCapacity + dirCapacity;
+        public long getFloatCount() {
+            return ((long) uCapacity) + vCapacity + scalarCapacity
+                    + dirCapacity;
         }
 
         @Override
