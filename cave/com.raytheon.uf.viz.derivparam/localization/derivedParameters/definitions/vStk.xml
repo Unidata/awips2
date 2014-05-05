@@ -20,7 +20,7 @@
     -->
 <DerivedParameter abbreviation="vWStk" name="V Stack" unit="m/s">
    <Method name="Union" levels="0-3kmAgl">
-    	<Field abbreviation="vW" level="0kmAgl"/>
+    	<Field abbreviation="vW" level="0FHAG"/>
         <Field abbreviation="vW" level="0.5kmAgl"/>
         <Field abbreviation="vW" level="1kmAgl"/>
         <Field abbreviation="vW" level="1.5kmAgl"/>
