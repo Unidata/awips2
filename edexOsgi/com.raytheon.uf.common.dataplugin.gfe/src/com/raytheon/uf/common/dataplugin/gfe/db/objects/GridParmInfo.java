@@ -67,6 +67,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 04/02/2013     #1774    randerso    Improved error message in validCheck
  * 08/06/13       #1571    randerso    Added hibernate annotations, javadoc cleanup
  * 10/22/2013     #2361    njensen     Remove ISerializableObject
+ * 05/06/2014     #3118    randerso    Changed clone() to also clone gridLoc
  * 
  * </pre>
  * 
@@ -196,7 +197,7 @@ public class GridParmInfo implements Cloneable {
      */
     public GridParmInfo(GridParmInfo orig) {
         this.parmID = orig.parmID;
-        this.gridLoc = orig.gridLoc;
+        this.gridLoc = orig.gridLoc.clone();
         this.gridType = orig.gridType;
         this.unitString = orig.unitString;
         this.descriptiveName = orig.descriptiveName;
