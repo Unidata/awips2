@@ -12,8 +12,11 @@ package com.raytheon.uf.edex.ogc.common.soap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.bind.JAXBException;
 
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
@@ -40,7 +43,15 @@ import com.sun.xml.bind.v2.model.annotation.RuntimeAnnotationReader;
 
 public class JaxWsConfigServerFactoryBean extends JaxWsServerFactoryBean {
 
-    public void setClasses(Class<?>[] classes) {
+    /**
+     * Add classes to the servers JAXBDataBinding
+     * 
+     * @param classes
+     * @return a Boolean (true) so it can be used as a factory in spring, which
+     *         is easier to read
+     * @throws JAXBException
+     */
+    public Boolean addContextClasses(Class<?>... classes) throws JAXBException {
         JAXBDataBinding dataBinding = (JAXBDataBinding) getServiceFactory()
                 .getDataBinding();
         Class<?>[] old = dataBinding.getExtraClass();
@@ -51,9 +62,27 @@ public class JaxWsConfigServerFactoryBean extends JaxWsServerFactoryBean {
             classes = all.toArray(new Class<?>[all.size()]);
         }
         dataBinding.setExtraClass(classes);
-        getServiceFactory().setDataBinding(dataBinding);
+        if (dataBinding.getContext() != null) {
+            // Context was already created, we need to forcibly re-create it
+            Set<Class<?>> contextClasses = new LinkedHashSet<Class<?>>();
+            contextClasses.addAll(dataBinding.getContextClasses());
+            dataBinding.setContext(dataBinding
+                    .createJAXBContext(contextClasses));
+        }
+        return true;
     }
-    
+
+    /**
+     * Convenience method for adding a single class since spring has problems
+     * with arrays of Class<?> objects
+     * 
+     * @param clazz
+     * @throws JAXBException
+     */
+    public Boolean addContextClass(Class<?> clazz) throws JAXBException {
+        return addContextClasses(clazz);
+    }
+
     public void setAnnotationReader(RuntimeAnnotationReader reader) {
         setContextProperty(JAXBRIContext.ANNOTATION_READER, reader);
     }
