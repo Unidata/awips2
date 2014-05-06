@@ -36,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.convert.GridCoverageConverter;
 import com.raytheon.uf.common.parameter.Parameter;
+import com.raytheon.uf.common.parameter.ParameterConverter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -106,7 +107,7 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
 
     @ManyToOne
     @PrimaryKeyJoinColumn
-    @DataURI(position = 4, embedded = true)
+    @DataURI(position = 4, converter = ParameterConverter.class)
     @DynamicSerializeElement
     private Parameter parameter;
 
