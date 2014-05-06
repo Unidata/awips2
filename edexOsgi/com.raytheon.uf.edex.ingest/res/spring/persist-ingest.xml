@@ -51,6 +51,10 @@
             <to uri="direct-vm:stageNotification"/> 
         </route>
 
+        <!--
+        This route should come after all other routes in this context
+        that send data to it for proper startup/shutdown order. 
+         -->
         <route id="notificationAggregation">
             <from uri="direct-vm:stageNotification"/>
             <bean ref="pluginNotifier" method="notify" />
