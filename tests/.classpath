@@ -163,5 +163,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.taf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.redbook"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.edex.datadelivery"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.plugin.hpe"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.common.plugin.hpe"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
