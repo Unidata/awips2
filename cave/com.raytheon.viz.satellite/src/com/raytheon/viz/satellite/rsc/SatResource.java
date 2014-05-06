@@ -100,6 +100,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      rules.
  *  Apr 09, 2014  2947      bsteffen    Improve flexibility of sat derived
  *                                      parameters, implement ImageProvider
+ *  May 06, 2014            njensen     Improve error message
  * 
  * </pre>
  * 
@@ -257,7 +258,7 @@ public class SatResource extends
                 initializeFirstFrame((SatelliteRecord) pdo);
             } catch (VizException e) {
                 throw new IllegalStateException(
-                        "Unable to initialize the satellite resource");
+                        "Unable to initialize the satellite resource", e);
             }
             initialized = true;
         }
