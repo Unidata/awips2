@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hpe
+Bundle-SymbolicName: com.raytheon.uf.viz.hpe; singleton:=true
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
+ com.raytheon.uf.common.plugin.hpe;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.time;bundle-version="1.12.1174",
+ com.raytheon.uf.common.util;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core;bundle-version="1.14.2",
+ com.raytheon.viz.hydrocommon;bundle-version="1.12.1174",
+ com.raytheon.viz.ui;bundle-version="1.14.0",
+ com.raytheon.uf.viz.monitor.ffmp;bundle-version="1.12.1174",
+ com.raytheon.viz.grid;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
