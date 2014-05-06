@@ -18,6 +18,14 @@
 # further licensing information.
 ##
 
+#    SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    --/--/-----                                  Initial creation
+#    May 06, 2014    3101          njensen        Cast numpy shape values to int
+#                                                  for cross platform compatibility
+
 from com.raytheon.uf.common.derivparam.python.function import CapeFuncPythonAdapter as CapeFunc
 from numpy import zeros
 
@@ -90,9 +98,8 @@ def __execute(*args):
     pressureValue = pressure
     pressure = zeros(temperatureValues.shape, temperatureValues.dtype)
     pressure[:] = pressureValue
-    if upperTerminationPressure is None:
-        threeDshape = pressureValues.shape
-        return CapeFunc.capeFunc(useVirtualTemp, pressureValues, temperatureValues, pressure, potentialTemperature, specificHumidity, threeDshape[1], threeDshape[2], threeDshape[0]).__numpy__
-    else:
-        threeDshape = pressureValues.shape
-        return CapeFunc.capeFuncTop(useVirtualTemp, pressureValues, temperatureValues, pressure, potentialTemperature, specificHumidity, upperTerminationPressure, threeDshape[1], threeDshape[2], threeDshape[0]).__numpy__
+    threeDshape = pressureValues.shape
+    if upperTerminationPressure is None:        
+        return CapeFunc.capeFunc(useVirtualTemp, pressureValues, temperatureValues, pressure, potentialTemperature, specificHumidity, int(threeDshape[1]), int(threeDshape[2]), int(threeDshape[0])).__numpy__
+    else:        
+        return CapeFunc.capeFuncTop(useVirtualTemp, pressureValues, temperatureValues, pressure, potentialTemperature, specificHumidity, upperTerminationPressure, int(threeDshape[1]), int(threeDshape[2]), int(threeDshape[0])).__numpy__
