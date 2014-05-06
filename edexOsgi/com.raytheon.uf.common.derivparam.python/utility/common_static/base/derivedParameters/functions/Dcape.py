@@ -24,6 +24,8 @@
 #    ------------    ----------    -----------    --------------------------
 #    Feb 17, 2010    4502          jelkins        Initial Creation.
 #    Jun 05, 2013    2043          bsteffen       Ported from meteolib C
+#    May 06, 2014    3101          njensen        Cast numpy shape values to int
+#                                                  for cross platform compatibility
 
 from numpy import zeros
 from com.raytheon.uf.common.derivparam.python.function import DCapeFuncPythonAdapter as DCapeFunc
@@ -62,5 +64,5 @@ def execute(threeDtemperature, threeDdewpoint, pressure, potentialTemperature, s
     pressure = zeros(potentialTemperature.shape, potentialTemperature.dtype)
     pressure[:] = pressureValue
     threeDshape = threeDpressure.shape
-    return DCapeFunc.dcapeFunc(useVirtualTemp, threeDpressure, threeDtemperature[0], threeDdewpoint[0], pressure, potentialTemperature, specificHumidity, threeDshape[1], threeDshape[2], threeDshape[0], maxEvaporation, maxRelativeHumidity).__numpy__[0]
+    return DCapeFunc.dcapeFunc(useVirtualTemp, threeDpressure, threeDtemperature[0], threeDdewpoint[0], pressure, potentialTemperature, specificHumidity, int(threeDshape[1]), int(threeDshape[2]), int(threeDshape[0]), maxEvaporation, maxRelativeHumidity).__numpy__[0]
 
