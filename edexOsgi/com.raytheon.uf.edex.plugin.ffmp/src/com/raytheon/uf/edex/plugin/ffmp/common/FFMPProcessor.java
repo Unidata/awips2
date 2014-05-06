@@ -102,6 +102,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * 09/03/2013   DR 13083    G. Zhang    Added a fix in processRADAR(ArrayList<SourceBinEntry>).
  * 03 April 2014 2940       dhladky     Better error message for bad configurations.
+ * Apr 15, 2014  3026       mpduff      Set the xmrg filename into the metadata column.
  * </pre>
  * @author dhladky
  * @version 1
@@ -262,6 +263,7 @@ public class FFMPProcessor {
                     xmrg = (XmrgFile) config.getSourceData(
                             source.getSourceName()).get(dataKey);
                     xmrgData = getXMRGData();
+                    ffmpRec.setMetaData(xmrg.getFile().getName());
                 } catch (Exception e) {
                     fireBadConfigMessage(type, e);
                     return;
