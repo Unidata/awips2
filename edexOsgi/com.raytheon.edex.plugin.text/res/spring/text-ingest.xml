@@ -86,8 +86,35 @@
 		-->
 
 		<!--
-			Text routes
+          Text routes.
+          If an internal route (see ContextManager.INTERNAL_ENDPOINT_TYPES) is being sent data from another internal
+          route in the same context it needs to come after the route that sends it data for proper startup/shutdown order.
 		-->
+        <route id="textUndecodedIngestRoute">
+            <from uri="jms-durable:queue:Ingest.Text?concurrentConsumers=2" />
+            <setHeader headerName="pluginName">
+                <constant>text</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="textDecoder" method="decodeFile" />
+                    <bean ref="processUtil" method="log"/>
+                    <multicast>
+                        <!-- This route needs to go to Mark's  -->
+                        <to uri="direct:textToWatchWarn"/>
+                        <to uri="direct:textSerializeRoute" />
+                        <to uri="direct:textPurgeAccumulate" />
+                        <to uri="vm:autoFaxRoute" />
+                    </multicast>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:text?level=INFO"/>
+                </doCatch>
+            </doTry>
+        </route>
+
 		<route id="textDirectDecodedIngestRoute">
 			<from uri="direct-vm:textDirectDecodedIngestRoute" />
 			<setHeader headerName="pluginName">
@@ -121,31 +148,6 @@
 					<bean ref="textDecoder" method="decode" />
 					<bean ref="processUtil" method="log"/>
 					<multicast>
-						<to uri="direct:textToWatchWarn"/>
-						<to uri="direct:textSerializeRoute" />
-						<to uri="direct:textPurgeAccumulate" />
-						<to uri="vm:autoFaxRoute" />
-					</multicast>
-				</pipeline>
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:text?level=INFO"/>
-				</doCatch>
-			</doTry>
-		</route>
-
-		<route id="textUndecodedIngestRoute">
-			<from uri="jms-durable:queue:Ingest.Text?concurrentConsumers=2" />
-			<setHeader headerName="pluginName">
-				<constant>text</constant>
-			</setHeader>			
-			<doTry>
-				<pipeline>
-					<bean ref="stringToFile" />
-					<bean ref="textDecoder" method="decodeFile" />
-					<bean ref="processUtil" method="log"/>
-					<multicast>
-						<!-- This route needs to go to Mark's  -->
 						<to uri="direct:textToWatchWarn"/>
 						<to uri="direct:textSerializeRoute" />
 						<to uri="direct:textPurgeAccumulate" />
