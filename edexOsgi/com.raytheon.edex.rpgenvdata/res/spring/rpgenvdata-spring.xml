@@ -35,8 +35,8 @@
 
     <camelContext id="rpgenvdata-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
-		<endpoint id="rpgEnvDataCron" uri="clusteredquartz://rpgEnvData/rpgEnvDataRoute/?cron=${rpggenvdata.envdata.cron}"/>
-		<endpoint id="rpgBiasTableCron" uri="clusteredquartz://rpgBiasTable/rpgBiasTableRoute/?cron=${rpggenvdata.biastable.cron}"/>
+		<endpoint id="rpgEnvDataCron" uri="clusteredquartz://rpgEnvData/rpgEnvDataRoute/?cron=${rpgenvdata.envdata.cron}"/>
+		<endpoint id="rpgBiasTableCron" uri="clusteredquartz://rpgBiasTable/rpgBiasTableRoute/?cron=${rpgenvdata.biastable.cron}"/>
 
         <route id="rpgEnvDataRoute">
           <from uri="rpgEnvDataCron" />
