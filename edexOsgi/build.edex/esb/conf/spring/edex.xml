@@ -218,7 +218,7 @@
     <!-- sets default settings of log component across all of edex -->
     <!-- if log component beans are created and the exchangeFormatter property is set, they can't process URI parameters -->
     <!-- this bean needs to be named 'logFormatter' for the log component to find it in the context -->
-    <bean id="logFormatter" class="org.apache.camel.component.log.LogFormatter" scope="prototype">
+    <bean id="logFormatter" class="org.apache.camel.processor.DefaultExchangeFormatter" scope="prototype">
         <property name="maxChars" value="0" />
         <property name="showBody" value="false" />
         <property name="showCaughtException" value="true" />
