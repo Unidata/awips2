@@ -205,10 +205,11 @@ import com.vividsolutions.jts.io.WKTReader;
  * 02/07/2014  DR16090 m.gamazaychikov Added GeomMetaDataUpdateNotificationObserver class to get notification 
  *                                     when geometry file get updated to re-read them in.
  * 02/19/2014  2819        randerso    Removed unnecessary .clone() call
- * 03/17/2014  DR16309     Qinglu Lin  Updated getWarningAreaFromPolygon(); changed searchCountyGeospatialDataAccessor) to  
+ * 03/17/2014  DR 16309    Qinglu Lin  Updated getWarningAreaFromPolygon(); changed searchCountyGeospatialDataAccessor) to  
  *                                     searchGeospatialDataAccessor() and updated it; changed getCountyGeospatialDataAcessor()
  *                                     to getGeospatialDataAcessor(); changed getAllCountyUgcs() to getAllUgcs(); changed 
  *                                     getUgcsForWatches() to getUgcsForCountyWatches().
+ * 04/23/2014  DR 16356    Qinglu Lin  Updated initializeState() and added reset().
  * </pre>
  * 
  * @author mschenke
@@ -737,6 +738,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
         // Default angle for POINT
         displayState.labelMode = LabelMode.TIME;
         state.angle = 60;
+        if (StormTrackState.newWarnGen) {
+            StormTrackState.oneStormAngle = state.angle;
+            StormTrackState.trackType = "oneStorm";
+            StormTrackState.newWarnGen = false;
+        }
         state.speed = 35;
         state.dragMePoint = null;
         state.resetAnchor = true;
@@ -3491,6 +3497,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
         else {
             // "intersections[" + index + "] is invalid"
             return hatchedArea;
+        }
+    }
+
+    public void reset(String trackType) {
+        if (trackType.equals("oneStorm")) {
+            getStormTrackState().justSwitchedToOS = true;
+            getStormTrackState().justSwitchedToLOS = false;
+            StormTrackState.trackType = "oneStorm";
+            getStormTrackState().angle = StormTrackState.oneStormAngle;
+        } else if (trackType.equals("lineOfStorms")) {
+            getStormTrackState().justSwitchedToOS = false;
+            getStormTrackState().justSwitchedToLOS = true;
+            StormTrackState.trackType = "lineOfStorms";
         }
     }
 }
