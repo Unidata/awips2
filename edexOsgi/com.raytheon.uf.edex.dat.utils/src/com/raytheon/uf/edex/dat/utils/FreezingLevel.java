@@ -1,5 +1,3 @@
-package com.raytheon.uf.edex.dat.utils;
-
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -19,6 +17,9 @@ package com.raytheon.uf.edex.dat.utils;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+
+package com.raytheon.uf.edex.dat.utils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
