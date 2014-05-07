@@ -95,12 +95,12 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------ ----------  ----------- --------------------------
  * 
  * 07/14/09      2152       D. Hladky   Initial release
- * 10/25/12		DR 15514    G. Zhang	Fix ConcurrentModificationException
+ * 10/25/12     DR 15514    G. Zhang    Fix ConcurrentModificationException
  * 02/01/13     1569        D. Hladky   Added constants
  * 02/25/13     1660        D. Hladky   FFTI design change to help mosaic processing.
  * 05/01/2013   15684       zhao        Unlock when Exception caught
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
- * 09/03/2013   DR 13083    G. Zhang	Added a fix in processRADAR(ArrayList<SourceBinEntry>).
+ * 09/03/2013   DR 13083    G. Zhang    Added a fix in processRADAR(ArrayList<SourceBinEntry>).
  * 03 April 2014 2940       dhladky     Better error message for bad configurations.
  * </pre>
  * @author dhladky
@@ -218,7 +218,7 @@ public class FFMPProcessor {
         }
 
         statusHandler.handle(Priority.INFO,
-                "Processed Source: " + ffmpRec.getSourceName() + " sitekey: "
+                "Processed Source: " + source.getSourceName() + " sitekey: "
                         + siteKey + " dataKey: " + dataKey + " time: "
                         + (System.currentTimeMillis() - time));
 
@@ -637,12 +637,12 @@ public class FFMPProcessor {
                                 + source.getDisplayName();
                     }
 
-					Date backDate = new Date(ffmpRec.getDataTime().getRefTime()
-							.getTime()-(FFMPGenerator.SOURCE_CACHE_TIME * TimeUtil.MILLIS_PER_HOUR));
-	
-					FFMPDataContainer ffgContainer = generator
-							.getFFMPDataContainer(sourceNameString, 
-									backDate);
+                    Date backDate = new Date(ffmpRec.getDataTime().getRefTime()
+                            .getTime()-(FFMPGenerator.SOURCE_CACHE_TIME * TimeUtil.MILLIS_PER_HOUR));
+    
+                    FFMPDataContainer ffgContainer = generator
+                            .getFFMPDataContainer(sourceNameString, 
+                                    backDate);
 
                     if (ffgContainer != null
                             && ffgContainer.containsKey(source.getSourceName())) {
@@ -1139,19 +1139,19 @@ public class FFMPProcessor {
         if (radarRec.getMnemonic().equals("DHR")) {
 
             for (int j = 0; j < dataVals.length; j++) {
-				try {
-					val += ScanUtils.getZRvalue2(dataVals[j],//fval,// DR 13083
-							dhrMap.get(DHRValues.ZRMULTCOEFF),
-							dhrMap.get(DHRValues.MAXPRECIPRATEALLOW),
-							dhrMap.get(DHRValues.ZRPOWERCOEFF),
-							dhrMap.get(DHRValues.BIAS_TO_USE))
-							* areas[j];
-					area += areas[j];
-				} catch (Exception e) {
-					statusHandler
-							.error("DHR parameters are NULL, can't process!"
-									+ e.getMessage());
-				}
+                try {
+                    val += ScanUtils.getZRvalue2(dataVals[j],//fval,// DR 13083
+                            dhrMap.get(DHRValues.ZRMULTCOEFF),
+                            dhrMap.get(DHRValues.MAXPRECIPRATEALLOW),
+                            dhrMap.get(DHRValues.ZRPOWERCOEFF),
+                            dhrMap.get(DHRValues.BIAS_TO_USE))
+                            * areas[j];
+                    area += areas[j];
+                } catch (Exception e) {
+                    statusHandler
+                            .error("DHR parameters are NULL, can't process!"
+                                    + e.getMessage());
+                }
             }
 
         } else if (radarRec.getMnemonic().equals("DPR")) {
@@ -1826,18 +1826,25 @@ public class FFMPProcessor {
     }
 
     /**
-     * Gets the XMRG data array
+     * Gets the XMRG data array, checks HRAP/XMRG config for sanity.
      * 
      * @return
      */
     private short[][] getXMRGData() throws Exception {
 
+        String fileName = "MISSING";
+        
+        if (xmrg.getFile() != null) {
+            fileName = xmrg.getFile().getAbsolutePath();
+        }
+        
         this.extent = getExtents(source.getHrapGridFactor());
         setHRAPSubGrid(extent, source.getHrapGridFactor());
+       
         if (xmrg.getHrapExtent() != null) {
             xmrgData = xmrg.getData(extent);
         } else {
-            throw new MalformedDataException("The XMRG data is malformed or the file is non-readable.");
+            throw new MalformedDataException("The XMRG data is malformed or the file is non-readable. "+fileName);
         }
 
         return xmrgData;
