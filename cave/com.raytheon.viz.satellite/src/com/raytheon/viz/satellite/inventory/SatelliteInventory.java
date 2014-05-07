@@ -53,6 +53,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
+import com.raytheon.viz.alerts.IAlertObserver;
+import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
 /**
  * Inventory of available satellite data. sectorID is used for source and
@@ -65,13 +68,15 @@ import com.raytheon.uf.common.time.DataTime;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Apr 09, 2014  2947     bsteffen    Initial creation
+ * May 06, 2014  3117     bsteffen    Update for new data.
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class SatelliteInventory extends AbstractInventory {
+public class SatelliteInventory extends AbstractInventory implements
+        IAlertObserver {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatelliteInventory.class);
@@ -87,6 +92,10 @@ public class SatelliteInventory extends AbstractInventory {
     private SatelliteCoverageCache coverages;
 
     private Level level;
+
+    public SatelliteInventory() {
+        ProductAlertObserver.addObserver(SATELLITE, this);
+    }
 
     @Override
     public List<DataTime> timeAgnosticQuery(Map<String, RequestConstraint> query) {
@@ -226,4 +235,26 @@ public class SatelliteInventory extends AbstractInventory {
         }
     }
 
+    @Override
+    public void alertArrived(Collection<AlertMessage> alertMessages) {
+        if (dataTree == null) {
+            return;
+        }
+        for (AlertMessage message : alertMessages) {
+            String sector = message.decodedAlert.get(SECTOR_ID).toString();
+            String pe = message.decodedAlert.get(PHYSICALELEMENT).toString();
+            if (dataTree.getParameterNode(sector, pe) == null) {
+                /*
+                 * When a sector or element arrives that is not known reinit the
+                 * tree to ensure no nodes are missing.
+                 */
+                try {
+                    initTree(derParLibrary);
+                } catch (DataCubeException e) {
+                    statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                }
+                return;
+            }
+        }
+    }
 }
