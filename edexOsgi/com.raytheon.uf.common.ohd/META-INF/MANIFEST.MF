@@ -6,8 +6,7 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.localization,
- javax.persistence,
- com.raytheon.viz.core;bundle-version="1.10.13";resolution:=optional
+ javax.persistence
 Export-Package: com.raytheon.uf.common.ohd
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.util,
