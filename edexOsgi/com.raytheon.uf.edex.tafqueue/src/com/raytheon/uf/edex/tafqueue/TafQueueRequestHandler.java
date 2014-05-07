@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * May 1, 2012  14715      rferrel     Initial creation
  * May 08, 2013 1814       rjpeter     Added time to live to topic
  * Jun 07, 2013 1981       mpduff      TafQueueRequest is now protected.
+ * May 08, 2014 3091       rferrel     Added CHECK_AUTHORIZED.
  * </pre>
  * 
  * @author rferrel
@@ -139,6 +140,10 @@ public class TafQueueRequestHandler extends
                 if (retransNum > 0) {
                     sendNotification(Type.RETRANSMIT);
                 }
+                break;
+            case CHECK_AUTHORIZED:
+                response = new ServerResponse<String>();
+                response.addMessage("User is authorized.");
                 break;
             default:
                 response = new ServerResponse<String>();
