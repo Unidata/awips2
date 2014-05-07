@@ -171,6 +171,7 @@ public class SatPrecipFileBuilder {
         xmfile.setData(data);
 
         xmfile.save(fname);
+        logger.info("Successfully created satellite precip xmrg file: " + fname);
     }
 
     /**
