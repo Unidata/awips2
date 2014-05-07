@@ -86,7 +86,10 @@
             <bean ref="modelsoundingPersistenceManager" method="run"/>
         </route>
 
-        <!-- Copy of persist route without the log call -->
+        <!--
+        Copy of persist route without the log call.
+        This route must come after the timer route for proper startup/shutdown order.
+         -->
         <route id="modelSoundingPersistIndexAlert">
             <from uri="direct-vm:modelSoundingPersistIndexAlert"/>
             <bean ref="persist" method="persist"/>
