@@ -48,6 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 27, 2009            avarani     Initial creation
  * Apr 30, 2012 14715      rferrel     Refactored and moved.
  * Mar 21, 2013 15375      zhao        Modified getInfo() to also handle VFT product
+ * May 07, 2014 3091       rferrel     Use OUP authorization to bring up send dialog.
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "taf_queue")
 @DynamicSerialize
-public class TafQueueRecord implements IPersistableDataObject,
+public class TafQueueRecord implements IPersistableDataObject<Integer>,
         Comparable<TafQueueRecord> {
 
     private static final long serialVersionUID = 1L;
@@ -73,7 +74,7 @@ public class TafQueueRecord implements IPersistableDataObject,
 
     @DynamicSerializeElement
     @Column
-    private int forecasterId;
+    private String forecasterId;
 
     @DynamicSerializeElement
     @Column(columnDefinition = "timestamp without time zone", nullable = false)
@@ -134,7 +135,7 @@ public class TafQueueRecord implements IPersistableDataObject,
      * @param stationId
      * @param headerTime
      */
-    public TafQueueRecord(int forecasterId, Date xmitTime, String tafText,
+    public TafQueueRecord(String forecasterId, Date xmitTime, String tafText,
             String bbb, String siteId, String wmoId, String stationId,
             Date headerTime) {
         this.forecasterId = forecasterId;
@@ -159,14 +160,14 @@ public class TafQueueRecord implements IPersistableDataObject,
      */
     public String getInfo() {
         String productTag = "TAF";
-        if (forecasterId == TafQueueVftConfigMgr.getInstance().getFcstid()) { // for
-                                                                              // VFT
-                                                                              // product
-                                                                              // (DR15375)
+        // for VFT product (DR15375)
+        if ((forecasterId != null)
+                && forecasterId.equals(TafQueueVftConfigMgr.getInstance()
+                        .getFcstid())) {
             productTag = "VFT";
         }
         return String
-                .format("%1$03d-%7$s%8$s%5$s-%6$s-%7$s-%2$ty%2$tm%2$td%2$tH%2$tM-%4$s-%9$d",
+                .format("%1$s-%7$s%8$s%5$s-%6$s-%7$s-%2$ty%2$tm%2$td%2$tH%2$tM-%4$s-%9$d",
                         forecasterId, headerTime, tafText, bbb, siteId, wmoId,
                         stationId, productTag, (xmitTime.getTime() / 1000));
     }
@@ -241,11 +242,11 @@ public class TafQueueRecord implements IPersistableDataObject,
         this.id = id;
     }
 
-    public int getForecasterId() {
+    public String getForecasterId() {
         return forecasterId;
     }
 
-    public void setForecasterId(int forecasterId) {
+    public void setForecasterId(String forecasterId) {
         this.forecasterId = forecasterId;
     }
 
@@ -297,9 +298,15 @@ public class TafQueueRecord implements IPersistableDataObject,
         this.wmoId = wmoId;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject#
+     * getIdentifier()
+     */
     @Override
-    public Object getIdentifier() {
-        return id;
+    public Integer getIdentifier() {
+        return getId();
     }
 
     public String toString() {
