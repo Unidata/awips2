@@ -477,6 +477,7 @@ class GribDecoder():
                 levelTwoValue=float(Level.getInvalidLevelValue())
               
             durationSecs = None
+            typeOfTimeInterval = None
               
             # Special case handling for specific PDS Templates
             if pdsTemplateNumber == 1 or pdsTemplateNumber == 11:
@@ -530,7 +531,7 @@ class GribDecoder():
                     #numTimeRanges = pdsTemplate[28]
                     #numMissingValues = pdsTemplate[29]
                     #statisticalProcess = pdsTemplate[30]
-                    
+                    typeOfTimeInterval = pdsTemplate[31]
                     durationSecs = self._convertToSeconds(pdsTemplate[33], pdsTemplate[32])
                             
                 scaledValue = None 
@@ -560,8 +561,10 @@ class GribDecoder():
                 #numMissingValues = pdsTemplate[23]
                 #statisticalProcess = pdsTemplate[24]
                 
+                typeOfTimeInterval = pdsTemplate[25]
                 durationSecs =  self._convertToSeconds(pdsTemplate[27], pdsTemplate[26])
                 
+
             if durationSecs is not None:
                 # This only applies for templates 9 and 10 which are not
                 # commonly used templates. For all other data the duration is
@@ -576,6 +579,14 @@ class GribDecoder():
                 # duration is correctly calculated.
                 refToEndSecs = (gribDict['endTime'].getTimeInMillis() - gribDict['refTime'].getTimeInMillis())/ 1000
                 gribDict['forecastTime'] = refToEndSecs - durationSecs
+
+            
+            if typeOfTimeInterval == 192 and centerID == 7 and subcenterID == 14:
+                # For TPC Surge data the type of time interval is significant and they have indicated that 
+                # 192 means the data is cumulative. Since we don't ordinarily do table lookups on the
+                # type of time interval we must encode this information in the parameter abbreviation here.
+                parameterAbbreviation = parameterAbbreviation + "Cumul"
+                gribDict['parameterName'] = gribDict['parameterName'] + " - cumulative"
 
             if(pdsTemplate[2] == 6 or pdsTemplate[2] == 7):
                 parameterAbbreviation = parameterAbbreviation+"erranl"
