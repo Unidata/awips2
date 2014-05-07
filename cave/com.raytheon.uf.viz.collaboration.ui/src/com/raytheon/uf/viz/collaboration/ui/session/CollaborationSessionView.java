@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  **/
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -101,6 +102,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Mar 11, 2014 2865       lvenable    Added null checks in threads
  * Mar 18, 2014 2895       njensen     Fix lockAction enable/disable logic
  * Apr 15, 2014 2822       bclement    only allow transfer leader if participant is using shared display
+ * May 05, 2014 3076       bclement    added clear all action
  * 
  * </pre>
  * 
@@ -139,6 +141,8 @@ public class CollaborationSessionView extends SessionView implements
     private ActionContributionItem clearAction;
 
     private ActionContributionItem lockAction;
+
+    private ActionContributionItem clearAllAction;
 
     private ControlContribution noEditorAction;
 
@@ -179,6 +183,21 @@ public class CollaborationSessionView extends SessionView implements
             return resource.getDrawingLayerFor(resource.getMyUser());
         }
         return null;
+    }
+
+    /**
+     * @see CollaborationDrawingResource#getAllDrawingLayers()
+     * @return empty collection if no layers are found
+     */
+    private Collection<DrawingToolLayer> getAllLayers() {
+        Collection<DrawingToolLayer> rval;
+        CollaborationDrawingResource resource = getCurrentDrawingResource();
+        if (resource != null) {
+            rval = resource.getAllDrawingLayers();
+        } else {
+            rval = Collections.emptyList();
+        }
+        return rval;
     }
 
     /*
@@ -354,7 +373,15 @@ public class CollaborationSessionView extends SessionView implements
         lockAction.getAction().setImageDescriptor(
                 IconUtil.getImageDescriptor(Activator.getDefault().getBundle(),
                         "lock.gif"));
-
+        clearAllAction = new ActionContributionItem(new Action("Clear All") {
+            @Override
+            public void run() {
+                clearAllDrawingLayers();
+            }
+        });
+        clearAllAction.getAction().setImageDescriptor(
+                IconUtil.getImageDescriptor(Activator.getDefault().getBundle(),
+                        "clear_all.gif"));
         noEditorAction = new ControlContribution("noEditorAction") {
 
             @Override
@@ -383,9 +410,27 @@ public class CollaborationSessionView extends SessionView implements
         mgr.insert(mgr.getSize() - 1, redoAction);
         mgr.insert(mgr.getSize() - 1, clearAction);
         mgr.insert(mgr.getSize() - 1, eraseAction);
+        mgr.insert(mgr.getSize() - 1, new Separator());
         mgr.insert(mgr.getSize() - 1, lockAction);
+        mgr.insert(mgr.getSize() - 1, clearAllAction);
         mgr.insert(mgr.getSize() - 1, new Separator());
 
+        updateToolItems();
+    }
+
+    /**
+     * Clear all drawing layers and send clear all event
+     */
+    private void clearAllDrawingLayers() {
+        for (DrawingToolLayer layer : getAllLayers()) {
+            layer.clearAllDrawingData();
+        }
+        CollaborationDrawingResource resource = getCurrentDrawingResource();
+        CollaborationDrawingEvent event = new CollaborationDrawingEvent(
+                resource.getResourceData().getDisplayId());
+        event.setType(CollaborationEventType.CLEAR_ALL);
+        event.setUserName(resource.getMyUser());
+        resource.sendEvent(event);
         updateToolItems();
     }
 
@@ -411,6 +456,20 @@ public class CollaborationSessionView extends SessionView implements
         }
     }
 
+    /**
+     * @return true if any drawing layer has been drawn on
+     */
+    private boolean anyLayerHasDrawing() {
+        boolean anyCanClear = false;
+        for (DrawingToolLayer dtl : getAllLayers()) {
+            if (dtl.hasDrawing()) {
+                anyCanClear = true;
+                break;
+            }
+        }
+        return anyCanClear;
+    }
+
     public void updateToolItems() {
         ToolBarManager mgr = (ToolBarManager) getViewSite().getActionBars()
                 .getToolBarManager();
@@ -419,24 +478,21 @@ public class CollaborationSessionView extends SessionView implements
             mgr.insert(0, noEditorAction);
         }
         CollaborationDrawingResource currentResource = getCurrentDrawingResource();
-        DrawingToolLayer layer = null;
-        if (currentResource != null) {
-            layer = currentResource.getDrawingLayerFor(currentResource
-                    .getMyUser());
-        }
+        DrawingToolLayer layer = getCurrentLayer();
         if (layer != null && currentResource.isSessionLeader()) {
             lockAction.getAction().setEnabled(true);
+            clearAllAction.getAction().setEnabled(anyLayerHasDrawing());
         } else {
             lockAction.getAction().setEnabled(false);
+            clearAllAction.getAction().setEnabled(false);
         }
-
         // enable/disable toolbar buttons based on locked
         if (layer != null
                 && (locked == false || currentResource.isSessionLeader())) {
             drawAction.getAction().setEnabled(true);
             undoAction.getAction().setEnabled(layer.canUndo());
             redoAction.getAction().setEnabled(layer.canRedo());
-            clearAction.getAction().setEnabled(layer.canClear());
+            clearAction.getAction().setEnabled(layer.hasDrawing());
             eraseAction.getAction().setEnabled(true);
             switch (layer.getDrawMode()) {
             case DRAW:
