@@ -1,5 +1,5 @@
 /*
- * Timeline
+f * Timeline
  * 
  * Date created 03 MARCH 2010
  *
@@ -1086,7 +1086,7 @@ public class TimelineControl extends Composite {
 		numFramesSpnr.setTextLimit(3);
 		
 		Label numFramesLbl = new Label( top_form, SWT.NONE);
-		numFramesLbl.setText("Num\nFrames");
+		numFramesLbl.setText("Frames");
 		fd = new FormData();
     	fd.bottom = new FormAttachment( numFramesSpnr, -3, SWT.TOP );
     	fd.left = new FormAttachment( numFramesSpnr, 0, SWT.LEFT ); 
@@ -1104,7 +1104,7 @@ public class TimelineControl extends Composite {
 		numSkipSpnr.setTextLimit(2);
 
 		Label skipLbl = new Label(top_form, SWT.NONE);
-		skipLbl.setText("Skip\nFrames");
+		skipLbl.setText("Skip");
 		fd = new FormData();
     	fd.bottom = new FormAttachment( numSkipSpnr, -3, SWT.TOP );
     	fd.left = new FormAttachment( numSkipSpnr, 0, SWT.LEFT ); 
@@ -1151,7 +1151,7 @@ public class TimelineControl extends Composite {
     	frameIntervalCombo.setItems( availFrameIntervalStrings );
 
 		Label frameIntLbl = new Label( top_form, SWT.NONE );
-		frameIntLbl.setText("Frame\nInterval");
+		frameIntLbl.setText("Interval");
 		fd = new FormData();
     	fd.bottom = new FormAttachment( frameIntervalCombo, -3, SWT.TOP );
     	fd.left = new FormAttachment( frameIntervalCombo, 0, SWT.LEFT ); 

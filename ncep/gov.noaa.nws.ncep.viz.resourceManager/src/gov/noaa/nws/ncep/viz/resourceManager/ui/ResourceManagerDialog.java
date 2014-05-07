@@ -103,12 +103,12 @@ public class ResourceManagerDialog extends Dialog {
     	mngrTabFolder.setLayoutData( gd );
 
     	final TabItem loadTabItem = new TabItem( mngrTabFolder, SWT.NONE );
-    	loadTabItem.setText( "   Load RBD   " );
+    	loadTabItem.setText( "Load Bundle" );
 
     	loadRbdCntrl = new LoadRbdControl( mngrTabFolder );
 
     	final TabItem mngrTabItem = new TabItem( mngrTabFolder, SWT.NONE );
-    	mngrTabItem.setText( "   Create RBD   " );
+    	mngrTabItem.setText( "Load Data" );
     	
     	// get the active Display and set the rbd_mngr with it 
     	AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
@@ -138,12 +138,12 @@ public class ResourceManagerDialog extends Dialog {
     	createRbdCntrl = new CreateRbdControl( mngrTabFolder, rbd_mngr );
     	
     	final TabItem manageSPFTabItem = new TabItem( mngrTabFolder, SWT.NONE );
-    	manageSPFTabItem.setText( "   Manage SPFs  " );
+    	manageSPFTabItem.setText( "Manage Bundles" );
 
     	manageRbdsCntrl = new ManageSpfControl( mngrTabFolder );
 
     	final TabItem cnfgTabItem = new TabItem( mngrTabFolder, SWT.NONE );
-    	cnfgTabItem.setText( "   Manage Resources  " );
+    	cnfgTabItem.setText( "Manage Data" );
 
     	manageRscCntrl = new ManageResourceControl( mngrTabFolder );
 
@@ -154,7 +154,7 @@ public class ResourceManagerDialog extends Dialog {
 
     	
     	Button closeBtn = new Button( shell, SWT.PUSH );
-    	closeBtn.setText( "    Close    " );
+    	closeBtn.setText( "Close" );
     	gd = new GridData( );
     	gd.horizontalAlignment = SWT.END;
     	gd.verticalAlignment = SWT.END;
