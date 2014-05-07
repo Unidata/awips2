@@ -494,10 +494,23 @@
             <toolbar
                   id="NC-1">
                <command
+                     commandId="gov.noaa.nws.ncep.viz.ui.newResource"
+                     icon="icons/plus-square.png"
+                     label="Data"
+                     mode="FORCE_TEXT"
+                     style="push"
+                     tooltip="Load">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
                      commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
                      icon="icons/plus-square-o.png"
                      id="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                     label="Load"
+                     label="Bundle"
                      mode="FORCE_TEXT"
                      style="push"
                      tooltip="Load">
