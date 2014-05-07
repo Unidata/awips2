@@ -242,3 +242,86 @@ WINDPROB0.254% WINDPROB
 SIGWINDPROB0.254% SIGWINDPROB
 PRSVR0.254% PRSVR
 PRSIGSV0.254% PRSIGSV
+
+#TPCSurgeProb
+# For the pct parameters the parameters coming out of the grib files are coded
+# as the height where there is XX probability that the surge is less than a
+# height but the desired interpretation is XX probability that the surge is
+# greater than a height
+Surge10pct_21600-0 Surge90pct6hr
+Surge20pct_21600-0 Surge80pct6hr
+Surge30pct_21600-0 Surge70pct6hr
+Surge40pct_21600-0 Surge60pct6hr
+Surge50pct_21600-0 Surge50pct6hr
+Surge60pct_21600-0 Surge40pct6hr
+Surge70pct_21600-0 Surge30pct6hr
+Surge80pct_21600-0 Surge20pct6hr
+Surge90pct_21600-0 Surge10pct6hr
+# For the m parameters convert the abbreviation from the grib decoder contains
+# a height in meters but it was intended and can be dispalyed nicely as a
+# height in feet.
+Surge0.0m_21600-0 PSurge0ft6hr
+Surge0.3m_21600-0 PSurge1ft6hr
+Surge0.61m_21600-0 PSurge2ft6hr
+Surge0.91m_21600-0 PSurge3ft6hr
+Surge1.22m_21600-0 PSurge4ft6hr
+Surge1.52m_21600-0 PSurge5ft6hr
+Surge1.83m_21600-0 PSurge6ft6hr
+Surge2.13m_21600-0 PSurge7ft6hr
+Surge2.44m_21600-0 PSurge8ft6hr
+Surge2.74m_21600-0 PSurge9ft6hr
+Surge3.05m_21600-0 PSurge10ft6hr
+Surge3.35m_21600-0 PSurge11ft6hr
+Surge3.66m_21600-0 PSurge12ft6hr
+Surge3.96m_21600-0 PSurge13ft6hr
+Surge4.27m_21600-0 PSurge14ft6hr
+Surge4.57m_21600-0 PSurge15ft6hr
+Surge4.88m_21600-0 PSurge16ft6hr
+Surge5.18m_21600-0 PSurge17ft6hr
+Surge5.49m_21600-0 PSurge18ft6hr
+Surge5.79m_21600-0 PSurge19ft6hr
+Surge6.1m_21600-0 PSurge20ft6hr
+Surge6.4m_21600-0 PSurge21ft6hr
+Surge6.71m_21600-0 PSurge22ft6hr
+Surge7.01m_21600-0 PSurge23ft6hr
+Surge7.32m_21600-0 PSurge24ft6hr
+Surge7.62m_21600-0 PSurge25ft6hr
+# For the Cumulative this mapping not only inverses the percentages and
+# converts the heights, it also prevents the decoder from appending a duration
+# which is necessary because the duration increases for each forecast time.
+Surge10pctCumul Surge90pctCumul
+Surge20pctCumul Surge80pctCumul
+Surge30pctCumul Surge70pctCumul
+Surge40pctCumul Surge60pctCumul
+Surge50pctCumul Surge50pctCumul
+Surge60pctCumul Surge40pctCumul
+Surge70pctCumul Surge30pctCumul
+Surge80pctCumul Surge20pctCumul
+Surge90pctCumul Surge10pctCumul
+Surge0.0mCumul PSurge0ftCumul
+Surge0.3mCumul PSurge1ftCumul
+Surge0.61mCumul PSurge2ftCumul
+Surge0.91mCumul PSurge3ftCumul
+Surge1.22mCumul PSurge4ftCumul
+Surge1.52mCumul PSurge5ftCumul
+Surge1.83mCumul PSurge6ftCumul
+Surge2.13mCumul PSurge7ftCumul
+Surge2.44mCumul PSurge8ftCumul
+Surge2.74mCumul PSurge9ftCumul
+Surge3.05mCumul PSurge10ftCumul
+Surge3.35mCumul PSurge11ftCumul
+Surge3.66mCumul PSurge12ftCumul
+Surge3.96mCumul PSurge13ftCumul
+Surge4.27mCumul PSurge14ftCumul
+Surge4.57mCumul PSurge15ftCumul
+Surge4.88mCumul PSurge16ftCumul
+Surge5.18mCumul PSurge17ftCumul
+Surge5.49mCumul PSurge18ftCumul
+Surge5.79mCumul PSurge19ftCumul
+Surge6.1mCumul PSurge20ftCumul
+Surge6.4mCumul PSurge21ftCumul
+Surge6.71mCumul PSurge22ftCumul
+Surge7.01mCumul PSurge23ftCumul
+Surge7.32mCumul PSurge24ftCumul
+Surge7.62mCumul PSurge25ftCumul
+
