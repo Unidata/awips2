@@ -19,6 +19,10 @@
  **/
 package com.raytheon.viz.core.gl.ext.imaging;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,9 +42,6 @@ import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.AbstractGLMesh;
 import com.raytheon.viz.core.gl.GLCapabilities;
-import com.raytheon.viz.core.gl.GLGeometryObject2D;
-import com.raytheon.viz.core.gl.GLGeometryObject2D.GLGeometryObjectData;
-import com.raytheon.viz.core.gl.GLGeometryPainter;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
@@ -55,12 +56,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 15, 2011            mschenke    Initial creation
- * Jan  9, 2014 2680       mschenke    Switched simple PixelCoverage mesh 
- *                                     rendering to use VBOs instead of 
- *                                     deprecated immediate mode rendering
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 15, 2011           mschenke    Initial creation
+ * Jan 09, 2014  2680     mschenke    Switched simple PixelCoverage mesh 
+ *                                    rendering to use VBOs instead of 
+ *                                    deprecated immediate mode rendering
+ * May 07, 2014  3119     bsteffen    Switched simple PixelCoverage mesh 
+ *                                    rendering to use gl directly instead of
+ *                                    GLGeometryObject2D
  * 
  * </pre>
  * 
@@ -271,30 +275,51 @@ public abstract class AbstractGLImagingExtension extends
             Coordinate ur = pc.getUr();
             Coordinate lr = pc.getLr();
             Coordinate ll = pc.getLl();
+            /* Get all the coordinates in direct float buffers */
+            FloatBuffer vertices = ByteBuffer.allocateDirect(8 * 4)
+                    .order(ByteOrder.nativeOrder()).asFloatBuffer();
+            vertices.put((float) ll.x).put((float) ll.y);
+            vertices.put((float) lr.x).put((float) lr.y);
+            vertices.put((float) ul.x).put((float) ul.y);
+            vertices.put((float) ur.x).put((float) ur.y);
+            FloatBuffer texCoords = ByteBuffer.allocateDirect(8 * 4)
+                    .order(ByteOrder.nativeOrder()).asFloatBuffer();
+            texCoords.put(coords.left()).put(coords.bottom());
+            texCoords.put(coords.right()).put(coords.bottom());
+            texCoords.put(coords.left()).put(coords.top());
+            texCoords.put(coords.right()).put(coords.top());
 
-            int geometryType = GL.GL_TRIANGLE_STRIP;
-            GLGeometryObject2D vertexData = new GLGeometryObject2D(
-                    new GLGeometryObjectData(geometryType, GL.GL_VERTEX_ARRAY));
-            vertexData.allocate(4);
-            vertexData.addSegment(new double[][] { { ll.x, ll.y },
-                    { lr.x, lr.y }, { ul.x, ul.y }, { ur.x, ur.y } });
-            vertexData.compile(gl);
+            /* Enable array types */
+            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+            gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
 
-            GLGeometryObject2D textureData = new GLGeometryObject2D(
-                    new GLGeometryObjectData(geometryType,
-                            GL.GL_TEXTURE_COORD_ARRAY));
-            textureData.allocate(4);
-            textureData.addSegment(new double[][] {
-                    { coords.left(), coords.bottom() },
-                    { coords.right(), coords.bottom() },
-                    { coords.left(), coords.top() },
-                    { coords.right(), coords.top() } });
-            textureData.compile(gl);
+            /* allocate 2 vertex buffers */
+            IntBuffer vboIds = IntBuffer.allocate(2);
+            gl.glGenBuffers(2, vboIds);
+            /*  Upload the vertex coordiantes */
+            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboIds.get(0));
+            gl.glBufferData(GL.GL_ARRAY_BUFFER, 8 * 4, vertices.rewind(),
+                    GL.GL_STREAM_DRAW);
+            gl.glVertexPointer(2, GL.GL_FLOAT, 0, 0);
+            /*  Upload the texture coordiantes */
+            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboIds.get(1));
+            gl.glBufferData(GL.GL_ARRAY_BUFFER, 8 * 4, texCoords.rewind(),
+                    GL.GL_STREAM_DRAW);
+            gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, 0);
 
-            GLGeometryPainter.paintGeometries(gl, vertexData, textureData);
+            /*  Unbind */
+            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
 
-            vertexData.dispose();
-            textureData.dispose();
+            /*  Do the actual draw */
+            gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
+
+            /* Delete vertex buffers. */
+            vboIds.rewind();
+            gl.glDeleteBuffers(2, vboIds);
+
+            /* Disable array types */
+            gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
+            gl.glDisableClientState(GL.GL_TEXTURE_COORD_ARRAY);
 
             return PaintStatus.PAINTED;
         }
