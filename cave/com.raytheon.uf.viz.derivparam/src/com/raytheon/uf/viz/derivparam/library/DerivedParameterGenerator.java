@@ -76,16 +76,18 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Jul 03, 2008             brockwoo    Initial creation
- * Nov 16, 2009 3120        rjpeter     Removed use of LevelNameMappingFile.
- * Nov 20, 2009 3387        jelkins     Use derived script's variableId instead
- *                                      of filename
- * Nov 21, 2009 3576        rjpeter     Refactored DerivParamDesc.
- * Jun 04, 2013 2041        bsteffen    Switch derived parameters to use
- *                                      concurrent python for threading.
- * Nov 19, 2013 2361        njensen     Only shutdown if initialized
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 03, 2008           brockwoo    Initial creation
+ * Nov 16, 2009  3120     rjpeter     Removed use of LevelNameMappingFile.
+ * Nov 20, 2009  3387     jelkins     Use derived script's variableId instead
+ *                                    of filename
+ * Nov 21, 2009  3576     rjpeter     Refactored DerivParamDesc.
+ * Jun 04, 2013  2041     bsteffen    Switch derived parameters to use
+ *                                    concurrent python for threading.
+ * Nov 19, 2013 2361      njensen     Only shutdown if initialized
+ * Mar 27, 2014  2945     bsteffen    Recursively find definitions in
+ *                                    subdirectories.
  * </pre>
  * 
  * @author brockwoo
@@ -237,7 +239,7 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
             LocalizationContext[] contexts = pm
                     .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC);
             LocalizationFile[] xmlFiles = pm.listFiles(contexts, XML_DIR,
-                    new String[] { ".xml" }, false, true);
+                    new String[] { ".xml" }, true, true);
             JAXBManager jaxbMan;
             try {
                 jaxbMan = new JAXBManager(DerivParamDesc.class);
