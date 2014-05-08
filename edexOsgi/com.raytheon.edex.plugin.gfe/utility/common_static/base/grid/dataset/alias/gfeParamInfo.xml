@@ -4,6 +4,7 @@
     <alias base="MPE-Local">localMPE</alias>
     <alias base="MPE-Mosaic">mosaicMPE</alias>
     <alias base="HPE">localHPE</alias>
+    <alias base="HRRR">HRRR</alias>
     <alias base="BHPE">localBHPE</alias>
     <alias base="RFCqpf">qpf218</alias>
     <alias base="nogaps">nogaps</alias>
