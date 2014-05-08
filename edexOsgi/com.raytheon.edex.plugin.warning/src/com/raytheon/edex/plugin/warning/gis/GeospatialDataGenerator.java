@@ -741,14 +741,18 @@ public class GeospatialDataGenerator {
     private String getTimeStamp(GeospatialTime curTime,
             GeospatialTime lastRunTime) {
         long tmStampMs = 0;
-        if (curTime.getAreaSourceTime() != lastRunTime.getAreaSourceTime()) {
+        if (lastRunTime != null) {
+            if (curTime.getAreaSourceTime() != lastRunTime.getAreaSourceTime()) {
+                tmStampMs = curTime.getAreaSourceTime();
+            } else if (curTime.getParentSourceTime() != lastRunTime
+                    .getParentSourceTime()) {
+                tmStampMs = curTime.getParentSourceTime();
+            } else if (curTime.getTimeZoneSourceTime() != lastRunTime
+                    .getTimeZoneSourceTime()) {
+                tmStampMs = curTime.getTimeZoneSourceTime();
+            }
+        } else {
             tmStampMs = curTime.getAreaSourceTime();
-        } else if (curTime.getParentSourceTime() != lastRunTime
-                .getParentSourceTime()) {
-            tmStampMs = curTime.getParentSourceTime();
-        } else if (curTime.getTimeZoneSourceTime() != lastRunTime
-                .getTimeZoneSourceTime()) {
-            tmStampMs = curTime.getTimeZoneSourceTime();
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
