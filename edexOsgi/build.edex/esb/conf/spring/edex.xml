@@ -300,16 +300,6 @@
         <constructor-arg value="org.geotools.util.logging.Log4JLoggerFactory" />
    </bean>
 
-   <!-- Reference properties files -->
-   <bean id="projectPropertyConfigurer"
-		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-	<property name="locations">
-		<list>
-			<value>file:${edex.home}/conf/spring/cron.properties</value>
-		</list>
-	</property>
-   </bean>
-
     <!-- Holds the registry of request routers by server key -->
     <bean id="handlerRegistry" class="com.raytheon.uf.edex.auth.HandlerRegistry"
         factory-method="getInstance" />
