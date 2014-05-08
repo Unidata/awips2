@@ -38,6 +38,8 @@ import com.raytheon.hprof.SmartInstance;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 05, 2014  3093     bsteffen    Allow custom indenting when outputting
+ *                                    resources.
  * 
  * </pre>
  * 
@@ -82,16 +84,20 @@ public class RequestableResourceExporter extends AbstractExporter {
         }
     }
 
-    protected void outputResource(SmartInstance resource)
+    protected void outputResource(SmartInstance resource) throws IOException {
+        outputResource(resource, "");
+    }
+    
+    protected void outputResource(SmartInstance resource, String indent)
             throws IOException {
         if (resource == null) {
             return;
         }
         SmartInstance resourceData = resource.get("resourceData");
         if (resourceData == null) {
-            println(resource + "{");
-            println("  No resourceData available.");
-            println("}");
+            println(indent + resource + "{");
+            println(indent + "  No resourceData available.");
+            println(indent + "}");
             return;
         }
         SmartInstance metadataMap = resourceData.get(
@@ -99,12 +105,12 @@ public class RequestableResourceExporter extends AbstractExporter {
         if (metadataMap == null) {
             return;
         }
-        println(resource + "{");
-        outputMetadataMap(metadataMap);
-        println("}");
+        println(indent + resource + "{");
+        outputMetadataMap(metadataMap, indent + "  ");
+        println(indent + "}");
     }
 
-    protected void outputMetadataMap(SmartInstance metadataMap)
+    protected void outputMetadataMap(SmartInstance metadataMap, String indent)
             throws IOException {
         for (Entry<String, SmartInstance> entry : metadataMap
                 .toStringKeyedHashMap().entrySet()) {
@@ -152,7 +158,7 @@ public class RequestableResourceExporter extends AbstractExporter {
                 operand = "isnotnull";
                 break;
             }
-            println("  " + key + " " + operand + " " + constraintValue);
+            println(indent + key + " " + operand + " " + constraintValue);
         }
     }
 
