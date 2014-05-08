@@ -42,6 +42,15 @@
 	</model>
 
 	<model>
+		<name>HRRR</name>
+ 		<center>7</center>
+		<subcenter>0</subcenter>
+		<process>
+			<id>83</id>
+		</process>
+	</model>
+
+	<model>
 		<name>ETA</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
