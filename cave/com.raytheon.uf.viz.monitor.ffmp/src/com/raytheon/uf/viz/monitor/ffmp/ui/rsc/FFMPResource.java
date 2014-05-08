@@ -516,10 +516,15 @@ public class FFMPResource extends
                         ve);
             }
         } else if (type.equals(ChangeType.DATA_REMOVE)) {
-            PluginDataObject[] pdos = (PluginDataObject[]) object;
-            for (PluginDataObject pdo : pdos) {
-                FFMPRecord ffmpRec = (FFMPRecord) pdo;
-                hpeLegendMap.remove(ffmpRec.getDataTime().getRefTime());
+            if (object instanceof PluginDataObject[]) {
+                PluginDataObject[] pdos = (PluginDataObject[]) object;
+                for (PluginDataObject pdo : pdos) {
+                    FFMPRecord ffmpRec = (FFMPRecord) pdo;
+                    hpeLegendMap.remove(ffmpRec.getDataTime().getRefTime());
+                }
+            } else if (object instanceof DataTime) {
+                DataTime dt = (DataTime) object;
+                hpeLegendMap.remove(dt.getRefTime());
             }
         }
     }
@@ -1221,7 +1226,8 @@ public class FFMPResource extends
         });
 
         // Set flag for HPE data
-        isHpe = resourceData.siteKey.equalsIgnoreCase(HPE);
+        isHpe = resourceData.siteKey.equalsIgnoreCase(HPE)
+                || resourceData.siteKey.equalsIgnoreCase("BHPE");
     }
 
     /**
@@ -1467,7 +1473,7 @@ public class FFMPResource extends
         }
 
         // Paint the HPE bias source text if HPE
-        if (isHpe) {
+        if (isHpe && qpeRecord != null) {
             String text = getText(paintTime.getRefTime(),
                     qpeRecord.getMetaData());
             if (text != null) {
