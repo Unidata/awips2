@@ -38,6 +38,7 @@ import com.raytheon.hprof.SmartInstance;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 05, 2014  3093     bsteffen    print frame counts
  * 
  * </pre>
  * 
@@ -91,9 +92,23 @@ public class DisplayedResourcesExporter extends DisplayPaneContainerExporter {
                 /* Not D2D or before 14.2 */
             }
             SmartInstance descriptor = renderableDisplay.get("descriptor");
+            println("  " + descriptor + "{");
+            /* Frame info */
+            SmartInstance timeManager = descriptor.get("timeManager");
+            int numberOfFrames = timeManager.getInt("numberOfFrames");
+            println("    numberOfFrames = " + numberOfFrames);
+            SmartInstance[] frames = timeManager.getObjectArray("frames");
+            if (frames != null) {
+                println("    frames.length = " + frames.length);
+            }
+            int limitedNumberOfFrames = descriptor
+                    .getInt("limitedNumberOfFrames");
+            if (limitedNumberOfFrames < numberOfFrames) {
+                println("    limitedNumberOfFrames = " + limitedNumberOfFrames);
+            }
+            /* resources */
             SmartInstance resourceList = descriptor.get("resourceList");
             SmartInstance[] array = resourceList.getObjectArray("array");
-            println("  " + descriptor + "{");
             for (SmartInstance resourcePair : array) {
                 SmartInstance resource = resourcePair.get("resource");
                 if (resource == null) {
