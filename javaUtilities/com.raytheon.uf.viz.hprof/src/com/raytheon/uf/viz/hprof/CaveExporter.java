@@ -36,6 +36,7 @@ import com.raytheon.hprof.HprofFile;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 05, 2014  3093     bsteffen    Add some new exporters
  * 
  * </pre>
  * 
@@ -84,5 +85,7 @@ public class CaveExporter {
         new DisposingResourceExporter(hprof, outputDir).export();
         new UIRunnablesExporter(hprof, outputDir).export();
         new AlertMessageExporter(hprof, outputDir).export();
+        new CacheObjectExporter(hprof, outputDir).export();
+        new RadarMosaicExporter(hprof, outputDir).export();
     }
 }
