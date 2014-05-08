@@ -44,6 +44,8 @@ import com.raytheon.hprof.data.heap.dump.ObjectArrayDump;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 05, 2014  3093     bsteffen    Make getClassname public
+ * 
  * 
  * </pre>
  * 
@@ -89,7 +91,7 @@ public class SmartInstance {
         return type.getObjectId();
     }
 
-    protected String getClassName() {
+    public String getClassName() {
         return className;
     }
 
