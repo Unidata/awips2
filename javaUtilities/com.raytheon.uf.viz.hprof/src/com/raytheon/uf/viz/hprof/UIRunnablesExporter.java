@@ -37,6 +37,7 @@ import com.raytheon.hprof.SmartInstance;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 20, 2014  2648     bsteffen    Initial creation
+ * May 05, 2014  3093     bsteffen    Fix spelling of displays.
  * 
  * </pre>
  * 
@@ -73,7 +74,7 @@ public class UIRunnablesExporter extends AbstractExporter {
         if (displays.isEmpty()) {
             return;
         }
-        println(displays.size() + " dispaly(s)");
+        println(displays.size() + " display(s)");
         for (SmartInstance display : displays) {
             SmartInstance[] messages = display.get("synchronizer")
                     .getObjectArray("messages");
