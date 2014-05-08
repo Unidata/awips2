@@ -22,6 +22,18 @@
     <Method name="Alias">
         <Field abbreviation="CCOV"/>
     </Method>
+    <Method name="Alias" models="HRRR">
+        <Field abbreviation="TCC"/>
+    </Method>
+    <Method name="Alias" levels="HiLyr">
+        <Field abbreviation="HCDC" level="HiLyr"/>
+    </Method>    
+    <Method name="Alias" levels="MidLyr">
+        <Field abbreviation="MCDC" level="MidLyr"/>
+    </Method>
+    <Method name="Alias"levels="LowLyr">
+        <Field abbreviation="LCDC" level="LowLyr"/>
+    </Method>
     <Method models="HPCGuide" displayName="Total Cloud Cover" name="Multiply">
         <Field abbreviation="TCC"/>
         <ConstantField value="100.0"/>
