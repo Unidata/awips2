@@ -114,6 +114,7 @@
      -->
     <contribute xsi:type="toolBarItem" toolItemName = "Hgt">
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="54ft"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="80m"  indentText="false"/>
     	<contribute xsi:type="menuItem" menuText="1500 m" key="1.5km"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0.5kmAgl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1kmAgl"  indentText="false"/>
@@ -343,6 +344,7 @@
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowLyr"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidLyr"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="HiLyr"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="SIG0.8-0.5"  indentText="false"/>
     	<contribute xsi:type="titleImgItem" titleText="Pressure" displayImage="true" displayDashes="true"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="300MB-200MB"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="400MB-200MB"  indentText="false"/>
@@ -355,6 +357,7 @@
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="850MB-700MB"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="925MB-700MB"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="925MB-850MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000MB-400MB"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000MB-500MB"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000MB-700MB"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000MB-850MB"  indentText="false"/>
@@ -366,6 +369,7 @@
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-5kmAgl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-6kmAgl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-10kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="2-5kmAgl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="3-6kmAgl"  indentText="false"/>
     	
     	<contribute xsi:type="toolbarSubMenu" menuText="thin layers">
