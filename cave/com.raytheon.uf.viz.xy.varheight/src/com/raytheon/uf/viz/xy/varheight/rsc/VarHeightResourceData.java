@@ -37,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
+import com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -49,7 +50,7 @@ import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Resource data for var height displays
  * 
  * <pre>
  * 
@@ -59,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 20, 2009            njensen     Initial creation
  * Aug 15, 2013 2258       bsteffen    Convert profiler sounding to var height
  *                                     with hodo.
+ * May 08, 2014 2060       njensen     Constructor sets alert parser
  * 
  * </pre>
  * 
@@ -94,6 +96,10 @@ public class VarHeightResourceData extends AbstractRequestableResourceData
     protected AbstractResourceData secondaryResourceData;
 
     private AbstractVizResource<?, ?> secondaryResource;
+
+    public VarHeightResourceData() {
+        this.setAlertParser(new DataCubeAlertMessageParser());
+    }
 
     /*
      * (non-Javadoc)
@@ -155,10 +161,6 @@ public class VarHeightResourceData extends AbstractRequestableResourceData
                     rsc.addRecord(rec);
                 }
                 return rsc;
-            } else {
-                throw new VizException(
-                        "No resource type available for record type: "
-                                + pdo.getClass().getName());
             }
         }
         throw new VizException(
@@ -351,10 +353,12 @@ public class VarHeightResourceData extends AbstractRequestableResourceData
         this.point = pointCoordinate;
     }
 
+    @Override
     public String getPointLetter() {
         return pointLetter;
     }
 
+    @Override
     public void setPointLetter(String pointLetter) {
         this.pointLetter = pointLetter;
     }
