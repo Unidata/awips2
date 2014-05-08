@@ -33,6 +33,7 @@
 	<vbSource key="HiResW-NMM-PR" category="Volume" />
 	<vbSource key="HiResW-NMM-SJU" category="Volume" />
 	<vbSource key="HiResW-NMM-West" category="Volume" />
+	<vbSource key="HRRR" category="Volume" />
 	<vbSource key="MRF204" category="Volume" />
 	<vbSource key="LAMPQPF" category="Volume" />
 	<vbSource key="LAPS" category="Volume" />
