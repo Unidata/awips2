@@ -49,104 +49,89 @@
                     
                     <resourceData xsi:type="NC-OverlayResourceGroupData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false" >
 
-	                    <color>RGB {255, 228, 220}</color>
-
-                        <resource>
+	                    <!-- <color>RGB {255, 228, 220}</color> -->
+	                    
+	                    <resource>
                             <loadProperties loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
-                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
                                 <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>World</mapName>
                                 <table>mapdata.world</table>
                                 <geomField>the_geom</geomField>
-                                <labelField>name</labelField>
-                                <color>RGB {255, 228, 220}</color>
-                                <lineWidth>1</lineWidth>
-                                <lineStyle>SOLID</lineStyle>
+                                <constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES')</constraint>
+                            </resourceData>    
+                        </resource>
+                        <resource>
+                        	<loadProperties loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+                                <pdProps maxDisplayWidth="1000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false" >
+                                <mapName>County Boundaries</mapName>
+                                <table>mapdata.county</table>
                             </resourceData>
                         </resource>
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
-                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+                                <pdProps maxDisplayWidth="1000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
+                                <mapName>Zoom State Boundaries</mapName>
+                                <table>mapdata.states</table>
+                                <color>RBG {247, 247, 247}</color>
+                                <lineWidth>2</lineWidth>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="1000000"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>State Boundaries</mapName>
                                 <table>mapdata.states</table>
                                 <geomField>the_geom</geomField>
-                                <color>RGB {255, 228, 220}</color>
-                                <lineWidth>1</lineWidth>
-                                <lineStyle>SOLID</lineStyle>
                             </resourceData>
                         </resource>
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
-                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
                                 <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>Canada</mapName>
                                 <table>mapdata.canada</table>
                                 <geomField>the_geom</geomField>
-                                
-<!--   don't need this since displayLabelField is not set
-		          <labelField>name</labelField>
-  -->
-                                <color>RGB {255, 228, 220}</color>
-                                <lineWidth>1</lineWidth>
-                                <lineStyle>SOLID</lineStyle>
                             </resourceData>
                         </resource>
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
-<!-- Mexico is 'disabled'. To have mexico display set the maxDisplayWidth="100000000" -->
-                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-                                <pdProps maxDisplayWidth="1" minDisplayWidth="0"/>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>Mexico</mapName>
                                 <table>mapdata.mexico</table>
                                 <geomField>the_geom</geomField>
-
-                                <labelField>name</labelField>
-                                <color>RGB {255, 228, 220}</color>
-                                <lineWidth>1</lineWidth>
-                                <lineStyle>SOLID</lineStyle>
                             </resourceData>
                         </resource>
-                        <resource>
-                            <loadProperties loadWithoutData="false">
-                                <resourceType>PLAN_VIEW</resourceType>
-                            </loadProperties>
-                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-                                <pdProps maxDisplayWidth="1" minDisplayWidth="0"/>
-                            </properties>
-<!-- Counties are 'disabled'. 
-     To display set the maxDisplayWidth="100000000" -->
-                            <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false" >
-                                <mapName>County Boundaries</mapName>
-                                <table>mapdata.county</table>
-                                <geomField>the_geom</geomField>
-                                <displayLabelField>false</displayLabelField>                                
-                                <labelField>countyname</labelField>
-                                <color>RGB {255, 228, 220}</color>
-                                <lineWidth>1</lineWidth>
-                                <lineStyle>SOLID</lineStyle>
-                            </resourceData>
-                        </resource>
-                        <mapName>Geo-Political</mapName>
-                        <color>RGB {255, 228, 220}</color>
-                        <lineWidth>1</lineWidth>
-                        <lineStyle>SOLID</lineStyle>
+                        <mapName>State/County Boundaries</mapName>
                     </resourceData>
                 </resource>
                 <timeMatcher xsi:type="ncTimeMatcher" numFrames="10" skipValue="0"/>
