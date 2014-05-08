@@ -732,4 +732,9 @@
 		<versionsToKeep>5</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
+        <!-- Purge rule for the HRRR model -->
+        <rule>
+                <keyValue>HRRR</keyValue>
+                <versionsToKeep>4</versionsToKeep>
+        </rule>
 </purgeRuleSet>
