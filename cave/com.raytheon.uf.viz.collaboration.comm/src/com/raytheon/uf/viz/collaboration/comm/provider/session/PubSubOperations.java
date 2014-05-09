@@ -49,6 +49,7 @@ import com.raytheon.uf.common.xmpp.ext.ChangeAffiliationExtension;
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2014 2751       bclement     Initial creation
  * Apr 15, 2014 2822       bclement     added getAllSubscriptions()
+ * May 09, 2014 3107       bclement     added clarifying comment to sendAffiliationPacket()
  * 
  * </pre>
  * 
@@ -73,6 +74,7 @@ public class PubSubOperations {
     public static void sendAffiliationPacket(XMPPConnection conn,
             ChangeAffiliationExtension affiliation) throws XMPPException {
         PubSub packet = createOwnerPacket(conn, affiliation, IQ.Type.SET);
+        /* this needs to be sync to get any errors back from server */
         SyncPacketSend.getReply(conn, packet);
     }
 
