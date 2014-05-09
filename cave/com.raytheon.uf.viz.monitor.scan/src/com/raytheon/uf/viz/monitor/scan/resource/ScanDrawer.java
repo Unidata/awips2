@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009   2307       dhladky     Initial creation
  * Apr 22, 2013   1926       njensen     Faster rendering
+ * May 09, 2014   3145       mpduff      Add getter for font so it can be disposed, javadoc fix
  * 
  * </pre>
  * 
@@ -85,7 +86,7 @@ public class ScanDrawer {
 
     private RGB rscColor = null;
 
-    private GeometryFactory factory = new GeometryFactory();
+    private final GeometryFactory factory = new GeometryFactory();
 
     // defaults
     private double screenToWorldRatio = 0.0;
@@ -668,12 +669,21 @@ public class ScanDrawer {
     }
 
     /**
-     * sets the screen to World ratio;
+     * Sets the font. The font must be disposed by class using this drawer
      * 
-     * @param screenToWorldRatio
+     * @param font
      */
     public void setFont(IFont font) {
         this.font = font;
+    }
+
+    /**
+     * Get the font
+     * 
+     * @return font
+     */
+    public IFont getFont() {
+        return font;
     }
 
     /**
