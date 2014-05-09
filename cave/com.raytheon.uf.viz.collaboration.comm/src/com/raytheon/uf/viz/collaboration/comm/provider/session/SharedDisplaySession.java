@@ -103,6 +103,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 22, 2014 2903       bclement    added connection test to closePubSub() method
  * Apr 23, 2014 2822       bclement    added formatInviteAddress()
  * Apr 29, 2014 3061       bclement    added createInviteMessage()
+ * May 09, 2014 3107       bclement    default to trust transfer event when verify errors out
  * 
  * </pre>
  * 
@@ -476,7 +477,17 @@ public class SharedDisplaySession extends VenueSession implements
     private boolean handleLeaderChange(LeaderChangeEvent event) {
         VenueParticipant newLeader = event.getNewLeader();
         boolean rval;
-        if (!isRoomOwner(newLeader)) {
+        try {
+            rval = isRoomOwner(newLeader);
+        } catch (XMPPException e) {
+            log.error("Problem verifying room ownership for " + newLeader, e);
+            /*
+             * likely that the transfer leader event is authentic, returning
+             * false on a valid leader transfer event would cause problems
+             */
+            rval = true;
+        }
+        if (!rval) {
             log.info("Invalid leader change event: " + newLeader
                     + " is not an owner of the room");
             rval = false;
