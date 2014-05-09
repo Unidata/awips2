@@ -11,12 +11,6 @@
 		<property name="dao" ref="geomagDao" />
 	</bean>
 	
-	<bean id="geomagDistRegistry" factory-bean="distributionSrv"
-		factory-method="register">
-		<constructor-arg ref="geomagPluginName" />
-		<constructor-arg value="jms-durable:queue:Ingest.GeoMag"/>
-	</bean>
-
   	<bean id="trig1minCalc" class="gov.noaa.nws.ncep.edex.plugin.geomag.TrigKCalculation" />	
 	
     <camelContext id="geomag-camel"
