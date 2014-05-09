@@ -144,6 +144,7 @@ import com.sun.opengl.util.j2d.TextRenderer;
  *                                    if changed
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * Apr 08, 2014  2950     bsteffen    Reduce oversized colormaps.
+ * May 08, 2014  2920     bsteffen    Fix default color of BOXED text.
  * 
  * </pre>
  * 
@@ -1956,8 +1957,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                                 gl.glColor4d(dString.boxColor.red / 255.0,
                                         dString.boxColor.green / 255.0,
                                         dString.boxColor.blue / 255.0, alpha);
-                            }
-                            if (blanked) {
+                            } else {
                                 gl.glColor4d(backgroundColor.red / 255.0,
                                         backgroundColor.green / 255.0,
                                         backgroundColor.blue / 255.0, alpha);
