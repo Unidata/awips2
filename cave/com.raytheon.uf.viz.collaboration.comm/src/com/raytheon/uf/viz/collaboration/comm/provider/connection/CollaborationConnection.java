@@ -24,7 +24,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
@@ -115,6 +117,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  *                                      moved listeners to own classes, reworked connect/register listeners/login order
  * Apr 15, 2014 2822       bclement    added pubsub owner subscriptions provider registration
  * Apr 23, 2014 2822       bclement    added resource name and getCollaborationVersion()
+ * May 09, 2014 3107       bclement    added ability for packet timeout to be set via system properties
  * 
  * </pre>
  * 
@@ -176,12 +179,19 @@ public class CollaborationConnection implements IEventPublisher {
     private ClientAuthManager authManager;
 
     private static boolean COMPRESS = true;
-
+    
     static {
         try {
             final String compressionProperty = "collaboration.compression";
             if (System.getProperty(compressionProperty) != null) {
                 COMPRESS = Boolean.getBoolean(compressionProperty);
+            }
+            String customTimeout = System
+                    .getProperty("collaboration.packet.timeout");
+            if (!StringUtils.isBlank(customTimeout)
+                    && StringUtils.isNumeric(customTimeout)) {
+                SmackConfiguration.setPacketReplyTimeout(Integer
+                        .parseInt(customTimeout));
             }
         } catch (Exception e) {
             // must not have permission to access system properties. ignore and
