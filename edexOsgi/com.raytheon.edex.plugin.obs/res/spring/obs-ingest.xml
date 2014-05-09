@@ -12,6 +12,7 @@
     <bean id="obsDistRegistry" factory-bean="distributionSrv" factory-method="register">
         <constructor-arg value="obs" />
         <constructor-arg value="jms-durable:queue:Ingest.obs" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
     </bean>
   
     <bean id="mtrListener" class="com.raytheon.edex.plugin.obs.ingest.MTRSubscriber" />
