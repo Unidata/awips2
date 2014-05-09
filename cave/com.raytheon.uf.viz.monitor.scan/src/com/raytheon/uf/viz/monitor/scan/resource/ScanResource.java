@@ -85,6 +85,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 02, 2013 1731       mpduff      Fix problem with DMD updates.
  * Apr 22, 2013   1926       njensen     Faster rendering
  * Mar  3, 2014 2804       mschenke    Set back up clipping pane
+ * May 09, 2014   3145     mpduff      Dispose the ScanDrawer font
  * </pre>
  * 
  * @author dhladky
@@ -218,6 +219,7 @@ public class ScanResource extends
     protected void disposeInternal() {
         if (drawer != null) {
             if (drawer.font != null) {
+                drawer.getFont().dispose();
                 drawer.setFont(null);
             }
             drawer = null;
