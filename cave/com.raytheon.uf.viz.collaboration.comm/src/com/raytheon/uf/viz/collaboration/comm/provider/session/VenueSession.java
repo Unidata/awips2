@@ -110,6 +110,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 22, 2014 2903       bclement    added connection test to close method
  * Apr 23, 2014 2822       bclement    added formatInviteAddress()
  * Apr 29, 2014 3061       bclement    moved invite payload to shared display session
+ * May 09, 2014 3107       bclement    removed catch from isRoomOwner() so callers know about errors
  * 
  * 
  * </pre>
@@ -945,19 +946,15 @@ public class VenueSession extends BaseSession implements IVenueSession {
     /**
      * @param p
      * @return true if participant is an owner of the chat room
+     * @throws XMPPException
      */
-    protected boolean isRoomOwner(VenueParticipant p) {
+    protected boolean isRoomOwner(VenueParticipant p) throws XMPPException {
         boolean rval = false;
-        try {
-            for (Affiliate aff : muc.getOwners()) {
-                if (aff.getNick().equals(p.getHandle())) {
-                    rval = true;
-                    break;
-                }
+        for (Affiliate aff : muc.getOwners()) {
+            if (aff.getNick().equals(p.getHandle())) {
+                rval = true;
+                break;
             }
-        } catch (XMPPException e) {
-            log.error("Problem verifying room ownership for participant: " + p,
-                    e);
         }
         return rval;
     }
