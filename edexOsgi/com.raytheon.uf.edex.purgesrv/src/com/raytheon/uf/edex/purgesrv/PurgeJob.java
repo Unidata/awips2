@@ -98,13 +98,21 @@ public class PurgeJob extends Thread {
         // Flag used to track if this job has failed
         boolean failed = false;
         startTime = System.currentTimeMillis();
-        PurgeLogger.logInfo("Purging expired data...", pluginName);
+        if (this.purgeType.equals(PURGE_JOB_TYPE.PURGE_ALL)) {
+            PurgeLogger.logInfo("Purging all data...", pluginName);
+        } else {
+            PurgeLogger.logInfo("Purging expired data...", pluginName);
+        }
         PluginDao dao = null;
 
         try {
             dao = PluginFactory.getInstance().getPluginDao(pluginName);
             if (dao.getDaoClass() != null) {
-                dao.purgeExpiredData();
+               if (this.purgeType.equals(PURGE_JOB_TYPE.PURGE_ALL)) {
+                    dao.purgeAllData();
+                } else {
+                    dao.purgeExpiredData();
+                }
 
                 PurgeLogger.logInfo("Data successfully Purged!", pluginName);
 
@@ -121,10 +129,10 @@ public class PurgeJob extends Thread {
                                         "Unable to purge data.  This plugin does not specify a record class and does not implement a custom purger.",
                                         pluginName);
                     } else {
-                        if (this.purgeType.equals(PURGE_JOB_TYPE.PURGE_EXPIRED)) {
-                            dao.purgeExpiredData();
-                        } else {
+                        if (this.purgeType.equals(PURGE_JOB_TYPE.PURGE_ALL)) {
                             dao.purgeAllData();
+                        } else {
+                            dao.purgeExpiredData();
                         }
 
                         PurgeLogger.logInfo("Data successfully Purged!",
