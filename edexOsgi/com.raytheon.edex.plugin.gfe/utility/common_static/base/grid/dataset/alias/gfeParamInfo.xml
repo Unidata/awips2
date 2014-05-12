@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <aliasList caseSensitive="true" namespace="gfeParamInfo">
+    <alias base="estofsUS">ESTOFS</alias>
+    <alias base="estofsPR">ESTOFS</alias>
     <alias base="GLERL">glerl</alias>
     <alias base="MPE-Local">localMPE</alias>
     <alias base="MPE-Mosaic">mosaicMPE</alias>
