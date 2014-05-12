@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.common.dataplugin.shef.util;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Provides methods to map human readable descriptions to shef parameter codes.
@@ -50,6 +50,8 @@ import java.util.HashMap;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2008            jelkins     Initial creation
+ * Apr 29, 2014   3088     mpduff      Clean up/optimization.
+ * 
  * </pre>
  * 
  * @author jelkins
@@ -120,6 +122,12 @@ public class ParameterCode {
 
         UNKNOWN;
 
+        private static Map<String, PhysicalElementCategory> map;
+
+        static {
+            map = Collections.unmodifiableMap(createMap());
+        }
+
         private String code;
 
         PhysicalElementCategory() {
@@ -134,10 +142,22 @@ public class ParameterCode {
         }
 
         public static PhysicalElementCategory getEnum(String code) {
-            return (PhysicalElementCategory) ParameterCode.getEnum(UNKNOWN,
-                    code, "getCode");
+            PhysicalElementCategory p = map.get(code);
+            if (p != null) {
+                return p;
+            }
+            return UNKNOWN;
         }
 
+        private static Map<String, PhysicalElementCategory> createMap() {
+            Map<String, PhysicalElementCategory> map = new HashMap<String, PhysicalElementCategory>(
+                    PhysicalElementCategory.values().length);
+            for (PhysicalElementCategory p : PhysicalElementCategory.values()) {
+                map.put(p.getCode(), p);
+            }
+
+            return map;
+        }
     }
 
     /**
@@ -167,7 +187,7 @@ public class ParameterCode {
      */
     public static enum PhysicalElement {
 
-        AGRICULTURAL_RESERVED("AD",null),
+        AGRICULTURAL_RESERVED("AD", null),
 
         /**
          * Frost Intensity:
@@ -185,10 +205,10 @@ public class ParameterCode {
          * copious deposit of frost
          * </dl>
          */
-        AGRICULTURAL_SURFACE_FROST("AF",null),
+        AGRICULTURAL_SURFACE_FROST("AF", null),
 
         /** percent of green vegetation (%) */
-        AGRICULTURAL_GREEN_VEGETATION("AG",null),
+        AGRICULTURAL_GREEN_VEGETATION("AG", null),
 
         /**
          * Surface Dew Intensity:
@@ -206,159 +226,159 @@ public class ParameterCode {
          * under trees and sheltered areas
          * </dl>
          */
-        AGRICULTURAL_SURFACE_DEW("AM",null),
+        AGRICULTURAL_SURFACE_DEW("AM", null),
 
         /** Time below critical temperature, 25 DF or -3.9 DC (HRS and MIN) */
-        AGRICULTURAL_TIME_BELOW_25F("AT",null),
+        AGRICULTURAL_TIME_BELOW_25F("AT", null),
 
         /** Time below critical temperature, 32 DF or 0 DC (HRS and MIN) */
-        AGRICULTURAL_TIME_BELOW_32F("AU",null),
+        AGRICULTURAL_TIME_BELOW_32F("AU", null),
 
         /** Leaf wetness (HRS and MIN) */
-        AGRICULTURAL_LEAF_WETNESS("AW",null),
+        AGRICULTURAL_LEAF_WETNESS("AW", null),
 
         // TODO Figure out what B means
 
         /** Solid portion of water equivalent (in, mm) */
-        B_WATER_EQUIVALENT_SOLID("BA",null),
+        B_WATER_EQUIVALENT_SOLID("BA", null),
 
         /** (in, mm) */
-        B_HEAT_DEFICIT("BB",null),
+        B_HEAT_DEFICIT("BB", null),
 
         /** Liquid water storage (in, mm) */
-        B_LIQUID_WATER_STORAGE("BC",null),
+        B_LIQUID_WATER_STORAGE("BC", null),
 
         /** (DF, DC) */
-        B_TEMPERATURE_INDEX("BD",null),
+        B_TEMPERATURE_INDEX("BD", null),
 
         /** Maximum water equivalent since snow began to accumulate (in, mm) */
-        B_WATER_EQUIVALENT_MAX("BE",null),
+        B_WATER_EQUIVALENT_MAX("BE", null),
 
         /** Areal water equivalent just prior to the new snowfall (in, mm) */
-        B_WATER_EQUIVALENT_PRE_SNOW("BF",null),
+        B_WATER_EQUIVALENT_PRE_SNOW("BF", null),
 
         /**
          * Areal extent of snow cover from the areal depletion curve just prior
          * to the new snowfall (%)
          */
-        B_SNOW_COVER("BG",null),
+        B_SNOW_COVER("BG", null),
 
         /**
          * Amount of water equivalent above which 100 % areal snow cover
          * temporarily exists (in, mm)
          */
-        B_WATER_EQUIVALENT_ABOVE_SNOW_COVER("BH",null),
+        B_WATER_EQUIVALENT_ABOVE_SNOW_COVER("BH", null),
 
         /** Excess liquid water in storage (in, mm) */
-        B_LIQUID_WATER_STORAGE_EXCESS("BI",null),
+        B_LIQUID_WATER_STORAGE_EXCESS("BI", null),
 
         /** Areal extent of snow cover adjustment (in, mm) */
-        B_SNOW_COVER_ADJUSTMENT("BJ",null),
+        B_SNOW_COVER_ADJUSTMENT("BJ", null),
 
         /** Lagged excess liquid water for interval 1 (in, mm) */
-        B_LIQUID_WATER_EXCESS_1("BK",null),
+        B_LIQUID_WATER_EXCESS_1("BK", null),
 
         /** Lagged excess liquid water for interval 2 (in, mm) */
-        B_LIQUID_WATER_EXCESS_2("BL",null),
+        B_LIQUID_WATER_EXCESS_2("BL", null),
 
         /** Lagged excess liquid water for interval 3 (in, mm) */
-        B_LIQUID_WATER_EXCESS_3("BM",null),
+        B_LIQUID_WATER_EXCESS_3("BM", null),
 
         /** Lagged excess liquid water for interval 4 (in, mm) */
-        B_LIQUID_WATER_EXCESS_4("BN",null),
+        B_LIQUID_WATER_EXCESS_4("BN", null),
 
         /** Lagged excess liquid water for interval 5 (in, mm) */
-        B_LIQUID_WATER_EXCESS_5("BO",null),
+        B_LIQUID_WATER_EXCESS_5("BO", null),
 
         /** Lagged excess liquid water for interval 6 (in, mm) */
-        B_LIQUID_WATER_EXCESS_6("BP",null),
+        B_LIQUID_WATER_EXCESS_6("BP", null),
 
         /** Lagged excess liquid water for interval 7 (in, mm) */
-        B_LIQUID_WATER_EXCESS_7("BQ",null),
+        B_LIQUID_WATER_EXCESS_7("BQ", null),
 
         // TODO Figure out what C means
 
         /** Upper zone tension water contents (in, mm) */
-        C_UPPER_ZONE_TENSION_WATER("CA",null),
+        C_UPPER_ZONE_TENSION_WATER("CA", null),
 
         /** Upper zone free water contents (in, mm) */
-        C_UPPER_ZONE_FREE_WATER("CB",null),
+        C_UPPER_ZONE_FREE_WATER("CB", null),
 
         /** Lower zone tension water contents (in, mm) */
-        C_LOWER_ZONE_TENSION_WATER("CC",null),
+        C_LOWER_ZONE_TENSION_WATER("CC", null),
 
         /** Lower zone free water supplementary storage contents (in, mm) */
-        C_LOWER_ZONE_FREE_WATER_SUPPLEMENTARY_STORAGE_CONTENTS("CD",null),
+        C_LOWER_ZONE_FREE_WATER_SUPPLEMENTARY_STORAGE_CONTENTS("CD", null),
 
         /** Lower zone free water primary storage contents (in, mm) */
-        C_LOWER_ZONE_FREE_WATER_PRIMARY_STORAGE_CONTENTS("CE",null),
+        C_LOWER_ZONE_FREE_WATER_PRIMARY_STORAGE_CONTENTS("CE", null),
 
         /** Additional impervious area contents (in, mm) */
-        C_ADDITIONAL_IMPERVIOUS_AREA_CONTENTS("CF",null),
+        C_ADDITIONAL_IMPERVIOUS_AREA_CONTENTS("CF", null),
 
         /** Antecedent precipitation index (in, mm) */
-        C_ANTECEDENT_PRECIPITATION_INDEX("CG",null),
+        C_ANTECEDENT_PRECIPITATION_INDEX("CG", null),
 
         /** Soil moisture index deficit (in, mm) */
-        C_SOIL_MOISTER_INDEX_DEFICIT("CH",null),
+        C_SOIL_MOISTER_INDEX_DEFICIT("CH", null),
         /** Base flow storage contents (in, mm) */
-        C_BASE_FLOW_STORAGE_CONENTS("CI",null),
+        C_BASE_FLOW_STORAGE_CONENTS("CI", null),
         /** Base flow index (in, mm) */
-        C_BASE_FLOW_INDEX("CJ",null),
+        C_BASE_FLOW_INDEX("CJ", null),
         /** First quadrant index Antecedent Evaporation Index (AEI) (in, mm) */
-        C_FIRST_QUADRANT_AEI("CK",null),
+        C_FIRST_QUADRANT_AEI("CK", null),
         /** First quadrant index Antecedent Temperature Index (ATI) (DF, DC) */
-        C_FIRST_QUADRANT_ATI("CL",null),
+        C_FIRST_QUADRANT_ATI("CL", null),
         /** Frost index (DF, DC) */
-        C_FROST_INDEX("CM",null),
+        C_FROST_INDEX("CM", null),
         /** Frost efficiency index (%) */
-        C_FROST_EFFICIENCY_INDEX("CN",null),
+        C_FROST_EFFICIENCY_INDEX("CN", null),
         /** Indicator of first quadrant index (AEI or ATI) */
-        C_FIRST_QUADRANT_INDICATOR("CO",null),
+        C_FIRST_QUADRANT_INDICATOR("CO", null),
         /** Storm total rainfall (in, mm) */
-        C_STORM_TOTAL_RAINFAL("CP",null),
+        C_STORM_TOTAL_RAINFAL("CP", null),
         /** Storm total runoff (in, mm) */
-        C_STORM_TOTAL_RUNOFF("CQ",null),
+        C_STORM_TOTAL_RUNOFF("CQ", null),
         /** Storm antecedent index (in, mm) */
-        C_STORM_ANTECEDENT_INDEX("CR",null),
+        C_STORM_ANTECEDENT_INDEX("CR", null),
         /** Current antecedent index (in, mm) */
-        C_CURRENT_ANTECEDENT_INDEX("CS",null),
+        C_CURRENT_ANTECEDENT_INDEX("CS", null),
         /** Storm period counter (integer) */
-        C_STORM_PERIOD_COUNTER("CT",null),
+        C_STORM_PERIOD_COUNTER("CT", null),
         /** Average air temperature (DF, DC) */
-        C_AVERAGE_AIR_TEMPERATURE("CU",null),
+        C_AVERAGE_AIR_TEMPERATURE("CU", null),
         /** Current corrected synthetic temperature (DF, DC) */
-        C_CURRENT_CORRECTED_SYNTHETIC_TEMPERATURE("CV",null),
+        C_CURRENT_CORRECTED_SYNTHETIC_TEMPERATURE("CV", null),
         /** Storm antecedent evaporation index, AEI (in, mm) */
-        C_STORM_AEI("CW",null),
+        C_STORM_AEI("CW", null),
         /** Current AEI (in, mm) */
-        C_CURRENT_AEI("CX",null),
+        C_CURRENT_AEI("CX", null),
         /** Current API (in, mm) */
-        C_CURRENT_API("CY",null),
+        C_CURRENT_API("CY", null),
         /** Climate Index */
-        C_CLIMATE_INDEX("CZ",null),
+        C_CLIMATE_INDEX("CZ", null),
         /** Evapotranspiration potential amount (IN, MM) */
-        EVAPORATION_POTENTIAL_AMOUNT("EA",null),
+        EVAPORATION_POTENTIAL_AMOUNT("EA", null),
         /** Evaporation, pan depth (IN, MM) */
-        EVAPORATION_PAN_DEPTH("ED",null),
+        EVAPORATION_PAN_DEPTH("ED", null),
         /** Evapotranspiration amount (IN, MM) */
-        EVAPORATION_AMOUNT("EM",null),
+        EVAPORATION_AMOUNT("EM", null),
         /** Evaporation, pan increment (IN, MM) */
-        EVAPORATION_PAN_INCREMENT("EP",null),
+        EVAPORATION_PAN_INCREMENT("EP", null),
         /** Evaporation rate (IN/day, MM/day) */
-        EVAPORATION_RATE("ER",null),
+        EVAPORATION_RATE("ER", null),
         /** Evapotranspiration total (IN, MM) */
-        EVAPORATION_TOTAL("ET",null),
+        EVAPORATION_TOTAL("ET", null),
         /** Evaporation, lake computed (IN, MM) */
-        EVAPORATION_LAKE_COMPUTED("EV",null),
+        EVAPORATION_LAKE_COMPUTED("EV", null),
         /** Condition, road surface (coded, see Table 1) */
-        GROUND_CONDITION("GC",null),
+        GROUND_CONDITION("GC", null),
         /** Frost depth, depth of frost penetration, non permafrost (IN, CM) */
-        GROUND_FROST_DEPTH("GD",null),
+        GROUND_FROST_DEPTH("GD", null),
         /** Salt content on a surface (e.g., road) (%) */
-        GROUND_SALT_CONTENT("GL",null),
+        GROUND_SALT_CONTENT("GL", null),
         /** Frost, depth of pavement surface (IN, CM) */
-        GROUND_FROST_DEPTH_PAVEMENT("GP",null),
+        GROUND_FROST_DEPTH_PAVEMENT("GP", null),
         /**
          * Frost report, structure:
          * <dl>
@@ -372,8 +392,8 @@ public class ParameterCode {
          * <dd>Stalactite
          * </dl>
          */
-        GROUND_FROST_REPORT("GR",null),
-/**
+        GROUND_FROST_REPORT("GR", null),
+        /**
          * Ground state:
          * 
          * <ul>
@@ -431,31 +451,31 @@ public class ParameterCode {
          * <dd>Sleet or hail covering the ground completely
          * </dl>
          */
-        GROUND_STATE("GS",null),
+        GROUND_STATE("GS", null),
         /** Frost, depth of surface frost thawed (IN, CM) */
-        GROUND_FROST_DEPTH_THAWED("GT",null),
+        GROUND_FROST_DEPTH_THAWED("GT", null),
         /** Frost, depth of pavement surface frost thawed (IN, CM) */
-        GROUND_FROST_DEPTH_THAWED_PAVEMENT("GW",null),
+        GROUND_FROST_DEPTH_THAWED_PAVEMENT("GW", null),
         /** Height of reading, altitude above surface (FT, M) */
-        HEIGHT_READING_ABOVE_SURFACE("HA",null),
+        HEIGHT_READING_ABOVE_SURFACE("HA", null),
         /** Depth of reading below surface (FT, M) */
-        DEPTH_READING_BELOW_SURFACE("HB",null),
+        DEPTH_READING_BELOW_SURFACE("HB", null),
         /** Height, ceiling (FT, M) */
-        HEIGHT_CEILING("HC",null),
+        HEIGHT_CEILING("HC", null),
         /** Height, head (FT, M) */
-        HEIGHT_HEAD("HD",null),
+        HEIGHT_HEAD("HD", null),
         /** Height, regulating gate (FT, M) */
-        HEIGHT_REGULATING_GATE("HE",null),
+        HEIGHT_REGULATING_GATE("HE", null),
         /** Elevation, project powerhouse forebay (FT, M) */
         // TODO : Are these duplicates correct!?
-        RESERVOIR_FOREBAY_ELEVATION("HF",null),
+        RESERVOIR_FOREBAY_ELEVATION("HF", null),
         /** Elevation, project powerhouse forebay (FT, M) */
-        ELEVATION_POWERHOUSE_FOREBAY("HF",null),
+        ELEVATION_POWERHOUSE_FOREBAY("HF", null),
         /** Height, river stage (FT, M) */
-        HEIGHT_RIVER_STAGE("HG",null),
+        HEIGHT_RIVER_STAGE("HG", null),
         /** Height of reading, elevation in MSL (FT, M) */
-        HEIGHT_READING_MSL("HH",null),
-/**
+        HEIGHT_READING_MSL("HH", null),
+        /**
          * Stage trend indicator:
          * 
          * <ul>
@@ -484,63 +504,63 @@ public class ParameterCode {
          * <dd>Frozen
          * </dl>
          */
-        STAGE_TREND_INDICATOR("HI",null),
+        STAGE_TREND_INDICATOR("HI", null),
         /** Height, spillway gate (FT, M) */
-        HEIGHT_SPILLWAY_GATE("HJ",null),
+        HEIGHT_SPILLWAY_GATE("HJ", null),
         /** Height, lake above a specified datum (FT, M) */
-        HEIGHT_LAKE_ABOVE_DATUM("HK",null),
+        HEIGHT_LAKE_ABOVE_DATUM("HK", null),
         /** Elevation, natural lake (FT, M) */
-        ELEVATION_NATURAL_LAKE("HL",null),
+        ELEVATION_NATURAL_LAKE("HL", null),
         /** Height of tide, MLLW (FT, M) */
-        HEIGHT_TIDE("HM",null),
+        HEIGHT_TIDE("HM", null),
         /**
          * (S) Height, river stage, daily minimum, translates to HGIRZNZ (FT, M)
          */
-        HEIGHT_RIVER_STAGE_DAILY_MINIMUM("HN","HGIRZNZ"),
+        HEIGHT_RIVER_STAGE_DAILY_MINIMUM("HN", "HGIRZNZ"),
         /** Height, flood stage (FT, M) */
-        HEIGHT_FLOOD_STAGE("HO",null),
+        HEIGHT_FLOOD_STAGE("HO", null),
         /** Elevation, pool (FT, M) */
-        ELEVATION_POOL("HP",null),
+        ELEVATION_POOL("HP", null),
         /**
          * Distance from a ground reference point to the river's edge used to
          * estimate stage (coded, see Chapter 7.4.6)
          */
-        STAGE_ESTIMATE("HQ",null),
+        STAGE_ESTIMATE("HQ", null),
         /** Elevation, lake or reservoir rule curve (FT, M) */
-        ELEVATION_RULE_CURVE("HR",null),
+        ELEVATION_RULE_CURVE("HR", null),
         /** Elevation, spillway forebay (FT, M) */
-        ELEVATION_SPILLWAY("HS",null),
+        ELEVATION_SPILLWAY("HS", null),
         /** Elevation, project tail water stage (FT, M) */
-        ELEVATION_PROJECT_TAIL("HT",null),
+        ELEVATION_PROJECT_TAIL("HT", null),
         /** Height, cautionary stage (FT, M) */
-        HEIGHT_CAUTIONARY_STAGE("HU",null),
+        HEIGHT_CAUTIONARY_STAGE("HU", null),
         /** Depth of water on a surface (e.g., road) (IN, MM) */
-        DEPTH_SURFACE_WATER("HV",null),
+        DEPTH_SURFACE_WATER("HV", null),
         /** Height, spillway tail water (FT, M) */
-        HEIGHT_SPILLWAY_TAIL_WATER("HW",null),
+        HEIGHT_SPILLWAY_TAIL_WATER("HW", null),
         /**
          * (S) Height, river stage, daily maximum, translates to HGIRZXZ (FT, M)
          */
-        HEIGHT_RIVER_STAGE_DAILY_MAXIMUM("HX","HGIRZXZ"),
+        HEIGHT_RIVER_STAGE_DAILY_MAXIMUM("HX", "HGIRZXZ"),
         /**
          * (S) Height, river stage at 7 a.m. local just prior to date-time
          * stamp, translates to HGIRZZZ at 7 a.m. local time (FT, M)
          */
-        HEIGHT_RIVER_STAGE_7AM("HY","HGIRZZZ"),
+        HEIGHT_RIVER_STAGE_7AM("HY", "HGIRZZZ"),
         /** Elevation, freezing level (KFT, KM) */
-        ELEVATION_FREEZING_LEVEL("HZ",null),
+        ELEVATION_FREEZING_LEVEL("HZ", null),
         /** Ice cover, river (%) */
-        ICE_COVER("IC",null),
+        ICE_COVER("IC", null),
         /**
          * Extent of ice from reporting area, upstream “+,” downstream - (MI,
          * KM)
          */
-        ICE_EXTENT("IE",null),
+        ICE_EXTENT("IE", null),
         /**
          * Extent of open water from reporting area, downstream “+,” upstream -
          * (FT, M)
          */
-        ICE_OPEN_WATER_EXTENT("IO",null),
+        ICE_OPEN_WATER_EXTENT("IO", null),
         /**
          * Ice report type, structure, and cover:
          * 
@@ -578,139 +598,139 @@ public class ParameterCode {
          *         Fully covered         9
          * </pre>
          */
-        ICE_REPORT_TYPE("IR",null),
+        ICE_REPORT_TYPE("IR", null),
         /** Ice thickness (IN, CM) */
-        ICE_THICKNESS("IT",null),
+        ICE_THICKNESS("IT", null),
         /** Lake surface area (KAC,KM2) */
-        LAKE_SURFACE_AREA("LA",null),
+        LAKE_SURFACE_AREA("LA", null),
         /**
-         * Lake storage volume change (KAF,MCM)
-         * Thousands of acre-feet,Millions of cubic meters
+         * Lake storage volume change (KAF,MCM) Thousands of acre-feet,Millions
+         * of cubic meters
          */
-        LAKE_STORAGE_VOLUME_CHANGE("LC",null),
+        LAKE_STORAGE_VOLUME_CHANGE("LC", null),
         /** Lake storage volume (KAF,MCM) */
-        LAKE_STORAGE_VOLUME("LS",null),
+        LAKE_STORAGE_VOLUME("LS", null),
         /**
          * Dielectric Constant at depth, paired value vector (coded, see Chapter
          * 7.4.6 for format)
          */
-        DIELECTRIC_CONSTANT("MD",null),
+        DIELECTRIC_CONSTANT("MD", null),
         /** Moisture, soil index or API (IN, CM) */
-        MOISTURE_SOIL_INDEX("MI",null),
+        MOISTURE_SOIL_INDEX("MI", null),
         /** Moisture, lower zone storage (IN, CM) */
-        MOISTURE_LOWER_ZONE_STORAGE("ML",null),
+        MOISTURE_LOWER_ZONE_STORAGE("ML", null),
         /** Fuel moisture, wood (%) */
-        FUEL_MOISTURE("MM",null),
+        FUEL_MOISTURE("MM", null),
         /**
          * Soil Salinity at depth, paired value vector (coded, see Chapter 7.4.6
          * for format)
          */
-        SOIL_SALINITY("MN",null),
+        SOIL_SALINITY("MN", null),
         /** Soil Moisture amount at depth (coded, see Chapter 7.4.6) */
-        SOIL_MOISTURE("MS",null),
+        SOIL_MOISTURE("MS", null),
         /** Fuel temperature, wood probe (DF, DC) */
-        FUEL_TEMPERATURE("MT",null),
+        FUEL_TEMPERATURE("MT", null),
         /** Moisture, upper zone storage (IN, CM) */
-        MOISTURE_UPPER_ZONE_STORAGE("MU",null),
+        MOISTURE_UPPER_ZONE_STORAGE("MU", null),
         /**
          * Water Volume at Depth, paired value vector (coded, see Chapter 7.4.6
          * for format)
          */
-        WATER_VOLUME("MV",null),
+        WATER_VOLUME("MV", null),
         /** Moisture, soil, percent by weight (%) */
-        MOISTURE_SOIL("MW",null),
+        MOISTURE_SOIL("MW", null),
         /**
          * River control switch (0=manual river control, 1=open river
          * uncontrolled)
          */
-        DAM_RIVER_CONTROL("NC",null),
+        DAM_RIVER_CONTROL("NC", null),
         /** Total of gate openings (FT, M) */
-        DAM_GATE_OPENINGS("NG",null),
+        DAM_GATE_OPENINGS("NG", null),
         /** Number of large flash boards down (whole number) */
-        DAM_LARGE_FLASH_BOARDS_DOWN("NL",null),
+        DAM_LARGE_FLASH_BOARDS_DOWN("NL", null),
         /** Number of the spillway gate reported (used with HP, QS) */
-        DAM_SPILLWAY_GATE_REPORTED("NN",null),
+        DAM_SPILLWAY_GATE_REPORTED("NN", null),
         /** Gate opening for a specific gate (coded, see Chapter 7.4.6) */
-        DAM_GATE_OPENING("NO",null),
+        DAM_GATE_OPENING("NO", null),
         /** Number of small flash boards down (whole number) */
-        DAM_SMALL_FLASH_BOARDS_DOWN("NS",null),
+        DAM_SMALL_FLASH_BOARDS_DOWN("NS", null),
         /** Discharge, adjusted for storage at project only (KCFS, CMS) */
-        DISCHARGE_ADJUSTED("QA",null),
+        DISCHARGE_ADJUSTED("QA", null),
         /** Runoff depth (IN, MM) */
-        DISCHARGE_RUNOFF_DEPTH("QB",null),
+        DISCHARGE_RUNOFF_DEPTH("QB", null),
         /** Runoff volume (KAF, MCM) */
-        DISCHARGE_RUNOFF_VOLUME("QC",null),
+        DISCHARGE_RUNOFF_VOLUME("QC", null),
         /** Discharge, canal diversion (KCFS, CMS) */
-        DISCHARGE_CANAL_DIVERSION("QD",null),
+        DISCHARGE_CANAL_DIVERSION("QD", null),
         /** Discharge, percent of flow diverted from channel (%) */
-        DISCHARGE_CHANNEL_FLOW_DIVERSION("QE",null),
+        DISCHARGE_CHANNEL_FLOW_DIVERSION("QE", null),
         /** Discharge velocity (MPH, KPH) */
-        DISCHARGE_VELOCITY("QF",null),
+        DISCHARGE_VELOCITY("QF", null),
         /** Discharge from power generation (KCFS, CMS) */
-        DISCHARGE_POWER_GENERATION("QG",null),
+        DISCHARGE_POWER_GENERATION("QG", null),
         /** Discharge, inflow (KCFS, CMS) */
-        DISCHARGE_INFLOW("QI",null),
+        DISCHARGE_INFLOW("QI", null),
         /** Discharge, rule curve (KCFS, CMS) */
-        DISCHARGE_RULE_CURVE("QL",null),
+        DISCHARGE_RULE_CURVE("QL", null),
         /** Discharge, preproject conditions in basin (KCFS, CMS) */
-        DISCHARGE_PREPROJECT_CONDITION("QM",null),
+        DISCHARGE_PREPROJECT_CONDITION("QM", null),
         /** (S) Discharge, minimum flow, translates to QRIRZNZ (KCFS, CMS) */
-        DISCHARGE_MINIMUM_FLOW("QN","QRIRZNZ"),
+        DISCHARGE_MINIMUM_FLOW("QN", "QRIRZNZ"),
         /** Discharge, pumping (KCFS, CMS) */
-        DISCHARGE_PUMPING("QP",null),
+        DISCHARGE_PUMPING("QP", null),
         /** Discharge, river (KCFS, CMS) */
-        DISCHARGE_RIVER("QR",null),
+        DISCHARGE_RIVER("QR", null),
         /** Discharge, spillway (KCFS, CMS) */
-        DISCHARGE_SPILLWAY("QS",null),
+        DISCHARGE_SPILLWAY("QS", null),
         /** Discharge, computed total project outflow (KCFS, CMS) */
-        DISCHARGE_TOTAL_PROJECT_OUTFLOW("QT",null),
+        DISCHARGE_TOTAL_PROJECT_OUTFLOW("QT", null),
         /** Discharge, controlled by regulating outlet (KCFS, CMS) */
-        DISCHARGE_REGULATING_OUTLET_CONTROLLED("QU",null),
+        DISCHARGE_REGULATING_OUTLET_CONTROLLED("QU", null),
         /** Cumulative volume increment (KAF, MCM) */
-        DISCHARGE_CUMULATIVE_VOLUME_INCREMENT("QV",null),
+        DISCHARGE_CUMULATIVE_VOLUME_INCREMENT("QV", null),
         /** (S) Discharge, maximum flow, translates to QRIRZXZ (KCFS, CMS) */
-        DISCHARGE_MAXIMUM_FLOW("QX","QRIRZXZ"),
+        DISCHARGE_MAXIMUM_FLOW("QX", "QRIRZXZ"),
         /**
          * (S) Discharge, river at 7 a.m. local just prior to date-time stamp
          * translates to QRIRZZZ at 7 a.m. local time (KCFS, CMS)
          */
-        DISCHARGE_RIVER_7AM("QY","QRIRZZZ"),
+        DISCHARGE_RIVER_7AM("QY", "QRIRZZZ"),
         /** Reserved */
-        DISCHARGE_RESERVED("QZ",null),
+        DISCHARGE_RESERVED("QZ", null),
         /** Radiation, albedo (%) */
-        RADIATION_ALBEDO("RA",null),
+        RADIATION_ALBEDO("RA", null),
         /**
          * Radiation, accumulated incoming solar over specified duration in
          * langleys (LY)
          */
-        RADIATION_ACCUMULATED_SOLAR("RI",null),
+        RADIATION_ACCUMULATED_SOLAR("RI", null),
         /** Radiation, net radiometers (watts/meter squared) */
-        RADIATION_NET_RADIOMETERS("RN",null),
+        RADIATION_NET_RADIOMETERS("RN", null),
         /** Radiation, sunshine percent of possible (%) */
-        RADIATION_SUNSHINE_PERCENT("RP",null),
+        RADIATION_SUNSHINE_PERCENT("RP", null),
         /** Radiation, sunshine hours (HRS) */
-        RADIATION_SUNSHINE_HOURS("RT",null),
+        RADIATION_SUNSHINE_HOURS("RT", null),
         /** Radiation, total incoming solar radiation (watts/meter squared) */
-        RADIATION_TOTAL_SOLAR("RW",null),
+        RADIATION_TOTAL_SOLAR("RW", null),
         /** Snow, areal extent of basin snow cover (%) */
 
-        SNOW_AREAL_EXTENT("SA",null),
+        SNOW_AREAL_EXTENT("SA", null),
         /** Snow, Blowing Snow Sublimation (IN) */
-        SNOW_BLOWING_SNOW("SB",null),
+        SNOW_BLOWING_SNOW("SB", null),
         /** Snow, depth (IN, CM) */
-        SNOW_DEPTH("SD",null),
+        SNOW_DEPTH("SD", null),
         /** Snow, Average Snowpack Temperature (DF) */
-        SNOW_SNOWPACK_TEMPERATURE("SE",null),
+        SNOW_SNOWPACK_TEMPERATURE("SE", null),
         /** Snow, depth, new snowfall (IN, CM) */
-        SNOW_NEW_SNOWFALL("SF","SFDRZZZ"),
+        SNOW_NEW_SNOWFALL("SF", "SFDRZZZ"),
         /** Snow, depth on top of river or lake ice (IN, CM) */
-        SNOW_DEPTH_ON_ICE("SI",null),
+        SNOW_DEPTH_ON_ICE("SI", null),
         /** Snow, elevation of snow line (KFT, M) */
-        SNOW_LINE_ELEVATION("SL",null),
+        SNOW_LINE_ELEVATION("SL", null),
         /** Snow, Melt (IN) */
-        SNOW_MELT("SM",null),
+        SNOW_MELT("SM", null),
         /** Snowmelt plus rain (IN) */
-        SNOW_PLUS_RAIN("SP",null),
+        SNOW_PLUS_RAIN("SP", null),
         /**
          * Snow report, structure, type, surface, and bottom:
          * 
@@ -738,280 +758,285 @@ public class ParameterCode {
          *         Ice          3                     Drifted       3
          * </pre>
          */
-        SNOW_REPORT("SR",null),
+        SNOW_REPORT("SR", null),
         /** Snow density (IN SWE/IN snow, CM SWE/CM snow) */
-        SNOW_DENSITY("SS",null),
+        SNOW_DENSITY("SS", null),
         /**
          * Snow temperature at depth measured from ground (See Chapter 7.4.6 for
          * format)
          */
-        SNOW_TEMPERATURE("ST",null),
+        SNOW_TEMPERATURE("ST", null),
         /** Snow, Surface Sublimation (IN) */
-        SNOW_SURFACE_SUBLIMATION("SU",null),
+        SNOW_SURFACE_SUBLIMATION("SU", null),
         /** Snow, water equivalent (IN, MM) */
-        SNOW_WATER_EQUIVALENT("SW",null),
+        SNOW_WATER_EQUIVALENT("SW", null),
         /** Temperature, air, dry bulb (DF,DC) */
-        TEMPERATURE_AIR_DRY("TA",null),
+        TEMPERATURE_AIR_DRY("TA", null),
         /**
          * Temperature in bare soil at depth (coded, see Chapter 7.4.6 for
          * format)
          */
-        TEMPERATURE_BARE_SOIL_DEPTH("TB",null),
+        TEMPERATURE_BARE_SOIL_DEPTH("TB", null),
         /** Temperature, degree days of cooling, above 65 DF or 18.3 DC (DF,DC) */
-        TEMPERATURE_COOLING("TC",null),
+        TEMPERATURE_COOLING("TC", null),
         /** Temperature, dew point (DF,DC) */
-        TEMPERATURE_DEW("TD",null),
+        TEMPERATURE_DEW("TD", null),
         /**
          * Temperature, air temperature at elevation above MSL (See Chapter
          * 7.4.6 for format)
          */
-        TEMPERATURE_ELEVATION_ABOVE_MSL("TE",null),
+        TEMPERATURE_ELEVATION_ABOVE_MSL("TE", null),
         /** Temperature, degree days of freezing, below 32 DF or 0 DC (DF,DC) */
-        TEMPERATURE_FREEZING("TF",null),
+        TEMPERATURE_FREEZING("TF", null),
         /** Temperature, degree days of heating, below 65 DF or 18.3 DC (DF,DC) */
-        TEMPERATURE_HEATING("TH",null),
+        TEMPERATURE_HEATING("TH", null),
         /** Temperature, departure from normal (DF, DC) */
-        TEMPERATURE_NORMAL_DEPARTURE("TJ",null),
+        TEMPERATURE_NORMAL_DEPARTURE("TJ", null),
         /** Temperature, air, wet bulb (DF,DC) */
-        TEMPERATURE_AIR_WET("TM",null),
+        TEMPERATURE_AIR_WET("TM", null),
         /** (S) Temperature, air minimum, translates to TAIRZNZ (DF,DC) */
-        TEMPERATURE_AIR_MINIMUM("TN","TAIRZNZ"),
+        TEMPERATURE_AIR_MINIMUM("TN", "TAIRZNZ"),
         /** Temperature, pan water (DF,DC) */
-        TEMPERATURE_PAN_WATER("TP",null),
+        TEMPERATURE_PAN_WATER("TP", null),
         /** Temperature, road surface (DF,DC) */
-        TEMPERATURE_ROAD_SURFACE("TR",null),
+        TEMPERATURE_ROAD_SURFACE("TR", null),
         /** Temperature, bare soil at the surface (DF,DC) */
-        TEMPERATURE_BARE_SOIL_SURFACE("TS",null),
+        TEMPERATURE_BARE_SOIL_SURFACE("TS", null),
         /**
          * Temperature in vegetated soil at depth (coded, see Chapter 7.4.6 for
          * format)
          */
-        TEMPERATURE_VEGETAGED_SOIL_DEPTH("TV",null),
+        TEMPERATURE_VEGETAGED_SOIL_DEPTH("TV", null),
         /** Temperature, water (DF,DC) */
-        TEMPERATURE_WATER("TW",null),
+        TEMPERATURE_WATER("TW", null),
         /** (S) Temperature, air maximum, translates to TAIRZXZ (DF,DC) */
-        TEMPERATURE_AIR_MAXIMUM("TX","TAIRZXZ"),
+        TEMPERATURE_AIR_MAXIMUM("TX", "TAIRZXZ"),
         /** Temperature, Freezing, road surface (DF,DC) */
-        TEMPERATURE_FREEZING_SURFACE("TZ",null),
+        TEMPERATURE_FREEZING_SURFACE("TZ", null),
         /** Wind, accumulated wind travel (MI,KM) */
-        WIND_ACCUMULATED_TRAVEL("UC",null),
+        WIND_ACCUMULATED_TRAVEL("UC", null),
         /** Wind, direction (whole degrees) */
-        WIND_DIRECTION("UD",null),
+        WIND_DIRECTION("UD", null),
         /** Wind, standard deviation (Degrees) */
-        WIND_STANDARD_DEVIATION("UE",null),
+        WIND_STANDARD_DEVIATION("UE", null),
         /** Wind, gust at observation time (MPH,M/SEC) */
-        WIND_GUST("UG",null),
+        WIND_GUST("UG", null),
         /** Wind, travel length accumulated over specified (MI,KM) */
-        WIND_TRAVEL_LENGTH("UL",null),
+        WIND_TRAVEL_LENGTH("UL", null),
         /** Peak wind speed (MPH) */
-        WIND_PEAK("UP",null),
+        WIND_PEAK("UP", null),
         /**
          * Wind direction and speed combined (SSS.SDDD), a value of 23.0275
          * would indicate a wind of 23.0 MPH from 275 degrees
          */
-        WIND_DIRECTION_SPEED("UQ",null),
+        WIND_DIRECTION_SPEED("UQ", null),
         /**
          * Peak wind direction associated with peak wind speed (in tens of
          * degrees)
          */
-        WIND_PEEK_DIRECTION_SPEED("UR",null),
+        WIND_PEEK_DIRECTION_SPEED("UR", null),
         /** Wind, speed (MPH,M/SEC) */
-        WIND_SPEED("US",null),
+        WIND_SPEED("US", null),
         /** Voltage - battery (volt) */
-        GENERATION_BATTERY_VOLTAGE("VB",null),
+        GENERATION_BATTERY_VOLTAGE("VB", null),
         /** Generation, surplus capacity of units on line (megawatts) */
-        GENERATION_SURPLUS_CAPACITY("VC",null),
+        GENERATION_SURPLUS_CAPACITY("VC", null),
         /** Generation, energy total (megawatt hours) */
-        GENERATION_ENERGY_TOTAL("VE",null),
+        GENERATION_ENERGY_TOTAL("VE", null),
         /** Generation, pumped water, power produced (megawatts) */
-        GENERATION_PUMPED_WATER_POWER_PRODUCED("VG",null),
+        GENERATION_PUMPED_WATER_POWER_PRODUCED("VG", null),
         /** Generation, time (HRS) */
-        GENERATION_TIME("VH",null),
+        GENERATION_TIME("VH", null),
         /** Generation, energy produced from pumped water (megawatt hours) */
-        GENERATION_PUMPED_WATER_ENERGY_PRODUCED("VJ",null),
+        GENERATION_PUMPED_WATER_ENERGY_PRODUCED("VJ", null),
         /** Generation, energy stored in reservoir only (megawatt * “duration”) */
-        GENERATION_ENERGY_STORED_RESERVOIR("VK",null),
+        GENERATION_ENERGY_STORED_RESERVOIR("VK", null),
         /** Generation, storage due to natural flow only (megawatt * “duration”) */
-        GENERATION_ENERGY_STORED_NATURAL_FLOW("VL",null),
+        GENERATION_ENERGY_STORED_NATURAL_FLOW("VL", null),
         /**
          * Generation, losses due to spill and other water losses (megawatt *
          * “duration”)
          */
-        GENERATION_ENERGY_LOSSES("VM",null),
+        GENERATION_ENERGY_LOSSES("VM", null),
         /** Generation, pumping use, power used (megawatts) */
-        GENERATION_PUMPING_POWER_USED("VP",null),
+        GENERATION_PUMPING_POWER_USED("VP", null),
         /** Generation, pumping use, total energy used (megawatt hours) */
-        GENERATION_PUMPING_ENERGY_USED("VQ",null),
+        GENERATION_PUMPING_ENERGY_USED("VQ", null),
         /**
          * Generation, stored in reservoir plus natural flow, energy potential
          * (megawatt * “duration”)
          */
-        GENERATION_ENERGY_POTENTIAL("VR",null),
+        GENERATION_ENERGY_POTENTIAL("VR", null),
         /** Generation, station load, energy used (megawatt hours) */
-        GENERATION_STATION_LOAD_ENERGY_USED("VS",null),
+        GENERATION_STATION_LOAD_ENERGY_USED("VS", null),
         /** Generation, power total (megawatts) */
-        GENERATION_POWER_TOTAL("VT",null),
+        GENERATION_POWER_TOTAL("VT", null),
         /** Generator, status (encoded) */
-        GENERATION_GENERATOR_STATUS("VU",null),
+        GENERATION_GENERATOR_STATUS("VU", null),
         /** Generation station load, power used (megawatts) */
-        GENERATION_STATION_LOAD_POWER_USED("VW",null),
+        GENERATION_STATION_LOAD_POWER_USED("VW", null),
         /** Water, dissolved nitrogen & argon (PPM, MG/L) */
-        WATER_DISSOLVED_NITROGEN_ARGON("WA",null),
+        WATER_DISSOLVED_NITROGEN_ARGON("WA", null),
         /** Water, conductance (uMHOS/CM) */
-        WATER_CONDUCTANCE("WC",null),
+        WATER_CONDUCTANCE("WC", null),
         /** Water, piezometer water depth (IN, CM) */
-        WATER_DEPTH("WD",null),
+        WATER_DEPTH("WD", null),
         /** Water, dissolved total gases, pressure (IN-HG, MM-HG) */
-        WATER_DISSOLVED_GASES("WG",null),
+        WATER_DISSOLVED_GASES("WG", null),
         /** Water, dissolved hydrogen sulfide (PPM, MG/L) */
-        WATER_DISSOLVED_HYDROGEN_SULFIDE("WH",null),
+        WATER_DISSOLVED_HYDROGEN_SULFIDE("WH", null),
         /** Water, suspended sediment (PPM, MG/L) */
-        WATER_SUSPENDED_SEDIMENT("WL",null),
+        WATER_SUSPENDED_SEDIMENT("WL", null),
         /** Water, dissolved oxygen (PPM, MG/L) */
-        WATER_DISSOLVED_OXYGEN("WO",null),
+        WATER_DISSOLVED_OXYGEN("WO", null),
         /** Water, ph (PH value) */
-        WATER_PH("WP",null),
+        WATER_PH("WP", null),
         /** Water, salinity (parts per thousand, PPT) */
-        WATER_SALINITY("WS",null),
+        WATER_SALINITY("WS", null),
         /** Water, turbidity (JTU) */
-        WATER_TURBIDITY("WT",null),
+        WATER_TURBIDITY("WT", null),
         /** Water, velocity (FT/SEC, M/SEC) */
-        WATER_VELOCITY("WV",null),
+        WATER_VELOCITY("WV", null),
         /** Water, Oxygen Saturation (%) */
-        WATER_OXYGEN_SATURATION("WX",null),
+        WATER_OXYGEN_SATURATION("WX", null),
         /** Water, Chlorophyll (ppb (parts/billion), ug/L (micrograms/L)) */
-        WATER_CHLOROPHYLL("WY",null),
+        WATER_CHLOROPHYLL("WY", null),
         /** Total sky cover (tenths) */
-        WEATHER_SKY_COVER("XC",null),
+        WEATHER_SKY_COVER("XC", null),
         /** Lightning, number of strikes per grid box (whole number) */
-        WEATHER_LIGHTENING_GRID("XG",null),
+        WEATHER_LIGHTENING_GRID("XG", null),
         /**
          * Lightning, point strike, assumed one strike at transmitted latitude
          * and longitude (whole number)
          */
-        WEATHER_LIGHTENING_POINT_STRIKE("XL",null),
+        WEATHER_LIGHTENING_POINT_STRIKE("XL", null),
         /** Weather, past NWS synoptic code (see Appendix D) */
-        WEATHER_SYNOPTIC_CODE_PAST("XP",null),
+        WEATHER_SYNOPTIC_CODE_PAST("XP", null),
         /** Humidity, relative (%) */
-        WEATHER_HUMIDITY_RELATIVE("XR",null),
+        WEATHER_HUMIDITY_RELATIVE("XR", null),
         /** Humidity, absolute (grams/FT3,grams/M3) */
-        WEATHER_HUMIDITY_ABSOLUTE("XU",null),
+        WEATHER_HUMIDITY_ABSOLUTE("XU", null),
         /** Weather, visibility (MI, KM) */
-        WEATHER_VISIBILITY("XV",null),
+        WEATHER_VISIBILITY("XV", null),
         /** Weather, present NWS synoptic code (see Appendix C) */
-        WEATHER_SYNOPTIC_CODE_PRESENT("XW",null),
+        WEATHER_SYNOPTIC_CODE_PRESENT("XW", null),
         /**
          * Number of 15-minute periods a river has been above a specified
          * critical level (whole number)
          */
-        STATION_RIVER_ABOVE_CRITICAL("YA",null),
+        STATION_RIVER_ABOVE_CRITICAL("YA", null),
         /** Random report sequence number (whole number) */
-        STATION_RANDOM_SEQUENCE("YC",null),
+        STATION_RANDOM_SEQUENCE("YC", null),
         /**
          * Forward power, a measurement of the DCP, antenna, and coaxial cable
          * (watts)
          */
-        STATION_FORWARD_POWER("YF",null),
+        STATION_FORWARD_POWER("YF", null),
         /** SERFC unique */
-        STATION_SERFC("YI",null),
+        STATION_SERFC("YI", null),
         /** Reserved Code */
-        STATION_RESERVED("YP",null),
+        STATION_RESERVED("YP", null),
         /**
          * Reflected power, a measurement of the DCP, antenna, and coaxial cable
          * (watts)
          */
-        STATION_REFLECTED_POWER("YR",null),
+        STATION_REFLECTED_POWER("YR", null),
         /**
          * Sequence number of the number of times the DCP has transmitted (whole
          * number)
          */
-        STATION_TRANSMISSION_SEQUENCE("YS",null),
+        STATION_TRANSMISSION_SEQUENCE("YS", null),
         /**
          * Number of 15-minute periods since a random report was generated due
          * to an increase of 0.4 inch of precipitation (whole number)
          */
-        STATION_RANDOM_PRECIPITATION_REPORT("YT",null),
+        STATION_RANDOM_PRECIPITATION_REPORT("YT", null),
         /** GENOR raingage status level 1 - NERON observing sites (YUIRG) */
-        STATION_GENOR_STATUS1("YU",null),
+        STATION_GENOR_STATUS1("YU", null),
         /** A Second Battery Voltage (NERON sites ONLY), voltage 0 (YVIRG) */
-        STATION_SECOND_BATTERY_VOLTAGE("YV",null),
+        STATION_SECOND_BATTERY_VOLTAGE("YV", null),
         /** GENOR raingage status level 2 - NERON observing sites (YWIRG) */
         // STATION_GENOR_STATUS2("YW",null),
         /** GENOR raingage status level 3 - NERON observing sites (YYIRG) */
-        STATION_GENOR_STATUS3("YY",null),
+        STATION_GENOR_STATUS3("YY", null),
         /**
          * Time of Observation – Minutes of the calendar day, minutes 0 - NERON
          * observing sites (YZIRG)
          */
         // STATION_OBSERVATION_TIME("YZ",null),
 
-        FISH_SHAD("FA",null),
+        FISH_SHAD("FA", null),
 
-        FISH_SOCKEYE("FB",null),
+        FISH_SOCKEYE("FB", null),
 
-        FISH_CHINOOK("FC",null),
+        FISH_CHINOOK("FC", null),
 
-        FISH_CHUM("FE",null),
+        FISH_CHUM("FE", null),
 
-        FISH_COHO("FK",null),
+        FISH_COHO("FK", null),
 
         /** 1=left, 2=right, 3=total */
-        FISH_LADDER("FL",null),
+        FISH_LADDER("FL", null),
 
-        FISH_PINK("FP",null),
+        FISH_PINK("FP", null),
 
-        FISH_STEELHEAD("FS",null),
+        FISH_STEELHEAD("FS", null),
 
         /** 1=adult, 2=jacks, 3=fingerlings */
-        FISH_TYPE("FT",null),
+        FISH_TYPE("FT", null),
 
         /** Count of all types combined */
-        FISH_ALL("FZ",null),
+        FISH_ALL("FZ", null),
 
-        PRESSURE_ATMOSPHERIC("PA",null),
+        PRESSURE_ATMOSPHERIC("PA", null),
 
         /** Atmospheric net change during past 3 hours */
-        PRESSURE_ATMOSPHERIC_3HR("PD",null),
+        PRESSURE_ATMOSPHERIC_3HR("PD", null),
 
-        PRESSURE_SEA_LEVEL("PL",null),
+        PRESSURE_SEA_LEVEL("PL", null),
 
-        PRESSURE_CHARACTERISTIC("PE",null),
+        PRESSURE_CHARACTERISTIC("PE", null),
 
         /**
          * Precipitation, flash flood guidance, precipitation to initiate
          * flooding, translates to PPTCF for 3-hour intervals
          */
-        PRECIPITATION_FLASH_FLOOD_GUIDANCE("PF","PPTCF"),
+        PRECIPITATION_FLASH_FLOOD_GUIDANCE("PF", "PPTCF"),
 
         /** Departure from normal */
-        PRECIPITATION_NORMAL_DEPARTURE("PJ",null),
+        PRECIPITATION_NORMAL_DEPARTURE("PJ", null),
 
-        PRECIPITATION_ACCUMULATOR("PC",null),
+        PRECIPITATION_ACCUMULATOR("PC", null),
 
         /** Probability of measurable precipitation (dimensionless) */
-        PRECIPITATION_MEASURABLE_PROBABILITY("PM",null),
+        PRECIPITATION_MEASURABLE_PROBABILITY("PM", null),
 
-        PRECIPITATION_NORMAL("PN",null),
+        PRECIPITATION_NORMAL("PN", null),
 
-        PRECIPITATION_INCREMENT("PP",null),
+        PRECIPITATION_INCREMENT("PP", null),
 
-        PRECIPITATION_RATE("PR",null),
+        PRECIPITATION_RATE("PR", null),
 
-        PRECIPITATION_TYPE("PT",null),
+        PRECIPITATION_TYPE("PT", null),
 
         /**
          * (S) Precipitation, increment ending at 7 a.m. local just prior to
-         * date-time stamp, translates to PPDRZZZ at 7 a.m. local time
-         * (IN,MM)
+         * date-time stamp, translates to PPDRZZZ at 7 a.m. local time (IN,MM)
          */
-        PRECIPITATION_INCREMENT_DAILY("PY","PPDRZZZ"),
+        PRECIPITATION_INCREMENT_DAILY("PY", "PPDRZZZ"),
 
-        UNKNOWN(null,null);
+        UNKNOWN(null, null);
 
         private String code;
-        
+
         private final String translatedCode;
-        
+
+        private static Map<String, PhysicalElement> map;
+
+        static {
+            map = Collections.unmodifiableMap(createMap());
+        }
+
         private PhysicalElement(String code, String translation) {
             this.code = code;
             translatedCode = translation;
@@ -1023,29 +1048,46 @@ public class ParameterCode {
 
         /**
          * Get the PE translation, if defined.
+         * 
          * @return The PE translation if defined. Null reference otherwise.
          */
         public String translate() {
             return translatedCode;
         }
-        
+
         public PhysicalElementCategory getCategory() {
             return PhysicalElementCategory.getEnum(this.code.substring(0, 1));
         }
 
         public static PhysicalElement getEnum(String code) {
-            return (PhysicalElement) ParameterCode.getEnum(UNKNOWN, code,
-                    "getCode");
+            PhysicalElement p = map.get(code);
+            if (p != null) {
+                return p;
+            }
+            return UNKNOWN;
+        }
+
+        private static Map<String, PhysicalElement> createMap() {
+            Map<String, PhysicalElement> map = new HashMap<String, PhysicalElement>(
+                    PhysicalElement.values().length);
+            for (PhysicalElement pe : PhysicalElement.values()) {
+                map.put(pe.getCode(), pe);
+            }
+
+            return map;
         }
     }
 
-    
-    private static final HashMap<PhysicalElement,PhysicalElement> TRACE_CODES = new HashMap<PhysicalElement,PhysicalElement>();
+    private static final HashMap<PhysicalElement, PhysicalElement> TRACE_CODES = new HashMap<PhysicalElement, PhysicalElement>();
     static {
-        TRACE_CODES.put(PhysicalElement.PRECIPITATION_INCREMENT, PhysicalElement.PRECIPITATION_INCREMENT);
-        TRACE_CODES.put(PhysicalElement.PRECIPITATION_ACCUMULATOR, PhysicalElement.PRECIPITATION_ACCUMULATOR);
-        TRACE_CODES.put(PhysicalElement.PRECIPITATION_INCREMENT_DAILY, PhysicalElement.PRECIPITATION_INCREMENT_DAILY);
-        TRACE_CODES.put(PhysicalElement.SNOW_NEW_SNOWFALL, PhysicalElement.SNOW_NEW_SNOWFALL);
+        TRACE_CODES.put(PhysicalElement.PRECIPITATION_INCREMENT,
+                PhysicalElement.PRECIPITATION_INCREMENT);
+        TRACE_CODES.put(PhysicalElement.PRECIPITATION_ACCUMULATOR,
+                PhysicalElement.PRECIPITATION_ACCUMULATOR);
+        TRACE_CODES.put(PhysicalElement.PRECIPITATION_INCREMENT_DAILY,
+                PhysicalElement.PRECIPITATION_INCREMENT_DAILY);
+        TRACE_CODES.put(PhysicalElement.SNOW_NEW_SNOWFALL,
+                PhysicalElement.SNOW_NEW_SNOWFALL);
     }
 
     /**
@@ -1056,8 +1098,7 @@ public class ParameterCode {
     public static final boolean usesTrace(PhysicalElement element) {
         return (TRACE_CODES.get(element) != null);
     }
-    
-    
+
     /**
      * The duration code describes the period to which an observed or computed
      * increment applies, such as mean discharge or precipitation increment. If
@@ -1175,6 +1216,12 @@ public class ParameterCode {
         /** used in legacy shef processing code */
         private int value;
 
+        private static Map<String, Duration> map;
+
+        static {
+            map = Collections.unmodifiableMap(createMap());
+        }
+
         Duration(String code) {
             this.code = code;
         }
@@ -1213,64 +1260,105 @@ public class ParameterCode {
          *         Duration.UNKNOWN if no match is found.
          */
         public static Duration getEnum(String code) {
-            return (Duration) ParameterCode.getEnum(UNKNOWN, code, "getCode");
+            Duration d = map.get(code);
+            if (d != null) {
+                return d;
+            }
+
+            return UNKNOWN;
         }
 
         public static Duration getDefault(PhysicalElement pe) {
             Duration d = DEFAULT_DURATIONS.get(pe);
-            if(d == null) {
+            if (d == null) {
                 d = INSTANTENOUS;
             }
             return d;
         }
+
+        private static Map<String, Duration> createMap() {
+            Map<String, Duration> map = new HashMap<String, Duration>();
+            for (Duration d : Duration.values()) {
+                map.put(d.getCode(), d);
+            }
+
+            return map;
+        }
+
     }
 
-    private static final HashMap<PhysicalElement,Duration> DEFAULT_DURATIONS = new HashMap<PhysicalElement,Duration>();
+    private static final HashMap<PhysicalElement, Duration> DEFAULT_DURATIONS = new HashMap<PhysicalElement, Duration>();
     static {
-        DEFAULT_DURATIONS.put(PhysicalElement.AGRICULTURAL_RESERVED, Duration.DEFAULT);
-        DEFAULT_DURATIONS.put(PhysicalElement.AGRICULTURAL_TIME_BELOW_25F, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.AGRICULTURAL_TIME_BELOW_32F, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.AGRICULTURAL_LEAF_WETNESS, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_POTENTIAL_AMOUNT, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_AMOUNT, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_PAN_INCREMENT, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_RATE, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_TOTAL, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_LAKE_COMPUTED, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.LAKE_STORAGE_VOLUME_CHANGE, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.PRECIPITATION_INCREMENT, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.PRECIPITATION_RATE, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.DISCHARGE_RUNOFF_VOLUME, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.DISCHARGE_CUMULATIVE_VOLUME_INCREMENT, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.RADIATION_ACCUMULATED_SOLAR, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.RADIATION_SUNSHINE_PERCENT, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.RADIATION_SUNSHINE_HOURS, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.SNOW_NEW_SNOWFALL, Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.AGRICULTURAL_RESERVED,
+                Duration.DEFAULT);
+        DEFAULT_DURATIONS.put(PhysicalElement.AGRICULTURAL_TIME_BELOW_25F,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.AGRICULTURAL_TIME_BELOW_32F,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.AGRICULTURAL_LEAF_WETNESS,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_POTENTIAL_AMOUNT,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_AMOUNT,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_PAN_INCREMENT,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS
+                .put(PhysicalElement.EVAPORATION_RATE, Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_TOTAL,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.EVAPORATION_LAKE_COMPUTED,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.LAKE_STORAGE_VOLUME_CHANGE,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.PRECIPITATION_INCREMENT,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.PRECIPITATION_RATE,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.DISCHARGE_RUNOFF_VOLUME,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(
+                PhysicalElement.DISCHARGE_CUMULATIVE_VOLUME_INCREMENT,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.RADIATION_ACCUMULATED_SOLAR,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.RADIATION_SUNSHINE_PERCENT,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.RADIATION_SUNSHINE_HOURS,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.SNOW_NEW_SNOWFALL,
+                Duration._1_DAY);
 
-        DEFAULT_DURATIONS.put(PhysicalElement.TEMPERATURE_COOLING, Duration.SEASONAL_PERIOD);
-        DEFAULT_DURATIONS.put(PhysicalElement.TEMPERATURE_FREEZING, Duration.SEASONAL_PERIOD);
-        DEFAULT_DURATIONS.put(PhysicalElement.TEMPERATURE_HEATING, Duration.SEASONAL_PERIOD);
-        
-        DEFAULT_DURATIONS.put(PhysicalElement.WIND_ACCUMULATED_TRAVEL, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.WIND_TRAVEL_LENGTH, Duration._1_DAY);
-        DEFAULT_DURATIONS.put(PhysicalElement.WEATHER_LIGHTENING_GRID, Duration._30_MINUTES);
-        DEFAULT_DURATIONS.put(PhysicalElement.WEATHER_SYNOPTIC_CODE_PAST, Duration._6_HOUR);
+        DEFAULT_DURATIONS.put(PhysicalElement.TEMPERATURE_COOLING,
+                Duration.SEASONAL_PERIOD);
+        DEFAULT_DURATIONS.put(PhysicalElement.TEMPERATURE_FREEZING,
+                Duration.SEASONAL_PERIOD);
+        DEFAULT_DURATIONS.put(PhysicalElement.TEMPERATURE_HEATING,
+                Duration.SEASONAL_PERIOD);
+
+        DEFAULT_DURATIONS.put(PhysicalElement.WIND_ACCUMULATED_TRAVEL,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.WIND_TRAVEL_LENGTH,
+                Duration._1_DAY);
+        DEFAULT_DURATIONS.put(PhysicalElement.WEATHER_LIGHTENING_GRID,
+                Duration._30_MINUTES);
+        DEFAULT_DURATIONS.put(PhysicalElement.WEATHER_SYNOPTIC_CODE_PAST,
+                Duration._6_HOUR);
     }
-    
+
     /**
-     * Note that these are defined "meta" types.
-     * TODO Add Description
+     * Note that these are defined "meta" types. TODO Add Description
      * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Mar 9, 2011            jkorman     Initial creation
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author jkorman
      * @version 1.0
      */
@@ -1279,17 +1367,18 @@ public class ParameterCode {
 
         /**
          * Get the metatype based on the Type Source code and flag.
+         * 
          * @param ts
          * @param procObs
          * @return
          */
         public static DataType getDataType(TypeSource ts, boolean procObs) {
             DataType type = null;
-            
+
             // Don't use the TypeSource directly because there are some cases
             // where the "type" defaults. (See the last else clause)
-            String dType = ts.getCode().substring(0,1);
-            String dSrc = ts.getCode().substring(1,2);
+            String dType = ts.getCode().substring(0, 1);
+            String dSrc = ts.getCode().substring(1, 2);
             if ("R".equals(dType)) {
                 type = READING;
             } else if ("F".equals(dType)) {
@@ -1444,35 +1533,18 @@ public class ParameterCode {
         FORECAST_UNADJUSTED_MODEL4("FX"),
         /** Nonspecific forecast data (default for this type category) */
         FORECAST_NONSPECIFIC("FZ"),
-        //***********************
+        // ***********************
         // Reserved for historical use
-        HISTORIC_RESERVED_A("HA"),
-        HISTORIC_RESERVED_B("HB"),
-        HISTORIC_RESERVED_C("HC"),
-        HISTORIC_RESERVED_D("HD"),
-        HISTORIC_RESERVED_E("HE"),
-        HISTORIC_RESERVED_F("HF"),
-        HISTORIC_RESERVED_G("HG"),
-        HISTORIC_RESERVED_H("HH"),
-        HISTORIC_RESERVED_I("HI"),
-        HISTORIC_RESERVED_J("HJ"),
-        HISTORIC_RESERVED_K("HK"),
-        HISTORIC_RESERVED_L("HL"),
-        HISTORIC_RESERVED_M("HM"),
-        HISTORIC_RESERVED_N("HN"),
-        HISTORIC_RESERVED_O("HO"),
-        HISTORIC_RESERVED_P("HP"),
-        HISTORIC_RESERVED_Q("HQ"),
-        HISTORIC_RESERVED_R("HR"),
-        HISTORIC_RESERVED_S("HS"),
-        HISTORIC_RESERVED_T("HT"),
-        HISTORIC_RESERVED_U("HU"),
-        HISTORIC_RESERVED_V("HV"),
-        HISTORIC_RESERVED_W("HW"),
-        HISTORIC_RESERVED_X("HX"),
-        HISTORIC_RESERVED_Y("HY"),
-        HISTORIC_RESERVED_Z("HZ"),
-        
+        HISTORIC_RESERVED_A("HA"), HISTORIC_RESERVED_B("HB"), HISTORIC_RESERVED_C(
+                "HC"), HISTORIC_RESERVED_D("HD"), HISTORIC_RESERVED_E("HE"), HISTORIC_RESERVED_F(
+                "HF"), HISTORIC_RESERVED_G("HG"), HISTORIC_RESERVED_H("HH"), HISTORIC_RESERVED_I(
+                "HI"), HISTORIC_RESERVED_J("HJ"), HISTORIC_RESERVED_K("HK"), HISTORIC_RESERVED_L(
+                "HL"), HISTORIC_RESERVED_M("HM"), HISTORIC_RESERVED_N("HN"), HISTORIC_RESERVED_O(
+                "HO"), HISTORIC_RESERVED_P("HP"), HISTORIC_RESERVED_Q("HQ"), HISTORIC_RESERVED_R(
+                "HR"), HISTORIC_RESERVED_S("HS"), HISTORIC_RESERVED_T("HT"), HISTORIC_RESERVED_U(
+                "HU"), HISTORIC_RESERVED_V("HV"), HISTORIC_RESERVED_W("HW"), HISTORIC_RESERVED_X(
+                "HX"), HISTORIC_RESERVED_Y("HY"), HISTORIC_RESERVED_Z("HZ"),
+
         /** Sacramento Soil Moisture Accounting Model */
         MODEL_SACRAMENTO_SOIL_MOISTURE_ACCOUNTING("MS"),
         /** Continuous Antecedent Precipitation Index (API) Model */
@@ -2064,6 +2136,8 @@ public class ParameterCode {
 
         private String code;
 
+        private static Map<String, TypeSource> map;
+
         TypeSource() {
 
         }
@@ -2085,14 +2159,29 @@ public class ParameterCode {
         }
 
         public static TypeSource getEnum(String code) {
-            if(code.length() == 2) {
-                if(code.charAt(0) == 'Z') {
+            if (code.length() == 2) {
+                if (code.charAt(0) == 'Z') {
                     code = "R" + code.charAt(1);
                 }
             }
-            return (TypeSource) ParameterCode.getEnum(UNKNOWN, code, "getCode");
+
+            if (map == null) {
+                createMap();
+            }
+            TypeSource ts = map.get(code);
+            if (ts != null) {
+                return ts;
+            }
+
+            return UNKNOWN;
         }
 
+        private static void createMap() {
+            map = new HashMap<String, TypeSource>();
+            for (TypeSource ts : TypeSource.values()) {
+                map.put(ts.getCode(), ts);
+            }
+        }
     }
 
     /**
@@ -2146,6 +2235,12 @@ public class ParameterCode {
 
         UNKNOWN;
 
+        private static Map<String, Extremum> map;
+
+        static {
+            map = Collections.unmodifiableMap(createMap());
+        }
+
         private String code;
 
         Extremum() {
@@ -2160,9 +2255,20 @@ public class ParameterCode {
         }
 
         public static Extremum getEnum(String code) {
-            return (Extremum) ParameterCode.getEnum(UNKNOWN, code, "getCode");
+            Extremum e = map.get(code);
+            if (e != null) {
+                return e;
+            }
+            return UNKNOWN;
         }
 
+        private static Map<String, Extremum> createMap() {
+            Map<String, Extremum> map = new HashMap<String, Extremum>();
+            for (Extremum e : Extremum.values()) {
+                map.put(e.getCode(), e);
+            }
+            return map;
+        }
     }
 
     /**
@@ -2268,6 +2374,11 @@ public class ParameterCode {
 
         UNKNOWN;
 
+        private static Map<String, Probability> map;
+        static {
+            map = Collections.unmodifiableMap(createMap());
+        }
+
         private String code;
 
         private double value;
@@ -2290,82 +2401,19 @@ public class ParameterCode {
         }
 
         public static Probability getEnum(String code) {
-            return (Probability) ParameterCode
-                    .getEnum(UNKNOWN, code, "getCode");
-        }
-
-    }
-
-    /**
-     * Returns the enumeration constant matching the given key
-     * <p>
-     * This method is a general utility function applicable to many enum classes
-     * and may be better moved to another more general package.
-     * 
-     * @param enumType
-     *            the type of enum to get. Becomes the default incase the key
-     *            isn't found.
-     * @param key
-     *            the key to find. TODO generalize the key type so that keys
-     *            don't necissarily need to be Strings.
-     * @param keyMethod
-     *            the method within the enum type which to use for locating the
-     *            key
-     * @return an enumeration object matching the given key or the enumType
-     *         object if no enumeration is found.
-     */
-    private static Object getEnum(Object enumType, String key, String keyMethod) {
-
-        Object ret = enumType;
-
-        for (Object o : enumType.getClass().getEnumConstants()) {
-
-            try {
-                Method getCode = enumType.getClass().getMethod(keyMethod,
-                        new Class[] {});
-                String code = (String) getCode.invoke(o, new Object[] {});
-
-                if (code != null && code.equals(key)) {
-                    ret = o;
-                }
-
-            } catch (SecurityException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            } catch (NoSuchMethodException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            Probability p = map.get(code);
+            if (p != null) {
+                return p;
             }
-
+            return UNKNOWN;
         }
 
-        return ret;
-
+        private static Map<String, Probability> createMap() {
+            Map<String, Probability> map = new HashMap<String, Probability>();
+            for (Probability p : Probability.values()) {
+                map.put(p.getCode(), p);
+            }
+            return map;
+        }
     }
-    
-    public static final void main(String [] args) {
-        
-        TypeSource ts = TypeSource.getEnum("I1");
-        
-        System.out.println(ts.getType());
-        
-        System.out.println(ts.getSource());
-        
-        
-        
-        
-        
-        
-        
-    }
-
 }

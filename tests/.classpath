@@ -94,5 +94,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.archive"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.shef"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
