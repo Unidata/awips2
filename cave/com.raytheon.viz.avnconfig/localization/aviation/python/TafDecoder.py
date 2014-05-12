@@ -318,7 +318,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02APR2014       17211         zhao (code obtained from the listserver via Virgil that implements a new rule regarding CB, TS etc) 
-#
+#    May 12, 2014    16928         zhao           Modified check_prev_time()
 #
 #
 import exceptions, re, time, types
@@ -938,6 +938,8 @@ class Decoder(tpg.VerboseParser):
         t = self._group['time']
         try:
             if t['from'] <= max(period['prev']['time']['from'], self._cutoff):
+                add_msg(t, 'error', 49)
+            elif t['from'] <= self._taf['vtime']['from']:
                 add_msg(t, 'error', 49)
             if 'ocnl' in period and t['from'] < period['ocnl']['time']['to']:
                 add_msg(t, 'error', 50)
