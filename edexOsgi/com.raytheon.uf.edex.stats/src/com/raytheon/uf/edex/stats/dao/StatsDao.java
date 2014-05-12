@@ -23,9 +23,6 @@ package com.raytheon.uf.edex.stats.dao;
 import java.util.Calendar;
 import java.util.List;
 
-import org.hibernate.Query;
-import org.hibernate.StatelessSession;
-
 import com.raytheon.uf.common.stats.StatsRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
@@ -43,6 +40,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * Mar 18, 2013 1082       bphillip    Modified to extend sessionmanagedDao and use spring injection
  * May 22, 2013 1917       rjpeter     Added reclaimSpace.
  * Apr 18, 2014 2681       rjpeter     Added retrieveMinTime.
+ * May 12, 2014 3154       rjpeter     Remove reclaimSpace, postgres 9.2 autovacuum sufficient.
  * </pre>
  * 
  * @author jsanchez
@@ -104,34 +102,5 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
     @Override
     protected Class<StatsRecord> getEntityClass() {
         return StatsRecord.class;
-    }
-
-    /**
-     * Manually runs vacuum due to large numbers of inserts and deletes to keep
-     * table size to a minimum.
-     */
-    public void reclaimSpace() {
-        StatelessSession sess = null;
-
-        try {
-            sess = template.getSessionFactory().openStatelessSession();
-            // vacuum can't run within a transaction, hack to allow vacuum to
-            // run from within hibernate
-            Query query = sess.createSQLQuery("rollback; VACUUM events.stats");
-            query.executeUpdate();
-            statusHandler.info("stats vacuumed");
-        } catch (Exception e) {
-            statusHandler.error(
-                    "Error occurred running VACUUM on events.stats", e);
-        } finally {
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    statusHandler.error(
-                            "Error occurred closing database session", e);
-                }
-            }
-        }
     }
 }

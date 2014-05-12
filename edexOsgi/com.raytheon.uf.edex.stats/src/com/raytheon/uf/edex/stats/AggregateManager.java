@@ -79,6 +79,7 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * May 22, 2013 1917       rjpeter     Added ability to save raw and aggregate stats, to reclaimSpace every scan call,
  *                                     and to not pretty print xml grouping information.
  * Apr 18, 2014 2681       rjpeter     Updated scan to process in distinct chunks of time.
+ * May 12, 2014 3154       rjpeter     Removed reclaimSpace call.
  * </pre>
  * 
  * @author jsanchez
@@ -305,7 +306,6 @@ public class AggregateManager {
             }
         }
 
-        statsRecordDao.reclaimSpace();
         long t1 = System.currentTimeMillis();
         statusHandler.info("Aggregated " + count + " stat events in "
                 + (t1 - t0) + " ms");
