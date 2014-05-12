@@ -60,7 +60,7 @@ $java -cp "$cp" \
  "-D$props.configDir=$cfg_dir" \
  "-D$props.awips1.decompressRadarProducts=$decompress_products" \
  "-D$props.logDir=$log_dir" \
- "-Dlog4j.configuration=log4j.properties" \
+ "-Dlogback.configurationFile=logback.xml" \
  "-Dqpid.dest_syntax=BURL" \
  "-Dawips2_fxa=$awips2_fxa" \
  $edex_endpoint_arg_2 \
