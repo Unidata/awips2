@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * Nov 11, 2008 1684        chammack    Camel refactor.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Sep 17, 2013 2378        njensen     Improve 3/6 hr precip decoding
+ * May 12, 2014 DR 17151    D. Friedman Fix 6hr min/max temp decoding.
  * </pre>
  * 
  * @author bphillip
@@ -254,16 +255,17 @@ public class MetarDecoder extends AbstractDecoder {
             record.setMessageData(message);
             message = cleanMessage(message);
 
-            String trailingData = null;
+            String remarks = null;
             int cutPos = message.indexOf(" RMK ");
             if (cutPos >= 0) {
-                trailingData = message.substring(cutPos);
+                remarks = message.substring(cutPos);
                 // Now truncate the message data.
                 message = message.substring(0, cutPos);
             } else {
-                trailingData = message;
+                remarks = "";
             }
-            trailingData = trailingData + " ";
+            StringBuilder trailingData = new StringBuilder(remarks);
+            trailingData.append(' ');
 
             StringBuilder obsMsg = new StringBuilder(message);
 
@@ -730,6 +732,7 @@ public class MetarDecoder extends AbstractDecoder {
                         pkTim.add(Calendar.DAY_OF_MONTH, -1);
                     }
                     record.setPkWndTime(pkTim);
+                    trailingData.delete(matcher.start(), matcher.end());
                 }
 
                 // Gets the temperature and dew point in tenths precision
