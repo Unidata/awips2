@@ -66,6 +66,8 @@
 	<vbSource key="DHM" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="ENPWAVE253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="EPwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="estofsPR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GFE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GFSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GFSLAMPTstorm" name="GFSLAMP-Grid" category="SfcGrid" views="PLANVIEW TIMESERIES" />
