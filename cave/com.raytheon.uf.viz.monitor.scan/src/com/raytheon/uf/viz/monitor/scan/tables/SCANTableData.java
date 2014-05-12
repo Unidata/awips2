@@ -39,7 +39,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ISortColumn;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 3, 2009  #3039      lvenable     Initial creation
+ * Dec 3, 2009  #3039     lvenable    Initial creation
  * 
  * </pre>
  * 
