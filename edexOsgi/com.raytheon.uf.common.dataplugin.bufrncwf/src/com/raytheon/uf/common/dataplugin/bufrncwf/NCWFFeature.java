@@ -25,7 +25,6 @@ import java.util.List;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -38,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * --/--/----              jkorman     Initial creation
  * Oct 15, 2013 2361       njensen     Remove XML annotations
+ * May 12, 2014 3133       njensen     Remove dependency on DecoderTools
  * 
  * </pre>
  * 
@@ -66,7 +66,7 @@ public class NCWFFeature implements Serializable {
      *            Feature centroid longitude.
      */
     public NCWFFeature(Double lat, Double lon) {
-        centroidLocation = DecoderTools.createCoordinate(lat, lon);
+        centroidLocation = new Coordinate(lon, lat);
     }
 
     /**
@@ -81,7 +81,7 @@ public class NCWFFeature implements Serializable {
      * @return
      */
     public double getCentroidLatitude() {
-        return DecoderTools.getCoordinateLatitude(centroidLocation);
+        return centroidLocation.y;
     }
 
     /**
@@ -89,7 +89,7 @@ public class NCWFFeature implements Serializable {
      * @return
      */
     public double getCentroidLongitude() {
-        return DecoderTools.getCoordinateLongitude(centroidLocation);
+        return centroidLocation.x;
     }
 
     /**
