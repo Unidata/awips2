@@ -127,6 +127,7 @@
 #10/03/12    - Added token section for script execution
 #02/12/2014  - Added token for default display to replace field in rwprefs table
 #02/18/14    - Added section for run_report_alarm service configuration.
+#05/05/2014  - #3026 added hpe_grib_input_dir token
 
 
 # ==============================================================================
@@ -1123,6 +1124,7 @@ dhr_dirname1     :  $(data_archive_root)/radar           # first part of directo
 dhr_dirname2     :  DHR/layer0/res1/level256  # second part of directory name
                                               #  containing DHR products for
                                               #  associated or dial in radar
+                                              
 dhr_grid_dir     : $(pproc_local_data)/dhr_decoded # decoded DHR radar grids
 
 dhr_error_dir    : $(pproc_local_data)/dhr_error   # DHR error files
@@ -1149,6 +1151,7 @@ dsp_error_dir    : $(pproc_local_data)/dsp_error   # DSP error files
 dsp_arch_dir     : $(pproc_local_data)/dsp_archive # DSP archives
 
 
+hpe_grib_input_dir     :  $(EDEX_HOME)/data/local/hpegrib                                       
 hpe_generate_list      :  DHRMOSAIC,BDHRMOSAIC,ERMOSAIC,LSATPRE,EBMOSAIC
 hpe_qpe_fieldtype      :  ERMOSAIC  # field type to be saved as qpe
 

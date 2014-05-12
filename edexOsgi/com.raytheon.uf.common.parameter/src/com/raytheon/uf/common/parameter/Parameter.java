@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -70,6 +71,7 @@ public class Parameter extends PersistableDataObject implements
     @Id
     @DynamicSerializeElement
     @XmlElement
+    @DataURI(position = 0)
     private String abbreviation;
 
     @Column(nullable = false)

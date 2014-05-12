@@ -17,14 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.parameter;
+package com.raytheon.uf.common.plugin.hpe.request;
 
-import com.raytheon.uf.common.dataplugin.annotations.DataURIFieldConverter;
-import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
+import java.util.Date;
+import java.util.Map;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * A DataURIFieldConverter that ensures that a String parameter abbreviation
- * will be looked up to potentially contain all the fields.
+ * HPE bias source response object.
  * 
  * <pre>
  * 
@@ -32,28 +34,32 @@ import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 6, 2014  2060       njensen     Initial creation
+ * Apr 23, 2014    3026    mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * @author mpduff
  * @version 1.0
  */
+@DynamicSerialize
+public class HpeLabelDataResponse {
 
-public class ParameterConverter implements DataURIFieldConverter<Parameter> {
+    /** Map of Dates->bias source text */
+    @DynamicSerializeElement
+    private Map<Date, String> data;
 
-    @Override
-    public String toString(Parameter field) {
-        return field.getAbbreviation();
+    /**
+     * @return the data
+     */
+    public Map<Date, String> getData() {
+        return data;
     }
 
-    @Override
-    public Parameter fromString(String string) {
-        Parameter p = ParameterLookup.getInstance().getParameter(string);
-        if (p == null) {
-            p = new Parameter(string);
-        }
-        return p;
+    /**
+     * @param data
+     *            the data to set
+     */
+    public void setData(Map<Date, String> data) {
+        this.data = data;
     }
-
 }
