@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
-import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
+import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -54,6 +54,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  *                                      bulletIndices(), header(), firstBullet(), secondBullet(), getImmediateCausesPtrn();
  *                                      updated body(), header(), and secondBullet();
  * Mar 13, 2013  DR 15892  D. Friedman  Fix bullet parsing.
+ * Apr 29, 2014    3033    jsanchez     Moved patterns into ICommonPatterns
  * 
  * </pre>
  * 
@@ -95,7 +96,7 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
             .getHandler(AbstractLockingBehavior.class);
 
     private static Pattern immediateCausePtrn = null;
-    
+
     protected WarningAction action = null;
 
     /**
@@ -129,9 +130,9 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
     }
 
     protected void body() {
-    	header();
-    	firstBullet();
-    	secondBullet();
+        header();
+        firstBullet();
+        secondBullet();
     }
 
     /**
@@ -140,30 +141,29 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * @return
      */
     private Integer[] bulletIndices() {
-    	List<Integer> bulletIndices = new ArrayList<Integer>();
+        List<Integer> bulletIndices = new ArrayList<Integer>();
 
-    	/* Assumes first line cannot be a bullet and that the '*' is
-    	 * at the start of a line.
-    	 */
-    	int index = text.indexOf("\n* ");
-    	while (index >= 0) {
-    		bulletIndices.add(index + 1);
-    		index = text.indexOf("\n* ", index + 3);
-    	}
+        /*
+         * Assumes first line cannot be a bullet and that the '*' is at the
+         * start of a line.
+         */
+        int index = text.indexOf("\n* ");
+        while (index >= 0) {
+            bulletIndices.add(index + 1);
+            index = text.indexOf("\n* ", index + 3);
+        }
 
-    	return bulletIndices.toArray(new Integer[bulletIndices.size()]);
+        return bulletIndices.toArray(new Integer[bulletIndices.size()]);
     }
 
     /**
      * Locks the header before the first bullet.
      */
     private void header() {
-    	// LOCK_END should not be found at the beginning since the previous line
-    	// should be blank.
-    	String h = "^((THE NATIONAL WEATHER SERVICE IN .{1,} HAS (ISSUED A|EXTENDED THE))"
-    		+ newline + ")$";
-    	Pattern header = Pattern.compile(h, Pattern.MULTILINE);
-    	find(header.matcher(text));
+        // LOCK_END should not be found at the beginning since the previous line
+        // should be blank.
+
+        find(header.matcher(text));
     }
 
     /**
@@ -173,123 +173,116 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * @param end
      */
     private void firstBullet() {
-    	Integer[] bulletIndices = bulletIndices();
+        Integer[] bulletIndices = bulletIndices();
 
-    	// Short term forecasts don't follow normal bullets?
-    	if (bulletIndices.length < 2) {
-    		return;
-    	}
-    	int start = bulletIndices[0];
-    	int end = bulletIndices[1];
+        // Short term forecasts don't follow normal bullets?
+        if (bulletIndices.length < 2) {
+            return;
+        }
+        int start = bulletIndices[0];
+        int end = bulletIndices[1];
 
-    	if (immediateCausePtrn == null) {
-    		immediateCausePtrn = getImmediateCausesPtrn();
-    	}
+        if (immediateCausePtrn == null) {
+            immediateCausePtrn = getImmediateCausesPtrn();
+        }
 
-    	String firstBulletText = text.substring(start, end);
+        String firstBulletText = text.substring(start, end);
 
-    	// According to the original WarningTextHandler, marine zone names
-    	// should not be locked. For some reason, this differs from followups as
-    	// stated in DR 15110. Need verification from NWS. This is a variance?
-    	if (!isMarineProduct()) {
-    		Matcher m = null;
-    		for (String line : firstBulletText.split("\\n")) {
+        // According to the original WarningTextHandler, marine zone names
+        // should not be locked. For some reason, this differs from followups as
+        // stated in DR 15110. Need verification from NWS. This is a variance?
+        if (!isMarineProduct()) {
+            Matcher m = null;
+            for (String line : firstBulletText.split("\\n")) {
 
-    			if (immediateCausePtrn != null) {
-    				// immediate cause
-    				m = immediateCausePtrn.matcher(line);
-    				if (m.find()) {
-    					String i = line.replace(line, LOCK_START + line
-    							+ LOCK_END);
-    					firstBulletText = firstBulletText.replace(line, i);
-    					continue;
-    				}
-    			}
+                if (immediateCausePtrn != null) {
+                    // immediate cause
+                    m = immediateCausePtrn.matcher(line);
+                    if (m.find()) {
+                        String i = line.replace(line, LOCK_START + line
+                                + LOCK_END);
+                        firstBulletText = firstBulletText.replace(line, i);
+                        continue;
+                    }
+                }
 
-    			for (AffectedAreas affectedArea : affectedAreas) {
-    				String name = affectedArea.getName();
-    				String areaNotation = affectedArea.getAreaNotation();
-    				String parentRegion = affectedArea.getParentRegion();
-    				if (name != null && name.trim().length() != 0
-    						&& line.contains(name.toUpperCase())) {
-    					name = name.toUpperCase();
-    					String t = line;
-    					if (!hasBeenLocked(line, name)) {
-    						t = t.replace(name, LOCK_START + name + LOCK_END);
-    					}
+                for (AffectedAreas affectedArea : affectedAreas) {
+                    String name = affectedArea.getName();
+                    String areaNotation = affectedArea.getAreaNotation();
+                    String parentRegion = affectedArea.getParentRegion();
+                    if (name != null && name.trim().length() != 0
+                            && line.contains(name.toUpperCase())) {
+                        name = name.toUpperCase();
+                        String t = line;
+                        if (!hasBeenLocked(line, name)) {
+                            t = t.replace(name, LOCK_START + name + LOCK_END);
+                        }
 
-    					if (areaNotation != null
-    							&& areaNotation.trim().length() != 0) {
-    						areaNotation = areaNotation.toUpperCase();
-    						if (!hasBeenLocked(line, areaNotation.toUpperCase())) {
-    							t = t.replace(areaNotation, LOCK_START
-    									+ areaNotation + LOCK_END);
-    						}
-    					}
+                        if (areaNotation != null
+                                && areaNotation.trim().length() != 0) {
+                            areaNotation = areaNotation.toUpperCase();
+                            if (!hasBeenLocked(line, areaNotation.toUpperCase())) {
+                                t = t.replace(areaNotation, LOCK_START
+                                        + areaNotation + LOCK_END);
+                            }
+                        }
 
-    					if (parentRegion != null
-    							&& parentRegion.trim().length() != 0) {
-    						parentRegion = parentRegion.toUpperCase();
-    						if (!hasBeenLocked(line, parentRegion)) {
-    							t = t.replace(parentRegion, LOCK_START
-    									+ parentRegion + LOCK_END);
-    						}
-    					}
+                        if (parentRegion != null
+                                && parentRegion.trim().length() != 0) {
+                            parentRegion = parentRegion.toUpperCase();
+                            if (!hasBeenLocked(line, parentRegion)) {
+                                t = t.replace(parentRegion, LOCK_START
+                                        + parentRegion + LOCK_END);
+                            }
+                        }
 
-    					if (validate(t)) {
-    						firstBulletText = firstBulletText.replace(line, t);
-    					}
-    					break;
-    				}
-    			}
-    		}
-    	}
+                        if (validate(t)) {
+                            firstBulletText = firstBulletText.replace(line, t);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
 
-    	firstBulletText = firstBulletText.replaceAll(firstBullet, LOCK_START
-    			+ "$0" + LOCK_END);
+        firstBulletText = firstBulletText.replaceAll(firstBullet, LOCK_START
+                + "$0" + LOCK_END);
 
-    	this.text = text.replace(text.substring(start, end), firstBulletText);
+        this.text = text.replace(text.substring(start, end), firstBulletText);
     }
 
     /**
      * Locks the second bullet.
      */
     private void secondBullet() {
-    	// LOCK_END should not be found at the beginning since the previous line
-    	// should be blank.
-    	String secondBullet = 
-    		"\\* UNTIL \\d{3,4} (AM|PM) \\w{3,4}( \\w{6,9}){0,1}(\\/\\d{3,4} (AM|PM) \\w{3,4}( \\w{6,9}){0,1}\\/){0,1}"
-    		+ newline;
-    	Pattern secondBulletPtrn = Pattern.compile(secondBullet,
-    			Pattern.MULTILINE);
-    	find(secondBulletPtrn.matcher(text));
+        find(secondBulletPtrn.matcher(text));
     }
 
     /**
      * Set the immediateCausePtrn with the info in immediateCause.text.
      */
     private static Pattern getImmediateCausesPtrn() {
-    	String filename = "immediateCause.txt";
-    	StringBuffer pattern = new StringBuffer();
+        String filename = "immediateCause.txt";
+        StringBuffer pattern = new StringBuffer();
 
-    	try {
-    		String immediateCause = FileUtil.open(filename, "base");
-    		pattern.append("(.*)(A DAM BREAK");
-    		for (String ic : immediateCause.split("\n")) {
-    			String[] parts = ic.split("\\\\");
-    			pattern.append("| " + parts[1].trim());
-    		}
+        try {
+            String immediateCause = WarnFileUtil.convertFileContentsToString(filename, null, null);
+            pattern.append("(.*)(A DAM BREAK");
+            for (String ic : immediateCause.split("\n")) {
+                String[] parts = ic.split("\\\\");
+                pattern.append("| " + parts[1].trim());
+            }
 
-    		pattern.append(")(.*)");
-    		return Pattern.compile(pattern.toString());
-    	} catch (Exception e) {
-    		statusHandler
-    		.handle(Priority.ERROR,
-    				"Unable to process immediateCause.txt in the base directory",
-    				e);
-    	}
+            pattern.append(")(.*)");
+            return Pattern.compile(pattern.toString());
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Unable to process immediateCause.txt in the base directory",
+                            e);
+        }
 
-    	return null;
+        return null;
     }
 
     /**
@@ -319,7 +312,7 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the UGC line or FIPS line.
      */
     private void ugc() {
-        Pattern ugcPtrn = Pattern.compile(ugc + newline, Pattern.MULTILINE);
+        Pattern ugcPtrn = Pattern.compile(ugc + NEWLINE, Pattern.MULTILINE);
         find(ugcPtrn.matcher(text));
     }
 
@@ -327,13 +320,6 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the HTEC line.
      */
     private void htec() {
-        // LOCK_END can be added at the start of the line if a previous line has
-        // been locked.
-        String htec = "^(("
-                + LOCK_END
-                + "){0,1}/[A-Za-z0-9]{5}.[0-3NU].\\w{2}.\\d{6}T\\d{4}Z.\\d{6}T\\d{4}Z.\\d{6}T\\d{4}Z.\\w{2}/"
-                + newline + ")";
-        Pattern htecPtrn = Pattern.compile(htec, Pattern.MULTILINE);
         find(htecPtrn.matcher(text));
     }
 
@@ -341,13 +327,6 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the VTEC line.
      */
     private void vtec() {
-        // LOCK_END can be added at the start of the line if a previous line has
-        // been locked.
-        String vtec = "^(("
-                + LOCK_END
-                + "){0,1}/[OTEX]\\.([A-Z]{3})\\.[A-Za-z0-9]{4}\\.[A-Z]{2}\\.[WAYSFON]\\.\\d{4}\\.\\d{6}T\\d{4}Z-\\d{6}T\\d{4}Z/"
-                + newline + ")";
-        Pattern vtecPtrn = Pattern.compile(vtec, Pattern.MULTILINE);
         find(vtecPtrn.matcher(text));
     }
 
@@ -355,7 +334,7 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the list of area names.
      */
     private void areaNames() {
-        Pattern listOfAreaNamePtrn = Pattern.compile(listOfAreaName + newline,
+        Pattern listOfAreaNamePtrn = Pattern.compile(listOfAreaName + NEWLINE,
                 Pattern.MULTILINE);
         find(listOfAreaNamePtrn.matcher(text));
     }
@@ -420,13 +399,6 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the TIME...MOT...LINE (Can be multiple lines).
      */
     private void tml() {
-        // LOCK_END can be added at the start of the line if a previous line has
-        // been locked.
-        String tml = "^(("
-                + LOCK_END
-                + "){0,1}(TIME\\.\\.\\.MOT\\.\\.\\.LOC \\d{3,4}Z \\d{3}DEG \\d{1,3}KT(( \\d{3,4} \\d{3,5}){1,})(\\s*\\d{3,5} )*)\\s*"
-                + newline + ")";
-        Pattern tmlPtrn = Pattern.compile(tml, Pattern.MULTILINE);
         find(tmlPtrn.matcher(text));
     }
 
@@ -434,11 +406,7 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the coordinates of the polygon.
      */
     private void latLon() {
-        // LOCK_END should not be found at the beginning of the LAT...LON since
-        // the previous line should be blank.
-        String latLon = "^((LAT\\.\\.\\.LON( \\d{3,4} \\d{3,5})+)" + newline
-                + ")(((\\s{5}( \\d{3,4} \\d{3,5})+)" + newline + ")+)?";
-        Pattern latLonPtrn = Pattern.compile(latLon, Pattern.MULTILINE);
+
         find(latLonPtrn.matcher(text));
     }
 
@@ -446,15 +414,6 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the Call To Action header and the segment tags.
      */
     private void callToActions() {
-        // LOCK_END should not be found at the beginning since the previous line
-        // should be blank.
-        String precautionaryPtrn = "^(PRECAUTIONARY/PREPAREDNESS ACTIONS\\.\\.\\."
-                + newline + ")";
-        String ctaEndPtrn = "^(&&" + newline + ")";
-        String segmentPtrn = "^(\\$\\$" + newline + ")";
-        Pattern cta = Pattern.compile("(" + precautionaryPtrn + ")" + "|("
-                + ctaEndPtrn + ")" + "|(" + segmentPtrn + ")",
-                Pattern.MULTILINE);
         find(cta.matcher(text));
     }
 
@@ -462,13 +421,6 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the test messages.
      */
     private void testMessages() {
-        String test1 = "THIS IS A TEST MESSAGE\\. DO NOT TAKE ACTION BASED ON THIS MESSAGE\\."
-                + newline;
-        String test2 = "THIS IS A TEST MESSAGE\\.";
-        String test3 = "\\.\\.\\.THIS MESSAGE IS FOR TEST PURPOSES ONLY\\.\\.\\."
-                + newline;
-        Pattern testPtrn = Pattern.compile("(" + test1 + ")|" + "(" + test2
-                + ")|" + "(" + test3 + ")");
         find(testPtrn.matcher(text));
     }
 
