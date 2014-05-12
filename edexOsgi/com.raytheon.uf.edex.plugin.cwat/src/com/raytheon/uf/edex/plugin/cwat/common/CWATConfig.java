@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.dat.utils.ScanDataCache;
 import com.raytheon.uf.edex.plugin.cwat.CWATGenerator;
 import com.raytheon.uf.edex.plugin.cwat.CWATURIFilter;
 import com.raytheon.uf.edex.plugin.scan.common.ScanCommonUtils;
+import com.raytheon.uf.edex.plugin.scan.lightning.LightningRetriever;
 import com.raytheon.uf.edex.plugin.scan.process.U500Product;
 import com.raytheon.uf.edex.plugin.scan.process.U700Product;
 import com.raytheon.uf.edex.plugin.scan.process.V700Product;
@@ -63,7 +64,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06/02/2009   2037       dhladky     Initial Creation.
- * Apr 24, 2014  2060      njensen     Updates for removal of grid dataURI column
+ * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
+ * May 12, 2014 3133       njensen     Use LightningRetriever instead of ScanUtils
  * 
  * </pre>
  * 
@@ -402,7 +404,7 @@ public class CWATConfig {
                     if (obs.length != 0) {
                         for (int i = 0; i < obs.length; i++) {
                             String lgtUri = (String) obs[i];
-                            BinLightningRecord rec = ScanUtils
+                            BinLightningRecord rec = LightningRetriever
                                     .getLightningRecord(lgtUri);
                             lgtRecs.add(rec);
                             cache.getLigtningData().addLightningRecord(rec);
