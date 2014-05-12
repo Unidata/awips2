@@ -20,6 +20,7 @@
 		factory-method="register">
 		<constructor-arg value="satellite" />
 		<constructor-arg value="jms-durable:queue:Ingest.Satellite" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
 	</bean>
 
 	<camelContext id="sat-camel"
