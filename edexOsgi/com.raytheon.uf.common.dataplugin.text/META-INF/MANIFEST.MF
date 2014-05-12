@@ -8,8 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: com.raytheon.uf.common.serialization,
  org.hibernate,
- com.raytheon.uf.common.localization;bundle-version="1.12.1174",
- com.raytheon.edex.common;bundle-version="1.12.1174"
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174"
 Import-Package: com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.annotations,
