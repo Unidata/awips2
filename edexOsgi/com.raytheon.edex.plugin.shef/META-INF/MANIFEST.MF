@@ -18,11 +18,13 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.localization,
  javax.persistence,
  org.apache.commons.cli;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.edex.plugin.obs.metar,
  com.raytheon.edex.plugin.obs.metar.util,
+ com.raytheon.edex.plugin.shef.database,
  com.raytheon.edex.textdb.dbapi.impl,
  com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util,
