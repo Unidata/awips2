@@ -1,3 +1,22 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.uf.common.dataplugin.warning.config;
 
 import java.io.FileNotFoundException;
@@ -9,13 +28,31 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
+import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
+/**
+ * Dialog configuration getter/setter methods.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 28, 2014 3033       jsanchez    Refactored file retrieval.
+ * </pre>
+ * 
+ * @author jsanchez
+ * @version 1.0
+ */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "configuration")
 public class DialogConfiguration implements ISerializableObject {
+
+    private static final String CONFIG_FILE = "config.xml";
+
     @XmlElement
     private String warngenOfficeShort;
 
@@ -39,13 +76,14 @@ public class DialogConfiguration implements ISerializableObject {
 
     @XmlElement
     private long followupListRefeshDelay;
-    
+
     @XmlElement
     private GridSpacing gridSpacing;
 
     public static DialogConfiguration loadDialogConfig(String localSite)
             throws FileNotFoundException, IOException, JAXBException {
-        String xml = FileUtil.open("config.xml", localSite);
+        String xml = WarnFileUtil.convertFileContentsToString(CONFIG_FILE,
+                localSite, null);
         return (DialogConfiguration) SerializationUtil.unmarshalFromXml(xml);
     }
 
@@ -120,5 +158,5 @@ public class DialogConfiguration implements ISerializableObject {
     public void setGridSpacing(GridSpacing gridSpacing) {
         this.gridSpacing = gridSpacing;
     }
-    
+
 }
