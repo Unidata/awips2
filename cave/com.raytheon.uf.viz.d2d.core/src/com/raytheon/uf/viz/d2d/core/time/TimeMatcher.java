@@ -49,6 +49,7 @@ import com.raytheon.uf.common.time.DataTime.FLAG;
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2007            chammack    Initial Creation.
  * May 31, 2013 DR 15908   dhuffman    Removed a null from a method call to cease a null pointer exception.
+ * May  5, 2014 DR 17201   D. Friedman Make same-radar time matching work more like A1.
  * 
  * </pre>
  * 
@@ -94,15 +95,15 @@ public class TimeMatcher {
     // 6 hours in seconds
     private static final long SIX_HOURS_S = ONE_HOUR_S * 6;
 
-    private static boolean radarOnRadarYes = false;
-
     public static final float DEFAULT_TOLERANCE_FACTOR = 0.6f;
 
     private static long autoIntervals[] = { 300, 900, 1800, 3600, 10800, 21600,
             43200, 86400 };
 
-    // Disable instantiation
-    private TimeMatcher() {
+    private boolean radarOnRadarYes = false;
+
+    // Package access
+    TimeMatcher() {
 
     }
 
@@ -225,7 +226,7 @@ public class TimeMatcher {
     // of time separating the individual items. Considers separation in both
     // initial time and forecast time space. Separation cannot be zero.
     // ---------------------------------------------------------------------------
-    static IntrinsicReturnVal intrinsicPeriod(DataTime[] times,
+    IntrinsicReturnVal intrinsicPeriod(DataTime[] times,
             boolean haveForecasts) {
         int i0, i, j, m, nn, n0;
         long dt, dt2, d, df;
@@ -366,7 +367,7 @@ public class TimeMatcher {
     // call to validTimeSort and determines the minimum length of valid
     // time separating the individual items. Separation cannot be zero.
     // ---------------------------------------------------------------------------
-    static IntrinsicReturnVal intrinsicPeriod(List<DataTime> times,
+    IntrinsicReturnVal intrinsicPeriod(List<DataTime> times,
             List<Integer> majorIndex, boolean haveForecasts) {
         int i, j, k, nn, n0;
         long dt, dt2, d;
@@ -542,7 +543,7 @@ public class TimeMatcher {
     // tolerance being half the intrinsic period the existing frames or the
     // data being overlaid, whichever is greater.
     // ---------------------------------------------------------------------------
-    public static DataTime[] doValTimOverlay(DataTime[] depictTimeArr,
+    public DataTime[] doValTimOverlay(DataTime[] depictTimeArr,
             DataTime[] frameTimes, long deltaTime, LoadMode mode, Date latest,
             float tolerance) {
 
@@ -658,8 +659,29 @@ public class TimeMatcher {
 
         if (fspatial) {
             frameFcsts = dataFcsts;
+            dtf = dt;
         } else if (dtf > dt) {
             dt = dtf;
+        }
+
+        // A1 TimeMatchFunctions.C ~ line 952
+        if (dt > ONE_MINUTE_MS && dt <= ELEVEN_MINUTES_MS
+                && dtf > ONE_MINUTE_MS && dtf <= ELEVEN_MINUTES_MS
+                && radarOnRadarYes) {
+            if (dtf<dt) {
+                dt = dtf;
+            }
+        } else if (dtf>dt) {
+            dt = dtf;
+        }
+
+        /* A1 TimeMatchingFunctions.C ~ line 960
+         *  For 88D radar, dt is usually 300 seconds or larger
+         *  For TDWR radar, dt is usually 180 seconds or less
+         *  To allow 3 minutes overlay for TDWR products, dt is set to 300 seconds
+         */
+        if (radarOnRadarYes && dt < FIVE_MINUTES_MS) {
+            dt = FIVE_MINUTES_MS;
         }
 
         if (tolerance > 99) {
@@ -699,7 +721,7 @@ public class TimeMatcher {
             vf = (frameTimes)[f].getMatchValid() + deltaTime;
             v1 = vf - dt; // first usable valid time
             v2 = vf + dt; // last usable valid time
-            if (!dataFcsts && !frameFcsts && vf > latest.getTime()) {
+            if (!radarOnRadarYes && !dataFcsts && !frameFcsts && vf > latest.getTime()) {
                 // if we are dealing with live data(without forecast times) then
                 // we want to allow extra time on the latest frame. For example
                 // LAPS data arrives hourly, and radar arrives every 6 minutes,
@@ -1415,7 +1437,7 @@ public class TimeMatcher {
     // Optional argument "forecast" controls how modes PROG_LOOP,
     // FORCED, FCST_TIME_MATCH and DPROG_DT work.
     // ---------------------------------------------------------------------------
-    public static DataTime[] makeOverlayList(DataTime[] depictTimes,
+    public DataTime[] makeOverlayList(DataTime[] depictTimes,
             Date clock, DataTime[] frameTimes, LoadMode mode, long forecast,
             long deltaTime, float tolerance) {
         // The levelvalue check has been added to allow resources on a single
@@ -1558,7 +1580,7 @@ public class TimeMatcher {
         default:
             break;
         }
-        radarOnRadarYes = false;
+        // radarOnRadarYes = false; // A2 uses setRadarOnRadar().
         // If we stripped the levelvalue, restore it.
         if (levelvalue != null) {
             for (DataTime time : loadTimes) {
@@ -1598,7 +1620,7 @@ public class TimeMatcher {
             Arrays.sort(times);
         }
 
-        long minInterval = intrinsicPeriod(times, haveForecasts).intrinsicPeriod;
+        long minInterval = (new TimeMatcher()).intrinsicPeriod(times, haveForecasts).intrinsicPeriod;
         // the intrinsic period interval is in milliseconds
         minInterval /= 1000;
 
@@ -1671,4 +1693,11 @@ public class TimeMatcher {
         return intervals;
     }
 
+    public boolean isRadarOnRadar() {
+        return radarOnRadarYes;
+    }
+
+    public void setRadarOnRadar(boolean radarOnRadar) {
+        this.radarOnRadarYes = radarOnRadar;
+    }
 }
