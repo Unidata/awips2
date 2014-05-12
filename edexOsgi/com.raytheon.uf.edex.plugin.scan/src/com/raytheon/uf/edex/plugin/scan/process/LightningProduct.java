@@ -26,9 +26,9 @@ import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableDataRow;
-import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
+import com.raytheon.uf.edex.plugin.scan.lightning.LightningRetriever;
 
 /**
  * 
@@ -38,7 +38,8 @@ import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05/05/2009   2037      dhladky    Initial Creation.
+ * 05/05/2009   2037       dhladky     Initial Creation.
+ * 05/14/2014   3133       njensen     Use LightingRetriever instead of ScanUtils
  * 
  * </pre>
  * 
@@ -83,7 +84,7 @@ public class LightningProduct extends ScanProduct {
 
         BinLightningRecord lightRec = null;
         try {
-            lightRec = ScanUtils.getLightningRecord(uri);
+            lightRec = LightningRetriever.getLightningRecord(uri);
         } catch (Exception e) {
             e.printStackTrace();
         }

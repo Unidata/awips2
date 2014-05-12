@@ -38,14 +38,12 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObsAdapter;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.DHRValues;
-import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -56,8 +54,6 @@ import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.database.plugin.PluginDao;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -78,7 +74,9 @@ import com.vividsolutions.jts.io.WKTWriter;
  * 02/11/2009   1981       dhladky    Initial Creation.
  * 09/03/2013   DR 13083   gzhang	  Added getZRvalue2() to fix an error.
  * 12/20/2013   DR 16894   gzhang     Fixed getZRvalue2() bias issue.
+ * 05/12/2014   3133       njensen    Extracted getLightningRecord
  * </pre>
+ * 
  * @author dhladky
  * @version 1.0
  */
@@ -304,29 +302,6 @@ public class ScanUtils {
     // private static String highResolutionLevel = null;
 
     private static String prevTable = "";
-
-    /**
-     * Populate the Lightning record
-     * 
-     * @param uri
-     * @return
-     */
-    public static BinLightningRecord getLightningRecord(String uri)
-            throws PluginException {
-        BinLightningRecord lightRec = null;
-        try {
-            lightRec = new BinLightningRecord(uri);
-            PluginDao ld = (PluginDao) PluginFactory.getInstance()
-                    .getPluginDao(lightRec.getPluginName());
-            lightRec = (BinLightningRecord) ld.getMetadata(uri);
-            IDataStore dataStore = ld.getDataStore(lightRec);
-            lightRec.retrieveFromDataStore(dataStore);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return lightRec;
-    }
 
     /**
      * Populate the sounding record for the listener strategy
@@ -1349,7 +1324,7 @@ public class ScanUtils {
         // only need int precision
 
         if (totalCGStrikes > 0) {
-            lr.setCgRate((int) ((double) totalCGStrikes / ((double) (stop_time - start_time) / (1000.0 * 60.0))));
+            lr.setCgRate((int) (totalCGStrikes / ((stop_time - start_time) / (1000.0 * 60.0))));
         } else {
             lr.setCgRate(0);
         }
@@ -1927,34 +1902,35 @@ public class ScanUtils {
 
         return returns;
     }
-    
+
     /**
-     *  DR 13083: the first parameter zValue will use a radar bin's raw data
-     *  since old version handles value 66 wrong in getDecodedDHRValue(int).
-     *  
-     *  Usage: to be called in FFMPProcessor.processRADAR(ArrayList<SourceBinEntry>):
-    
-		1). comment out fval line; 
-		2). call ScanUtils.getZRvalue2;  
-		3). use dataVals[j] as the first parameter in the step 2 above.		
+     * DR 13083: the first parameter zValue will use a radar bin's raw data
+     * since old version handles value 66 wrong in getDecodedDHRValue(int).
+     * 
+     * Usage: to be called in
+     * FFMPProcessor.processRADAR(ArrayList<SourceBinEntry>):
+     * 
+     * 1). comment out fval line; 2). call ScanUtils.getZRvalue2; 3). use
+     * dataVals[j] as the first parameter in the step 2 above.
      */
     public static float getZRvalue2(double zValue, double coefficent,
             double hailCap, double power, double bias) {
         // The Fulton et al 1998 standard NWS Z-R relationship
         double rValue = 0.0f;
         if (zValue >= 2) {
-        	zValue = MIN_DHR_DBZ + ((zValue  - 2) * DHR_DBZ_STEP);
+            zValue = MIN_DHR_DBZ + ((zValue - 2) * DHR_DBZ_STEP);
             double rlogMult = Math.log10(coefficent);
-            rValue = /*bias* */(Math.pow(10.0, ((zValue-10.0*rlogMult)/(10.0*power))));
+            rValue = /* bias* */(Math.pow(10.0,
+                    ((zValue - 10.0 * rlogMult) / (10.0 * power))));
 
             // hail cap check
             if (rValue > hailCap) {
-            	rValue = /*return (float)  */(/*MM_TO_INCH *  */hailCap);
+                rValue = /* return (float) */(/* MM_TO_INCH * */hailCap);
             }
         } else {
-        	rValue = /*return  */(float) rValue;
+            rValue = /* return */(float) rValue;
         }
 
-        return (float) (bias*MM_TO_INCH * rValue);
+        return (float) (bias * MM_TO_INCH * rValue);
     }
 }
