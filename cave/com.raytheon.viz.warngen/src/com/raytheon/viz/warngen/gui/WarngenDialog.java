@@ -1252,7 +1252,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.resetState();
         warngenLayer.getStormTrackState().duration = ((DurationData) durationList
                 .getData(durationList.getItem(durationList.getSelectionIndex()))).minutes;
-        durationList.setEnabled(true);
+        durationList.setEnabled(warngenLayer.getConfiguration().isEnableDuration());
         if (lineOfStorms.getSelection()) {
             selectLineOfStorms();
         } else {
