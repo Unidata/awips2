@@ -1,0 +1,61 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+  
+  	<bean id="getAfosIdHandler" class="com.raytheon.uf.edex.plugin.text.handler.GetAfosIdHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.GetAfosIdRequest"/>
+  		<constructor-arg ref="getAfosIdHandler"/>
+  	</bean>
+  	
+  	<bean id="getPartialAfosIdHandler" class="com.raytheon.uf.edex.plugin.text.handler.GetPartialAfosIdHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.GetPartialAfosIdRequest"/>
+  		<constructor-arg ref="getPartialAfosIdHandler"/>
+  	</bean>
+
+	<bean id="getWmoIdHandler" class="com.raytheon.uf.edex.plugin.text.handler.GetWmoIdHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.GetWmoIdRequest"/>
+  		<constructor-arg ref="getWmoIdHandler"/>
+  	</bean>
+  	
+  	<bean id="insertStdTextProduct" class="com.raytheon.uf.edex.plugin.text.handler.InsertStdTextProductHandler"/>  	
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.InsertStdTextProductRequest"/>
+  		<constructor-arg ref="insertStdTextProduct"/>
+  	</bean>
+  	
+  	<!-- Instantiate the handler class for StdTextProductRequestHandler -->
+  	<bean id="stdTextProduct" class="com.raytheon.uf.edex.plugin.text.handler.StdTextProductRequestHandler"/>
+  	<!-- Register the handler class with the StdTextProductServerHandlerRegister. -->  	
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest"/>
+  		<constructor-arg ref="stdTextProduct"/>
+  	</bean>
+  	
+  	<!-- Instantiate the handler class for TextProductInfoRequestHandler -->
+  	<bean id="textProductInfo" class="com.raytheon.uf.edex.plugin.text.handler.TextProductInfoCreateHandler"/>
+  	<!-- Register the handler class with the TextProductInfoHandlerRegister. -->  	
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest"/>
+  		<constructor-arg ref="textProductInfo"/>
+  	</bean>
+  
+	<bean id="sendFaxRequestHandler" class="com.raytheon.uf.edex.plugin.text.handler.SendFaxRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.SendFaxRequest"/>
+  		<constructor-arg ref="sendFaxRequestHandler"/>
+  	</bean>
+  	
+	<bean id="autoFaxRequestHandler" class="com.raytheon.uf.edex.plugin.text.handler.AutoFaxRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.AutoFaxRequest"/>
+  		<constructor-arg ref="autoFaxRequestHandler"/>
+  	</bean>
+	<bean id="getAutoFaxRecordsRequestHandler" class="com.raytheon.uf.edex.plugin.text.handler.GetAutoFaxRecordsRequestHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.GetAutoFaxRecordsRequest"/>
+  		<constructor-arg ref="getAutoFaxRecordsRequestHandler"/>
+  	</bean>
+</beans>
