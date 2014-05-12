@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bufrssmi Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrssmi
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -15,5 +15,4 @@ Require-Bundle: com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.dataplugin
 Import-Package: com.raytheon.uf.common.dataplugin.bufrssmi,
  com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.status,
- com.raytheon.uf.edex.decodertools.time
+ com.raytheon.uf.common.status
