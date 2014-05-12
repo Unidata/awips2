@@ -11,27 +11,6 @@
 <gribModelSet>
 	<!-- SUBCENTER 0 -->
 	<model>
-		<name>estofsPR</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>339227001</grid>
-		<process>
-			<id>1</id>
-			<id>14</id>
-		</process>
-	</model>
-
-	<model>
-		<name>estofsUS</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>2145137701</grid>
-		<process>
-			<id>1</id>
-		</process>
-	</model>
-
-	<model>
 		<name>GFSLAMP</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -2802,20 +2781,10 @@
 	</model>
 
 	<model>
-		<name>estofsUS</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>1971</grid>
-		<process>
-			<id>14</id>
-		</process>
-	</model>
-
-	<model>
 		<name>estofsPR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
-		<grid>339227-95</grid>
+		<grid>2145137701</grid>
 		<process>
 			<id>14</id>
 		</process>

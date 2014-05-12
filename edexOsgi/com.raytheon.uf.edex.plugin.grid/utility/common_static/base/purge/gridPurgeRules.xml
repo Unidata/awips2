@@ -737,4 +737,13 @@
                 <keyValue>HRRR</keyValue>
                 <versionsToKeep>4</versionsToKeep>
         </rule>
+	<!-- Purge rule for the ESTOFS model -->
+	<rule>
+		<keyValue>estofsUS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>estofsPR</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
 </purgeRuleSet>
