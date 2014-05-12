@@ -16,6 +16,21 @@ function dropDatauri {
 }
 
 
+# takes one arg: name of the index
+function dropIndex {
+   ${PSQL} -U awips -d metadata -c "DROP INDEX IF EXISTS \"$1\";"
+}
+
+# takes three args: table, index name, columns
+# will first drop the index if it exists and then adds it back, this is
+# fairly inefficient if it does exist but operationally it won't exist and for
+# testing this allows the script to be run easily as a noop.
+function dropAndAddIndex {
+   ${PSQL} -U awips -d metadata -c "DROP INDEX IF EXISTS \"$2\";"
+   ${PSQL} -U awips -d metadata -c "CREATE INDEX $2 ON $1 USING btree $3;"
+}
+
+
 # takes three args: table, constraint name, unique columns
 # will first drop the constraint if it exists and then adds it back, this is
 # fairly inefficient if it does exist but operationally it won't exist and for
@@ -28,14 +43,24 @@ function dropAndAddConstraint {
       echo "FATAL: The update has failed."
       exit 1
    fi
+}
+
+# takes one arg: name of the table
+function vacuumTable {
    ${PSQL} -U awips -d metadata -c "VACUUM FULL ANALYZE $1"
 }
 
 echo "INFO: Dropping dataURI columns."
 
-dropAndAddConstraint grid grid_reftime_forecasttime_rangestart_rangeend_info_id "(refTime, forecastTime, rangestart, rangeend, info_id)"
-dropAndAddConstraint grid_info grid_info_datasetid_secondaryid_ensembleid_location_id_parameter_abbreviation_level_id "(datasetid, secondaryid, ensembleid, location_id, parameter_abbreviation, level_id)"
+dropAndAddConstraint grid grid_reftime_forecasttime_info_id_rangestart_rangeend_key "(refTime, forecastTime, info_id, rangestart, rangeend)"
+dropAndAddConstraint grid_info grid_info_datasetid_parameter_abbreviation_level_id_seconda_key "(datasetid, parameter_abbreviation, level_id, secondaryid, ensembleid, location_id)"
+dropIndex gridDatasetReftime_idx
+dropIndex grid_reftimeindex
+dropIndex gridinfoNameParamLevel_idx
+dropAndAddIndex grid grid_info_id_index "(info_id)"
 dropDatauri
+vacuumTable grid
+vacuumTable grid_info
 
 
 echo "INFO: grid dataURI column dropped successfully"
