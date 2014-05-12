@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Scan Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.scan
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
@@ -21,6 +21,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.edex.dat.utils;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.edex.plugin.scan,
+ com.raytheon.uf.edex.plugin.scan.lightning,
  com.raytheon.uf.edex.plugin.scan.process
 Import-Package: com.raytheon.uf.edex.menus,
  javax.measure.converter,
