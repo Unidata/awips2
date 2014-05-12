@@ -119,7 +119,7 @@ public class TextDBSrvWrapper {
         int tries = 0;
         byte[] bytesOut = null;
 
-        while (tries < 2) {
+        while ((bytesOut == null) && (tries < 2)) {
             try {
                 ByteArrayOutputStream baos = ByteArrayOutputStreamPool
                         .getInstance().getStream();
