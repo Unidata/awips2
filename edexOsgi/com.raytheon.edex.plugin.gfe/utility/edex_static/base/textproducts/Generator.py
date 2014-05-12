@@ -32,7 +32,8 @@ Jul 08, 2008    1222           jelkins     Modified for use within Java
 Jul 09, 2008    1222           jelkins     Split command line loader from class
 Jul 24, 2012    #944           dgilling    Refactored to support separate
                                            generation of products and utilities.
-Sep 07, 2012    #1150          dgilling    Ensure all necessary dirs get created.                                   
+Sep 07, 2012    #1150          dgilling    Ensure all necessary dirs get created.   
+May 12, 2014    2536           bclement    renamed text plugin to include uf in name
 
 @author: jelkins
 """
@@ -392,7 +393,7 @@ class Generator():
         siteD = SITE_INFO[siteid]
         stationID4 = siteD['fullStationID']
         
-        from com.raytheon.edex.plugin.text.dao import AfosToAwipsDao
+        from com.raytheon.uf.edex.plugin.text.dao import AfosToAwipsDao
         
         dao = AfosToAwipsDao()
         response = dao.lookupAfosId(stationID4, None, None)
