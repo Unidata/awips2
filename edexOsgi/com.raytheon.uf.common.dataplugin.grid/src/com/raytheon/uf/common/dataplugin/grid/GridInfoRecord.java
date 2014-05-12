@@ -63,8 +63,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Table(name = "grid_info", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "datasetid", "secondaryid", "ensembleid", "location_id",
-        "parameter_abbreviation", "level_id" }) })
+        "datasetid", "parameter_abbreviation", "level_id", "secondaryid",
+        "ensembleid", "location_id" }) })
 @SequenceGenerator(name = "GRIDINFO_GENERATOR", sequenceName = "gridinfo_seq", allocationSize = 1)
 @DynamicSerialize
 public class GridInfoRecord extends PersistableDataObject<Integer> {
@@ -196,59 +196,74 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((datasetId == null) ? 0 : datasetId.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((ensembleId == null) ? 0 : ensembleId.hashCode());
-        result = prime * result + ((level == null) ? 0 : level.hashCode());
-        result = prime * result
+        result = (prime * result) + ((level == null) ? 0 : level.hashCode());
+        result = (prime * result)
                 + ((location == null) ? 0 : location.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((parameter == null) ? 0 : parameter.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((secondaryId == null) ? 0 : secondaryId.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         GridInfoRecord other = (GridInfoRecord) obj;
         if (datasetId == null) {
-            if (other.datasetId != null)
+            if (other.datasetId != null) {
                 return false;
-        } else if (!datasetId.equals(other.datasetId))
+            }
+        } else if (!datasetId.equals(other.datasetId)) {
             return false;
+        }
         if (ensembleId == null) {
-            if (other.ensembleId != null)
+            if (other.ensembleId != null) {
                 return false;
-        } else if (!ensembleId.equals(other.ensembleId))
+            }
+        } else if (!ensembleId.equals(other.ensembleId)) {
             return false;
+        }
         if (level == null) {
-            if (other.level != null)
+            if (other.level != null) {
                 return false;
-        } else if (!level.equals(other.level))
+            }
+        } else if (!level.equals(other.level)) {
             return false;
+        }
         if (location == null) {
-            if (other.location != null)
+            if (other.location != null) {
                 return false;
-        } else if (!location.equals(other.location))
+            }
+        } else if (!location.equals(other.location)) {
             return false;
+        }
         if (parameter == null) {
-            if (other.parameter != null)
+            if (other.parameter != null) {
                 return false;
-        } else if (!parameter.equals(other.parameter))
+            }
+        } else if (!parameter.equals(other.parameter)) {
             return false;
+        }
         if (secondaryId == null) {
-            if (other.secondaryId != null)
+            if (other.secondaryId != null) {
                 return false;
-        } else if (!secondaryId.equals(other.secondaryId))
+            }
+        } else if (!secondaryId.equals(other.secondaryId)) {
             return false;
+        }
         return true;
     }
 
