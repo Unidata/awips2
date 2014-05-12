@@ -23,8 +23,10 @@
     <alias base="DIRSW">dirsw</alias>
     <alias base="DpD">dpd</alias>
     <alias base="DpT">dpt</alias>
+    <alias base="ELEV">ELEV</alias>
     <alias base="EMSP">emsp</alias>
     <alias base="EPT">ept</alias>
+    <alias base="ETSRG">ETSRG</alias>
     <alias base="GeH">geh</alias>
     <alias base="GH">gh</alias>
     <alias base="GVV">gvv</alias>
