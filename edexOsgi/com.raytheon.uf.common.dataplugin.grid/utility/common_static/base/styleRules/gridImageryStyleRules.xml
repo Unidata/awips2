@@ -39,7 +39,17 @@
             </colorbarLabeling>
        </imageStyle>
     </styleRule>
-
+    <!-- ESTOFS -->
+    <styleRule>
+       <paramLevelMatches>
+           <parameter>ELEV</parameter>
+           <parameter>ETSRG</parameter>
+           <parameter>ETCWL</parameter>
+       </paramLevelMatches>
+       <imageStyle>
+           <displayUnits>ft</displayUnits>
+       </imageStyle>
+    </styleRule>
 	<!--
 		* GH, GHxSM, Topo, zAGL
 		km  | 0.001 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
