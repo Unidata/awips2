@@ -45,7 +45,7 @@ import com.raytheon.viz.pointdata.rsc.AdaptivePlotResourceData.PlotObject;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Adaptive plot resource. Used for displaying spotters readout, etc.
  * 
  * <pre>
  * 
@@ -53,7 +53,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 3, 2011            mschenke     Initial creation
+ * Aug 03, 2011            mschenke    Initial creation
+ * Apr 30, 2014 3092       njensen     Sped up paintInternal()
  * 
  * </pre>
  * 
@@ -128,11 +129,12 @@ public class AdaptivePlotResource extends
         float mag = getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue();
         PointStyle style = getCapability(PointCapability.class).getPointStyle();
+        List<double[]> points = new ArrayList<double[]>(plots.size());
         for (PlotObject object : plots) {
-            double[] pixel = descriptor.worldToPixel(new double[] {
-                    object.longitude, object.latitude });
-            target.drawPoint(pixel[0], pixel[1], 0.0, color, style, mag);
+            points.add(descriptor.worldToPixel(new double[] { object.longitude,
+                    object.latitude }));
         }
+        target.drawPoints(points, color, style, mag);
     }
 
     @Override
