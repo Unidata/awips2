@@ -15,6 +15,7 @@
 		factory-method="register">
 		<constructor-arg value="radar" />
 		<constructor-arg value="jms-durable:queue:Ingest.Radar" />
+        <constructor-arg value="true" /> <!-- require valid distribution file for startup -->
 	</bean>
 	
 	<bean id="radarRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
