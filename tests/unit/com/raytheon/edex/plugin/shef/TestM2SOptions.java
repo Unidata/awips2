@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package test.edex.transform.shef;
+package com.raytheon.edex.plugin.shef;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
