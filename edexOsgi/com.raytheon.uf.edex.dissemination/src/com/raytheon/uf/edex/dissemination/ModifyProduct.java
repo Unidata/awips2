@@ -23,13 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.raytheon.edex.plugin.text.dao.AfosToAwipsDao;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.dissemination.transmitted.TransProdHeader;
 import com.raytheon.uf.edex.dissemination.transmitted.TransmittedProductList;
+import com.raytheon.uf.edex.plugin.text.dao.AfosToAwipsDao;
 
 /**
  * Utilities for generating a wmo header or tracking headers
