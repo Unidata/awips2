@@ -309,6 +309,9 @@ Hazards = ("Hazards", DISCRETE, "wwa", "Hazards", YES, HazardKeys, 4)
 # use in calculations) Either form may be used.
 ExtraWEPrecision = []
 
+# Parms for ESTOFS
+AstroTide = ("AstroTide", SCALAR, "ft", "Astro Tide", 20.0, -8.0, 1, NO)
+StormSurge = ("StormSurge", SCALAR, "ft", "Storm Surge", 30.0, -5.0, 1, NO)
 
 #---------------------------------------------------------------------------
 #
@@ -963,6 +966,7 @@ Official    = ('Official',     GRID,   '', YES, YES, 1, 24)
 ISC         = ('ISC',          GRID,   '', YES, NO,  1, 12)
 LAPS        = ('LAPS',         GRID,   '', YES, NO,  1, 30)
 SAT         = ('SAT',          GRID,   '', YES, NO,  1, 12)
+ESTOFS      = ('ESTOFS',       GRID,   '', NO,  NO,  2, 0)
 HPCGuide    = ('HPCGuide',     GRID,   '', NO,  NO,  2, 0)
 NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
 NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
@@ -1106,6 +1110,7 @@ elif SID == "SJU":
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  'RTOFS-Atlantic',
+                 ('estofsPR', 'ESTOFS'),
                ]
 
 # Guam OCONUS
@@ -1166,6 +1171,7 @@ elif SID in CONUS_EAST_SITES:
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  ('ENPWAVE253', 'ENPwave'),
+                 ('estofsUS', 'ESTOFS'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1408,6 +1414,7 @@ elif SID == "SJU":
 #        "EPwave10" : ["EPwEave10"],
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
+        "ESTOFS" : ["ESTOFS"],
         }
 
 # Guam OCONUS
@@ -1453,6 +1460,7 @@ else:
 #        "WNAwave10" : ["WNAwave10"],
 #        "WNAwave4" : ["WNAwave4"],
 #        "ENPwave": ["ENPwave"],
+        "ESTOFS" : ["ESTOFS"],
         }
 
 #initialization skip certain model runs
@@ -1606,6 +1614,7 @@ if not BASELINE and siteImport('localConfig'):
     else:
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
+    localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
     localParms = getattr(localConfig, 'parms', localParms)
     localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
     localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
@@ -1691,6 +1700,8 @@ STD1_MODEL = [([Temp, Td, RH, Wind, Wind20ft, Sky, FzLevel, SnowLevel], TC1),
              ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
              ([MaxT], MaxTTC), ([MinT], MinTTC),
              ([Wetflag], FireWx1300TC)]
+
+ESTOFSPARMS = [([StormSurge, AstroTide], TC1)]
 
 HRRRPARMS = [([Temp, Td, RH, Wind, WindGust, Sky, QPF], TC1)]
 
@@ -1871,6 +1882,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (AKwave10, WAVEPARMS + localAKwave10Parms),
              (AKwave4, WAVEPARMS + localAKwave4Parms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
+             (ESTOFS, ESTOFSPARMS + localESTOFSparms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
              (GLWM, GLWMPARMS + localGLWMParms),            #####DCS3499
              (HIRESWarw, STD3_MODEL + localHIRESWarwParms), #####DCS3501
