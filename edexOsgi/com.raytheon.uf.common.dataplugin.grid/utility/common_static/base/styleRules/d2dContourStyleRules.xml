@@ -19,6 +19,22 @@
         further_licensing_information.
     -->
 <styleRuleset>
+<!-- ESTOFS -->
+<styleRule>
+  <paramLevelMatches>
+    <parameter>ELEV</parameter>
+    <parameter>ETSRG</parameter>
+    <parameter>ETCWL</parameter>
+  </paramLevelMatches>
+  <contourStyle>
+    <displayUnits>ft</displayUnits>
+    <displayFlags>NoPlane</displayFlags>
+    <contourLabeling labelSpacing="4">
+      <increment>1</increment>
+    </contourLabeling>
+  </contourStyle>
+</styleRule>
+
 <!--
   * GH, GHxSM, zAGL
   dam | 0.1 | 0.0 | 4 | i4 |   |..|8000F0FF| | 0 | 50
