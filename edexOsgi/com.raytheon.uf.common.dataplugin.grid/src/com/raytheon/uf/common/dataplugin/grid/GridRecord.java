@@ -41,6 +41,7 @@ import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.parameter.Parameter;
+import com.raytheon.uf.common.parameter.lookup.ParameterLookup;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -66,6 +67,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 16, 2013  2574     bsteffen    Remove getDecoderGettable.
  * Apr 15, 2014  2060     njensen     Remove dataURI column
+ * May 07, 2014  2060     njensen     GridRecord(String) will do parameter lookup
  * 
  * </pre>
  * 
@@ -117,6 +119,14 @@ public class GridRecord extends PersistablePluginDataObject implements
 
     public GridRecord(String uri) {
         super(uri);
+        String abbrev = this.getInfo().getParameter().getAbbreviation();
+        if (abbrev != null) {
+            Parameter paramWithUnits = ParameterLookup.getInstance()
+                    .getParameter(abbrev);
+            if (paramWithUnits != null) {
+                this.getInfo().setParameter(paramWithUnits);
+            }
+        }
     }
 
     public GridInfoRecord getInfo() {
