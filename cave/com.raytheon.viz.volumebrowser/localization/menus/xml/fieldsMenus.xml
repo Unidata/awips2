@@ -523,6 +523,12 @@
 				key="BARO"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Barometric Velocity"
 				key="SPBARO"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Tidal Height"
+				key="ELEV"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="ET Storm Surge"
+				key="ETSRG"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Combined ET Surge and Tide Hgt"
+				key="ETCWL"  indentText="false" />
 		</contribute>
 
 		<contribute xsi:type="toolbarSubMenu" menuText="GFSLAMP Station">
