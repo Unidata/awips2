@@ -15,6 +15,7 @@
 		factory-method="register">
 		<constructor-arg value="warning" />
 		<constructor-arg value="jms-durable:queue:Ingest.Warning"/>
+        <constructor-arg value="true" /><!-- require valid distribution file for startup -->
 	</bean>
 
 	<camelContext id="warning-camel"
