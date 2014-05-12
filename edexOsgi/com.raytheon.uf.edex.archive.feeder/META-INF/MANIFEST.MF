@@ -2,14 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Utility
 Bundle-SymbolicName: com.raytheon.uf.edex.archive.feeder
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.edex.archive.feeder.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
- org.eclipse.ui,
- org.eclipse.core.runtime,
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  org.apache.camel;bundle-version="1.0.0",
