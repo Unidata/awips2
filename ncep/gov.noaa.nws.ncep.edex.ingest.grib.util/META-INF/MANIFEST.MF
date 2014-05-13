@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: NCEP logger util for edex ingest grib process
-Bundle-SymbolicName: gov.noaa.nws.ncep.edex.ingest.grib.util
-Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: gov.noaa.nws.ncep.common.log.logger,
- javax.servlet,
- javax.servlet.http
