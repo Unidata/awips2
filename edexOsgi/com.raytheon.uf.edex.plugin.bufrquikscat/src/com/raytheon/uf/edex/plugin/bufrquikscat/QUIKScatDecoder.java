@@ -24,18 +24,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrquikscat.QUIKScatObs;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.AbstractBUFRDecoder;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDelegate;
 import com.raytheon.uf.edex.plugin.bufrquikscat.decoder.QUIKScatDataAdapter;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * 
+ * Decodes Quick Scatterometer data for near-surface ocean windspeed and
+ * direction
  * 
  * <pre>
  * 
@@ -43,6 +42,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -97,12 +97,6 @@ public class QUIKScatDecoder extends AbstractBUFRDecoder {
 
                 if (qscatObs != null) {
                     qscatObs.setTraceId(traceId);
-                    try {
-                        qscatObs.constructDataURI();
-                    } catch (PluginException e) {
-                        logger.error(traceId
-                                + "- Unable to construct dataURI", e);
-                    }
                     decodedData.add(qscatObs);
                 }
             }

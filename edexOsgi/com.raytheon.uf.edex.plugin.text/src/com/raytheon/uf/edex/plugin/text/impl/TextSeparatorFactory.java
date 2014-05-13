@@ -27,13 +27,13 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.plugin.text.impl.separator.StdCollectiveSeparator;
 import com.raytheon.uf.edex.plugin.text.impl.separator.StdTextSeparator;
 import com.raytheon.uf.edex.plugin.text.impl.separator.TextDecoderMode;
 import com.raytheon.uf.edex.plugin.text.impl.separator.UACollectiveSeparator;
 import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * TODO Add Description
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                     the data type (standard or collective)
  *                                     for input data.
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -81,7 +82,9 @@ public class TextSeparatorFactory {
 
         try {
             if (rawMessage != null) {
-                wmoHeader = new WMOHeader(rawMessage, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                wmoHeader = new WMOHeader(rawMessage, fileName);
                 if (wmoHeader.isValid()) {
                     int endPos = findDataEnd(rawMessage);
 

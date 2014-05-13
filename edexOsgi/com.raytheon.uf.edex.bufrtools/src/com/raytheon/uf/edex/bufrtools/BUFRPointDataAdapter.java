@@ -31,16 +31,16 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
-import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
+import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Abstract base class for implementing data adapters for creating specific
- * subclasses of PluginDataObject from BUFR data. 
+ * subclasses of PluginDataObject from BUFR data.
  * 
  * 
  * <pre>
@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20090629           2519 jkorman     Initial implementation.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, added breaks/default to switch
  * 
  * </pre>
  * 
@@ -217,32 +218,34 @@ public abstract class BUFRPointDataAdapter<T extends PluginDataObject> {
             Object o = packet.getValue();
             if(o != null) {
                 switch (t) {
-                case STRING : {
+                case STRING:
                     if(o instanceof String) {
                         view.setString(parmName,(String) o, index);
                     } 
-                }
-                case INT : {
+                    break;
+                case INT:
                     if(o instanceof Double) {
                         view.setInt(parmName,((Double) o).intValue(), index);
                     } else if(o instanceof Long) {
                         view.setInt(parmName,((Long) o).intValue(), index);
                     } 
-                }
-                case LONG : {
+                    break;
+                case LONG:
                     if(o instanceof Double) {
                         view.setLong(parmName,((Double) o).longValue(), index);
                     } else if(o instanceof Long) {
                         view.setLong(parmName,(Long) o, index);
                     } 
-                }
-                case FLOAT : {
+                    break;
+                case FLOAT:
                     if(o instanceof Double) {
                         view.setFloat(parmName,((Double) o).floatValue(), index);
                     } else if(o instanceof Long) {
                         view.setFloat(parmName,((Long) o).floatValue(), index);
                     } 
-                }
+                    break;
+                default:
+                    logger.warn("Unsupported point data view type: " + t);
                 }
             }
         }

@@ -24,31 +24,30 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrncwf.BUFRncwf;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.AbstractBUFRDecoder;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDelegate;
-
 import com.raytheon.uf.edex.plugin.bufrncwf.decoder.BUFRncwfDataAdapter;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * Decodes National Convective Weather Forecast Product in BUFR format
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2009            jkorman     Initial creation
- *
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed constructDataURI() call
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class BUFRncwfDecoder extends AbstractBUFRDecoder {
@@ -98,12 +97,6 @@ public class BUFRncwfDecoder extends AbstractBUFRDecoder {
                 if (ncwfReports != null) {
                     for(BUFRncwf rpt : ncwfReports) {
                         rpt.setTraceId(traceId);
-                        try {
-                            rpt.constructDataURI();
-                        } catch (PluginException e) {
-                            logger.error(traceId
-                                    + "- Unable to construct dataURI", e);
-                        }
                         decodedData.add(rpt);
                     }
                 }

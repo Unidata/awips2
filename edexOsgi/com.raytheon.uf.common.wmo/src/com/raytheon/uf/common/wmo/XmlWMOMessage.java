@@ -17,11 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.wmo.message;
+package com.raytheon.uf.common.wmo;
 
 import java.util.Arrays;
-
-import com.raytheon.edex.esb.Headers;
 
 /**
  * WMOMessage that handles XML. Specifically, removes data trailing the ending
@@ -34,6 +32,7 @@ import com.raytheon.edex.esb.Headers;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 8, 2013  2506       bgonzale     Initial creation
+ * May 14, 2014 2536       bclement     moved WMO Header to common, added XmlWMOMessage(byte[])
  * 
  * </pre>
  * 
@@ -43,6 +42,8 @@ import com.raytheon.edex.esb.Headers;
 
 public class XmlWMOMessage extends WMOMessage {
 
+    private static final long serialVersionUID = -5370011261840245750L;
+
     /**
      * Default Constructor.
      */
@@ -51,18 +52,25 @@ public class XmlWMOMessage extends WMOMessage {
 
     /**
      * @param wmoMessage
-     * @param headers
+     * @param fileName
      */
-    public XmlWMOMessage(String wmoMessage, Headers headers) {
-        super(wmoMessage, headers);
+    public XmlWMOMessage(String wmoMessage, String fileName) {
+        super(wmoMessage, fileName);
     }
 
     /**
      * @param wmoMessage
-     * @param headers
+     * @param fileName
      */
-    public XmlWMOMessage(byte[] wmoMessage, Headers headers) {
-        super(wmoMessage, headers);
+    public XmlWMOMessage(byte[] wmoMessage, String fileName) {
+        super(wmoMessage, fileName);
+    }
+
+    /**
+     * @param wmoMessage
+     */
+    public XmlWMOMessage(byte[] wmoMessage) {
+        super(wmoMessage);
     }
 
     /**
