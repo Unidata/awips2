@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.monitor.scan.config;
+package com.raytheon.uf.viz.monitor.scan.config;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,11 +30,11 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
-import com.raytheon.uf.common.monitor.scan.xml.SCANConfigCellXML;
+import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
 
 /**
  * 
- * Configuration manager for the CELL table.
+ * Configuration manager for the DMD table.
  * 
  * <pre>
  * 
@@ -50,21 +50,21 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANConfigCellXML;
  * @author lvenable
  * @version 1.0
  */
-public class CellConfigMgr extends AbsConfigMgr {
+public class DmdConfigMgr extends AbsConfigMgr {
     /**
-     * CELL configuration manager XML.
+     * DMD configuration manager XML.
      */
-    private SCANConfigCellXML cellCfgXML;
+    private SCANConfigDmdXML dmdCfgXML;
 
     /**
      * Default configuration file name.
      */
-    private final String defaultConfigFileName = "SCANconfig_cellTable.xml";
+    private final String defaultConfigFileName = "SCANconfig_dmdTable.xml";
 
     /**
      * Constructor.
      */
-    public CellConfigMgr() {
+    public DmdConfigMgr() {
         super();
     }
 
@@ -76,10 +76,10 @@ public class CellConfigMgr extends AbsConfigMgr {
         currentConfigFileName = defaultConfigFileName;
         loadDefaultConfig();
 
-        if (cellCfgXML == null) {
-            System.out.println("cellCfgXML is null");
+        if (dmdCfgXML == null) {
+            System.out.println("dmdCfgXML is null");
         } else {
-            System.out.println("--- " + cellCfgXML.getDefaultRank());
+            System.out.println("--- " + dmdCfgXML.getDefaultRank());
         }
     }
 
@@ -88,7 +88,7 @@ public class CellConfigMgr extends AbsConfigMgr {
      */
     @Override
     public ArrayList<SCANAttributesXML> getAttributes() {
-        return cellCfgXML.getAttributesData();
+        return dmdCfgXML.getAttributesData();
     }
 
     /**
@@ -97,7 +97,7 @@ public class CellConfigMgr extends AbsConfigMgr {
     @Override
     public void loadDefaultConfig() {
         currentConfigFileName = defaultConfigFileName;
-        cellCfgXML = (SCANConfigCellXML) readDefaultConfig();
+        dmdCfgXML = (SCANConfigDmdXML) readDefaultConfig();
         createAttributeMap(getAttributes());
     }
 
@@ -107,7 +107,7 @@ public class CellConfigMgr extends AbsConfigMgr {
     @Override
     public void loadNewConfig(String newCfgName) {
         currentConfigFileName = newCfgName;
-        cellCfgXML = (SCANConfigCellXML) readExistingConfig();
+        dmdCfgXML = (SCANConfigDmdXML) readExistingConfig();
         createAttributeMap(getAttributes());
     }
 
@@ -133,7 +133,7 @@ public class CellConfigMgr extends AbsConfigMgr {
         try {
             System.out.println("Saving -- "
                     + locFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(cellCfgXML, locFile.getFile()
+            jaxb.marshalToXmlFile(dmdCfgXML, locFile.getFile()
                     .getAbsolutePath());
             locFile.save();
         } catch (Exception e) {
@@ -146,7 +146,7 @@ public class CellConfigMgr extends AbsConfigMgr {
      */
     @Override
     public boolean showTips() {
-        return cellCfgXML.getTipsOption();
+        return dmdCfgXML.getTipsOption();
     }
 
     /**
@@ -154,7 +154,7 @@ public class CellConfigMgr extends AbsConfigMgr {
      */
     @Override
     public void setShowTips(boolean showFlag) {
-        cellCfgXML.setTipsOption(showFlag);
+        dmdCfgXML.setTipsOption(showFlag);
     }
 
     /**
@@ -167,7 +167,7 @@ public class CellConfigMgr extends AbsConfigMgr {
 
         sb.append("scan").append(fs);
         sb.append("config").append(fs);
-        sb.append("cellTableConfig").append(fs);
+        sb.append("dmdTableConfig").append(fs);
 
         return sb.toString();
     }
@@ -177,7 +177,7 @@ public class CellConfigMgr extends AbsConfigMgr {
      */
     @Override
     public String getFullDefaultConfigName() {
-        return getConfigPath() + defaultConfigFileName;
+        return getConfigPath() + "SCANconfig_dmdTable.xml";
     }
 
     /**
@@ -194,7 +194,7 @@ public class CellConfigMgr extends AbsConfigMgr {
      * @return The clutter control attribute name.
      */
     public String getClutterControl() {
-        return cellCfgXML.getClutterControl();
+        return dmdCfgXML.getClutterControl();
     }
 
     /**
@@ -203,7 +203,7 @@ public class CellConfigMgr extends AbsConfigMgr {
      * @return The radius interpolation.
      */
     public String getRadVar() {
-        return cellCfgXML.getRadVar();
+        return dmdCfgXML.getRadVar();
     }
 
     /**
@@ -226,27 +226,27 @@ public class CellConfigMgr extends AbsConfigMgr {
     }
 
     /**
-     * Get the SCAN CELL configuration data.
+     * Get the SCAN DMD configuration data.
      * 
-     * @return SCAN CELL configuration data.
+     * @return SCAN DMD configuration data.
      */
-    public SCANConfigCellXML getScanCellCfgXML() {
-        return cellCfgXML;
+    public SCANConfigDmdXML getScanDmdCfgXML() {
+        return this.dmdCfgXML;
     }
 
     public void setAlarmsDisabled(boolean flag) {
-        cellCfgXML.setAlarmsDisabled(flag);
+        dmdCfgXML.setAlarmsDisabled(flag);
     }
 
     public boolean getAlarmsDisabled() {
-        return cellCfgXML.getAlarmsDisabled();
+        return dmdCfgXML.getAlarmsDisabled();
     }
 
     public void setAlarmBell(boolean flag) {
-        cellCfgXML.setAlarmBell(flag);
+        dmdCfgXML.setAlarmBell(flag);
     }
 
     public boolean getAlarmBell() {
-        return cellCfgXML.getAlarmBell();
+        return dmdCfgXML.getAlarmBell();
     }
 }
