@@ -34,6 +34,4 @@ Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  org.apache.commons.configuration;bundle-version="1.6.0",
  org.apache.commons.lang;bundle-version="2.3.0",
- org.apache.commons.pool;bundle-version="1.3.0",
- org.apache.activemq;bundle-version="5.2.0",
- javax.jms;bundle-version="1.0.0"
+ org.apache.commons.pool;bundle-version="1.3.0"
