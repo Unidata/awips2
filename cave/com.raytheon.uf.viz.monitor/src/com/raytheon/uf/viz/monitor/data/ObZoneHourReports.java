@@ -23,9 +23,9 @@ import java.util.Date;
 import java.util.HashMap;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 
