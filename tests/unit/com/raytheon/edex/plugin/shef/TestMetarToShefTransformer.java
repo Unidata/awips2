@@ -68,7 +68,6 @@ public class TestMetarToShefTransformer {
         assertNotNull(it);
         assertFalse(it.hasNext());
         assertNull(it.next());
-
     }
 
     /**
@@ -83,9 +82,16 @@ public class TestMetarToShefTransformer {
                 return null;
             }
 
+            /*
+             * (non-Javadoc)
+             * 
+             * @see
+             * com.raytheon.uf.common.dataplugin.PluginDataObject#getPluginName
+             * ()
+             */
             @Override
             public String getPluginName() {
-                return null;
+                return "testMetarToShef";
             }
         };
 
