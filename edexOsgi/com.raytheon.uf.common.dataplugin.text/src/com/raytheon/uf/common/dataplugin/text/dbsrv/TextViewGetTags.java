@@ -17,10 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services.textdbsrv;
+package com.raytheon.uf.common.dataplugin.text.dbsrv;
 
 /**
- * TODO Add Description
+ * Enumeration for textdbsrv view retrieval options
  * 
  * <pre>
  * 
@@ -30,12 +30,13 @@ package com.raytheon.uf.edex.services.textdbsrv;
  * 10/15/2008   1538       jkorman     Initial creation.
  * 08/05/2009   2191       rjpeter     Added PRODXML and JOINXML.
  * 05/17/2010   2187       cjeanbap    Added OPERATIONAL.
+ * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 
-public enum TextViewGetTags implements ICommandTags {
+public enum TextViewGetTags {
     LATEST, ALL, INFO, PROD, JOIN, RAW, UNIX, DEFAULT, CLIENT, PRODXML, JOINXML, OPERATIONAL;
 }
