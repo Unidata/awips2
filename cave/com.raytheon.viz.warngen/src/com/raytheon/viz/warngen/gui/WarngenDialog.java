@@ -76,6 +76,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
@@ -152,6 +153,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Sep 24, 2013 #2401       lvenable    Fixed font memory leak.
  *  Oct 01, 2013 DR16612 m.gamazaychikov Fixed inconsistencies with track locking and updateListSelected method
  *  Oct 29, 2013 DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the polygon the be used.
+ *  Apr 28, 2014    3033     jsanchez    Re-initialized the Velocity Engine when switching back up sites.
  * </pre>
  * 
  * @author chammack
@@ -168,15 +170,24 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private static final int FONT_HEIGHT = 9;
 
-    static {
-        // Ensure TemplateRunner gets initialized for use
-        new Job("Template Runner Initialization") {
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                TemplateRunner.initialize();
-                return Status.OK_STATUS;
-            }
-        }.schedule();
+    private class TemplateRunnerInitJob extends Job {
+        private String site;
+
+        public TemplateRunnerInitJob() {
+            super("Template Runner Initialization");
+            this.site = LocalizationManager.getInstance().getCurrentSite();
+        }
+
+        public TemplateRunnerInitJob(String site) {
+            super("Template Runner Initialization");
+            this.site = site;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            TemplateRunner.initialize(site);
+            return Status.OK_STATUS;
+        }
     }
 
     private static String UPDATELISTTEXT = "UPDATE LIST                                 ";
@@ -300,6 +311,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         bulletListManager = new BulletListManager();
         warngenLayer = layer;
         CurrentWarnings.addListener(this);
+        new TemplateRunnerInitJob().schedule();
     }
 
     @Override
@@ -1073,7 +1085,7 @@ public class WarngenDialog extends CaveSWTDialog implements
 
         if ((followupData != null)
                 && (WarningAction.valueOf(followupData.getAct()) == WarningAction.NEW)) {
-            if (! redrawFromWarned())
+            if (!redrawFromWarned())
                 return;
         }
 
@@ -1300,8 +1312,14 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void backupSiteSelected() {
         if ((backupSiteCbo.getSelectionIndex() >= 0)
                 && (backupSiteCbo.getItemCount() > 0)) {
-            warngenLayer.setBackupSite(backupSiteCbo.getItems()[backupSiteCbo
-                    .getSelectionIndex()]);
+            int index = backupSiteCbo.getSelectionIndex();
+            String backupSite = backupSiteCbo.getItem(index);
+            warngenLayer.setBackupSite(backupSite);
+            if (backupSite.equalsIgnoreCase("none")) {
+                new TemplateRunnerInitJob().schedule();
+            } else {
+                new TemplateRunnerInitJob(backupSite).schedule();
+            }
             // Refresh template
             changeTemplate(warngenLayer.getTemplateName());
             resetPressed();
@@ -1535,8 +1553,8 @@ public class WarngenDialog extends CaveSWTDialog implements
             }
             warngenLayer.getStormTrackState().setInitiallyMotionless(
                     (warngenLayer.getConfiguration().isTrackEnabled() == false)
-                    || (warngenLayer.getConfiguration()
-                            .getPathcastConfig() == null));
+                            || (warngenLayer.getConfiguration()
+                                    .getPathcastConfig() == null));
             if (warngenLayer.getStormTrackState().isInitiallyMotionless()) {
                 warngenLayer.getStormTrackState().speed = 0;
                 warngenLayer.getStormTrackState().angle = 0;
@@ -1642,7 +1660,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                         if ((WarningAction
                                 .valueOf(warngenLayer.state.followupData
                                         .getAct()) == WarningAction.CON)
-                                        && (totalSegments > 1)) {
+                                && (totalSegments > 1)) {
                             sameProductMessage(warngenLayer.state.followupData
                                     .getEquvialentString());
                         }
@@ -1658,7 +1676,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                     for (int i = 0; i < updateListCbo.getItemCount(); i++) {
                         FollowupData fd = (FollowupData) updateListCbo
                                 .getData(updateListCbo.getItem(i));
-                        if ( fd != null ) {
+                        if (fd != null) {
                             if (fd.equals(warngenLayer.state.followupData)) {
                                 updateListCbo.select(i);
                                 updateListCbo.setText(updateListCbo.getItem(i));
@@ -2135,7 +2153,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         setPolygonLocked(false);
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
-                        data.getEtn(), data.getPhen() + "." + data.getSig());
+                data.getEtn(), data.getPhen() + "." + data.getSig());
 
         updatePolygon(newWarn);
 
@@ -2166,7 +2184,7 @@ public class WarngenDialog extends CaveSWTDialog implements
 
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
-                        data.getEtn(), data.getPhen() + "." + data.getSig());
+                data.getEtn(), data.getPhen() + "." + data.getSig());
 
         updatePolygon(newWarn);
 
@@ -2478,8 +2496,10 @@ public class WarngenDialog extends CaveSWTDialog implements
     public void realizeEditableState() {
         boolean layerEditable = warngenLayer.isEditable();
         // TODO: Note there is no 'is track editing allowed' state yet.
-        warngenLayer.getStormTrackState().editable = layerEditable && trackEditable && !trackLocked;
-        warngenLayer.setBoxEditable(layerEditable && boxEditable && !polygonLocked);
+        warngenLayer.getStormTrackState().editable = layerEditable
+                && trackEditable && !trackLocked;
+        warngenLayer.setBoxEditable(layerEditable && boxEditable
+                && !polygonLocked);
         warngenLayer.issueRefresh();
     }
 
