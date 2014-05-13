@@ -30,7 +30,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
 import com.raytheon.uf.common.monitor.xml.MonAreaConfigXML;
@@ -57,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 02 2013  2361      njensen    Use JAXBManager for XML
  * Oct 17 2013  16682     zhao       fixed a bug in readConfigXml()
  * Apr 23 2014  3054      skorolev   Removed unnecessary parameter in the addArea method.
+ * May 13 2014  3133      njensen    getStationType returns String instead of ObsHistType
  * 
  * </pre>
  * 
@@ -688,18 +688,15 @@ public abstract class MonitorConfigurationManager {
      * @param theStation
      * @return type of station
      */
-    public ObsHistType getStationType(String theZone, String theStation) {
-        ObsHistType result = null;
+    public String getStationType(String theZone, String theStation) {
+        String result = null;
         List<AreaIdXML> areaList = configXml.getAreaIds();
         for (AreaIdXML area : areaList) {
             if (area.getAreaId().equals(theZone)) {
                 List<StationIdXML> stationList = area.getStationIds();
                 for (StationIdXML station : stationList) {
                     if (station.getName().equals(theStation)) {
-                        String typeString = station.getType();
-                        result = typeString.equals(xmlDataType) ? ObsHistType.METAR
-                                : ObsHistType.Maritime;
-                        return result;
+                        return station.getType();
                     }
                 }
             }
