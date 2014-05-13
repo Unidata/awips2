@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * The AirepSeparator takes a potential weather message and attempts to

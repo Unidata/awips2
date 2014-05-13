@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.text.db.StateMatch;
+import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 
 /**
  * The dao implementation associated with the TextDao classes used for all

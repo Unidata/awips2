@@ -27,10 +27,10 @@ import com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.plugin.modelsounding.common.ModelSoundingPathProvider;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Provide data access services against the SoundingSite data object.

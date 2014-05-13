@@ -28,9 +28,8 @@ import java.util.Date;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
-import com.raytheon.uf.edex.wmo.message.WMOMessage;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOMessage;
 
 /**
  * Test {@link AlwaysSameWmoHeader}.
@@ -63,7 +62,7 @@ public class AlwaysSameWmoHeaderTest {
 
     @BeforeClass
     public static void setUpClass() {
-        message = new WMOMessage(wrapped, new Headers());
+        message = new WMOMessage(wrapped.getBytes());
         wmoHeader = message.getWmoHeader();
     }
 

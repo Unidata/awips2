@@ -36,7 +36,8 @@ import com.raytheon.uf.common.dataplugin.tcs.util.Util;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
 
 /**
@@ -52,6 +53,7 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  * Apr 19, 2012 457        dgilling    Use TimeTools.findDataTime()  to
  *                                     calculate times.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -103,8 +105,6 @@ public class TCMData extends TCSDataAdapter {
     }
 
     private static final int MINIMUM_LINES = 5;
-
-    private static final String TIMEZONE = "GMT";
 
     private String name;
 
@@ -252,9 +252,10 @@ public class TCMData extends TCSDataAdapter {
             m = timePtrn.matcher(mask);
             if (m.find()) {
                 time = m.group(2) + "." + m.group(4);
-
-                Calendar calendar = TimeTools.findDataTime(
-                        m.group(2) + m.group(4) + m.group(5), headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                Calendar calendar = WMOTimeParser.findDataTime(
+                        m.group(2) + m.group(4) + m.group(5), fileName);
                 DataTime fcastTime = new DataTime(calendar);
                 if (refTime == null) {
                     refTime = new DataTime(fcastTime.getRefTimeAsCalendar());

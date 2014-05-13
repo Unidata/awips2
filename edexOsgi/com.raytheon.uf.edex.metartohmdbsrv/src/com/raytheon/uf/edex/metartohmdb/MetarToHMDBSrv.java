@@ -25,10 +25,26 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.metartohmdb.dao.HMDBReport;
 import com.raytheon.uf.edex.metartohmdb.dao.HMDBRptDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
+/**
+ * Stores MetarRecords as HMDBReport in database
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ????                                Initial creation
+ * May 14, 2014 2536       bclement    moved WMO Header to common
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
 public class MetarToHMDBSrv {
 
     private Log logger = LogFactory.getLog(getClass());
@@ -92,7 +108,8 @@ public class MetarToHMDBSrv {
         // Get the report data. This contains both the
         // WMOHeader and METAR report, so we need to split them.
         String rptData = report.getReport();
-        WMOHeader hdr = new WMOHeader(rptData.getBytes(), headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader hdr = new WMOHeader(rptData.getBytes(), fileName);
         if (hdr.isValid()) {
             rpt.setWmo_dd(hdr.getWmoHeader().substring(0, 6));
             // if the report data is longer than 255 characters,

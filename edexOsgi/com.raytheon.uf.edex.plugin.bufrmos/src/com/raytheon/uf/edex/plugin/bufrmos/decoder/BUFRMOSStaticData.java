@@ -33,8 +33,8 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.bufrmos.BufrMosSeparator;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * 

@@ -41,8 +41,7 @@ import com.raytheon.edex.plugin.taf.common.TafRecord;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * 
@@ -54,6 +53,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Oct 20, 2008       1515 jkorman     Initial implementation to
  *                                     add 30 Hour tafs.
  * Nov 12, 2013 2546        bclement    added check for legacy valid time
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -423,7 +423,7 @@ public class TAFChangeGroupFactory {
             int iHour = cvtInt(issueTm.substring(2, 4));
             int iMin = cvtInt(issueTm.substring(4, 6));
 
-            issueTime = TimeTools.getSystemCalendar(wmoHeader.getYear(),
+            issueTime = TimeUtil.newGmtCalendar(wmoHeader.getYear(),
                     wmoHeader.getMonth(), wmoHeader.getDay());
             int sDay = issueTime.get(Calendar.DAY_OF_MONTH);
             if (sDay == iDay) {
@@ -583,11 +583,12 @@ public class TAFChangeGroupFactory {
                     period1 = group1.getTafChangePeriod();
                     period2 = group2.getTafChangePeriod();
 
-                    period1.setEndDate(TimeTools.copy(period2.getStartDate()));
+                    period1.setEndDate((Calendar) period2.getStartDate()
+                            .clone());
 
                 }
                 // The last group gets the TAF end datetime.
-                period2.setEndDate(TimeTools.copy(validPeriod.getEndDate()));
+                period2.setEndDate((Calendar) validPeriod.getEndDate().clone());
             }
 
             record.setIssue_time(issueTime.getTime());
