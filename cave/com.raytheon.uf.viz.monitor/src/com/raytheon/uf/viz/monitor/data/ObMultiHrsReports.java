@@ -31,10 +31,10 @@ import java.util.TreeMap;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 
 /**
