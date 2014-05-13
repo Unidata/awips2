@@ -28,11 +28,11 @@ import java.util.Set;
 
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
-import com.raytheon.uf.common.monitor.data.ColumnAttribData;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
 import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.SortDirection;
+import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
 
