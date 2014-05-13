@@ -6,7 +6,6 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.dataplugin.svrwx;bundle-version="1.0.0",
- com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.edex.pointdata,
  org.geotools,
@@ -19,5 +18,6 @@ Import-Package: com.raytheon.edex.esb,
  com.raytheon.uf.common.datastorage.records,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
+ com.raytheon.uf.common.wmo,
  com.raytheon.uf.edex.core,
  org.apache.commons.logging
