@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
  * Oct 18, 2012   15332    jsanchez     Replaced listOfAreaNamesPtrn with String pattern.
  * Mar 13, 2013  DR 15892  D. Friedman  Allow some punctuation in area names.
  * Apr 18, 2013  DR 16055  D. Friedman  Allow more than one contiguous space in areas.
+ * Apr 29, 2014   3033     jsanchez     Added more patterns.
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ public interface ICommonPatterns {
     /** End tag for locking */
     public static final String LOCK_END = "</L>";
 
-    public static final String newline = "\\n";
+    public static final String NEWLINE = "\\n";
 
     // LOCK_END should not be found at the beginning since the previous line
     // should be blank.
@@ -56,13 +57,14 @@ public interface ICommonPatterns {
 
     // LOCK_END can be added at the start of the line if a previous line has
     // been locked.
-    public static final String listOfAreaName = "^((" + LOCK_END
+    public static final String listOfAreaName = "^(("
+            + LOCK_END
             + "){0,1}((([\\?\\(\\)\\w\\.,/'-]+\\s{1,})+\\w{2}-)*(([\\?\\(\\)\\w\\.,/'-]+\\s{1,})+\\w{2}-)))";
 
     // LOCK_END should not be found at the beginning of a first bullet since the
     // previous line should be blank.
     public static final String firstBullet = "^(\\* (.*) (WARNING|ADVISORY)( FOR(.*)|\\.\\.\\.)"
-            + newline + ")";
+            + NEWLINE + ")";
 
     // LOCK_END can be added at the start of the line if a previous line has
     // been locked.
@@ -71,5 +73,61 @@ public interface ICommonPatterns {
                     "^(("
                             + LOCK_END
                             + "){0,1}\\d{3,4} (AM|PM) (\\w{3,4}) \\w{3} (\\w{3})\\s+(\\d{1,2}) (\\d{4})"
-                            + newline + ")", Pattern.MULTILINE);
+                            + NEWLINE + ")", Pattern.MULTILINE);
+
+    public static final Pattern header = Pattern.compile(
+            "^((THE NATIONAL WEATHER SERVICE IN .{1,} HAS (ISSUED A|EXTENDED THE))"
+                    + NEWLINE + ")$", Pattern.MULTILINE);
+
+    /*
+     * LOCK_END should not be found at the beginning since the previous line
+     */
+    public static final Pattern secondBulletPtrn = Pattern
+            .compile(
+                    "\\* UNTIL \\d{3,4} (AM|PM) \\w{3,4}( \\w{6,9}){0,1}(\\/\\d{3,4} (AM|PM) \\w{3,4}( \\w{6,9}){0,1}\\/){0,1}"
+                            + NEWLINE, Pattern.MULTILINE);
+
+    public static final Pattern htecPtrn = Pattern
+            .compile(
+                    "^(("
+                            + LOCK_END
+                            + "){0,1}/[A-Za-z0-9]{5}.[0-3NU].\\w{2}.\\d{6}T\\d{4}Z.\\d{6}T\\d{4}Z.\\d{6}T\\d{4}Z.\\w{2}/"
+                            + NEWLINE + ")", Pattern.MULTILINE);
+
+    public static final Pattern vtecPtrn = Pattern
+            .compile(
+                    "^(("
+                            + LOCK_END
+                            + "){0,1}/[OTEX]\\.([A-Z]{3})\\.[A-Za-z0-9]{4}\\.[A-Z]{2}\\.[WAYSFON]\\.\\d{4}\\.\\d{6}T\\d{4}Z-\\d{6}T\\d{4}Z/"
+                            + NEWLINE + ")", Pattern.MULTILINE);
+
+    public static final Pattern tmlPtrn = Pattern
+            .compile(
+                    "^(("
+                            + LOCK_END
+                            + "){0,1}(TIME\\.\\.\\.MOT\\.\\.\\.LOC \\d{3,4}Z \\d{3}DEG \\d{1,3}KT(( \\d{3,4} \\d{3,5}){1,})(\\s*\\d{3,5} )*)\\s*"
+                            + NEWLINE + ")", Pattern.MULTILINE);
+
+    public static Pattern testPtrn = Pattern
+            .compile("("
+                    + "THIS IS A TEST MESSAGE\\. DO NOT TAKE ACTION BASED ON THIS MESSAGE\\."
+                    + NEWLINE
+                    + ")|"
+                    + "("
+                    + "THIS IS A TEST MESSAGE\\."
+                    + ")|"
+                    + "("
+                    + "\\.\\.\\.THIS MESSAGE IS FOR TEST PURPOSES ONLY\\.\\.\\."
+                    + NEWLINE + ")");
+
+    public static final Pattern cta = Pattern.compile("("
+            + "^(PRECAUTIONARY/PREPAREDNESS ACTIONS\\.\\.\\." + NEWLINE + ")"
+            + ")" + "|(" + "^(&&" + NEWLINE + ")" + ")" + "|(" + "^(\\$\\$"
+            + NEWLINE + ")" + ")", Pattern.MULTILINE);
+
+    public static final Pattern latLonPtrn = Pattern.compile(
+            "^((LAT\\.\\.\\.LON( \\d{3,4} \\d{3,5})+)" + NEWLINE
+                    + ")(((\\s{5}( \\d{3,4} \\d{3,5})+)" + NEWLINE + ")+)?",
+            Pattern.MULTILINE);
+
 }

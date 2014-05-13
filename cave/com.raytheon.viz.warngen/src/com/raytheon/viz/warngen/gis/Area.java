@@ -34,8 +34,8 @@ import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
-import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
+import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.SpatialException;
@@ -74,6 +74,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Apr 29, 2013  1955       jsanchez    Ignored comparing the geometry's user data when finding intersected areas.
  *    May  2, 2013  1963       jsanchez    Updated method to determine partOfArea.
  *    Aug 19, 2013  2177       jsanchez    Used portionsUtil to calculate area portion descriptions.
+ *    Apr 29, 2014  3033       jsanchez    Updated method to retrieve files in localization.
  * </pre>
  * 
  * @author chammack
@@ -165,9 +166,10 @@ public class Area {
 
         if (areaConfig.getAreaNotationTranslationFile() != null) {
             try {
-                abbreviation = new Abbreviation(FileUtil.getFile(
-                        areaConfig.getAreaNotationTranslationFile(),
-                        localizedSite));
+                abbreviation = new Abbreviation(WarnFileUtil
+                        .findFileInLocalizationIncludingBackupSite(
+                                areaConfig.getAreaNotationTranslationFile(),
+                                localizedSite, null).getFile());
             } catch (FileNotFoundException e) {
                 statusHandler.handle(Priority.ERROR, "Unable to find "
                         + areaConfig.getAreaNotationTranslationFile() + "", e);
