@@ -459,7 +459,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 			
 			lFile.save();
 			
-			addRbd( grpName, spfName, rbd );
+			addRbd( "default", spfName, rbd );
 			
 			lFile.addFileUpdatedObserver(this);
 			
@@ -741,7 +741,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 					AbstractRBD<?> rbd = NcMapRBD.getRbd( lFile.getFile() );
 					//System.out.println("Add Rbd name is " + rbd.rbdName );
 					rbd.setLocalizationFile( lFile );
-					addRbd( dirsf[2], dirsf[3], rbd );
+					addRbd( "default", dirsf[3], rbd );
 				}
 			}
 			else if( chgType == FileChangeType.DELETED ) {

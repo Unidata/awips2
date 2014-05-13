@@ -210,6 +210,7 @@ public class SelectRbdsDialog extends Dialog {
 
         selFromGrp.setVisible( selectFromDisplays );
         
+        /*
         spfGroupCombo = new Combo( sel_rbds_grp, SWT.DROP_DOWN | SWT.READ_ONLY );
         fd = new FormData();
         
@@ -232,11 +233,11 @@ public class SelectRbdsDialog extends Dialog {
         fd.bottom  = new FormAttachment( spfGroupCombo, -3, SWT.TOP );
         fd.left  = new FormAttachment( spfGroupCombo, 0, SWT.LEFT );
         spf_grp_lbl.setLayoutData( fd );
-        
+        */
         spfNameCombo = new Combo( sel_rbds_grp, SWT.READ_ONLY | SWT.DROP_DOWN );
 
         fd = new FormData();
-        fd.top = new FormAttachment( spfGroupCombo, 40, SWT.BOTTOM );
+        fd.top = new FormAttachment( selFromGrp, 40, SWT.BOTTOM );
         fd.left  = new FormAttachment( 0, 10 );
         fd.right = new FormAttachment( 25, 0 );
 
@@ -377,11 +378,13 @@ public class SelectRbdsDialog extends Dialog {
     		}
     	});
     	
+    	/*
     	spfGroupCombo.addSelectionListener(new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
    				setSeldSpfGroup( spfGroupCombo.getText() );
    			} 
    		});
+    	*/
 
         spfNameCombo.addSelectionListener( new SelectionAdapter() {		
    			public void widgetSelected(SelectionEvent e) {
@@ -464,8 +467,8 @@ public class SelectRbdsDialog extends Dialog {
 
     	if( selFromDisplaysBtn.getSelection() ) {
     		
-    		spfGroupCombo.setEnabled( false );
-    		spf_grp_lbl.setEnabled( false );
+    		//spfGroupCombo.setEnabled( false );
+    		//spf_grp_lbl.setEnabled( false );
     		spf_name_lbl.setEnabled( false );
     		spfNameCombo.setEnabled( false );
 
@@ -484,16 +487,17 @@ public class SelectRbdsDialog extends Dialog {
     	}
     	else if( selFromSpfsBtn.getSelection() ) {
     		
-    		spfGroupCombo.setEnabled( true );
-    		spf_grp_lbl.setEnabled( true );
+    		//spfGroupCombo.setEnabled( true );
+    		//spf_grp_lbl.setEnabled( true );
     		spf_name_lbl.setEnabled( true );
     		spfNameCombo.setEnabled( true );
 
-    		spfGroupCombo.setEnabled( true );
+    		//spfGroupCombo.setEnabled( true );
     		spfNameCombo.setEnabled( true );
     		
-            spfGroupCombo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
+            //spfGroupCombo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
             
+    		/*
             if( spfGroupCombo.getItemCount() == 0 ) {
             	spfGroupCombo.add("None Available");
             	spfGroupCombo.select(0);
@@ -516,6 +520,8 @@ public class SelectRbdsDialog extends Dialog {
             		setSeldSpfGroup( spfGroupCombo.getText() );        			
                 }
             }
+            */
+    		setSeldSpfGroup( "default" );
 
     		if( spfNameCombo.getItemCount() > 0 ) {
     			setSeldSpfName( spfNameCombo.getText() );

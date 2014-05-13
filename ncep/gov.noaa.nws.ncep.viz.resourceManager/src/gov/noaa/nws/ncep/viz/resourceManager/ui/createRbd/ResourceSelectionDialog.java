@@ -81,32 +81,33 @@ public class ResourceSelectionDialog extends Dialog {
     	
     	shell = new Shell( parent, style );
     	shell.setText( title );
-//    	shell.setSize( 800, 520 ); // pack later
+    	shell.setSize( 800, 480 ); // pack later
 
     	GridLayout mainLayout = new GridLayout(1, true);
     	mainLayout.marginHeight = 1;
     	mainLayout.marginWidth = 1;
     	
     	shell.setLayout(mainLayout);
-
+    	/*
     	Group sel_rscs_grp = new Group( shell, SWT.SHADOW_NONE );
     	sel_rscs_grp.setText("Select Resources");
     	sel_rscs_grp.setLayout( new GridLayout(1,true) );
+    	*/
     	
     	GridData gd = new GridData();
     	gd.grabExcessHorizontalSpace = true;
     	gd.grabExcessVerticalSpace = true;
     	gd.horizontalAlignment = SWT.FILL;
     	gd.verticalAlignment = SWT.FILL;
-    	sel_rscs_grp.setLayoutData( gd );
+    	//sel_rscs_grp.setLayoutData( gd );
 
     	try {
-			sel_rsc_cntrl = new ResourceSelectionControl( sel_rscs_grp, 
+			sel_rsc_cntrl = new ResourceSelectionControl( shell, 
 					replaceBtnVisible, 
 					replaceBtnEnabled, 
 					initRscName, 
 					multiPane,
-					dispType );
+					dispType, shell );
 		} catch (VizException e) {
 			e.printStackTrace();
 			close();
@@ -115,20 +116,6 @@ public class ResourceSelectionDialog extends Dialog {
 			close();
 		}
 		
-        Button can_btn = new Button( shell, SWT.PUSH );
-        can_btn.setText("  Close  ");
-    	gd = new GridData();
-    	gd.grabExcessHorizontalSpace = false;
-    	gd.grabExcessVerticalSpace = false;
-    	gd.horizontalAlignment = SWT.END;
-    	gd.verticalAlignment = SWT.END;
-    	can_btn.setLayoutData( gd );
-
-        can_btn.addSelectionListener(new SelectionAdapter() {
-       		public void widgetSelected( SelectionEvent ev ) {
-       			shell.dispose();
-       		}
-        });
 
     	initWidgets();
     	
