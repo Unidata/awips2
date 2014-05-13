@@ -17,10 +17,8 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services.textdbsrv;
+package com.raytheon.uf.common.dataplugin.text.dbsrv;
 
-import static com.raytheon.edex.textdb.dbapi.impl.TextDB.asciiToHex;
-import static com.raytheon.edex.textdb.dbapi.impl.TextDB.hexToAscii;
 
 import java.util.ArrayList;
 
@@ -40,6 +38,7 @@ import com.raytheon.uf.common.message.Property;
  * 28May2010               cjeanbap    Added operational functionality.
  * 02Aug2010    2187       cjeanbap    Update variable/method signature to be consistent.
  * 29Jan2013    1496      rferrel     Added methods clearProductIds and clone.
+ * May 15, 2014 2536      bclement    moved from uf.edex.textdbsrv
  * 
  * </pre>
  * 
@@ -432,7 +431,7 @@ public class TextDBQuery {
         for (Property property : properties) {
             String s = property.getValue();
             if (s != null) {
-                property.setValue(asciiToHex(s));
+                property.setValue(PropConverter.asciiToHex(s));
             }
         }
         Property[] p = new Property[properties.size()];
@@ -454,7 +453,7 @@ public class TextDBQuery {
                     for (Property p : properties) {
                         String s = p.getValue();
                         if (s != null) {
-                            p.setValue(hexToAscii(s));
+                            p.setValue(PropConverter.hexToAscii(s));
                         }
                     }
                 }

@@ -25,35 +25,28 @@
    </requires>
 
    <plugin
-            id="com.raytheon.uf.common.archive"
-            download-size="0"
-            install-size="0"
-            version="0.0.0"
-            unpack="false"/>
-
-   <plugin
-            id="com.raytheon.uf.edex.auth"
-            download-size="0"
-            install-size="0"
-            version="0.0.0"
-            unpack="false"/>
-
-   <plugin
-            id="com.raytheon.uf.edex.archive"
-            download-size="0"
-            install-size="0"
-            version="0.0.0"
-            unpack="false"/>
-
-   <plugin
-         id="com.raytheon.edex.textdb"
+         id="com.raytheon.uf.common.archive"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.textdbsrv"
+         id="com.raytheon.uf.edex.auth"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.archive"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.edex.textdb"
          download-size="0"
          install-size="0"
          version="0.0.0"
