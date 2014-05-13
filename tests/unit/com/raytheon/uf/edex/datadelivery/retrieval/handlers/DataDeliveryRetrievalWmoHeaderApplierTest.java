@@ -29,10 +29,9 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOMessage;
 import com.raytheon.uf.edex.core.props.PropertiesException;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
-import com.raytheon.uf.edex.wmo.message.WMOMessage;
 
 /**
  * Test {@link DataDeliveryRetrievalWmoHeaderApplier}.
@@ -69,7 +68,7 @@ public class DataDeliveryRetrievalWmoHeaderApplierTest {
             String sourceType, Date date) {
         String dataWithHeader = applier.applyWmoHeader(dataProvider,
                 dataFormat, sourceType, date, "someData");
-        message = new WMOMessage(dataWithHeader, new Headers());
+        message = new WMOMessage(dataWithHeader.getBytes());
         wmoHeader = message.getWmoHeader();
     }
 

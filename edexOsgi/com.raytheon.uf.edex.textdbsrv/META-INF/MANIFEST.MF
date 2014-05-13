@@ -18,4 +18,5 @@ Export-Package: com.raytheon.uf.edex.services,
  com.raytheon.uf.edex.services.textdbsrv
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.message,
+ com.raytheon.uf.common.wmo,
  org.apache.commons.logging

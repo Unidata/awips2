@@ -10,8 +10,8 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.10.13",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common.dataplugin.tcm;bundle-version="1.0.0"
-Import-Package: com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.wmo.message,
+Import-Package: com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.decodertools.core,
  gov.noaa.nws.ncep.common.tools,
  org.apache.commons.logging,
  org.apache.log4j
