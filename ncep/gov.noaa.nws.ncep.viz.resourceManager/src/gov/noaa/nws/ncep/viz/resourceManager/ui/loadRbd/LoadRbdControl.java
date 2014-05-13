@@ -131,7 +131,7 @@ public class LoadRbdControl extends Composite {
     private Group sel_rbds_grp = null;
     private Group load_opts_grp = null;
 
-    private Combo spf_group_combo = null;
+    //private Combo spf_group_combo = null;
     private ListViewer spf_name_lviewer = null;
     private ListViewer rbd_lviewer = null;
     private RbdViewComposite rscViewer = null;
@@ -207,6 +207,7 @@ public class LoadRbdControl extends Composite {
         fd.bottom  = new FormAttachment( 100, -5 );
         sel_rbds_grp.setLayoutData( fd );
 
+        /*
         spf_group_combo = new Combo( sel_rbds_grp, SWT.DROP_DOWN | SWT.READ_ONLY );
         fd = new FormData();
 //        fd.width = 190;
@@ -222,14 +223,16 @@ public class LoadRbdControl extends Composite {
         fd.bottom  = new FormAttachment( spf_group_combo, -3, SWT.TOP );
         fd.left  = new FormAttachment( spf_group_combo, 0, SWT.LEFT );
         spf_grp_lbl.setLayoutData( fd );
-
+        */
 
         spf_name_lviewer = new ListViewer(sel_rbds_grp, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL|SWT.H_SCROLL);
 
         fd = new FormData();
 //        fd.width = 130;
-        fd.top = new FormAttachment( spf_group_combo, 40, SWT.BOTTOM );
-        fd.left = new FormAttachment( spf_group_combo, 0, SWT.LEFT );
+        //fd.top = new FormAttachment( spf_group_combo, 40, SWT.BOTTOM );
+        //fd.left = new FormAttachment( spf_group_combo, 0, SWT.LEFT );
+        fd.top = new FormAttachment( 0, 35 );
+        fd.left  = new FormAttachment( 0, 20 );
         //fd.left  = new FormAttachment( 0, 10 );
         fd.bottom = new FormAttachment( 100, -15 );
         fd.right = new FormAttachment( 30, -7 );
@@ -237,7 +240,7 @@ public class LoadRbdControl extends Composite {
         spf_name_lviewer.getList().setLayoutData( fd );
 
         Label spf_name_lbl = new Label(sel_rbds_grp, SWT.NONE);
-        spf_name_lbl.setText("SPF Name");
+        spf_name_lbl.setText("Groups");
         fd = new FormData();
         fd.bottom = new FormAttachment( spf_name_lviewer.getList(), -3, SWT.TOP );
         fd.left   = new FormAttachment( spf_name_lviewer.getList(), 0, SWT.LEFT );
@@ -254,7 +257,7 @@ public class LoadRbdControl extends Composite {
         rbd_lviewer.getList().setLayoutData( fd );
 
         Label rbd_lbl = new Label( sel_rbds_grp, SWT.NONE);
-        rbd_lbl.setText("RBDs");
+        rbd_lbl.setText("Bundles");
         fd = new FormData();
         fd.bottom  = new FormAttachment( rbd_lviewer.getList(), -3, SWT.TOP );
         fd.left  = new FormAttachment( rbd_lviewer.getList(), 0, SWT.LEFT );
@@ -262,7 +265,7 @@ public class LoadRbdControl extends Composite {
 
         edit_rbd_btn = new Button( sel_rbds_grp, SWT.PUSH );
         fd = new FormData( 85,27 );
-        edit_rbd_btn.setText("Edit RBD");
+        edit_rbd_btn.setText("Edit");
         fd.top = new FormAttachment( rbd_lviewer.getList(), 10, SWT.BOTTOM );
         fd.left  = new FormAttachment( rbd_lviewer.getList(), 20, SWT.LEFT );
         edit_rbd_btn.setLayoutData( fd );
@@ -338,14 +341,14 @@ public class LoadRbdControl extends Composite {
         load_form.setLayoutData( gd );
 
         load_and_close_btn = new Button( load_form, SWT.PUSH );
-        load_and_close_btn.setText(" Load And Close ");
+        load_and_close_btn.setText(" Load and Close ");
         fd = new FormData();
         fd.top = new FormAttachment( 0, 5 );
         fd.right  = new FormAttachment( 100, -10 );
       
         load_and_close_btn.setLayoutData( fd );
         load_btn = new Button( load_form, SWT.PUSH );
-        load_btn.setText("  Load RBDs  ");
+        load_btn.setText("  Load  ");
         fd = new FormData();
         fd.top = new FormAttachment( 0, 5 );
         fd.right  = new FormAttachment( load_and_close_btn, -20, SWT.LEFT );
@@ -362,6 +365,7 @@ public class LoadRbdControl extends Composite {
     //
     private void addListeners( ) {
 
+    	/*
     	spf_group_combo.addSelectionListener(new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
    				String spfGroupName = spf_group_combo.getText();	
@@ -370,7 +374,8 @@ public class LoadRbdControl extends Composite {
    				setSeldSpfName();
    			} 
    		});
-        
+        */
+    	
         spf_name_lviewer.setContentProvider(new IStructuredContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
@@ -601,11 +606,12 @@ public class LoadRbdControl extends Composite {
   
     private void initWidgets( ) throws VizException {
   
+    	/*
         spf_group_combo.setItems( 
         		SpfsManager.getInstance().getAvailSPFGroups() );
         spf_group_combo.select(0);
-            	
-        spf_name_lviewer.setInput( spf_group_combo.getText() );
+        */  	
+        spf_name_lviewer.setInput( "default" );
        	spf_name_lviewer.refresh();
        	    	            	
         geo_sync_panes.setSelection(true);
@@ -625,8 +631,7 @@ public class LoadRbdControl extends Composite {
 		availRbdsList.clear();
 
 		try {
-			availRbdsList = SpfsManager.getInstance().getRbdsFromSpf(
-						spf_group_combo.getText(), seldSpfName, 
+			availRbdsList = SpfsManager.getInstance().getRbdsFromSpf("default", seldSpfName, 
 						true ); // resolve Latest Cycle times
 		} catch (VizException e) {
 		}
@@ -739,6 +744,7 @@ public class LoadRbdControl extends Composite {
     	// reset the size of the dialog
     	shell.setSize( initDlgSize );
     	
+    	/*
         String saveSeldGroup = spf_group_combo.getText();
     	spf_group_combo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
 
@@ -748,6 +754,8 @@ public class LoadRbdControl extends Composite {
 				return;
     		}
     	}
+    	*/
+    	return;
     }
     
     private boolean loadRBD( boolean close ) {

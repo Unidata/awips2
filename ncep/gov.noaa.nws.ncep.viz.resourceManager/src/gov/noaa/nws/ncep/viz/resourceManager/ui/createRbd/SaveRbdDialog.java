@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
+import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -59,12 +60,8 @@ import org.eclipse.swt.widgets.Text;
 public class SaveRbdDialog extends Dialog { 
    
     private Shell shell;
-    private String dlgTitle = "Save Resource Bundle Display";
-    
-    private Button display_by_name = null;
-    private Button display_by_date = null;
+    private String dlgTitle = "Save Bundle";
 
-    private Combo spf_group_combo = null;
     private Text  spf_name_txt = null;
     private Combo rbd_name_combo = null;
     
@@ -87,6 +84,7 @@ public class SaveRbdDialog extends Dialog {
 
     private boolean saveTimeAsConstant;
 	private boolean saveRefTime;
+    
 
     public String getSeldSpfGroup() {
 		return seldSpfGroup;
@@ -96,6 +94,10 @@ public class SaveRbdDialog extends Dialog {
 		return seldSpfName;
 	}
 
+	public boolean getRbdOkay() {
+		return saveRbdOkd;
+	}
+	
 	public String getSeldRbdName() {
 		return seldRbdName;
 	}
@@ -108,7 +110,12 @@ public class SaveRbdDialog extends Dialog {
 		return saveRefTime;
 	}
 
-    public SaveRbdDialog( Shell parShell, String spf_group, String spf_name, String rbd_name, boolean refTime, boolean saveTimeAsConstant )  {
+    public SaveRbdDialog( Shell parShell, 
+    		String spf_group, 
+    		String spf_name, 
+    		String rbd_name, 
+    		boolean refTime, 
+    		boolean saveTimeAsConstant )  {
     	super(parShell);
     	seldSpfGroup = spf_group;
     	seldSpfName = spf_name;
@@ -124,7 +131,6 @@ public class SaveRbdDialog extends Dialog {
     	shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS );
     	shell.setText(dlgTitle);
     	shell.setSize( 540, 500 ); // pack later
-
     	shell.setLayout( new FormLayout() );
 
         FormData fd = new FormData( );
@@ -167,14 +173,12 @@ public class SaveRbdDialog extends Dialog {
        		}
         });*/
         
+        /*
         spf_group_combo = new Combo( shell, SWT.DROP_DOWN );
         fd = new FormData();
         fd.top = new FormAttachment( 5, 10 );
         fd.left  = new FormAttachment( 9, 10 );
         fd.right  = new FormAttachment( 85, 0 );
-        /*fd.top = new FormAttachment( display_by_grp, 40, SWT.BOTTOM );
-        fd.left  = new FormAttachment( display_by_grp, 20, SWT.LEFT );
-        fd.right  = new FormAttachment( display_by_grp, -20, SWT.RIGHT );*/
         spf_group_combo.setLayoutData( fd );    	
         
         Label spf_grp_lbl = new Label( shell, SWT.NONE);
@@ -183,12 +187,14 @@ public class SaveRbdDialog extends Dialog {
         fd.bottom  = new FormAttachment( spf_group_combo, -3, SWT.TOP );
         fd.left  = new FormAttachment( spf_group_combo, 0, SWT.LEFT );
         spf_grp_lbl.setLayoutData( fd );
-
+        */
+        
         Group spf_name_grp = new Group( shell, SWT.SHADOW_NONE );
         spf_name_grp.setText("Available SPFs ");
         spf_name_grp.setLayout( new FormLayout() );
         fd = new FormData(260,300);
-        fd.top = new FormAttachment( spf_group_combo, 20, SWT.BOTTOM );
+        //fd.top = new FormAttachment( spf_group_combo, 20, SWT.BOTTOM );
+        fd.top = new FormAttachment( 5, 10 );
         fd.left  = new FormAttachment( 0, 10 );
         fd.right  = new FormAttachment( 100, -10 );
         spf_name_grp.setLayoutData( fd );    	
@@ -201,7 +207,8 @@ public class SaveRbdDialog extends Dialog {
         fd.left  = new FormAttachment( 0, 10 );
         fd.right  = new FormAttachment( 100, -10 );
         fd.bottom = new FormAttachment( 100, -65 );
-        spf_name_lviewer.getList().setLayoutData( fd );    	
+        spf_name_lviewer.getList().setLayoutData( fd );  
+        //spf_name_lviewer.setInput( "default" );
 
         spf_name_txt = new Text( spf_name_grp, SWT.SINGLE | SWT.BORDER );
         fd = new FormData();
@@ -336,28 +343,28 @@ public class SaveRbdDialog extends Dialog {
         
         save_btn = new Button( shell, SWT.PUSH );
         fd = new FormData();
-        save_btn.setText("  Save RBD  ");
+        save_btn.setText("  Save Bundle  ");
         fd.bottom = new FormAttachment( 100, -10 );
         fd.right  = new FormAttachment( can_btn, -20, SWT.LEFT );
         save_btn.setLayoutData( fd );
 
         save_btn.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
-       	    	seldSpfGroup = spf_group_combo.getText();
+       	    	seldSpfGroup = "default";
        	    	seldSpfName = spf_name_txt.getText();
        	    	    	
        	    	seldRbdName = rbd_name_combo.getText();
        	    	
        	    	if( seldRbdName == null || seldRbdName.isEmpty() ) {
-       	    		System.out.println("RBD name is not selected.");
+       	    		System.out.println("Bundle name not selected.");
        	    		return;
        	    	}
 
        	    	if( !newRbd ) {
        	    		MessageDialog confirmDlg = new MessageDialog( 
        	    				NcDisplayMngr.getCaveShell(), 
-       	    				"Create RBD", null, 
-       	    				"RBD " +seldRbdName+" already exists in this SPF.\n\n"+
+       	    				"Create Bundle", null, 
+       	    				"Bundle ' " +seldRbdName+"' already exists in this group.\n\n"+
        	    				"Do you want to overwrite it?",
        	    				MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
        	    		confirmDlg.open();
@@ -393,6 +400,7 @@ public class SaveRbdDialog extends Dialog {
 
     private void initWidgets() {
     	
+    	/*
     	spf_group_combo.addSelectionListener(new SelectionListener() {
    			public void widgetSelected(SelectionEvent e) {
    				setSeldSpfGroup( spf_group_combo.getText() );
@@ -416,18 +424,17 @@ public class SaveRbdDialog extends Dialog {
     			newRbd = true;
 			}
     	});
-
+    	*/
     	spf_name_txt.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
     			save_btn.setEnabled( 
     					!rbd_name_combo.getText().isEmpty() &&
-    					!spf_name_txt.getText().isEmpty() && 
-    					!spf_group_combo.getText().isEmpty() );
+    					!spf_name_txt.getText().isEmpty() );
     			
     			// if entering a new SPF name, don't show 
     			// anything selected in the list
-    			spf_name_lviewer.getList().deselectAll();
+    			//spf_name_lviewer.getList().deselectAll();
     			
     			seldSpfName = spf_name_txt.getText();
     			newRbd = true;
@@ -439,8 +446,7 @@ public class SaveRbdDialog extends Dialog {
 			public void modifyText(ModifyEvent e) {
     			save_btn.setEnabled( 
     					!rbd_name_combo.getText().isEmpty() &&
-    					!spf_name_txt.getText().isEmpty() && 
-    					!spf_group_combo.getText().isEmpty() );
+    					!spf_name_txt.getText().isEmpty() );
 
     			newRbd = true;
 			}
@@ -453,7 +459,7 @@ public class SaveRbdDialog extends Dialog {
 				// TODO : check display_by_name selection and order appropriately.
 				// (add support in SpfsManager to get the time. Not sure how to do this
 				// now that it is possible to have the SPF in 2 contexts?)
-				return SpfsManager.getInstance().getSpfNamesForGroup( (String)inputElement );
+				return SpfsManager.getInstance().getSpfNamesForGroup( "default" );
 			}
 			@Override
 			public void dispose() { }
@@ -471,7 +477,7 @@ public class SaveRbdDialog extends Dialog {
             }
         });
 
-        spf_group_combo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
+        //spf_group_combo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
         
         
     	rbd_name_combo.addSelectionListener(new SelectionListener() {
@@ -487,6 +493,7 @@ public class SaveRbdDialog extends Dialog {
 
         // if the user has pre selected a group then select it
         //
+    	/*
         if( seldSpfGroup != null ) {
         	for( int g=0 ; g<spf_group_combo.getItemCount() ; g++ ) {
         		if( seldSpfGroup.equals( spf_group_combo.getItem(g) ) ) {
@@ -500,6 +507,8 @@ public class SaveRbdDialog extends Dialog {
     		setSeldSpfGroup( spf_group_combo.getText() );        			
 
         }
+        */
+        setSeldSpfGroup( "default" );
         
         if( seldSpfName != null ) {
         	setSeldSpfName( seldSpfName );
@@ -514,11 +523,8 @@ public class SaveRbdDialog extends Dialog {
     
 	private void setSeldSpfGroup(String spfGroup) {
 		newRbd = false;
-
 		seldSpfGroup = spfGroup;
-
 		spf_name_lviewer.setInput( seldSpfGroup );    
-
     	spf_name_txt.clearSelection();
 //    	String spfNames[] = SpfsManager.getInstance().getSpfNamesForGroup( spf_group_combo.getText() );
 

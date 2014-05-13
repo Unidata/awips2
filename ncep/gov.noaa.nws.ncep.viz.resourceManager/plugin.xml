@@ -16,6 +16,10 @@
             id="gov.noaa.nws.ncep.viz.ui.newResource"
             name="New Resource">
       </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.saveBundle"
+            name="Save Bundle">
+      </command>
    </extension>
    
       <extension
@@ -23,10 +27,14 @@
        <handler
             class="gov.noaa.nws.ncep.viz.resourceManager.ui.ResourceManagerAction"
             commandId="gov.noaa.nws.ncep.viz.actions.resourceManager">
-       </handler>   
+       </handler>
       <handler
             class="gov.noaa.nws.ncep.viz.resourceManager.ui.newResource.NewResourceAction"
             commandId="gov.noaa.nws.ncep.viz.ui.newResource">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.resourceManager.ui.saveBundle.SaveBundleAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.saveBundle">
       </handler>
    </extension>
 

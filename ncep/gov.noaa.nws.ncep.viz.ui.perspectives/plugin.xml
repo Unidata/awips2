@@ -57,60 +57,51 @@
                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
                 </reference>
              </visibleWhen>
-             <menu label="New">
-                <command
-                     commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                     id="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                     label="RBD..."
-                     style="push"
-                     tooltip="Resource Manager">
-                  <visibleWhen>
-                     <reference
-                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                     </reference>
-                  </visibleWhen>
-                  <parameter
-                        name="mode"
-                        value="CREATE_RBD">
-                  </parameter>
-               </command>                   
-                <command
-                      commandId="gov.noaa.nws.ncep.viz.ui.newResource"
-                      label="Resource..."
-                      mnemonic="R"
-                      style="push">
-                </command>
-                <command
-                      commandId="gov.noaa.nws.ncep.viz.ui.newMapEditor"
-                      label="Display..."
-                      mnemonic="N"
-                      style="push">
-                 <parameter
-                       name="promptForName"
-                       value="true">
-                 </parameter>
-                      
-                </command>
-             </menu>
+             <command
+                   commandId="org.eclipse.ui.window.newEditor"
+                   label="New Map Window"
+                   mnemonic="N"
+                   style="push">
+             </command>
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.newResource"
+                   label="New Data Layer"
+                   mnemonic="R"
+                   style="push">
+             </command>
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                   id="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                   label="New Data Bundle"
+                   style="push"
+                   tooltip="Resource Manager">
+                <visibleWhen>
+                   <reference
+                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                   </reference>
+                </visibleWhen>
+                <parameter
+                      name="mode"
+                      value="CREATE_RBD">
+                </parameter>
+             </command>
          
              <separator
                    name="beforeSaveGroup"
                    visible="true">
              </separator>
-             <menu label="Save">
-             
-	             <command  commandId="com.raytheon.viz.ui.actions.saveScreen"
-	                   label="Screen..."
-	                   style="push"
-	                   mnemonic="S">
-	             </command>
-	             <command
-	                   commandId="gov.noaa.nws.ncep.viz.ui.actions.saveArea"
-	                   label="Area..."
-	                   style="push"
-	                   mnemonic="A">
-	             </command>
-	         </menu>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.saveScreen"
+                   label="Save Screen"
+                   mnemonic="S"
+                   style="push">
+             </command>
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.saveArea"
+                   label="Save Area"
+                   mnemonic="A"
+                   style="push">
+             </command>
              <!-- <separator
                    name="beforePreferences"
                    visible="true">
@@ -134,6 +125,16 @@
              <command
                    commandId="com.raytheon.viz.ui.actions.printScreenReverseAction"
                    label="Print Reverse Image..."
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.saveBundle"
+                   label="Save Display"
+                   style="push">
+             </command>
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.saveBundle"
+                   label="Save Bundle"
                    style="push">
              </command>
              <!-- <separator
