@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.monitor.scan.config;
+package com.raytheon.uf.viz.monitor.scan.config;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
+import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanThresholdColor;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAbstractXML;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
@@ -43,6 +43,7 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANConfigTvsXML;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.SortDirection;
 
 /**
  * Abstract class used for common configuration data for the CELL, DMD, MESO,
