@@ -109,13 +109,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.edex.ingest.util"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.edex.plugin.airmet"
          download-size="0"
          install-size="0"
@@ -292,13 +285,6 @@
 
    <plugin
          id="gov.noaa.nws.ncep.edex.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.ingest.grib.util"
          download-size="0"
          install-size="0"
          version="0.0.0"
