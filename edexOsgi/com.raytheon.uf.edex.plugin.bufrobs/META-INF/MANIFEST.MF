@@ -24,3 +24,4 @@ Require-Bundle: com.raytheon.uf.common.nc.bufr,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.decodertools
+Import-Package: com.raytheon.uf.common.wmo

@@ -35,9 +35,10 @@ import com.raytheon.edex.transform.shef.obs.SHEF_Metar_Codes;
 import com.raytheon.edex.transform.shef.obs.SHEF_Obs_Codes;
 import com.raytheon.edex.transform.shef.obs.Utilities;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Transforms a decoded METAR observation into a series of SHEF encoded data
@@ -53,6 +54,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20120918           1185 jkorman     Added save to archive capability. 
  * Jan 30, 2010       15779  lbousaidi   added 4 letter to station id for ACR
  * Aug 08, 2013      16408 wkwock      Use different metar.cfg file and options
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -125,9 +127,9 @@ public class MetarToShefTransformer extends
         // Transformed METAR PluginDataObject to SHEF
         byte[] result = null;
 
-        Calendar nowCalendar = TimeTools.getSystemCalendar();
+        Calendar nowCalendar = TimeUtil.newGmtCalendar();
 
-        Calendar metarTime = TimeTools.getSystemCalendar((String) headers
+        Calendar metarTime = WMOTimeParser.getSystemCalendar((String) headers
                 .get(DecoderTools.INGEST_FILE_NAME));
 
         logger.debug("report object type = " + report.getClass().getName());
@@ -225,7 +227,7 @@ public class MetarToShefTransformer extends
         try {
             MetarRecord report = wxReport;
 
-            Calendar c = TimeTools.getSystemCalendar((String) headers
+            Calendar c = WMOTimeParser.getSystemCalendar((String) headers
                     .get(DecoderTools.INGEST_FILE_NAME));
 
             StringBuilder lineHdr = new StringBuilder();

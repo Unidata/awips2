@@ -1,12 +1,13 @@
 /**
  * 
- * SgwhvParser
+ * Parser for significant wave height data
  * 
  * SOFTWARE HISTORSgwhvParserY
  * 
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	--------	-----------
  * 08/23/11					Chin J Chen	Initial coding from BufrSgwhvParser
+ * May 14, 2014 2536        bclement    removed TimeTools usage
  * </pre>
  * 
  * @author Chin J. Chen
@@ -15,16 +16,17 @@
 
 package gov.noaa.nws.ncep.edex.plugin.sgwhv.util;
 
+import gov.noaa.nws.ncep.common.dataplugin.sgwhv.SgwhvRecord;
+import gov.noaa.nws.ncep.edex.plugin.sgwhv.decoder.SgwhvSeparator;
+
 import java.util.Calendar;
 import java.util.List;
-import gov.noaa.nws.ncep.edex.plugin.sgwhv.decoder.SgwhvSeparator;
-import gov.noaa.nws.ncep.common.dataplugin.sgwhv.SgwhvRecord;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 public class SgwhvParser {
 
@@ -135,12 +137,12 @@ public class SgwhvParser {
 				 * Create time stamp.
 				 */
 				if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)) {
-					Calendar baseTime = TimeTools.getBaseCalendar(year, month,
+                    Calendar baseTime = TimeUtil.newGmtCalendar(year, month,
 							day);
 					baseTime.set(Calendar.HOUR_OF_DAY, hour);
 					baseTime.set(Calendar.MINUTE, min);
 					baseTime.set(Calendar.SECOND, sec) ;
-					Calendar obstime = TimeTools.copy(baseTime);
+                    Calendar obstime = (Calendar) baseTime.clone();
 					sgwhvRec.setObsTime(obstime);
 					DataTime dt = new DataTime(obstime);
 					sgwhvRec.setDataTime(dt);

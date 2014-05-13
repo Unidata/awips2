@@ -26,10 +26,10 @@ import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
+import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.edex.services.textdbsrv.ICommandExecutor;
 import com.raytheon.uf.edex.services.textdbsrv.TextDBSrvCommandTags;
 import com.raytheon.uf.edex.services.textdbsrv.VersionsTableTags;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 
 /**
  * 

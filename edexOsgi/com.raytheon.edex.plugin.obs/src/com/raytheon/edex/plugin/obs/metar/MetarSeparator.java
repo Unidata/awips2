@@ -39,7 +39,7 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.uf.common.util.StringUtil;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * 
@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 14Nov2006	71			Rockwood	Implemented filter for NIL observations	
  * 20080418           1093  jkorman     Added filter for Alaskan &quot;Airways&quot;
  *                                      observations.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed unused HEADERREGEX
  * </pre>
  * 
  * @author bphillip
@@ -78,9 +79,6 @@ public class MetarSeparator extends AbstractRecordSeparator {
 
     /** Regex used for determining metar type */
     private static final String METARTYPE = "METAR|SPECI";
-
-    /** Regex used for extracting the header */
-    private static final String HEADERREGEX = "[A-Z]{4}[0-9]{1,2} [A-Z]{4} [0-9]{6}";
 
     private static final String AIRWAYS = "[A-Z][A-Z,0-9]{3} (SP|SA) \\d{4} AWOS";
 

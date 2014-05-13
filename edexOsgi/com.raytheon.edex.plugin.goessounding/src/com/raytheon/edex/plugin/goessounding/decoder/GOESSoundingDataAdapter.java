@@ -43,12 +43,12 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * This class contains several utility methods that construct a GOESSounding
@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Apr 14, 2008 1077       jkorman     Initial implementation.
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -213,14 +214,14 @@ public class GOESSoundingDataAdapter {
 //                seconds = (dp.getValue() != null) ? ((Double) dp.getValue())
 //                        .intValue() : null;
 
-                Calendar baseTime = TimeTools.getBaseCalendar(year, 1, 1);
+                Calendar baseTime = TimeUtil.newGmtCalendar(year, 1, 1);
                 baseTime.set(Calendar.DAY_OF_YEAR, day);
                 baseTime.set(Calendar.HOUR_OF_DAY, hour);
                 baseTime.set(Calendar.MINUTE, minute);
                 baseTime.set(Calendar.SECOND, seconds);
                 baseTime.set(Calendar.MILLISECOND, 0);
-                obsData.setTimeObs(TimeTools.copy(baseTime));
-                DataTime dt = new DataTime(TimeTools.copy(baseTime));
+                obsData.setTimeObs((Calendar) baseTime.clone());
+                DataTime dt = new DataTime((Calendar) baseTime.clone());
                 obsData.setDataTime(dt);
             }
         }

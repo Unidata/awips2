@@ -15,4 +15,5 @@ Require-Bundle: com.raytheon.edex.common,
  javax.persistence,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.apache.commons.logging
+Import-Package: com.raytheon.uf.common.wmo,
+ org.apache.commons.logging
