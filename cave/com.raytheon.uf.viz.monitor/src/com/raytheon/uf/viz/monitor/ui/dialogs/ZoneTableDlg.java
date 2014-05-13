@@ -46,15 +46,15 @@ import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.GraphType;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.monitor.IMonitor;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.GraphType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.data.ObHourReports;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.data.ObStnHourReports;
@@ -85,6 +85,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 07, 2010 5105      zhao         Disabled the 'X' button of the shell
  * Oct 26, 2012 1280      skorolev     Changes for non-blocking dialog. 
  * Nov.11, 2012 1297      skorolev     new abstract initiateProdArray()
+ * May 13, 2014 3133      njensen      Updated getting ObsHistType from configMgr
  * 
  * </pre>
  * 
@@ -604,6 +605,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * com.raytheon.uf.viz.monitor.ui.dialogs.IStationTableAction#launchTrendPlot
      * (int, int)
      */
+    @Override
     public void launchTrendPlot(int rowIndex, int colIndex) {
         setRowIndex(rowIndex);
         setColIndex(colIndex);
@@ -695,6 +697,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * @see com.raytheon.uf.viz.monitor.ui.dialogs.IStationTableAction#
      * launchObHistoryTable(int)
      */
+    @Override
     public void launchObHistoryTable(int rowIndex) {
         String station = stnTblData.getTableRows().get(rowIndex)
                 .getTableCellData(0).getCellText();
@@ -711,7 +714,9 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         // Set dialog index
         String dialogID = appName.name() + station;
         MonitorConfigurationManager configMgr = getConfigMgr();
-        ObsHistType histType = configMgr.getStationType(selectedZone, station);
+        String strHistType = configMgr.getStationType(selectedZone, station);
+        ObsHistType histType = ObsHistType.valueOf(strHistType);
+
         /**
          * For Snow monitor, no history table is displayed for a Maritime
          * station
@@ -779,6 +784,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      * com.raytheon.uf.viz.monitor.ui.dialogs.IStationTableAction#zoomToStation
      * (int)
      */
+    @Override
     public void zoomToStation(int rowIndex) {
         String selectedStation = stnTblData.getTableRows().get(rowIndex)
                 .getTableCellData(0).getCellText();
@@ -808,7 +814,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
             } else {
                 mapWidth = 10000;
             }
-            float zoomLevel = (float) zoom / mapWidth;
+            float zoomLevel = zoom / mapWidth;
             for (IDisplayPane pane : container.getDisplayPanes()) {
                 pane.getRenderableDisplay().getExtent().reset();
                 pane.getRenderableDisplay().recenter(center);
@@ -905,7 +911,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
      */
     private String getTrendPlotName(List<String> prod) {
         String varName = null;
-        String name = (String) prod.get(0);
+        String name = prod.get(0);
         int stInd = name.indexOf("_");
         if (prod.size() > 1) {
             varName = name.substring(0, stInd);
