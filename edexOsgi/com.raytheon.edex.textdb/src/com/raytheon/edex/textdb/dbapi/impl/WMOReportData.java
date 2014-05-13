@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.textdb.dbapi.impl;
 
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * TODO Add Description

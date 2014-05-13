@@ -10,8 +10,7 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * NcScdDecoder
@@ -31,6 +30,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 06/2011      41      F. J. Yen Renamed SCD and converted to HDF5
  * 09/2011      457     S. Gurung Renamed H5 to Nc and h5 to nc
  * Aug 30, 2013 2298   rjpeter    Make getPluginName abstract
+ * May 14, 2014 2536   bclement   moved WMO Header to common, removed pluginName
  * </pre>
  * 
  * @author T.Lee
@@ -38,7 +38,6 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  */
 public class NcScdDecoder extends AbstractDecoder {
-    private static String pluginName;
 
     private NcScdRecord record;
 
@@ -47,8 +46,15 @@ public class NcScdDecoder extends AbstractDecoder {
      * 
      * @throws DecoderException
      */
+    @Deprecated
     public NcScdDecoder(String name) throws DecoderException {
-        pluginName = name;
+    }
+
+    /**
+     * 
+     */
+    public NcScdDecoder() {
+
     }
 
     public PluginDataObject[] decode(byte[] data, Headers headers)
@@ -92,15 +98,10 @@ public class NcScdDecoder extends AbstractDecoder {
          * Return the NcScdRecord record object.
          */
         if (record != null) {
-            try {
-                if (headers != null) {
-                    traceId = (String) headers.get("traceId");
-                }
-                record.setTraceId(traceId);
-                record.constructDataURI();
-            } catch (PluginException e) {
-                throw new DecoderException("Unable to construct dataURI", e);
+            if (headers != null) {
+                traceId = (String) headers.get("traceId");
             }
+            record.setTraceId(traceId);
         }
 
         /*

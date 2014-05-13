@@ -12,6 +12,7 @@
  * 06/2009		128			T. Lee		Creation
  * 07/2009		128			T. Lee		Migrated to TO11
  * 06/2010		128			T. Lee		Migrated to TO11DR11
+ * May 14, 2014 2536        bclement    moved WMO Header to common
  * </pre>
  * 
  * @author T.Lee
@@ -20,19 +21,22 @@
 
 package gov.noaa.nws.ncep.edex.plugin.tcm.util;
 
-import gov.noaa.nws.ncep.common.dataplugin.tcm.TcmRecord;
 import gov.noaa.nws.ncep.common.dataplugin.tcm.TcmPositionWinds;
+import gov.noaa.nws.ncep.common.dataplugin.tcm.TcmRecord;
+import gov.noaa.nws.ncep.edex.util.UtilN;
+
 import java.util.Calendar;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
-import com.raytheon.uf.common.time.DataTime;
 
-import gov.noaa.nws.ncep.edex.util.UtilN;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
+
 
 public class TcmParser {
 	private static Scanner sc = null;

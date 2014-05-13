@@ -42,10 +42,10 @@ import com.raytheon.uf.common.dataplugin.text.db.TextProductInfo;
 import com.raytheon.uf.common.dataplugin.text.db.WatchWarn;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Text Database.
@@ -72,6 +72,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 18 Apr 2012         479 jkorman     Modified to pad xxxid to 3 characters in queries.
  * 23 May 2012       14952 rferrel     Allow queries with refTime.
  * Feb 18, 2014       2652  skorolev    Corrected writeProduct for WMO header if archive is allowed. Deleted unused code.
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -881,7 +882,7 @@ public class TextDB {
         product.append(reportData);
 
         Long writeTime = new Long(System.currentTimeMillis());
-        if (TimeTools.allowArchive() && header.getHeaderDate() != null) {
+        if (WMOTimeParser.allowArchive() && header.getHeaderDate() != null) {
             Calendar c = header.getHeaderDate();
             writeTime = new Long(c.getTimeInMillis());
         }
@@ -956,7 +957,8 @@ public class TextDB {
      */
     public long writeProduct(AFOSProductId prodId, String reportData,
             boolean operationalMode, Headers headers) {
-        WMOHeader header = new WMOHeader(reportData.getBytes(), headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader header = new WMOHeader(reportData.getBytes(), fileName);
 
         long retValue = -1;
 
@@ -992,7 +994,8 @@ public class TextDB {
         if (pieces.length > 1) {
             pieces[0] += "\n"; // WMOHeader expects this
         }
-        WMOHeader header = new WMOHeader(pieces[0].getBytes(), headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader header = new WMOHeader(pieces[0].getBytes(), fileName);
 
         // Need to construct an AFOSProductId from the productId
         if (productId.length() <= 6) {

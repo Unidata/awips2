@@ -77,3 +77,4 @@ Export-Package: com.raytheon.uf.edex.datadelivery.retrieval;
    com.raytheon.uf.common.dataplugin.level,
    com.raytheon.uf.common.datadelivery.registry",
  com.raytheon.uf.edex.datadelivery.retrieval.wfs
+Import-Package: com.raytheon.uf.common.wmo

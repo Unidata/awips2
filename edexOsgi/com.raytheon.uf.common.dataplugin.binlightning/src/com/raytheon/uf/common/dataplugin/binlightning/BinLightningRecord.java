@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.dataplugin.binlightning;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -46,7 +47,7 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Record implementation for Binary Lightning plugin.
@@ -80,6 +81,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *  Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  *  Oct 22, 2013 2361       njensen     Removed XML annotations
  *  Jan 21, 2014 2667       bclement    renamed record's lightSource field to source
+ *  May 14, 2014 2536       bclement    removed TimeTools usage
  * 
  * </pre>
  * 
@@ -217,9 +219,9 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
         if ((startTimeMillis != Long.MAX_VALUE)
                 && (stopTimeMillis != Long.MIN_VALUE)) {
             persistTime = (startTimeMillis + stopTimeMillis) / 2;
-            setPersistenceTime(TimeTools.newCalendar(persistTime).getTime());
+            setPersistenceTime(new Date(persistTime));
         } else {
-            setPersistenceTime(TimeTools.getSystemCalendar().getTime());
+            setPersistenceTime(TimeUtil.newGmtCalendar().getTime());
             persistTime = getInsertTime().getTimeInMillis();
         }
     }
@@ -252,7 +254,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
         if (insertIndex < obsTimes.length) {
             long t1 = startTimeMillis;
 
-            Calendar c = TimeTools.getBaseCalendar(strike.getYear(),
+            Calendar c = TimeUtil.newGmtCalendar(strike.getYear(),
                     strike.getMonth(), strike.getDay());
 
             c.set(Calendar.HOUR_OF_DAY, strike.getHour());
@@ -277,10 +279,10 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
             insertIndex++;
             // only update the times if they have changed!
             if (t1 != startTimeMillis) {
-                startTime = TimeTools.newCalendar(startTimeMillis);
+                startTime = TimeUtil.newGmtCalendar(new Date(startTimeMillis));
             }
             if (t1 != stopTimeMillis) {
-                stopTime = TimeTools.newCalendar(stopTimeMillis);
+                stopTime = TimeUtil.newGmtCalendar(new Date(stopTimeMillis));
             }
 
             // updatePersistenceTime();

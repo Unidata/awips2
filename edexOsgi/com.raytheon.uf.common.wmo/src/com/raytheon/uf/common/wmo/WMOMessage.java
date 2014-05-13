@@ -17,11 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.wmo.message;
+package com.raytheon.uf.common.wmo;
 
 import java.io.Serializable;
-
-import com.raytheon.edex.esb.Headers;
 
 /**
  * TODO Add Description
@@ -34,6 +32,7 @@ import com.raytheon.edex.esb.Headers;
  * ------------ ---------- ----------- --------------------------
  * Jan 14, 2009            jkorman     Initial creation
  * Nov 08, 2013 2506       bgonzale    Setting messageBody is done only through setter method.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, added init()
  * 
  * </pre>
  * 
@@ -66,8 +65,8 @@ public class WMOMessage implements Serializable {
      * 
      * @param wmoMessage
      */
-    public WMOMessage(String wmoMessage, Headers headers) {
-        this(wmoMessage.getBytes(), headers);
+    public WMOMessage(String wmoMessage, String fileName) {
+        this(wmoMessage.getBytes(), fileName);
     }
 
     /**
@@ -75,18 +74,35 @@ public class WMOMessage implements Serializable {
      * 
      * @param wmoMessage
      */
-    public WMOMessage(byte[] wmoMessage, Headers headers) {
+    public WMOMessage(byte[] wmoMessage, String fileName) {
         if (wmoMessage != null) {
-            WMOHeader header = new WMOHeader(wmoMessage, headers);
-            if (header.isValid()) {
-                wmoHeader = header;
+            WMOHeader header = new WMOHeader(wmoMessage, fileName);
+            init(header, wmoMessage);
+        }
+    }
 
-                int bodyLen = wmoMessage.length - header.getMessageDataStart();
-                byte[] messageBodyData = new byte[bodyLen];
-                System.arraycopy(wmoMessage, header.getMessageDataStart(),
-                        messageBodyData, 0, bodyLen);
-                setMessageBody(messageBodyData);
-            }
+    /**
+     * @param wmoMessage
+     */
+    public WMOMessage(byte[] wmoMessage) {
+        if (wmoMessage != null) {
+            WMOHeader header = new WMOHeader(wmoMessage);
+            init(header, wmoMessage);
+        }
+    }
+
+    /**
+     * @param header
+     * @param wmoMessage
+     */
+    private void init(WMOHeader header, byte[] wmoMessage) {
+        if (header.isValid()) {
+            wmoHeader = header;
+            int bodyLen = wmoMessage.length - header.getMessageDataStart();
+            byte[] messageBodyData = new byte[bodyLen];
+            System.arraycopy(wmoMessage, header.getMessageDataStart(),
+                    messageBodyData, 0, bodyLen);
+            setMessageBody(messageBodyData);
         }
     }
 

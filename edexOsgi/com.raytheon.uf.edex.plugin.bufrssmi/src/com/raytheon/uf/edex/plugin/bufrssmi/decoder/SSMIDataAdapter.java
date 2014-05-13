@@ -32,14 +32,14 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs
@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                    types.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Oct 21, 2013  2379     bsteffen    Fix a null pointer exception.
+ * May 14, 2014 2536      bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -207,7 +208,7 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
         if (obsTime != null) {
             obsData = new SSMIScanData();
             obsData.setTimeObs(obsTime);
-            obsData.setDataTime(new DataTime(TimeTools.copy(obsTime)));
+            obsData.setDataTime(new DataTime((Calendar) obsTime.clone()));
 
             int satId = getInt(dataList.get(SAT_ID_POS),
                     IDecoderConstants.VAL_MISSING);
@@ -261,7 +262,7 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
         // date-time and datatime info.
         if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)
                 && (minute >= 0) && (second >= 0)) {
-            baseTime = TimeTools.getBaseCalendar(year, month, day);
+            baseTime = TimeUtil.newGmtCalendar(year, month, day);
             baseTime.set(Calendar.HOUR_OF_DAY, hour);
             baseTime.set(Calendar.MINUTE, minute);
             baseTime.set(Calendar.SECOND, second);
