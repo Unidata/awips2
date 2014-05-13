@@ -37,11 +37,13 @@ import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -79,6 +81,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * Nov 11, 2008 1684        chammack    Camel refactor.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Sep 17, 2013 2378        njensen     Improve 3/6 hr precip decoding
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author bphillip
@@ -216,11 +219,14 @@ public class MetarDecoder extends AbstractDecoder {
 
         List<PluginDataObject> retVal = new ArrayList<PluginDataObject>();
 
-        Calendar baseTime = TimeTools.getSystemCalendar();
+        Calendar baseTime = TimeUtil.newGmtCalendar();
         WMOHeader wmoHdr = sep.getWMOHeader();
-        if (TimeTools.allowArchive()) {
+        if (WMOTimeParser.allowArchive()) {
             if ((wmoHdr != null) && (wmoHdr.isValid())) {
-                baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                baseTime = WMOTimeParser.findDataTime(wmoHdr.getYYGGgg(),
+                        fileName);
             } else {
                 logger.error("ARCHIVE MODE-No WMO Header found in file"
                         + headers.get(WMOHeader.INGEST_FILE_NAME));
@@ -299,7 +305,7 @@ public class MetarDecoder extends AbstractDecoder {
                     Integer hr = DecoderTools.getInt(timeGroup, 2, 4);
                     Integer mi = DecoderTools.getInt(timeGroup, 4, 6);
                     if ((da != null) && (hr != null) && (mi != null)) {
-                        obsTime = TimeTools.copy(baseTime);
+                        obsTime = (Calendar) baseTime.clone();
                         obsTime.set(Calendar.DAY_OF_MONTH, da);
                         obsTime.set(Calendar.HOUR_OF_DAY, hr);
                         obsTime.set(Calendar.MINUTE, mi);
@@ -326,7 +332,7 @@ public class MetarDecoder extends AbstractDecoder {
                 // into the future
                 Calendar obsTime = record.getTimeObs();
                 if (obsTime != null) {
-                    Calendar currTime = TimeTools.copy(baseTime);
+                    Calendar currTime = (Calendar) baseTime.clone();
 
                     // Do this only for archive mode!!! Otherwise valid data
                     // will not pass if the WMO header
@@ -335,7 +341,7 @@ public class MetarDecoder extends AbstractDecoder {
                     // Observed time = dd1235
                     // To solve this will require greater precision in the file
                     // timestamp.
-                    if (TimeTools.allowArchive()) {
+                    if (WMOTimeParser.allowArchive()) {
                         currTime.add(Calendar.HOUR, 1);
                     }
                     currTime.add(Calendar.MINUTE, METAR_FUTURE_LIMIT);
@@ -712,7 +718,7 @@ public class MetarDecoder extends AbstractDecoder {
                         hh = pkHHmm / 100;
                     }
                     Calendar obsT = record.getTimeObs();
-                    Calendar pkTim = TimeTools.copy(obsT);
+                    Calendar pkTim = (Calendar) obsT.clone();
 
                     int obsMin = obsT.get(Calendar.MINUTE);
                     int obsHr = obsT.get(Calendar.HOUR_OF_DAY);
@@ -923,8 +929,6 @@ public class MetarDecoder extends AbstractDecoder {
                     record.setSunshine(value);
                 }
 
-                record.constructDataURI();
-
                 record.setWmoHeader(sep.getWMOHeader().getWmoHeader());
 
                 retVal.add(record);
@@ -1055,7 +1059,7 @@ public class MetarDecoder extends AbstractDecoder {
         }
         String indent = "     ";
         ArrayList<String> parts = new ArrayList<String>();
-        int rmkPos = sb.indexOf("RMK");
+        // int rmkPos = sb.indexOf("RMK");
 
         parts.add(sb.toString());
         // if(rmkPos > 0) {

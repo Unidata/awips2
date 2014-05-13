@@ -23,9 +23,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 
 
@@ -67,10 +65,9 @@ public class TAFChangeGroupFactoryTest {
                 + " TEMPO 1310/1312 5000 BCFG SCT015 TX31/1218Z TN23/1311Z=";
 
         TAFChangeGroupFactory factory = new TAFChangeGroupFactory();
-        final Headers headers = new Headers();
-        headers.put(DecoderTools.INGEST_FILE_NAME, "/tmp/sbn/manual/nctext/20131112/11/FTXX99_KWBC_121100_20738883.2013111211");
+        final String fileName = "/tmp/sbn/manual/nctext/20131112/11/FTXX99_KWBC_121100_20738883.2013111211";
         String result = factory.checkForLegacyFormat(new WMOHeader(
-                "FTXX99 KWBC 121100".getBytes(), headers), input);
+                "FTXX99 KWBC 121100".getBytes(), fileName), input);
         Assert.assertEquals(expected, result);
     }
 

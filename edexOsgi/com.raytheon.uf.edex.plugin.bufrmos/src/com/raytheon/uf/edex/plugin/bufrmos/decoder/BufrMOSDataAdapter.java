@@ -25,6 +25,7 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosAvnData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosData;
+import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosData.MOSType;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosDataLocation;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosEtaData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosGfsData;
@@ -32,10 +33,10 @@ import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosHpcData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosLampData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosMrfData;
 import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosNgmData;
-import com.raytheon.uf.common.dataplugin.bufrmos.common.BufrMosData.MOSType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
@@ -43,7 +44,6 @@ import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRFloatPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRNumericPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.bufrmos.BufrMosSeparator;
 import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
 
@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.plugin.bufrmos.MOSPointDataState;
  *                                     work without dataURI.
  * Jul 26, 2013 1051       bsteffen    Discard bufrmos data with invalid
  *                                     location.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -196,13 +197,13 @@ public class BufrMOSDataAdapter {
                 // date-time and datatime info.
                 if (location.isValid() && (year > 0) && (month > 0)
                         && (day > 0) && (hour >= 0) && (fcstHour >= 0)) {
-                    baseTime = TimeTools.getBaseCalendar(year, month, day);
+                    baseTime = TimeUtil.newGmtCalendar(year, month, day);
                     baseTime.set(Calendar.HOUR_OF_DAY, hour);
 
                     // fcstData.setTimeObs(TimeTools.copy(baseTime));
                     // fcstData.setFcstHour(fcstHour);
 
-                    DataTime dt = new DataTime(TimeTools.copy(baseTime),
+                    DataTime dt = new DataTime((Calendar) baseTime.clone(),
                             fcstHour * 3600);
                     fcstData.setDataTime(dt);
                     haveRequiredData = (staId != null);
