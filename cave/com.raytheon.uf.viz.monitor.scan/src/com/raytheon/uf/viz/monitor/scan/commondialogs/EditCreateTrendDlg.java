@@ -37,9 +37,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.config.TrendSetConfigMgr;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**

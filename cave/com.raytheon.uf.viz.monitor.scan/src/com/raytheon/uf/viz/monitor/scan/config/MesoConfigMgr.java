@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.monitor.scan.config;
+package com.raytheon.uf.viz.monitor.scan.config;
 
 import java.io.File;
 import java.util.ArrayList;
