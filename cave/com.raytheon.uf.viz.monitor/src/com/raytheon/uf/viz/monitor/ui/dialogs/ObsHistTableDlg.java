@@ -39,7 +39,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.data.TableData;
 import com.raytheon.uf.viz.monitor.xml.HistConfigXML;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
