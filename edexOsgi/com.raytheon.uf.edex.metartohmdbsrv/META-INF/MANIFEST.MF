@@ -12,4 +12,5 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.1",
  javax.measure
 Import-Package: com.raytheon.edex.plugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar,
+ com.raytheon.uf.common.wmo,
  org.apache.commons.logging

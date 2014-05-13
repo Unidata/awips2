@@ -37,11 +37,11 @@ import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Adapter used to decode ACARS data in BUFR format.
@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 18, 2013 2339       njensen     Index safety check in getTailNumber()
  * Mar 27, 2014 2811       skorolev    Added check for empty message.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -81,16 +82,20 @@ public class ACARSDataAdapter {
     private static final int[] DETAIL_PHASE_MAP = { 3, 4, 2, 3, 4, 5, 6, 5, 5,
             5, 5, 6, 6, 6, 6, 7, };
 
-    private final String pluginName;
-
     private String traceId = null;
 
     /**
      * 
      * @param name
      */
+    @Deprecated
     public ACARSDataAdapter(String name) {
-        pluginName = name;
+    }
+
+    /**
+     * 
+     */
+    public ACARSDataAdapter() {
     }
 
     /**
@@ -108,7 +113,8 @@ public class ACARSDataAdapter {
 
         Set<String> dataSet = new HashSet<String>();
 
-        WMOHeader wmoHeader = new WMOHeader(rawData, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader wmoHeader = new WMOHeader(rawData, fileName);
         if (wmoHeader.isValid()) {
 
             records = new ArrayList<ACARSRecord>();
@@ -120,8 +126,6 @@ public class ACARSDataAdapter {
                 if (record != null) {
                     record.setWmoHeader(parser.getWmoHeader().getWmoHeader());
                     try {
-                        record.constructDataURI();
-
                         String uri = record.getDataURI();
                         if (dataSet.add(uri)) {
                             records.add(record);
@@ -181,7 +185,7 @@ public class ACARSDataAdapter {
 
                                     rpt.setTimeObs(timeObs);
                                     DataTime t = new DataTime(
-                                            TimeTools.copy(timeObs));
+                                            (Calendar) timeObs.clone());
                                     rpt.setDataTime(t);
 
                                     getFlightPhase(subList, rpt, 9);
@@ -218,7 +222,7 @@ public class ACARSDataAdapter {
 
                                     rpt.setTimeObs(timeObs);
                                     DataTime t = new DataTime(
-                                            TimeTools.copy(timeObs));
+                                            (Calendar) timeObs.clone());
                                     rpt.setDataTime(t);
 
                                     getFlightPhase(subList, rpt, 18);
@@ -264,7 +268,7 @@ public class ACARSDataAdapter {
 
                                     rpt.setTimeObs(timeObs);
                                     DataTime t = new DataTime(
-                                            TimeTools.copy(timeObs));
+                                            (Calendar) timeObs.clone());
                                     rpt.setDataTime(t);
 
                                     getFlightPhase(subList, rpt, 9);
@@ -309,7 +313,7 @@ public class ACARSDataAdapter {
 
                                     rpt.setTimeObs(timeObs);
                                     DataTime t = new DataTime(
-                                            TimeTools.copy(timeObs));
+                                            (Calendar) timeObs.clone());
                                     rpt.setDataTime(t);
 
                                     getFlightPhaseD(subList, rpt, 11);
@@ -397,7 +401,7 @@ public class ACARSDataAdapter {
             }
         }
         if ((year >= 0) && (month >= 0) && (day >= 0)) {
-            cal = TimeTools.getBaseCalendar(year, month, day);
+            cal = TimeUtil.newGmtCalendar(year, month, day);
         }
 
         packet = packets.get(yearPos + HOUR_OFFSET); // Hour

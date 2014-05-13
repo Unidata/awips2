@@ -21,4 +21,5 @@ Export-Package: com.raytheon.edex.textdb.alarms,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.message,
  com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.wmo,
  org.apache.commons.logging

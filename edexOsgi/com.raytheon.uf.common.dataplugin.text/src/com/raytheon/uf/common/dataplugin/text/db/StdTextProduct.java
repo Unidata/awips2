@@ -40,11 +40,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * 
@@ -59,6 +58,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 17May2010    2187       cjeanbap    Change class to be Abstract
  * 27 May 2012  #647       dgilling    Implement getIdentifier/setIdentifier.
  * Nov 05, 2013 2499       rjpeter     Fix generics.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed ISerializableObject
  * </pre>
  * 
  * @author jkorman
@@ -69,7 +69,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class StdTextProduct extends
-        PersistableDataObject<StdTextProductId> implements ISerializableObject {
+        PersistableDataObject<StdTextProductId> {
 
     private static final long serialVersionUID = 1L;
 

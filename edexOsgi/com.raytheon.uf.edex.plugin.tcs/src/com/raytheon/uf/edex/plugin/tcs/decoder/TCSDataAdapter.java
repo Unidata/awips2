@@ -28,15 +28,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
 import com.raytheon.uf.common.dataplugin.tcs.util.TCSConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * TODO Add Description
@@ -51,6 +50,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Apr 19, 2012  #457      dgilling     Create headers field so 
  *                                      subclasses can use TimeTools
  *                                      for time calculations.
+ * May 14, 2014 2536       bclement     moved WMO Header to common, removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -93,7 +93,8 @@ public abstract class TCSDataAdapter implements TCSConstants {
         currentReport = -1;
         this.traceId = traceId;
         this.headers = headers;
-        wmoHeader = new WMOHeader(message, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        wmoHeader = new WMOHeader(message, fileName);
         if (wmoHeader != null) {
             reports = findReports(message);
         } else {
@@ -211,16 +212,10 @@ public abstract class TCSDataAdapter implements TCSConstants {
             report = reports.get(currentReport++);
             logger.debug("Getting report " + report);
 
-            try {
-                report.constructDataURI();
-                if (URI_MAP.containsKey(report.getDataURI())) {
-                    report = null;
-                } else {
-                    URI_MAP.put(report.getDataURI(), Boolean.TRUE);
-                }
-            } catch (PluginException e) {
-                logger.error(traceId + "- Unable to construct dataURI", e);
+            if (URI_MAP.containsKey(report.getDataURI())) {
                 report = null;
+            } else {
+                URI_MAP.put(report.getDataURI(), Boolean.TRUE);
             }
         }
         return report;

@@ -14,11 +14,10 @@ import java.util.Map;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder strategy for Aicraft Report (AIREP) observation data. Most common
@@ -44,14 +43,13 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                     fields for TB, IC and SK.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 05, 2013 2316       bsteffen    Unify airep and ncairep.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed PLUGIN_NAME
  * </pre>
  * 
  * @author F. J. Yen
  * @version 1.0
  */
 public class AirepDecoder extends AbstractDecoder {
-    // Name of the plugin controlling this decoder.
-    private final String PLUGIN_NAME;
 
     public static class AirepDecoderInput {
         public WMOHeader wmoHeader;
@@ -64,8 +62,15 @@ public class AirepDecoder extends AbstractDecoder {
      *            Name that identifies this decoder.
      * @throws DecoderException
      */
+    @Deprecated
     public AirepDecoder(String pluginName) throws DecoderException {
-        PLUGIN_NAME = pluginName;
+    }
+
+    /**
+     * 
+     */
+    public AirepDecoder() {
+
     }
 
     /**
@@ -95,12 +100,6 @@ public class AirepDecoder extends AbstractDecoder {
 
             if (report != null) {
                 report.setTraceId(traceId);
-
-                try {
-                    report.constructDataURI();
-                } catch (PluginException e) {
-                    throw new DecoderException("Error constructing dataURI", e);
-                }
 
                 reports = new PluginDataObject[] { report };
             }
