@@ -32,13 +32,13 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs
@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
  *                                     bufrua.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools
  * 
  * </pre>
  * 
@@ -61,9 +62,6 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * @version 1.0
  */
 public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> {
-
-    // Allowable future time in milliseconds (2 hours).
-    private static final long ALLOWABLE_TIME = 2 * 3600 * 1000;
 
     private static final int[] HOUR_MAP = {
             // 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
@@ -130,7 +128,7 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
                     return null;
                 }
 
-                obsData.setDataTime(new DataTime(TimeTools.copy(validTime)));
+                obsData.setDataTime(new DataTime(validTime.getTime()));
 
                 // We have times now, so ok to get container.
                 PointDataContainer container = getContainer(obsData);
@@ -157,8 +155,8 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
     /**
      * Empty implementation of this method.
      * 
-     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createDataList(java.util.Iterator,
-     *      com.raytheon.uf.edex.wmo.message.WMOHeader)
+     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createDataList(Iterator,
+     *      WMOHeader)
      */
     @Override
     public List<UAObs> createDataList(Iterator<BUFRDataDocument> iterator,
@@ -245,7 +243,7 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
                     year += 1900;
                 }
             }
-            baseTime = TimeTools.getBaseCalendar(year, month, day);
+            baseTime = TimeUtil.newGmtCalendar(year, month, day);
             baseTime.set(Calendar.HOUR_OF_DAY, hour);
             baseTime.set(Calendar.MINUTE, minute);
             baseTime.set(Calendar.SECOND, 0);
