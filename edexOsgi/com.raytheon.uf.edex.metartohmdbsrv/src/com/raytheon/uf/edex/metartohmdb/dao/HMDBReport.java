@@ -26,31 +26,30 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
- * TODO Add Description
+ * Data record class for HMDB
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2009            jkorman     Initial creation
- *
+ * May 14, 2014 2536       bclement    removed TimeTools usage and ISerializableObject
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
-public class HMDBReport  extends PersistableDataObject implements
-        ISerializableObject {
+public class HMDBReport extends PersistableDataObject<String> {
 
     private static final long serialVersionUID = 1L;
     
@@ -504,15 +503,15 @@ public class HMDBReport  extends PersistableDataObject implements
     public static final void main(String [] args) {
         
         HMDBReport rpt = new HMDBReport();
-        rpt.setDate(TimeTools.getBaseCalendar(2009,06,30));
+        rpt.setDate(TimeUtil.newGmtCalendar(2009, 06, 30));
         rpt.date.set(Calendar.HOUR_OF_DAY, 14);
         rpt.date.set(Calendar.MINUTE, 56);
         
-        rpt.setOrigin(TimeTools.getBaseCalendar(2009,06,30));
+        rpt.setOrigin(TimeUtil.newGmtCalendar(2009, 06, 30));
         rpt.origin.set(Calendar.HOUR_OF_DAY, 14);
         rpt.date.set(Calendar.MINUTE, 54);
 
-        rpt.setNominal(TimeTools.getBaseCalendar(2009,06,30));
+        rpt.setNominal(TimeUtil.newGmtCalendar(2009, 06, 30));
         rpt.nominal.set(Calendar.HOUR_OF_DAY, 15);
         rpt.nominal.set(Calendar.MINUTE,0);
         rpt.nominal.set(Calendar.SECOND,0);

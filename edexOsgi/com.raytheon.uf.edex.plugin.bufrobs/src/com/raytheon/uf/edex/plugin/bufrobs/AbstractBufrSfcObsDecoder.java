@@ -69,10 +69,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.units.UnitLookupException;
 import com.raytheon.uf.common.units.UnitMapper;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryKey;
 import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryParser;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Abstract class for decoding BUFR formatted sfcobs. Contains general methods

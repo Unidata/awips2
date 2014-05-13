@@ -26,7 +26,7 @@ import com.raytheon.edex.plugin.taf.common.TafRecord;
 import com.raytheon.edex.plugin.taf.decoder.TAFParser;
 import com.raytheon.edex.plugin.taf.decoder.TAFParts;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * 
@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jun 21, 2007 180         bphillip    Updated to use new plugin pattern
  * Apr 25, 2008 1001        jkorman     Extracted decoder code into TAFParser.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed constrcutDataURI() call
  * </pre>
  * 
  * @author bphillip
@@ -88,7 +89,6 @@ public class TafDecoder extends AbstractDecoder {
             record = parser.getDecodedRecord();
             if (record != null) {
                 record.setTraceId(traceId);
-                record.constructDataURI();
             } else {
                 TAFParts parts = input.tafParts;
                 if (parts.getTafHeader() != null) {

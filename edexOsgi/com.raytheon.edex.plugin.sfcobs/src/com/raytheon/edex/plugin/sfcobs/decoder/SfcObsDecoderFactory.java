@@ -34,7 +34,7 @@ import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.LandSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.MAROBSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.MobileSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SHIPSynopticDecoder;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * This factory examines the incoming observation data to determine the proper

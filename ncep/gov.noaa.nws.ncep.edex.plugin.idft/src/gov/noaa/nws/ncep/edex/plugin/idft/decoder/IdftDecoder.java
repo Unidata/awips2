@@ -17,8 +17,8 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * 
@@ -27,7 +27,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Decoder Plug-In for IDFT (Ice Drift text files).
  * 
  * This code has been developed by the SIB for use in the AWIPS II system.
- *
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
