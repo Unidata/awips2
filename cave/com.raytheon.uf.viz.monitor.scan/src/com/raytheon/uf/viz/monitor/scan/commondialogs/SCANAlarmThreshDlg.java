@@ -37,10 +37,10 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.monitor.scan.config.AbsConfigMgr;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
+import com.raytheon.uf.viz.monitor.scan.config.AbsConfigMgr;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;

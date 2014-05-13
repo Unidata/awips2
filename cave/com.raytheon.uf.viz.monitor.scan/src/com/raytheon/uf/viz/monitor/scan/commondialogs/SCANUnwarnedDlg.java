@@ -33,9 +33,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
 import com.raytheon.uf.common.monitor.scan.config.UnwarnedConfig;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
