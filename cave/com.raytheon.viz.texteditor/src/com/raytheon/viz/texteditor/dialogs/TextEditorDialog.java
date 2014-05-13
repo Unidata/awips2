@@ -120,9 +120,9 @@ import com.raytheon.uf.common.dataplugin.text.db.StdTextProductId;
 import com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest;
 import com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest;
 import com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest;
-import com.raytheon.uf.common.dissemination.OUPTestRequest;
 import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
+import com.raytheon.uf.common.dissemination.OUPTestRequest;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -137,9 +137,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -336,6 +335,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 10Dec2013   2601         mpduff      Fix NullPointerException.
  * 28Jan2014   DR14595   mgamazaychikov Added template loading and editing functionality.
  * 14Mar2014   DR 17175     D. Friedman Get correct time zone for MND header time sync.
+ * 13May2014   2536         bclement    moved WMO Header to common, switched from TimeTools to TimeUtil
  * </pre>
  * 
  * @author lvenable
@@ -506,8 +506,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private static final SimpleDateFormat AUTOSAVE_DATE_FORMAT = new SimpleDateFormat(
             "yyMMdd_HHmm");
     static {
-        AUTOSAVE_DATE_FORMAT.setTimeZone(TimeZone
-                .getTimeZone(TimeTools.ZULU_TIMEZONE));
+        AUTOSAVE_DATE_FORMAT.setTimeZone(TimeUtil.GMT_TIME_ZONE);
     }
 
     /*
@@ -3935,7 +3934,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                             rightPart = "";
                         }
                         String newString = leftPart + rightPart;
-                        int width = newString.length();
                         int neededPadSpaces = editableTextWidth - newString.length();
                         String newPaddedString = String.format("%1$-"
                                 + (neededPadSpaces+1) + "s", newString);
@@ -7287,7 +7285,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     + "_"
                     + filenameIdentifier
                     + "_"
-                    + AUTOSAVE_DATE_FORMAT.format(TimeTools.getSystemCalendar()
+                    + AUTOSAVE_DATE_FORMAT.format(TimeUtil.newGmtCalendar()
                             .getTime()) + ".txt";
             BufferedOutputStream bufStream = null;
 

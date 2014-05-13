@@ -18,4 +18,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.profiler,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.decodertools
 Import-Package: com.raytheon.edex.esb,
- com.raytheon.edex.plugin
+ com.raytheon.edex.plugin,
+ com.raytheon.uf.common.wmo

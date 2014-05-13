@@ -26,7 +26,7 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * 
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20080529           1131 jkorman     Added traceId constructor and getter
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * </pre>
  * 
  * @author jkorman
@@ -100,7 +101,8 @@ public class RedbookSeparator extends AbstractRecordSeparator {
     @Override
     public void setData(byte[] rawMessage, Headers headers) {
 
-        wmoHeader = new WMOHeader(rawMessage, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        wmoHeader = new WMOHeader(rawMessage, fileName);
         if (wmoHeader.isValid()) {
             reports = new ArrayList<byte[]>();
             int start = wmoHeader.getMessageDataStart();

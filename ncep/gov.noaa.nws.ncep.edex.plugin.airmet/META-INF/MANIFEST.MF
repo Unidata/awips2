@@ -14,5 +14,6 @@ Require-Bundle: gov.noaa.nws.ncep.common.dataplugin.airmet;bundle-version="1.0.0
  org.geotools,
  javax.persistence,
  javax.measure
-Import-Package: org.apache.commons.logging,
+Import-Package: com.raytheon.uf.common.wmo,
+ org.apache.commons.logging,
  org.apache.log4j
