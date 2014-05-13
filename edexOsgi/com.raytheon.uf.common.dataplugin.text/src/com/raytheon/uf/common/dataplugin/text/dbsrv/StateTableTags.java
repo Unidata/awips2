@@ -17,26 +17,24 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services.textdbsrv;
+package com.raytheon.uf.common.dataplugin.text.dbsrv;
 
 
 /**
- * 
+ * Textdbsrv state table enum
  * 
  * <pre>
- *
  * SOFTWARE HISTORY
- *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 8, 2008        1538 jkorman     Initial creation
- *
+ * Oct 7, 2008        1538 jkorman     Initial creation
+ * May 15, 2014 2536      bclement     moved from uf.edex.textdbsrv
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
-public enum WarnTableTags implements ICommandTags {
-    OP, PRODID, SCRIPT;
+public enum StateTableTags {
+    OP, STATE, CCC, XXX;
 }
