@@ -35,7 +35,6 @@ import javax.measure.unit.SI;
 import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.cwa.CWADimension;
 import com.raytheon.uf.common.dataplugin.cwa.CWARecord;
 import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
@@ -45,15 +44,15 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.plugin.cwa.CWARecordDao;
 import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
 import com.raytheon.uf.edex.plugin.cwa.util.Utility;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * The CWA text Parser.
+ * The County Warning Area (CWA) text Parser.
  * 
  * <pre>
  * 
@@ -66,6 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     ingest  file name.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Mar 25, 2014 2930       skorolev    Fixed error in distance.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -189,16 +189,10 @@ public class CWAParser {
             report = reports.get(currentReport++);
             logger.debug("Getting report " + report);
 
-            try {
-                report.constructDataURI();
-                if (URI_MAP.containsKey(report.getDataURI())) {
-                    report = null;
-                } else {
-                    URI_MAP.put(report.getDataURI(), Boolean.TRUE);
-                }
-            } catch (PluginException e) {
-                logger.error(traceId + "- Unable to construct dataURI", e);
+            if (URI_MAP.containsKey(report.getDataURI())) {
                 report = null;
+            } else {
+                URI_MAP.put(report.getDataURI(), Boolean.TRUE);
             }
             if (report != null) {
 
@@ -315,7 +309,8 @@ public class CWAParser {
         currentReport = -1;
         this.traceId = traceId;
         this.headers = headers;
-        wmoHeader = new WMOHeader(message, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        wmoHeader = new WMOHeader(message, fileName);
         if (wmoHeader != null) {
             reports = findReports(message);
         } else {
@@ -500,7 +495,8 @@ public class CWAParser {
      * @return DataTime from header
      */
     private DataTime getDataTime(String timeStr) {
-        Calendar cal = TimeTools.findDataTime(timeStr, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        Calendar cal = WMOTimeParser.findDataTime(timeStr, fileName);
         if (cal != null) {
             return new DataTime(cal);
         } else {

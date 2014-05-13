@@ -19,9 +19,10 @@
  **/
 package com.raytheon.edex.plugin.goessounding;
 
-import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import java.util.Properties;
+
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
 
 /**
  * TODO Add Description

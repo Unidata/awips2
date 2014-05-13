@@ -29,8 +29,8 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.tcg.decoder.TCGDataAdapter;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder implementation for the tcg (Tropical Cyclone Guidance) plugin.
@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2009             jsanchez     Initial creation
+ * May 14, 2014 2536        bclement     moved WMO Header to common
  * 
  * </pre>
  * 
@@ -108,7 +109,9 @@ public class TCGDecoder {
         if (data != null && data.length > 0) {
             List<TropicalCycloneGuidance> obsList = new ArrayList<TropicalCycloneGuidance>();
             try {
-                WMOHeader wmoHeader = new WMOHeader(data, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                WMOHeader wmoHeader = new WMOHeader(data, fileName);
                 TCGDataAdapter adapter = TCGDataAdapter.getAdapter(pdd, dao,
                         pluginName, wmoHeader);
                 adapter.setData(data, traceId, headers);

@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.decodertools.bufr;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
 
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * <pre>
@@ -33,6 +33,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * 20071127            382 jkorman     Initial Coding.
  * 20080214            862 jkorman     Factored datetime info from subclasses.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -128,7 +129,7 @@ public abstract class BUFRSection1 extends BUFRSection {
      * @return
      */
     public Calendar getSectionDate() {
-        Calendar cal = TimeTools.getBaseCalendar(year, month, day);
+        Calendar cal = TimeUtil.newGmtCalendar(year, month, day);
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, minute);
 

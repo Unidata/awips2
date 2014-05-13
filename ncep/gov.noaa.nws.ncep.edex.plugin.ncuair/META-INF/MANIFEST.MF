@@ -15,6 +15,7 @@ Require-Bundle: gov.noaa.nws.ncep.common.dataplugin.ncuair;bundle-version="1.0.0
  javax.persistence;bundle-version="1.0.0",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0"
 Import-Package: com.raytheon.edex.exception,
+ com.raytheon.uf.common.wmo,
  com.raytheon.uf.edex.pointdata,
  gov.noaa.nws.ncep.common.tools,
  org.apache.commons.logging,
