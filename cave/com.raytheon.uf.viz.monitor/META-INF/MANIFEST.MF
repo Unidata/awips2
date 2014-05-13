@@ -18,6 +18,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.wxmath
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.monitor,
+ com.raytheon.uf.viz.monitor.config,
  com.raytheon.uf.viz.monitor.data,
  com.raytheon.uf.viz.monitor.events,
  com.raytheon.uf.viz.monitor.filename,
