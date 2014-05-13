@@ -56,10 +56,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * BaseRadar is a class that will allow the user to do the following:
@@ -99,6 +99,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------- -------- ----------- --------------------------
  * --/--/2006             brockwoo    Initial creation
  * Jan 21, 2014  2627     njensen     Changed offset errors to MalformedDataException
+ * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
+ *                                     added storeTextProduct()
  * 
  * </pre>
  * 
@@ -795,20 +797,7 @@ public class Level3BaseRadar {
             }
             if (RadarTextProductUtil.radarTable.keySet().contains(
                     theProductCode)) {
-                byte[] wmoid = wmoHeader.getBytes();
-                WMOHeader header = new WMOHeader(wmoid, headers);
-                AFOSProductId afos = new AFOSProductId(afosId);
-                if (afos.isFilled()) {
-                    try {
-                        Calendar cal = (TimeTools.allowArchive() ? theMsgTimestamp
-                                : Calendar.getInstance());
-                        RadarEdexTextProductUtil.storeTextProduct(afos, header,
-                                tabularBlock.getString(), true, cal);
-                    } catch (Exception e) {
-                        theHandler.handle(Priority.ERROR,
-                                "Could not store text product", e);
-                    }
-                }
+                storeTextProduct(headers);
             }
         }
     }
@@ -872,19 +861,32 @@ public class Level3BaseRadar {
         lookupAfosId();
 
         if (RadarTextProductUtil.radarTable.keySet().contains(theMessageCode)) {
-            byte[] wmoid = wmoHeader.getBytes();
-            WMOHeader header = new WMOHeader(wmoid, headers);
-            AFOSProductId afos = new AFOSProductId(afosId);
-            if (afos.isFilled()) {
-                try {
-                    Calendar cal = (TimeTools.allowArchive() ? theMsgTimestamp
-                            : Calendar.getInstance());
-                    RadarEdexTextProductUtil.storeTextProduct(afos, header,
-                            tabularBlock.getString(), true, cal);
-                } catch (Exception e) {
-                    theHandler.handle(Priority.ERROR,
-                            "Could not store text product", e);
-                }
+            storeTextProduct(headers);
+        }
+    }
+
+    /**
+     * Stores text from tabular block if AFOS product id is filled.
+     * 
+     * @see RadarEdexTextProductUtil#storeTextProduct(AFOSProductId, WMOHeader,
+     *      String, boolean, Calendar)
+     * @see AFOSProductId#isFilled()
+     * @param headers
+     */
+    private void storeTextProduct(Headers headers) {
+        byte[] wmoid = wmoHeader.getBytes();
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader header = new WMOHeader(wmoid, fileName);
+        AFOSProductId afos = new AFOSProductId(afosId);
+        if (afos.isFilled()) {
+            try {
+                Calendar cal = (WMOTimeParser.allowArchive() ? theMsgTimestamp
+                        : Calendar.getInstance());
+                RadarEdexTextProductUtil.storeTextProduct(afos, header,
+                        tabularBlock.getString(), true, cal);
+            } catch (Exception e) {
+                theHandler.handle(Priority.ERROR,
+                        "Could not store text product", e);
             }
         }
     }

@@ -27,8 +27,8 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.tcs.decoder.TCSDataAdapter;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder implementation for the tcs (Tropical Cyclone Summary) plugin.
@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2009             jsanchez     Initial creation
+ * May 14, 2014 2536        bclement     moved WMO Header to common
  * 
  * </pre>
  * 
@@ -105,7 +106,9 @@ public class TCSDecoder {
         if (data != null && data.length > 0) {
             TropicalCycloneSummary tcs = null;
             try {
-                WMOHeader wmoHeader = new WMOHeader(data, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                WMOHeader wmoHeader = new WMOHeader(data, fileName);
                 TCSDataAdapter adapter = TCSDataAdapter.getAdapter(pdd, dao,
                         pluginName, wmoHeader);
 

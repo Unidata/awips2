@@ -1,5 +1,5 @@
 /**
- * 
+ * Parser for significant wave height data
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -7,6 +7,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	--------	-----------
  * 04/21/10     208         F. J. Yen   Initial coding to11dr3
+ * May 14, 2014 2536        bclement    removed TimeTools usage
  * </pre>
  * 
  * @author F. J. Yen
@@ -16,16 +17,17 @@
 package gov.noaa.nws.ncep.edex.plugin.sgwh.util;
 
 import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
+import gov.noaa.nws.ncep.common.dataplugin.sgwh.SgwhRecord;
+import gov.noaa.nws.ncep.edex.plugin.sgwh.decoder.SgwhSeparator;
 
 import java.util.Calendar;
 import java.util.List;
-import gov.noaa.nws.ncep.edex.plugin.sgwh.decoder.SgwhSeparator;
-import gov.noaa.nws.ncep.common.dataplugin.sgwh.SgwhRecord;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
+import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
@@ -195,7 +197,7 @@ public class SgwhParser {
 				 * Create time stamp.
 				 */
 				if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)) {
-					Calendar baseTime = TimeTools.getBaseCalendar(year, month,
+                    Calendar baseTime = TimeUtil.newGmtCalendar(year, month,
 							day);
 					baseTime.set(Calendar.HOUR_OF_DAY, hour);
 					baseTime.set(Calendar.MINUTE, min);

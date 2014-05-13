@@ -39,9 +39,9 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.lsr.LocalStormReportDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Local Storm Report parser
@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                      Check entire time line looking for latlon
  * Jan 07, 2013 2581       njensen     Check to end of string for source, not a set length
  * Jan 13, 2013 2581       njensen     Improved error handling and logging
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -173,7 +174,8 @@ public class LSRParser {
     public void setData(byte[] message, String traceId, Headers headers) {
         currentReport = -1;
         this.traceId = traceId;
-        wmoHeader = new WMOHeader(message, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        wmoHeader = new WMOHeader(message, fileName);
         if (wmoHeader != null) {
             Matcher m = OFFICE_ID_PTRN.matcher(wmoHeader.getWmoHeader());
             if (m.matches()) {
@@ -412,12 +414,13 @@ public class LSRParser {
                             if (year > 2000) {
                                 timeOk = true;
 
-                                Calendar c = TimeTools.getBaseCalendar(year,
+                                Calendar c = TimeUtil.newGmtCalendar(year,
                                         month, day);
                                 c.set(Calendar.HOUR_OF_DAY, hour);
                                 c.set(Calendar.MINUTE, minute);
                                 c.add(Calendar.HOUR_OF_DAY, tzOffset);
-                                rpt.setDataTime(new DataTime(TimeTools.copy(c)));
+                                rpt.setDataTime(new DataTime((Calendar) c
+                                        .clone()));
                             }
                         }
                     }

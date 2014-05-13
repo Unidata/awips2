@@ -14,9 +14,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.DecoderInput;
 import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * The PirepSeparator takes a potential weather message and attempts to
