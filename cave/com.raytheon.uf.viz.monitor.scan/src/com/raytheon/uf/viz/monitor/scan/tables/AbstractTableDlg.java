@@ -49,7 +49,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
@@ -66,6 +65,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg.DialogType;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
