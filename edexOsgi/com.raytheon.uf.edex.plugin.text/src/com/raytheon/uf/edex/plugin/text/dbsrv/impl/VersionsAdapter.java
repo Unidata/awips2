@@ -17,22 +17,21 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services.textdbimpl;
+package com.raytheon.uf.edex.plugin.text.dbsrv.impl;
 
-import static com.raytheon.edex.textdb.dbapi.impl.TextDB.asciiToHex;
-import static com.raytheon.edex.textdb.dbapi.impl.TextDB.getProperty;
 
 import com.raytheon.edex.textdb.dbapi.impl.TextDB;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBSrvCommandTags;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.VersionsTableTags;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.wmo.AFOSProductId;
-import com.raytheon.uf.edex.services.textdbsrv.ICommandExecutor;
-import com.raytheon.uf.edex.services.textdbsrv.TextDBSrvCommandTags;
-import com.raytheon.uf.edex.services.textdbsrv.VersionsTableTags;
 
 /**
- * 
+ * Manipulates version headers on textdbsrv messages
  * 
  * <pre>
  * 
@@ -40,6 +39,7 @@ import com.raytheon.uf.edex.services.textdbsrv.VersionsTableTags;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 8, 2008        1538 jkorman     Initial creation
+ * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
  * 
  * </pre>
  * 
@@ -81,10 +81,12 @@ public class VersionsAdapter implements ICommandExecutor {
         Header sHeader = cmdMessage.getHeader();
 
         // Get the operation code
-        String op = getProperty(sHeader, VersionsTableTags.OP.name());
+        String op = PropConverter.getProperty(sHeader,
+                VersionsTableTags.OP.name());
 
         TextDBSrvCommandTags opTag = TextDBSrvCommandTags.valueOf(op);
-        String productId = getProperty(sHeader, VersionsTableTags.PRODID.name());
+        String productId = PropConverter.getProperty(sHeader,
+                VersionsTableTags.PRODID.name());
 
         if (opTag != null && productId != null) {
             AFOSProductId prodId = new AFOSProductId(productId);
@@ -92,7 +94,7 @@ public class VersionsAdapter implements ICommandExecutor {
                 switch (opTag) {
 
                 case PUT: {
-                    String versions = getProperty(sHeader,
+                    String versions = PropConverter.getProperty(sHeader,
                             VersionsTableTags.VERSION.name());
 
                     addVersionInfo(sHeader, prodId.getCcc(), prodId.getNnn(),
@@ -113,8 +115,9 @@ public class VersionsAdapter implements ICommandExecutor {
                 default: {
                     String tagName = (opTag != null) ? opTag.name() : "null";
                     Property[] props = new Property[] { new Property("STDERR",
-                            asciiToHex("ERROR:Invalid command tag = ["
-                                    + tagName + "]")), };
+                            PropConverter
+                                    .asciiToHex("ERROR:Invalid command tag = ["
+                                            + tagName + "]")), };
                     sHeader.setProperties(props);
                     break;
                 }
@@ -138,10 +141,11 @@ public class VersionsAdapter implements ICommandExecutor {
     private void addVersionInfo(Header header, String ccc, String nnn,
             String xxx, String versions) {
         Property newProperty = new Property("STDERR",
-                asciiToHex("NORMAL:Adding productId " + ccc + nnn + xxx
-                        + " versions " + versions));
+                PropConverter.asciiToHex("NORMAL:Adding productId " + ccc + nnn
+                        + xxx + " versions " + versions));
         Property errProperty = new Property("STDERR",
-                asciiToHex("ERROR:Failure adding to versions table."));
+                PropConverter
+                        .asciiToHex("ERROR:Failure adding to versions table."));
 
         Property[] props = new Property[] { newProperty, };
         if (!textDB.addVersions(ccc, nnn, xxx, Integer.parseInt(versions))) {
@@ -165,10 +169,13 @@ public class VersionsAdapter implements ICommandExecutor {
         String vers = textDB.getVersions(ccc, nnn, xxx);
 
         if (vers != null) {
-            props = new Property[] { new Property(PROP_FMT, asciiToHex(vers)) };
+            props = new Property[] { new Property(PROP_FMT,
+                    PropConverter.asciiToHex(vers)) };
         } else {
-            props = new Property[] { new Property("STDERR",
-                    asciiToHex("ERROR:Failure reading versions table.")), };
+            props = new Property[] { new Property(
+                    "STDERR",
+                    PropConverter
+                            .asciiToHex("ERROR:Failure reading versions table.")), };
         }
         header.setProperties(props);
     }
@@ -183,11 +190,11 @@ public class VersionsAdapter implements ICommandExecutor {
     private void deleteVersionInfo(Header header, String ccc, String nnn,
             String xxx) {
         Property newProperty = new Property("STDERR",
-                asciiToHex("NORMAL:Deleting product id " + ccc + nnn + xxx
-                        + " from versionstable."));
+                PropConverter.asciiToHex("NORMAL:Deleting product id " + ccc
+                        + nnn + xxx + " from versionstable."));
         Property errProperty = new Property("STDERR",
-                asciiToHex("ERROR:Failure deleting " + ccc + nnn + xxx
-                        + " from versionstable."));
+                PropConverter.asciiToHex("ERROR:Failure deleting " + ccc + nnn
+                        + xxx + " from versionstable."));
 
         Property[] props = new Property[] { newProperty, };
         if (!textDB.deleteVersions(ccc, nnn, xxx)) {
