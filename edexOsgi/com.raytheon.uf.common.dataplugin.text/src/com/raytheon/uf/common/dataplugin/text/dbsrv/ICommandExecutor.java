@@ -17,24 +17,41 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services.textdbsrv;
+package com.raytheon.uf.common.dataplugin.text.dbsrv;
+
+import com.raytheon.uf.common.message.Message;
 
 /**
- * TODO Add Description
+ * Command executor interface for textdbsrv
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 7, 2008        1538 jkorman     Initial creation
- *
+ * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
-public interface ICommandTags {
+public interface ICommandExecutor {
+
+    
+    /**
+     * 
+     * @param cmdMessage
+     * @return
+     */
+    public Message execute(Message cmdMessage);
+    
+    /**
+     * 
+     */
+    public void dispose();
+
 }
