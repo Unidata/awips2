@@ -87,8 +87,6 @@
 		<exclude>obs-ingest-metarshef.xml</exclude>
 		<!-- ncep excludes until tested -->
 		<exclude>aww-ingest.xml</exclude>
-		<exclude>ncep-util-on-edex-ingest</exclude>
-		<exclude>ncep-util-on-edex-ingestGrib</exclude>
 		<exclude>ncscd-ingest.xml</exclude>
 		<exclude>ncpafm-ingest.xml</exclude>
 		<exclude>nctaf-ingest.xml</exclude>
@@ -186,8 +184,7 @@
 		<include>management-common.xml</include>
 	 	<include>database-common.xml</include>
         <include>event-ingest.xml</include>
-		<!-- ncep excludes until tested -->
-		<exclude>ncep-util-on-edex-ingestGrib</exclude>
+		<!-- ncep excludes until tested -->		
 		<exclude>h5uair-ingest.xml</exclude>
 		<exclude>h5uair-common.xml</exclude>
 		<exclude>h5scd-ingest.xml</exclude>
