@@ -17,12 +17,18 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.monitor.data;
+package com.raytheon.uf.viz.monitor.config;
 
 import java.util.HashMap;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+
+import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.monitor.data.ObConst;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
+import com.raytheon.uf.common.monitor.data.ObConst.VarName;
+import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
 
 /**
  * Common configuration data for the table (zone, station, obs history, etc.).
