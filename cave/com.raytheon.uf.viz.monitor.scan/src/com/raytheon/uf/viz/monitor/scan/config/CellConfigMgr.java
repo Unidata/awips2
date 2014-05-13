@@ -17,10 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.monitor.scan.config;
+package com.raytheon.uf.viz.monitor.scan.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -29,11 +30,11 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
-import com.raytheon.uf.common.monitor.scan.xml.SCANConfigTvsXML;
+import com.raytheon.uf.common.monitor.scan.xml.SCANConfigCellXML;
 
 /**
  * 
- * Configuration manager for the TVS table.
+ * Configuration manager for the CELL table.
  * 
  * <pre>
  * 
@@ -41,7 +42,7 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANConfigTvsXML;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 3, 2009  #3039      lvenable    Initial creation
+ * Dec 2, 2009  #3039      lvenable    Initial creation
  * Oct 2, 2013  2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
@@ -49,21 +50,21 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANConfigTvsXML;
  * @author lvenable
  * @version 1.0
  */
-public class TvsConfigMgr extends AbsConfigMgr {
+public class CellConfigMgr extends AbsConfigMgr {
     /**
-     * TVS configuration manager XML.
+     * CELL configuration manager XML.
      */
-    private SCANConfigTvsXML tvsCfgXML;
+    private SCANConfigCellXML cellCfgXML;
 
     /**
      * Default configuration file name.
      */
-    private final String defaultConfigFileName = "SCANconfig_tvsTable.xml";
+    private final String defaultConfigFileName = "SCANconfig_cellTable.xml";
 
     /**
      * Constructor.
      */
-    public TvsConfigMgr() {
+    public CellConfigMgr() {
         super();
     }
 
@@ -74,6 +75,12 @@ public class TvsConfigMgr extends AbsConfigMgr {
     protected void init() {
         currentConfigFileName = defaultConfigFileName;
         loadDefaultConfig();
+
+        if (cellCfgXML == null) {
+            System.out.println("cellCfgXML is null");
+        } else {
+            System.out.println("--- " + cellCfgXML.getDefaultRank());
+        }
     }
 
     /**
@@ -81,7 +88,7 @@ public class TvsConfigMgr extends AbsConfigMgr {
      */
     @Override
     public ArrayList<SCANAttributesXML> getAttributes() {
-        return tvsCfgXML.getAttributesData();
+        return cellCfgXML.getAttributesData();
     }
 
     /**
@@ -90,7 +97,7 @@ public class TvsConfigMgr extends AbsConfigMgr {
     @Override
     public void loadDefaultConfig() {
         currentConfigFileName = defaultConfigFileName;
-        tvsCfgXML = (SCANConfigTvsXML) readDefaultConfig();
+        cellCfgXML = (SCANConfigCellXML) readDefaultConfig();
         createAttributeMap(getAttributes());
     }
 
@@ -100,7 +107,7 @@ public class TvsConfigMgr extends AbsConfigMgr {
     @Override
     public void loadNewConfig(String newCfgName) {
         currentConfigFileName = newCfgName;
-        tvsCfgXML = (SCANConfigTvsXML) readExistingConfig();
+        cellCfgXML = (SCANConfigCellXML) readExistingConfig();
         createAttributeMap(getAttributes());
     }
 
@@ -116,23 +123,22 @@ public class TvsConfigMgr extends AbsConfigMgr {
         LocalizationFile locFile = pm.getLocalizationFile(context, newFileName);
 
         if (locFile.getFile().getParentFile().exists() == false) {
-            System.out.println("TVS - Creating new directory");
+            System.out.println("Creating new directory");
 
             if (locFile.getFile().getParentFile().mkdirs() == false) {
-                System.out.println("TVS - Could not create new directory...");
+                System.out.println("Could not create new directory...");
             }
         }
 
         try {
             System.out.println("Saving -- "
                     + locFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(tvsCfgXML, locFile.getFile()
+            jaxb.marshalToXmlFile(cellCfgXML, locFile.getFile()
                     .getAbsolutePath());
             locFile.save();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -140,7 +146,7 @@ public class TvsConfigMgr extends AbsConfigMgr {
      */
     @Override
     public boolean showTips() {
-        return tvsCfgXML.getTipsOption();
+        return cellCfgXML.getTipsOption();
     }
 
     /**
@@ -148,7 +154,7 @@ public class TvsConfigMgr extends AbsConfigMgr {
      */
     @Override
     public void setShowTips(boolean showFlag) {
-        tvsCfgXML.setTipsOption(showFlag);
+        cellCfgXML.setTipsOption(showFlag);
     }
 
     /**
@@ -161,7 +167,7 @@ public class TvsConfigMgr extends AbsConfigMgr {
 
         sb.append("scan").append(fs);
         sb.append("config").append(fs);
-        sb.append("tvsTableConfig").append(fs);
+        sb.append("cellTableConfig").append(fs);
 
         return sb.toString();
     }
@@ -183,11 +189,64 @@ public class TvsConfigMgr extends AbsConfigMgr {
     }
 
     /**
-     * Get the SCAN TVS configuration data.
+     * Get the clutter control attribute name.
      * 
-     * @return SCAN TVS configuration data.
+     * @return The clutter control attribute name.
      */
-    public SCANConfigTvsXML getScanTvsCfgXML() {
-        return tvsCfgXML;
+    public String getClutterControl() {
+        return cellCfgXML.getClutterControl();
+    }
+
+    /**
+     * Get the radius interpolation.
+     * 
+     * @return The radius interpolation.
+     */
+    public String getRadVar() {
+        return cellCfgXML.getRadVar();
+    }
+
+    /**
+     * Get a linked map of clutter control attribute and the associated units.
+     * 
+     * @return A linked map of clutter control attribute and the associated
+     *         units.
+     */
+    public LinkedHashMap<String, String> getClutterAttributes() {
+        LinkedHashMap<String, String> attrUnitsMap = new LinkedHashMap<String, String>();
+        ArrayList<SCANAttributesXML> attrArray = getAttributes();
+
+        for (SCANAttributesXML attrXML : attrArray) {
+            if (attrXML.getClutter() == true) {
+                attrUnitsMap.put(attrXML.getAttrName(), attrXML.getUnits());
+            }
+        }
+
+        return attrUnitsMap;
+    }
+
+    /**
+     * Get the SCAN CELL configuration data.
+     * 
+     * @return SCAN CELL configuration data.
+     */
+    public SCANConfigCellXML getScanCellCfgXML() {
+        return cellCfgXML;
+    }
+
+    public void setAlarmsDisabled(boolean flag) {
+        cellCfgXML.setAlarmsDisabled(flag);
+    }
+
+    public boolean getAlarmsDisabled() {
+        return cellCfgXML.getAlarmsDisabled();
+    }
+
+    public void setAlarmBell(boolean flag) {
+        cellCfgXML.setAlarmBell(flag);
+    }
+
+    public boolean getAlarmBell() {
+        return cellCfgXML.getAlarmBell();
     }
 }

@@ -28,10 +28,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 
-import com.raytheon.uf.common.monitor.data.ColumnAttribData;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
 import com.raytheon.uf.viz.monitor.data.TableData;
 
 /**
