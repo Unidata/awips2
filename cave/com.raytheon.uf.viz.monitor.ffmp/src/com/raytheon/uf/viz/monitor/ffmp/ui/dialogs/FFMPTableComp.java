@@ -27,7 +27,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableItem;
 
-import com.raytheon.uf.common.monitor.data.ColumnAttribData;
+import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig.ThreshColNames;
 
 public class FFMPTableComp extends FFMPTable {
