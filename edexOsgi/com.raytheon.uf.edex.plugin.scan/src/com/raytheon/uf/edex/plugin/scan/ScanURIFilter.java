@@ -49,7 +49,6 @@ import com.raytheon.uf.common.dataplugin.scan.data.TVSTableData;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.ScanAlarmXML;
 import com.raytheon.uf.common.monitor.xml.SCANModelParameterXML;
@@ -92,6 +91,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 21, 2013 7613       zhao        Modified setGridRecords() etc.
  * Oct 15, 2013 2361       njensen     Use JAXBManager for XML
  * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
+ * May 12, 2014 3133       njensen     Remove unused field
  * 
  * 
  * </pre>
@@ -191,9 +191,6 @@ public class ScanURIFilter extends URIFilter {
         // invoke the "pull strategy" for model and sounding data
         init();
     }
-
-    /** SCAN table Configuration object **/
-    public SCANConfig scanConfig = null;
 
     public String getWmo() {
         return wmo;
