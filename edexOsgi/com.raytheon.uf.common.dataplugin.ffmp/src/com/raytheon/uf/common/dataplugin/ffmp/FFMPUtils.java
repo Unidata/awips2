@@ -85,8 +85,8 @@ import com.vividsolutions.jts.io.WKTWriter;
  * 03/01/13      DR 13228   G. Zhang    Add state for VGB query and related code
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * 08/20/13      2250       mnash       Fixed incorrect return types for database queries.
+ * 09/05/14		 DR 17346   G. Zhang    Fixed issue with DB return types.
  * </pre>
- * 
  * @author dhladky
  * @version 1
  */
@@ -254,7 +254,7 @@ public class FFMPUtils {
 
             if (results.length > 0) {
                 for (int i = 0; i < results.length; i++) {
-                    String column_name = (String) ((Object[]) results[i])[0];
+                    String column_name = (String) results[i]/*((Object[]) results[i])[0]*/;
                     if (column_name.startsWith("upstream")) {
                         upstreams.add("upstream" + j);
                         j++;
@@ -601,7 +601,7 @@ public class FFMPUtils {
                     for (int i = 0; i < results.length; i++) {
                         if (results[i] != null) {
                             keys.add(new Integer(
-                                    (String) ((Object[]) results[i])[0])
+                                    (String)results[i]/* ((Object[]) results[i])[0]*/)
                                     .longValue());
                         }
                     }
