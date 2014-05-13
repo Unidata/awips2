@@ -41,9 +41,9 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.edex.plugin.shef.util.SHEFErrors;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFErrorCodes;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * 
@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 11/29/2012               lbousaidi   fixed the decoding issue when the shef starts
  *                                      with :
  * 6/27/2013    16225       wkwock      Fixed trail with slash and space issue.
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -150,7 +151,8 @@ public class ShefSeparator extends AbstractRecordSeparator {
             currentRecord = -1;
 
             /* Extracts the header */
-            wmoHeader = new WMOHeader(data, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            wmoHeader = new WMOHeader(data, fileName);
             if (wmoHeader.isValid()) {
                 if (traceId == null) {
                     traceId = wmoHeader.getWmoHeader();
@@ -165,7 +167,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
             } else {
                 // No WMO header found or bad one, so process as best
                 // as we can.
-                Calendar c = TimeTools.getSystemCalendar();
+                Calendar c = TimeUtil.newGmtCalendar();
                 if (c != null) {
                     productTime = c.getTime();
                 }

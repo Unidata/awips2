@@ -25,30 +25,31 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
 import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
- * Provide the base class for the binary lightning decoders. This class abstracts
- * data and methods common to the current lightning decoder types.
+ * Provide the base class for the binary lightning decoders. This class
+ * abstracts data and methods common to the current lightning decoder types.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070810            379 jkorman     Initial Coding from prototype.
  * 20070912            379 jkorman     Code review cleanup.
+ * May 14, 2014 2536       bclement    removed TimeTools
  * </pre>
- *
+ * 
  * @author jkorman
  * @version 1.0
  */
 abstract class BaseLightningDecoder implements IBinLightningDecoder
 {
-    private final Calendar BASE_TIME = TimeTools.getBaseCalendar(1980,2,29);
+    private final Calendar BASE_TIME = TimeUtil.newGmtCalendar(1980, 2, 29);
     
     private static final int DAYS_MASK = 0xFFFE;
     
@@ -98,10 +99,10 @@ abstract class BaseLightningDecoder implements IBinLightningDecoder
         int b2 = msgData.getU8();
         int word1 = msgData.getU16();
         //********* Don't reorder these reads!!!
-        Calendar obsTime = TimeTools.copy(BASE_TIME);
+        Calendar obsTime = (Calendar) BASE_TIME.clone();
         // number of days since BASE_TIME
         int days = ((word1 & DAYS_MASK) >> DAYS_SHFT);
-        TimeTools.rollByDays(obsTime,days);
+        obsTime.add(Calendar.DAY_OF_MONTH, days);
         
         point.setYear(obsTime.get(Calendar.YEAR));
         //Increment month, Calendar returns 0..11

@@ -19,5 +19,6 @@ Import-Package: com.raytheon.uf.common.dataplugin.goessounding,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
  com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo,
  com.raytheon.uf.edex.pointdata,
  org.apache.commons.logging

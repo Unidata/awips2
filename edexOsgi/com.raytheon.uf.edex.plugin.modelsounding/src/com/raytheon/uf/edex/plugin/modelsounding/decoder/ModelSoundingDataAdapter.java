@@ -41,6 +41,7 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
@@ -48,7 +49,6 @@ import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.plugin.modelsounding.SoundingModelTemporalData;
 import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs

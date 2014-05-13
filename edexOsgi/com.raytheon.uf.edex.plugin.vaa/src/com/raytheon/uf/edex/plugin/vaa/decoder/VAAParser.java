@@ -35,7 +35,7 @@ import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
 import com.raytheon.uf.common.dataplugin.vaa.VAASubPart;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * Parser for Volcanic Ash Advisories
@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Nov 26, 2013 2582       njensen     Cleanup
  * Feb 11, 2014 2763       skorolev    Made LFCR correction of input data.
  * Mar 10, 2014 2807       skorolev    Added MalformedDataException for VAA decoding.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -109,7 +110,8 @@ public class VAAParser implements Iterable<VAARecord> {
             throws MalformedDataException, IOException {
         this.traceId = traceId;
         byte[] msg = correctLFCR(message);
-        wmoHeader = new WMOHeader(msg, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        wmoHeader = new WMOHeader(msg, fileName);
         setData(msg, headers);
     }
 

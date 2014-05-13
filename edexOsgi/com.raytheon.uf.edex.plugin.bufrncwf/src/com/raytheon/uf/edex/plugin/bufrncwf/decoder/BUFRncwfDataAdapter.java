@@ -34,19 +34,20 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Point data view framework adapter for National Convective Weather Forecast
+ * Product
  * 
  * <pre>
  * 
@@ -56,6 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2009            jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -124,8 +126,8 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
     /**
      * Not used.
      * 
-     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createData(java.util.Iterator,
-     *      com.raytheon.uf.edex.wmo.message.WMOHeader)
+     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createData(Iterator,
+     *      WMOHeader)
      */
     @Override
     public BUFRncwf createData(Iterator<BUFRDataDocument> iterator,
@@ -138,8 +140,8 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
      * 
      * 
      * 
-     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createDataList(java.util.Iterator,
-     *      com.raytheon.uf.edex.wmo.message.WMOHeader)
+     * @see com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter#createDataList(Iterator,
+     *      WMOHeader)
      */
     @Override
     public List<BUFRncwf> createDataList(Iterator<BUFRDataDocument> iterator,
@@ -228,7 +230,7 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
             if (c != null) {
                 ncwfReport = new BUFRncwf();
 
-                ncwfReport.setDataTime(new DataTime(TimeTools.copy(c)));
+                ncwfReport.setDataTime(new DataTime((Calendar) c.clone()));
                 List<IBUFRDataPacket> features = getPacketSubList(sList
                         .get(FEATURES_POS));
 
@@ -329,7 +331,7 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
         // date-time and datatime info.
         if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)
                 && (minute >= 0) && (second >= 0)) {
-            baseTime = TimeTools.getBaseCalendar(year, month, day);
+            baseTime = TimeUtil.newGmtCalendar(year, month, day);
             baseTime.set(Calendar.HOUR_OF_DAY, hour);
             baseTime.set(Calendar.MINUTE, minute);
             baseTime.set(Calendar.SECOND, second);

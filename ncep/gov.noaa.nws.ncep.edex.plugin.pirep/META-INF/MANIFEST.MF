@@ -17,5 +17,6 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  gov.noaa.nws.ncep.common.dataplugin.pirep;bundle-version="1.0.0"
 Export-Package: gov.noaa.nws.ncep.edex.plugin.pirep,
  gov.noaa.nws.ncep.edex.plugin.pirep.decoder
-Import-Package: com.raytheon.uf.edex.pointdata,
+Import-Package: com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.pointdata,
  org.apache.commons.logging

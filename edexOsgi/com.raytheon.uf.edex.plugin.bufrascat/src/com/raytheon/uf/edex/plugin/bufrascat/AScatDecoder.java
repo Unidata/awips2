@@ -26,12 +26,12 @@ import java.util.List;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.bufrascat.AScatObs;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.AbstractBUFRDecoder;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDelegate;
 import com.raytheon.uf.edex.plugin.bufrascat.dao.AScatObsDao;
 import com.raytheon.uf.edex.plugin.bufrascat.decoder.AScatDataAdapter;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder for ascat data.
