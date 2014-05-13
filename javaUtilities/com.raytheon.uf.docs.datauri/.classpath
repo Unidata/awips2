@@ -114,8 +114,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.staticdata"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.gempak.jna"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.ingest.grib.util"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.ingest.util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.airep"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.airmet"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.atcf"/>
