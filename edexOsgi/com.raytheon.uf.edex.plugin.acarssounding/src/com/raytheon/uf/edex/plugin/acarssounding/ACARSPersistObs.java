@@ -35,7 +35,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
 
@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2009            jkorman     Initial creation
  * Jan 07, 2014 2658       rferrel     Ignore cut off time when allowing archive data.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * 
  * </pre>
  * 
@@ -118,7 +119,7 @@ public class ACARSPersistObs {
                     // Value to ignore cut off time when archive allowed.
                     long cTime = Long.MIN_VALUE;
 
-                    if (!TimeTools.allowArchive()) {
+                    if (!WMOTimeParser.allowArchive()) {
                         cTime = ACARSSoundingTools
                                 .getCutoffTime(ACARSSoundingTools.CUTOFF_HOURS);
                     }

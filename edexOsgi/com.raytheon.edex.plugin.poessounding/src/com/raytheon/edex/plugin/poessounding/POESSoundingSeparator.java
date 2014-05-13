@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -34,7 +35,6 @@ import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDeleg
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * The ProfilerSeparator takes a potential weather message and attempts to
@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080303           1026 jkorman     Initial implementation.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -111,8 +112,9 @@ public class POESSoundingSeparator extends AbstractRecordSeparator implements
         currentReport = -1;
         try {
             if (rawMessage != null) {
-
-                wmoHeader = new WMOHeader(rawMessage, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                wmoHeader = new WMOHeader(rawMessage, fileName);
 
                 if ((wmoHeader != null) && (wmoHeader.isValid())) {
 

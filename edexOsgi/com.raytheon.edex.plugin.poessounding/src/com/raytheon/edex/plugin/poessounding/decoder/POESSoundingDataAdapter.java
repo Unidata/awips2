@@ -42,11 +42,11 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs
@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 17, 2008 1026       jkorman     Initial implementation.
  * Jul 17, 2013 2112       bsteffen    Split poes data so it gets stored in
  *                                     correct file.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -206,13 +207,14 @@ public class POESSoundingDataAdapter {
                         // date-time and datatime info.
                         if ((year > 0) && (month > 0) && (day > 0)
                                 && (hour >= 0)) {
-                            Calendar baseTime = TimeTools.getBaseCalendar(year,
+                            Calendar baseTime = TimeUtil.newGmtCalendar(year,
                                     month, day);
                             baseTime.set(Calendar.HOUR_OF_DAY, hour);
                             baseTime.set(Calendar.MINUTE, minute);
                             baseTime.set(Calendar.SECOND, seconds);
 
-                            DataTime dt = new DataTime(TimeTools.copy(baseTime));
+                            DataTime dt = new DataTime(
+                                    (Calendar) baseTime.clone());
                             obsData.setDataTime(dt);
 
                         }
@@ -292,25 +294,6 @@ public class POESSoundingDataAdapter {
                 retValue = ((Double) o).doubleValue();
             } else if(o instanceof Long) {
                 retValue = ((Long) o).doubleValue();
-            } 
-        }
-        return retValue;
-    }
-
-    /**
-     * 
-     * @param packet
-     * @param defaultValue
-     * @return
-     */
-    private static Integer getInt(IBUFRDataPacket packet, Integer defaultValue) {
-        Integer retValue = defaultValue;
-        if(packet != null) {
-            Object o = packet.getValue();
-            if(o instanceof Double) {
-                retValue = ((Double) o).intValue();
-            } else if(o instanceof Long) {
-                retValue = ((Long) o).intValue();
             } 
         }
         return retValue;

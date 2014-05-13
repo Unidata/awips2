@@ -22,16 +22,13 @@ package com.raytheon.edex.plugin.goessounding;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFROffsets;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRSection0;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRSection5;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * The GOESSounding a potential weather message and attempts to determine the
@@ -46,6 +43,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080414           1077 jkorman     Initial implementation.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed unused logger
  * 
  * </pre>
  * 
@@ -53,8 +51,6 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * @version 1.0
  */
 public class GOESSoundingSeparator extends AbstractRecordSeparator {
-
-    private Log logger = LogFactory.getLog(getClass());
 
     private WMOHeader wmoHeader;
 
@@ -124,8 +120,9 @@ public class GOESSoundingSeparator extends AbstractRecordSeparator {
             if (rawMessage != null) {
                 rawBUFR = rawMessage;
                 reportData = new ArrayList<BUFROffsets>();
-
-                wmoHeader = new WMOHeader(rawMessage, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                wmoHeader = new WMOHeader(rawMessage, fileName);
 
                 int start = findStart(0, rawMessage);
                 while (start >= 0) {
