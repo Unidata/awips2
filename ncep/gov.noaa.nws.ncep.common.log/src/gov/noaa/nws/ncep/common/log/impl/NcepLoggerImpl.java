@@ -54,10 +54,4 @@ public class NcepLoggerImpl implements NcepLogger {
 		log4jLogger.error(message, t); 
 	}
 
-	@Override
-	public void setLogLevel(String logLevel) {
-		Level logLevelToBeSet = Log4jUtil.getLevel(logLevel, Level.ERROR);
-		log4jLogger.setLevel((Level)logLevelToBeSet); 
-	}
-
 }
