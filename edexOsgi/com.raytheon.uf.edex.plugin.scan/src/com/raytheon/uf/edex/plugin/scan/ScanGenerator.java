@@ -34,7 +34,6 @@ import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -57,6 +56,7 @@ import com.raytheon.uf.edex.dat.utils.ScanDataCache;
  * ------------ ----------  ----------- --------------------------
  * Feb 25, 2013 1660        D. Hladky   Fixed SCAN configuration bug.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * May 12, 2014 3133        njensen     Remove unused field
  * 
  * </pre>
  * 
@@ -79,9 +79,6 @@ public class ScanGenerator extends CompositeProductGenerator implements
 
     /** Set of icaos to filter for */
     private Set<String> icaos = null;
-
-    /** SCAN table Configuration object **/
-    public SCANConfig scanConfig = null;
 
     /** run configuration manager **/
     public SCANRunSiteConfigurationManager srcm = null;
