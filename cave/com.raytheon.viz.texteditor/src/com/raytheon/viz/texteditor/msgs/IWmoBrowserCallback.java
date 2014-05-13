@@ -21,7 +21,7 @@
 package com.raytheon.viz.texteditor.msgs;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 
 /**
  * The IWmoBrowserCallback interface specifies methods that return a selected

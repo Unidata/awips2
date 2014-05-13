@@ -19,12 +19,12 @@
  **/
 package com.raytheon.viz.texteditor;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.comm.HttpClient;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * 
@@ -34,6 +34,7 @@ import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2008            jkorman     Initial creation
+ * May 15, 2014 2536       bclement    better error handling for executeQuery()
  * </pre>
  * 
  * @author jkorman
@@ -43,6 +44,9 @@ import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 public class HTTPQueryTransport implements IQueryTransport {
 
     private final String serviceURL;
+
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(HTTPQueryTransport.class);
 
     /**
      * 
@@ -64,7 +68,7 @@ public class HTTPQueryTransport implements IQueryTransport {
     /**
      * 
      * 
-     * @see com.raytheon.uf.edex.services.textdbsrv.IQueryTransport#executeQuery(com.raytheon.uf.common.message.Message)
+     * @see com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport#executeQuery(com.raytheon.uf.common.message.Message)
      */
     @Override
     public Message executeQuery(Message message) {
@@ -77,16 +81,11 @@ public class HTTPQueryTransport implements IQueryTransport {
             String response = client.post(serviceURL, xml);
 
             if(response != null) {
-                
-                Object o = SerializationUtil.unmarshalFromXml(response);
-                if(o instanceof Message) {
-                    message = (Message) o; 
-                }
+                message = SerializationUtil.unmarshalFromXml(Message.class,
+                        response);
             }
-        } catch (JAXBException e) {
-            e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error executing HTTP text query", e);
         }
 
         return message;
