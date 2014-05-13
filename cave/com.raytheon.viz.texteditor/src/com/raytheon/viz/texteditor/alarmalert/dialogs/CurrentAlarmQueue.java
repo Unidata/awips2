@@ -49,10 +49,10 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.alarmalert.dialogs.AlarmDisplayWindow.ACCUMULATE_STATE;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmAlertFunctions;
