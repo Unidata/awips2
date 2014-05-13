@@ -29,7 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * Data structure for a Volcanic Ash Advisory
@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2009            jkorman     Initial creation
  * Nov 26, 2013 2582       njensen     Fix where OBS DTG is on separate lines
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -143,7 +144,8 @@ public class InternalReport {
             Headers headers) {
         List<InternalReport> reports = new ArrayList<InternalReport>();
 
-        WMOHeader hdr = new WMOHeader(message, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader hdr = new WMOHeader(message, fileName);
         if (hdr.isValid()) {
             reports.add(new InternalReport(InternalType.WMO_HEADER, hdr
                     .getWmoHeader()));

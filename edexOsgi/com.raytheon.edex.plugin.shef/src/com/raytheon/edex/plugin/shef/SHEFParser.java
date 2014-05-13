@@ -48,7 +48,7 @@ import com.raytheon.uf.common.dataplugin.shef.util.SHEFErrorCodes;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * The SHEFParser provides the text parsing for SHEF data. This class was

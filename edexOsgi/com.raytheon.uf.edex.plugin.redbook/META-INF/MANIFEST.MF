@@ -6,7 +6,6 @@ Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  javax.persistence,
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
@@ -16,3 +15,4 @@ Require-Bundle: com.raytheon.edex.common,
 Export-Package: com.raytheon.uf.edex.plugin.redbook,
  com.raytheon.uf.edex.plugin.redbook.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.wmo

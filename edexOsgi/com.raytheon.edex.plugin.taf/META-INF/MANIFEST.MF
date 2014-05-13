@@ -14,4 +14,5 @@ Require-Bundle: com.raytheon.edex.common,
  org.apache.commons.lang,
  javax.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.apache.commons.logging
+Import-Package: com.raytheon.uf.common.wmo,
+ org.apache.commons.logging

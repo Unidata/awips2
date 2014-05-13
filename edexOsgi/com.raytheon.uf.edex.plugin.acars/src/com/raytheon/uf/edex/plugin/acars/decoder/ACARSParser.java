@@ -26,6 +26,7 @@ import java.util.List;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -34,7 +35,6 @@ import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDele
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * ACARS Parser.
@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009  1939       jkorman     Initial creation
  * Mar 27, 2014  2811       skorolev    Updated logger.
+ * May 14, 2014 2536        bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -96,7 +97,9 @@ public class ACARSParser implements Iterator<BUFRDataDocument>,
         try {
             if (rawMessage != null) {
 
-                wmoHeader = new WMOHeader(rawMessage, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                wmoHeader = new WMOHeader(rawMessage, fileName);
 
                 if ((wmoHeader != null) && (wmoHeader.isValid())) {
 

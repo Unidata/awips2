@@ -78,6 +78,7 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants.IngestSwitch;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -110,7 +111,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 10/28/2013   16711      lbousaidi   if the id is not in location table,but defined in geoarea table
  *                                     data can be posted to appropriate pe-based tables only if the data 
  *                                     type is not READING like in A1 code. 
- * 02/18/2014   16572      l. Bousaidi only apply adjust factor to non missing values.                                     
+ * 02/18/2014   16572      l. Bousaidi only apply adjust factor to non missing values.  
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * 
  * </pre>
  * 
@@ -3328,16 +3330,16 @@ public class PostShef {
     
     public static final void main(String[] args) {
 
-        Calendar postDate = TimeTools.getBaseCalendar(2011, 1, 12);
+        Calendar postDate = TimeUtil.newGmtCalendar(2011, 1, 12);
         postDate.set(Calendar.HOUR_OF_DAY, 17);
         postDate.set(Calendar.MINUTE, 25);
 
-        Calendar obsTimef = TimeTools.getBaseCalendar(2011, 1, 12);
+        Calendar obsTimef = TimeUtil.newGmtCalendar(2011, 1, 12);
         obsTimef.set(Calendar.HOUR_OF_DAY, 17);
         obsTimef.set(Calendar.MINUTE, 25);
         obsTimef.add(Calendar.DAY_OF_MONTH, -30);
 
-        Calendar obsTimeb = TimeTools.getBaseCalendar(2011, 1, 12);
+        Calendar obsTimeb = TimeUtil.newGmtCalendar(2011, 1, 12);
         obsTimeb.set(Calendar.HOUR_OF_DAY, 17);
         obsTimeb.set(Calendar.MINUTE, 25);
         obsTimeb.add(Calendar.MINUTE, 10);
