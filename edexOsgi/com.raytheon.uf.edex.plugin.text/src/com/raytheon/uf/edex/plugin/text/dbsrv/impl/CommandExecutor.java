@@ -17,25 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services.textdbimpl;
+package com.raytheon.uf.edex.plugin.text.dbsrv.impl;
 
-import static com.raytheon.edex.textdb.dbapi.impl.TextDB.asciiToHex;
-import static com.raytheon.edex.textdb.dbapi.impl.TextDB.getProperty;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBSrvCommandTags;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
-import com.raytheon.uf.edex.services.textdbsrv.ICommandExecutor;
-import com.raytheon.uf.edex.services.textdbsrv.TextDBSrvCommandTags;
 
 /**
- * TODO Add Description
+ * Executes command messages in ICommandExecutors. The executor is determined by
+ * the VIEW_CMD header in the message.
  * 
  * <pre>
  * 
@@ -43,6 +40,7 @@ import com.raytheon.uf.edex.services.textdbsrv.TextDBSrvCommandTags;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 7, 2008        1538 jkorman     Initial creation
+ * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv, removed unused logger
  * 
  * </pre>
  * 
@@ -51,8 +49,6 @@ import com.raytheon.uf.edex.services.textdbsrv.TextDBSrvCommandTags;
  */
 
 public class CommandExecutor implements ICommandExecutor {
-
-    private Log logger = LogFactory.getLog(getClass());
 
     private static final TextDBSrvCommandTags VIEW_CMD = TextDBSrvCommandTags.VIEW;
 
@@ -100,7 +96,7 @@ public class CommandExecutor implements ICommandExecutor {
         if (message != null) {
             Header header = message.getHeader();
             if (header != null) {
-                cmdView = getProperty(header, VIEW_CMD.name());
+                cmdView = PropConverter.getProperty(header, VIEW_CMD.name());
             }
         }
         return cmdView;
@@ -139,8 +135,8 @@ public class CommandExecutor implements ICommandExecutor {
     public static final Message createErrorMessage(String error) {
         Message msg = new Message();
         Header h = new Header();
-        h.setProperties(new Property[] { new Property("STDERR",
-                asciiToHex(error)), });
+        h.setProperties(new Property[] { new Property("STDERR", PropConverter
+                .asciiToHex(error)), });
 
         msg.setHeader(h);
 

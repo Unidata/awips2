@@ -42,6 +42,8 @@
        <property name="autoFaxNotifyURI" value="jms-generic:topic:autofax.notify"/>
     </bean>
 
+    <bean id="textdbsrv" class="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBSrv" />
+  
  	<camelContext id="autofax-common-camel" 
 	              xmlns="http://camel.apache.org/schema/spring"
                   errorHandlerRef="errorHandler">
@@ -55,6 +57,13 @@
 		   	   </doCatch>
 		   </doTry>
 		</route>
+
+        <route id="textdbsrvinternal">
+            <from uri="direct-vm:int.textdb.request" />
+            <bean ref="serializationUtil" method="unmarshalFromXml" />
+            <bean ref="textdbsrv" method="processMessage" />
+            <bean ref="serializationUtil" method="marshalToXml" />
+        </route>
 
 	</camelContext>
 
