@@ -75,6 +75,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * 09/03/2013   DR 13083   gzhang	  Added getZRvalue2() to fix an error.
  * 12/20/2013   DR 16894   gzhang     Fixed getZRvalue2() bias issue.
  * 05/12/2014   3133       njensen    Extracted getLightningRecord
+ * 05/13/2014   3133       njensen    Moved convertStrankValue here from ScanConfig
  * </pre>
  * 
  * @author dhladky
@@ -1933,4 +1934,28 @@ public class ScanUtils {
 
         return (float) (bias * MM_TO_INCH * rValue);
     }
+
+    /**
+     * Convert strength rank from string to double
+     * 
+     * @param stRank
+     * @return
+     */
+    public static double convertStrankValue(String stRank) {
+        double tmpValue = Double.NaN;
+
+        if (stRank.matches("[0-9.]+") == true) {
+            tmpValue = Double.valueOf(stRank);
+        } else if (stRank.endsWith("L") || stRank.endsWith("M")) {
+            try {
+                tmpValue = Double.valueOf(stRank.substring(0,
+                        stRank.length() - 1));
+            } catch (Exception ex) {
+                tmpValue = -999.0;
+            }
+        }
+
+        return tmpValue;
+    }
+
 }

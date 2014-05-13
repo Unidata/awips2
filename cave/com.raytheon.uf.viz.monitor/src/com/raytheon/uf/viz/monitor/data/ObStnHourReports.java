@@ -25,7 +25,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 
 

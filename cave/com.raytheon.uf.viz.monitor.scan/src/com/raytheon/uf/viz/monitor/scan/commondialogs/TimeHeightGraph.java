@@ -48,9 +48,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.dataplugin.scan.data.DMDTableDataRow;
-import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.EllipseData.EllipseType;
+import com.raytheon.uf.viz.monitor.scan.config.SCANConfig;
 
 /**
  * Composite containing the Time Height Graph canvas that will draw the

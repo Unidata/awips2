@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.plugin.scan.lightning;
 
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
@@ -44,6 +46,9 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
 public class LightningRetriever {
 
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(LightningRetriever.class);
+
     private LightningRetriever() {
 
     }
@@ -64,7 +69,7 @@ public class LightningRetriever {
             IDataStore dataStore = ld.getDataStore(lightRec);
             lightRec.retrieveFromDataStore(dataStore);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error retrieving lightning record", e);
         }
 
         return lightRec;
