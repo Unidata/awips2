@@ -17,11 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.monitor.scan.config;
+package com.raytheon.uf.viz.monitor.scan.config;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -30,11 +29,11 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
-import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
+import com.raytheon.uf.common.monitor.scan.xml.SCANConfigTvsXML;
 
 /**
  * 
- * Configuration manager for the DMD table.
+ * Configuration manager for the TVS table.
  * 
  * <pre>
  * 
@@ -42,7 +41,7 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 2, 2009  #3039      lvenable    Initial creation
+ * Dec 3, 2009  #3039      lvenable    Initial creation
  * Oct 2, 2013  2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
@@ -50,21 +49,21 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
  * @author lvenable
  * @version 1.0
  */
-public class DmdConfigMgr extends AbsConfigMgr {
+public class TvsConfigMgr extends AbsConfigMgr {
     /**
-     * DMD configuration manager XML.
+     * TVS configuration manager XML.
      */
-    private SCANConfigDmdXML dmdCfgXML;
+    private SCANConfigTvsXML tvsCfgXML;
 
     /**
      * Default configuration file name.
      */
-    private final String defaultConfigFileName = "SCANconfig_dmdTable.xml";
+    private final String defaultConfigFileName = "SCANconfig_tvsTable.xml";
 
     /**
      * Constructor.
      */
-    public DmdConfigMgr() {
+    public TvsConfigMgr() {
         super();
     }
 
@@ -75,12 +74,6 @@ public class DmdConfigMgr extends AbsConfigMgr {
     protected void init() {
         currentConfigFileName = defaultConfigFileName;
         loadDefaultConfig();
-
-        if (dmdCfgXML == null) {
-            System.out.println("dmdCfgXML is null");
-        } else {
-            System.out.println("--- " + dmdCfgXML.getDefaultRank());
-        }
     }
 
     /**
@@ -88,7 +81,7 @@ public class DmdConfigMgr extends AbsConfigMgr {
      */
     @Override
     public ArrayList<SCANAttributesXML> getAttributes() {
-        return dmdCfgXML.getAttributesData();
+        return tvsCfgXML.getAttributesData();
     }
 
     /**
@@ -97,7 +90,7 @@ public class DmdConfigMgr extends AbsConfigMgr {
     @Override
     public void loadDefaultConfig() {
         currentConfigFileName = defaultConfigFileName;
-        dmdCfgXML = (SCANConfigDmdXML) readDefaultConfig();
+        tvsCfgXML = (SCANConfigTvsXML) readDefaultConfig();
         createAttributeMap(getAttributes());
     }
 
@@ -107,7 +100,7 @@ public class DmdConfigMgr extends AbsConfigMgr {
     @Override
     public void loadNewConfig(String newCfgName) {
         currentConfigFileName = newCfgName;
-        dmdCfgXML = (SCANConfigDmdXML) readExistingConfig();
+        tvsCfgXML = (SCANConfigTvsXML) readExistingConfig();
         createAttributeMap(getAttributes());
     }
 
@@ -123,22 +116,23 @@ public class DmdConfigMgr extends AbsConfigMgr {
         LocalizationFile locFile = pm.getLocalizationFile(context, newFileName);
 
         if (locFile.getFile().getParentFile().exists() == false) {
-            System.out.println("Creating new directory");
+            System.out.println("TVS - Creating new directory");
 
             if (locFile.getFile().getParentFile().mkdirs() == false) {
-                System.out.println("Could not create new directory...");
+                System.out.println("TVS - Could not create new directory...");
             }
         }
 
         try {
             System.out.println("Saving -- "
                     + locFile.getFile().getAbsolutePath());
-            jaxb.marshalToXmlFile(dmdCfgXML, locFile.getFile()
+            jaxb.marshalToXmlFile(tvsCfgXML, locFile.getFile()
                     .getAbsolutePath());
             locFile.save();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     /**
@@ -146,7 +140,7 @@ public class DmdConfigMgr extends AbsConfigMgr {
      */
     @Override
     public boolean showTips() {
-        return dmdCfgXML.getTipsOption();
+        return tvsCfgXML.getTipsOption();
     }
 
     /**
@@ -154,7 +148,7 @@ public class DmdConfigMgr extends AbsConfigMgr {
      */
     @Override
     public void setShowTips(boolean showFlag) {
-        dmdCfgXML.setTipsOption(showFlag);
+        tvsCfgXML.setTipsOption(showFlag);
     }
 
     /**
@@ -167,7 +161,7 @@ public class DmdConfigMgr extends AbsConfigMgr {
 
         sb.append("scan").append(fs);
         sb.append("config").append(fs);
-        sb.append("dmdTableConfig").append(fs);
+        sb.append("tvsTableConfig").append(fs);
 
         return sb.toString();
     }
@@ -177,7 +171,7 @@ public class DmdConfigMgr extends AbsConfigMgr {
      */
     @Override
     public String getFullDefaultConfigName() {
-        return getConfigPath() + "SCANconfig_dmdTable.xml";
+        return getConfigPath() + defaultConfigFileName;
     }
 
     /**
@@ -189,64 +183,11 @@ public class DmdConfigMgr extends AbsConfigMgr {
     }
 
     /**
-     * Get the clutter control attribute name.
+     * Get the SCAN TVS configuration data.
      * 
-     * @return The clutter control attribute name.
+     * @return SCAN TVS configuration data.
      */
-    public String getClutterControl() {
-        return dmdCfgXML.getClutterControl();
-    }
-
-    /**
-     * Get the radius interpolation.
-     * 
-     * @return The radius interpolation.
-     */
-    public String getRadVar() {
-        return dmdCfgXML.getRadVar();
-    }
-
-    /**
-     * Get a linked map of clutter control attribute and the associated units.
-     * 
-     * @return A linked map of clutter control attribute and the associated
-     *         units.
-     */
-    public LinkedHashMap<String, String> getClutterAttributes() {
-        LinkedHashMap<String, String> attrUnitsMap = new LinkedHashMap<String, String>();
-        ArrayList<SCANAttributesXML> attrArray = getAttributes();
-
-        for (SCANAttributesXML attrXML : attrArray) {
-            if (attrXML.getClutter() == true) {
-                attrUnitsMap.put(attrXML.getAttrName(), attrXML.getUnits());
-            }
-        }
-
-        return attrUnitsMap;
-    }
-
-    /**
-     * Get the SCAN DMD configuration data.
-     * 
-     * @return SCAN DMD configuration data.
-     */
-    public SCANConfigDmdXML getScanDmdCfgXML() {
-        return this.dmdCfgXML;
-    }
-
-    public void setAlarmsDisabled(boolean flag) {
-        dmdCfgXML.setAlarmsDisabled(flag);
-    }
-
-    public boolean getAlarmsDisabled() {
-        return dmdCfgXML.getAlarmsDisabled();
-    }
-
-    public void setAlarmBell(boolean flag) {
-        dmdCfgXML.setAlarmBell(flag);
-    }
-
-    public boolean getAlarmBell() {
-        return dmdCfgXML.getAlarmBell();
+    public SCANConfigTvsXML getScanTvsCfgXML() {
+        return tvsCfgXML;
     }
 }

@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.monitor.scan.config;
+package com.raytheon.uf.viz.monitor.scan.config;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
+import com.raytheon.uf.common.monitor.scan.config.DmdDisplayFilterConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.CELLTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.DMDTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.MESOTable;
@@ -39,7 +39,11 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanThresholdColor;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.TVSTable;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.WARN_TYPE;
+import com.raytheon.uf.common.monitor.scan.config.StormCellConfig;
+import com.raytheon.uf.common.monitor.scan.config.TrendSetConfigMgr;
+import com.raytheon.uf.common.monitor.scan.config.UnwarnedConfig;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.SortDirection;
 
 /**
  * Configuration class used for SCAN. This is a singleton class.
@@ -50,7 +54,8 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2009 3039       lvenable     Initial creation
- * Apr 25, 2013   1926     njensen      synchronized instance creation
+ * Apr 25, 2013 1926       njensen      synchronized instance creation
+ * May 13, 2014 3133       njensen      Moved from common to viz plugin
  * 
  * </pre>
  * 
@@ -1602,29 +1607,6 @@ public class SCANConfig {
      */
     public String getMesoClassification(String rank) {
         return mesoClassificationFormatMap.get(rank);
-    }
-
-    /**
-     * Convert strength rank from string to double
-     * 
-     * @param stRank
-     * @return
-     */
-    public double convertStrankValue(String stRank) {
-        double tmpValue = Double.NaN;
-
-        if (stRank.matches("[0-9.]+") == true) {
-            tmpValue = Double.valueOf(stRank);
-        } else if (stRank.endsWith("L") || stRank.endsWith("M")) {
-            try {
-                tmpValue = Double.valueOf(stRank.substring(0,
-                        stRank.length() - 1));
-            } catch (Exception ex) {
-                tmpValue = -999.0;
-            }
-        }
-
-        return tmpValue;
     }
 
     /**

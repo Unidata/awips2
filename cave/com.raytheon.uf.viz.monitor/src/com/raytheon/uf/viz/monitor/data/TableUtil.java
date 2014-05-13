@@ -27,11 +27,11 @@ import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.CellType;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 

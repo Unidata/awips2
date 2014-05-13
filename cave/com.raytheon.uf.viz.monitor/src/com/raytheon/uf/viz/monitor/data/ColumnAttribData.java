@@ -17,10 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.monitor.data;
+package com.raytheon.uf.viz.monitor.data;
 
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.GraphType;
-import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.GraphType;
+import com.raytheon.uf.viz.monitor.config.CommonTableConfig.SortDirection;
 
 /**
  * Attributes for a table column.
