@@ -33,8 +33,7 @@ import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockBuilder;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * The Redbook parser accepts a potential Redbook record and attempts to decode
@@ -53,6 +52,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Apr 29, 2013 1958       bgonzale    Refactored to improve performance.
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -92,7 +92,7 @@ public class RedbookParser {
 
             int fcstTime = rRecord.getFcstHours() * 3600;
 
-            Calendar wmoTime = TimeTools.copy(rRecord.getTimeObs());
+            Calendar wmoTime = (Calendar) rRecord.getTimeObs().clone();
 
             if (day - wmoTime.get(Calendar.DAY_OF_MONTH) < 0) {
                 wmoTime.add(Calendar.MONTH, 1);

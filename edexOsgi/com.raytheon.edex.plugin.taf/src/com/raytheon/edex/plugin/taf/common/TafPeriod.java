@@ -28,8 +28,8 @@ import javax.persistence.Embeddable;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * 
@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 23Mar2005    1055        D. Weeks        Modified for use to decode TAFs for JET 
  * 30Aug2006                B. Phillippe    Modified for use to decode TAFs for AWIPS
  * Nov 01, 2013 2361        njensen     Remove XML annotations
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -114,9 +115,10 @@ public class TafPeriod implements Serializable {
      */
     public static TafPeriod copy(TafPeriod period) {
         TafPeriod periodCopy = new TafPeriod();
-        periodCopy.startDate = TimeTools.copy(period.startDate);
-        periodCopy.transitionEndDate = TimeTools.copy(period.transitionEndDate);
-        periodCopy.endDate = TimeTools.copy(period.endDate);
+        periodCopy.startDate = (Calendar) period.startDate.clone();
+        periodCopy.transitionEndDate = (Calendar) period.transitionEndDate
+                .clone();
+        periodCopy.endDate = (Calendar) period.endDate.clone();
 
         return periodCopy;
     }
@@ -144,7 +146,7 @@ public class TafPeriod implements Serializable {
         int hour2 = Integer.parseInt(aValidPeriod.substring(4, 6).trim());
 
         // Get the current time : In GMT!
-        Calendar startTime = TimeTools.getSystemCalendar(header.getYear(),
+        Calendar startTime = TimeUtil.newGmtCalendar(header.getYear(),
                 header.getMonth(), header.getDay());
 
         return TafPeriod.determineValidPeriod(startTime, day, hour1, hour2);
@@ -163,7 +165,7 @@ public class TafPeriod implements Serializable {
     public static TafPeriod determineValidPeriod(Calendar baseTime, int day,
             int hour1, int hour2) {
 
-        Calendar sTime = TimeTools.copy(baseTime);
+        Calendar sTime = (Calendar) baseTime.clone();
 
         // get start time day
         int startTimeDay = sTime.get(Calendar.DAY_OF_MONTH);
@@ -190,7 +192,7 @@ public class TafPeriod implements Serializable {
         sTime.set(Calendar.SECOND, 0);
 
         // Set the ending time for the period
-        Calendar eTime = TimeTools.copy(sTime);
+        Calendar eTime = (Calendar) sTime.clone();
 
         // Add a day to ending time if the hour is less than or equal
         // to the the start hour
@@ -224,7 +226,7 @@ public class TafPeriod implements Serializable {
     public static TafPeriod determineValidPeriod(Calendar baseTime, int day1,
             int hour1, int day2, int hour2) {
 
-        Calendar sTime = TimeTools.copy(baseTime);
+        Calendar sTime = (Calendar) baseTime.clone();
 
         // get start time day
         int startTimeDay = sTime.get(Calendar.DAY_OF_MONTH);
@@ -251,7 +253,7 @@ public class TafPeriod implements Serializable {
         sTime.set(Calendar.SECOND, 0);
 
         // Set the ending time for the period
-        Calendar eTime = TimeTools.copy(sTime);
+        Calendar eTime = (Calendar) sTime.clone();
 
         // Add a day to ending time if the hour is less than or equal
         // to the the start hour
@@ -289,7 +291,7 @@ public class TafPeriod implements Serializable {
 
         Calendar tafStartTime = aTAFValidPeriod.getStartDate();
 
-        Calendar sDate = TimeTools.copy(tafStartTime);
+        Calendar sDate = (Calendar) tafStartTime.clone();
         if (hour1 < tafStartTime.get(Calendar.HOUR_OF_DAY)) {
             sDate.add(Calendar.DAY_OF_MONTH, 1);
         }
@@ -298,7 +300,7 @@ public class TafPeriod implements Serializable {
         sDate.set(Calendar.SECOND, 0);
         sDate.set(Calendar.MILLISECOND, 0);
 
-        Calendar eDate = TimeTools.copy(tafStartTime);
+        Calendar eDate = (Calendar) tafStartTime.clone();
         if (hour2 <= tafStartTime.get(Calendar.HOUR_OF_DAY)) {
             eDate.add(Calendar.DAY_OF_MONTH, 1);
         }
@@ -373,7 +375,7 @@ public class TafPeriod implements Serializable {
     public static TafPeriod determineChangeGroupPeriodSSss(int hour, int min,
             TafPeriod aTAFValidPeriod) {
 
-        Calendar startDate = TimeTools.copy(aTAFValidPeriod.getStartDate());
+        Calendar startDate = (Calendar) aTAFValidPeriod.getStartDate().clone();
         if (hour <= startDate.get(Calendar.HOUR_OF_DAY)) {
             startDate.add(Calendar.DAY_OF_MONTH, 1);
         }
@@ -495,7 +497,7 @@ public class TafPeriod implements Serializable {
             int min) {
 
         Calendar cal = null;
-        Calendar target = TimeTools.copy(base);
+        Calendar target = (Calendar) base.clone();
         target.set(Calendar.SECOND, 0);
         target.set(Calendar.MILLISECOND, 0);
 
@@ -504,7 +506,7 @@ public class TafPeriod implements Serializable {
         for (int i = 0; i < 4; i++) {
             int sDay = target.get(Calendar.DAY_OF_MONTH);
             if (sDay == day) {
-                cal = TimeTools.copy(target);
+                cal = (Calendar) target.clone();
                 cal.set(Calendar.HOUR_OF_DAY, hour);
                 cal.set(Calendar.MINUTE, min);
                 break;
@@ -518,7 +520,7 @@ public class TafPeriod implements Serializable {
     public static final void main(String [] args) {
         
         
-        Calendar cA = TimeTools.getBaseCalendar(2012, 4, 1);
+        Calendar cA = TimeUtil.newGmtCalendar(2012, 4, 1);
         
         Calendar cB = setDayHourMin(cA, 31, 23, 0);
         

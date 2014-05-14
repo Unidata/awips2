@@ -8,9 +8,9 @@ Bundle-Vendor: AWIPS II migration
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  javax.persistence;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0"
-Import-Package: com.raytheon.uf.edex.decodertools.core,
+Import-Package: com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.decodertools.time,
- com.raytheon.uf.edex.wmo.message,
  gov.noaa.nws.ncep.edex.common.dao,
  org.osgi.framework
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.aww,

@@ -32,6 +32,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -40,7 +41,6 @@ import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDele
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Perform decode on BUFR Profiler data. Currently this decoder does not check
@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Apr 08, 2008  1039     jkorman     Added traceId for tracing data.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 03, 2013  2537     bsteffen    Switch logger to ufstatus.
+ * May 14, 2014  2536     bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -130,8 +131,8 @@ public class ProfilerDecoder extends AbstractDecoder implements
         PluginDataObject[] decodedData = null;
 
         if ((data != null) && (data.length > 0)) {
-
-            WMOHeader wmoHeader = new WMOHeader(data, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            WMOHeader wmoHeader = new WMOHeader(data, fileName);
             if ((wmoHeader != null) && (wmoHeader.isValid())) {
                 try {
 
