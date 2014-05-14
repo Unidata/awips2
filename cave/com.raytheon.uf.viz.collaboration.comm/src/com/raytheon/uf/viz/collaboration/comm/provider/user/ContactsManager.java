@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
  * Apr 24, 2014 3070       bclement     added checks for empty groups, added isContact(),
  *                                      added sendContactRequest()
  *                                      fixed contact request logic in addToGroup()
+ * May 14, 2014 3061       bclement     improved javadoc
  * 
  * </pre>
  * 
@@ -493,7 +494,7 @@ public class ContactsManager {
      * Get user info from roster. Does not include local alias information.
      * 
      * @param userId
-     * @return
+     * @return null if user is not a contact
      */
     public UserId getUser(String userId) {
         RosterEntry entry = searchRoster(userId);
@@ -507,7 +508,7 @@ public class ContactsManager {
      * Get entry from roster for user. Does not include local alias information.
      * 
      * @param user
-     * @return
+     * @return null if user is not a contact
      */
     public RosterEntry getRosterEntry(UserId user) {
         return searchRoster(user.getNormalizedId());
@@ -517,7 +518,7 @@ public class ContactsManager {
      * Get last known presence for contact.
      * 
      * @param user
-     * @return
+     * @return unavailable if no presence is found for user
      */
     public Presence getPresence(UserId user) {
         UserId self = connection.getUser();
@@ -574,7 +575,7 @@ public class ContactsManager {
      * Get entry from roster for user. Does not include local alias information.
      * 
      * @param userId
-     * @return
+     * @return null if user is not a contact
      */
     private RosterEntry searchRoster(String userId) {
         return getRoster().getEntry(userId);
