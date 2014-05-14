@@ -11,8 +11,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  com.raytheon.uf.common.localization;bundle-version="1.10.13",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common.dataplugin.idft;bundle-version="1.0.0"
-Import-Package: com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.wmo.message,
+Import-Package: com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.decodertools.core,
  gov.noaa.nws.ncep.common.dataplugin.idft,
  gov.noaa.nws.ncep.edex.util,
  org.apache.log4j

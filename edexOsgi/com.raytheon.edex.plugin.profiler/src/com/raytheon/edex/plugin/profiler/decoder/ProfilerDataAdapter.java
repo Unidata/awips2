@@ -41,12 +41,12 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * This class contains several utility methods that construct a ProfilerObs
@@ -60,6 +60,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * May 09, 2013  1869     bsteffen    Modified D2D time series of point data to
  *                                    work without dataURI.
  * Dec 03, 2013  2537     bsteffen    Switch logger to ufstatus.
+ * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
+ *                                     added breaks/default to switch
  * 
  * </pre>
  * 
@@ -224,8 +226,8 @@ public class ProfilerDataAdapter {
                     obsData.setLocation(location);
                     Calendar baseTime = getTimeInfo(dataList);
                     if (baseTime != null) {
-                        obsData.setTimeObs(TimeTools.copy(baseTime));
-                        DataTime dt = new DataTime(TimeTools.copy(baseTime));
+                        obsData.setTimeObs((Calendar) baseTime.clone());
+                        DataTime dt = new DataTime((Calendar) baseTime.clone());
                         obsData.setDataTime(dt);
                     } else {
                         logger.error(traceId
@@ -323,7 +325,7 @@ public class ProfilerDataAdapter {
         // Ensure that we have all of the time info and create the
         // date-time and datatime info.
         if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)) {
-            baseTime = TimeTools.getBaseCalendar(year, month, day);
+            baseTime = TimeUtil.newGmtCalendar(year, month, day);
             baseTime.set(Calendar.HOUR_OF_DAY, hour);
             baseTime.set(Calendar.MINUTE, minute);
         }
@@ -409,33 +411,35 @@ public class ProfilerDataAdapter {
             Object o = packet.getValue();
             if (o != null) {
                 switch (t) {
-                case STRING: {
+                case STRING:
                     if (o instanceof String) {
                         view.setString(parmName, (String) o, index);
                     }
-                }
-                case INT: {
+                    break;
+                case INT:
                     if (o instanceof Double) {
                         view.setInt(parmName, ((Double) o).intValue(), index);
                     } else if (o instanceof Long) {
                         view.setInt(parmName, ((Long) o).intValue(), index);
                     }
-                }
-                case LONG: {
+                    break;
+                case LONG:
                     if (o instanceof Double) {
                         view.setLong(parmName, ((Double) o).longValue(), index);
                     } else if (o instanceof Long) {
                         view.setLong(parmName, (Long) o, index);
                     }
-                }
-                case FLOAT: {
+                    break;
+                case FLOAT:
                     if (o instanceof Double) {
                         view.setFloat(parmName, ((Double) o).floatValue(),
                                 index);
                     } else if (o instanceof Long) {
                         view.setFloat(parmName, ((Long) o).floatValue(), index);
                     }
-                }
+                    break;
+                default:
+                    logger.warn("Unsupported point data view type: " + t);
                 }
             }
         }

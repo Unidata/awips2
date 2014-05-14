@@ -30,7 +30,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -39,8 +38,8 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.svrwx.SvrWxRecordDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * SvrWx Parser
@@ -53,6 +52,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jan 04, 2010            jsanchez    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Apr 07, 2014 2971       skorolev    Add condition to avoid malformed parts in the message.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed pluginName
  * 
  * </pre>
  * 
@@ -72,8 +72,6 @@ public class SvrWxParser {
     private final Map<File, PointDataContainer> containerMap;
 
     private WMOHeader wmoHeader;
-
-    private final String pluginName;
 
     private String traceId;
 
@@ -154,7 +152,6 @@ public class SvrWxParser {
     public SvrWxParser(SvrWxRecordDao dao, PointDataDescription pdd, String name) {
         pointDataDescription = pdd;
         svrWxDao = dao;
-        pluginName = name;
         containerMap = new HashMap<File, PointDataContainer>();
     }
 
@@ -171,7 +168,8 @@ public class SvrWxParser {
         currentReport = -1;
         badLines = new ArrayList<String>();
         this.traceId = traceId;
-        wmoHeader = new WMOHeader(message, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        wmoHeader = new WMOHeader(message, fileName);
         if (wmoHeader != null) {
             reports = findReports(message);
             if (!badLines.isEmpty()) {
@@ -228,16 +226,10 @@ public class SvrWxParser {
         } else {
             report = reports.get(currentReport++);
             logger.debug("Getting report " + report);
-            try {
-                report.constructDataURI();
-                if (URI_MAP.containsKey(report.getDataURI())) {
-                    report = null;
-                } else {
-                    URI_MAP.put(report.getDataURI(), Boolean.TRUE);
-                }
-            } catch (PluginException e) {
-                logger.error(traceId + "- Unable to construct dataURI", e);
+            if (URI_MAP.containsKey(report.getDataURI())) {
                 report = null;
+            } else {
+                URI_MAP.put(report.getDataURI(), Boolean.TRUE);
             }
             if (report != null) {
 

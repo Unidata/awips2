@@ -17,6 +17,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.bufrquikscat,
  com.raytheon.uf.common.serialization
 Import-Package: com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo,
  com.raytheon.uf.edex.bufrtools,
  com.raytheon.uf.edex.core,
  org.apache.commons.logging

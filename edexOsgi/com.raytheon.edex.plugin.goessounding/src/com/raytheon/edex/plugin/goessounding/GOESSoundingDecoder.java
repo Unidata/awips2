@@ -39,6 +39,7 @@ import com.raytheon.uf.common.dataplugin.goessounding.GOESSounding;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -47,7 +48,6 @@ import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDele
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Perform decode on BUFR GOES satellite sounding data. Currently this decoder

@@ -19,4 +19,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.exception,
  com.raytheon.edex.plugin,
+ com.raytheon.uf.common.wmo,
  org.apache.commons.logging
