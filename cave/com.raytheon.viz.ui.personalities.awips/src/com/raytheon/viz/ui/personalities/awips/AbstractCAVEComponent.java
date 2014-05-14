@@ -214,7 +214,7 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
                     // only run alert visualization inside viz if the server
                     // is running, otherwise it is running as a separate pid
                     try {
-                        av = new AlertVisualization(false, display);
+                        av = new AlertVisualization(true, display);
                     } catch (RuntimeException e) {
                         e.printStackTrace();
                         String err = "Error starting alert visualization.";
@@ -238,7 +238,7 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             initializeSimulatedTime();
 
             // open JMS connection to allow alerts to be received
-            NotificationManagerJob.connect();
+            //NotificationManagerJob.connect();
 
             timer.stop();
             System.out.println("Internal initialization time: "
