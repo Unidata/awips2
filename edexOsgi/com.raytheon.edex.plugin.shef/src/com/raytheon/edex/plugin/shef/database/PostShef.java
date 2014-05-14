@@ -23,10 +23,13 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +41,7 @@ import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
 import com.raytheon.edex.plugin.shef.util.BitUtils;
 import com.raytheon.edex.plugin.shef.util.SHEFDate;
+import com.raytheon.edex.plugin.shef.util.ShefAdjustFactor;
 import com.raytheon.edex.plugin.shef.util.ShefStats;
 import com.raytheon.edex.plugin.shef.util.ShefUtil;
 import com.raytheon.edex.plugin.shef.util.StoreDisposition;
@@ -78,6 +82,8 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants.IngestSwitch;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -109,8 +115,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 04/05/2013   16036      w. kwock    Fixed no ts=RZ in ingestfilter table but posted to height table 
  * 10/28/2013   16711      lbousaidi   if the id is not in location table,but defined in geoarea table
  *                                     data can be posted to appropriate pe-based tables only if the data 
- *                                     type is not READING like in A1 code. 
- * 02/18/2014   16572      l. Bousaidi only apply adjust factor to non missing values.                                     
+ *                                     type is not READING like in A1 code.
+ * 02/18/2014   16572      l. Bousaidi only apply adjust factor to non missing values.
+ * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  * 
  * </pre>
  * 
@@ -119,7 +126,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  */
 public class PostShef {
     /** The logger */
-    private final Log log = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(PostShef.class);
 
     /**
      * Location Enum
@@ -135,87 +143,114 @@ public class PostShef {
         QC_DEFAULT, QC_GROSSRANGE_FAILED, QC_REASONRANGE_FAILED, QC_ROC_FAILED, QC_ROC_PASSED, QC_OUTLIER_FAILED, QC_OUTLIER_PASSED, QC_SCC_FAILED, QC_SCC_PASSED, QC_MSC_FAILED, QC_MSC_PASSED, QC_EXTERN_FAILED, QC_EXTERN_QUEST, QC_MANUAL_PASSED, QC_MANUAL_QUEST, QC_MANUAL_FAILED, QC_MANUAL_NEW, QC_PASSED, QC_QUESTIONABLE, QC_FAILED, QC_NOT_PASSED, QC_NOT_FAILED
     };
 
-    private static final SimpleDateFormat DB_TIMESTAMP = new SimpleDateFormat(ShefConstants.POSTGRES_DATE_FORMAT.toPattern());
-    static {
-        DB_TIMESTAMP.setTimeZone(TimeZone.getTimeZone(ShefConstants.GMT));
-    }
-    
+    /** Log entry separator */
+    private static final String LOG_SEP = "========================================";
+
+    /** Q code pattern */
     private static final Pattern Q_CODES = Pattern.compile("Q[^BEF]");
-    
-    private static final String POST_START_MSG = "Posting process started for LID [%s] PEDTSEP [%s] value [%s]";
-        
-    private static final String LOV_POST_MSG = "Data [%s] ObsTime[%s] for LID [%s] posted to the latestObsValue for PE [%s]";
-    
+
+    /** Constant for ON */
     private static final String SHEF_ON = "ON";
 
-    private String prevLid = null;
+    /** Questionable/bad threshold value */
+    private static final int QUESTIONABLE_BAD_THRESHOLD = 1073741824;
 
-    private String prevProdId = null;
+    /** Map of value to duration character */
+    private static final Map<Integer, String> DURATION_MAP;
 
-    private Date prevProdTime = null;
+    static {
+        DURATION_MAP = Collections.unmodifiableMap(buildDurationMap());
+    }
 
+    /** Thread safe database date formatter */
+    private ThreadLocal<SimpleDateFormat> dbFormat = new ThreadLocal<SimpleDateFormat>() {
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat(
+                    ShefConstants.POSTGRES_DATE_STRING);
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return sdf;
+        }
+    };
+
+    /** Instance of DAO object */
+    private CoreDao dao;
+
+    /** SHEF product id */
     private String prodId = null;
 
+    /** SHEF product time */
     private Date prodTime = null;
 
+    /** db posting time */
     private Date postDate;
 
+    /** SHEF data record */
     private ShefRecord shefRecord = null;
 
+    /** SHEF decoder statistics object */
     private final ShefStats stats = new ShefStats();
 
+    /** SHEF alert/alarm value */
     private int alertAlarm = ShefConstants.NO_ALERTALARM;
 
+    /** AppsDefaults instance */
     private AppsDefaults appDefaults = AppsDefaults.getInstance();
 
-    private boolean isHoursLoad = false;
-
-    private long obshrs = 72;
-
-    private long fcsthrs = 72;
-
+    /** Default basis hrs */
     private long basishrs = 72;
 
+    /** Map of location identifiers to Location Objects */
+    private HashMap<String, Location> idLocations = new HashMap<String, Location>();
+
+    /** number of milliseconds back for data to be considered valid */
+    private long lookbackMillis;
+
+    /** number of milliseconds forward for data to be considered valid */
+    private int lookfwdMillis;
+
+    /** Location DAO object */
+    private CoreDao locDao;
+
+    /** Instance of PostTables class */
+    private PostTables postTables;
+
+    /** Map of adjustment factors for eacy data type */
+    private Map<String, ShefAdjustFactor> adjustmentMap = new HashMap<String, ShefAdjustFactor>();
+
+    /** Map of location identifier to IngestSwitch */
+    private Map<String, IngestSwitch> ingestSwitchMap = new HashMap<String, IngestSwitch>();
+
     // AppsDefaults tokens
-    private String undefStation = ShefConstants.NONE;
+    private String undefStation;
 
     private String shefPostDuplicate = null;
 
-    private String shefPostDuplicateDef = "IF_DIFFERENT";
+    private String shefPostDuplicateDef;
 
-    private boolean shefAlertAlarm = false;
+    private boolean shefAlertAlarm;
 
-    private boolean locMess = false;
+    private boolean locMess;
 
-    private int lookBackDays = 10;
+    private int lookBackDays;
 
-    private int lookAheadMinutes = 30;
+    private int lookAheadMinutes;
 
-    private boolean postLink = false;
+    private boolean postLink;
 
     private String postLatest = "";
 
-    private boolean loadMaxFcst = false;
+    private boolean loadMaxFcst;
 
-    private boolean postBadData = false;
+    private boolean postBadData;
 
-    private String basis_hours_str = null;
+    private boolean loadIngest;
 
-    private boolean elgMess = false;
+    private boolean procObs;
 
-    private boolean loadIngest = false;
+    private boolean dataLog;
 
-    private boolean ingestMess = false;
-
-    private boolean procObs = false;
-
-    private boolean dataLog = false;
-
-    private boolean perfLog = false;
-
-    private boolean archiveMode = false;
-    
-    private HashMap<String, Location> idLocations = new HashMap<String, Location>();
+    private boolean perfLog;
 
     /**
      * 
@@ -224,7 +259,9 @@ public class PostShef {
     public PostShef(Date date) {
         postDate = date;
         getAppsDefaults();
-        PostTables.PostTablesInit();
+        createConnection();
+        postTables = new PostTables();
+        calculateConstants();
     }
 
     private void getAppsDefaults() {
@@ -234,7 +271,7 @@ public class PostShef {
         shefPostDuplicate = appDefaults.getToken(ShefConstants.SHEF_DUPLICATE);
 
         shefPostDuplicateDef = appDefaults.getToken(
-                ShefConstants.SHEF_DUPLICATE, "IF_DIFFERENT");
+                ShefConstants.SHEF_DUPLICATE, ShefConstants.IF_DIFFERENT);
 
         shefAlertAlarm = appDefaults.getBoolean(ShefConstants.SHEF_ALERTALARM,
                 false);
@@ -253,23 +290,64 @@ public class PostShef {
         postBadData = appDefaults.getToken(ShefConstants.SHEF_POST_BADDATA,
                 "REJECT").equalsIgnoreCase("REJECT");
 
-        basis_hours_str = appDefaults
+        String basis_hours_str = appDefaults
                 .getToken(ShefConstants.BASIS_HOURS_FILTER);
-
-        elgMess = appDefaults.getBoolean(ShefConstants.ELGMESS, false);
+        try {
+            if (basis_hours_str != null) {
+                basishrs = Integer.parseInt(basis_hours_str);
+            }
+        } catch (NumberFormatException e) {
+            log.info(ShefConstants.BASIS_HOURS_FILTER
+                    + " not set, using default value of 72");
+        }
 
         loadIngest = appDefaults.getBoolean(ShefConstants.SHEF_LOAD_INGEST,
                 false);
-
-        ingestMess = appDefaults.getBoolean(ShefConstants.INGEST_MESS, false);
 
         procObs = appDefaults.getBoolean(ShefConstants.SHEF_PROCOBS, false);
 
         dataLog = appDefaults.getBoolean(ShefConstants.SHEF_DATA_LOG, false);
         // TODO need to implement this token and the performance logging
         perfLog = appDefaults.getBoolean(ShefConstants.SHEF_PERFLOG, false);
-        
-        archiveMode = appDefaults.getBoolean("ALLOW_ARCHIVE_DATA",false);
+    }
+
+    private void calculateConstants() {
+        lookbackMillis = lookBackDays * ShefConstants.MILLIS_PER_DAY;
+        lookfwdMillis = lookAheadMinutes * ShefConstants.MILLIS_PER_MINUTE;
+    }
+
+    private static Map<Integer, String> buildDurationMap() {
+        Map<Integer, String> map = new HashMap<Integer, String>();
+        map.put(0, "I");
+        map.put(1, "U");
+        map.put(5, "E");
+        map.put(10, "G");
+        map.put(15, "C");
+        map.put(30, "J");
+        map.put(1001, "H");
+        map.put(1002, "B");
+        map.put(1003, "T");
+        map.put(1004, "F");
+        map.put(1006, "Q");
+        map.put(1008, "A");
+        map.put(1012, "K");
+        map.put(1018, "L");
+        map.put(2001, "D");
+        map.put(2007, "W");
+        map.put(3001, "M");
+        map.put(4001, "Y");
+        map.put(5004, "P");
+        map.put(5000, "Z");
+        map.put(5001, "S");
+        map.put(5002, "R");
+        map.put(5005, "X");
+        return map;
+    }
+
+    private void createConnection() {
+        dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
+        locDao = new CoreDao(DaoConfig.forClass(ShefConstants.IHFS,
+                com.raytheon.uf.common.dataplugin.shef.tables.Location.class));
     }
 
     /**
@@ -291,20 +369,12 @@ public class PostShef {
      *            - The ShefRecord object containing all the data
      */
     public void post(ShefRecord shefRecord) {
-
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.post() called...");
-        }
         this.shefRecord = shefRecord;
 
         /* Make sure we have data, else return */
         if (shefRecord == null) {
             log.info("Not Posted:Report is null");
             return;
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("ShefRecord = " + shefRecord);
-            }
         }
 
         List<ShefData> dataValues = shefRecord.getDataValues();
@@ -313,679 +383,665 @@ public class PostShef {
             log.info("Not Posted:No data records in decoded data");
             return;
         }
-        
+
         long start;
         long end;
 
         String identifier = shefRecord.getIdentifier();
-        if(identifier == null) {
+        if (identifier == null) {
             identifier = "MSGPRODID";
         }
 
         prodId = identifier;
 
-        // /* Build the text product */
-        // storeTextProduct();
-
         String locId = shefRecord.getLocationId();
         prodTime = shefRecord.getProductTime();
 
-        if (ShefRecord.ShefType.B.equals(shefRecord.getShefType())) {
-            String locateId = null;
-            // need to handle bType for bad data-- loop through it
-            // for (ShefData data : dataValues) {
-            // locateId = data.getLocationId();
-            // log.info("Posting process started for shefrecord " + locateId);
-            // }
-        } else if ((locId == null) || (dataValues == null)) {
+        if ((locId == null) || (dataValues == null)) {
             // Check for bad data
             log.warn("No data stored for " + prodId);
             return;
         }
-        prevLid = locId;
 
-        /*
-         * check to see whether this location should be posted. it checks if the
-         * "location" is defined in the location table; also allow for
-         * "locations" (i.e. areas) to be defined in the GeoArea table. this if
-         * for data for counties, basins, etc.
-         */
-        prevLid = null;
-        Location postLocData = null;
-        for (ShefData data : dataValues) {
+        try {
 
-            boolean same_lid_product = false;
-
-            String dataValue = data.getStringValue();
-
-            if (ShefConstants.SHEF_SKIPPED.equals(dataValue)) {
-                continue;
-            } else if (ShefConstants.SHEF_MISSING_DEC.equals(dataValue)) {
-                dataValue = ShefConstants.SHEF_MISSING;
-            }
-
-            // Per A1 code - set the creation date to Date(0) if missing.
-            Date basis = data.getCreationDateObj();
-            if(basis == null) {
-                Date d = new Date(0);
-                SimpleDateFormat sdf = new SimpleDateFormat(ShefConstants.POSTGRES_DATE_STRING);
-                sdf.setTimeZone(TimeZone.getTimeZone("Zulu"));
-                data.setCreationDateObj(d);
-                try {
-                    data.setCreationDate("1970-01-01 00:00:00");
-                } catch (ParseException e) {
-                    // Nothing - will not happen!
-                }
-            }
-            
-            locId = data.getLocationId();
-
-            String key = String.format("%s%s%s", locId, prodId,
-                    data.getObservationTime());
-            if (idLocations.containsKey(key)) {
-                postLocData = idLocations.get(key);
-                same_lid_product = true;
-            } else {
-                postLocData = checkLocation(data.getLocationId());
-                idLocations.put(key, postLocData);
-                same_lid_product = false;
-            }
-
-            log.info("========================================");
-
-            log.info(String.format(POST_START_MSG, locId, data.getPeTsE(), dataValue));
-            
             /*
-             * determine the type of data this is, based on the type-source
-             * code. areal data is separated from the point data. note that
-             * processed data can be labeled as observed data!!! also note that
-             * any type-sources which are not R,F, or C are assumed to be
-             * processed. This includes the numbered type-source codes.
+             * check to see whether this location should be posted. it checks if
+             * the "location" is defined in the location table; also allow for
+             * "locations" (i.e. areas) to be defined in the GeoArea table. this
+             * if for data for counties, basins, etc.
              */
-            String dataQualifier = data.getQualifier();
-            TypeSource typeSource = data.getTypeSource();
+            Location postLocData = null;
+            for (ShefData data : dataValues) {
+                boolean same_lid_product = false;
 
-            if (typeSource != null) {
-                if (TypeSource.UNKNOWN.equals(typeSource)) {
+                String dataValue = data.getStringValue();
+
+                if (ShefConstants.SHEF_SKIPPED.equals(dataValue)) {
+                    continue;
+                } else if (ShefConstants.SHEF_MISSING_DEC.equals(dataValue)) {
+                    dataValue = ShefConstants.SHEF_MISSING;
+                }
+
+                // Per A1 code - set the creation date to Date(0) if missing.
+                Date basis = data.getCreationDateObj();
+                if (basis == null) {
+                    Date d = new Date(0);
+                    data.setCreationDateObj(d);
+                    data.setCreationDate("1970-01-01 00:00:00");
+                }
+
+                String key = locId + prodId + data.getObservationTime();
+                if (idLocations.containsKey(key)) {
+                    postLocData = idLocations.get(key);
+                    same_lid_product = true;
+                } else {
+                    postLocData = checkLocation(data.getLocationId());
+                    idLocations.put(key, postLocData);
+                    same_lid_product = false;
+                }
+
+                if (dataLog) {
+                    log.info(LOG_SEP);
+                    log.info("Posting process started for LID [" + locId
+                            + "] PEDTSEP [" + data.getPeTsE() + "] value ["
+                            + dataValue + "]");
+                }
+
+                /*
+                 * determine the type of data this is, based on the type-source
+                 * code. areal data is separated from the point data. note that
+                 * processed data can be labeled as observed data!!! also note
+                 * that any type-sources which are not R,F, or C are assumed to
+                 * be processed. This includes the numbered type-source codes.
+                 */
+                String dataQualifier = data.getQualifier();
+                TypeSource typeSource = data.getTypeSource();
+
+                if (typeSource == null || typeSource == TypeSource.UNKNOWN) {
                     log.error("Unknown typesource code in data [" + data + "]");
                     continue;
                 }
-            } else {
-                log.error("Unknown typesource code in data [" + data + "]");
-                continue;
-            }
 
-            // Don't use the TypeSource directly because there are some cases
-            // where the "type" defaults.
-            DataType dataType = ParameterCode.DataType.getDataType(typeSource,procObs);
+                // Don't use the TypeSource directly because there are some
+                // cases
+                // where the "type" defaults.
+                DataType dataType = ParameterCode.DataType.getDataType(
+                        typeSource, procObs);
 
-            if (log.isDebugEnabled()) {
-                log.debug("DataType = " + dataType);
-            }
-         
-            /*
-             *  if the station_id exists in location table and
-             *  the data type is READING then the data doesn't get posted
-             *  to the appropriate pe-based tables to match A1 logic.
-             *  DR16711  
-             */
-            
-            if ((DataType.READING.equals(dataType)) 
-            		&&(Location.LOC_GEOAREA.equals(postLocData))) {
-            	postLocData=Location.LOC_UNDEFINED;            	
-            }
-            
-            SHEFDate d = data.getObsTime();
-            if (d == null) {
-                log.error(data);
-                log.error("Not posted:Record does not contain an observation time");
-                return;
-            }
-            Date obsTime = d.toCalendar().getTime();
-            Date createTime = null;
-            if (data.getCreateTime() != null) {
-                createTime = data.getCreateTime().toCalendar().getTime();
-            }
-
-            /*
-             * if location not defined, issue message and save the data if
-             * appropriate. now dispense of the unknown data in the appropriate
-             * manner. note for unknown data, any comments specified are not
-             * stored. also note, for unknown station data, don't bother posting
-             * if the data has not changed.
-             */
-            StoreDisposition disposition = StoreDisposition.NONE;
-            if (Location.LOC_UNDEFINED.equals(postLocData)) {
-                // Do logging here
-                if (locMess && !same_lid_product) {
-                    String sMsg = null; 
-                    if (ShefConstants.NONE.equalsIgnoreCase(undefStation)) {
-                        sMsg = String.format("LID [%s] not defined; no data posted", locId);
-                    } else if ("IDS_ONLY".equalsIgnoreCase(undefStation)) {
-                        sMsg = String.format("LID [%s] not defined; ; station info posting to UnkStn", locId);
-                    } else if ("IDS_AND_DATA".equalsIgnoreCase(undefStation)) {
-                        sMsg = String.format("LID [%s] not defined; ; data posting to UnkStnValue", locId);
-                    }
-                    if(sMsg != null) {
-                        log.info(sMsg);
-                    }
-                }
-
-                // Only post an unknown once!
-                if ("IDS_ONLY".equalsIgnoreCase(undefStation)) {
-                    if (!same_lid_product) {
-                        Unkstn unknown = new Unkstn();
-                        unknown.setIdentifier(identifier);
-                        unknown.setLid(locId);
-                        unknown.setPostingtime(postDate);
-                        unknown.setProductId(prodId);
-                        unknown.setProducttime(prodTime);
-                        unknown.setTraceId(shefRecord.getTraceId());
-                        start = System.currentTimeMillis();
-                        PostTables.postUnknownStation(unknown, stats);
-                        end = System.currentTimeMillis();
-                        stats.addElapsedTimeUnknown(end - start);
-                        disposition = StoreDisposition.UKN_STN_POSTING;
-                    } else {
-                        disposition = StoreDisposition.UKN_STN_POSTED;
-                    }
-                } else if ("IDS_AND_DATA".equalsIgnoreCase(undefStation)) {
-                    stats.incrementUnknownStation();
-                    PersistableDataObject unknstnvalue = populateDataObj(
-                            shefRecord, data, locId,
-                            ShefConstants.UNKNOWN_STATION_VALUE, dataValue,
-                            dataQualifier, 0);
-
-                    start = System.currentTimeMillis();
-                    PostTables.postData(unknstnvalue,
-                            ShefConstants.UNKNOWN_STATION_VALUE,
-                            shefPostDuplicateDef, stats);
-                    end = System.currentTimeMillis();
-                    stats.addElapsedTimeUnknown(end - start);
-                    disposition = StoreDisposition.UKN_STN_VALUE;
-                }
-                stats.incrementWarningMessages();
-            } else if (Location.LOC_NO_POST.equals(postLocData)) {
-                stats.incrementNoPost();
-                // if the location is defined but was set to not post, then
-                // write message indicating this, if one hasn't been written
-                // already
-                if (locMess && !same_lid_product) {
-                    log.info(String.format("Station [%s] is inactive", locId));
-                }
-                disposition = StoreDisposition.INACTIVE_LID;
-            }
-
-            /*
-             * check if an lid-PEDTSE entry exists in the IngestFilter. this
-             * function can self-populate the IngestFilter table; if not in
-             * self-populate mode, then an error message is issued if there is
-             * no entry in the IngestFilter table and the data will not be
-             * posted.
-             */
-            ShefConstants.IngestSwitch ingestSwitch = ShefConstants.IngestSwitch.POST_PE_ONLY;
-            if (Location.LOC_LOCATION.equals(postLocData)
-                    || (Location.LOC_GEOAREA.equals(postLocData))) {
-                if (!DataType.CONTINGENCY.equals(dataType)) {
-                    ingestSwitch = checkIngest(locId, data, ingestSwitch);
-                }
-                if (ShefConstants.IngestSwitch.POST_PE_OFF.equals(ingestSwitch)) {
-                    stats.incrementNoPost();
-                }
-            }
-
-            /*
-             * if the location data should not be posted because either: 1) the
-             * location is not defined as a location or an area, or because the
-             * location post switch is off, or 2) the PEDTSE ingest switch is
-             * turned off; then no need to continue
-             */
-
-            boolean t2 = ShefConstants.IngestSwitch.POST_PE_OFF
-                    .equals(ingestSwitch);
-
-            if ((!Location.LOC_LOCATION.equals(postLocData) && !Location.LOC_GEOAREA
-                    .equals(postLocData)) || t2) {
                 /*
-                 * set the prev info for the next pass through this function.
-                 * this is info is used for to prevent redundant messages
+                 * if the station_id exists in location table and the data type
+                 * is READING then the data doesn't get posted to the
+                 * appropriate pe-based tables to match A1 logic. DR16711
                  */
-                prevLid = locId;
-                prevProdId = identifier;
-                prevProdTime = prodTime;
-                String unkmsg = null;
-                switch (disposition) {
-                case UKN_STN_POSTING : {
-                    unkmsg = String.format("Posting LID [%s] to [unkstn]", locId);
-                    break;
-                }
-                case UKN_STN_POSTED : {
-                    unkmsg = String.format("LID [%s] already posted to [unkstn]", locId);
-                    break;
-                }
-                case UKN_STN_VALUE : {
-                    unkmsg = String.format("Posting LID [%s] data [%s] to [unkstnvalue]", locId, dataValue);
-                    break;
-                }
-                case INACTIVE_LID :
-                    unkmsg = String.format("Not posting data [%s] for inactive LID [%s]", dataValue, locId);
-                    break;
-                default : {
-                    unkmsg = String.format("Not posting data [%s] for LID [%s]", dataValue, locId);
-                    break;
-                }
-                }
-                log.warn(unkmsg);
-                stats.incrementWarningMessages();
-                continue;
-            }
 
-            /*---------------------------------------------------------------------*/
-            /*
-             * check for observed data too far in past or future if data is
-             * outside of this time window, then do not post. skip this check if
-             * data is monthly data
-             */
-
-            if (DataType.READING.equals(dataType)
-                    || TypeSource.PROCESSED_MEAN_AREAL_DATA.equals(typeSource)) {
-
-                long lookbackMillis = lookBackDays
-                        * ShefConstants.MILLIS_PER_DAY;
-
-                long lookfwdMillis = lookAheadMinutes
-                        * ShefConstants.MILLIS_PER_MINUTE;
-
-                if ((postDate.getTime() - obsTime.getTime() > lookbackMillis)
-                        && (!Duration._1_MONTH.equals(data.getDuration()))) {
-                    stats.incrementWarningMessages();
-                    stats.incrementOutsideWindow();
-                    log.warn(locId + " " + data.getObsTime() + " obs time > "
-                            + lookBackDays + " days old; data not posted");
-                    continue;
-                } else if (obsTime.getTime() - postDate.getTime() > lookfwdMillis) {
-                    stats.incrementWarningMessages();
-                    stats.incrementOutsideWindow();
-                    log.warn(locId + " obs time (" + data.getObsTime() + ") >"
-                            + " post time (" + postDate + "); "
-                            + lookAheadMinutes
-                            + " minutes in the future; data not posted");
-                    continue;
+                if ((DataType.READING.equals(dataType))
+                        && (Location.LOC_GEOAREA.equals(postLocData))) {
+                    postLocData = Location.LOC_UNDEFINED;
                 }
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Data in the window");
-            }
-            /*
-             * check for forecast basis times that are after the valid time,
-             * issue a warning message if this is the case - basis time is the
-             * creation date and valid time is the obs time
-             */
-            if (DataType.FORECAST.equals(dataType)
-                    || TypeSource.FORECAST_MEAN_AREAL_DATA.equals(typeSource)) {
 
-                if (createTime == null) {
-                    // stats.incrementWarning Messages();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Creation date not present.");
+                SHEFDate d = data.getObsTime();
+                if (d == null) {
+                    log.error(data.toString());
+                    log.error("Not posted:Record does not contain an observation time");
+                    return;
+                }
+                Date obsTime = d.toCalendar().getTime();
+                Date createTime = null;
+                if (data.getCreateTime() != null) {
+                    createTime = data.getCreateTime().toCalendar().getTime();
+                }
+
+                /*
+                 * if location not defined, issue message and save the data if
+                 * appropriate. now dispense of the unknown data in the
+                 * appropriate manner. note for unknown data, any comments
+                 * specified are not stored. also note, for unknown station
+                 * data, don't bother posting if the data has not changed.
+                 */
+                StoreDisposition disposition = StoreDisposition.NONE;
+                if (Location.LOC_UNDEFINED.equals(postLocData)) {
+                    // Do logging here
+                    if (locMess && !same_lid_product) {
+                        StringBuilder sMsg = new StringBuilder();
+                        if (ShefConstants.NONE.equalsIgnoreCase(undefStation)) {
+                            sMsg.append("LID [").append(locId)
+                                    .append("] not defined; no data posted");
+                        } else if ("IDS_ONLY".equalsIgnoreCase(undefStation)) {
+                            sMsg.append("LID [")
+                                    .append(locId)
+                                    .append("] not defined; station info posting to UnkStn");
+                        } else if ("IDS_AND_DATA"
+                                .equalsIgnoreCase(undefStation)) {
+                            sMsg.append("LID [")
+                                    .append("] not defined; data posting to UnkStnValue");
+                        }
+                        if (sMsg.length() > 0) {
+                            log.info(sMsg.toString());
+                        }
                     }
-                } else {
-                    if (createTime.getTime() > obsTime.getTime()) {
+
+                    // Only post an unknown once!
+                    if ("IDS_ONLY".equalsIgnoreCase(undefStation)) {
+                        if (!same_lid_product) {
+                            Unkstn unknown = new Unkstn();
+                            unknown.setIdentifier(identifier);
+                            unknown.setLid(locId);
+                            unknown.setPostingtime(postDate);
+                            unknown.setProductId(prodId);
+                            unknown.setProducttime(prodTime);
+                            unknown.setTraceId(shefRecord.getTraceId());
+                            start = System.currentTimeMillis();
+                            postTables.postUnknownStation(unknown, stats);
+                            end = System.currentTimeMillis();
+                            stats.addElapsedTimeUnknown(end - start);
+                            stats.incrementUnknownStation();
+                            disposition = StoreDisposition.UKN_STN_POSTING;
+                        } else {
+                            disposition = StoreDisposition.UKN_STN_POSTED;
+                        }
+                    } else if ("IDS_AND_DATA".equalsIgnoreCase(undefStation)) {
+                        PersistableDataObject unknstnvalue = populateDataObj(
+                                shefRecord, data, locId,
+                                ShefConstants.UNKNOWN_STATION_VALUE, dataValue,
+                                dataQualifier, 0);
+
+                        start = System.currentTimeMillis();
+                        postTables.postData(unknstnvalue,
+                                ShefConstants.UNKNOWN_STATION_VALUE,
+                                shefPostDuplicateDef, stats);
+                        end = System.currentTimeMillis();
+                        stats.incrementUnknownStation();
+                        stats.addElapsedTimeUnknown(end - start);
+                        disposition = StoreDisposition.UKN_STN_VALUE;
+                    }
+                    stats.incrementWarningMessages();
+                } else if (Location.LOC_NO_POST.equals(postLocData)) {
+                    stats.incrementNoPost();
+                    // if the location is defined but was set to not post, then
+                    // write message indicating this, if one hasn't been written
+                    // already
+                    if (locMess && !same_lid_product) {
+                        log.info("Station [" + locId + "] is inactive");
+                    }
+                    disposition = StoreDisposition.INACTIVE_LID;
+                }
+
+                /*
+                 * check if an lid-PEDTSE entry exists in the IngestFilter. this
+                 * function can self-populate the IngestFilter table; if not in
+                 * self-populate mode, then an error message is issued if there
+                 * is no entry in the IngestFilter table and the data will not
+                 * be posted.
+                 */
+                ShefConstants.IngestSwitch ingestSwitch = ShefConstants.IngestSwitch.POST_PE_ONLY;
+                if (Location.LOC_LOCATION.equals(postLocData)
+                        || (Location.LOC_GEOAREA.equals(postLocData))) {
+                    if (!DataType.CONTINGENCY.equals(dataType)) {
+                        ingestSwitch = checkIngest(locId, data, ingestSwitch);
+                    }
+                    if (ShefConstants.IngestSwitch.POST_PE_OFF
+                            .equals(ingestSwitch)) {
+                        stats.incrementNoPost();
+                    }
+                }
+
+                /*
+                 * if the location data should not be posted because either: 1)
+                 * the location is not defined as a location or an area, or
+                 * because the location post switch is off, or 2) the PEDTSE
+                 * ingest switch is turned off; then no need to continue
+                 */
+
+                boolean postPeOffSwitch = ShefConstants.IngestSwitch.POST_PE_OFF
+                        .equals(ingestSwitch);
+
+                if ((!Location.LOC_LOCATION.equals(postLocData) && !Location.LOC_GEOAREA
+                        .equals(postLocData)) || postPeOffSwitch) {
+                    /*
+                     * set the prev info for the next pass through this
+                     * function. this is info is used for to prevent redundant
+                     * messages
+                     */
+                    StringBuilder unkmsg = new StringBuilder();
+                    switch (disposition) {
+                    case UKN_STN_POSTING: {
+                        unkmsg.append("Posting LID [").append(locId)
+                                .append("] to [unkstn]");
+                        break;
+                    }
+                    case UKN_STN_POSTED: {
+                        unkmsg.append("LID [").append(locId)
+                                .append("] already posted to [unkstn]");
+                        break;
+                    }
+                    case UKN_STN_VALUE: {
+                        unkmsg.append("Posting LID [").append(locId)
+                                .append("] data [").append(dataValue)
+                                .append("] to [unkstnvalue]");
+                        break;
+                    }
+                    case INACTIVE_LID:
+                        unkmsg.append("Not posting data [").append(dataValue)
+                                .append("] for inactive LID [").append(locId)
+                                .append("]");
+                        break;
+                    default: {
+                        unkmsg.append("Not posting data [").append(dataValue)
+                                .append("] for LID [").append(locId)
+                                .append("]");
+                        break;
+                    }
+                    }
+                    log.warn(unkmsg.toString());
+                    stats.incrementWarningMessages();
+                    continue;
+                }
+
+                /*---------------------------------------------------------------------*/
+                /*
+                 * check for observed data too far in past or future if data is
+                 * outside of this time window, then do not post. skip this
+                 * check if data is monthly data
+                 */
+
+                if (DataType.READING.equals(dataType)
+                        || TypeSource.PROCESSED_MEAN_AREAL_DATA
+                                .equals(typeSource)) {
+
+                    if ((postDate.getTime() - obsTime.getTime() > lookbackMillis)
+                            && (!Duration._1_MONTH.equals(data.getDuration()))) {
                         stats.incrementWarningMessages();
-                        log.warn(locId + " basis time (" + createTime
-                                + ") > valid time (" + obsTime
-                                + "); check encoding");
+                        stats.incrementOutsideWindow();
+                        log.warn(locId + " " + data.getObsTime()
+                                + " obs time > " + lookBackDays
+                                + " days old; data not posted");
+                        continue;
+                    } else if (obsTime.getTime() - postDate.getTime() > lookfwdMillis) {
+                        stats.incrementWarningMessages();
+                        stats.incrementOutsideWindow();
+                        log.warn(locId + " obs time (" + data.getObsTime()
+                                + ") >" + " post time (" + postDate + "); "
+                                + lookAheadMinutes
+                                + " minutes in the future; data not posted");
+                        continue;
                     }
                 }
-            }
-            /*
-             * check to see if an adjustment factor should be applied to the raw
-             * SHEF value coming in and if so adjust that value in the shefrec
-             * structure
-             */
-            if (!dataValue.equals(ShefConstants.SHEF_MISSING)) {
-                  adjustRawValue(locId, data);
-            }
-            
-            /*
-             * multiply non-missing values of discharge values and unspecified
-             * height values by 1000 to change units
-             */
-            String pe = data.getPhysicalElement().getCode();
-            if((pe != null)&&(data.getValue() != -9999)) {
-                Matcher m = Q_CODES.matcher(pe);
-                if(m.matches()) {
-                    data.adjustValue(1, 0, 1000.0, 0);
-                    dataValue = data.getStringValue();
-                }
-                if("HZ".equals(pe)) {
-                    data.adjustValue(1, 0, 1000.0, 0);
-                    dataValue = data.getStringValue();
-                }
-            }
 
-            /*---------------------------------------------------------------*/
-            /*
-             * post data to the appropriate table(s). for the sake of
-             * uniformity, most of these functions have the same argument list
-             * even though some of the arguments are not used by some functions
-             * 
-             * if instructed, post to the product link table, but only if the
-             * info has changed
-             */
-            if (postLink && !same_lid_product) {
-                start = System.currentTimeMillis();
-                // Identifier has been set from the awipsHeader.
+                /*
+                 * check for forecast basis times that are after the valid time,
+                 * issue a warning message if this is the case - basis time is
+                 * the creation date and valid time is the obs time
+                 */
+                if (DataType.FORECAST.equals(dataType)
+                        || TypeSource.FORECAST_MEAN_AREAL_DATA
+                                .equals(typeSource)) {
 
-                postProductLink(locId, identifier, obsTime);
-                // postProductLink(locId, shefRecord.getIdentifier(), obsTime);
-                stats.addElapsedTimeIngest(System.currentTimeMillis() - start);
-                
-                if (dataLog || log.isDebugEnabled()) {
-                    String msg = String.format("Posted product link [%s] for LID [%s]", identifier, locId);
+                    if (createTime != null) {
+                        if (createTime.getTime() > obsTime.getTime()) {
+                            stats.incrementWarningMessages();
+                            log.warn(locId + " basis time (" + createTime
+                                    + ") > valid time (" + obsTime
+                                    + "); check encoding");
+                        }
+                    }
+                }
+                /*
+                 * check to see if an adjustment factor should be applied to the
+                 * raw SHEF value coming in and if so adjust that value in the
+                 * shefrec structure
+                 */
+                if (!dataValue.equals(ShefConstants.SHEF_MISSING)) {
+                      adjustRawValue(locId, data);
+                }
+                /*
+                 * multiply non-missing values of discharge values and
+                 * unspecified height values by 1000 to change units
+                 */
+                String pe = data.getPhysicalElement().getCode();
+                if ((pe != null) && (data.getValue() != -9999)) {
+                    Matcher m = Q_CODES.matcher(pe);
+                    if (m.matches()) {
+                        data.adjustValue(1, 0, 1000.0, 0);
+                        dataValue = data.getStringValue();
+                    }
+                    if ("HZ".equals(pe)) {
+                        data.adjustValue(1, 0, 1000.0, 0);
+                        dataValue = data.getStringValue();
+                    }
+                }
+
+                /*---------------------------------------------------------------*/
+                /*
+                 * post data to the appropriate table(s). for the sake of
+                 * uniformity, most of these functions have the same argument
+                 * list even though some of the arguments are not used by some
+                 * functions
+                 * 
+                 * if instructed, post to the product link table, but only if
+                 * the info has changed
+                 */
+                if (postLink && !same_lid_product) {
+                    start = System.currentTimeMillis();
+                    // Identifier has been set from the awipsHeader.
+                    postProductLink(locId, identifier, obsTime);
+                    stats.addElapsedTimeIngest(System.currentTimeMillis()
+                            - start);
+
                     if (dataLog) {
-                        log.info(msg);
-                    } else if(log.isDebugEnabled()) {
-                        log.debug(msg);
+                        log.info("Posted product link [" + identifier
+                                + "] for LID [" + locId + "]");
                     }
                 }
-            }
 
+                /*
+                 * Check the quality of the data if observed or forecast. note
+                 * the posting may treat processed data as observed, including
+                 * this manner.
+                 * 
+                 * the quality_code defined contains information from two
+                 * 'sources'. one, the qc checks performed by shef, and two,
+                 * certain shef qualifier codes reflect the quality of the data.
+                 * use the information in the quality_code field, which is based
+                 * on these two sources, to help determine the dispensation of
+                 * the value.
+                 */
+                boolean valueOk = false;
+                long qualityCode = -999;
+                Date validTime = new Date(obsTime.getTime());
 
-            /*
-             * Check the quality of the data if observed or forecast. note the
-             * posting may treat processed data as observed, including this
-             * manner.
-             * 
-             * the quality_code defined contains information from two 'sources'.
-             * one, the qc checks performed by shef, and two, certain shef
-             * qualifier codes reflect the quality of the data. use the
-             * information in the quality_code field, which is based on these
-             * two sources, to help determine the dispensation of the value.
-             */
+                /* Don't perform the check if the value is a missing value */
+                if (!ShefConstants.SHEF_MISSING.equals(dataValue)) {
+                    qualityCode = checkQuality(locId, dataQualifier, dataValue,
+                            data);
+                    valueOk = checkQcCode(QualityControlCode.QC_NOT_FAILED,
+                            qualityCode);
+                } else {
+                    qualityCode = ShefQC.setQcCode(ShefQC.QC_DEFAULT, 0L);
+                    valueOk = true;
+                }
 
-            boolean valueOk = false;
-            long qualityCode = -999;
-            Date validTime = new Date(obsTime.getTime());
+                /*
+                 * only attempt to post to the latestobsvalue table if meets
+                 * certain conditions based on settings
+                 */
+                if (DataType.READING.equals(dataType)) {
+                    if (SHEF_ON.equalsIgnoreCase(postLatest)
+                            || (ShefConstants.VALID_ONLY
+                                    .equalsIgnoreCase(postLatest) && valueOk && (data
+                                    .getStringValue() != ShefConstants.SHEF_MISSING))
+                            || (ShefConstants.VALID_OR_MISSING
+                                    .equalsIgnoreCase(postLatest) && valueOk)) {
 
-            /* Don't perform the check if the value is a missing value */
-            if (!ShefConstants.SHEF_MISSING.equals(dataValue)) {
-                qualityCode = checkQuality(locId, dataQualifier, dataValue,
-                        data);
-                valueOk = checkQcCode(QualityControlCode.QC_NOT_FAILED,
-                        qualityCode);
-            } else {
-                qualityCode = ShefQC.setQcCode(ShefQC.QC_DEFAULT, 0L);
-                valueOk = true;
-            }
+                        postTables.postLatestObs(shefRecord, data, locId,
+                                data.getStringValue(), data.getQualifier(),
+                                qualityCode, prodId, prodTime,
+                                shefPostDuplicateDef, stats, postDate);
+                        if (dataLog) {
+                            log.info("Data [" + dataValue + "] ObsTime["
+                                    + data.getObservationTimeObj().toString()
+                                    + "] for LID [" + locId
+                                    + "] posted to the latestObsValue for PE ["
+                                    + data.getPhysicalElement().getCode() + "]");
+                        }
+                    }
+                }
 
-            /*
-             * only attempt to post to the latestobsvalue table if meets certain
-             * conditions based on settings
-             */
-            if (DataType.READING.equals(dataType)) {
-                if (SHEF_ON.equalsIgnoreCase(postLatest)
-                        || (ShefConstants.VALID_ONLY
-                                .equalsIgnoreCase(postLatest) && valueOk && (data
-                                .getStringValue() != ShefConstants.SHEF_MISSING))
-                        || (ShefConstants.VALID_OR_MISSING
-                                .equalsIgnoreCase(postLatest) && valueOk)) {
-                    PostTables.postLatestObs(shefRecord, data, locId,
-                            data.getStringValue(), data.getQualifier(),
-                            qualityCode, prodId, prodTime,
-                            shefPostDuplicateDef, stats, postDate);
+                /*
+                 * if the data is either observed or forecast, or if processed
+                 * data is being treated as observed data, then invoke the
+                 * procedure to post to the appropriate pe-based table. if data
+                 * are bad, then don't post to pe-tables and instead post to
+                 * reject data, as per user instructions.
+                 */
+                switch (dataType) {
+                case READING:
+                case AREAL_PROCESSED:
+                case FORECAST:
+                case AREAL_FORECAST: {
+                    if (!valueOk && postBadData) {
+                        PersistableDataObject rejectValue = populateDataObj(
+                                shefRecord, data, locId,
+                                ShefConstants.REJECTED_DATA, dataValue,
+                                dataQualifier, qualityCode);
+
+                        postTables.postData(rejectValue,
+                                ShefConstants.REJECTED_DATA,
+                                shefPostDuplicateDef, stats);
+                        if (dataLog) {
+                            log.info("Posting data [" + dataValue
+                                    + "] for LID [" + locId
+                                    + "] to rejectedData table");
+                        }
+                    } else {
+                        if (DataType.READING.equals(dataType)
+                                || DataType.FORECAST.equals(dataType)) {
+                            if (checkIfPaired(data)) {
+                                postTables.postPairedData(shefRecord, data,
+                                        locId, dataValue, dataQualifier,
+                                        qualityCode, prodId, prodTime,
+                                        shefPostDuplicateDef, stats, postDate);
+                                if (dataLog) {
+                                    log.info("Posting data [" + dataValue
+                                            + "] for LID [" + locId
+                                            + "] to pairedValue table");
+                                }
+                            } else {
+                                postTables.postPeData(shefRecord, data, locId,
+                                        data.getStringValue(), dataQualifier,
+                                        qualityCode, prodId, prodTime,
+                                        shefPostDuplicateDef, ingestSwitch,
+                                        stats, validTime, postDate, dataType);
+                                if (dataLog) {
+                                    log.info("Posting data ["
+                                            + data.getStringValue()
+                                            + "] for LID ["
+                                            + locId
+                                            + "] for PE ["
+                                            + data.getPhysicalElement()
+                                                    .getCode() + "]");
+                                }
+                            }
+                        } else if (DataType.AREAL_PROCESSED.equals(dataType)) {
+                            /*
+                             * if a value is both areal and paired, then let the
+                             * paired characteristic of the data take precedence
+                             * over the areal nature of the data, so store the
+                             * areal paired data in the pairedvalue table, not
+                             * the areal tables.
+                             */
+                            if (checkIfPaired(data)) {
+                                postTables.postPairedData(shefRecord, data,
+                                        locId, dataValue, dataQualifier,
+                                        qualityCode, prodId, prodTime,
+                                        shefPostDuplicateDef, stats, postDate);
+                                if (dataLog) {
+                                    log.info("Posting areal obs data ["
+                                            + dataValue + "] for LID [" + locId
+                                            + "] to pairedValue table");
+                                }
+                            } else {
+                                PersistableDataObject arealObs = populateDataObj(
+                                        shefRecord, data, locId,
+                                        ShefConstants.AREAL_OBS, dataValue,
+                                        dataQualifier, qualityCode);
+                                postTables.postData(arealObs,
+                                        ShefConstants.AREAL_OBS,
+                                        shefPostDuplicateDef, stats);
+
+                                if (dataLog) {
+                                    log.info("Posting areal obs data ["
+                                            + dataValue + "] for LID [" + locId
+                                            + "] to arealobs table");
+                                }
+                            }
+                        } else if (DataType.AREAL_FORECAST.equals(dataType)) {
+                            if (checkIfPaired(data)) {
+                                postTables.postPairedData(shefRecord, data,
+                                        locId, dataValue, dataQualifier,
+                                        qualityCode, prodId, prodTime,
+                                        shefPostDuplicateDef, stats, postDate);
+                                if (dataLog) {
+                                    log.info("Posting areal forecast data ["
+                                            + dataValue + "] for LID [" + locId
+                                            + "] to pairedValue table");
+                                }
+                            } else {
+                                PersistableDataObject arealfcst = populateDataObj(
+                                        shefRecord, data, locId,
+                                        ShefConstants.AREAL_FCST, dataValue,
+                                        dataQualifier, qualityCode);
+                                postTables.postData(arealfcst,
+                                        ShefConstants.AREAL_FCST,
+                                        shefPostDuplicateDef, stats);
+                                if (dataLog) {
+                                    log.info("Posting areal forecast data ["
+                                            + dataValue + "] for LID [" + locId
+                                            + "] to arealfcst table");
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+                case CONTINGENCY: {
+                    /*
+                     * post to the Contingency and Processed tables; unless of
+                     * course the PE is one of the special paired elements. note
+                     * that we are only posting to the processed tables if not
+                     * treating the processed data as observed.
+                     */
+                    if (checkIfPaired(data)) {
+                        postTables
+                                .postPairedData(shefRecord, data, locId,
+                                        dataValue, dataQualifier, qualityCode,
+                                        prodId, prodTime, shefPostDuplicateDef,
+                                        stats, postDate);
+                        if (dataLog) {
+                            log.info("Posting contingency data [" + dataValue
+                                    + "] for LID [" + locId
+                                    + "] to pairedValue table");
+                        }
+                    } else {
+                        PersistableDataObject contingency = populateDataObj(
+                                shefRecord, data, locId,
+                                ShefConstants.CONTINGENCY_VALUE, dataValue,
+                                dataQualifier, qualityCode);
+                        postTables.postData(contingency,
+                                ShefConstants.CONTINGENCY_VALUE,
+                                shefPostDuplicateDef, stats);
+                        if (dataLog) {
+                            log.info("Posting contingency data [" + dataValue
+                                    + "] for LID [" + locId
+                                    + "] to contingencyValue table");
+                        }
+                    }
+                    break;
+                } // case CONTINGENCY:
+                case PROCESSED: {
+                    if (checkIfPaired(data)) {
+                        postTables
+                                .postPairedData(shefRecord, data, locId,
+                                        dataValue, dataQualifier, qualityCode,
+                                        prodId, prodTime, shefPostDuplicateDef,
+                                        stats, postDate);
+                        if (dataLog) {
+                            log.info("Posting processed data [" + dataValue
+                                    + "] for LID [" + locId
+                                    + "] to pairedValue table");
+                        }
+                    } else {
+                        PersistableDataObject procval = populateDataObj(
+                                shefRecord, data, locId,
+                                ShefConstants.PROC_VALUE, dataValue,
+                                dataQualifier, qualityCode);
+                        postTables.postData(procval, ShefConstants.PROC_VALUE,
+                                shefPostDuplicateDef, stats);
+                        if (dataLog) {
+                            log.info("Posting processed data [" + dataValue
+                                    + "] for LID [" + locId
+                                    + "] to procValue table");
+                        }
+                    }
+                    break;
+                } // case PROCESSED:
+                } // switch
+
+                /*
+                 * post alertalarm data as necessary. Don't perform the
+                 * alert/alarm post if the data is a ContingencyValue
+                 */
+                if (!DataType.CONTINGENCY.equals(dataType) && shefAlertAlarm
+                        && (alertAlarm != ShefConstants.NO_ALERTALARM)) {
+                    // TODO: Ensure what is to be saved here!
+                    post_alertalarm(data, locId, dataValue, dataQualifier,
+                            qualityCode);
+                    stats.incrementAlertAlarm();
                     if (dataLog) {
-                        log.info(String.format(LOV_POST_MSG, dataValue, 
-                                data.getObservationTimeObj(), locId,
-                                data.getPhysicalElement().getCode()));
+                        log.info("Posting data [" + dataValue + "] for LID ["
+                                + locId + "] to alertAlarmVal table");
                     }
                 }
-            }
 
-            /*
-             * if the data is either observed or forecast, or if processed data
-             * is being treated as observed data, then invoke the procedure to
-             * post to the appropriate pe-based table. if data are bad, then
-             * don't post to pe-tables and instead post to reject data, as per
-             * user instructions.
-             */
-            switch (dataType) {
-            case READING:
-            case AREAL_PROCESSED:
-            case FORECAST:
-            case AREAL_FORECAST: {
-                if (!valueOk && postBadData) {
-                    PersistableDataObject rejectValue = populateDataObj(
+                /*
+                 * now check if there is any comment data associated with this
+                 * data. if so, then store in the comment table, where comments
+                 * for all datatypes goes.
+                 */
+                String c = data.getRetainedComment();
+                if ((c != null) && (c.length() > 0)) {
+                    PersistableDataObject commentValue = populateDataObj(
                             shefRecord, data, locId,
-                            ShefConstants.REJECTED_DATA, dataValue,
+                            ShefConstants.COMMENT_VALUE, dataValue,
                             dataQualifier, qualityCode);
 
-                    PostTables.postData(rejectValue,
-                            ShefConstants.REJECTED_DATA, shefPostDuplicateDef,
+                    postTables.postData(commentValue,
+                            ShefConstants.COMMENT_VALUE, shefPostDuplicateDef,
                             stats);
                     if (dataLog) {
-                        log.info(String
-                                .format("Posting data [%s] for LID [%s] to rejectedData table",
-                                        dataValue, locId));
-                    }
-                } else {
-                    if (DataType.READING.equals(dataType)
-                            || DataType.FORECAST.equals(dataType)) {
-                        if (checkIfPaired(data)) {
-                            PostTables.postPairedData(shefRecord, data, locId,
-                                    dataValue, dataQualifier, qualityCode,
-                                    prodId, prodTime, shefPostDuplicateDef,
-                                    stats, postDate);
-                            if (dataLog) {
-                                log.info(String
-                                        .format("Posting data [%s] for LID [%s] to pairedValue table",
-                                                dataValue, locId));
-                            }
-                        } else {                        	             	
-                            PostTables.postPeData(shefRecord, data, locId,
-                            		data.getStringValue(), dataQualifier, qualityCode,
-                                    prodId, prodTime, shefPostDuplicateDef,
-                                    ingestSwitch, stats, validTime, postDate,
-                                    dataType);
-                            if (dataLog) {
-                                log.info(String
-                                        .format("Posting data [%s] for LID [%s] for PE [%s]",
-                                        		data.getStringValue(), locId, data
-                                                        .getPhysicalElement()
-                                                        .getCode()));
-                            }
-                        }
-                    } else if (DataType.AREAL_PROCESSED.equals(dataType)) {
-                        /*
-                         * if a value is both areal and paired, then let the
-                         * paired characteristic of the data take precedence
-                         * over the areal nature of the data, so store the areal
-                         * paired data in the pairedvalue table, not the areal
-                         * tables.
-                         */
-                        if (checkIfPaired(data)) {
-                            PostTables.postPairedData(shefRecord, data, locId,
-                                    dataValue, dataQualifier, qualityCode,
-                                    prodId, prodTime, shefPostDuplicateDef,
-                                    stats, postDate);
-                            if (dataLog) {
-                                log.info(String
-                                        .format("Posting areal obs data [%s] for LID [%s] to pairedValue table",
-                                                dataValue, locId));
-                            }
-                        } else {
-                            PersistableDataObject arealObs = populateDataObj(
-                                    shefRecord, data, locId,
-                                    ShefConstants.AREAL_OBS, dataValue,
-                                    dataQualifier, qualityCode);
-
-                            PostTables.postData(arealObs,
-                                    ShefConstants.AREAL_OBS,
-                                    shefPostDuplicateDef, stats);
-                            if (dataLog) {
-                                log.info(String
-                                        .format("Posting areal obs data [%s] for LID [%s] to arealobs table",
-                                                dataValue, locId));
-                            }
-                        }
-                    } else if (DataType.AREAL_FORECAST.equals(dataType)) {
-                        if (checkIfPaired(data)) {
-                            PostTables.postPairedData(shefRecord, data, locId,
-                                    dataValue, dataQualifier, qualityCode,
-                                    prodId, prodTime, shefPostDuplicateDef,
-                                    stats, postDate);
-                            if (dataLog) {
-                                log.info(String
-                                        .format("Posting areal forecast data [%s] for LID [%s] to pairedValue table",
-                                                dataValue, locId));
-                            }
-                        } else {
-                            PersistableDataObject arealfcst = populateDataObj(
-                                    shefRecord, data, locId,
-                                    ShefConstants.AREAL_FCST, dataValue,
-                                    dataQualifier, qualityCode);
-
-                            PostTables.postData(arealfcst,
-                                    ShefConstants.AREAL_FCST,
-                                    shefPostDuplicateDef, stats);
-                            if (dataLog) {
-                                log.info(String
-                                        .format("Posting areal forecast data [%s] for LID [%s] to arealfcst table",
-                                                dataValue, locId));
-                            }
-                        }
+                        log.info("Posting comments for data [" + dataValue
+                                + "] : LID [" + locId
+                                + "] to commentValue table");
                     }
                 }
-                break;
-            }
-            case CONTINGENCY: {
+
                 /*
-                 * post to the Contingency and Processed tables; unless of
-                 * course the PE is one of the special paired elements. note
-                 * that we are only posting to the processed tables if not
-                 * treating the processed data as observed.
+                 * if we just received some forecast height or discharge data,
+                 * then update the riverstatus table for those reports
                  */
-                if (checkIfPaired(data)) {
-                    PostTables.postPairedData(shefRecord, data, locId,
-                            dataValue, dataQualifier, qualityCode, prodId,
-                            prodTime, shefPostDuplicateDef, stats, postDate);
-                    if (dataLog) {
-                        log.info(String
-                                .format("Posting contingency data [%s] for LID [%s] to pairedValue table",
-                                        dataValue, locId));
-                    }
-                } else {
-                    PersistableDataObject contingency = populateDataObj(
-                            shefRecord, data, locId,
-                            ShefConstants.CONTINGENCY_VALUE, dataValue,
-                            dataQualifier, qualityCode);
-
-                    PostTables.postData(contingency,
-                            ShefConstants.CONTINGENCY_VALUE,
-                            shefPostDuplicateDef, stats);
-                    if (dataLog) {
-                        log.info(String
-                                .format("Posting contingency data [%s] for LID [%s] to contingencyValue table",
-                                        dataValue, locId));
+                if ((DataType.FORECAST.equals(dataType))
+                        && loadMaxFcst
+                        && (data.getPhysicalElement().getCode().startsWith("H") || data
+                                .getPhysicalElement().getCode().startsWith("Q"))) {
+                    postRiverStatus(data, locId);
+                    if (!same_lid_product) {
+                        log.info("Update RiverStatus for: " + locId + " " + pe);
                     }
                 }
-                break;
-            } // case CONTINGENCY:
-            case PROCESSED: {
-                if (checkIfPaired(data)) {
-                    PostTables.postPairedData(shefRecord, data, locId,
-                            dataValue, dataQualifier, qualityCode, prodId,
-                            prodTime, shefPostDuplicateDef, stats, postDate);
-                    if (dataLog) {
-                        log.info(String
-                                .format("Posting processed data [%s] for LID [%s] to pairedValue table",
-                                        dataValue, locId));
-                    }
-                } else {
-                    PersistableDataObject procval = populateDataObj(shefRecord,
-                            data, locId, ShefConstants.PROC_VALUE, dataValue,
-                            dataQualifier, qualityCode);
+            } // for
 
-                    PostTables.postData(procval, ShefConstants.PROC_VALUE,
-                            shefPostDuplicateDef, stats);
-                    if (dataLog) {
-                        log.info(String
-                                .format("Posting processed data [%s] for LID [%s] to procValue table",
-                                        dataValue, locId));
-                    }
-                }
-                break;
-            } // case PROCESSED:
-            } // switch
-
-            /*
-             * post alertalarm data as necessary. Don't perform the alert/alarm
-             * post if the data is a ContingencyValue
-             */
-            if (!DataType.CONTINGENCY.equals(dataType) && shefAlertAlarm
-                    && (alertAlarm != ShefConstants.NO_ALERTALARM)) {
-
-                // TODO: Ensure what is to be saved here!
-                post_alertalarm(data, locId, dataValue, dataQualifier,
-                        qualityCode);
-                stats.incrementAlertAlarm();
-                if (dataLog) {
-                    log.info(String
-                            .format("Posting data [%s] for LID [%s] to alertAlarmVal table",
-                                    dataValue, locId));
-                }
-            }
-
-            /*
-             * now check if there is any comment data associated with this data.
-             * if so, then store in the comment table, where comments for all
-             * datatypes goes.
-             */
-            String c = data.getRetainedComment();
-            if ((c != null) && (c.length() > 0)) {
-                PersistableDataObject commentValue = populateDataObj(
-                        shefRecord, data, locId, ShefConstants.COMMENT_VALUE,
-                        dataValue, dataQualifier, qualityCode);
-
-                PostTables.postData(commentValue, ShefConstants.COMMENT_VALUE,
-                        shefPostDuplicateDef, stats);
-                if (dataLog) {
-                    log.info(String
-                    .format("Posting comments for data [%s] : LID [%s] to commentValue table",
-                            dataValue, locId));
-                }
-            }
-
-            /*
-             * if we just received some forecast height or discharge data, then
-             * update the riverstatus table for those reports
-             */
-            if ((DataType.FORECAST.equals(dataType))
-                    && loadMaxFcst
-                    && (data.getPhysicalElement().getCode().startsWith("H") || data
-                            .getPhysicalElement().getCode().startsWith("Q"))) {
-
-                postRiverStatus(data, locId);
-            }
-
-            /*
-             * very important to store this info to prevent redundant posting.
-             */
-            prevLid = locId;
-            prevProdId = prodId;
-            prevProdTime = prodTime;
-
-        } // for
+            postTables.executeBatchUpdates();
+        } catch (Exception e) {
+            log.error("An error occurred posting shef data.", e);
+            // } finally {
+            // postTables.close();
+        }
     }
 
+    /**
+     * Log the summary stats.
+     * 
+     * @param traceId
+     * @param totalTime
+     */
     public void logStats(String traceId, long totalTime) {
         if (this.perfLog) {
             Log perfLog = LogFactory.getLog("ShefPerfLog");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
             perfLog.info("********************************");
             perfLog.info("Performance Stats:  " + traceId);
             perfLog.info("Total Elapsed Time (ms): " + totalTime);
-            if(prodTime != null) {
+            if (prodTime != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
                 perfLog.info(prodId + ", " + sdf.format(prodTime));
             } else {
                 perfLog.info(prodId + ", ------------");
@@ -1072,9 +1128,6 @@ public class PostShef {
             aaCategory = ShefConstants.ALARM_CATEGSTR;
             aaCheck = ShefConstants.LOWER_CHECKSTR;
         }
-        if (log.isDebugEnabled()) {
-            log.debug("alertAlarm = " + alertAlarm);
-        }
 
         PersistableDataObject aaValue = populateDataObj(shefRecord, data,
                 locId, ShefConstants.ALERTALARM_VALUE, data.getStringValue(),
@@ -1083,7 +1136,7 @@ public class PostShef {
         ((Alertalarmval) aaValue).getId().setAaCateg(aaCategory);
         ((Alertalarmval) aaValue).getId().setAaCheck(aaCheck);
 
-        PostTables.postAAData(aaValue, ShefConstants.ALERTALARM_VALUE,
+        postTables.postAAData(aaValue, ShefConstants.ALERTALARM_VALUE,
                 shefPostDuplicate, stats, aaCategory, aaCheck);
 
     }
@@ -1092,15 +1145,10 @@ public class PostShef {
      * Post data to the riverstatus data table.
      */
     private void postRiverStatus(ShefData data, String locId) {
-
         long start = 0;
-        long end = 0;
-        long duration = 0;
-        // int maxfcst = 0;
+
         String tableName = null;
         String pe = data.getPhysicalElement().getCode();
-        log.info("Update RiverStatus for: " + locId + " "
-                + data.getPhysicalElement());
 
         if (data.getTimeSeriesId() <= ShefConstants.MAXFCST_INFO) {
             start = System.currentTimeMillis();
@@ -1119,38 +1167,29 @@ public class PostShef {
             loadMaxFcstData("FcstDischarge");
         }
 
-        end = System.currentTimeMillis();
-        ;
-        duration = end - start;
-        log.info("H/Q lid-pe; updated RiverStatus, runtime = " + duration
-                + " ms.");
+        if (dataLog) {
+            log.info("H/Q lid-pe; updated RiverStatus, runtime = "
+                    + (System.currentTimeMillis() - start) + " ms.");
+        }
 
     }
 
     /**
-     * Process forecast data for the given tablename. Don't consider any
+     * Process forecast data for the given table name. Don't consider any
      * probabilistic values.
      **/
     private void loadMaxFcstData(String tableName) {
-        CoreDao dao = null;
         Object[] oa = null;
         String lid = null;
         String pe = null;
         String ts = null;
+        String dateStr = dbFormat.get().format(postDate);
 
-//      String query = "select lid,pe,ts " + "from " + tableName + " "
-//      + "where validtime > CURRENT_TIMESTAMP and "
-//      + "probability < 0.0";
-        
-        String query = String
-                .format("select lid,pe,ts from %s where validtime > '%s' and probability < 0.0",
-                        tableName, toTimeStamp(postDate));
+        String query = "select lid,pe,ts from " + tableName
+                + " where validtime > '" + dateStr + "' and probability < 0.0";
 
         try {
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-
             oa = dao.executeSQLQuery(query);
-
             if (oa == null) {
                 return;
             }
@@ -1158,12 +1197,12 @@ public class PostShef {
             Object[] row = null;
             for (int i = 0; i < oa.length; i++) {
                 row = (Object[]) oa[i];
-                if(row.length == 3) {
+                if (row.length == 3) {
                     lid = ShefUtil.getString(row[0], null);
                     pe = ShefUtil.getString(row[1], null);
                     ts = ShefUtil.getString(row[2], null);
 
-                    if ((lid != null) && (pe != null)&&(ts != null)) {
+                    if ((lid != null) && (pe != null) && (ts != null)) {
                         loadMaxFcstItem(lid, pe, ts);
                     }
                 }
@@ -1171,10 +1210,7 @@ public class PostShef {
         } catch (Exception e) {
             log.error("Query = [" + query + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error retrieving from " + tableName);
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error retrieving from " + tableName, e);
         }
     }
 
@@ -1182,21 +1218,19 @@ public class PostShef {
      * Process forecast data for the given tableName.
      */
     private void loadMaxFcstData_lidpe(String tableName, String locId, String pe) {
-        CoreDao dao = null;
         Object[] oa = null;
         if ((tableName != null) && (locId != null) && (pe != null)) {
             String query = "select DISTINCT(ts) " + "from " + tableName
-                    + " where lid = '" + locId + "' and " + "pe = '" + pe
-                    + "' and " + "validtime > CURRENT_TIMESTAMP and "
+                    + " where lid = '" + locId + "' and pe = '" + pe + "' and "
+                    + "validtime > CURRENT_TIMESTAMP and "
                     + "probability < 0.0";
 
             try {
-                dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
                 oa = dao.executeSQLQuery(query);
 
                 for (int i = 0; i < oa.length; i++) {
                     String ts = ShefUtil.getString(oa[i], null);
-                    if(ts != null) {
+                    if (ts != null) {
                         loadMaxFcstItem(locId, pe, ts);
                     }
                 }
@@ -1204,10 +1238,8 @@ public class PostShef {
             } catch (Exception e) {
                 log.error("Query = [" + query + "]");
                 log.error(shefRecord.getTraceId()
-                        + " - PostgresSQL error retrieving from " + tableName);
-                if(log.isDebugEnabled()) {
-                    log.error(e);
-                }
+                        + " - PostgresSQL error retrieving from " + tableName,
+                        e);
             }
         }
     }
@@ -1217,19 +1249,15 @@ public class PostShef {
      * location and pe.
      * */
     private void loadMaxFcstItem(String lid, String pe, String ts) {
-        CoreDao dao = null;
         Object[] oa = null;
         String riverStatQuery = "select use_latest_fcst from riverstat where lid = '"
                 + lid + "'";
-        String hourQuery = "select obshrs,fcsthrs from RpfParams";
         String deleteQuery = "delete from riverstatus  " + "where lid= '" + lid
                 + "' and pe= '" + pe + "' and ts= '" + ts + "'";
         int useLatest = 0;
         int qcFilter = 1;
         List<ShefData> shefList = null;
         try {
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-
             oa = dao.executeSQLQuery(riverStatQuery);
 
             /*
@@ -1241,7 +1269,7 @@ public class PostShef {
                 useLatest = 1;
             } else {
                 if (oa.length > 0) {
-                    if ("T".equals(ShefUtil.getString(oa[0],null))) {
+                    if ("T".equals(ShefUtil.getString(oa[0], null))) {
                         useLatest = 1;
                     }
                 }
@@ -1253,47 +1281,20 @@ public class PostShef {
              * only the latest basis time
              */
             long currentTime = System.currentTimeMillis();
-            // long obsTime = 0;
-            // long endValidTime = 0;
             long basisBeginTime = 0;
 
             /*
              * This code sets the time values
              */
-            if (!isHoursLoad) {
-                oa = dao.executeSQLQuery(hourQuery);
-                Object[] row = null;
-                if (oa.length > 0) {
-                    row = (Object[]) oa[0]; // first row
-                    obshrs = ((Integer) row[0]).longValue();
-                    fcsthrs = ((Integer) row[1]).longValue();
-                } else {
-                    log.error("No records in RpfParams table, using defaults");
-                }
-
-                if (basis_hours_str != null) {
-                    basishrs = Long.parseLong(basis_hours_str);
-                    if ((basishrs <= 0) || (basishrs > 480)) {
-                        log.info("invalid value for basis_hours_filter token: "
-                                + basishrs);
-                        basishrs = 72;
-                    }
-                }
-                isHoursLoad = true;
-            }
-            // obsTime = currentTime - (obshrs * 3600 * 1000);
-            // endValidTime = currentTime + (fcsthrs * 3600 * 1000);
-            basisBeginTime = currentTime - (basishrs * 3600 * 1000);
-
+            basisBeginTime = currentTime
+                    - (basishrs * ShefConstants.MILLIS_PER_HOUR);
             shefList = buildTsFcstRiv(lid, pe, ts, qcFilter, useLatest,
                     basisBeginTime);
-
             if ((shefList != null) && (shefList.size() > 0)) {
                 ShefData maxShefDataValue = findMaxFcst(shefList);
                 boolean updateFlag = updateRiverStatus(lid, pe, ts);
-                PostTables.postRiverStatus(shefRecord, maxShefDataValue,
+                postTables.postRiverStatus(shefRecord, maxShefDataValue,
                         updateFlag);
-
             } else {
                 /*
                  * if no data were found, then delete any entries that may exist
@@ -1303,15 +1304,10 @@ public class PostShef {
                  */
                 dao.executeSQLUpdate(deleteQuery);
             }
-
         } catch (Exception e) {
             log.error("Query = [" + riverStatQuery + "]");
-            log.error("Query = [" + hourQuery + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error loading max forecast item");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error loading max forecast item", e);
         }
     }
 
@@ -1321,15 +1317,12 @@ public class PostShef {
      */
     private boolean updateRiverStatus(String lid, String pe, String ts) {
         boolean rval = false;
-        CoreDao dao = null;
         Object[] oa = null;
 
-        String query = "select lid " + "from riverstatus where lid = '" + lid
-                + "' and " + "pe = '" + pe + "' and " + "ts = '" + ts + "'";
+        String query = "select lid from riverstatus where lid = '" + lid
+                + "' and pe = '" + pe + "' and " + "ts = '" + ts + "'";
 
         try {
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-
             oa = dao.executeSQLQuery(query);
 
             if ((oa != null) && (oa.length > 0)) {
@@ -1339,10 +1332,7 @@ public class PostShef {
         } catch (Exception e) {
             log.error("Query = [" + query + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error searching riverstatus");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error searching riverstatus", e);
         }
         return rval;
     }
@@ -1379,28 +1369,22 @@ public class PostShef {
      **/
     private List<ShefData> buildTsFcstRiv(String lid, String pe,
             String tsFilter, int qcFilter, int useLatest, long basisBegintime) {
-        // int status = -1;
         int fcstCount = 0;
-        int keepCount = 0;
-        int QUESTIONABLE_BAD_THRESHOLD = 1073741824;
-
         String useTs = null;
         String tableName = null;
         String query = null;
-        String queryForecast = null;
+        StringBuilder queryForecast = null;
 
         java.sql.Timestamp basisTimeAnsi = null;
 
-        int[] doKeep = null;
+        boolean[] doKeep = null;
         Object[] ulHead = null;
         Object[] row = null;
         Fcstheight[] fcstHead = null;
         Fcstheight fcstHght = null;
-        // List<ShefData> fcstList = new ArrayList<ShefData>();
 
         List<ShefData> shefList = new ArrayList<ShefData>();
         ShefData shefDataValue = null;
-        CoreDao dao = null;
 
         if ((tsFilter == null) || (tsFilter.length() == 0)) {
             useTs = getBestTs(lid, pe, "F%", 0);
@@ -1412,8 +1396,6 @@ public class PostShef {
             useTs = tsFilter;
         }
         try {
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-
             if (pe.startsWith("H") || pe.startsWith("h")) {
                 tableName = "FcstHeight";
             } else {
@@ -1421,12 +1403,12 @@ public class PostShef {
             }
 
             basisTimeAnsi = new Timestamp(basisBegintime);
+
             /*
              * retrieve a list of unique basis times; use descending sort. only
              * consider forecast data before some ending time, and with some
              * limited basis time ago
              */
-
             query = "SELECT DISTINCT(basistime) FROM " + tableName + " "
                     + "WHERE lid = '" + lid + "' and " + "pe = '" + pe
                     + "' and " + "ts = '" + useTs + "' and "
@@ -1447,39 +1429,32 @@ public class PostShef {
              * before, limit the forecast time valid time window and as needed,
              * the age of the forecast (basistime).
              */
-
-            queryForecast = "SELECT lid,pe,dur,ts,extremum,probability,validtime,basistime,value "
-                    + "FROM "
-                    + tableName
-                    + " "
-                    + "WHERE lid = '"
-                    + lid
-                    + "' AND "
-                    + "pe = '"
-                    + pe
-                    + "' AND "
-                    + "ts = '"
-                    + useTs
-                    + "' AND "
-                    + "validtime >= CURRENT_TIMESTAMP AND "
-                    + "probability < 0.0 AND ";
+            queryForecast = new StringBuilder(
+                    "SELECT lid,pe,dur,ts,extremum,probability,validtime,basistime,value ");
+            queryForecast.append("FROM ").append(tableName)
+                    .append(" WHERE lid = '").append(lid);
+            queryForecast.append("' AND pe = '").append(pe)
+                    .append("' AND ts = '").append(useTs);
+            queryForecast
+                    .append("' AND validtime >= CURRENT_TIMESTAMP AND probability < 0.0 AND ");
 
             if ((useLatest == 1) || (ulHead.length == 1)) {
                 java.sql.Timestamp tempStamp = null;
                 tempStamp = (Timestamp) ulHead[0];
-                queryForecast += "basistime >= '" + tempStamp + "' AND ";
-
+                queryForecast.append("basistime >= '").append(tempStamp)
+                        .append("' AND ");
             } else {
-                queryForecast += "basistime >= '" + basisTimeAnsi + "' AND ";
+                queryForecast.append("basistime >= '").append(basisTimeAnsi)
+                        .append("' AND ");
 
             }
-            queryForecast += "value != "
-                    + Integer.parseInt(ShefConstants.SHEF_MISSING) + " AND "
-                    + "quality_code >= "
-                    + Integer.parseInt(ShefConstants.SHEF_MISSING) + " "
-                    + "ORDER BY validtime ASC";
+            queryForecast.append("value != ")
+                    .append(ShefConstants.SHEF_MISSING)
+                    .append(" AND quality_code >= ");
+            queryForecast.append(ShefConstants.SHEF_MISSING).append(
+                    " ORDER BY validtime ASC");
 
-            Object[] oa = dao.executeSQLQuery(queryForecast);
+            Object[] oa = dao.executeSQLQuery(queryForecast.toString());
             row = null;
 
             if ((oa != null) && (oa.length > 0)) {
@@ -1491,30 +1466,27 @@ public class PostShef {
                     Date tmpDate = null;
 
                     id.setLid(ShefUtil.getString(row[0], null)); // lid
-                    
+
                     id.setPe(ShefUtil.getString(row[1], null)); // pe
-                    
+
                     id.setDur(ShefUtil.getShort(row[2], (short) 0)); // dur
-                    
+
                     id.setTs(ShefUtil.getString(row[3], null)); // ts
-                    
+
                     id.setExtremum(ShefUtil.getString(row[4], null)); // extremum
-                    
+
                     id.setProbability(ShefUtil.getFloat(row[5], 0.0f));
-                    
+
                     tmpDate = ShefUtil.getDate(row[6], null);
                     id.setValidtime(tmpDate); // valid
-                    
+
                     tmpDate = ShefUtil.getDate(row[7], null);
                     id.setBasistime(tmpDate);// basis
-                    
+
                     fcstHght.setId(id);
                     fcstHght.setValue(ShefUtil.getDouble(row[8], 0.0)); // value
                     fcstHead[i] = fcstHght;
                 }
-            }
-
-            if (fcstHead != null) {
                 fcstCount = fcstHead.length;
             }
 
@@ -1523,7 +1495,7 @@ public class PostShef {
              * to keep and return
              */
             if (fcstCount > 0) {
-                doKeep = new int[fcstCount];
+                doKeep = new boolean[fcstCount];
             } else {
                 return null;
             }
@@ -1535,9 +1507,7 @@ public class PostShef {
              */
 
             if ((useLatest == 1) || (ulHead.length <= 1)) {
-                for (int i = 0; i < doKeep.length; i++) {
-                    doKeep[i] = 1;
-                }
+                Arrays.fill(doKeep, true);
             } else {
                 doKeep = setFcstKeep(ulHead, fcstHead);
             }
@@ -1548,22 +1518,19 @@ public class PostShef {
              * of the number of values to keep and allocate the data
              */
 
-            for (int j = 0; j < fcstCount; j++) {
-                if (doKeep[j] == 1) {
-                    keepCount++;
-                }
-            }
-
             for (int y = 0; y < fcstCount; y++) {
                 shefDataValue = new ShefData();
-                if (doKeep[y] == 1) {
+                if (doKeep[y]) {
                     shefDataValue.setLocationId(fcstHead[y].getId().getLid());
+
                     shefDataValue.setPhysicalElement(PhysicalElement
                             .getEnum(fcstHead[y].getId().getPe()));
 
                     convertDur(fcstHead[y].getId().getDur(), shefDataValue);
+
                     shefDataValue.setTypeSource(TypeSource.getEnum(fcstHead[y]
                             .getId().getTs()));
+
                     shefDataValue.setExtremum(Extremum.getEnum(fcstHead[y]
                             .getId().getExtremum()));
                     shefDataValue.setObservationTimeObj(fcstHead[y].getId()
@@ -1572,16 +1539,13 @@ public class PostShef {
                             .getBasistime());
                     shefDataValue.setValue(fcstHead[y].getValue());
                     shefList.add(shefDataValue);
-               }
+                }
             }
         } catch (Exception e) {
             log.error("Query = [" + query + "]");
             log.error("Query = [" + queryForecast + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error in buildTsFcstRiv");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error in buildTsFcstRiv", e);
         }
         return shefList;
     }
@@ -1591,116 +1555,33 @@ public class PostShef {
      * 
      * @param dur
      *            The duration value
-     * @return The single character duration value
      */
     private void convertDur(short dur, ShefData data) {
         String value = null;
         String durationCode = null;
-
-        switch (dur) {
-        case 0:
-            value = "I";
-            break;
-        case 1:
-            value = "U";
-            break;
-        case 5:
-            value = "E";
-            break;
-        case 10:
-            value = "G";
-            break;
-        case 15:
-            value = "C";
-            break;
-        case 30:
-            value = "J";
-            break;
-        case 1001:
-            value = "H";
-            break;
-        case 1002:
-            value = "B";
-            break;
-        case 1003:
-            value = "T";
-            break;
-        case 1004:
-            value = "F";
-            break;
-        case 1006:
-            value = "Q";
-            break;
-        case 1008:
-            value = "A";
-            break;
-        case 1012:
-            value = "K";
-            break;
-        case 1018:
-            value = "L";
-            break;
-        case 2001:
-            value = "D";
-            break;
-        case 2007:
-            value = "W";
-            break;
-        // case 'N':
-        // Not sure what to return. Shef maunal explanation:
-        // N Mid month, duration for the period from the 1st day of the
-        // month to and ending on the
-        // 15th day of the same month
-        // break;
-        case 3001:
-            value = "M";
-            break;
-        case 4001:
-            value = "Y";
-            break;
-        case 5004:
-            value = "P";
-            break;
-        case 5000: {
-            value = "Z";
-            break;
-        }
-        case 5001:
-            value = "S";
-            break;
-        case 5002:
-            value = "R";
-            break;
-        case 5005:
-            value = "X";
-            break;
-        default: {
-            // Anything that didn't get picked up above is
+        value = DURATION_MAP.get(dur);
+        if (value == null) {
+            // Anything not in the DURATION_MAP is
             // probably a variable duration.
+            value = "V";
             if (dur >= 7000) {
-                value = "V";
                 durationCode = "S";
             } else if (dur < 1000) {
-                value = "V";
                 durationCode = "N";
             } else if (dur < 2000) {
-                value = "V";
                 durationCode = "H";
             } else if (dur < 3000) {
-                value = "V";
                 durationCode = "D";
             } else if (dur < 4000) {
-                value = "V";
                 durationCode = "M";
             } else if (dur < 5000) {
-                value = "V";
                 durationCode = "Y";
             } else {
                 // Not sure what value this would be.
                 value = "Z";
             }
         }
-        }
+
         data.setDuration(Duration.getEnum(value));
         data.setDurationCodeVariable(durationCode);
         data.setDurationValue(dur);
@@ -1710,10 +1591,10 @@ public class PostShef {
      * Determine which items in the forecast time series to keep, as there may
      * be overlap due to multiple time_series.
      **/
-    private int[] setFcstKeep(Object[] ulHead, Fcstheight[] fcstHead) {
+    private boolean[] setFcstKeep(Object[] ulHead, Fcstheight[] fcstHead) {
         int fcstCount = fcstHead.length;
         int ulCount = ulHead.length;
-        int[] doKeep = new int[fcstCount];
+        boolean[] doKeep = new boolean[fcstCount];
         int[] basisIndex = new int[fcstCount];
         int[] tsFirstChk = new int[ulCount];
         int MISSING = ShefConstants.SHEF_MISSING_INT;
@@ -1724,9 +1605,6 @@ public class PostShef {
         Timestamp fcstValidTime = null;
         Timestamp ulBasisTime = null;
 
-        for (int i = 0; i < ulCount; i++) {
-            tsFirstChk[i] = 0;
-        }
         Timestamp row = null;
         Timestamp validTime = null;
         for (int i = 0; i < fcstCount; i++) {
@@ -1755,7 +1633,6 @@ public class PostShef {
              * check if the values constitute the start or end times for the
              * time series and record these times if they do
              */
-
             validTime = new Timestamp(fcstHead[i].getId().getValidtime()
                     .getTime());
 
@@ -1776,7 +1653,6 @@ public class PostShef {
          * for each of the unique basis times, assign the basis time in a
          * convenient array for use in the adjust_startend function.
          */
-
         for (int j = 0; j < ulCount; j++) {
             row = (Timestamp) ulHead[j];
             basisTime[j] = row;
@@ -1802,9 +1678,9 @@ public class PostShef {
                     .getTime());
             if ((fcstValidTime.compareTo(startTime[basisIndex[i]]) >= 0)
                     && (fcstValidTime.compareTo(endTime[basisIndex[i]]) <= 0)) {
-                doKeep[i] = 1;
+                doKeep[i] = true;
             } else {
-                doKeep[i] = 0;
+                doKeep[i] = false;
             }
         }
         return doKeep;
@@ -1827,11 +1703,9 @@ public class PostShef {
         Timestamp fullEndValidTime = null;
         Timestamp tmpTime = null;
         Timestamp zero = new Timestamp((new Date(0)).getTime());
-        Object[] rval = new Object[2]; // [startValidTime[]] [endValidTime[]]
+        Object[] rval = new Object[2];
 
-        for (int i = 0; i < count; i++) {
-            basisOrder[i] = -1;
-        }
+        Arrays.fill(basisOrder, -1);
 
         /*
          * find the order of the time series by their latest basis time. if two
@@ -1839,7 +1713,6 @@ public class PostShef {
          * earlier starting time. note that the order is such that the latest
          * basis time is last in the resulting order array.
          */
-
         for (int i = 0; i < count; i++) {
             tmpTime = zero;
             currentIndex = 0;
@@ -1988,11 +1861,9 @@ public class PostShef {
     private String getBestTs(String lid, String pe, String tsPrefix, int ordinal) {
         int count = 0;
         String tsFound = null;
-        String query = "SELECT ts_rank,ts FROM ingestfilter " + "WHERE lid = '"
-                + lid + "' AND " + "pe = '" + pe + "' AND " + "ts like '"
-                + tsPrefix + "' AND " + "ingest = 'T' "
-                + "ORDER BY ts_rank, ts";
-        CoreDao dao = null;
+        String query = "SELECT ts_rank,ts FROM ingestfilter WHERE lid = '"
+                + lid + "' AND pe = '" + pe + "' AND ts like '" + tsPrefix
+                + "' AND ingest = 'T' ORDER BY ts_rank, ts";
         Object[] oa = null;
         try {
             /*
@@ -2002,8 +1873,6 @@ public class PostShef {
              * that this approach ignores the duration, extremum, and probabilty
              * code.
              */
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-
             oa = dao.executeSQLQuery(query);
             Object[] row = null;
             if ((oa != null) && (oa.length > 0)) {
@@ -2032,10 +1901,7 @@ public class PostShef {
         } catch (Exception e) {
             log.error("Query = [" + query + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error retrieving from ingestfilter");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error retrieving from ingestfilter", e);
         }
         return tsFound;
     }
@@ -2050,23 +1916,13 @@ public class PostShef {
      * @return Location corresponding to 1 of 4 return values
      */
     private Location checkLocation(String locId) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.checkLocation() called...");
-        }
         Location retVal = Location.LOC_UNDEFINED;
-        CoreDao dao = null;
         String sql = null;
         try {
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
             sql = "select lid, post from location where lid = '" + locId + "'";
-            if (log.isDebugEnabled()) {
-                log.debug("SQL Query = " + sql);
-            }
+
             // TODO fix multiple results returned error
             Object[] oa = dao.executeSQLQuery(sql);
-            if (log.isDebugEnabled()) {
-                log.debug(oa.length + " elements in oa");
-            }
             if (oa.length > 0) {
                 Object[] oa2 = (Object[]) oa[0];
                 int post = ShefUtil.getInt(oa2[1], 0);
@@ -2077,9 +1933,6 @@ public class PostShef {
             } else {
                 sql = "select area_id from GeoArea where area_id = '" + locId
                         + "'";
-                if (log.isDebugEnabled()) {
-                    log.debug("Sql Query = " + sql);
-                }
                 oa = dao.executeSQLQuery(sql);
                 if (oa.length > 0) {
                     retVal = Location.LOC_GEOAREA;
@@ -2087,10 +1940,7 @@ public class PostShef {
             }
         } catch (Exception e) {
             log.error("Query = [" + sql + "]");
-            log.error(shefRecord.getTraceId() + " - Error checking location");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+            log.error(shefRecord.getTraceId() + " - Error checking location", e);
         }
         return retVal;
     }
@@ -2113,12 +1963,7 @@ public class PostShef {
      */
     private IngestSwitch checkIngest(String locId, ShefData data,
             ShefConstants.IngestSwitch ingestSwitch) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.checkIngest() called...");
-        }
-        StringBuffer errorMsg = new StringBuffer();
-        CoreDao dao = null;
-        CoreDao locDao = null;
+        StringBuilder errorMsg = new StringBuilder();
         boolean matchFound = false;
         int hNum = 0;
         int pNum = 0;
@@ -2142,60 +1987,52 @@ public class PostShef {
         boolean resFound = false;
         String telem = null;
         String sql = null;
+        Object[] oa = null;
 
         try {
-            errorMsg.append("Error getting connection to IHFS Database");
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-            sql = "select lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, "
-                    + "stg2_input from IngestFilter where lid = '"
-                    + locId
-                    + "'";
-            if (log.isDebugEnabled()) {
-                log.debug("SQL Query = " + sql);
-            }
-            errorMsg.setLength(0);
-            errorMsg.append("Error requesting IngestFilter data:  " + sql);
-            Object[] oa = dao.executeSQLQuery(sql);
-            if (oa.length > 0) {
-                for (int i = 0; i < oa.length; i++) {
-                    Object[] oa2 = (Object[]) oa[i];
-                    String pe = ShefUtil.getString(oa2[1],"");
-                    int dur = ShefUtil.getInt(oa2[2],-9999);
-                    String ts = ShefUtil.getString(oa2[3],"");
-                    String extremum = ShefUtil.getString(oa2[4],"");
-                    // int tsRank = (Short) oa2[5];
-                    String ingest = ShefUtil.getString(oa2[6],"");
-                    // String ofs_input = (String) oa2[7];
-                    String stg2_input = ShefUtil.getString(oa2[8],"");
+            if (!ingestSwitchMap.containsKey(locId)) {
+                errorMsg.append("Error getting connection to IHFS Database");
+                sql = "select lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input from IngestFilter where lid = '"
+                        + locId + "'";
+                errorMsg.setLength(0);
+                errorMsg.append("Error requesting IngestFilter data:  " + sql);
+                oa = dao.executeSQLQuery(sql);
+                if (oa.length > 0) {
+                    for (int i = 0; i < oa.length; i++) {
+                        Object[] oa2 = (Object[]) oa[i];
+                        String pe = ShefUtil.getString(oa2[1], "");
+                        int dur = ShefUtil.getInt(oa2[2], -9999);
+                        String ts = ShefUtil.getString(oa2[3], "");
+                        String extremum = ShefUtil.getString(oa2[4], "");
+                        String ingest = ShefUtil.getString(oa2[6], "");
+                        String stg2_input = ShefUtil.getString(oa2[8], "");
 
-                    if (pe.equals(data.getPhysicalElement().getCode())
-                            && ts.equals(data.getTypeSource().getCode())
-                            && extremum.equals(data.getExtremum().getCode())
-                            && (dur == data.getDurationValue())) {
-                        if ("T".equals(ingest)) {
-                            if ("T".equals(stg2_input)) {
-                                ingestSwitch = ShefConstants.IngestSwitch.POST_PE_AND_HOURLY;
-                            } else {
-                                ingestSwitch = ShefConstants.IngestSwitch.POST_PE_ONLY;
-                            }
-                        } else {
-                            if (elgMess) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug(locId + " - "
-                                            + data.getPhysicalElement() + "("
-                                            + data.getDuration() + ")"
-                                            + data.getTypeSource()
-                                            + data.getExtremum()
-                                            + " ingest filter set to False");
+                        if (pe.equals(data.getPhysicalElement().getCode())
+                                && ts.equals(data.getTypeSource().getCode())
+                                && extremum
+                                        .equals(data.getExtremum().getCode())
+                                && (dur == data.getDurationValue())) {
+                            if ("T".equals(ingest)) {
+                                if ("T".equals(stg2_input)) {
+                                    ingestSwitch = ShefConstants.IngestSwitch.POST_PE_AND_HOURLY;
+                                } else {
+                                    ingestSwitch = ShefConstants.IngestSwitch.POST_PE_ONLY;
                                 }
+                            } else {
+                                ingestSwitch = ShefConstants.IngestSwitch.POST_PE_OFF;
                             }
-                            ingestSwitch = ShefConstants.IngestSwitch.POST_PE_OFF;
+                            matchFound = true;
+                            break;
                         }
-                        matchFound = true;
-                        break;
                     }
                 }
+
+                ingestSwitchMap.put(locId, ingestSwitch);
             }
+
+            matchFound = ingestSwitchMap.containsKey(locId);
+            ingestSwitch = ingestSwitchMap.get(locId);
+
             /*
              * if there is no ingest record for this entry, then check if the
              * user options instruct the loading of the ingest info. if the user
@@ -2234,7 +2071,6 @@ public class PostShef {
                 errorMsg.setLength(0);
                 errorMsg.append("PostgreSQL error putting data into IngestFilter");
                 dao.saveOrUpdate(ingestFilter);
-                prevLid = locId;
 
                 /*
                  * since the elements defined in Ingest Filter have an impact on
@@ -2282,45 +2118,48 @@ public class PostShef {
                  */
                 isOffriv = fpFound;
                 isRes = resFound;
-                
 
                 /* get data elements defined for station */
                 errorMsg.setLength(0);
-                errorMsg.append("Error getting PE codes from IngestFilter: "
-                        + sql);
+                errorMsg.append("Error getting PE codes from IngestFilter: ")
+                        .append(sql);
                 sql = "select pe from IngestFilter where lid = '" + locId
                         + "' and ingest = 'T'";
                 oa = dao.executeSQLQuery(sql);
 
                 if (oa.length > 0) {
-                    hNum = checkPeMatch(oa,
+                    String[] sa = new String[oa.length];
+                    for (int i = 0; i < oa.length; i++) {
+                        sa[i] = ShefUtil.getString(oa[i], "");
+                    }
+                    hNum = checkPeMatch(sa,
                             PhysicalElementCategory.HEIGHT.getCode());
-                    qNum = checkPeMatch(oa,
+                    qNum = checkPeMatch(sa,
                             PhysicalElementCategory.DISCHARGE.getCode());
 
-                    sNum = checkPeMatch(oa,
+                    sNum = checkPeMatch(sa,
                             PhysicalElementCategory.SNOW.getCode());
-                    tNum = checkPeMatch(oa,
+                    tNum = checkPeMatch(sa,
                             PhysicalElementCategory.TEMPERATURE.getCode());
 
-                    pNum = checkPeMatch(oa,
+                    pNum = checkPeMatch(sa,
                             PhysicalElementCategory.PRECIPITATION.getCode());
-                    paNum = checkPeMatch(oa,
+                    paNum = checkPeMatch(sa,
                             PhysicalElement.PRESSURE_ATMOSPHERIC.getCode());
                     pNum = pNum - paNum;
 
-                    numPe = oa.length;
+                    numPe = sa.length;
 
                     /*
                      * also, a station is a reservoir if it has a param type of
                      * HP or HT or LS
                      */
-                    if ((checkPeMatch(oa,
+                    if ((checkPeMatch(sa,
                             PhysicalElement.ELEVATION_POOL.getCode()) > 0)
-                            || (checkPeMatch(oa,
+                            || (checkPeMatch(sa,
                                     PhysicalElement.ELEVATION_PROJECT_TAIL
                                             .getCode()) > 0)
-                            || (checkPeMatch(oa,
+                            || (checkPeMatch(sa,
                                     PhysicalElement.LAKE_STORAGE_VOLUME
                                             .getCode()) > 0)) {
                         isRes = true;
@@ -2344,7 +2183,7 @@ public class PostShef {
                     isPrecip = (pNum > 0);
                     isSnow = (sNum > 0);
                     isTemp = (tNum > 0);
-                    
+
                 } else {
                     numPe = 0;
                 }
@@ -2364,7 +2203,7 @@ public class PostShef {
                  * into the StnClass table.
                  */
                 Stnclass stnClass = new Stnclass();
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 if (isOffriv) {
                     sb.append("F");
@@ -2408,11 +2247,8 @@ public class PostShef {
 
                 stnClass.setLid(locId);
 
-                locDao = new CoreDao(DaoConfig.forClass(ShefConstants.IHFS,
-                        com.raytheon.uf.common.dataplugin.shef.tables.Location.class));
-
-                List<String> fields = new ArrayList<String>();
-                List<Object> values = new ArrayList<Object>();
+                List<String> fields = new ArrayList<String>(1);
+                List<Object> values = new ArrayList<Object>(1);
                 fields.add("lid");
                 values.add(locId);
 
@@ -2423,33 +2259,27 @@ public class PostShef {
                             .get(0);
                 }
                 stnClass.setLocation(loc);
-                // stnClass.setObserver();
                 stnClass.setTraceId(shefRecord.getTraceId());
 
                 errorMsg.setLength(0);
-                errorMsg.append("Error on saveOrUpdate stnclass table: " + sql);
+                errorMsg.append("Error on saveOrUpdate stnclass table: ")
+                        .append(sql);
                 dao.saveOrUpdate(stnClass);
                 /* since a record was added, set the match_found variable */
                 matchFound = true;
-           }
+            }
         } catch (Exception e) {
             log.error("Query = [" + sql + "]");
-            log.error(shefRecord.getTraceId() + " - " + errorMsg.toString());
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+            log.error(shefRecord.getTraceId() + " - " + errorMsg.toString(), e);
             stats.incrementErrorMessages();
         }
 
         // ***************************************************
 
         if (!matchFound) {
-            if (ingestMess) {
-                log.warn(locId + " - " + data.getPhysicalElement() + "("
-                        + data.getDuration() + ")" + data.getTypeSource()
-                        + data.getExtremum() + " ingest "
-                        + "filter not defined");
-            }
+            log.warn(locId + " - " + data.getPhysicalElement() + "("
+                    + data.getDuration() + ")" + data.getTypeSource()
+                    + data.getExtremum() + " ingest " + "filter not defined");
             stats.incrementWarningMessages();
             ingestSwitch = ShefConstants.IngestSwitch.POST_PE_OFF;
         }
@@ -2467,27 +2297,20 @@ public class PostShef {
      * @return - number of records in the table
      */
     private int recordCount(String table, String where) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.recordCount() called...");
-        }
         int retVal = 0;
-        CoreDao dao = null;
-        StringBuffer sql = new StringBuffer("Select count(*) from " + table);
+        StringBuilder sql = new StringBuilder("Select count(*) from ")
+                .append(table);
         if (where != null) {
             sql.append(where);
         }
         try {
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
             Object[] oa = dao.executeSQLQuery(sql.toString());
-            retVal = ShefUtil.getInt(oa[0],0);
+            retVal = ShefUtil.getInt(oa[0], 0);
         } catch (Exception e) {
             log.error("Query = [" + sql.toString() + "]");
             log.error(shefRecord.getTraceId()
                     + " - An error occurred in recordCount:  " + table + " - "
-                    + sql);
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + sql, e);
         }
         return retVal;
     }
@@ -2501,22 +2324,12 @@ public class PostShef {
      *            - PE code or PE category code to search for
      * @return - number of matches found in the array
      */
-    private int checkPeMatch(Object[] oa, String findPeCode) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.checkPeMatch() called...");
-        }
+    private int checkPeMatch(String[] sa, String findPeCode) {
         int retVal = 0;
-        if (oa.length > 0) {
-
-            for (Object o : oa) {
-
-                String lookIn = ShefUtil.getString(o,"");
-                if (lookIn.startsWith(findPeCode)) {
-                    retVal++;
-                }
-
+        for (String s : sa) {
+            if (s.startsWith(findPeCode)) {
+                retVal++;
             }
-
         }
         return retVal;
     }
@@ -2530,65 +2343,73 @@ public class PostShef {
      *            - data object
      */
     private void adjustRawValue(String locId, ShefData data) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.adjustRawValue() called...");
+        String key = locId + data.getPhysicalElement().getCode()
+                + data.getDurationValue() + data.getTypeSource().getCode()
+                + data.getExtremum().getCode();
+        // Check for existing adjust values
+        if (!adjustmentMap.containsKey(key)) {
+            // need to look up the adjust values
+            double divisor = 1.0;
+            double base = 0.0;
+            double multiplier = 1.0;
+            double adder = 0.0;
+
+            StringBuilder sql = new StringBuilder();
+            try {
+                sql.append("select divisor, base, multiplier, adder from adjustfactor ");
+
+                sql.append("where lid = '").append(locId)
+                        .append("' and pe = '");
+                sql.append(data.getPhysicalElement().getCode()).append(
+                        "' and dur = ");
+                sql.append(data.getDurationValue()).append(" and ts = '");
+                sql.append(data.getTypeSource().getCode()).append(
+                        "' and extremum = '");
+                sql.append(data.getExtremum().getCode()).append("'");
+                Object[] oa = dao.executeSQLQuery(sql.toString());
+                if (oa.length > 0) {
+                    Object[] oa2 = (Object[]) oa[0];
+
+                    /* if Correction Factor divisor value is NULL, set it to 1.0 */
+                    divisor = ShefUtil.getDouble(oa2[0], 1.0);
+                    /*
+                     * if divisor is ZERO, set it to 1.0, DON'T WANT TO DIVIDE
+                     * BY ZERO
+                     */
+                    if (divisor == 0) {
+                        log.warn("Divisor = 0.0 in adjustfactor "
+                                + sql.toString());
+                        divisor = 1;
+                    }
+                    base = ShefUtil.getDouble(oa2[1], 0.0);
+                    multiplier = ShefUtil.getDouble(oa2[2], 1.0);
+                    adder = ShefUtil.getDouble(oa2[3], 0.0);
+
+                    ShefAdjustFactor af = new ShefAdjustFactor(divisor, base,
+                            multiplier, adder);
+                    adjustmentMap.put(key, af);
+                } else {
+                    adjustmentMap.put(key, null);
+                }
+            } catch (Exception e) {
+                log.error("Query = [" + sql.toString() + "]");
+                log.error(shefRecord.getTraceId()
+                        + " - Error adjusting raw value", e);
+                return;
+            }
         }
-        double divisor = 1.0;
-        double base = 0.0;
-        double multiplier = 1.0;
-        double adder = 0.0;
 
-        CoreDao dao = null;
-        String sql = null;
-        try {
-            /* Get a Data Access Object */
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
+        /*
+         * calculate adjusted value using an equation similar to HydroMet
+         */
+        ShefAdjustFactor factor = adjustmentMap.get(key);
+        if (factor != null) {
+            data.adjustValue(factor.getDivisor(), factor.getBase(),
+                    factor.getMultiplier(), factor.getAdder());
+        }
 
-            sql = "select divisor, base, multiplier, adder from "
-                    + "adjustfactor ";
-            
-            String where = "where lid = '" + locId + "' and pe = '"
-                    + data.getPhysicalElement().getCode() + "' and dur = "
-                    + data.getDurationValue() + " and ts = '"
-                    + data.getTypeSource().getCode() + "' and extremum = '"
-                    + data.getExtremum().getCode() + "'";
-            
-            sql = sql + where;
-            if (log.isDebugEnabled()) {
-                log.debug("value adjustment query [" + sql + "]");
-            }
-            Object[] oa = dao.executeSQLQuery(sql);
-            if (oa.length > 0) {
-                Object[] oa2 = (Object[]) oa[0];
-
-                /* if Correction Factor divisor value is NULL, set it to 1.0 */
-                divisor = ShefUtil.getDouble(oa2[0], 1.0);
-                // if divisor is ZERO, set it to 1.0, DON'T WANT TO DIVIDE BY
-                // ZERO
-                if (divisor == 0) {
-                    log.error("Divisor = 0.0 in adjustfactor " + where);
-                    divisor = 1;
-                }
-                base = ShefUtil.getDouble(oa2[1], 0.0);
-                multiplier = ShefUtil.getDouble(oa2[2], 1.0);
-                adder = ShefUtil.getDouble(oa2[3], 0.0);
-
-                /*
-                 * calculate adjusted value using an equation similar to
-                 * HydroMet
-                 */
-                data.adjustValue(divisor, base, multiplier, adder);
-
-                if (dataLog) {
-                    log.info(locId + " Adjusting Value");
-                }
-            }
-        } catch (Exception e) {
-            log.error("Query = [" + sql + "]");
-            log.error(shefRecord.getTraceId() + " - Error adjusting raw value");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+        if (dataLog) {
+            log.info(locId + " Adjusting Value for " + data.getLocationId());
         }
     }
 
@@ -2603,31 +2424,17 @@ public class PostShef {
      *            - The observation time
      */
     private void postProductLink(String locId, String productId, Date obsTime) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.postProductLink() called...");
-        }
-        CoreDao dao = null;
         PersistableDataObject link = null;
         try {
             /* Get a Data Access Object */
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-
             link = new Productlink(new ProductlinkId(locId, productId, obsTime,
                     postDate));
-
-            if (log.isDebugEnabled()) {
-                log.debug("Storing data to Productlink table for ProductId "
-                        + productId);
-            }
 
             dao.saveOrUpdate(link);
         } catch (Exception e) {
             log.error(shefRecord.getTraceId()
                     + " - Error writing to productlink table(" + locId + ", "
-                    + productId + ", " + obsTime.toString() + ")");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + productId + ", " + obsTime.toString() + ")", e);
         }
     }
 
@@ -2650,9 +2457,6 @@ public class PostShef {
      */
     private long checkQuality(String lid, String dataQualifier,
             String dataValue, ShefData data) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.checkQuality() called...");
-        }
         double missing = ShefConstants.SHEF_MISSING_INT;
 
         long qualityCode = ShefConstants.DEFAULT_QC_VALUE;
@@ -2669,9 +2473,6 @@ public class PostShef {
 
         alertAlarm = ShefConstants.NO_ALERTALARM;
 
-        if (log.isDebugEnabled()) {
-            log.debug("DataValue = " + dataValue);
-        }
         double dValue = 0;
 
         // if the dataValue = -9999 (missing data)
@@ -2683,21 +2484,18 @@ public class PostShef {
             dValue = Double.parseDouble(dataValue);
         } catch (NumberFormatException e) {
             log.error("Double conversion failed for data value = '" + dataValue
-                    + "'");
+                    + "'", e);
+            return ShefConstants.QC_MANUAL_FAILED;
         }
 
-        
         boolean locRangeFound = false;
         boolean defRangeFound = false;
         boolean validDateRange = false;
 
-        CoreDao dao = null;
         StringBuilder locLimitSql = new StringBuilder();
         StringBuilder defLimitSql = null;
         try {
             /* Get a Data Access Object */
-            dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
-
             String sqlStart = "select monthdaystart, monthdayend, gross_range_min, gross_range_max, reason_range_min, "
                     + "reason_range_max, roc_max, alert_upper_limit, alert_roc_limit, alarm_upper_limit, "
                     + "alarm_roc_limit, alert_lower_limit, alarm_lower_limit, alert_diff_limit, "
@@ -2705,20 +2503,13 @@ public class PostShef {
 
             locLimitSql.append(sqlStart);
             locLimitSql.append("locdatalimits where ");
-            locLimitSql.append("lid = '" + lid + "' and pe = '"
-                    + data.getPhysicalElement().getCode() + "' and " + "dur = "
-                    + data.getDurationValue());
+            locLimitSql.append("lid = '").append(lid).append("' and pe = '")
+                    .append(data.getPhysicalElement().getCode())
+                    .append("' and dur = ").append(data.getDurationValue());
 
-            if (log.isDebugEnabled()) {
-                log.debug("LocLimit query [" + locLimitSql.toString() + "]");
-            }
             Object[] oa = dao.executeSQLQuery(locLimitSql.toString());
 
             if (oa.length > 0) { // Location specific range is defined
-                if (log.isDebugEnabled()) {
-                    log.debug("Found data in location specific range");
-                }
-
                 for (int i = 0; i < oa.length; i++) {
                     Object[] oa2 = (Object[]) oa[i];
 
@@ -2728,25 +2519,17 @@ public class PostShef {
 
                     validDateRange = checkRangeDate(
                             data.getObservationTimeObj(), monthdaystart,
-                            monthdayend,log);
+                            monthdayend);
 
                     if (validDateRange) {
-                        grossRangeMin =ShefUtil.getDouble(oa2[2], missing);
-                        
+                        grossRangeMin = ShefUtil.getDouble(oa2[2], missing);
                         grossRangeMax = ShefUtil.getDouble(oa2[3], missing);
-
                         reasonRangeMin = ShefUtil.getDouble(oa2[4], missing);
-
                         reasonRangeMax = ShefUtil.getDouble(oa2[5], missing);
-
                         alertUpperLimit = ShefUtil.getDouble(oa2[7], missing);
-
                         alertLowerLimit = ShefUtil.getDouble(oa2[11], missing);
-
                         alarmLowerLimit = ShefUtil.getDouble(oa2[12], missing);
-
                         alarmUpperLimit = ShefUtil.getDouble(oa2[9], missing);
-
                         locRangeFound = true;
                         break;
                     }
@@ -2754,51 +2537,37 @@ public class PostShef {
             } else { // Location specific range is undefined, check the
                 // default range
                 defLimitSql = new StringBuilder(sqlStart);
-                defLimitSql.append("datalimits where ");
-                defLimitSql.append("pe = '" + data.getPhysicalElement().getCode()
-                        + "' and " + "dur = " + data.getDurationValue());
+                defLimitSql.append("datalimits where pe = '")
+                        .append(data.getPhysicalElement().getCode())
+                        .append("' and dur = ").append(data.getDurationValue());
 
                 oa = dao.executeSQLQuery(defLimitSql.toString());
-                if (oa.length > 0) { // Default range is defined
-                    if (log.isDebugEnabled()) {
-                        log.debug("Found data in default range");
-                    }
+                for (int i = 0; i < oa.length; i++) {
+                    Object[] oa2 = (Object[]) oa[i];
 
-                    for (int i = 0; i < oa.length; i++) {
-                        Object[] oa2 = (Object[]) oa[i];
+                    /* Check the date range */
+                    monthdaystart = ShefUtil.getString(oa2[0], "99-99");
+                    monthdayend = ShefUtil.getString(oa2[1], "00-00");
 
-                        /* Check the date range */
-                        monthdaystart = ShefUtil.getString(oa2[0], "99-99");
-                        monthdayend = ShefUtil.getString(oa2[1], "00-00");
+                    validDateRange = checkRangeDate(
+                            data.getObservationTimeObj(), monthdaystart,
+                            monthdayend);
 
-                        validDateRange = checkRangeDate(
-                                data.getObservationTimeObj(), monthdaystart,
-                                monthdayend,log);
-
-                        if (validDateRange) {
-                            /*
-                             * if a range is found, then check the value and set
-                             * the flag
-                             */
-                            grossRangeMin =ShefUtil.getDouble(oa2[2], missing);
-                            
-                            grossRangeMax = ShefUtil.getDouble(oa2[3], missing);
-
-                            reasonRangeMin = ShefUtil.getDouble(oa2[4], missing);
-
-                            reasonRangeMax = ShefUtil.getDouble(oa2[5], missing);
-
-                            alertUpperLimit = ShefUtil.getDouble(oa2[7], missing);
-
-                            alertLowerLimit = ShefUtil.getDouble(oa2[11], missing);
-
-                            alarmLowerLimit = ShefUtil.getDouble(oa2[12], missing);
-
-                            alarmUpperLimit = ShefUtil.getDouble(oa2[9], missing);
-
-                            defRangeFound = true;
-                            break;
-                        }
+                    if (validDateRange) {
+                        /*
+                         * if a range is found, then check the value and set the
+                         * flag
+                         */
+                        grossRangeMin = ShefUtil.getDouble(oa2[2], missing);
+                        grossRangeMax = ShefUtil.getDouble(oa2[3], missing);
+                        reasonRangeMin = ShefUtil.getDouble(oa2[4], missing);
+                        reasonRangeMax = ShefUtil.getDouble(oa2[5], missing);
+                        alertUpperLimit = ShefUtil.getDouble(oa2[7], missing);
+                        alertLowerLimit = ShefUtil.getDouble(oa2[11], missing);
+                        alarmLowerLimit = ShefUtil.getDouble(oa2[12], missing);
+                        alarmUpperLimit = ShefUtil.getDouble(oa2[9], missing);
+                        defRangeFound = true;
+                        break;
                     }
                 }
             }
@@ -2887,12 +2656,10 @@ public class PostShef {
                 }
             }
         } catch (Exception e) {
-            log.error("Error in checkQuality() for " + shefRecord.getTraceId(),e);
             log.info("locdatalimits query = [" + locLimitSql.toString() + "]");
             log.info("datalimits query  = [" + defLimitSql.toString() + "]");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+            log.error("Error in checkQuality() for " + shefRecord.getTraceId(),
+                    e);
             stats.incrementErrorMessages();
         }
 
@@ -2910,9 +2677,6 @@ public class PostShef {
      * @return true if the qualityCode is of "Higher" quality
      */
     private boolean checkQcCode(QualityControlCode checkCode, long qualityCode) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.checkQcCode() called...");
-        }
         boolean returnValue = false;
         switch (checkCode) {
         case QC_DEFAULT:
@@ -2951,7 +2715,6 @@ public class PostShef {
             break;
         default:
             log.error("Invalid request made in checkQcCode() method.");
-            // returnValue = ShefConstants.INVALID_QC_REQUEST;
             returnValue = false;
             break;
         }
@@ -2965,9 +2728,6 @@ public class PostShef {
      * has data for a special paired-and-dependent set of data.
      */
     private boolean checkIfPaired(ShefData data) {
-        if (log.isDebugEnabled()) {
-            log.debug("PostShef.checkIfPaired() called...");
-        }
         boolean isPaired = false;
         PhysicalElement pe = data.getPhysicalElement();
         if (pe != null) {
@@ -3002,30 +2762,27 @@ public class PostShef {
      * @return - true if the data time is within the range
      */
     private static boolean checkRangeDate(Date obsTime, String monthDayStart,
-            String monthDayEnd, Log log) {
+            String monthDayEnd) {
         boolean valid = false;
-        if (log != null && log.isDebugEnabled()) {
-            log.debug("PostShef.checkRangeDate() ...");
-        }
-        if(obsTime != null) {
-            if((monthDayStart != null)&&(monthDayEnd != null)) {
-                if((monthDayStart.length() == 5)&&(monthDayEnd.length() == 5)) {
-                    
-                    int rangeStartDate = Integer.parseInt(monthDayStart.substring(0, 2)) * 100;
-                    rangeStartDate += Integer.parseInt(monthDayStart.substring(3));
-                    
-                    int rangeEndDate = Integer.parseInt(monthDayEnd.substring(0, 2)) * 100;
-                    rangeEndDate += Integer.parseInt(monthDayEnd.substring(3));
-                    
-                    Calendar date = TimeTools.getSystemCalendar();
-                    date.setTime(obsTime);
+        if (obsTime != null && (monthDayStart != null) && (monthDayEnd != null)) {
+            if ((monthDayStart.length() == 5) && (monthDayEnd.length() == 5)) {
 
-                    int dataDate = (date.get(Calendar.MONTH) + 1) * 100;
-                    dataDate += date.get(Calendar.DAY_OF_MONTH);
+                int rangeStartDate = Integer.parseInt(monthDayStart.substring(
+                        0, 2)) * 100;
+                rangeStartDate += Integer.parseInt(monthDayStart.substring(3));
 
-                    /* Compare the dates, don't check for straddling the year */
-                    valid = ((dataDate >= rangeStartDate) && (dataDate <= rangeEndDate));
-                }            
+                int rangeEndDate = Integer
+                        .parseInt(monthDayEnd.substring(0, 2)) * 100;
+                rangeEndDate += Integer.parseInt(monthDayEnd.substring(3));
+
+                Calendar date = TimeTools.getSystemCalendar();
+                date.setTime(obsTime);
+
+                int dataDate = (date.get(Calendar.MONTH) + 1) * 100;
+                dataDate += date.get(Calendar.DAY_OF_MONTH);
+
+                /* Compare the dates, don't check for straddling the year */
+                valid = ((dataDate >= rangeStartDate) && (dataDate <= rangeEndDate));
             }
         }
         return valid;
@@ -3063,7 +2820,7 @@ public class PostShef {
             }
 
             if (dataValue == "") {
-                dataValue = "-9999";
+                dataValue = ShefConstants.SHEF_MISSING;
             }
             short revision = 0;
             if (data.isRevisedRecord()) {
@@ -3290,7 +3047,6 @@ public class PostShef {
             unkstnvalue.setIdentifier(unkstnvalue.getId());
             unkstnvalue.getId().setIdentifier(unkstnvalue.getId());
             unkstnvalue.getId().setRevision(revision);
-            // unkstnvalue.getId().setShefQualCode(qualifier);
             unkstnvalue.getId().setShefQualCode("Z");
             unkstnvalue.getId().setProductId(prodId);
             unkstnvalue.getId().setProducttime(prodTime);
@@ -3303,29 +3059,10 @@ public class PostShef {
         return dataObj;
     }
 
-    
-    /**
-     * 
-     * @param c
-     * @return
-     */
-    private static String toTimeStamp(Date d) {
-        String timeStamp = null;
-        if(d != null) {
-            timeStamp = DB_TIMESTAMP.format(d);
-        }
-        return timeStamp;
+    public void close() {
+        postTables.close();
     }
 
-    /**
-     * 
-     * @param c
-     * @return
-     */
-    private static String toTimeStamp(Calendar c) {
-        return toTimeStamp(c.getTime());
-    }
-    
     public static final void main(String[] args) {
 
         Calendar postDate = TimeTools.getBaseCalendar(2011, 1, 12);
@@ -3355,21 +3092,22 @@ public class PostShef {
 
         System.out.println(diffb + "  " + lookfwdMillis);
         System.out.println(diffb > lookfwdMillis);
-        
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMDDhhmmssZ");
         sdf.setTimeZone(SHEFTimezone.GMT_TIMEZONE);
         try {
             Date d = sdf.parse("20110228102100-0000");
-            
+
             System.out.println(sdf.format(d));
-            System.out.println(checkRangeDate(d, "01-01", "12-31", null) + " expected true");
-            System.out.println(checkRangeDate(d, "03-01", "10-01", null) + " expected false");
-            System.out.println(checkRangeDate(d, "99-99", "00-00", null) + " expected false");
-        
+            System.out.println(checkRangeDate(d, "01-01", "12-31")
+                    + " expected true");
+            System.out.println(checkRangeDate(d, "03-01", "10-01")
+                    + " expected false");
+            System.out.println(checkRangeDate(d, "99-99", "00-00")
+                    + " expected false");
+
         } catch (ParseException e) {
             e.printStackTrace();
-       }
-
+        }
     }
 }

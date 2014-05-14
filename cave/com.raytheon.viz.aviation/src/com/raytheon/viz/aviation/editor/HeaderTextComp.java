@@ -58,8 +58,10 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  * 12/01/2010   3263       rferrel     Added mouse track listener in order to
  *                                     display tool tip in dataStTxt.
  * 12/09/2010   7380       rferrel     Remove no longer needed constructor and now
- *                                     adjust both hight and width of text filed.
+ *                                     adjust both height and width of text filed.
  * 12 Aug 2013  #2256      lvenable    Added code to dispose of the cursor.
+ * 09Apr2014    #3005      lvenable    Added methods to clear the header and data text controls or
+ *                                     mark then as updating.  Removed unused methods.
  * 
  * </pre>
  * 
@@ -331,13 +333,19 @@ public class HeaderTextComp extends Composite {
     }
 
     /**
-     * Method that sets the header styled text edit area.
-     * 
-     * @param headerStTxt
-     *            the headerStTxt to set
+     * Clear the header text and data text controls.
      */
-    public void setHeaderStTxt(StyledText headerStTxt) {
-        this.headerStTxt = headerStTxt;
+    public void clearTextControls() {
+        headerStTxt.setText("");
+        dataStTxt.setText("");
+    }
+
+    /**
+     * Set the header text and data text controls to display "updating...".
+     */
+    public void markTextAsUpdating() {
+        headerStTxt.setText("updating...");
+        dataStTxt.setText("updating...");
     }
 
     /**
@@ -347,15 +355,5 @@ public class HeaderTextComp extends Composite {
      */
     public StyledText getDataStTxt() {
         return dataStTxt;
-    }
-
-    /**
-     * Method that sets the data styled text edit area.
-     * 
-     * @param dataStTxt
-     *            the dataStTxt to set
-     */
-    public void setDataStTxt(StyledText dataStTxt) {
-        this.dataStTxt = dataStTxt;
     }
 }
