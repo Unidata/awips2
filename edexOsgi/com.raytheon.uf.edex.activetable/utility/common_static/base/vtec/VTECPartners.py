@@ -37,8 +37,8 @@
 VTEC_TABLE_REQUEST_SITES = []
 
 # Name of site identifier for SPC and TCV bulletins. 4-characters.
-VTEC_SPC_SITE = 'KWNS'
-VTEC_TPC_SITE = 'KNHC'
+VTEC_SPC_SITE = ['KWNS']
+VTEC_TPC_SITE = ['KNHC']
 
 # The following list is a set of office identifiers which is used
 # in the ingestAT/MergeVTEC software to filter out records from offices
