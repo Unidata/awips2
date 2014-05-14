@@ -269,7 +269,7 @@
         <include>bandwidth-datadelivery-.*-ncf.xml</include>
         <exclude>.*datadelivery.*-wfo.*</exclude>
         <exclude>.*datadelivery.*-monolithic.*</exclude>
-        <exclude>.*dpa*</exclude>
+        <exclude>.*dpa.*</exclude>
     </mode>
 
     <mode name="statsTemplate" template="true">
@@ -314,7 +314,7 @@
     
     <mode name="excludeDpaAndOgc" template="true">
         <!-- exclude dpa services -->
-        <exclude>.*dpa*</exclude>
+        <exclude>.*dpa.*</exclude>
         <!-- exclude OGC services -->
         <exclude>.*ogc.*</exclude>
         <exclude>grid-metadata.xml</exclude>
@@ -323,9 +323,9 @@
     
     <mode name="excludeHarvester" template="true">
         <!-- exclude dpa services -->
-        <exclude>.*dpa*</exclude>
+        <exclude>.*dpa.*</exclude>
         <!-- exclude crawler/harvester -->
-        <exclude>.*harvester*</exclude>
+        <exclude>.*harvester.*</exclude>
         <exclude>.*crawler*</exclude>
     </mode>
   
@@ -344,7 +344,7 @@
         <include>bandwidth-datadelivery-edex-impl-monolithic.xml</include>
         <include>bandwidth-datadelivery-wfo.xml</include>
         <exclude>.*datadelivery.*-ncf.*</exclude>
-        <exclude>.*dpa*</exclude>
+        <exclude>.*dpa.*</exclude>
     </mode>
     
     <mode name="sbnSimulator">
@@ -422,7 +422,7 @@
     </mode>
     
 	<mode name="dataProviderAgentTemplate" template="true">
-		<include>manualIngest*</include>
+		<include>manualIngest.*</include>
 		<include>time-common.xml</include>
 		<include>distribution-spring.xml</include>
 		<include>persist-ingest.xml</include>
@@ -458,10 +458,5 @@
 		<include>madis-common.xml</include>
 		<include>madis-ogc.xml</include>
 		<include>madis-ogc-registry.xml</include>
-		<!-- pointdata/obs specific services 
-		<include>obs-common.xml</include>
-		<include>pointdata-common.xml</include>
-		<include>obs-dpa-ingest.xml</include>
-		<include>obs-ogc.xml</include>-->
 	</mode>
 </edexModes>
