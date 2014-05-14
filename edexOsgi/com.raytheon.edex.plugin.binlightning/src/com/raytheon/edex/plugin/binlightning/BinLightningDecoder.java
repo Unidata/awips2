@@ -39,9 +39,10 @@ import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * AWIPS decoder adapter strategy for binary lightning data.<br/>
@@ -82,6 +83,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jan 24, 2014 DR 16774   Wufeng Zhou Modified for updated Bin-lightning data spec, 
  *                                     and to used WMO header to distinguish bit-shifted 
  *                                     GLD360 and NLDN data.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -134,9 +136,10 @@ public class BinLightningDecoder extends AbstractDecoder {
 
             WMOHeader wmoHdr = new WMOHeader(data);
             if (wmoHdr.isValid()) {
-
-                Calendar baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(),
-                        headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                Calendar baseTime = WMOTimeParser.findDataTime(
+                        wmoHdr.getYYGGgg(), fileName);
                 
                 // Because binary nature of the encrypted data, the string created with its byte[] array may not have the same length of the byte[] array length 
                 // So when DecoderTools.stripWMOHeader() assumes byte[] length == String length in its logic, it is observed that it may return a shorter byte[] than

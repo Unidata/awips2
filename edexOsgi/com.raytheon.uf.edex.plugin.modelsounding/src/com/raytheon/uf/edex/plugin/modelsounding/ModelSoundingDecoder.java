@@ -36,6 +36,7 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -45,7 +46,6 @@ import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySele
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.plugin.modelsounding.decoder.ModelSoundingDataAdapter;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Perform decode on BUFR model sounding data. Currently this decoder does not
@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                    destruction.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 02, 2013  2537     bsteffen    Remove dead/deprecated code.
+ * May 14, 2014  2536     bclement    moved WMO Header to common
  * 
  * 
  * </pre>
@@ -148,7 +149,8 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
 
         if ((data != null) && (data.length > 0)) {
 
-            WMOHeader wmoHeader = new WMOHeader(data, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            WMOHeader wmoHeader = new WMOHeader(data, fileName);
 
             if (wmoHeader.isValid()) {
                 try {

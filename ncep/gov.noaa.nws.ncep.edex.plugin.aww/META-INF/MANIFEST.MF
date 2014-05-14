@@ -14,8 +14,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
  gov.noaa.nws.ncep.common.dataplugin.aww;bundle-version="1.0.0",
  org.geotools;bundle-version="2.6.4"
-Import-Package: com.raytheon.uf.edex.decodertools.core,
+Import-Package: com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.decodertools.time,
- com.raytheon.uf.edex.wmo.message,
  org.apache.commons.logging,
  org.apache.log4j
