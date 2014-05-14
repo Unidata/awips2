@@ -19,7 +19,7 @@
 # further licensing information.
 ##
 export INIT_MEM=128 # in Meg
-export MAX_MEM=512 # in Meg
+export MAX_MEM=2048 # in Meg
 
 export JMS_POOL_MIN=4
 export JMS_POOL_MAX=16
