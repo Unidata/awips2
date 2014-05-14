@@ -73,12 +73,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder implementation for radar plugin
@@ -98,6 +98,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Oct 09, 2013  2457     bsteffen    Improve error message for missing icao.
  * Jan 21, 2014  2627     njensen     Removed decode()'s try/catch, camel route will do try/catch
+ * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -199,15 +200,17 @@ public class RadarDecoder extends AbstractDecoder {
                 // handle an interesting special case
                 String wmoHeader = headers.get("header").toString();
                 if (wmoHeader.contains("SDUS4")) {
+                    String fileName = (String) headers
+                            .get(WMOHeader.INGEST_FILE_NAME);
                     WMOHeader header = new WMOHeader(wmoHeader.getBytes(),
-                            headers);
+                            fileName);
                     String dataString = new String(messageData, 0,
                             messageData.length).substring(1,
                             messageData.length - 1);
                     String siteId = dataString.substring(0, 3);
                     AFOSProductId afos = new AFOSProductId("WSR", "ROB", siteId);
                     // store the product ROB that is barely do-able
-                    Calendar cal = (TimeTools.allowArchive() ? header
+                    Calendar cal = (WMOTimeParser.allowArchive() ? header
                             .getHeaderDate() : Calendar.getInstance());
                     RadarEdexTextProductUtil.storeTextProduct(afos, header,
                             dataString, true, cal);
@@ -250,7 +253,7 @@ public class RadarDecoder extends AbstractDecoder {
 
             // -- some product specific decode functionality --
             // the general status message product
-            if (l3Radar.getMessageCode() == l3Radar.GSM_MESSAGE) {
+            if (l3Radar.getMessageCode() == Level3BaseRadar.GSM_MESSAGE) {
                 record.setGsmMessage(l3Radar.getGsmBlock().getMessage());
                 record.setPrimaryElevationAngle(0.0);
                 record.setTrueElevationAngle(0.0f);
@@ -516,7 +519,8 @@ public class RadarDecoder extends AbstractDecoder {
     private void decodeFreeTextMessage(byte[] messageData, Headers headers) {
         String temp = new String(messageData);
         temp = temp.substring(0, temp.length() - 4);
-        WMOHeader header = new WMOHeader(messageData, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        WMOHeader header = new WMOHeader(messageData, fileName);
         temp = temp.replace(header.toString(), "");
 
         String[] splits = temp.split(" ");
@@ -525,7 +529,7 @@ public class RadarDecoder extends AbstractDecoder {
                         splits[1].substring(1)));
 
         // store the product to the text database
-        Calendar cal = (TimeTools.allowArchive() ? header.getHeaderDate()
+        Calendar cal = (WMOTimeParser.allowArchive() ? header.getHeaderDate()
                 : Calendar.getInstance());
         RadarEdexTextProductUtil
                 .storeTextProduct(afos, header, temp, true, cal);
@@ -538,8 +542,7 @@ public class RadarDecoder extends AbstractDecoder {
 
     private void finalizeRecord(RadarRecord record) throws PluginException {
         record.setTraceId(traceId);
-        record.constructDataURI();
-        record.setInsertTime(TimeTools.getSystemCalendar());
+        record.setInsertTime(TimeUtil.newGmtCalendar());
         // for GSM, we want all the messages as they have the possibility of
         // being different
         if (record.getProductCode() == Level3BaseRadar.GSM_MESSAGE) {

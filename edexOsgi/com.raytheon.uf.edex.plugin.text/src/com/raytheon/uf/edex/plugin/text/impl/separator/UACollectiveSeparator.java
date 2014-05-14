@@ -30,9 +30,9 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
 import com.raytheon.edex.textdb.dbapi.impl.WMOReportData;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.text.impl.TextSeparatorFactory;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Upper Air Collective text Separator.
@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 13, 2014 2652       skorolev    Fixed calculation of message end.
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * Apr 02, 2014 2652       skorolev    Corrected a removing of excess control characters.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * </pre>
  * 
  * @author jkorman
@@ -266,8 +267,10 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                 newHdr.append("\r\n");
 
                 // logEvent << "WMO new header = " << WMOnewHeader << std::endl;
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
                 WMOHeader newWmoHdr = new WMOHeader(newHdr.toString()
-                        .getBytes(), headers);
+                        .getBytes(), fileName);
 
                 // skip possible partial AWIPS id
                 if (parsedMsg.length() > MAX_SECND_LINE_LEN) {

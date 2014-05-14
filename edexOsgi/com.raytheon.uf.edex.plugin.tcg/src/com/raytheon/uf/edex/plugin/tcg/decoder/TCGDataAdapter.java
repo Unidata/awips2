@@ -30,15 +30,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.tcg.TCGStormType;
 import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * TODO Add Description
@@ -52,6 +51,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Oct 26, 2009            jsanchez     Initial creation
  * Jun 28, 2012  #826      dgilling     Ensure getDataTime properly
  *                                      handles time zones.
+ * May 14, 2014 2536       bclement     moved WMO Header to common, removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -118,7 +118,8 @@ public abstract class TCGDataAdapter {
     public void setData(byte[] message, String traceId, Headers headers) {
         currentReport = -1;
         this.traceId = traceId;
-        wmoHeader = new WMOHeader(message, headers);
+        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+        wmoHeader = new WMOHeader(message, fileName);
         if (wmoHeader != null) {
             reports = findReports(message);
         } else {
@@ -169,16 +170,10 @@ public abstract class TCGDataAdapter {
             report = reports.get(currentReport++);
             logger.debug("Getting report " + report);
 
-            try {
-                report.constructDataURI();
-                if (URI_MAP.containsKey(report.getDataURI())) {
-                    report = null;
-                } else {
-                    URI_MAP.put(report.getDataURI(), Boolean.TRUE);
-                }
-            } catch (PluginException e) {
-                logger.error(traceId + "- Unable to construct dataURI", e);
+            if (URI_MAP.containsKey(report.getDataURI())) {
                 report = null;
+            } else {
+                URI_MAP.put(report.getDataURI(), Boolean.TRUE);
             }
             if (report != null) {
 

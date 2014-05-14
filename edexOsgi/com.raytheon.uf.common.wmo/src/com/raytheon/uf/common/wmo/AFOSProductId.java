@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.wmo.message;
+package com.raytheon.uf.common.wmo;
 
 import java.io.Serializable;
 
@@ -29,6 +29,7 @@ import java.io.Serializable;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 29, 2008       1538 jkorman     Initial creation
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * </pre>
  * 
  * @author jkorman
