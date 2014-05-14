@@ -91,8 +91,13 @@
                    visible="true">
              </separator>
              <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.saveBundle"
+                   label="Save Bundle"
+                   style="push">
+             </command>
+             <command
                    commandId="com.raytheon.viz.ui.actions.saveScreen"
-                   label="Save Screen"
+                   label="Save Screenshot"
                    mnemonic="S"
                    style="push">
              </command>
@@ -100,6 +105,11 @@
                    commandId="gov.noaa.nws.ncep.viz.ui.actions.saveArea"
                    label="Save Area"
                    mnemonic="A"
+                   style="push">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.saveBundle"
+                   label="Save Display"
                    style="push">
              </command>
              <!-- <separator
@@ -127,16 +137,6 @@
                    label="Print Reverse Image..."
                    style="push">
              </command>
-             <command
-                   commandId="com.raytheon.viz.ui.saveBundle"
-                   label="Save Display"
-                   style="push">
-             </command>
-             <command
-                   commandId="gov.noaa.nws.ncep.viz.ui.saveBundle"
-                   label="Save Bundle"
-                   style="push">
-             </command>
              <!-- <separator
                    name="beforeExit"
                    visible="true">
@@ -150,8 +150,8 @@
            </menu>
            <menu
                 id="NCOption"
-                label="Options"
-                mnemonic="O">
+                label="View"
+                mnemonic="V">
              <visibleWhen>
                 <reference
                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
@@ -163,6 +163,10 @@
                    mnemonic="I">
                  </command>
                    -->
+            <command
+                  commandId="gov.noaa.nws.ncep.viz.CustomProjection"
+                  label="Map Projections">
+            </command>
               <command
                    commandId="gov.noaa.nws.ncep.viz.ui.actions.CursorAction"
                    id = "gov.noaa.nws.ncep.viz.ui.actions.CursorAction"
@@ -293,7 +297,7 @@
            </menu>
 			-->
            <menu id="NCOverlays"
-                 label="Overlays"
+                 label="Maps"
                  mnemonic="v">
               <visibleWhen>
                  <reference
@@ -331,29 +335,7 @@
               </visibleWhen>
               <command
                     commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                    label="Create RBDs"
-                    mnemonic="R"
-                    style="push"
-                    tooltip="Create RBDs">
-                 <parameter
-                       name="mode"
-                       value="CREATE_RBD">
-                 </parameter>
-              </command>
-              <command
-                    commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                    label="Manage RBDs"
-                    mnemonic="S"
-                    style="push"
-                    tooltip="Save, Delete, Copy RBDs">
-                 <parameter
-                       name="mode"
-                       value="MANAGE_RBDS">
-                 </parameter>
-              </command>
-              <command
-                    commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
-                    label="Manage Resources"
+                    label="Manage Data Sources"
                     mnemonic="M"
                     style="push"
                     tooltip="Create and Edit Resource Definitions and Attribute Sets">
@@ -375,16 +357,9 @@
                   style="push">
             </command>
              <separator
-                   name="beforeLogos"
+                   name="afterSources"
                    visible="true">
              </separator>
-             <command
-                   commandId="gov.noaa.nws.ncep.viz.ui.actions.LogosAction"
-                   id = "gov.noaa.nws.ncep.viz.ui.actions.LogosAction"
-                   label="Logos"
-                   style="push"
-                   mnemonic="g">
-             </command>
               <command
                     commandId="gov.noaa.nws.ncep.viz.plotModelMngr"
                     label="Plot Model Manager"
@@ -399,20 +374,11 @@
                     style="push"
                     tooltip="Conditional Filter Manager">
               </command>
-              <menu
-                   id="AODT"
-                   label="AODT" >
-                <command
-                     commandId="gov.noaa.nws.ncep.ui.actions.aodt.operational"
-                     label="Operational"
-                     style="push">
-                </command>
-                <!-- command
-                     commandId="gov.noaa.nws.ncep.ui.actions.aodt.experimental"
-                     label="Experimental"
-                     style="push">
-                </command-->
-             </menu>
+              <command
+                    commandId="gov.noaa.nws.ncep.ui.actions.aodt.operational"
+                    label="AODT Operational"
+                    style="push">
+              </command>
               <command
                     commandId="gov.noaa.nws.ncep.viz.colorMapEditor"
                     label="Colormap Editor"
@@ -426,10 +392,6 @@
                     mnemonic="C"
                     style="push">
               </command>
-           	  <command
-                    commandId="gov.noaa.nws.ncep.viz.CustomProjection"                    
-                    label="Custom Area...">
-              </command>
               <!--
               <command
                     commandId="sync.file.tool.command"
@@ -437,15 +399,6 @@
                     style="push">
               </command>
               -->
-           </menu>
-           <menu
-                 id="D2Dmaps"
-                 label="Maps"
-                 mnemonic="M">
-              <dynamic
-                    class="com.raytheon.uf.viz.core.maps.menus.MapsMenu"
-                    id="com.raytheon.uf.viz.core.maps.menus.MapsMenu">
-              </dynamic>
            </menu>
            <!--menu
                 id="NCHelp"
