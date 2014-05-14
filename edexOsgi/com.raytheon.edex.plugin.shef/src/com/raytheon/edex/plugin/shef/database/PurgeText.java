@@ -36,9 +36,9 @@ import com.raytheon.uf.common.dataplugin.shef.tables.TextproductId;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Handles storing of Shef Products and updating the purge text product.
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Mar 8, 2010             jkorman     Initial creation
  * Dec 03, 2013 2051       rjpeter     Fixed storeTextProduct issue.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed unused int
  * </pre>
  * 
  * @author jkorman
@@ -324,7 +325,7 @@ public class PurgeText {
                 String poDate = dFmt.format(toDate(t[numToKeep - 1]));
                 query = String.format(purQuery, productId, poDate);
 
-                int n = dao.executeSQLUpdate(query);
+                dao.executeSQLUpdate(query);
             }
         }
     }

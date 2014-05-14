@@ -10,7 +10,6 @@ Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.pointdata,
- com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.dataplugin.modelsounding,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
@@ -19,9 +18,11 @@ Require-Bundle: com.raytheon.uf.edex.core,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.site,
- com.raytheon.uf.edex.ndm;bundle-version="1.0.0"
+ com.raytheon.uf.edex.ndm;bundle-version="1.0.0",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174"
 Import-Package: com.raytheon.edex.esb,
- com.raytheon.edex.plugin
+ com.raytheon.edex.plugin,
+ com.raytheon.uf.common.wmo
 Export-Package: com.raytheon.uf.edex.plugin.modelsounding,
  com.raytheon.uf.edex.plugin.modelsounding.common,
  com.raytheon.uf.edex.plugin.modelsounding.dao,

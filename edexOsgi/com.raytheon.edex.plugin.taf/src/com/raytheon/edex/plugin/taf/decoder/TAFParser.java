@@ -51,10 +51,10 @@ import com.raytheon.edex.plugin.taf.common.TafRecord;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * The TAF parser accepts a potential TAF report and attempts to parse and
@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 9/4/2008     1444        grichard    Import constants from TafConstants class.
  * Oct 21, 2008       1515  jkorman     Added 30 Hour capability changes.
  * Feb 27, 2013 1638        mschenke    Moved ObStationDao to edex pointdata plugin
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -151,10 +152,10 @@ public class TAFParser {
                     int currGroup = 0;
                     for (String grp : tafGroups) {
 
-                        Calendar cStart = TimeTools.copy(validPeriod
-                                .getStartDate());
-                        Calendar cStop = TimeTools.copy(validPeriod
-                                .getEndDate());
+                        Calendar cStart = (Calendar) validPeriod.getStartDate()
+                                .clone();
+                        Calendar cStop = (Calendar) validPeriod.getEndDate()
+                                .clone();
 
                         TafPeriod tPeriod = new TafPeriod(cStart, cStop);
                         ChangeGroup group = new ChangeGroup(grp, tPeriod);
@@ -193,12 +194,12 @@ public class TAFParser {
                             period1 = group1.getTafChangePeriod();
                             period2 = group2.getTafChangePeriod();
 
-                            period1.setEndDate(TimeTools.copy(period2
-                                    .getStartDate()));
+                            period1.setEndDate((Calendar) period2
+                                    .getStartDate().clone());
 
                         }
-                        period2.setEndDate(TimeTools.copy(validPeriod
-                                .getEndDate()));
+                        period2.setEndDate((Calendar) validPeriod.getEndDate()
+                                .clone());
                     }
                     record.setChangeGroups(groupSet);
                 }
@@ -316,7 +317,7 @@ public class TAFParser {
      */
     private Calendar transformDate(String issueDateString, WMOHeader header) {
 
-        Calendar tDate = TimeTools.getSystemCalendar(header.getYear(),
+        Calendar tDate = TimeUtil.newGmtCalendar(header.getYear(),
                 header.getMonth(), header.getDay());
 
         int maxDay = tDate.getActualMaximum(Calendar.DAY_OF_MONTH);
