@@ -33,15 +33,14 @@ import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.ISfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.SfcObsDecoderFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder strategy for text surface observation data. Most common usage is as
@@ -73,6 +72,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 19, 2013 1785       bgonzale    Added performance status handler and
  *                                     added status  to decode.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -170,11 +170,6 @@ public class SfcObsDecoder extends AbstractDecoder {
             }
             if (report != null) {
                 report.setTraceId(traceId);
-                try {
-                    report.constructDataURI();
-                } catch (PluginException e) {
-                    throw new DecoderException("Error Constructing dataURI", e);
-                }
                 if (!obsMap.containsKey(report.getDataURI())) {
                     retVal.add(report);
                     obsMap.put(report.getDataURI(), Boolean.TRUE);
@@ -207,10 +202,10 @@ public class SfcObsDecoder extends AbstractDecoder {
         boolean isValid = false;
         if (report != null) {
 
-            Calendar curr = TimeTools.getSystemCalendar((String) headers
+            Calendar curr = WMOTimeParser.getSystemCalendar((String) headers
                     .get(DecoderTools.INGEST_FILE_NAME));
 
-            Calendar rHour = TimeTools.copy(report.getRefHour());
+            Calendar rHour = (Calendar) report.getRefHour().clone();
             rHour.add(Calendar.MINUTE, -15);
 
             long delta = curr.getTimeInMillis() - rHour.getTimeInMillis();

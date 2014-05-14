@@ -29,6 +29,7 @@ import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.ITimeService;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
@@ -45,6 +46,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -392,7 +394,7 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
         ObsCommon report = null;
 
         Calendar oTime = calculateObsDateTime(
-                TimeTools.getSystemCalendar(obsYear, obsMonth, obsDay), obsDay,
+                TimeUtil.newGmtCalendar(obsYear, obsMonth, obsDay), obsDay,
                 obsHour, obsYear, obsMonth);
         if (oTime != null) {
             report = new ObsCommon();
@@ -460,7 +462,7 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
             Integer obsDay, Integer obsHour, Integer obsYear, Integer obsMonth) {
         Calendar obsTime = null;
         Calendar tTime = TimeTools.copyToNearestHour(currentClock);
-        TimeTools.rollByDays(tTime, 1);
+        tTime.add(Calendar.DAY_OF_MONTH, 1);
 
         if ((obsDay != null) && (obsHour != null)) {
             if (obsDay == currentClock.get(Calendar.DAY_OF_MONTH)) {
@@ -475,7 +477,7 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
                 int i = 0;
                 while (i++ < 25) {
                     // Go back a day
-                    TimeTools.rollByDays(tTime, -1);
+                    tTime.add(Calendar.DAY_OF_MONTH, -1);
                     if (obsDay == tTime.get(Calendar.DAY_OF_MONTH)) {
                         // Day values are equal, so this is it.
                         obsTime = TimeTools.copyToNearestHour(tTime);
@@ -553,7 +555,8 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
         Integer obsDay = 31;
         Integer obsHour = 21;
         
-        Calendar currentClock = TimeTools.getSystemCalendar(obsYear, obsMonth, obsDay);
+        Calendar currentClock = TimeUtil.newGmtCalendar(obsYear, obsMonth,
+                obsDay);
         System.out.println(TMFMT.format(currentClock.getTime()));
         
         Calendar c = calculateObsDateTime(currentClock,obsDay,obsHour,obsYear,obsMonth); 

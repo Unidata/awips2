@@ -41,13 +41,13 @@ import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.bufrtools.AbstractBUFRDecoder;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.DefaultDescriptorDelegate;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder strategy for BUFR upper air observation data. Most common usage is as
