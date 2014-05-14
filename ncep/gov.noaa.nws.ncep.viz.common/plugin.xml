@@ -73,10 +73,12 @@
                areaSourceName="PREDEFINED_AREA"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory"
                sourceLocation="ncep/PredefinedAreas"/>
-       <areaProviderSource
+       <!--<areaProviderSource
                areaSourceName="GEMPAK_SFC_STN_ID"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.GempakSfcStnAreaProviderFactory"
                sourceLocation="ncep/Stations/sfstns.xml"/>
+               -->
+               
        <!-- TODO support look up by name/num. use the same factory but can check the source in 
             to determine which field to look up in sfstns.xml           
        <areaProviderSource
@@ -102,31 +104,33 @@
 <!-- The following sources read from the common_obs_spatial db table.
   Others possible for NEXRAD, WFOID, PIREP, MESONET, BUOY_MOB, SHIP_MOB and other catalogtypes. 
   -->
+  <!--
         <areaProviderSource
                areaSourceName="METAR_STATION_ID"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
                sourceLocation="common_obs_spatial"
-               configSourceData="1"/> <!-- the catalogtype for ICAO (ie. METAR) -->                
+               configSourceData="1"/>         
         <areaProviderSource
                areaSourceName="SYNOP_STATION_ID"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
                sourceLocation="common_obs_spatial"
-               configSourceData="20"/> <!-- the catalogtype SFC_FXD-->
+               configSourceData="20"/> 
         <areaProviderSource
                areaSourceName="UAIR_STATION_ID"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
                sourceLocation="common_obs_spatial"
-               configSourceData="22"/> <!-- the catalogtype for SRC_RAOB-->
+               configSourceData="22"/> 
         <areaProviderSource
                areaSourceName="FIXED_BOUY_ID"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
                sourceLocation="common_obs_spatial"
-               configSourceData="32"/> <!-- the catalogtype SFC_FXD-->
+               configSourceData="32"/> 
         <areaProviderSource
                areaSourceName="CMAN_STATION_ID"
                sourceFactory="gov.noaa.nws.ncep.viz.common.area.StationDbAreaProviderFactory"
                sourceLocation="common_obs_spatial"
-               configSourceData="33"/> <!-- the catalogtype CMAN -->
+               configSourceData="33"/> 
+               -->
                
    </extension>
 </plugin>
