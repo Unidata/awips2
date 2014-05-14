@@ -21,7 +21,11 @@ package com.raytheon.uf.common.activetable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +38,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * This wraps the VTECPartners.py file, loading it as a Map<String, Object> in
@@ -46,7 +52,9 @@ import com.raytheon.uf.common.python.PythonScript;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 8, 2010            wldougher     Initial creation
+ * Jul 08, 2010            wldougher    Initial creation
+ * May 15, 2010  #3157     dgilling     Add convenience methods for retrieving
+ *                                      TPC and SPC sites.
  * 
  * </pre>
  * 
@@ -57,6 +65,9 @@ import com.raytheon.uf.common.python.PythonScript;
 public class VTECPartners {
 
     private static final String CONFIG_PATH = "config" + File.separator + "gfe";
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VTECPartners.class);
 
     private static Map<String, VTECPartners> instanceMap;
 
@@ -186,5 +197,50 @@ public class VTECPartners {
             }
         }
         return obj;
+    }
+
+    public Collection<String> getSpcSites() {
+        return getSpcSites(null);
+    }
+
+    public Collection<String> getSpcSites(String defaultSite) {
+        return getSupportedIssuingSites("VTEC_SPC_SITE", defaultSite);
+    }
+
+    public Collection<String> getTpcSites() {
+        return getTpcSites(null);
+    }
+
+    public Collection<String> getTpcSites(String defaultSite) {
+        return getSupportedIssuingSites("VTEC_TPC_SITE", defaultSite);
+    }
+
+    protected Collection<String> getSupportedIssuingSites(String settingName,
+            String defaultValue) {
+        Object pyObject = getattr(settingName, defaultValue);
+
+        if (pyObject == null) {
+            String msg = String
+                    .format("VTECPartners setting [%s] not configured. Check your localVTECPartners settings.",
+                            settingName);
+            statusHandler.warn(msg);
+        } else if (pyObject instanceof String) {
+            String singleSite = (String) pyObject;
+            return new HashSet<String>(Arrays.asList(singleSite));
+        } else if (pyObject instanceof Collection) {
+            Collection<?> siteList = (Collection<?>) pyObject;
+            Collection<String> retVal = new HashSet<String>(siteList.size(), 1f);
+            for (Object siteObj : siteList) {
+                retVal.add(siteObj.toString());
+            }
+            return retVal;
+        } else {
+            String msg = String
+                    .format("Unsupported value for setting [%s]: %s. Check your localVTECPartners settings.",
+                            pyObject.toString(), settingName);
+            statusHandler.warn(msg);
+        }
+
+        return Collections.emptySet();
     }
 }
