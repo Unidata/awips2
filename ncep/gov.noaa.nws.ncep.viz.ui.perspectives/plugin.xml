@@ -297,7 +297,7 @@
            </menu>
 			-->
            <menu id="NCOverlays"
-                 label="Maps"
+                 label="Overlays"
                  mnemonic="v">
               <visibleWhen>
                  <reference
