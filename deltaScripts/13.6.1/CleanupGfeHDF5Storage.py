@@ -30,27 +30,47 @@
 #    ------------    ----------    -----------    --------------------------
 #    11/18/10                      njensen       Initial Creation.
 #    06/13/13        #2044         randerso      Fixed to use correct python
+#    05/08/14        #3142         dgilling      Add better error-handling, logging.
 #    
 # 
 #
 import os
+import logging
 
 hdf5loc = "/awips2/edex/data/hdf5/gfe"
 
-def processDir(dir):
+logging.basicConfig(format="%(asctime)s %(name)s:%(lineno)d %(levelname)s:  %(message)s", 
+                    datefmt="%H:%M:%S", 
+                    level=logging.INFO)
+log = logging.getLogger("CleanupGfeHDF5Storage")
+
+
+def processDir(hdf5Dir):
     # walk the directory tree removing *_GridParm.h5 files
-    for file in os.listdir(dir):
-        filePath = os.path.join(dir, file)
-        if os.path.isfile(filePath) and str(filePath).endswith("_GridParm.h5"):
-            print "Removing ", filePath
-            os.remove(filePath)
-        elif os.path.isdir(filePath):
-            processDir(filePath)
-    
-    # if directory is empty remove it
-    if len(os.listdir(dir)) == 0:
-        print "Removing ", dir
-        os.removedirs(dir)
+    # any directories that become empty after removing those files will also
+    # be deleted.
+    for root, dirs, files in os.walk(hdf5Dir, topdown=False):
+        for file in files:
+            if str(file).endswith("_GridParm.h5"):
+                fullPath = os.path.join(root, file)
+                log.info("Removing " + str(fullPath))
+                try:
+                    os.remove(fullPath)
+                except OSError:
+                    log.exception("Could not delete file " + str(fullPath))
+                    
+        for dir in dirs:
+            fullPath = os.path.join(root, dir)
+            try:
+                if not os.listdir(fullPath):
+                    log.info("Removing " + str(fullPath))
+                    try:
+                        os.rmdir(fullPath)
+                    except OSError:
+                        log.exception("Could not delete path " + str(fullPath))
+            except OSError:
+                log.warning("Skipping directory " + str(fullPath), exc_info=True)
+
     
 def main():
     processDir(hdf5loc)
