@@ -94,6 +94,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 24, 2013  15972    D. Friedman Make reprojection of grids configurable.
  * Nov 19, 2013  2532     bsteffen    Special handling of grids larger than the
  *                                    world.
+ * Mar 27, 2014  2945     bsteffen    Enable omitting the plane from the legend
+ *                                    based off style rules.
+ * 
  * 
  * </pre>
  * 
@@ -359,6 +362,10 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
 
         if (stylePreferences != null) {
             legendParams.unit = stylePreferences.getDisplayUnitLabel();
+            if (stylePreferences.getDisplayFlags() != null) {
+                legendParams.isPlaneLabelDisplayed = !stylePreferences
+                        .getDisplayFlags().hasFlag("NoPlane");
+            }
         }
 
         if ((legendParams.unit == null) || legendParams.unit.isEmpty()) {
