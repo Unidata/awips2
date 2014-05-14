@@ -70,7 +70,7 @@
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
                             <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
-                                <pdProps maxDisplayWidth="1000000" minDisplayWidth="0"/>
+                                <pdProps maxDisplayWidth="1200000" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false" >
                                 <mapName>County Boundaries</mapName>
@@ -82,7 +82,7 @@
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
                             <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
-                                <pdProps maxDisplayWidth="1000000" minDisplayWidth="0"/>
+                                <pdProps maxDisplayWidth="1200000" minDisplayWidth="0"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>Zoom State Boundaries</mapName>
@@ -97,7 +97,7 @@
                                 <resourceType>PLAN_VIEW</resourceType>
                             </loadProperties>
                             <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true">
-                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="1000000"/>
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="1200000"/>
                             </properties>
                             <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
                                 <mapName>State Boundaries</mapName>
