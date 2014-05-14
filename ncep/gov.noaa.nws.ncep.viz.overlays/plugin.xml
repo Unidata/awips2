@@ -222,7 +222,7 @@
       <nc-resourceParameter
             paramClass="RGB"
             paramName="color"
-            defaultValue="RGB {0, 255, 0}"
+            defaultValue="RGB {200, 200, 200}"
             paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
       </nc-resourceParameter>
@@ -236,7 +236,7 @@
       <nc-resourceParameter
             paramClass="Integer"
             paramName="scalePosition"
-            defaultValue="0"
+            defaultValue="2"
             paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
       </nc-resourceParameter>
