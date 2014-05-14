@@ -20,7 +20,7 @@
 /**
  * 
  */
-package com.raytheon.edex.plugin.gfe.wcl;
+package com.raytheon.edex.plugin.gfe.watch;
 
 import java.util.Collections;
 import java.util.Date;

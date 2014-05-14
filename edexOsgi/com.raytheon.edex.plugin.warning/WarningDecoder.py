@@ -42,6 +42,7 @@
 #                                       start time from file's timestamp.
 # Oct 03, 2013  2402     bsteffen       Make PythonDecoder more extendable.
 # May 15, 2014  2536     bclement       moved WMO time parsing to WMOTimeParser
+# May 15, 2014  3157     dgilling       Update location of WclInfo class.
 
 # </pre>
 #
@@ -176,7 +177,7 @@ class StdWarningDecoder():
         if self._productPil[0:3] == "WCL":
             endpoint = "WCLWatch"
             # build a Java object for the warning
-            from com.raytheon.edex.plugin.gfe.wcl import WclInfo
+            from com.raytheon.edex.plugin.gfe.watch import WclInfo
             import JUtil
             lines = JUtil.pyValToJavaObj(self._lines)
             warning = WclInfo(long(self._issueTime * 1000),
