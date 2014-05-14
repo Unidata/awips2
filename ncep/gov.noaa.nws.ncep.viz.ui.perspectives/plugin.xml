@@ -378,7 +378,12 @@
                     commandId="gov.noaa.nws.ncep.ui.actions.aodt.operational"
                     label="AODT Operational"
                     style="push">
-              </command>
+              </command>    
+              <!-- command
+                    commandId="gov.noaa.nws.ncep.ui.actions.aodt.experimental"
+                    label="AODT Experimental"
+                    style="push">
+              </command-->
               <command
                     commandId="gov.noaa.nws.ncep.viz.colorMapEditor"
                     label="Colormap Editor"
