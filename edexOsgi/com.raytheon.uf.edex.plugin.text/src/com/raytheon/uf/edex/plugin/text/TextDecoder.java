@@ -50,13 +50,13 @@ import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.plugin.text.dao.AfosToAwipsDao;
 import com.raytheon.uf.edex.plugin.text.impl.TextSeparatorFactory;
 import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder implementation for text products
