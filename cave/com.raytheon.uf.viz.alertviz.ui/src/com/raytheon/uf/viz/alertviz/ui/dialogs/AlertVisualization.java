@@ -237,9 +237,12 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         this.runningStandalone = runningStandalone;
         ConfigurationManager.getInstance().addListener(this);
         if (Boolean.getBoolean("SystemTray")) {
-            showAlertDlg = Boolean.getBoolean("ShowAlertVizBar");
+            //showAlertDlg = Boolean.getBoolean("ShowAlertVizBar");
+            showAlertDlg = false;
             doNotDisturb = true;
         }
+        showAlertDlg = false;
+        doNotDisturb = true;
         initShell();
     }
 
@@ -322,6 +325,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         display.asyncExec(new Runnable() {
             public void run() {
                 alertMessageDlg.open();
+                alertMessageDlg.showDialog(false);
             }
         });
     }
