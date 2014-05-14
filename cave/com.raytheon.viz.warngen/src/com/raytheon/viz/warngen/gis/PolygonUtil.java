@@ -81,6 +81,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 10/18/2013  DR 16632   Qinglu Lin   Catch exception thrown when coords length is less than 4 and doing createLinearRing(coords).
  * 12/17/2013  DR 16567   Qinglu Lin   Added createPolygonByPoints().
  * 01/09/2014  DR 16974   D. Friedman  Improve followup redraw-from-hatched-area polygons.
+ * 04/15/2014  DR 17247   D. Friedman  Prevent some invalid coordinates in adjustVertex.
  * </pre>
  * 
  * @author mschenke
@@ -1121,6 +1122,10 @@ public class PolygonUtil {
         double x = coordinate.x * Math.pow(10, decimalPlaces);
         double y = coordinate.y * Math.pow(10, decimalPlaces);
 
+        if (Double.isNaN(x) || Double.isNaN(y)) {
+            throw new IllegalArgumentException("Invalid coordinate " + coordinate);
+        }
+
         x = Math.round(x);
         y = Math.round(y);
 
@@ -1436,41 +1441,36 @@ public class PolygonUtil {
                     int replaceIndex;
                     // index of the vertex at the other end of line segment A.
                     int theOtherIndex;
+                    Coordinate b0, b1;
                     if (d[4] < d[5]) {
                         replaceIndex = index[4];
                         theOtherIndex = indexOfTheOtherEnd[0];
+                        b0 = coord[index[2]];
+                        b1 = coord[index[3]];
                     } else {
                         replaceIndex = index[5];
                         theOtherIndex = indexOfTheOtherEnd[1];
+                        b0 = coord[index[0]];
+                        b1 = coord[index[1]];
                     }
-                    // move the bad vertex, which is on line segment A and has
-                    // the shortest distance to intersectCoord,
-                    // along line segment A to the other side of line segment B
-                    // which intersects with line segment A.
-                    double delta;
-                    double min = 0.00001;
-                    if (Math.abs(intersectCoord.x - coord[replaceIndex].x) < min) {
-                        // move the bad vertex along a vertical line segment.
-                        delta = intersectCoord.y - coord[theOtherIndex].y;
-                        coord[replaceIndex].y += 0.01 * (delta / Math
-                                .abs(delta));
-                    } else if (Math.abs(intersectCoord.y
-                            - coord[replaceIndex].y) < min) {
-                        // move the bad vertex along a horizontal line segment.
-                        delta = intersectCoord.x - coord[theOtherIndex].x;
-                        coord[replaceIndex].x += 0.01 * (delta / Math
-                                .abs(delta));
-                    } else {
-                        // move the bad vertex along a line segment which is
-                        // neither vertical nor horizontal.
-                        double slope = computeSlope(coord, replaceIndex,
-                                theOtherIndex);
-                        delta = coord[theOtherIndex].y - intersectCoord.y;
-                        coord[replaceIndex].y = intersectCoord.y + 0.005
-                                * (delta / Math.abs(delta));
-                        coord[replaceIndex].x = (coord[replaceIndex].y - coord[theOtherIndex].y)
-                                / slope + coord[theOtherIndex].x;
+
+                    /*
+                     * Move the bad vertex (coord[replaceIndex]), which is on
+                     * line segment A and has the shortest distance to
+                     * intersectCoord, along line segment A to the other side of
+                     * line segment B (b0, b1) which intersects with line
+                     * segment A.
+                     * 
+                     * The point is actually moved to the 0.01 grid point
+                     * closest to intersectCoord. That point may not actually be
+                     * on line segment A.
+                     */
+                    Coordinate c = adjustVertex2(intersectCoord, coord[theOtherIndex], b0, b1);
+                    if (c != null) {
+                        coord[replaceIndex].x = c.x;
+                        coord[replaceIndex].y = c.y;
                     }
+
                     //PolygonUtil.round(coord, 2);
                     PolygonUtil.round(coord[replaceIndex], 2);
                     if (replaceIndex == 0)
@@ -1486,6 +1486,101 @@ public class PolygonUtil {
             }
         }
         return coord;
+    }
+
+    private static final double SIDE_OF_LINE_THRESHOLD = 1e-9;
+
+    /** Returns 1, -1, or 0 if p is on the left of, on the right of, or on pa -> pb */
+    private static int sideOfLine(Coordinate p, Coordinate pa, Coordinate pb) {
+        double cp = (pb.x - pa.x) * (p.y - pa.y) - (p.x - pa.x) * (pb.y - pa.y); // Cross product
+        return Math.abs(cp) > SIDE_OF_LINE_THRESHOLD ?
+                (cp < 0 ? -1 : (cp > 0 ? 1 : 0)) : 0;
+    }
+
+    /** Returns the angle between p -> pa and p -> pb */
+    private static double angleBetween(Coordinate p, Coordinate pa, Coordinate pb) {
+        double ax = pa.x - p.x;
+        double ay = pa.y - p.y;
+        double bx = pb.x - p.x;
+        double by = pb.y - p.y;
+
+        double m = Math.sqrt((ax * ax + ay * ay) * (bx * bx + by * by));
+        return m != 0 ? Math.acos((ax * bx + ay * by) / m ) : 0;
+    }
+
+    private static int N_CANDIDATE_POINTS = 8;
+    private static byte[] CANDIDATE_DX = {  1,  1,  1,  0, -1, -1, -1,  0 };
+    private static byte[] CANDIDATE_DY = {  1,  0, -1, -1, -1,  0,  1,  1 };
+
+    /**
+     * Returns the coordinate within one grid point on the 0.01 grid next to
+     * intersectCoord that is on the same side of (b0,b1) as 'destination' which
+     * has the smallest angle to (inserectCoord,destination). The result may not
+     * be exact so it should be passed to round(Coordinate) if used.
+     * 
+     * If intersectCoord is on a grid point, there are eight candidate points.
+     * Otherwise there are four candidates.
+     * 
+     * Returns null if no point can be found.
+     */
+    private static Coordinate adjustVertex2(Coordinate intersectCoord,
+            Coordinate destination, Coordinate b0, Coordinate b1) {
+        int sideOfTheOther = sideOfLine(destination, b0, b1);
+        if (sideOfTheOther == 0)
+            return null;
+
+        double pxh = intersectCoord.x * 100;
+        double pyh = intersectCoord.y * 100;
+
+        double cx = Math.ceil(pxh);
+        double fx = Math.floor(pxh);
+        double cy = Math.ceil(pyh);
+        double fy = Math.floor(pyh);
+
+        double ox, oy;
+        if (Math.abs(cx - pxh) < SIDE_OF_LINE_THRESHOLD || Math.abs(fx - pxh) < SIDE_OF_LINE_THRESHOLD)
+            cx = fx = pxh;
+        if (Math.abs(cy - pyh) < SIDE_OF_LINE_THRESHOLD || Math.abs(fy - pyh) < SIDE_OF_LINE_THRESHOLD)
+            cy = fy = pyh;
+
+        Coordinate best = null;
+        double bestAngle = Math.PI * 2;
+
+        for (int ci = 0; ci < N_CANDIDATE_POINTS; ++ci) {
+            int dx = CANDIDATE_DX[ci];
+            int dy = CANDIDATE_DY[ci];
+
+            if (dx == 0) {
+                if (cx != fx)
+                    continue;
+                ox = pxh;
+            } else {
+                if (dx > 0)
+                    ox = cx == fx ? pxh + 1 : cx;
+                else
+                    ox = cx == fx ? pxh - 1 : fx;
+            }
+            if (dy == 0) {
+                if (cy != fy)
+                    continue;
+                oy = pyh;
+            } else {
+                if (dy > 0)
+                    oy = cy == fy ? pyh + 1 : cy;
+                else
+                    oy = cy == fy ? pyh - 1 : fy;
+            }
+            Coordinate c = new Coordinate(ox / 100.0, oy / 100.0);
+            if (c != null && sideOfLine(c, b0, b1) == sideOfTheOther) {
+                double a = angleBetween(intersectCoord, c, destination);
+                if (a < bestAngle) {
+                    best = c;
+                    bestAngle = a;
+                }
+            }
+        }
+
+        return best;
     }
 
     /**
