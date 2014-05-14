@@ -34,10 +34,10 @@ import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.plugin.redbook.dao.RedbookDao;
 import com.raytheon.uf.edex.plugin.redbook.decoder.RedbookParser;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder strategy for RedbookDecoder data.
@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * </pre>
  * 
  * @author jkorman
@@ -133,7 +134,8 @@ public class RedbookDecoder extends AbstractDecoder {
                 traceId = (String) headers.get("traceId");
             }
 
-            WMOHeader wmoHeader = new WMOHeader(rawMessage, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            WMOHeader wmoHeader = new WMOHeader(rawMessage, fileName);
             if (wmoHeader.isValid()) {
                 ITimer timer = TimeUtil.getTimer();
                 timer.start();

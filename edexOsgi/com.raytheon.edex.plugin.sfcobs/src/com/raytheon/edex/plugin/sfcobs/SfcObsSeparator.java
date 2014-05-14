@@ -36,8 +36,8 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.edex.plugin.sfcobs.common.SfcObsPart;
 import com.raytheon.edex.plugin.sfcobs.common.SfcObsSubMessage;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * The SfcObsSeparator takes a potential weather message and attempts to
@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20070925            391 jkorman     Initial Coding.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * </pre>
  * 
  * @author jkorman
@@ -135,7 +136,8 @@ public class SfcObsSeparator extends AbstractRecordSeparator {
         reports = null;
         rawMessage = DecoderTools.cleanData(rawMessage);
         if (rawMessage != null) {
-            wmoHeader = new WMOHeader(rawMessage, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            wmoHeader = new WMOHeader(rawMessage, fileName);
             if (wmoHeader.isValid()) {
                 messageData = DecoderTools.stripWMOHeader(rawMessage,
                         WMO_HEADER);
