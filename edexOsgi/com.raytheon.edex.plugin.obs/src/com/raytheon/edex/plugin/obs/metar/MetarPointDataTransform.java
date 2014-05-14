@@ -41,8 +41,8 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Provides a transform from MetarRecords to PointDataContainer and vice versa.
@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     work without dataURI.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Dec 16, 2013 DR 16920   D. Friemdan Fix type of tempFromTenths access.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * 
  * </pre>
  * 
@@ -480,7 +481,7 @@ public class MetarPointDataTransform {
         mr.setPkWndSpd(pdv.getNumber(PK_WND_SPD).intValue());
         long t = pdv.getNumber(PK_WND_TIME).longValue();
         if (t >= 0) {
-            mr.setPkWndTime(TimeTools.newCalendar(t));
+            mr.setPkWndTime(TimeUtil.newGmtCalendar(new Date(t)));
         }
 
         return mr;

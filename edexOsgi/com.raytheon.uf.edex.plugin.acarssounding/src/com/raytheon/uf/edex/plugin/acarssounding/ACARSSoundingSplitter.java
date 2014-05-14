@@ -43,12 +43,13 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSAircraftInfo;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
 
 /**
- * TODO Add Description
+ * Splits ACARS sounding data into ACARSAircraftInfo objects
  * 
  * <pre>
  * 
@@ -57,6 +58,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 23, 2010            jkorman     Initial creation
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * 
  * </pre>
  * 
@@ -577,10 +579,10 @@ public class ACARSSoundingSplitter implements Iterator<Object> {
                 int month = Integer.parseInt(dateTail.substring(4, 6));
                 int day = Integer.parseInt(dateTail.substring(6, 8));
                 int hour = Integer.parseInt(dateTail.substring(8, 10));
-                Calendar c = TimeTools.getBaseCalendar(year, month, day);
+                Calendar c = TimeUtil.newGmtCalendar(year, month, day);
                 c.set(Calendar.HOUR_OF_DAY, hour);
-                Calendar cCurr = TimeTools.copyToNearestHour(TimeTools
-                        .getSystemCalendar());
+                Calendar cCurr = TimeTools.copyToNearestHour(TimeUtil
+                        .newGmtCalendar());
                 if (c.getTimeInMillis() < cCurr.getTimeInMillis()) {
                     if (!file.delete()) {
                         // We come here to log a delete failure.
