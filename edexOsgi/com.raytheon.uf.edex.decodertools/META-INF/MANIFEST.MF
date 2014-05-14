@@ -22,6 +22,6 @@ Export-Package: com.raytheon.uf.edex.decodertools.aircraft,
  com.raytheon.uf.edex.decodertools.bufr.packets,
  com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.decodertools.core.filterimpl,
- com.raytheon.uf.edex.decodertools.time,
- com.raytheon.uf.edex.wmo.message
-Import-Package: org.apache.commons.logging
+ com.raytheon.uf.edex.decodertools.time
+Import-Package: com.raytheon.uf.common.wmo,
+ org.apache.commons.logging

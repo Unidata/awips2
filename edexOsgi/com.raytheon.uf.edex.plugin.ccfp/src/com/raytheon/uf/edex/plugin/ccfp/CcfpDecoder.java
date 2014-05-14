@@ -35,13 +35,14 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * 
- * CCFP Decoder
+ * Collaborative Convective Forecast Product (CCFP) Decoder
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -54,6 +55,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Jan 02, 2013 DCS 135     tk          handle coverage value Line records
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Apr 16, 2014 3001        bgonzale    Use UfStatus for logging.
+ * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -62,8 +64,6 @@ import com.vividsolutions.jts.io.WKTReader;
  */
 
 public class CcfpDecoder extends AbstractDecoder {
-
-    private static final String PLUGIN_NAME = "ccfp";
 
     private static final IUFStatusHandler theLogger = UFStatus
             .getHandler(CcfpDecoder.class);
@@ -113,9 +113,10 @@ public class CcfpDecoder extends AbstractDecoder {
         Calendar baseTime = null;
         WMOHeader wmoHdr = new WMOHeader(msg.getBytes());
         if (wmoHdr.isValid()) {
-            baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            baseTime = WMOTimeParser.findDataTime(wmoHdr.getYYGGgg(), fileName);
         } else {
-            baseTime = TimeTools.getSystemCalendar();
+            baseTime = TimeUtil.newGmtCalendar();
         }
 
         CcfpRecord record = new CcfpRecord();
@@ -127,13 +128,13 @@ public class CcfpDecoder extends AbstractDecoder {
         try {
             WKTReader wktReader = new WKTReader();
             if (matcher.find()) {
-                Calendar start = TimeTools.getBaseCalendar(
+                Calendar start = TimeUtil.newGmtCalendar(
                         Integer.parseInt(matcher.group(1)),
                         Integer.parseInt(matcher.group(2)),
                         Integer.parseInt(matcher.group(3)));
                 start.set(Calendar.HOUR_OF_DAY,
                         Integer.parseInt(matcher.group(4)));
-                Calendar valid = TimeTools.getBaseCalendar(
+                Calendar valid = TimeUtil.newGmtCalendar(
                         Integer.parseInt(matcher.group(5)),
                         Integer.parseInt(matcher.group(6)),
                         Integer.parseInt(matcher.group(7)));
@@ -238,13 +239,8 @@ public class CcfpDecoder extends AbstractDecoder {
         }
         data = EMPTY_PDO;
         if (record != null) {
-            try {
-                record.constructDataURI();
-                record.setInsertTime(baseTime);
-                data = new PluginDataObject[] { record };
-            } catch (PluginException e) {
-                theLogger.error("Error constructing datauri", e);
-            }
+            record.setInsertTime(baseTime);
+            data = new PluginDataObject[] { record };
         }
         return data;
     }

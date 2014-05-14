@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.edex.plugin.bufrua.decoder.UARawinDescriptorDelegate;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -38,7 +39,6 @@ import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySele
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * The BufrUASeparator takes a potential weather message and attempts to
@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20071127            382 jkorman     Initial Coding.
  * 20080107            382 jkorman     Fixed NullPointerEx in hasNext.
  * 20080214            862 jkorman     Refactored data separation into BUFRFile.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -124,8 +125,9 @@ public class BufrUASeparator extends AbstractRecordSeparator implements
         reports = new ArrayList<BUFROffsets>();
         try {
             if (rawMessage != null) {
-
-                wmoHeader = new WMOHeader(rawMessage, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                wmoHeader = new WMOHeader(rawMessage, fileName);
 
                 if ((wmoHeader != null) && (wmoHeader.isValid())) {
 

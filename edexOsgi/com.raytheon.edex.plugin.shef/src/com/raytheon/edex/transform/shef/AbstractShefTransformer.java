@@ -37,8 +37,9 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.transform.shef.obs.ObsToSHEFOptions;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 
 /**
  * Base class for observation data to SHEF conversions.
@@ -50,7 +51,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Oct 30, 2008       1659 jkorman     Initial creation
  * ======================================
  * AWIPS2 DR Work
- * 20120918           1185 jkorman     Added save to archive capability.     
+ * 20120918           1185 jkorman     Added save to archive capability.  
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -248,9 +250,10 @@ public abstract class AbstractShefTransformer<T extends PluginDataObject>
         Calendar c = null;
         
         if((hdr != null)&&(headers != null)) {
-            c = TimeTools.findDataTime(hdr.getYYGGgg(), headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            c = WMOTimeParser.findDataTime(hdr.getYYGGgg(), fileName);
         } else {
-            c = TimeTools.getSystemCalendar();
+            c = TimeUtil.newGmtCalendar();
         }
         buffer.append(String.format(WMO_HEADER_FMT, stationId, c));
         
