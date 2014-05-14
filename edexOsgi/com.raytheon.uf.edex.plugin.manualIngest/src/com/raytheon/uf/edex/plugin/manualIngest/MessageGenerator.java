@@ -38,9 +38,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.header.WMOHeaderFinder;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.distribution.DistributionPatterns;
 
 /**
@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.distribution.DistributionPatterns;
  * Oct 28, 2009            brockwoo    Initial creation
  * Sep 03, 2013 2327       rjpeter     Added directory routing by plugin and date of product.
  * Apr 17, 2014 2942       skorolev    Updated throw exception in sendFileToIngest.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * 
  * </pre>
  * 
@@ -168,7 +169,7 @@ public class MessageGenerator implements Processor {
             header = header.trim();
             try {
                 String dtg = WMOHeaderFinder.findDtg(header);
-                Calendar headerTime = TimeTools.findCurrentTime(dtg,
+                Calendar headerTime = WMOTimeParser.findCurrentTime(dtg,
                         inFile.getName());
                 if (headerTime != null) {
                     fileTime = headerTime.getTime();

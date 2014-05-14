@@ -22,4 +22,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.12.11
  com.raytheon.uf.edex.ndm;bundle-version="1.0.0"
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.plugin,
+ com.raytheon.uf.common.wmo,
  org.apache.commons.logging
