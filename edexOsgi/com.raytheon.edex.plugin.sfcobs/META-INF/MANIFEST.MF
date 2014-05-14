@@ -20,4 +20,5 @@ Import-Package: com.raytheon.uf.common.dataplugin.sfcobs,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
  com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo,
  org.apache.commons.logging

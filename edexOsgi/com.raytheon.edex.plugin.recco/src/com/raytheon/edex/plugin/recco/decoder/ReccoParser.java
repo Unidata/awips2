@@ -26,10 +26,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftFlightLevel;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * This class parses Pirep reports. Some of the parsing is ported from the NCEP
@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080103            384 jkorman     Initial Coding.
+ * May 14, 2014 2536       bclement    removed TimeTools usage
  * </pre>
  * 
  * @author dweeks
@@ -433,7 +434,7 @@ public class ReccoParser {
 
     private void createObsTime(Headers headers) {
 
-        observationTime = TimeTools.getSystemCalendar((String) headers
+        observationTime = WMOTimeParser.getSystemCalendar((String) headers
                 .get(DecoderTools.INGEST_FILE_NAME));
         int dow = observationTime.get(Calendar.DAY_OF_WEEK);
 
