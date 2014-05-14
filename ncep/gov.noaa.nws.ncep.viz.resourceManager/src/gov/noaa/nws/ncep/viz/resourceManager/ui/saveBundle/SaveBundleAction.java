@@ -1,59 +1,37 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.saveBundle;
 
-import java.util.HashMap;
-
-import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
-import gov.noaa.nws.ncep.viz.resourceManager.ui.ResourceManagerDialog;
-import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.CreateRbdControl;
-import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionDialog;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.SaveRbdDialog;
 import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
-import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
-import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
-import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr.PaneSelectionData;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
-import gov.noaa.nws.ncep.viz.ui.display.NcPaneID;
 import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
+ * Action to save bundle (RBD) from outside the RBD Manager
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 
+ * 05/13/14		   --		M.James/UPC Initial creation
  * </pre>
  * 
  * @author mjames
