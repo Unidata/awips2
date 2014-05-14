@@ -83,6 +83,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Mar 06, 2014    2883    randerso    Pass siteId into python code
  * Apr 10, 2014    3004    dgilling    Remove ActiveTableMode parameter from
  *                                     clearPracticeTable().
+ * May 15, 2014    3157    dgilling    Add support for multiple TPC and SPC
+ *                                     issuing sites.
  * 
  * </pre>
  * 
@@ -199,12 +201,8 @@ public class ActiveTable {
                     List<String> wfoList = (List<String>) vtecPartners
                             .getattr("VTEC_DECODER_SITES");
                     wfoSet.addAll(wfoList);
-                    String spcSite = (String) vtecPartners
-                            .getattr("VTEC_SPC_SITE");
-                    wfoSet.add(spcSite);
-                    String tpcSite = (String) vtecPartners
-                            .getattr("VTEC_TPC_SITE");
-                    wfoSet.add(tpcSite);
+                    wfoSet.addAll(vtecPartners.getSpcSites());
+                    wfoSet.addAll(vtecPartners.getTpcSites());
                 }
                 wfoSet.add(siteId);
                 wfos = wfoSet.toArray(new String[0]);
