@@ -18,6 +18,31 @@
    </license>
 
    <requires>
+      <import plugin="com.raytheon.uf.common.auth" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.serialization" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.serialization.comm" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.util" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.status" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.registry.schemas.ebxml" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.localization" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="org.geotools" version="2.6.4" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.comm" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.lang" version="2.3.0" match="greaterOrEqual"/>
+      <import plugin="com.google.guava" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.time" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.registry.ebxml" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.gridcoverage" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.dataplugin" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.geospatial" version="1.12.1174" match="greaterOrEqual"/>
+      <import plugin="javax.measure" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.datadelivery.request" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.codec" version="1.4.0" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.cxf" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="javax.persistence"/>
+      <import plugin="javax.persistence" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.datadelivery.registry" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.event" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="com.raytheon.uf.common.stats" version="1.0.0" match="greaterOrEqual"/>
       <import feature="com.raytheon.uf.edex.common.core.feature" version="0.0.0"/>
       <import feature="com.raytheon.uf.edex.core.feature" version="0.0.0"/>
       <import feature="com.raytheon.uf.edex.registry.client.feature" version="0.0.0"/>
@@ -46,6 +71,13 @@
 
    <plugin
          id="com.raytheon.uf.common.datadelivery.event"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.datadelivery.retrieval.distribution"
          download-size="0"
          install-size="0"
          version="0.0.0"
