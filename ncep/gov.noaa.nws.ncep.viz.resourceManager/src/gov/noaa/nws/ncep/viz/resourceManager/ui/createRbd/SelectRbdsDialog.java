@@ -93,7 +93,6 @@ public class SelectRbdsDialog extends Dialog {
     private Label      spf_grp_lbl = null;
     private Label      spf_name_lbl = null;
 
-    private Combo      spfGroupCombo = null;
     private Combo      spfNameCombo = null;
     private ListViewer rbdLviewer = null;
     private RbdViewComposite rscViewer = null;
@@ -527,7 +526,7 @@ public class SelectRbdsDialog extends Dialog {
     			setSeldSpfName( spfNameCombo.getText() );
     		}
     		else {
-    			spfGroupCombo.setEnabled( false );
+    			//.setEnabled( false );
     			spfNameCombo.setEnabled( false );
     		}
     	}
