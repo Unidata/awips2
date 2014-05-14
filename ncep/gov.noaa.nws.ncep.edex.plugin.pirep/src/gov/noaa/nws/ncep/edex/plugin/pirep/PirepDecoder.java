@@ -18,13 +18,13 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftCloudLayer;
 import com.raytheon.uf.edex.decodertools.aircraft.AircraftFlightCondition;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder strategy for text PIREP observation data. Most common usage is as

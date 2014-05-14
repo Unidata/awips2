@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -34,7 +35,6 @@ import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDele
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
 import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
 import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Abstract base class for implementing BUFR data decoders using subclasses of
@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2009       2519 jkorman     Initial creation
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * 
  * </pre>
  * 
@@ -101,7 +102,9 @@ public abstract class AbstractBUFRDecoder implements IDescriptorFactorySelector 
         logger.debug(traceId + " - Decoding data");
         try {
             if (data != null && data.length > 0) {
-                wmoHeader = new WMOHeader(data, headers);
+                String fileName = (String) headers
+                        .get(WMOHeader.INGEST_FILE_NAME);
+                wmoHeader = new WMOHeader(data, fileName);
                 if ((wmoHeader != null) && (wmoHeader.isValid())) {
 
                     int start = wmoHeader.getMessageDataStart();
