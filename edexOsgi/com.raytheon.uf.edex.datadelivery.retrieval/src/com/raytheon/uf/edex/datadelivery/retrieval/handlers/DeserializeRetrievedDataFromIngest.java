@@ -21,13 +21,12 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import javax.xml.bind.JAXBException;
 
-import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.wmo.WMOMessage;
+import com.raytheon.uf.common.wmo.XmlWMOMessage;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
 import com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsRetrievalResponse;
-import com.raytheon.uf.edex.wmo.message.WMOMessage;
-import com.raytheon.uf.edex.wmo.message.XmlWMOMessage;
 
 /**
  * Deserializes the retrieved data in a retrievalQueue.
@@ -46,6 +45,7 @@ import com.raytheon.uf.edex.wmo.message.XmlWMOMessage;
  *                                      Trim content after last xml tag during 
  *                                      marshaling from xml.
  * Jan 30, 2014 2686       dhladky      refactor of retrieval.
+ * May 14, 2014 2536       bclement     moved WMO Header to common
  * 
  * </pre>
  * 
@@ -83,7 +83,7 @@ public class DeserializeRetrievedDataFromIngest implements IRetrievalsFinder {
         if (xml == null) {
             return null;
         } else {
-            WMOMessage message = new XmlWMOMessage(xml, new Headers());
+            WMOMessage message = new XmlWMOMessage(xml.getBytes());
             return (RetrievalResponseXml) jaxbManager.unmarshalFromXml(message
                     .getBodyText());
         }

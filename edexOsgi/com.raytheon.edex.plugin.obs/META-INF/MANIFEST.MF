@@ -24,4 +24,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util,
  com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo,
  org.apache.commons.logging
