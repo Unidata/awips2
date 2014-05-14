@@ -16,4 +16,5 @@ Export-Package: com.raytheon.uf.edex.plugin.acars,
  com.raytheon.uf.edex.plugin.acars.dao
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.acars,
- com.raytheon.uf.common.status
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.wmo

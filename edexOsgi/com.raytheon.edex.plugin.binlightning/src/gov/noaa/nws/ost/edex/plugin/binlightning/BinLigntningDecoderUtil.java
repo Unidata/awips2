@@ -24,9 +24,9 @@ import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgMsgType;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.BasePoint;
 import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * BinLigntningDecoderUtil

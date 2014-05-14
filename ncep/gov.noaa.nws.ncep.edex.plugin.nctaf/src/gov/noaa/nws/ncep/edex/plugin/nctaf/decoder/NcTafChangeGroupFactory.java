@@ -9,34 +9,27 @@ import static gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafConstants.COR_IND;
 import static gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafConstants.REPORT_HEADER30;
 import static gov.noaa.nws.ncep.edex.plugin.nctaf.decoder.NcTafParser.cvtInt;
 import static gov.noaa.nws.ncep.edex.plugin.nctaf.decoder.NcTafSeparator.STATION_ID;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafBulletinRecord;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafChangeGroup;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafPeriod;
+import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord;
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.exception.DecoderException;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafChangeGroup;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafPeriod;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafBulletinRecord;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafSkyCover;
-import gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafWeatherCondition;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
-
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
  * 
@@ -52,6 +45,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 11/03/2011              sgurung     Split taf data using "=" when multiple records are combined into one (occurs rarely)
  * 									   Fixed a bug while copying the omitted conditions from immediate previous change group
  * 11/04/2011              sgurung     Create change groups from newTafData 
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * 
  * </pre>
  * 
@@ -97,8 +91,6 @@ public class NcTafChangeGroupFactory {
     private final Pattern PAT_BECMG = Pattern.compile(BECMG);
 
     private final Pattern PAT_FM = Pattern.compile(FM);
-
-    private final Log logger = LogFactory.getLog(getClass());
 
     private Calendar issueTime = null;
 
@@ -373,7 +365,7 @@ public class NcTafChangeGroupFactory {
             int iHour = cvtInt(issueTm.substring(2, 4));
             int iMin = cvtInt(issueTm.substring(4, 6));
 
-            issueTime = TimeTools.getSystemCalendar(wmoHeader.getYear(),
+            issueTime = TimeUtil.newGmtCalendar(wmoHeader.getYear(),
                     wmoHeader.getMonth(), wmoHeader.getDay());
             int sDay = issueTime.get(Calendar.DAY_OF_MONTH);
             if (sDay == iDay) {
@@ -415,7 +407,7 @@ public class NcTafChangeGroupFactory {
             int iHour = wmoHeader.getHour();
             int iMin = wmoHeader.getMinute();
 
-            issueTime = TimeTools.getSystemCalendar(wmoHeader.getYear(),
+            issueTime = TimeUtil.newGmtCalendar(wmoHeader.getYear(),
                     wmoHeader.getMonth(), wmoHeader.getDay());
             issueTime.add(Calendar.DAY_OF_MONTH, -1);
             for (int i = 0; i < 3; i++) {
@@ -535,11 +527,12 @@ public class NcTafChangeGroupFactory {
                     period1 = group1.getTafChangePeriod();
                     period2 = group2.getTafChangePeriod();
 
-                    period1.setEndDate(TimeTools.copy(period2.getStartDate()));
+                    period1.setEndDate((Calendar) period2.getStartDate()
+                            .clone());
 
                 }
                 // The last group gets the TAF end datetime.
-                period2.setEndDate(TimeTools.copy(validPeriod.getEndDate()));
+                period2.setEndDate((Calendar) validPeriod.getEndDate().clone());
             }
 
             record.setIssue_time(issueTime.getTime());
@@ -649,11 +642,12 @@ public class NcTafChangeGroupFactory {
                     period1 = group1.getTafChangePeriod();
                     period2 = group2.getTafChangePeriod();
 
-                    period1.setEndDate(TimeTools.copy(period2.getStartDate()));
+                    period1.setEndDate((Calendar) period2.getStartDate()
+                            .clone());
 
                 }
                 // The last group gets the TAF end datetime.
-                period2.setEndDate(TimeTools.copy(validPeriod.getEndDate()));
+                period2.setEndDate((Calendar) validPeriod.getEndDate().clone());
             }
 
             record.setIssue_time(issueTime.getTime());

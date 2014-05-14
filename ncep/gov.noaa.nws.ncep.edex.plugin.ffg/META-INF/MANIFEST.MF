@@ -12,8 +12,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  gov.noaa.nws.ncep.common.dataplugin.ffg;bundle-version="1.0.0"
 Export-Package: gov.noaa.nws.ncep.edex.plugin.ffg.decoder,
  gov.noaa.nws.ncep.edex.plugin.ffg.util
-Import-Package: com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.wmo.message,
+Import-Package: com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.decodertools.core,
  gov.noaa.nws.ncep.common.tools,
  gov.noaa.nws.ncep.edex.tools.decoder,
  gov.noaa.nws.ncep.edex.util,
