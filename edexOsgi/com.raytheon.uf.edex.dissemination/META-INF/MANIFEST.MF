@@ -20,7 +20,7 @@ Import-Package: com.raytheon.edex.exception,
  com.raytheon.uf.edex.database.purge,
  org.apache.camel
 Require-Bundle: org.jep;bundle-version="1.0.0",
- com.raytheon.edex.plugin.text,
+ com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.common.site;bundle-version="1.12.1174",
  org.springframework;bundle-version="2.5.6",
  com.raytheon.uf.edex.database,
