@@ -18,6 +18,7 @@ Import-Package: com.raytheon.uf.common.dataplugin.acars,
  com.raytheon.uf.common.dataplugin.acarssounding.tools,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.wmo,
  com.raytheon.uf.edex.pointdata,
  org.apache.commons.logging
 Export-Package: com.raytheon.uf.edex.plugin.acarssounding

@@ -17,14 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.wmo.message;
+package com.raytheon.uf.common.wmo;
 
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.raytheon.edex.esb.Headers;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * The WMOHeader extracts and parses the relevant wmo header information (listed
@@ -46,6 +43,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20071130            410 jkorman     Changed bad copyright symbol.
  * 20071203            410 jkorman     JavaDoc complaints.
  * Jul 10, 2009 2191       rjpeter     Added getTtaaii.
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -112,8 +110,9 @@ public class WMOHeader {
      * Construct the header from a wmo message.
      * 
      * @param messageData
+     * @param fileName
      */
-    public WMOHeader(byte[] messageData, Headers headers) {
+    public WMOHeader(byte[] messageData, String fileName) {
         // Assume not valid until proven otherwise!
         isValid = false;
         if (messageData != null) {
@@ -169,7 +168,7 @@ public class WMOHeader {
                 }
                 YYGGgg = wmoHeader.substring(hdrIndex, hdrIndex + DTGROUP_SIZE);
                 parseDateTime(YYGGgg);
-                headerDate = TimeTools.findDataTime(YYGGgg, headers);
+                headerDate = WMOTimeParser.findDataTime(YYGGgg, fileName);
                 // At this point headerDate will either be the current time (non-archive) or
                 // a time generated from the WMOHeader and filename dateStamp
                 

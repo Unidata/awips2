@@ -36,8 +36,8 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.edex.plugin.taf.TafDecoder;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * 
@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *                                      to account for corrected 
  *                                      and amended records
  * 9/4/2008     1444        grichard    Move constants to TafConstants class.
+ * May 14, 2014 2536        bclement    moved WMO Header to common
  * 
  * 
  * </pre>
@@ -150,7 +151,8 @@ public class TafSeparator extends AbstractRecordSeparator {
         byte[] data = DecoderTools.cleanData(message);
         if (data != null) {
 
-            wmoHeader = new WMOHeader(data, headers);
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            wmoHeader = new WMOHeader(data, fileName);
             if (wmoHeader.isValid()) {
 
                 int dStart = wmoHeader.getMessageDataStart();

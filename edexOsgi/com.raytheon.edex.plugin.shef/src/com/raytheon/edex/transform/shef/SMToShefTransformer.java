@@ -27,10 +27,10 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.transform.shef.obs.SHEF_Obs_Codes;
 import com.raytheon.edex.transform.shef.obs.SHEF_SM_Codes;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Transforms a decoded synoptic observation into a series of SHEF encoded data
@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ======================================
  * AWIPS2 DR Work
  * 20120918           1185 jkorman     Added save to archive capability.     
+ * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * </pre>
  * 
  * @author jkorman
@@ -130,7 +131,7 @@ public class SMToShefTransformer extends AbstractShefTransformer<ObsCommon> {
         int place = 0;
         try {
 
-            Calendar c = TimeTools.getSystemCalendar((String) headers
+            Calendar c = WMOTimeParser.getSystemCalendar((String) headers
                     .get(DecoderTools.INGEST_FILE_NAME));
 
             StringBuilder lineHdr = new StringBuilder();

@@ -29,9 +29,9 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
 import com.raytheon.edex.textdb.dbapi.impl.WMOReportData;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.wmo.AFOSProductId;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.text.impl.TextSeparatorFactory;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Standard Message Collective Separator.
@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 14, 2014 2652       skorolev    Changed logging for skipped headers.
  *                                     Fixed calculation of message end.
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
+ * May 14, 2014 2536       bclement    moved WMO Header to common
  * </pre>
  * 
  * @author jkorman
@@ -236,8 +237,10 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                     }
 
                     newHdr.append("\r\n");
+                    String fileName = (String) headers
+                            .get(WMOHeader.INGEST_FILE_NAME);
                     newWmoHdr = new WMOHeader(newHdr.toString().getBytes(),
-                            headers);
+                            fileName);
 
                     // If so, take the afos id (if it exists) and the XXX id and
                     // create the full AFOS id of the product. If no AFOS ID
