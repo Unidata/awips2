@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * Jun 13, 2013  #2044    randerso     Refactored to use IFPServer
  * Oct 16, 2013  #2475    dgilling     Better error handling for IRT activation.
  * Mar 21, 2014  2726     rjpeter      Updated wait for running loop.
+ * May 15, 2014  #3157    dgilling     Mark getActiveSites() as deprecated.
  * </pre>
  * 
  * @author njensen
@@ -430,8 +431,13 @@ public class GFESiteActivation implements ISiteActivationListener {
      * Returns the currently active GFE sites the server is running
      * 
      * @return the active sites
+     * 
+     * @deprecated It is preferred that you use the method
+     *             {@link IFPServer#getActiveSites()} to retrieve the list of
+     *             GFE active sites.
      */
     @Override
+    @Deprecated
     public Set<String> getActiveSites() {
         return IFPServerConfigManager.getActiveSites();
     }

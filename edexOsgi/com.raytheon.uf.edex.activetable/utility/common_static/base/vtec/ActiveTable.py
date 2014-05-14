@@ -28,6 +28,7 @@
 #    06/11/13        #2083         randerso       Log active table changes, save backups
 #    03/06/14        #2883         randerso       Pass siteId into mergeFromJava
 #    03/25/14        #2884         randerso       Added xxxid to VTECChange
+#    05/15/14        #3157         dgilling       Support multiple TPC and SPC sites.
 #
 
 import time
@@ -35,10 +36,12 @@ import copy
 import os
 import VTECTableUtil, VTECTableSqueeze, VTECPartners
 import LogStream, ActiveTableVtec, ActiveTableRecord
+import JUtil
 from java.util import ArrayList
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
 from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+from com.raytheon.uf.common.activetable import VTECPartners as JavaVTECPartners
 
 class ActiveTable(VTECTableUtil.VTECTableUtil):
     
@@ -257,8 +260,10 @@ def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
     
     decoderSites = VTECPartners.VTEC_DECODER_SITES
     decoderSites.append(VTECPartners.get4ID(siteId))
-    decoderSites.append(VTECPartners.VTEC_SPC_SITE)
-    decoderSites.append(VTECPartners.VTEC_TPC_SITE)
+    spcSites = JUtil.javaObjToPyVal(JavaVTECPartners.getInstance(siteId).getSpcSites())
+    decoderSites.extend(spcSites)
+    tpcSites = JUtil.javaObjToPyVal(JavaVTECPartners.getInstance(siteId).getTpcSites())
+    decoderSites.extend(tpcSites)
     
     backup = False
     pyNew = []
