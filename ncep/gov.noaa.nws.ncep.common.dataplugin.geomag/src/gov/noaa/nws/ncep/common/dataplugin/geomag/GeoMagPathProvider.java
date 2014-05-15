@@ -6,7 +6,7 @@ import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 
 public class GeoMagPathProvider extends DefaultPathProvider {
-	private static GeoMagPathProvider instance = new GeoMagPathProvider();
+    private static GeoMagPathProvider instance = new GeoMagPathProvider();
 
     public static GeoMagPathProvider getInstance() {
         return instance;
@@ -40,15 +40,13 @@ public class GeoMagPathProvider extends DefaultPathProvider {
         StringBuffer sb = new StringBuffer(64);
         sb.append(pluginName);
 
-        if (pdo.getDataTime() != null ) {
-	        Date time = (Date) pdo.getDataTime().getRefTime().clone();
-	        time.setHours(0);
-	
-	//        //System.out.println("***Path "+pdo.getDataTime().getRefTime() +" "+ fileNameFormat.get().format(pdo.getDataTime().getRefTime()));
-	        sb.append(fileNameFormat.get().format(time));
-	        sb.append(".h5");
+        if (pdo.getDataTime() != null) {
+            Date time = (Date) pdo.getDataTime().getRefTime().clone();
+            time.setHours(0);
+
+            sb.append(fileNameFormat.get().format(time));
+            sb.append(".h5");
         }
         return sb.toString();
     }
 }
-
