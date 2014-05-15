@@ -11,6 +11,26 @@
 <gribModelSet>
 	<!-- SUBCENTER 0 -->
 	<model>
+		<name>estofsHW</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>321225001</grid>
+		<process>
+			<id>14</id>
+		</process>
+	</model>
+
+	<model>
+		<name>estofsAK</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>825553001</grid>
+		<process>
+			<id>14</id>
+		</process>
+	</model>
+
+	<model>
 		<name>estofsPR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
@@ -2429,16 +2449,6 @@
 	</model>
 
 	<!-- END SUBCENTER 2: NCEP ENSEMBLE PRODUCTS -->
-
-	<model>
-		<name>hysplit</name>
-		<center>7</center>
-		<subcenter>3</subcenter>
-		<grid>36928220</grid>
-		<process>
-			<id>3</id>
-		</process>
-	</model>
 
 	<!-- SUBCENTER 4: ENVIRONMENTAL MODELING CENTER -->
 

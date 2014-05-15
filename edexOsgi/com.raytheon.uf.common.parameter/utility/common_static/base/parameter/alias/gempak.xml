@@ -355,6 +355,7 @@
 	<alias base="USWRF48hr">SWRU48</alias>
 	<alias base="uW">UREL</alias>
 	<alias base="vW">VREL</alias>
+	<alias base="VAFTAD1hr">VASH01</alias>
 	<alias base="VAPP">VAPR</alias>
 	<alias base="VFLX">VRELFX</alias>
 	<alias base="VFLX1hr">VRELFX01</alias>
