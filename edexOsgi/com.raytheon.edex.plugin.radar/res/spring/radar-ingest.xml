@@ -12,11 +12,13 @@
 		<constructor-arg value="jms-durable:queue:Ingest.Radar" />
 	</bean>
 	
+	<!--
 	<bean id="radarRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="radar" />
 		<constructor-arg value="jms-durable:queue:Ingest.RadarRadarServer" />
 	</bean>
+	-->
 
     <bean id="radarCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
@@ -49,6 +51,7 @@
 			<to uri="direct:radarcommon" />
 		</route>
 		
+		<!--  
 		<route id="radarRadarServerIngestRoute">
 			<from uri="jms-durable:queue:Ingest.RadarRadarServer"/>
 			<setHeader headerName="dataType">
@@ -56,6 +59,7 @@
 			</setHeader>
 			<to uri="direct:radarcommon" />
 		</route>
+		-->
 
 		<route id="radarCommonIngestRoute">
 			<from uri="direct:radarcommon" />
@@ -77,6 +81,7 @@
 		</route>
 	</camelContext>
 	
+	<!--
 	<bean id="radarServerConnectionHandler"
 		class="com.raytheon.edex.rpgenvdata.RadarServerConnectionHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
@@ -84,4 +89,5 @@
 			value="com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest" />
 		<constructor-arg ref="radarServerConnectionHandler" />
 	</bean>
+	-->
 </beans>
