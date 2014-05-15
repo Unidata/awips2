@@ -583,12 +583,13 @@ public class TAFChangeGroupFactory {
                     period1 = group1.getTafChangePeriod();
                     period2 = group2.getTafChangePeriod();
 
-                    period1.setEndDate((Calendar) period2.getStartDate()
-                            .clone());
+                    period1.setEndDate(TimeUtil.newCalendar(period2
+                            .getStartDate()));
 
                 }
                 // The last group gets the TAF end datetime.
-                period2.setEndDate((Calendar) validPeriod.getEndDate().clone());
+                period2.setEndDate(TimeUtil.newCalendar(validPeriod
+                        .getEndDate()));
             }
 
             record.setIssue_time(issueTime.getTime());
