@@ -24,7 +24,8 @@ BuildRequires: awips2-postgresql = 9.2.3-1.el6
 BuildRequires: postgresql = 8.4.13-1.el6_3
 BuildRequires: postgresql-devel = 8.4.13-1.el6_3
 BuildRequires: postgresql-libs = 8.4.13-1.el6_3
-BuildRequires: wxGTK = 2.8.12-1.el6.rf
+#BuildRequires: wxGTK = 2.8.12-1.el6.rf
+BuildRequires: wxGTK = 2.8.12-1.el6.centos.x86_64
 BuildRequires: wxGTK-devel = 2.8.12-1.el6.rf
 
 provides: awips2-pgadmin3
