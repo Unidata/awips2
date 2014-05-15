@@ -22,21 +22,6 @@
 	<contribute xsi:type="separator" id="${icao}applicationsSeparator"/>
 	<contribute xsi:type="titleItem" titleText="------ Applications ------"
 		id="${icao}Applications" />
-	<contribute xsi:type="command"
-		commandId="com.raytheon.uf.viz.radarapps.alertreq.alertRequest"	
-		menuText="Alert Request..." id="${icao}AlertRequest" />
-	<contribute xsi:type="command"
-		commandId="com.raytheon.uf.viz.radarapps.otr.oneTimeRequest" 
-		menuText="One Time Request..." id="${icao}OneTimeRequest" />
-	<contribute xsi:type="command" 
-		commandId="com.raytheon.uf.viz.radarapps.rmr.radarMultipleRequest"
-		menuText="Radar Multiple Request..." id="${icao}RadarMultipleRequest" />
-	<contribute xsi:type="command"
-		commandId="com.raytheon.uf.viz.radarapps.config.configurator"
-		menuText="Radar Server Configuration..." id="${icao}RadarServerConfiguration" />
-	<contribute xsi:type="command"
-		commandId="com.raytheon.uf.viz.radarapps.rps.rpsListEditor" menuText="RPS List Editor..."
-		id="${icao}RPSListEditor" />
 	<contribute xsi:type="subMenu" menuText="Radar Tools">
 		<contribute xsi:type="command" commandId="com.raytheon.viz.awipstools.estimatedactualvelocity" menuText="Estimated Actual Velocity" 
 			id="${icao}EstimatedActualVelocity" />

@@ -42,7 +42,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.rcm.products.ElevationInfo;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
@@ -257,7 +256,7 @@ public class TrendGraphCanvas {
 
         // Draw the elevation angles here
         // so they render behind the graph lines
-        drawElevationAngle(gc);
+        //drawElevationAngle(gc);
 
         // Draw grey graph lines
         drawGraphLines(gc);
@@ -369,119 +368,6 @@ public class TrendGraphCanvas {
                     yCoord);
             gc.drawString(getFormattedValueString(labelDisplayVals.get(i)), 5,
                     yCoord - textHeight / 2, true);
-        }
-    }
-
-    /*
-     * Draw the elevation angles
-     */
-    private void drawElevationAngle(GC gc) {
-        double valuePerPix = (graphHeight) / this.rangeValue;
-
-        TreeSet<Date> dateSet = new TreeSet<Date>();
-        dateSet.addAll(trendGraphData.getGraphData().keySet());
-
-        if (vcp == null)
-            return;
-
-        if (!attrName.equalsIgnoreCase("dbzHt")
-                && !attrName.equalsIgnoreCase("top")
-                && !attrName.equalsIgnoreCase("base")
-                && !attrName.equalsIgnoreCase("htMxVr"))
-            return; // only height base attributes
-
-        if (requestDataCallback == null)
-            return;
-
-        // get the ranges of this row
-        TrendGraphData tgd = requestDataCallback.requestTrendGraphData(
-                scanTable, "rng", ident);
-        LinkedHashMap<Date, Double> rngDateMap = tgd.getGraphData();
-
-        ElevationInfo eleInfo = new ElevationInfo();
-        int[] elevationAngles = eleInfo.getScanElevations(null, vcp);
-        if (elevationAngles == null)
-            return;
-
-        ArrayList<ArrayList<Double>> bmHtLsts = new ArrayList<ArrayList<Double>>();
-
-        for (Date rngDate : rngDateMap.keySet()) {
-            double rngVal = rngDateMap.get(rngDate);
-            /* convert to NMI for DMD rng */
-            if (scanTable.name().equalsIgnoreCase("DMD"))
-                rngVal *= ScanUtils.KM_TO_NMI;
-
-            ArrayList<Double> bmHts = new ArrayList<Double>();
-            for (int angleVal : elevationAngles) {
-                double bmHt = ScanUtils.getRadarBeamHeight(rngVal,
-                        angleVal / 10.0);
-                bmHts.add(bmHt);
-            }
-            bmHtLsts.add(bmHts);
-        }
-
-        if (bmHtLsts.size() <= 0)
-            return;
-
-        double topAngle = attributeData.getMin() + rangeValue;
-        gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        Object[] rngValLst = rngDateMap.values().toArray();
-        Object[] dates = rngDateMap.keySet().toArray();
-        for (int dateIndex = 0; dateIndex < (dates.length - 1); dateIndex++) {
-            for (int bmHtIndex = 0; bmHtIndex < (bmHtLsts.get(dateIndex).size()); bmHtIndex++) {
-                /*
-                 * Check if the data is outside the time range. If so then skip
-                 * to the next point.
-                 */
-                if ((((Date) dates[dateIndex]).getTime() < startTimeMillis)
-                        || (((Date) dates[dateIndex]).getTime() > currentDate
-                                .getTime() + fewExtraMillis)) {
-                    continue;
-                }
-
-                double rngVal = (Double) rngValLst[dateIndex + 1];
-
-                /* convert to NMI for DMD rng */
-                if (scanTable.name().equalsIgnoreCase("DMD")
-                        && (attrName.equalsIgnoreCase("base") || attrName
-                                .equalsIgnoreCase("htMxVr")))
-                    rngVal *= ScanUtils.KM_TO_NMI;
-
-                int lineWidth = Math.round((float) (rngVal * 1.852
-                        * Math.tan(.95 * .01745) * valuePerPix));
-
-                gc.setLineWidth(lineWidth);
-                Double bmHt = bmHtLsts.get(dateIndex).get(bmHtIndex);
-                Double nextBmHt = bmHtLsts.get(dateIndex + 1).get(bmHtIndex);
-                if ((bmHt > topAngle) && (nextBmHt > topAngle))
-                    break;
-
-                if ((bmHt < attributeData.getMin())
-                        && (nextBmHt < attributeData.getMin()))
-                    continue;
-
-                if ((((Date) dates[dateIndex + 1]).getTime() < startTimeMillis)
-                        || (((Date) dates[dateIndex + 1]).getTime() > currentDate
-                                .getTime() + fewExtraMillis)
-                        || (bmHt < this.minValue)
-                        || (nextBmHt > (rangeValue * 1.1 + minValue))) {
-                    continue;
-                }
-
-                long millisOffset = ((Date) dates[dateIndex]).getTime()
-                        - startTimeMillis;
-                int x1 = (int) Math.round(millisOffset / pxPerMillis)
-                        + graphXcoord;
-                int y1 = (int) Math.round(graphHeight + graphYcoord
-                        - (bmHt * valuePerPix));
-                millisOffset = ((Date) dates[dateIndex + 1]).getTime()
-                        - startTimeMillis;
-                int x2 = (int) Math.round(millisOffset / pxPerMillis)
-                        + graphXcoord;
-                int y2 = (int) Math.round(graphHeight + graphYcoord
-                        - (nextBmHt * valuePerPix));
-                gc.drawLine(x1, y1, x2, y2);
-            }
         }
     }
 
