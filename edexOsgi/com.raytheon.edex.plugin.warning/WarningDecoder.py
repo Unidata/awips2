@@ -41,6 +41,7 @@
 # Sep 12, 2013  2249     rferrel        When incoming file from warngen adjust
 #                                       start time from file's timestamp.
 # Oct 03, 2013  2402     bsteffen       Make PythonDecoder more extendable.
+# May 15, 2014  2536     bclement       moved WMO time parsing to WMOTimeParser
 
 # </pre>
 #
@@ -53,6 +54,7 @@ import copy
 import LogStream
 from ufpy import TimeUtil
 from com.raytheon.uf.edex.decodertools.time import TimeTools
+from com.raytheon.uf.common.wmo import WMOTimeParser
 
 ACCURATE_CITIES_PILS = ['CFW', 'FFA', 'NPW', 'RFW', 'WSW']
 
@@ -123,9 +125,9 @@ class StdWarningDecoder():
         if warningTimestamp is None :
             # present time
             self._time = time.time() + self._timeOffset
-            if TimeTools.allowArchive():
+            if WMOTimeParser.allowArchive():
                 try:
-                    yyyymmddhh = TimeTools.getTimestamp(self._incomingFilename)
+                    yyyymmddhh = WMOTimeParser.getTimestamp(self._incomingFilename)
                     if len(yyyymmddhh) < 10:
                         timeTuple = time.strptime(yyyymmddhh, "%Y%m%d")
                     else :
