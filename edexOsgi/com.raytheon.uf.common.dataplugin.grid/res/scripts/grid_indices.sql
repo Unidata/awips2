@@ -17,17 +17,6 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-
-CREATE INDEX "gridDatasetReftime_idx"
-  ON grid
-  USING btree
-  (info_id, reftime, forecasttime);
-
-CREATE INDEX "gridinfoNameParamLevel_idx"
-  ON grid_info
-  USING btree
-  (datasetid, parameter_abbreviation, level_id);
-  
 CREATE INDEX "gridinfoSecondryId_idx"
   ON grid_info
   USING btree
