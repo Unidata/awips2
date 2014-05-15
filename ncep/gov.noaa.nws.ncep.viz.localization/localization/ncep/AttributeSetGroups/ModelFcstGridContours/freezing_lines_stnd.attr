@@ -1,0 +1,21 @@
+GLEVEL  = 1000                                                     !900  ! 850 ! 800 ! 750 !700!30:0 !700:500
+GVCORD  = pres                                                     !     !     !     !     !   !pdly !pres
+SKIP    = 0
+SCALE   = 0                                                        !0    !0    !0    !0    !0  !0    !4
+GDPFUN  = quo(add(add(relh@500,relh@600),add(relh@700,relh@850)),4)!add(900,tmpc)!add(850,tmpc)!add(800,tmpc)!add(750,tmpc)!add(700,tmpc)!tmpc!lav(omeg)
+TYPE    = c/f                                                      !c
+CINT    = 50;70;90                                                 !900;900!850;850!800;800!750;750!700;700!0;900!-10;-25;-50;-100;-150
+LINE    = 0                                                        !2      !3      !6      !5      !31     !7    !10/1/2
+FINT    = 50;70;90!0
+FLINE   = 0;23;8;18!0
+HILO	=
+HLSYM	=
+CLRBAR  = 1!0
+WIND	=
+TITLE   = 1/-3/~ ? 850-500 RH, 700-500 Omega (Tan), 0 Lines (Temp) at BL(purple),900,850,800,750,700!0
+TEXT    = l/22/hw
+COLORS  = 1
+MARKER  = 0
+GRDLBL  = 0
+FILTER  = YES
+
