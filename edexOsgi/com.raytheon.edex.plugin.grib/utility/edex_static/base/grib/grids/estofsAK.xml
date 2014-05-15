@@ -18,9 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-
-<compositeModel>
-        <modelName>UkmetHR-NorthernHemisphere</modelName>
-        <grid>864162001</grid>
-        <componentModels>UkmetHR-2:UkmetHR-3:UkmetHR-4:UkmetHR-1</componentModels>
-</compositeModel>
+<polarStereoGridCoverage>
+    <name>825553001</name>
+    <description>ESTOFS HIRES - 6 km Alaska</description>
+    <la1>40.530101</la1>
+    <lo1>-178.571</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>825</nx>
+    <ny>553</ny>
+    <dx>5.953125</dx>
+    <dy>5.953125</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371229.0</minorAxis>
+    <majorAxis>6371229.0</majorAxis>
+    <lov>-150.0</lov>
+    <lad>60</lad>
+</polarStereoGridCoverage>
