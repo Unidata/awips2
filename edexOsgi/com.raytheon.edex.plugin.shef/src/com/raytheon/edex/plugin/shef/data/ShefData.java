@@ -19,20 +19,19 @@
  **/
 package com.raytheon.edex.plugin.shef.data;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.edex.plugin.shef.util.SHEFDate;
+import com.raytheon.edex.plugin.shef.util.ShefParm;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode;
-import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Duration;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Extremum;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.PhysicalElement;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Probability;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.TypeSource;
-import com.raytheon.edex.plugin.shef.util.SHEFDate;
-import com.raytheon.edex.plugin.shef.util.ShefParm;
+import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
@@ -47,6 +46,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * ------------	----------	-----------	--------------------------
  * 03/19/08     387         M. Duff     Initial creation.  
  * 10/16/2008   1548        jelkins     Integrated ParameterCode Types
+ * 04/29/2014   3088        mpduff      cleanup.
  * 
  * </pre>
  */
@@ -55,13 +55,14 @@ public class ShefData implements ISerializableObject {
     private String stringValue = null;
 
     private Double value = null;
-    
+
     private String qualifier = "Z";
 
     private String locationId = null;
+
     // Only used for B records.
     private String dataSource = null;
-    
+
     private PhysicalElement physicalElement = PhysicalElement.HEIGHT_RIVER_STAGE;
 
     private Duration duration = Duration.INSTANTENOUS;
@@ -76,10 +77,11 @@ public class ShefData implements ISerializableObject {
 
     private TypeSource typeSource = TypeSource.READING_NONSPECIFIC;
 
-    private String dataTypeCode = TypeSource.READING_NONSPECIFIC.getCode().substring(0,1);
-    
+    private String dataTypeCode = TypeSource.READING_NONSPECIFIC.getCode()
+            .substring(0, 1);
+
     private String dataSourceCode = TypeSource.READING_NONSPECIFIC.getSource();
-    
+
     private Extremum extremum = Extremum.NULL;
 
     private Probability probability = Probability.NULL;
@@ -90,22 +92,18 @@ public class ShefData implements ISerializableObject {
 
     private String observationTime = null;
 
-    private Date observationTimeObj = null;
-
     private SHEFDate obsTime = null;
 
     private String unitsCode = null;
 
     private String creationDate = null;
 
-    private Date creationDateObj = null;
-
     private SHEFDate createTime = null;
 
     private int timeSeriesId = ShefConstants.SHEF_NOT_SERIES;
 
     private String parameterCodeString = null;
-    
+
     private boolean revisedRecord = false;
 
     /**
@@ -114,7 +112,7 @@ public class ShefData implements ISerializableObject {
     public ShefData() {
 
     }
-    
+
     /**
      * @return the stringValue
      */
@@ -123,28 +121,29 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param stringValue the stringValue to set
+     * @param stringValue
+     *            the stringValue to set
      */
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
         try {
             boolean neg = false;
             int negPos = stringValue.indexOf('-');
-            if(negPos >= 0) {
-                stringValue = stringValue.substring(negPos+1);
+            if (negPos >= 0) {
+                stringValue = stringValue.substring(negPos + 1);
                 neg = true;
             }
             value = Double.parseDouble(stringValue);
-            if(neg && Math.signum(value) != 0) {
-                value *= -1.0; 
+            if (neg && Math.signum(value) != 0) {
+                value *= -1.0;
             }
-        } catch(NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             value = null;
-        } catch(NullPointerException npe) {
+        } catch (NullPointerException npe) {
             value = null;
         }
     }
-    
+
     /**
      * @return the value
      */
@@ -153,7 +152,8 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param value the value to set
+     * @param value
+     *            the value to set
      */
     public void setValue(Double value) {
         this.value = value;
@@ -167,7 +167,8 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param qualifier the qualifier to set
+     * @param qual
+     *            the qualifier to set
      */
     public void setQualifier(String qual) {
         qualifier = (qual == null) ? "Z" : qual;
@@ -181,12 +182,13 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param locationId the locationId to set
+     * @param locationId
+     *            the locationId to set
      */
     public void setLocationId(String locationId) {
         this.locationId = locationId;
     }
-    
+
     /**
      * @return the dataSource
      */
@@ -195,7 +197,8 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param dataSource the dataSource to set
+     * @param dataSource
+     *            the dataSource to set
      */
     public void setDataSource(String dataSource) {
         this.dataSource = dataSource;
@@ -209,7 +212,8 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param timeSeriesId the timeSeriesId to set
+     * @param timeSeriesId
+     *            the timeSeriesId to set
      */
     public void setTimeSeriesId(int timeSeriesId) {
         this.timeSeriesId = timeSeriesId;
@@ -227,62 +231,65 @@ public class ShefData implements ISerializableObject {
     /**
      * Set the parameter code string
      * 
-     * @param parameterCode
+     * @param peCode
      *            the parameterCode to set
+     * @param variableDuration
      */
     public void setParameterCodeString(String peCode, String variableDuration) {
-        if((peCode != null)&&(peCode.length() >= 2)) {
+        if ((peCode != null) && (peCode.length() >= 2)) {
             parameterCodeString = peCode;
-            PhysicalElement pe = PhysicalElement.getEnum(peCode.substring(0,2));
-            if(!PhysicalElement.UNKNOWN.equals(pe)) {
+            PhysicalElement pe = PhysicalElement
+                    .getEnum(peCode.substring(0, 2));
+            if (!PhysicalElement.UNKNOWN.equals(pe)) {
 
                 // Set up default values for PEDTSEP
                 String paramProbability = Probability.NULL.getCode();
                 String paramExtremum = Extremum.NULL.getCode();
-                String paramType = TypeSource.READING_NONSPECIFIC.getCode().substring(0,1);
+                String paramType = TypeSource.READING_NONSPECIFIC.getCode()
+                        .substring(0, 1);
                 String paramSource = TypeSource.READING_NONSPECIFIC.getSource();
                 String paramDuration = "Z";
 
-                switch(peCode.length()) {
-                case 7 : {
-                    paramProbability = peCode.substring(6,7);
+                switch (peCode.length()) {
+                case 7: {
+                    paramProbability = peCode.substring(6, 7);
                 }
-                case 6 : {
-                    paramExtremum = peCode.substring(5,6);
+                case 6: {
+                    paramExtremum = peCode.substring(5, 6);
                 }
-                case 5 : {
-                    paramSource = peCode.substring(4,5);
+                case 5: {
+                    paramSource = peCode.substring(4, 5);
                 }
-                case 4 : {
-                    paramType = peCode.substring(3,4);
-                    if("Z".equals(paramType)) {
+                case 4: {
+                    paramType = peCode.substring(3, 4);
+                    if ("Z".equals(paramType)) {
                         paramType = "R";
                     }
                 }
-                case 3 : {
-                    paramDuration = peCode.substring(2,3);
+                case 3: {
+                    paramDuration = peCode.substring(2, 3);
                 }
-                case 2 : {
+                case 2: {
                     setProbability(Probability.getEnum(paramProbability));
-                    
+
                     setExtremum(Extremum.getEnum(paramExtremum));
-                    
+
                     // check to see if this is a valid typesource
                     String key = paramType + paramSource;
 
                     Integer n = ShefParm.getTypeSourceCode(key);
-                    if((n != null) && (n == 1)) {
-                        TypeSource ts = TypeSource.getEnum(key); 
+                    if ((n != null) && (n == 1)) {
+                        TypeSource ts = TypeSource.getEnum(key);
                         dataTypeCode = paramType;
                         dataSourceCode = paramSource;
-                        
+
                         setTypeSource(ts);
                     } else {
-                        
+
                     }
-                    
+
                     Duration duration = Duration.INSTANTENOUS;
-                    if("Z".equals(paramDuration)) {
+                    if ("Z".equals(paramDuration)) {
                         // Use the default duration code for this PE
                         duration = ParameterCode.Duration.getDefault(pe);
                     } else if ("V".equals(paramDuration)) {
@@ -298,7 +305,7 @@ public class ShefData implements ISerializableObject {
                     setPhysicalElement(pe);
                     break;
                 }
-                default : {
+                default: {
                     // This is an error condition!
                 }
                 }
@@ -318,13 +325,13 @@ public class ShefData implements ISerializableObject {
     /**
      * Set the retained comment
      * 
-     * @param retainedComment
+     * @param comment
      *            the retainedComment to set
      */
     public void setRetainedComment(String comment) {
-        if((comment != null)&&(comment.length() == 0)) {
+        if ((comment != null) && (comment.length() == 0)) {
             comment = null;
-        } 
+        }
         retainedComment = comment;
     }
 
@@ -359,7 +366,7 @@ public class ShefData implements ISerializableObject {
     /**
      * Set the physical element
      * 
-     * @param physicalElement
+     * @param element
      *            the physicalElement to set
      */
     public void setPhysicalElement(PhysicalElement element) {
@@ -384,7 +391,7 @@ public class ShefData implements ISerializableObject {
     public void setDuration(Duration duration) {
         this.duration = duration;
     }
-    
+
     /**
      * @return the durationValue
      */
@@ -393,7 +400,8 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param durationValue the durationValue to set
+     * @param duration
+     *            the durationValue to set
      */
     public void setDurationValue(Short duration) {
         durationValue = duration;
@@ -443,17 +451,7 @@ public class ShefData implements ISerializableObject {
      * @return the observationTime
      */
     public String getObservationTime() {
-        String retVal = null;
-        if (observationTime != null) {
-            retVal = observationTime;
-        } else {
-//            if (shefRecord.getTimeZoneCode().equalsIgnoreCase(ShefConstants.Z)) {
-//                retVal = "120000";
-//            } else {
-//                retVal = "240000";
-//            }
-        }
-        return retVal;
+        return observationTime;
     }
 
     /**
@@ -461,10 +459,8 @@ public class ShefData implements ISerializableObject {
      * 
      * @param anObservationTime
      *            the observationTime to set
-     * @throws ParseException
      */
-    public void setObservationTime(String anObservationTime)
-    {
+    public void setObservationTime(String anObservationTime) {
         observationTime = anObservationTime;
     }
 
@@ -501,9 +497,8 @@ public class ShefData implements ISerializableObject {
      * 
      * @param creationDate
      *            the creationDate to set
-     * @throws ParseException
      */
-    public void setCreationDate(String creationDate) throws ParseException {
+    public void setCreationDate(String creationDate) {
         this.creationDate = creationDate;
     }
 
@@ -514,7 +509,7 @@ public class ShefData implements ISerializableObject {
      */
     public Date getCreationDateObj() {
         Date retDate = null;
-        if(createTime != null) {
+        if (createTime != null) {
             retDate = createTime.toCalendar().getTime();
         }
         return retDate;
@@ -523,17 +518,16 @@ public class ShefData implements ISerializableObject {
     /**
      * Set the creation date Date obj
      * 
-     * @param creationDateObj
+     * @param creationDate
      *            the creationDateObj to set
      */
     public void setCreationDateObj(Date creationDate) {
-        SHEFDate d = new SHEFDate(creationDate,SHEFTimezone.GMT_TIMEZONE);
-        if(d != null) {
+        SHEFDate d = new SHEFDate(creationDate, SHEFTimezone.GMT_TIMEZONE);
+        if (d != null) {
             createTime = d;
         }
-        creationDateObj = creationDate;
     }
-    
+
     /**
      * @return the createTime
      */
@@ -542,10 +536,11 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param createTime the createTime to set
+     * @param createTime
+     *            the createTime to set
      */
     public void setCreateTime(SHEFDate createTime) {
-        if(createTime != null) {
+        if (createTime != null) {
             this.createTime = new SHEFDate(createTime);
         }
     }
@@ -576,7 +571,7 @@ public class ShefData implements ISerializableObject {
      */
     public Date getObservationTimeObj() {
         Date retDate = null;
-        if(obsTime != null) {
+        if (obsTime != null) {
             retDate = obsTime.toCalendar().getTime();
         }
         return retDate;
@@ -585,27 +580,26 @@ public class ShefData implements ISerializableObject {
     /**
      * Set the observation time Date object
      * 
-     * @param observationTimeObj
+     * @param observationTime
      *            the observationTimeObj to set
      */
     public void setObservationTimeObj(Date observationTime) {
-        SHEFDate d = new SHEFDate(observationTime,SHEFTimezone.GMT_TIMEZONE);
-        if(d != null) {
+        SHEFDate d = new SHEFDate(observationTime, SHEFTimezone.GMT_TIMEZONE);
+        if (d != null) {
             obsTime = d;
         }
-        observationTimeObj = observationTime;
     }
 
     public void setObsTime(SHEFDate date) {
-        if(date != null) {
+        if (date != null) {
             obsTime = new SHEFDate(date);
         }
     }
-    
+
     public SHEFDate getObsTime() {
         return obsTime;
     }
-    
+
     /**
      * @return the typeSource
      */
@@ -620,7 +614,7 @@ public class ShefData implements ISerializableObject {
     public void setTypeSource(ParameterCode.TypeSource typeSource) {
         this.typeSource = typeSource;
     }
-    
+
     /**
      * @return the revisedRecord
      */
@@ -629,7 +623,8 @@ public class ShefData implements ISerializableObject {
     }
 
     /**
-     * @param revisedRecord the revisedRecord to set
+     * @param revisedRecord
+     *            the revisedRecord to set
      */
     public void setRevisedRecord(boolean revisedRecord) {
         this.revisedRecord = revisedRecord;
@@ -643,8 +638,8 @@ public class ShefData implements ISerializableObject {
      */
     public int fixupDuration(Short durationValue) {
         int errorCode = 0;
-        if(duration != null) {
-            if(Duration.VARIABLE_PERIOD.equals(duration)) {
+        if (duration != null) {
+            if (Duration.VARIABLE_PERIOD.equals(duration)) {
                 if (durationValue != null) {
                     setDurationValue(durationValue);
                 } else {
@@ -659,63 +654,55 @@ public class ShefData implements ISerializableObject {
         return errorCode;
     }
 
-    
     /**
      * Processes all internal data so that it is ready for PostSHEF.
-     * 1. All dates converted to UTC.
-     * 2. All data values converted to their English equivalent.
+     * 
+     * <pre>
+     * 1. All dates converted to UTC. 
+     * 2. All data values converted to their English equivalent. 
      * 3. Ensure that all "defaults" are set correctly for output.
+     * </pre>
      */
     public void toPostData() {
-        if("S".equals(unitsCode)) {
-            if(physicalElement != null) {
+        if ("S".equals(unitsCode)) {
+            if (physicalElement != null) {
                 String key = physicalElement.getCode();
-                Double cf = ShefParm.getPhysicalElementConversionFactor(key); 
-                Double n = doConversion(physicalElement,unitsCode,value);
-                if(n == null) {
-                    if(cf != null) {
+                Double cf = ShefParm.getPhysicalElementConversionFactor(key);
+                Double n = doConversion(physicalElement, unitsCode, value);
+                if (n == null) {
+                    if (cf != null) {
                         value *= cf;
                     }
                 } else {
                     value = n;
                 }
-                stringValue = String.format("%f",value); 
+                stringValue = String.format("%f", value);
                 unitsCode = "E";
             }
         }
-        if(createTime != null) {
+        if (createTime != null) {
             createTime.toZuluDate();
         }
-        if(obsTime != null) {
+        if (obsTime != null) {
             obsTime.toZuluDate();
         }
-        switch(getPhysicalElement()) {
-        case PRECIPITATION_ACCUMULATOR :
-        case PRECIPITATION_INCREMENT :
-        case PRECIPITATION_INCREMENT_DAILY : {
-            if(getValue() >= 0) {
+        switch (getPhysicalElement()) {
+        case PRECIPITATION_ACCUMULATOR:
+        case PRECIPITATION_INCREMENT:
+        case PRECIPITATION_INCREMENT_DAILY: {
+            if (getValue() >= 0) {
                 String val = getStringValue();
                 // Is there a decimal point in the value?
-                if(val.indexOf('.') < 0) {
+                if (val.indexOf('.') < 0) {
                     double value = getValue() / 100.0;
-                    setStringValue(String.format("%.3f",value));
+                    setStringValue(String.format("%.3f", value));
                 }
             }
             break;
         }
         }
-//        if(Duration.DEFAULT.equals(getDuration())) {
-//            // Check default durations
-//            Duration defaultDuration = Duration.getDefault(getPhysicalElement());
-//            if(defaultDuration == null) {
-//                defaultDuration = Duration.INSTANTENOUS;
-//            }
-//            setDuration(defaultDuration);
-//            setDurationValue((short) getDuration().getValue());
-//            setDurationCodeVariable(getDuration().getCode());
-//        }
     }
-    
+
     /**
      * 
      * @param divisor
@@ -723,26 +710,26 @@ public class ShefData implements ISerializableObject {
      * @param multiplier
      * @param adder
      */
-    public void adjustValue(double divisor, double base, double multiplier, double adder) {
+    public void adjustValue(double divisor, double base, double multiplier,
+            double adder) {
         double adjustedValue = Double.parseDouble(stringValue);
-        adjustedValue = (adjustedValue / divisor + base)
-                * multiplier + adder;
+        adjustedValue = (adjustedValue / divisor + base) * multiplier + adder;
         value = adjustedValue;
         stringValue = String.valueOf(adjustedValue);
     }
 
     public StringBuilder toString(StringBuilder receiver) {
-        if(receiver == null) {
+        if (receiver == null) {
             receiver = new StringBuilder();
         }
-        receiver.append(String.format("%-8s",locationId));
-        if(obsTime != null) {
+        receiver.append(String.format("%-8s", locationId));
+        if (obsTime != null) {
             receiver.append(obsTime.toOutString());
         } else {
             receiver.append("   0 0 0 0 0 0");
         }
         receiver.append(" ");
-        if(createTime != null) {
+        if (createTime != null) {
             receiver.append(createTime.toOutString());
         } else {
             receiver.append("   0 0 0 0 0 0");
@@ -752,7 +739,7 @@ public class ShefData implements ISerializableObject {
         receiver.append(physicalElement.getCode());
         receiver.append(" ");
         // Type Code
-        if(TypeSource.UNKNOWN.equals(typeSource)) {
+        if (TypeSource.UNKNOWN.equals(typeSource)) {
             receiver.append("  ");
         } else {
             receiver.append(dataTypeCode);
@@ -762,46 +749,48 @@ public class ShefData implements ISerializableObject {
         // Extremnum
         receiver.append(extremum.getCode());
         // Data Value
-        if(value != null) {
+        if (value != null) {
             receiver.append(String.format("%10.3f", value));
         } else {
-            receiver.append(String.format("%10s",ShefConstants.SHEF_MISSING));
+            receiver.append(String.format("%10s", ShefConstants.SHEF_MISSING));
         }
         receiver.append(" ");
         // Data Qualifier
         receiver.append((qualifier != null) ? qualifier : " ");
-        if(probability != null) {
+        if (probability != null) {
             Double p = probability.getValue();
-            receiver.append(String.format("%6.2f",p));
+            receiver.append(String.format("%6.2f", p));
         } else {
             receiver.append("      ");
         }
-        
-        if(durationValue != null) {
-            receiver.append(String.format("%5d",durationValue));
+
+        if (durationValue != null) {
+            receiver.append(String.format("%5d", durationValue));
         } else {
-            receiver.append(String.format("%5d",0));
+            receiver.append(String.format("%5d", 0));
         }
         // Revision code
         receiver.append((revisedRecord) ? " 1" : " 0");
         receiver.append(" ");
         // Data source
-        receiver.append(String.format("%-8s",(dataSource != null) ? dataSource : " "));
+        receiver.append(String.format("%-8s", (dataSource != null) ? dataSource
+                : " "));
         receiver.append(" ");
         // Time series indicator
-        receiver.append(String.format("%3d",timeSeriesId));
+        receiver.append(String.format("%3d", timeSeriesId));
         receiver.append(" ");
         // Full Parameter code
-        receiver.append(String.format("%-7s",parameterCodeString));
+        receiver.append(String.format("%-7s", parameterCodeString));
         receiver.append(" ");
-        // Unused 
-        receiver.append(String.format("%8s"," "));
+        // Unused
+        receiver.append(String.format("%8s", " "));
         receiver.append(" ");
-        if(retainedComment != null) {
+        if (retainedComment != null) {
             receiver.append(retainedComment);
         }
         return receiver;
     }
+
     /**
      * Human readable output of data stored in this object
      */
@@ -810,9 +799,10 @@ public class ShefData implements ISerializableObject {
         StringBuilder sb = new StringBuilder();
         return toString(sb).toString();
     }
-    
+
     /**
      * The data's PETSEP.
+     * 
      * @return
      */
     public String getPeTsE() {
@@ -823,36 +813,36 @@ public class ShefData implements ISerializableObject {
         return sb.toString();
     }
 
-    
     /**
      * 
      * @param element
      * @param unitCode
      * @param dValue
-     * @return The converted value or null to indicate no conversion took place.                                                                                                                                                                                                                                           
+     * @return The converted value or null to indicate no conversion took place.
      */
-    private Double doConversion(PhysicalElement element, String unitCode, Double dValue) {
-        if(dValue != null) {
-            if(element != null) {
-                switch(element) {
-                case TEMPERATURE_AIR_DRY :
-                case TEMPERATURE_COOLING :
-                case TEMPERATURE_DEW :
-                case TEMPERATURE_FREEZING :
-                case TEMPERATURE_HEATING :
-                case TEMPERATURE_AIR_WET :
-                case TEMPERATURE_AIR_MINIMUM :
-                case TEMPERATURE_PAN_WATER :
-                case TEMPERATURE_ROAD_SURFACE :
-                case TEMPERATURE_WATER :
-                case TEMPERATURE_AIR_MAXIMUM :
-                case TEMPERATURE_FREEZING_SURFACE : {
-                    if("S".equals(unitCode)) {
+    private Double doConversion(PhysicalElement element, String unitCode,
+            Double dValue) {
+        if (dValue != null) {
+            if (element != null) {
+                switch (element) {
+                case TEMPERATURE_AIR_DRY:
+                case TEMPERATURE_COOLING:
+                case TEMPERATURE_DEW:
+                case TEMPERATURE_FREEZING:
+                case TEMPERATURE_HEATING:
+                case TEMPERATURE_AIR_WET:
+                case TEMPERATURE_AIR_MINIMUM:
+                case TEMPERATURE_PAN_WATER:
+                case TEMPERATURE_ROAD_SURFACE:
+                case TEMPERATURE_WATER:
+                case TEMPERATURE_AIR_MAXIMUM:
+                case TEMPERATURE_FREEZING_SURFACE: {
+                    if ("S".equals(unitCode)) {
                         dValue = ((value * 9.0) / 5.0) + 32;
                     }
                     break;
                 }
-                default : {
+                default: {
                     dValue = null;
                 }
                 }
@@ -865,38 +855,35 @@ public class ShefData implements ISerializableObject {
      * 
      * @param args
      */
-    public static final void main(String [] args) {
-        
-//        ShefData d = new ShefData();
-//        
-//        d.setParameterCodeString("AD","Z");
-//        
-//        System.out.println(d);
-//        
-//        double dv = 0.04;
-//        
-//        System.out.println(String.format("[%.3f]",dv));
-//        
-        
+    public static final void main(String[] args) {
+
+        // ShefData d = new ShefData();
+        //
+        // d.setParameterCodeString("AD","Z");
+        //
+        // System.out.println(d);
+        //
+        // double dv = 0.04;
+        //
+        // System.out.println(String.format("[%.3f]",dv));
+        //
+
         double adjustedValue = 10;
         double divisor = 1;
         double base = 0;
         double multiplier = 1000;
         double adder = 0;
-        
+
         double n = (adjustedValue / divisor + base) * multiplier + adder;
-        
+
         System.out.println(n);
-        
+
         Pattern Q_CODES = Pattern.compile("Q[^BEF]");
         Matcher m = Q_CODES.matcher("QI");
-        if(m.matches()) {
+        if (m.matches()) {
             System.out.println("found");
         }
-        
-        
-        
+
     }
-    
-    
+
 }
