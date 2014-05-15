@@ -30,7 +30,7 @@
          id="org.apache.commons.compress"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.5.0"
          unpack="false"/>
 
    <plugin
@@ -70,20 +70,6 @@
 
    <plugin
          id="com.raytheon.uf.edex.datadelivery.registry"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.compress"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.compress"
          download-size="0"
          install-size="0"
          version="0.0.0"
