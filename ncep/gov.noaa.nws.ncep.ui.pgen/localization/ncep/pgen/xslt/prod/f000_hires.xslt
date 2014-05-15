@@ -11,12 +11,10 @@
 	Change Log:
 
 	B. Yin/Chugach	08/11	Initial Coding
-	B. Yin/SGT		02/14	Added contour support
 -->
 
 <xsl:variable name="newline"><xsl:text>
 </xsl:text></xsl:variable>
-
 
 
 
@@ -26,37 +24,37 @@
    <xsl:value-of select="$newline"/>
    
 <xsl:call-template name="getSfcHighsLows">
-	<xsl:with-param name="latFmt" select="'##'"/>
-	<xsl:with-param name="lonFmt" select="'##'"/>
+	<xsl:with-param name="latFmt" select="'000'"/>
+	<xsl:with-param name="lonFmt" select="'0000'"/>
 </xsl:call-template>
-      
-<!-- Fronts -->
+
+  <!-- Fronts -->
     <xsl:for-each select="/Products/Product/Layer/DrawableElement/Line">
     	<xsl:if test="@pgenCategory= 'Front'">
    	      <xsl:value-of select="$newline"/>
    		<xsl:choose>
                 	<xsl:when test="@pgenType = 'COLD_FRONT'">
-                        	<xsl:text>COLD WK </xsl:text>
+                        	<xsl:text>COLD </xsl:text>
                 	</xsl:when>
                 	<xsl:when test="@pgenType = 'WARM_FRONT'">
-                        	<xsl:text>WARM WK </xsl:text>
+                        	<xsl:text>WARM </xsl:text>
                 	</xsl:when>
                 	<xsl:when test="@pgenType = 'STATIONARY_FRONT'">
-                        	<xsl:text>STNRY WK </xsl:text>
+                        	<xsl:text>STNRY </xsl:text>
                 	</xsl:when>
                 	<xsl:when test="@pgenType = 'OCCLUDED_FRONT'">
-                        	<xsl:text>OCFNT WK </xsl:text>
+                        	<xsl:text>OCFNT </xsl:text>
                 	</xsl:when>
                 	<xsl:when test="@pgenType = 'TROF'">
                         	<xsl:text>TROF </xsl:text>
                 	</xsl:when>
    		</xsl:choose>
     		<xsl:for-each select="Point">
-	      		<xsl:value-of select="format-number(@Lat,'##')"/>
-	      		<xsl:value-of select="-1*format-number(@Lon,'##')"/>
+	      		<xsl:value-of select="format-number(@Lat*10,'000')"/>
+	      		<xsl:value-of select="format-number(@Lon*-10,'0000')"/>
               	<xsl:text> </xsl:text>
-              	             	
-              	<xsl:if test="position() mod 10 = 0 and not(position() = last())">
+              	
+              	<xsl:if test="position() mod 7 = 0 and not(position() = last())">
           			<xsl:value-of select="$newline"/>
 				</xsl:if>
     		</xsl:for-each>
