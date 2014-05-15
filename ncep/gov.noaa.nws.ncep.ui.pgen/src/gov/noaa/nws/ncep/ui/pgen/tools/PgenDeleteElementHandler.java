@@ -11,12 +11,16 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
+import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -29,6 +33,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 04/13		927			B. Yin   	Moved from the PgenDeleteElement class
+ * 04/14        1117        J. Wu       Added confirmation for deleting contours
  * 
  * </pre>
  * 
@@ -37,152 +42,182 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class PgenDeleteElementHandler extends InputHandlerDefaultImpl {
 
-	protected AbstractEditor mapEditor;
-	protected PgenResource pgenrsc;
-	protected AbstractPgenTool tool;
-	protected AttrDlg attrDlg;
+    protected AbstractEditor mapEditor;
 
-	private boolean preempt;
+    protected PgenResource pgenrsc;
 
-	/**
-	 * Constructor
-	 * @param tool
-	 */
-	public PgenDeleteElementHandler( AbstractPgenTool tool ) {
-		this.tool = tool;
-		pgenrsc = tool.getDrawingLayer();
-		mapEditor = tool.mapEditor;
-		
-		if ( tool instanceof AbstractPgenDrawingTool ) {
-			attrDlg = ((AbstractPgenDrawingTool)tool).getAttrDlg();
-		}
-	}
+    protected AbstractPgenTool tool;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
-	 *      int, int)
-	 */
-	@Override	   	
-	public boolean handleMouseDown(int anX, int aY, int button) {
-		if ( !tool.isResourceEditable() ) return false;
+    protected AttrDlg attrDlg;
 
-		preempt = false;
+    private boolean preempt;
 
-		//  Check if mouse is in geographic extent
-		Coordinate loc = mapEditor.translateClick(anX, aY);
-		if ( loc == null ) return false;
+    /**
+     * Constructor
+     * 
+     * @param tool
+     */
+    public PgenDeleteElementHandler(AbstractPgenTool tool) {
+        this.tool = tool;
+        pgenrsc = tool.getDrawingLayer();
+        mapEditor = tool.mapEditor;
 
-		if ( button == 1 ) {
+        if (tool instanceof AbstractPgenDrawingTool) {
+            attrDlg = ((AbstractPgenDrawingTool) tool).getAttrDlg();
+        }
+    }
 
-			if ( pgenrsc.getSelectedComp() != null ) {
-				doDelete();
-				preempt = false;
-			}
-			else {        	
-				// Get the nearest element and set it as the selected element.
-				AbstractDrawableComponent elSelected = pgenrsc.getNearestComponent( loc, new AcceptFilter(), true );
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int, int,
+     * int)
+     */
+    @Override
+    public boolean handleMouseDown(int anX, int aY, int button) {
+        if (!tool.isResourceEditable())
+            return false;
 
-				//Delete watch status line
-				if ( elSelected instanceof DECollection && elSelected.getName().equalsIgnoreCase("Watch")
-						&& pgenrsc.getNearestElement(loc).getPgenType().equalsIgnoreCase("POINTED_ARROW")){
-					elSelected =pgenrsc.getNearestElement(loc);
-				}	
-				else if ( elSelected instanceof Outlook && ((Outlook)elSelected).getDEs() > 1){
-					AbstractDrawableComponent adc = pgenrsc.getNearestElement(loc);
-					elSelected = adc.getParent(); 
-				}
+        preempt = false;
 
-				if (elSelected != null) {
-					pgenrsc.setSelected( elSelected );
-					preempt = true;
-				}
-				mapEditor.refresh();  
-			}
+        // Check if mouse is in geographic extent
+        Coordinate loc = mapEditor.translateClick(anX, aY);
+        if (loc == null)
+            return false;
 
-			return preempt;
+        if (button == 1) {
 
-		}
-		else if ( button == 2 ){
+            if (pgenrsc.getSelectedComp() != null) {
+                doDelete();
+                preempt = false;
+            } else {
+                // Get the nearest element and set it as the selected element.
+                AbstractDrawableComponent elSelected = pgenrsc
+                        .getNearestComponent(loc, new AcceptFilter(), true);
 
-			return true;
+                // Delete watch status line
+                if (elSelected instanceof DECollection
+                        && elSelected.getName().equalsIgnoreCase("Watch")
+                        && pgenrsc.getNearestElement(loc).getPgenType()
+                                .equalsIgnoreCase("POINTED_ARROW")) {
+                    elSelected = pgenrsc.getNearestElement(loc);
+                } else if (elSelected instanceof Outlook
+                        && ((Outlook) elSelected).getDEs() > 1) {
+                    AbstractDrawableComponent adc = pgenrsc
+                            .getNearestElement(loc);
+                    elSelected = adc.getParent();
+                }
 
-		}
-		else if ( button == 3 ) {
+                if (elSelected != null) {
+                    pgenrsc.setSelected(elSelected);
+                    preempt = true;
+                }
+                mapEditor.refresh();
+            }
 
-			if (  pgenrsc.getSelectedComp() != null ){
-				// de-select element
-				pgenrsc.removeSelected();
-				mapEditor.refresh();
-			}
-			else {
-				// set selecting mode
-				PgenUtil.setSelectingMode();
-			}
+            return preempt;
 
-			return true;
+        } else if (button == 2) {
 
-		}
-		else{
+            return true;
 
-			return true;
+        } else if (button == 3) {
 
-		}
+            if (pgenrsc.getSelectedComp() != null) {
+                // de-select element
+                pgenrsc.removeSelected();
+                mapEditor.refresh();
+            } else {
+                // set selecting mode
+                PgenUtil.setSelectingMode();
+            }
 
-	}
+            return true;
 
-	@Override
-	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-		if (  !tool.isResourceEditable() || shiftDown ) return false;
-		else return true;
-	}
-	
-	/**
-	 * Deletes the selected element and reset the handler. 
-	 * For a single element, closes the attributes dialog when the element is deleted.   
-	 */
-	@Override
-	public void preprocess(){
-		
-		if ( pgenrsc.getSelectedComp() != null ) {
-			if ( attrDlg != null && 
-					( pgenrsc.getSelectedComp().getParent() instanceof Layer 
-							|| pgenrsc.getSelectedComp().getParent().getName().equalsIgnoreCase("labeledSymbol"))){
-				attrDlg.close();
-			}
+        } else {
 
-			doDelete();
-			tool.resetMouseHandler();
-		}
-	}
-	
-	/**
-	 * Deletes the selected element or component from the PGEN resource.
-	 */
-	private void doDelete(){
-		
-		AbstractDrawableComponent adc = pgenrsc.getSelectedComp();
-		
-		if ( adc.getParent() instanceof ContourMinmax 
-				|| adc.getParent().getName().equalsIgnoreCase("labeledSymbol") ){
-			pgenrsc.removeElement(adc.getParent());
-		}
-		else {
-			pgenrsc.removeElement(adc);
-		}
-		// de-select element
-		pgenrsc.removeSelected();
-		mapEditor.refresh();
-	}
+            return true;
 
-	public AbstractEditor getMapEditor() {
-		return mapEditor;
-	}
+        }
 
-	public PgenResource getPgenrsc() {
-		return pgenrsc;
-	}
+    }
 
+    @Override
+    public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+        if (!tool.isResourceEditable() || shiftDown)
+            return false;
+        else
+            return true;
+    }
+
+    /**
+     * Deletes the selected element and reset the handler. For a single element,
+     * closes the attributes dialog when the element is deleted.
+     */
+    @Override
+    public void preprocess() {
+
+        if (pgenrsc.getSelectedComp() != null) {
+            if (attrDlg != null
+                    && (pgenrsc.getSelectedComp().getParent() instanceof Layer || pgenrsc
+                            .getSelectedComp().getParent().getName()
+                            .equalsIgnoreCase("labeledSymbol"))) {
+                attrDlg.close();
+            }
+
+            doDelete();
+            tool.resetMouseHandler();
+        }
+    }
+
+    /**
+     * Deletes the selected element or component from the PGEN resource.
+     */
+    private void doDelete() {
+
+        AbstractDrawableComponent adc = pgenrsc.getSelectedComp();
+
+        // Ask for user confirmation before deleting a Contours element.
+        boolean deleteContour = true;
+        if (adc instanceof Contours) {
+
+            /*
+             * Confirm request to delete a Contour.
+             */
+            String msg = "Are you sure you want to delete this Contour completely?";
+
+            MessageDialog confirmDlg = new MessageDialog(PlatformUI
+                    .getWorkbench().getActiveWorkbenchWindow().getShell(),
+                    "Confirm Delete of a Contour", null, msg,
+                    MessageDialog.QUESTION, new String[] { "OK", "Cancel" }, 0);
+            confirmDlg.open();
+
+            if (!(confirmDlg.getReturnCode() == MessageDialog.OK)) {
+                deleteContour = false;
+            }
+        }
+
+        if (deleteContour) {
+            if (adc.getParent() instanceof ContourMinmax
+                    || adc.getParent().getName()
+                            .equalsIgnoreCase("labeledSymbol")) {
+                pgenrsc.removeElement(adc.getParent());
+            } else {
+                pgenrsc.removeElement(adc);
+            }
+        }
+
+        // de-select element
+        pgenrsc.removeSelected();
+        mapEditor.refresh();
+    }
+
+    public AbstractEditor getMapEditor() {
+        return mapEditor;
+    }
+
+    public PgenResource getPgenrsc() {
+        return pgenrsc;
+    }
 
 }
