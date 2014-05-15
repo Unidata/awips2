@@ -83,6 +83,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  *                                      not included in the parameter info file
  * May 02, 2013      #1969 randerso     Updated for change to DBInvChangeNotification
  * Sep 03, 2013      #2321 randerso     Fixed smartInits for D2D accumulative parameters
+ * May 09, 2014      #3148 randerso     Fixed occasional smartInit dropouts related to accumulative parameters
  * 
  * </pre>
  * 
@@ -241,8 +242,9 @@ public class GfeIngestNotificationFilter {
                         initNameBuilder.append('_');
                         initNameBuilder.append(dbId.getModelTime());
 
-                        Date validTime = grid.getDataTime().getValidTime()
-                                .getTime();
+                        Date validTime = grid.getDataTime().getValidPeriod()
+                                .getStart();
+
                         SmartInitRecordPK id = new SmartInitRecordPK(
                                 initNameBuilder.toString(), validTime);
 
