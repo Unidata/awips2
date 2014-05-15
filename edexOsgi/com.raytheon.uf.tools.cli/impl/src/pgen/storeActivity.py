@@ -56,14 +56,69 @@ def __parseCommandLine():
     logger.debug("Command-line arguments: " + str(options))
     return options
 
-def __getActivityInfo(options):
+#
+# create an ActivityInfo object from command line input and
+# activityXML. If no input was found from command line, the 
+# info in activityXML will be used.
+#
+def __getActivityInfo(xml, options):
+
     ainfo = ActivityInfo()
-    ainfo.setActivityLabel(options.filename)
-    ainfo.setActivityName(options.activityName)
-    ainfo.setActivityType(options.activityType)
-    ainfo.setActivitySubtype(options.activitySubtype)
-    ainfo.setForecaster(options.forecaster)
-    ainfo.setSite(options.site)
+    
+    tree = ET.fromstring(xml)
+    product = tree.find('Product')
+    
+    # strip the path from file and use it as activityLabel
+    
+    fullname = options.filename
+    lastslash = fullname.rfind("/")
+    filename = fullname
+    if ( lastslash >=0 ):
+        filename = fullname[lastslash+1:]
+    
+    ainfo.setActivityLabel(filename)
+        
+    if ( options.forecaster != None ):
+        ainfo.setForecaster(options.forecaster)
+    else:
+        ainfo.setForecaster(product.attrib['forecaster'])
+
+    if ( options.site != None ):
+        ainfo.setSite(options.site)
+    else:
+        ainfo.setSite(product.attrib['center'])
+    
+    # set activity type and subtype
+    if ( options.activityType != None ):        
+        ainfo.setActivityType(options.activityType)
+        
+        if ( options.activitySubtype != None ): 
+            ainfo.setActivitySubtype(options.activitySubtype)
+        else:
+            ainfo.setActivitySubtype("")             
+    else:        
+        if (product.attrib['type'].find("(") < 0 ):
+            ainfo.setActivityType( product.attrib['type'] )
+            ainfo.setActivitySubtype( "" )
+        else:
+            fulltyp = product.attrib['type']
+            start = fulltyp.find("(")
+            end = fulltyp.find(")")
+            ainfo.setActivityType( fulltyp[0:start] )
+            ainfo.setActivitySubtype( fulltyp[start+1:end] )
+                            
+    # set activityName
+    if ( options.activityName != None ):
+        ainfo.setActivityName(options.activityName)
+    else:
+        if ( options.activityType != None ):
+            aname = options.activityType;
+            if ( options.activitySubtype != None ): 
+                aname = aname + "(" + options.activitySubtype + ")"        
+            ainfo.setActivityName( aname )        
+        else:
+            ainfo.setActivityName( product.attrib['name'] )
+                  
     return ainfo
 
 #  Update Product tag attributes with options given on command line
@@ -72,9 +127,13 @@ def __updateXML(xml, options):
     product = tree.find('Product')
     if options.activityName != None:
         product.attrib['name'] = options.activityName
-        
+                     
     if options.activityType != None:
-        product.attrib['type'] = options.activityType
+        if options.activitySubtype != None:
+            ntype = options.activityType + '(' + options.activitySubtype + ')'
+            product.attrib['type'] = ntype
+        else:
+            product.attrib['type'] = options.activityType
     
     if options.filename != None:
         product.attrib['outputFile'] = options.filename
@@ -84,11 +143,12 @@ def __updateXML(xml, options):
     
     if options.site != None:
         product.attrib['center'] = options.site
+    
     return ET.tostring(tree)
 
 def main():
     __initLogger()
-    logger.info("Starting retrieveActivity.")
+    logger.info("Starting storeActivity.")
     options = __parseCommandLine()
  
     # read in XML from input file
@@ -98,7 +158,7 @@ def main():
  
     # generate an activityInfo object and update XML with options 
     # from command line   
-    actinfo = __getActivityInfo(options)
+    actinfo = __getActivityInfo(activityXML, options)
     activityXML = __updateXML(activityXML, options)
 
     #  Store Activity to EDEX
