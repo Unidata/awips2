@@ -829,7 +829,7 @@
                     <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
                     <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
                 </Track>
-                <Contours collectionName="Contours" pgenCategory="MET" pgenType="Contours" parm="HGMT" level="1000" forecastHour="f000" time1="2011-01-31T10:31:30.868Z" time2="2011-01-31T10:31:30.868Z" cint="10/0/100">
+                <Contours collectionName="Contours" pgenCategory="MET" pgenType="Contours" parm="TEMP" level="1000" forecastHour="f000" time1="2011-01-31T10:31:30.868Z" time2="2011-01-31T10:31:30.868Z" cint="10/0/100">
                     <DECollection collectionName="ContourLine">
                         <DrawableElement>
                             <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
