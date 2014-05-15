@@ -76,14 +76,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "gridseq")
-@Table(name = "grid", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "refTime", "forecastTime", "rangestart", "rangeend", "info_id" }) })
 /*
- * Both refTime and forecastTime are included in the refTimeIndex since
- * forecastTime is unlikely to be used.
+ * No need for a separate refTime/forecastTime index since its included in grid
+ * unique constraint
  */
-@org.hibernate.annotations.Table(appliesTo = "grid", indexes = { @Index(name = "grid_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+@Table(name = "grid", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "refTime", "forecastTime", "info_id", "rangestart", "rangeend" }) })
+@org.hibernate.annotations.Table(appliesTo = "grid", indexes = { @Index(name = "grid_info_id_index", columnNames = { "info_id" }) })
 @DynamicSerialize
 public class GridRecord extends PersistablePluginDataObject implements
         ISpatialEnabled {
