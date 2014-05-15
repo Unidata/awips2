@@ -115,10 +115,11 @@ public class TafPeriod implements Serializable {
      */
     public static TafPeriod copy(TafPeriod period) {
         TafPeriod periodCopy = new TafPeriod();
-        periodCopy.startDate = (Calendar) period.startDate.clone();
-        periodCopy.transitionEndDate = (Calendar) period.transitionEndDate
-                .clone();
-        periodCopy.endDate = (Calendar) period.endDate.clone();
+        /* these may be null */
+        periodCopy.startDate = TimeUtil.newCalendar(period.startDate);
+        periodCopy.transitionEndDate = TimeUtil
+                .newCalendar(period.transitionEndDate);
+        periodCopy.endDate = TimeUtil.newCalendar(period.endDate);
 
         return periodCopy;
     }
