@@ -152,10 +152,10 @@ public class TAFParser {
                     int currGroup = 0;
                     for (String grp : tafGroups) {
 
-                        Calendar cStart = (Calendar) validPeriod.getStartDate()
-                                .clone();
-                        Calendar cStop = (Calendar) validPeriod.getEndDate()
-                                .clone();
+                        Calendar cStart = TimeUtil.newCalendar(validPeriod
+                                .getStartDate());
+                        Calendar cStop = TimeUtil.newCalendar(validPeriod
+                                .getEndDate());
 
                         TafPeriod tPeriod = new TafPeriod(cStart, cStop);
                         ChangeGroup group = new ChangeGroup(grp, tPeriod);
@@ -194,8 +194,8 @@ public class TAFParser {
                             period1 = group1.getTafChangePeriod();
                             period2 = group2.getTafChangePeriod();
 
-                            period1.setEndDate((Calendar) period2
-                                    .getStartDate().clone());
+                            period1.setEndDate(TimeUtil.newCalendar(period2
+                                    .getStartDate()));
 
                         }
                         period2.setEndDate((Calendar) validPeriod.getEndDate()
