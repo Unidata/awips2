@@ -18,9 +18,20 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-
-<compositeModel>
-        <modelName>UkmetHR-NorthernHemisphere</modelName>
-        <grid>864162001</grid>
-        <componentModels>UkmetHR-2:UkmetHR-3:UkmetHR-4:UkmetHR-1</componentModels>
-</compositeModel>
+<mercatorGridCoverage>
+    <name>321225001</name>
+    <description>Extratropical Storm and Tide Operation Forecast System (Hawaii)</description>
+    <la1>18.067</la1>
+    <lo1>-161.525</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>321</nx>
+    <ny>225</ny>
+    <dx>2.5</dx>
+    <dy>2.5</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6371229.0</minorAxis>
+    <majorAxis>6371229.0</majorAxis>
+    <latin>20.0</latin>
+    <la2>23.082</la2>
+    <lo2>-153.969</lo2>
+</mercatorGridCoverage>
