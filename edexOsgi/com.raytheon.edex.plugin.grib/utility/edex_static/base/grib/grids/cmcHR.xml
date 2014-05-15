@@ -18,9 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-
-<compositeModel>
-        <modelName>UkmetHR-NorthernHemisphere</modelName>
-        <grid>864162001</grid>
-        <componentModels>UkmetHR-2:UkmetHR-3:UkmetHR-4:UkmetHR-1</componentModels>
-</compositeModel>
+<polarStereoGridCoverage>
+    <name>493399001</name>
+    <description>15km HR CMC</description>
+    <la1>32.548</la1>
+    <lo1>-134.62</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>493</nx>
+    <ny>399</ny>
+    <dx>15</dx>
+    <dy>15</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6367470.0</minorAxis>
+    <majorAxis>6367470.0</majorAxis>
+    <lov>-111.0</lov>
+    <lad>60</lad>
+</polarStereoGridCoverage>
