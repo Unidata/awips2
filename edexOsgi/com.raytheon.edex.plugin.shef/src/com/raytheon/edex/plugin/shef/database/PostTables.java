@@ -85,6 +85,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 									   latestobsvalue table.
  * 09/19/2013   16515      w. Kwock    Fix the excessive digits in rawpp,lake,height...tables
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
+ *                                     More performance fixes.
  * 
  * </pre>
  * 
@@ -1152,13 +1153,7 @@ public class PostTables {
             cs.execute();
             stats.incrementForecastPe();
             status = cs.getInt(17);
-
-            if (status == 0) {
-                conn.commit();
-            } else {
-                throw new Exception("PostgresSQL error executing function "
-                        + functionName);
-            }
+            cs.addBatch();
         } catch (Exception e) {
             log.error("Record Data: " + record);
             log.error(record.getTraceId()
@@ -1381,6 +1376,15 @@ public class PostTables {
             }
         } catch (SQLException e) {
             log.error("An error occurred inserting river status values", e);
+        }
+
+        for (String key : statementMap.keySet()) {
+            CallableStatement cs = statementMap.get(key);
+            try {
+                cs.executeBatch();
+            } catch (SQLException e) {
+                log.error("An error occured executing batch update for " + key);
+            }
         }
     }
 }
