@@ -140,7 +140,6 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 										this class
  * 11/13        TTR 752     J. Wu       added methods to compute an element's range record.
  * 12/13		#1089		B. Yin		Modify watch to display county list
- * 02/14        #2819       R. Anderson Removed unnecessary .clone() call 
  * 02/14        #2819       R. Anderson Removed unnecessary .clone() call
  * </pre>
  * 
@@ -648,110 +647,6 @@ public class DisplayElementFactory {
         ArrayList<IDisplayable> dlist = new ArrayList<IDisplayable>();
 
         List<SPCCounty> counties = watchBox.getOriginalCountyList();
-<<<<<<< HEAD
-        if ( counties == null || counties.isEmpty()){  //if the watch is not issued yet, the original county list is not set. 
-        	counties = watchBox.getCountyList();
-        }
-        
-        if ( counties != null && !counties.isEmpty()){
-        	if ( watchBox.getFillFlag() ){
-        		
-        		Geometry cntyUnion = null;;  
-        		Color[] colors = null;
-        		
-        		Collection<Geometry> gCollection = new ArrayList<Geometry>();
-
-        		//draw county border
-        		for ( SPCCounty cnty : counties ){
-	    			Geometry countyGeo = cnty.getShape();
-	    			
-	    			colors = watchBox.getColors();
-	    			colors[1] = watchBox.getFillColor();
-	    			
-	    			for ( int ii = 0; ii < countyGeo.getNumGeometries(); ii ++ ){
-	    				Polygon poly = (Polygon)countyGeo.getGeometryN(ii);
-	    				List<Coordinate> pts = new ArrayList<Coordinate>(Arrays.asList(poly.getCoordinates()));
-
-	    				Line cntyBorder = new Line(null, colors,.5f,.5,true,
-	    						false, pts, 0,
-	    						FillPattern.FILL_PATTERN_6,"Lines","LINE_SOLID");
-	    				ArrayList<IDisplayable> cntyLine = createDisplayElements(cntyBorder,paintProps);
-	    				dlist.addAll(cntyLine);
-	    			}
-	    			
-	    			if ( countyGeo != null ){
-	    				gCollection.add(countyGeo.buffer(.02));
-	    			}
-        		}
-
-
-        		//Merge counties together and fill the whole area
-        		GeometryFactory gf = new GeometryFactory();
-
-        		if ( gCollection.size() > 1 ){
-        			GeometryCollection geometryCollection =
-        				(GeometryCollection) gf.buildGeometry( gCollection );
-
-        			cntyUnion = geometryCollection.union();
-        		}
-        		else cntyUnion = gf.buildGeometry( gCollection );
-
-        		IShadedShape theShadedShape = target.createShadedShape(false, iDescriptor, true);
-
-        //		IWireframeShape theWireframeShape = target.createWireframeShape(false, mapDescriptor);
-
-        		JTSCompiler compiler = new JTSCompiler( theShadedShape,
-        					null, iDescriptor, PointStyle.CROSS);
-
-        		try {
-					compiler.handle(cntyUnion, 
-							new RGB(colors[1].getRed(), colors[1].getGreen(), colors[1].getBlue()));
-					
-					if ( elem.getFillPattern() != FillPattern.TRANSPARENCY &&
-							elem.getFillPattern() != FillPattern.SOLID ) {
-						FillPatternList fpl = new FillPatternList();
-						byte[] fpattern = fpl.getFillPattern(elem.getFillPattern());
-						theShadedShape.setFillPattern(fpattern);
-					}
-					theShadedShape.compile();
-
-					// theWireframeShape.compile();
-					//dlist.add(new LineDisplayElement(theWireframeShape, colors[1], .5f));
-					dlist.add( new FillDisplayElement(theShadedShape, 1f ));
-					
-				} catch (VizException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-        	}
-        	else {
-        		for ( SPCCounty cnty : counties ){
-
-        			Symbol cSymbol = new Symbol(null, watchBox.getColors(), 
-        					watchBox.getWatchSymbolWidth(), watchBox.getWatchSymbolSize(), false,
-        					cnty.getCentriod(),	"Marker", watchBox.getWatchSymbolType());
-        			ArrayList<IDisplayable> cList = createDisplayElements(cSymbol,paintProps);
-        			dlist.addAll(cList);
-        		}
-        	}
-        }
-        
-        //if already issued, draw the list of active counties with OCTAGON symbols.
-        if (watchBox.getIssueFlag() != 0  ){
-        	List<SPCCounty> activeCounties = watchBox.getCountyList();
-        	if ( activeCounties != null && !activeCounties.isEmpty()){
-        		for ( SPCCounty cnty : activeCounties ){
-
-        			Symbol cSymbol = new Symbol(null, IWatchBox.WATCH_LIST_COLOR, 
-        					3, 2, false,
-        					cnty.getCentriod(),	"Marker", "OCTAGON");
-        			ArrayList<IDisplayable> cList = createDisplayElements(cSymbol,paintProps);
-        			dlist.addAll(cList);
-        		}
-        	}
-        }
-        
-=======
         if (counties == null || counties.isEmpty()) { // if the watch is not
                                                       // issued yet, the
                                                       // original county list is
@@ -814,9 +709,8 @@ public class DisplayElementFactory {
                         iDescriptor, PointStyle.CROSS);
 
                 try {
-                    compiler.handle(cntyUnion,
-                            new RGB(colors[1].getRed(), colors[1].getGreen(),
-                                    colors[1].getBlue()));
+                    compiler.handle(cntyUnion, new RGB(colors[1].getRed(),
+                            colors[1].getGreen(), colors[1].getBlue()));
 
                     if (elem.getFillPattern() != FillPattern.TRANSPARENCY
                             && elem.getFillPattern() != FillPattern.SOLID) {
@@ -868,7 +762,6 @@ public class DisplayElementFactory {
             }
         }
 
->>>>>>> d3a1e1a... VLab Issue #3721 - NCEP CAVE plugin delivery for 14.3.1
         Coordinate[] points = watchBox.getLinePoints();
         ArrayList<Coordinate> ptsList = new ArrayList<Coordinate>();
 

@@ -10,7 +10,7 @@
  */
 package gov.noaa.nws.ncep.viz.rsc.ntrans.ncgm;
 
-import gov.noaa.nws.ncep.viz.rsc.ntrans.rsc.NtransResource.ImageBuilder;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.rsc.ImageBuilder;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -19,13 +19,12 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * @author bhebbard
- *
+ * 
  */
 
 public interface INcCommand {
 
-	 public void paint(IGraphicsTarget target, PaintProperties paintProps,
-			 IDescriptor descriptor, ImageBuilder ib) throws VizException;
-	 
-}
+    public void paint(IGraphicsTarget target, PaintProperties paintProps,
+            IDescriptor descriptor, ImageBuilder ib) throws VizException;
 
+}
