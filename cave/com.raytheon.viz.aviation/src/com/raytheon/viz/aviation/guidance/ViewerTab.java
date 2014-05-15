@@ -63,6 +63,8 @@ import com.raytheon.viz.avnconfig.TafSiteData;
  * Apr 28,2011  8065       rferrel     Add flag to indicate display is current
  *                                     and implement data caching
  * Jun 1, 2011  9673       rferrel     Added fltCatFontColor.
+ * 09Apr2014    #3005      lvenable    Marked currentTab as volatile, added call through
+ *                                     methods to the HeaderTextComp class.
  * 
  * </pre>
  * 
@@ -141,7 +143,7 @@ public abstract class ViewerTab extends Composite {
     /**
      * True when tab is selected for display.
      */
-    private boolean currentTab = false;
+    private volatile boolean currentTab = false;
 
     /**
      * Flight Category's font color.
@@ -303,7 +305,7 @@ public abstract class ViewerTab extends Composite {
      * to determine the last request queued so it will be the one to populate
      * the tab.
      */
-    private AtomicInteger generatGuidanceCount = new AtomicInteger(
+    private AtomicInteger generateGuidanceCount = new AtomicInteger(
             Integer.MIN_VALUE);
 
     /**
@@ -317,7 +319,7 @@ public abstract class ViewerTab extends Composite {
      * @return cnt unique count that increases each time the method is called.
      */
     public int generateGuidance(String siteID) {
-        int cnt = generatGuidanceCount.incrementAndGet();
+        int cnt = generateGuidanceCount.incrementAndGet();
         this.siteID = siteID;
         setDisplayCurrent(false);
         return cnt;
@@ -331,7 +333,7 @@ public abstract class ViewerTab extends Composite {
     }
 
     /**
-     * This method must to be called by the implementing class' requestComoplete
+     * This method must be called by the implementing class' requestComplete
      * method after it has populated the textComp header and data section. This
      * updates the highlighting of the TAF text in the viewer and adjusts the
      * width of the this tab's header and data text component so they will stay
@@ -534,6 +536,20 @@ public abstract class ViewerTab extends Composite {
     }
 
     /**
+     * Clear the header and data text controls.
+     */
+    public void clearTextControls() {
+        textComp.clearTextControls();
+    }
+
+    /**
+     * Set the header and data text controls to show as updating.
+     */
+    public void markTextAsUpdating() {
+        textComp.markTextAsUpdating();
+    }
+
+    /**
      * 
      * @return stationList list of sites tab needs to cache data for.
      */
@@ -586,6 +602,7 @@ public abstract class ViewerTab extends Composite {
      */
     public void queueCacheRequests(final int cnt,
             final List<CacheGuidanceRequest> cacheRequests) {
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -593,7 +610,7 @@ public abstract class ViewerTab extends Composite {
                         cacheRequests);
                 // Update tab if still current and waiting for this request
                 if (ViewerTab.this.isDisposed() == false && isCurrentTab()
-                        && generatGuidanceCount.get() == cnt) {
+                        && generateGuidanceCount.get() == cnt) {
                     VizApp.runAsync(new Runnable() {
                         @Override
                         public void run() {
