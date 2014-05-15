@@ -24,6 +24,39 @@
  */
 package gov.noaa.nws.ncep.viz.rsc.ntrans.ncgm;
 
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.BeginMetafile;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.BeginPicture;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.BeginPictureBody;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.CGM;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.CGMDisplay;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.CgmException;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ColourIndexPrecision;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ColourModel;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ColourPrecision;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ColourSelectionMode;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ColourValueExtent;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.Command;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.EdgeWidthSpecificationMode;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.EndMetafile;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.EndPicture;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.IBeginMetafileNameExtractor;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ICgmExtractor;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ICommandListener;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.IndexPrecision;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.IntegerPrecision;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.LineWidthSpecificationMode;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.MarkerSizeSpecificationMode;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.Message;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.Messages;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.RealPrecision;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.RestrictedTextType;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ScalingMode;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ScalingMode.Mode;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.VDCExtent;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.VDCIntegerPrecision;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.VDCRealPrecision;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.VDCType;
+
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.io.BufferedInputStream;
@@ -48,412 +81,420 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.*;
-import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.ScalingMode.*;
-
 /**
  * @author bhebbard adapted from CGM.java by BBN
- *
+ * 
  */
 public class NcCGM extends CGM implements Cloneable {
 
-	private final Log logger = LogFactory.getLog(this.getClass());  //TODO static better??
+    private final Log logger = LogFactory.getLog(this.getClass()); // TODO
+                                                                   // static
+                                                                   // better??
 
-	private List<Command> commands;
+    private List<Command> commands;
 
-	private final List<ICommandListener> commandListeners = new ArrayList<ICommandListener>();
+    private final List<ICommandListener> commandListeners = new ArrayList<ICommandListener>();
 
-	private final static int INITIAL_NUM_COMMANDS = 500;
-	private final static int MAX_COMMANDS_PER_IMAGE = 999999;
+    private final static int INITIAL_NUM_COMMANDS = 500;
 
-	public NcCGM() {
-		// empty constructor  //TODO: Remove?
-	}
+    private final static int MAX_COMMANDS_PER_IMAGE = 999999;
 
-	public NcCGM(File cgmFile) throws IOException {
-		// NO LONGER NEEDED
-		if (cgmFile == null)
-			throw new NullPointerException("unexpected null parameter");
+    public NcCGM() {
+        // empty constructor //TODO: Remove?
+    }
 
-		InputStream inputStream;
-		String cgmFilename = cgmFile.getName();
-		if (cgmFilename.endsWith(".cgm.gz") || cgmFilename.endsWith(".cgmz")) {
-			inputStream = new GZIPInputStream(new FileInputStream(cgmFile));
-		}
-		else {
-			inputStream = new FileInputStream(cgmFile);
-		}
-		DataInputStream in = new DataInputStream(new BufferedInputStream(inputStream));
-		read(in);
-		in.close();
-	}
+    public NcCGM(File cgmFile) throws IOException {
+        // NO LONGER NEEDED
+        if (cgmFile == null)
+            throw new NullPointerException("unexpected null parameter");
 
-	public void read(DataInput in) throws IOException {
-		reset();
-		this.commands = new ArrayList<Command>(INITIAL_NUM_COMMANDS);
-		int com = 0;
-		Command c;
-		do {
-			if (com++ > MAX_COMMANDS_PER_IMAGE) {
-				logger.error("Exceeded maxiumum CGM commands (" +
-						MAX_COMMANDS_PER_IMAGE +
-						") for one image; adding EndPicture command automatically]");
-				c = new EndPicture(0,5,0,in);
-				break;
-			}
-			
-			try {
-				c = NcCommand.read(in);
-			}
-			catch (Exception e) {
-				c = null;
-				logger.error("Exception occurred interpreting CGM bytecode");
-				e.printStackTrace();
-			}
-			
-			if (c == null) continue; // or should we add as null command?
-			
-			if (c instanceof NcLineWidth || c instanceof NcTextAlignment) {
-			    logger.info("[CGM command #" + com + " completed]  " + c.toString());
-			}
-			
-			logger.debug("[CGM command #" + com + " completed]  " + c.toString());
+        InputStream inputStream;
+        String cgmFilename = cgmFile.getName();
+        if (cgmFilename.endsWith(".cgm.gz") || cgmFilename.endsWith(".cgmz")) {
+            inputStream = new GZIPInputStream(new FileInputStream(cgmFile));
+        } else {
+            inputStream = new FileInputStream(cgmFile);
+        }
+        DataInputStream in = new DataInputStream(new BufferedInputStream(
+                inputStream));
+        read(in);
+        in.close();
+    }
 
-			for (ICommandListener listener : this.commandListeners) {
-				listener.commandProcessed(c);
-			}
+    public void read(DataInput in) throws IOException {
+        reset();
+        this.commands = new ArrayList<Command>(INITIAL_NUM_COMMANDS);
+        int com = 0;
+        Command c;
+        do {
+            if (com++ > MAX_COMMANDS_PER_IMAGE) {
+                logger.error("Exceeded maxiumum CGM commands ("
+                        + MAX_COMMANDS_PER_IMAGE
+                        + ") for one image; adding EndPicture command automatically]");
+                c = new EndPicture(0, 5, 0, in);
+                break;
+            }
 
-			// get rid of all arguments after we read them
-			c.cleanUpArguments();
+            try {
+                c = NcCommand.read(in);
+            } catch (Exception e) {
+                c = null;
+                logger.error("Exception occurred interpreting CGM bytecode");
+                e.printStackTrace();
+            }
 
-			
-			this.commands.add(c);
-			
-			if (c instanceof EndMetafile) {
-				logger.warn("[Unexpected CGM EndMetafile command encountered]");
-			}
-			if (c instanceof EndPicture) {
-				logger.debug("[CGM EndPicture command:  Picture is completed]");
-			}
-			else if (!(c instanceof INcCommand)) {
-				if (!(c instanceof BeginPicture) && !(c instanceof BeginPictureBody)) {
-					logger.warn("Unsupported CGM command encountered -- " + c +"]");
-				}
-			}
-			
-		} while (!(c instanceof EndPicture));
-		
-	}
+            if (c == null)
+                continue; // or should we add as null command?
 
-	/**
-	 * Splits a CGM file containing several CGM files into pieces. Each single
-	 * CGM file will be extracted to an own file. The name of that file is
-	 * provided by the given {@code extractor}.
-	 * 
-	 * @param cgmFile
-	 *            The CGM file to split
-	 * @param outputDir
-	 *            The output directory to use. Must exist and be writable.
-	 * @param extractor
-	 *            The extractor in charge of naming the split CGM files
-	 * @throws IOException
-	 *             If the given CGM file could not be read or there was an error
-	 *             splitting the file
-	 */
-	public static void split(File cgmFile, File outputDir,
-			IBeginMetafileNameExtractor extractor) throws IOException {
-		if (cgmFile == null || outputDir == null || extractor == null)
-			throw new NullPointerException("unexpected null argument");
+            if (c instanceof NcLineWidth || c instanceof NcTextAlignment) {
+                logger.info("[CGM command #" + com + " completed]  "
+                        + c.toString());
+            }
 
-		if (!outputDir.isDirectory())
-			throw new IllegalArgumentException("outputDir must be a directory");
+            logger.debug("[CGM command #" + com + " completed]  "
+                    + c.toString());
 
-		if (!outputDir.canWrite())
-			throw new IllegalArgumentException("outputDir must be writable");
+            for (ICommandListener listener : this.commandListeners) {
+                listener.commandProcessed(c);
+            }
 
-		RandomAccessFile randomAccessFile = null;
-		try {
-			randomAccessFile = new RandomAccessFile(cgmFile, "r");
-			FileChannel channel = randomAccessFile.getChannel();
+            // get rid of all arguments after we read them
+            c.cleanUpArguments();
 
-			Command c;
-			long startPosition = 0;
-			long currentPosition = 0;
-			String currentFileName = null;
+            this.commands.add(c);
 
-			while ((c = Command.read(randomAccessFile)) != null) {
-				if (c instanceof BeginMetafile) {
-					// the CGM files will be cut at the begin meta file command
-					if (currentFileName != null) {
-						dumpToFile(outputDir, extractor, channel, startPosition,
-								currentPosition, currentFileName);
-					}
-					startPosition = currentPosition;
-					BeginMetafile beginMetafile = (BeginMetafile) c;
-					currentFileName = beginMetafile.getFileName();
-				}
-				currentPosition = randomAccessFile.getFilePointer();
-			}
+            if (c instanceof EndMetafile) {
+                logger.warn("[Unexpected CGM EndMetafile command encountered]");
+            }
+            if (c instanceof EndPicture) {
+                logger.debug("[CGM EndPicture command:  Picture is completed]");
+            } else if (!(c instanceof INcCommand)) {
+                if (!(c instanceof BeginPicture)
+                        && !(c instanceof BeginPictureBody)) {
+                    logger.warn("Unsupported CGM command encountered -- " + c
+                            + "]");
+                }
+            }
 
-			if (currentFileName != null) {
-				dumpToFile(outputDir, extractor, channel, startPosition,
-						currentPosition, currentFileName);
-			}
-		}
-		finally {
-			if (randomAccessFile != null) {
-				randomAccessFile.close();
-			}
-		}
-	}
+        } while (!(c instanceof EndPicture));
 
-	private static void dumpToFile(File outputDir,
-			IBeginMetafileNameExtractor extractor, FileChannel channel,
-			long startPosition, long currentPosition, String currentFileName)
-	throws IOException {
-		// dump the CGM file
-		MappedByteBuffer byteBuffer = channel.map(
-				FileChannel.MapMode.READ_ONLY, startPosition,
-				currentPosition - startPosition);
-		writeFile(byteBuffer, outputDir, extractor
-				.extractFileName(currentFileName));
-		// don't forget to regularly clear the messages that
-		// we're not really using here
-		Messages.getInstance().reset();
-	}
+    }
 
-	/**
-	 * Splits a CGM file containing several CGM files into pieces. The given
-	 * extractor is in charge of dealing with the extracted CGM file.
-	 * 
-	 * @param cgmFile
-	 *            The CGM file to split
-	 * @param extractor
-	 *            An extractor that knows what to do with the extracted CGM file
-	 * @throws IOException
-	 *             If an error happened reading the CGM file
-	 * @throws CgmException
-	 *             If an error happened during the handling of the extracted CGM
-	 *             file
-	 */
-	public static void split(File cgmFile, ICgmExtractor extractor)
-	throws IOException, CgmException {
-		if (cgmFile == null || extractor == null)
-			throw new NullPointerException("unexpected null argument");
+    /**
+     * Splits a CGM file containing several CGM files into pieces. Each single
+     * CGM file will be extracted to an own file. The name of that file is
+     * provided by the given {@code extractor}.
+     * 
+     * @param cgmFile
+     *            The CGM file to split
+     * @param outputDir
+     *            The output directory to use. Must exist and be writable.
+     * @param extractor
+     *            The extractor in charge of naming the split CGM files
+     * @throws IOException
+     *             If the given CGM file could not be read or there was an error
+     *             splitting the file
+     */
+    public static void split(File cgmFile, File outputDir,
+            IBeginMetafileNameExtractor extractor) throws IOException {
+        if (cgmFile == null || outputDir == null || extractor == null)
+            throw new NullPointerException("unexpected null argument");
 
-		RandomAccessFile randomAccessFile = null;
-		try {
-			randomAccessFile = new RandomAccessFile(cgmFile, "r");
-			FileChannel channel = randomAccessFile.getChannel();
+        if (!outputDir.isDirectory())
+            throw new IllegalArgumentException("outputDir must be a directory");
 
-			Command c;
-			long startPosition = 0;
-			long currentPosition = 0;
-			String currentFileName = null;
+        if (!outputDir.canWrite())
+            throw new IllegalArgumentException("outputDir must be writable");
 
-			while ((c = Command.read(randomAccessFile)) != null) {
-				if (c instanceof BeginMetafile) {
-					// the CGM files will be cut at the begin meta file command
-					if (currentFileName != null) {
-						dumpToStream(extractor, channel, startPosition,
-								currentPosition, currentFileName);
-					}
-					startPosition = currentPosition;
-					BeginMetafile beginMetafile = (BeginMetafile) c;
-					currentFileName = beginMetafile.getFileName();
-				}
-				currentPosition = randomAccessFile.getFilePointer();
-			}
+        RandomAccessFile randomAccessFile = null;
+        try {
+            randomAccessFile = new RandomAccessFile(cgmFile, "r");
+            FileChannel channel = randomAccessFile.getChannel();
 
-			// don't forget to also dump the last file
-			if (currentFileName != null) {
-				dumpToStream(extractor, channel, startPosition,
-						currentPosition, currentFileName);
-			}
-		}
-		finally {
-			if (randomAccessFile != null) {
-				randomAccessFile.close();
-			}
-		}
-	}
+            Command c;
+            long startPosition = 0;
+            long currentPosition = 0;
+            String currentFileName = null;
 
-	private static void dumpToStream(ICgmExtractor extractor,
-			FileChannel channel, long startPosition, long currentPosition,
-			String currentFileName) throws IOException, CgmException {
-		// dump the CGM file
-		MappedByteBuffer byteBuffer = channel.map(
-				FileChannel.MapMode.READ_ONLY, startPosition, currentPosition
-				- startPosition);
+            while ((c = Command.read(randomAccessFile)) != null) {
+                if (c instanceof BeginMetafile) {
+                    // the CGM files will be cut at the begin meta file command
+                    if (currentFileName != null) {
+                        dumpToFile(outputDir, extractor, channel,
+                                startPosition, currentPosition, currentFileName);
+                    }
+                    startPosition = currentPosition;
+                    BeginMetafile beginMetafile = (BeginMetafile) c;
+                    currentFileName = beginMetafile.getFileName();
+                }
+                currentPosition = randomAccessFile.getFilePointer();
+            }
 
-		byte[] byteArray = new byte[(int) (currentPosition - startPosition)];
-		byteBuffer.get(byteArray);
-		extractor.handleExtracted(extractor.extractFileName(currentFileName),
-				new ByteArrayInputStream(byteArray), byteArray.length);
-		// don't forget to regularly clear the messages that
-		// we're not really using here
-		Messages.getInstance().reset();
-	}
+            if (currentFileName != null) {
+                dumpToFile(outputDir, extractor, channel, startPosition,
+                        currentPosition, currentFileName);
+            }
+        } finally {
+            if (randomAccessFile != null) {
+                randomAccessFile.close();
+            }
+        }
+    }
 
-	/**
-	 * Writes the given bytes to a file
-	 * 
-	 * @param byteBuffer
-	 *            The bytes to write to the file
-	 * @param outputDir
-	 *            The output directory to use, assumed to be existing and
-	 *            writable
-	 * @param fileName
-	 *            The file name to use
-	 * @throws IOException
-	 *             On I/O error
-	 */
-	private static void writeFile(ByteBuffer byteBuffer, File outputDir,
-			String fileName) throws IOException {
-		File outputFile = new File(outputDir, fileName);
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(outputFile);
-			FileChannel channel = out.getChannel();
-			channel.write(byteBuffer);
-			out.close();
-		}
-		finally {
-			if (out != null) {
-				out.close();
-			}
-		}
-	}
+    private static void dumpToFile(File outputDir,
+            IBeginMetafileNameExtractor extractor, FileChannel channel,
+            long startPosition, long currentPosition, String currentFileName)
+            throws IOException {
+        // dump the CGM file
+        MappedByteBuffer byteBuffer = channel.map(
+                FileChannel.MapMode.READ_ONLY, startPosition, currentPosition
+                        - startPosition);
+        writeFile(byteBuffer, outputDir,
+                extractor.extractFileName(currentFileName));
+        // don't forget to regularly clear the messages that
+        // we're not really using here
+        Messages.getInstance().reset();
+    }
 
-	/**
-	 * Adds the given listener to the list of command listeners
-	 * @param listener The listener to add
-	 */
-	public void addCommandListener(ICommandListener listener) {
-		this.commandListeners.add(listener);
-	}
+    /**
+     * Splits a CGM file containing several CGM files into pieces. The given
+     * extractor is in charge of dealing with the extracted CGM file.
+     * 
+     * @param cgmFile
+     *            The CGM file to split
+     * @param extractor
+     *            An extractor that knows what to do with the extracted CGM file
+     * @throws IOException
+     *             If an error happened reading the CGM file
+     * @throws CgmException
+     *             If an error happened during the handling of the extracted CGM
+     *             file
+     */
+    public static void split(File cgmFile, ICgmExtractor extractor)
+            throws IOException, CgmException {
+        if (cgmFile == null || extractor == null)
+            throw new NullPointerException("unexpected null argument");
 
-	/**
-	 * All the command classes with static data need to be reset here
-	 */
-	private void reset() {
-		ColourIndexPrecision.reset();
-		ColourModel.reset();
-		ColourPrecision.reset();
-		ColourSelectionMode.reset();
-		ColourValueExtent.reset();
-		EdgeWidthSpecificationMode.reset();
-		IndexPrecision.reset();
-		IntegerPrecision.reset();
-		LineWidthSpecificationMode.reset();
-		MarkerSizeSpecificationMode.reset();
-		RealPrecision.reset();
-		RestrictedTextType.reset();
-		VDCIntegerPrecision.reset();
-		VDCRealPrecision.reset();
-		VDCType.reset();
+        RandomAccessFile randomAccessFile = null;
+        try {
+            randomAccessFile = new RandomAccessFile(cgmFile, "r");
+            FileChannel channel = randomAccessFile.getChannel();
 
-		Messages.getInstance().reset();
-	}
+            Command c;
+            long startPosition = 0;
+            long currentPosition = 0;
+            String currentFileName = null;
 
-	public List<Message> getMessages() {
-		return Messages.getInstance();
-	}
+            while ((c = Command.read(randomAccessFile)) != null) {
+                if (c instanceof BeginMetafile) {
+                    // the CGM files will be cut at the begin meta file command
+                    if (currentFileName != null) {
+                        dumpToStream(extractor, channel, startPosition,
+                                currentPosition, currentFileName);
+                    }
+                    startPosition = currentPosition;
+                    BeginMetafile beginMetafile = (BeginMetafile) c;
+                    currentFileName = beginMetafile.getFileName();
+                }
+                currentPosition = randomAccessFile.getFilePointer();
+            }
 
-	public void paint(CGMDisplay d) {
-		for (Command c : this.commands) {
-			if (filter(c)) {
-				c.paint(d);
-			}
-		}
-	}
+            // don't forget to also dump the last file
+            if (currentFileName != null) {
+                dumpToStream(extractor, channel, startPosition,
+                        currentPosition, currentFileName);
+            }
+        } finally {
+            if (randomAccessFile != null) {
+                randomAccessFile.close();
+            }
+        }
+    }
 
-	private boolean filter(Command c) {
-		return true;
-		//		List<Class<?>> classes = new ArrayList<Class<?>>();
-		//		//classes.add(PolygonElement.class);
-		//		classes.add(Text.class);
-		//		//classes.add(CircleElement.class);
-		//		
-		//		for (Class<?> clazz: classes) {
-		//			if (clazz.isInstance(c))
-		//				return false;
-		//		}
-		//		
-		//		return true;
-	}
+    private static void dumpToStream(ICgmExtractor extractor,
+            FileChannel channel, long startPosition, long currentPosition,
+            String currentFileName) throws IOException, CgmException {
+        // dump the CGM file
+        MappedByteBuffer byteBuffer = channel.map(
+                FileChannel.MapMode.READ_ONLY, startPosition, currentPosition
+                        - startPosition);
 
-	/**
-	 * Returns the size of the CGM graphic.
-	 * @return The dimension or null if no {@link VDCExtent} command was found.
-	 */
-	public Dimension getSize() {
-		// default to 96 DPI which is the Microsoft Windows default DPI setting
-		return getSize(96);
-	}
+        byte[] byteArray = new byte[(int) (currentPosition - startPosition)];
+        byteBuffer.get(byteArray);
+        extractor.handleExtracted(extractor.extractFileName(currentFileName),
+                new ByteArrayInputStream(byteArray), byteArray.length);
+        // don't forget to regularly clear the messages that
+        // we're not really using here
+        Messages.getInstance().reset();
+    }
 
-	/**
-	 * Returns the size of the CGM graphic taking into account a specific DPI setting
-	 * @param dpi The DPI value to use
-	 * @return The dimension or null if no {@link VDCExtent} command was found.
-	 */
-	public Dimension getSize(double dpi) {
-		Point2D.Double[] extent = extent();
-		if (extent == null)
-			return null;
+    /**
+     * Writes the given bytes to a file
+     * 
+     * @param byteBuffer
+     *            The bytes to write to the file
+     * @param outputDir
+     *            The output directory to use, assumed to be existing and
+     *            writable
+     * @param fileName
+     *            The file name to use
+     * @throws IOException
+     *             On I/O error
+     */
+    private static void writeFile(ByteBuffer byteBuffer, File outputDir,
+            String fileName) throws IOException {
+        File outputFile = new File(outputDir, fileName);
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(outputFile);
+            FileChannel channel = out.getChannel();
+            channel.write(byteBuffer);
+            out.close();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
 
-		double factor = 1;
+    /**
+     * Adds the given listener to the list of command listeners
+     * 
+     * @param listener
+     *            The listener to add
+     */
+    public void addCommandListener(ICommandListener listener) {
+        this.commandListeners.add(listener);
+    }
 
-		ScalingMode scalingMode = getScalingMode();
-		if (scalingMode != null) {
-			Mode mode = scalingMode.getMode();
-			if (ScalingMode.Mode.METRIC.equals(mode)) {
-				double metricScalingFactor = scalingMode.getMetricScalingFactor();
-				if (metricScalingFactor != 0) {
-					// 1 inch = 25,4 millimeter
-					factor = (dpi * metricScalingFactor) / 25.4;
-				}
-			}
-		}
+    /**
+     * All the command classes with static data need to be reset here
+     */
+    private void reset() {
+        ColourIndexPrecision.reset();
+        ColourModel.reset();
+        ColourPrecision.reset();
+        ColourSelectionMode.reset();
+        ColourValueExtent.reset();
+        EdgeWidthSpecificationMode.reset();
+        IndexPrecision.reset();
+        IntegerPrecision.reset();
+        LineWidthSpecificationMode.reset();
+        MarkerSizeSpecificationMode.reset();
+        RealPrecision.reset();
+        RestrictedTextType.reset();
+        VDCIntegerPrecision.reset();
+        VDCRealPrecision.reset();
+        VDCType.reset();
 
-		int width = (int)Math.ceil((Math.abs(extent[1].x - extent[0].x) * factor));
-		int height = (int)Math.ceil((Math.abs(extent[1].y - extent[0].y) * factor));
+        Messages.getInstance().reset();
+    }
 
-		return new Dimension(width, height);
-	}
+    public List<Message> getMessages() {
+        return Messages.getInstance();
+    }
 
-	public Point2D.Double[] extent() {
-		for (Command c : this.commands) {
-			if (c instanceof VDCExtent) {
-				Point2D.Double[] extent = ((VDCExtent) c).extent();
-				return extent;
-			}
-		}
-		return null;
-	}
+    public void paint(CGMDisplay d) {
+        for (Command c : this.commands) {
+            if (filter(c)) {
+                c.paint(d);
+            }
+        }
+    }
 
-	private ScalingMode getScalingMode() {
-		for (Command c : this.commands) {
-			if (c instanceof ScalingMode) {
-				return (ScalingMode)c;
-			}
-		}
-		return null;
-	}
+    private boolean filter(Command c) {
+        return true;
+        // List<Class<?>> classes = new ArrayList<Class<?>>();
+        // //classes.add(PolygonElement.class);
+        // classes.add(Text.class);
+        // //classes.add(CircleElement.class);
+        //
+        // for (Class<?> clazz: classes) {
+        // if (clazz.isInstance(c))
+        // return false;
+        // }
+        //
+        // return true;
+    }
 
-	public void showCGMCommands() {
-		showCGMCommands(System.out);
-	}
+    /**
+     * Returns the size of the CGM graphic.
+     * 
+     * @return The dimension or null if no {@link VDCExtent} command was found.
+     */
+    public Dimension getSize() {
+        // default to 96 DPI which is the Microsoft Windows default DPI setting
+        return getSize(96);
+    }
 
-	public void showCGMCommands(PrintStream stream) {
-		for (Command c : this.commands) {
-			stream.println("Command: " + c);
-		}
-	}
+    /**
+     * Returns the size of the CGM graphic taking into account a specific DPI
+     * setting
+     * 
+     * @param dpi
+     *            The DPI value to use
+     * @return The dimension or null if no {@link VDCExtent} command was found.
+     */
+    public Dimension getSize(double dpi) {
+        Point2D.Double[] extent = extent();
+        if (extent == null)
+            return null;
 
-	public List<Command> getCommands() {
-		return Collections.unmodifiableList(this.commands);
-	}
+        double factor = 1;
+
+        ScalingMode scalingMode = getScalingMode();
+        if (scalingMode != null) {
+            Mode mode = scalingMode.getMode();
+            if (ScalingMode.Mode.METRIC.equals(mode)) {
+                double metricScalingFactor = scalingMode
+                        .getMetricScalingFactor();
+                if (metricScalingFactor != 0) {
+                    // 1 inch = 25,4 millimeter
+                    factor = (dpi * metricScalingFactor) / 25.4;
+                }
+            }
+        }
+
+        int width = (int) Math
+                .ceil((Math.abs(extent[1].x - extent[0].x) * factor));
+        int height = (int) Math
+                .ceil((Math.abs(extent[1].y - extent[0].y) * factor));
+
+        return new Dimension(width, height);
+    }
+
+    public Point2D.Double[] extent() {
+        for (Command c : this.commands) {
+            if (c instanceof VDCExtent) {
+                Point2D.Double[] extent = ((VDCExtent) c).extent();
+                return extent;
+            }
+        }
+        return null;
+    }
+
+    private ScalingMode getScalingMode() {
+        for (Command c : this.commands) {
+            if (c instanceof ScalingMode) {
+                return (ScalingMode) c;
+            }
+        }
+        return null;
+    }
+
+    public void showCGMCommands() {
+        showCGMCommands(System.out);
+    }
+
+    public void showCGMCommands(PrintStream stream) {
+        for (Command c : this.commands) {
+            stream.println("Command: " + c);
+        }
+    }
+
+    public List<Command> getCommands() {
+        return Collections.unmodifiableList(this.commands);
+    }
 
 }
 
