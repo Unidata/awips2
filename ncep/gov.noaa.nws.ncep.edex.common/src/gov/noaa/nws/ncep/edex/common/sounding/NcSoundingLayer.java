@@ -1,4 +1,5 @@
 package gov.noaa.nws.ncep.edex.common.sounding;
+
 /**
  * 
  * gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer
@@ -13,8 +14,9 @@ package gov.noaa.nws.ncep.edex.common.sounding;
  * 
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
- * 09/13/2010	229			Chin Chen	Initial coding
- * 11/2010		301			T. Lee		Moved Comparator to SoundingUtil
+ * 09/13/2010	 229		Chin Chen	Initial coding
+ * 11/2010		 301		T. Lee		Moved Comparator to SoundingUtil
+ * 03/2014      1116        T. Lee      Added constructor argument for DPD
  *
  * </pre>
  * 
@@ -24,7 +26,6 @@ package gov.noaa.nws.ncep.edex.common.sounding;
 
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
-import java.util.Comparator;
 import java.util.HashMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -39,55 +40,54 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class NcSoundingLayer implements  ISerializableObject, Cloneable{
-	@DynamicSerializeElement
+public class NcSoundingLayer implements ISerializableObject, Cloneable {
+    @DynamicSerializeElement
     private static final long serialVersionUID = 1324632468L;
 
-    public static final float MISSING = IDecoderConstantsN.UAIR_FLOAT_MISSING;//-9999.f;
+    public static final float MISSING = IDecoderConstantsN.UAIR_FLOAT_MISSING;// -9999.f;
+
     public static final float LEGACY_MISSING = -999.f;
-    //UAIR (standard) data type definitions
+
+    // UAIR (standard) data type definitions
     public static enum DataType {
-		TTAA, TTBB, TTCC, TTDD, PPAA, PPBB, PPCC, PPDD, 
-		UUAA, UUBB, UUCC, UUDD, MAXWIND_A,MAXWIND_C, TROPOPAUSE_A, TROPOPAUSE_C, ALLDATA
-	}
-    
-    //mapping from UAIR (standard) data type to BUFRUA data type.
-    public static HashMap<String,Integer > dataTypeMap = new  HashMap<String,Integer>();
-    static {
-    	dataTypeMap.put(DataType.TTAA.toString(), 2020); //Mandatory, Troppause, MaxWind
-    	dataTypeMap.put(DataType.TTCC.toString(), 2030); //Mandatory, Troppause, MaxWind
-    	dataTypeMap.put(DataType.TTBB.toString(), 2022); //SigT
-    	dataTypeMap.put(DataType.TTDD.toString(), 2032); //SigT
-    	dataTypeMap.put(DataType.PPBB.toString(), 2021); //SigW
-    	dataTypeMap.put(DataType.PPDD.toString(), 2031); //SigW
-    	dataTypeMap.put(DataType.PPAA.toString(), 0000); //TBD, BUFRUA does not support this now
-    	dataTypeMap.put(DataType.PPCC.toString(), 0000); //TBD, BUFRUA does not support this now
-    	dataTypeMap.put(DataType.MAXWIND_A.toString(), 2020);
-    	dataTypeMap.put(DataType.TROPOPAUSE_A.toString(), 2020);
-    	dataTypeMap.put(DataType.MAXWIND_C.toString(), 2030);
-    	dataTypeMap.put(DataType.TROPOPAUSE_C.toString(), 2030);
-    	
+        TTAA, TTBB, TTCC, TTDD, PPAA, PPBB, PPCC, PPDD, UUAA, UUBB, UUCC, UUDD, MAXWIND_A, MAXWIND_C, TROPOPAUSE_A, TROPOPAUSE_C, ALLDATA
     }
-    
-    /* Chin's Note: user should use either the following string or, for example, 
+
+    // mapping from UAIR (standard) data type to BUFRUA data type.
+    public static HashMap<String, Integer> dataTypeMap = new HashMap<String, Integer>();
+    static {
+        dataTypeMap.put(DataType.TTAA.toString(), 2020); // Mandatory,
+                                                         // Troppause, MaxWind
+        dataTypeMap.put(DataType.TTCC.toString(), 2030); // Mandatory,
+                                                         // Troppause, MaxWind
+        dataTypeMap.put(DataType.TTBB.toString(), 2022); // SigT
+        dataTypeMap.put(DataType.TTDD.toString(), 2032); // SigT
+        dataTypeMap.put(DataType.PPBB.toString(), 2021); // SigW
+        dataTypeMap.put(DataType.PPDD.toString(), 2031); // SigW
+        dataTypeMap.put(DataType.PPAA.toString(), 0000); // TBD, BUFRUA does not
+                                                         // support this now
+        dataTypeMap.put(DataType.PPCC.toString(), 0000); // TBD, BUFRUA does not
+                                                         // support this now
+        dataTypeMap.put(DataType.MAXWIND_A.toString(), 2020);
+        dataTypeMap.put(DataType.TROPOPAUSE_A.toString(), 2020);
+        dataTypeMap.put(DataType.MAXWIND_C.toString(), 2030);
+        dataTypeMap.put(DataType.TROPOPAUSE_C.toString(), 2030);
+
+    }
+
+    /*
+     * Chin's Note: user should use either the following string or, for example,
      * DataType.TTAA.toString() for "data type" coding.
      * 
-    public static String TTAA = "TTAA";
-    public static String TTBB = "TTBB";
-    public static String TTCC = "TTCC";
-    public static String TTDD = "TTDD";
-    public static String PPAA = "PPAA";
-    public static String PPBB = "PPBB";
-    public static String PPCC = "PPCC";
-    public static String PPDD = "PPDD";
-    public static String MAXWIND = "MAXWIND";
-    public static String TROPOPAUSE = "TROPOPAUSE";
-    public static String ALLDATA = "ALLDATA";
-    public static String UUAA = "UUAA";
-    public static String UUBB = "UUBB";
-    public static String UUCC = "UUCC";
-    public static String UUDD = "UUDD";
-    */
+     * public static String TTAA = "TTAA"; public static String TTBB = "TTBB";
+     * public static String TTCC = "TTCC"; public static String TTDD = "TTDD";
+     * public static String PPAA = "PPAA"; public static String PPBB = "PPBB";
+     * public static String PPCC = "PPCC"; public static String PPDD = "PPDD";
+     * public static String MAXWIND = "MAXWIND"; public static String TROPOPAUSE
+     * = "TROPOPAUSE"; public static String ALLDATA = "ALLDATA"; public static
+     * String UUAA = "UUAA"; public static String UUBB = "UUBB"; public static
+     * String UUCC = "UUCC"; public static String UUDD = "UUDD";
+     */
     public static String DATATYPE_MISSING = "";
 
     // Pressure of the layer, in hectoPascals (milliBars), if known.
@@ -106,7 +106,7 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
     @DynamicSerializeElement
     private float dewpoint;
 
-    // Wind speed, in Knots 
+    // Wind speed, in Knots
     @DynamicSerializeElement
     private float windSpeed;
 
@@ -122,20 +122,23 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
     @DynamicSerializeElement
     private float windV;
 
-    // Vertical velocity, 
+    // Vertical velocity,
     @DynamicSerializeElement
     private float omega;
 
     // specific humidity
     @DynamicSerializeElement
     private float specHumidity;
-    
-    //relative humidity 
+
+    // relative humidity
     @DynamicSerializeElement
     private float relativeHumidity;
-    
- 
-	public NcSoundingLayer() {
+
+    // dewpoint depression
+    @DynamicSerializeElement
+    private float dpd;
+
+    public NcSoundingLayer() {
         this.pressure = MISSING;
         this.geoHeight = MISSING;
         this.temperature = MISSING;
@@ -147,47 +150,48 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
         this.omega = MISSING;
         this.specHumidity = MISSING;
         this.relativeHumidity = MISSING;
+        this.dpd = MISSING;
     }
 
     /**
-	 * @param pressure
-	 * @param geoHeight
-	 * @param temperature
-	 * @param dewpoint
-	 * @param windSpeed
-	 * @param windDirection
-	 * @param windU
-	 * @param windV
-	 * @param omega
-	 * @param specHumidity
-	 * @param dataType
-	 */
-	public NcSoundingLayer(float pressure, float geoHeight, float temperature,
-			float dewpoint, float windSpeed, float windDirection, float windU,
-			float windV, float omega, float specHumidity, float relativeHumidity) {
-		super();
-		this.pressure = pressure;
-		this.geoHeight = geoHeight;
-		this.temperature = temperature;
-		this.dewpoint = dewpoint;
-		this.windSpeed = windSpeed;
-		this.windDirection = windDirection;
-		this.windU = windU;
-		this.windV = windV;
-		this.omega = omega;
-		this.specHumidity = specHumidity;
-		this.relativeHumidity = relativeHumidity;
-		
-	}
-/*
-	public String getDataType() {
-		return dataType;
-	}
+     * @param pressure
+     * @param geoHeight
+     * @param temperature
+     * @param dewpoint
+     * @param windSpeed
+     * @param windDirection
+     * @param windU
+     * @param windV
+     * @param omega
+     * @param specHumidity
+     * @param dewDepression
+     * @param dataType
+     */
+    public NcSoundingLayer(float pressure, float geoHeight, float temperature,
+            float dewpoint, float windSpeed, float windDirection, float windU,
+            float windV, float omega, float specHumidity,
+            float relativeHumidity, float dpd) {
+        super();
+        this.pressure = pressure;
+        this.geoHeight = geoHeight;
+        this.temperature = temperature;
+        this.dewpoint = dewpoint;
+        this.windSpeed = windSpeed;
+        this.windDirection = windDirection;
+        this.windU = windU;
+        this.windV = windV;
+        this.omega = omega;
+        this.specHumidity = specHumidity;
+        this.relativeHumidity = relativeHumidity;
+        this.dpd = dpd;
 
-	public void setDataType(String dataType) {
-		this.dataType = dataType;
-	}
-*/
+    }
+
+    /*
+     * public String getDataType() { return dataType; }
+     * 
+     * public void setDataType(String dataType) { this.dataType = dataType; }
+     */
     /**
      * @return the pressure in hectoPascals (milliBars)
      */
@@ -200,10 +204,10 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
      *            the pressure in hectoPascals (milliBars)
      */
     public void setPressure(float pressure) {
-    	if (pressure == LEGACY_MISSING)
-    		this.pressure = MISSING;
-    	else
-    		this.pressure = pressure;
+        if (pressure == LEGACY_MISSING)
+            this.pressure = MISSING;
+        else
+            this.pressure = pressure;
     }
 
     /**
@@ -218,10 +222,10 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
      *            the geoHeight in meters
      */
     public void setGeoHeight(float geoHeight) {
-    	if (geoHeight == LEGACY_MISSING)
-    		this.geoHeight = MISSING;
-    	else
-    		this.geoHeight = geoHeight;
+        if (geoHeight == LEGACY_MISSING)
+            this.geoHeight = MISSING;
+        else
+            this.geoHeight = geoHeight;
     }
 
     /**
@@ -236,10 +240,10 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
      *            the temperature in Celsius
      */
     public void setTemperature(float temperature) {
-    	if (temperature == LEGACY_MISSING)
-    		this.temperature = MISSING;
-    	else
-    		this.temperature = temperature;
+        if (temperature == LEGACY_MISSING)
+            this.temperature = MISSING;
+        else
+            this.temperature = temperature;
     }
 
     /**
@@ -254,10 +258,10 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
      *            the dewpoint in Celsius
      */
     public void setDewpoint(float dewpoint) {
-    	if (dewpoint == LEGACY_MISSING)
-    		this.dewpoint = MISSING;
-    	else
-    		this.dewpoint = dewpoint;
+        if (dewpoint == LEGACY_MISSING)
+            this.dewpoint = MISSING;
+        else
+            this.dewpoint = dewpoint;
     }
 
     /**
@@ -272,10 +276,10 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
      *            the windSpeed inKnots
      */
     public void setWindSpeed(float windSpeed) {
-    	if (windSpeed == LEGACY_MISSING)
-    		this.windSpeed = MISSING;
-    	else
-    		this.windSpeed = windSpeed;
+        if (windSpeed == LEGACY_MISSING)
+            this.windSpeed = MISSING;
+        else
+            this.windSpeed = windSpeed;
         computeUV();
     }
 
@@ -291,10 +295,10 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
      *            the windDirection in angular degrees
      */
     public void setWindDirection(float windDirection) {
-    	if (windDirection == LEGACY_MISSING)
-    		this.windDirection = MISSING;
-    	else
-    		this.windDirection = windDirection;
+        if (windDirection == LEGACY_MISSING)
+            this.windDirection = MISSING;
+        else
+            this.windDirection = windDirection;
         computeUV();
     }
 
@@ -342,32 +346,37 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
      *            the vertical velocity in millibars/sec??
      */
     public void setOmega(float omega) {
-    	if (omega == LEGACY_MISSING)
-    		this.omega = MISSING;
-    	else
-    		this.omega = omega;
+        if (omega == LEGACY_MISSING)
+            this.omega = MISSING;
+        else
+            this.omega = omega;
     }
 
-
-
     public float getSpecHumidity() {
-		return specHumidity;
-	}
+        return specHumidity;
+    }
 
-	public void setSpecHumidity(float specHumidity) {
-		this.specHumidity = specHumidity;
-	}
-	
+    public void setSpecHumidity(float specHumidity) {
+        this.specHumidity = specHumidity;
+    }
 
-	public float getRelativeHumidity() {
-		return relativeHumidity;
-	}
+    public float getRelativeHumidity() {
+        return relativeHumidity;
+    }
 
-	public void setRelativeHumidity(float relativeHumidity) {
-		this.relativeHumidity = relativeHumidity;
-	}
+    public void setRelativeHumidity(float relativeHumidity) {
+        this.relativeHumidity = relativeHumidity;
+    }
 
-	private void computeUV() {
+    public float getDpd() {
+        return dpd;
+    }
+
+    public void setDpd(float dpd) {
+        this.dpd = dpd;
+    }
+
+    private void computeUV() {
         if (windSpeed > MISSING && windDirection > MISSING) {
             Coordinate uv = uvComp(windSpeed, windDirection);
             windU = (float) uv.x;
@@ -443,20 +452,19 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
         return retValue;
     }
 
-
     /**
      * Create a clone of this object.
      * 
      * @return The cloned data.
      */
-   
 
     @Override
     public String toString() {
-        return "Pressure=" + getPressure() + "mb:Z="
-                + getGeoHeight() + "m:T=" + getTemperature() + "\u00B0C:Td="
-                + getDewpoint() + "\u00B0C:WS=" + getWindSpeed() + "m/s:WD="
-                + getWindDirection() + "\u00B0:SH="+ getSpecHumidity() ;
+        return "Pressure=" + getPressure() + "mb:Z=" + getGeoHeight() + "m:T="
+                + getTemperature() + "\u00B0C:Td=" + getDewpoint()
+                + "\u00B0C:WS=" + getWindSpeed() + "m/s:WD="
+                + getWindDirection() + "\u00B0:SH=" + getSpecHumidity()
+                + "\u00B0C" + getDpd();
 
     }
 
@@ -478,6 +486,7 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
         result = prime * result + Float.floatToIntBits(windSpeed);
         result = prime * result + Float.floatToIntBits(specHumidity);
         result = prime * result + Float.floatToIntBits(relativeHumidity);
+        result = prime * result + Float.floatToIntBits(dpd);
         return result;
     }
 
@@ -506,7 +515,7 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
                 .floatToIntBits(other.geoHeight)) {
             return false;
         }
-        
+
         if (Float.floatToIntBits(omega) != Float.floatToIntBits(other.omega)) {
             return false;
         }
@@ -531,12 +540,14 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
             return false;
         }
         if (Float.floatToIntBits(relativeHumidity) != Float
-                    .floatToIntBits(other.relativeHumidity)) {
-                return false;
+                .floatToIntBits(other.relativeHumidity)) {
+            return false;
+        }
+        if (Float.floatToIntBits(dpd) != Float.floatToIntBits(other.dpd)) {
+            return false;
         }
         return true;
     }
-
 
     /**
      * Convert wind speed and direction to U/V components.
@@ -561,6 +572,7 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
         }
         return new Coordinate(spd, dir);
     }
+
     /**
      * Create a clone of this object.
      * 
@@ -570,6 +582,5 @@ public class NcSoundingLayer implements  ISerializableObject, Cloneable{
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-
 
 }
