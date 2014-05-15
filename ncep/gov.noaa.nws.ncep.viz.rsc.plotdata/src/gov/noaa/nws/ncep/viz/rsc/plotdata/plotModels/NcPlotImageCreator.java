@@ -927,7 +927,7 @@ public class NcPlotImageCreator {
                 Collection<Station> stnColl, String plotUnit,
                 double symbolSize, Color[] windVectorColorArray,
                 String metPrm1, String metPrm2, PlotModelElement pme) {
-            Tracer.print("> Entry " + Tracer.shortTimeString(this.dataTime)
+            Tracer.printX("> Entry " + Tracer.shortTimeString(this.dataTime)
                     + " with " + stnColl.size() + " stations" + " metPrm1 "
                     + metPrm1 + " metPrm2 " + metPrm2);
             Map<Coordinate, IVector> localVectorPosToVectorMap = new HashMap<Coordinate, IVector>(
@@ -1040,7 +1040,7 @@ public class NcPlotImageCreator {
                 }
             }
             ss.release();
-            Tracer.print("< Exit  " + Tracer.shortTimeString(this.dataTime));
+            Tracer.printX("< Exit  " + Tracer.shortTimeString(this.dataTime));
 
             return localVectorPosToVectorMap;
         }
@@ -1050,7 +1050,7 @@ public class NcPlotImageCreator {
                 double symbolSize, Color[] windVectorColorArray,
                 double[] stationLoc) {
 
-            Tracer.print("> Entry");
+            Tracer.printX("> Entry");
             AbstractMetParameter windSpeed = null, windDir = null;
 
             Vector vector = null;
@@ -1089,7 +1089,7 @@ public class NcPlotImageCreator {
 
                 e.printStackTrace();
             }
-            Tracer.print("< Exit" + "  returning "
+            Tracer.printX("< Exit" + "  returning "
                     + ((vector == null) ? "NULL" : "a vector"));
 
             return vector;
