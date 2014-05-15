@@ -104,6 +104,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 23, 2014 2822       bclement    added formatInviteAddress()
  * Apr 29, 2014 3061       bclement    added createInviteMessage()
  * May 09, 2014 3107       bclement    default to trust transfer event when verify errors out
+ * May 14, 2014 3061       bclement    added better checks for when to send invite/session payloads
  * 
  * </pre>
  * 
@@ -225,22 +226,37 @@ public class SharedDisplaySession extends VenueSession implements
      */
     @Override
     public void sendObjectToPeer(VenueParticipant participant, Object obj) {
-        // TODO should only send to CAVE clients
         if (obj == null) {
             return;
         }
-        // TODO should we use MUC private chat for this?
+        /*
+         * TODO it would be nice to use MUC private chat for this, but it would
+         * break backwards compatibility
+         */
+        boolean doSend = true;
         UserId userid = getVenue().getParticipantUserid(participant);
         if (userid == null) {
             log.warn("Attempted to send object to peer when actual userid is unknown");
-            return;
+            doSend = false;
+        } else if (hasRole(SharedDisplayRole.DATA_PROVIDER)
+                && !isSharedDisplayClient(participant)) {
+            /*
+             * data provider (leader) sends the bulk of the peer to peer
+             * messages and can easily see who is actually using the shared
+             * display (pubsub users). Skip if we are the leader and the
+             * participant isn't using shared display
+             */
+            doSend = false;
         }
-        SessionPayload payload = new SessionPayload(PayloadType.Command, obj);
-        Message msg = new Message(userid.getFQName(), Type.normal);
-        msg.addExtension(payload);
-        msg.setFrom(conn.getUser());
-        msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
-        conn.sendPacket(msg);
+        if (doSend) {
+            SessionPayload payload = new SessionPayload(PayloadType.Command,
+                    obj);
+            Message msg = new Message(userid.getFQName(), Type.normal);
+            msg.addExtension(payload);
+            msg.setFrom(conn.getUser());
+            msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
+            conn.sendPacket(msg);
+        }
     }
 
     /**
@@ -838,11 +854,22 @@ public class SharedDisplaySession extends VenueSession implements
      * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId,
      * com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite)
      */
-    @Override
+    @Override 
     protected Message createInviteMessage(UserId id, VenueInvite invite) {
         Message rval = super.createInviteMessage(id, invite);
-        /* only send shared display invite if we know the user supports it */
-        if (getSharedDisplayResource(id) != null) {
+        CollaborationConnection manager = getConnection();
+        ContactsManager cm = manager.getContactsManager();
+        boolean sendPayload = true;
+        /* avoid sending payload to users that don't support it */
+        if (cm.getRosterEntry(id) != null
+                && cm.getSharedDisplayEnabledResource(id) == null) {
+            /*
+             * user is in our roster but we haven't received confirmation that
+             * any resource supports shared display, invite to chat only
+             */
+            sendPayload = false;
+        }
+        if (sendPayload) {
             SessionPayload payload = new SessionPayload(PayloadType.Invitation,
                     invite);
             rval.addExtension(payload);
