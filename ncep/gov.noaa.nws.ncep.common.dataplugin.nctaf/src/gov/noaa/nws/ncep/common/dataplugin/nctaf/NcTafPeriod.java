@@ -102,10 +102,9 @@ public class NcTafPeriod implements Serializable {
      */
     public static NcTafPeriod copy(NcTafPeriod period) {
         NcTafPeriod periodCopy = new NcTafPeriod();
-        periodCopy.startDate = (Calendar) period.startDate.clone();
-        periodCopy.transitionEndDate = (Calendar) period.transitionEndDate
-                .clone();
-        periodCopy.endDate = (Calendar) period.endDate.clone();
+        periodCopy.startDate = TimeUtil.newCalendar(period.startDate);
+        periodCopy.transitionEndDate = TimeUtil.newCalendar(period.transitionEndDate);
+        periodCopy.endDate = TimeUtil.newCalendar(period.endDate);
 
         return periodCopy;
     }
