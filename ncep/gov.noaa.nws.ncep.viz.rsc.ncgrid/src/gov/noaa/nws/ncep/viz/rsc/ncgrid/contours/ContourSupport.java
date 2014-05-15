@@ -129,6 +129,8 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  *    Sep 17, 2013   #1036     S. Gurung   Added TEXT attribute related changes to create labels with various parameters
  *    Oct 30, 2013   #1045     S. Gurung   Fix for FINT/FLINE parsing issues
  *    Aug 27, 2013 2262        bsteffen    Convert to use new StrmPak.
+ *    Apr 23,  2014  #856      pswamy      Missing color fill in grid diagnostics.
+ *    Apr 30, 2014   862       pswamy      Grid Precipitable Water Contour Labels needs two decimal points
  * 
  * </pre>
  * 
@@ -619,7 +621,7 @@ public class ContourSupport {
             }
         }
 
-        DecimalFormat df = new DecimalFormat("0.#");
+        DecimalFormat df = new DecimalFormat("0.##");
         double[] loc = { 0.0, 0.0 };
 
         if (actualLength > 0) {
@@ -1154,10 +1156,17 @@ public class ContourSupport {
             if (!(fint.equalsIgnoreCase(cint))) {
                 fvalues = FINT.parseFINT(fint, zoomLevelIndex,
                         cntrData.minValue, cntrData.getMaxValue());
-            } else if (contourGroup.cvalues != null) {
-                fvalues = contourGroup.cvalues;
+            } else {
+                if ((contourGroup.cvalues != null)
+                        && (contourGroup.cvalues.size() != 0)) {
+                    fvalues = contourGroup.cvalues;
+                } else {
+                    fvalues = FINT.parseFINT(fint, zoomLevelIndex,
+                            cntrData.minValue, cntrData.getMaxValue());
+                }
             }
         }
+
         if (contourGroup.fvalues.size() == 0 && fvalues != null) {
             contourGroup.fvalues.addAll(fvalues);
         } else if (contourGroup.fvalues.size() > 0) {
