@@ -22,7 +22,7 @@ package com.raytheon.viz.aviation.monitor;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.jobs.IRequestCompleteListener;
 import com.raytheon.viz.aviation.guidance.GuidanceRequest;
@@ -42,6 +42,7 @@ import com.raytheon.viz.aviation.observer.TafMonitorDlg;
  * Sep 2,  2009            njensen     Initial creation
  * Nov 12, 2010 6195       rferrel     Clear guidance's TAF cache when
  *                                     an alert received.
+ * May 15, 2014 3002       bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 
  * </pre>
  * 
