@@ -48,7 +48,7 @@ fi
 _hybrid_target=buildHybrid
 
 _build_xml=build.xml
-BUILD_EDEX=%{_baseline_workspace}/build.edex
+BUILD_EDEX=%{_baseline_workspace}/edexOsgi/build.edex
 EDEX_DIST=${BUILD_EDEX}/edex/dist
 
 _pde_build_arch=x86
@@ -65,7 +65,7 @@ if [ $? -ne 0 ]; then
 fi
 
 %install
-BUILD_EDEX=%{_baseline_workspace}/build.edex
+BUILD_EDEX=%{_baseline_workspace}/edexOsgi/build.edex
 EDEX_DIST=${BUILD_EDEX}/edex/dist
 
 /usr/bin/unzip ${EDEX_DIST}/common-base.zip -d %{_build_root}
