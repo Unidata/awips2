@@ -29,6 +29,7 @@ import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IFont.FontType;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.fonts.CreateFontEvent;
 import com.raytheon.uf.viz.remote.graphics.events.fonts.UpdateFontDataEvent;
@@ -42,9 +43,11 @@ import com.raytheon.uf.viz.remote.graphics.events.strings.DrawStringsEvent;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 10, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 10, 2012           mschenke    Initial creation
+ * May 16, 2014  3163     bsteffen    Remove references to deprecated
+ *                                    {@link IGraphicsTarget} methods.
  * 
  * </pre>
  * 
@@ -83,7 +86,8 @@ public class StringRenderingHandler extends CollaborationRenderingHandler {
             try {
                 File fontFile = File.createTempFile(event.getFontName(), null);
                 FileUtil.bytes2File(event.getFontData(), fontFile);
-                font = target.initializeFont(fontFile, event.getFontSize(),
+                font = target.initializeFont(fontFile, FontType.TRUETYPE,
+                        event.getFontSize(),
                         event.getFontStyle());
             } catch (IOException e) {
                 Activator.statusHandler.handle(Priority.PROBLEM,
