@@ -34,7 +34,7 @@ import javax.xml.bind.JAXB;
 
 import jep.JepException;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -70,6 +70,7 @@ import com.raytheon.viz.aviation.xml.WxPlotCfg;
  * Apr 28, 2011 8065       rferrel     Use cache data
  * Nov 26, 2012 1298       rferrel     Non-blocking dialog cleanup now use
  *                                      IUFStatusHandler for error messages.
+ * May 15, 2014 3002       bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 
  * </pre>
  * 
