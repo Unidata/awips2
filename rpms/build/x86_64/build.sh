@@ -193,7 +193,6 @@ if [ "${1}" = "-rh6" ]; then
       exit 1
    fi
    buildRPM "awips2-pypies"
-   buildRPM "awips2-rcm"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2"
    buildOpenfire
@@ -246,7 +245,6 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-pypies"
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
-   buildRPM "awips2-rcm"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
       exit 1
@@ -256,7 +254,8 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
-   buildRPM "awips2-common-base"
+# m.james - commenting out as complete
+#   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -318,13 +317,6 @@ if [ "${1}" = "-full" ]; then
    exit 0
 fi
 
-#if [ "${1}" = "-ade" ]; then
-#   echo "INFO: AWIPS II currently does not support a 64-bit version of the ADE."
-#   exit 0
-#   buildRPM "awips2-eclipse"
-#
-#   exit 0
-#fi
 
 if [ "${1}" = "-ade" ]; then
    buildRPM "awips2-eclipse"
@@ -421,7 +413,6 @@ if [ "${1}" = "-viz" ]; then
    #fi
    #buildRPM "awips2-httpd-pypies"
    #buildRPM "awips2-hydroapps-shared"
-   #buildRPM "awips2-rcm"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    #buildRPM "awips2-tools"

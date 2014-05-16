@@ -7,7 +7,7 @@
 # directory from the environment as well as the build architecture.
 
 if [ "${UFRAME_ECLIPSE}" = "" ]; then
-   export UFRAME_ECLIPSE="/opt/uframe-eclipse"
+   export UFRAME_ECLIPSE="/awips2/eclipse"
 fi
 
 CAVE_RPM_DIST_DIR="${WORKSPACE}/rpms/awips2.cave/setup/dist"
@@ -22,12 +22,12 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-if [ ! -d ${WORKSPACE}/build ]; then
+if [ ! -d ${WORKSPACE}/cave/build ]; then
    echo "ERROR: The CAVE build directory was not found in the workspace - ${WORKSPACE}/build."
    echo "       When it was checked out of SVN was it accidentally named build.cave instead?"
    exit 1
 fi
-cd ${WORKSPACE}/build
+cd ${WORKSPACE}/cave/build
 
 # Build the CAVE zip file.
 if [ ! -f build.sh ]; then
