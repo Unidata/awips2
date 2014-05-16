@@ -34,12 +34,14 @@ import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
+import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -62,9 +64,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date          Ticket#     Engineer    Description
- *    ------------	----------	-----------	--------------------------
- *    9/17/07                   randerso    Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Spe 17, 2007           randerso    Initial Creation.
+ * May 16, 2014  3163     bsteffen    Remove WORD_WRAP TextStyle and handle
+ *                                    wrapping locally.
  * 
  * </pre>
  * 
@@ -74,6 +78,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class LPIResource extends
         AbstractMapResource<LPIResourceData, IMapDescriptor> implements
         IResourceDataChanged {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LPIResource.class);
 
     /** Whether the resource is ready to be drawn */
     private boolean ready = false;
@@ -159,11 +165,9 @@ public class LPIResource extends
             in.close();
 
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Cannot find LPI file.", e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Cannot load LPI file.", e);
         }
 
         project(this.descriptor.getCRS());
@@ -171,32 +175,33 @@ public class LPIResource extends
         ready = true;
     }
 
-    public LPIPoint readPoint(String s) throws IOException {
-
+    public LPIPoint readPoint(String s) {
         Scanner in = new Scanner(s);
-
         LPIPoint p = this.new LPIPoint();
+        try {
+            if (!in.hasNextDouble()) {
+                return null;
+            }
+            p.latLon.y = in.nextDouble();
+            if (!in.hasNextDouble()) {
+                return null;
+            }
+            p.latLon.x = in.nextDouble();
 
-        if (!in.hasNextDouble()) {
-            return null;
-        }
-        p.latLon.y = in.nextDouble();
-        if (!in.hasNextDouble()) {
-            return null;
-        }
-        p.latLon.x = in.nextDouble();
+            if (!in.hasNextDouble()) {
+                return null;
+            }
+            p.dist = in.nextDouble();
 
-        if (!in.hasNextDouble()) {
-            return null;
-        }
-        p.dist = in.nextDouble();
-
-        if (!in.hasNext()) {
-            return null;
-        }
-        p.label = in.findInLine("[^\\|]*").trim();
-        if (p.label.length() > maxLen) {
-            maxLen = p.label.length();
+            if (!in.hasNext()) {
+                return null;
+            }
+            p.label = in.findInLine("[^\\|]*").trim();
+            if (p.label.length() > maxLen) {
+                maxLen = p.label.length();
+            }
+        } finally {
+            in.close();
         }
 
         return p;
@@ -232,7 +237,9 @@ public class LPIResource extends
             double minSepDist = (displayHintSize * (metersPerPixel / 1000.0))
                     / getCapability(DensityCapability.class).getDensity();
 
-            Rectangle2D charSize = target.getStringBounds(font, "N");
+            DrawableString test = new DrawableString("N", null);
+            test.font = font;
+            Rectangle2D charSize = target.getStringsBounds(test);
             double charWidth = charSize.getWidth();
             double charHeight = charSize.getHeight();
 
@@ -272,13 +279,15 @@ public class LPIResource extends
                     pointList.add(p.pixel);
 
                     if (isLabeled && (magnification > 0.0)) {
-                        DrawableString string = new DrawableString(p.label,
+                        String label = p.label;
+                        label = label.replaceAll("([^\n]{3}\\S*)\\s+", "$1\n");
+                        DrawableString string = new DrawableString(label,
                                 color);
                         string.font = font;
                         string.setCoordinates(p.pixel[0] + offsetX, p.pixel[1]
-                                + offsetX);
+                                + offsetY);
                         string.horizontalAlignment = align;
-                        string.textStyle = TextStyle.WORD_WRAP;
+                        string.verticallAlignment = VerticalAlignment.MIDDLE;
                         strings.add(string);
                     }
                 }
