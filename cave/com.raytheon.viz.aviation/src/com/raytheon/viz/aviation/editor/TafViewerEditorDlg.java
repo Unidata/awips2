@@ -91,7 +91,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -235,6 +235,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02/19/2014   16980       zhao        add code to ensure the Alt flag is false after the Alt kay is released
  * 21Mar2014    #2925       lvenable    Fixed NPE error found during testing.
  * 06May2014    3091        rferrel     Use OUP authorization to bring up send dialog.
+ * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 
  * </pre>
  * 
