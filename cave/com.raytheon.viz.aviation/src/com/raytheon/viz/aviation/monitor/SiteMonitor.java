@@ -34,7 +34,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.jobs.IRequestCompleteListener;
@@ -65,6 +65,7 @@ import com.raytheon.viz.aviation.xml.MonitorCfg;
  * 20JUL2012    14570      gzhang/zhao  Modified for highlighting correct time groups in TAF Viewer
  * 11AUG2012    14570      zhao         Added 'cat' to alert_key_map
  * 02Jan2013    15606      gzhang		Remove GridData widthHint so button/label size change with GUI
+ * May 15, 2014 3002       bgonzale     Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 
  * </pre>
  * 
