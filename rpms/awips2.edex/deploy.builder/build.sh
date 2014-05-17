@@ -8,7 +8,7 @@ VAR_WORKSPACE="/common/bkowal/git/thunder/baseline"
 VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
 VAR_AWIPSII_VERSION=""
 VAR_AWIPSII_RELEASE=""
-VAR_UFRAME_ECLIPSE="/opt/uframe-eclipse"
+VAR_UFRAME_ECLIPSE="/awips2/eclipse"
 VAR_AWIPSCM_SHARE="/awipscm"
 # -----------------------------------------------------------------------------
 

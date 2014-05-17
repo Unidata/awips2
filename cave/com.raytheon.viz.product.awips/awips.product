@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean</programArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -perspective NCP</programArgs>
       <programArgsLin>-consoleLog</programArgsLin>
       <vmArgs>-Xincgc -Dosgi.instance.area.readOnly=true 
 -Declipse.log.enabled=false

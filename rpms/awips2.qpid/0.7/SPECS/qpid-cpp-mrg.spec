@@ -5,10 +5,10 @@
 # svn revision: $Rev$
 #
 
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+#%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 #%{!?ruby_sitelib: %define ruby_sitelib %(/usr/bin/ruby -rrbconfig  -e 'puts Config::CONFIG["sitelibdir"] ')}
 #%{!?ruby_sitearch: %define ruby_sitearch %(/usr/bin/ruby -rrbconfig -e 'puts Config::CONFIG["sitearchdir"] ')}
-
+%define python_sitelib /awips2/qpid/lib/python2.7/site-packages/
 # ===========
 # The following section controls which rpms are produced for which builds.
 # * To set the following flags, assign the value 1 for true; 0 for false.
@@ -151,7 +151,7 @@ BuildRequires: nspr-devel
 BuildRequires: xqilla-devel
 BuildRequires: xerces-c-devel
 %endif
-BuildRequires: swig
+###########BuildRequires: swig
 BuildRequires: db4-devel
 BuildRequires: libaio-devel
 %if %{rhel_4} || %{rhel_5}
@@ -440,7 +440,7 @@ components.
 %_libdir/libqmfengine.so
 %_libdir/libqmfconsole.so
 %_bindir/qmf-gen
-#%{python_sitelib}/qmfgen
+%{python_sitelib}/qmfgen
 
 %endif
 
