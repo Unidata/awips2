@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mq
+Bundle-SymbolicName: com.raytheon.rcm.server.mq
+Bundle-Version: 1.12.1174.qualifier
+Export-Package: com.raytheon.rcm.mqsrvr
+Require-Bundle: com.raytheon.rcm.server;bundle-version="1.0.0",
+ org.apache.activemq;bundle-version="5.2.0",
+ com.raytheon.rcm.lib;bundle-version="1.0.0",
+ javax.jms;bundle-version="1.0.0",
+ org.apache.qpid;bundle-version="0.0.0",
+ org.itadaki.bzip2;bundle-version="0.9.1"
