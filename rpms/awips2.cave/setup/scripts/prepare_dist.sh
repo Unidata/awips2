@@ -22,12 +22,12 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-if [ ! -d ${WORKSPACE}/cave/build ]; then
+if [ ! -d ${WORKSPACE}/build ]; then
    echo "ERROR: The CAVE build directory was not found in the workspace - ${WORKSPACE}/build."
    echo "       When it was checked out of SVN was it accidentally named build.cave instead?"
    exit 1
 fi
-cd ${WORKSPACE}/cave/build
+cd ${WORKSPACE}/build
 
 # Build the CAVE zip file.
 if [ ! -f build.sh ]; then

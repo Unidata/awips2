@@ -404,8 +404,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
             } else {
 
                 try {
-                    rbdsToLoad = SpfsManager.getInstance().getRbdsFromSpf(
-                            grpAndSpf[0], grpAndSpf[1], true); // resolve Latest
+                    rbdsToLoad = SpfsManager.getInstance().getRbdsFromSpf("default", 
+                            grpAndSpf[1], true); // resolve Latest
                                                                // Cycle times
                 } catch (VizException e) {
                     MessageDialog errDlg = new MessageDialog(

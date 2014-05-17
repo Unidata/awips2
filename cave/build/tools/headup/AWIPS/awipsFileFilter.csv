@@ -8,7 +8,6 @@ includeFiletype,.sql
 include,/com.raytheon
 include,/build.cave
 include,/build.edex
-include,/build.rcm
 include,/build.native
 ,,Exclude Patterns
 exclude,/.svn/

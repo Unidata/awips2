@@ -25,55 +25,21 @@
    </requires>
 
    <plugin
-         id="com.raytheon.rcm.lib"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.viz.radarapps.config"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.viz.radarapps.fsi"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.viz.radarapps.requests"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.viz.radarapps.rps"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.viz.radarapps.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"/>
 
    <plugin
          id="com.raytheon.uf.viz.radar.gl"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"/>
 
    <plugin
          id="com.raytheon.viz.radar"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"/>
 
 </feature>

@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz</programArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz -perspective NCP</programArgs>
       <vmArgs>-Xincgc -Xmx1024M -Dosgi.instance.area.readOnly=true
 -Declipse.log.enabled=false
 -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass 

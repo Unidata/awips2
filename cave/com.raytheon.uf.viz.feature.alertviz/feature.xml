@@ -43,474 +43,473 @@
    </requires>
 
    <plugin
-         id="ch.qos.logback"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.slf4j"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.7.5"/>
 
    <plugin
          id="org.springframework"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="3.1.4"/>
+
+   <plugin
+         id="org.reflections"
+         download-size="0"
+         install-size="0"
+         version="0.9.9"/>
+
+   <plugin
+         id="org.quartz"
+         download-size="0"
+         install-size="0"
+         version="1.8.6"/>
+
+   <plugin
+         id="org.postgres"
+         download-size="0"
+         install-size="0"
+         version="9.2.0"/>
+
+   <plugin
+         id="org.jep"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="org.javassist"
+         download-size="0"
+         install-size="0"
+         version="3.9.0.GA"/>
+
+   <plugin
+         id="org.hibernate"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="org.hamcrest"
+         download-size="0"
+         install-size="0"
+         version="1.3.0"/>
+
+   <plugin
+         id="org.geotools"
+         download-size="0"
+         install-size="0"
+         version="2.6.4"/>
+
+   <plugin
+         id="org.eclipse.core.runtime"
+         download-size="0"
+         install-size="0"
+         version="3.8.0.v20120521-2346"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.velocity"
+         download-size="0"
+         install-size="0"
+         version="1.7.0"/>
+
+   <plugin
+         id="org.apache.thrift"
+         download-size="0"
+         install-size="0"
+         version="0.9.0"/>
+
+   <plugin
+         id="org.apache.qpid"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.18"/>
+
+   <plugin
+         id="org.apache.mina"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="org.apache.http"
+         download-size="0"
+         install-size="0"
+         version="4.1.2"/>
+
+   <plugin
+         id="org.apache.derby"
+         download-size="0"
+         install-size="0"
+         version="10.10.1.1"/>
+
+   <plugin
+         id="org.apache.commons.pool"
+         download-size="0"
+         install-size="0"
+         version="1.3.0"/>
+
+   <plugin
+         id="org.apache.commons.lang"
+         download-size="0"
+         install-size="0"
+         version="2.3.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.io"
+         download-size="0"
+         install-size="0"
+         version="2.4.0"/>
+
+   <plugin
+         id="org.apache.commons.digester"
+         download-size="0"
+         install-size="0"
+         version="1.8.1"/>
+
+   <plugin
+         id="org.apache.commons.configuration"
+         download-size="0"
+         install-size="0"
+         version="1.6.0"/>
+
+   <plugin
+         id="org.apache.commons.collections"
+         download-size="0"
+         install-size="0"
+         version="3.2.0"/>
+
+   <plugin
+         id="org.apache.commons.codec"
+         download-size="0"
+         install-size="0"
+         version="1.4.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.beanutils"
+         download-size="0"
+         install-size="0"
+         version="1.8.3"/>
 
    <plugin
          id="org.apache.activemq"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="5.2.0"/>
+
+   <plugin
+         id="net.sf.ehcache"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
 
    <plugin
          id="net.sf.cglib"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="2.1.3"/>
+
+   <plugin
+         id="javax.vecmath"
+         download-size="0"
+         install-size="0"
+         version="1.3.1"/>
+
+   <plugin
+         id="javax.persistence"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="javax.measure"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="javax.jms"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="com.google.guava"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
 
    <plugin
          id="com.raytheon.uf.viz.alertviz"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"/>
 
    <plugin
-         id="com.raytheon.uf.common.localization"
+         id="com.raytheon.uf.viz.alertviz.ui"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="1.12.1174.qualifier"/>
 
    <plugin
-         id="com.raytheon.uf.common.serialization"
+         id="com.raytheon.uf.viz.application"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.viz.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.13.0.qualifier"/>
 
    <plugin
-         id="org.apache.commons.collections"
+         id="com.raytheon.uf.viz.plugin.nwsauth"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.commons.codec"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.commons.configuration"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.commons.digester"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.commons.beanutils"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="javax.persistence"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.thrift"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.geotools"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="javax.vecmath"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"
+         unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.viz.product.alertviz"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.viz.alertviz.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.status"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.colormap"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.time"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.python"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.postgres"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.jep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.velocity"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="javax.measure"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.commons.pool"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="net.sf.ehcache"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.message"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.datastorage"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.geospatial"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataaccess"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.pointdata"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
+         version="1.12.1174.qualifier"
          unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.viz.python.swt"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.serialization.comm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.level"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.qpid"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="javax.jms"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.mina"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.util"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.javassist"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.hibernate"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.topo"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.auth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.comm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.hamcrest.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.alertviz"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataquery"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.site"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
+         version="1.12.1174.qualifier"
          unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.viz.spring.dm"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.core.runtime"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.alertmonitor"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.http"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.viz.application"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.plugin.nwsauth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.viz.plugin.nwsauth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.cache"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
+         version="1.1.1153.qualifier"
          unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.viz.thinclient"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.0.0.qualifier"/>
 
    <plugin
          id="com.raytheon.uf.viz.thinclient.alertviz"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.qualifier"
          unpack="false"/>
-
-   <plugin
-         id="com.raytheon.viz.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.viz.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"/>
 
    <plugin
-         id="org.apache.commons.lang"
+         id="com.raytheon.viz.ui"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.12.1174.qualifier"/>
+
+   <plugin
+         id="com.raytheon.uf.common.velocity"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.util"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
          unpack="false"/>
 
    <plugin
          id="com.raytheon.uf.common.units"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="com.raytheon.uf.common.topo"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.velocity"
+         id="com.raytheon.uf.common.time"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.quartz"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.apache.derby"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"/>
 
    <plugin
          id="com.raytheon.uf.common.style"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
-         id="com.google.guava"
+         id="com.raytheon.uf.common.status"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"
+         unpack="false"/>
 
    <plugin
-         id="org.reflections"
+         id="com.raytheon.uf.common.site"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"
+         unpack="false"/>
 
    <plugin
-         id="org.apache.commons.io"
+         id="com.raytheon.uf.common.serialization.comm"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.serialization"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.python"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.pointdata"
+         download-size="0"
+         install-size="0"
+         version="1.13.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.plugin.nwsauth"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.message"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.localization"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.geospatial"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"/>
+
+   <plugin
+         id="com.raytheon.uf.common.datastorage"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataquery"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.level"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataaccess"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="com.raytheon.uf.common.comm"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.colormap"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.cache"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.auth"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.alertviz"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.alertmonitor"
+         download-size="0"
+         install-size="0"
+         version="1.12.1174.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="ch.qos.logback"
+         download-size="0"
+         install-size="0"
+         version="1.0.13"/>
 
 </feature>
