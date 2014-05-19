@@ -34,9 +34,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.python.PythonLocalizationPathBuilder;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.texteditor.HTTPQueryTransport;
 import com.raytheon.viz.texteditor.command.ICommand;

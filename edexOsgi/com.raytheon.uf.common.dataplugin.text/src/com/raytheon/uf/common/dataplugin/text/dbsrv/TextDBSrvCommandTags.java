@@ -17,23 +17,24 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services.textdbsrv;
+package com.raytheon.uf.common.dataplugin.text.dbsrv;
+
 
 /**
- * TODO Add Description
+ * Textdbsrv command enum
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 14, 2008       1538 jkorman     Initial creation
- * 21May2010    2187       cjeanbap    Add OPERATIONAL code
+ * Oct 7, 2008        1538 jkorman     Initial creation
+ * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 
-public enum TextViewTags implements ICommandTags {
-    OP, SUBOP, PRODID, FORMAT, CLIENTFMT, PRODUCT, AFOSCMD, WMOID, SITE, HOUR, HDRTIME, BBB, NNNXXX, FULLREAD, OPERATIONAL, TEST, PRACTICE;
+public enum TextDBSrvCommandTags {
+    VIEW, ERROR, PUT, GET, DELETE;
 }
