@@ -21,8 +21,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import org.junit.Test;
 
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 
@@ -80,7 +80,7 @@ public class WfoBandwidthManagerIntTest extends
 
     @Test
     public void testReinitializeUsesCorrectSpringFiles() throws Exception {
-        final IBandwidthRequest request = new IBandwidthRequest();
+        final BandwidthRequest request = new BandwidthRequest();
         request.setRequestType(RequestType.REINITIALIZE);
         bandwidthManager.handleRequest(request);
 
