@@ -24,8 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.raytheon.edex.textdb.dao.StdTextProductDao;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
+import com.raytheon.uf.edex.plugin.text.dao.StdTextProductDao;
 
 /**
  * TODO Add Description
