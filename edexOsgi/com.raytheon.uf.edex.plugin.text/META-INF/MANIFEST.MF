@@ -5,8 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.text
 Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
-Require-Bundle: com.raytheon.edex.textdb,
- org.apache.commons.lang,
+Require-Bundle: org.apache.commons.lang,
  com.raytheon.edex.common,
  javax.persistence,
  com.raytheon.uf.common.serialization.comm,
@@ -18,12 +17,15 @@ Require-Bundle: com.raytheon.edex.textdb,
  com.raytheon.uf.common.localization;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.edex.plugin.text.dao,
+ com.raytheon.uf.edex.plugin.text.db,
  com.raytheon.uf.edex.plugin.text.dbsrv
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin.text,
+ com.raytheon.uf.common.dataplugin.text.alarms,
  com.raytheon.uf.common.dataplugin.text.db,
  com.raytheon.uf.common.dataplugin.text.dbsrv,
  com.raytheon.uf.common.dataplugin.text.request,
+ com.raytheon.uf.common.dataplugin.text.util,
  com.raytheon.uf.common.message,
  com.raytheon.uf.common.wmo,
  org.apache.commons.logging
