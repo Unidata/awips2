@@ -23,13 +23,6 @@
    </requires>
 
    <plugin
-         id="com.raytheon.edex.textdb"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.edex.dissemination"
          download-size="0"
          install-size="0"

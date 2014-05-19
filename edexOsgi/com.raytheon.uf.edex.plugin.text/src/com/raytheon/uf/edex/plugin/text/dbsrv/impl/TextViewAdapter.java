@@ -33,8 +33,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.textdb.alarms.AlarmAlertUtil;
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
@@ -51,6 +49,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
 
 /**
  * Handles database interactions with the Text DB's standard text products
