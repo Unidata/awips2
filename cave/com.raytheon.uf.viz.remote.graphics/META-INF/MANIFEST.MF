@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Remote Graphics
 Bundle-SymbolicName: com.raytheon.uf.viz.remote.graphics;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Activator: com.raytheon.uf.viz.remote.graphics.Activator
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -10,11 +10,11 @@ Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
 Eclipse-BuddyPolicy: dependent
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
- com.raytheon.uf.viz.core;bundle-version="1.14.1",
+ com.raytheon.uf.viz.core;bundle-version="1.14.3",
  com.raytheon.uf.common.colormap,
  com.raytheon.viz.ui;bundle-version="1.14.0",
- com.raytheon.uf.common.util,
- com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.util;bundle-version="1.14.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
  javax.measure
 Export-Package: com.raytheon.uf.viz.remote.graphics,
  com.raytheon.uf.viz.remote.graphics.events,
