@@ -234,6 +234,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02/12/2014   17076       lvenable    Mark guidance tabs as not current so they get refreshed
  * 02/19/2014   16980       zhao        add code to ensure the Alt flag is false after the Alt kay is released
  * 21Mar2014    #2925       lvenable    Fixed NPE error found during testing.
+ * 06May2014    3091        rferrel     Use OUP authorization to bring up send dialog.
  * 
  * </pre>
  * 
@@ -1783,9 +1784,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         syntaxBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	if ( checkBasicSyntaxError(true) ) {
-            		return;
-            	}
+                if (checkBasicSyntaxError(true)) {
+                    return;
+                }
                 syntaxCheck();
             }
         });
@@ -1816,11 +1817,13 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         Button sendBtn = new Button(buttonComp, SWT.PUSH);
         sendBtn.setText("Send");
         sendBtn.setLayoutData(gd);
-        sendBtn.setEnabled(AviationDialog.USERTRANSMIT);
         configMgr.setDefaultFontAndColors(sendBtn);
         sendBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+                if (!SendDialog.isAuthorized()) {
+                    return;
+                }
                 // Assume editorTafTabComp is for the active tab.
                 if (editorTafTabComp.isTafSent()) {
                     putMessageToForecaster("Cannot send forecast: Forecast already sent");
@@ -2843,7 +2846,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     .getTextEditorControl();
             StringBuilder sb = new StringBuilder("Printed by ");
 
-            sb.append(AviationDialog.USERNAME);
+            sb.append(AviationDialog.getForecaster());
             sb.append(" on ");
             sb.append(dt.format(Calendar.getInstance(
                     TimeZone.getTimeZone("GMT")).getTime()));
@@ -3694,10 +3697,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 if (endIndex == -1) {
                     endIndex = in.length();
                 }
-				boolean isWrapping = false;
-				String thisSite = "";
-				String lastLine = "";
-				String line = in.substring(beginIndex, endIndex);
+                boolean isWrapping = false;
+                String thisSite = "";
+                String lastLine = "";
+                String line = in.substring(beginIndex, endIndex);
                 int lineNumber = 1;
                 Set<List<String>> keySet = results.keySet();
                 int maxLevel = 0;
@@ -3707,9 +3710,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     int level = 0;
                     int start = -1;
                     int length = -1;
-                    
+
                     if (line.startsWith("TAF")) {
-                    	thisSite = in.substring(endIndex+1, endIndex+5);
+                        thisSite = in.substring(endIndex + 1, endIndex + 5);
                     }
 
                     if (!line.startsWith("TAF")) {
@@ -3739,25 +3742,33 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                                     .get(key);
 
                             if (lineNumber == keyLineNum) {
-                            	if (!isWrappingLine(line,thisSite)) {
-                            		isWrapping = false;
-									text = result.get("text").toString() + "\n";
-									level = Integer.parseInt(result.get("level").toString());
-									start = Integer.parseInt(temp.substring(temp.indexOf('.') + 1));
-									temp = key.get(1);
-									length = Integer.parseInt(temp.substring(temp.indexOf('.') + 1));
-									length = length - start;
-									start = beginIndex + start;
-									break;
-								} else {
-									// a PROB30 group is wrapped in two lines
-									isWrapping = true;
-									text = result.get("text").toString() +"\n";
-									level = Integer.parseInt(result.get("level").toString());
-									start = beginIndex - 1 - lastLine.length() + lastLine.indexOf("PROB30");
-									length = lastLine.substring(lastLine.indexOf("PROB30")).length() + 1 + line.length();
-									break;
-								}
+                                if (!isWrappingLine(line, thisSite)) {
+                                    isWrapping = false;
+                                    text = result.get("text").toString() + "\n";
+                                    level = Integer.parseInt(result
+                                            .get("level").toString());
+                                    start = Integer.parseInt(temp
+                                            .substring(temp.indexOf('.') + 1));
+                                    temp = key.get(1);
+                                    length = Integer.parseInt(temp
+                                            .substring(temp.indexOf('.') + 1));
+                                    length = length - start;
+                                    start = beginIndex + start;
+                                    break;
+                                } else {
+                                    // a PROB30 group is wrapped in two lines
+                                    isWrapping = true;
+                                    text = result.get("text").toString() + "\n";
+                                    level = Integer.parseInt(result
+                                            .get("level").toString());
+                                    start = beginIndex - 1 - lastLine.length()
+                                            + lastLine.indexOf("PROB30");
+                                    length = lastLine.substring(
+                                            lastLine.indexOf("PROB30"))
+                                            .length()
+                                            + 1 + line.length();
+                                    break;
+                                }
                             }
                         }
 
@@ -3770,7 +3781,8 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                                 start = beginIndex + start;
                             }
 
-                            StyleRange sr = new StyleRange(start, length, null,qcColors[level]);
+                            StyleRange sr = new StyleRange(start, length, null,
+                                    qcColors[level]);
                             st.setStyleRange(sr);
                             qcResultMap.put(sr, text);
 
@@ -3795,7 +3807,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                         beginIndex = endIndex = in.length();
                         line = "";
                     } else {
-                    	lastLine = line;
+                        lastLine = line;
                         line = in.substring(beginIndex, endIndex);
                     }
 
@@ -3813,21 +3825,22 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         } catch (IOException e) {
             setMessageStatusError("An Error occured while performing the QC check.");
         } catch (Exception e) {
-        	setMessageStatusError("An Error occured while performing the QC check.");
+            setMessageStatusError("An Error occured while performing the QC check.");
         } finally {
             setWaitCursor(false);
         }
     }
 
     private boolean isWrappingLine(String line, String site) {
-		String tempLine = line.trim();
-		if (tempLine.startsWith(site)||tempLine.startsWith("TEMPO")||tempLine.startsWith("FM")||tempLine.startsWith("PROB30")) {
-			return false;
-		}
-		return true;
-	}
+        String tempLine = line.trim();
+        if (tempLine.startsWith(site) || tempLine.startsWith("TEMPO")
+                || tempLine.startsWith("FM") || tempLine.startsWith("PROB30")) {
+            return false;
+        }
+        return true;
+    }
 
-	/**
+    /**
      * Read in the TAF viewer editor config XML.
      * 
      * @return An array of viewer tab configuration data.
