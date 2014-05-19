@@ -59,7 +59,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2013 2085       njensen     Initial creation
- * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
+ * Apr 30, 2014 2060       njensen     Safety checks for null guidance
  * 
  * </pre>
  * 
@@ -200,7 +201,7 @@ public class FFMPRowGenerator implements Runnable {
 
                 mouseOverText = metabasin.getBasinId() + "\n" + lid + "-"
                         + fvgmbd.getName();
- 
+
                 if (!huc.equals(FFMPRecord.ALL)) {
                     sb.append("-").append(fvgmbd.getName());
                 }
@@ -905,26 +906,25 @@ public class FFMPRowGenerator implements Runnable {
             forced = forceResult.isForced();
         }
 
-        if (!forcedPfafs.isEmpty() || forced || !pfafList.isEmpty()) {
-            // Recalculate guidance using the forced value(s)
-            guidance = guidRecords
-                    .get(guidType)
-                    .getBasinData()
-                    .getAverageGuidanceValue(pfafList,
-                            resource.getGuidanceInterpolators().get(guidType),
-                            guidance, forcedPfafs,
-                            resource.getGuidSourceExpiration(guidType));
-        } else {
+        FFMPRecord grec = guidRecords.get(guidType);
+        if (grec != null) {
+            if (!forcedPfafs.isEmpty() || forced || !pfafList.isEmpty()) {
+                // Recalculate guidance using the forced value(s)
+                guidance = grec.getBasinData().getAverageGuidanceValue(
+                        pfafList,
+                        resource.getGuidanceInterpolators().get(guidType),
+                        guidance, forcedPfafs,
+                        resource.getGuidSourceExpiration(guidType));
+            } else {
+                FFMPGuidanceBasin ffmpGuidBasin = (FFMPGuidanceBasin) grec
+                        .getBasinData().get(cBasinPfaf);
+                guidance = resource.getGuidanceValue(ffmpGuidBasin,
+                        paintRefTime, guidType);
 
-            FFMPGuidanceBasin ffmpGuidBasin = (FFMPGuidanceBasin) guidRecords
-                    .get(guidType).getBasinData().get(cBasinPfaf);
-            guidance = resource.getGuidanceValue(ffmpGuidBasin, paintRefTime,
-                    guidType);
-
-            if (guidance < 0.0f) {
-                guidance = Float.NaN;
+                if (guidance < 0.0f) {
+                    guidance = Float.NaN;
+                }
             }
-
         }
 
         return new FFMPTableCellData(FIELDS.GUIDANCE, guidance, forced);
