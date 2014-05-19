@@ -174,6 +174,7 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 17, 2013  2197       njensen     Improved speed of getName()
  * Oct 18, 2013  DR 16151	gzhang		Used getAverageValue() for QPF Graph.
  * Jan 21, 2014  DR 15874   gzhang		Use getValue() for QPFSCAN independent. 
+ * May 19, 2014  DR 16096   gzhang		Make getBasin() protected for FFMPDataGenerator.
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -596,7 +597,7 @@ public class FFMPResource extends
      * @return
      * @throws VizException
      */
-    private FFMPBasin getBasin(Long key, FFMPRecord.FIELDS bfield,
+    protected/*private*/ FFMPBasin getBasin(Long key, FFMPRecord.FIELDS bfield,
             Date recentTime, boolean aggregate) throws VizException {
         FFMPBasin basin = null;
         if (aggregate) {
