@@ -23,9 +23,10 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -119,6 +120,8 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
  * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
  * Mar 25, 2014      #2664 randerso     Added support for non-WGS84 shape files
+ * Apr 14, 2014      #2664 randerso     Fix NullPointerException when no .prj file present
+ * Apr 21, 2014      #2998 randerso     Stored types of attributes to be used in the AttributeViewer
  * 
  * </pre>
  * 
@@ -451,11 +454,13 @@ public class DataStoreResource extends
      */
     private TimeRange timeRange;
 
-    private String[] attributeNames;
+    // Intentionally declaring as a LinkedHashMap
+    // to ensure insertion order is preserved.
+    private LinkedHashMap<String, Class<?>> attrTypeMap;
 
     private Object[][] attributes;
 
-    private Map<String, DisplayAttributes> displayAttributes;
+    protected Map<String, DisplayAttributes> displayAttributes;
 
     protected IWireframeShape outlineShape;
 
@@ -577,11 +582,11 @@ public class DataStoreResource extends
 
         loadDataStore();
 
-        getCapability(LabelableCapability.class).setAvailableLabelFields(
-                this.attributeNames);
+        String[] names = this.getAttributeNames();
+        getCapability(LabelableCapability.class).setAvailableLabelFields(names);
 
         getCapability(ShadeableCapability.class).setAvailableShadingFields(
-                this.attributeNames);
+                names);
 
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
         if (this.timeRange != null) {
@@ -611,31 +616,34 @@ public class DataStoreResource extends
             schema = dataStore.getSchema(typeName);
             CoordinateReferenceSystem incomingCrs = schema
                     .getGeometryDescriptor().getCoordinateReferenceSystem();
+            if (incomingCrs == null) {
+                statusHandler.warn("No projection information found for "
+                        + dataStore.getFeatureSource(typeName).getName()
+                                .getURI()
+                        + ", assuming WGS84 unprojected lat/lon.");
+                incomingCrs = MapUtil.getLatLonProjection();
+            }
             incomingToLatLon = MapUtil.getTransformToLatLon(incomingCrs);
             latLonToIncoming = MapUtil.getTransformFromLatLon(incomingCrs);
 
             List<AttributeDescriptor> attrDesc = schema
                     .getAttributeDescriptors();
 
-            // TODO: Should ID be in attributes and if so do we need a more
-            // unique attribute name
             if (attrDesc == null) {
-                attributeNames = new String[] { ID_ATTRIBUTE_NAME };
+                attrTypeMap = new LinkedHashMap<String, Class<?>>(1);
+                attrTypeMap.put(ID_ATTRIBUTE_NAME, Integer.class);
             } else {
 
-                List<String> names = new ArrayList<String>(attrDesc.size());
-                names.add(ID_ATTRIBUTE_NAME);
+                attrTypeMap = new LinkedHashMap<String, Class<?>>(
+                        attrDesc.size(), 1.0f);
+                attrTypeMap.put(ID_ATTRIBUTE_NAME, Integer.class);
                 for (AttributeDescriptor at : attrDesc) {
                     Class<?> atType = at.getType().getBinding();
                     if (!Geometry.class.isAssignableFrom(atType)) {
-                        names.add(at.getLocalName());
+                        attrTypeMap.put(at.getLocalName(), atType);
                     }
                 }
-                attributeNames = names.toArray(new String[names.size()]);
             }
-
-            displayAttributes = new HashMap<String, DataStoreResource.DisplayAttributes>(
-                    (int) Math.ceil(attributeNames.length / 0.75f), 0.75f);
 
             timer.stop();
             perfLog.logDuration("loadDataStore", timer.getElapsedTime());
@@ -686,7 +694,9 @@ public class DataStoreResource extends
             featureCollection = featureSource.getFeatures(query);
 
             int size = featureCollection.size();
-            attributes = new Object[size][attributeNames.length];
+            Set<String> attributeNames = attrTypeMap.keySet();
+            attributes = new Object[size][attributeNames.size()];
+
             featureIterator = featureCollection.features();
             int i = 0;
             while (featureIterator.hasNext()) {
@@ -699,10 +709,14 @@ public class DataStoreResource extends
                 da.setCentroid((Point) JTS.transform(g.getCentroid(),
                         incomingToLatLon));
 
-                attributes[index][0] = id;
-                for (int j = 1; j < attributeNames.length; j++) {
-                    Object attr = f.getAttribute(attributeNames[j]);
-                    attributes[index][j] = attr;
+                int j = 0;
+                for (String attrName : attributeNames) {
+                    if (attrName.equals(ID_ATTRIBUTE_NAME)) {
+                        attributes[index][j++] = id;
+                    } else {
+                        Object attr = f.getAttribute(attrName);
+                        attributes[index][j++] = attr;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -1258,7 +1272,18 @@ public class DataStoreResource extends
      * @return the attribute names
      */
     public String[] getAttributeNames() {
-        return attributeNames;
+        return attrTypeMap.keySet().toArray(new String[attrTypeMap.size()]);
+    }
+
+    /**
+     * Get Java type of an attribute
+     * 
+     * @param attributeName
+     *            name of the desired attribute
+     * @return the type
+     */
+    public Class<?> getAttributeType(String attributeName) {
+        return attrTypeMap.get(attributeName);
     }
 
     /**

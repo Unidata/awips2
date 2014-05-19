@@ -53,6 +53,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sept 25, 2013 1797      dhladky     separated time from gridded time
  * Oct 10, 2013 1797       bgonzale    Refactored registry Time objects.
+ * Apr 22, 2014 3046       dhladky     Sample URI creation for DD dupe check got broken.
  * 
  * </pre>
  * 
@@ -74,6 +75,7 @@ public class ResponseProcessingUtilities {
         parameter.setUnitString(parm.getUnits());
 
         GridRecord record = new GridRecord();
+        gridCoverage = getCoverageFromCache(gridCoverage);
         record.setLocation(gridCoverage);
         record.setLevel(level);
         record.setParameter(parameter);
@@ -82,6 +84,11 @@ public class ResponseProcessingUtilities {
         return record;
     }
 
+    /**
+     * Gets a grid coverage from the DB cache system wide.
+     * @param coverage
+     * @return
+     */
     public static GridCoverage getCoverageFromCache(GridCoverage coverage) {
         return GridCoverageLookup.getInstance().getCoverage(coverage, true);
     }

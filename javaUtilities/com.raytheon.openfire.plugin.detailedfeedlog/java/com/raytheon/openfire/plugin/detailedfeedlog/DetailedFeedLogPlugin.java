@@ -35,15 +35,11 @@ import java.util.Queue;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.dom4j.Element;
 import org.jivesoftware.openfire.MessageRouter;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.muc.MUCEventDispatcher;
-import org.jivesoftware.openfire.user.User;
-import org.jivesoftware.openfire.user.UserManager;
-import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.util.JiveGlobals;
 import org.jivesoftware.util.Log;
 import org.jivesoftware.util.PropertyEventDispatcher;
@@ -51,13 +47,15 @@ import org.jivesoftware.util.PropertyEventListener;
 import org.jivesoftware.util.TaskEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xmpp.packet.Message;
-import org.xmpp.packet.Presence;
 
 import com.raytheon.openfire.plugin.detailedfeedlog.listener.DetailedFeedLogEventListener;
 
 /**
- * Plugin that logs and purges qualifying packets in Openfire
+ * Plugin that logs and purges qualifying packets in Openfire.
+ * 
+ * This plugin handles logging history so to prevent conflicting messages, the
+ * group chat history settings need to be turned off on the Openfire server.
+ * Group Chat > Group Chat Setting > History Settings > Don't Show History
  * 
  * <pre>
  * 
@@ -73,6 +71,7 @@ import com.raytheon.openfire.plugin.detailedfeedlog.listener.DetailedFeedLogEven
  * Apr 07, 2014 2937       bgonzale    Use new LogEntry toString and fromString methods
  *                                     and changed error handling to log each bad line.
  *                                     Create new DateFormatter for the purge thread.
+ *                                     Moved presence/site determination out of log method.
  * 
  * </pre>
  * 
@@ -115,8 +114,6 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
     private TimerTask task;
 
     private DetailedFeedLogEventListener feedListener;
-
-    public static final String SITE_INFO = "Site";
 
     private static final String ROOM_DIR = "Rooms";
 
@@ -228,34 +225,13 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
     }
 
     /**
-     * Log a message
-     * 
-     * @param message
-     */
-    public static void log(Message message, String room) {
-        User user = null;
-        try {
-            user = UserManager.getInstance().getUser(
-                    message.getFrom().getResource());
-        } catch (UserNotFoundException e) {
-            logger.error("Unable to get user for Room: " + room
-                    + " and Message: " + message.toXML(), e);
-        }
-
-        String site = getSiteFromPresence(user);
-
-        // format it with the site so the site can be sent with the packet later
-        log(user.getUsername(), site, message.getBody(), room);
-    }
-
-    /**
      * To log in openfire
      * 
      * @param user
      *            - fqname
      * @param message
      */
-    private static void log(String user, String site, String message,
+    public static void log(String user, String site, String message,
             String room) {
         logger.info("Logging : " + user + " \"" + message + "\"");
         Date date = new Date();
@@ -288,27 +264,6 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
 
     public static void removeRoomFromLog(String room) {
         entries.remove(room);
-    }
-
-    private static String getSiteFromPresence(User user) {
-        Presence presence = XMPPServer.getInstance().getPresenceManager()
-                .getPresence(user);
-
-        // need to get the site from the presence, add that to the text that we
-        // log, and use that for filtering on the client side
-        Element props = presence.getChildElement("properties",
-                "http://www.jivesoftware.com/xmlns/xmpp/properties");
-        String site = null;
-        for (Object propObj : props.elements("property")) {
-            Element prop = (Element) propObj;
-            String name = prop.elementText("name");
-            String value = prop.elementText("value");
-            if (SITE_INFO.equals(name)) {
-                site = value;
-                break;
-            }
-        }
-        return site;
     }
 
     /**

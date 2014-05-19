@@ -2,11 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DatUtils Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.dat.utils
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.dataplugin.ffmp,
- com.raytheon.uf.common.dataplugin.grid,
+Import-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataplugin.scan.data,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.monitor.xml,
@@ -14,7 +13,6 @@ Import-Package: com.raytheon.uf.common.dataplugin.ffmp,
  org.apache.commons.logging
 Export-Package: com.raytheon.uf.edex.dat.utils
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.2",
- com.raytheon.uf.common.dataplugin.ffmp;bundle-version="1.12.2",
  com.raytheon.uf.common.monitor;bundle-version="1.12.2",
- com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
- com.raytheon.uf.edex.menus;bundle-version="1.0.0"
+ com.raytheon.uf.edex.menus;bundle-version="1.0.0",
+ com.raytheon.uf.common.parameter

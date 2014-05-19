@@ -31,6 +31,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.message.WsId;
+import com.raytheon.uf.common.util.SystemUtil;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 /**
@@ -49,7 +50,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  *    Aug 27, 2013  2295        bkowal      Removed the jms server property; added
  *                                          jms connection string
  *    Feb 17, 2014  2812        njensen     getHostName() now uses getWsId()'s hostname
- * 
+ *    Mar 20, 2014  2726        rjpeter     Moved host processing to SystemUtil.
  * </pre>
  * 
  * @author chammack
@@ -252,21 +253,13 @@ public final class VizApp {
     private static String host = null;
 
     /**
-     * Gets the host name from the WsId of the host machine calling the function
+     * Gets the host name of the machine calling the function
      * 
      * @return
      */
     public static synchronized String getHostName() {
         if (host == null) {
-            host = getWsId().getHostName();
-            if (host == null) {
-                String hostname = System.getenv("HOSTNAME");
-                if (hostname != null && hostname.trim().length() > 0) {
-                    host = hostname;
-                } else {
-                    host = "localhost";
-                }
-            }
+            host = SystemUtil.getHostName();
         }
         return host;
     }

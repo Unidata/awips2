@@ -40,6 +40,7 @@ import com.raytheon.uf.common.monitor.xml.SCANSiteXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.dat.utils.DATUtils;
 import com.raytheon.uf.edex.dat.utils.ScanDataCache;
 import com.raytheon.uf.edex.plugin.qpf.QPFGenerator;
@@ -59,9 +60,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/17/2009   1981       dhladky    Initial Creation.
- * 01/07/2013	DR 15647   gzhang	  Use logger.warn for null earlyVilURI/earlyCZURI.	
- * 11/11/2013   2377       bclement   setRadarRecords returns bool for success
+ * 02/17/2009   1981       dhladky     Initial Creation.
+ * 01/07/2013	DR 15647   gzhang	   Use logger.warn for null earlyVilURI/earlyCZURI.	
+ * 11/11/2013   2377       bclement    setRadarRecords returns bool for success
+ * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
  * </pre>
  * 
  * @author dhladky
@@ -357,11 +359,11 @@ public class QPFConfig {
         Set<Date> vilKeys = vilmap.keySet();
         Iterator<Date> iter1 = vilKeys.iterator();
         while (iter1.hasNext()) {
-            Date vilcal = (Date) iter1.next();
+            Date vilcal = iter1.next();
             Set<Date> czKeys = czMap.keySet();
             Iterator<Date> iter2 = czKeys.iterator();
             while (iter2.hasNext()) {
-                Date czcal = (Date) iter2.next();
+                Date czcal = iter2.next();
                 if (czcal.equals(vilcal)) {
                     earlyVilURI = vilmap.get(vilcal);
                     earlyCZURI = czMap.get(czcal);
@@ -375,7 +377,9 @@ public class QPFConfig {
         }
 
         if (earlyVilURI == null || earlyCZURI == null) {
-        	qpfgen.logger.warn("QPFConfig: No previous data for QPF. Check the RADAR OP Mode.");// DR 15647
+            qpfgen.logger
+                    .warn("QPFConfig: No previous data for QPF. Check the RADAR OP Mode.");// DR
+                                                                                           // 15647
             return false;
         }
 
@@ -542,13 +546,25 @@ public class QPFConfig {
             SCANModelParameterXML paramXMLU = siteXML.getModelParameter("U700");
             SCANModelParameterXML paramXMLV = siteXML.getModelParameter("V700");
 
-            int interval = 1440;
+            int interval = TimeUtil.MINUTES_PER_DAY;
 
+            /*
+             * FIXME the inner calls to ####Product.getGridProduct below will
+             * always return null. The second parameter is supposed to be the
+             * model (e.g. RUC130) but is passing in the parameter.
+             * 
+             * Despite this problem, the code continues to function without
+             * exceptions because the call to DATUtils.getMostRecentGridRecord()
+             * will see the null record and then return the cached record, which
+             * was retrieved correctly.
+             */
             GridRecord modelURec = DATUtils.getMostRecentGridRecord(interval,
-                    U700Product.getSQL(interval, U700Product.U700), paramXMLU);
+                    U700Product.getGridRecord(interval, U700Product.U700),
+                    paramXMLU);
 
             GridRecord modelVRec = DATUtils.getMostRecentGridRecord(interval,
-                    V700Product.getSQL(interval, V700Product.V700), paramXMLV);
+                    V700Product.getGridRecord(interval, V700Product.V700),
+                    paramXMLV);
 
             if (modelURec != null && modelVRec != null) {
                 useModel = true;
