@@ -20,9 +20,11 @@
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -30,14 +32,11 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
@@ -48,7 +47,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 
 /**
- * Invire some users to join a session.
+ * Invite some users to join a session.
  * 
  * <pre>
  * 
@@ -61,6 +60,7 @@ import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
  * Jan 28, 2014 2698       bclement    removed venue info
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Mar 06, 2014 2848       bclement    get venueName directly from session
+ * May 19, 2014 3180       bclement    replaced getNewSessions() with new logic in getFilteredSessions()
  * 
  * </pre>
  * 
@@ -95,8 +95,6 @@ public class InviteAction extends Action {
         this.users = users;
         this.session = session;
         this.setToolTipText("Invite selected user(s) to join a session.");
-        // set the initial enabled state.
-        isEnabled();
     }
 
     @Override
@@ -140,52 +138,60 @@ public class InviteAction extends Action {
      */
     public void updateEnabled() {
         boolean enabled = false;
-        List<IVenueSession> newSessions = getNewSessions();
-        if ((session == null && !newSessions.isEmpty())
-                || newSessions.contains(session)) {
+        Collection<IVenueSession> filteredSessions = getFilteredSessions();
+        if ((session == null && !filteredSessions.isEmpty())
+                || filteredSessions.contains(session)) {
             enabled = true;
         }
         setEnabled(enabled);
     }
 
-    private List<IVenueSession> getNewSessions() {
+    /**
+     * @return a collection of VenueSessions in which the current user is a
+     *         participant and any of the {@link #users} are not
+     * @see #allInSession(Collection, IVenueSession)
+     */
+    private Collection<IVenueSession> getFilteredSessions() {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        Collection<IVenueSession> allSessions = connection
+                .getJoinedVenueSessions();
         List<IVenueSession> result = new ArrayList<IVenueSession>();
-        for (UserId user : users) {
-            for (IVenueSession session : getNewSessions(user)) {
-                if (!result.contains(session)) {
-                    result.add(session);
-                }
+        List<UserId> userlist = Arrays.asList(this.users);
+        for (IVenueSession session : allSessions) {
+            if (!allInSession(userlist, session)) {
+                result.add(session);
             }
         }
         return result;
     }
 
-    private List<IVenueSession> getNewSessions(UserId user) {
-        Presence presence = CollaborationConnection.getConnection()
-                .getContactsManager().getPresence(user);
-        if (presence.getType() == Type.unavailable) {
-            return Collections.emptyList();
-        }
-        List<IVenueSession> result = new ArrayList<IVenueSession>();
-        Collection<ISession> sessions = CollaborationConnection.getConnection()
-                .getSessions();
-        for (ISession session : sessions) {
-            if (session != null && session instanceof IVenueSession) {
-                Collection<VenueParticipant> participants = ((IVenueSession) session)
-                        .getVenue().getParticipants();
-                boolean notInRoom = true;
-                for (VenueParticipant pa : participants) {
-                    if (pa.isSameUser(user)) {
-                        notInRoom = false;
-                        break;
-                    }
-                }
-                if (notInRoom) {
-                    result.add((IVenueSession) session);
-                }
+    /**
+     * Note: this method will always return false for a session in which this
+     * user cannot know the real user IDs of the participants
+     * 
+     * @param users
+     * @param session
+     * @return false if any of the users are not in the session
+     */
+    private static boolean allInSession(Collection<UserId> users,
+            IVenueSession session) {
+        boolean rval = true;
+        Collection<VenueParticipant> participants = session.getVenue()
+                .getParticipants();
+        Set<String> participantIds = new HashSet<String>(participants.size());
+        for (VenueParticipant vp : participants) {
+            if (vp.hasActualUserId()) {
+                participantIds.add(vp.getUserid().getNormalizedId());
             }
         }
-        return result;
+        for (UserId user : users) {
+            if (!participantIds.contains(user.getNormalizedId())) {
+                rval = false;
+                break;
+            }
+        }
+        return rval;
     }
 
     private class MenuCreator implements IMenuCreator {
@@ -212,7 +218,7 @@ public class InviteAction extends Action {
         }
 
         private void fill() {
-            for (IVenueSession session : getNewSessions()) {
+            for (IVenueSession session : getFilteredSessions()) {
                 String name = session.getVenueName();
                 Action action = new InviteAction(session, name, users);
                 IContributionItem contrib = new ActionContributionItem(action);
