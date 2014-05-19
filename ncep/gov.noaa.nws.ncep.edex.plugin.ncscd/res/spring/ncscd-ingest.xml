@@ -26,13 +26,8 @@
 		<constructor-arg value="jms-durable:queue:Ingest.ncscd" />
 	</bean>
 
-	<bean id="ncscdCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ncscd-camel" />
-	</bean>
-
 	<camelContext id="ncscd-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="ncscdFileEndpoint"
 			uri="file:${edex.home}/data/sbn/ncscd?noop=true&amp;idempotent=false" />
 

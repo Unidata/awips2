@@ -12,15 +12,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.textlightning"/>
 	</bean>
 
-    <bean id="textlightningCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="textlightning-camel"/>
-  	</bean>  
-
 	<camelContext id="textlightning-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="textlightningFileEndpoint"
 			uri="file:${edex.home}/data/sbn/textlightning?noop=true&amp;idempotent=false" />

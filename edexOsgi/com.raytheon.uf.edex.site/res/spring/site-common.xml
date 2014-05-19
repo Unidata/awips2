@@ -8,8 +8,7 @@
   
 	<camelContext id="siteActivation" 
 		xmlns="http://camel.apache.org/schema/spring" 
-		errorHandlerRef="errorHandler"
-	    autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<route id="siteActivationRoute">
        		<from uri="jms-generic:topic:siteActivation" />
 			<doTry>
@@ -32,11 +31,6 @@
 			</filter>
 		</route>
 	</camelContext>
-	
-	<bean id="siteActivationRegistered" factory-bean="contextManager"
-		factory-method="register">
-		<constructor-arg ref="siteActivation"/>
-  	</bean>
 	
 	<bean id="siteAwareRegistry" class="com.raytheon.uf.edex.site.SiteAwareRegistry" factory-method="getInstance">
 	    <property name="routeId" value="siteActivationRoute"/>

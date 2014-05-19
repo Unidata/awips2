@@ -10,6 +10,7 @@
 
 	<bean id="routeWrapper" class="com.raytheon.uf.edex.registry.ebxml.RegistryRemoteRequestWrapper">
 		<property name="server" ref="serializeServer"/>
+        <property name="byteLimitInMB" value="${thriftService.byteLimitInMB}" />
 	</bean>    
 
     <bean id="binaryHttpBinding" class="com.raytheon.uf.edex.esb.camel.http.BinaryHttpBinding"/>
