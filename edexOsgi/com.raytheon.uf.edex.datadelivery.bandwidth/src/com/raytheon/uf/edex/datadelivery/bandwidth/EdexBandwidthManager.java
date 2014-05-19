@@ -40,8 +40,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
@@ -87,7 +87,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalFulfilled;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * Implementation of {@link BandwidthManager} that isolates EDEX specific
@@ -129,6 +129,7 @@ import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
  * Feb 21, 2014, 2636      dhladky      Try catch to keep MaintTask from dying.
  * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * Apr 09, 2014 3012       dhladky      Range the queries for metadata checks, adhoc firing prevention.
+ * Apr 22, 2014 2992       dhladky      Added IdUtil for siteList
  * </pre>
  * 
  * @author djohnson
@@ -178,12 +179,13 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             IBandwidthDao<T, C> bandwidthDao,
             RetrievalManager retrievalManager,
             BandwidthDaoUtil<T, C> bandwidthDaoUtil,
+            RegistryIdUtil idUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
             IAdhocSubscriptionHandler adhocSubscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService,
             IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
-        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
+        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil, idUtil);
 
         this.dataSetMetaDataHandler = dataSetMetaDataHandler;
         this.subscriptionHandler = subscriptionHandler;
@@ -402,7 +404,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(objectType)) {
             if (sub != null) {
                 boolean isApplicableForTheLocalSite = sub.getOfficeIDs()
-                        .contains(DataDeliveryIdUtil.getId());
+                        .contains(RegistryIdUtil.getId());
                 if (isApplicableForTheLocalSite) {
                     switch (event.getAction()) {
                     case UPDATE:
@@ -800,7 +802,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
      * reinitialize operation.
      */
     private void bandwidthMapConfigurationUpdated() {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setRequestType(RequestType.REINITIALIZE);
 
         try {

@@ -51,6 +51,7 @@ import com.raytheon.uf.common.python.PythonInterpreter;
  * Nov 21, 2009  3576     rjpeter     Refactored to populate DerivParamDesc.
  * Oct 29, 2013  2476     njensen     Renamed numeric methods to numpy
  * Apr 11, 2014  2947     bsteffen    Allow returning NaN
+ * May 01, 2014  3101     njensen     Safe cast result shape values to Number
  * 
  * </pre>
  * 
@@ -370,8 +371,8 @@ public class MasterDerivScript extends PythonInterpreter {
 
         long[] dims = new long[nDims];
         for (int i = 0; i < nDims; i++) {
-            dims[i] = ((Integer) jep.getValue("numpy.shape(" + RESULT + ")["
-                    + i + "]")).longValue();
+            dims[i] = ((Number) jep.getValue("numpy.shape(" + RESULT + ")[" + i
+                    + "]")).longValue();
         }
 
         if (dims.length == 2) {

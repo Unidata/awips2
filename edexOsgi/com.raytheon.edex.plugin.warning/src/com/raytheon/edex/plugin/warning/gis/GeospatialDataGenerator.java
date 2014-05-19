@@ -20,13 +20,16 @@
 package com.raytheon.edex.plugin.warning.gis;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.xml.bind.JAXBException;
 
@@ -62,6 +65,8 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -97,6 +102,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * May  7, 2013  15690     Qinglu Lin  Added convertToMultiPolygon() and updated queryGeospatialData().
  * Oct 22, 2013  2361      njensen     Use JAXBManager for XML
  * Feb 07, 2014  16090  mgamazaychikov Changed visibility of some methods
+ * Mar 19, 2014  2726      rjpeter     Made singleton instance.
  * </pre>
  * 
  * @author rjpeter
@@ -104,14 +110,19 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  */
 
 public class GeospatialDataGenerator {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GeospatialDataGenerator.class);
 
-    private static final SingleTypeJAXBManager<GeospatialTimeSet> jaxb = SingleTypeJAXBManager
+    private final SingleTypeJAXBManager<GeospatialTimeSet> jaxb = SingleTypeJAXBManager
             .createWithoutException(GeospatialTimeSet.class);
 
-    public static void generateUniqueGeospatialMetadataGeometries() {
+    private final String updaterEndpoint;
+
+    public GeospatialDataGenerator(String updaterEndpoint) {
+        this.updaterEndpoint = updaterEndpoint;
+    }
+
+    public void generateUniqueGeospatialMetadataGeometries() {
         String mySite = SiteUtil.getSite();
         DialogConfiguration dialogConfig = null;
 
@@ -129,7 +140,7 @@ public class GeospatialDataGenerator {
 
         for (String site : sites) {
             statusHandler.handle(Priority.INFO,
-                    "Generating warngen geometries for site: " + site);
+                    "Checking warngen geometries for site: " + site);
             for (GeospatialMetadata md : metaDataSet) {
                 try {
                     generateGeoSpatialList(site, md);
@@ -143,7 +154,7 @@ public class GeospatialDataGenerator {
         }
     }
 
-    public static Set<GeospatialMetadata> getMetaDataSet(List<String> sites,
+    public Set<GeospatialMetadata> getMetaDataSet(List<String> sites,
             List<String> templates) {
 
         Set<GeospatialMetadata> metaDataSet = new HashSet<GeospatialMetadata>();
@@ -178,7 +189,8 @@ public class GeospatialDataGenerator {
         }
         return metaDataSet;
     }
-    static List<String> getBackupSites(DialogConfiguration dialogConfig) {
+
+    public static List<String> getBackupSites(DialogConfiguration dialogConfig) {
         String[] CWAs = dialogConfig.getBackupCWAs().split(",");
         List<String> rval = new ArrayList<String>(CWAs.length + 1);
         for (String s : CWAs) {
@@ -189,7 +201,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    static List<String> getTemplates(DialogConfiguration dialogConfig) {
+    public static List<String> getTemplates(DialogConfiguration dialogConfig) {
         String[] mainProducts = dialogConfig.getMainWarngenProducts()
                 .split(",");
         String[] otherProducts = dialogConfig.getOtherWarngenProducts().split(
@@ -209,7 +221,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    public static GeospatialDataSet generateGeoSpatialList(String site,
+    public GeospatialDataSet generateGeoSpatialList(String site,
             GeospatialMetadata metaData) throws SpatialException {
         GeospatialDataSet dataSet = null;
         String file = generateGeoDataFilename(metaData);
@@ -307,6 +319,19 @@ public class GeospatialDataGenerator {
                 // save to disk
                 try {
                     persistGeoData(site, lastRunTimeMap, curTime, dataSet);
+
+                    if (updaterEndpoint != null) {
+                        String updatedTimeStamp = getTimeStamp(curTime,
+                                lastRunTime);
+
+                        try {
+                            EDEXUtil.getMessageProducer().sendAsync(
+                                    updaterEndpoint, updatedTimeStamp);
+                        } catch (EdexException e) {
+                            statusHandler.error("Could not send message to "
+                                    + updaterEndpoint, e);
+                        }
+                    }
                 } catch (Exception e) {
                     statusHandler.handle(Priority.WARN,
                             "Error occurred persisting area geometry data", e);
@@ -320,7 +345,7 @@ public class GeospatialDataGenerator {
         return dataSet;
     }
 
-    public static GeospatialMetadata getMetaData(WarngenConfiguration template) {
+    public GeospatialMetadata getMetaData(WarngenConfiguration template) {
         GeospatialMetadata rval = new GeospatialMetadata();
         GeospatialConfiguration geoConfig = template.getGeospatialConfig();
         AreaSourceConfiguration areaConfig = template.getHatchedAreaSource();
@@ -346,7 +371,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    static GeospatialTime queryForCurrentTimes(
+    public static GeospatialTime queryForCurrentTimes(
             GeospatialMetadata metaData) throws Exception {
         GeospatialTime rval = new GeospatialTime();
         String areaSource = metaData.getAreaSource().toLowerCase();
@@ -355,12 +380,12 @@ public class GeospatialDataGenerator {
         StringBuilder sql = new StringBuilder(200);
         sql.append("SELECT table_name, import_time FROM mapdata.map_version WHERE table_name in ('");
         sql.append(areaSource.toLowerCase());
-        if (tzSource != null && tzSource.length() > 0) {
+        if ((tzSource != null) && (tzSource.length() > 0)) {
             tzSource = tzSource.toLowerCase();
             sql.append("', '");
             sql.append(tzSource);
         }
-        if (pAreaSource != null && pAreaSource.length() > 0) {
+        if ((pAreaSource != null) && (pAreaSource.length() > 0)) {
             pAreaSource = pAreaSource.toLowerCase();
             sql.append("', '");
             sql.append(pAreaSource);
@@ -390,7 +415,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private static GeospatialData[] queryGeospatialData(String site,
+    private GeospatialData[] queryGeospatialData(String site,
             GeospatialMetadata metaData) throws SpatialException {
         String areaSource = metaData.getAreaSource();
 
@@ -423,22 +448,24 @@ public class GeospatialDataGenerator {
             Geometry clippedGeom = null;
             for (int i = 0; i < features.length; i++) {
                 multiPolygon = null;
-                for (int j = 0; j < cwaFeatures.length; j++) {
+                for (SpatialQueryResult cwaFeature : cwaFeatures) {
                     clippedGeom = features[i].geometry
-                            .intersection(cwaFeatures[j].geometry);
+                            .intersection(cwaFeature.geometry);
                     if (clippedGeom instanceof GeometryCollection) {
                         GeometryCollection gc = (GeometryCollection) clippedGeom;
-                        if (multiPolygon != null)
+                        if (multiPolygon != null) {
                             multiPolygon = multiPolygon
                                     .union(convertToMultiPolygon(gc));
-                        else
+                        } else {
                             multiPolygon = convertToMultiPolygon(gc);
+                        }
                     }
                 }
-                if (multiPolygon != null)
+                if (multiPolygon != null) {
                     features[i].geometry = multiPolygon;
-                else if (clippedGeom != null)
+                } else if (clippedGeom != null) {
                     features[i].geometry = clippedGeom;
+                }
             }
         }
 
@@ -463,7 +490,7 @@ public class GeospatialDataGenerator {
      * 
      * @param gc
      */
-    private static MultiPolygon convertToMultiPolygon(GeometryCollection gc) {
+    private MultiPolygon convertToMultiPolygon(GeometryCollection gc) {
         GeometryCollectionIterator iter = new GeometryCollectionIterator(gc);
         Set<Polygon> polygons = new HashSet<Polygon>();
         MultiPolygon mp = null;
@@ -471,52 +498,59 @@ public class GeospatialDataGenerator {
         while (iter.hasNext()) {
             Object o = iter.next();
             if (o instanceof MultiPolygon) {
-                if (mp == null)
+                if (mp == null) {
                     mp = (MultiPolygon) o;
-                else
+                } else {
                     mp = (MultiPolygon) mp.union((MultiPolygon) o);
+                }
             } else if (o instanceof Polygon) {
                 polygons.add((Polygon) o);
-            } else if (o instanceof LineString || o instanceof Point) {
+            } else if ((o instanceof LineString) || (o instanceof Point)) {
                 LinearRing lr = null;
                 Coordinate[] coords = null;
                 if (o instanceof LineString) {
                     Coordinate[] cs = ((LineString) o).getCoordinates();
                     if (cs.length < 4) {
                         coords = new Coordinate[4];
-                        for (int j = 0; j < cs.length; j++)
+                        for (int j = 0; j < cs.length; j++) {
                             coords[j] = new Coordinate(cs[j]);
-                        for (int j = cs.length; j < 4; j++)
+                        }
+                        for (int j = cs.length; j < 4; j++) {
                             coords[j] = new Coordinate(cs[3 - j]);
+                        }
                     } else {
                         coords = new Coordinate[cs.length + 1];
-                        for (int j = 0; j < cs.length; j++)
+                        for (int j = 0; j < cs.length; j++) {
                             coords[j] = new Coordinate(cs[j]);
+                        }
                         coords[cs.length] = new Coordinate(cs[0]);
                     }
                 } else {
                     coords = new Coordinate[4];
-                    for (int i = 0; i < 4; i++)
+                    for (int i = 0; i < 4; i++) {
                         coords[i] = ((Point) o).getCoordinate();
+                    }
                 }
                 lr = (((Geometry) o).getFactory()).createLinearRing(coords);
                 Polygon poly = (new GeometryFactory()).createPolygon(lr, null);
-                polygons.add((Polygon) poly);
+                polygons.add(poly);
             } else {
                 statusHandler.handle(Priority.WARN,
                         "Unprocessed Geometry object: "
                                 + o.getClass().getName());
             }
         }
-        if (mp == null && polygons.size() == 0)
+        if ((mp == null) && (polygons.size() == 0)) {
             return null;
+        }
         if (polygons.size() > 0) {
             Polygon[] p = polygons.toArray(new Polygon[0]);
-            if (mp != null)
+            if (mp != null) {
                 mp = (MultiPolygon) mp.union(new MultiPolygon(p, gc
                         .getFactory()));
-            else
+            } else {
                 mp = new MultiPolygon(p, gc.getFactory());
+            }
         }
         return mp;
     }
@@ -527,8 +561,7 @@ public class GeospatialDataGenerator {
      * 
      * @param results
      */
-    private static void topologySimplifyQueryResults(
-            SpatialQueryResult[] results) {
+    private void topologySimplifyQueryResults(SpatialQueryResult[] results) {
         GeometryFactory gf = new GeometryFactory();
         Geometry[] geoms = new Geometry[results.length];
         for (int i = 0; i < results.length; i++) {
@@ -571,7 +604,7 @@ public class GeospatialDataGenerator {
      * @param hull
      * @param geoData
      */
-    private static GeospatialData[] queryTimeZones(GeospatialMetadata metaData,
+    private GeospatialData[] queryTimeZones(GeospatialMetadata metaData,
             Geometry hull, GeospatialData[] geoData) throws SpatialException {
         GeospatialData[] rval = null;
         String timezonePathcastTable = metaData.getTimeZoneSource();
@@ -627,8 +660,8 @@ public class GeospatialDataGenerator {
      * @return
      * @throws SpatialException
      */
-    private static GeospatialData[] queryParentAreas(
-            GeospatialMetadata metaData, Geometry hull) throws SpatialException {
+    private GeospatialData[] queryParentAreas(GeospatialMetadata metaData,
+            Geometry hull) throws SpatialException {
         GeospatialData[] rval = null;
         String parentAreaSource = metaData.getParentAreaSource();
         if (parentAreaSource != null) {
@@ -653,7 +686,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private static void persistGeoData(String site,
+    private void persistGeoData(String site,
             Map<GeospatialMetadata, GeospatialTime> times,
             GeospatialTime curTime, GeospatialDataSet geoData)
             throws SerializationException, LocalizationException, JAXBException {
@@ -681,7 +714,7 @@ public class GeospatialDataGenerator {
         lf.write(xml.getBytes());
     }
 
-    private static void deleteGeomFiles(String site, GeospatialTime time) {
+    private void deleteGeomFiles(String site, GeospatialTime time) {
         String fileName = time.getFileName();
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
@@ -701,8 +734,32 @@ public class GeospatialDataGenerator {
         }
     }
 
-    private static final String generateGeoDataFilename(
-            GeospatialMetadata metaData) {
+    private String generateGeoDataFilename(GeospatialMetadata metaData) {
         return metaData.getAreaSource() + "_" + metaData.hashCode() + ".bin";
+    }
+
+    private String getTimeStamp(GeospatialTime curTime,
+            GeospatialTime lastRunTime) {
+        long tmStampMs = 0;
+        if (lastRunTime != null) {
+            if (curTime.getAreaSourceTime() != lastRunTime.getAreaSourceTime()) {
+                tmStampMs = curTime.getAreaSourceTime();
+            } else if (curTime.getParentSourceTime() != lastRunTime
+                    .getParentSourceTime()) {
+                tmStampMs = curTime.getParentSourceTime();
+            } else if (curTime.getTimeZoneSourceTime() != lastRunTime
+                    .getTimeZoneSourceTime()) {
+                tmStampMs = curTime.getTimeZoneSourceTime();
+            }
+        } else {
+            tmStampMs = curTime.getAreaSourceTime();
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        calendar.setTimeInMillis(tmStampMs);
+        return sdf.format(calendar.getTime());
     }
 }
