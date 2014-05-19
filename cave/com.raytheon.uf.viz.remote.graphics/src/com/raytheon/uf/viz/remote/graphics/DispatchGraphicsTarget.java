@@ -52,12 +52,14 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.PixelCoverage;
+import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IColormappedDataPreparer;
 import com.raytheon.uf.viz.core.data.IDataPreparer;
 import com.raytheon.uf.viz.core.data.IImageDataPreparer;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.data.resp.NumericImageData;
+import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.FontType;
@@ -111,6 +113,8 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingWireframeShape;
  * ------------- -------- ----------- --------------------------
  * Feb 28, 2012           mschenke    Initial creation
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
+ * May 16, 2014  3163     bsteffen    Remove references to deprecated
+ *                                    {@link IGraphicsTarget} methods.
  * 
  * </pre>
  * 
@@ -145,15 +149,12 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#initializeRaster(com.raytheon
-     * .uf.viz.core.data.IDataPreparer,
-     * com.raytheon.uf.viz.core.drawables.ColorMapParameters)
+    /**
+     * @deprecated For general IImage construction, use
+     *             {@link #initializeRaster(IRenderedImageCallback)}. Other
+     *             image construction methods should be done through extensions
      */
-    @Override
+    @Deprecated
     public IImage initializeRaster(IDataPreparer preparer,
             ColorMapParameters optionalParams) {
         IImage rval = null;
@@ -221,6 +222,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @return
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#initializeFont(java.lang.String)
      */
+    @Override
     public IFont initializeFont(String font) {
         return new DispatchingFont(wrappedObject.initializeFont(font),
                 getDispatcher());
@@ -234,19 +236,18 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#initializeFont(java.lang.String,
      *      float, com.raytheon.uf.viz.core.drawables.IFont.Style[])
      */
+    @Override
     public IFont initializeFont(String fontName, float size, Style[] styles) {
         return new DispatchingFont(wrappedObject.initializeFont(fontName, size,
                 styles), getDispatcher());
     }
 
-    /**
-     * @param fontFile
-     * @param size
-     * @param styles
-     * @return
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#initializeFont(java.io.File,
-     *      float, com.raytheon.uf.viz.core.drawables.IFont.Style[])
+    /*
+     * @deprecated {@link #initializeFont(File,
+     * com.raytheon.uf.viz.core.drawables.IFont.FontType, float,
+     * com.raytheon.uf.viz.core.drawables.IFont.Style[])} should be used instead
      */
+    @Deprecated
     public IFont initializeFont(File fontFile, float size, Style[] styles) {
         return initializeFont(fontFile, FontType.TRUETYPE, size, styles);
     }
@@ -262,6 +263,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      com.raytheon.uf.viz.core.drawables.IFont.FontType float,
      *      com.raytheon.uf.viz.core.drawables.IFont.Style[])
      */
+    @Override
     public IFont initializeFont(File fontFile, FontType type, float size,
             Style[] styles) {
         return new DispatchingFont(wrappedObject.initializeFont(fontFile, type,
@@ -278,6 +280,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      com.raytheon.uf.viz.core.PixelCoverage,
      *      com.raytheon.uf.viz.core.drawables.PaintProperties)
      */
+    @Override
     public boolean drawRaster(IImage image, PixelCoverage extent,
             PaintProperties paintProps) throws VizException {
         DrawableImage di = new DrawableImage(image, extent);
@@ -292,6 +295,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawRasters(com.raytheon.uf.viz.core.drawables.PaintProperties,
      *      com.raytheon.uf.viz.core.DrawableImage[])
      */
+    @Override
     public boolean drawRasters(PaintProperties paintProps,
             DrawableImage... images) throws VizException {
         return ImagingSupport.drawRasters(this, paintProps, images);
@@ -309,6 +313,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      com.raytheon.uf.viz.core.drawables.PaintProperties,
      *      com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode)
      */
+    @Override
     public boolean drawRaster(IImage image, PixelCoverage extent,
             PaintProperties paintProps, RasterMode mode) throws VizException {
         DrawableImage di = new DrawableImage(image, extent);
@@ -321,6 +326,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @throws VizException
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawStrings(com.raytheon.uf.viz.core.DrawableString[])
      */
+    @Override
     public void drawStrings(DrawableString... parameters) throws VizException {
         drawStrings(Arrays.asList(parameters));
     }
@@ -330,6 +336,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @throws VizException
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawStrings(java.util.Collection)
      */
+    @Override
     public void drawStrings(Collection<DrawableString> parameters)
             throws VizException {
         List<IFont> originalFonts = new ArrayList<IFont>(parameters.size());
@@ -368,6 +375,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @return
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getStringsBounds(com.raytheon.uf.viz.core.DrawableString)
      */
+    @Override
     public Rectangle2D getStringsBounds(DrawableString parameters) {
         IFont font = parameters.font;
         if (font instanceof DispatchingFont) {
@@ -385,6 +393,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getStringsBounds(com.raytheon.uf.viz.core.DrawableString,
      *      java.lang.String)
      */
+    @Override
     public Rectangle2D getStringsBounds(DrawableString parameters, String string) {
         IFont font = parameters.font;
         if (font instanceof DispatchingFont) {
@@ -402,6 +411,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawShadedShape(com.raytheon.uf.viz.core.drawables.IShadedShape,
      *      float)
      */
+    @Override
     public void drawShadedShape(IShadedShape shape, float alpha)
             throws VizException {
         drawShadedShape(shape, alpha, 1.0f);
@@ -415,6 +425,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawShadedShape(com.raytheon.uf.viz.core.drawables.IShadedShape,
      *      float, float)
      */
+    @Override
     public void drawShadedShape(IShadedShape shape, float alpha,
             float brightness) throws VizException {
         drawShadedShapes(alpha, brightness, shape);
@@ -428,6 +439,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawShadedShapes(float,
      *      float, com.raytheon.uf.viz.core.drawables.IShadedShape[])
      */
+    @Override
     public void drawShadedShapes(float alpha, float brightness,
             IShadedShape... shapes) throws VizException {
         IShadedShape[] actualShapes = new IShadedShape[shapes.length];
@@ -440,7 +452,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             DispatchingShadedShape shape = (DispatchingShadedShape) shapes[i];
             shape.flushState();
             shapeEvents[i] = RemoteGraphicsEventFactory.createEvent(
-                    DrawShadedShapeEvent.class, (DispatchingShadedShape) shape);
+                    DrawShadedShapeEvent.class, shape);
             actualShapes[i] = shape.getWrappedObject();
         }
         event.setObjects(shapeEvents);
@@ -458,6 +470,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawWireframeShape(com.raytheon.uf.viz.core.drawables.IWireframeShape,
      *      org.eclipse.swt.graphics.RGB, float)
      */
+    @Override
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth) throws VizException {
         DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
@@ -476,6 +489,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      org.eclipse.swt.graphics.RGB, float,
      *      com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle)
      */
+    @Override
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth, LineStyle lineStyle) throws VizException {
         DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
@@ -496,6 +510,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      org.eclipse.swt.graphics.RGB, float,
      *      com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle, float)
      */
+    @Override
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth, LineStyle lineStyle, float alpha)
             throws VizException {
@@ -519,6 +534,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle,
      *      com.raytheon.uf.viz.core.drawables.IFont)
      */
+    @Override
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth, LineStyle lineStyle, IFont font)
             throws VizException {
@@ -543,6 +559,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle,
      *      com.raytheon.uf.viz.core.drawables.IFont, float)
      */
+    @Override
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth, LineStyle lineStyle, IFont font, float alpha)
             throws VizException {
@@ -584,6 +601,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawRect(com.raytheon.uf.viz.core.IExtent,
      *      org.eclipse.swt.graphics.RGB, float, double)
      */
+    @Override
     public void drawRect(IExtent pe, RGB color, float lineWidth, double alpha)
             throws VizException {
         wrappedObject.drawRect(pe, color, lineWidth, alpha);
@@ -599,6 +617,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawShadedRect(com.raytheon.uf.viz.core.IExtent,
      *      org.eclipse.swt.graphics.RGB, double, byte[])
      */
+    @Override
     public void drawShadedRect(IExtent pe, RGB color, double alpha,
             byte[] pattern) throws VizException {
         wrappedObject.drawShadedRect(pe, color, alpha, pattern);
@@ -623,6 +642,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @throws VizException
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawCircle(com.raytheon.uf.viz.core.DrawableCircle[])
      */
+    @Override
     public void drawCircle(DrawableCircle... circles) throws VizException {
         wrappedObject.drawCircle(circles);
         DrawCirclesEvent event = RemoteGraphicsEventFactory.createEvent(
@@ -642,6 +662,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @throws VizException
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawLine(com.raytheon.uf.viz.core.DrawableLine[])
      */
+    @Override
     public void drawLine(DrawableLine... lines) throws VizException {
         wrappedObject.drawLine(lines);
         DrawLinesEvent event = RemoteGraphicsEventFactory.createEvent(
@@ -657,20 +678,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @param x1
-     * @param y1
-     * @param z1
-     * @param radius
-     * @param color
-     * @param width
-     * @param startAzimuth
-     * @param endAzimuth
-     * @param lineStyle
-     * @param includeSides
-     * @throws VizException
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawArc(double, double,
-     *      double, double, org.eclipse.swt.graphics.RGB, float, int, int,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle, boolean)
+     * @deprecated: Use {@link #drawCircle(DrawableCircle...)}
      */
     @Deprecated
     public void drawArc(double x1, double y1, double z1, double radius,
@@ -703,6 +711,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getPointOnCircle(double,
      *      double, double, double, double)
      */
+    @Override
     public double[] getPointOnCircle(double x1, double y1, double z1,
             double radius, double angle) throws VizException {
         return wrappedObject.getPointOnCircle(x1, y1, z1, radius, angle);
@@ -715,6 +724,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#createWireframeShape(boolean,
      *      com.raytheon.uf.viz.core.drawables.IDescriptor)
      */
+    @Override
     public IWireframeShape createWireframeShape(boolean mutable,
             IDescriptor descriptor) {
         // Create original
@@ -737,6 +747,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#createWireframeShape(boolean,
      *      com.raytheon.uf.viz.core.drawables.IDescriptor, float)
      */
+    @Override
     public IWireframeShape createWireframeShape(boolean mutable,
             IDescriptor descriptor, float simplificationLevel) {
         // Create original
@@ -784,6 +795,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      com.raytheon.uf.viz.core.drawables.IDescriptor, float, boolean,
      *      com.raytheon.uf.viz.core.IExtent)
      */
+    @Override
     public IWireframeShape createWireframeShape(boolean mutable,
             IDescriptor descriptor, float simplificationLevel,
             boolean spatialChopFlag, IExtent extent) {
@@ -808,6 +820,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#createWireframeShape(boolean,
      *      org.geotools.coverage.grid.GeneralGridGeometry)
      */
+    @Override
     public IWireframeShape createWireframeShape(boolean mutableFlag,
             GeneralGridGeometry geom) {
         // Create original
@@ -833,6 +846,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      org.geotools.coverage.grid.GeneralGridGeometry, float, boolean,
      *      com.raytheon.uf.viz.core.IExtent)
      */
+    @Override
     public IWireframeShape createWireframeShape(boolean mutable,
             GeneralGridGeometry geom, float simplificationLevel,
             boolean spatialChopFlag, IExtent extent) {
@@ -863,12 +877,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @param mutable
-     * @param descriptor
-     * @param tesselate
-     * @return
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#createShadedShape(boolean,
-     *      com.raytheon.uf.viz.core.drawables.IDescriptor, boolean)
+     * @deprecated: Use
+     *              {@link #createShadedShape(boolean, GeneralGridGeometry, boolean)}
+     *              instead
      */
     @Deprecated
     public IShadedShape createShadedShape(boolean mutable,
@@ -883,8 +894,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @param tesselate
      * @return
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#createShadedShape(boolean,
-     *      com.raytheon.uf.viz.core.drawables.IDescriptor, boolean)
+     *      GeneralGridGeometry, boolean)
      */
+    @Override
     public IShadedShape createShadedShape(boolean mutable,
             GeneralGridGeometry targetGeometry, boolean tesselate) {
         DispatchingShadedShape shape = new DispatchingShadedShape(
@@ -904,6 +916,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#init()
      */
+    @Override
     public void init() {
         wrappedObject.init();
         defaultFont = new DispatchingFont(wrappedObject.getDefaultFont(),
@@ -916,6 +929,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#beginFrame(com.raytheon.uf.viz.core.IView,
      *      boolean)
      */
+    @Override
     public void beginFrame(IView view, boolean isClearBackground) {
         wrappedObject.beginFrame(view, isClearBackground);
         BeginFrameEvent beginFrame = RemoteGraphicsEventFactory.createEvent(
@@ -927,9 +941,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#endFrame()
      */
+    @Override
     public void endFrame() {
         wrappedObject.endFrame();
         dispatch(RemoteGraphicsEventFactory.createEvent(EndFrameEvent.class,
@@ -937,17 +951,17 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#resize()
      */
+    @Override
     public void resize() {
         wrappedObject.resize();
     }
 
     /**
-     * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#dispose()
      */
+    @Override
     public void dispose() {
         wrappedObject.dispose();
     }
@@ -956,6 +970,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @return
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#screenshot()
      */
+    @Override
     public BufferedImage screenshot() {
         return wrappedObject.screenshot();
     }
@@ -964,6 +979,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @param extent
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#setupClippingPlane(com.raytheon.uf.viz.core.IExtent)
      */
+    @Override
     public void setupClippingPlane(IExtent extent) {
         wrappedObject.setupClippingPlane(extent);
         SetupClippingPane event = RemoteGraphicsEventFactory.createEvent(
@@ -973,9 +989,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#clearClippingPlane()
      */
+    @Override
     public void clearClippingPlane() {
         wrappedObject.clearClippingPlane();
         dispatch(RemoteGraphicsEventFactory.createEvent(
@@ -986,6 +1002,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @param needsRefresh
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#setNeedsRefresh(boolean)
      */
+    @Override
     public void setNeedsRefresh(boolean needsRefresh) {
         wrappedObject.setNeedsRefresh(needsRefresh);
     }
@@ -994,6 +1011,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @return
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#isNeedsRefresh()
      */
+    @Override
     public boolean isNeedsRefresh() {
         return wrappedObject.isNeedsRefresh();
     }
@@ -1002,17 +1020,20 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @param backgroundColor
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#setBackgroundColor(org.eclipse.swt.graphics.RGB)
      */
+    @Override
     public void setBackgroundColor(RGB backgroundColor) {
         this.backgroundColor = backgroundColor;
         wrappedObject.setBackgroundColor(backgroundColor);
     }
 
     /**
-     * @param isColorbarDisplayed
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#setUseBuiltinColorbar(boolean)
+     * @deprecated: This method has no effect. IGraphicsTargets are not
+     *              responsible to drawing a colorbar. Use method drawColorRamp
+     *              to draw a color ramp
      */
+    @Deprecated
     public void setUseBuiltinColorbar(boolean isColorbarDisplayed) {
-        wrappedObject.setUseBuiltinColorbar(isColorbarDisplayed);
+
     }
 
     /**
@@ -1020,6 +1041,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @throws VizException
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf.viz.core.DrawableColorMap)
      */
+    @Override
     public void drawColorRamp(DrawableColorMap colorMap) throws VizException {
         wrappedObject.drawColorRamp(colorMap);
         DrawColorRampEvent event = RemoteGraphicsEventFactory.createEvent(
@@ -1034,6 +1056,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @return
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getDefaultFont()
      */
+    @Override
     public IFont getDefaultFont() {
         return defaultFont;
     }
@@ -1048,11 +1071,11 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @return
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#getViewType()
+     * @deprecated Should not be used for anything
      */
+    @Deprecated
     public String getViewType() {
-        return wrappedObject.getViewType();
+        return VizConstants.VIEW_2D;
     }
 
     /**
@@ -1066,6 +1089,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      double, org.eclipse.swt.graphics.RGB,
      *      com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle)
      */
+    @Override
     public void drawPoint(double x, double y, double z, RGB color,
             PointStyle pointStyle) throws VizException {
         wrappedObject.drawPoint(x, y, z, color, pointStyle);
@@ -1083,6 +1107,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      org.eclipse.swt.graphics.RGB,
      *      com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle, float)
      */
+    @Override
     public void drawPoints(Collection<double[]> locations, RGB color,
             PointStyle pointStyle, float magnification) throws VizException {
         wrappedObject.drawPoints(locations, color, pointStyle, magnification);
@@ -1101,6 +1126,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      double, org.eclipse.swt.graphics.RGB,
      *      com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle, float)
      */
+    @Override
     public void drawPoint(double x, double y, double z, RGB color,
             PointStyle pointStyle, float magnification) throws VizException {
         wrappedObject.drawPoint(x, y, z, color, pointStyle, magnification);
@@ -1120,26 +1146,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @param font
-     * @param text
-     * @param x
-     * @param y
-     * @param z
-     * @param textStyle
-     * @param color
-     * @param horizontalAlignment
-     * @param verticalAlignment
-     * @param rotation
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawString(com.raytheon.uf.viz.core.drawables.IFont,
-     *      java.lang.String, double, double, double,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle,
-     *      org.eclipse.swt.graphics.RGB,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment,
-     *      java.lang.Double)
+     * @deprecated Use {@link #drawStrings(DrawableString...)}
      */
+    @Deprecated
     public void drawString(IFont font, String text, double x, double y,
             double z, TextStyle textStyle, RGB color,
             HorizontalAlignment horizontalAlignment,
@@ -1156,24 +1165,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @param font
-     * @param text
-     * @param x
-     * @param y
-     * @param z
-     * @param textStyle
-     * @param color
-     * @param horizontalAlignment
-     * @param rotation
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawString(com.raytheon.uf.viz.core.drawables.IFont,
-     *      java.lang.String, double, double, double,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle,
-     *      org.eclipse.swt.graphics.RGB,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment,
-     *      java.lang.Double)
+     * @deprecated Use {@link #drawStrings(DrawableString...)}
      */
+    @Deprecated
     public void drawString(IFont font, String text, double x, double y,
             double z, TextStyle textStyle, RGB color,
             HorizontalAlignment horizontalAlignment, Double rotation)
@@ -1188,24 +1182,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @param font
-     * @param text
-     * @param x
-     * @param y
-     * @param z
-     * @param textStyle
-     * @param colors
-     * @param horizontalAlignment
-     * @param verticalAlignment
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawStrings(com.raytheon.uf.viz.core.drawables.IFont,
-     *      java.lang.String[], double, double, double,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle,
-     *      org.eclipse.swt.graphics.RGB[],
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment)
+     * @deprecated Use {@link #drawStrings(DrawableString...)}
      */
+    @Deprecated
     public void drawStrings(IFont font, String[] text, double x, double y,
             double z, TextStyle textStyle, RGB[] colors,
             HorizontalAlignment horizontalAlignment,
@@ -1220,98 +1199,67 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @param font
-     * @param text
-     * @return
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#getStringBounds(com.raytheon.uf.viz.core.drawables.IFont,
-     *      java.lang.String)
+     * @deprecated Use {@link #getStringsBounds(DrawableString)}
      */
+    @Deprecated
     public Rectangle2D getStringBounds(IFont font, String text) {
-        if (font instanceof DispatchingFont) {
-            font = ((DispatchingFont) font).getWrappedObject();
-        }
-        return wrappedObject.getStringBounds(font, text);
+        DrawableString params = new DrawableString(text, null);
+        params.font = font;
+        return getStringsBounds(params, text);
     }
 
     /**
-     * @param font
-     * @param text
-     * @param style
-     * @return
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#getStringBounds(com.raytheon.uf.viz.core.drawables.IFont,
-     *      java.lang.String[],
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle)
+     * @deprecated Use {@link #getStringsBounds(DrawableString)}
      */
+    @Deprecated
     public Rectangle2D getStringBounds(IFont font, String[] text,
             TextStyle style) {
-        if (font instanceof DispatchingFont) {
-            font = ((DispatchingFont) font).getWrappedObject();
-        }
-        return wrappedObject.getStringBounds(font, text, style);
+        DrawableString params = new DrawableString(text, (RGB[]) null);
+        params.font = font;
+        params.addTextStyle(style);
+        return getStringsBounds(params);
     }
 
     /**
-     * @param x1
-     * @param y1
-     * @param z1
-     * @param radius
-     * @param color
-     * @param width
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawCircle(double, double,
-     *      double, double, org.eclipse.swt.graphics.RGB, float)
+     * @deprecated Use {@link #drawCircle(DrawableCircle...)}
      */
+    @Deprecated
     public void drawCircle(double x1, double y1, double z1, double radius,
             RGB color, float width) throws VizException {
-        wrappedObject.drawCircle(x1, y1, z1, radius, color, width);
+        DrawableCircle circle = new DrawableCircle();
+        circle.setCoordinates(x1, y1, z1);
+        circle.lineWidth = width;
+        circle.basics.color = color;
+        circle.radius = new Double(radius);
+        drawCircle(circle);
     }
 
     /**
-     * @param x
-     * @param y
-     * @param z
-     * @param radius
-     * @param color
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawFilledCircle(double,
-     *      double, double, double, org.eclipse.swt.graphics.RGB)
+     * @deprecated Use {@link #drawCircle(DrawableCircle...)}
      */
+    @Deprecated
     public void drawFilledCircle(double x, double y, double z, double radius,
             RGB color) throws VizException {
-        wrappedObject.drawFilledCircle(x, y, z, radius, color);
+        DrawableCircle circle = new DrawableCircle();
+        circle.setCoordinates(x, y, z);
+        circle.basics.color = color;
+        circle.radius = new Double(radius);
+        circle.filled = true;
+        drawCircle(circle);
     }
 
     /**
-     * @param name
-     * @return
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#buildColorMap(java.lang.String)
+     * @deprecated Use {@link ColorMapLoader#loadColorMap(String)}
      */
+    @Deprecated
     public IColorMap buildColorMap(String name) throws VizException {
-        return wrappedObject.buildColorMap(name);
+        return ColorMapLoader.loadColorMap(name);
     }
 
     /**
-     * @param x1
-     * @param y1
-     * @param z1
-     * @param x2
-     * @param y2
-     * @param z2
-     * @param color
-     * @param width
-     * @param lineStyle
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawLine(double, double,
-     *      double, double, double, double, org.eclipse.swt.graphics.RGB, float,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle)
+     * @deprecated Use {@link #drawLine(DrawableLine...)}
      */
+    @Deprecated
     public void drawLine(double x1, double y1, double z1, double x2, double y2,
             double z2, RGB color, float width, LineStyle lineStyle)
             throws VizException {
@@ -1325,19 +1273,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @param x1
-     * @param y1
-     * @param z1
-     * @param x2
-     * @param y2
-     * @param z2
-     * @param color
-     * @param width
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawLine(double, double,
-     *      double, double, double, double, org.eclipse.swt.graphics.RGB, float)
+     * @deprecated Use {@link #drawLine(DrawableLine...)}
      */
+    @Deprecated
     public void drawLine(double x1, double y1, double z1, double x2, double y2,
             double z2, RGB color, float width) throws VizException {
         drawLine(x1, y1, z1, x2, y2, z2, color, width, LineStyle.DEFAULT);
