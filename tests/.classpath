@@ -71,7 +71,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.units"/>
 	<classpathentry exported="true" kind="src" path="/com.raytheon.uf.viz.stats"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.dom4j"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.plugin.redbook"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.plugin.redbook"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.plugin.level"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin.level"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.dataplugin.ffmp"/>
@@ -162,5 +162,7 @@
 	<classpathentry kind="lib" path="lib/jetty-security-7.6.14.v20131031.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.taf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.redbook"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.plugin.hpe"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.common.plugin.hpe"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

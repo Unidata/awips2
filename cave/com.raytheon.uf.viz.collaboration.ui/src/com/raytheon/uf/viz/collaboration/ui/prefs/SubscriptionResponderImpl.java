@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,15 +26,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPException;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.SubscriptionResponse;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.ISubscriptionRequestCompleteAction;
+import com.raytheon.uf.viz.collaboration.comm.provider.account.ISubscriptionRequestCompleteAction;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserSearch;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -52,6 +51,8 @@ import com.raytheon.uf.viz.core.VizApp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 03, 2014     2785   mpduff      Initial creation
+ * Apr 24, 2014     3070   bclement    added default group for auto accept
+ *                                      fixed auto accept known contacts
  * 
  * </pre>
  * 
@@ -88,15 +89,16 @@ public class SubscriptionResponderImpl implements ISubscriptionResponder {
                 .getPreferenceStore();
         if (prefs.getBoolean(CollabPrefConstants.AUTO_ACCEPT_SUBSCRIBE)) {
             rval.setAccepted(true);
+            rval.setGroup(prefs
+                    .getString(CollabPrefConstants.DEFAULT_GROUPNAME_PREF));
             action.executeSubscriptionRequestComplete(fromID, rval);
             return;
         }
 
         CollaborationConnection conn = CollaborationConnection.getConnection();
-        Collection<RosterGroup> groups = conn.getContactsManager().getGroups(
-                fromID);
-        if (!groups.isEmpty()) {
-            // we already have this user in a group in our roster
+        ContactsManager cm = conn.getContactsManager();
+        if (cm.isContact(fromID)) {
+            /* we already have a subscription to this user */
             rval.setAccepted(true);
             action.executeSubscriptionRequestComplete(fromID, rval);
         } else {

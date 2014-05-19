@@ -19,15 +19,9 @@
  **/
 package com.raytheon.uf.edex.services;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.message.Message;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.time.util.ITimer;
-import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.edex.services.textdbimpl.CommandExecutor;
 import com.raytheon.uf.edex.services.textdbsrv.ICommandExecutor;
 
@@ -49,9 +43,6 @@ public class TextDBSrv {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextDBSrv.class);
 
-    private static final IUFStatusHandler textDbSrvLogger = UFStatus
-            .getNamedHandler("TextDBSrvRequestLogger");
-
     private static Integer instanceId = 0;
 
     private ICommandExecutor executor = null;
@@ -62,44 +53,6 @@ public class TextDBSrv {
             instanceId = instanceId + 1;
         }
         executor = new CommandExecutor();
-    }
-
-    /**
-     * Processes an xml message from the text db service endpoint.
-     * 
-     * @param xml
-     * @return
-     */
-    public String processXmlMessage(String xml) {
-        ITimer timer = TimeUtil.getTimer();
-        timer.start();
-        String sizeString = SizeUtil.prettyByteSize(xml.length());
-        textDbSrvLogger.info("Processing xml message of length: " + sizeString);
-
-        Message returnMessage = null;
-        String outXml = null;
-
-        try {
-            Message message = SerializationUtil.unmarshalFromXml(Message.class,
-                    xml);
-            returnMessage = processMessage(message);
-            outXml = SerializationUtil.marshalToXml(returnMessage);
-        } catch (JAXBException e) {
-            statusHandler.error("Serialization of message failed", e);
-            outXml = "";
-        }
-
-        timer.stop();
-
-        StringBuilder sb = new StringBuilder(300);
-        sb.append("Processed message in ").append(timer.getElapsedTime())
-                .append("ms, ");
-        sb.append("request was size ").append(sizeString);
-        sb.append(", response was size ").append(
-                SizeUtil.prettyByteSize(outXml.length()));
-        textDbSrvLogger.info(sb.toString());
-
-        return outXml;
     }
 
     /**
