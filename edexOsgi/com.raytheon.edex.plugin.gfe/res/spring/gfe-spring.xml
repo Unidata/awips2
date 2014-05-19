@@ -4,24 +4,20 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="smartInitQueue" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue" factory-method="createQueue"/>
-    <bean id="smartInitThreadPool" class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="${smartinit.threads}" />
-        <property name="maxPoolSize" value="${smartinit.threads}" />
+
+    <bean id="gfeSitesActiveIngest" factory-bean="siteAwareRegistry" factory-method="register" depends-on="smartInitQueue">
+        <constructor-arg ref="gfeSiteActivation"/>
     </bean>
-    <bean id="smartInitSrvCfg" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrvConfig">
-        <property name="executor" ref="smartInitThreadPool"/>
-        <property name="threads" value="${smartinit.threads}"/>
+
+    <bean id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv" depends-on="gfeDbRegistered, gfeSitesActiveIngest">
         <property name="pendingInitMinTimeMillis" value="120000"/>
         <property name="runningInitTimeOutMillis" value="600000"/>
         <property name="threadSleepInterval" value="30000"/>
     </bean>
 
-    <bean depends-on="smartInitQueue" id="gfeSitesActiveIngest" factory-bean="siteAwareRegistry" factory-method="register">
-        <constructor-arg ref="gfeSiteActivation"/>
-    </bean>
-
-    <bean depends-on="gfeDbRegistered, gfeSitesActiveIngest" id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv">
-        <constructor-arg ref="smartInitSrvCfg"/>
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="gfe-camel-spring"/>
+        <constructor-arg ref="smartInitSrv"/>
     </bean>
 
     <bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.spc.SPCWatchSrv"/>
@@ -29,8 +25,10 @@
     <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.wcl.WCLWatchSrv"/>
 
     <bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
-
+    
     <camelContext id="gfe-camel-spring" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <endpoint id="smartInitLauncher" uri="timer://smartInitThread?repeatCount=${smartinit.threads}"/>
+
         <route id="SPCWatch">
             <from uri="vm:gfe.spcWatch"/>
             <doTry>
@@ -72,6 +70,12 @@
             <bean ref="smartInitQueue" method="fireSmartInit"/>
         </route>
 
+        <!-- Thread runs for life of context -->
+        <route id="smartInitThread">
+            <from ref="smartInitLauncher"/>
+            <bean ref="smartInitSrv" method="run"/>
+        </route>
+
         <route id="gfeIngestNotification">
             <!-- Data from plugin notification -->
             <from
@@ -103,7 +107,7 @@
     </camelContext>
 
     <camelContext id="clusteredGfeIngestRoutes" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler" autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <!-- Smart Init Routes -->
         <!-- main route now handled through the gfeIngestNotification -->
@@ -134,7 +138,7 @@
 
     </camelContext>
 
-    <bean factory-bean="clusteredCamelContextMgr" factory-method="register">
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
         <constructor-arg ref="clusteredGfeIngestRoutes"/>
     </bean>
 </beans>

@@ -14,8 +14,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
  com.raytheon.edex.plugin.satellite;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.uengine.tasks.query,
- com.raytheon.uf.common.localization,
+Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.menus,
  com.raytheon.uf.common.menus.xml,
  com.raytheon.uf.common.status
