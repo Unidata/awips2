@@ -17,10 +17,13 @@ Require-Bundle: com.raytheon.edex.textdb,
  com.raytheon.uf.edex.ndm;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.edex.plugin.text,
- com.raytheon.uf.edex.plugin.text.dao
+ com.raytheon.uf.edex.plugin.text.dao,
+ com.raytheon.uf.edex.plugin.text.dbsrv
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.text.db,
+ com.raytheon.uf.common.dataplugin.text.dbsrv,
  com.raytheon.uf.common.dataplugin.text.request,
+ com.raytheon.uf.common.message,
  com.raytheon.uf.common.wmo,
  org.apache.commons.logging
