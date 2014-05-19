@@ -52,8 +52,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformatio
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.HostConfig;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnectionData;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnectionData;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ResourceInfo;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.ConnectionSubscriber;
@@ -75,6 +76,9 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Jan 08, 2014 2563       bclement     added Add/Remove buttons for server list
  * Jan 15, 2014 2630       bclement     connection data stores status as Mode object
  * Apr 07, 2014 2785       mpduff       Implemented change to CollaborationConnection
+ * Apr 11, 2014 2903       bclement     added success flag, moved login logic to static method
+ *                                       fixed populating server with previous, removed password from heap
+ * Apr 23, 2014 2822       bclement     added version to initial presence
  * 
  * </pre>
  * 
@@ -109,6 +113,8 @@ public class LoginDialog extends Dialog {
     private Button cancelButton;
 
     private Shell shell;
+
+    private boolean success = false;
 
     /**
      * @param parentShell
@@ -179,10 +185,11 @@ public class LoginDialog extends Dialog {
         Iterator<HostConfig> iter = Iterators.concat(siteServers.iterator(),
                 userServers.iterator());
         int index = 0;
+        String prevServer = loginData.getServer();
         for (int i = 0; iter.hasNext() && i < names.length; i++) {
             HostConfig config = iter.next();
             names[i] = config.toString();
-            if (loginData.getServer().equals(names[i])) {
+            if (config.getHostname().equals(prevServer)) {
                 index = i;
             }
         }
@@ -320,7 +327,7 @@ public class LoginDialog extends Dialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 loginData.setUserName(userText.getText().trim());
-                loginData.setPassword(passwordText.getText().trim());
+                String password = passwordText.getText().trim();
                 loginData.setServer(HostConfig.removeDescription(serverText
                         .getText()));
                 loginData.setStatus(CollaborationUtils.parseMode(statusCombo
@@ -347,7 +354,7 @@ public class LoginDialog extends Dialog {
                 }
                 loginData.setServer(server);
 
-                if (loginData.getPassword().isEmpty()) {
+                if (password.isEmpty()) {
                     errorMessages.add("Must enter a password.");
                 }
 
@@ -365,38 +372,10 @@ public class LoginDialog extends Dialog {
                     messageBox.setMessage(sb.toString());
                     messageBox.open();
                 } else {
-                    try {
-                        // Create the connection
-                        CollaborationConnection collabConnection = CollaborationConnection
-                                .createConnection(loginData);
-
-                        // Subscribe to the collaboration connection
-                        ConnectionSubscriber.subscribe(collabConnection);
-
-                        // Connect to the XMPP server
-                        collabConnection.connect();
-
+                    success = login(loginData, password);
+                    if (success) {
                         storeLoginData();
                         shell.dispose();
-
-                        // send initial presence
-                        Mode mode = loginData.getStatus();
-                        if (mode == null) {
-                            mode = Mode.available;
-                        }
-
-                        Presence initialPresence = new Presence(Type.available,
-                                loginData.getMessage(), 0, mode);
-                        Tools.setProperties(initialPresence,
-                                loginData.getAttributes());
-
-                        collabConnection.getAccountManager().sendPresence(
-                                initialPresence);
-
-                    } catch (CollaborationException e) {
-                        Activator.statusHandler.handle(Priority.PROBLEM,
-                                "Error connecting to collaboration server: "
-                                        + e.getLocalizedMessage(), e);
                     }
                 }
             }
@@ -412,6 +391,62 @@ public class LoginDialog extends Dialog {
                 shell.dispose();
             }
         });
+    }
+
+    /**
+     * Attempt to login to xmpp server.
+     * 
+     * @param loginData
+     * @param password
+     * @return true if login was successful
+     */
+    public static boolean login(CollaborationConnectionData loginData,
+            String password) {
+        CollaborationConnection collabConnection = null;
+        boolean rval = false;
+        boolean subscribed = false;
+        try {
+            // Create the connection
+            collabConnection = CollaborationConnection
+                    .createConnection(loginData);
+
+            // Subscribe to the collaboration connection
+            ConnectionSubscriber.subscribe(collabConnection);
+            subscribed = true;
+
+            // Login to the XMPP server
+            collabConnection.login(password);
+
+            /* login was success, other errors are recoverable */
+            rval = true;
+            
+            // send initial presence
+            Mode mode = loginData.getStatus();
+            if (mode == null) {
+                mode = Mode.available;
+            }
+
+            Presence initialPresence = new Presence(Type.available,
+                    loginData.getMessage(), 0, mode);
+            Tools.setProperties(initialPresence, loginData.getAttributes());
+            initialPresence.setProperty(ResourceInfo.VERSION_KEY,
+                    CollaborationConnection.getCollaborationVersion());
+            collabConnection.getAccountManager().sendPresence(initialPresence);
+
+        } catch (CollaborationException e) {
+            if (subscribed && collabConnection != null) {
+                ConnectionSubscriber.unsubscribe(collabConnection);
+            }
+            String msg;
+            if (rval) {
+                msg = "Error sending initial presence to collaboration server";
+            } else {
+                msg = "Error connecting to collaboration server: "
+                        + e.getLocalizedMessage();
+            }
+            Activator.statusHandler.handle(Priority.PROBLEM, msg, e);
+        }
+        return rval;
     }
 
     private void storeLoginData() {
@@ -434,5 +469,22 @@ public class LoginDialog extends Dialog {
                 .getString(CollabPrefConstants.P_STATUS)));
         loginData.setMessage(preferences
                 .getString(CollabPrefConstants.P_MESSAGE));
+    }
+
+    /**
+     * @return the success
+     */
+    public boolean isSuccess() {
+        return success;
+    }
+
+    /**
+     * Convenience method to open dialog and return true if login was successful
+     * 
+     * @return
+     */
+    public boolean login() {
+        open();
+        return isSuccess();
     }
 }

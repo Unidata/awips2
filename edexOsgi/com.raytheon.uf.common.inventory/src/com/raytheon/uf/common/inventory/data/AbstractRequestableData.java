@@ -24,10 +24,10 @@ import java.util.List;
 
 import javax.measure.unit.Unit;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
@@ -40,9 +40,11 @@ import com.raytheon.uf.common.time.DataTime;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 17, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 17, 2010           bsteffen    Initial creation
+ * Apr 11, 2014  2947     bsteffen    Switch spatial matching to use
+ *                                    IGridGeometryProvider
  * 
  * </pre>
  * 
@@ -64,7 +66,7 @@ public abstract class AbstractRequestableData {
 
     protected DataTime dataTime = TimeAndSpace.TIME_AGNOSTIC;
 
-    protected ISpatialObject space = TimeAndSpace.SPACE_AGNOSTIC;
+    protected IGridGeometryProvider space = TimeAndSpace.SPACE_AGNOSTIC;
 
     public AbstractRequestableData() {
 
@@ -162,11 +164,11 @@ public abstract class AbstractRequestableData {
         this.level = level;
     }
 
-    public ISpatialObject getSpace() {
+    public IGridGeometryProvider getSpace() {
         return space;
     }
 
-    public void setSpace(ISpatialObject space) {
+    public void setSpace(IGridGeometryProvider space) {
         this.space = space;
     }
 

@@ -86,7 +86,13 @@ fi
 
 if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
    echo "Building RPM: ${2}"
-   buildRPM ${2}
+   # also allow buildJava, buildOpenfire... buildRPM args
+   buildName=`echo ${2} | cut -c1-5`
+   if [ ${#2} -gt 5 -a "$buildName" = "build" ]; then
+      ${2}
+   else
+      buildRPM ${2}
+   fi
    if [ $? -ne 0 ]; then
       exit 1
    fi
