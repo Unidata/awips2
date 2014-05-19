@@ -26,9 +26,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
-import com.raytheon.edex.textdb.fax.AutoFaxDao;
-import com.raytheon.edex.textdb.fax.FaxSender;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.text.AutoFaxContainer;
@@ -36,6 +33,9 @@ import com.raytheon.uf.common.dataplugin.text.db.AutoFaxRecord;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.plugin.text.TextRecord;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
+import com.raytheon.uf.edex.plugin.text.fax.AutoFaxDao;
+import com.raytheon.uf.edex.plugin.text.fax.FaxSender;
 
 /**
  * TODO Add Description
