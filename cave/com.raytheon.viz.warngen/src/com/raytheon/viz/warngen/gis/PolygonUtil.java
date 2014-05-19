@@ -47,13 +47,16 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
+import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
 
 /**
  * Utility for polygon operations
@@ -81,6 +84,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * 10/18/2013  DR 16632   Qinglu Lin   Catch exception thrown when coords length is less than 4 and doing createLinearRing(coords).
  * 01/09/2014  DR 16974   D. Friedman  Improve followup redraw-from-hatched-area polygons.
  * 04/15/2014  DR 17247   D. Friedman  Prevent some invalid coordinates in adjustVertex.
+ * 05/16/2014  DR 17365   D. Friedman  Prevent some Coordinate reuse. Add reducePrecision.
  * </pre>
  * 
  * @author mschenke
@@ -98,6 +102,8 @@ public class PolygonUtil {
     private int maxVertices;
 
     private MathTransform latLonToContour, contourToLatLon;
+
+    private static final PrecisionModel REDUCED_PRECISION = new PrecisionModel(10000000000.0);
 
     public PolygonUtil(WarngenLayer layer, int nx, int ny, int maxVertices,
             IExtent localExtent, MathTransform localToLatLon) throws Exception {
@@ -127,9 +133,15 @@ public class PolygonUtil {
          * hatched area.  If it does, that intersection can be used instead of
          * generating a new contour.
          */
-        if (oldWarningPolygon != null) {
+        if (oldWarningPolygon != null && oldWarningPolygon.isValid()
+                && origPolygon.isValid()) {
             try {
-                Geometry intersection = origPolygon.intersection(oldWarningPolygon);
+                /*
+                 * Create a clone to ensure we do not use a Coordinate from
+                 * oldWarningPolygon.
+                 */
+                Geometry intersection = (Geometry) origPolygon
+                        .intersection(oldWarningPolygon).clone();
                 if (intersection instanceof Polygon) {
                     Polygon polygonIntersection = (Polygon) intersection;
                     if (polygonIntersection.isValid() &&
@@ -1656,5 +1668,28 @@ public class PolygonUtil {
             slope = (coords[i].y - coords[j].y) / dx;
         }
         return slope;
+    }
+
+    /** Creates a copy of a Geometry with reduced precision to reduce the chance of topology errors when used
+     * in intersection operations.
+     *
+     * @param g
+     * @return a new Geometry that is a copy of given Geometry with reduced
+     * precision.  References to user data are copied.  If there are GeometryCollection
+     * objects, user data is copied for each element.
+     */
+    static public Geometry reducePrecision(Geometry g) {
+        Geometry result;
+        if (g instanceof GeometryCollection) {
+            Geometry[] list = new Geometry[g.getNumGeometries()];
+            for (int i = 0; i < list.length; ++i) {
+                list[i] = reducePrecision(g.getGeometryN(i));
+            }
+            GeometryFactory gf = new GeometryFactory();
+            result = gf.createGeometryCollection(list);
+        } else
+            result = SimpleGeometryPrecisionReducer.reduce(g, REDUCED_PRECISION);
+        result.setUserData(g.getUserData());
+        return result;
     }
 }
