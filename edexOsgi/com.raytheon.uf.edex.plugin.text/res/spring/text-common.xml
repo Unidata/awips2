@@ -38,7 +38,7 @@
 		<property name="sessionFactory" ref="fxaSessionFactory" />
 	</bean>
  	
-     <bean id="autoFaxDao" class="com.raytheon.edex.textdb.fax.AutoFaxDao">
+     <bean id="autoFaxDao" class="com.raytheon.uf.edex.plugin.text.fax.AutoFaxDao">
        <property name="autoFaxNotifyURI" value="jms-generic:topic:autofax.notify"/>
     </bean>
 
