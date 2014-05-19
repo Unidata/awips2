@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  */
-package com.raytheon.uf.edex.textdbsrv;
+package com.raytheon.uf.edex.plugin.text.dbsrv;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,8 +33,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.common.util.stream.LimitingInputStream;
 import com.raytheon.uf.common.util.stream.LimitingOutputStream;
-import com.raytheon.uf.edex.services.TextDBSrv;
-import com.raytheon.uf.edex.services.textdbimpl.CommandExecutor;
+import com.raytheon.uf.edex.plugin.text.dbsrv.impl.CommandExecutor;
 
 /**
  * Thin wrapper around TextDBSrv to handle marshalling/unmarshalling and
@@ -47,6 +46,7 @@ import com.raytheon.uf.edex.services.textdbimpl.CommandExecutor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2014 2928       rjpeter     Initial creation.
+ * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
  * 
  * </pre>
  * 

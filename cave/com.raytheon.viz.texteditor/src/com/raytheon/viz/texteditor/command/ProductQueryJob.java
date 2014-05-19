@@ -30,10 +30,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
 

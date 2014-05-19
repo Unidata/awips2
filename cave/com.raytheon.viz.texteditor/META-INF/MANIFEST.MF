@@ -2,31 +2,29 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Texteditor Plug-in
 Bundle-SymbolicName: com.raytheon.viz.texteditor;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Activator: com.raytheon.viz.texteditor.Activator
 Bundle-Vendor: Raytheon
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.jep;bundle-version="1.0.0",
- com.raytheon.viz.core,
- com.raytheon.viz.ui,
- org.eclipse.ui.workbench.texteditor,
- org.eclipse.jface.text,
- com.raytheon.edex.common,
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+Require-Bundle: com.raytheon.edex.common,
  com.raytheon.edex.textdb,
- com.raytheon.uf.edex.textdbsrv,
+ com.raytheon.uf.common.activetable,
+ com.raytheon.uf.common.auth;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.text;bundle-version="1.11.30",
+ com.raytheon.uf.common.dataplugin.warning;bundle-version="1.12.1174",
  com.raytheon.uf.common.python,
  com.raytheon.uf.common.serialization.comm,
- com.raytheon.uf.viz.spellchecker;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.text;bundle-version="1.11.30",
  com.raytheon.uf.common.site;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.uf.viz.localization,
- com.raytheon.uf.common.auth;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.warning;bundle-version="1.12.1174",
- com.raytheon.uf.common.activetable
+ com.raytheon.uf.viz.spellchecker;bundle-version="1.0.0",
+ com.raytheon.viz.core,
+ com.raytheon.viz.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.eclipse.ui,
+ org.eclipse.ui.workbench.texteditor,
+ org.jep;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.texteditor,
  com.raytheon.viz.texteditor.alarmalert.dialogs,
