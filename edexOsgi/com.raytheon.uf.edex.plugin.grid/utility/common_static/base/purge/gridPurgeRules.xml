@@ -738,4 +738,46 @@
 		<versionsToKeep>4</versionsToKeep>
 		<modTimeToWait>00-01:00:00</modTimeToWait>		
 	</rule>	
+
+	<!-- Purge rules for the Multi-grid Hurricane Wave Models -->
+	<rule>
+		<keyValue>GLOBHwave</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NAHwave15</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NAHwave10</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NAHwave4</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NPHwave15</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NPHwave10</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>NPHwave4</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>WPHwave10</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>AKHwave10</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>AKHwave4</keyValue>
+		<versionsToKeep>1</versionsToKeep>
+	</rule>
 </purgeRuleSet>

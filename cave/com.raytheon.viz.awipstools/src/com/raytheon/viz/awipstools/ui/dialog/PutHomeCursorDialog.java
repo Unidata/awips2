@@ -19,6 +19,38 @@
  **/
 package com.raytheon.viz.awipstools.ui.dialog;
 
+import java.util.List;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+
+import com.raytheon.uf.common.pointdata.spatial.ObStation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
+import com.raytheon.uf.viz.points.IPointChangedListener;
+import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKBReader;
+import com.vividsolutions.jts.io.WKTWriter;
+
 /**
  * Creates the Put Cursor Home Dialog.
  * 
@@ -26,7 +58,7 @@ package com.raytheon.viz.awipstools.ui.dialog;
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Dec 05, 2007		      Eric Babin  Initial Creation
+ * Dec 05, 2007           Eric Babin  Initial Creation
  * Dec 10, 2007  598      Eric Babin  Added city, state query.
  * Dec 20, 2007  656      Eric Babin  Updated to refresh location after
  *                                    clicking GO.
@@ -42,315 +74,317 @@ package com.raytheon.viz.awipstools.ui.dialog;
  *                                    and the query by city, state.                                    
  * Sep 03, 2013  2310     bsteffen    Extend IPointChangedListener instead of
  *                                    IResourceDataChanged.
- *
+ * Apr 21, 2014  3041     lvenable    Added dispose check to runAsync call and cleaned up
+ *                                    code.  Wrote ticket #3047 for common_obs_spatial
+ *                                    for the city/state issues.
+ * 
  * </pre>
  * 
  * @author ebabin
  * @version 1.0
  */
-
-// TODO: the code that performs the queries will need to be cleaned up once we have
-//       time to cleanup, complete the common_obs_spatial table
-import java.util.List;
-
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-
-import com.raytheon.uf.common.pointdata.spatial.ObStation;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.points.IPointChangedListener;
-import com.raytheon.uf.viz.points.PointsDataManager;
-import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
-import com.vividsolutions.jts.io.WKTWriter;
-
-public class PutHomeCursorDialog extends CaveJFACEDialog implements
+public class PutHomeCursorDialog extends CaveSWTDialog implements
         IPointChangedListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PutHomeCursorDialog.class);
 
-    private static final String DIST_QRY_FMT = "SELECT icao, name, state FROM common_obs_spatial "
+    private final String DIST_QRY_FMT = "SELECT icao, name, state FROM common_obs_spatial "
             + "WHERE ST_DWithin(the_geom, ST_GeomFromText('%s'), %4.1f) AND"
             + " catalogtype = %d ORDER BY ST_Distance(the_geom, ST_GeomFromText('%1$s'))";
 
-    private static final String ICAO_QRY_FMT = "SELECT AsBinary(the_geom) FROM common_obs_spatial "
+    private final String ICAO_QRY_FMT = "SELECT AsBinary(the_geom) FROM common_obs_spatial "
             + "WHERE catalogtype = %d and icao = '%s'";
 
-    private static final String CITY_QRY_FMT = "SELECT AsBinary(the_geom) FROM common_obs_spatial "
+    private final String CITY_QRY_FMT = "SELECT AsBinary(the_geom) FROM common_obs_spatial "
             + "WHERE catalogtype = %d AND name = '%s' AND state = '%s'";
 
-    private static final String CITY_DB_QRY_FMT = "SELECT AsBinary(the_geom) FROM mapdata.city "
+    private final String CITY_DB_QRY_FMT = "SELECT AsBinary(the_geom) FROM mapdata.city "
             + "WHERE name = '%s' AND st = '%s'";
 
-    private static final String AIRPORT_DB_QRY_FMT = "SELECT AsBinary(the_geom) FROM mapdata.airport "
+    private final String AIRPORT_DB_QRY_FMT = "SELECT AsBinary(the_geom) FROM mapdata.airport "
             + "WHERE city = '%s' AND state = '%s'";
 
-    private Composite top = null;
-
+    /** Station radio button. */
     private Button stationRadio;
 
+    /** City radio button. */
     private Button cityRadio;
 
+    /** Lat/Lon radio button. */
     private Button latLonRadio;
 
+    /** Station label. */
+    private Label stationLabel;
+
+    /** Station text field. */
     private Text stationTextField;
 
+    /** City label. */
+    private Label citylabel;
+
+    /** City text field. */
     private Text cityTextField;
 
+    /** State label. */
+    private Label stateLabel;
+
+    /** State text field. */
     private Text stateTextField;
 
+    /** Latitude label. */
+    private Label latLabel;
+
+    /** Latitude text field */
     private Text latTextField;
 
+    /** Longitude label. */
+    private Label lonLabel;
+
+    /** Longitude text field. */
     private Text lonTextField;
 
-    private Button goButton, closeButton;
+    /** Go button. */
+    private Button goBtn;
 
-    public PutHomeCursorDialog(Shell shell) {
-        super(shell);
-        this.setBlockOnOpen(false);
-        this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets
-     * .Composite)
-     */
-    @Override
-    public Control createDialogArea(Composite parent) {
-        top = (Composite) super.createDialogArea(parent);
-        // Create the main layout for the shell.
-        GridLayout gridLayout = new GridLayout(1, true);
-
-        top.setLayout(gridLayout);
-
-        // Initialize all of the menus, controls, and layouts
-        initializeComponents();
-
-        return top;
-    }
+    /** Close button. */
+    private Button closeBtn;
 
     /**
-     * Initializes the components.
+     * Constructor.
+     * 
+     * @param shell
+     *            Parent shell.
      */
-    private void initializeComponents() {
-        createSelectionChoices();
-        createStationChoice();
-        createCityChoice();
-        createLatLonChoice();
+    public PutHomeCursorDialog(Shell shell) {
+        super(shell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
+
+        setText("Put Home Cursor");
+        PointsDataManager.getInstance().addHomeChangedListener(this);
+    }
+
+    @Override
+    protected Layout constructShellLayout() {
+        GridLayout gridLayout = new GridLayout(1, false);
+        return gridLayout;
+    }
+
+    @Override
+    protected Object constructShellLayoutData() {
+        // TODO Auto-generated method stub
+        return super.constructShellLayoutData();
+    }
+
+    @Override
+    protected void initializeComponents(Shell shell) {
+
+        Group locSelectionGroup = new Group(shell, SWT.NONE);
+
+        GridData gridData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        locSelectionGroup.setLayoutData(gridData);
+        locSelectionGroup.setText("Location selection via:");
+
+        GridLayout rowLayout = new GridLayout(1, false);
+        locSelectionGroup.setLayout(rowLayout);
+
+        createSelectionChoices(locSelectionGroup);
+
+        Composite controlsComp = new Composite(locSelectionGroup, SWT.NONE);
+        controlsComp.setLayout(new GridLayout(2, false));
+        controlsComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
+
+        createStationChoice(controlsComp);
+        createCityChoice(controlsComp);
+        createLatLonChoice(controlsComp);
+
+        createActionButtons();
+
         try {
             updateStationInfo(PointsDataManager.getInstance().getHome());
         } catch (Exception e) {
 
         }
-        // @TODO Not currently no data for city, state. So disabled for now.
-        stationRadio.setSelection(true);
-        cityTextField.setEnabled(false);
-        stateTextField.setEnabled(false);
-        latTextField.setEnabled(false);
-        lonTextField.setEnabled(false);
-        stationTextField.setEnabled(true);
+
+        enableDisableControls();
+    }
+
+    @Override
+    protected void disposed() {
+        PointsDataManager.getInstance().removeHomeChangedListener(
+                PutHomeCursorDialog.this);
     }
 
     /**
      * Creates the selection composite.
+     * 
+     * @param selectionGroup
+     *            Group container.
      */
-    private void createSelectionChoices() {
-        Group selectionGroup = new Group(top, SWT.NONE | SWT.FILL);
+    private void createSelectionChoices(Group selectionGroup) {
 
-        GridData gridData = new GridData();
-        gridData.horizontalAlignment = GridData.FILL;
-        gridData.grabExcessHorizontalSpace = true;
-        selectionGroup.setLayoutData(gridData);
+        /*
+         * Composite for the location radio buttons.
+         */
+        Composite locationComp = new Composite(selectionGroup, SWT.BORDER);
+        locationComp.setLayout(new GridLayout(3, true));
 
-        RowLayout rowLayout = new RowLayout();
-        rowLayout.type = SWT.VERTICAL;
-        selectionGroup.setLayout(rowLayout);
-
-        Label label = new Label(selectionGroup, SWT.NONE | SWT.CENTER);
-        label.setText("Location selection via:");
-
-        Composite locationComp = new Composite(selectionGroup, SWT.None);
-        locationComp.setLayout(new RowLayout());
+        /*
+         * Station radio button selection
+         */
         stationRadio = new Button(locationComp, SWT.RADIO);
+        stationRadio.setText("Station");
+        stationRadio.setSelection(true);
         stationRadio.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                cityTextField.setEnabled(false);
-                stateTextField.setEnabled(false);
-                latTextField.setEnabled(false);
-                lonTextField.setEnabled(false);
-                stationTextField.setEnabled(true);
+                if (stationRadio.getSelection() == false) {
+                    return;
+                }
+                enableDisableControls();
             }
         });
 
-        stationRadio.setText("Station");
+        /*
+         * City radio button selection
+         */
         cityRadio = new Button(locationComp, SWT.RADIO);
         cityRadio.setText("City/State");
         cityRadio.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                cityTextField.setEnabled(true);
-                stateTextField.setEnabled(true);
-                latTextField.setEnabled(false);
-                lonTextField.setEnabled(false);
-                stationTextField.setEnabled(false);
+                if (cityRadio.getSelection() == false) {
+                    return;
+                }
+                enableDisableControls();
             }
         });
 
+        /*
+         * Lat/Lon radio button selection
+         */
         latLonRadio = new Button(locationComp, SWT.RADIO);
+        latLonRadio.setText("Lat/Lon");
         latLonRadio.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                cityTextField.setEnabled(false);
-                stateTextField.setEnabled(false);
-                latTextField.setEnabled(true);
-                lonTextField.setEnabled(true);
-                stationTextField.setEnabled(false);
+                if (latLonRadio.getSelection() == false) {
+                    return;
+                }
+                enableDisableControls();
             }
         });
-
-        latLonRadio.setText("Lat/Lon");
     }
 
     /**
-     * Creates station choice composite.
+     * Creates station choice controls.
+     * 
+     * @param controlsComp
+     *            Composite containing the controls.
      */
-    private void createStationChoice() {
-        Group comp = new Group(top, SWT.None);
-        GridData gridData = new GridData();
-        gridData.horizontalAlignment = GridData.FILL;
+    private void createStationChoice(Composite controlsComp) {
 
-        comp.setLayoutData(gridData);
-        comp.setLayout(new GridLayout(3, true));
-        Label label = new Label(comp, SWT.NONE);
-        label.setText("Station:");
-        stationTextField = new Text(comp, SWT.BORDER);
-        GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL
-                | GridData.GRAB_HORIZONTAL);
-        data.horizontalSpan = 2;
+        stationLabel = new Label(controlsComp, SWT.NONE);
+        stationLabel.setText("Station:");
+
+        stationTextField = new Text(controlsComp, SWT.BORDER);
+        GridData data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         stationTextField.setLayoutData(data);
+
+        // Add a separator line.
+        addSeparator(controlsComp);
     }
 
     /**
-     * Creates city choice composite.
+     * Creates city choice controls.
+     * 
+     * @param controlsComp
+     *            Composite containing the controls.
      */
-    private void createCityChoice() {
-        Group comp = new Group(top, SWT.None);
-        GridData gridData = new GridData();
-        gridData.horizontalAlignment = GridData.FILL;
-        gridData.grabExcessHorizontalSpace = true;
-        comp.setLayoutData(gridData);
-        comp.setLayout(new GridLayout(3, true));
+    private void createCityChoice(Composite controlsComp) {
 
-        Label citylabel = new Label(comp, SWT.NONE);
+        citylabel = new Label(controlsComp, SWT.NONE);
         citylabel.setText("City:");
-        cityTextField = new Text(comp, SWT.BORDER);
-        GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL
-                | GridData.GRAB_HORIZONTAL);
-        data.horizontalSpan = 2;
-        cityTextField.setLayoutData(data);
 
-        Label stateLabel = new Label(comp, SWT.NONE);
+        cityTextField = new Text(controlsComp, SWT.BORDER);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        cityTextField.setLayoutData(gd);
+
+        stateLabel = new Label(controlsComp, SWT.NONE);
         stateLabel.setText("State:");
         stateLabel.setToolTipText("Two Letter Abbreviation");
 
-        stateTextField = new Text(comp, SWT.BORDER);
+        gd = new GridData(50, SWT.DEFAULT);
+        stateTextField = new Text(controlsComp, SWT.BORDER);
         stateTextField.setTextLimit(2);
+        stateTextField.setLayoutData(gd);
 
-        stateTextField.setEnabled(false);
-        cityTextField.setEnabled(false);
+        // Add a separator line.
+        addSeparator(controlsComp);
     }
 
     /**
-     * Creates lat/lon choice composite.
+     * Creates lat/lon choice controls.
+     * 
+     * @param controlsComp
+     *            Composite containing the controls.
      */
-    private void createLatLonChoice() {
-        Group comp = new Group(top, SWT.None);
-        GridData gridData = new GridData();
-        gridData.horizontalAlignment = GridData.FILL;
-        gridData.grabExcessHorizontalSpace = true;
-        comp.setLayoutData(gridData);
-        comp.setLayout(new GridLayout(2, true));
-        Label latLabel = new Label(comp, SWT.NONE);
+    private void createLatLonChoice(Composite controlsComp) {
+
+        latLabel = new Label(controlsComp, SWT.NONE);
         latLabel.setText("Latitude:");
-        latTextField = new Text(comp, SWT.BORDER);
+
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        latTextField = new Text(controlsComp, SWT.BORDER);
         latTextField.setLayoutData(new GridData(80, SWT.DEFAULT));
-        Label longLabel = new Label(comp, SWT.NONE);
-        longLabel.setText("Longitude:");
-        lonTextField = new Text(comp, SWT.BORDER);
+        latTextField.setLayoutData(gd);
+
+        lonLabel = new Label(controlsComp, SWT.NONE);
+        lonLabel.setText("Longitude:");
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        lonTextField = new Text(controlsComp, SWT.BORDER);
         lonTextField.setLayoutData(new GridData(80, SWT.DEFAULT));
+        lonTextField.setLayoutData(gd);
+
         Coordinate point = PointsDataManager.getInstance().getHome();
         lonTextField.setText(String.valueOf(point.x));
         latTextField.setText(String.valueOf(point.y));
-    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
-    @Override
-    protected void configureShell(Shell shell) {
-        super.configureShell(shell);
-        PointsDataManager.getInstance().addHomeChangedListener(this);
-        shell.addDisposeListener(new DisposeListener() {
-
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                PointsDataManager.getInstance().removeHomeChangedListener(
-                        PutHomeCursorDialog.this);
-            }
-        });
-        shell.setText("Put Home Cursor");
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#getInitialSize()
-     */
-    @Override
-    protected Point getInitialSize() {
-        return new Point(300, 360);
+        // Add a separator line.
+        addSeparator(controlsComp);
     }
 
     /**
-     * Exits the dialog.
+     * Add a line separator to the given composite.
+     * 
+     * @param parentComp
+     *            Parent composite.
      */
-    private void exitDialog() {
-        PointsDataManager.getInstance().removeHomeChangedListener(this);
-        this.close();
+    private void addSeparator(Composite parentComp) {
+        GridLayout gl = (GridLayout) parentComp.getLayout();
+
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = gl.numColumns;
+        Label sepLbl = new Label(parentComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+        sepLbl.setLayoutData(gd);
+    }
+
+    /**
+     * Enable or disable controls based on the radio button states.
+     */
+    private void enableDisableControls() {
+        stationLabel.setEnabled(stationRadio.getSelection());
+        stationTextField.setEnabled(stationRadio.getSelection());
+
+        citylabel.setEnabled(cityRadio.getSelection());
+        cityTextField.setEnabled(cityRadio.getSelection());
+        stateLabel.setEnabled(cityRadio.getSelection());
+        stateTextField.setEnabled(cityRadio.getSelection());
+
+        latLabel.setEnabled(latLonRadio.getSelection());
+        latTextField.setEnabled(latLonRadio.getSelection());
+        lonLabel.setEnabled(latLonRadio.getSelection());
+        lonTextField.setEnabled(latLonRadio.getSelection());
     }
 
     /**
@@ -364,8 +398,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                         .trim();
                 Coordinate c = runStationQuery(station);
                 if (c == null) {
-                    MessageDialog.openError(getParentShell(),
-                            "Put Home Cursor Error",
+                    MessageDialog.openError(shell, "Put Home Cursor Error",
                             "Could not find that Metar station");
                     stationTextField.setFocus();
                 } else {
@@ -373,22 +406,19 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                     stationTextField.setText(station);
                 }
             } else {
-                MessageDialog.openError(getParentShell(),
-                        "Put Home Cursor Error",
+                MessageDialog.openError(shell, "Put Home Cursor Error",
                         "The input for the Station is empty.  Please correct.");
                 stationTextField.setFocus();
             }
         } else if (cityRadio.getSelection()) {
             if (cityTextField.getText().isEmpty()) {
-                MessageDialog.openError(getParentShell(),
-                        "Put Home Cursor Error",
+                MessageDialog.openError(shell, "Put Home Cursor Error",
                         "The input for the City is empty.  Please correct.");
                 cityTextField.setFocus();
                 return;
             }
             if (stateTextField.getText().length() != 2) {
-                MessageDialog.openError(getParentShell(),
-                        "Put Home Cursor Error",
+                MessageDialog.openError(shell, "Put Home Cursor Error",
                         "The input for the State is invalid.  Please correct.");
                 stateTextField.setFocus();
                 return;
@@ -397,8 +427,8 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
             String state = stateTextField.getText().toUpperCase().trim();
             Coordinate c = runCityQuery(city, state);
             if (c == null) {
-                MessageDialog.openError(getParentShell(),
-                        "Put Home Cursor Error", "Could not find that city");
+                MessageDialog.openError(shell, "Put Home Cursor Error",
+                        "Could not find that city");
                 cityTextField.setFocus();
             } else {
                 PointsDataManager.getInstance().setHome(c);
@@ -411,7 +441,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                 c.x = Float.parseFloat(lonTextField.getText());
             } catch (NumberFormatException nfe) {
                 MessageDialog
-                        .openError(getParentShell(), "Put Home Cursor Error",
+                        .openError(shell, "Put Home Cursor Error",
                                 "The input for the Longitude not a number.  Please correct.");
                 lonTextField.setFocus();
                 return;
@@ -437,23 +467,42 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
         }
     }
 
-    @Override
-    protected void createButtonsForButtonBar(Composite parent) {
+    /**
+     * Create the action buttons at the bottom of the dialog.
+     */
+    private void createActionButtons() {
+        Composite buttonComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(2, true);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        buttonComp.setLayout(gl);
+        buttonComp.setLayoutData(gd);
+
+        int buttonWidth = 75;
+
         // override, so can add calculate as default button.
-        goButton = createButton(parent, SWT.OK, "Go", true);
-        closeButton = createButton(parent, SWT.CLOSE, "Close", false);
-        goButton.addListener(SWT.Selection, new Listener() {
-            public void handleEvent(Event event) {
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        gd.widthHint = buttonWidth;
+        goBtn = new Button(buttonComp, SWT.PUSH);
+        goBtn.setText("Go");
+        goBtn.setLayoutData(gd);
+        goBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
                 updateStation();
             }
         });
-        closeButton.addListener(SWT.Selection, new Listener() {
-            public void handleEvent(Event event) {
-                exitDialog();
+
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
+        gd.widthHint = buttonWidth;
+        closeBtn = new Button(buttonComp, SWT.PUSH);
+        closeBtn.setText("Close");
+        closeBtn.setLayoutData(gd);
+        closeBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                close();
             }
-
         });
-
     }
 
     /**
@@ -585,9 +634,12 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
     @Override
     public void pointChanged() {
         VizApp.runAsync(new Runnable() {
-
             @Override
             public void run() {
+                if (isDisposed()) {
+                    return;
+                }
+
                 Coordinate point = PointsDataManager.getInstance().getHome();
                 lonTextField.setText(String.valueOf(point.x));
                 latTextField.setText(String.valueOf(point.y));
@@ -597,5 +649,4 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
         });
 
     }
-
 }

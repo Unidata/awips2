@@ -105,7 +105,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 17, 2013   2633     mpduff      Fix redraw problems..
  * Jan 09, 2014   2633     mpduff      On resize keep graph at bottom so data are always visible.
  * Jan 29, 2014   2722     mpduff      Changed how graph data are requested.
- * Mar 24, 2014  #2951     lvenable     Added dispose checks for SWT widgets.
+ * Mar 24, 2014   2951     lvenable    Added dispose checks for SWT widgets.
+ * Apr 21, 2014   2891     mpduff      Add Y Label canvas to redraw on refresh.
  * </pre>
  * 
  * @author lvenable
@@ -1521,10 +1522,11 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
                         redrawImage(CanvasImages.GRAPH);
                         redrawImage(CanvasImages.X_LABEL);
                         redrawImage(CanvasImages.UTILIZATION_GRAPH);
+                        redrawImage(CanvasImages.Y_LABEL);
                         canvasMap.get(CanvasImages.GRAPH).redraw();
                         canvasMap.get(CanvasImages.X_LABEL).redraw();
-                        canvasMap.get(CanvasImages.UTILIZATION_GRAPH);
-
+                        canvasMap.get(CanvasImages.UTILIZATION_GRAPH).redraw();
+                        canvasMap.get(CanvasImages.Y_LABEL).redraw();
                     }
                 });
 
