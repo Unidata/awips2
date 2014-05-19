@@ -16,14 +16,8 @@
                 <constructor-arg value="jms-durable:queue:Ingest.tcm" />
     </bean>
 
-    <bean id="tcmCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="tcm-camel"/>
-  	</bean> 
-
 	<camelContext id="tcm-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="tcmFileEndpoint" uri="file:${edex.home}/data/sbn/tcm?noop=true&amp;idempotent=false" />
 
 		<!-- Begin Tcm routes -->

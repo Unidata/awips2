@@ -17,18 +17,11 @@
 		<constructor-arg value="jms-durable:queue:Ingest.obs" />
 	</bean>
 
-    <bean id="obsCamelRegistered" factory-bean="contextManager"
-		factory-method="register" 
-		depends-on="persistCamelRegistered">
-		<constructor-arg ref="obs-camel"/>
-  	</bean>
-	
 	<bean id="metarIngestFilter" class="com.raytheon.uf.edex.ogc.common.util.PluginFilterProcessor"/>
 
 	<camelContext id="obs-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<!--METAR file route -->
 		<endpoint id="metarFileEndpoint" uri="file:${edex.home}/data/sbn/metar?noop=true&amp;idempotent=false" />

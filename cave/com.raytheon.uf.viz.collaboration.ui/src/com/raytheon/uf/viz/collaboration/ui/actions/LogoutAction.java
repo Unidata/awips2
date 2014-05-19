@@ -34,7 +34,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView;
 import com.raytheon.uf.viz.collaboration.ui.ConnectionSubscriber;
@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2012            bsteffen     Initial creation
  * Dec 19, 2013 2563       bclement     moved close logic to public method
+ * Apr 11, 2014 2903       bclement     made close method static, added safety check
  * 
  * </pre>
  * 
@@ -90,7 +91,7 @@ public class LogoutAction extends Action {
      * Close collaboration UI and close connection
      * 
      */
-    public void closeCollaboration() {
+    public static void closeCollaboration() {
         for (IViewReference ref : CaveWorkbenchPageManager.getActiveInstance()
                 .getViewReferences()) {
             IViewPart view = ref.getView(false);
@@ -118,8 +119,10 @@ public class LogoutAction extends Action {
         }
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
-        ConnectionSubscriber.unsubscribe(connection);
-        connection.close();
+        if (connection != null) {
+            ConnectionSubscriber.unsubscribe(connection);
+            connection.close();
+        }
     }
 
 }
