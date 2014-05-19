@@ -48,7 +48,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
 
 /**
  * Area
@@ -75,6 +77,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    May  2, 2013  1963       jsanchez    Updated method to determine partOfArea.
  *    Aug 19, 2013  2177       jsanchez    Used portionsUtil to calculate area portion descriptions.
  *    Apr 29, 2014  3033       jsanchez    Updated method to retrieve files in localization.
+ *    May 16, 2014 DR 17365    D. Friedman Reduce warning area precision to avoid topology errors.
  * </pre>
  * 
  * @author chammack
@@ -83,6 +86,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 public class Area {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Area.class);
+
+    private static final double REDUCED_PRECISION_SCALE = 1000000000.0;
 
     /**
      * If an area greater than this percentage of the area is covered, no
@@ -291,6 +296,17 @@ public class Area {
             Geometry warnPolygon, Geometry warnArea, String localizedSite,
             WarngenLayer warngenLayer) throws VizException {
         Map<String, Object> areasMap = new HashMap<String, Object>();
+
+        Geometry simplifiedArea = null;
+        try {
+            simplifiedArea = (new SimpleGeometryPrecisionReducer(new PrecisionModel(
+                    REDUCED_PRECISION_SCALE))).reduce(warnArea);
+        } catch (Exception e) {
+            // ignore
+        }
+        if (simplifiedArea != null && simplifiedArea.isValid()) {
+            warnArea = simplifiedArea;
+        }
 
         String hatchedAreaSource = config.getHatchedAreaSource()
                 .getAreaSource();
