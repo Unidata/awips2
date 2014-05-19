@@ -24,6 +24,7 @@ import java.io.File;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import org.apache.commons.lang.math.NumberUtils;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -36,7 +37,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * This class is used to read in configuration for AvnFPS verification (VFT) product.
+ * This class is used to read in configuration for AvnFPS verification (VFT)
+ * product.
  * 
  * <pre>
  * 
@@ -45,129 +47,160 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2013 15375      zhao        Initial creation
+ * May 07, 2014 3091       rferrel     fcstid now a string.
  * 
  * </pre>
  * 
  * @author zhao
- *
+ * 
  */
 public class TafQueueVftConfigMgr {
-	
-    private final IUFStatusHandler statusHandler = UFStatus.getHandler(TafQueueVftConfigMgr.class);
-	
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TafQueueVftConfigMgr.class);
+
     private static TafQueueVftConfigMgr instance = null;
-    
-    private String wmoid = "NXUS98"; // default, to be replaced by wmo in config file
-    private String siteid = "OAX"; // default (siteid in taf_queue table)
-    private String stationid = "KOAX"; // default (stationid in taf_queue table)
-    private int fcstid = 0; // default forecasterid for VFT
-    private int period = 6; // number of hours; default period for VFT product creation, to be replaced by period in config file
-    
+
+    /** Default, to be replaced by wmo in config file. */
+    private String wmoid = "NXUS98";
+
+    /** Default (siteid in taf_queue table). */
+    private String siteid = "OAX";
+
+    /** Default (stationid in taf_queue table). */
+    private String stationid = "KOAX";
+
+    /** Default forecasterid for VFT. */
+    private String fcstid = "000";
+
+    /**
+     * Number of hours; default period for VFT product creation, to be replaced
+     * by period in config file.
+     */
+    private int period = 6;
+
     /**
      * BBB field for VFT product; non-configurable
      */
-    private String bbb = "___"; 
-    
-    private static final String XMIT_FILE = "aviation" + File.separator + "config" + File.separator + "xmit.cfg";
-    
-    private HierarchicalINIConfiguration xmitConfig = null; 
-    
-    public static TafQueueVftConfigMgr getInstance() {
-    	if ( instance == null ) {
-    		instance = new TafQueueVftConfigMgr();
-    	}
-    	return instance;
+    private String bbb = "___";
+
+    private static final String XMIT_FILE = "aviation" + File.separator
+            + "config" + File.separator + "xmit.cfg";
+
+    private HierarchicalINIConfiguration xmitConfig = null;
+
+    public static synchronized TafQueueVftConfigMgr getInstance() {
+        if (instance == null) {
+            instance = new TafQueueVftConfigMgr();
+        }
+        return instance;
     }
 
     private TafQueueVftConfigMgr() {
-    	// read in configuration
-    	loadXmitConfigFile();
-    	if ( xmitConfig != null ) {
-    		readConfiguration();
-    	}
+        // read in configuration
+        loadXmitConfigFile();
+        if (xmitConfig != null) {
+            readConfiguration();
+        }
     }
-    
-	private void loadXmitConfigFile() {
+
+    private void loadXmitConfigFile() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
         LocalizationFile lFile = pm.getLocalizationFile(context, XMIT_FILE);
         HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
         config.setDelimiterParsingDisabled(true);
         try {
-			config.load(lFile.getFile());
-		} catch (ConfigurationException e) {
-			statusHandler.handle(Priority.PROBLEM, "Tafqueue VFT Configuration Manager: loading xmit.cfg file failed.\n" + e.getLocalizedMessage(), e);
-			return;
-		}
-		this.xmitConfig =config;
-	}
-	
-	private void readConfiguration() {
-		try {
-			String wmo = xmitConfig.getString("verification.wmo");
-			String [] wmosplits = wmo.split(" ");
-			wmoid = wmosplits[0];
-			stationid = wmosplits[1];
-			siteid = stationid.substring(1);
-			String fcstidStr = xmitConfig.getString("verification.fcstid");
-			fcstid = Integer.parseInt(fcstidStr);
-			String periodStr = xmitConfig.getString("verification.period");
-			period = Integer.parseInt(periodStr);
-		} catch (Exception e) {
-			statusHandler.handle(Priority.PROBLEM, "Tafqueue VFT Configuration Manager: error occurred while reading configuration.\n" + e.getLocalizedMessage(), e);
-			e.printStackTrace();
-			return;
-		}
-		statusHandler.handle(Priority.INFO, "Tafqueue VFT Configuration Manager: wmo = " + wmoid + " " + stationid + "; forecasterid = " + fcstid + "; period = " + period );
-		return;
-	}
+            config.load(lFile.getFile());
+        } catch (ConfigurationException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Tafqueue VFT Configuration Manager: loading xmit.cfg file failed.\n"
+                            + e.getLocalizedMessage(), e);
+            return;
+        }
+        this.xmitConfig = config;
+    }
 
-	public String getWmoid() {
-		return wmoid;
-	}
+    private void readConfiguration() {
+        try {
+            String wmo = xmitConfig.getString("verification.wmo");
+            String[] wmosplits = wmo.split(" ");
+            wmoid = wmosplits[0];
+            stationid = wmosplits[1];
+            siteid = stationid.substring(1);
+            String fcstidStr = xmitConfig.getString("verification.fcstid");
+            if (fcstidStr != null) {
+                setFcstid(fcstidStr);
+            }
+            String periodStr = xmitConfig.getString("verification.period");
+            period = Integer.parseInt(periodStr);
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Tafqueue VFT Configuration Manager: error occurred while reading configuration.\n"
+                                    + e.getLocalizedMessage(), e);
+            return;
+        }
+        statusHandler.handle(Priority.INFO,
+                "Tafqueue VFT Configuration Manager: wmo = " + wmoid + " "
+                        + stationid + "; forecasterid = " + fcstid
+                        + "; period = " + period);
+        return;
+    }
 
-	public void setWmoid(String wmoid) {
-		this.wmoid = wmoid;
-	}
+    public String getWmoid() {
+        return wmoid;
+    }
 
-	public String getSiteid() {
-		return siteid;
-	}
+    public void setWmoid(String wmoid) {
+        this.wmoid = wmoid;
+    }
 
-	public void setSiteid(String siteid) {
-		this.siteid = siteid;
-	}
+    public String getSiteid() {
+        return siteid;
+    }
 
-	public String getStationid() {
-		return stationid;
-	}
+    public void setSiteid(String siteid) {
+        this.siteid = siteid;
+    }
 
-	public void setStationid(String stationid) {
-		this.stationid = stationid;
-	}
+    public String getStationid() {
+        return stationid;
+    }
 
-	public int getFcstid() {
-		return fcstid;
-	}
+    public void setStationid(String stationid) {
+        this.stationid = stationid;
+    }
 
-	public void setFcstid(int fcstid) {
-		this.fcstid = fcstid;
-	}
+    public String getFcstid() {
+        return fcstid;
+    }
 
-	public int getPeriod() {
-		return period;
-	}
+    public void setFcstid(String fcstid) {
+        if (NumberUtils.isNumber(fcstid)) {
+            // Handle old style ids.
+            int id = Integer.parseInt(fcstid);
+            this.fcstid = String.format("%03d", id);
+        } else {
+            this.fcstid = fcstid;
+        }
+    }
 
-	public void setPeriod(int period) {
-		this.period = period;
-	}
+    public int getPeriod() {
+        return period;
+    }
 
-	public String getBbb() {
-		return bbb;
-	}
+    public void setPeriod(int period) {
+        this.period = period;
+    }
 
-	public void setBbb(String bbb) {
-		this.bbb = bbb;
-	}
-    
+    public String getBbb() {
+        return bbb;
+    }
+
+    public void setBbb(String bbb) {
+        this.bbb = bbb;
+    }
+
 }
