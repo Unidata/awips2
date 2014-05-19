@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
-import com.raytheon.edex.textdb.dao.StdTextProductDao;
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -34,6 +32,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
 
 /**
  * DAO for text products
