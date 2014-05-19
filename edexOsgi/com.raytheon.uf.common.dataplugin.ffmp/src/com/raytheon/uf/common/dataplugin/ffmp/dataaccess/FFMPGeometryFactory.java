@@ -66,6 +66,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
  * Aug,20, 2013 2250       mnash       Change some methods that were not working in all cases
  * Jan,14, 2014 2667       mnash       Remove getGridData method
+ * May 1, 2014  3099       bkowal      No longer use an empty pfaf list when the
+ *                                     data request locationNames list is empty.
  * 
  * </pre>
  * 
@@ -219,7 +221,7 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
         String[] locationNames = request.getLocationNames();
 
         List<Long> pfafList = null;
-        if (locationNames != null) {
+        if (locationNames != null && locationNames.length > 0) {
             pfafList = convertLocations(locationNames);
         }
 

@@ -2,15 +2,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-    
     <bean id="modelsoundingPersistenceManager"
     	class="com.raytheon.uf.edex.plugin.modelsounding.ModelSoundingPersistenceManager">
     </bean>
-    
+
 	<bean id="modelsoundingDecoder"
-		class="com.raytheon.uf.edex.plugin.modelsounding.ModelSoundingDecoder"
-		init-method="start"
-		destroy-method="shutdown">
+		class="com.raytheon.uf.edex.plugin.modelsounding.ModelSoundingDecoder">
 		<property name="modelSoundingPersistenceManager" ref="modelsoundingPersistenceManager" />
 	</bean>
 
@@ -24,11 +21,6 @@
 		<constructor-arg ref="modelsoundingPluginName" />
 		<constructor-arg value="jms-durable:queue:Ingest.modelsounding"/>
 	</bean>
-
-    <bean id="modelsoundingCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="modelsounding-camel"/>
-  	</bean>
 
     <bean id="modelBufrListener" class="com.raytheon.uf.edex.plugin.modelsounding.ingest.ModelBufrSubscriber" />
 
@@ -45,10 +37,14 @@
         <constructor-arg ref="modelBufrListener" />
     </bean>
 
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="modelsounding-camel"/>
+        <constructor-arg ref="modelsoundingPersistenceManager"/>
+    </bean>
+
 	<camelContext id="modelsounding-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<!--
 		<endpoint id="modelsndgFileEndpoint"
@@ -83,8 +79,17 @@
                 </doCatch>
             </doTry>
 		</route>
-        
-        <!-- Copy of persist route without the log call -->
+
+        <!-- Thread runs for life of context -->
+        <route id="modelSoundingPersistThread">
+            <from uri="timer://modelSoundingPersistenceManager?repeatCount=1"/>
+            <bean ref="modelsoundingPersistenceManager" method="run"/>
+        </route>
+
+        <!--
+        Copy of persist route without the log call.
+        This route must come after the timer route for proper startup/shutdown order.
+         -->
         <route id="modelSoundingPersistIndexAlert">
             <from uri="direct-vm:modelSoundingPersistIndexAlert"/>
             <bean ref="persist" method="persist"/>

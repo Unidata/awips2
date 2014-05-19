@@ -47,8 +47,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.collections.UpdatingSet;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 
 /**
  * Manage contacts from local groups and roster on server
@@ -71,6 +72,13 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * Jan 30, 2014 2698       bclement     removed unneeded nickname changed event
  * Jan 31, 2014 2700       bclement     added addToRoster, fixed add to group when in roster, but blocked
  * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
+ * Apr 11, 2014 2903       bclement     moved roster listener from collaboration connection to here
+ * Apr 16, 2014 2981       bclement     fixed NPE when cached shared group deleted on server
+ * Apr 23, 2014 2822       bclement     moved roster listener to ContactsListener, 
+ *                                      added getSharedDisplayEnabledResource()
+ * Apr 24, 2014 3070       bclement     added checks for empty groups, added isContact(),
+ *                                      added sendContactRequest()
+ *                                      fixed contact request logic in addToGroup()
  * 
  * </pre>
  * 
@@ -83,13 +91,15 @@ public class ContactsManager {
             .getHandler(ContactsManager.class);
 
     private final CollaborationConnection connection;
-    
+
     private final XMPPConnection xmpp;
 
     private final UserSearch search;
 
     private Map<String, String> localAliases;
-    
+
+    private final ContactsListener contactsListener;
+
     /**
      * Cached view of shared groups list on openfire. Will only reach out to
      * server if it hasn't updated in an hour. This will disable itself if there
@@ -127,8 +137,11 @@ public class ContactsManager {
         this.search = connection.createSearch();
         localAliases = UserIdWrapper.readAliasMap();
         this.xmpp = xmpp;
+        Roster roster = xmpp.getRoster();
+        this.contactsListener = new ContactsListener(this);
+        roster.addRosterListener(this.contactsListener);
     }
-    
+
     /**
      * Get groups that are managed by server. These are not modifiable from the
      * client.
@@ -141,7 +154,13 @@ public class ContactsManager {
         Roster roster = getRoster();
         for (String group : groups) {
             RosterGroup rg = roster.getGroup(group);
-            rval.add(new SharedGroup(rg));
+            /*
+             * group will be null if it has been removed from server after
+             * cached in shared groups.
+             */
+            if (rg != null && !rg.getEntries().isEmpty()) {
+                rval.add(new SharedGroup(rg));
+            }
         }
         return rval;
     }
@@ -161,7 +180,8 @@ public class ContactsManager {
         } else {
             rval = new ArrayList<RosterGroup>(groups.size());
             for (RosterGroup group : groups) {
-                if (!shared.contains(group.getName())) {
+                if (!shared.contains(group.getName())
+                        && !group.getEntries().isEmpty()) {
                     rval.add(group);
                 }
             }
@@ -182,24 +202,14 @@ public class ContactsManager {
         if (group == null) {
             group = createGroup(groupName);
         }
-        String id = user.getNormalizedId();
-        RosterEntry entry = group.getEntry(id);
-        if (entry != null) {
-            if (isBlocked(entry)) {
-                // entry is in roster, but we aren't subscribed. Request a
-                // subscription.
-                try {
-                    connection.getAccountManager().sendPresence(user,
-                            new Presence(Type.subscribe));
-                } catch (CollaborationException e) {
-                    statusHandler.error("Problem subscribing to user", e);
-                }
-            } else {
-                statusHandler
-                        .debug("Attempted to add user to group it was already in: "
-                                + id + " in " + groupName);
+        RosterEntry entry = getRosterEntry(user);
+        if (entry != null && isBlocked(entry)) {
+            /* entry is in roster, but we are blocked */
+            try {
+                sendContactRequest(user);
+            } catch (CollaborationException e) {
+                statusHandler.error("Problem subscribing to user", e);
             }
-            return;
         }
         try {
             addToGroup(group, user);
@@ -208,8 +218,8 @@ public class ContactsManager {
             }
         } catch (XMPPException e) {
             String msg = getGroupModInfo(e);
-            statusHandler.error("Problem adding user to group: " + id + " to "
-                    + group.getName() + ". " + msg, e);
+            statusHandler.error("Problem adding user to group: " + user
+                    + " to " + group.getName() + ". " + msg, e);
         }
     }
 
@@ -272,19 +282,20 @@ public class ContactsManager {
      */
     public void deleteFromGroup(String groupName, UserId user) {
         RosterEntry entry = getRosterEntry(user);
-        if ( entry == null){
-            statusHandler.warn("Attempted to alter group for non-contact: " + user);
+        if (entry == null) {
+            statusHandler.warn("Attempted to alter group for non-contact: "
+                    + user);
             return;
         }
         RosterGroup group = getRoster().getGroup(groupName);
-        if ( group != null){
+        if (group != null) {
             deleteFromGroup(group, entry);
         } else {
             statusHandler.warn("Attempted to modify non-existent group: "
                     + groupName);
         }
     }
-    
+
     /**
      * Remove entry from group.
      * 
@@ -299,12 +310,13 @@ public class ContactsManager {
             }
         } catch (XMPPException e) {
             String msg = getGroupModInfo(e);
-            statusHandler.error("Problem removing entry from group: "
-                    + IDConverter.convertFrom(entry) + " from "
+            statusHandler.error(
+                    "Problem removing entry from group: "
+                            + IDConverter.convertFrom(entry) + " from "
                             + group.getName() + ". " + msg, e);
         }
     }
-    
+
     /**
      * Attempt to get more information about group modification error. Returns
      * an empty string if no extra information is found.
@@ -350,8 +362,9 @@ public class ContactsManager {
     public RosterGroup createGroup(String groupName) {
         Roster roster = getRoster();
         RosterGroup rval = roster.getGroup(groupName);
-        if ( rval != null){
-            statusHandler.debug("Attempted to create existing group: " + groupName);
+        if (rval != null) {
+            statusHandler.debug("Attempted to create existing group: "
+                    + groupName);
             return rval;
         }
         rval = roster.createGroup(groupName);
@@ -369,7 +382,7 @@ public class ContactsManager {
     public void deleteGroup(String groupName) {
         Roster roster = getRoster();
         RosterGroup group = roster.getGroup(groupName);
-        if ( group == null){
+        if (group == null) {
             statusHandler.warn("Attempted to delete non-existent group: "
                     + groupName);
             return;
@@ -649,6 +662,7 @@ public class ContactsManager {
     }
 
     /**
+     * 
      * @param entry
      * @return true if we are blocked from seeing updates from user in entry
      */
@@ -677,6 +691,51 @@ public class ContactsManager {
             }
         }
         return rval;
+    }
+
+    /**
+     * 
+     * @param entry
+     * @return true if we can see updates from user in entry
+     */
+    public static boolean isContact(RosterEntry entry) {
+        ItemType type = entry.getType();
+        return type != null
+                && (type.equals(ItemType.both) || type.equals(ItemType.to));
+    }
+
+    /**
+     * @see #isContact(RosterEntry)
+     * @param id
+     * @return true if we can see updates from user
+     */
+    public boolean isContact(UserId id) {
+        RosterEntry entry = getRosterEntry(id);
+        boolean rval = false;
+        if (entry != null) {
+            rval = isContact(entry);
+        }
+        return rval;
+    }
+
+    /**
+     * @see ContactsListener#getSharedDisplayEnabledResource(UserId)
+     * @param user
+     * @return
+     */
+    public String getSharedDisplayEnabledResource(UserId user) {
+        return contactsListener.getSharedDisplayEnabledResource(user);
+    }
+
+    /**
+     * Send a contact request to user
+     * 
+     * @param user
+     * @throws CollaborationException
+     */
+    public void sendContactRequest(UserId user) throws CollaborationException {
+        IAccountManager manager = connection.getAccountManager();
+        manager.sendPresence(user, new Presence(Type.subscribe));
     }
 
     /**

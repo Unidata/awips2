@@ -78,6 +78,8 @@ import com.raytheon.uf.edex.stats.util.ConfigLoader;
  * Mar 27, 2013 1802       bphillip    Made jaxb manager static and changed visibility of a method
  * May 22, 2013 1917       rjpeter     Added ability to save raw and aggregate stats, to reclaimSpace every scan call,
  *                                     and to not pretty print xml grouping information.
+ * Apr 18, 2014 2681       rjpeter     Updated scan to process in distinct chunks of time.
+ * May 12, 2014 3154       rjpeter     Removed reclaimSpace call.
  * </pre>
  * 
  * @author jsanchez
@@ -243,38 +245,67 @@ public class AggregateManager {
             String type = entry.getKey();
             StatisticsEventConfig event = entry.getValue();
             List<StatsRecord> records = null;
+            Calendar minTime = statsRecordDao.retrieveMinTime(type);
 
-            do {
-                // retrieve stats in blocks of 1000
-                records = statsRecordDao.retrieveRecords(timeToProcess, type,
-                        2000);
+            if ((minTime != null) && minTime.before(timeToProcess)) {
+                /*
+                 * process in minute chunks to avoid overwhelming the database
+                 * and having consistent results if stats is down for a period
+                 * of time.
+                 */
+                Calendar maxTime = (Calendar) minTime.clone();
+                maxTime.add(Calendar.MINUTE, 1);
 
-                if (!CollectionUtil.isNullOrEmpty(records)) {
-                    // sort events into time buckets
-                    Map<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>> timeMap = sort(
-                            event, records);
+                // not checking before since we want before or equal to
+                while (!maxTime.after(timeToProcess) && maxTime.after(minTime)) {
+                    records = statsRecordDao.retrieveRecords(type, minTime,
+                            maxTime);
 
-                    for (Map.Entry<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>> timeMapEntry : timeMap
-                            .entrySet()) {
-                        aggregate(event, timeMapEntry.getKey(),
-                                timeMapEntry.getValue());
-                    }
+                    if (!CollectionUtil.isNullOrEmpty(records)) {
+                        // sort events into time buckets
+                        Map<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>> timeMap = sort(
+                                event, records);
 
-                    try {
-                        statsRecordDao.deleteAll(records);
-                    } catch (Exception e) {
-                        statusHandler.error("Error deleting stat records", e);
-                    }
+                        for (Map.Entry<TimeRange, Multimap<StatsGroupingColumn, StatisticsEvent>> timeMapEntry : timeMap
+                                .entrySet()) {
+                            aggregate(event, timeMapEntry.getKey(),
+                                    timeMapEntry.getValue());
+                        }
 
-                    count += records.size();
-                    if (event.getRawOfflineRetentionDays() >= 0) {
-                        offline.writeStatsToDisk(event, timeMap);
+                        try {
+                            statsRecordDao.deleteAll(records);
+                        } catch (Exception e) {
+                            statusHandler.error("Error deleting stat records",
+                                    e);
+                        }
+
+                        count += records.size();
+                        if (event.getRawOfflineRetentionDays() >= 0) {
+                            offline.writeStatsToDisk(event, timeMap);
+                        }
+
+                        // increment to next interval
+                        minTime.add(Calendar.MINUTE, 1);
+                        maxTime.add(Calendar.MINUTE, 1);
+                    } else {
+                        maxTime.add(Calendar.MINUTE, 1);
+
+                        // check if at end of interval
+                        if (maxTime.before(timeToProcess)) {
+                            // no records found in interval, find next interval
+                            minTime = statsRecordDao.retrieveMinTime(type);
+                            if (minTime == null) {
+                                break;
+                            }
+
+                            maxTime.setTimeInMillis(minTime.getTimeInMillis());
+                            maxTime.add(Calendar.MINUTE, 1);
+                        }
                     }
                 }
-            } while (!CollectionUtil.isNullOrEmpty(records));
+            }
         }
 
-        statsRecordDao.reclaimSpace();
         long t1 = System.currentTimeMillis();
         statusHandler.info("Aggregated " + count + " stat events in "
                 + (t1 - t0) + " ms");

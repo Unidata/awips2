@@ -3,12 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Profiler Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.profiler;singleton:=true
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.uf.common.serialization
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.uf.viz.profiler.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.pointdata;bundle-version="1.11.9",
  com.raytheon.viz.pointdata;bundle-version="1.11.4",
- com.raytheon.uf.edex.decodertools;bundle-version="1.11.9",
  com.raytheon.viz.core;bundle-version="1.11.4",
  com.raytheon.viz.core.graphing;bundle-version="1.11.4",
  org.eclipse.ui,

@@ -18,15 +18,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.taf"/>
 	</bean>
 
-    <bean id="tafCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="taf-camel"/>
-  	</bean>  
-
 	<camelContext id="taf-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="tafFileEndpoint" uri="file:${edex.home}/data/sbn/taf?noop=true&amp;idempotent=false" />
 
