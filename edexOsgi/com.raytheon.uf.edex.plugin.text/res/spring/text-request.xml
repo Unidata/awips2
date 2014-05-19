@@ -58,4 +58,21 @@
   		<constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.GetAutoFaxRecordsRequest"/>
   		<constructor-arg ref="getAutoFaxRecordsRequestHandler"/>
   	</bean>
+    
+    <!-- textdb -->
+     <bean id="textDbSrvWrapper" class = "com.raytheon.uf.edex.plugin.text.dbsrv.TextDBSrvWrapper">
+        <property name="textdbSrv" ref="textdbsrv"/>
+        <property name="byteLimitInMB" value="${textdbsrv.byteLimitInMB}"/>
+    </bean>
+
+    <camelContext id="textdbsrv-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <endpoint id="textdbsrvXml_from"
+            uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/textdbsrv?disableStreamCache=true" />
+
+        <route id="textdbsrvXml">
+            <from uri="ref:textdbsrvXml_from" />
+            <bean ref="textDbSrvWrapper" method="executeTextDBMessage" />
+        </route>
+    </camelContext>
 </beans>
