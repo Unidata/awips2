@@ -19,51 +19,111 @@
  **/
 package com.raytheon.uf.edex.esb.camel;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import javax.naming.ConfigurationException;
+
+import org.apache.camel.AsyncCallback;
+import org.apache.camel.AsyncProcessor;
 import org.apache.camel.CamelContext;
-import org.apache.camel.CamelExecutionException;
+import org.apache.camel.Endpoint;
+import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
+import org.apache.camel.Processor;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.Route;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.apache.camel.model.ProcessorDefinition;
+import org.apache.camel.spi.InterceptStrategy;
 
 import com.raytheon.uf.common.message.IMessage;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.Pair;
+import com.raytheon.uf.common.util.collections.BoundedMap;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.IMessageProducer;
+import com.raytheon.uf.edex.esb.camel.context.ContextData;
+import com.raytheon.uf.edex.esb.camel.context.ContextManager;
 
 /**
- * Sends message to endpoints programmatically.
+ * Sends message to endpoints programmatically. Implements the camel
+ * {@link InterceptStrategy} to allow for tracking of camel dependencies where
+ * possible so that the ProducerTemplate is created from the correct context.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 14, 2008            njensen     Initial creation
+ * Nov 14, 2008            njensen     Initial creation.
+ * Mar 27, 2014 2726       rjpeter     Modified for graceful shutdown changes,
+ *                                     added tracking of endpoints by context.
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
 
-public class MessageProducer implements ApplicationContextAware,
-        IMessageProducer {
+public class MessageProducer implements IMessageProducer, InterceptStrategy {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MessageProducer.class);
 
-    private static ApplicationContext springContext;
+    /*
+     * setup via an interceptor used for tracking what context the current
+     * thread is participating in for dependency management of runtime
+     * IMessageProducer message sends.
+     */
+    private final ThreadLocal<CamelContext> currentThreadContext = new ThreadLocal<CamelContext>();
 
-    private static List<CamelContext> camelContextList;
+    private final ConcurrentMap<CamelContext, ProducerTemplate> contextProducerMap = new ConcurrentHashMap<CamelContext, ProducerTemplate>();
 
-    private static Map<String, String> endpointIdUriMap = new HashMap<String, String>();
+    private final ConcurrentMap<CamelContext, Map<String, Endpoint>> contextUriEndpointMap = new ConcurrentHashMap<CamelContext, Map<String, Endpoint>>();
 
-    private static Map<String, CamelContext> endpointContextMap = new HashMap<String, CamelContext>();
+    /**
+     * List of messages waiting to be sent.
+     */
+    private final List<WaitingMessage> waitingMessages = new LinkedList<WaitingMessage>();
 
-    private static Map<CamelContext, ProducerTemplate> contextProducerMap = new HashMap<CamelContext, ProducerTemplate>();
+    /**
+     * Internal variable for tracking if messages should be queued or not.
+     */
+    private volatile boolean started = false;
+
+    /**
+     * Constructor that launches an internal thread that will send all async
+     * messages that queue up while camel starts up.
+     */
+    public MessageProducer() {
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                EDEXUtil.waitForRunning();
+                started = true;
+                sendPendingAsyncMessages();
+            }
+        };
+        t.setName("MessageProducer-pendingMessageSender");
+        t.start();
+    }
+
+    /**
+     * Returns the ContextData
+     * 
+     * @return
+     * @throws EdexException
+     */
+    protected ContextData getContextData() throws EdexException {
+        try {
+            return ContextManager.getInstance().getContextData();
+        } catch (ConfigurationException e) {
+            throw new EdexException("Unable to look up camel context data", e);
+        }
+    }
 
     /*
      * (non-Javadoc)
@@ -72,21 +132,44 @@ public class MessageProducer implements ApplicationContextAware,
      * com.raytheon.uf.edex.esb.camel.IMessageProducer#sendAsync(java.lang.String
      * , java.lang.Object)
      */
+    @Override
     public void sendAsync(String endpoint, Object message) throws EdexException {
-        CamelContext camelContext = getCamelContext(endpoint);
-        ProducerTemplate template = getProducerTemplate(camelContext);
-        String uri = endpointIdUriMap.get(endpoint);
-        Map<String, Object> headers = getHeaders(message);
+        if (!started && queueWaitingMessage(WaitingType.ID, endpoint, message)) {
+            return;
+        }
+
+        String uri = getContextData().getEndpointUriForRouteId(endpoint);
+        sendAsyncUri(uri, message);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.core.IMessageProducer#sendAsyncUri(java.lang.String,
+     * java.lang.Object)
+     */
+    @Override
+    public void sendAsyncUri(String uri, Object message) throws EdexException {
+        if (!started && queueWaitingMessage(WaitingType.URI, uri, message)) {
+            return;
+        }
+
         try {
+            Pair<ProducerTemplate, Endpoint> ctxAndTemplate = getProducerTemplateAndEndpointForUri(uri);
+            Map<String, Object> headers = getHeaders(message);
+            ProducerTemplate template = ctxAndTemplate.getFirst();
+            Endpoint ep = ctxAndTemplate.getSecond();
+
             if (headers != null) {
-                template.sendBodyAndHeaders(uri, ExchangePattern.InOnly,
+                template.sendBodyAndHeaders(ep, ExchangePattern.InOnly,
                         message, headers);
             } else {
-                template.sendBody(uri, ExchangePattern.InOnly, message);
+                template.sendBody(ep, ExchangePattern.InOnly, message);
             }
-        } catch (CamelExecutionException e) {
+        } catch (Exception e) {
             throw new EdexException("Error sending asynchronous message: "
-                    + message + " to endpoint: " + uri, e);
+                    + message + " to uri: " + uri, e);
         }
     }
 
@@ -97,114 +180,143 @@ public class MessageProducer implements ApplicationContextAware,
      * com.raytheon.uf.edex.esb.camel.IMessageProducer#sendSync(java.lang.String
      * , java.lang.Object)
      */
+    @Override
     public Object sendSync(String endpoint, Object message)
             throws EdexException {
-        CamelContext camelContext = getCamelContext(endpoint);
-        ProducerTemplate template = getProducerTemplate(camelContext);
-        String uri = endpointIdUriMap.get(endpoint);
-        Map<String, Object> headers = getHeaders(message);
+        if (!started) {
+            throw new EdexException("Cannot send synchronous message to "
+                    + endpoint + " before EDEX has started");
+        }
+
+        String uri = getContextData().getEndpointUriForRouteId(endpoint);
+
         try {
+            Pair<ProducerTemplate, Endpoint> ctxAndTemplate = getProducerTemplateAndEndpointForUri(uri);
+            Map<String, Object> headers = getHeaders(message);
+            ProducerTemplate template = ctxAndTemplate.getFirst();
+            Endpoint ep = ctxAndTemplate.getSecond();
+
             if (headers != null) {
-                return template.sendBodyAndHeaders(uri, ExchangePattern.OutIn,
+                return template.sendBodyAndHeaders(ep, ExchangePattern.OutIn,
                         message, headers);
             } else {
-                return template.sendBody(uri, ExchangePattern.OutIn, message);
+                return template.sendBody(ep, ExchangePattern.OutIn, message);
             }
-        } catch (CamelExecutionException e) {
+        } catch (Exception e) {
             throw new EdexException("Error sending synchronous message: "
                     + message + " to uri: " + uri, e);
         }
     }
 
-    private synchronized CamelContext getCamelContext(String endpointId)
-            throws EdexException {
-        CamelContext ctx = endpointContextMap.get(endpointId);
+    /**
+     * Queues up an async message for sending to an endpoint.
+     * 
+     * @param type
+     * @param endpoint
+     * @param message
+     * @return
+     */
+    private boolean queueWaitingMessage(WaitingType type, String endpoint,
+            Object message) {
+        synchronized (waitingMessages) {
+            // make sure container hasn't started while waiting
+            if (!started) {
+                WaitingMessage wm = new WaitingMessage();
+                wm.type = type;
+                wm.dest = endpoint;
+                wm.msg = message;
+                waitingMessages.add(wm);
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Returns the a producer template for the CamelContext this thread is
+     * currently a part of and the endpoint for the URI. If thread is not part
+     * of a context, will use context of the uri. If the uri is not registered
+     * in this jvm, will use the first context available.
+     * 
+     * @return
+     */
+    protected Pair<ProducerTemplate, Endpoint> getProducerTemplateAndEndpointForUri(
+            String uri) throws ConfigurationException, EdexException {
+        CamelContext ctx = currentThreadContext.get();
+
         if (ctx == null) {
-            List<CamelContext> list = getCamelContextList();
-            boolean found = false;
-            for (CamelContext c : list) {
-                List<Route> routes = c.getRoutes();
-                for (Route r : routes) {
-                    if (r.getProperties() != null
-                            && endpointId.equals(r.getProperties().get(
-                                    Route.ID_PROPERTY))) {
-                        ctx = c;
-                        endpointContextMap.put(endpointId, ctx);
-                        endpointIdUriMap.put(endpointId, r.getEndpoint()
-                                .getEndpointUri());
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) {
-                    break;
+            ContextData contextData = getContextData();
+            Pair<String, String> typeAndName = ContextData
+                    .getEndpointTypeAndName(uri);
+            if (typeAndName != null) {
+                Route route = contextData.getRouteForEndpointName(typeAndName
+                        .getSecond());
+                if (route != null) {
+                    ctx = route.getRouteContext().getCamelContext();
                 }
             }
+
             if (ctx == null) {
-                throw new EdexException("Route id " + endpointId
-                        + " not found.  Check loaded spring configurations.");
+                // this jvm does not consume from this route, use first context
+                List<CamelContext> contexts = contextData.getContexts();
+                if (contexts.size() > 0) {
+                    // should always be a context defined
+                    ctx = contexts.iterator().next();
+                }
             }
         }
 
-        return ctx;
-    }
+        if (ctx != null) {
+            ProducerTemplate tmp = contextProducerMap.get(ctx);
+            if (tmp == null) {
+                tmp = ctx.createProducerTemplate();
+                ProducerTemplate prev = contextProducerMap
+                        .putIfAbsent(ctx, tmp);
+                if ((prev != null) && (prev != tmp)) {
+                    try {
+                        tmp.stop();
+                    } catch (Exception e) {
 
-    private ProducerTemplate getProducerTemplate(CamelContext ctx) {
-        ProducerTemplate tmp = contextProducerMap.get(ctx);
-        if (tmp == null) {
-            tmp = ctx.createProducerTemplate();
-            contextProducerMap.put(ctx, tmp);
-        }
-
-        return tmp;
-    }
-
-    private synchronized List<CamelContext> getCamelContextList() {
-        if (springContext == null) {
-            springContext = EDEXUtil.getSpringContext();
-        }
-
-        if (springContext == null) {
-
-            throw new IllegalStateException(
-                    "Spring context has not been initialized on "
-                            + MessageProducer.class.getName());
-        }
-
-        if (camelContextList == null) {
-            camelContextList = new ArrayList<CamelContext>();
-            String[] camelContexts = springContext
-                    .getBeanNamesForType(CamelContext.class);
-            for (String name : camelContexts) {
-                CamelContext c = (CamelContext) springContext.getBean(name);
-                camelContextList.add(c);
+                    }
+                    tmp = prev;
+                }
             }
-        }
-        return camelContextList;
-    }
 
-    @Override
-    public void setApplicationContext(ApplicationContext context)
-            throws BeansException {
-        springContext = context;
-    }
-
-    @Override
-    public void sendAsyncUri(String uri, Object message) throws EdexException {
-        CamelContext ctx = getCamelContextList().get(0);
-        ProducerTemplate template = getProducerTemplate(ctx);
-        Map<String, Object> headers = getHeaders(message);
-        try {
-            if (headers != null) {
-                template.sendBodyAndHeaders(uri, ExchangePattern.InOnly,
-                        message, headers);
-            } else {
-                template.sendBody(uri, ExchangePattern.InOnly, message);
+            /*
+             * Caching endpoint for the uri ourselves. Camel considers various
+             * endpoints non singleton. So for things like jms-topic, a new
+             * endpoint is created everytime a message is sent to the URI
+             * instead of reusing one that was already created. This is in part
+             * due to the lack of tracking per route. We are ok with caching per
+             * context as we don't operate on routes individually only contexts
+             * as a whole.
+             */
+            Map<String, Endpoint> endpointMap = contextUriEndpointMap.get(ctx);
+            if (endpointMap == null) {
+                endpointMap = new BoundedMap<String, Endpoint>(100);
+                Map<String, Endpoint> prev = contextUriEndpointMap.putIfAbsent(
+                        ctx, endpointMap);
+                if (prev != null) {
+                    endpointMap = prev;
+                }
             }
-        } catch (CamelExecutionException e) {
-            throw new EdexException("Error sending asynchronous message: " + message
-                    + " to uri: " + uri, e);
+
+            Endpoint ep = null;
+            synchronized (endpointMap) {
+                ep = endpointMap.get(uri);
+                if (ep == null) {
+                    ep = ctx.getEndpoint(uri);
+                    endpointMap.put(uri, ep);
+                }
+            }
+
+            return new Pair<ProducerTemplate, Endpoint>(tmp, ep);
         }
+
+        throw new ConfigurationException(
+                "Could not find a CamelContext for routing to uri [" + uri
+                        + "].  Check loaded spring configurations.");
     }
 
     private Map<String, Object> getHeaders(Object message) {
@@ -224,4 +336,100 @@ public class MessageProducer implements ApplicationContextAware,
         return headers;
     }
 
+    /**
+     * Sends any messages that were queued up while Camel started.
+     */
+    protected void sendPendingAsyncMessages() {
+        synchronized (waitingMessages) {
+            for (WaitingMessage wm : waitingMessages) {
+                try {
+                    switch (wm.type) {
+                    case ID:
+                        sendAsync(wm.dest, wm.msg);
+                        break;
+                    case URI:
+                        sendAsyncUri(wm.dest, wm.msg);
+                        break;
+                    }
+                } catch (Exception e) {
+                    statusHandler
+                            .error("Error occurred sending startup delayed async message",
+                                    e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Setup for use with MessageProducer to track what context the current
+     * operating thread is using.
+     */
+    @Override
+    public Processor wrapProcessorInInterceptors(final CamelContext context,
+            final ProcessorDefinition<?> definition, final Processor target,
+            final Processor nextTarget) throws Exception {
+        return new AsyncProcessor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                /*
+                 * track the thread this context is using for proper dependency
+                 * management.
+                 */
+                CamelContext prev = MessageProducer.this.currentThreadContext
+                        .get();
+                MessageProducer.this.currentThreadContext.set(context);
+                try {
+                    target.process(exchange);
+                } finally {
+                    MessageProducer.this.currentThreadContext.set(prev);
+                }
+            }
+
+            @Override
+            public boolean process(Exchange exchange, AsyncCallback callback) {
+                /*
+                 * track the thread this context is using for proper dependency
+                 * management.
+                 */
+                CamelContext prev = MessageProducer.this.currentThreadContext
+                        .get();
+                MessageProducer.this.currentThreadContext.set(context);
+
+                try {
+                    target.process(exchange);
+                } catch (Throwable e) {
+                    exchange.setException(e);
+                } finally {
+                    MessageProducer.this.currentThreadContext.set(prev);
+                }
+                callback.done(true);
+                return true;
+            }
+
+            @Override
+            public String toString() {
+                return "MessageProducer - ContainerWideInterceptor[" + target
+                        + "]";
+            }
+
+        };
+    }
+
+    /**
+     * Enum for handling whether the waiting type was uri or msg.
+     */
+    private enum WaitingType {
+        ID, URI
+    };
+
+    /**
+     * Inner class for handling messages sent before edex is up.
+     */
+    private class WaitingMessage {
+        private WaitingType type;
+
+        private String dest;
+
+        private Object msg;
+    }
 }

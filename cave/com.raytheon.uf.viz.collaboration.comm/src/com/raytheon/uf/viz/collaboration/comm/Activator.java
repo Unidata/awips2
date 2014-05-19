@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -34,6 +35,7 @@ import com.raytheon.uf.common.comm.NetworkStatistics;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
+ * Apr 23, 2014 2822       bclement    added getBundleVersion()
  * 
  * </pre>
  * 
@@ -80,4 +82,20 @@ public class Activator implements BundleActivator {
         return plugin;
     }
 
+    /**
+     * Get the version from the manifest
+     * 
+     * @return null if not available
+     */
+    public static String getBundleVersion(){
+        String rval = null;
+        if ( plugin != null){
+            BundleContext context = plugin.getContext();
+            if ( context != null){
+                Bundle bundle = context.getBundle();
+                rval = bundle.getVersion().toString();
+            }
+        }
+        return rval;
+    }
 }

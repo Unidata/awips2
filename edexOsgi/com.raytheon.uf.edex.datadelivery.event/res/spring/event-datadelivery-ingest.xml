@@ -20,13 +20,8 @@
 		class="com.raytheon.uf.edex.datadelivery.event.notification.NotificationPurge"
 		depends-on="ddEventRegister" />
 
-	<bean id="noitfyCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ddNotify-camel" />
-	</bean>
-
 	<camelContext id="ddNotify-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 
 		<route id="notificationPurgeRoute">
 			<from uri="timer://notifiyPurge?period=60s" />

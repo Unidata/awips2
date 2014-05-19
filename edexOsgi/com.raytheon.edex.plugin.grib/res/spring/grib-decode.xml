@@ -14,11 +14,6 @@
 	
 	<bean id="useLatestAggregationStrategy" class="org.apache.camel.processor.aggregate.UseLatestAggregationStrategy" />
 
-    <bean id="gribDecodeCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="grib-decode"/>
-  	</bean>
-
 	<bean id="gribPostProcessor"
 		class="com.raytheon.edex.plugin.grib.decoderpostprocessors.GribPostProcessor"
 		factory-method="getInstance" />
@@ -35,8 +30,7 @@
 		factory-method="getInstance" depends-on="gridcoveragelookup"/>
 
 	<camelContext id="grib-decode" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${grib-split.count.threads}"/>
 		<endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
@@ -50,9 +44,7 @@
 						<constant>grid</constant>
 					</setHeader>
 					<bean ref="stringToFile" />
-					<!--  strategyRef is needed because of camel bug https://issues.apache.org/activemq/browse/CAMEL-3333,
-					 without the strategy it uses the original message in the multicast and it loses the largeFileLock header -->
-					<split strategyRef="useLatestAggregationStrategy" streaming="true">
+					<split streaming="true">
 						<method bean="gribSplitter" method="split" />
 						<to uri="jms-durable:queue:Ingest.GribDecode" />
 					</split>
@@ -63,14 +55,15 @@
 				</doCatch>
 			</doTry>
 		</route>
-		
+
 		<route id="gribDecodeIngestRoute">
 			<from ref="gribDecodeJmsEndpoint" />
 			<doTry>
 				<pipeline>
 					<bean ref="gribGridPointLock" method="reserve"/>
 					<bean ref="gribDecoder" />
-					<!-- send for processing -->
+
+                    <!-- send for processing -->
 					<bean ref="gribPostProcessor" method="process" />
 					<to uri="direct-vm:persistIndexAlert" />
 				</pipeline>

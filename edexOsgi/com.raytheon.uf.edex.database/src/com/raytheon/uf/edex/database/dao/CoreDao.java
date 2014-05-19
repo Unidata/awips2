@@ -99,7 +99,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Apr 15, 2013 1868        bsteffen    Rewrite mergeAll in PluginDao.
  * Nov 08, 2013 2361        njensen     Changed method signature of saveOrUpdate to take Objects, not PersistableDataObjects
  * Dec 13, 2013 2555        rjpeter     Added processByCriteria and fixed Generics warnings.
- * Jan 23, 2014 2555        rjpeter     Updated processByCriteriato be a row at a time using ScrollableResults.
+ * Jan 23, 2014 2555        rjpeter     Updated processByCriteria to be a row at a time using ScrollableResults.
+ * Apr 23, 2014 2726        rjpeter     Updated processByCriteria to throw exceptions back up to caller.
  * </pre>
  * 
  * @author bphillip
@@ -494,24 +495,34 @@ public class CoreDao extends HibernateDaoSupport {
                                     .scroll(ScrollMode.FORWARD_ONLY);
                             boolean continueProcessing = true;
 
-                            while (rs.next() && continueProcessing) {
-                                Object[] row = rs.get();
-                                if (row.length > 0) {
-                                    continueProcessing = processor
-                                            .process((T) row[0]);
+                            try {
+                                while (rs.next() && continueProcessing) {
+                                    Object[] row = rs.get();
+                                    if (row.length > 0) {
+                                        continueProcessing = processor
+                                                .process((T) row[0]);
+                                    }
+                                    count++;
+                                    if ((count % batchSize) == 0) {
+                                        getSession().clear();
+                                    }
                                 }
-                                count++;
-                                if ((count % batchSize) == 0) {
-                                getSession().clear();
-                                }
+                                processor.finish();
+                            } catch (Exception e) {
+                                /*
+                                 * Only way to propogate the error to the caller
+                                 * is to throw a runtime exception
+                                 */
+                                throw new RuntimeException(
+                                        "Error occurred during processing", e);
                             }
-                            processor.finish();
                             return count;
                         }
                     });
 
-        } catch (TransactionException e) {
-            throw new DataAccessLayerException("Transaction failed", e);
+        } catch (Exception e) {
+            throw new DataAccessLayerException(
+                    "Error occurred during processing", e);
         }
 
         return rowsProcessed;
