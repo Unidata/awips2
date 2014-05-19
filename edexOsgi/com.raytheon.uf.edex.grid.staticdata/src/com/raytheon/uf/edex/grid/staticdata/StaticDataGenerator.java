@@ -50,10 +50,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
+import com.raytheon.uf.edex.database.plugin.DataURIDatabaseUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.grid.staticdata.topo.StaticTopoData;
 import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
@@ -68,13 +68,14 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 3, 2010            rjpeter     Initial creation
+ * Dec 3, 2010             rjpeter     Initial creation
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Mar 07, 2013 1587       bsteffen    rewrite static data generation.
  * Mar 14, 2013 1587       bsteffen    Fix persisting to datastore.
  * Apr 14, 2014 DR 16752   MPorricelli Add ensembleid to hash key to allow
  *                                     creation of static data for all perturbations
  *                                     of Ensemble models
+ * Apr 21, 2014 2060       njensen     Remove dependency on grid dataURI column
  * 
  * </pre>
  * 
@@ -386,19 +387,19 @@ public class StaticDataGenerator {
 
     /**
      * Return a set with only records which are not already in the database
+     * 
+     * @throws PluginException
      */
     private Set<GridRecord> checkDatabase(GridDao dao,
-            Set<GridRecord> staticRecords) throws DataAccessLayerException {
+            Set<GridRecord> staticRecords) throws PluginException {
         if (staticRecords.isEmpty()) {
             return staticRecords;
         }
         Set<GridRecord> missing = new HashSet<GridRecord>();
         for (GridRecord staticRecord : staticRecords) {
-            // a possible future optimization would be to do one bulk query for
-            // all records.
-            List<?> list = dao.queryBySingleCriteria("dataURI",
-                    staticRecord.getDataURI());
-            if (list.isEmpty()) {
+            // TODO a possible future optimization would be to do one bulk query
+            // for all records.
+            if (!DataURIDatabaseUtil.existingDataURI(staticRecord)) {
                 missing.add(staticRecord);
             }
         }

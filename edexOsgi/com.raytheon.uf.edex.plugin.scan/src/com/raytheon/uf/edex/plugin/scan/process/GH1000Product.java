@@ -26,6 +26,7 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.scan.ScanException;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableDataRow;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
@@ -40,6 +41,7 @@ import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 27, 2010 5098       grichard    Initial creation
+ * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
  * 
  * </pre>
  * 
@@ -134,12 +136,14 @@ public class GH1000Product extends GridProduct {
     }
 
     /**
-     * The SQL
+     * Retrieves the record for gh1000
      * 
      * @return
+     * @throws ScanException
      */
-    public static String getSQL(int interval, String model) {
-        return getGridSQL(interval, model, "GH", "MB", "1000.0",
+    public static GridRecord getGridRecord(int interval, String model)
+            throws ScanException {
+        return getGridRecord(interval, model, "GH", "MB", "1000.0",
                 Level.getInvalidLevelValueAsString());
     }
 

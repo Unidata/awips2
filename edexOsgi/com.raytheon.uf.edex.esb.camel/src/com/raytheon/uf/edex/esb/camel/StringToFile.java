@@ -20,12 +20,13 @@
 package com.raytheon.uf.edex.esb.camel;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Performs a transform from Strings to Files
@@ -38,9 +39,9 @@ import org.apache.commons.logging.LogFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 1, 2008             chammack    Initial creation
- * 15Jul2010          6624 garmendariz Log error and interrupt if file missing 
- * 
+ * Dec 1, 2008             chammack    Initial creation.
+ * 15Jul2010          6624 garmendariz Log error and interrupt if file missing.
+ * Mar 19, 2014 2726       rjpeter     Added debug logging of file being processed.
  * </pre>
  * 
  * @author chammack
@@ -49,7 +50,8 @@ import org.apache.commons.logging.LogFactory;
 
 public class StringToFile implements Processor {
 
-    protected transient Log logger = LogFactory.getLog(getClass());
+    protected final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(StringToFile.class);
 
     /*
      * (non-Javadoc)
@@ -69,12 +71,15 @@ public class StringToFile implements Processor {
 
         // if file does not exist, set fault to interrupt processing
         if (!file.exists()) {
-            logger.error("File does not exist : " + bodyString);
+            statusHandler.error("File does not exist : " + bodyString);
             arg0.getOut().setFault(true);
         } else {
             arg0.getIn().setBody(file);
             arg0.getIn().setHeader("ingestFileName", file.toString());
             arg0.getIn().setHeader("dequeueTime", System.currentTimeMillis());
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug("Processing file: " + file.toString());
+            }
         }
     }
 }
