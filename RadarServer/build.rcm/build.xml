@@ -135,8 +135,7 @@
             <fileset dir="${cots.dir}/org.apache.commons.beanutils" includes="**/*.jar" />
             <fileset dir="${cots.dir}/org.apache.commons.codec" includes="**/*.jar" />
             <fileset dir="${cots.dir}/org.apache.commons.collections" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.commons.lang" includes="**/*.jar" />
-            <fileset dir="${cots.dir}/org.apache.mina" includes="**/*.jar" />
+            <fileset dir="${cots.dir}/org.apache.commons.lang" includes="**/*.jar" />            
             <fileset dir="${cots.dir}/org.apache.log4j" includes="**/*.jar" />
             <fileset dir="${cots.dir}/javax.jms" includes="**/*.jar" />
             <fileset dir="${cots.dir}/org.springframework">
