@@ -35,8 +35,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.raytheon.edex.textdb.dbapi.impl.AFOS_CLASS;
-import com.raytheon.edex.textdb.dbapi.impl.AFOS_ORIGIN;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarTextProductUtil;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -49,6 +47,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.viz.texteditor.util.AFOS_CLASS;
+import com.raytheon.viz.texteditor.util.AFOS_ORIGIN;
 
 /**
  * Singleton class that contains information related to querying for or updating
