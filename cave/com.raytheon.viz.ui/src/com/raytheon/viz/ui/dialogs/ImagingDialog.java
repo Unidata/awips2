@@ -90,6 +90,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Jan 15, 2014  2313     bsteffen    Disable color map selection when
  *                                    ColorMapCapability is not present.
  * Apr 08, 2014  2905     bsteffen    Add option to interpolate colors.
+ * Apr 16, 2014  3037     lvenable    Add dispose check in runAsync call.
  * 
  * </pre>
  * 
@@ -812,7 +813,8 @@ public class ImagingDialog extends CaveSWTDialog implements
 
             contrastText.setText(contrastScale.getSelection() + "%");
 
-            interpolateImageCheckbox.setSelection(imgCap.isInterpolationState());
+            interpolateImageCheckbox
+                    .setSelection(imgCap.isInterpolationState());
         } else {
             topColorMapButton.setText("Top image is not displayed.");
             topColormapComp.getCMapButton().setText("Not Selected");
@@ -936,7 +938,8 @@ public class ImagingDialog extends CaveSWTDialog implements
                 ((GridData) alphaLabel.getLayoutData()).exclude = true;
             }
 
-            interpolateImageCheckbox.setSelection(imgCap.isInterpolationState());
+            interpolateImageCheckbox
+                    .setSelection(imgCap.isInterpolationState());
         } else {
             brightnessText.setVisible(false);
             contrastText.setVisible(false);
@@ -967,6 +970,11 @@ public class ImagingDialog extends CaveSWTDialog implements
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
+                // If the dialog has been disposed then return.
+                if (isDisposed()) {
+                    return;
+                }
+
                 refreshComponents();
             }
         });

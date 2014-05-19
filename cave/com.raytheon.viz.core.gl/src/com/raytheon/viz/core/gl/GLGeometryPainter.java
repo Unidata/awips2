@@ -29,8 +29,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.GLGeometryObject2D.State;
 
 /**
- * Separated from GLGeometryObject2D. Added checks on glDrawArrays and
- * glMultiDrawArrays.
+ * Separated from GLGeometryObject2D. Adds checks on glDrawArrays and
+ * glMultiDrawArrays to ensure valid values are passed in.
  * 
  * <pre>
  * 
@@ -38,7 +38,8 @@ import com.raytheon.viz.core.gl.GLGeometryObject2D.State;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 7, 2011            njensen     Initial creation
+ * Jun 07, 2011            njensen     Initial creation
+ * Apr 15, 2014 2956       njensen     Fixed documentation
  * 
  * </pre>
  * 
@@ -48,6 +49,13 @@ import com.raytheon.viz.core.gl.GLGeometryObject2D.State;
 
 public class GLGeometryPainter {
 
+    /**
+     * Paints the geometries
+     * 
+     * @param gl
+     * @param geoms
+     * @throws VizException
+     */
     public static void paintGeometries(GL gl, GLGeometryObject2D... geoms)
             throws VizException {
         State state = State.INVALID;
@@ -70,7 +78,7 @@ public class GLGeometryPainter {
                 if (geom.data.mutable == false) {
                     throw new VizException(
                             "Could not paint, geometry was not created "
-                                    + "as mutable but in in the mutable state."
+                                    + "as mutable but is in the mutable state."
                                     + " Geometry must be compiled before use");
                 }
             }
