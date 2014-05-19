@@ -254,7 +254,6 @@ public class ContextManager implements ApplicationContextAware,
 
         try {
             ContextData cxtData = getContextData();
-            List<Future<Pair<CamelContext, Boolean>>> callbacks = new LinkedList<Future<Pair<CamelContext, Boolean>>>();
 
             for (final CamelContext context : cxtData.getContexts()) {
                 /*
@@ -281,7 +280,10 @@ public class ContextManager implements ApplicationContextAware,
                         def.setStartupOrder(externalCount--);
                     }
                 }
+            }
 
+            List<Future<Pair<CamelContext, Boolean>>> callbacks = new LinkedList<Future<Pair<CamelContext, Boolean>>>();
+            for (final CamelContext context : cxtData.getContexts()) {
                 final IContextStateManager stateManager = getStateManager(context);
                 if (stateManager.isContextStartable(context)) {
                     /*
