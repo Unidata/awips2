@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.connection;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,6 +52,7 @@ import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
@@ -118,6 +120,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 15, 2014 2822       bclement    added pubsub owner subscriptions provider registration
  * Apr 23, 2014 2822       bclement    added resource name and getCollaborationVersion()
  * May 09, 2014 3107       bclement    added ability for packet timeout to be set via system properties
+ * May 19, 2014 3180       bclement    added getJoinedVenueSessions()
  * 
  * </pre>
  * 
@@ -613,6 +616,21 @@ public class CollaborationConnection implements IEventPublisher {
 
     public Collection<ISession> getSessions() {
         return sessions.values();
+    }
+
+    /**
+     * @return all IVenueSessions that this user is a participant in
+     */
+    public Collection<IVenueSession> getJoinedVenueSessions() {
+        Collection<ISession> allSessions = getSessions();
+        ArrayList<IVenueSession> rval = new ArrayList<IVenueSession>(
+                allSessions.size());
+        for (ISession session : allSessions) {
+            if (session != null && session instanceof IVenueSession) {
+                rval.add((IVenueSession) session);
+            }
+        }
+        return rval;
     }
 
     /**
