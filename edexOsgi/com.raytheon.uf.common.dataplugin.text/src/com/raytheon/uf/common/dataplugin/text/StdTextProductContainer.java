@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -17,6 +16,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date           Ticket#    Engineer    Description
  * ------------   ---------- ----------- --------------------------
  * March 24, 2010 4734       M. Huang    Initial creation
+ * May 15, 2014   2536       bclement    removed ISerializableObject
  * 
  * </pre>
  * 
@@ -24,7 +24,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class StdTextProductContainer implements ISerializableObject{
+public class StdTextProductContainer {
     @DynamicSerializeElement
     private static List<StdTextProduct> productList = new ArrayList<StdTextProduct>();
 
