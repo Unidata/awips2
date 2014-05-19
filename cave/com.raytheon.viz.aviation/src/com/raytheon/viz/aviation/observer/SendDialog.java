@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -52,7 +51,6 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.aviation.AviationDialog;
 import com.raytheon.viz.aviation.editor.EditorTafTabComp;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
-import com.raytheon.viz.aviation.xml.ForecasterConfig;
 import com.raytheon.viz.avnconfig.IStatusSettable;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
@@ -72,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 08AUG2012    15613      zhao        Determine proper BBB for transmission
  * 09OCT2012    1229       rferrel     Make dialog non-blocking.
  * 0yJUN2013    1981       mpduff      Set user on the request.
+ * 06May2014    3091       rferrel     Use OUP authorization to bring up send dialog.
  * 
  * </pre>
  * 
@@ -111,9 +110,9 @@ public class SendDialog extends CaveSWTDialog {
     private Spinner secondSpnr;
 
     /**
-     * Person list control.
+     * Forecaster.
      */
-    private List personList;
+    private Label forecasterLabel;
 
     /**
      * Tab composite containing the TAF Viewer and the TAF Editor.
@@ -131,14 +130,27 @@ public class SendDialog extends CaveSWTDialog {
     private Composite mainComp;
 
     /**
-     * Forecaster array.
-     */
-    private ArrayList<ForecasterConfig> forecasterArray = null;
-
-    /**
      * Send the TAFs individually or as a collective.
      */
     private final boolean sendCollective;
+
+    /**
+     * @return true when user authorized to send TAFs.
+     */
+    public static boolean isAuthorized() {
+        TafQueueRequest request = new TafQueueRequest();
+        request.setType(Type.CHECK_AUTHORIZED);
+        request.setUser(UserController.getUserObject());
+        request.setState(TafQueueRecord.TafQueueState.SENT);
+        boolean response = false;
+        try {
+            ThriftClient.sendRequest(request);
+            response = true;
+        } catch (VizException e) {
+            response = false;
+        }
+        return response;
+    }
 
     /**
      * Constructor.
@@ -295,21 +307,10 @@ public class SendDialog extends CaveSWTDialog {
         configMgr.setDefaultFontAndColors(repsonsibleLbl);
 
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        personList = new List(listComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
-        personList.setLayoutData(gd);
-        configMgr.setListBoxFont(personList);
-
-        forecasterArray = AviationDialog.getForecasterConfig();
-
-        for (ForecasterConfig forecaster : forecasterArray) {
-            personList.add(forecaster.getName());
-        }
-
-        int index = personList.indexOf(AviationDialog.USERNAME);
-
-        if (index >= 0) {
-            personList.select(index);
-        }
+        forecasterLabel = new Label(listComp, SWT.CENTER);
+        forecasterLabel.setText(AviationDialog.getForecaster());
+        forecasterLabel.setLayoutData(gd);
+        configMgr.setListBoxFont(forecasterLabel);
     }
 
     /**
@@ -351,8 +352,7 @@ public class SendDialog extends CaveSWTDialog {
         request.setUser(UserController.getUserObject());
 
         // Forecaster ID
-        int forecasterId = forecasterArray.get(personList.getSelectionIndex())
-                .getId();
+        String forecasterId = forecasterLabel.getText();
         Calendar xmitTime = Calendar.getInstance();
         xmitTime.setTimeZone(TimeZone.getTimeZone("GMT"));
         xmitTime.set(Calendar.HOUR_OF_DAY, hourSpnr.getSelection());
@@ -502,8 +502,7 @@ public class SendDialog extends CaveSWTDialog {
                 }
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
         return type + "A";
