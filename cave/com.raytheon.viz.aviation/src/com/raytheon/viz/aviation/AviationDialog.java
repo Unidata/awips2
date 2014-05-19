@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.xml.bind.JAXB;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -44,7 +42,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -61,10 +58,7 @@ import com.raytheon.viz.aviation.model.ForecastModel;
 import com.raytheon.viz.aviation.observer.TafMonitorDlg;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.aviation.utility.IBackupRestart;
-import com.raytheon.viz.aviation.xml.AviationForecasterConfig;
-import com.raytheon.viz.aviation.xml.ForecasterConfig;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
-import com.raytheon.viz.avnconfig.AvnConfigFileUtil;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -103,6 +97,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 04/10/2013   1735        rferrel     Changes for taf monitor speed up.
  * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 12 Aug 2013  #2256      lvenable     Removed unnecessary font code and other code clean up.
+ * 06 May 2014  3091        rferrel     Use OUP authorization to bring up send dialog.
  * 
  * </pre>
  * 
@@ -112,10 +107,6 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AviationDialog.class);
-
-    private static String FORECAST_CONFIG_FILE = "aviation"
-            + IPathManager.SEPARATOR + "avnwatch" + IPathManager.SEPARATOR
-            + "aviationForecasterConfig.xml";
 
     /**
      * Font list to dispose of.
@@ -153,29 +144,22 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     private ClimateMenuDlg climateMenuDlg;
 
     /**
-     * Selected user id number in the forecaster list.
+     * Label to display forecaster.
      */
-    public static int USERID = 0;
-
-    /**
-     * Selected user name in the forecaster list control.
-     */
-    public static String USERNAME = "";
-
-    /**
-     * Selected user name in the forecaster list control.
-     */
-    public static boolean USERTRANSMIT = true;
-
-    /**
-     * List control containing forecaster names.
-     */
-    private List forecasterList;
+    private Label forecasterLabel;
 
     /**
      * Number of dialogs currently open,
      */
     private final AtomicInteger dlgCount = new AtomicInteger(0);
+
+    /**
+     * 
+     * @return forecaster
+     */
+    public static String getForecaster() {
+        return LocalizationManager.getInstance().getCurrentUser();
+    }
 
     /**
      * Create a non-blocking dialog.
@@ -286,7 +270,7 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      */
     private void initializeComponents() {
         createLabel();
-        createList();
+        createForecasterLabel();
         createComposite();
         initAcarsSounding();
     }
@@ -314,13 +298,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      */
     private void createLabel() {
         createAvnFPSLabel();
-    }
-
-    /**
-     * Create the list on the display.
-     */
-    private void createList() {
-        createForecasterList();
     }
 
     /**
@@ -476,65 +453,13 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     }
 
     /**
-     * Create the forecaster list.
+     * Create the forecaster label.
      */
-    private void createForecasterList() {
+    private void createForecasterLabel() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = 200;
-        forecasterList = new List(shell, SWT.BORDER | SWT.SINGLE);
-        forecasterList.setLayoutData(gd);
-
-        forecasterList.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                updateUsername();
-            }
-        });
-
-        // Load the Forecaster Configuration Information.
-        ArrayList<ForecasterConfig> forecasterArray = getForecasterConfig();
-
-        if (forecasterArray == null) {
-            return;
-        }
-
-        for (ForecasterConfig forecaster : forecasterArray) {
-            forecasterList.add(forecaster.getName());
-        }
-
-        forecasterList.setSelection(0);
-
-        updateUsername();
-    }
-
-    /**
-     * Update the user name and the transmit flag when a new users is selected
-     * from the list.
-     */
-    private void updateUsername() {
-        USERNAME = forecasterList.getItem(forecasterList.getSelectionIndex());
-        if (USERNAME == null) {
-            USERID = 0;
-            USERNAME = "";
-            USERTRANSMIT = false;
-            return;
-        }
-
-        ArrayList<ForecasterConfig> forecasterArray = getForecasterConfig();
-
-        if (forecasterArray == null) {
-            USERID = 0;
-            USERTRANSMIT = false;
-            return;
-        }
-
-        for (ForecasterConfig forecaster : forecasterArray) {
-            if (forecaster.getName().compareTo(USERNAME) == 0) {
-                USERID = forecaster.getId();
-                USERTRANSMIT = forecaster.getXmitPrivilege();
-                break;
-            }
-        }
+        forecasterLabel = new Label(shell, SWT.CENTER);
+        forecasterLabel.setText(getForecaster());
+        forecasterLabel.setLayoutData(gd);
     }
 
     /**
@@ -542,58 +467,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      */
     public void closeDisplay() {
         shell.dispose();
-    }
-
-    /**
-     * Get the Forecaster Configuration information for current user.
-     */
-    public static ArrayList<ForecasterConfig> getForecasterConfig() {
-        File f = AvnConfigFileUtil.getStaticFile(FORECAST_CONFIG_FILE);
-        ArrayList<ForecasterConfig> fcList = null;
-        ForecasterConfig fc = null;
-        String loginName = LocalizationManager.getInstance().getCurrentUser();
-
-        try {
-            if (f == null) {
-                fcList = null;
-            } else {
-                fcList = JAXB.unmarshal(f, AviationForecasterConfig.class)
-                        .getForecasterConfig();
-            }
-        } catch (RuntimeException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Error loading forecaster config no transmit privileges granted",
-                            e);
-            fcList = null;
-        }
-
-        if (fcList == null) {
-            // Unable to determine transmit privileges
-            fc = new ForecasterConfig();
-            fc.setName(loginName);
-            fc.setXmit(false);
-            fcList = new ArrayList<ForecasterConfig>();
-            fcList.add(fc);
-        } else {
-            fc = null;
-            for (ForecasterConfig tmpFc : fcList) {
-                if (loginName.equals(tmpFc.getName())) {
-                    fc = tmpFc;
-                    break;
-                }
-            }
-
-            if (fc == null) {
-                // Unknown user
-                fc = new ForecasterConfig();
-                fc.setName(loginName);
-                fc.setXmit(false);
-            }
-            fcList.clear();
-            fcList.add(fc);
-        }
-        return fcList;
     }
 
     /**
