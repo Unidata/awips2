@@ -43,7 +43,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsForScheduling;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * {@link IEdexBandwidthManagerCreator} for a WFO bandwidth manager.
@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
  * Jan 14, 2014 2692       dhladky      AdhocSubscription handler
  * Jan 30, 2014 2636       mpduff       Scheduling refactor.
  * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
+ * Apr 22, 2014 2992       dhladky      Added IdUtil for siteList
  * 
  * </pre>
  * 
@@ -99,6 +100,7 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
          * @param bandwidthDao
          * @param retrievalManager
          * @param bandwidthDaoUtil
+         * @param idUtil
          * @param dataSetMetaDataHandler
          * @param subscriptionHandler
          * @param adhocSubscriptionHandler
@@ -110,12 +112,13 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
                 IBandwidthDao bandwidthDao,
                 RetrievalManager retrievalManager,
                 BandwidthDaoUtil bandwidthDaoUtil,
+                RegistryIdUtil idUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler,
                 IAdhocSubscriptionHandler adhocSubscriptionHandler,
                 ISubscriptionNotificationService subscriptionNotificationService,
                 IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
-            super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
+            super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil, idUtil,
                     dataSetMetaDataHandler, subscriptionHandler,
                     adhocSubscriptionHandler, subscriptionNotificationService,
                     findSubscriptionsStrategy);
@@ -137,7 +140,7 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
                 Subscription<T, C> subscription = getRegistryObjectById(
                         getSubscriptionHandler(), event.getId());
                 boolean isLocalOrigination = subscription.getOriginatingSite()
-                        .equals(DataDeliveryIdUtil.getId());
+                        .equals(RegistryIdUtil.getId());
 
                 if (isLocalOrigination) {
                     subscriptionUpdated(subscription);
@@ -204,13 +207,14 @@ public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
     public IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil,
+            RegistryIdUtil idUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
             IAdhocSubscriptionHandler adhocSubscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService,
             IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
         return new WfoBandwidthManager<T, C>(dbInit, bandwidthDao,
-                retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler,
+                retrievalManager, bandwidthDaoUtil, idUtil, dataSetMetaDataHandler,
                 subscriptionHandler, adhocSubscriptionHandler,
                 subscriptionNotificationService, findSubscriptionsStrategy);
     }

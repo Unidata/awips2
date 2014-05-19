@@ -13,15 +13,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.bufrmthdw"/>
 	</bean>
 
-	<bean id="bufrmthdwCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="bufrmthdw-camel"/>
-  	</bean> 
-
 	<camelContext id="bufrmthdw-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="bufrmthdwFileEndpoint" uri="file:${edex.home}/data/sbn/bufrmthdw?noop=true&amp;idempotent=false" />
 
