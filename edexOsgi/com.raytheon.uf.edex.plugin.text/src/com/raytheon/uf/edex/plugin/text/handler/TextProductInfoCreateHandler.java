@@ -1,9 +1,9 @@
 package com.raytheon.uf.edex.plugin.text.handler;
 
-import com.raytheon.edex.textdb.dao.TextProductInfoDao;
 import com.raytheon.uf.common.dataplugin.text.db.TextProductInfo;
 import com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.edex.plugin.text.dao.TextProductInfoDao;
 
 /**
  * TODO Add Description Register request and handler beans in text-request.xml.
