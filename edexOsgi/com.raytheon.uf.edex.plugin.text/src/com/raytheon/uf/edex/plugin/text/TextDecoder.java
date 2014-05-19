@@ -43,8 +43,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
-import com.raytheon.edex.textdb.dbapi.impl.WMOReportData;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
@@ -55,7 +53,9 @@ import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.plugin.text.dao.AfosToAwipsDao;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
 import com.raytheon.uf.edex.plugin.text.impl.TextSeparatorFactory;
+import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
 import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
 
 /**
