@@ -26,6 +26,7 @@ import org.jivesoftware.smackx.muc.InvitationListener;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.xmpp.PacketConstants;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
@@ -46,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2014 2903       bclement     Initial creation
+ * May 19, 2014 3180       bclement     added alreadyParticipating()
  * 
  * </pre>
  * 
@@ -79,10 +81,14 @@ public class SessionInviteListener implements InvitationListener {
     public void invitationReceived(Connection conn, String room,
             String inviter, String reason, String password, Message message) {
         // TODO handle password protected rooms
-        VenueId venueId = new VenueId();
-        venueId.setName(Tools.parseName(room));
-        venueId.setHost(Tools.parseHost(room));
+        VenueId venueId = VenueId.fromString(room);
         UserId invitor = IDConverter.convertFrom(inviter);
+
+        if (alreadyParticipating(venueId)) {
+            statusHandler.debug("Invited to session we are already in: "
+                    + venueId + " by " + inviter);
+            return;
+        }
 
         SessionPayload payload = null;
         if (message != null) {
@@ -98,6 +104,23 @@ public class SessionInviteListener implements InvitationListener {
         } else {
             handleChatRoomInvite(venueId, invitor, reason, message);
         }
+    }
+
+    /**
+     * @param venue
+     * @return true if this user is already participanting in the venue
+     */
+    private static boolean alreadyParticipating(VenueId venue) {
+        boolean rval = false;
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        for (IVenueSession session : connection.getJoinedVenueSessions()) {
+            if (venue.isSameVenue(session.getVenue().getId())) {
+                rval = true;
+                break;
+            }
+        }
+        return rval;
     }
 
     /**
