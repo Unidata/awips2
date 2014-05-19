@@ -24,8 +24,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,7 +38,6 @@ import com.raytheon.uf.common.dataplugin.text.db.StateMatch;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.TextProductInfo;
 import com.raytheon.uf.common.dataplugin.text.db.WatchWarn;
-import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
@@ -73,6 +70,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * 23 May 2012       14952 rferrel     Allow queries with refTime.
  * Feb 18, 2014       2652  skorolev    Corrected writeProduct for WMO header if archive is allowed. Deleted unused code.
  * May 14, 2014 2536        bclement    moved WMO Header to common, removed TimeTools usage
+ * May 15, 2014 2536        bclement    moved asciiToHex() hexToAscii() and getProperty() to PropConverter
  * </pre>
  * 
  * @author jkorman
@@ -994,8 +992,14 @@ public class TextDB {
         if (pieces.length > 1) {
             pieces[0] += "\n"; // WMOHeader expects this
         }
-        String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
-        WMOHeader header = new WMOHeader(pieces[0].getBytes(), fileName);
+        byte[] bytes = pieces[0].getBytes();
+        WMOHeader header;
+        if (headers != null) {
+            String fileName = (String) headers.get(WMOHeader.INGEST_FILE_NAME);
+            header = new WMOHeader(bytes, fileName);
+        } else {
+            header = new WMOHeader(bytes);
+        }
 
         // Need to construct an AFOSProductId from the productId
         if (productId.length() <= 6) {
@@ -1020,50 +1024,6 @@ public class TextDB {
             retValue = writeProductNoHeader(afosId, reportData, operationalMode);
         }
         return retValue;
-    }
-
-    /**
-     * ASCII to HEX conversion.
-     * 
-     * @param string
-     *            ascii string
-     * @return hex code
-     */
-    public static String asciiToHex(String string) {
-        return new HexBinaryAdapter().marshal(string.getBytes());
-    }
-
-    /**
-     * HEX To ASCII conversion
-     * 
-     * @param hexString
-     * @return ascii string
-     */
-    public static String hexToAscii(String hexString) {
-
-        byte[] b = new HexBinaryAdapter().unmarshal(hexString);
-
-        return new String(b);
-    }
-
-    /**
-     * Get Property.
-     * 
-     * @param header
-     *            contains message header.
-     * @param propName
-     *            contains property name.
-     * @return property name
-     */
-    public static String getProperty(Header header, String propName) {
-        String result = null;
-
-        String value = header.getProperty(propName);
-
-        if (value != null) {
-            result = hexToAscii(value);
-        }
-        return result;
     }
 
     /**

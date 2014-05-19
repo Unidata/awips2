@@ -17,26 +17,35 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services.textdbsrv;
+package com.raytheon.uf.common.dataplugin.text.dbsrv;
 
+import com.raytheon.uf.common.message.Message;
 
 /**
- * TODO Add Description
+ * Transport interface for sending textdb query messages to query service
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 8, 2008        1538 jkorman     Initial creation
- *
+ * Nov 3, 2008            jkorman     Initial creation
+ * May 15, 2014 2536      bclement    moved from uf.edex.textdbsrv
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
-public enum VersionsTableTags implements ICommandTags {
-    OP, PRODID, VERSION;
+public interface IQueryTransport {
+
+    /**
+     * 
+     * @param message
+     * @return
+     */
+    public Message executeQuery(Message message);
+    
 }

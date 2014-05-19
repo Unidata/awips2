@@ -17,16 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.services;
+package com.raytheon.uf.edex.plugin.text.dbsrv;
 
+import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.services.textdbimpl.CommandExecutor;
-import com.raytheon.uf.edex.services.textdbsrv.ICommandExecutor;
+import com.raytheon.uf.edex.plugin.text.dbsrv.impl.CommandExecutor;
 
 /**
- * 
+ * Service for processing textdb queries
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -34,6 +34,7 @@ import com.raytheon.uf.edex.services.textdbsrv.ICommandExecutor;
  * ------------ ---------- ----------- --------------------------
  * Oct 03, 2008 1538       jkorman     Initial implementation.
  * Mar 26, 2014 2835       rjpeter     Added logging.
+ * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
  * </pre>
  * 
  * @author jkorman
