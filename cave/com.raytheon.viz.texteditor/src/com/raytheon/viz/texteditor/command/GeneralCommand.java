@@ -28,17 +28,15 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBQuery;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
-import com.raytheon.uf.edex.services.textdbsrv.TextDBQuery;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.Activator;
 
 /**
  * Pairs a command and its associated type.

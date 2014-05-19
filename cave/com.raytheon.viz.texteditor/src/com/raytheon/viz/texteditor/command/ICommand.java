@@ -22,7 +22,7 @@ package com.raytheon.viz.texteditor.command;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 
 /**
  * A command.
