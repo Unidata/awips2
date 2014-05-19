@@ -19,12 +19,13 @@
  **/
 package com.raytheon.uf.edex.plugin.text.handler;
 
-import com.raytheon.edex.textdb.fax.FaxSender;
 import com.raytheon.uf.common.dataplugin.text.request.SendFaxRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.edex.plugin.text.fax.FaxSender;
 
 /**
- * TODO Add Description
+ * Request handler for SendFaxRequests. Sends FAX message using
+ * {@link FaxSender}
  * 
  * <pre>
  * 
@@ -33,6 +34,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 21, 2010            bfarmer     Initial creation
+ * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
  * 
  * </pre>
  * 
