@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * Qualified id for a venue
@@ -32,6 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            jkorman     Initial creation
  * Feb 13, 2014 2751       bclement    removed resource, fixed getFQN
+ * May 19, 2014 3180       bclement    added isSameVenue() fromString() and hashcode/equals
  * 
  * </pre>
  * 
@@ -83,4 +85,78 @@ public class VenueId implements IQualifiedID {
         return name + "@" + host;
     }
 
+    /**
+     * @param venueId
+     * @return true if argument represents the same venue on the server
+     */
+    public boolean isSameVenue(String venueId) {
+        boolean rval;
+        if (venueId == null) {
+            rval = false;
+        } else {
+            rval = this.equals(fromString(venueId));
+        }
+        return rval;
+    }
+
+    /**
+     * @param other
+     * @return true if argument represents the same venue on the server
+     */
+    public boolean isSameVenue(VenueId other) {
+        return this.equals(other);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((host == null) ? 0 : host.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VenueId other = (VenueId) obj;
+        if (host == null) {
+            if (other.host != null)
+                return false;
+        } else if (!host.equals(other.host))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
+    }
+
+    /**
+     * @param venueId
+     *            in the form room@host
+     * @return
+     */
+    public static VenueId fromString(String venueId) {
+        VenueId rval = new VenueId();
+        rval.setName(Tools.parseName(venueId));
+        rval.setHost(Tools.parseHost(venueId));
+        return rval;
+    }
 }
