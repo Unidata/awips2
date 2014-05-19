@@ -59,10 +59,8 @@
  <alias base="wx_present">Present weather</alias>
  <!-- presWeather is the metar-ish weather abbreviation -->
  <alias base="presWeather">Present weather</alias>
- <!-- wx_past not used by sfc obs 
  <alias base="wx_past_1">Past weather (1)</alias>
  <alias base="wx_past_2">Past weather (2)</alias>
- -->
  <!-- map all precip to same base, use associated time period in parser -->
  <alias base="precip">Total precipitation/total water equivalent</alias>
  <alias base="precip24Hour">Total precipitation past 24 hours</alias>
