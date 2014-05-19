@@ -26,12 +26,15 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.requests.ServerRequestException;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
@@ -45,15 +48,17 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 23, 2011            bsteffen    Initial creation
- * Dec 06, 2012 1396       njensen     Added setting VizServers
- * Jan 14, 2013 1469       bkowal      Removed setting the hdf5 data directory
- * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
- * Aug 27, 2013 2295       bkowal      The entire jms connection string is
- *                                     now provided by EDEX.
- * Feb 04, 2014 2704       njensen     Single proxy address/preference
+ * Date          Ticket#    Engineer    Description
+ * ------------- ---------- ----------- --------------------------
+ * Nov 23, 2011             bsteffen    Initial creation
+ * Dec 06, 2012  1396       njensen     Added setting VizServers
+ * Jan 14, 2013  1469       bkowal      Removed setting the hdf5 data directory
+ * Aug 02, 2013  2202       bsteffen    Add edex specific connectivity checking.
+ * Aug 27, 2013  2295       bkowal      The entire jms connection string is now
+ *                                      nprovided by EDEX.
+ * Feb 04, 2014  2704       njensen     Single proxy address/preference
+ * May 19, 2014  3164       bsteffen    Disable request compression if it
+ *                                      doesn't work.
  * 
  * </pre>
  * 
@@ -62,6 +67,8 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  */
 
 public class ThinClientLocalizationInitializer extends LocalizationInitializer {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ThinClientLocalizationInitializer.class);
 
     /**
      * @param promptUI
@@ -92,6 +99,23 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                     .getString(ThinClientPreferenceConstants.P_PROXY_ADDRESS);
             String servicesProxy = ThinClientUriUtil
                     .getServicesAddress(proxyAddr);
+
+            boolean compressRequests = store
+                    .getBoolean(ThinClientPreferenceConstants.P_ENABLE_REQUEST_COMPRESSION);
+            if (compressRequests) {
+                HttpClient.getInstance().setCompressRequests(compressRequests);
+                try {
+                    ConnectivityManager.checkLocalizationServer(servicesProxy,
+                            true);
+                } catch (ServerRequestException e) {
+                    HttpClient.getInstance().setCompressRequests(false);
+                    statusHandler
+                            .error("Server ("
+                                    + servicesProxy
+                                    + ") does not support compressed requests, this feature has been disabled and some operations may be slower.",
+                                    e);
+                }
+            }
             LocalizationManager.getInstance().setCurrentServer(servicesProxy,
                     false);
             VizApp.setHttpServer(servicesProxy);
@@ -104,12 +128,8 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                 }
             }
 
-            String pypiesProxy = ThinClientUriUtil
-                    .getPypiesAddress(proxyAddr);
+            String pypiesProxy = ThinClientUriUtil.getPypiesAddress(proxyAddr);
             VizApp.setPypiesServer(pypiesProxy);
-            boolean compressRequests = store
-                    .getBoolean(ThinClientPreferenceConstants.P_ENABLE_REQUEST_COMPRESSION);
-            HttpClient.getInstance().setCompressRequests(compressRequests);
 
             // use the proxy for all servers in VizServers
             @SuppressWarnings("unchecked")
