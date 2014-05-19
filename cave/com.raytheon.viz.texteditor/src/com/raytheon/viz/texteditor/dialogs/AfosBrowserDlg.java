@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -60,14 +61,14 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.edex.textdb.dbapi.impl.AFOS_CLASS;
 import com.raytheon.edex.textdb.dbapi.impl.AFOS_ORIGIN;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
+import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBQuery;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.services.textdbsrv.IQueryTransport;
-import com.raytheon.uf.edex.services.textdbsrv.TextDBQuery;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -103,6 +104,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                       off the UI thread.
  *                                      Changes to have multiple query jobs.
  * 15Apr2014    #3031       lvenable    Added dispose check in the runAsync calls.
+ * 19May2014    2536        bclement    removed TimeTools usage
  * </pre>
  * 
  * @author lvenable
@@ -712,7 +714,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
     private void finishDesignatorTimeList() {
         String value = null;
         if (newestTime > 0L) {
-            Calendar c = TimeTools.newCalendar(newestTime);
+            Calendar c = TimeUtil.newGmtCalendar(new Date(newestTime));
             value = String.format(TIME_FORMAT, c);
         } else if (newestTime == -1) {
             value = DATA_ERROR;
@@ -760,7 +762,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
             int selectIndex = designatorList.getSelectionIndex();
             for (Long time : times) {
                 if (time > 0) {
-                    Calendar c = TimeTools.newCalendar(time);
+                    Calendar c = TimeUtil.newGmtCalendar(new Date(time));
                     value = String.format(TIME_FORMAT, c);
                 } else if (time == -1) {
                     value = DATA_ERROR;
