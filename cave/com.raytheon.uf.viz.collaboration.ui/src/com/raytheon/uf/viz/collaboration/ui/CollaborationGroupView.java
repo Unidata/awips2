@@ -153,6 +153,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Mar 12, 2014 2632       mpduff      Force group deletes from UI if last user is removed.
  * Apr 11, 2014 2903       bclement    login action changes, removed server disconnect listener, 
  *                                      added static utility method to show view
+ * May 19, 2014 3180       bclement    fixed inviting multiple users to session
  * 
  * </pre>
  * 
@@ -446,6 +447,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 createMenu(manager);
             }
         } else if (o instanceof RosterGroup || o instanceof SharedGroup) {
+            Action inviteAction = new InviteAction(getSelectedUsers());
+            if (inviteAction.isEnabled()) {
+                manager.add(inviteAction);
+            }
             manager.add(createSessionAction);
             if (o instanceof RosterGroup) {
                 RosterGroup group = (RosterGroup) o;
@@ -469,7 +474,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 .getConnection();
         Presence presence = connection.getContactsManager().getPresence(user);
         if (presence != null && presence.getType() == Type.available) {
-            Action inviteAction = new InviteAction(user);
+            Action inviteAction = new InviteAction(getSelectedUsers());
             if (inviteAction.isEnabled()) {
                 manager.add(inviteAction);
             }
