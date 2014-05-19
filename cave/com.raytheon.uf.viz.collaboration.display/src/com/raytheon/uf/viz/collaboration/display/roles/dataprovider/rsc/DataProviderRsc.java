@@ -53,11 +53,13 @@ import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 13, 2012            njensen     Initial creation
- * Jan 28, 2014 2698       bclement    removed venue info
- * Mar 06, 2014 2848       bclement    get subject dynamically from session
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 13, 2012           njensen     Initial creation
+ * Jan 28, 2014  2698     bclement    removed venue info
+ * Mar 06, 2014  2848     bclement    get subject dynamically from session
+ * May 16, 2014  3163     bsteffen    Remove references to deprecated
+ *                                    {@link DrawableString} field.
  * 
  * </pre>
  * 
@@ -110,7 +112,7 @@ public class DataProviderRsc extends
         string.setCoordinates(extent.getMinX() + extent.getWidth() / 2,
                 extent.getMaxY());
         string.font = font;
-        string.textStyle = TextStyle.BLANKED;
+        string.addTextStyle(TextStyle.BLANKED);
         target.drawStrings(string);
 
         target.setupClippingPlane(paintProps.getClippingPane());
@@ -147,6 +149,7 @@ public class DataProviderRsc extends
         }
     }
 
+    @Override
     public String getName() {
         String text = "Sharing with " + roomName;
         if (session.getVenue() != null) {
