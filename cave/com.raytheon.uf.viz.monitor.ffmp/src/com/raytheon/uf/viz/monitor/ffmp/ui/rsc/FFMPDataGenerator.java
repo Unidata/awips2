@@ -80,7 +80,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * July 1, 2013    2155   dhladky     Fixed bug that created more rows than were actually needed.
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 16, 2013    2197   njensen     Use FFMPBasinData.hasAnyBasins() for efficiency
- * Jan 09, 2014   DR16096 gzhang	  Fix QPFSCAN not showing M issue for different radar source.
+ * May 19, 2014   DR16096 gzhang	  Fix QPFSCAN not showing M issue for different radar source.
  * 
  * </pre>
  * @author dhladky
@@ -182,14 +182,14 @@ public class FFMPDataGenerator {
             }
 
             List<DomainXML> domains = resource.getDomains();
-
+            List<List<Long>> huclistsAll = getOtherSiteQpfBasins(siteKey,FFMPRecord.ALL, domains);// DR 16096
             if ((centeredAggregationKey == null) || huc.equals(FFMPRecord.ALL)) {
 
                 if (huc.equals(FFMPRecord.ALL)) {
 
                     FFMPBasinData fbd = baseRec.getBasinData();
                     tData = new FFMPTableData(fbd.getBasins().size());
-                    List<List<Long>> huclists = getOtherSiteQpfBasins(siteKey,huc, domains);// DR 16096 
+ 
                     for (Long key : fbd.getBasins().keySet()) {
 
                         FFMPBasinMetaData fmdb = ft.getBasin(siteKey, key);
@@ -199,7 +199,7 @@ public class FFMPDataGenerator {
                             continue;
 
                         }
-                        this.filterOtherSiteHucs(huclists, key);// DR 16096 
+                        this.filterOtherSiteHucs(huclistsAll, key, false);// DR 16096 
                         for (DomainXML domain : domains) {
 
                             String cwa = domain.getCwa();
@@ -269,7 +269,7 @@ public class FFMPDataGenerator {
                             if (fmdb != null) {
 
                                 try {
-                                	this.filterOtherSiteHucs(huclists, key);// DR 16096
+                                	this.filterOtherSiteHucs(huclists, key, true);// DR 16096
                                     FFMPBasin basin = new FFMPBasin(key, true);
                                     setFFMPRow(basin, tData, isVGB, null);
 
@@ -304,7 +304,7 @@ public class FFMPDataGenerator {
                             if ((domain.getCwa().equals(fmdb.getCwa()))
                                     || (domain.isPrimary() && fmdb
                                             .isPrimaryCwa())) {
-
+                            	this.filterOtherSiteHucs(huclistsAll, key,false);
                                 setFFMPRow(fbd.get(key), tData, false, null);
 
                                 if (virtualBasin != null) {
@@ -538,24 +538,24 @@ public class FFMPDataGenerator {
 
         //if(siteKey.equalsIgnoreCase(dqpf))//Basin Table same as QPFSCAN's datakey
         //        return huclist;
+        //System.out.println("@541----------- qpf: "+dqpf);//checking qpf type
         
-        System.out.println("@551----------- qpf: "+dqpf);//checking qpf type
 
         java.util.ArrayList<String> dataKeys = this.getDisplayingQpfDataKeys(dqpf);//more than one datakey for mosaic QPFSCAN
-        for(String site : dataKeys){
+        for(String site : dataKeys){//System.out.println("@545----------- qpf-site: "+site);
                 huclist.add(ft.getHucKeyList(site, huc, domains));
         }
         
         return huclist;
     }
 
-    private FFMPBasinData qpfBasinClone = null;// DR 16096 2014-01-06 initialized @435
+    private FFMPBasinData qpfBasinClone = null;// DR 16096 initialized @435
 
-    public void filterOtherSiteHucs(List<List<Long>> huclists, Long key){
+    public void filterOtherSiteHucs(List<List<Long>> huclists, Long key, boolean isAggregate){
     	if( huclists==null || huclists.size()==0) // QPFSCAN column is not on 2014-01-09
     		return;
         boolean isInOtherSite = false;
-
+/*
         for(List<Long> list : huclists){
         	if(list.contains(key)){
         		isInOtherSite = true;
@@ -568,8 +568,21 @@ public class FFMPDataGenerator {
         	setQPFMissing();
         	setMList(this.siteKey,this.huc, key);
         }// so in FFMPRowGenerator, qpf value will be Float.NaN
+*/        
+        if(isAggregate){
+        	this.setHucLevelQpf(key);
+        	return;//FFMPResource.getBasin(,QPF,,) not for aggregate
+        }
         
-        //if(key==31051 || key==31119){setQPFMissing(); setMList(this.siteKey,this.huc, key);}//hard-code for testing	
+        //Only for non-aggregates; fix NO DATA shows 0.0
+        try{
+	        if( Float.isNaN(resource.getBasin(key, FFMPRecord.FIELDS.QPF, this.paintRefTime, false).getValue()))
+	        	setQPFMissing();	
+	        else
+	        	this.qpfBasin = this.qpfBasinClone;
+        }catch(Exception e){
+        	statusHandler.info("FFMPResource.getBasin Exception: "+e.getMessage());
+        }
 
     }
 
@@ -642,6 +655,29 @@ public class FFMPDataGenerator {
     //Utilize the fact FFMPRowGenerator set QPFSCAN M if qpfBasin null
     private void setQPFMissing(){
     	this.qpfBasin = null;
-    }    
+    }  
+    
+    //Loop through the HUC's basins to check if there are values not NaN
+    //then set qpf; otherwise set the HUC level M.
+    //centeredAggregationKey NULL: not a specific huc (COUNTY,HUC0,etc) clicked
+    
+    private void setHucLevelQpf(Long key){
+    	
+    	List<Long> list = this.monitor.getTemplates(this.siteKey).getAggregatePfafs(key, this.siteKey, this.huc);
+    	boolean hasValue = false;
+    	
+    	for(Long bkey : list){
+    		try {
+				if( ! Float.isNaN(resource.getBasin(bkey, FFMPRecord.FIELDS.QPF, this.paintRefTime, false).getValue())){ 
+					hasValue = true;
+					break; // one is enough
+				}
+			} catch (VizException e) {
+				statusHandler.info("FFMPResource.getBasin Exception: "+e.getMessage());
+			}
+    	}
+    	
+    	qpfBasin = hasValue ? this.qpfBasinClone : null;
+    }
 
 }
