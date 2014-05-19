@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.text.db.WatchWarn;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
 
 /**
  * Processes warning textdbsrv command messages
