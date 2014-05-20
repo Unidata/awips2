@@ -27,8 +27,8 @@ import java.util.Map;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
@@ -57,7 +57,8 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * Oct 30, 2012            skorolev    Changed HashMap to Map
  * Nov 11, 2012 1297       skorolev    Added initiateProdArray
  * Dec 03, 2012 15216/15639 zhao fixed a bug related to Link-to-Frame 
- * Dec  7, 2012 #1351      skorolev    Changes for non-blocking dialogs.
+ * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs.
+ * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * 
  * </pre>
  * 
@@ -65,12 +66,23 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * @version 1.0
  */
 public class FogZoneTableDlg extends ZoneTableDlg {
+
+    /** Fog threshold dialog. **/
     private FogMonDispThreshDlg fogThreshDlg;
 
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param obData
+     */
     public FogZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.FOG);
     }
 
+    /**
+     * @param parent
+     */
     public FogZoneTableDlg(Shell parent) {
         super(parent, CommonConfig.AppName.FOG);
     }
@@ -138,9 +150,9 @@ public class FogZoneTableDlg extends ZoneTableDlg {
             if (date != null) {
                 Date nominalTime = date;
                 ObMultiHrsReports obData = fog.getObData();
-				if (!isLinkedToFrame()) {
-					nominalTime = obData.getLatestNominalTime();
-				}                
+                if (!isLinkedToFrame()) {
+                    nominalTime = obData.getLatestNominalTime();
+                }
                 FogDataGenerator fdg = new FogDataGenerator();
                 Map<String, CellType> fogAlgCellType = fdg.getAlgCellTypes(fog
                         .getAlgorithmData(nominalTime));
@@ -262,16 +274,6 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#getConfigMgr()
-     */
-    @Override
-    protected MonitorConfigurationManager getConfigMgr() {
-        return FogMonitorConfigurationManager.getInstance();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#handleLinkToFrame()
      */
@@ -293,25 +295,11 @@ public class FogZoneTableDlg extends ZoneTableDlg {
     }
 
     @Override
-    protected void setZoneSortColumnAndDirection() {
-        if (zoneTblData != null) {
-            zoneSortColumn = zoneTblData.getSortColumn();
-            zoneSortDirection = zoneTblData.getSortDirection();
+    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
+        if (configMgr == null) {
+            configMgr = new FSSObsMonitorConfigurationManager(site,
+                    MonName.fog.name());
         }
+        return configMgr;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
-     * setStnSortColumnAndDirection()
-     */
-    @Override
-    protected void setStnSortColumnAndDirection() {
-        if (stnTblData != null) {
-            stnSortColumn = stnTblData.getSortColumn();
-            stnSortDirection = stnTblData.getSortDirection();
-        }
-    }
-
 }

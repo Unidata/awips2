@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The Fog Monitor Action
@@ -38,6 +39,7 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
  * Dec 19 2009  3963       dhladky    Initial creation.
  * Jul 14 2010  6567       zhao       Launch AreaConfigDlg w/o monitor
  * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog.
+ * May 08, 2014 3086       skorolev   Added CloseCallback to dialog.
  * 
  * </pre>
  * 
@@ -47,8 +49,18 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
 
 public class FogAreaConfigAction extends AbstractHandler {
 
+    /**
+     * Fog Monitoring Area Config Dialog.
+     */
     private FogMonitoringAreaConfigDlg areaDialog;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         if (areaDialog == null) {
@@ -56,6 +68,14 @@ public class FogAreaConfigAction extends AbstractHandler {
                     .getShell();
             areaDialog = new FogMonitoringAreaConfigDlg(shell,
                     "Fog Monitor Area Configuration");
+            areaDialog.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    areaDialog = null;
+                }
+
+            });
         }
         areaDialog.open();
         return null;
