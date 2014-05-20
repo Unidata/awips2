@@ -30,9 +30,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.edex.textdb.dbapi.impl.WMOReportData;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.plugin.text.impl.WMOReportData;
 
 /**
  * Decoder implementation for text products
