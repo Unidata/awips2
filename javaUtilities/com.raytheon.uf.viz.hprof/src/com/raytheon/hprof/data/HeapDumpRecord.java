@@ -55,6 +55,7 @@ import com.raytheon.hprof.data.heap.root.RootThreadObject;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 20, 2014  3093     bsteffen    Add zeroPrimitiveArrays
  * 
  * </pre>
  * 
@@ -137,12 +138,12 @@ public class HeapDumpRecord extends AbstractHprofRecord {
             }
             case ObjectArrayDump.TAG: {
                 objectArrays.add(buffer.position());
-                new ObjectArrayDump(buffer, idSize);
+                new ObjectArrayDump(buffer, idSize, false);
                 break;
             }
             case PrimitiveArrayDump.TAG: {
                 primitiveArrays.add(buffer.position());
-                new PrimitiveArrayDump(buffer, idSize);
+                new PrimitiveArrayDump(buffer, idSize, false);
                 break;
             }
             case HeapDumpSegmentRecord.TAG: {
@@ -234,7 +235,7 @@ public class HeapDumpRecord extends AbstractHprofRecord {
             return null;
         }
         buffer.position(index);
-        return new ObjectArrayDump(buffer, idSize);
+        return new ObjectArrayDump(buffer, idSize, true);
     }
 
     public BasicType[] getPrimitiveArray(Id objectId) {
@@ -243,7 +244,29 @@ public class HeapDumpRecord extends AbstractHprofRecord {
             return null;
         }
         buffer.position(index);
-        return new PrimitiveArrayDump(buffer, idSize).getArray();
+        return new PrimitiveArrayDump(buffer, idSize, true).getArray();
+    }
+
+    /**
+     * Zero out all data for non char primitive arrays in the backing file.
+     */
+    public void zeroPrimitiveArrays() {
+        for (long index : primitiveArraysById) {
+            buffer.position(index);
+            PrimitiveArrayDump dump = new PrimitiveArrayDump(buffer, idSize,
+                    true);
+            BasicType[] array = dump.getArray();
+            if (array.length > 0) {
+                BasicType sample = array[0];
+                if (!sample.isChar()) {
+                    int size = sample.getSize() * array.length;
+                    buffer.position(buffer.position() - size);
+                    for (int i = 0; i < size; i += 1) {
+                        buffer.put((byte) 0);
+                    }
+                }
+            }
+        }
     }
 
     private long binarySearch(long[] array, Id objectId) {
