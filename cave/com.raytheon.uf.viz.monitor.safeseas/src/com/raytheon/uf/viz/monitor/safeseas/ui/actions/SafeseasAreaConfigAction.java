@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSMonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * The SAFESEAS Action
@@ -37,7 +38,8 @@ import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSMonitoringAreaConfigDlg
  * ------------ ---------- ----------- --------------------------
  * Dec 28, 2009 3963       dhladky    Initial creation.
  * March 5, 2012 14413     zhao       Launch AreaConfigDlg w/o monitor
- * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog
+ * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog.
+ * May 08, 2014 3086       skorolev   Added CloseCallback to dialog.
  * 
  * </pre>
  * 
@@ -47,8 +49,18 @@ import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSMonitoringAreaConfigDlg
 
 public class SafeseasAreaConfigAction extends AbstractHandler {
 
+    /**
+     * SAFESEAS Monitoring Area Configuration Dialog.
+     */
     private SSMonitoringAreaConfigDlg configDlg;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         if (configDlg == null) {
@@ -56,6 +68,14 @@ public class SafeseasAreaConfigAction extends AbstractHandler {
                     .getShell();
             configDlg = new SSMonitoringAreaConfigDlg(shell,
                     "SAFESEAS Monitor Area Configuration");
+            configDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    configDlg = null;
+                }
+
+            });
         }
         configDlg.open();
         return null;

@@ -22,7 +22,8 @@ package com.raytheon.uf.viz.monitor.snow.ui.dialogs;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
@@ -42,6 +43,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
  * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
+ * Apr 28, 2014 3086       skorolev    Updated snowConfigManager.
  * 
  * </pre>
  * 
@@ -51,13 +53,18 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
+    /** Configuration manager for SNOW monitor. */
+    private FSSObsMonitorConfigurationManager snowConfigMgr;
+
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param title
+     */
     public SnowMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SNOW);
-        readConfigData();
     }
-
-    private SnowMonitorConfigurationManager configManager = SnowMonitorConfigurationManager
-            .getInstance();
 
     /*
      * (non-Javadoc)
@@ -67,16 +74,17 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     @Override
     protected void handleOkBtnSelection() {
-        // Check for changes in the data
+        snowConfigMgr = getInstance();
+        // Check for changes in the data\
         if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "SNOW Monitor Confirm Changes",
                     "Want to update the SNOW setup files?");
             if (choice == SWT.OK) {
                 // Save the config xml file
-                configManager.setTimeWindow(timeWindow.getSelection());
+                getValues();
                 resetStatus();
-                configManager.saveConfigData();
+                snowConfigMgr.saveConfigXml();
                 /**
                  * DR#11279: re-initialize threshold manager and the monitor
                  * using new monitor area configuration
@@ -84,17 +92,17 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 SnowThresholdMgr.reInitialize();
                 SnowMonitor.reInitialize();
 
-                if ((!configManager.getAddedZones().isEmpty())
-                        || (!configManager.getAddedStations().isEmpty())) {
+                if ((!snowConfigMgr.getAddedZones().isEmpty())
+                        || (!snowConfigMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
                         SnowMonDispThreshDlg snowMonitorDlg = new SnowMonDispThreshDlg(
                                 shell, CommonConfig.AppName.SNOW,
                                 DataUsageKey.MONITOR);
                         snowMonitorDlg.open();
                     }
+                    snowConfigMgr.getAddedZones().clear();
+                    snowConfigMgr.getAddedStations().clear();
                 }
-                configManager.getAddedZones().clear();
-                configManager.getAddedStations().clear();
             }
         } else {
             String message3 = "No changes made.\nDo you want to exit?";
@@ -104,6 +112,7 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 return;
             }
             setReturnValue(true);
+            snowConfigMgr = null;
             close();
         }
     }
@@ -111,37 +120,27 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * setAlgorithmText()
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#getInstance
+     * ()
      */
     @Override
-    protected void setAlgorithmText() {
-        // Not used for SNOW
+    protected FSSObsMonitorConfigurationManager getInstance() {
+        if (configMgr == null) {
+            configMgr = new FSSObsMonitorConfigurationManager(currentSite,
+                    MonName.snow.name());
+        }
+        return (FSSObsMonitorConfigurationManager) configMgr;
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#readConfigData
-     * ()
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#disposed()
      */
     @Override
-    protected void readConfigData() {
-        configManager.readConfigXml(currentSite);
+    protected void disposed() {
+        configMgr = null;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#setValues
-     * ()
-     */
-    @Override
-    protected void setValues() {
-        timeWindow.setSelection(configManager.getTimeWindow());
-        setTimeScaleLabel();
-    }
-
 }
