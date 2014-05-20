@@ -22,11 +22,11 @@ package com.raytheon.uf.edex.plugin.text.handler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.textdb.fax.AutoFaxDao;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.text.AutoFaxContainer;
 import com.raytheon.uf.common.dataplugin.text.request.GetAutoFaxRecordsRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.edex.plugin.text.fax.AutoFaxDao;
 
 /**
  * TODO Add Description
