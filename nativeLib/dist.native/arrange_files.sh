@@ -29,8 +29,8 @@ cprm $tmp_location/hydroapps $hydro_base_dir
 
 mkdir -p $hydro_base_dir/bin
 mkdir -p $hydro_base_dir/lib/native/linux32
-cp $tmp_location/edex/bin/runso $hydro_base_dir/bin 2>/dev/null || true
-ohd_util_libraries="libecpg_compat.so.3 libecpg_compat.so.3.0 libecpg.so.6 libecpg.so.6.0 library.ohd.util.so libjasper.so.1 libjvm.so libpgtypes.so.3 libpgtypes.so.3.0 library.ohd.ofs.so library.ohd.pproc.so libgfortran.so.1 library.empty.motif.so library.ohd.whfs.so"
+cp $tmp_location/edex/bin/runso $hydro_base_dir/bin
+ohd_util_libraries="libecpg_compat.so.3 libecpg_compat.so.3.4 libecpg.so.6 libecpg.so.6.4 library.ohd.util.so libjasper.so.1 libjasper.so.1.0.0 libjvm.so libpgtypes.so.3 libpgtypes.so.3.3 library.ohd.ofs.so library.ohd.pproc.so libgfortran.so.1 library.empty.motif.so library.ohd.whfs.so"
 for lib in $ohd_util_libraries; do
-	cp $tmp_location/edex/lib/native/linux32/$lib $hydro_base_dir/lib/native/linux32 2>/dev/null || true
+	cp -P $tmp_location/edex/lib/native/linux32/$lib $hydro_base_dir/lib/native/linux32
 done
