@@ -20,13 +20,6 @@
 
 package com.raytheon.viz.aviation.model;
 
-import static com.raytheon.edex.plugin.taf.common.TafConstants.CG_BECMG;
-import static com.raytheon.edex.plugin.taf.common.TafConstants.CG_FM;
-import static com.raytheon.edex.plugin.taf.common.TafConstants.CG_INITIAL;
-import static com.raytheon.edex.plugin.taf.common.TafConstants.CG_PROB;
-import static com.raytheon.edex.plugin.taf.common.TafConstants.CG_PROB_TEMPO;
-import static com.raytheon.edex.plugin.taf.common.TafConstants.CG_TEMPO;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,6 +27,7 @@ import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
+import com.raytheon.uf.common.dataplugin.taf.TafConstants;
 import com.raytheon.viz.aviation.model.CloudGroup.CloudCategory;
 
 /**
@@ -62,6 +56,7 @@ import com.raytheon.viz.aviation.model.CloudGroup.CloudCategory;
  * 1/15/2009    1816        grichard    Correct TAF to conform to 10-813 NWSI.
  * 4/29/2009    1982        grichard    Correct TAF to conform to 10-813 NWSI.
  * 5/11/2009    1816        grichard    Corrected visibility for metar change.
+ * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 
  * </pre>
  * 
@@ -810,8 +805,9 @@ public class TimeGroup implements Comparable<TimeGroup> {
         /* Becoming (BECMG) */
         /* Tempo (TEMPO) */
         /* Probability (PROB) */
-        FM(CG_FM), BECMG(CG_BECMG), INITIAL(CG_INITIAL), TEMPO(CG_TEMPO), PROB(
-                CG_PROB), PROB_TEMPO(CG_PROB_TEMPO);
+        FM(TafConstants.CG_FM), BECMG(TafConstants.CG_BECMG), INITIAL(
+                TafConstants.CG_INITIAL), TEMPO(TafConstants.CG_TEMPO), PROB(
+                TafConstants.CG_PROB), PROB_TEMPO(TafConstants.CG_PROB_TEMPO);
         /*
          * See: NWS Operations Manual W/OM12 Part D-31 for more information.
          */

@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
@@ -94,6 +94,7 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  * 01/02/2013   15606		gzhang		Remove GridData widthHint so button/label size change with GUI
  * 03/07/2013   1735        rferrel     Flag to indicate grid data is needed.
  * 19Mar2014    #2925       lvenable    Added dispose checks for runAsync.
+ * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * </pre>
  * 
  * @author lvenable
