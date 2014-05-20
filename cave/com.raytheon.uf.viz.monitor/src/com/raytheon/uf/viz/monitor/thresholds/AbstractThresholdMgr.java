@@ -30,9 +30,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.CellType;
 import com.raytheon.uf.viz.monitor.filename.DefaultFilenameMgr;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
@@ -51,6 +52,7 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * Jan 5, 2010  #3963      lvenable     Initial creation
  * Mar 22, 2010 #4282      zhao         obtain zone IDs from monitoring-area-config-manager
  * Feb 16, 2011 #7346      zhao         added getDirectionalThresholdValueCellType(...)
+ * Apr 28, 2014  3086      skorolev     Updated getAreaConfigMgr method.
  * 
  * </pre>
  * 
@@ -58,7 +60,11 @@ import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
  * @version 1.0
  */
 public abstract class AbstractThresholdMgr {
-    protected MonitorConfigurationManager areaConfigMgr = null;
+
+    /**
+     * Monitor Area Configuration Manager.
+     */
+    protected FSSObsMonitorConfigurationManager areaConfigMgr;
 
     /**
      * Default file name for the FOG display thresholds.
@@ -108,12 +114,16 @@ public abstract class AbstractThresholdMgr {
         RED, YELLOW
     };
 
+    /** current site **/
+    protected String site;
+
     /*
      * TODO : remove this when debugging is complete
      */
     public ThresholdsXML threshXmlCopy;
 
     /**
+     * Constructor.
      * 
      * @param defDisplayThreshName
      * @param defMonitorThreshName
@@ -123,14 +133,16 @@ public abstract class AbstractThresholdMgr {
         this.defDisplayThreshName = defDisplayThreshName;
         this.defMonitorThreshName = defMonitorThreshName;
         this.appName = appName;
+        this.site = LocalizationManager.getInstance().getCurrentSite();
+        this.areaConfigMgr = getMonitorAreaConfigInstance();
     }
 
+    /**
+     * Setup the default threshold file manager that stores the file name to use
+     * for the display thresholds. If the file name is blank or null then the
+     * file name to use is the default file name.
+     */
     protected void init() {
-        /*
-         * Setup the default threshold file manager that stores the file name to
-         * use for the display thresholds. If the file name is blank or null
-         * then the file name to use is the default file name.
-         */
         defaultFileNameMgr = new DefaultFilenameMgr(
                 getDefaultThresholdFilePath());
         defaultFileNameMgr.readXmlConfig();
@@ -176,6 +188,12 @@ public abstract class AbstractThresholdMgr {
         }
     }
 
+    /**
+     * Validate File Name
+     * 
+     * @param pathAndFileName
+     * @return
+     */
     private boolean validateFileName(String pathAndFileName) {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
@@ -252,6 +270,15 @@ public abstract class AbstractThresholdMgr {
         }
     }
 
+    /**
+     * Gets Threshold Value Cell Type
+     * 
+     * @param dataUsage
+     * @param areaID
+     * @param key
+     * @param value
+     * @return
+     */
     public CellType getThresholdValueCellType(DataUsageKey dataUsage,
             String areaID, String key, double value) {
         if (hasArea(areaID, dataUsage) == false) {
@@ -334,6 +361,16 @@ public abstract class AbstractThresholdMgr {
         return CellType.NotMonitored;
     }
 
+    /**
+     * Calculates Table Cell Type for a directional variable.
+     * 
+     * @param redFrom
+     * @param redTo
+     * @param yellowFrom
+     * @param yellowTo
+     * @param value
+     * @return
+     */
     private CellType calcDirectionalCellType(double redFrom, double redTo,
             double yellowFrom, double yellowTo, double value) {
 
@@ -364,6 +401,15 @@ public abstract class AbstractThresholdMgr {
         return CellType.G;
     }
 
+    /**
+     * Calculates CellType.
+     * 
+     * @param key
+     * @param red
+     * @param yellow
+     * @param value
+     * @return
+     */
     private CellType calcCellType(String key, double red, double yellow,
             double value) {
         Boolean redIsHigher = MonitorConfigConstants.rValueIsHigher(key,
@@ -491,6 +537,9 @@ public abstract class AbstractThresholdMgr {
         }
     }
 
+    /**
+     * Load Default Monitor Threshold.
+     */
     public void loadDefaultMonitorThreshold() {
         currFullMonitorXmlFileName = getMonitorThresholdPath()
                 + defMonitorThreshName;
@@ -508,9 +557,6 @@ public abstract class AbstractThresholdMgr {
         Collections.sort(areaIDs);
 
         ArrayList<String> threshKeys = getThresholdKeys(DataUsageKey.MONITOR);
-
-        System.out.println("********** currFullMonitorXmlFileName = "
-                + currFullMonitorXmlFileName);
 
         monitorThreshMgr.createConfigFromDefaults(currFullMonitorXmlFileName,
                 areaIDs, threshKeys);
@@ -628,6 +674,12 @@ public abstract class AbstractThresholdMgr {
         return sb.toString();
     }
 
+    /**
+     * Gets Thresholds Xml Copy.
+     * 
+     * @param dataUsageKey
+     * @return
+     */
     public ThresholdsXML getThresholdsXmlCopy(DataUsageKey dataUsageKey) {
         if (dataUsageKey == DataUsageKey.DISPLAY) {
             return displayThreshMgr.getThresholdsXmlCopy();
@@ -638,6 +690,12 @@ public abstract class AbstractThresholdMgr {
         return null;
     }
 
+    /**
+     * Deletes File.
+     * 
+     * @param fileName
+     * @return
+     */
     public boolean deleteFile(LocalizationFile fileName) {
         boolean deletedUserSelectedDefault = false;
 
@@ -667,6 +725,13 @@ public abstract class AbstractThresholdMgr {
         return deletedUserSelectedDefault;
     }
 
+    /**
+     * Is there AreaID?
+     * 
+     * @param areaID
+     * @param dataUsageKey
+     * @return
+     */
     public boolean hasArea(String areaID, DataUsageKey dataUsageKey) {
         if (dataUsageKey == DataUsageKey.DISPLAY) {
             return displayThreshMgr.getThresholdXML().hasAreaId(areaID);
@@ -675,6 +740,12 @@ public abstract class AbstractThresholdMgr {
         return monitorThreshMgr.getThresholdXML().hasAreaId(areaID);
     }
 
+    /**
+     * Gets Threshold Keys.
+     * 
+     * @param dataUsageKey
+     * @return
+     */
     protected abstract ArrayList<String> getThresholdKeys(
             DataUsageKey dataUsageKey);
 
@@ -725,6 +796,11 @@ public abstract class AbstractThresholdMgr {
         }
     }
 
-    public abstract MonitorConfigurationManager getAreaConfigMgr();
+    /**
+     * Gets Monitor Area Configuration manager.
+     * 
+     * @return manager
+     */
+    protected abstract FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance();
 
 }
