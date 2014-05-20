@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.common.monitor.config;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -30,6 +32,7 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
+import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
 import com.raytheon.uf.common.monitor.xml.MonAreaConfigXML;
@@ -57,6 +60,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 17 2013  16682     zhao       fixed a bug in readConfigXml()
  * Apr 23 2014  3054      skorolev   Removed unnecessary parameter in the addArea method.
  * May 13 2014  3133      njensen    getStationType returns String instead of ObsHistType
+ * May 15 2014  3086      skorolev   Renamed from MonitorConfigurationManager. Replaces three separate area configuration managers with one.
  * 
  * </pre>
  * 
@@ -64,71 +68,123 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public abstract class MonitorConfigurationManager {
+public class FSSObsMonitorConfigurationManager {
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MonitorConfigurationManager.class);
+            .getHandler(FSSObsMonitorConfigurationManager.class);
 
-    /**
-     * Maps county table in the PostgreSQL database.
-     */
+    /** Maps county table in the PostgreSQL database. */
     public static final String COUNTY_TABLE = "mapdata.county";
 
-    /**
-     * Maps forecast zones table in the PostgreSQL database.
-     */
+    /** Maps forecast zones table in the PostgreSQL database. */
     public static final String FORECAST_ZONE_TABLE = "mapdata.zone";
 
-    /**
-     * Maps marine zones table in the PostgreSQL database.
-     */
+    /** Maps marine zones table in the PostgreSQL database. */
     public static final String MARINE_ZONE_TABLE = "mapdata.marinezones";
 
+    /** Single Type JAXB Manager */
     private static final SingleTypeJAXBManager<MonAreaConfigXML> jaxb = SingleTypeJAXBManager
             .createWithoutException(MonAreaConfigXML.class);
 
-    /**
-     * Monitoring Area Configuration XML object.
-     */
+    /** Monitoring Area Configuration XML object. */
     protected MonAreaConfigXML configXml;
 
-    /**
-     * Adjacent Area Configuration XML object.
-     */
+    /** Adjacent Area Configuration XML object. */
     protected MonAreaConfigXML adjAreaConfigXml;
 
-    /**
-     * List of newly added zones.
-     */
+    /** List of newly added zones. */
     protected List<String> addedZones = new ArrayList<String>();
 
-    /**
-     * List of newly added stations.
-     */
+    /** List of newly added stations. */
     protected List<String> addedStations = new ArrayList<String>();
 
-    /**
-     * Station data type in the XML configuration file.
-     */
-    private String xmlDataType = StationIdXML.METAR;
+    /** Name of plugin */
+    private static String pluginName;
+
+    /** Name of area configuration file */
+    private String configFileName = null;
+
+    /** Name of adjacent Area Configuration file */
+    private String adjAreaConfigFileName = null;
+
+    /** List of listeners */
+    private List<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
+
+    private String currentSite;
+
+    /** Monitor Name **/
+    public enum MonName {
+        ss, fog, snow
+    };
+
+    /** Singleton instance of this class */
+    private static FSSObsMonitorConfigurationManager instance;
 
     /**
-     * Reads area configuration file.
+     * Private Constructor
      * 
-     * @param currentSite
+     * @param site
+     * @param monitorName
      */
-    public abstract void readConfigXml(String currentSite);
+    public FSSObsMonitorConfigurationManager(String site, String monitorName) {
+        // Avoid confusion in file path
+        if (monitorName == MonName.ss.name()) {
+            pluginName = "safeseas";
+        } else {
+            pluginName = monitorName;
+        }
+        currentSite = site;
+        /** Path to Monitoring Area Configuration XML. */
+        setConfigFileName(pluginName + File.separatorChar + "monitoringArea"
+                + File.separatorChar + "monitorAreaConfig.xml");
+
+        /** Path to Adjacent Areas Configuration XML. */
+        setAdjAreaConfigFileName(pluginName + File.separatorChar
+                + "monitoringArea" + File.separatorChar
+                + "adjacentAreaConfig.xml");
+
+        configXml = new MonAreaConfigXML();
+        adjAreaConfigXml = new MonAreaConfigXML();
+        readConfigXml();
+    }
+
+    /**
+     * Get an instance of Configuration manager for FSSObs monitors.
+     * 
+     * @param site
+     *            Current site
+     * @param monitor
+     *            Name of monitor
+     * @return
+     */
+    public static synchronized FSSObsMonitorConfigurationManager getInstance(
+            String site, String monitor) {
+        if (instance == null) {
+            instance = new FSSObsMonitorConfigurationManager(site, monitor);
+        }
+        return (FSSObsMonitorConfigurationManager) instance;
+    }
+
+    /**
+     * Reads the XML configuration file
+     */
+    public void readConfigXml() {
+        try {
+            readConfigXml(configFileName, adjAreaConfigFileName);
+        } catch (Throwable t) {
+            statusHandler.error("Could not configure " + pluginName
+                    + " for site " + currentSite, t);
+        }
+    }
 
     /**
      * Reads the XML configuration data for the current XML file name. filename:
      * monitor area config file name adjAreaFileName: adjacent areas config file
      * name
      * 
-     * @param currentSite
      * @param filename
      * @param adjAreaFilename
      */
-    protected void readConfigXml(String currentSite, String filename,
-            String adjAreaFilename) {
+    protected void readConfigXml(String filename, String adjAreaFilename) {
         boolean monitorAreaFileExists = true;
         boolean adjacentAreaFileExists = true;
         try {
@@ -141,14 +197,17 @@ public abstract class MonitorConfigurationManager {
                     .unmarshalFromXmlFile(monitorAreaFilePath.toString());
             configXml = configXmltmp;
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR,
-                    "No monitor area configuration file found", e);
+            statusHandler
+                    .handle(Priority.WARN,
+                            "No "
+                                    + pluginName
+                                    + " monitor area configuration file found. New configuration file has been generated and saved:"
+                                    + "");
             monitorAreaFileExists = false;
         }
 
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
-
             String adjacentAreaFilePath = pm.getFile(
                     pm.getContext(LocalizationType.COMMON_STATIC,
                             LocalizationLevel.SITE), adjAreaFilename)
@@ -157,8 +216,11 @@ public abstract class MonitorConfigurationManager {
                     .unmarshalFromXmlFile(adjacentAreaFilePath.toString());
             adjAreaConfigXml = configXmltmp;
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR,
-                    "No adjacent area configuration file found", e);
+            statusHandler
+                    .handle(Priority.WARN,
+                            "No "
+                                    + pluginName
+                                    + " adjacent area configuration file found. New configuration file has been generated and saved.");
             adjacentAreaFileExists = false;
         }
 
@@ -210,7 +272,10 @@ public abstract class MonitorConfigurationManager {
                         configXml.addAreaId(zoneXml);
                     }
                 }
-                saveConfigXml(filename);
+                // Default value for Timewindow.
+                int defaultVal = 2;
+                configXml.setTimeWindow(defaultVal);
+                saveConfigXml();
             }
             // Check for an adjacent area config file, if one does not exist,
             // create and use defaults
@@ -242,11 +307,10 @@ public abstract class MonitorConfigurationManager {
     /**
      * Save the monitor area XML configuration data to the current XML file
      * name.
-     * 
-     * @param filename
      */
-    protected void saveConfigXml(String filename) {
+    public void saveConfigXml() {
         // Save the xml object to disk
+        String filename = this.getConfigFileName();
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.SITE);
@@ -268,6 +332,7 @@ public abstract class MonitorConfigurationManager {
      * name.
      * 
      * @param filename
+     *            adjacentAreaConfig.xml
      */
     protected void saveAdjacentAreaConfigXml(String filename) {
         // Save the xml object to disk
@@ -294,6 +359,7 @@ public abstract class MonitorConfigurationManager {
      * 
      * @param areaId
      * @param type
+     *            Type of zone
      */
     public void addArea(String areaId, ZoneType type) {
         List<AreaIdXML> areaXmlList = configXml.getAreaIds();
@@ -310,6 +376,9 @@ public abstract class MonitorConfigurationManager {
             area.setAreaId(areaId);
             area.setType(type);
             configXml.addAreaId(area);
+            if (!addedZones.contains(areaId)) {
+                addedZones.add(areaId);
+            }
         }
     }
 
@@ -548,6 +617,7 @@ public abstract class MonitorConfigurationManager {
                 for (int i = 0; i < stationList.size(); i++) {
                     if (stationList.get(i).getName().equals(station)) {
                         stationList.remove(i);
+                        areaXml.getStationIds();
                     }
                 }
             }
@@ -629,21 +699,65 @@ public abstract class MonitorConfigurationManager {
     }
 
     /**
+     * Gets TimeWindow
+     * 
      * @return the timeWindow
      */
-    public int getTimeWindow() {
+    public double getTimeWindow() {
         return configXml.getTimeWindow();
     }
 
     /**
-     * @param timeWindow
+     * Sets TimeWindow
+     * 
+     * @param hours
      *            the timeWindow to set
      */
-    public void setTimeWindow(int timeWindow) {
-        configXml.setTimeWindow(timeWindow);
+    public void setTimeWindow(double hours) {
+        configXml.setTimeWindow(hours);
     }
 
     /**
+     * Gets Ship Distance
+     * 
+     * @return the shipDistance
+     */
+    public int getShipDistance() {
+        return configXml.getShipDistance();
+    }
+
+    /**
+     * Sets Ship Distance
+     * 
+     * @param shipDistance
+     *            the shipDistance to set
+     */
+    public void setShipDistance(int shipDistance) {
+        configXml.setShipDistance(shipDistance);
+    }
+
+    /**
+     * Flag is true if to use the Fog Monitor overall threat level.
+     * 
+     * @return the useAlgorithms flag
+     */
+    public boolean isUseAlgorithms() {
+        return configXml.isUseAlgorithms();
+    }
+
+    /**
+     * Sets flag UseAlgorithms
+     * 
+     * @param useAlgorithms
+     *            the useAlgorithms to set
+     */
+    public void setUseAlgorithms(boolean useAlgorithms) {
+        configXml.setUseAlgorithms(useAlgorithms);
+    }
+
+    /**
+     * Gets Configuration Xml
+     * 
      * @return the configXml
      */
     public MonAreaConfigXML getConfigXml() {
@@ -651,6 +765,8 @@ public abstract class MonitorConfigurationManager {
     }
 
     /**
+     * Gets Added Zones
+     * 
      * @return the addedZones
      */
     public List<String> getAddedZones() {
@@ -658,6 +774,8 @@ public abstract class MonitorConfigurationManager {
     }
 
     /**
+     * Sets Added Zones
+     * 
      * @param addedZones
      *            the addedZones to set
      */
@@ -666,6 +784,8 @@ public abstract class MonitorConfigurationManager {
     }
 
     /**
+     * Gets Added Stations
+     * 
      * @return the addedStations
      */
     public List<String> getAddedStations() {
@@ -673,6 +793,8 @@ public abstract class MonitorConfigurationManager {
     }
 
     /**
+     * Sets Added Stations
+     * 
      * @param addedStations
      *            the addedStations to set
      */
@@ -703,4 +825,63 @@ public abstract class MonitorConfigurationManager {
         }
         return result;
     }
+
+    /**
+     * Gets Configuration File Name
+     * 
+     * @return
+     */
+    public String getConfigFileName() {
+        return configFileName;
+    }
+
+    /**
+     * Sets Configuration File Name
+     * 
+     * @param configFileName
+     */
+    public void setConfigFileName(String configFileName) {
+        this.configFileName = configFileName;
+    }
+
+    /**
+     * Gets Adjacent Area Configuration File Name
+     * 
+     * @return
+     */
+    public String getAdjAreaConfigFileName() {
+        return adjAreaConfigFileName;
+    }
+
+    /**
+     * Sets Adjacent Area Configuration File Name
+     * 
+     * @param adjAreaConfigFileName
+     */
+    public void setAdjAreaConfigFileName(String adjAreaConfigFileName) {
+        this.adjAreaConfigFileName = adjAreaConfigFileName;
+    }
+
+    /**
+     * Adds Monitor Configuration Listener
+     * 
+     * @param ml
+     *            Monitor config listener
+     */
+    public void addListener(MonitorConfigListener ml) {
+        listeners.add(ml);
+    }
+
+    /**
+     * Removes Monitor Configuration Listener
+     * 
+     * @param ml
+     *            Monitor config listener
+     */
+    public void removeListener(MonitorConfigListener ml) {
+        listeners.remove(ml);
+    }
+
+    // TODO: Make a loopback to change FSSObs URI filters according to changes
+    // in the configuration files.
 }
