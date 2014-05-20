@@ -59,8 +59,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.edex.textdb.dbapi.impl.AFOS_CLASS;
-import com.raytheon.edex.textdb.dbapi.impl.AFOS_ORIGIN;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBQuery;
 import com.raytheon.uf.common.message.Message;
@@ -77,6 +75,8 @@ import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
+import com.raytheon.viz.texteditor.util.AFOS_CLASS;
+import com.raytheon.viz.texteditor.util.AFOS_ORIGIN;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
