@@ -22,11 +22,11 @@ package com.raytheon.viz.texteditor.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.textdb.dbapi.impl.AFOSParser;
 import com.raytheon.uf.common.dataplugin.text.StdTextProductContainer;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.dataplugin.text.request.ExecuteAfosCmdRequest;
+import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
