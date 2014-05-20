@@ -27,12 +27,12 @@ import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecordTransform;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * Mar 15, 2012 14510      zhao        modified processProductAtStartup()
  * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
  * Feb 04, 2014 2757       skorolev    Added filter for removed stations
+ * May 08, 2014 3086       skorolev    Added current site definition.
  * 
  * </pre>
  * 
@@ -72,6 +73,10 @@ public abstract class ObsMonitor extends Monitor {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ObsMonitor.class);
+
+    /** Current Site name */
+    protected String currentSite = LocalizationManager.getInstance()
+            .getCurrentSite();
 
     /*
      * (non-Javadoc)

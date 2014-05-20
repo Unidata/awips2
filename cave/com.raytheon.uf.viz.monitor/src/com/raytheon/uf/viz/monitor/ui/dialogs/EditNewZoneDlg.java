@@ -30,13 +30,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
@@ -54,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 2, 2009            lvenable     Initial creation
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Fixed issues with removing a new zone from list.
+ * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * 
  * </pre>
  * 
@@ -62,67 +61,43 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class EditNewZoneDlg extends CaveSWTDialog {
 
-    /**
-     * Call back interface.
-     */
-    private INewZoneStnAction macDlg;
+    /** Call back interface. */
+    private MonitoringAreaConfigDlg macDlg;
 
-    /**
-     * Zone list control.
-     */
+    /** Zone list control. */
     private List zoneList;
 
-    /**
-     * ID text control.
-     */
+    /** ID text control. */
     private Text idTF;
 
-    /**
-     * Latitude text control.
-     */
+    /** Latitude text control. */
     private Text latTF;
 
-    /**
-     * Longitude text control.
-     */
+    /** Longitude text control. */
     private Text lonTF;
 
-    /**
-     * Save button.
-     */
+    /** Save button. */
     private Button saveBtn;
 
-    /**
-     * Delete button.
-     */
+    /** Delete button. */
     private Button deleteBtn;
 
-    /**
-     * Control font.
-     */
+    /** Control font. */
     private Font controlFont;
 
-    /**
-     * Marine station radio button.
-     */
+    /** Marine station radio button. */
     private Button marineRdo;
 
-    /**
-     * None Marine station radio button.
-     */
+    /** None Marine station radio button. */
     private Button nonMarineRdo;
 
-    /**
-     * Area configuration manager.
-     */
-    private MonitorConfigurationManager configMan;
-
-    /**
-     * Bottom label
-     */
+    /** Bottom label */
     private Label bottomLbl;
 
+    /** Deleted zone */
     private String delZone;
+
+    private FSSObsMonitorConfigurationManager areaConfigMgr;
 
     /**
      * Constructor.
@@ -134,11 +109,11 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      * @param monitoringAreaConfigDlg
      */
     public EditNewZoneDlg(Shell parent, AppName appName,
-            INewZoneStnAction macDlg) {
+            MonitoringAreaConfigDlg macDlg) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(appName.toString() + ": Edit a Newly Added Zone");
         this.macDlg = macDlg;
-        configMan = this.getConfigManager(appName);
+        areaConfigMgr = macDlg.getInstance();
     }
 
     /*
@@ -306,7 +281,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
                 .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         bottomLbl = new Label(labelComp, SWT.NONE);
         bottomLbl
-                .setText("Centriod Lat/Lon use Decimal Degrees, West Longitude negative");
+                .setText("Centroid Lat/Lon use Decimal Degrees, West Longitude negative");
     }
 
     /**
@@ -338,7 +313,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      * Populate list of added zones.
      */
     private void populate() {
-        java.util.List<String> newList = configMan.getAddedZones();
+        java.util.List<String> newList = areaConfigMgr.getAddedZones();
         zoneList.setItems(newList.toArray(new String[newList.size()]));
     }
 
@@ -347,7 +322,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      */
     private void handleZoneSelection() {
         String zone = zoneList.getItem(zoneList.getSelectionIndex());
-        AreaIdXML areaXml = configMan.getAreaXml(zone);
+        AreaIdXML areaXml = areaConfigMgr.getAreaXml(zone);
         // DR #7343: a null areaXml causes an "Unhandled event loop exception"
         if (areaXml != null) {
             idTF.setText(areaXml.getAreaId());
@@ -369,15 +344,24 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      */
     private String deleteSelected() {
         if (zoneList.getItemCount() != 0) {
+            if (zoneList.getSelectionIndex() == -1) {
+                MessageBox messageBox = new MessageBox(shell,
+                        SWT.ICON_INFORMATION | SWT.OK);
+                messageBox.setText("Error.");
+                messageBox.setMessage("Please select zone to be deleted.");
+                messageBox.open();
+                zoneList.select(0);
+                return null;
+            }
             String area = zoneList.getItem(zoneList.getSelectionIndex());
             zoneList.remove(zoneList.getSelectionIndex());
-            configMan.removeArea(area);
+            areaConfigMgr.removeArea(area);
             idTF.setText("");
             latTF.setText("");
             lonTF.setText("");
             return area;
         } else {
-            bottomLbl.setText("No zones have been added.");
+            bottomLbl.setText("No zones have been deleted.");
         }
         return null;
     }
@@ -408,9 +392,10 @@ public class EditNewZoneDlg extends CaveSWTDialog {
                     if (marineRdo.getSelection()) {
                         type = ZoneType.MARITIME;
                     }
-                    configMan.removeArea(area);
-                    configMan.removeAddedArea(area);
-                    configMan.addArea(area, lat, lon, type);
+                    // Replace previously added zone
+                    areaConfigMgr.removeArea(area);
+                    areaConfigMgr.removeAddedArea(area);
+                    macDlg.configMgr.addArea(area, lat, lon, type);
                     populate();
                     // Return cursor to the top of the list.
                     zoneList.select(0);
@@ -420,26 +405,8 @@ public class EditNewZoneDlg extends CaveSWTDialog {
                 }
             }
         } else {
-            bottomLbl.setText("No zones have been added.");
+            bottomLbl.setText("No zones have been edited.");
         }
-    }
-
-    /**
-     * Gets Configuration Manager.
-     * 
-     * @param app
-     * @return manager
-     */
-    private MonitorConfigurationManager getConfigManager(AppName app) {
-        MonitorConfigurationManager mngr = null;
-        if (app == AppName.FOG) {
-            mngr = FogMonitorConfigurationManager.getInstance();
-        } else if (app == AppName.SAFESEAS) {
-            mngr = SSMonitorConfigurationManager.getInstance();
-        } else if (app == AppName.SNOW) {
-            mngr = SnowMonitorConfigurationManager.getInstance();
-        }
-        return mngr;
     }
 
     /*
