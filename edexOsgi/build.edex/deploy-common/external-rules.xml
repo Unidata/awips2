@@ -4,6 +4,7 @@
         TODO: if necessary, these could be read from a properties file.
         1) utility -> /awips2/edex/data/utility
         2) resources -> /awips2/edex/conf/resources
+        3) modes -> /awips2/edex/conf/modes
     -->
     <target name="enact.external-rules">
         <!-- parameters -->
@@ -33,5 +34,15 @@
                 </copy>
             </then>
         </if>
+    	
+    	<mkdir dir="${deployment._root}/conf/modes" />
+    	<if>
+    		<available file="${plugin._directory}/modes" type="dir" />
+    		<then>
+    			<copy todir="${deployment._root}/conf/modes" overwrite="true" verbose="true">
+    				<fileset dir="${plugin._directory}/modes" />
+    			</copy>
+    		</then>
+    	</if>
     </target>
 </project>
