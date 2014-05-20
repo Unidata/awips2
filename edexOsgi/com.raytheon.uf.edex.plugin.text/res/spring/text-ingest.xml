@@ -73,6 +73,45 @@
         <constructor-arg ref="afosBrowserListener" />
     </bean>
     
+    <!-- textdb -->
+    <bean id="textDBStaticDataListener" class="com.raytheon.uf.edex.plugin.text.ingest.TextDBStaticDataSubscriber">
+        <constructor-arg value="jms-generic:topic:textDBFilesChanged"/>
+    </bean>
+    <bean id="siteMapListener" class="com.raytheon.uf.edex.plugin.text.ingest.SiteMapNationalDatasetSubscriber" />
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="bit_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="collective_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="exclusionProductList.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="ispan_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="station_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="upair_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="afos_lookup_table.dat" />
+        <constructor-arg ref="siteMapListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="national_category_table.template" />
+        <constructor-arg ref="siteMapListener" />
+    </bean>
+    
 	<camelContext id="text-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
@@ -209,6 +248,11 @@
 				</doCatch>
 			</doTry>
 		</route>
+                
+        <route id="textDBStaticSetDirty">
+            <from uri="jms-generic:topic:textDBFilesChanged"/>
+            <bean ref="textDBStaticDataListener" method="setDirty"/>
+        </route>
 	</camelContext>
 
 	<camelContext id="clustered-text-camel"

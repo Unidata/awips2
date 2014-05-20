@@ -23,10 +23,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.sfcobs"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.shef"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.taf"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.text"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.textlightning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.warning"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.textdb"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataaccess"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.acars"/>
