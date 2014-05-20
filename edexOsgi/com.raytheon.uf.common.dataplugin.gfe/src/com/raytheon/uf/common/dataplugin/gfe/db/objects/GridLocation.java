@@ -100,6 +100,9 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 09/30/13      #2333      mschenke    Added method to construct from {@link IGridGeometryProvider}
  * 10/22/13      #2361      njensen     Remove XML annotations
  * 04/11/14      #2947      bsteffen    Remove ISpatialObject constructor.
+ * 05/14/2014    #3069      randerso    Changed to store math transforms and CRS instead of
+ *                                      GridGeometry2D since GeoTools now changes the supplied
+ *                                      math transform when creating GridGeometry2D
  * 
  * 
  * 
@@ -121,7 +124,7 @@ public class GridLocation extends PersistableDataObject<String> implements
      * reshaped using numpy for performance
      * 
      */
-    private static class PythonNumpyLatLonGrid implements INumpyable {
+    static class PythonNumpyLatLonGrid implements INumpyable {
         private float[] data;
 
         public PythonNumpyLatLonGrid(int nx, int ny, float[] data) {
@@ -276,10 +279,8 @@ public class GridLocation extends PersistableDataObject<String> implements
             Coordinate ur = new Coordinate(this.origin.x + this.extent.x,
                     this.origin.y + this.extent.y);
 
-            Coordinate llCrs = this.projection.gridCoordinateToCrs(ll,
-                    PixelOrientation.CENTER);
-            Coordinate urCrs = this.projection.gridCoordinateToCrs(ur,
-                    PixelOrientation.CENTER);
+            Coordinate llCrs = this.projection.gridCoordinateToCrs(ll);
+            Coordinate urCrs = this.projection.gridCoordinateToCrs(ur);
 
             // construct the grid geometry that covers the GFE grid
             GeneralEnvelope ge = new GeneralEnvelope(2);
@@ -289,29 +290,29 @@ public class GridLocation extends PersistableDataObject<String> implements
             ge.setRange(1, Math.min(llCrs.y, urCrs.y),
                     Math.max(llCrs.y, urCrs.y));
 
+            // GeoTools 10.5 kludge to use nx-1, ny-1 non-inclusive
             GeneralGridEnvelope gr = new GeneralGridEnvelope(
-                    new int[] { 1, 1 }, new int[] { this.nx, this.ny }, false);
+                    new int[] { 0, 0 }, new int[] { this.nx - 1, this.ny - 1 },
+                    false);
 
+            // GeoTools 10.5 kludge to use CELL_CORNER instead of CELL_CENTER
             GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
             mapper.setEnvelope(ge);
             mapper.setGridRange(gr);
-            mapper.setPixelAnchor(PixelInCell.CELL_CENTER);
-            mapper.setReverseAxis(new boolean[] { false, false });
-            MathTransform mt = mapper.createTransform();
-
-            GridGeometry2D gridGeom = new GridGeometry2D(
-                    PixelInCell.CELL_CORNER, mt, ge, null);
+            mapper.setPixelAnchor(PixelInCell.CELL_CORNER);
+            mapper.setReverseAxis(new boolean[] { false, true });
+            MathTransform gridToCrs = mapper.createTransform();
 
             // set up the transform from grid coordinates to lon/lat
             DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
-            mt = dmtf.createConcatenatedTransform(
-                    gridGeom.getGridToCRS(PixelOrientation.UPPER_LEFT),
-                    MapUtil.getTransformToLatLon(crsObject));
-
+            MathTransform gridToLatLon = dmtf.createConcatenatedTransform(
+                    gridToCrs, MapUtil.getTransformToLatLon(crsObject));
             // transform grid corner points to Lat/Lon
             double[] latLon = new double[8];
-            mt.transform(new double[] { 0, this.ny, 0, 0, this.nx, 0, this.nx,
-                    this.ny }, 0, latLon, 0, 4);
+            double[] gridCells = new double[] { -0.5, -0.5, -0.5,
+                    this.ny - 0.5, this.nx - 0.5, this.ny - 0.5, this.nx - 0.5,
+                    -0.5 };
+            gridToLatLon.transform(gridCells, 0, latLon, 0, 4);
 
             Coordinate[] corners = new Coordinate[] {
                     MapUtil.getCoordinate(latLon[0], latLon[1]),
@@ -700,9 +701,7 @@ public class GridLocation extends PersistableDataObject<String> implements
     public String toString() {
         String s = "[SiteID =" + siteId + ",ProjID="
                 + getCrs().getName().getCode() + ",gridSize=(" + nx + ',' + ny
-                + "),loc=" + this.geometry.getGeometryType();
-        // if (proj())
-        // s += "," + proj()->pdata();
+                + "), loc=[o=" + this.origin + ", e=" + this.extent + "]";
         s += ']';
         return s;
     }
@@ -1008,43 +1007,56 @@ public class GridLocation extends PersistableDataObject<String> implements
         // new Coordinate(9, 9), "CST6CDT");
 
         GridLocation gloc = new GridLocation("OAX", grid211,
-                new Point(145, 145), new Coordinate(45.0, 30.0),
-                new Coordinate(9, 9), "CST6CDT");
+                new Point(417, 289), new Coordinate(41.0, 29.0),
+                new Coordinate(13, 9), "CST6CDT");
 
         System.out.println(gloc.getSiteId());
         Coordinate gridCoord = new Coordinate();
         Coordinate latLon = new Coordinate();
-        PixelOrientation orientation = PixelOrientation.CENTER;
 
-        gridCoord.x = 0;
-        gridCoord.y = 0;
-        latLon = MapUtil.gridCoordinateToLatLon(gridCoord, orientation, gloc);
-        System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
+        System.out.println("geometry: " + gloc.getGeometry());
 
-        gridCoord.x = 0;
-        gridCoord.y = gloc.getNy() - 1;
-        latLon = MapUtil.gridCoordinateToLatLon(gridCoord, orientation, gloc);
-        System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
+        try {
+            gridCoord.x = 0;
+            gridCoord.y = 0;
+            latLon = MapUtil.gridCoordinateToLatLon(gridCoord,
+                    PixelOrientation.CENTER, gloc);
+            System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
 
-        gridCoord.x = gloc.getNx() - 1;
-        gridCoord.y = gloc.getNy() - 1;
-        latLon = MapUtil.gridCoordinateToLatLon(gridCoord, orientation, gloc);
-        System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
+            gridCoord.x = 0;
+            gridCoord.y = gloc.getNy() - 1;
+            latLon = MapUtil.gridCoordinateToLatLon(gridCoord,
+                    PixelOrientation.CENTER, gloc);
+            System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
 
-        gridCoord.x = gloc.getNx() - 1;
-        gridCoord.y = 0;
-        latLon = MapUtil.gridCoordinateToLatLon(gridCoord, orientation, gloc);
-        System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
+            gridCoord.x = gloc.getNx() - 1;
+            gridCoord.y = gloc.getNy() - 1;
+            latLon = MapUtil.gridCoordinateToLatLon(gridCoord,
+                    PixelOrientation.CENTER, gloc);
+            System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
 
-        PythonNumpyLatLonGrid latLonGrid = gloc.getLatLonGrid();
-        float[] data = (float[]) latLonGrid.getNumpy()[0];
-        for (int x = 0; x < gloc.getNx(); x++) {
-            for (int y = 0; y < gloc.getNy(); y++) {
-                int idx = 2 * ((x * gloc.ny) + y);
-                float lon = data[idx];
-                float lat = data[idx + 1];
-                System.out.println(x + "," + y + "  " + lon + ", " + lat);
+            gridCoord.x = gloc.getNx() - 1;
+            gridCoord.y = 0;
+            latLon = MapUtil.gridCoordinateToLatLon(gridCoord,
+                    PixelOrientation.CENTER, gloc);
+            System.out.println(gridCoord.x + "," + gridCoord.y + "  " + latLon);
+
+            GridGeometry2D gridGeometry = MapUtil.getGridGeometry(gloc);
+            System.out.println(gridGeometry.getEnvelope2D().toString());
+            System.out.println(gridGeometry.toString());
+
+            PythonNumpyLatLonGrid latLonGrid = gloc.getLatLonGrid();
+            float[] data = (float[]) latLonGrid.getNumpy()[0];
+            for (int x = 0; x < gloc.getNx(); x++) {
+                for (int y = 0; y < gloc.getNy(); y++) {
+                    int idx = 2 * ((x * gloc.ny) + y);
+                    float lon = data[idx];
+                    float lat = data[idx + 1];
+                    System.out.println(x + "," + y + "  " + lon + ", " + lat);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

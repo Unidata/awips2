@@ -90,6 +90,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 06, 2013 2235       bsteffen    Added Caching version of TopoQuery.
  * Feb 10, 2014 2788       randerso    Removed override of CRS from Topo file.
  *                                     Fixed handling of fill values (missing data)
+ * May 19, 2014 3069       randerso    Changed to store math transforms and CRS instead of
+ *                                     GridGeometry2D since GeoTools now changes the supplied
+ *                                     math transform when creating GridGeometry2D
  * 
  * </pre>
  * 
@@ -149,11 +152,13 @@ public class TopoQuery {
 
     protected Rectangle worldRect;
 
-    private GridGeometry2D worldGeomPM;
+    // private GridGeometry2D worldGeomPM;
+    private MathTransform worldToCRSPM;
 
     private MathTransform worldToLLPM;
 
-    private GridGeometry2D worldGeomDL;
+    // private GridGeometry2D worldGeomDL;
+    private MathTransform worldToCRSDL;
 
     private MathTransform llToWorldPM;
 
@@ -162,6 +167,10 @@ public class TopoQuery {
     private DefaultMathTransformFactory dmtf;
 
     private int numLevels;
+
+    private CoordinateReferenceSystem crsPM;
+
+    private CoordinateReferenceSystem crsDL;
 
     TopoQuery(File hdf5File) throws TopoException {
         this(hdf5File, 0);
@@ -197,17 +206,17 @@ public class TopoQuery {
             worldRect = new Rectangle(0, 0, width, height);
 
             // construct the grid geometry that covers the topo grid
-            CoordinateReferenceSystem crs = CRSCache.getInstance()
-                    .getCoordinateReferenceSystem(crsString);
+            crsPM = CRSCache.getInstance().getCoordinateReferenceSystem(
+                    crsString);
 
             double[] input = new double[] { ulLon, ulLat, lrLon, lrLat };
             double[] output = new double[4];
 
-            MathTransform llToCrsPM = MapUtil.getTransformFromLatLon(crs);
+            MathTransform llToCrsPM = MapUtil.getTransformFromLatLon(crsPM);
             llToCrsPM.transform(input, 0, output, 0, 2);
 
             GeneralEnvelope ge = new GeneralEnvelope(2);
-            ge.setCoordinateReferenceSystem(crs);
+            ge.setCoordinateReferenceSystem(crsPM);
             ge.setRange(0, output[0], output[2]);
             ge.setRange(1, output[3], output[1]);
 
@@ -219,29 +228,24 @@ public class TopoQuery {
             mapper.setGridRange(gr);
             mapper.setPixelAnchor(PixelInCell.CELL_CENTER);
             mapper.setReverseAxis(new boolean[] { false, true });
-            MathTransform mt = mapper.createTransform();
-
-            worldGeomPM = new GridGeometry2D(PixelInCell.CELL_CORNER, mt, ge,
-                    null);
+            worldToCRSPM = mapper.createTransform();
 
             // set up the transform from grid coordinates to lon/lat
-            MathTransform worldToCRSPM = worldGeomPM
-                    .getGridToCRS(PixelOrientation.UPPER_LEFT);
-            MathTransform crsToLL = MapUtil.getTransformToLatLon(crs);
+            MathTransform crsToLL = MapUtil.getTransformToLatLon(crsPM);
             worldToLLPM = dmtf.createConcatenatedTransform(worldToCRSPM,
                     crsToLL);
             llToWorldPM = worldToLLPM.inverse();
 
-            crs = MapUtil.constructEquidistantCylindrical(
+            crsDL = MapUtil.constructEquidistantCylindrical(
                     MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS,
                     180, 0);
 
             input = new double[] { 180 + ulLon, ulLat, 180 + lrLon, lrLat };
-            MathTransform llToCrsDL = MapUtil.getTransformFromLatLon(crs);
+            MathTransform llToCrsDL = MapUtil.getTransformFromLatLon(crsDL);
             llToCrsDL.transform(input, 0, output, 0, 2);
 
             ge = new GeneralEnvelope(2);
-            ge.setCoordinateReferenceSystem(crs);
+            ge.setCoordinateReferenceSystem(crsDL);
             ge.setRange(0, output[0], output[2]);
             ge.setRange(1, output[3], output[1]);
 
@@ -252,10 +256,7 @@ public class TopoQuery {
             mapper.setGridRange(gr);
             mapper.setPixelAnchor(PixelInCell.CELL_CENTER);
             mapper.setReverseAxis(new boolean[] { false, true });
-            mt = mapper.createTransform();
-
-            worldGeomDL = new GridGeometry2D(PixelInCell.CELL_CORNER, mt, ge,
-                    null);
+            worldToCRSDL = mapper.createTransform();
 
         } catch (Exception e) {
             throw new TopoException("Error initializing TopoQuery from "
@@ -545,18 +546,16 @@ public class TopoQuery {
                     worldRect.getMaxY() };
             double[] crsCorners = new double[worldCorners.length];
             GeneralEnvelope env = new GeneralEnvelope(2);
-            if (worldCorners[2] > (worldGeomPM.getGridRange().getHigh(0) + 1)) {
-                worldGeomDL.getGridToCRS(PixelInCell.CELL_CORNER)
-                        .transform(worldCorners, 0, crsCorners, 0,
-                                worldCorners.length / 2);
-                env.setCoordinateReferenceSystem(worldGeomDL.getEnvelope()
-                        .getCoordinateReferenceSystem());
+            if (worldCorners[2] > (this.worldRect.width)) {
+                worldToCRSDL.transform(worldCorners, 0, crsCorners, 0,
+                        worldCorners.length / 2);
+                env.setCoordinateReferenceSystem(crsDL);
             } else {
-                worldGeomPM.getGridToCRS(PixelInCell.CELL_CORNER)
-                        .transform(worldCorners, 0, crsCorners, 0,
-                                worldCorners.length / 2);
-                env.setCoordinateReferenceSystem(worldGeomPM.getEnvelope()
-                        .getCoordinateReferenceSystem());
+                worldToCRSPM
+
+                .transform(worldCorners, 0, crsCorners, 0,
+                        worldCorners.length / 2);
+                env.setCoordinateReferenceSystem(crsPM);
             }
 
             double minX = Double.POSITIVE_INFINITY;
