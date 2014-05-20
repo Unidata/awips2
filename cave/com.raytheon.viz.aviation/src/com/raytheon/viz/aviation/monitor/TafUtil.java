@@ -27,10 +27,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
  * Feb 24, 2014 2830       njensen     Sort dataTimes in getLatestTafs()
  *                                       so it works correctly
+ * May 15, 2014 3002       bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 
  * </pre>
  * 
