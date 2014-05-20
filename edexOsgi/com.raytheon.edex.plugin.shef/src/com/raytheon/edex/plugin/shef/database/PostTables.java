@@ -1382,6 +1382,7 @@ public class PostTables {
             CallableStatement cs = statementMap.get(key);
             try {
                 cs.executeBatch();
+                getConnection().commit();
             } catch (SQLException e) {
                 log.error("An error occured executing batch update for " + key);
             }
