@@ -19,11 +19,7 @@
  **/
 package com.raytheon.viz.grid.util;
 
-import java.awt.RenderingHints;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,27 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.media.jai.BorderExtender;
-import javax.media.jai.Interpolation;
-import javax.media.jai.JAI;
-import javax.media.jai.ParameterBlockJAI;
-import javax.media.jai.PlanarImage;
-
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridCoverageFactory;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.ViewType;
-import org.geotools.coverage.processing.Operations;
-import org.opengis.geometry.Envelope;
-
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
@@ -66,10 +47,12 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 08, 2010            rjpeter     Initial creation
- * Jul 25, 2013 2112       bsteffen    Fix volume browser sounding errors.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 08, 2010           rjpeter     Initial creation
+ * Jul 25, 2013  2112     bsteffen    Fix volume browser sounding errors.
+ * May 19, 2014  2913     bsteffen    Remove dead code.
+ * 
  * 
  * </pre>
  * 
@@ -181,62 +164,6 @@ public class CoverageUtils implements IAlertObserver {
             }
             set.add(new UniqueIdGridCoverageWrapper(coverage));
         }
-    }
-
-    /**
-     * Resamples the grid to a new resolution using scale values
-     * 
-     * @param img
-     *            The image to scale
-     * @param xScale
-     *            The new horizontal resolution
-     * @param yScale
-     *            The new vertical resolution
-     * @return The resampled image
-     */
-    public GridCoverage2D cropGrid(GridCoverage2D inputCoverage,
-            GridGeometry2D outputGeometry, Interpolation interpolation) {
-        RenderingHints hint = new RenderingHints(JAI.KEY_BORDER_EXTENDER,
-                BorderExtender.createInstance(BorderExtender.BORDER_COPY));
-        Operations oper = new Operations(hint);
-        return (GridCoverage2D) oper.resample(
-                inputCoverage.view(ViewType.GEOPHYSICS),
-                outputGeometry.getCoordinateReferenceSystem(),
-                outputGeometry,
-                interpolation == null ? Interpolation
-                        .getInstance(Interpolation.INTERP_BICUBIC)
-                        : interpolation);
-    }
-
-    /**
-     * Resamples the grid to a new resolution using scale values
-     * 
-     * @param img
-     *            The image to scale
-     * @param xScale
-     *            The new horizontal resolution
-     * @param yScale
-     *            The new vertical resolution
-     * @return The resampled image
-     */
-    private PlanarImage scaleGrid(RenderedImage img, float xScale, float yScale) {
-
-        PlanarImage scaledImg;
-
-        ParameterBlockJAI param = new ParameterBlockJAI("Scale");
-        param.addSource(img);
-        param.setParameter("xScale", xScale);
-        param.setParameter("yScale", yScale);
-        Interpolation interpol = Interpolation
-                .getInstance(Interpolation.INTERP_BICUBIC_2);
-        RenderingHints hint = new RenderingHints(JAI.KEY_BORDER_EXTENDER,
-                BorderExtender.createInstance(BorderExtender.BORDER_COPY));
-
-        param.setParameter("interpolation", interpol);
-
-        scaledImg = JAI.create("Scale", param, hint).getRendering();
-
-        return scaledImg;
     }
 
     @Override
