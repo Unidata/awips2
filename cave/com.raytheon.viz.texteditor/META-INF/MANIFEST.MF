@@ -6,9 +6,7 @@ Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Activator: com.raytheon.viz.texteditor.Activator
 Bundle-Vendor: Raytheon
-Require-Bundle: com.raytheon.edex.common,
- com.raytheon.edex.textdb,
- com.raytheon.uf.common.activetable,
+Require-Bundle: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.text;bundle-version="1.11.30",

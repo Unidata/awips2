@@ -18,6 +18,7 @@ Import-Package: com.raytheon.edex.util,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
+ com.raytheon.uf.edex.plugin.text.db,
  org.quartz
 Export-Package: com.raytheon.uf.edex.ohd,
  com.raytheon.uf.edex.ohd.reportalarm,
@@ -32,5 +33,4 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.units;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.shef,
  com.raytheon.uf.common.dataplugin.text,
- com.raytheon.edex.textdb,
  com.raytheon.uf.edex.decodertools
