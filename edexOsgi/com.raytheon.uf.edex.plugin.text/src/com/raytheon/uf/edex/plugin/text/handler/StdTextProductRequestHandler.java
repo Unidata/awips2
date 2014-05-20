@@ -22,8 +22,6 @@ package com.raytheon.uf.edex.plugin.text.handler;
 
 import java.util.Date;
 
-import com.raytheon.edex.textdb.alarms.AlarmAlertUtil;
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
@@ -34,6 +32,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
+import com.raytheon.uf.edex.plugin.text.dbsrv.impl.AlarmAlertUtil;
 
 /**
  * Handles StdTextProductServerRequest by placing them onto the LDAD queue and

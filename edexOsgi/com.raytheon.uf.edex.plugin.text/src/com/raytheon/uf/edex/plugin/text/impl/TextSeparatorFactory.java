@@ -25,10 +25,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
-import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
 import com.raytheon.uf.edex.plugin.text.impl.separator.StdCollectiveSeparator;
 import com.raytheon.uf.edex.plugin.text.impl.separator.StdTextSeparator;
 import com.raytheon.uf.edex.plugin.text.impl.separator.TextDecoderMode;
