@@ -26,8 +26,6 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst;
-import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
-import com.raytheon.uf.common.monitor.data.ObConst.VarName;
 import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
 
 /**
@@ -40,6 +38,7 @@ import com.raytheon.uf.viz.monitor.data.ColumnAttribData;
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009            lvenable     Initial creation
  * Dec 17, 2009 3424      zhao         added snowZoneStnTableColVarNames
+ * May 23, 2014 3086      skorolev     Corrected ObsHistType. Cleaned code.
  * 
  * </pre>
  * 
@@ -63,7 +62,7 @@ public class CommonTableConfig {
      * Obs History configuration enumeration.
      */
     public static enum ObsHistType {
-        Maritime, METAR;
+        MARITIME, METAR, MESONET;
     }
 
     /**
@@ -71,8 +70,8 @@ public class CommonTableConfig {
      */
     public static enum CellType {
         R("R"), Y("Y"), G("G"), W("W"), NotAvailable("N/A"), NotMonitored("NM"), NotDetermined(
-        "N/D"), AreaId(""), Default(""), Custom(""), ObsHist(""), StationID(
-        ""), PresWx("");
+                "N/D"), AreaId(""), Default(""), Custom(""), ObsHist(""), StationID(
+                ""), PresWx("");
 
         String displayString;
 
@@ -196,94 +195,96 @@ public class CommonTableConfig {
     /**
      * SAFESEAS Maritime table columns.
      */
-	private final String[] ssMaritimeTableCols = new String[] {
-			obsHistCols.Time.name(), obsHistCols.Lat.name(),
-			obsHistCols.Lon.name(), obsHistCols.WindSpd.name(),
-			obsHistCols.MaxWindSpd.name(), obsHistCols.WindGust.name(),
-			obsHistCols.Vis_mn.name(), obsHistCols.P.name(),
-			obsHistCols.PTend.name(), obsHistCols.T.name(),
-			obsHistCols.Dewpt.name(), obsHistCols.SST.name(),
-			obsHistCols.SigWaveHgt.name(), obsHistCols.WaveSteep.name(),
-			obsHistCols.SwellHgt.name(), obsHistCols.SwellPer.name(),
-			obsHistCols.SwellDir.name() };
+    private final String[] ssMaritimeTableCols = new String[] {
+            obsHistCols.Time.name(), obsHistCols.Lat.name(),
+            obsHistCols.Lon.name(), obsHistCols.WindSpd.name(),
+            obsHistCols.MaxWindSpd.name(), obsHistCols.WindGust.name(),
+            obsHistCols.Vis_mn.name(), obsHistCols.P.name(),
+            obsHistCols.PTend.name(), obsHistCols.T.name(),
+            obsHistCols.Dewpt.name(), obsHistCols.SST.name(),
+            obsHistCols.SigWaveHgt.name(), obsHistCols.WaveSteep.name(),
+            obsHistCols.SwellHgt.name(), obsHistCols.SwellPer.name(),
+            obsHistCols.SwellDir.name() };
 
-	/**
-	 * SAFESEAS METAR table columns.
-	 */
-	private final String[] ssMetarTableCols = new String[] {
-			obsHistCols.Time.name(), obsHistCols.Lat.name(),
-			obsHistCols.Lon.name(), obsHistCols.WindDir.name(),
-			obsHistCols.WindSpd.name(), obsHistCols.WindGust.name(),
-			obsHistCols.P.name(), obsHistCols.T.name(),
-			obsHistCols.Dewpt.name(), obsHistCols.PTend.name() };
+    /**
+     * SAFESEAS METAR table columns.
+     */
+    private final String[] ssMetarTableCols = new String[] {
+            obsHistCols.Time.name(), obsHistCols.Lat.name(),
+            obsHistCols.Lon.name(), obsHistCols.WindDir.name(),
+            obsHistCols.WindSpd.name(), obsHistCols.WindGust.name(),
+            obsHistCols.P.name(), obsHistCols.T.name(),
+            obsHistCols.Dewpt.name(), obsHistCols.PTend.name() };
 
-	/**
-	 * Snow METAR table columns.
-	 */
-	private final String[] snowMetarTableCols = new String[] {
-			obsHistCols.Time.name(), obsHistCols.Lat.name(),
-			obsHistCols.Lon.name(), obsHistCols.WindDir.name(),
-			obsHistCols.WindSpd.name(), obsHistCols.WindGust.name(),
-			obsHistCols.P.name(), obsHistCols.T.name(),
-			obsHistCols.Dewpt.name(), obsHistCols.PTend.name() };
+    /**
+     * Snow METAR table columns.
+     */
+    private final String[] snowMetarTableCols = new String[] {
+            obsHistCols.Time.name(), obsHistCols.Lat.name(),
+            obsHistCols.Lon.name(), obsHistCols.WindDir.name(),
+            obsHistCols.WindSpd.name(), obsHistCols.WindGust.name(),
+            obsHistCols.P.name(), obsHistCols.T.name(),
+            obsHistCols.Dewpt.name(), obsHistCols.PTend.name() };
 
     /**
      * METAR configure names
      */
-    private final String[] metarConfigureNames = new String[] {
-    		"Lat (deg)", "Lon (deg)", "Wind Dir (deg)", "Wind Spd (kt)", "Wind Gust (kt)", "P (in)",
-            "T (deg F)", "Dewpt (deg F)", "P Tendency (in)" };
+    private final String[] metarConfigureNames = new String[] { "Lat (deg)",
+            "Lon (deg)", "Wind Dir (deg)", "Wind Spd (kt)", "Wind Gust (kt)",
+            "P (in)", "T (deg F)", "Dewpt (deg F)", "P Tendency (in)" };
 
     /**
      * Fog METAR configure names
      */
 
-    private final String[] metarFogConfigureNames = new String[] {
-            "Lat (deg)", "Lon (deg)", "Rel Hum (%)", "Vis (mi)", "Ceiling (ft x 100)", "Wind Dir (deg)",
-            "Wind Spd (kt)", "Wind Gust (kt)", "P (in)", "T (deg F)",
-            "Dewpt (deg F)", "DewptDepr (deg F)", "P Tendency (in)" };
+    private final String[] metarFogConfigureNames = new String[] { "Lat (deg)",
+            "Lon (deg)", "Rel Hum (%)", "Vis (mi)", "Ceiling (ft x 100)",
+            "Wind Dir (deg)", "Wind Spd (kt)", "Wind Gust (kt)", "P (in)",
+            "T (deg F)", "Dewpt (deg F)", "DewptDepr (deg F)",
+            "P Tendency (in)" };
 
     /**
      * Fog Maritime configure names
      */
 
     private final String[] maritimeFogConfigureNames = new String[] {
-    		"Lat (deg)", "Lon (deg)", "Wind Dir (deg)", "Wind Spd (kt)", "Wind Gust (kt)", "Vis (nm)",
-            "P (in)", "P Tendency (in)", "T (deg F)", "Dewpt (deg F)",
-            "SST (deg F)", "Significant Wave Hgt (ft)", "Wave Steep",
-            "Swell Hgt (ft)", "Swell Per (sec)", "Swell Dir (deg)",
-    "Rel Hum (%)" };
+            "Lat (deg)", "Lon (deg)", "Wind Dir (deg)", "Wind Spd (kt)",
+            "Wind Gust (kt)", "Vis (nm)", "P (in)", "P Tendency (in)",
+            "T (deg F)", "Dewpt (deg F)", "SST (deg F)",
+            "Significant Wave Hgt (ft)", "Wave Steep", "Swell Hgt (ft)",
+            "Swell Per (sec)", "Swell Dir (deg)", "Rel Hum (%)" };
 
     /**
      * SAFESEAS Maritime configure names
      */
 
     private final String[] maritimeSSConfigureNames = new String[] {
-    		"Lat (deg)", "Lon (deg)", "Wind Spd (kt)", "MaxWindSpd (kt)", "Wind Gust (kt)", "Vis (nm)",
-            "P (in)", "P Tendency (in)", "T (deg F)", "Dewpt (deg F)",
-            "SST (deg F)", "Significant Wave Hgt (ft)", "Wave Steep",
-            "Swell Hgt (ft)", "Swell Per (sec)", "Swell Dir (deg)" };
+            "Lat (deg)", "Lon (deg)", "Wind Spd (kt)", "MaxWindSpd (kt)",
+            "Wind Gust (kt)", "Vis (nm)", "P (in)", "P Tendency (in)",
+            "T (deg F)", "Dewpt (deg F)", "SST (deg F)",
+            "Significant Wave Hgt (ft)", "Wave Steep", "Swell Hgt (ft)",
+            "Swell Per (sec)", "Swell Dir (deg)" };
 
     /**
      * Fog Maritime table columns.
      */
-	private final String[] fogMaritimeTableCols = new String[] {
-			obsHistCols.Time.name(), obsHistCols.Lat.name(),
-			obsHistCols.Lon.name(), obsHistCols.WindSpd.name(),
-			obsHistCols.MaxWindSpd.name(), obsHistCols.WindGust.name(),
-			obsHistCols.Vis_mi.name(), obsHistCols.P.name(),
-			obsHistCols.PTend.name(), obsHistCols.T.name(),
-			obsHistCols.Dewpt.name(), obsHistCols.SST.name(),
-			obsHistCols.SigWaveHgt.name(), obsHistCols.WaveSteep.name(),
-			obsHistCols.SwellHgt.name(), obsHistCols.SwellPer.name(),
-			obsHistCols.SwellDir.name(), obsHistCols.RelHum.name() };
+    private final String[] fogMaritimeTableCols = new String[] {
+            obsHistCols.Time.name(), obsHistCols.Lat.name(),
+            obsHistCols.Lon.name(), obsHistCols.WindSpd.name(),
+            obsHistCols.MaxWindSpd.name(), obsHistCols.WindGust.name(),
+            obsHistCols.Vis_mi.name(), obsHistCols.P.name(),
+            obsHistCols.PTend.name(), obsHistCols.T.name(),
+            obsHistCols.Dewpt.name(), obsHistCols.SST.name(),
+            obsHistCols.SigWaveHgt.name(), obsHistCols.WaveSteep.name(),
+            obsHistCols.SwellHgt.name(), obsHistCols.SwellPer.name(),
+            obsHistCols.SwellDir.name(), obsHistCols.RelHum.name() };
 
     /**
      * Fog METAR table columns.
      */
     private final String[] fogMetarTableCols = new String[] {
             obsHistCols.Time.name(), obsHistCols.Lat.name(),
-			obsHistCols.Lon.name(),obsHistCols.RelHum.name(),
+            obsHistCols.Lon.name(), obsHistCols.RelHum.name(),
             obsHistCols.Vis_mi.name(), obsHistCols.Ceiling.name(),
             obsHistCols.WindDir.name(), obsHistCols.WindSpd.name(),
             obsHistCols.WindGust.name(), obsHistCols.P.name(),
@@ -417,8 +418,7 @@ public class CommonTableConfig {
         tableColumnAttrMap.put(ssZoneStnTableCols[21], new ColumnAttribData(
                 "Swell2 Dir", SortDirection.Ascending, GraphType.HodoWindDir));
         tableColumnAttrMap.put(ssZoneStnTableCols[22], new ColumnAttribData(
-                "Fog",
-                SortDirection.Decending, GraphType.None));
+                "Fog", SortDirection.Decending, GraphType.None));
     }
 
     /**
@@ -450,13 +450,11 @@ public class CommonTableConfig {
         tableColumnAttrMap.put(snowZoneStnTableCols[11], new ColumnAttribData(
                 "Vis", SortDirection.Ascending, GraphType.Trend));
         tableColumnAttrMap.put(snowZoneStnTableCols[12], new ColumnAttribData(
-                "SLP",
-                SortDirection.Ascending, GraphType.Trend));
+                "SLP", SortDirection.Ascending, GraphType.Trend));
         tableColumnAttrMap.put(snowZoneStnTableCols[13], new ColumnAttribData(
                 "Wind Chill", SortDirection.Ascending, GraphType.Trend));
         tableColumnAttrMap.put(snowZoneStnTableCols[14], new ColumnAttribData(
-                "FrstBt Time",
-                SortDirection.Ascending, GraphType.Trend));
+                "FrstBt Time", SortDirection.Ascending, GraphType.Trend));
         tableColumnAttrMap.put(snowZoneStnTableCols[15], new ColumnAttribData(
                 "Hourly Precip", SortDirection.Decending, GraphType.Trend));
         tableColumnAttrMap.put(snowZoneStnTableCols[16], new ColumnAttribData(
@@ -474,13 +472,11 @@ public class CommonTableConfig {
         tableColumnAttrMap.put(fogZoneStnTableCols[0], new ColumnAttribData(
                 "Area_Id", SortDirection.Ascending));
         tableColumnAttrMap.put(fogZoneStnTableCols[1], new ColumnAttribData(
-                "Vis",
-                SortDirection.Ascending, GraphType.Trend));
+                "Vis", SortDirection.Ascending, GraphType.Trend));
         tableColumnAttrMap.put(fogZoneStnTableCols[2], new ColumnAttribData(
                 "Pres Weather", SortDirection.None, GraphType.None));
         tableColumnAttrMap.put(fogZoneStnTableCols[3], new ColumnAttribData(
-                "Ceiling",
-                SortDirection.Ascending, GraphType.Trend));
+                "Ceiling", SortDirection.Ascending, GraphType.Trend));
         tableColumnAttrMap.put(fogZoneStnTableCols[4], new ColumnAttribData(
                 "Wind Direc", SortDirection.Decending, GraphType.HodoWindDir));
         tableColumnAttrMap.put(fogZoneStnTableCols[5], new ColumnAttribData(
@@ -490,74 +486,71 @@ public class CommonTableConfig {
         tableColumnAttrMap.put(fogZoneStnTableCols[7], new ColumnAttribData(
                 "Wind Gust", SortDirection.Decending, GraphType.Trend));
         tableColumnAttrMap.put(fogZoneStnTableCols[8], new ColumnAttribData(
-                "Temp",
-                SortDirection.Decending, GraphType.Trend));
+                "Temp", SortDirection.Decending, GraphType.Trend));
         tableColumnAttrMap.put(fogZoneStnTableCols[9], new ColumnAttribData(
                 "Dewpt", SortDirection.Decending, GraphType.Trend));
         tableColumnAttrMap.put(fogZoneStnTableCols[10], new ColumnAttribData(
-                "Depr",
-                SortDirection.Ascending, GraphType.Trend));
+                "Depr", SortDirection.Ascending, GraphType.Trend));
         tableColumnAttrMap.put(fogZoneStnTableCols[11], new ColumnAttribData(
                 "Rel Humid", SortDirection.Decending, GraphType.Trend));
         tableColumnAttrMap.put(fogZoneStnTableCols[12], new ColumnAttribData(
-                "ALG",
-                SortDirection.Decending, GraphType.None));
+                "ALG", SortDirection.Decending, GraphType.None));
     }
 
-	/**
-	 * Create the Observation History column attributes.
-	 */
-	private void createObsHistoryColumnAttributes() {
-		obsHistColumnAttrMap.put(obsHistCols.Time.name(), new ColumnAttribData(
-				"Time (UTC)", "Time (UTC)"));
-		obsHistColumnAttrMap.put(obsHistCols.Lat.name(), new ColumnAttribData(
-				"Lat (deg)", "Lat (deg)"));
-		obsHistColumnAttrMap.put(obsHistCols.Lon.name(), new ColumnAttribData(
-				"Lon (deg)", "Lon (deg)"));
-		obsHistColumnAttrMap.put(obsHistCols.WindSpd.name(),
-				new ColumnAttribData("Wind Spd (kt)", "Wind Spd\n(kt)"));
-		obsHistColumnAttrMap
-				.put(obsHistCols.MaxWindSpd.name(), new ColumnAttribData(
-						"Max Wind Spd (kt)", "Max Wind\nSpd (kt)"));
-		obsHistColumnAttrMap.put(obsHistCols.WindGust.name(),
-				new ColumnAttribData("Wind Gust (kt)", "Wind Gust\n(kt)"));
-		obsHistColumnAttrMap.put(obsHistCols.WindDir.name(),
-				new ColumnAttribData("Wind Dir (deg)", "Wind Dir\n(deg)"));
-		obsHistColumnAttrMap.put(obsHistCols.Vis_mi.name(),
-				new ColumnAttribData("Vis (mi)", "Vis (mi)"));
-		obsHistColumnAttrMap.put(obsHistCols.Vis_mn.name(),
-				new ColumnAttribData("Vis (nm)", "Vis (nm)"));
-		obsHistColumnAttrMap.put(obsHistCols.P.name(), new ColumnAttribData(
-				"P (in)", "P (in)"));
-		obsHistColumnAttrMap.put(obsHistCols.PTend.name(),
-				new ColumnAttribData("P Tendency (in)", "P Tendency\n(in)"));
-		obsHistColumnAttrMap.put(obsHistCols.SigWaveHgt.name(),
-				new ColumnAttribData("Significant Wave Hgt (ft)",
-						"Significant\nWave Hgt (ft)"));
-		obsHistColumnAttrMap.put(obsHistCols.SwellHgt.name(),
-				new ColumnAttribData("Swell Hgt (ft)", "Swell Hgt\n(ft)"));
-		obsHistColumnAttrMap.put(obsHistCols.SwellPer.name(),
-				new ColumnAttribData("Swell Per (sec)", "Swell Per\n(sec)"));
-		obsHistColumnAttrMap.put(obsHistCols.SwellDir.name(),
-				new ColumnAttribData("Swell Dir (deg)", "Swell Dir\n(deg)"));
-		obsHistColumnAttrMap.put(obsHistCols.T.name(), new ColumnAttribData(
-				"T (deg F)", "T (deg F)"));
-		obsHistColumnAttrMap.put(obsHistCols.Dewpt.name(),
-				new ColumnAttribData("Dewpt (deg F)", "Dewpt\n(deg F)"));
-		obsHistColumnAttrMap.put(obsHistCols.SST.name(), new ColumnAttribData(
-				"SST (deg F)", "SST\n(deg F)"));
-		obsHistColumnAttrMap.put(obsHistCols.WaveSteep.name(),
-				new ColumnAttribData("Wave Steep", "Wave\nSteep"));
-		obsHistColumnAttrMap.put(obsHistCols.RelHum.name(),
-				new ColumnAttribData("Rel. Humid (%)", "Rel. Humid\n(%)"));
-		obsHistColumnAttrMap.put(obsHistCols.Ceiling.name(),
-				new ColumnAttribData("Ceiling (ft x 100)",
-						"Ceiling\n(ft x 100)"));
-		obsHistColumnAttrMap
-				.put(obsHistCols.DewptDepr.name(), new ColumnAttribData(
-						"DewptDepr (deg F)", "DewptDepr\n(deg F)"));
+    /**
+     * Create the Observation History column attributes.
+     */
+    private void createObsHistoryColumnAttributes() {
+        obsHistColumnAttrMap.put(obsHistCols.Time.name(), new ColumnAttribData(
+                "Time (UTC)", "Time (UTC)"));
+        obsHistColumnAttrMap.put(obsHistCols.Lat.name(), new ColumnAttribData(
+                "Lat (deg)", "Lat (deg)"));
+        obsHistColumnAttrMap.put(obsHistCols.Lon.name(), new ColumnAttribData(
+                "Lon (deg)", "Lon (deg)"));
+        obsHistColumnAttrMap.put(obsHistCols.WindSpd.name(),
+                new ColumnAttribData("Wind Spd (kt)", "Wind Spd\n(kt)"));
+        obsHistColumnAttrMap
+                .put(obsHistCols.MaxWindSpd.name(), new ColumnAttribData(
+                        "Max Wind Spd (kt)", "Max Wind\nSpd (kt)"));
+        obsHistColumnAttrMap.put(obsHistCols.WindGust.name(),
+                new ColumnAttribData("Wind Gust (kt)", "Wind Gust\n(kt)"));
+        obsHistColumnAttrMap.put(obsHistCols.WindDir.name(),
+                new ColumnAttribData("Wind Dir (deg)", "Wind Dir\n(deg)"));
+        obsHistColumnAttrMap.put(obsHistCols.Vis_mi.name(),
+                new ColumnAttribData("Vis (mi)", "Vis (mi)"));
+        obsHistColumnAttrMap.put(obsHistCols.Vis_mn.name(),
+                new ColumnAttribData("Vis (nm)", "Vis (nm)"));
+        obsHistColumnAttrMap.put(obsHistCols.P.name(), new ColumnAttribData(
+                "P (in)", "P (in)"));
+        obsHistColumnAttrMap.put(obsHistCols.PTend.name(),
+                new ColumnAttribData("P Tendency (in)", "P Tendency\n(in)"));
+        obsHistColumnAttrMap.put(obsHistCols.SigWaveHgt.name(),
+                new ColumnAttribData("Significant Wave Hgt (ft)",
+                        "Significant\nWave Hgt (ft)"));
+        obsHistColumnAttrMap.put(obsHistCols.SwellHgt.name(),
+                new ColumnAttribData("Swell Hgt (ft)", "Swell Hgt\n(ft)"));
+        obsHistColumnAttrMap.put(obsHistCols.SwellPer.name(),
+                new ColumnAttribData("Swell Per (sec)", "Swell Per\n(sec)"));
+        obsHistColumnAttrMap.put(obsHistCols.SwellDir.name(),
+                new ColumnAttribData("Swell Dir (deg)", "Swell Dir\n(deg)"));
+        obsHistColumnAttrMap.put(obsHistCols.T.name(), new ColumnAttribData(
+                "T (deg F)", "T (deg F)"));
+        obsHistColumnAttrMap.put(obsHistCols.Dewpt.name(),
+                new ColumnAttribData("Dewpt (deg F)", "Dewpt\n(deg F)"));
+        obsHistColumnAttrMap.put(obsHistCols.SST.name(), new ColumnAttribData(
+                "SST (deg F)", "SST\n(deg F)"));
+        obsHistColumnAttrMap.put(obsHistCols.WaveSteep.name(),
+                new ColumnAttribData("Wave Steep", "Wave\nSteep"));
+        obsHistColumnAttrMap.put(obsHistCols.RelHum.name(),
+                new ColumnAttribData("Rel. Humid (%)", "Rel. Humid\n(%)"));
+        obsHistColumnAttrMap.put(obsHistCols.Ceiling.name(),
+                new ColumnAttribData("Ceiling (ft x 100)",
+                        "Ceiling\n(ft x 100)"));
+        obsHistColumnAttrMap
+                .put(obsHistCols.DewptDepr.name(), new ColumnAttribData(
+                        "DewptDepr (deg F)", "DewptDepr\n(deg F)"));
 
-	}
+    }
 
     /**
      * Get the Zone/Station column keys.
@@ -608,17 +601,17 @@ public class CommonTableConfig {
     public String[] getObsHistColumnKeys(CommonConfig.AppName app,
             ObsHistType obsType) {
         if (app == CommonConfig.AppName.SAFESEAS) {
-            if (obsType == ObsHistType.Maritime) {
+            if (obsType == ObsHistType.MARITIME) {
                 return ssMaritimeTableCols;
             } else {
                 return ssMetarTableCols;
             }
         } else if (app == CommonConfig.AppName.SNOW) {
-            if (obsType == ObsHistType.METAR) {
+            if (obsType == ObsHistType.METAR || obsType == ObsHistType.MESONET) {
                 return snowMetarTableCols;
             }
         } else if (app == CommonConfig.AppName.FOG) {
-            if (obsType == ObsHistType.Maritime) {
+            if (obsType == ObsHistType.MARITIME) {
                 return fogMaritimeTableCols;
             } else {
                 return fogMetarTableCols;
@@ -661,18 +654,18 @@ public class CommonTableConfig {
     public int getNumberOfObsHistColumns(CommonConfig.AppName app,
             ObsHistType obsType) {
         if (app == CommonConfig.AppName.SAFESEAS) {
-            if (obsType == ObsHistType.Maritime) {
+            if (obsType == ObsHistType.MARITIME) {
                 return ssMaritimeTableCols.length;
             } else {
                 return ssMetarTableCols.length;
             }
 
         } else if (app == CommonConfig.AppName.SNOW) {
-            if (obsType == ObsHistType.METAR) {
+            if (obsType == ObsHistType.METAR || obsType == ObsHistType.MESONET) {
                 return snowMetarTableCols.length;
             }
         } else if (app == CommonConfig.AppName.FOG) {
-            if (obsType == ObsHistType.Maritime) {
+            if (obsType == ObsHistType.MARITIME) {
                 return fogMaritimeTableCols.length;
             } else {
                 return fogMetarTableCols.length;
@@ -696,7 +689,7 @@ public class CommonTableConfig {
     public int getObsHistColumnIndex(CommonConfig.AppName app,
             ObsHistType obsType, String columnName) {
         if (app == CommonConfig.AppName.SAFESEAS) {
-            if (obsType == ObsHistType.Maritime) {
+            if (obsType == ObsHistType.MARITIME) {
                 return getColumnIndex(columnName, ssMaritimeTableCols);
             } else {
                 return getColumnIndex(columnName, ssMetarTableCols);
@@ -707,7 +700,7 @@ public class CommonTableConfig {
                 return getColumnIndex(columnName, snowMetarTableCols);
             }
         } else if (app == CommonConfig.AppName.FOG) {
-            if (obsType == ObsHistType.Maritime) {
+            if (obsType == ObsHistType.MARITIME) {
                 return getColumnIndex(columnName, fogMaritimeTableCols);
             } else {
                 return getColumnIndex(columnName, fogMetarTableCols);

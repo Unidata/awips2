@@ -36,6 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 21, 2009            lvenable     Initial creation
+ * May 15, 2014 3086       skorolev     Changed type for timeWindow element.
  * 
  * </pre>
  * 
@@ -49,12 +50,21 @@ public class MonAreaConfigXML {
     @XmlElements({ @XmlElement(name = "AreaID", type = AreaIdXML.class) })
     private ArrayList<AreaIdXML> areaIds = new ArrayList<AreaIdXML>();
 
-    @XmlElements({ @XmlElement(name = "timeWindow", type = Integer.class) })
-    private int timeWindow;
+    /**
+     * Time period in minutes during which stations are monitoring.
+     */
+    @XmlElements({ @XmlElement(name = "timeWindow", type = Double.class) })
+    private double timeWindow;
 
+    /**
+     * The shortest distance between center of site and a ship.
+     */
     @XmlElements({ @XmlElement(name = "shipDistance", type = Integer.class) })
     private int shipDistance;
 
+    /**
+     * Flag to use the Fog Monitor overall threat level.
+     */
     @XmlElements({ @XmlElement(name = "useAlgorithms", type = Boolean.class) })
     private boolean useAlgorithms;
 
@@ -72,16 +82,16 @@ public class MonAreaConfigXML {
     /**
      * @return the timeWindow
      */
-    public int getTimeWindow() {
+    public double getTimeWindow() {
         return timeWindow;
     }
 
     /**
-     * @param timeWindow
+     * @param hours
      *            the timeWindow to set
      */
-    public void setTimeWindow(int timeWindow) {
-        this.timeWindow = timeWindow;
+    public void setTimeWindow(double hours) {
+        this.timeWindow = hours;
     }
 
     /**
@@ -114,6 +124,9 @@ public class MonAreaConfigXML {
         this.useAlgorithms = useAlgorithms;
     }
 
+    /**
+     * @param areaXml
+     */
     public void addAreaId(AreaIdXML areaXml) {
         areaIds.add(areaXml);
     }
