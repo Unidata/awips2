@@ -21,10 +21,10 @@ package com.raytheon.uf.viz.monitor.snow.threshold;
 
 import java.util.ArrayList;
 
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SnowDisplay;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SnowMonitor;
@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SnowMonitor;
  * ------------ ---------- ----------- --------------------------
  * Dec 27, 2009 #3963      lvenable     Initial creation
  * Feb 03, 2014 #2757      skorolev     Fixed reInitialize()
+ * May 21, 2014  3086      skorolev     Cleaned code
  * 
  * </pre>
  * 
@@ -49,17 +50,21 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SnowMonitor;
 public class SnowThresholdMgr extends AbstractThresholdMgr {
     private static SnowThresholdMgr classInstance;
 
+    /**
+     * Constructor
+     */
     private SnowThresholdMgr() {
         super("DefaultSnowDisplayThresholds.xml",
-                "DefaultSnowMonitorThresholds.xml", "snow");
+                "DefaultSnowMonitorThresholds.xml", AppName.SNOW.name()
+                        .toLowerCase());
 
-        areaConfigMgr = getAreaConfigMgr();
-        // call init() after areaConfigMgr is set
+        areaConfigMgr = new FSSObsMonitorConfigurationManager(site,
+                MonName.snow.name());
         init();
     }
 
     /**
-     * Get instance.
+     * Gets instance.
      * 
      * @return
      */
@@ -67,11 +72,12 @@ public class SnowThresholdMgr extends AbstractThresholdMgr {
         if (classInstance == null) {
             classInstance = new SnowThresholdMgr();
         }
-
         return classInstance;
     }
 
     /**
+     * Re-initialization of threshold manager.
+     * 
      * DR#11279: When monitor area configuration is changed, threshold manager
      * needs to be re-initialized using the new monitor area configuration
      */
@@ -105,25 +111,20 @@ public class SnowThresholdMgr extends AbstractThresholdMgr {
                 threshKeys.add(snowMon.getXmlKey());
             }
         }
-
         return threshKeys;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#getAreaConfigMgr
-     * ()
+     * @see com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#
+     * getMonitorAreaConfigInstance()
      */
     @Override
-    public MonitorConfigurationManager getAreaConfigMgr() {
+    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (areaConfigMgr == null) {
-            LocalizationManager mgr = LocalizationManager.getInstance();
-            String siteScope = mgr.getCurrentSite();
-
-            areaConfigMgr = SnowMonitorConfigurationManager.getInstance();
-            areaConfigMgr.readConfigXml(siteScope);
+            areaConfigMgr = new FSSObsMonitorConfigurationManager(site,
+                    MonName.snow.name());
         }
         return areaConfigMgr;
     }
