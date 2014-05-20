@@ -222,11 +222,6 @@
    		<level value="INFO"/>
    		<appender-ref ref="purge"/>
    </logger>
-
-   <logger name="com.raytheon.edex.textdb.dao.StdTextProductDao.PurgeLogger" additivity="false">
-   		<level value="INFO"/>
-   		<appender-ref ref="purge"/>
-   </logger>
    
    <logger name="RouteFailedLog" additivity="false">
       <level value="WARN"/>
