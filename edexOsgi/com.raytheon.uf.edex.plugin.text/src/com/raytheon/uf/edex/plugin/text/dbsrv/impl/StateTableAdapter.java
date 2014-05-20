@@ -22,7 +22,6 @@ package com.raytheon.uf.edex.plugin.text.dbsrv.impl;
 
 import java.util.List;
 
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.text.db.StateMatch;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
@@ -31,6 +30,7 @@ import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBSrvCommandTags;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
+import com.raytheon.uf.edex.plugin.text.db.TextDB;
 
 /**
  * 
