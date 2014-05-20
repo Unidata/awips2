@@ -37,6 +37,7 @@ import com.raytheon.hprof.HprofFile;
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
  * May 05, 2014  3093     bsteffen    Add some new exporters
+ * May 20, 2014  3093     bsteffen    Add option to zero primitive arrays.
  * 
  * </pre>
  * 
@@ -51,17 +52,27 @@ public class CaveExporter {
                     .println("Provide some args, an hprof file is required, an output directory is optional.");
             System.exit(1);
         }
-        HprofFile hprof;
+        int argIdx = 0;
+        HprofFile hprof = null;
         try {
-            hprof = new HprofFile(args[0]);
+            if (args[argIdx].equals("-zero")) {
+                System.out.println("Writing 0s...");
+                hprof = new HprofFile(args[argIdx + 1], false);
+                hprof.getHeapDump().zeroPrimitiveArrays();
+                argIdx += 2;
+            } else {
+                hprof = new HprofFile(args[argIdx], true);
+                argIdx += 1;
+            }
+
         } catch (IOException e) {
             throw new IllegalArgumentException("Error opening hprof file: "
-                    + args[0], e);
+                    + args[argIdx], e);
         }
 
         File outputDir = null;
         if (args.length > 1) {
-            outputDir = new File(args[1]);
+            outputDir = new File(args[argIdx++]);
         } else {
             outputDir = new File(".");
         }
