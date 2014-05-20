@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.viz.aviation.monitor.TafUtil;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 9/9/2010     5468        rferrel     Check for no TAF loaded for a site
  * 10/1/2010    4345        rferrel     Made products display the same as AWIPS I
  * 10/04/2012   1229        rferrel     Made non-blocking.
+ * May 15, 2014 3002        bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 
  * </pre>
  * 
