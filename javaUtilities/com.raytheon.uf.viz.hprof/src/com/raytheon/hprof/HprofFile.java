@@ -51,6 +51,7 @@ import com.raytheon.hprof.data.heap.dump.InstanceDump;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 20, 2014  3093     bsteffen    Allow opening for write.
  * 
  * </pre>
  * 
@@ -70,8 +71,8 @@ public class HprofFile {
 
     private Map<Id, String> usedClassnames = new HashMap<Id, String>();
 
-    public HprofFile(String fileName) throws IOException {
-        BigByteBuffer buffer = new BigByteBuffer(fileName);
+    public HprofFile(String fileName, boolean readOnly) throws IOException {
+        BigByteBuffer buffer = new BigByteBuffer(fileName, readOnly);
 
         String format = null;
 
