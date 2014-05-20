@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor.fog.ui.dialogs;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -37,315 +38,343 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogDisplay;
 import com.raytheon.uf.viz.monitor.xml.AreaXML;
 import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
-public class FogDisplayMeteoTab extends TabItemComp implements IUpdateDisplayMeteo
-{
-    /**
-     * Dialog used for editing the FOG display meteo data.
-     */
+/**
+ * Fog Display Meteo Table.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 21, 2014 3086       skorolev    Cleaned code
+ * 
+ * </pre>
+ * 
+ * @author
+ * @version 1.0
+ */
+public class FogDisplayMeteoTab extends TabItemComp implements
+        IUpdateDisplayMeteo {
+    /** Dialog used for editing the display meteo data. */
     private FogDisplayMeteoEditDlg fogMeteoEditDlg;
-    
-    private ArrayList<String> areaIDArray;
-    
-    private ArrayList<FogDisplayMeteoData> fogDataArray;
-    
-    public FogDisplayMeteoTab(TabFolder parent, DataUsageKey duKey)
-    {
+
+    /** List of zones */
+    private List<String> areaIDArray;
+
+    /** Fog Display Meteo Data. */
+    private List<FogDisplayMeteoData> fogDataArray;
+
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param duKey
+     *            threshold usage data key
+     */
+    public FogDisplayMeteoTab(TabFolder parent, DataUsageKey duKey) {
         super(parent, duKey);
     }
 
-    @Override    
-    protected void createListHeader(Composite parentComp)
-    {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#createListHeader(org
+     * .eclipse.swt.widgets.Composite)
+     */
+    @Override
+    protected void createListHeader(Composite parentComp) {
         Composite lblComp = new Composite(parentComp, SWT.NONE);
         GridLayout gl = new GridLayout(5, false);
-        gl.horizontalSpacing = 0;   
+        gl.horizontalSpacing = 0;
         gl.marginHeight = 0;
         gl.marginWidth = 0;
         lblComp.setLayout(gl);
-        
-        /*
-         * Create filler label.
-         */
+
+        /* Create filler label. */
         GridData gd = new GridData(68, SWT.DEFAULT);
         Label fillerLbl = new Label(lblComp, SWT.CENTER);
         fillerLbl.setLayoutData(gd);
-        
-        /*
-         * Meteo
-         */
+
+        /* Meteo */
         Composite meteoComp = createGroupComposite(lblComp, 6, null);
         createLabelComp(meteoComp, "Vis(mi)", "", true);
         createLabelComp(meteoComp, "Ceiling", "(100ft)", false);
         createLabelComp(meteoComp, "Temp(F)", "", false);
-        createLabelComp(meteoComp, "Dewpt(F)", "", false);        
-        createLabelComp(meteoComp, "T-Td(F)", "", false);        
+        createLabelComp(meteoComp, "Dewpt(F)", "", false);
+        createLabelComp(meteoComp, "T-Td(F)", "", false);
         createLabelComp(meteoComp, "Rel Hum(%)", "", false);
-    }    
-    
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#populateList()
+     */
     @Override
-    protected void populateList()
-    {   
-        if (fogDataArray == null)
-        {
+    protected void populateList() {
+        if (fogDataArray == null) {
             createDataArray();
         }
-        
+
         boolean update = false;
-        if (dataList.getItemCount() > 0)
-        {
+        if (dataList.getItemCount() > 0) {
             update = true;
         }
-        
+
         RangesUtil rangeUtil = RangesUtil.getInstance();
-        
+
         areaIDArray = new ArrayList<String>();
-        
+
         String tmpVisStr;
         String currentAreaID;
-        
+
         double visVal = 0.0;
-        
-        StringBuilder sb = null;       
+
+        StringBuilder sb = null;
         FogDisplayMeteoData fdmd = null;
-        
-        for (int i = 0; i < fogDataArray.size(); i++)
-        {
+
+        for (int i = 0; i < fogDataArray.size(); i++) {
             sb = new StringBuilder();
-            
+
             fdmd = fogDataArray.get(i);
-            
+
             currentAreaID = fdmd.getAreaID();
             areaIDArray.add(currentAreaID);
-            
+
             sb.append(String.format(areaIdFmt, currentAreaID));
-            
-            /*
-             * Visibility
-             */            
-            visVal = fdmd.getMeteoVisR();            
-            tmpVisStr = rangeUtil.getVisString((int)visVal);
+
+            /* Visibility */
+            visVal = fdmd.getMeteoVisR();
+            tmpVisStr = rangeUtil.getVisString((int) visVal);
             sb.append(String.format(dataFmt, tmpVisStr));
-            
-            visVal = fdmd.getMeteoVisY();           
-            tmpVisStr = rangeUtil.getVisString((int)visVal);
+
+            visVal = fdmd.getMeteoVisY();
+            tmpVisStr = rangeUtil.getVisString((int) visVal);
             sb.append(String.format(dataFmt, tmpVisStr));
-            
-            /*
-             * Ceiling
-             */
+
+            /* Ceiling */
             appendIntData(sb, fdmd.getMeteoCeilingR(), fdmd.getMeteoCeilingY());
-            
-            /*
-             * Temperature
-             */
+
+            /* Temperature */
             appendIntData(sb, fdmd.getMeteoTempR(), fdmd.getMeteoTempY());
-            
-            /*
-             * Dewpoint
-             */
-            appendIntData(sb, fdmd.getMeteoDewpointR(), fdmd.getMeteoDewpointY());
-            
-            /*
-             * T-Td
-             */
+
+            /* Dewpoint */
+            appendIntData(sb, fdmd.getMeteoDewpointR(),
+                    fdmd.getMeteoDewpointY());
+
+            /* T-Td */
             appendIntData(sb, fdmd.getMeteoTtdR(), fdmd.getMeteoTtdY());
-            
-            /*
-             * Relative Humidity
-             */
+
+            /* Relative Humidity */
             appendIntData(sb, fdmd.getMeteoRelHumR(), fdmd.getMeteoRelHumY());
-            
-            /*
-             * Append a space and add the data line to the list.
-             */
+
+            /* Append a space and add the data line to the list. */
             sb.append(" ");
-            
-            if (update == true)
-            {
+
+            if (update == true) {
                 dataList.setItem(i, sb.toString());
-            }
-            else
-            {
+            } else {
                 dataList.add(sb.toString());
-            }            
+            }
         }
-        
         packListControls();
     }
-    
-    private void createDataArray()
-    {
+
+    /**
+     * Creates Data Array.
+     */
+    private void createDataArray() {
         fogDataArray = new ArrayList<FogDisplayMeteoData>();
-        
-        FogThresholdMgr ftm = FogThresholdMgr.getInstance();   
-        
+
+        FogThresholdMgr ftm = FogThresholdMgr.getInstance();
+
         String xmlKey;
-        String areaID;       
-        
+        String areaID;
+
         ThresholdsXML threshXML = ftm.getThresholdsXmlData(duKey);
-        
-        ArrayList<AreaXML> areasArray = threshXML.getAreas();
-        
-        for (AreaXML area : areasArray)
-        {
+
+        List<AreaXML> areasArray = threshXML.getAreas();
+
+        for (AreaXML area : areasArray) {
             areaID = area.getAreaId();
             FogDisplayMeteoData fdmd = new FogDisplayMeteoData();
-            
+
             fdmd.setAreaID(areaID);
 
-            /*
-             * Visibility
-             */
+            /* Visibility */
             xmlKey = FogDisplay.FOG_DISP_METEO_VIS.getXmlKey();
-            fdmd.setMeteoVisR(ftm.getThresholdValue(duKey, threshKeyR, areaID, xmlKey));
-            fdmd.setMeteoVisY(ftm.getThresholdValue(duKey, threshKeyY, areaID, xmlKey));
+            fdmd.setMeteoVisR(ftm.getThresholdValue(duKey, threshKeyR, areaID,
+                    xmlKey));
+            fdmd.setMeteoVisY(ftm.getThresholdValue(duKey, threshKeyY, areaID,
+                    xmlKey));
 
-            /*
-             * Ceiling
-             */
+            /* Ceiling */
             xmlKey = FogDisplay.FOG_DISP_METEO_CEILING.getXmlKey();
-            fdmd.setMeteoCeilingR(ftm.getThresholdValue(duKey, threshKeyR, areaID, xmlKey));
-            fdmd.setMeteoCeilingY(ftm.getThresholdValue(duKey, threshKeyY, areaID, xmlKey));
+            fdmd.setMeteoCeilingR(ftm.getThresholdValue(duKey, threshKeyR,
+                    areaID, xmlKey));
+            fdmd.setMeteoCeilingY(ftm.getThresholdValue(duKey, threshKeyY,
+                    areaID, xmlKey));
 
-            /*
-             * Temperature
-             */
+            /* Temperature */
             xmlKey = FogDisplay.FOG_DISP_METEO_TEMP.getXmlKey();
-            fdmd.setMeteoTempR(ftm.getThresholdValue(duKey, threshKeyR, areaID, xmlKey));
-            fdmd.setMeteoTempY(ftm.getThresholdValue(duKey, threshKeyY, areaID, xmlKey));
+            fdmd.setMeteoTempR(ftm.getThresholdValue(duKey, threshKeyR, areaID,
+                    xmlKey));
+            fdmd.setMeteoTempY(ftm.getThresholdValue(duKey, threshKeyY, areaID,
+                    xmlKey));
 
-            /*
-             * Dewpoint
-             */
+            /* Dewpoint */
             xmlKey = FogDisplay.FOG_DISP_METEO_DEWPT.getXmlKey();
-            fdmd.setMeteoDewpointR(ftm.getThresholdValue(duKey, threshKeyR, areaID, xmlKey));
-            fdmd.setMeteoDewpointY(ftm.getThresholdValue(duKey, threshKeyY, areaID, xmlKey));
+            fdmd.setMeteoDewpointR(ftm.getThresholdValue(duKey, threshKeyR,
+                    areaID, xmlKey));
+            fdmd.setMeteoDewpointY(ftm.getThresholdValue(duKey, threshKeyY,
+                    areaID, xmlKey));
 
-            /*
-             * T-Td
-             */
+            /* T-Td */
             xmlKey = FogDisplay.FOG_DISP_METEO_T_TD.getXmlKey();
-            fdmd.setMeteoTtdR(ftm.getThresholdValue(duKey, threshKeyR, areaID, xmlKey));
-            fdmd.setMeteoTtdY(ftm.getThresholdValue(duKey, threshKeyY, areaID, xmlKey));
+            fdmd.setMeteoTtdR(ftm.getThresholdValue(duKey, threshKeyR, areaID,
+                    xmlKey));
+            fdmd.setMeteoTtdY(ftm.getThresholdValue(duKey, threshKeyY, areaID,
+                    xmlKey));
 
-            /*
-             * Relative Humidity
-             */
+            /* Relative Humidity */
             xmlKey = FogDisplay.FOG_DISP_METEO_REL_HUMIDITY.getXmlKey();
-            fdmd.setMeteoRelHumR(ftm.getThresholdValue(duKey, threshKeyR, areaID, xmlKey));
-            fdmd.setMeteoRelHumY(ftm.getThresholdValue(duKey, threshKeyY, areaID, xmlKey));
-            
-            /*
-             * Add data to array.
-             */
+            fdmd.setMeteoRelHumR(ftm.getThresholdValue(duKey, threshKeyR,
+                    areaID, xmlKey));
+            fdmd.setMeteoRelHumY(ftm.getThresholdValue(duKey, threshKeyY,
+                    areaID, xmlKey));
+
+            /* Add data to array. */
             fogDataArray.add(fdmd);
         }
     }
-    
-    private FogDisplayMeteoData getDataAtFirstSelection()
-    {        
+
+    /**
+     * Gets Data At First Selection.
+     * 
+     * @return selected data
+     */
+    private FogDisplayMeteoData getDataAtFirstSelection() {
         int index = dataList.getSelectionIndex();
-        
-        return fogDataArray.get(index);        
+        return fogDataArray.get(index);
     }
-    
-    private void updateDataArray(FogDisplayMeteoData fdmd)
-    {        
-        int[] dataListIndexes = dataList.getSelectionIndices();        
+
+    /**
+     * Updates Data Array.
+     * 
+     * @param fdmd
+     *            Display Meteo Data
+     */
+    private void updateDataArray(FogDisplayMeteoData fdmd) {
+        int[] dataListIndexes = dataList.getSelectionIndices();
         int currentIndex = 0;
-        
-        for (int i = 0; i < dataListIndexes.length; i++)
-        {
+
+        for (int i = 0; i < dataListIndexes.length; i++) {
             currentIndex = dataListIndexes[i];
-            
             fogDataArray.get(currentIndex).updateData(fdmd);
-        }        
-    }
-    
-    @Override
-    public void commitDataToXML()
-    {
-        FogThresholdMgr ftm = FogThresholdMgr.getInstance();
-        
-        String xmlKey;
-        String areaID;
-        
-        for (FogDisplayMeteoData fdmd : fogDataArray)
-        {
-            areaID = fdmd.getAreaID();
-            
-            /*
-             * Visibility
-             */
-            xmlKey = FogDisplay.FOG_DISP_METEO_VIS.getXmlKey();
-            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey, fdmd.getMeteoVisR());
-            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey, fdmd.getMeteoVisY());
-            
-            /*
-             * Ceiling
-             */
-            xmlKey = FogDisplay.FOG_DISP_METEO_CEILING.getXmlKey();
-            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey, fdmd.getMeteoCeilingR());
-            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey, fdmd.getMeteoCeilingY());
-            
-            /*
-             * Temperature
-             */
-            xmlKey = FogDisplay.FOG_DISP_METEO_TEMP.getXmlKey();
-            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey, fdmd.getMeteoTempR());
-            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey, fdmd.getMeteoTempY());
-            
-            /*
-             * Dewpoint
-             */
-            xmlKey = FogDisplay.FOG_DISP_METEO_DEWPT.getXmlKey();
-            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey, fdmd.getMeteoDewpointR());
-            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey, fdmd.getMeteoDewpointY());
-            
-            /*
-             * T-Td
-             */
-            xmlKey = FogDisplay.FOG_DISP_METEO_T_TD.getXmlKey();
-            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey, fdmd.getMeteoTtdR());
-            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey, fdmd.getMeteoTtdY());
-            
-            /*
-             * Relative Humidity
-             */
-            xmlKey = FogDisplay.FOG_DISP_METEO_REL_HUMIDITY.getXmlKey();
-            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey, fdmd.getMeteoRelHumR());
-            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey, fdmd.getMeteoRelHumY());
         }
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#commitDataToXML()
+     */
     @Override
-    public void reloadData()
-    {
+    public void commitDataToXML() {
+        FogThresholdMgr ftm = FogThresholdMgr.getInstance();
+
+        String xmlKey;
+        String areaID;
+
+        for (FogDisplayMeteoData fdmd : fogDataArray) {
+            areaID = fdmd.getAreaID();
+
+            /* Visibility */
+            xmlKey = FogDisplay.FOG_DISP_METEO_VIS.getXmlKey();
+            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey,
+                    fdmd.getMeteoVisR());
+            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey,
+                    fdmd.getMeteoVisY());
+
+            /* Ceiling */
+            xmlKey = FogDisplay.FOG_DISP_METEO_CEILING.getXmlKey();
+            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey,
+                    fdmd.getMeteoCeilingR());
+            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey,
+                    fdmd.getMeteoCeilingY());
+
+            /* Temperature */
+            xmlKey = FogDisplay.FOG_DISP_METEO_TEMP.getXmlKey();
+            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey,
+                    fdmd.getMeteoTempR());
+            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey,
+                    fdmd.getMeteoTempY());
+
+            /* Dewpoint */
+            xmlKey = FogDisplay.FOG_DISP_METEO_DEWPT.getXmlKey();
+            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey,
+                    fdmd.getMeteoDewpointR());
+            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey,
+                    fdmd.getMeteoDewpointY());
+
+            /* T-Td */
+            xmlKey = FogDisplay.FOG_DISP_METEO_T_TD.getXmlKey();
+            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey,
+                    fdmd.getMeteoTtdR());
+            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey,
+                    fdmd.getMeteoTtdY());
+
+            /* Relative Humidity */
+            xmlKey = FogDisplay.FOG_DISP_METEO_REL_HUMIDITY.getXmlKey();
+            ftm.setThresholdValue(duKey, threshKeyR, areaID, xmlKey,
+                    fdmd.getMeteoRelHumR());
+            ftm.setThresholdValue(duKey, threshKeyY, areaID, xmlKey,
+                    fdmd.getMeteoRelHumY());
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#reloadData()
+     */
+    @Override
+    public void reloadData() {
         dataList.removeAll();
         fogDataArray.clear();
         fogDataArray = null;
-        
         populateList();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#editDataAction()
+     */
     @Override
-    protected void editDataAction()
-    {        
+    protected void editDataAction() {
         FogDisplayMeteoData fdmd = getDataAtFirstSelection();
-        
-        if (fogMeteoEditDlg == null)
-        {
-            fogMeteoEditDlg = new FogDisplayMeteoEditDlg(getParent().getShell(), fdmd, this);
-            fogMeteoEditDlg.open();            
+
+        if (fogMeteoEditDlg == null) {
+            fogMeteoEditDlg = new FogDisplayMeteoEditDlg(
+                    getParent().getShell(), fdmd, this);
+            fogMeteoEditDlg.open();
             fogMeteoEditDlg = null;
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.fog.ui.dialogs.IUpdateDisplayMeteo#
+     * updateThresholdData
+     * (com.raytheon.uf.viz.monitor.fog.threshold.FogDisplayMeteoData)
+     */
     @Override
-    public void updateThresholdData(FogDisplayMeteoData fdmd)
-    {
+    public void updateThresholdData(FogDisplayMeteoData fdmd) {
         updateDataArray(fdmd);
         populateList();
     }
 }
-

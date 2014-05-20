@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * July 20,2010 4891       skorolev    added code to fireDialogShutdown
  * Nov. 8, 2012 1297       skorolev    Added initiateProdArray method
  * Dec  7, 2012 1351       skorolev    Changes for non-blocking dialogs
+ * Apr 28, 2014 3086       skorolev    Updated getConfigMgr method.
  * 
  * </pre>
  * 
@@ -62,9 +63,12 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
 
 public class SnowZoneTableDlg extends ZoneTableDlg {
 
+    /** SNOW threshold dialog. **/
     private SnowMonDispThreshDlg snowThreshDlg;
 
     /**
+     * Constructor
+     * 
      * @param parent
      * @param obData
      */
@@ -232,16 +236,6 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#getConfigMgr()
-     */
-    @Override
-    protected MonitorConfigurationManager getConfigMgr() {
-        return SnowMonitorConfigurationManager.getInstance();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#handleLinkToFrame()
      */
@@ -265,24 +259,15 @@ public class SnowZoneTableDlg extends ZoneTableDlg {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
-     * setZoneSortColumnAndDirection()
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#getInstance()
      */
     @Override
-    protected void setZoneSortColumnAndDirection() {
-        if (zoneTblData != null) {
-            zoneSortColumn = zoneTblData.getSortColumn();
-            zoneSortDirection = zoneTblData.getSortDirection();
+    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
+        if (configMgr == null) {
+            configMgr = new FSSObsMonitorConfigurationManager(site,
+                    MonName.snow.name());
         }
-        return;
-    }
-
-    @Override
-    protected void setStnSortColumnAndDirection() {
-        if (stnTblData != null) {
-            stnSortColumn = stnTblData.getSortColumn();
-            stnSortDirection = stnTblData.getSortDirection();
-        }
+        return configMgr;
     }
 
 }
