@@ -23,7 +23,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.edex.plugin.obs.metar,
  com.raytheon.edex.plugin.obs.metar.util,
- com.raytheon.edex.textdb.dbapi.impl,
  com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util,
  com.raytheon.uf.common.dataplugin.sfcobs,
