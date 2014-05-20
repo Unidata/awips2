@@ -24,11 +24,13 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.jivesoftware.smack.RosterEntry;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Filters contact list tree according to a substring filter.
  * 
  * <pre>
  * 
@@ -37,6 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2012            mnash     Initial creation
+ * May 20, 2014 3172       bclement  fixed filtering for contacts and sessions
  * 
  * </pre>
  * 
@@ -63,7 +66,8 @@ public class UsersTreeFilter extends ViewerFilter {
             if (labelText.equals(currentText)) {
                 viewer.setSelection(new StructuredSelection(element));
             }
-            if (element instanceof UserId) {
+            if (element instanceof UserId || element instanceof RosterEntry
+                    || element instanceof ISession) {
                 String[] words = getWords(currentText);
                 for (String word : words) {
                     if (!labelText.toUpperCase().contains(word.toUpperCase())) {
