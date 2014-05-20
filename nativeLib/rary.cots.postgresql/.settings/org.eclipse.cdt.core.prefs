@@ -1,4 +1,17 @@
-#Sun Mar 07 14:50:44 CST 2010
 eclipse.preferences.version=1
 environment/project/0.1595910623=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true">\n<variable delimiter\=";" name\="PATH" operation\="append" value\=""/>\n<variable delimiter\=";" name\="INSTALL_TO" operation\="append" value\="${ConfigName}"/>\n</environment>\n
-environment/project/0.1595910623.1577260234=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="false">\n<variable delimiter\=";" name\="CC" operation\="replace" value\="gcc -m32 -Wl,--hash-style\=sysv"/>\n<variable delimiter\=";" name\="PATH" operation\="replace" value\="../../build.native/i386-pc-linux-gnu/bin\:${env_var\:PATH}"/>\n<variable delimiter\=";" name\="LD" operation\="replace" value\="ld -melf_i386 --hash-style\=sysv"/>\n<variable delimiter\=";" name\="INSTALL_TO" operation\="replace" value\="../build.native/i386-pc-linux-gnu"/>\n</environment>\n
+environment/project/0.1595910623.1577260234=
+environment/project/0.1595910623.1577260234/CC/delimiter=;
+environment/project/0.1595910623.1577260234/CC/operation=replace
+environment/project/0.1595910623.1577260234/CC/value=gcc -m32 -Wl,--hash-style\=sysv
+environment/project/0.1595910623.1577260234/INSTALL_TO/delimiter=;
+environment/project/0.1595910623.1577260234/INSTALL_TO/operation=replace
+environment/project/0.1595910623.1577260234/INSTALL_TO/value=../build.native/i386-pc-linux-gnu
+environment/project/0.1595910623.1577260234/LD/delimiter=;
+environment/project/0.1595910623.1577260234/LD/operation=replace
+environment/project/0.1595910623.1577260234/LD/value=ld -melf_i386 --hash-style\=sysv
+environment/project/0.1595910623.1577260234/PATH/delimiter=;
+environment/project/0.1595910623.1577260234/PATH/operation=replace
+environment/project/0.1595910623.1577260234/PATH/value=../../build.native/i386-pc-linux-gnu/bin\:${env_var\:PATH}
+environment/project/0.1595910623.1577260234/append=true
+environment/project/0.1595910623.1577260234/appendContributed=false
