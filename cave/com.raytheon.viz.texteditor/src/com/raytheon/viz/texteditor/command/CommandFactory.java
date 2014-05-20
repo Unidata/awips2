@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.texteditor.command;
 
-import com.raytheon.edex.textdb.dbapi.impl.AFOSParser;
+import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
 
