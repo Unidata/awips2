@@ -19,8 +19,8 @@
  **/
 package com.raytheon.hprof;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -40,6 +40,7 @@ import java.nio.channels.FileChannel.MapMode;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 20, 2014  3093     bsteffen    Allow read/write
  * 
  * </pre>
  * 
@@ -53,30 +54,38 @@ public class BigByteBuffer {
     private final ByteBuffer[] buffers;
 
     private final long offset;
-    
+
     private final long capacity;
-    
+
     private long mark = -1;
 
     private long position = 0;
 
     private long limit;
 
-    public BigByteBuffer(String fileName) throws IOException {
-        FileInputStream fis = new FileInputStream(fileName);
-        FileChannel fileChannel = fis.getChannel();
-        offset = 0;
-        limit = capacity = fileChannel.size();
-        int nBuffers = (int) (capacity / chunkSize);
-        if (nBuffers * chunkSize < capacity) {
-            nBuffers += 1;
+    public BigByteBuffer(String fileName, boolean readOnly) throws IOException {
+        String mode = readOnly ? "r" : "rw";
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(fileName, mode);
+            FileChannel fileChannel = raf.getChannel();
+            offset = 0;
+            limit = capacity = fileChannel.size();
+            int nBuffers = (int) (capacity / chunkSize);
+            if (nBuffers * chunkSize < capacity) {
+                nBuffers += 1;
+            }
+            buffers = new ByteBuffer[nBuffers];
+            MapMode mapMode = readOnly ? MapMode.READ_ONLY : MapMode.READ_WRITE;
+            for (int i = 0; i < buffers.length; i += 1) {
+                buffers[i] = fileChannel.map(mapMode, i * chunkSize,
+                        Math.min(capacity - i * chunkSize, chunkSize));
+            }
+        } finally {
+            if (raf != null) {
+                raf.close();
+            }
         }
-        buffers = new ByteBuffer[nBuffers];
-        for (int i = 0; i < buffers.length; i += 1) {
-            buffers[i] = fileChannel.map(MapMode.READ_ONLY, i * chunkSize,
-                    Math.min(capacity - i * chunkSize, chunkSize));
-        }
-        fis.close();
     }
 
     protected BigByteBuffer(ByteBuffer[] buffers, long offset, long capacity) {
@@ -144,6 +153,17 @@ public class BigByteBuffer {
     public byte get(long index) {
         checkIndex(index);
         return getBuffer(index).get(bufferIndex(index));
+    }
+
+    public BigByteBuffer put(byte b) {
+        put(nextGetIndex(), b);
+        return this;
+    }
+
+    public BigByteBuffer put(long index, byte b) {
+        checkIndex(index);
+        getBuffer(index).put(bufferIndex(index), b);
+        return this;
     }
 
     public void get(byte[] dst) {
