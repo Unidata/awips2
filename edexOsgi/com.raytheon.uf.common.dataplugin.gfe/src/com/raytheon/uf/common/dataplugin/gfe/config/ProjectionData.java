@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.gfe.config;
 
 import java.awt.Point;
-import java.util.HashMap;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -29,14 +28,15 @@ import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -58,6 +58,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 08/06/13     #1571      randerso    Added hibernate annotations
  *                                     Removed constructor with int for ProjectionType
  * 10/22/13     #2361      njensen     Remove XML annotations
+ * 05/14/2014   #3069      randerso    Changed to store math transforms and CRS instead of
+ *                                     GridGeometry2D since GeoTools now changes the supplied
+ *                                     math transform when creating GridGeometry2D
  * 
  * </pre>
  * 
@@ -145,22 +148,13 @@ public class ProjectionData {
     private CoordinateReferenceSystem crs;
 
     @Transient
-    private GridGeometry2D gridGeometry;
+    private MathTransform gridToLatLon;
 
     @Transient
-    private MathTransform crsToLatLon;
+    private MathTransform latLonToGrid;
 
     @Transient
-    private MathTransform latLonToCrs;
-
-    @Transient
-    private HashMap<PixelOrientation, MathTransform> gridToLatLon;
-
-    @Transient
-    private HashMap<PixelOrientation, MathTransform> latLonToGrid;
-
-    @Transient
-    private HashMap<PixelOrientation, MathTransform> gridToCrs;
+    private MathTransform gridToCrs;
 
     @Transient
     private boolean initialized;
@@ -174,10 +168,6 @@ public class ProjectionData {
         latLonOrigin = new Coordinate();
         gridPointLL = new Point();
         gridPointUR = new Point();
-
-        gridToLatLon = new HashMap<PixelOrientation, MathTransform>();
-        latLonToGrid = new HashMap<PixelOrientation, MathTransform>();
-        gridToCrs = new HashMap<PixelOrientation, MathTransform>();
 
         initialized = false;
     }
@@ -255,24 +245,25 @@ public class ProjectionData {
             ge.setRange(1, Math.min(output[1], output[3]),
                     Math.max(output[1], output[3]));
 
-            // NOTE: the LL + 1 is a kludge to work around an apparent geotools
-            // issue
+            // GeoTools 10.5 kludge to say upper right is non-inclusive
             GeneralGridEnvelope gr = new GeneralGridEnvelope(new int[] {
-                    getGridPointLL().x + 1, getGridPointLL().y + 1 },
-                    new int[] { getGridPointUR().x, getGridPointUR().y }, true);
+                    getGridPointLL().x, getGridPointLL().y }, new int[] {
+                    getGridPointUR().x, getGridPointUR().y }, false);
 
+            // GeoTools 10.5 kludge to use CELL_CORNER instead of CELL_CENTER
             GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
             mapper.setEnvelope(ge);
             mapper.setGridRange(gr);
-            mapper.setPixelAnchor(PixelInCell.CELL_CENTER);
+            mapper.setPixelAnchor(PixelInCell.CELL_CORNER);
             mapper.setReverseAxis(new boolean[] { false, false });
-            mt = mapper.createTransform();
+            gridToCrs = mapper.createTransform();
 
-            gridGeometry = new GridGeometry2D(PixelInCell.CELL_CORNER, mt, ge,
-                    null);
+            MathTransform crsToLatLon = MapUtil.getTransformToLatLon(getCrs());
 
-            crsToLatLon = MapUtil.getTransformToLatLon(getCrs());
-            latLonToCrs = MapUtil.getTransformFromLatLon(getCrs());
+            DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
+            gridToLatLon = dmtf.createConcatenatedTransform(gridToCrs,
+                    crsToLatLon);
+            latLonToGrid = getGridToLatLon().inverse();
 
             initialized = true;
 
@@ -388,71 +379,96 @@ public class ProjectionData {
     }
 
     /**
-     * Return the lat/lon of the specified corner or center of a grid cell
+     * Return the lat/lon of the specified grid cell
      * 
      * @param gridCoord
      *            coordinates of the grid cell
-     * @param orientation
-     *            desired corner or center
      * @return the lat/lon
+     * @throws FactoryException
+     * @throws TransformException
      */
-    public Coordinate gridCoordinateToLatLon(Coordinate gridCoord,
-            PixelOrientation orientation) {
+    public Coordinate gridCoordinateToLatLon(Coordinate gridCoord)
+            throws FactoryException, TransformException {
         Coordinate latLon = new Coordinate();
-        MathTransform mt = gridToLatLon.get(orientation);
-        try {
-            if (mt == null) {
-                init();
-                DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
-                mt = dmtf.createConcatenatedTransform(
-                        gridGeometry.getGridToCRS(orientation), crsToLatLon);
-                gridToLatLon.put(orientation, mt);
-            }
-
-            double[] output = new double[2];
-            mt.transform(new double[] { gridCoord.x, gridCoord.y }, 0, output,
-                    0, 1);
-            latLon.x = output[0];
-            latLon.y = output[1];
-        } catch (Exception e) {
-            statusHandler.error(
-                    "Error computing grid coordinate to lat/lon transform", e);
-        }
+        MathTransform mt = getGridToLatLon();
+        double[] output = new double[2];
+        mt.transform(new double[] { gridCoord.x, gridCoord.y }, 0, output, 0, 1);
+        latLon.x = output[0];
+        latLon.y = output[1];
         return latLon;
     }
 
     /**
-     * Return the math transform from grid coordinate to the specified corner or
-     * center lat/lon
+     * Return the grid coordinate of the specified lat/lon
      * 
-     * @param orientation
-     *            desired corner or center
-     * @return the transform
+     * @param latLon
+     *            lat/lon to be converted
+     * @return the grid coordinate
+     * @throws FactoryException
+     * @throws TransformException
      */
-    public MathTransform getGridToCrs(PixelOrientation orientation) {
-        MathTransform mt = gridToCrs.get(orientation);
-        if (mt == null) {
-            init();
-            mt = gridGeometry.getGridToCRS(orientation);
-            gridToCrs.put(orientation, mt);
-        }
-        return mt;
+    public Coordinate latLonToGridCoordinate(Coordinate latLon)
+            throws FactoryException, TransformException {
+        Coordinate gridCoord = new Coordinate();
+        MathTransform mt = getLatLonToGrid();
+        double[] output = new double[2];
+        mt.transform(new double[] { latLon.x, latLon.y }, 0, output, 0, 1);
+        gridCoord.x = output[0];
+        gridCoord.y = output[1];
+        return gridCoord;
     }
 
     /**
-     * Convert a grid cell coordinate to the native CRS coordinate of this
-     * projection
+     * Return the math transform from grid coordinate to lat/lon
+     * 
+     * @return the transform
+     * @throws FactoryException
+     */
+    public MathTransform getGridToLatLon() throws FactoryException {
+        if (gridToLatLon == null) {
+            init();
+        }
+        return gridToLatLon;
+    }
+
+    /**
+     * Return the math transform from lat/lon to grid coordinate
+     * 
+     * @return the transform
+     * @throws FactoryException
+     * @throws NoninvertibleTransformException
+     */
+    public MathTransform getLatLonToGrid() throws FactoryException,
+            NoninvertibleTransformException {
+
+        if (latLonToGrid == null) {
+            init();
+        }
+        return latLonToGrid;
+    }
+
+    /**
+     * Return the math transform from grid coordinate to the native CRS
+     * 
+     * @return the transform
+     */
+    public MathTransform getGridToCrs() {
+        if (gridToCrs == null) {
+            init();
+        }
+        return gridToCrs;
+    }
+
+    /**
+     * Convert a grid cell coordinate to the native CRS of this projection
      * 
      * @param gridCoord
      *            grid cell coordinate
-     * @param orientation
-     *            desired corner or center of the grid cell
      * @return native CRS coordinate
      */
-    public Coordinate gridCoordinateToCrs(Coordinate gridCoord,
-            PixelOrientation orientation) {
+    public Coordinate gridCoordinateToCrs(Coordinate gridCoord) {
         Coordinate crsCoordinate = new Coordinate();
-        MathTransform mt = getGridToCrs(orientation);
+        MathTransform mt = getGridToCrs();
         try {
             double[] output = new double[2];
             mt.transform(new double[] { gridCoord.x, gridCoord.y }, 0, output,
