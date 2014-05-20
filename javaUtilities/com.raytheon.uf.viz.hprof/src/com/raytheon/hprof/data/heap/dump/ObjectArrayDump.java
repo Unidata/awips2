@@ -34,6 +34,7 @@ import com.raytheon.hprof.data.HeapDumpRecord;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 20, 2014  3093     bsteffen    Allow creation without reading full array.
  * 
  * </pre>
  * 
@@ -48,13 +49,18 @@ public class ObjectArrayDump extends AbstractDump {
 
     private final Id[] array;
 
-    public ObjectArrayDump(BigByteBuffer buffer, int idSize) {
+    public ObjectArrayDump(BigByteBuffer buffer, int idSize, boolean readArray) {
         super(buffer, idSize);
         int numElements = buffer.getInt();
         arrayClassId = new Id(buffer, idSize);
-        array = new Id[numElements];
-        for (int i = 0; i < numElements; i++) {
-            array[i] = new Id(buffer, idSize);
+        if (readArray) {
+            array = new Id[numElements];
+            for (int i = 0; i < numElements; i++) {
+                array[i] = new Id(buffer, idSize);
+            }
+        } else {
+            array = null;
+            buffer.position(buffer.position() + idSize * numElements);
         }
     }
 
