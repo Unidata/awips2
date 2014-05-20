@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.taf.TafRecord;
 import com.raytheon.uf.viz.core.jobs.IRequestCompleteListener;
 import com.raytheon.viz.aviation.cachedata.CacheGuidanceRequest;
 import com.raytheon.viz.aviation.cachedata.TampCacheGuidanceRequest;
@@ -54,6 +54,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  *                                     and routine button's values.
  * 14 APR 2011  8065       rferrel     Add flag to indicate display is current
  *                                     and implement data caching
+ * May 15, 2014 3002       bgonzale    Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
  * 
  * </pre>
  * 
