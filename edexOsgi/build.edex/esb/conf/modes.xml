@@ -77,6 +77,7 @@
 		<exclude>purgeutil-request.xml</exclude>
 		<!-- end of ncep excludes -->
 	</mode>
+    
 	<mode name="ingest">
 		<exclude>webservices.xml</exclude>
 		<exclude>ebxml.*\.xml</exclude>
@@ -111,6 +112,7 @@
 		<exclude>cpgsrv-spring.xml</exclude>
         <exclude>.*sbn-simulator.*</exclude>
 	</mode>
+    
     <mode name="ingestHydro">
     	<include>distribution-spring.xml</include>
     	<include>manualIngest-common.xml</include>
@@ -147,6 +149,7 @@
     	<exclude>fssobs-ingest.xml</exclude>
     	<exclude>fssobs-common.xml</exclude>
     </mode>
+    
     <mode name="requestHydro">
         <include>ohd-common-database.xml</include>
     	<include>ohd-common.xml</include>
@@ -174,6 +177,7 @@
     	<include>eventbus-common.xml</include>
     	<include>edex-request.xml</include>
     </mode>
+    
 	<mode name="ingestGrib">
 		<include>time-common.xml</include>
 		<include>auth-common.xml</include>
@@ -198,6 +202,7 @@
         <includeMode>statsTemplate</includeMode>
         <includeMode>excludeDpaAndOgc</includeMode>
 	</mode>
+    
 	<!-- Runs separate now, not just high mem -->
 	<mode name="ingestDat">
 	    <include>nwsauth-request.xml</include>
@@ -245,6 +250,7 @@
         <includeMode>excludeDpaAndOgc</includeMode>
         <includeMode>statsTemplate</includeMode>
 	</mode>
+    
 	<mode name="registry">
         <!-- Registry production mode -->
         <include>ebxml.*\.xml</include>
@@ -253,9 +259,9 @@
         <include>bandwidth-datadelivery-.*-wfo.xml</include>
         <exclude>.*datadelivery.*-ncf.*</exclude>
         <exclude>.*datadelivery.*-monolithic.*</exclude>
-        <exclude>harvester-*</exclude>
-        <exclude>crawler-*</exclude>
+        <includeMode>excludeHarvester</includeMode>
 	</mode>
+    
     <mode name="centralRegistry">
         <!-- Central Registry production mode -->
         <include>ebxml.*\.xml</include>
@@ -263,6 +269,7 @@
         <include>bandwidth-datadelivery-.*-ncf.xml</include>
         <exclude>.*datadelivery.*-wfo.*</exclude>
         <exclude>.*datadelivery.*-monolithic.*</exclude>
+        <exclude>.*dpa.*</exclude>
     </mode>
 
     <mode name="statsTemplate" template="true">
@@ -270,6 +277,7 @@
         <include>eventbus-common.xml</include>
         <include>stats-common.xml</include>
     </mode>
+    
     <mode name="dataDeliveryTemplate" template="true">
         <include>database-common.xml</include>
         <include>.*datadelivery.*</include>
@@ -301,9 +309,9 @@
             that should be loaded when running datadelivery with the registry in a separate JVM 
         -->
         <exclude>.*datadelivery-standalone.*</exclude>
-
         <includeMode>statsTemplate</includeMode>
     </mode>
+    
     <mode name="excludeDpaAndOgc" template="true">
         <!-- exclude dpa services -->
         <exclude>.*dpa.*</exclude>
@@ -312,6 +320,15 @@
         <exclude>grid-metadata.xml</exclude>
         <exclude>wxsrv-dataset-urn.xml</exclude>
     </mode>
+    
+    <mode name="excludeHarvester" template="true">
+        <!-- exclude dpa services -->
+        <exclude>.*dpa.*</exclude>
+        <!-- exclude crawler/harvester -->
+        <exclude>.*harvester.*</exclude>
+        <exclude>.*crawler*</exclude>
+    </mode>
+  
     <mode name="inMemoryBandwidthManager">
         <!-- This is not an edex runtime mode -->
         <include>bandwidth-datadelivery-inmemory-impl.xml</include>
@@ -327,19 +344,23 @@
         <include>bandwidth-datadelivery-edex-impl-monolithic.xml</include>
         <include>bandwidth-datadelivery-wfo.xml</include>
         <exclude>.*datadelivery.*-ncf.*</exclude>
+        <exclude>.*dpa.*</exclude>
     </mode>
+    
     <mode name="sbnSimulator">
         <include>.*sbn-simulator-wfo.*</include>
         <include>event-common.xml</include>
         <include>eventbus-common.xml</include>
         <exclude>.*sbn-simulator-ncf.*</exclude>
     </mode>
+    
     <mode name="centralSbnSimulator">
         <include>.*sbn-simulator-ncf.*</include>
         <include>event-common.xml</include>
         <include>eventbus-common.xml</include>
         <exclude>.*sbn-simulator-wfo.*</exclude>
     </mode>
+    
 	<mode name="grib">
 		<include>grib-decode.xml</include>
 		<include>grid-staticdata-process.xml</include>
@@ -349,6 +370,7 @@
 		<include>distribution-spring.xml</include>
 		<include>manualIngest-spring.xml</include>
 	</mode>
+    
 	<mode name="text">
 		<include>text-.*</include>
 		<include>textdb-.*</include>
@@ -358,6 +380,7 @@
 		<include>distribution-spring.xml</include>
 		<include>manualIngest-spring.xml</include>
 	</mode>
+    
 	<mode name="gfe">
 		<include>.*gfe.*</include>
 		<include>serialize-request.xml</include>
@@ -365,6 +388,7 @@
 		<include>distribution-spring.xml</include>
 		<include>manualIngest-spring.xml</include>
 	</mode>
+    
 	<mode name="noHydro">
         <exclude>ebxml.*\.xml</exclude>
 		<exclude>alarmWhfs-spring.xml</exclude>
@@ -385,17 +409,20 @@
 		<exclude>satpre-spring.xml</exclude>
         <exclude>.*sbn-simulator.*</exclude>
 	</mode>
+    
 	<mode name="localization">
 		<include>auth-request.xml</include>
 		<include>utility-request.xml</include>
 	</mode>
+    
     <mode name="datadeliveryonly">
         <include>.*datadelivery-standalone.*</include>
         <exclude>.*datadelivery-registry.*</exclude>
         <includeMode>datadeliverytemplate</includeMode>
     </mode>
+    
 	<mode name="dataProviderAgentTemplate" template="true">
-		<include>manualIngest*</include>
+		<include>manualIngest.*</include>
 		<include>time-common.xml</include>
 		<include>distribution-spring.xml</include>
 		<include>persist-ingest.xml</include>
@@ -422,6 +449,7 @@
 		<include>purge-spring-impl.xml</include>
         <include>purge-logs.xml</include>
 	</mode>
+    
 	<!-- This is MADIS implmentation of dataprovideragent -->
 	<mode name="dataprovideragent">
 		<includeMode>dataProviderAgentTemplate</includeMode>
@@ -430,15 +458,5 @@
 		<include>madis-common.xml</include>
 		<include>madis-ogc.xml</include>
 		<include>madis-ogc-registry.xml</include>
-		<!-- pointdata/obs specific services 
-		<include>obs-common.xml</include>
-		<include>pointdata-common.xml</include>
-		<include>obs-dpa-ingest.xml</include>
-		<include>obs-ogc.xml</include>-->
-		<!-- grid specific services 
-		<include>gridcoverage-.*.xml</include>
-		<include>grib-distribution.xml</include>
-		<include>level-common.xml</include>
-		<include>parameter-common.xml</include>	-->
 	</mode>
 </edexModes>
