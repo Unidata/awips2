@@ -18,6 +18,7 @@ import java.net.URL;
 import java.util.Map;
 
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.common.util.UrlUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -25,7 +26,6 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.http.UrlUtilities;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -40,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2013            bclement     Initial creation
+ * 5/2/2014     #3192      bhillip      Minor fix for CXF upgrade to 2.7.10
  * 
  * </pre>
  * 
@@ -82,7 +83,7 @@ public class CustomWsdlInterceptor extends AbstractPhaseInterceptor<Message> {
         String host = getHostName(baseUrl);
 
         synchronized (msg.getExchange().getEndpoint()) {
-            Map<String, String> args = UrlUtilities.parseQueryString(query);
+            Map<String, String> args = UrlUtils.parseQueryString(query);
             if (args.containsKey("wsdl")) {
                 
                 OutputStream os = null;
