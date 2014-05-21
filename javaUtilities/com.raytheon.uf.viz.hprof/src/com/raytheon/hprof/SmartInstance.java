@@ -45,6 +45,8 @@ import com.raytheon.hprof.data.heap.dump.ObjectArrayDump;
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
  * May 05, 2014  3093     bsteffen    Make getClassname public
+ * May 21, 2014  3093     bsteffen    Add getFloatArray,
+ *                                    toStringKeyedConcurrentHashMap
  * 
  * 
  * </pre>
@@ -186,6 +188,24 @@ public class SmartInstance {
         return intArray;
     }
 
+    public float[] getFloatArray(String fieldName) {
+        BasicType type = fields.get(fieldName);
+        if (type == null) {
+            return null;
+        }
+        Id fieldId = type.getObjectId();
+        BasicType[] primArray = hprof.getHeapDump().getPrimitiveArray(fieldId);
+        if (primArray == null) {
+            return null;
+        }
+        float[] floatArray = new float[primArray.length];
+
+        for (int i = 0; i < floatArray.length; i += 1) {
+            floatArray[i] = primArray[i].getFloat();
+        }
+        return floatArray;
+    }
+
     public String getString(String fieldName) {
         Id fieldId = getId(fieldName);
         if (fieldId == null) {
@@ -246,6 +266,25 @@ public class SmartInstance {
             for (SmartInstance entry : table) {
                 while (entry != null) {
                     map.put(entry.get("key"), entry.get("value"));
+                    entry = entry.get("next");
+                }
+            }
+        }
+        return map;
+    }
+
+    public ConcurrentHashMap<String, SmartInstance> toStringKeyedConcurrentHashMap() {
+        if (!getClassName().equals(ConcurrentHashMap.class.getName())) {
+            throw new IllegalStateException(this
+                    + " is not a ConcurrentHashMap.");
+        }
+        ConcurrentHashMap<String, SmartInstance> map = new ConcurrentHashMap<String, SmartInstance>();
+        SmartInstance[] segments = getObjectArray("segments");
+        for (SmartInstance segment : segments) {
+            SmartInstance[] table = segment.getObjectArray("table");
+            for (SmartInstance entry : table) {
+                while (entry != null) {
+                    map.put(entry.getString("key"), entry.get("value"));
                     entry = entry.get("next");
                 }
             }
