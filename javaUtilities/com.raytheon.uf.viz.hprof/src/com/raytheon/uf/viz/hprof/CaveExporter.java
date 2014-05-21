@@ -38,6 +38,7 @@ import com.raytheon.hprof.HprofFile;
  * Jan 08, 2014  2648     bsteffen    Initial doc
  * May 05, 2014  3093     bsteffen    Add some new exporters
  * May 20, 2014  3093     bsteffen    Add option to zero primitive arrays.
+ * May 21, 2014  3093     bsteffen    Add GridRequestableDataFactoryExporter
  * 
  * </pre>
  * 
@@ -98,5 +99,6 @@ public class CaveExporter {
         new AlertMessageExporter(hprof, outputDir).export();
         new CacheObjectExporter(hprof, outputDir).export();
         new RadarMosaicExporter(hprof, outputDir).export();
+        new GridRequestableDataFactoryExporter(hprof, outputDir).export();
     }
 }
