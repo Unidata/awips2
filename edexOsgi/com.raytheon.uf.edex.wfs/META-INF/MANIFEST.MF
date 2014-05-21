@@ -39,5 +39,3 @@ Export-Package: com.raytheon.uf.edex.wfs,
  com.raytheon.uf.edex.wfs.v1_1_0,
  com.raytheon.uf.edex.wfs.v2_0_0,
  com.raytheon.uf.edex.wfs.wxxm
-Import-Package: javax.servlet,
- javax.servlet.http
