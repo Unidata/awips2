@@ -5,8 +5,9 @@ Bundle-SymbolicName: com.raytheon.viz.core.gl;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.core.gl.Activator
 Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Eclipse-BuddyPolicy: ext
 Require-Bundle: org.eclipse.ui;bundle-version="3.8.0",
  org.eclipse.core.runtime;bundle-version="3.8.0",
  javax.media.opengl;visibility:=reexport,
