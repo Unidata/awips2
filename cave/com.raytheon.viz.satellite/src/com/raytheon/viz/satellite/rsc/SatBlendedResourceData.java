@@ -58,18 +58,26 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
- * TODO Add Description
+ * Resource which displays multiple Satellite resources simultaneously. It is
+ * designed for displaying multiple, potentially overlapping regions such as
+ * the GOES East/West CONUS displays. This resource takes advantage of the 
+ * mosaicing capability to render all teh satellite products into a single
+ * composite so that alpha changes are consistent for overlapping areas.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 19, 2009            jsanchez     Initial creation
- * Mar 10, 2009        800 jsanchez     Returned a single display name at a time.
- * Mar 20, 2009            jsanchez     Constructed resource with highest frequency first.
- * Apr 29, 2009       2295 jsanchez     Removed the size parameter in getFrequencyIndex().
- * Jun 17, 2009       2493 jsanchez     Displayed both times in CONUS scale.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 19, 2009           jsanchez    Initial creation
+ * Mar 10, 2009  800      jsanchez    Returned a single display name at a time.
+ * Mar 20, 2009           jsanchez    Constructed resource with highest
+ *                                    frequency first.
+ * Apr 29, 2009  2295     jsanchez    Removed the size parameter in
+ *                                    getFrequencyIndex().
+ * Jun 17, 2009  2493     jsanchez    Displayed both times in CONUS scale.
+ * Apr 18, 2014  2947     bsteffen    Allow resources being blended to omit
+ *                                    load properties.
  * 
  * </pre>
  * 
@@ -147,8 +155,12 @@ public class SatBlendedResourceData extends AbstractRequestableResourceData
             if (rp.getResource() != null) {
                 rp.setResourceData(rp.getResource().getResourceData());
             }
-            rp.getLoadProperties().overrideCapabilities(
-                    loadProperties.getCapabilities());
+            LoadProperties props = rp.getLoadProperties();
+            if (props == null) {
+                props = new LoadProperties();
+                rp.setLoadProperties(props);
+            }
+            props.overrideCapabilities(loadProperties.getCapabilities());
             boolean success = true;
             try {
                 success = rp.instantiateResource(descriptor, false);

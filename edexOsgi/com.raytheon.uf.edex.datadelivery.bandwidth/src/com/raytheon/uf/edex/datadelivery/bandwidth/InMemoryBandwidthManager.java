@@ -38,6 +38,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * An in-memory {@link IBandwidthManager} that does not communicate with an
@@ -59,6 +60,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
  * Feb 06, 2014 2636       bgonzale     added initializeScheduling method.
  * Feb 12, 2014 2636       mpduff       Override getSubscriptionsToSchedule
+ * Apr 22, 2014 2992       dhladky      Added IdUtil for siteList
  * 
  * </pre>
  * 
@@ -122,11 +124,12 @@ class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends
      * @param bandwidthDao
      * @param retrievalManager
      * @param bandwidthDaoUtil
+     * @param IdUtil
      */
     public InMemoryBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao<T, C> bandwidthDao,
-            RetrievalManager retrievalManager, BandwidthDaoUtil bandwidthDaoUtil) {
-        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
+            RetrievalManager retrievalManager, BandwidthDaoUtil bandwidthDaoUtil, RegistryIdUtil idUtil) {
+        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil, idUtil);
     }
 
     /**

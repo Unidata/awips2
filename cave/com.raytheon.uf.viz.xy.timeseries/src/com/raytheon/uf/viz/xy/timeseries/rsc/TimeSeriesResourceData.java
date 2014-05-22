@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.Platform;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.viz.core.RecordFactory;
+import com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -55,6 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 23, 2009            njensen     Initial creation
+ * May 08, 2014 2060       njensen     Constructor sets alert parser
  * 
  * </pre>
  * 
@@ -106,6 +108,10 @@ public class TimeSeriesResourceData extends AbstractRequestableResourceData
     protected AbstractResourceData secondaryResourceData;
 
     private AbstractVizResource<?, ?> secondaryResource;
+
+    public TimeSeriesResourceData() {
+        this.setAlertParser(new DataCubeAlertMessageParser());
+    }
 
     /*
      * (non-Javadoc)
@@ -255,10 +261,12 @@ public class TimeSeriesResourceData extends AbstractRequestableResourceData
         this.source = source;
     }
 
+    @Override
     public String getPointLetter() {
         return pointLetter;
     }
 
+    @Override
     public void setPointLetter(String pointLetter) {
         this.pointLetter = pointLetter;
     }

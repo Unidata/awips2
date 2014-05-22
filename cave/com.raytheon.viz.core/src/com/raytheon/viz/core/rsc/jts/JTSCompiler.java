@@ -21,7 +21,6 @@ package com.raytheon.viz.core.rsc.jts;
 
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.ReferencedGeometry;
 import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
@@ -54,6 +53,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *  ------------ ----------  ----------- --------------------------
  *  Oct 24, 2006             chammack    Initial Creation.
  *  Feb 14, 2014 2804        mschenke    Rewrote to move clipping from GLWireframeShape2D to here
+ *  Apr 21, 2014 2997        randerso    Improved error handling in handle(ReferencedGeometry, JTSGeometryData)
  * 
  * </pre>
  * 
@@ -354,7 +354,7 @@ public class JTSCompiler {
             boolean clipped) throws VizException {
         if (geom instanceof GeometryCollection) {
             handleGeometryCollection((GeometryCollection) geom, data, clipped);
-        } else if (clipped == false && data.isClipping()) {
+        } else if ((clipped == false) && data.isClipping()) {
             geom = complexClip(geom, data.getClippingArea());
             if (geom.isEmpty() == false) {
                 disposition(geom, data, true);
@@ -469,14 +469,14 @@ public class JTSCompiler {
      */
     public void handle(ReferencedGeometry geom, JTSGeometryData data)
             throws VizException {
-        if (corrector != null && corrector.needsCorrecting()
+        if ((corrector != null) && corrector.needsCorrecting()
                 && data.isWorldWrapCorrect()) {
             try {
                 geom = new ReferencedGeometry(
                         corrector.correct(geom.asLatLon()));
             } catch (FactoryException e) {
                 throw new VizException("Error creating transform to Lat/Lon", e);
-            } catch (TransformException e) {
+            } catch (Exception e) {
                 throw new VizException(
                         "Error transforming geometry into Lat/Lon", e);
             }
@@ -487,7 +487,7 @@ public class JTSCompiler {
         } catch (FactoryException e) {
             throw new VizException(
                     "Error creating transform to descriptor pixel space", e);
-        } catch (TransformException e) {
+        } catch (Exception e) {
             throw new VizException(
                     "Error transforming geometry into descriptor pixel space",
                     e);
