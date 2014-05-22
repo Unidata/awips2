@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<requestPatterns xmlns:ns2="group">
+    <!-- this is a placeholder file for distribution registration. 
+    Actual distribution patterns can be added by overriding this file in localization -->
+    <regex>^GEOMAG_FILE$</regex>
+</requestPatterns>
