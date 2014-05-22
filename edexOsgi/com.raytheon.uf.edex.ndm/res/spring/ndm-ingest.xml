@@ -5,7 +5,7 @@
 
     <camelContext id="clusteredNdmProc"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler" autoStartup="false">
+        errorHandlerRef="errorHandler">
         <endpoint id="ndmFileEndpoint"
             uri="file:${edex.home}/data/ndm?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#ndmFileChangedStrategy" />
 
@@ -14,13 +14,11 @@
             <bean ref="ndmProc" method="processEvent" />
         </route>
     </camelContext>
-    
-    <bean factory-bean="clusteredCamelContextMgr"
-        factory-method="register">
-        <constructor-arg ref="clusteredNdmProc" />
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredNdmProc"/>
     </bean>
     
     <bean id="ndmProc" class="com.raytheon.uf.edex.ndm.ingest.NationalDatasetIngester"/>
     <bean id="ndmFileChangedStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy"/>
-    
 </beans>

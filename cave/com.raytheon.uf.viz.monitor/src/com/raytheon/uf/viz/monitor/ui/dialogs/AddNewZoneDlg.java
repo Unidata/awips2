@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009            lvenable     Initial creation
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
+ * Apr 23, 2014 3054      skorolev     Deleted unnecessary parameter in addArea method.
  * 
  * </pre>
  * 
@@ -225,7 +226,8 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
         Label useDecimalLbl = new Label(textComp, SWT.CENTER);
-        useDecimalLbl.setText("Use Decimal Degrees, West Longitude negative");
+        useDecimalLbl
+                .setText("Use Decimal Degrees. West Longitude is negative.");
         useDecimalLbl.setLayoutData(gd);
     }
 
@@ -283,23 +285,19 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         String areaId = idTF.getText();
         if (areaId.equals("") || areaId.length() != 6
                 || (areaId.charAt(2) != 'C' && areaId.charAt(2) != 'Z')) {
-            displayInputErrorMsg("Invalid Area ID entered. Please enter a correctly formatted Area ID");
+            displayInputErrorMsg("Invalid Area ID = '" + areaId
+                    + "' entered. Please enter a correctly formatted Area ID.");
             return;
         }
         if (macDlg.isExistingZone(areaId)) {
             displayInputErrorMsg("The Area ID, "
                     + areaId
-                    + ", is already in your Monitoring Area or among your Additional Zones");
+                    + ", is already in your Monitoring Area or among your Additional Zones.");
             return;
         }
         if (latString == null || latString.isEmpty() || lonString == null
                 || lonString.isEmpty()) {
-            MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION
-                    | SWT.OK);
-            messageBox.setText("Invalid Lat/Lon");
-            messageBox
-                    .setMessage("Invalid Lat/Lon entered.  Please enter correctly formatted Lat and Lon values");
-            messageBox.open();
+            macDlg.latLonErrorMsg(latString, lonString);
             return;
         } else {
             try {
@@ -311,16 +309,15 @@ public class AddNewZoneDlg extends CaveSWTDialog {
                         type = ZoneType.MARITIME;
                     }
                 }
-                configMan.addArea(areaId, lat, lon, type, false);
+                if (lat > 90.0 || lat < -90.0 || lon > 180.0 || lon < -180.0) {
+                    macDlg.latLonErrorMsg(latString, lonString);
+                    return;
+                }
+                configMan.addArea(areaId, lat, lon, type);
                 macDlg.addNewZoneAction(areaId, centroidLatTF.getText(),
                         centroidLonTF.getText());
             } catch (NumberFormatException e) {
-                MessageBox messageBox = new MessageBox(shell,
-                        SWT.ICON_INFORMATION | SWT.OK);
-                messageBox.setText("Invalid Lat/Lon");
-                messageBox
-                        .setMessage("Invalid Lat/Lon entered.  Please enter correctly formatted Lat and Lon values");
-                messageBox.open();
+                macDlg.latLonErrorMsg(latString, lonString);
                 return;
             }
         }

@@ -27,6 +27,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.core.exception.ShutdownException;
 
 /**
  * Purge task to purge archived data based on configured expiration.
@@ -67,29 +68,37 @@ public class ArchivePurger {
             ITimer timer = TimeUtil.getTimer();
             timer.start();
             statusHandler.info("Archive Purge started.");
-            ArchivePurgeManager manager = ArchivePurgeManager.getInstance();
-            manager.reset();
-            Collection<ArchiveConfig> archives = manager.getArchives();
-            for (ArchiveConfig archive : archives) {
-                ITimer archiveTimer = TimeUtil.getTimer();
-                archiveTimer.start();
-                int purgeCount = manager.purgeExpiredFromArchive(archive);
-                if (statusHandler.isPriorityEnabled(Priority.INFO)) {
-                    StringBuilder sb = new StringBuilder(archive.getName());
-                    sb.append("::Archive Purged ");
-                    sb.append(purgeCount);
-                    sb.append(" file");
-                    if (purgeCount != 1) {
-                        sb.append("s");
+            try {
+                ArchivePurgeManager manager = ArchivePurgeManager.getInstance();
+                manager.reset();
+                Collection<ArchiveConfig> archives = manager.getArchives();
+                for (ArchiveConfig archive : archives) {
+                    ITimer archiveTimer = TimeUtil.getTimer();
+                    archiveTimer.start();
+                    int purgeCount = manager.purgeExpiredFromArchive(archive);
+                    if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                        StringBuilder sb = new StringBuilder(archive.getName());
+                        sb.append("::Archive Purged ");
+                        sb.append(purgeCount);
+                        sb.append(" file");
+                        if (purgeCount != 1) {
+                            sb.append("s");
+                        }
+                        sb.append(" in ")
+                                .append(TimeUtil.prettyDuration(archiveTimer
+                                        .getElapsedTime())).append(".");
+                        statusHandler.info(sb.toString());
                     }
-                    sb.append(" in ")
-                            .append(TimeUtil.prettyDuration(archiveTimer
-                                    .getElapsedTime())).append(".");
-                    statusHandler.info(sb.toString());
                 }
+
+                statusHandler.info("Archive Purge finished.  Time to run: "
+                        + TimeUtil.prettyDuration(timer.getElapsedTime()));
+            } catch (ShutdownException e) {
+                statusHandler
+                        .info("Aborting Purge due to EDEX shutdown being initiated.  Time to run: "
+                                + TimeUtil.prettyDuration(timer
+                                        .getElapsedTime()));
             }
-            statusHandler.info("Archive Purge finished.  Time to run: "
-                    + TimeUtil.prettyDuration(timer.getElapsedTime()));
         } else {
             statusHandler.info("Archive Purge disabled, exiting");
         }

@@ -17,17 +17,11 @@
 		<constructor-arg value="jms-durable:queue:Ingest.GeoMag"/>
 	</bean>
 
-    <bean id="geomagCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="geomag-camel"/>
-  	</bean>
-  	
   	<bean id="trig1minCalc" class="gov.noaa.nws.ncep.edex.plugin.geomag.TrigKCalculation" />	
 	
     <camelContext id="geomag-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<endpoint id="geomagFileEndpoint" uri="file:${edex.home}/data/sbn/geomag?noop=true&amp;idempotent=false" />
 
@@ -76,7 +70,7 @@
 	
 	
 	<!-- <camelContext id="calc1minContext" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<endpoint id="trig1minCalcCron" uri="clusteredquartz://purge/trig1minCalcScheduled/?cron=25 * * ? * *"/>  
 	    //   <endpoint id="calcLogsCron" uri="quartz://purge/purgeLogScheduled/?cron=${purge.logs.cron}"/>        
@@ -99,8 +93,7 @@
 			<bean ref="trig1minCalc" method="trig1min" />
 		</route>
 	</camelContext> 
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="calc1minContext" />
   	</bean> -->	
 </beans>
