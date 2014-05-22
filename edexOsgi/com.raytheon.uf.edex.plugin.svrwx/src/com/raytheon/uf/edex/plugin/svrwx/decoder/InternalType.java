@@ -18,27 +18,24 @@
  * further licensing information.
  **/
 package com.raytheon.uf.edex.plugin.svrwx.decoder;
+
 /**
- * TODO Add Description
+ * Internal Line Type.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 05, 2010            jsanchez     Initial creation
- *
+ * Apr 10, 2014            skorolev     Cleaned code.
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
- * @version 1.0 
+ * @version 1.0
  */
 public enum InternalType {
-    TIME_RANGE,
-    REPORT_TYPE,
-    EVENT_LN,
-    REMARKS,
-    EXTRA,
-    END;
+    TIME_RANGE, REPORT_TYPE, EVENT_LN, REMARKS, EXTRA, END, WRONG_LN;
 }

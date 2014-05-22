@@ -5,15 +5,8 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<!-- This spring configuration is currently only used by the ingestHydro EDEX instance. -->
-
-    <bean id="obsCamelRegistered" factory-bean="contextManager" factory-method="register"
-        depends-on="shefCamelRegistered,
-		            metarToHMDBCamelRegistered">
-        <constructor-arg ref="obs-camel" />
-    </bean>
-
     <camelContext id="obs-camel" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler" autoStartup="false">
+        errorHandlerRef="errorHandler">
   
         <!-- Begin METAR routes -->
         <route id="metarIngestRoute">
