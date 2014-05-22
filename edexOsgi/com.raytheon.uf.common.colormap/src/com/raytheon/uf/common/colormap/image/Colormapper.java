@@ -19,15 +19,10 @@
  **/
 package com.raytheon.uf.common.colormap.image;
 
-import java.awt.Point;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
-import java.awt.image.MultiPixelPackedSampleModel;
-import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.awt.image.WritableRaster;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -38,7 +33,6 @@ import java.util.List;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
-import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.LogConverter;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
@@ -58,6 +52,8 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
  * Feb 15, 2013 1638       mschenke    Moved IndexColorModel creation to common.colormap utility
  * Nov  4, 2013 2492       mschenke    Rewritten to model glsl equivalent
  * Apr 15, 2014 3016       randerso    Check in Max's fix for getColorByIndex
+ * Apr 22, 2014 2996       dgilling    Rewrite colorMap() to output images with
+ *                                     proper transparency for GFE data.
  * 
  * </pre>
  * 
@@ -70,6 +66,8 @@ public class Colormapper {
     public static final int COLOR_MODEL_NUMBER_BITS = 8;
 
     public static final float MAX_VALUE = 255.0f;
+
+    private static final int TRANSPARENT = new Color(0, 0, 0, 0).getRGB();
 
     /**
      * This method will color map a Buffer to a RenderedImage given size and
@@ -100,37 +98,40 @@ public class Colormapper {
                 && dataUnit.isCompatible(colorMapUnit) == true) {
             converter = dataUnit.getConverterTo(colorMapUnit);
         }
+
         int numColors = parameters.getColorMap().getSize();
-        byte[] indexArray = new byte[dataSize];
+        List<com.raytheon.uf.common.colormap.Color> colors = parameters
+                .getColorMap().getColors();
 
-        for (int i = 0; i < dataSize; ++i) {
-            double dataValue = getDataValue(buf, i, dataType);
-            if (Double.isNaN(dataValue) || dataValue == noDataValue) {
-                // Skip, need equivalent of setting alpha to 0
-                continue;
-            }
-            double cmapValue = dataValue;
-            if (converter != null) {
-                cmapValue = converter.convert(dataValue);
-            }
-
-            double index = getColorMappingIndex(cmapValue, parameters);
-            indexArray[i] = (byte) (capIndex(index) * (numColors - 1));
+        int[] indexedColors = new int[numColors];
+        for (int i = 0; i < numColors; i++) {
+            com.raytheon.uf.common.colormap.Color color = colors.get(i);
+            indexedColors[i] = new Color(color.getRed(), color.getGreen(),
+                    color.getBlue(), color.getAlpha()).getRGB();
         }
 
-        IndexColorModel cm = buildColorModel(parameters.getColorMap());
+        int[] pixels = new int[dataSize];
+        for (int i = 0; i < dataSize; ++i) {
+            int rgbValue = TRANSPARENT;
 
-        DataBufferByte byteArray = new DataBufferByte(indexArray, width
-                * height);
+            double dataValue = getDataValue(buf, i, dataType);
+            if ((!Double.isNaN(dataValue)) && (dataValue != noDataValue)) {
+                double cmapValue = dataValue;
+                if (converter != null) {
+                    cmapValue = converter.convert(dataValue);
+                }
 
-        MultiPixelPackedSampleModel sample = new MultiPixelPackedSampleModel(
-                DataBuffer.TYPE_BYTE, width, height, COLOR_MODEL_NUMBER_BITS);
-        WritableRaster writeRaster = Raster.createWritableRaster(sample,
-                byteArray, new Point(0, 0));
+                double index = getColorMappingIndex(cmapValue, parameters);
+                int cmapIndex = (int) (capIndex(index) * (numColors - 1));
+                rgbValue = indexedColors[cmapIndex];
+            }
+
+            pixels[i] = rgbValue;
+        }
 
         BufferedImage bi = new BufferedImage(width, height,
-                BufferedImage.TYPE_BYTE_INDEXED, cm);
-        bi.setData(writeRaster);
+                BufferedImage.TYPE_INT_ARGB);
+        bi.setRGB(0, 0, width, height, pixels, 0, width);
         return bi;
     }
 
@@ -147,9 +148,10 @@ public class Colormapper {
         byte[] blue = new byte[size];
         byte[] alpha = new byte[size];
 
-        List<Color> colors = aColorMap.getColors();
+        List<com.raytheon.uf.common.colormap.Color> colors = aColorMap
+                .getColors();
         for (int i = 0; i < size; ++i) {
-            Color color = colors.get(i);
+            com.raytheon.uf.common.colormap.Color color = colors.get(i);
             red[i] = (byte) (color.getRed() * MAX_VALUE);
             green[i] = (byte) (color.getGreen() * MAX_VALUE);
             blue[i] = (byte) (color.getBlue() * MAX_VALUE);
@@ -362,8 +364,8 @@ public class Colormapper {
      * @param colorMapParameters
      * @return
      */
-    public static Color getColorByIndex(double index,
-            ColorMapParameters colorMapParameters) {
+    public static com.raytheon.uf.common.colormap.Color getColorByIndex(
+            double index, ColorMapParameters colorMapParameters) {
         index = capIndex(index);
         IColorMap colorMap = colorMapParameters.getColorMap();
         if (colorMapParameters.isInterpolate()) {
@@ -373,8 +375,10 @@ public class Colormapper {
             int highIndex = (int) Math.ceil(index);
             double lowWeight = highIndex - index;
             double highWeight = 1.0f - lowWeight;
-            Color low = colorMap.getColors().get(lowIndex);
-            Color high = colorMap.getColors().get(highIndex);
+            com.raytheon.uf.common.colormap.Color low = colorMap.getColors()
+                    .get(lowIndex);
+            com.raytheon.uf.common.colormap.Color high = colorMap.getColors()
+                    .get(highIndex);
             float r = (float) (lowWeight * low.getRed() + highWeight
                     * high.getRed());
             float g = (float) (lowWeight * low.getGreen() + highWeight
@@ -383,7 +387,7 @@ public class Colormapper {
                     * high.getBlue());
             float a = (float) (lowWeight * low.getAlpha() + highWeight
                     * high.getAlpha());
-            return new Color(r, g, b, a);
+            return new com.raytheon.uf.common.colormap.Color(r, g, b, a);
         } else {
             int colorIndex = (int) (index * colorMap.getSize());
 
@@ -405,8 +409,8 @@ public class Colormapper {
      * @param colorMapParameters
      * @return
      */
-    public static Color getColorByValue(double cmapValue,
-            ColorMapParameters colorMapParameters) {
+    public static com.raytheon.uf.common.colormap.Color getColorByValue(
+            double cmapValue, ColorMapParameters colorMapParameters) {
         return getColorByIndex(
                 getColorMappingIndex(cmapValue, colorMapParameters),
                 colorMapParameters);

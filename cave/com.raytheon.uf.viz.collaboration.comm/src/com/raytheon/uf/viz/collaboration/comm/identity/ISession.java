@@ -40,7 +40,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 
 /**
  * Base interface for sessions in which the client is interacting with others on
