@@ -31,6 +31,7 @@ from com.raytheon.edex.uengine.tasks.decode import FileIn
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    04/14/08                      njensen       Initial Creation.
+#    05/20/14        2913          bsteffen       Remove image creation
 #    
 #
  
@@ -38,7 +39,6 @@ class GridRequest(BaseRequest.BaseRequest):
     
     def __init__(self, pluginName):
         BaseRequest.BaseRequest.__init__(self, pluginName)
-        self.__createImage = False
         self.__reproject = False
         self.__colormap = "BW"
         self.__format = "png"
@@ -56,9 +56,6 @@ class GridRequest(BaseRequest.BaseRequest):
     
     def reprojectImage(self, reproject):
         self.__reproject = reproject
-    
-    def requestImage(self, image):
-        self.__createImage = image
         
     def requestKml(self, kml):
         self.__kml = kml
@@ -68,10 +65,7 @@ class GridRequest(BaseRequest.BaseRequest):
         if self.queryResults is None or self.queryResults.size() == 0:
             return self.makeNullResponse()
         else:
-            if self.__createImage:
-                return self.__makeImageResponse()
-            else:
-                return self.makeResponse()
+            return self.makeResponse()
     
     def makeResponse(self):        
         from com.raytheon.uf.common.message.response import ResponseMessageGeneric
@@ -84,43 +78,5 @@ class GridRequest(BaseRequest.BaseRequest):
     
     def makeNullResponse(self):        
         response = ArrayList()
-        return response
-    
-    def __makeImageResponse(self):                
-        from com.raytheon.edex.uengine.tasks.grib import GribMap
-        from com.raytheon.edex.uengine.tasks.process import ColorMapImage, ReprojectImage, ImageOut
-        from com.raytheon.edex.uengine.tasks.output import FileOut
-        from com.raytheon.edex.uengine.tasks.response import MakeResponseUri
-        from com.raytheon.uf.common.geospatial import MapUtil
-        response = ArrayList()
-        size = self.queryResults.size()
-        for i in range(size):
-            currentQuery = self.queryResults.get(i)
-            geom = MapUtil.getGridGeometry(currentQuery.getSpatialObject())
-            crs = geom.getCoordinateReferenceSystem()
-            fileIn = FileIn(self.plugin, currentQuery)
-            gribMap = GribMap(self.plugin, self.__colormap, fileIn.execute(), geom)
-            gribMap.setScaleFactor(self.__scaleFactor)
-            imageData = gribMap.execute()
-            geom = gribMap.getGridGeometry()
-            colorMap = ColorMapImage(self.__colormap, imageData, geom)
-            imageOut = None
-            if self.__reproject:
-                reproject = ReprojectImage(colorMap.execute(), geom, crs)
-                reprojectedImage = reproject.execute()
-                imageOut = ImageOut(reprojectedImage, self.__format, reproject.getGridGeometry())
-            else:
-                imageOut = ImageOut(colorMap.execute(), self.__format,geom)
-            fileOut = FileOut(imageOut.execute(), self.__format)
-            writeFile = fileOut.execute()
-            makeResponse = MakeResponseUri(writeFile, None, currentQuery.getIdentifier(), self.__format)
-            response.add(makeResponse.execute())
-            if self.__kml:
-                from com.raytheon.edex.uengine.tasks.output import KmlImage
-                kmlImage = KmlImage(writeFile, geom)
-                kmlFile = kmlImage.execute()
-                kmlResponse = MakeResponseUri(kmlFile, None, None, "kml")
-                response.add(kmlResponse.execute())
-
         return response
                 
