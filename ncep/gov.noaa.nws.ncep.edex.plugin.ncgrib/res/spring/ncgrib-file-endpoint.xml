@@ -68,11 +68,6 @@
         </route>
     </camelContext>
 
-    <bean id="ncgribDecodeCamelRegistered" factory-bean="contextManager"
-        factory-method="register" depends-on="persistCamelRegistered">
-        <constructor-arg ref="ncgrib-qpid-endpoint"/>
-    </bean>
-
     <bean factory-bean="contextManager"
         factory-method="registerClusteredContext">
         <constructor-arg ref="ncgrib-file-endpoint"/>
