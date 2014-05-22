@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
@@ -50,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009            lvenable     Initial creation
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
+ * Apr 23, 2014 3054      skorolev     Fixed issue with deleting a new station.
  * 
  * </pre>
  * 
@@ -155,7 +157,8 @@ public class DeleteStationDlg extends CaveSWTDialog {
         deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                deleteSelected();
+                String delStn = deleteSelected();
+                setReturnValue(delStn);
             }
         });
 
@@ -166,7 +169,6 @@ public class DeleteStationDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                setReturnValue(true);
                 close();
             }
         });
@@ -184,14 +186,26 @@ public class DeleteStationDlg extends CaveSWTDialog {
     /**
      * Delete stations from the list.
      */
-    private void deleteSelected() {
+    private String deleteSelected() {
+        String retval = null;
         if (stationList.getItemCount() != 0) {
-            String selection = stationList.getItem(stationList
-                    .getSelectionIndex());
-            configMan.removeStation(selection);
-            stationList.remove(stationList.getSelectionIndex());
-            populate();
+            if (stationList.getSelectionIndex() != -1) {
+                int idx = stationList.getSelectionIndex();
+                String selection = stationList.getItem(idx);
+                retval = configMan.getAddedStations().get(idx);
+                configMan.getAddedStations().remove(idx);
+                stationList.remove(selection);
+                populate();
+            } else {
+                MessageBox messageBox = new MessageBox(shell,
+                        SWT.ICON_INFORMATION | SWT.NONE);
+                messageBox.setText("Selection error.");
+                messageBox.setMessage("Please select station to delete.");
+                messageBox.open();
+                stationList.select(0);
+            }
         }
+        return retval;
     }
 
     /**

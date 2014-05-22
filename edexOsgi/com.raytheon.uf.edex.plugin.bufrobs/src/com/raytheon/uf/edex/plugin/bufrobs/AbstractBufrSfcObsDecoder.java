@@ -85,6 +85,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2014 2906       bclement     Initial creation
+ * Apr 21, 2014 2906       bclement     populated wmo header in record for consistency
  * 
  * </pre>
  * 
@@ -299,6 +300,7 @@ public abstract class AbstractBufrSfcObsDecoder {
         }
         /* shef converter looks for WMO header in obs text */
         currentRecord.setObsText(header.getWmoHeader());
+        currentRecord.setWmoHeader(header.getWmoHeader());
     }
 
     /**

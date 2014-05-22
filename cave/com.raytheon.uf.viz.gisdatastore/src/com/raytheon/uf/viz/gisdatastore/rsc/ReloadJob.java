@@ -59,6 +59,7 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
  * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
  * Mar 25, 2014      #2664 randerso     Added support for non-WGS84 shape files
+ * Apr 21, 2014      #2998 randerso     Make a better stab at sizing displayAttributes correctly
  * 
  * </pre>
  * 
@@ -288,6 +289,12 @@ class ReloadJob extends Job {
 
                 featureCollection = featureSource.getFeatures(query);
                 featureIterator = featureCollection.features();
+
+                if (req.rsc.displayAttributes == null) {
+                    req.rsc.displayAttributes = new HashMap<String, DataStoreResource.DisplayAttributes>(
+                            (int) Math.ceil(featureCollection.size() / 0.75f),
+                            0.75f);
+                }
 
                 // TODO: do we need to implement the GeometryCache/gidMap
                 // stuff like in DbMapResource?

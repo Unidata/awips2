@@ -40,7 +40,7 @@ import com.raytheon.uf.common.style.level.SingleLevel;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Jul 30, 2007             chammack    Initial Creation.
- * 
+ *    May 1, 2014   DCS 027    MPorricelli Add WBZ level 
  * </pre>
  * 
  * @author chammack
@@ -83,6 +83,8 @@ public class GridLevelTranslator {
             level = new SingleLevel(Level.LevelType.TEMP);
         } else if (levelType.equalsIgnoreCase("FRZ")) {
             level = new SingleLevel(Level.LevelType.FRZ);
+        } else if (levelType.equalsIgnoreCase("WBZ")) {
+            level = new SingleLevel(Level.LevelType.WBZ);            
         } else {
             return new SingleLevel(Level.LevelType.DEFAULT);
         }
