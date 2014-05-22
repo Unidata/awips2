@@ -24,7 +24,7 @@
        point="com.raytheon.uf.viz.localization.localizationpath">
        <path
           application="D2D"
-          localizationType="CAVE_STATIC"
+          localizationType="COMMON_STATIC"
           name="Derived Parameters"
           value="derivedParameters" 
           recursive="true"

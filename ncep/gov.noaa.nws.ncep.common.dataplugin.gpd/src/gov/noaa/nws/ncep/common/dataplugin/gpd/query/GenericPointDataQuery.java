@@ -11,8 +11,9 @@
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    	Engineer    Description
- * -------		------- 	-------- 	-----------
- * 05/30/2013				Chin J. Chen	Initial coding
+ * -------      -------         --------    -----------
+ * 05/30/2013                   Chin J. Chen Initial coding
+ * 04/14/2014      2984         njensen      Remove unused uengine dependency
  *
  * </pre>
  * 
@@ -29,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.uengine.tasks.query.TableQuery;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -45,7 +45,6 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
 
 public class GenericPointDataQuery extends PointDataQuery {
 
-	protected TableQuery tq;
 	public GenericPointDataQuery(String plugin)
 			throws DataAccessLayerException, PluginException {
 		super(plugin);

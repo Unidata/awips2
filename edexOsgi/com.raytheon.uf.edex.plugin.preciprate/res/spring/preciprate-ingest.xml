@@ -10,7 +10,7 @@
 		<constructor-arg ref="preciprateGenerator"/>
 	</bean>
 	
-	<camelContext id="preciprate-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+	<camelContext id="preciprate-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="PrecipRateGenerate">
         	<from uri="jms-durable:queue:preciprateGenerate"/>
             <doTry>

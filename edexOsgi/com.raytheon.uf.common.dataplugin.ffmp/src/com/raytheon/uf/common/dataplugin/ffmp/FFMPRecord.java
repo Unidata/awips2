@@ -90,6 +90,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361        njensen     Removed XML annotations
+ * May 01, 2014 3026        mpduff      Added metadata column.
  * 
  * </pre>
  * 
@@ -130,6 +131,10 @@ public class FFMPRecord extends PersistablePluginDataObject implements
     @DataURI(position = 4)
     @DynamicSerializeElement
     private String siteKey;
+
+    @Column(length = 255)
+    @DynamicSerializeElement
+    private String metaData;
 
     @Transient
     private FFMPBasinData basins = new FFMPBasinData();;
@@ -598,6 +603,21 @@ public class FFMPRecord extends PersistablePluginDataObject implements
 
     public boolean isRate() {
         return isRate;
+    }
+
+    /**
+     * @return the metaData
+     */
+    public String getMetaData() {
+        return metaData;
+    }
+
+    /**
+     * @param metaData
+     *            the metaData to set
+     */
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
     }
 
     /**
