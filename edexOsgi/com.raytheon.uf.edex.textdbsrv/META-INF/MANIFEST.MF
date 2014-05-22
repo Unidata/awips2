@@ -11,7 +11,8 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.text,
- com.raytheon.uf.common.site;bundle-version="1.12.1152"
+ com.raytheon.uf.common.site;bundle-version="1.12.1152",
+ com.raytheon.uf.common.status
 Export-Package: com.raytheon.uf.edex.services,
  com.raytheon.uf.edex.services.textdbimpl,
  com.raytheon.uf.edex.services.textdbsrv
