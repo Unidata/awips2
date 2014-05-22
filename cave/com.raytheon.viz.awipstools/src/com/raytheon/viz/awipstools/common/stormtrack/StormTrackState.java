@@ -47,6 +47,8 @@ import com.vividsolutions.jts.geom.Point;
  * 11/29/2012   15571      Qinglu Lin  Added compuateCurrentStormCenter();
  * 15Mar2013	15693	mgamazaychikov Added magnification.
  * 06-24-2013   DR 16317   D. Friedman Handle "motionless" track.
+ * 04-24-2014   DR 16356   Qinglu Lin  Added newWarnGen, oneStormAngle, justSwitchedToLOS, 
+ *                                     justSwitchedToOS, and trackType.
  * 
  * </pre>
  * 
@@ -197,6 +199,16 @@ public class StormTrackState {
     public float magnification = 1.0f;
 
     private boolean initiallyMotionless;
+
+    public static boolean newWarnGen = true;
+
+    public static double oneStormAngle = Double.NaN;
+
+    public boolean justSwitchedToLOS = false;
+
+    public boolean justSwitchedToOS = false;
+
+    public static String trackType = null;
 
     /** Compute the coordinate of the storm center at the time defined by dataTime via interpolation. */
     public boolean compuateCurrentStormCenter(Coordinate coord, DataTime dateTime) {
