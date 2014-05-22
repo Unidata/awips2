@@ -157,6 +157,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     aren't being corrected.
  * 02/05/2014  17022       ryu         Modified loadDraft() to fix merging of WMO heading and AWIPS ID.
  * 03/25/2014   #2884      randerso    Added xxxid to check for disabling editor
+ * 05/12/2014  16195       zhao        Modified widgetSelected() for "Auto Wrap" option widget
  * 
  * </pre>
  * 
@@ -865,7 +866,8 @@ public class ProductEditorComp extends Composite implements
         autoWrapMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                textComp.setAutoWrapMode(autoWrapMI.getSelection());
+            	wrapMode = !wrapMode;
+            	textComp.setAutoWrapMode(wrapMode);
             }
         });
 
