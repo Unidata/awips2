@@ -31,7 +31,7 @@
 
     <bean id="bandwidthMapConfigFile" factory-bean="bandwidthContextFactory"
         factory-method="getBandwidthMapConfigFile" />
-
+   
     <bean id="bandwidthManager" factory-bean="bandwidthContextFactory"
         factory-method="getBandwidthManager" depends-on="bandwidthUtil"
         init-method="init">
@@ -39,10 +39,11 @@
         <constructor-arg ref="bandwidthDao" />
         <constructor-arg ref="retrievalManager" />
         <constructor-arg ref="bandwidthDaoUtil" />
+        <constructor-arg ref="registryIdUtil" />
         <property name="aggregator" ref="aggregator" />
         <property name="initializer" ref="bandwidthInitializer" />
     </bean>
-
+    
     <bean id="bandwidthUtil"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil"
         factory-method="getInstance" depends-on="registerDataDeliveryHandlers">

@@ -33,7 +33,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 6, 2013 1735       rferrel     Initial creation
+ * Mar  6, 2013 1735       rferrel     Initial creation
+ * Apr 23, 2014  #3006     randerso    Added toString to aid in debugging
  * 
  * </pre>
  * 
@@ -86,4 +87,15 @@ public class GFEPointDataContainers {
     public GFEPointDataContainer getContainer(int index) {
         return containers.get(index);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return containers.toString();
+    }
+
 }

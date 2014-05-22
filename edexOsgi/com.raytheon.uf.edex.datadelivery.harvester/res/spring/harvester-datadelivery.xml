@@ -10,33 +10,6 @@
         <constructor-arg ref="ProviderHandler" />
     </bean>
   	
-  	<camelContext id="MetaData-context"
-		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">
-
-		<endpoint id="metaDataCron" uri="quartz://datadelivery/harvester/?cron=${metadata-process.cron}"/>
-		<endpoint id="harvesterProcessWorkEndpoint" uri="jms-generic:queue:metaDataProcessWork?concurrentConsumers=${metadata-process.threads}&amp;threadName=harvester"/>
-
-		<route id="metaDataProcess">
-			<from uri="metaDataCron" />
-			<to uri="jms-generic:queue:metaDataProcessWork" />
-		</route>
-				
-		<route id="metaDataProcessWork">
-		    <from uri="harvesterProcessWorkEndpoint" />
-            <doTry>
-            	<pipeline>
-    				<bean ref="MetaDataProcessor" method="metaDataCheck" />
-    			</pipeline>
-    			<doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:metaDataProcess?level=ERROR"/>
-                </doCatch>
-            </doTry>
-		</route>
-		
-	</camelContext>
-
     <!-- Start of DataSetMetaData purge configuration -->
     <bean id="DataSetMetaDataPurgeLauncher" class="com.raytheon.uf.edex.datadelivery.harvester.purge.DataSetMetaDataPurgeLauncher" depends-on="registryInit">
         <constructor-arg ref="registryObjectDao" />
@@ -54,7 +27,7 @@
             <to uri="jms-generic:queue:dataSetMetaDataPurgeWork" />
         </route>
 
-        <route id="datSetMetaDataPurgeWork">
+        <route id="dataSetMetaDataPurgeWork">
             <from uri="dataSetMetaDataWorkEndpoint" />
             <doTry>
                 <pipeline>
@@ -68,6 +41,31 @@
         </route>
 
     </camelContext>
-    <!-- End of DataSetMetaData purge configuration -->
-  
+    
+    <camelContext id="MetaData-context"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <endpoint id="metaDataCron" uri="quartz://datadelivery/harvester/?cron=${metadata-process.cron}"/>
+        <endpoint id="harvesterProcessWorkEndpoint" uri="jms-generic:queue:metaDataProcessWork?concurrentConsumers=${metadata-process.threads}&amp;threadName=harvester"/>
+
+        <route id="metaDataProcess">
+            <from uri="metaDataCron" />
+            <to uri="jms-generic:queue:metaDataProcessWork" />
+        </route>
+                
+        <route id="metaDataProcessWork">
+            <from uri="harvesterProcessWorkEndpoint" />
+            <doTry>
+                <pipeline>
+                    <bean ref="MetaDataProcessor" method="metaDataCheck" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:metaDataProcess?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
 </beans>

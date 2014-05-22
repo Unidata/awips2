@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009            lvenable     Initial creation
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
+ * Apr 23, 2014 3054      skorolev     Fixed issues with removing a new zone from list.
  * 
  * </pre>
  * 
@@ -60,6 +61,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class EditNewZoneDlg extends CaveSWTDialog {
+
+    /**
+     * Call back interface.
+     */
+    private INewZoneStnAction macDlg;
+
     /**
      * Zone list control.
      */
@@ -115,6 +122,8 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      */
     private Label bottomLbl;
 
+    private String delZone;
+
     /**
      * Constructor.
      * 
@@ -122,10 +131,13 @@ public class EditNewZoneDlg extends CaveSWTDialog {
      *            Parent shell.
      * @param appName
      *            Application name.
+     * @param monitoringAreaConfigDlg
      */
-    public EditNewZoneDlg(Shell parent, AppName appName) {
+    public EditNewZoneDlg(Shell parent, AppName appName,
+            INewZoneStnAction macDlg) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(appName.toString() + ": Edit a Newly Added Zone");
+        this.macDlg = macDlg;
         configMan = this.getConfigManager(appName);
     }
 
@@ -279,7 +291,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
         deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                deleteSelected();
+                delZone = deleteSelected();
             }
         });
     }
@@ -316,7 +328,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                setReturnValue(true);
+                setReturnValue(delZone);
                 close();
             }
         });
@@ -339,6 +351,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
         // DR #7343: a null areaXml causes an "Unhandled event loop exception"
         if (areaXml != null) {
             idTF.setText(areaXml.getAreaId());
+            idTF.setEnabled(false);
             latTF.setText(String.valueOf(areaXml.getCLat()));
             lonTF.setText(String.valueOf(areaXml.getCLon()));
             if (areaXml.getType() == ZoneType.REGULAR) {
@@ -354,8 +367,7 @@ public class EditNewZoneDlg extends CaveSWTDialog {
     /**
      * Delete selected zones.
      */
-    // TODO: Delete zone from left list in the Area Configuration dialog.
-    private void deleteSelected() {
+    private String deleteSelected() {
         if (zoneList.getItemCount() != 0) {
             String area = zoneList.getItem(zoneList.getSelectionIndex());
             zoneList.remove(zoneList.getSelectionIndex());
@@ -363,9 +375,11 @@ public class EditNewZoneDlg extends CaveSWTDialog {
             idTF.setText("");
             latTF.setText("");
             lonTF.setText("");
+            return area;
         } else {
             bottomLbl.setText("No zones have been added.");
         }
+        return null;
     }
 
     /**
@@ -375,28 +389,36 @@ public class EditNewZoneDlg extends CaveSWTDialog {
 
         if (zoneList.getItemCount() != 0) {
             String area = zoneList.getItem(zoneList.getSelectionIndex());
-            double lat;
-            if (!latTF.getText().isEmpty()) {
-                lat = Double.parseDouble(latTF.getText());
+            String latStr = latTF.getText();
+            String lontStr = lonTF.getText();
+            if (latStr == null || latStr.isEmpty() || lontStr == null
+                    || lontStr.isEmpty()) {
+                macDlg.latLonErrorMsg(latStr, lontStr);
+                return;
             } else {
-                // wrong value will be filtered when save
-                lat = 9999.0;
+                try {
+                    double lat = Double.parseDouble(latStr);
+                    double lon = Double.parseDouble(lontStr);
+                    if (lat > 90.0 || lat < -90.0 || lon > 180.0
+                            || lon < -180.0) {
+                        macDlg.latLonErrorMsg(latStr, lontStr);
+                        return;
+                    }
+                    ZoneType type = ZoneType.REGULAR;
+                    if (marineRdo.getSelection()) {
+                        type = ZoneType.MARITIME;
+                    }
+                    configMan.removeArea(area);
+                    configMan.removeAddedArea(area);
+                    configMan.addArea(area, lat, lon, type);
+                    populate();
+                    // Return cursor to the top of the list.
+                    zoneList.select(0);
+                } catch (NumberFormatException e) {
+                    macDlg.latLonErrorMsg(latStr, lontStr);
+                    return;
+                }
             }
-            double lon;
-            if (!lonTF.getText().isEmpty()) {
-                lon = Double.parseDouble(lonTF.getText());
-            } else {
-                // wrong value will be filtered when save
-                lon = 9999.0;
-            }
-            ZoneType type = ZoneType.REGULAR;
-            if (marineRdo.getSelection()) {
-                type = ZoneType.MARITIME;
-            }
-            configMan.removeArea(area);
-            configMan.removeAddedArea(area);
-            configMan.addArea(idTF.getText(), lat, lon, type, false);
-            populate();
         } else {
             bottomLbl.setText("No zones have been added.");
         }
