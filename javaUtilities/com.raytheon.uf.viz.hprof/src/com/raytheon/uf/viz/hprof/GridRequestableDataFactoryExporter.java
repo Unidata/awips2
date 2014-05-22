@@ -99,15 +99,13 @@ public class GridRequestableDataFactoryExporter extends
                     }
                 }
                 totalSize += size;
-                println("  Soft Referenced Memory = " + (size / 1024) + "KB");
+                printKB("  Soft Referenced Memory = ", size);
                 println("}");
             }
 
         }
         if (totalSize > 0) {
-            println("Total Soft Referenced Memory = "
-                    + (totalSize / 1024 / 1024)
-                + "MB");
+            printMB("Total Soft Referenced Memory = ", totalSize);
         }
     }
 
