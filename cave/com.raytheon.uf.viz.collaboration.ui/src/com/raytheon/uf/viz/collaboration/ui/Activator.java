@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  * Mar  1, 2012            rferrel     Initial creation
  * Feb 19, 2014    2631    mpduff      Changed to use the HierarchicalPreferenceStore.
  * Feb 20, 2014    2631    mpduff      Need to set defaults here since we changed to use the HierarchicalPreferenceStore
+ * Apr 24, 2014    3070    bclement    added default groupname to preference defaults
  * 
  * </pre>
  * 
@@ -126,6 +127,8 @@ public class Activator extends AbstractUIPlugin {
             prefs.setDefault(CollabPrefConstants.DEFAULT_HANDLE,
                     CollabPrefConstants.HandleOption.USERNAME.name());
             prefs.setDefault(CollabPrefConstants.CUSTOM_HANDLE, "");
+            prefs.setDefault(CollabPrefConstants.DEFAULT_GROUPNAME_PREF,
+                    "Contacts");
         }
         return prefs;
     }
