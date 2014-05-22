@@ -335,7 +335,9 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 10Dec2013   2601         mpduff      Fix NullPointerException.
  * 28Jan2014   DR14595   mgamazaychikov Added template loading and editing functionality.
  * 14Mar2014   DR 17175     D. Friedman Get correct time zone for MND header time sync.
+ * 08May2014   DR 16041     kshrestha   Save unofficial text products from text editor.
  * 13May2014   2536         bclement    moved WMO Header to common, switched from TimeTools to TimeUtil
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -4394,7 +4396,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     .getProductCategory(token)
                     + tdm.getProductDesignator(token);
             // Set the header text field.
-            if (bbbid.equals("NOR")) {
+            if (bbbid.equals("NOR") || tdm.getAfosPil(token) != null) {
                 String wmoId = tdm.getWmoId(token);
                 wmoId = (wmoId.length() > 0 ? wmoId : "-");
                 String siteId = tdm.getSiteId(token);
@@ -5295,8 +5297,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (!isAutoSave) {
             if (!resend) {
                 // If not a resend, set the DDHHMM field to the current time
+                if (productText.startsWith("- -") && productText.contains("DDHHMM")) {
+                    productText = getUnofficeProduct(currentDate);
+                } else {
                 productText = replaceDDHHMM(productText, currentDate);
-
+                }
                 VtecObject vtecObj = VtecUtil.parseMessage(productText);
                 if (warnGenFlag) {
                     /*
@@ -8625,5 +8630,35 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         String modifiedText = preformattedText.replaceAll("\\[|\\]", " ");
         modifiedText = removeSoftReturns(modifiedText);
         return modifiedText;
+    }
+    
+    private String getUnofficeProduct(String currDate)
+    {
+        StdTextProduct textProd = TextDisplayModel.getInstance().getStdTextProduct(token);
+        
+        String header = headerTF.getText();
+
+        String nnn = textProd.getNnnid();
+        String xxx = textProd.getXxxid();
+        String nnnXxx = nnn + xxx;
+        String site = SiteMap.getInstance().getSite4LetterId(
+                textProd.getCccid());
+        String wmoId = textProd.getCccid() + nnnXxx + " "
+                + getAddressee() + "\nTTAA00 " + site;
+      
+        header = header.replaceFirst("\n" + nnnXxx, "");
+        header = header.replaceFirst("-", "ZCZC");
+        header = header.replaceFirst("-", wmoId);
+
+        if (currDate != null)
+            header = header.replaceFirst("DDHHMM", currDate);
+        else
+            header = header.replaceFirst("DDHHMM", textProd.getHdrtime());
+        
+        String body = textEditor.getText().toUpperCase();
+
+        header = header + "\n\n"+body +"\n!--not sent--!";
+
+        return header;
     }
 }
