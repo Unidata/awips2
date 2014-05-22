@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
@@ -54,9 +54,11 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 8, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 08, 2012           bsteffen    Initial creation
+ * Apr 11, 2014  2947     bsteffen    Switch spatial matching to use
+ *                                    IGridGeometryProvider
  * 
  * </pre>
  * 
@@ -112,9 +114,7 @@ public class TimeAndSpaceMatcher {
                 MatchResult res = createMatchResult(t1, t2);
                 if (res != null) {
                     MatchResult prev = result.get(res.getMerge());
-                    if (prev == null
-                            || prev.getMatchValue().compareTo(
-                                    res.getMatchValue()) > 0) {
+                    if (prev == null || prev.compareTo(res) > 0) {
                         result.put(res.getMerge(), res);
                     }
                 }
@@ -133,55 +133,38 @@ public class TimeAndSpaceMatcher {
      * @return
      */
     private MatchResult createMatchResult(TimeAndSpace t1, TimeAndSpace t2) {
-        MatchType matchValue;
+        TimeMatchType timeMatchType;
         DataTime time = null;
-        ISpatialObject space = null;
-        // first determine what space a match between these two times would have
-        boolean spaceAgn = false;
-        if (t1.getSpace().equals(t2.getSpace())) {
-            // If they match that is best
-            space = t1.getSpace();
-        } else if (t1.isSpaceAgnostic()) {
-            // space agnostic will match something with space.
-            spaceAgn = true;
-            space = t2.getSpace();
-        } else if (t2.isSpaceAgnostic()) {
-            // again one is agnostic
-            spaceAgn = true;
-            space = t1.getSpace();
-        } else {
-            // no spatial match, means no match at all.
-            return null;
-        }
 
-        // Next determine how well the times match
+        /* Determine how well the times match */
         if (t1.isTimeAgnostic()) {
-            // When one is agnostic it will match anything.
+            /* When one is agnostic it will match anything. */
             time = t2.getTime();
-            matchValue = spaceAgn ? MatchType.AGNOSTIC_MATCH
-                    : MatchType.SPACE_MATCH;
+            timeMatchType = TimeMatchType.AGNOSTIC;
         } else if (t2.isTimeAgnostic()) {
-            // again one is agnostic
+            /* again one is agnostic */
             time = t1.getTime();
-            matchValue = spaceAgn ? MatchType.AGNOSTIC_MATCH
-                    : MatchType.SPACE_MATCH;
+            timeMatchType = TimeMatchType.AGNOSTIC;
         } else if (t1.getTime().equals(t2.getTime())) {
-            // A perfect time match is always best.
+            /* A perfect time match is always best. */
             time = t1.getTime();
-            matchValue = spaceAgn ? MatchType.TIME_MATCH : MatchType.BOTH_MATCH;
+            timeMatchType = TimeMatchType.MATCH;
         } else if (ignoreRange
                 && t1.getTime().getMatchRef() == t2.getTime().getMatchRef()
                 && t1.getTime().getMatchFcst() == t2.getTime().getMatchFcst()) {
-            // If the ignoreRanfe flag is set then it is still considered a
-            // match even if the ranges are different.
+            /*
+             * If the ignoreRanfe flag is set then it is still considered a
+             * match even if the ranges are different.
+             */
             time = new DataTime(t1.getTime().getRefTime(), t1.getTime()
                     .getFcstTime());
-            matchValue = spaceAgn ? MatchType.TIME_IGNORE_RANGE
-                    : MatchType.BOTH_IGNORE_RANGE;
+            timeMatchType = TimeMatchType.IGNORE_RANGE;
         } else if (matchValid
                 && t1.getTime().getMatchValid() == t2.getTime().getMatchValid()) {
-            // finally last valid allows us to mix different
-            // refTime/forecastTimes as long as valid matches.
+            /*
+             * finally last valid allows us to mix different
+             * refTime/forecastTimes as long as valid matches.
+             */
             if (t1.getTime().getMatchRef() > t2.getTime().getMatchRef()) {
                 time = new DataTime(t1.getTime().getRefTime(), t1.getTime()
                         .getFcstTime());
@@ -189,12 +172,46 @@ public class TimeAndSpaceMatcher {
                 time = new DataTime(t2.getTime().getRefTime(), t2.getTime()
                         .getFcstTime());
             }
-            matchValue = spaceAgn ? MatchType.TIME_VALID : MatchType.BOTH_VALID;
+            timeMatchType = TimeMatchType.VALID_TIME;
         } else {
+            /* no time match, means no match at all. */
             return null;
         }
+
+        SpaceMatchType spaceMatchType = null;
+        IGridGeometryProvider space = null;
+        
+        /* Determine how well the spaces match */
+        if (t1.isSpaceAgnostic()) {
+            /* When one is agnostic it will match anything. */
+            space = t2.getSpace();
+            spaceMatchType = SpaceMatchType.AGNOSTIC;
+        } else if (t2.isSpaceAgnostic()) {
+            /* again one is agnostic */
+            space = t1.getSpace();
+            spaceMatchType = SpaceMatchType.AGNOSTIC;
+        } else if (t1.getSpace().equals(t2.getSpace())) {
+            /* A perfect space match is always best. */
+            space = t1.getSpace();
+            spaceMatchType = SpaceMatchType.MATCH;
+        } else {
+            if(t1.getSpace() instanceof IGridGeometryProviderComparable){
+                space = ((IGridGeometryProviderComparable) t1.getSpace())
+                        .compare(t2.getSpace());
+            }
+            if (space == null
+                    && (t2.getSpace() instanceof IGridGeometryProviderComparable)) {
+                space = ((IGridGeometryProviderComparable) t2.getSpace())
+                        .compare(t1.getSpace());
+            }
+            if(space != null){
+                spaceMatchType = SpaceMatchType.COMPARABLE;
+            }else{
+                return null;
+            }
+        }
         return new MatchResult(t1, t2, new TimeAndSpace(time, space),
-                matchValue);
+                timeMatchType, spaceMatchType);
     }
 
     /**
@@ -215,34 +232,32 @@ public class TimeAndSpaceMatcher {
      * @author bsteffen
      * @version 1.0
      */
-    public static class MatchResult {
+    public static class MatchResult implements Comparable<MatchResult> {
 
-        /**
-         * The TimeAndSpace from the first collection that matches
-         */
+        /** The TimeAndSpace from the first collection that matches */
         private final TimeAndSpace t1;
 
-        /**
-         * The TimeAndSpace from the second collection that matches
-         */
+        /** The TimeAndSpace from the second collection that matches */
         private final TimeAndSpace t2;
 
-        /**
-         * The TimeAndSpace from the first collection that matches
-         */
+        /** The TimeAndSpace from the first collection that matches */
         private final TimeAndSpace merge;
 
-        /**
-         * How good of a match is this.
-         */
-        private final MatchType matchValue;
+        /** How good of a time match is this. */
+        private final TimeMatchType timeMatchType;
 
-        public MatchResult(TimeAndSpace t1, TimeAndSpace t2,
-                TimeAndSpace merge, MatchType matchValue) {
+        /** How good of a space match is this. */
+        private final SpaceMatchType spaceMatchType;
+
+        private MatchResult(TimeAndSpace t1, TimeAndSpace t2,
+                TimeAndSpace merge, TimeMatchType timeMatchType,
+                SpaceMatchType spaceMatchType) {
+            super();
             this.t1 = t1;
             this.t2 = t2;
             this.merge = merge;
-            this.matchValue = matchValue;
+            this.timeMatchType = timeMatchType;
+            this.spaceMatchType = spaceMatchType;
         }
 
         public TimeAndSpace get1() {
@@ -257,59 +272,51 @@ public class TimeAndSpaceMatcher {
             return merge;
         }
 
-        public MatchType getMatchValue() {
-            return matchValue;
+        public TimeMatchType getTimeMatchType() {
+            return timeMatchType;
+        }
+
+        public SpaceMatchType getSpaceMatchType() {
+            return spaceMatchType;
+        }
+
+        @Override
+        public int compareTo(MatchResult o) {
+            int result = timeMatchType.compareTo(o.getTimeMatchType());
+            if (result == 0) {
+                result = spaceMatchType.compareTo(o.getSpaceMatchType());
+            }
+            return result;
         }
 
     }
 
-    /**
-     * 
-     * An enum which represents the quality of the match, The best matches are
-     * when both Time and Space objects are matches, but there are other
-     * matches, usually involving either Time or Space agnostic that are not as
-     * ideal but are suitable.
-     * 
-     * <pre>
-     * 
-     * SOFTWARE HISTORY
-     * 
-     * Date         Ticket#    Engineer    Description
-     * ------------ ---------- ----------- --------------------------
-     * Sep 27, 2012            bsteffen     Initial creation
-     * 
-     * </pre>
-     * 
-     * @author bsteffen
-     * @version 1.0
-     */
-    public static enum MatchType {
+    public static enum TimeMatchType {
+        /* Perfect match */
+        MATCH,
 
-        // Time and space match perfectly
-        BOTH_MATCH,
+        /* Reftime and forecast time match but ranges do not */
+        IGNORE_RANGE,
 
-        // Space matches perfectly but time only matches if you ignore range
-        BOTH_IGNORE_RANGE,
+        /* Only valid time matches, not ref/forectast time. */
+        VALID_TIME,
 
-        // Space matches perfectly but time only matches valid time
-        BOTH_VALID,
+        /* One is time or both are time agnostic so it matches everything. */
+        AGNOSTIC
+    }
 
-        // one is space agnostic and time matches
-        TIME_MATCH,
+    public static enum SpaceMatchType {
+        /* Perfect match */
+        MATCH,
 
-        // one is space agnostic but time only matches if you ignore range
-        TIME_IGNORE_RANGE,
+        /*
+         * One or both implements IGridGeometryProviderComparable and found a
+         * suitable intersection
+         */
+        COMPARABLE,
 
-        // one is space agnostic but time only matches valid time
-        TIME_VALID,
-
-        // space matches perfectly and one is time agnostic
-        SPACE_MATCH,
-
-        // one is both time and space agnostic so they match even though
-        // they have nothing in common
-        AGNOSTIC_MATCH;
-
+        /* One is time or both are space agnostic so it matches everything. */
+        AGNOSTIC
     }
 
     /**

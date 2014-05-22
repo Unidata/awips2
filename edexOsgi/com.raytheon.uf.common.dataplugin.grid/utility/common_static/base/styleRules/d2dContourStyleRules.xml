@@ -4190,6 +4190,7 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
       <parameter>GH</parameter>
       <singleLevel units="FRZ" />
       <singleLevel units="TW0" />
+      <singleLevel units="WBZ" /> 
     </paramLevelMatches>
     <contourStyle>
       <displayUnits>ft</displayUnits>

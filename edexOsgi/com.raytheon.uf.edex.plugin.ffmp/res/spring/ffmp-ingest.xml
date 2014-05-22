@@ -26,7 +26,7 @@
 		<constructor-arg ref="ffmpGenerator"/>
 	</bean>
 	
-	<camelContext id="ffmp-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+	<camelContext id="ffmp-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="FFMPGenerate">
         	<from uri="jms-durable:queue:ffmpGenerate"/>
             <doTry>
