@@ -64,8 +64,10 @@ public class ArchiveAdminPrivilegedRequestHandler extends
     @Override
     public ArchiveAdminAuthRequest handleRequest(ArchiveAdminAuthRequest request)
             throws Exception {
-        // If it reaches this point in the code, then the user is authorized, so
-        // just return the request object with authorized set to true
+        /*
+         * If it reaches this point in the code, then the user is authorized, so
+         * just return the request object with authorized set to true.
+         */
         request.setAuthorized(true);
         return request;
     }
@@ -85,14 +87,13 @@ public class ArchiveAdminPrivilegedRequestHandler extends
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
         IRoleStorage roleStorage = manager.getRoleStorage();
 
-        boolean authorized = roleStorage.isAuthorized((request).getRoleId(),
-                user.uniqueId().toString(), APPLICATION);
+        boolean authorized = roleStorage.isAuthorized(request.getRoleId(), user
+                .uniqueId().toString(), APPLICATION);
 
         if (authorized) {
             return new AuthorizationResponse(authorized);
         } else {
-            return new AuthorizationResponse(
-                    (request).getNotAuthorizedMessage());
+            return new AuthorizationResponse(request.getNotAuthorizedMessage());
         }
     }
 }

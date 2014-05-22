@@ -91,6 +91,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                       Changes for non-blocking LoadSaveDeleteSelectDlg.
  * Mar 28, 2013 #1790      rferrel      Bug fix for non-blocking dialogs.
  * Apr, 15, 2013 #1911     dhladky       dialog wouldn't open every time to retrieve file.
+ * May 05, 2014 #3109      lvenable     Removed code that sets the cursor on Cave because it doesn't need
+ *                                      to be set.
  * 
  * </pre>
  * 
@@ -310,8 +312,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
     public FFFGDlg(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.INDEPENDENT_SHELL
                 | CAVE.DO_NOT_BLOCK);
-        this.getParent().setCursor(
-                this.getParent().getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+
         setText("Forced Flash Flood Guidance");
 
         sourceCompArray = new ArrayList<SourceComp>();
@@ -808,15 +809,9 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
         applyBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                getParent().setCursor(
-                        getParent().getDisplay().getSystemCursor(
-                                SWT.CURSOR_WAIT));
                 shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
                 applyDataAction();
                 updateFileStatusLabel(false);
-                getParent().setCursor(
-                        getParent().getDisplay().getSystemCursor(
-                                SWT.CURSOR_ARROW));
                 shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
 
                 saveFileAs();
@@ -886,6 +881,7 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
      *            -1 = error, 0 = information message
      * @param message
      */
+    @Override
     public void setStatusMsg(int status, String message) {
         if (message == null) {
             statusLbl.setText("");
@@ -1609,8 +1605,8 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
         }
 
         if (isDialogClear() && (fileNameLbl.getText().trim().length() == 0)) {
-            getRetrieveFilename(RetrieveMergeAction.RETRIEVE); 
-        } else { 
+            getRetrieveFilename(RetrieveMergeAction.RETRIEVE);
+        } else {
             if (retMergeDlg == null) {
                 retMergeDlg = new RetrieveMergeDlg(shell);
                 retMergeDlg.setCloseCallback(new ICloseCallback() {
@@ -2223,10 +2219,6 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction,
         sc.populateSourceComp();
 
         statusLbl.setText("");
-        this.getParent()
-                .setCursor(
-                        this.getParent().getDisplay()
-                                .getSystemCursor(SWT.CURSOR_ARROW));
     }
 
     /*

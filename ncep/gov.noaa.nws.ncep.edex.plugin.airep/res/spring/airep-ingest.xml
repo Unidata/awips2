@@ -16,16 +16,10 @@
 		<constructor-arg value="airep" />
 		<constructor-arg value="jms-durable:queue:Ingest.airep" />
 	</bean>
-
-    <bean id="airepCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="airep-camel"/>
-  	</bean> 
   	
 	<camelContext id="airep-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<!--
 		<endpoint id="airepFileEndpoint" uri="file:${edex.home}/data/sbn/airep?noop=true&amp;idempotent=false" />

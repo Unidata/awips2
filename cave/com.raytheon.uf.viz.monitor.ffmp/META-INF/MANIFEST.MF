@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.event;bundle-version="1.0.0",
  com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.common.style;bundle-version="1.0.0"
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ com.raytheon.uf.common.plugin.hpe;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.pointdata
