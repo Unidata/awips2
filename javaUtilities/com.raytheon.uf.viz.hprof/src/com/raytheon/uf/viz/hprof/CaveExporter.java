@@ -49,8 +49,26 @@ public class CaveExporter {
 
     public static void main(String[] args) {
         if (args.length < 1) {
+            System.out.println("SUMMARY:");
             System.out
-                    .println("Provide some args, an hprof file is required, an output directory is optional.");
+                    .println("    Analyze an hprof file and gneerate text files with information that can be");
+            System.out.println("    useful for diagnosing problems with cave.");
+            System.out.println("USAGE:");
+            System.out
+                    .println("    java -jar com.raytheon.uf.viz.hprof-....jar [-zero] <hprofFile> <outputDir>");
+            System.out.println("ARGUMENTS:");
+            System.out
+                    .println("    -zero      when this is provided all primitive arrays except char[] are ");
+            System.out
+                    .println("               replaced with zero so the file can be compressed much smaller.");
+            System.out
+                    .println("               This will modify the file in place and even still generates the");
+            System.out.println("               text files");
+            System.out
+                    .println("    hprofFile  the name/path to the hprof file");
+            System.out
+                    .println("    outputDir  the name/path to a directory where text files are written");
+
             System.exit(1);
         }
         int argIdx = 0;
