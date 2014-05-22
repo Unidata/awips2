@@ -28,14 +28,19 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/10/12                      njensen       Initial Creation.
+#    05/01/14        3095          bsteffen      Move numeric data access to new plugin.
+
 #    
 # 
 #
 
 from ufpy.dataaccess import IGridData
 import JData
+from jep import jarray
 
-from com.raytheon.uf.common.geospatial.interpolation.data import FloatArrayWrapper, UnitConvertingDataDestination
+from com.raytheon.uf.common.numeric.buffer import FloatBufferWrapper
+from com.raytheon.uf.common.geospatial.data import UnitConvertingDataFilter
+from com.raytheon.uf.common.numeric.dest import FilteredDataDestination 
 from com.raytheon.uf.common.python import PythonNumpyFloatArray
 from com.raytheon.uf.common.geospatial import LatLonReprojection
 from javax.measure.unit import UnitFormat
@@ -64,21 +69,22 @@ class JGridData(IGridData, JData.JData):
         return str(self.jobj.getUnit())
     
     def getRawData(self, unit=None):
-        dest = FloatArrayWrapper(self.jobj.getGridGeometry())
+        nx = self.jobj.getGridGeometry().getGridRange().getSpan(0)
+        ny = self.jobj.getGridGeometry().getGridRange().getSpan(1)
+        dest = FloatBufferWrapper(nx, ny)
         pnfa = None
         if unit:
             unitObj = UnitFormat.getUCUMInstance().parseObject(unit)
             converter = self.jobj.getUnit().getConverterTo(unitObj)
-            unitDest = UnitConvertingDataDestination(converter, dest)
-            filledDest = self.jobj.populateData(unitDest)
-            nx = self.jobj.getGridGeometry().getGridRange().getSpan(0)
-            ny = self.jobj.getGridGeometry().getGridRange().getSpan(1)
-            pnfa = PythonNumpyFloatArray(filledDest.getWrappedDestination().getArray(), nx, ny)
+            filter = UnitConvertingDataFilter(converter)
+            filter = UnitConvertingDataFilter(converter)
+            filters = jarray(1, UnitConvertingDataFilter)
+            filters[0] = filter
+            unitDest = FilteredDataDestination.addFilters(dest, filters)
+            self.jobj.populateData(unitDest)
         else:
-            filledDest = self.jobj.populateData(dest)
-            nx = self.jobj.getGridGeometry().getGridRange().getSpan(0);
-            ny = self.jobj.getGridGeometry().getGridRange().getSpan(1);
-            pnfa = PythonNumpyFloatArray(dest.getArray(), nx, ny)
+            self.jobj.populateData(dest)
+        pnfa = PythonNumpyFloatArray(dest.getBuffer().array(), nx, ny)
         return pnfa.__numpy__[0]
     
     def getLatLonCoords(self):

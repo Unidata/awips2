@@ -23,9 +23,11 @@ import org.eclipse.jface.action.Action;
 import org.jivesoftware.smack.RosterEntry;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
@@ -40,6 +42,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2013 2563       bclement     Initial creation
  * Mar 05, 2014 2837       bclement     changed wording from Roster to Contacts, added image
+ * Apr 24, 2014 3070       bclement     RosterChangeEvent changes
  * 
  * </pre>
  * 
@@ -64,7 +67,8 @@ public class RemoveFromRosterAction extends Action {
         ContactsManager manager = connection
                 .getContactsManager();
         manager.removeFromRoster(entry);
+        UserId entryId = IDConverter.convertFrom(entry);
         connection.postEvent(new RosterChangeEvent(RosterChangeType.DELETE,
-                entry));
+                entryId));
     }
 }

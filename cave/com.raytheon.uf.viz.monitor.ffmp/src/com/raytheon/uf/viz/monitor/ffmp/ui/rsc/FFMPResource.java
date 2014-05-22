@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,6 +78,8 @@ import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
+import com.raytheon.uf.common.plugin.hpe.request.HpeLabelDataRequest;
+import com.raytheon.uf.common.plugin.hpe.request.HpeLabelDataResponse;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
@@ -85,6 +88,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -105,6 +109,7 @@ import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExten
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension.IColormapShadedShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
@@ -176,6 +181,8 @@ import com.vividsolutions.jts.geom.Point;
  * Jan 21, 2014  DR 15874   gzhang		Use getValue() for QPFSCAN independent. 
  * Feb 19, 2014 2819        randerso    Removed unnecessary .clone() call
  * Mar  3, 2014 2804        mschenke    Set back up clipping pane
+ * Apr 30, 2014  DR 16148   gzhang      Filter Basin Dates for Trend and Table Gap. 
+ * May 05, 2014 3026        mpduff      Display Hpe bias source.
  * </pre>
  * 
  * @author dhladky
@@ -187,7 +194,7 @@ public class FFMPResource extends
         IResourceDataChanged, IFFMPResourceListener, FFMPListener {
 
     /** Status handler */
-    private static final IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPResource.class);
 
     /** Performance log statement prefix */
@@ -240,6 +247,9 @@ public class FFMPResource extends
 
     /** expansion of the window **/
     private static final double EXPANSION_FACTOR = 1.0;
+
+    /** HPE Constant */
+    private static final String HPE = "HPE";
 
     /** the stream cross hatched area **/
     private IWireframeShape streamOutlineShape = null;
@@ -412,6 +422,16 @@ public class FFMPResource extends
     /** Restore Table flag */
     private boolean restoreTable = false;
 
+    /** HPE bias source legend cache */
+    private final Map<Date, String> hpeLegendMap = Collections
+            .synchronizedMap(new HashMap<Date, String>());
+
+    /** Flag denoting data as HPE */
+    private boolean isHpe;
+
+    /** The job to get the HPE bias source info */
+    private final HpeSourceDataJob dataJob = new HpeSourceDataJob();
+
     /**
      * FFMP resource
      * 
@@ -495,6 +515,17 @@ public class FFMPResource extends
             } catch (VizException ve) {
                 statusHandler.handle(Priority.PROBLEM, "Error updating record",
                         ve);
+            }
+        } else if (type.equals(ChangeType.DATA_REMOVE)) {
+            if (object instanceof PluginDataObject[]) {
+                PluginDataObject[] pdos = (PluginDataObject[]) object;
+                for (PluginDataObject pdo : pdos) {
+                    FFMPRecord ffmpRec = (FFMPRecord) pdo;
+                    hpeLegendMap.remove(ffmpRec.getDataTime().getRefTime());
+                }
+            } else if (object instanceof DataTime) {
+                DataTime dt = (DataTime) object;
+                hpeLegendMap.remove(dt.getRefTime());
             }
         }
     }
@@ -798,9 +829,10 @@ public class FFMPResource extends
                 } else {
                     switch (field) {
                     case QPF: {
-                        value = getBasin(key, field, recentTime, aggregate).getValue(recentTime);// DR 15874
-                                //.getAverageValue(recentTime,
-                                        //getQpfSourceExpiration());
+                        value = getBasin(key, field, recentTime, aggregate)
+                                .getValue(recentTime);// DR 15874
+                        // .getAverageValue(recentTime,
+                        // getQpfSourceExpiration());
                         break;
                     }
                     case GUIDANCE: {
@@ -814,7 +846,7 @@ public class FFMPResource extends
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Problem getting basin value", e);
         }
         return value;
     }
@@ -883,8 +915,8 @@ public class FFMPResource extends
                 if (source.getSourceType().equals(
                         FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
                                 .getSourceType())) {
-                    prefix.append(source.getDisplayName() + " "
-                            + source.getDurationHour() + " HR");
+                    prefix.append(source.getDisplayName()).append(" ")
+                            .append(source.getDurationHour()).append(" HR");
                 } else {
                     prefix.append(source.getDisplayName());
                 }
@@ -914,6 +946,8 @@ public class FFMPResource extends
     /**
      * Gets the record currently used
      * 
+     * @param recentTime
+     * 
      * @return FFMPCacheRecord
      */
     public FFMPRecord getRateRecord(Date recentTime) {
@@ -924,7 +958,8 @@ public class FFMPResource extends
                         getDataKey(), getPrimarySource(), recentTime, false);
                 isNewRate = false;
             } catch (Exception e) {
-                e.printStackTrace();
+                statusHandler.error("Error retrieving the current rate record",
+                        e);
             }
         }
         return rateRecord;
@@ -944,9 +979,8 @@ public class FFMPResource extends
                 isNewQpe = false;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error retrieving the current QPE record", e);
         }
-        // System.out.println("FFMPResource.getQPERecord(): " + getTableTime());
 
         return qpeRecord;
     }
@@ -979,7 +1013,7 @@ public class FFMPResource extends
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error retrieving the current guid record", e);
         }
 
         return guidRecord;
@@ -1008,7 +1042,7 @@ public class FFMPResource extends
                 isNewQpf = false;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error retrieving the current QPF record", e);
         }
 
         return qpfRecord;
@@ -1029,7 +1063,8 @@ public class FFMPResource extends
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error retrieving the current virtual record",
+                    e);
         }
 
         return virtualRecord;
@@ -1039,6 +1074,8 @@ public class FFMPResource extends
      * General get record call
      * 
      * @param pfield
+     * @param recentTime
+     * 
      * @return FFMPCacheRecord
      */
     public FFMPRecord getRecord(FIELDS pfield, Date recentTime) {
@@ -1155,18 +1192,17 @@ public class FFMPResource extends
             @Override
             public void run() {
 
-                if (/* this. */font == null) {
-                    /* this. */font = target.initializeFont("Dialog", 11, null);
+                if (font == null) {
+                    font = target.initializeFont("Dialog", 11, null);
                 }
 
                 font.setMagnification(getCapability(
                         MagnificationCapability.class).getMagnification()
                         .floatValue());
 
-                if (/* this. */xfont == null) {
+                if (xfont == null) {
                     IFont.Style[] styles = new IFont.Style[] { IFont.Style.BOLD };
-                    /* this. */xfont = target.initializeFont("Monospace", 12,
-                            styles);
+                    xfont = target.initializeFont("Monospace", 12, styles);
                 }
 
                 xfont.setMagnification(getCapability(
@@ -1189,6 +1225,10 @@ public class FFMPResource extends
                 basinLocatorString.textStyle = TextStyle.BLANKED;
             }
         });
+
+        // Set flag for HPE data
+        isHpe = resourceData.siteKey.equalsIgnoreCase(HPE)
+                || resourceData.siteKey.equalsIgnoreCase("BHPE");
     }
 
     /**
@@ -1427,13 +1467,24 @@ public class FFMPResource extends
             PaintProperties paintProps) throws VizException {
         double[] pixel = paintProps.getView().getDisplayCoords(
                 new double[] { 110, 50 }, target);
-
+        StringBuilder sb = new StringBuilder();
         if (isAutoRefresh || isQuery) {
-            fieldDescString.setText("FFMP " + df.format(getTime()) + " hour "
-                    + FFMPRecord.getFieldLongDescription(getField()),
-                    getCapability(ColorableCapability.class).getColor());
+            sb.append("FFMP ").append(df.format(getTime())).append(" hour ")
+                    .append(FFMPRecord.getFieldLongDescription(getField()));
         }
 
+        // Paint the HPE bias source text if HPE
+        if (isHpe && qpeRecord != null) {
+            String text = getText(paintTime.getRefTime(),
+                    qpeRecord.getMetaData());
+            if (text != null) {
+                sb.append(StringUtil.NEWLINE);
+                sb.append(text);
+            }
+        }
+
+        fieldDescString.setText(sb.toString(),
+                getCapability(ColorableCapability.class).getColor());
         fieldDescString.setCoordinates(pixel[0], pixel[1]);
         target.drawStrings(fieldDescString);
     }
@@ -3102,6 +3153,9 @@ public class FFMPResource extends
         boolean guid = false;
         Date oldestRefTime = getOldestTime();
         Date mostRecentRefTime = getPaintTime().getRefTime();
+        
+        Date barrierTime = getTableTime();// DR 16148
+        Date minUriTime = getTimeOrderedKeys().get(0);// DR 16148
 
         // grabs the basins we need
         try {
@@ -3114,7 +3168,10 @@ public class FFMPResource extends
 
             if (rateBasin != null) {
                 for (Date date : rateBasin.getValues().keySet()) {
-
+                    
+                    if (date.before(minUriTime) || date.before(barrierTime) || date.after(mostRecentRefTime))   
+                        continue;// DR 16148
+                    
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
                     fgd.setRate(dtime, (double) rateBasin.getValue(date));
@@ -3139,6 +3196,9 @@ public class FFMPResource extends
             if (qpeBasin != null) {
 
                 for (Date date : qpeBasin.getValues().keySet()) {
+                    
+                    if (date.before(minUriTime) || date.before(barrierTime) || date.after(mostRecentRefTime))   
+                        continue;// DR 16148
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
@@ -4081,4 +4141,52 @@ public class FFMPResource extends
         return dataTimes;
     }
 
+    private String getText(Date date, String productId) {
+        String text = hpeLegendMap.get(date);
+        if (text == null) {
+            dataJob.scheduleRetrieval(date, productId);
+        }
+
+        return text;
+    }
+
+    private class HpeSourceDataJob extends Job {
+        private volatile String productId;
+
+        private volatile Date date;
+
+        public HpeSourceDataJob() {
+            super("Get HPE Source");
+        }
+
+        protected void scheduleRetrieval(Date date, String productId) {
+            this.productId = productId;
+            this.date = date;
+            if (this.getState() == Job.RUNNING
+                    || this.getState() == Job.SLEEPING
+                    || this.getState() == Job.WAITING) {
+                return;
+            }
+            this.schedule();
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            // Request the text from edex
+            try {
+                HpeLabelDataRequest req = new HpeLabelDataRequest(productId,
+                        date);
+                HpeLabelDataResponse response = (HpeLabelDataResponse) ThriftClient
+                        .sendRequest(req);
+                Map<Date, String> data = response.getData();
+                for (Date d : data.keySet()) {
+                    hpeLegendMap.put(d, data.get(d));
+                }
+            } catch (VizException e) {
+                statusHandler.error(e.getLocalizedMessage(), e);
+            }
+
+            return Status.OK_STATUS;
+        }
+    }
 }

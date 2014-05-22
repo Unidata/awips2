@@ -37,16 +37,16 @@ else
 fi
 
 # Who to run EDEX server as, usually "awips".  (NOT "root")
-EDEXUSER=awips
+export EDEXUSER=awips
 
 # Todays date in format of YYYYMMDD.
-TODAY=`/bin/date +%Y%m%d`
+export TODAY=`/bin/date +%Y%m%d`
 
 # We will no longer be using hard-coded paths that need to be replaced.
 # Use rpm to find the paths that we need.
 export JAVA_INSTALL="/awips2/java"
 export PYTHON_INSTALL="/awips2/python"
-EDEX_INSTALL="/awips2/edex"
+export EDEX_INSTALL="/awips2/edex"
 export PSQL_INSTALL="/awips2/psql"
 
 # The path that is to be used for the script
@@ -57,76 +57,119 @@ export LD_PRELOAD=${PYTHON_INSTALL}/lib/libpython2.7.so
 export AMQP_SPEC=""
 export DATA_ARCHIVE_ROOT=/tmp/sbn
 
+# what to do to get pids of an EDEX instance
+# $1 == instance token
+getCamelAndWrapperPids() {
+   _camel_pid=`pgrep -f "java.*-Dedex.run.mode=${1} "`
+   if [ "$_camel_pid" != "" ]; then
+      # grab wrapper pid from edex process, run throw awk to throw away leading white space
+      _wrapper_pid=`ps --no-headers -p $_camel_pid -o ppid | awk '{print $1}'`
+   else
+      # camel not up, double check wrapper pid file
+      pidfile=${EDEX_INSTALL}/bin/${1}.pid
+
+      if [ -f $pidfile ]; then
+         _wrapper_pid=`cat $pidfile`
+         if [ "$_wrapper_pid" != "" ]; then
+            # double check process is indeed a wrapper process
+            check=`ps -p $_wrapper_pid -o pid,args | grep -c wrapper.conf`
+            if [ $check -eq 0 ]; then
+               _wrapper_pid=""
+            fi
+         fi
+      else
+         _wrapper_pid=""
+      fi
+   fi
+}
+
 # what to do to start an EDEX instance
 # $1 == instance token
 startEDEX() {
-   pidfile=${EDEX_INSTALL}/bin/${1}.pid
-   CAMELPROCESS=`ps -ef | grep "aw.site.identifier"|grep -c "edex.run.mode=${1} " `
-   if [ $CAMELPROCESS -eq 1 ]; then
+   getCamelAndWrapperPids ${1}
+   if [ "$_wrapper_pid" != "" ]; then
       echo "WARNING: EDEX ${1} instance already running, not starting another instance"
       return 1
    fi
 
-   EXTRA_ARGS="-noConsole"
+   local EXTRA_ARGS="-noConsole"
+   local DAEMON="${EDEX_INSTALL}/bin/start.sh ${EXTRA_ARGS} ${1}"
+   local LOG=${EDEX_INSTALL}/logs/start-edex-${1}-$TODAY.log
+   local TIME=`/bin/date "+%F %T"`
+   echo "$TIME: Service edex_camel Starting EDEX ${1}" >> $LOG
 
-   DAEMON="${EDEX_INSTALL}/bin/start.sh ${EXTRA_ARGS} ${1}"
-   EDEXSTARTLOG=${EDEX_INSTALL}/logs/start-edex-${1}-$TODAY.log
-   su $EDEXUSER -c "$DAEMON &" >> $EDEXSTARTLOG 2>&1
-   sleep 5
-   pid=`cat ${pidfile}`
-   if [ "$pid" == "" ]; then
-      echo "WARNING: No Wrapper Pid Found, EDEX ${1} did not start properly"
+   su $EDEXUSER -c "$DAEMON &" >> $LOG 2>&1
+   sleep 10
+   local pidfile=${EDEX_INSTALL}/bin/${1}.pid
+
+   if [ -f $pidfile ]; then
+      pid=`cat ${pidfile}`
+      if [ "$pid" == "" ]; then
+         echo "WARNING: No Wrapper Pid File Found, EDEX ${1} did not start properly"
+      else
+         checkStatus ${1}
+      fi
+   else
+      echo "WARNING: No Wrapper Pid File Found, EDEX ${1} did not start properly"
    fi
 }
 
 # what to do to stop an EDEX instance
 # $1 == instance token
 stopEDEX() {
-   pidfile=${EDEX_INSTALL}/bin/${1}.pid
-   if [ ! -f $pidfile ]; then
+   getCamelAndWrapperPids ${1}
+   if [ "$_wrapper_pid" == "" -a "$_camel_pid" == "" ]; then
       echo "WARNING: EDEX ${1} instance not running, no shutdown attempted"
       return 1
    fi
 
-   pidid=`cat ${pidfile}`
-   kill $pidid
-   savepid=$pidid
-   CNT=0
-   TOTCNT=0
-   while [ "X$pidid" != "X" ]; do
-      if [ "$CNT" -lt "3" ]; then
-         let CNT=${CNT}+1
-      else
-         CNT=0
+   local LOG=${EDEX_INSTALL}/logs/start-edex-${1}-$TODAY.log
+   local TIME=`/bin/date "+%F %T"`
+   echo "$TIME: Service edex_camel Stopping EDEX ${1}" >> $LOG
+
+   if [ "$_wrapper_pid" != "" -a "$_wrapper_pid" != "1" ]; then
+      kill $_wrapper_pid
+   else
+      # occasionally wrapper dies and camel process is still running
+      kill $_camel_pid
+   fi
+
+   cnt=0
+   savepid=$_wrapper_pid
+   while [ "${_wrapper_pid}${_camel_pid}" != "" ]; do
+      if [ "$_wrapper_pid" != "$savepid" ]; then
+         echo "WARNING: EDEX ${1} instance running under new pid, started by another user?"
+         return 1
       fi
-      let TOTCNT=${TOTCNT}+1
+
+      let cnt+=1
+
+      if [ $cnt -eq 10 ]; then
+         echo "Waiting for EDEX ${1} to shutdown"
+         cnt=0;
+      fi
+
       sleep 1
-      CAMELPROCESS=`ps -p $savepid -o args | grep home=${EDEX_INSTALL}/bin|grep -c "edex.run.mode=${1}"`
-      if [ $CAMELPROCESS -eq 1 ]; then
-         pidid=$savepid
-      else
-         pidid=""
-      fi
+      getCamelAndWrapperPids ${1}
    done
+
+   echo "EDEX ${1} shutdown"
 }
 
 # what to use to check status
 # $1 == instance token
 checkStatus() {
-        if [ -f ${EDEX_INSTALL}/bin/${1}.pid ]; then
-                pidid=`cat ${EDEX_INSTALL}/bin/${1}.pid`
-                CAMELPROCESS=`ps --ppid $pidid -o args | grep -c "edex.run.mode=${1}"`
-                if [ $CAMELPROCESS -eq 1 ]; then
-                        JAVAPROCESS=`ps --ppid $pidid -o pid,args  | grep "edex.run.mode=${1}"`
-                        JAVAPROCESS=`echo $JAVAPROCESS | cut -d ' ' -f 1`
-                        echo "EDEX Camel (${1}) is running (wrapper PID $pidid)"
-                        echo "EDEX Camel (${1}) is running (java PID $JAVAPROCESS)"
-                else
-                        echo "EDEX Camel (${1}) is not running"
-                fi
-        else
-                echo "EDEX Camel (${1}) is not running"
-        fi
+   getCamelAndWrapperPids ${1}
+   if [ "$_wrapper_pid" == "" ]; then
+      echo "EDEX Camel (${1}) is not running"
+   elif [ "$_wrapper_pid" == "1" ]; then
+      echo "WARNING: EDEX Camel (${1}) wrapper is not running"
+      echo "WARNING: EDEX Camel (${1}) is running (java PID $_camel_pid)"
+      echo "WARNING: Recommend restarting EDEX Camel ${1}"
+   else
+      echo "EDEX Camel (${1}) is running (wrapper PID $_wrapper_pid)"
+      echo "EDEX Camel (${1}) is running (java PID $_camel_pid)"
+   fi
 }
 
 # Verify root user
@@ -151,37 +194,40 @@ case $func in
       checkUser
       for service in ${SERVICES[*]};
       do
-         echo -n "Starting EDEX Camel ($service): "
-         startEDEX $service
-         echo OK
+         echo "Starting EDEX Camel ($service): "
+         startEDEX $service &
       done
+      wait
       RETVAL=$?
       ;;
    stop)
       checkUser
       for service in ${SERVICES[*]};
       do
-         echo -n "Stopping EDEX Camel ($service): "
-         stopEDEX $service
-         echo OK
+         echo "Stopping EDEX Camel ($service): "
+         stopEDEX $service &
       done
+      wait
       RETVAL=$?
       ;;
    restart)
       checkUser
       for service in ${SERVICES[*]};
       do
-         echo -n "Stopping EDEX Camel ($service): "
-         stopEDEX $service
-         echo OK
+         echo "Stopping EDEX Camel ($service): "
+         stopEDEX $service &
       done
+      wait
+
+      # small sleep for wrapper lock to disappear so that we don't make .1 version of log files
       sleep 5
+
       for service in ${SERVICES[*]};
       do
-         echo -n "Starting EDEX Camel ($service): "
-         startEDEX $service
-         echo OK
+         echo "Starting EDEX Camel ($service): "
+         startEDEX $service &
       done
+      wait
       RETVAL=$?
       ;;
    status)
