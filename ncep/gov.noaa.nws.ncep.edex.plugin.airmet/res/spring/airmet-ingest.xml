@@ -15,15 +15,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.airmet" />
 	</bean>
 
-	<bean id="airmetCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="airmet-camel"/>
-  	</bean> 
-
     <camelContext id="airmet-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
         <!--
 	    <endpoint id="airmetFileEndpoint" uri="file:${edex.home}/data/sbn/airmet?noop=true&amp;idempotent=false"/>
         

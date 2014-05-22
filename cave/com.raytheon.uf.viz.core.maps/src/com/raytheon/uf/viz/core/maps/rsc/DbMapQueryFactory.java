@@ -23,10 +23,10 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * TODO Add Description
+ * Factory class to retrieve appropriate DbMapQuery implementation
  * 
  * <pre>
  * 
@@ -35,6 +35,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 9, 2011            bsteffen     Initial creation
+ * Apr 9, 2014   #2997    randerso     Added queryWithinGeometry
  * 
  * </pre>
  * 
@@ -45,7 +46,7 @@ import com.vividsolutions.jts.geom.Envelope;
 public class DbMapQueryFactory {
 
     public interface DbMapQuery {
-        public QueryResult queryWithinEnvelope(Envelope env,
+        public QueryResult queryWithinGeometry(Geometry geom,
                 List<String> columns, List<String> additionalConstraints)
                 throws VizException;
 
