@@ -2,28 +2,24 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Radar Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.radar
-Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
-Bundle-Vendor: RAYTHEON
-Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.geotools,
- com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.localization,
- com.raytheon.uf.common.serialization.comm,
- com.raytheon.uf.common.status;bundle-version="1.11.11",
- com.raytheon.uf.common.dataplugin.radar,
- com.raytheon.uf.edex.menus;bundle-version="1.0.0",
- org.itadaki.bzip2;bundle-version="0.9.1",
- com.raytheon.uf.edex.ndm;bundle-version="1.0.0"
+Bundle-Version: 1.14.0.qualifier
 Bundle-ActivationPolicy: lazy
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.14.0",
+ com.raytheon.uf.common.localization;bundle-version="1.14.0",
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.14.0",
+ com.raytheon.uf.edex.menus,
+ org.itadaki.bzip2;bundle-version="0.9.1",
+ com.raytheon.uf.edex.ndm;bundle-version="1.14.0",
+ com.raytheon.uf.common.comm
 Export-Package: com.raytheon.edex.plugin.radar,
  com.raytheon.edex.plugin.radar.dao,
- com.raytheon.edex.plugin.radar.level2,
- com.raytheon.edex.uengine.tasks.radar
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.comm,
- com.raytheon.uf.common.dataplugin.text.db,
+ com.raytheon.edex.plugin.radar.level2
+Import-Package: com.raytheon.uf.common.dataplugin.text.db,
  com.raytheon.uf.common.inventory.tree,
  com.raytheon.uf.common.wmo,
  org.apache.commons.logging
