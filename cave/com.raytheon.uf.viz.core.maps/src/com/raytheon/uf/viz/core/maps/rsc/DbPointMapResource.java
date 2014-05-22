@@ -31,10 +31,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.pointdata.vadriver.VA_Advanced;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -58,7 +57,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.PointCapability;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.WKBReader;
@@ -71,7 +69,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 19, 2009            randerso     Initial creation
+ * Mar 19, 2009            randerso    Initial creation
+ * Apr 09, 2014 2997       randerso    Replaced buildEnvelope with buildBoundingGeometry
  * 
  * </pre>
  * 
@@ -163,15 +162,15 @@ public class DbPointMapResource extends
 
             String goodnessField;
 
-            Envelope env;
+            Geometry boundingGeometry;
 
             public Request(DbPointMapResource rsc, String labelField,
-                    String goodnessField, Envelope env) {
+                    String goodnessField, Geometry boundingGeometry) {
                 super();
                 this.rsc = rsc;
                 this.labelField = labelField;
                 this.goodnessField = goodnessField;
-                this.env = env;
+                this.boundingGeometry = boundingGeometry;
             }
 
         }
@@ -202,12 +201,12 @@ public class DbPointMapResource extends
         }
 
         public void request(IGraphicsTarget target, DbPointMapResource rsc,
-                Envelope envelope, String labelField, String goodnessField) {
+                Geometry boundingGeom, String labelField, String goodnessField) {
             if (requestQueue.size() == QUEUE_LIMIT) {
                 requestQueue.poll();
             }
             requestQueue.add(new Request(rsc, labelField, goodnessField,
-                    envelope));
+                    boundingGeom));
 
             this.cancel();
             this.schedule();
@@ -234,8 +233,8 @@ public class DbPointMapResource extends
                     if (req.labelField != null) {
                         columns.add(req.labelField);
                     }
-                    if (req.goodnessField != null
-                            && req.goodnessField != req.labelField) {
+                    if ((req.goodnessField != null)
+                            && (req.goodnessField != req.labelField)) {
                         columns.add(req.goodnessField);
                     }
                     if (resourceData.getColumns() != null) {
@@ -258,8 +257,8 @@ public class DbPointMapResource extends
 
                     QueryResult results = DbMapQueryFactory.getMapQuery(
                             resourceData.getTable(),
-                            resourceData.getGeomField()).queryWithinEnvelope(
-                            req.env, columns, constraints);
+                            resourceData.getGeomField()).queryWithinGeometry(
+                            req.boundingGeometry, columns, constraints);
 
                     long t1 = System.currentTimeMillis();
                     System.out.println("Maps DB query took: " + (t1 - t0)
@@ -285,15 +284,14 @@ public class DbPointMapResource extends
                             statusHandler.handle(Priority.ERROR,
                                     "Expected byte[] received "
                                             + geomObj.getClass().getName()
-                                            + ": " + geomObj.toString()
-                                            + "\n  query=\"" + req.env + "\"");
+                                            + ": " + geomObj.toString());
                         }
 
                         if (g != null) {
                             String label = "";
-                            if (req.labelField != null
-                                    && results.getRowColumnValue(c,
-                                            req.labelField) != null) {
+                            if ((req.labelField != null)
+                                    && (results.getRowColumnValue(c,
+                                            req.labelField) != null)) {
                                 Object r = results.getRowColumnValue(c,
                                         req.labelField);
                                 if (r instanceof BigDecimal) {
@@ -395,36 +393,18 @@ public class DbPointMapResource extends
         queryJob = new MapQueryJob();
     }
 
-    private void requestData(IGraphicsTarget target, PixelExtent extent)
-            throws VizException {
-
-        Envelope env = null;
-        try {
-            Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
-            ReferencedEnvelope ref = new ReferencedEnvelope(e,
-                    descriptor.getCRS());
-            env = ref.transform(MapUtil.LATLON_PROJECTION, true);
-        } catch (Exception e) {
-            throw new VizException("Error transforming extent", e);
-        }
-
-        // add the label field
-        String labelField = getCapability(LabelableCapability.class)
-                .getLabelField();
-
-        queryJob.request(target, this, env, labelField,
-                resourceData.getGoodnessField());
-    }
-
     @Override
     protected void paintInternal(IGraphicsTarget aTarget,
             PaintProperties paintProps) throws VizException {
         PixelExtent screenExtent = (PixelExtent) paintProps.getView()
                 .getExtent();
+        Rectangle canvasBounds = paintProps.getCanvasBounds();
+        int screenWidth = canvasBounds.width;
+        double worldToScreenRatio = screenExtent.getWidth() / screenWidth;
 
         int displayWidth = (int) (descriptor.getMapWidth() * paintProps
                 .getZoomLevel());
-        double kmPerPixel = (displayWidth / paintProps.getCanvasBounds().width) / 1000.0;
+        double kmPerPixel = (displayWidth / screenWidth) / 1000.0;
 
         double magnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
@@ -437,12 +417,16 @@ public class DbPointMapResource extends
                 .getLabelField();
         boolean isLabeled = labelField != null;
         if ((isLabeled && !labelField.equals(lastLabelField))
-                || lastExtent == null
+                || (lastExtent == null)
                 || !lastExtent.getEnvelope().contains(
                         clipToProjExtent(screenExtent).getEnvelope())) {
             if (!paintProps.isZooming()) {
                 PixelExtent expandedExtent = getExpandedExtent(screenExtent);
-                requestData(aTarget, expandedExtent);
+                Geometry boundingGeom = buildBoundingGeometry(expandedExtent,
+                        worldToScreenRatio, kmPerPixel);
+
+                queryJob.request(aTarget, this, boundingGeom, labelField,
+                        resourceData.getGoodnessField());
                 lastExtent = expandedExtent;
                 lastLabelField = labelField;
             }
@@ -497,9 +481,9 @@ public class DbPointMapResource extends
                 try {
                     if (node.getDistance() > threshold) {
                         Coordinate c = node.screenLoc;
-                        if (c != null && screenExtent.contains(c.x, c.y)) {
+                        if ((c != null) && screenExtent.contains(c.x, c.y)) {
                             points.add(new double[] { c.x, c.y, 0.0 });
-                            if (isLabeled && magnification != 0) {
+                            if (isLabeled && (magnification != 0)) {
                                 DrawableString str = new DrawableString(
                                         node.label, color);
                                 str.setCoordinates(c.x + offsetX, c.y + offsetY);
