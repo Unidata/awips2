@@ -4907,6 +4907,7 @@
       <parameter>GH</parameter>
       <singleLevel units="FRZ" />
       <singleLevel units="TW0" />
+      <singleLevel units="WBZ" />      
     </paramLevelMatches>
     <imageStyle>
       <displayUnits>ft</displayUnits>
