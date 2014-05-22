@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Jan  5, 2010            mpduff       Initial creation
  * Nov 27, 2012 1351       skorolev     Changes for non-blocking dialog.
  * Jan 29, 2014 2757       skorolev     Changed OK button handler.
+ * Apr 23, 2014 3054       skorolev     Fixed issue with removing a new station from list.
  * 
  * </pre>
  * 
@@ -66,22 +67,16 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     @Override
     protected void handleOkBtnSelection() {
         // Check for changes in the data
-        if (!configManager.getAddedZones().isEmpty()
-                || !configManager.getAddedStations().isEmpty()
-                || this.timeWindowChanged || this.shipDistanceChanged
-                || this.fogChkChanged || this.maZonesRemoved) {
+        if (dataIsChanged()) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "Fog Monitor Confirm Changes",
                     "Want to Update Fog Monitor's Setup files?");
             if (choice == SWT.OK) {
                 // Save the config xml file
                 configManager.setTimeWindow(timeWindow.getSelection());
-                this.timeWindowChanged = false;
                 configManager.setShipDistance(shipDistance.getSelection());
-                this.shipDistanceChanged = false;
                 configManager.setUseAlgorithms(fogChk.getSelection());
-                this.fogChkChanged = false;
-                this.maZonesRemoved = false;
+                resetStatus();
                 configManager.saveConfigData();
                 /**
                  * DR#11279: re-initialize threshold manager and the monitor
@@ -92,22 +87,7 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
                 if ((!configManager.getAddedZones().isEmpty())
                         || (!configManager.getAddedStations().isEmpty())) {
-                    String message = "New zones have been added, the display "
-                            + "thresholds for the new zones are set to "
-                            + "default values, you may edit them with the display "
-                            + "thresholds editor which can be launched from Fog Monitor "
-                            + "zone table.\n\nIf Fog Monitor is running anywhere within "
-                            + "the office, clear it.\n";
-
-                    showMessage(shell, SWT.ICON_INFORMATION | SWT.OK,
-                            "Fog Monitor Confirm Changes", message);
-
-                    String message2 = "New zones have been added, and their monitoring thresholds "
-                            + "have been set to default values; would you like to modify "
-                            + "their threshold values now?";
-                    int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES
-                            | SWT.NO, "Edit Thresholds Now?", message2);
-                    if (yesno == SWT.YES) {
+                    if (editDialog() == SWT.YES) {
                         FogMonDispThreshDlg fogMonitorDlg = new FogMonDispThreshDlg(
                                 shell, CommonConfig.AppName.FOG,
                                 DataUsageKey.MONITOR);
