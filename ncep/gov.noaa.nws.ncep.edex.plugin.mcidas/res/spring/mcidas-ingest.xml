@@ -24,15 +24,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.mcidas" />
 	</bean>
 
-	<bean id="mcidasCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="mcidas-camel"/>
-  	</bean> 
-	
 	<camelContext id="mcidas-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="mcidasFileEndpoint" uri="file:${edex.home}/data/sbn/mcidas?noop=true&amp;idempotent=false"/>
 
 		<!-- Begin McIDAS routes -->
