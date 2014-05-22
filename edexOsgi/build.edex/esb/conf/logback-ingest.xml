@@ -242,6 +242,9 @@
    <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
       <level value="ERROR"/>
    </logger>
+   <logger name="org.apache.camel.core.xml">
+      <level value="WARN"/>
+   </logger>
    <logger name="org.apache.qpid">
       <level value="INFO"/>
    </logger>

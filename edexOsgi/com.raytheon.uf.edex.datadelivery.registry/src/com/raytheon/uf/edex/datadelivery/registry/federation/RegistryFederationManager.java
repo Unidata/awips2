@@ -100,7 +100,6 @@ import com.raytheon.uf.edex.datadelivery.registry.availability.FederatedRegistry
 import com.raytheon.uf.edex.datadelivery.registry.dao.ReplicationEventDao;
 import com.raytheon.uf.edex.datadelivery.registry.replication.NotificationServers;
 import com.raytheon.uf.edex.datadelivery.registry.web.DataDeliveryRESTServices;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
@@ -109,6 +108,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.NoReplicationServersAvailab
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.RegistryQueryUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
 
@@ -382,7 +382,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                 submitObjectsRequest
                         .getSlot()
                         .add(new SlotType(EbxmlObjectUtil.EVENT_SOURCE_SLOT,
-                                new StringValueType(DataDeliveryIdUtil.getId())));
+                                new StringValueType(RegistryIdUtil.getId())));
                 try {
                     statusHandler
                             .info("Submitting federation registration objects to local registry...");
@@ -713,7 +713,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     @GET
     @Path("dataDeliveryId")
     public String dataDeliveryId() {
-        return DataDeliveryIdUtil.getId();
+        return RegistryIdUtil.getId();
     }
 
     @GET
@@ -773,7 +773,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                         + registry.getId() + "]", e);
                 continue;
             }
-            if (remoteReplicatingTo.contains(DataDeliveryIdUtil.getId())) {
+            if (remoteReplicatingTo.contains(RegistryIdUtil.getId())) {
                 registrySet.add(registry.getId().replace(
                         FederationProperties.REGISTRY_SUFFIX, ""));
             }
@@ -791,7 +791,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         RegistryType remoteRegistry = getRegistry(registryId);
         dataDeliveryRestClient.getRegistryFederationManager(
                 remoteRegistry.getBaseURL()).addReplicationServer(
-                DataDeliveryIdUtil.getId());
+                RegistryIdUtil.getId());
         statusHandler.info("Established replication with [" + registryId + "]");
     }
 
@@ -805,7 +805,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         RegistryType remoteRegistry = getRegistry(registryId);
         dataDeliveryRestClient.getRegistryFederationManager(
                 remoteRegistry.getBaseURL()).removeReplicationServer(
-                DataDeliveryIdUtil.getId());
+                RegistryIdUtil.getId());
         statusHandler
                 .info("Disconnected replication with [" + registryId + "]");
     }
@@ -1070,7 +1070,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                     request.setUsername(RegistryUtil.registryUser);
                     request.getSlot().add(
                             new SlotType(EbxmlObjectUtil.EVENT_SOURCE_SLOT,
-                                    new StringValueType(DataDeliveryIdUtil
+                                    new StringValueType(RegistryIdUtil
                                             .getId())));
                     try {
                         if (!request.getRegistryObjects().isEmpty()) {
@@ -1094,7 +1094,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                             refList, false, true, DeletionScope.DELETE_ALL);
                     request.getSlot().add(
                             new SlotType(EbxmlObjectUtil.EVENT_SOURCE_SLOT,
-                                    new StringValueType(DataDeliveryIdUtil
+                                    new StringValueType(RegistryIdUtil
                                             .getId())));
                     try {
                         if (!refList.getObjectRef().isEmpty()) {
@@ -1191,7 +1191,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         String replicatingTo = dataDeliveryRestClient
                 .getRegistryFederationManager(remoteRegistry.getBaseURL())
                 .getReplicatingTo();
-        if (replicatingTo.contains(DataDeliveryIdUtil.getId())) {
+        if (replicatingTo.contains(RegistryIdUtil.getId())) {
             statusHandler.info("Successfully verified replication with ["
                     + registryId + "]");
         } else {
