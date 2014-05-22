@@ -58,6 +58,7 @@ import conf.TDBConfig as config
 #    10/29/10        7354          cjeanbap       Updated if-statement to handle None
 #    12/07/10        7656          cjeanbap       Retrieve environment variable.
 #    04/07/11        8686          cjeanbap       Fixed $ACTION has -i associated
+#    05/12/14       16954          kshrestha      Added Multiple flag functionality for textdb
 ##############################################################################
 class TextDB:
 
@@ -226,6 +227,7 @@ class TextDB:
             msg = MSG.Message(True)
             msg.initializeMessage(False)
             commands = self.commands['command']
+            isJoin = False
             for command in commands:
                 data = self.commands[command]
                 message = config.message[command]
@@ -233,6 +235,8 @@ class TextDB:
                 for tuple in message[config.MSG_START:]:
                     key = tuple[config.MSG_KEY]
                     value = tuple[config.MSG_VALUE]
+                    if ((key == "SUBOP") and (value == "JOIN")):
+                        isJoin = True
                     if isinstance(value,types.IntType):
                         if args == config.MSG_VAR_ARGS:
                             for item in data:
@@ -242,6 +246,9 @@ class TextDB:
                                 if ((key == "SITE") and (self.commands.get("site_node") is not None) and (len(self.commands.get("site_node")) == 0)):
                                     val = str(os.getenv("sitename"))            
                                     msg.addProperty(name=key,value=val,replace=True)
+                                elif(isJoin == True):
+                                    msg.addProperty(name=key,value=data,replace=True)
+                                    isJoin = False
                                 else:
                                     msg.addProperty(name=key,value=data[value],replace=True)
                             else:
@@ -472,7 +479,7 @@ class TextDB:
                subJoins = self.commands.get(key)            
                length = len(self.commands.get(key))
                #specifically looking for config.flags of subJoins
-               if length == 6:
+               if length <= 6:
                    for pos in range(0, length, 2):
                        value = config.flags.get(subJoins[pos])[0]
                        try:
