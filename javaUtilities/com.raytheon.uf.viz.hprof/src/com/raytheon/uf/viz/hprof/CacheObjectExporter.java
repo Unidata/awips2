@@ -41,6 +41,7 @@ import com.raytheon.hprof.SmartInstance;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * May 05, 2014  3093     bsteffen    Initial creation
+ * May 22, 2014  3093     bsteffen    Use printMB, printKB
  * 
  * </pre>
  * 
@@ -105,7 +106,7 @@ public class CacheObjectExporter extends RequestableResourceExporter {
                         + cse.getValue());
 
             }
-            println("  total size(bytes) = " + (total / 1024 / 1024) + "MB");
+            printMB("  total size = ", total);
             println("}");
         }
     }
