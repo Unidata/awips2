@@ -34,10 +34,11 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.jivesoftware.smack.RosterGroup;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -54,6 +55,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 31, 2014 2700       bclement     don't prompt for group if user is already in one
  * Feb 13, 2014 2755       bclement     roster addition now done in account manager, user input passed back
  * Apr 07, 2014 2785       mpduff       Changed to implement CaveSWTDialog
+ *                                      Fix loading of groups
+ * Apr 23, 2014 3040       lvenable     Cleaned up dialog code/layout.  Allow the cancellation of the create
+ *                                      group dialog without closing this dialog.  Added capability to resize
+ *                                      the group combo box if the names get too long.
  * 
  * </pre>
  * 
@@ -61,11 +66,18 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class SubRequestDialog extends CaveSWTDialog {
-    private final String NEW_GROUP = "New Group...";
 
+    /** User ID. */
     private final String userid;
 
+    /** Combo listing all of the available groups. */
     private Combo groupCbo;
+
+    /** Create group dialog. */
+    private CreateGroupDialog createGroupDlg;
+
+    /** Allow button. */
+    private Button allowBtn;
 
     /**
      * Constructor
@@ -80,34 +92,69 @@ public class SubRequestDialog extends CaveSWTDialog {
     }
 
     @Override
+    protected Layout constructShellLayout() {
+        GridLayout mainLayout = new GridLayout(1, false);
+        return mainLayout;
+    }
+
+    @Override
+    protected Object constructShellLayoutData() {
+        return new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+    }
+
+    @Override
     protected void initializeComponents(Shell shell) {
-        GridLayout gl = new GridLayout(1, false);
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         Composite mainComp = new Composite(shell, SWT.NONE);
+        GridLayout gl = new GridLayout(1, false);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         mainComp.setLayout(gl);
         mainComp.setLayoutData(gd);
 
+        /*
+         * Top Label
+         */
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         Label msgLbl = new Label(mainComp, SWT.NONE);
-        msgLbl.setText(userid + " wants to add you to their contacts list.");
+        msgLbl.setText(userid + " wants to add you to a contacts list:");
         msgLbl.setLayoutData(gd);
 
-        gl = new GridLayout(2, false);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        /*
+         * Group composite and controls.
+         */
         Composite groupComp = new Composite(mainComp, SWT.NONE);
+        gl = new GridLayout(3, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         groupComp.setLayout(gl);
         groupComp.setLayoutData(gd);
 
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        gd = new GridData(SWT.DEFAULT, SWT.CENTER, false, true);
         Label groupLbl = new Label(groupComp, SWT.NONE);
         groupLbl.setText("Group: ");
         groupLbl.setLayoutData(gd);
+
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        gd.minimumWidth = 130;
         groupCbo = new Combo(groupComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         groupCbo.setItems(getGroupNames());
         groupCbo.select(0);
-        groupCbo.setLayout(gl);
         groupCbo.setLayoutData(gd);
 
+        gd = new GridData();
+        gd.horizontalIndent = 5;
+        Button newGroup = new Button(groupComp, SWT.PUSH);
+        newGroup.setText("New Group...");
+        newGroup.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleNewGroupAction();
+            }
+        });
+
+        addSeparator(mainComp);
+
+        /*
+         * Action buttons.
+         */
         gl = new GridLayout(2, false);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         Composite btnComp = new Composite(mainComp, SWT.NONE);
@@ -117,15 +164,20 @@ public class SubRequestDialog extends CaveSWTDialog {
         int btnWidth = 75;
 
         gd = new GridData(btnWidth, SWT.DEFAULT);
-        Button allowBtn = new Button(btnComp, SWT.PUSH);
+        allowBtn = new Button(btnComp, SWT.PUSH);
         allowBtn.setText("Allow");
         allowBtn.setLayoutData(gd);
         allowBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                action(true);
+                handleAllowDenyAction(true);
             }
         });
+
+        // Disable the allow button if there are no items in the combo box.
+        if (groupCbo.getItemCount() == 0) {
+            allowBtn.setEnabled(false);
+        }
 
         gd = new GridData(btnWidth, SWT.DEFAULT);
         Button denyBtn = new Button(btnComp, SWT.PUSH);
@@ -134,12 +186,14 @@ public class SubRequestDialog extends CaveSWTDialog {
         denyBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                action(false);
+                handleAllowDenyAction(false);
             }
         });
     }
 
     /**
+     * Get the list of group names.
+     * 
      * @return list of existing group names
      */
     private String[] getGroupNames() {
@@ -148,41 +202,73 @@ public class SubRequestDialog extends CaveSWTDialog {
         if (connection == null) {
             return new String[0];
         }
-        Collection<RosterGroup> groups = connection.getContactsManager()
+        Collection<RosterGroup> rosterGroups = connection.getContactsManager()
                 .getGroups();
-        List<String> groupList = new ArrayList<String>(groups.size());
-        for (String group : groupList) {
-            groupList.add(group);
+        List<String> groupList = new ArrayList<String>(rosterGroups.size());
+        for (RosterGroup group : rosterGroups) {
+            groupList.add(group.getName());
         }
 
         Collections.sort(groupList);
-        groupList.add(0, NEW_GROUP);
 
         return groupList.toArray(new String[groupList.size()]);
     }
 
     /**
-     * Action handler.
-     * 
-     * @param approved
-     *            true if request approved, false if denied
+     * Handle adding a new group.
      */
-    private void action(boolean approved) {
-        if (approved) {
-            if (groupCbo.getSelectionIndex() == 0) {
-                // new group
-                CreateGroupDialog dialog = new CreateGroupDialog(Display
-                        .getCurrent().getActiveShell());
-                dialog.open();
-                String group = dialog.getNewGroup();
-                setReturnValue(group);
-            } else {
+    private void handleNewGroupAction() {
+        if (createGroupDlg == null || createGroupDlg.isDisposed()) {
+            createGroupDlg = new CreateGroupDialog(Display.getCurrent()
+                    .getActiveShell());
+            createGroupDlg.open();
+            String groupName = createGroupDlg.getNewGroup();
+
+            // If the group name is not null, add it to the combo and then
+            // select it.
+            if (groupName != null) {
+                allowBtn.setEnabled(true);
+                groupCbo.add(groupName, 0);
+                groupCbo.select(0);
+                shell.pack();
+            }
+        } else {
+            createGroupDlg.bringToTop();
+        }
+    }
+
+    /**
+     * Handle Allow/Deny action.
+     * 
+     * @param allowRequest
+     *            True if request allowed, false if denied
+     */
+    private void handleAllowDenyAction(boolean allowRequest) {
+        if (allowRequest) {
+            if (groupCbo.getItemCount() != 0) {
                 setReturnValue(groupCbo.getItem(groupCbo.getSelectionIndex()));
+            } else {
+
             }
         } else {
             setReturnValue(null);
         }
 
         close();
+    }
+
+    /**
+     * Add a line separator to the given composite.
+     * 
+     * @param parentComp
+     *            Parent composite.
+     */
+    private void addSeparator(Composite parentComp) {
+        GridLayout gl = (GridLayout) parentComp.getLayout();
+
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = gl.numColumns;
+        Label sepLbl = new Label(parentComp, SWT.SEPARATOR | SWT.HORIZONTAL);
+        sepLbl.setLayoutData(gd);
     }
 }

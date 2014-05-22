@@ -23,9 +23,6 @@ package com.raytheon.uf.edex.stats.dao;
 import java.util.Calendar;
 import java.util.List;
 
-import org.hibernate.Query;
-import org.hibernate.StatelessSession;
-
 import com.raytheon.uf.common.stats.StatsRecord;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
@@ -42,6 +39,8 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * Aug 21, 2012            jsanchez    Initial creation
  * Mar 18, 2013 1082       bphillip    Modified to extend sessionmanagedDao and use spring injection
  * May 22, 2013 1917       rjpeter     Added reclaimSpace.
+ * Apr 18, 2014 2681       rjpeter     Added retrieveMinTime.
+ * May 12, 2014 3154       rjpeter     Remove reclaimSpace, postgres 9.2 autovacuum sufficient.
  * </pre>
  * 
  * @author jsanchez
@@ -56,7 +55,29 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
     }
 
     /**
-     * Retrieves stat records that has a date before the limit.
+     * Retrieves the earliest time in the stats table for a given data type.
+     * 
+     * @param eventType
+     * @return
+     * @throws DataAccessLayerException
+     */
+    public Calendar retrieveMinTime(String eventType)
+            throws DataAccessLayerException {
+        String hql = "select min(rec.date) from StatsRecord rec where rec.eventType = :eventType";
+        List<Object> results = this
+                .executeHQLQuery(hql, "eventType", eventType);
+        if ((results != null) && !results.isEmpty()) {
+            Object time = results.get(0);
+            if (time != null) {
+                return (Calendar) time;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves stat records that has a date in the time range.
      * 
      * @param limit
      * @param eventType
@@ -66,11 +87,11 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
      *         size 0 will be returned.
      * @throws DataAccessLayerException
      */
-    public List<StatsRecord> retrieveRecords(Calendar limit, String eventType,
-            int maxResults) throws DataAccessLayerException {
-        String hql = "from StatsRecord rec where rec.eventType = :eventType and rec.date < :date order by rec.date asc";
-        return this.query(hql, maxResults, "eventType", eventType, "date",
-                limit);
+    public List<StatsRecord> retrieveRecords(String eventType,
+            Calendar minTime, Calendar maxTime) throws DataAccessLayerException {
+        String hql = "from StatsRecord rec where rec.eventType = :eventType and rec.date >= :minDate and rec.date < :maxDate order by rec.date asc";
+        return this.query(hql, "eventType", eventType, "minDate", minTime,
+                "maxDate", maxTime);
     }
 
     @Override
@@ -81,35 +102,5 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
     @Override
     protected Class<StatsRecord> getEntityClass() {
         return StatsRecord.class;
-    }
-
-    /**
-     * Manually runs vacuum due to large numbers of inserts and deletes to keep
-     * table size to a minimum.
-     */
-    public void reclaimSpace() {
-        StatelessSession sess = null;
-
-        try {
-            sess = template.getSessionFactory().openStatelessSession();
-            // vacuum can't run within a transaction, hack to allow vacuum to
-            // run from within hibernate
-            Query query = sess
-                    .createSQLQuery("rollback; VACUUM ANALYZE events.stats");
-            query.executeUpdate();
-            statusHandler.info("stats vacuumed");
-        } catch (Exception e) {
-            statusHandler.error(
-                    "Error occurred running VACUUM on events.stats", e);
-        } finally {
-            if (sess != null) {
-                try {
-                    sess.close();
-                } catch (Exception e) {
-                    statusHandler.error(
-                            "Error occurred closing database session", e);
-                }
-            }
-        }
     }
 }

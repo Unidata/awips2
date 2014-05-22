@@ -54,6 +54,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  *                                      bulletIndices(), header(), firstBullet(), secondBullet(), getImmediateCausesPtrn();
  *                                      updated body(), header(), and secondBullet();
  * Mar 13, 2013  DR 15892  D. Friedman  Fix bullet parsing.
+ * May 13, 2014  DR 17177  Qinglu Lin   Updated secondBullet().
  * 
  * </pre>
  * 
@@ -255,14 +256,14 @@ abstract public class AbstractLockingBehavior implements ICommonPatterns {
      * Locks the second bullet.
      */
     private void secondBullet() {
-    	// LOCK_END should not be found at the beginning since the previous line
-    	// should be blank.
-    	String secondBullet = 
-    		"\\* UNTIL \\d{3,4} (AM|PM) \\w{3,4}( \\w{6,9}){0,1}(\\/\\d{3,4} (AM|PM) \\w{3,4}( \\w{6,9}){0,1}\\/){0,1}"
-    		+ newline;
-    	Pattern secondBulletPtrn = Pattern.compile(secondBullet,
-    			Pattern.MULTILINE);
-    	find(secondBulletPtrn.matcher(text));
+        // LOCK_END should not be found at the beginning since the previous line
+        // should be blank.
+        String secondBullet = 
+                "\\* UNTIL (\\d{3,4} (AM|PM)|NOON|MIDNIGHT) \\w{3,4}( \\w{6,9}){0,1}(\\/(\\d{3,4} (AM|PM)|NOON|MIDNIGHT) \\w{3,4}( \\w{6,9}){0,1}\\/){0,1}"
+                        + newline;
+        Pattern secondBulletPtrn = Pattern.compile(secondBullet,
+                Pattern.MULTILINE);
+        find(secondBulletPtrn.matcher(text));
     }
 
     /**

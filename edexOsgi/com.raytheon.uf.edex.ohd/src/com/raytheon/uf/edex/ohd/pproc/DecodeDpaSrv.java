@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * Mar 20, 2013 1804       bsteffen    Switch all radar decompressing to be in
  *                                     memory.
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
+ * Apr 10, 2014   2675     mpduff      Removed call to GAFF.
  * 
  * </pre>
  * 
@@ -80,12 +81,6 @@ public class DecodeDpaSrv {
         proc = checkFile(message, ingestFile.getName());
         if (proc == false) {
             return null;
-        }
-
-        // Run GAFF
-        GAFF gaff = new GAFF();
-        if (gaff.shouldGAFFRun()) {
-            gaff.process();
         }
 
         String path = appsDefaults.getToken("pproc_bin");

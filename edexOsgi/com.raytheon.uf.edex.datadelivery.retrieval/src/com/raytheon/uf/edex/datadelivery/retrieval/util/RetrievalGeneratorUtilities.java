@@ -35,8 +35,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.plugin.DataURIDatabaseUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalRequestWrapper;
 import com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionRetrievalRequestWrapper;
 
@@ -55,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionRetrieva
  * Dec 11, 2013   2625     mpduff       Remove creation of DataURI.
  * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * Apr 09, 2014   3012     dhladky      Added error message.
+ * Apr 21, 2014   2060     njensen     Remove dependency on grid dataURI column
  * 
  * </pre>
  * 
@@ -65,31 +65,6 @@ public class RetrievalGeneratorUtilities {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalGeneratorUtilities.class);
-
-    /**
-     * Find duplicate URI's
-     * 
-     * @param dataURI
-     * @return
-     */
-    public static boolean findDuplicateUri(String dataUri, String plugin) {
-
-        boolean isDuplicate = false;
-        try {
-            String sql = "select id from " + plugin + " where datauri = '"
-                    + dataUri + "'";
-
-            CoreDao dao = new CoreDao(DaoConfig.forDatabase("metadata"));
-            Object[] results = dao.executeSQLQuery(sql);
-            if (results.length > 0) {
-                isDuplicate = true;
-            }
-        } catch (Exception e) {
-            statusHandler.error("Couldn't determine duplicate status! ", e);
-        }
-
-        return isDuplicate;
-    }
 
     /**
      * Find the duplicate URI's for grid
@@ -117,13 +92,12 @@ public class RetrievalGeneratorUtilities {
             for (Level level : levels) {
                 for (String ensembleMember : ensembleMembers) {
                     try {
-
                         GridRecord rec = ResponseProcessingUtilities
                                 .getGridRecord(name, parm, level,
                                         ensembleMember, cov);
                         rec.setDataTime(time);
-                        boolean isDup = findDuplicateUri(rec.getDataURI(),
-                                "grid");
+                        boolean isDup = DataURIDatabaseUtil
+                                .existingDataURI(rec);
                         if (isDup) {
                             levDups.add(level);
                         }
@@ -141,7 +115,7 @@ public class RetrievalGeneratorUtilities {
 
         return dups;
     }
-    
+
     /**
      * 
      * Drops Retrievals by subscription into a common queue for processing
@@ -152,7 +126,7 @@ public class RetrievalGeneratorUtilities {
      * @throws Exception
      */
     public static void sendToRetrieval(String destinationUri, Network network,
-            Object[] payload) throws Exception{
+            Object[] payload) throws Exception {
 
         if (payload != null) {
 
