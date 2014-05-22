@@ -104,6 +104,8 @@ import com.raytheon.uf.common.time.DataTime;
  *                                      PluginDataObject.
  * May 16, 2013 1869        bsteffen    Rewrite dataURI property mappings.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Apr 15, 2014 1869        bsteffen    Remove unused transient record field.
+ * 
  * </pre>
  * 
  */
@@ -172,9 +174,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     /** Internal variable used for creating an object from a dataURI */
     @Transient
     private transient int uriIndex = 2;
-
-    @Transient
-    private Object record = null;
 
     /**
      * Default Constructor
@@ -269,14 +268,6 @@ public abstract class PluginDataObject extends PersistableDataObject implements
         if (obj instanceof String) {
             this.dataURI = (String) obj;
         }
-    }
-
-    public Object getRecord() {
-        return record;
-    }
-
-    public void setRecord(Object record) {
-        this.record = record;
     }
 
     /**

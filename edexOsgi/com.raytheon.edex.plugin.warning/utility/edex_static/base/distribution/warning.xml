@@ -22,5 +22,5 @@
     <regex>^(W[FGHOTUW]|FZ)[ACHKMPU][AHKQSWY].*</regex>
     <regex>^(WT)(NT|PZ)\d{2} KNHC.*</regex>
     <regex>^(WTP)A\d{2} PHFO.*</regex>
-    <regex>^(NWU)S\d{2} KWNS.*</regex>
+    <regex>^NWUS([13-9]\d|2[1-9]) KWNS.*</regex>
 </requestPatterns>

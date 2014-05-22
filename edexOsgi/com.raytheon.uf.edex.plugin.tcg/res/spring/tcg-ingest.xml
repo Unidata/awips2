@@ -13,15 +13,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.tcg"/>
 	</bean>
 
-	<bean id="tcgCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="tcg-camel"/>
-  	</bean> 
-	
     <camelContext id="tcg-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <route id="tcgIngestRoute">
             <from uri="jms-durable:queue:Ingest.tcg"/>
