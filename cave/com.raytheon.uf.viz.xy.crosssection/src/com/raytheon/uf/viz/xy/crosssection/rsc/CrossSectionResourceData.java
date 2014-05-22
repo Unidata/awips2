@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.Platform;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
+import com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -59,6 +60,7 @@ import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 17, 2009            njensen     Initial creation
+ * May 08, 2014 2060       njensen     Constructor sets alert parser
  * 
  * </pre>
  * 
@@ -87,6 +89,10 @@ public class CrossSectionResourceData extends AbstractRequestableResourceData {
     private int numLines;
 
     private Set<DataTime> blackListedTimes = new HashSet<DataTime>();
+
+    public CrossSectionResourceData() {
+        this.setAlertParser(new DataCubeAlertMessageParser());
+    }
 
     @Override
     public AbstractVizResource<?, ?> construct(LoadProperties loadProperties,

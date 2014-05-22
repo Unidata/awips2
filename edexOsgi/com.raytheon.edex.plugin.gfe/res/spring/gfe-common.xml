@@ -28,7 +28,7 @@
     </bean>
 
     <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation" factory-method="getInstance"
-        depends-on="commonTimeRegistered, gfeRegistered">
+        depends-on="commonTimeRegistered, gfeDbRegistered">
     </bean>
 
     <bean id="gfeNotifyFilter" class="com.raytheon.edex.plugin.gfe.server.notify.GfeNotificationFilter"/>
@@ -36,7 +36,6 @@
     <bean id="ifpServer" class="com.raytheon.edex.plugin.gfe.server.IFPServer.Wrapper"/>
     
     <camelContext id="gfe-common-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
         <route id="gfeNotify">
             <from uri="vm:edex.gfeNotification?size=5000"/>
             <doTry>

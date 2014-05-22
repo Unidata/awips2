@@ -72,6 +72,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -85,9 +86,8 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
-import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager.GroupListener;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
@@ -119,10 +119,12 @@ import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.views.CaveFloatingView;
+import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
 
 /**
  * This class is the main view to display the user's information and allow the
@@ -149,6 +151,8 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Mar 05, 2014 2837       bclement    separate rename action for groups, added more icons
  * Mar 05, 2014 2798       mpduff      Add getter for displayFeedAction.
  * Mar 12, 2014 2632       mpduff      Force group deletes from UI if last user is removed.
+ * Apr 11, 2014 2903       bclement    login action changes, removed server disconnect listener, 
+ *                                      added static utility method to show view
  * 
  * </pre>
  * 
@@ -227,12 +231,11 @@ public class CollaborationGroupView extends CaveFloatingView implements
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
-            new LoginAction().run();
-            connection = CollaborationConnection.getConnection();
-            if (connection == null) {
+            if (!new LoginAction().login()) {
                 // user cancelled login
                 return;
             }
+            connection = CollaborationConnection.getConnection();
         }
 
         createFilterText(parent);
@@ -871,7 +874,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 .getActivePage().getViewReferences()) {
             IViewPart viewPart = ref.getView(false);
             if (viewPart instanceof AbstractSessionView) {
-                ((AbstractSessionView) viewPart).setAlertWords(Arrays
+                ((AbstractSessionView<?>) viewPart).setAlertWords(Arrays
                         .asList(words.getAlertWords()));
             }
         }
@@ -954,24 +957,32 @@ public class CollaborationGroupView extends CaveFloatingView implements
         refreshUsersTreeViewerAsync(group);
     }
 
-    @Subscribe
-    public void serverDisconnected(final ServerDisconnectEvent e) {
-        if (logOut == null) {
-            // we aren't logged in
-            return;
-        }
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                logOut.closeCollaboration();
-            }
-        });
-    }
-
     /**
      * @return the displayFeedAction
      */
     public DisplayFeedAction getDisplayFeedAction() {
         return displayFeedAction;
+    }
+
+    /**
+     * @see CaveWorkbenchPageManager#showView(String)
+     * 
+     * @param initFeedView
+     *            true if feed view should be initialized like this is the first
+     *            time the view has been opened
+     * @throws PartInitException
+     */
+    public static void showView(boolean initFeedView) throws PartInitException {
+        CollaborationGroupView view = (CollaborationGroupView) CaveWorkbenchPageManager
+                .getActiveInstance().showView(ID);
+        if (initFeedView) {
+            // if autojoin is selected (to join the default room)
+            if (Activator.getDefault().getPreferenceStore()
+                    .getBoolean(CollabPrefConstants.AUTO_JOIN)) {
+                DisplayFeedAction action = view.getDisplayFeedAction();
+                action.setChecked(true);
+                action.run();
+            }
+        }
     }
 }

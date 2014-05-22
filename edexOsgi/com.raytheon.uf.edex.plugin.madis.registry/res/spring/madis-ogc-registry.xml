@@ -17,11 +17,6 @@
         <constructor-arg value="jms-durable:queue:Ingest.madis" />
     </bean>
 
-    <bean id="madisCamelRegistered" factory-bean="contextManager"
-        factory-method="register" depends-on="persistCamelRegistered">
-        <constructor-arg ref="madis-camel" />
-    </bean>
-
 	<bean id="madisSeparator" class="com.raytheon.uf.edex.plugin.madis.MadisSeparator">
 		<constructor-arg
 			value="jms-durable:queue:Ingest.madisSeparator" />
@@ -66,8 +61,7 @@
 	</bean>
     
     <camelContext id="madis-camel"
-        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler"
-        autoStartup="false">
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <!-- This first file drop route is used mainly for testing -->
         <endpoint id="madisFileEndpoint"

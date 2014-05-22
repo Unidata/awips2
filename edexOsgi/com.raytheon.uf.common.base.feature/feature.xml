@@ -262,8 +262,7 @@
          id="org.apache.commons.lang"
          download-size="0"
          install-size="0"
-         version="2.3.0"
-         unpack="false"/>
+         version="2.3.0"/>
 
    <plugin
          id="org.apache.http"

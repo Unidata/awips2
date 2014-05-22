@@ -23,10 +23,9 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.JAXB;
+
 import com.raytheon.uf.common.localization.region.RegionSites.Region;
-import com.raytheon.uf.common.serialization.JAXBManager;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -39,7 +38,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 30, 2014            mnash     Initial creation
+ * Jan 30, 2014            mnash       Initial creation
+ * Apr 25, 2014  2060      njensen     Use JAXB instead of JAXBManager
  * 
  * </pre>
  * 
@@ -89,16 +89,15 @@ public class RegionLookup {
      * @return
      */
     private static RegionSites parseFile() {
+        RegionSites sites = null;
         InputStream stream = RegionLookup.class
                 .getResourceAsStream("/regions.xml");
-        JAXBManager manager = SingleTypeJAXBManager
-                .createWithoutException(RegionSites.class);
         try {
-            return (RegionSites) manager.unmarshalFromInputStream(stream);
-        } catch (SerializationException e) {
+            sites = JAXB.unmarshal(stream, RegionSites.class);
+        } catch (Exception e) {
             handler.error("Unable to unmarshal regions.xml file", e);
         }
 
-        return null;
+        return sites;
     }
 }
