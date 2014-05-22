@@ -42,6 +42,7 @@ import com.raytheon.uf.common.monitor.xml.SCANModelParameterXML;
 import com.raytheon.uf.common.monitor.xml.SCANSiteXML;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.sounding.VerticalSounding;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.dat.utils.DATUtils;
 import com.raytheon.uf.edex.dat.utils.ScanDataCache;
 import com.raytheon.uf.edex.plugin.cwat.CWATGenerator;
@@ -55,13 +56,14 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * CWATConfig object
  * 
- * Hold config for CWAT Generator
+ * Config for CWAT Generator
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 06/02/2009   2037       dhladky    Initial Creation.
+ * 06/02/2009   2037       dhladky     Initial Creation.
+ * Apr 24, 2014  2060      njensen     Updates for removal of grid dataURI column
  * 
  * </pre>
  * 
@@ -560,19 +562,29 @@ public class CWATConfig {
                 SCANModelParameterXML param500U = siteXML
                         .getModelParameter("U500");
 
-                // check back for a couple hours
-                int interval = 1440;
+                int interval = TimeUtil.MINUTES_PER_DAY;
 
+                /*
+                 * FIXME the inner calls to ####Product.getGridProduct below
+                 * will always return null. The second parameter is supposed to
+                 * be the model (e.g. RUC130) but is passing in the parameter.
+                 * 
+                 * Despite this problem, the code continues to function without
+                 * exceptions because the call to
+                 * DATUtils.getMostRecentGridRecord() will see the null record
+                 * and then return the cached record, which was retrieved
+                 * correctly.
+                 */
                 u700 = DATUtils.getMostRecentGridRecord(interval,
-                        U700Product.getSQL(interval, U700Product.U700),
+                        U700Product.getGridRecord(interval, U700Product.U700),
                         param700U);
 
                 v700 = DATUtils.getMostRecentGridRecord(interval,
-                        V700Product.getSQL(interval, V700Product.V700),
+                        V700Product.getGridRecord(interval, V700Product.V700),
                         param700V);
 
                 u500 = DATUtils.getMostRecentGridRecord(interval,
-                        U500Product.getSQL(interval, U500Product.U500),
+                        U500Product.getGridRecord(interval, U500Product.U500),
                         param500U);
 
                 if (u700 != null && v700 != null && u500 != null) {

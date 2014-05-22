@@ -28,10 +28,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.PropertiesUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
 import com.raytheon.uf.edex.esb.camel.context.ContextManager;
 
@@ -54,7 +59,7 @@ import com.raytheon.uf.edex.esb.camel.context.ContextManager;
  * Feb 14, 2013  1638      mschenke     Removing activemq reference in stop
  * Apr 22, 2013  #1932     djohnson     Use countdown latch for a shutdown hook.
  * Dec 04, 2013  2566      bgonzale     refactored mode methods to a utility in edex.core.
- * 
+ * Mar 19, 2014  2726      rjpeter      Added graceful shutdown.
  * </pre>
  * 
  * @author chammack
@@ -65,18 +70,47 @@ public class Executor {
 
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
+    private static final Logger logger = LoggerFactory
+            .getLogger(Executor.class);
+
     public static void start() throws Exception {
+        final long t0 = System.currentTimeMillis();
+
+        Thread.currentThread().setName("EDEXMain");
+        System.setProperty("System.status", "Starting");
+        final AtomicBoolean shutdownContexts = new AtomicBoolean(false);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
+                ContextManager ctxMgr = ContextManager.getInstance();
+
+                long t1 = System.currentTimeMillis();
+                StringBuilder msg = new StringBuilder(250);
+                msg.append(
+                        "\n**************************************************")
+                        .append("\n* EDEX ESB is shutting down                      *")
+                        .append("\n**************************************************");
+                logger.info(msg.toString());
+                if (shutdownContexts.get()) {
+                    ctxMgr.stopContexts();
+                } else {
+                    logger.info("Contexts never started, skipping context shutdown");
+                }
+
+                long t2 = System.currentTimeMillis();
+                msg.setLength(0);
+                msg.append("\n**************************************************");
+                msg.append("\n* EDEX ESB is shut down                          *");
+                msg.append("\n* Total time to shutdown: ")
+                        .append(TimeUtil.prettyDuration(t2 - t1)).append("");
+                msg.append("\n* EDEX ESB uptime: ")
+                        .append(TimeUtil.prettyDuration(t2 - t0)).append("");
+                msg.append("\n**************************************************");
+                logger.info(msg.toString());
                 shutdownLatch.countDown();
             }
         });
-
-        long t0 = System.currentTimeMillis();
-        Thread.currentThread().setName("EDEXMain");
-        System.setProperty("System.status", "Starting");
 
         List<String> xmlFiles = new ArrayList<String>();
 
@@ -113,49 +147,48 @@ public class Executor {
 
         String modeName = System.getProperty("edex.run.mode");
 
-        if (modeName != null && modeName.length() > 0) {
-            System.out.println("EDEX run configuration: " + modeName);
+        if ((modeName != null) && (modeName.length() > 0)) {
+            logger.info("EDEX run configuration: " + modeName);
         } else {
-            System.out
-                    .println("No EDEX run configuration specified, defaulting to use all discovered spring XML files");
+            logger.info("No EDEX run configuration specified, defaulting to use all discovered spring XML files");
         }
-        System.out.println("EDEX site configuration: "
+        logger.info("EDEX site configuration: "
                 + System.getProperty("aw.site.identifier"));
 
         List<String> discoveredPlugins = EDEXModesUtil.extractSpringXmlFiles(
-                xmlFiles,
-                modeName);
+                xmlFiles, modeName);
 
-        System.out.println();
-        System.out.println(" ");
-        System.out.println("EDEX configuration files: ");
-        System.out.println("-----------------------");
-        System.out.println(printList(springList));
-        System.out.println(" ");
-        System.out.println(" ");
-        System.out.println("Spring-enabled Plugins:");
-        System.out.println("-----------------------");
-        System.out.println(printList(discoveredPlugins));
-        System.out.println(" ");
-        System.out.println(" ");
+        StringBuilder msg = new StringBuilder(1000);
+        msg.append("\n\nEDEX configuration files: ");
+        msg.append("\n-----------------------");
+        msg.append("\n").append(printList(springList));
+        msg.append("\n\nSpring-enabled Plugins:");
+        msg.append("\n-----------------------");
+        msg.append("\n").append(printList(discoveredPlugins)).append("\n");
+        logger.info(msg.toString());
 
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
                 xmlFiles.toArray(new String[xmlFiles.size()]));
+
         ContextManager ctxMgr = (ContextManager) context
                 .getBean("contextManager");
+
+        shutdownContexts.set(true);
+
         // start final routes
         ctxMgr.startContexts();
 
         long t1 = System.currentTimeMillis();
-        System.out
-                .println("**************************************************");
-        System.out
-                .println("* EDEX ESB is now operational                    *");
-        System.out.println("* Total startup time: " + ((t1 - t0) / 1000)
-                + " seconds");
-        System.out
-                .println("**************************************************");
+        msg.setLength(0);
+        msg.append("\n**************************************************");
+        msg.append("\n* EDEX ESB is now operational                    *");
+        msg.append("\n* Total startup time: ").append(
+                TimeUtil.prettyDuration(t1 - t0));
+        msg.append("\n**************************************************");
+        logger.info(msg.toString());
+        msg = null;
         System.setProperty("System.status", "Operational");
+        EDEXUtil.notifyIsRunning();
 
         shutdownLatch.await();
     }

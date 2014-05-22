@@ -13,15 +13,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.cwa" />
 	</bean>
 
-	<bean id="cwaCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="cwa-camel"/>
-  	</bean> 
-	
     <camelContext id="cwa-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <route id="cwaIngestRoute">
             <from uri="jms-durable:queue:Ingest.cwa"/>

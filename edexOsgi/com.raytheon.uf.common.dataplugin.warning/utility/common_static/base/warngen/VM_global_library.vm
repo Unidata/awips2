@@ -11,6 +11,7 @@
 #####    Evan Bookbinder    05-05-2013 handleClosesPoints and 3rd bullet changes (OVER & now) 
 #####    Evan Bookbinder    09-20-2013 Fixed rural area otherPoints in pathcast section, added rural phrase
 #####         Qinglu Lin    03-17-2014 DR 16309. Updated inserttorwatches and insertsvrwatches. 
+#####         Qinglu Lin    05-13-2014 DR 17177. Updated secondBullet.
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -1142,10 +1143,13 @@ ${partOfArea}${area.name}...
 ######### MACRO TO GENERATE SECOND BULLET (UNTIL XXXX AMPM TZ (DAY) IN WARNINGS ##########
 #macro(secondBullet $dateUtil $expire $timeFormat $localtimezone $secondtimezone $duration)
 #if(${duration} >= 360)
-UNTIL ${dateUtil.format(${expire}, ${timeFormat.plain}, 15, ${localtimezone})}##
+#set($text = "UNTIL ${dateUtil.format(${expire}, ${timeFormat.plain}, 15, ${localtimezone})}")
 #else
-UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}##
+#set($text = "UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}")
 #end
+#set($text = $text.replace("1200 PM", "NOON"))
+#set($text = $text.replace("1200 AM", "MIDNIGHT"))
+${text}##
 #if(${secondtimezone})
 #if(${duration} >= 360)
 /${dateUtil.format(${expire}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
