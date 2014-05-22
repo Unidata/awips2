@@ -72,6 +72,9 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Mar 07, 2013 1587       bsteffen    rewrite static data generation.
  * Mar 14, 2013 1587       bsteffen    Fix persisting to datastore.
+ * Apr 14, 2014 DR 16752   MPorricelli Add ensembleid to hash key to allow
+ *                                     creation of static data for all perturbations
+ *                                     of Ensemble models
  * Apr 21, 2014 2060       njensen     Remove dependency on grid dataURI column
  * 
  * </pre>
@@ -446,12 +449,15 @@ public class StaticDataGenerator {
         private final int forecastTime;
 
         private final int coverageid;
+        
+        private final String ensembleid;
 
         public CacheKey(GridRecord record) {
             this.datasetid = record.getDatasetId();
             this.refTime = record.getDataTime().getRefTime();
             this.forecastTime = record.getDataTime().getFcstTime();
             this.coverageid = record.getLocation().getId();
+            this.ensembleid = record.getEnsembleId();
         }
 
         @Override
@@ -464,6 +470,8 @@ public class StaticDataGenerator {
             result = (prime * result) + forecastTime;
             result = (prime * result)
                     + ((refTime == null) ? 0 : refTime.hashCode());
+            result = (prime * result)
+                    + ((ensembleid == null) ? 0 : ensembleid.hashCode());
             return result;
         }
 
@@ -499,6 +507,13 @@ public class StaticDataGenerator {
             } else if (!refTime.equals(other.refTime)) {
                 return false;
             }
+            if (ensembleid == null) {
+                if (other.ensembleid != null) {
+                    return false;
+                }
+            } else if (!ensembleid.equals(other.ensembleid)) {
+                return false;
+            }  
             return true;
         }
 
