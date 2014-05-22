@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import com.raytheon.edex.plugin.ccfp.CcfpRecord;
+import com.raytheon.uf.common.dataplugin.ccfp.CcfpRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;

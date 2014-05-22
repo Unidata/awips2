@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ProgressiveDisclosureProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.satellite.SatelliteDataCubeAdapter;
+import com.raytheon.viz.satellite.inventory.SatelliteDataCubeAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Nov 06, 2012  15157    D. Friedman Allow configured inclusion percentage
  * Oct 10, 2013  2104     mschenke    Fixed broken percentage calculation
  * Mar 11, 2014  2896     bsteffen    Limit the number of divisions.
+ * Apr 18, 2014  2947     bsteffen    limit divisions more for pretiled data.
  * 
  * 
  * </pre>
@@ -298,7 +299,7 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
     }
 
     private double getInclusionPercentage(IDescriptor descriptor,
-            ResourcePair rp, Polygon extent) throws VizException {
+            ResourcePair rp, Polygon extent) {
         Double totalPercentage = Double.NaN;
         GeneralGridGeometry targetGeometry = descriptor.getGridGeometry();
         try {
@@ -313,10 +314,14 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
             request.setDistinct(true);
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
+            IGridGeometryProvider[] coverages = response.getFieldObjects(
+                    "coverage", IGridGeometryProvider.class);
+            int maxDivisions = 1024;
+            if (coverages.length > 0) {
+                maxDivisions = Math.max(16, maxDivisions / coverages.length);
+            }
             Geometry area = null;
-            for (Map<String, Object> result : response.getResults()) {
-                IGridGeometryProvider provider = (IGridGeometryProvider) result
-                        .get("coverage");
+            for (IGridGeometryProvider provider : coverages) {
                 GridGeometry2D gridGeometry = provider.getGridGeometry();
 
                 double envWidth = gridGeometry.getEnvelope().getSpan(0);
@@ -326,14 +331,14 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
 
                 int xDiv = (int) (envWidth / 100);
                 int yDiv = (int) (envHeight / 100);
-                if (xDiv * yDiv > 1024 * 1024) {
-                    /* Don't wasste too much time/memory, preserve aspect ratio. */
+                if ((long) xDiv * (long) yDiv > maxDivisions * maxDivisions) {
+                    /* Don't waste too much time/memory, preserve aspect ratio. */
                     if (xDiv > yDiv) {
-                        yDiv = 1024 * yDiv / xDiv;
-                        xDiv = 1024;
+                        yDiv = maxDivisions * yDiv / xDiv;
+                        xDiv = maxDivisions;
                     } else {
-                        xDiv = 1024 * xDiv / yDiv;
-                        yDiv = 1024;
+                        xDiv = maxDivisions * xDiv / yDiv;
+                        yDiv = maxDivisions;
                     }
                 }
                 Geometry intersection = EnvelopeIntersection

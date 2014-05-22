@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.datadelivery.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -61,6 +63,10 @@ import com.raytheon.viz.ui.dialogs.ListSelectionDlg;
  * Sep 04, 2013   2314     mpduff       LoadSave dialog now non-blocking.
  * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
  * Apr 10, 2014   2864     mpduff       Changed how saved subset files are stored.
+ * Apr 22, 2014   3053     lvenable     Updated constructor args for ListSelectionDlg, put
+ *                                      in a null check when the dialog is canceled, and removed
+ *                                      throwing an exception that will be handled by a message box
+ *                                      in the list selection dialog.
  * 
  * </pre>
  * 
@@ -97,13 +103,24 @@ public class SubsetAction extends AbstractHandler {
                 final Shell shell = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getShell();
                 if (selectionDlg == null || selectionDlg.isDisposed()) {
-                    selectionDlg = new ListSelectionDlg(shell, choices);
+                    selectionDlg = new ListSelectionDlg(shell, choices, true,
+                            ListSelectionDlg.ReturnArray.ARRAY_STRING_ITEMS,
+                            "Select");
                     selectionDlg.setCloseCallback(new ICloseCallback() {
                         @Override
                         public void dialogClosed(Object returnValue) {
+                            // The the return value is null then return since
+                            // the dialog was canceled.
+                            if (returnValue == null) {
+                                return;
+                            }
+
                             if (returnValue instanceof String[]) {
                                 String[] selection = (String[]) returnValue;
-                                if (selection.length == 1) {
+
+                                if (selection.length == 0) {
+                                    return;
+                                } else if (selection.length == 1) {
                                     String[] parts = selection[0].split(":");
 
                                     SubsetFileManager sfm = SubsetFileManager
@@ -127,14 +144,21 @@ public class SubsetAction extends AbstractHandler {
                                         dlg.bringToTop();
                                     }
                                 } else {
-                                    throw new IllegalArgumentException(
-                                            "Expected 1 item, received "
-                                                    + selection.length
-                                                    + " items.");
+                                    /*
+                                     * This is just a safety check in case the
+                                     * dialog is configured incorrectly.
+                                     */
+                                    MessageBox mb = new MessageBox(shell,
+                                            SWT.ICON_WARNING | SWT.OK);
+                                    mb.setText("Multiple Items");
+                                    mb.setMessage("Multiple items were selected.  Only one item can be processed.\n"
+                                            + "You must relaunch the dialog and select one item to process.");
+                                    mb.open();
                                 }
                             } else {
                                 throw new IllegalArgumentException(
-                                        "Invalid return type from ListSelectionDlg");
+                                        "Invalid return type from ListSelectionDlg: "
+                                                + returnValue.getClass());
                             }
                         }
                     });

@@ -44,12 +44,12 @@ public interface IDatabaseProcessor<T> {
      * @param row
      * @return True if should continue processing, false otherwise.
      */
-    public boolean process(T row);
+    public boolean process(T row) throws Exception;
 
     /**
      * Perform any post processing if necessary.
      */
-    public void finish();
+    public void finish() throws Exception;
 
     /**
      * Get the batch size of the query.
