@@ -4,7 +4,7 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="binlightningDecoder"
-		class="com.raytheon.edex.plugin.binlightning.BinLightningDecoder" />	
+		class="com.raytheon.edex.plugin.binlightning.BinLightningDecoder" />
 
 	<bean id="binlightningDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
@@ -12,16 +12,14 @@
 		<constructor-arg value="jms-durable:queue:Ingest.binlightning" />
 	</bean>
 
-	<bean id="binlightningCamelRegistered" factory-bean="clusteredCamelContextMgr"
-		factory-method="register" depends-on="persistCamelRegistered">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clusteredBinLightningRoutes" />
-  	</bean>
+    </bean>
 
 	<camelContext id="clusteredBinLightningRoutes"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
-		<!-- 
+		errorHandlerRef="errorHandler">
+		<!--
 		<endpoint id="binlightningFileEndpoint"
 			uri="file:${edex.home}/data/sbn/binlightning?noop=true&amp;idempotent=false" />
 

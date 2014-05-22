@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Utility Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.util
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.apache.commons.beanutils;bundle-version="1.8.3",
@@ -18,4 +18,5 @@ Export-Package: com.raytheon.uf.common.util,
  com.raytheon.uf.common.util.header,
  com.raytheon.uf.common.util.mapping,
  com.raytheon.uf.common.util.registry,
- com.raytheon.uf.common.util.session
+ com.raytheon.uf.common.util.session,
+ com.raytheon.uf.common.util.stream

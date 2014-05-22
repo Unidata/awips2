@@ -19,7 +19,8 @@ Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
  com.raytheon.uf.edex.event;bundle-version="1.0.0",
- com.raytheon.uf.common.stats;bundle-version="1.0.0"
+ com.raytheon.uf.common.stats;bundle-version="1.0.0",
+ com.raytheon.uf.edex.plugin.hpe;bundle-version="1.14.0"
 Import-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.status,
