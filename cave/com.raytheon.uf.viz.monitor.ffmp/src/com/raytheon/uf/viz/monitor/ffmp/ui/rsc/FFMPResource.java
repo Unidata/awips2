@@ -181,6 +181,7 @@ import com.vividsolutions.jts.geom.Point;
  * Jan 21, 2014  DR 15874   gzhang		Use getValue() for QPFSCAN independent. 
  * Feb 19, 2014 2819        randerso    Removed unnecessary .clone() call
  * Mar  3, 2014 2804        mschenke    Set back up clipping pane
+ * Apr 30, 2014  DR 16148   gzhang      Filter Basin Dates for Trend and Table Gap. 
  * May 05, 2014 3026        mpduff      Display Hpe bias source.
  * </pre>
  * 
@@ -3152,6 +3153,9 @@ public class FFMPResource extends
         boolean guid = false;
         Date oldestRefTime = getOldestTime();
         Date mostRecentRefTime = getPaintTime().getRefTime();
+        
+        Date barrierTime = getTableTime();// DR 16148
+        Date minUriTime = getTimeOrderedKeys().get(0);// DR 16148
 
         // grabs the basins we need
         try {
@@ -3164,7 +3168,10 @@ public class FFMPResource extends
 
             if (rateBasin != null) {
                 for (Date date : rateBasin.getValues().keySet()) {
-
+                    
+                    if (date.before(minUriTime) || date.before(barrierTime) || date.after(mostRecentRefTime))   
+                        continue;// DR 16148
+                    
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
                     fgd.setRate(dtime, (double) rateBasin.getValue(date));
@@ -3189,6 +3196,9 @@ public class FFMPResource extends
             if (qpeBasin != null) {
 
                 for (Date date : qpeBasin.getValues().keySet()) {
+                    
+                    if (date.before(minUriTime) || date.before(barrierTime) || date.after(mostRecentRefTime))   
+                        continue;// DR 16148
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
