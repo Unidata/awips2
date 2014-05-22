@@ -19,7 +19,9 @@
 ##
 
 import gridslice
-from numpy import ndarray
+from numpy import ndarray, NaN
+
+gridslice_maskval = 1e37
 
 def execute(*args):
     #defineNumpySlice(vc, param, targetLevel, sense)
@@ -39,16 +41,18 @@ def execute(*args):
         if type(args[1]) == ndarray:
             # target level is 2d grid
             rval = gridslice.createNumpySlice(args[0][1], args[0][0], args[1], int(args[2]))
-            
+            rval[rval == gridslice_maskval] = NaN
             return rval
         else:
             # target level is single value
             rval = gridslice.defineNumpySlice(args[0][1], args[0][0], args[1], int(args[2]))
+            rval[rval == gridslice_maskval] = NaN
             return rval
     else:
         if type(args[2]) == ndarray:
             # cube, cube, grid, sense
             rval = gridslice.createNumpySlice(args[0][0], args[1][0], args[2], int(args[3]))
+            rval[rval == gridslice_maskval] = NaN
             return rval
         else:
             # cube, cube, level, sense
@@ -62,6 +66,6 @@ def execute(*args):
             rval = gridslice.defineNumpySlice(args[0][1], args[0][0], args[2], levelSense)
 
             rval = gridslice.createNumpySlice(args[1][1], args[1][0], rval, int(args[3]))
-            
+            rval[rval == gridslice_maskval] = NaN
             return rval
         
