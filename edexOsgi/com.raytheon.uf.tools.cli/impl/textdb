@@ -42,6 +42,7 @@
 #                                                 include path to python lib.
 #    11/02/12        1236          dgilling       Add --forcepractice flag to 
 #                                                 bypass test mode check.
+#   05/09/12        16215       m.gamazaychikov   Added quotes around $flag.
 ##############################################################################
 
 # this allows you to run this script from outside of ./bin
@@ -59,11 +60,11 @@ export PYTHONPATH=${RUN_FROM_DIR}/src:$PYTHONPATH
 
 forcePractice="FALSE"
 declare -a parsedArgs
-for flag in $@; do
-    if [ $flag == "--forcepractice" ]; then
+for flag in "$@"; do
+    if [ "$flag" == "--forcepractice" ]; then
         forcePractice="TRUE"
     else
-        parsedArgs=("${parsedArgs[@]}" $flag)
+        parsedArgs=("${parsedArgs[@]}" "$flag")
     fi
 done
 
