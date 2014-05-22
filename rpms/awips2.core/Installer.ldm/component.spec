@@ -200,6 +200,8 @@ if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
    exit 1
 fi
+# Fix libtool incompatibility in source tar ball
+su ldm -lc "cd ${_current_dir}; rm -f libtool; ln -s /usr/bin/libtool libtool"
 export _current_dir=`pwd`
 su ldm -lc "cd ${_current_dir}; make install" > install.log 2>&1
 if [ $? -ne 0 ]; then
