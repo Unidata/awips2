@@ -23,8 +23,8 @@
        By including or excluding specific spring files we can determine at startup
        which services the EDEX instance should start.
        
-       If you provide no command line argument, EDEX will default to include
-       all spring files it discovers.  It will print out the files it is using for the
+       If you provide no command line argument, EDEX will list available modes and exit.  
+       It will print out the files it is using for the
        configuration, so you can look at the no argument configuration to
        determine what files to possibly include or exclude.
        
