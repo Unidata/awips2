@@ -101,6 +101,8 @@ import com.vividsolutions.jts.geom.LineString;
  *  01-28-2014  DR16465 mgamazaychikov Fixed the problem with anchor point when frame 
  *                                     count changes; made line width configurable.
  *  04-07-2014  DR 17232   D. Friedman Make sure pivot indexes are valid.
+ *  04-24-2014  DR 16356   Qinglu Lin  Updated generateTrackInfo(), generateNewTrackInfo(),
+ *                                     and createTrack().
  * 
  * </pre>
  * 
@@ -691,6 +693,14 @@ public class StormTrackDisplay implements IRenderable {
             if (cachedTrack != null) {
                 cachedTrack.dispose();
             }
+            if (StormTrackState.trackType.equals("lineOfStorms") && state.justSwitchedToLOS) {
+                GeodeticCalculator gc = new GeodeticCalculator();
+                Coordinate[] coords = state.dragMeGeom.getCoordinates();
+                gc.setStartingGeographicPoint(coords[0].x, coords[0].y);
+                gc.setDestinationGeographicPoint(coords[coords.length - 1].x,
+                        coords[coords.length - 1].y);
+                state.angle = adjustAngle(gc.getAzimuth() - 90);
+            }
             generateTrackInfo(state, paintProps);
             if (state.mode == Mode.TRACK) {
                 createTrack(target, paintProps);
@@ -702,6 +712,9 @@ public class StormTrackDisplay implements IRenderable {
             target.drawWireframeShape(cachedTrack, state.color,
                     state.lineWidth, state.lineStyle);
             paintLabels(target, paintProps);
+        }
+        if (StormTrackState.trackType.equals("lineOfStorms") && state.justSwitchedToLOS) {
+            state.angle = StormTrackState.oneStormAngle;
         }
     }
 
@@ -781,6 +794,10 @@ public class StormTrackDisplay implements IRenderable {
                     currentState.pointMoved = false;
                     currentState.originalTrack = false;
                     moved = true;
+                    if (StormTrackState.trackType.equals("lineOfStorms") &&
+                            currentState.justSwitchedToLOS) {
+                        currentState.justSwitchedToLOS = false;
+                    }
                 }
 
                 currentDisplayedTimes = trackUtil.getDataTimes(paintProps
@@ -959,6 +976,7 @@ public class StormTrackDisplay implements IRenderable {
         state.futurePoints = futurePoints;
 
         state.angle = angle;
+        StormTrackState.oneStormAngle = angle;
         state.speed = speed;
 
         postData(state);
@@ -995,7 +1013,11 @@ public class StormTrackDisplay implements IRenderable {
                         coords[coords.length - 1].y);
                 angle = adjustAngle(gc.getAzimuth() - 90);
             } else {
-                angle = adjustAngle(std.getMotionDirection());
+                if (state.justSwitchedToOS) {
+                    angle = StormTrackState.oneStormAngle;
+                } else {
+                    angle = adjustAngle(std.getMotionDirection());
+                }
             }
             state.angle = angle;
             state.speed = speed;
@@ -1182,6 +1204,11 @@ public class StormTrackDisplay implements IRenderable {
         compiler.handle(gf.createLineString(coords));
 
         double angle = state.angle;
+        if(!state.justSwitchedToOS) {
+            if (StormTrackState.trackType.equals("oneStorm")) {
+                StormTrackState.oneStormAngle = angle;
+            }
+        }
         // Draw ticks, X and Arrow
         for (int i = 0; i < orig.length - 1; ++i) {
             GeodeticCalculator gc = new GeodeticCalculator();
@@ -1189,6 +1216,10 @@ public class StormTrackDisplay implements IRenderable {
             gc.setDestinationGeographicPoint(orig[i + 1].x, orig[i + 1].y);
 
             angle = gc.getAzimuth();
+            if (state.justSwitchedToLOS) {
+                angle = 90.0;
+                state.justSwitchedToLOS = false;
+            }
 
             if (i == state.displayedPivotIndex) {
                 double tickLen = SQRT_2 * tickLengthInMeters;
