@@ -18,9 +18,17 @@
 # further licensing information.
 ###
 
+#    SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    --/--/-----                                  Initial creation
+#    May 06, 2014    3101          njensen        Cast numpy shape values to int
+#                                                  for cross platform compatibility
+
 from numpy import ndarray, float32, NaN
 from numpy import sin, isnan, invert
-from com.raytheon.uf.viz.derivparam.python.function import DistFilterPythonAdapter as DistFilter
+from com.raytheon.uf.common.derivparam.python.function import DistFilterPythonAdapter as DistFilter
 
 MAX_WAVE_NUMBER = 15
 
@@ -43,7 +51,7 @@ def execute(input, dist, dx, dy, times=1):
     #return executePython(input, npts, times)
 
 def executeJava(input, npts, times):
-    output = DistFilter.filter(input, npts, input.shape[1], input.shape[0], times).__numpy__[0]
+    output = DistFilter.filter(input, npts, int(input.shape[1]), int(input.shape[0]), times).__numpy__[0]
     output[output==1e37] = NaN
     return output
     

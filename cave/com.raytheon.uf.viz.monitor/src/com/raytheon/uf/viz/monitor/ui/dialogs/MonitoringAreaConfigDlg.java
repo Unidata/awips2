@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 06, 2013 1578          skorolev     Fixed a cursor problem for checkboxes.
  * Oct 07, 2013 #2443         lvenable     Fixed image memory leak.
  * Jan 29, 2014 2757          skorolev     Added status variables.
+ * Apr 23, 2014 3054          skorolev     Fixed issue with removing from list a new zone and a new station.
  * </pre>
  * 
  * @author lvenable
@@ -187,6 +188,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /** monitor area stations **/
     private java.util.List<String> maStations = null;
 
+    /** monitor area stations status. */
+    protected boolean maStationsRemoved = false;
+
     /** monitor area additional zones **/
     private java.util.List<String> additionalZones = null;
 
@@ -287,6 +291,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                     " Error initiate Additional Zone/Stations list.", e);
         }
         Collections.sort(additionalStns);
+        mode = Mode.Zone;
     }
 
     /*
@@ -565,6 +570,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 removeAssociated();
+                maStationsRemoved = true;
             }
         });
         /*
@@ -864,25 +870,32 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             }
             addNewZoneDlg.open();
         } else {
-            if (associatedList.getSelectionIndex() == -1) {
-                associatedList.setSelection(0);
-            }
-            String area = associatedList.getItem(associatedList
-                    .getSelectionIndex());
-            if (addNewStnDlg == null) {
-                addNewStnDlg = new AddNewStationDlg(shell, appName, area, this);
-                addNewStnDlg.setCloseCallback(new ICloseCallback() {
-                    @Override
-                    public void dialogClosed(Object returnValue) {
-                        if ((Boolean) returnValue) {
-                            // Update the dialog
-                            populateLeftLists();
+            if (associatedList.getSelectionIndex() != -1) {
+                String area = associatedList.getItem(associatedList
+                        .getSelectionIndex());
+                if (addNewStnDlg == null) {
+                    addNewStnDlg = new AddNewStationDlg(shell, appName, area,
+                            this);
+                    addNewStnDlg.setCloseCallback(new ICloseCallback() {
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if ((Boolean) returnValue) {
+                                // Update the dialog
+                                populateLeftLists();
+                            }
+                            addNewStnDlg = null;
                         }
-                        addNewStnDlg = null;
-                    }
-                });
+                    });
+                }
+                addNewStnDlg.open();
+            } else {
+                MessageBox messageBox = new MessageBox(shell,
+                        SWT.ICON_INFORMATION | SWT.NONE);
+                messageBox.setText("Selection error.");
+                messageBox.setMessage("Please select associated zone.");
+                messageBox.open();
+                associatedList.select(0);
             }
-            addNewStnDlg.open();
         }
     }
 
@@ -892,12 +905,14 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     private void handleEditDeleteAction() {
         if (zoneRdo.getSelection() == true) {
             if (editDlg == null) {
-                editDlg = new EditNewZoneDlg(shell, appName);
+                editDlg = new EditNewZoneDlg(shell, appName, this);
                 editDlg.setCloseCallback(new ICloseCallback() {
                     @Override
                     public void dialogClosed(Object returnValue) {
-                        if ((Boolean) returnValue) {
-                            // Update the dialog
+                        if (returnValue instanceof String) {
+                            // Update the edit dialog
+                            String selectedZone = returnValue.toString();
+                            maZones.remove(selectedZone);
                             populateLeftLists();
                         }
                         editDlg = null;
@@ -911,8 +926,10 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                 deleteStnDlg.setCloseCallback(new ICloseCallback() {
                     @Override
                     public void dialogClosed(Object returnValue) {
-                        if ((Boolean) returnValue) {
-                            // Update the dialog
+                        if (returnValue instanceof String) {
+                            // Update the delete dialog
+                            String selectedStn = returnValue.toString();
+                            maStations.remove(selectedStn);
                             populateLeftLists();
                         }
                         deleteStnDlg = null;
@@ -1384,5 +1401,69 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         controlFont.dispose();
         arrowUpImg.dispose();
         arrowDownImg.dispose();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.INewZoneStnAction#latLonErrorMsg()
+     */
+    public void latLonErrorMsg(String latStr, String lonStr) {
+        MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION
+                | SWT.OK);
+        messageBox.setText("Invalid Lat/Lon");
+        StringBuilder errMsg = new StringBuilder("Invalid Lat/Lon entered:");
+        errMsg.append("\nLatitude = ");
+        errMsg.append(latStr);
+        errMsg.append("\nLongitude = ");
+        errMsg.append(lonStr);
+        errMsg.append("\nPlease enter correctly formatted Lat and Lon values:");
+        errMsg.append("\nLatitude should be between -90,90.");
+        errMsg.append("\nLongitude should be between -180,180.");
+        messageBox.setMessage(errMsg.toString());
+        messageBox.open();
+    }
+
+    /**
+     * Reset data status.
+     */
+    protected void resetStatus() {
+        this.timeWindowChanged = false;
+        this.maZonesRemoved = false;
+        this.maStationsRemoved = false;
+        this.shipDistanceChanged = false;
+        this.fogChkChanged = false;
+    }
+
+    /**
+     * Check if data and data states have been changed.
+     * 
+     * @return
+     */
+    protected boolean dataIsChanged() {
+        if (!configMgr.getAddedZones().isEmpty()
+                || !configMgr.getAddedStations().isEmpty()
+                || this.timeWindowChanged || this.shipDistanceChanged
+                || this.fogChkChanged || this.maZonesRemoved
+                || this.maStationsRemoved) {
+            return true;
+        }
+        return false;
+    }
+
+    protected int editDialog() {
+        showMessage(shell, SWT.ICON_INFORMATION | SWT.OK, appName
+                + " Config Change", "You're updating the " + appName
+                + " monitoring settings." + "\n\nIf " + appName
+                + " is running anywhere within "
+                + "the office, please clear it.\n");
+
+        String message2 = "New zones have been added, and their monitoring thresholds "
+                + "have been set to default values; would you like to modify "
+                + "their threshold values now?";
+        int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO,
+                "Edit Thresholds Now?", message2);
+        return yesno;
     }
 }

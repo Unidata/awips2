@@ -61,6 +61,8 @@
 	<vbSource key="AKWAVE239" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AKwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AKwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AKHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AKHwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="BHPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="CPCoutlook211" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="DHM" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -69,10 +71,12 @@
 	<vbSource key="estofsUS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="estofsPR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GFE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GFS199" category="SfcGrid" views="PLANVIEW TIMESERIES" />	
 	<vbSource key="GFSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GFSLAMPTstorm" name="GFSLAMP-Grid" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GLERL" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GlobalWave" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GLOBHwave" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="GRLKwave" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="MOSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="HurWind175" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -89,7 +93,13 @@
 	<vbSource key="MSAS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="NamDNG" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="ETA212" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="NAHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="NAHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="NAHwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="NPHwave15" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="NPHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="NPHwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="OPCWave181" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="OPCWave182" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="OPCWave180" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -100,21 +110,36 @@
 	<vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="RTGSSTHR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-GulfMexico" category="SfcGrid/RTOFS" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-GulfStream" category="SfcGrid/RTOFS" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-GulfMaine" category="SfcGrid/RTOFS" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-Atlantic" category="SfcGrid/RTOFS" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-Alaska" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-Arctic" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-Bering" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-Guam" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-GulfAlaska" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-Honolulu" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-HudsonBaffin" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-Samoa" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-TropPaciLowres" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-WestAtl" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
-	<vbSource key="RTOFS-WestConus" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-GulfMexico" category="SfcGrid/RTOFS/forecast" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-GulfStream" category="SfcGrid/RTOFS/forecast" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-GulfMaine" category="SfcGrid/RTOFS/forecast" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Atlantic" category="SfcGrid/RTOFS/forecast" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Alaska" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Arctic" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Bering" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Guam" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-GulfAlaska" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Honolulu" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-HudsonBaffin" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Samoa" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-TropPaciLowres" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-WestAtl" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-WestConus" category="SfcGrid/RTOFS/forecast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-GulfMexico" category="SfcGrid/RTOFS/nowcast" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-GulfStream" category="SfcGrid/RTOFS/nowcast" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-GulfMaine" category="SfcGrid/RTOFS/nowcast" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-Atlantic" category="SfcGrid/RTOFS/nowcast" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-Alaska" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-Arctic" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-Bering" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-Guam" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-GulfAlaska" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-Honolulu" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-HudsonBaffin" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-Samoa" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-TropPaciLowres" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-WestAtl" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Now-WestConus" category="SfcGrid/RTOFS/nowcast" subCategory="Global" views="PLANVIEW TIMESERIES" />
 	<vbSource key="SeaIce" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="SPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="HurWind226" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -126,6 +151,7 @@
 	<vbSource key="WNAWAVE238" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="WNAwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="WNAwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="WPHwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="bufrmosLAMP" name="GFSLAMP-Stn" category="Point"
 		views="TIMESERIES" />
 	<vbSource key="Ldad" category="Point" views="TIMESERIES" />
