@@ -25,7 +25,11 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core,
  javax.measure,
  com.raytheon.uf.common.inventory;bundle-version="1.14.0",
- com.raytheon.uf.viz.datacube;bundle-version="1.14.0"
+ com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.numeric,
+ com.raytheon.viz.alerts
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.satellite,
  com.raytheon.viz.satellite.rsc

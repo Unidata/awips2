@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.ui,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.viz.core,
- com.raytheon.uf.common.menus;bundle-version="1.0.0";visibility:=reexport
+ com.raytheon.uf.common.menus;bundle-version="1.0.0";visibility:=reexport,
+ com.raytheon.viz.core;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.localization,

@@ -4,25 +4,10 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 	<bean id="cpgSrvDispatcher" class="com.raytheon.uf.edex.cpgsrv.CPGDispatcher" depends-on="commonTimeRegistered"/>
-	
-    <bean id="cpgsrvCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="cpgsrv-camel"/>
-  	</bean>  
 
-    <camelContext id="cpgsrv-camel"
-        xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
-        <route id="cpgProcessAlerts">
-        	<from uri="direct-vm:processCPGAlerts"/>
-            <to uri="direct-vm:stageNotification"/> 
-        </route>
-	</camelContext>
     <camelContext id="clusteredCpgSrvRoutes"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
 	    <route id="cpgsrvListenerRoute">
             <!-- Data from plugin notification -->
             <from uri="jms-durable:queue:cpgsrvFiltering?concurrentConsumers=5"/>
@@ -38,8 +23,7 @@
 	        </doTry>
         </route>
     </camelContext>
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clusteredCpgSrvRoutes" />
   	</bean>
 </beans>
