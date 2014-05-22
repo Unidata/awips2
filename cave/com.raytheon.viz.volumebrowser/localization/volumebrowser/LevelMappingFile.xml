@@ -1198,6 +1198,7 @@
 	</Level>
 	<Level displayName="Wet Bulb 0" key="WetBulb0" group="S">
 		<DatabaseLevel levelName="TW0" levelOneValue="0" />
+		<DatabaseLevel levelName="WBZ" levelOneValue="0" />
 	</Level>
 	<Level displayName="Low Wet Bulb 0" key="LowWetBulb0" group="S"> <!-- Lowest Level of the wet bulb zero -->
 		<DatabaseLevel levelName="LLTW" levelOneValue="0" />
