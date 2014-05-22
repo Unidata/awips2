@@ -22,6 +22,7 @@ package com.raytheon.viz.mpe.ui.actions;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -58,6 +59,8 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
  * Dec 11, 2012            mschenke     Initial creation
  * Feb 2, 2014  16201      snaples      Added saved data flag support
  * 
+ * Apr29, 2014  16308      lbousaidi    transmit RFC Bias when an hour
+ *                                      MPE is saved via the GUI.
  * </pre>
  * 
  * @author mschenke
@@ -256,13 +259,21 @@ public class SaveBestEstimate {
         boolean transmit_bias_on_save = appsDefaults.getBoolean(
                 "transmit_bias_on_save", true);
         if (transmit_rfc_bias && transmit_bias_on_save) {
-            // sprintf ( command_string, "%s/transmit_rfc_bias %s",
-            // precip_proc_bin_dir, cdate );
-            // UFStatus.handle(Priority.VERBOSE, Activator.PLUGIN_ID,
-            // StatusConstants.CATEGORY_MPE, null,
-            // String.format("Invoking transmit_rfc_bias script using command:\n"
-            // "%s\n", command_string ));
-            // system ( command_string );
+
+            Date currentDate = MPEDisplayManager.getCurrent().getCurrentEditDate();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHH");
+            String transmitDate = formatter.format(currentDate);
+            String scriptDir = appsDefaults.getToken("pproc_bin");
+            String scriptName = "transmit_rfc_bias";
+            ProcessBuilder pb = new ProcessBuilder(scriptDir + "/" + scriptName,
+                                transmitDate);
+            try {
+                    pb.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
         }
         MPEDisplayManager.getCurrent().setSavedData(true);
     }

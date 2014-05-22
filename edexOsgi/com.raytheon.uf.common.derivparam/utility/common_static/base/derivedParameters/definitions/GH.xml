@@ -183,4 +183,7 @@
         <Field level="Surface" abbreviation="CCag"/>
         <Field level="Surface" abbreviation="GH"/>
     </Method>
+    <Method name="Alias" levels="BLyr">
+		<Field abbreviation="GH" level="0BLD"/>
+	</Method>    
 </DerivedParameter>
