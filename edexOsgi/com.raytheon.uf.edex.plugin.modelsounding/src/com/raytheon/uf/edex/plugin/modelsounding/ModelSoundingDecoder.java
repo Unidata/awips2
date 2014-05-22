@@ -125,14 +125,6 @@ public class ModelSoundingDecoder extends AbstractDecoder implements
         }
     }
 
-    public void start() {
-        this.modelSoundingPersistenceManager.start();
-    }
-
-    public void shutdown() {
-        this.modelSoundingPersistenceManager.shutdown();
-    }
-
     /**
      * Get one entry from the separator and interpret that data as a single
      * profiler observation.

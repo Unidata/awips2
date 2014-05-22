@@ -34,6 +34,7 @@ package com.raytheon.uf.viz.collaboration.ui.prefs;
  * Feb  3, 2014 2699       bclement    added handle preferences
  * Feb 18, 2014 2631       mpduff      Add constants for room change events.
  * Mar 24, 2014 2936       mpduff      Remove INCLUDE_NWS_FEED_FIELD_EDITOR_ID.
+ * Apr 24, 2014 3070       bclement    added DEFAULT_GROUPNAME_PREF
  * 
  * </pre>
  * 
@@ -61,6 +62,8 @@ public class CollabPrefConstants {
     public static final String DEFAULT_HANDLE = "defaultHandle";
 
     public static final String CUSTOM_HANDLE = "customHandle";
+
+    public static final String DEFAULT_GROUPNAME_PREF = "defaultGroupName";
 
     public static final int AWAY_TIMEOUT_DEFAULT = 10; // ten minutes
 

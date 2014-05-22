@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Camel Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.esb.camel
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: Raytheon
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.apache.camel;bundle-version="1.0.0",
@@ -19,7 +19,7 @@ Require-Bundle: org.apache.camel;bundle-version="1.0.0",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.json;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.esb.camel,
- com.raytheon.uf.edex.esb.camel.directvm,
+ com.raytheon.uf.edex.esb.camel.context,
  com.raytheon.uf.edex.esb.camel.jms
 Import-Package: com.raytheon.uf.common.event,
  com.raytheon.uf.common.message,

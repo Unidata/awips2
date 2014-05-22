@@ -28,6 +28,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * Factory used to produce contextual differences in the
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Jun 24, 2013 2106       djohnson     Add {@link #getBandwidthBucketDao()}.
+ * Apr 22, 2014 2992       dhladky      Added IdUtil for siteList
  * 
  * </pre>
  * 
@@ -98,9 +100,10 @@ public interface BandwidthContextFactory {
      *            the retrieval manager
      * @param bandwidthDaoUtil
      *            the dao util instance
+     * @param RegistryIdUtil finds DD server nodes            
      * @return the {@link BandwidthManager} reference
      */
     IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil);
+            BandwidthDaoUtil bandwidthDaoUtil, RegistryIdUtil idUtil);
 }

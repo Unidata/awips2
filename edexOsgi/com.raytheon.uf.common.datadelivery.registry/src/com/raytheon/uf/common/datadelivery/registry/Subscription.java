@@ -50,6 +50,7 @@ import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
  * Jan 24, 2013 2709       bgonzale     Added method inActivePeriodWindow.
  * Feb 05, 2014 2677       mpduff       Add subscription state getter/setter.
  * Apr 02, 2014  2810      dhladky      Priority sorting of subscriptions.
+ * Apr 21, 2014  2887      dhladky      Added shouldScheduleForTime() to interface.
  * 
  * </pre>
  * 
@@ -730,4 +731,11 @@ public interface Subscription<T extends Time, C extends Coverage> extends Compar
      * @return This subscrition's state
      */
     SubscriptionState getSubscriptionState();
+    
+    /**
+     * Check against activePeriod and Start/End of subscription
+     * @param checkCal
+     * @return
+     */
+    boolean shouldScheduleForTime(Calendar checkCal);
 }

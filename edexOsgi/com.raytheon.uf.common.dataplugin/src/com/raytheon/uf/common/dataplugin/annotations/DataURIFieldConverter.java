@@ -29,7 +29,8 @@ package com.raytheon.uf.common.dataplugin.annotations;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2013  2081      mschenke     Initial creation
+ * Oct 03, 2013  2081      mschenke    Initial creation
+ * May 06, 2014  2060      njensen     Added generics
  * 
  * </pre>
  * 
@@ -37,7 +38,7 @@ package com.raytheon.uf.common.dataplugin.annotations;
  * @version 1.0
  */
 
-public interface DataURIFieldConverter {
+public interface DataURIFieldConverter<T> {
 
     /**
      * Converts field object to a String for the DataURI
@@ -45,7 +46,7 @@ public interface DataURIFieldConverter {
      * @param field
      * @return
      */
-    public String toString(Object field);
+    public String toString(T field);
 
     /**
      * Converts String returned from {@link #toString()} back into a field
@@ -54,6 +55,6 @@ public interface DataURIFieldConverter {
      * @param string
      * @return
      */
-    public Object fromString(String string);
+    public T fromString(String string);
 
 }
