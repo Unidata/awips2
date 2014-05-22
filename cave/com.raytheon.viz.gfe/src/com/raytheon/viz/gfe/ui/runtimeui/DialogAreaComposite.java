@@ -60,6 +60,7 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition.FieldType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 30, 2012            randerso     Initial creation
+ * May 12, 2014 16167      ryu         Fix sizing and accessibility of content.
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public class DialogAreaComposite extends ScrolledComposite {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DialogAreaComposite.class);
 
-    private static final double MAX_HEIGHT_RATIO = 0.85;
+    private static final double MAX_HEIGHT_RATIO = 0.80;
 
     private static final double MAX_WIDTH_RATIO = 0.85;
 
@@ -225,30 +226,27 @@ public class DialogAreaComposite extends ScrolledComposite {
             }
         }
 
+        Point compositeSize = varFrame.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        int xSize = compositeSize.x;
+        int ySize = compositeSize.y;
+
+        this.setMinSize(new Point(xSize, ySize));
+        this.setExpandHorizontal(true);
+        this.setExpandVertical(true);
+        
         Rectangle monitorBounds = this.getDisplay().getPrimaryMonitor()
                 .getBounds();
         int maxXSize = (int) (monitorBounds.width * MAX_WIDTH_RATIO);
         int maxYSize = (int) (monitorBounds.height * MAX_HEIGHT_RATIO);
 
-        Point compositeSize = varFrame.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        int xSize = compositeSize.x;
-        int ySize = compositeSize.y;
-        if (xSize > maxXSize) {
-            xSize = maxXSize;
-        }
-        if (ySize > maxYSize) {
-            ySize = maxYSize;
-        }
+        maxXSize = Math.min(maxXSize, xSize);
+        maxYSize = Math.min(maxYSize, ySize);
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.heightHint = ySize;
-        gd.widthHint = xSize;
+        gd.heightHint = maxYSize;
+        gd.widthHint = maxXSize;
         this.setLayoutData(gd);
-
-        this.setMinSize(new Point(xSize, ySize));
-        this.setExpandHorizontal(true);
-        this.setExpandVertical(true);
-
+        
         // Make sure widgets are scrolled into view when they gain focus
         // see:
         // http://www.java2s.com/Code/Java/SWT-JFace-Eclipse/ScrollSWTwidgetsintoviewwhentheygetfocus.htm
