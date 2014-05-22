@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.rsc.telestrator;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +67,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Mar 18, 2014 2895       njensen     Fix concurrent mod exception on dispose
+ * May 05, 2014 3076       bclement    old CLEAR_ALL is now DISPOSE_ALL,
+ *                                      added clearLayers() and getAllDrawingLayers()
  * 
  * </pre>
  * 
@@ -129,7 +134,7 @@ public class CollaborationDrawingResource extends
             CollaborationDrawingEvent event = new CollaborationDrawingEvent(
                     resourceData.getDisplayId());
             event.setUserName(myUser);
-            event.setType(CollaborationEventType.CLEAR_ALL);
+            event.setType(CollaborationEventType.DISPOSE_ALL);
             sendEvent(event);
         }
 
@@ -206,6 +211,18 @@ public class CollaborationDrawingResource extends
     }
 
     /**
+     * Clear all drawing layers. Does not generate any collaboration events.
+     * This is not "undoable".
+     */
+    private void clearLayers() {
+        synchronized (layerMap) {
+            for (DrawingToolLayer layer : layerMap.values()) {
+                layer.clearAllDrawingData();
+            }
+        }
+    }
+
+    /**
      * @return the myUser
      */
     public VenueParticipant getMyUser() {
@@ -247,6 +264,23 @@ public class CollaborationDrawingResource extends
             }
         }
         return null;
+    }
+
+    /**
+     * A collection of drawing layers for resource
+     * 
+     * @return empty collection if there are no layers
+     */
+    public Collection<DrawingToolLayer> getAllDrawingLayers() {
+        Collection<DrawingToolLayer> rval;
+        if (layerMap != null) {
+            synchronized (layerMap) {
+                rval = new ArrayList<DrawingToolLayer>(layerMap.values());
+            }
+        } else {
+            rval = Collections.emptyList();
+        }
+        return rval;
     }
 
     /*
@@ -377,8 +411,11 @@ public class CollaborationDrawingResource extends
             case UNDO:
                 layer.undo();
                 break;
-            case CLEAR_ALL:
+            case DISPOSE_ALL:
                 disposeLayers();
+                break;
+            case CLEAR_ALL:
+                clearLayers();
                 break;
             case NEW_USER_ARRIVED:
                 CollaborationDrawingToolLayer myLayer = (CollaborationDrawingToolLayer) getDrawingLayerFor(getMyUser());
