@@ -85,6 +85,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * Feb 11, 2014 2636       mpduff       Change how retrieval times are calculated.
  * Apr 15, 2014 3012       dhladky      Fixed improper offsets.
+ * Apr 21, 2014 2887       dhladky      Missed start/end in previous call, needs shouldScheduleForTime();
  * </pre>
  * 
  * @author djohnson
@@ -224,7 +225,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                     start.set(Calendar.MINUTE, minute);
                     Calendar baseRefTime = TimeUtil.newGmtCalendar();
                     baseRefTime.setTimeInMillis(start.getTimeInMillis());
-                    
+
                     // add the offset and check if it falls within window
                     Calendar offsetBaseRefTime = TimeUtil
                             .newGmtCalendar(baseRefTime.getTime());
@@ -232,12 +233,12 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
 
                     if (offsetBaseRefTime.after(planStart)
                             && offsetBaseRefTime.before(planEnd)) {
-                        // Check for nonsense
                         /*
                          * Fine grain check by hour and minute, for
                          * subscription(start/end), activePeriod(start/end)
                          */
-                        if (!subscription.inActivePeriodWindow(baseRefTime)) {
+
+                        if (!subscription.shouldScheduleForTime(baseRefTime)) {
                             // don't schedule this retrieval time,
                             // outside subscription window
                             continue;

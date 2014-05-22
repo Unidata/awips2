@@ -33,6 +33,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * Implementation of {@link BandwidthContextFactory} that returns DAO classes
@@ -47,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2012 1286       djohnson     Initial creation
  * Jun 24, 2013 2106       djohnson     Add {@link #getBandwidthBucketDao()}.
+ * Apr 22, 2014 2992       dhladky     Added IdUtil for siteList
  * 
  * </pre>
  * 
@@ -123,9 +125,9 @@ class InMemoryBandwidthContextFactory implements BandwidthContextFactory {
     @Override
     public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil) {
+            BandwidthDaoUtil bandwidthDaoUtil, RegistryIdUtil idUtil) {
         return new InMemoryBandwidthManager(dbInit, bandwidthDao,
-                retrievalManager, bandwidthDaoUtil);
+                retrievalManager, bandwidthDaoUtil, idUtil);
     }
 
     /**

@@ -27,12 +27,6 @@
 		</constructor-arg>
 	</bean>
 
-    <bean id="obsRegCamelRegistered" factory-bean="contextManager"
-		factory-method="register" 
-		depends-on="persistCamelRegistered">
-		<constructor-arg ref="obs-reg-camel"/>
-  	</bean>
-
 	<camelContext id="obs-reg-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
