@@ -10,7 +10,7 @@
 		<constructor-arg ref="cwatGenerator"/>
 	</bean>
 	
-	<camelContext id="cwat-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+	<camelContext id="cwat-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="CWATGenerate">
         	<from uri="jms-durable:queue:cwatGenerate"/>
             <doTry>

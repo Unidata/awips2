@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EdexException;
+import com.raytheon.uf.edex.core.IContextStateProcessor;
 import com.raytheon.uf.edex.ingest.notification.PluginNotifierConfig.EndpointType;
 import com.raytheon.uf.edex.ingest.notification.PluginNotifierConfig.NotifyFormat;
 import com.raytheon.uf.edex.ingest.notification.router.DataUriRouter;
@@ -70,13 +71,14 @@ import com.raytheon.uf.edex.ingest.notification.router.PdoRouter;
  * Jun 13, 2013            mnash       Initial creation.
  * Nov 19, 2013 2170       rjpeter     Add plugin contributed config files, filtering,
  *                                     and support for pdo vs datauri.
+ * Mar 19, 2014 2726       rjpeter     Added graceful shutdown support.
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
 
-public class PluginNotifier {
+public class PluginNotifier implements IContextStateProcessor {
     private static final IUFStatusHandler theHandler = UFStatus
             .getHandler(PluginNotifier.class);
 
@@ -153,9 +155,6 @@ public class PluginNotifier {
                         "Error occurred accessing file: " + lf, e);
             }
         }
-
-        rebuildTree();
-
     }
 
     /**
@@ -418,5 +417,25 @@ public class PluginNotifier {
                                 + router.getRoute(), e);
             }
         }
+    }
+
+    @Override
+    public void preStart() {
+        rebuildTree();
+    }
+
+    @Override
+    public void postStart() {
+
+    }
+
+    @Override
+    public void preStop() {
+
+    }
+
+    @Override
+    public void postStop() {
+        sendQueuedNotifications();
     }
 }

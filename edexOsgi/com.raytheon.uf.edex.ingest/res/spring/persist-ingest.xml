@@ -12,11 +12,11 @@
 
     <bean id="pluginNotifier" class="com.raytheon.uf.edex.ingest.notification.PluginNotifier"/>
 
-    <bean id="persistCamelRegistered" factory-bean="contextManager"
-        factory-method="register">
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
         <constructor-arg ref="persist-camel"/>
+        <constructor-arg ref="pluginNotifier"/>
     </bean>
-  
+
     <camelContext id="persist-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <!-- Generic persist and indexing
              Intended for routes that need persisting to HDF5, 
@@ -51,6 +51,10 @@
             <to uri="direct-vm:stageNotification"/> 
         </route>
 
+        <!--
+        This route should come after all other routes in this context
+        that send data to it for proper startup/shutdown order. 
+         -->
         <route id="notificationAggregation">
             <from uri="direct-vm:stageNotification"/>
             <bean ref="pluginNotifier" method="notify" />
