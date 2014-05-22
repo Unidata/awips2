@@ -11,8 +11,7 @@
 	</bean>
 	
     <camelContext id="ncgrib-file-endpoint" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false"/>
 
@@ -74,8 +73,8 @@
         <constructor-arg ref="ncgrib-qpid-endpoint"/>
     </bean>
 
-    <bean factory-bean="clusteredCamelContextMgr"
-        factory-method="register">
+    <bean factory-bean="contextManager"
+        factory-method="registerClusteredContext">
         <constructor-arg ref="ncgrib-file-endpoint"/>
     </bean>
 </beans>

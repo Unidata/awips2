@@ -23,7 +23,7 @@ import com.raytheon.uf.common.dataplugin.warning.gis.GenerateGeospatialDataReque
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * TODO Add Description
+ * Generates geospatial data on demand.
  * 
  * <pre>
  * 
@@ -31,8 +31,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 22, 2011            rjpeter     Initial creation
- * 
+ * Jul 22, 2011            rjpeter     Initial creation.
+ * May 19, 2014 2726       rjpeter     Updated call to GeospatialDataGenerator.
  * </pre>
  * 
  * @author rjpeter
@@ -40,6 +40,13 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  */
 public class GenerateGeospatialDataRequestHandler implements
         IRequestHandler<GenerateGeospatialDataRequest> {
+
+    final GeospatialDataGenerator dataGenerator;
+
+    public GenerateGeospatialDataRequestHandler(
+            GeospatialDataGenerator dataGenerator) {
+        this.dataGenerator = dataGenerator;
+    }
 
     /*
      * (non-Javadoc)
@@ -51,8 +58,8 @@ public class GenerateGeospatialDataRequestHandler implements
     @Override
     public Object handleRequest(GenerateGeospatialDataRequest request)
             throws Exception {
-        return GeospatialDataGenerator.generateGeoSpatialList(
-                request.getSite(), request.getMetaData());
+        return dataGenerator.generateGeoSpatialList(request.getSite(),
+                request.getMetaData());
     }
 
 }

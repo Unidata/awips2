@@ -23,10 +23,10 @@
     <description>HudsonBaffin Real Time Ocean Forecast System</description>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <spacingUnit>degree</spacingUnit>
-    <la1>45.0</la1>
+    <la1>40.0</la1>
     <lo1>251.0</lo1>
     <nx>328</nx>
-    <ny>132</ny>
+    <ny>152</ny>
     <dx>0.25</dx>
     <dy>0.25</dy>
 </latLonGridCoverage>

@@ -21,8 +21,15 @@ package com.raytheon.uf.viz.core.maps.rsc;
 
 import java.util.List;
 
+import org.geotools.geometry.jts.CoordinateSequenceTransformer;
+import org.geotools.geometry.jts.DefaultCoordinateSequenceTransformer;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.geospatial.GeometryTransformer;
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -37,9 +44,11 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 
 /**
- * TODO Add Description
+ * Base class for database map resources
  * 
  * <pre>
  * 
@@ -47,7 +56,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 10, 2011            randerso     Initial creation
+ * Aug 10, 2011            randerso    Initial creation
+ * Apr 17, 2014  #2997     randerso    Moved buildBoundingGeometry up from DbMapResource
  * 
  * </pre>
  * 
@@ -62,6 +72,13 @@ public abstract class AbstractDbMapResource<T extends AbstractDbMapResourceData,
             .getHandler(DbMapResource.class);
 
     protected static final double EXPANSION_FACTOR = 0.25;
+
+    // Unitless fudge factor to adjust performance.
+    // A higher value increases the threshold and reduces the max divisions
+    // passed into EnveleopeIntersection, making it faster but less accurate.
+    // Values < 4 get very slow. Values > 16 start to cause noticeable drop outs
+    // in the map geometry.
+    protected static final double SPEED_UP = 8;
 
     protected IFont font;
 
@@ -206,4 +223,58 @@ public abstract class AbstractDbMapResource<T extends AbstractDbMapResourceData,
     public String toString() {
         return this.resourceData.toString();
     }
+
+    protected Geometry buildBoundingGeometry(PixelExtent extent,
+            double worldToScreenRatio, double kmPerPixel) {
+        // long t0 = System.currentTimeMillis();
+
+        Envelope env = descriptor.pixelToWorld(extent, descriptor.getCRS());
+        org.opengis.geometry.Envelope sourceEnvelope = new ReferencedEnvelope(
+                env, descriptor.getCRS());
+
+        CoordinateReferenceSystem targetCRS = MapUtil
+                .constructEquidistantCylindrical(MapUtil.AWIPS_EARTH_RADIUS,
+                        MapUtil.AWIPS_EARTH_RADIUS, 0, 0);
+
+        double[] srcPts = new double[] { -180, -90, 180, 90 };
+        double[] dstPts = new double[srcPts.length];
+        try {
+            MathTransform toEC = MapUtil.getTransformFromLatLon(targetCRS);
+            toEC.transform(srcPts, 0, dstPts, 0, 2);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        org.opengis.geometry.Envelope targetEnvelope = new ReferencedEnvelope(
+                new Envelope(dstPts[0], dstPts[2], dstPts[1], dstPts[3]),
+                targetCRS);
+
+        double threshold = kmPerPixel * SPEED_UP;
+        int maxHorDivisions = (int) Math.ceil(extent.getWidth() / SPEED_UP
+                / worldToScreenRatio);
+        int maxVertDivisions = (int) Math.ceil(extent.getHeight() / SPEED_UP
+                / worldToScreenRatio);
+
+        Geometry g = null;
+        try {
+            g = EnvelopeIntersection.createEnvelopeIntersection(sourceEnvelope,
+                    targetEnvelope, threshold, maxHorDivisions,
+                    maxVertDivisions);
+
+            CoordinateSequenceTransformer cst = new DefaultCoordinateSequenceTransformer(
+                    PackedCoordinateSequenceFactory.DOUBLE_FACTORY);
+            final GeometryTransformer transformer = new GeometryTransformer(cst);
+            MathTransform toLL = MapUtil.getTransformToLatLon(targetCRS);
+            transformer.setMathTransform(toLL);
+
+            g = transformer.transform(g);
+        } catch (Exception e1) {
+            statusHandler
+                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+        }
+
+        // long t1 = System.currentTimeMillis();
+        // System.out.println("buildBoundingGeometry took: " + (t1 - t0));
+        return g;
+    }
+
 }
