@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
@@ -60,6 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * Jan 29, 2014 16561      snaples     Updated processDrawPrecipValue to remove polygon wireframe after setting value.
  * Feb 2, 2014  16201      snaples      Added saved data flag support
+ * Apr 28, 2014 16707      snaples     Added code to save and set location of dialog box when moved.
  * 
  * 
  * </pre>
@@ -113,6 +116,12 @@ public class DrawPolygonDlg extends CaveSWTDialog {
 
     /** The polygon resource */
     private final MPEPolygonResource resource;
+    
+    /** Point to hold location of dialog */
+    private static org.eclipse.swt.graphics.Point dlgLoc = null; 
+
+    /** Status of dialog opened or not */
+    private boolean dialogOpened = false; 
 
     /**
      * Constructor.
@@ -144,13 +153,28 @@ public class DrawPolygonDlg extends CaveSWTDialog {
     }
 
     @Override
-    protected void initializeComponents(Shell shell) {
+    protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
 
         boldFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.BOLD);
         font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
         // Initialize all of the controls and layoutsendCal
         initializeComponents();
+        shell.addControlListener(new ControlAdapter() { 
+            @Override 
+            public void controlMoved(ControlEvent e) { 
+                if (!dialogOpened) { 
+                   return; 
+                } 
+
+                if (dlgLoc == null) { 
+                    return; 
+                } 
+
+                dlgLoc.x = shell.getBounds().x; 
+                dlgLoc.y = shell.getBounds().y; 
+            } 
+        }); 
     }
 
     /**
@@ -161,6 +185,18 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         createSubGroup();
         createCloseBtn();
     }
+
+    @Override 
+    protected void opened() { 
+        if (dlgLoc == null) { 
+            dlgLoc = new org.eclipse.swt.graphics.Point(shell.getBounds().x, shell.getBounds().y); 
+        } 
+        else { 
+            shell.setLocation(dlgLoc); 
+        } 
+        dialogOpened = true; 
+    } 
+
 
     /**
      * Create the persistent group.
