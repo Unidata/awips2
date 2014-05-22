@@ -19,11 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Event posted when a roster entry needs to be updated
@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2012            jkorman     Initial creation
  * Feb 24, 2014    2632    mpduff      Added getPresence, changed getItem to getEntry.
+ * Apr 24, 2014    3070    bclement    getEntry() returns UserId
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ public class RosterChangeEvent implements IRosterChangeEvent {
 
     private final RosterChangeType type;
 
-    private final RosterEntry entry;
+    private final UserId entry;
 
     /** The presence object */
     private Presence presence;
@@ -60,7 +61,7 @@ public class RosterChangeEvent implements IRosterChangeEvent {
      * @param entry
      *            The changed entry.
      */
-    public RosterChangeEvent(RosterChangeType type, RosterEntry entry) {
+    public RosterChangeEvent(RosterChangeType type, UserId entry) {
         this.type = type;
         this.entry = entry;
     }
@@ -76,7 +77,7 @@ public class RosterChangeEvent implements IRosterChangeEvent {
      * @param presence
      *            The presence object
      */
-    public RosterChangeEvent(RosterChangeType type, RosterEntry entry,
+    public RosterChangeEvent(RosterChangeType type, UserId entry,
             Presence presence) {
         this.type = type;
         this.entry = entry;
@@ -102,7 +103,7 @@ public class RosterChangeEvent implements IRosterChangeEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent#getEntry()
      */
     @Override
-    public RosterEntry getEntry() {
+    public UserId getEntry() {
         return entry;
     }
 
