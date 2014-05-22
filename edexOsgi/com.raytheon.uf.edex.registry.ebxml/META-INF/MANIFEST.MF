@@ -51,3 +51,5 @@ Export-Package: com.raytheon.uf.edex.registry.ebxml.acp,
  com.raytheon.uf.edex.registry.ebxml.util.xpath,
  com.raytheon.uf.edex.registry.ebxml.web,
  com.raytheon.uf.edex.registry.events
+Import-Package: javax.servlet,
+ javax.servlet.http
