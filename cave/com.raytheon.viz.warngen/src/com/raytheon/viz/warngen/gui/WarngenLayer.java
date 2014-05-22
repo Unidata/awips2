@@ -208,6 +208,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     getUgcsForWatches() to getUgcsForCountyWatches().
  * 04/15/2014  DR 17247    D. Friedman Rework error handling in AreaHatcher.
  * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
+ * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
  * </pre>
  * 
  * @author mschenke
@@ -2834,7 +2835,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
 
             if (!intersectFlag) {
-                state.setWarningPolygon(gf.createPolygon(ring, null));
+                Polygon p = gf.createPolygon(ring, null);
+                if (p.isValid() && latLonToLocal(p).isValid()) {
+                    state.setWarningPolygon(p);
+                }
             }
         } catch (Exception e) {
 
