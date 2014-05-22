@@ -13,3 +13,5 @@ Require-Bundle: org.eclipse.jetty,
  org.apache.commons.collections,
  org.slf4j,
  ch.qos.logback
+Import-Package: javax.servlet,
+ javax.servlet.http
