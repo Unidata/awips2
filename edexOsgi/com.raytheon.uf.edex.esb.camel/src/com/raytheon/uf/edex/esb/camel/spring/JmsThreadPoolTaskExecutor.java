@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.esb.camel.spring;
 
+import java.util.concurrent.ThreadPoolExecutor;
+
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
@@ -32,7 +34,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2010            rjpeter     Initial creation
- * 
+ * Apr 10, 2014 2726       rjpeter     Updated to create/initialize the ThreadPoolExecutor on demand.
  * </pre>
  * 
  * @author rjpeter
@@ -40,6 +42,25 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 
 public class JmsThreadPoolTaskExecutor extends ThreadPoolTaskExecutor {
+    private static final long serialVersionUID = 1L;
+
+    private volatile boolean needToInitialize = true;
+
+    @Override
+    public ThreadPoolExecutor getThreadPoolExecutor()
+            throws IllegalStateException {
+        // don't initialize until first needed
+        if (needToInitialize) {
+            synchronized (this) {
+                if (needToInitialize) {
+                    afterPropertiesSet();
+                    needToInitialize = false;
+                }
+            }
+        }
+        return super.getThreadPoolExecutor();
+    }
+
     @Override
     public boolean prefersShortLivedTasks() {
         return false;

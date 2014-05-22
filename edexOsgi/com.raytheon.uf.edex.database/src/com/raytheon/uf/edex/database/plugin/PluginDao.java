@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.Criteria;
@@ -63,13 +65,9 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EdexException;
@@ -117,6 +115,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Sept23, 2013 2399       dhladky     Changed logging of duplicate records.
  * Oct 07, 2013 2392       rjpeter     Updated to pass null productKeys as actual null instead of string null.
  * Dec 13, 2013 2555       rjpeter     Refactored archiving logic into processArchiveRecords.
+ * Apr 21, 2014 2946       bsteffen    Allow auxillary purge rules in multiple files.
  * </pre>
  * 
  * @author bphillip
@@ -215,7 +214,8 @@ public abstract class PluginDao extends CoreDao {
             logger.info("Discarded : " + duplicates.size() + " duplicates!");
             if (logger.isDebugEnabled()) {
                 for (PluginDataObject pdo : duplicates) {
-                    logger.debug("Discarding duplicate: " + ((pdo)).getDataURI());
+                    logger.debug("Discarding duplicate: "
+                            + ((pdo)).getDataURI());
                 }
             }
         }
@@ -1697,52 +1697,105 @@ public abstract class PluginDao extends CoreDao {
     }
 
     public static PurgeRuleSet getPurgeRulesForPlugin(String pluginName) {
+        String masterFileName = "purge/" + pluginName + "PurgeRules.xml";
+        Pattern auxFileNameMatcher = Pattern.compile(IPathManager.SEPARATOR
+                + pluginName + "PurgeRules\\w+\\.xml$");
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        Map<LocalizationLevel, LocalizationFile> tieredFile = pathMgr
-                .getTieredLocalizationFile(LocalizationType.COMMON_STATIC,
-                        "purge/" + pluginName + "PurgeRules.xml");
-        LocalizationContext[] levelHierarchy = pathMgr
-                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
-        File rulesFile = null;
-        for (LocalizationContext ctx : levelHierarchy) {
-            LocalizationFile lFile = tieredFile.get(ctx.getLocalizationLevel());
-            if (lFile != null) {
-                rulesFile = lFile.getFile();
-                break;
+        LocalizationFile[] allFiles = pathMgr.listStaticFiles("purge/", new String[] { ".xml" }, true, true);
+        LocalizationFile purgeRulesFile = null;
+        List<LocalizationFile> auxRuleFiles = new ArrayList<LocalizationFile>();
+        /*
+         * Find master purge rules and any auxillary purge rules. Since the
+         * auxillary rules can have an arbitrary suffix before the extension we
+         * have to check all the files.
+         */
+        for (LocalizationFile file : allFiles) {
+            if (file.exists()) {
+                if (auxFileNameMatcher.matcher(file.getName()).find()) {
+                    auxRuleFiles.add(file);
+                } else if (file.getName().equals(masterFileName)) {
+                    purgeRulesFile = file;
+                }
             }
         }
-
-        if (rulesFile != null) {
-            // allow zero length file to disable purge for this plugin
-            if (rulesFile.length() > 0) {
-                try {
-                    PurgeRuleSet purgeRules = SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(PurgeRuleSet.class,
-                                    rulesFile);
-
-                    // ensure there's a default rule
-                    if (purgeRules.getDefaultRules() == null) {
-                        purgeRules.setDefaultRules(loadDefaultPurgeRules());
-                    }
-                    return purgeRules;
-                } catch (SerializationException e) {
-                    PurgeLogger
-                            .logError(
-                                    "Error deserializing purge rules! Data will not be purged. Please define rules.",
-                                    pluginName, e);
-                }
+        PurgeRuleSet purgeRules = null;
+        if (purgeRulesFile != null) {
+            try {
+                purgeRules = purgeRulesFile.jaxbUnmarshal(PurgeRuleSet.class,
+                        PurgeRuleSet.jaxbManager);
+            } catch (LocalizationException e) {
+                PurgeLogger
+                        .logError(
+                                "Error deserializing purge rules! Data will not be purged. Please define rules.",
+                                pluginName, e);
+            }
+            if (purgeRules == null) {
+                // allow zero length file to disable purge for this plugin
+                return null;
+            } else if (purgeRules.getDefaultRules() == null) {
+                // ensure there's a default rule
+                purgeRules.setDefaultRules(loadDefaultPurgeRules());
             }
         } else if (!"default".equals(pluginName)) {
             // no purge rule for this plugin, check base purge rule
             return getPurgeRulesForPlugin("default");
+        } else {
+            return null;
         }
-        return null;
+        /* Sorting guarantees multiple auxiliary files behave deterministicly. */
+        Collections.sort(auxRuleFiles, new Comparator<LocalizationFile>() {
+            @Override
+            public int compare(LocalizationFile o1, LocalizationFile o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        for (LocalizationFile file : auxRuleFiles) {
+            PurgeRuleSet auxRules = null;
+            try {
+                auxRules = file.jaxbUnmarshal(PurgeRuleSet.class,
+                        PurgeRuleSet.jaxbManager);
+            } catch (LocalizationException e) {
+                PurgeLogger.logError(
+                        "Error deserializing auxiliary purge rules! Rules from "
+                                + file.toString() + " will be ignored",
+                        pluginName, e);
+            }
+            if (auxRules == null) {
+                continue;
+            }
+            if (auxRules.getDefaultRules() != null) {
+                PurgeLogger
+                        .logWarn(
+                                file.toString()
+                                + " should not contain default rules, they will be ignored. Default can only be defined in "
+                                        + masterFileName, pluginName);
+            }
+            /*
+             * TODO this could work if auxRules has less keys but would need to
+             * verify that auxRules isn't using more keys than are deined,
+             * specifically if defining 0 keys.
+             */
+            if (auxRules.getKeys().equals(purgeRules.getKeys())) {
+                purgeRules.getRules().addAll(auxRules.getRules());
+            } else {
+                PurgeLogger.logError(
+                        "Ignoring purge rules in "
+                                        + file.toString()
+                                        + " because the keys are different from those in "
+                                + masterFileName, pluginName);
+            }
+        }
+        return purgeRules;
+        
+        
     }
 
     public static List<PurgeRule> loadDefaultPurgeRules() {
-        File defaultRule = PathManagerFactory.getPathManager().getStaticFile(
+        LocalizationFile defaultRule = PathManagerFactory.getPathManager()
+                .getStaticLocalizationFile(
                 "purge/defaultPurgeRules.xml");
-        if (defaultRule == null) {
+        if (defaultRule == null || defaultRule.exists() == false) {
             PurgeLogger
                     .logError(
                             "Default purge rule not defined!! Data will not be purged for plugins which do not specify purge rules!",
@@ -1751,12 +1804,12 @@ public abstract class PluginDao extends CoreDao {
         }
 
         try {
-            PurgeRuleSet purgeRules = SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(PurgeRuleSet.class, defaultRule);
+            PurgeRuleSet purgeRules = defaultRule.jaxbUnmarshal(
+                    PurgeRuleSet.class, PurgeRuleSet.jaxbManager);
             return purgeRules.getDefaultRules();
-        } catch (SerializationException e) {
+        } catch (LocalizationException e) {
             PurgeLogger.logError("Error deserializing default purge rule!",
-                    "DEFAULT");
+                    "DEFAULT", e);
         }
 
         return null;
