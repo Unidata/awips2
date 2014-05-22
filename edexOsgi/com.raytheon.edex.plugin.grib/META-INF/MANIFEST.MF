@@ -16,7 +16,7 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.14.0",
  com.raytheon.uf.edex.plugin.grid,
  com.raytheon.uf.edex.python.decoder,
  org.apache.camel;bundle-version="2.12.3",
- org.apache.commons.lang;bundle-version="2.6.0",
+ org.apache.commons.lang;bundle-version="2.3.0",
  org.apache.commons.logging;bundle-version="1.0.4",
  javax.measure,
  ucar.nc2
