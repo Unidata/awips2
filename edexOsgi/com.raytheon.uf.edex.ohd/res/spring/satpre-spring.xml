@@ -9,8 +9,7 @@
        
     <camelContext id="satPreFilter-context"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <route id="satPreIngestRoute">
             <!-- Fed via notification -->
             <from uri="jms-generic:queue:satPreFilter"/>
@@ -27,8 +26,7 @@
 	        </doTry>
         </route>
 	</camelContext>
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="satPreFilter-context" />
   	</bean>
 </beans>

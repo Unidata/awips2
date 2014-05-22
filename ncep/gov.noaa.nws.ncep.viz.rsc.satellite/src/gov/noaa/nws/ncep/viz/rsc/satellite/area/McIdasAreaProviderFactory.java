@@ -30,7 +30,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.viz.satellite.SatelliteDataCubeAdapter;
 import com.vividsolutions.jts.geom.Polygon;
 
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;

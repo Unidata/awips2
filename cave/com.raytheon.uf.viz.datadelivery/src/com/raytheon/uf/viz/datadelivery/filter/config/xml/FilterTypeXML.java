@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlElements;
 import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
 
 /**
- * Filter Type Definition object.
+ * Filter Type Definition object. Stores the filter type and values.
  * 
  * <pre>
  * 
@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2012            mpduff      Initial creation.
  * Jun 04, 2013            mpduff      Changed method name.
+ * Apr 10, 2014   2892     mpduff      Added javadoc comments and toString
  * 
  * </pre>
  * 
@@ -49,9 +50,11 @@ import com.raytheon.uf.viz.datadelivery.common.xml.IDisplayXml;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class FilterTypeXML implements IDisplayXml {
+    /** Type of filter */
     @XmlAttribute(name = "type")
     protected String filterType;
 
+    /** Selected filter values */
     @XmlElements({ @XmlElement(name = "Value", type = String.class) })
     protected ArrayList<String> values = new ArrayList<String>();
 
@@ -89,6 +92,9 @@ public class FilterTypeXML implements IDisplayXml {
         this.values.add(value);
     }
 
+    /**
+     * Clear the selected values.
+     */
     public void clearValues() {
         this.values.clear();
     }
@@ -109,6 +115,22 @@ public class FilterTypeXML implements IDisplayXml {
 
         for (String s : values) {
             sb.append("         ").append(s).append("\n");
+        }
+
+        return sb.toString();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.filterType).append("||");
+        for (String s : values) {
+            sb.append(s).append(" ");
         }
 
         return sb.toString();

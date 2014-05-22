@@ -44,22 +44,17 @@
         <constructor-arg value="jms-durable:queue:Ingest.Shef"/>
     </bean>
 
-	<bean id="shefCamelRegistered" factory-bean="contextManager"
-		factory-method="register">
-		<constructor-arg ref="shef-camel" />
-	</bean>
-
     <!-- Start add for manual input -->
 
     <bean id="shefFileChangedStrategy"
         class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy" />
 
-    <bean factory-bean="clusteredCamelContextMgr" factory-method="register">
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
         <constructor-arg ref="clusteredShefManualProc" />
     </bean>
 
     <camelContext id="clusteredShefManualProc" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler" autoStartup="false">
+        errorHandlerRef="errorHandler">
         <endpoint id="shefManualFileEndpoint"
             uri="file:${edex.home}/data/share/hydroapps/shefdecode/input?delete=true&amp;maxMessagesPerPoll=1000&amp;delay=15000&amp;exclusiveReadLockStrategy=#shefFileChangedStrategy" />
             
@@ -75,7 +70,7 @@
     <!-- End add for manual input -->
 
 	<camelContext id="shef-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 
 		<!-- Begin shef routes -->
 		<route id="shefIngestRoute">
@@ -132,6 +127,7 @@
 			<doTry>
 				<pipeline>
 					<bean ref="shefDecoder" method="decode" />
+					<bean ref="processUtil" method="log"/>
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
@@ -151,6 +147,7 @@
 				<pipeline>
                     <bean ref="stringToFile" />
 					<bean ref="shefDecoder" method="decode" />
+					<bean ref="processUtil" method="log"/> 
 				</pipeline>
 				<doCatch>
 					<exception>java.lang.Throwable</exception>

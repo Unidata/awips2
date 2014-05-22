@@ -22,7 +22,7 @@
 	</bean>
 
 	<camelContext id="clusteredpurgeContext" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 
         <endpoint id="purgeOutgoingCron" uri="quartz://purge/purgeOutgoingScheduled/?cron=${purge.outgoing.cron}"/>        
 
@@ -67,8 +67,7 @@
 
 	</camelContext>
 	
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clusteredpurgeContext" />
   	</bean>
 
