@@ -7,8 +7,7 @@
  </bean>
 	<camelContext id="clustered-arealQpeGen-context"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 
 		<endpoint id="qpeCron" uri="clusteredquartz://pproc/qpeGenScheduled/?cron=${arealqpegen.cron}"/>
 
@@ -30,8 +29,7 @@
 		</route>
 
 	</camelContext>
-  <bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+  <bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clustered-arealQpeGen-context" />
   </bean>
 

@@ -263,7 +263,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		 *
    		 *
    		 */
-   		//if we can not Interpolates a temp with 700 mb pressure, then we dont have enough raw data 	
+   		//if we can not Interpolates a temp with 700 mb pressure, then we dont have enough raw data
    		if ((nsharpNative.nsharpLib.qc(nsharpNative.nsharpLib.itemp(700.0F)) == 0))
    		{
    			target.drawString(myfont, "               " +NO_DATA, rect.x, rect.y, 0.0,

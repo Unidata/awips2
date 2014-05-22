@@ -51,7 +51,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Aug 13, 2013 2169       bkowal       Unzip any gzipped data before applying thrift transformations
  * Oct 01, 2013 2163       njensen      Updated calls to JAXBManager
  * Mar 26, 2014 2884       randerso     Fixed broken javadoc link
- * 
+ * Apr 16, 2014 2928       rjpeter      Added jaxbMarshalToStream.
  * </pre>
  * 
  * @author chammack
@@ -171,6 +171,26 @@ public final class SerializationUtil {
             throws SerializationException {
         try {
             getJaxbManager().marshalToXmlFile(obj, filePath);
+        } catch (JAXBException e) {
+            throw new SerializationException(e);
+        }
+
+    }
+
+    /**
+     * Convert an instance of a class to an XML representation and write XML to
+     * a stream. Uses JAXB.
+     * 
+     * @param obj
+     *            Object to be marshaled
+     * @param filePath
+     *            Path to the output file
+     * @throws SerializationException
+     */
+    public static void jaxbMarshalToStream(Object obj, OutputStream os)
+            throws SerializationException {
+        try {
+            getJaxbManager().marshalToStream(obj, os);
         } catch (JAXBException e) {
             throw new SerializationException(e);
         }
