@@ -75,6 +75,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    May  2, 2013  1963       jsanchez    Updated method to determine partOfArea.
  *    Aug 19, 2013  2177       jsanchez    Used portionsUtil to calculate area portion descriptions.
  *    Apr 29, 2014  3033       jsanchez    Updated method to retrieve files in localization.
+ *    May 16, 2014 DR 17365    D. Friedman Reduce precision of warning area to avoid topology errors.
  * </pre>
  * 
  * @author chammack
@@ -291,6 +292,15 @@ public class Area {
             Geometry warnPolygon, Geometry warnArea, String localizedSite,
             WarngenLayer warngenLayer) throws VizException {
         Map<String, Object> areasMap = new HashMap<String, Object>();
+
+        try {
+            Geometry precisionReducedArea = PolygonUtil.reducePrecision(warnArea);
+            if (precisionReducedArea.isValid()) {
+                warnArea = precisionReducedArea;
+            }
+        } catch (Exception e) {
+            // ignore
+        }
 
         String hatchedAreaSource = config.getHatchedAreaSource()
                 .getAreaSource();
