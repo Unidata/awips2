@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin;
 
 import java.util.List;
 
-import com.raytheon.uf.common.dataplugin.defaults.PluginPropertyDefaults;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 
 /**
@@ -32,8 +31,8 @@ import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 20, 2009            njensen     Initial creation
- * 
+ * Mar 20, 2009            njensen     Initial creation.
+ * Mar 13, 2014 2726       rjpeter     Moved default values to set on plugin registration.
  * </pre>
  * 
  * @author njensen
@@ -54,7 +53,7 @@ public class PluginProperties {
 
     protected Class<PluginDataObject> record;
 
-    protected int initialRetentionTime;
+    protected Integer initialRetentionTime;
 
     protected String pluginFQN;
 
@@ -63,20 +62,38 @@ public class PluginProperties {
     protected IHDFFilePathProvider pathProvider;
 
     /**
+     * Set the defaults for any fields that haven't already been set to a not
+     * null value.
+     * 
+     * @param defaults
+     */
+    public void setDefaults(PluginProperties defaults) {
+        /*
+         * pluginName, pluginFQN, dependencyFQNs, and record have no defaults to
+         * inherit
+         */
+
+        if (database == null) {
+            database = defaults.getDatabase();
+        }
+        if (initializer == null) {
+            initializer = defaults.getInitializer();
+        }
+        if (dao == null) {
+            dao = defaults.getDao();
+        }
+        if (initialRetentionTime == null) {
+            initialRetentionTime = defaults.getInitialRetentionTime();
+        }
+        if (pathProvider == null) {
+            pathProvider = defaults.getPathProvider();
+        }
+    }
+
+    /**
      * Compression to use on storage, if null, no compression
      */
     protected String compression;
-
-    /**
-     * Constructor that initializes values to default values
-     */
-    public PluginProperties() {
-        database = PluginPropertyDefaults.getDatabase();
-        initializer = PluginPropertyDefaults.getInitializer();
-        dao = PluginPropertyDefaults.getDao();
-        initialRetentionTime = PluginPropertyDefaults.getInitialRetentionTime();
-        pathProvider = PluginPropertyDefaults.getPathProvider();
-    }
 
     /**
      * @return the database
@@ -112,7 +129,11 @@ public class PluginProperties {
      * @return the initialRetentionTime
      */
     public int getInitialRetentionTime() {
-        return initialRetentionTime;
+        if (initialRetentionTime != null) {
+            return initialRetentionTime;
+        }
+
+        return 0;
     }
 
     /**
@@ -199,5 +220,4 @@ public class PluginProperties {
     public void setCompression(String compression) {
         this.compression = compression;
     }
-
 }

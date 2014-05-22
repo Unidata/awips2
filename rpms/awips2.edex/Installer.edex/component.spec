@@ -54,6 +54,11 @@ mkdir -p %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
 fi
+mkdir -p %{_build_root}/awips2/edex/webapps
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 
 DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb.xml"
 
@@ -167,7 +172,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/edex/lib/*
 %dir /awips2/edex/logs
 %dir /awips2/edex/webapps
-/awips2/edex/webapps/*
 %dir /awips2/edex/bin/yajsw
 /awips2/edex/bin/yajsw/*
 

@@ -16,12 +16,6 @@
         <constructor-arg value="jms-durable:queue:Ingest.sfcobs" />
     </bean>
 
-    <bean id="sfcobsCamelRegistered" factory-bean="contextManager" factory-method="register"
-        depends-on="persistCamelRegistered, 
-		            shefCamelRegistered">
-        <constructor-arg ref="sfcobs-camel" />
-    </bean>
-
     <bean id="buoyListener" class="com.raytheon.edex.plugin.sfcobs.ingest.BuoySubscriber" />
 
     <bean id="marineInfoListener" class="com.raytheon.edex.plugin.sfcobs.ingest.MarineInfoSubscriber">
@@ -52,7 +46,7 @@
     </bean>
 
     <camelContext id="sfcobs-camel" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler" autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <!-- Begin sfcobs routes -->
         <route id="sfcobsIngestRoute">

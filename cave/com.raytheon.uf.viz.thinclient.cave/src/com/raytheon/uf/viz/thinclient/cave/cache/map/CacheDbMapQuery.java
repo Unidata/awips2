@@ -39,7 +39,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
 /**
- * TODO Add Description
+ * DbMapQuery implementation using client side cache
  * 
  * <pre>
  * 
@@ -48,6 +48,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 9, 2011            bsteffen     Initial creation
+ * Apr 9, 2014   #2997    randerso     Added queryWithinGeometry
  * 
  * </pre>
  * 
@@ -102,8 +103,7 @@ public class CacheDbMapQuery extends DefaultDbMapQuery {
         }
     }
 
-    @Override
-    public QueryResult queryWithinEnvelope(Envelope env, List<String> columns,
+    private QueryResult queryWithinEnvelope(Envelope env, List<String> columns,
             List<String> additionalConstraints) throws VizException {
         fillCache(geomField, columns);
         List<?> items = tree.query(env);
@@ -116,7 +116,7 @@ public class CacheDbMapQuery extends DefaultDbMapQuery {
         List<QueryResultRow> rows = new ArrayList<QueryResultRow>();
         for (int i = 0; i < items.size(); i++) {
             int rowNumber = (Integer) items.get(i);
-            if (validGIDs != null
+            if ((validGIDs != null)
                     && !validGIDs.contains(data.getRowColumnValue(rowNumber,
                             GID))) {
                 continue;
@@ -133,6 +133,20 @@ public class CacheDbMapQuery extends DefaultDbMapQuery {
             columnNames.put(doAs(columns.get(i)), i);
         }
         return new QueryResult(columnNames, rows.toArray(new QueryResultRow[0]));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.maps.rsc.DefaultDbMapQuery#queryWithinGeometry
+     * (com.vividsolutions.jts.geom.Geometry, java.util.List, java.util.List)
+     */
+    @Override
+    public QueryResult queryWithinGeometry(Geometry geom, List<String> columns,
+            List<String> additionalConstraints) throws VizException {
+        return queryWithinEnvelope(geom.getEnvelopeInternal(), columns,
+                additionalConstraints);
     }
 
     private List<Integer> getIndices(String constraint) throws VizException {

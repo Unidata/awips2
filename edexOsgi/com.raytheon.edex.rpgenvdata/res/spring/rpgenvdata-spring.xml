@@ -33,7 +33,7 @@
         <constructor-arg ref="radarServerNdmListener" />
     </bean>
 
-    <camelContext id="rpgenvdata-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">    
+    <camelContext id="rpgenvdata-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
 		<endpoint id="rpgEnvDataCron" uri="clusteredquartz://rpgEnvData/rpgEnvDataRoute/?cron=${rpggenvdata.envdata.cron}"/>
 		<endpoint id="rpgBiasTableCron" uri="clusteredquartz://rpgBiasTable/rpgBiasTableRoute/?cron=${rpggenvdata.biastable.cron}"/>

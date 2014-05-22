@@ -14,15 +14,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.bufrsigwx" />
 	</bean>
 
-	<bean id="bufrsigwxCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="bufrsigwx-camel"/>
-  	</bean> 
-
     <camelContext id="bufrsigwx-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!--
         <endpoint id="bufrsigwxFileEndpoint" uri="file:${edex.home}/data/sbn/bufrsigwx?noop=true&amp;idempotent=false" />
 
