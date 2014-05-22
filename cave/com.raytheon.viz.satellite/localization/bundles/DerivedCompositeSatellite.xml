@@ -1,21 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
 <bundle>
 	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay" density="1.0"
-			magnification="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
-				<!--  best res satellite resource -->
+				<!-- best res satellite resource -->
 				<resource>
 					<loadProperties loadWithoutData="false">
 						<capabilities>
-							<capability xsi:type="imagingCapability"
-								interpolationState="false" brightness="1.0" contrast="1.0" />
+							<capability xsi:type="imagingCapability" />
 							<capability xsi:type="colorMapCapability">
 								<colorMapParameters colorMapName="${colormap}" />
 							</capability>
 						</capabilities>
 					</loadProperties>
-					<resourceData xsi:type="satBestResResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+					<resourceData xsi:type="satBestResResourceData">
 						<metadataMap>
 							<mapping key="pluginName">
 								<constraint constraintValue="satellite"
@@ -33,28 +51,19 @@
 								<constraint constraintValue="${entity}"
 									constraintType="LIKE" />
 							</mapping>
-							<mapping key="DERIVED">
-								<constraint constraintValue="true" constraintType="EQUALS"/>
-							</mapping>
 						</metadataMap>
 
-						<!--  low res blended satellite -->
+						<!-- low res blended satellite -->
 						<resource>
 							<loadProperties loadWithoutData="false" />
-							<properties isSystemResource="false" isBlinking="false"
-								isMapLayer="false" isHoverOn="false" isVisible="true">
+							<properties>
 								<pdProps maxDisplayWidth="100000000" minDisplayWidth="10000000" />
 							</properties>
-							<resourceData xsi:type="satBlendedResourceData" timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
+							<resourceData xsi:type="satBlendedResourceData"
+								timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
 								<resource>
-									<loadProperties loadWithoutData="false" />
-									<properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-									</properties>
-									<resourceData xsi:type="satResourceData"
-										isUpdatingOnMetadataOnly="false"
-										isRequeryNecessaryOnTimeMatch="true">
-                              <binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+									<resourceData xsi:type="satResourceData">
+										<binOffset posOffset="900" negOffset="900" />
 										<metadataMap>
 											<mapping key="pluginName">
 												<constraint constraintValue="satellite"
@@ -72,9 +81,6 @@
 												<constraint constraintValue="${entity}"
 													constraintType="LIKE" />
 											</mapping>
-											<mapping key="DERIVED">
-												<constraint constraintValue="true" constraintType="EQUALS"/>
-											</mapping>
 										</metadataMap>
 									</resourceData>
 								</resource>
@@ -82,21 +88,14 @@
 						</resource>
 						<!-- medium res blended satellite -->
 						<resource>
-							<loadProperties loadWithoutData="false" />
-							<properties isSystemResource="false" isBlinking="false"
-								isMapLayer="false" isHoverOn="false" isVisible="true">
+							<properties>
 								<pdProps maxDisplayWidth="10000000" minDisplayWidth="6000000" />
 							</properties>
-							<resourceData xsi:type="satBlendedResourceData" timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
+							<resourceData xsi:type="satBlendedResourceData"
+								timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
 								<resource>
-									<loadProperties loadWithoutData="false" />
-									<properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-									</properties>
-									<resourceData xsi:type="satResourceData"
-										isUpdatingOnMetadataOnly="false"
-										isRequeryNecessaryOnTimeMatch="true">
-                              <binOffset posOffset="900" negOffset="900" virtualOffset="0"/>
+									<resourceData xsi:type="satResourceData">
+										<binOffset posOffset="900" negOffset="900" />
 										<metadataMap>
 											<mapping key="pluginName">
 												<constraint constraintValue="satellite"
@@ -114,31 +113,21 @@
 												<constraint constraintValue="${entity}"
 													constraintType="LIKE" />
 											</mapping>
-											<mapping key="DERIVED">
-												<constraint constraintValue="true" constraintType="EQUALS"/>
-											</mapping>
 										</metadataMap>
 									</resourceData>
 								</resource>
 							</resourceData>
 						</resource>
-						<!--  high res blended satellite -->
+						<!-- high res blended satellite -->
 						<resource>
-							<loadProperties loadWithoutData="false" />
-							<properties isSystemResource="false" isBlinking="false"
-								isMapLayer="false" isHoverOn="false" isVisible="true">
+							<properties>
 								<pdProps maxDisplayWidth="6000000" minDisplayWidth="2500000" />
 							</properties>
-							<resourceData xsi:type="satBlendedResourceData" timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
+							<resourceData xsi:type="satBlendedResourceData"
+								timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
 								<resource>
-									<loadProperties loadWithoutData="false" />
-									<properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-									</properties>
-									<resourceData xsi:type="satResourceData"
-										isUpdatingOnMetadataOnly="false"
-										isRequeryNecessaryOnTimeMatch="true">
-                              <binOffset posOffset="450" negOffset="450" virtualOffset="0"/>
+									<resourceData xsi:type="satResourceData">
+										<binOffset posOffset="450" negOffset="450" />
 										<metadataMap>
 											<mapping key="pluginName">
 												<constraint constraintValue="satellite"
@@ -156,21 +145,12 @@
 												<constraint constraintValue="${entity}"
 													constraintType="LIKE" />
 											</mapping>
-											<mapping key="DERIVED">
-												<constraint constraintValue="true" constraintType="EQUALS"/>
-											</mapping>
 										</metadataMap>
 									</resourceData>
 								</resource>
 								<resource>
-									<loadProperties loadWithoutData="false" />
-									<properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-									</properties>
-									<resourceData xsi:type="satResourceData"
-										isUpdatingOnMetadataOnly="false"
-										isRequeryNecessaryOnTimeMatch="true">
-                              <binOffset posOffset="450" negOffset="450" virtualOffset="0"/>
+									<resourceData xsi:type="satResourceData">
+										<binOffset posOffset="450" negOffset="450" />
 										<metadataMap>
 											<mapping key="pluginName">
 												<constraint constraintValue="satellite"
@@ -187,9 +167,6 @@
 											<mapping key="creatingEntity">
 												<constraint constraintValue="${entity}"
 													constraintType="LIKE" />
-											</mapping>
-											<mapping key="DERIVED">
-												<constraint constraintValue="true" constraintType="EQUALS"/>
 											</mapping>
 										</metadataMap>
 									</resourceData>
@@ -198,20 +175,13 @@
 						</resource>
 						<!-- A single side of the image -->
 						<resource>
-							<loadProperties loadWithoutData="false" />
-							<properties isSystemResource="false" isBlinking="false"
-								isMapLayer="false" isHoverOn="false" isVisible="true">
+							<properties>
 								<pdProps maxDisplayWidth="2500000" minDisplayWidth="0" />
 							</properties>
-							<resourceData xsi:type="satBlendedResourceData" timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
+							<resourceData xsi:type="satBlendedResourceData"
+								timeMatchMode="${timeMatchMode;EVERY_IMAGE}">
 								<resource>
-									<loadProperties loadWithoutData="false" />
-									<properties isSystemResource="false" isBlinking="false"
-										isMapLayer="false" isHoverOn="false" isVisible="true">
-									</properties>
-									<resourceData xsi:type="satResourceData"
-										isUpdatingOnMetadataOnly="false"
-										isRequeryNecessaryOnTimeMatch="true">
+									<resourceData xsi:type="satResourceData">
 										<metadataMap>
 											<mapping key="pluginName">
 												<constraint constraintValue="satellite"
@@ -228,9 +198,6 @@
 											<mapping key="creatingEntity">
 												<constraint constraintValue="${entity}"
 													constraintType="LIKE" />
-											</mapping>
-											<mapping key="DERIVED">
-												<constraint constraintValue="true" constraintType="EQUALS"/>
 											</mapping>
 										</metadataMap>
 									</resourceData>

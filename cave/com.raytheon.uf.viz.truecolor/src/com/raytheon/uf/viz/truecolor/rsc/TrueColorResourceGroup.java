@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import javax.measure.converter.UnitConverter;
+
 import org.eclipse.swt.graphics.Rectangle;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -63,9 +65,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 6, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 06, 2012           mschenke    Initial creation
+ * Apr 18, 2014  2947     bsteffen    Support unitless data.
  * 
  * </pre>
  * 
@@ -422,11 +425,16 @@ public class TrueColorResourceGroup extends
             } else if (object instanceof ColorMapCapability) {
                 ColorMapParameters params = ((ColorMapCapability) object)
                         .getColorMapParameters();
+                UnitConverter toDisplay = params
+                        .getColorMapToDisplayConverter();
+                if (toDisplay == null) {
+                    toDisplay = UnitConverter.IDENTITY;
+                }
                 ChannelInfo ci = channelInfoMap.get(params);
                 if (ci != null) {
-                    ci.setRangeMin(params.getDataToDisplayConverter().convert(
+                    ci.setRangeMin(toDisplay.convert(
                             params.getColorMapMin()));
-                    ci.setRangeMax(params.getDataToDisplayConverter().convert(
+                    ci.setRangeMax(toDisplay.convert(
                             params.getColorMapMax()));
                     ci.setUnit(params.getDisplayUnit());
                 }

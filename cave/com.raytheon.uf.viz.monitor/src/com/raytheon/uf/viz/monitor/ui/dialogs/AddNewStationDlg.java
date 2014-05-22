@@ -58,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009            lvenable     Initial creation
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
+ * Apr 23, 2014 3054      skorolev     Added MESONET handling
  * 
  * </pre>
  * 
@@ -159,7 +160,7 @@ public class AddNewStationDlg extends CaveSWTDialog {
         createTopLabelRadioControls();
         createTextControls();
         createBottomButtons();
-        setStationLabel();
+        stationLbl.setText("StationID:");
     }
 
     /**
@@ -183,30 +184,13 @@ public class AddNewStationDlg extends CaveSWTDialog {
         metarRdo = new Button(radioComp, SWT.RADIO);
         metarRdo.setText("Metar");
         metarRdo.setSelection(true);
-        metarRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                setStationLabel();
-            }
-        });
-        // TODO: Disable if area has no marine zones.
+
         maritimeRdo = new Button(radioComp, SWT.RADIO);
         maritimeRdo.setText("Maritime");
         maritimeRdo.setEnabled(appName != CommonConfig.AppName.SNOW);
-        maritimeRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                setStationLabel();
-            }
-        });
+
         mesonetRdo = new Button(radioComp, SWT.RADIO);
         mesonetRdo.setText("Mesonet");
-        mesonetRdo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                setStationLabel();
-            }
-        });
     }
 
     /**
@@ -251,23 +235,22 @@ public class AddNewStationDlg extends CaveSWTDialog {
                 if (metarRdo.getSelection()) {
                     stationType = StationIdXML.METAR;
                 } else if (mesonetRdo.getSelection()) {
-                    String s = stationTF.getText();
-                    s = s.substring(s.indexOf("#") + 1, s.length());
-                    stationType = s.toUpperCase();
+                    stationType = StationIdXML.MESONET;
                     // TODO need to verify the stationType exists.
                     // was in SSmesonetStationInfo.txt in AWIPS1.
                 } else {
                     stationType = StationIdXML.MARITIME;
                 }
                 if (!stationTF.getText().isEmpty()) {
-                    configManager.addStation(area, stationTF.getText(),
-                            stationType, false);
+                    configManager.addStation(area, stationTF.getText()
+                            .toUpperCase(), stationType, false);
                     /**
                      * for DR #7854: add new station to Monitor Area Config GUI
                      */
                     handleAddNewStation();
                 } else {
-                    displayInputErrorMsg("Invalid Station ID entered: Please enter a valid Station ID for the selected Station Type");
+                    displayInputErrorMsg("No Station ID entered."
+                            + "\nPlease enter a valid Station ID for the selected Station Type.");
                 }
             }
         });
@@ -286,36 +269,27 @@ public class AddNewStationDlg extends CaveSWTDialog {
     }
 
     /**
-     * Set the station label.
-     */
-    private void setStationLabel() {
-        if (mesonetRdo.getSelection() == true) {
-            stationLbl.setText("StationID#Provider:");
-        } else {
-            stationLbl.setText("StationID:");
-        }
-    }
-
-    /**
      * Adds a new station.
      */
     private void handleAddNewStation() {
-        if (!isValidStation()) {
-            displayInputErrorMsg("Invalid Station ID entered: Please enter a valid Station ID for the selected Station Type");
+        String stn = stationTF.getText().toUpperCase();
+        if (!isValidStation(stn)) {
+            displayInputErrorMsg("Invalid Station ID entered: "
+                    + stn
+                    + " \nPlease enter a valid Station ID for the selected Station Type.");
             return;
         }
-        String stn = stationTF.getText();
         if (metarRdo.getSelection()) {
             stn = stn + "#METAR";
         } else if (maritimeRdo.getSelection()) {
             stn = stn + "#MARITIME";
         } else {
-            // TODO: Mesonet
+            stn = stn + "#MESONET";
         }
         if (macDlg.isExistingStation(stn)) {
-            displayInputErrorMsg("The Station, "
+            displayInputErrorMsg("The Station '"
                     + stn
-                    + ", is already in your Monitoring Area or among your Additional Stations");
+                    + "' is already in your Monitoring Area or among your Additional Stations.");
             return;
         }
         macDlg.addNewStationAction(stn);
@@ -325,13 +299,11 @@ public class AddNewStationDlg extends CaveSWTDialog {
     /**
      * Checks if station is valid.
      * 
+     * @param stnId
+     * 
      * @return boolean value
      */
-    private boolean isValidStation() {
-        String stnId = stationTF.getText();
-        if (stnId.contains("#") && !mesonetRdo.getSelection()) {
-            return false;
-        }
+    private boolean isValidStation(String stnId) {
         String catalogtypePhrase = "";
         if (metarRdo.getSelection()) {
             catalogtypePhrase = "catalogtype = 1"; // METAR
@@ -339,7 +311,6 @@ public class AddNewStationDlg extends CaveSWTDialog {
             catalogtypePhrase = "catalogtype = 33 or catalogtype = 32"; // MARITIME
         } else {
             catalogtypePhrase = "catalogtype = 1000"; // MESONET
-            stnId = stnId.substring(0, stnId.indexOf("#"));
         }
         try {
             String sql = "select stationid, catalogtype from common_obs_spatial where ( "
@@ -353,11 +324,9 @@ public class AddNewStationDlg extends CaveSWTDialog {
                 return false;
             }
             return true;
-            /**
-             * TODO: need to add code for handling Mesonet station type
-             */
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, e.getMessage());
+            statusHandler.handle(Priority.ERROR, "Can not get " + stnId
+                    + " station in the database. ", e);
         }
         return false;
     }

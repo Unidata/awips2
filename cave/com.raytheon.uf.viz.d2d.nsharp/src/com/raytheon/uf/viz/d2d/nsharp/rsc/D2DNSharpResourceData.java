@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
+import com.raytheon.uf.viz.core.alerts.DataCubeAlertMessageParser;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -60,6 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 12, 2011            bsteffen    Initial creation
  * May 31, 2013 1847       bsteffen    D2D nsharp will now format Lat/Lons as
  *                                     stationId like NC ncharp.
+ * May 08, 2014 2060       njensen     Constructor sets alert parser
  * 
  * </pre>
  * 
@@ -81,6 +83,7 @@ public abstract class D2DNSharpResourceData extends
 
     public D2DNSharpResourceData() {
         super();
+        this.setAlertParser(new DataCubeAlertMessageParser());
     }
 
     public D2DNSharpResourceData(String soundingType) {
