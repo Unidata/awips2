@@ -46,6 +46,7 @@ import com.raytheon.hprof.SmartInstance;
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
  * May 05, 2014  3093     bsteffen    Track sizes as longs.
+ * May 22, 2014  3093     bsteffen    Use printMB, printKB
  * 
  * </pre>
  * 
@@ -179,19 +180,13 @@ public class D2DGridResourceExporter extends RequestableResourceExporter {
                 /* heap dump is from after 14.2 */
             }
             long floats = entry.getValue();
-            long size = floats * 4 / 1024;
-            String suffix = "KB";
-            if (size > 1024) {
-                size /= 1024;
-                suffix = "MB";
-            }
-            println(resource.toString() + modHint.toString() + " uses is "
-                    + size + suffix);
+            printKB(resource.toString() + modHint.toString() + " uses is ",
+                    floats * 4);
             totalFloats += floats;
         }
         println("# Section 4 total size of all resources.");
-        println("Total memory usage for " + resources.size()
-                + " resources  is " + totalFloats * 4 / 1024 / 1024 + "MB");
+        printMB("Total memory usage for " + resources.size()
+                + " resources  is ", totalFloats * 4);
     }
 
     private static class GeneralGridDataInstance {
