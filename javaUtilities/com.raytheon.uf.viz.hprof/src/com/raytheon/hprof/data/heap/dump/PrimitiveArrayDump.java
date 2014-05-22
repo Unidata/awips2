@@ -34,6 +34,7 @@ import com.raytheon.hprof.data.heap.BasicType;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 20, 2014  3093     bsteffen    Allow creation without reading full array.
  * 
  * </pre>
  * 
@@ -46,13 +47,21 @@ public class PrimitiveArrayDump extends AbstractDump {
 
     private final BasicType[] array;
 
-    public PrimitiveArrayDump(BigByteBuffer buffer, int idSize) {
+    public PrimitiveArrayDump(BigByteBuffer buffer, int idSize,
+            boolean readArray) {
         super(buffer, idSize);
         int numElements = buffer.getInt();
         byte type = buffer.get();
-        array = new BasicType[numElements];
-        for (int i = 0; i < numElements; i++) {
-            array[i] = new BasicType(buffer, type, idSize);
+        if (readArray) {
+            array = new BasicType[numElements];
+            for (int i = 0; i < numElements; i++) {
+                array[i] = new BasicType(buffer, type, idSize);
+            }
+        } else {
+            array = null;
+            BasicType tmp = new BasicType(buffer, type, idSize);
+            int skip = (numElements - 1) * tmp.getSize();
+            buffer.position(buffer.position() + skip);
         }
     }
 
