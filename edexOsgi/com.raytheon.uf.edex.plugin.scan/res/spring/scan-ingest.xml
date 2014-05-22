@@ -23,10 +23,7 @@
 		<constructor-arg ref="scanGenerator"/>
 	</bean>
 
-	<camelContext id="clusteredScanRoutes"
-	    autoStartup="false"
-	    xmlns="http://camel.apache.org/schema/spring"
-	    errorHandlerRef="errorHandler">                
+	<camelContext id="clusteredScanRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
 	    <route id="scanCpgSrvListenerRoute">
             <from uri="jms-durable:queue:scanCpgsrvFiltering"/>
 	        <doTry>
@@ -41,8 +38,8 @@
 	        </doTry>
         </route>
     </camelContext>
-    <bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clusteredScanRoutes" />
   	</bean>
 </beans>

@@ -58,7 +58,7 @@ public class MockGridMetaDataAdapter extends GridMetadataAdapter {
     /**
      * {@inheritDoc}
      */
-    @Override
+
     GridCoverage getCoverageFromCache(GridCoverage coverage) {
         return GriddedCoverageFixture.INSTANCE.get().getGridCoverage();
     }

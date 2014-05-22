@@ -37,6 +37,8 @@ import com.raytheon.viz.hydrocommon.data.DataIngestFilterData;
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2008 1787       askripsky   Initial Creation
  * Apr 18, 2013 1790       rferrel     Code clean up with non-blocking dialogs.
+ * May 1,  2014 17096      xwei        Updated the filter list SQL statement
+ * 
  * 
  * </pre>
  * 
@@ -220,7 +222,7 @@ public class DataIngestFilterDataManager {
 
             StringBuffer whereClause = new StringBuffer();
             if (filterByLocation) {
-                whereClause.append("lid like '%" + selectedLocation + "%'");
+                whereClause.append( "lid='" + selectedLocation + "'" );
             }
 
             if (filterByPE && (selectedPE.size() > 0)) {
