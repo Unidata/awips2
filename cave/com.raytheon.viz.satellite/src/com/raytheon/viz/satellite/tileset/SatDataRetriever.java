@@ -22,6 +22,7 @@ package com.raytheon.viz.satellite.tileset;
 import java.awt.Rectangle;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.text.ParseException;
 import java.text.ParsePosition;
@@ -32,23 +33,22 @@ import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.satellite.SatelliteConstants;
 
 /**
@@ -59,11 +59,13 @@ import com.raytheon.viz.satellite.SatelliteConstants;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 20, 2013 2122       mschenke    Initial creation
- * Nov 13, 2013 2492       mschenke    Added extraction of scale/offset from
- *                                     data record attributes for unit  
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 20, 2013  2122     mschenke    Initial creation
+ * Nov 13, 2013  2492     mschenke    Added extraction of scale/offset from
+ *                                    data record attributes for unit
+ * Apr 09, 2014  2947     bsteffen    Improve flexibility of sat derived
+ *                                    parameters.
  * 
  * </pre>
  * 
@@ -112,6 +114,8 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                     data = ByteBuffer.wrap((byte[]) record.getDataObject());
                 } else if (record instanceof ShortDataRecord) {
                     data = ShortBuffer.wrap((short[]) record.getDataObject());
+                } else if (record instanceof FloatDataRecord) {
+                    data = FloatBuffer.wrap((float[]) record.getDataObject());
                 }
                 Unit<?> recordUnit = getRecordUnit(this.record);
                 signed = recordUnit instanceof GenericPixel;
@@ -148,14 +152,8 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
     public static Unit<?> getRecordUnit(SatelliteRecord record) {
         Unit<?> recordUnit = null;
         String physicalElement = record.getPhysicalElement();
-        DerivedParameterRequest request = (DerivedParameterRequest) record
-                .getMessageData();
-        if (request != null) {
-            physicalElement = request.getParameterAbbreviation();
-        }
 
-        if (record.getUnits() != null && record.getUnits().isEmpty() == false
-                && request == null) {
+        if (record.getUnits() != null && record.getUnits().isEmpty() == false) {
             try {
                 recordUnit = UnitFormat.getUCUMInstance().parseProductUnit(
                         record.getUnits(), new ParsePosition(0));
@@ -164,12 +162,6 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                         .handle(Priority.PROBLEM,
                                 "Unable to parse satellite units: "
                                         + record.getUnits(), e);
-            }
-        } else if (request != null) {
-            if (physicalElement.equals("satDivWVIR")) {
-                recordUnit = new DerivedWVPixel();
-            } else {
-                recordUnit = new GenericPixel();
             }
         }
 
@@ -193,7 +185,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
      * @param dataRecord
      * @return
      */
-    private static Unit<?> getDataUnit(Unit<?> recordUnit,
+    public static Unit<?> getDataUnit(Unit<?> recordUnit,
             IDataRecord dataRecord) {
         Unit<?> units = recordUnit != null ? recordUnit : Unit.ONE;
         Map<String, Object> attrs = dataRecord.getDataAttributes();

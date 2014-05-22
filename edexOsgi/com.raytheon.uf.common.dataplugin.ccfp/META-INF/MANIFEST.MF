@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CCFP common Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.ccfp
+Bundle-Version: 1.14.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.dataplugin.ccfp
+Require-Bundle: javax.persistence;bundle-version="1.0.0",
+ org.hibernate;bundle-version="3.5.6",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174"
+Import-Package: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.annotations

@@ -28,10 +28,10 @@ import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.maps.rsc.DbMapQueryFactory.DbMapQuery;
-import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * TODO Add Description
+ * Default implementation of DbMapQuery
  * 
  * <pre>
  * 
@@ -42,6 +42,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Dec 9, 2011             bsteffen    Initial creation
  * Sep 18, 2012      #1019 randerso    cleaned up geometry type query
  * Jan 30, 2013      #1551 bkowal      Refactored
+ * Apr  9, 2014      #2997 randerso    Added queryWithinGeometry
  * 
  * </pre>
  * 
@@ -63,14 +64,14 @@ public class DefaultDbMapQuery implements DbMapQuery {
     }
 
     @Override
-    public QueryResult queryWithinEnvelope(Envelope env, List<String> columns,
+    public QueryResult queryWithinGeometry(Geometry geom, List<String> columns,
             List<String> additionalConstraints) throws VizException {
 
         /*
          * Build the query using the common method.
          */
-        final String query = MapsQueryUtil.assembleMapsTableQuery(env, columns,
-                additionalConstraints, this.table, this.geomField);
+        final String query = MapsQueryUtil.assembleMapsTableQuery(geom,
+                columns, additionalConstraints, this.table, this.geomField);
 
         return DirectDbQuery.executeMappedQuery(query.toString(), MAPS,
                 QueryLanguage.SQL);

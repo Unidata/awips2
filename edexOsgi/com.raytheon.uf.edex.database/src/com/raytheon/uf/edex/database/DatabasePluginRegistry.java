@@ -40,8 +40,8 @@ import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 28, 2010 #5050      rjpeter      Initial creation
- * 
+ * Apr 28, 2010 #5050      rjpeter     Initial creation
+ * May 29, 2014 2726       rjpeter     Added initial listeners and properties for easier spring dependency management.
  * </pre>
  * 
  * @author rjpeter
@@ -56,7 +56,9 @@ public class DatabasePluginRegistry extends
 
     private static DatabasePluginRegistry instance = new DatabasePluginRegistry();
 
-    private List<IDatabasePluginRegistryChanged> listeners = new ArrayList<IDatabasePluginRegistryChanged>();
+    private final List<IDatabasePluginRegistryChanged> listeners = new ArrayList<IDatabasePluginRegistryChanged>();
+
+    private List<DatabasePluginProperties> initialProperties;
 
     private DatabasePluginRegistry() {
         super();
@@ -64,6 +66,18 @@ public class DatabasePluginRegistry extends
 
     public static DatabasePluginRegistry getInstance() {
         return instance;
+    }
+
+    /**
+     * Called by spring to initialize the registry. Mainly used to ensure the
+     * base database plugin is always loaded.
+     */
+    public void init() throws RegistryException {
+        if ((initialProperties != null) && !initialProperties.isEmpty()) {
+            for (DatabasePluginProperties dbProp : initialProperties) {
+                register(dbProp.getPluginFQN(), dbProp);
+            }
+        }
     }
 
     @Override
@@ -95,7 +109,8 @@ public class DatabasePluginRegistry extends
     public void pluginAdded(String pluginName) {
         PluginProperties props = PluginRegistry.getInstance()
                 .getRegisteredObject(pluginName);
-        if (props.getPluginFQN() != null && props.getPluginFQN().length() > 0) {
+        if ((props.getPluginFQN() != null)
+                && (props.getPluginFQN().length() > 0)) {
             // multiple plugins may use the same jar file.
             if (!registry.containsKey(props.getPluginFQN())) {
                 try {
@@ -108,5 +123,15 @@ public class DatabasePluginRegistry extends
                 }
             }
         }
+    }
+
+    public void setInitialListeners(
+            List<IDatabasePluginRegistryChanged> listeners) {
+        this.listeners.addAll(listeners);
+    }
+
+    public void setInitialProperties(
+            List<DatabasePluginProperties> initialProperties) {
+        this.initialProperties = initialProperties;
     }
 }

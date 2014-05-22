@@ -61,7 +61,7 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 02/05/2013   1580       mpduff     EventBus refactor.
  * 02/12/2013   1615       bgonzale   Changed ProcessEvent pluginName to dataType.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
- * 
+ * Apr 17, 2014 2726       rjpeter     Updated to send alerts directly to notification route.
  * </pre>
  * 
  * @author dhladky
@@ -380,7 +380,7 @@ public abstract class CompositeProductGenerator implements
     protected void persistRecords() {
         try {
             PluginDataObject[] pdos = getPluginDataObjects();
-            if (pdos != null && getDao() != null && pdos.length > 0) {
+            if ((pdos != null) && (getDao() != null) && (pdos.length > 0)) {
                 EDEXUtil.checkPersistenceTimes(pdos);
                 getDao().persistRecords(pdos);
             }
@@ -394,10 +394,10 @@ public abstract class CompositeProductGenerator implements
      */
     protected void fireTopicUpdate() {
         try {
-            if (getPluginDataObjects() != null
-                    && getPluginDataObjects().length > 0) {
-                EDEXUtil.getMessageProducer().sendAsync("cpgProcessAlerts",
-                        getPluginDataObjects());
+            if ((getPluginDataObjects() != null)
+                    && (getPluginDataObjects().length > 0)) {
+                EDEXUtil.getMessageProducer().sendAsync(
+                        "notificationAggregation", getPluginDataObjects());
             }
         } catch (EdexException e) {
             e.printStackTrace();
@@ -437,7 +437,8 @@ public abstract class CompositeProductGenerator implements
     @Override
     public void log(URIGenerateMessage message) {
 
-        if (getPluginDataObjects() != null && getPluginDataObjects().length > 0) {
+        if ((getPluginDataObjects() != null)
+                && (getPluginDataObjects().length > 0)) {
 
             long curTime = System.currentTimeMillis();
             ProcessEvent processEvent = new ProcessEvent();
