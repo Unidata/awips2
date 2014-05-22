@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <bean id="hpeLabelDataHandler"
+        class="com.raytheon.uf.edex.plugin.hpe.handler.HpeLabelDataHandler">
+    </bean>
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.plugin.hpe.request.HpeLabelDataRequest" />
+        <constructor-arg ref="hpeLabelDataHandler" />
+    </bean>
+
+</beans>

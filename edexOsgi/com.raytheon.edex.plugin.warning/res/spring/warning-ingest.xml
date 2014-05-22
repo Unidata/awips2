@@ -17,15 +17,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.Warning"/>
 	</bean>
 
-    <bean id="warningCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="warning-camel"/>
-  	</bean>  
-
 	<camelContext id="warning-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="warningEndpoint"
 			uri="file:${edex.home}/data/sbn/warning?noop=true&amp;idempotent=false" />

@@ -56,9 +56,12 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 3, 2011            bsteffen     Initial creation
+ * Sep 3, 2011             bsteffen    Initial creation
  * Apr 25, 2013 1954       bsteffen    Speed up creation of      
  *                                     GLColormapShadedShapes.
+ * Apr 15, 2014 2956       njensen     Safety check of buffers before glMultiDrawArray
+ * May 01, 2014 2956       njensen     Removed unsafe glMultiDrawArrays()
+ * 
  * 
  * </pre>
  * 
@@ -148,6 +151,7 @@ public class GLShadedShapeBase implements IShape {
         polygons.add(buffers);
     }
 
+    @Override
     public synchronized void compile() {
         if (polygons.isEmpty()) {
             return;
@@ -352,14 +356,9 @@ public class GLShadedShapeBase implements IShape {
         } else {
             contourLengthBuffer.rewind();
             contourStartBuffer.rewind();
-            if (cardSupportsHighEndFeatures) {
-                gl.glMultiDrawArrays(GL.GL_POLYGON, contourStartBuffer,
-                        contourLengthBuffer, contourLengthBuffer.capacity());
-            } else {
-                while (contourLengthBuffer.hasRemaining()) {
-                    gl.glDrawArrays(GL.GL_POLYGON, contourStartBuffer.get(),
-                            contourLengthBuffer.get());
-                }
+            while (contourLengthBuffer.hasRemaining()) {
+                gl.glDrawArrays(GL.GL_POLYGON, contourStartBuffer.get(),
+                        contourLengthBuffer.get());
             }
         }
 
@@ -368,6 +367,7 @@ public class GLShadedShapeBase implements IShape {
         }
     }
 
+    @Override
     public synchronized void dispose() {
         polygons = new ArrayList<FloatBuffer[]>();
         vertexBuffer = null;
@@ -383,14 +383,17 @@ public class GLShadedShapeBase implements IShape {
 
     private class Tessellator implements GLUtessellatorCallback {
 
+        @Override
         public void begin(int arg0) {
 
         }
 
+        @Override
         public void beginData(int arg0, Object arg1) {
             // Not necessary for type of tesselation
         }
 
+        @Override
         public void combine(double[] coordinates, Object[] v, float[] arg2,
                 Object[] out) {
             double[] vertex = new double[3];
@@ -400,37 +403,45 @@ public class GLShadedShapeBase implements IShape {
             out[0] = vertex;
         }
 
+        @Override
         public void combineData(double[] arg0, Object[] arg1, float[] arg2,
                 Object[] arg3, Object arg4) {
             // Not necessary for type of tesselation
 
         }
 
+        @Override
         public void edgeFlag(boolean arg0) {
             // No operation, but needed to force GL_TRIANGLES
         }
 
+        @Override
         public void edgeFlagData(boolean arg0, Object arg1) {
 
         }
 
+        @Override
         public void end() {
 
         }
 
+        @Override
         public void endData(Object arg0) {
             // Not necessary for type of tesselation
         }
 
+        @Override
         public void error(int arg0) {
             System.err.println("Tess Error: " + arg0);
         }
 
+        @Override
         public void errorData(int arg0, Object arg1) {
             // Not necessary for type of tesselation
 
         }
 
+        @Override
         public void vertex(Object data) {
             if (data instanceof double[]) {
                 if (vertexBuffer.remaining() < 2) {
@@ -448,6 +459,7 @@ public class GLShadedShapeBase implements IShape {
             }
         }
 
+        @Override
         public void vertexData(Object arg0, Object arg1) {
             // Not necessary for type of tesselation
         }
