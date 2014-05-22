@@ -28,12 +28,12 @@ import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.util.GridStyleUtil;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * Mar 09, 2011           bsteffen    Initial creation
  * Sep 24, 2013  2404     bclement    match criteria built using GridStyleUtil
  * Jan 14, 2014  2661     bsteffen    Switch vectors to u,v only.
+ * May 05, 2014  3026     mpduff      Made getCurrentGribRecord() public
  * 
  * </pre>
  * 
@@ -150,7 +151,7 @@ public class GridResource<T extends AbstractResourceData> extends
                 + record.getParameter().getName();
     }
 
-    protected GridRecord getCurrentGridRecord() {
+    public GridRecord getCurrentGridRecord() {
         List<PluginDataObject> pdos = getCurrentPluginDataObjects();
         if (pdos == null || pdos.isEmpty()) {
             return null;

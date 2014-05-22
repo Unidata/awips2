@@ -13,7 +13,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * 
@@ -61,7 +61,7 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
      */
     public HibernateBandwidthInitializer(
             IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
-        this(findSubscriptionsStrategy, DataDeliveryIdUtil.getId());
+        this(findSubscriptionsStrategy, RegistryIdUtil.getId());
     }
 
     /**
