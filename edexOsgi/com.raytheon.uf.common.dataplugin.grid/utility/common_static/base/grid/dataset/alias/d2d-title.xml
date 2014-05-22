@@ -70,7 +70,7 @@
 	<alias base="ETA">NAM80</alias>
 	<alias base="GFS160">AK-GFS</alias>
 	<alias base="GFS161">SJU-GFS</alias>
-	<alias base="GFS199">Guam-GFS</alias>
+	<alias base="GFS199">Guam-GFSDNG</alias>
 	<alias base="GFS201">GFS360</alias>
 	<alias base="GFS212">GFS40</alias>
 	<alias base="GFS213">GFS90</alias>
