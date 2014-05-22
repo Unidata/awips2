@@ -13,7 +13,7 @@
 		<constructor-arg ref="fssObsGenerator"/>
 	</bean>
 	
-	<camelContext id="fssobs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+	<camelContext id="fssobs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="FSSObsGenerate">
         	<from uri="jms-durable:queue:fssobsGenerate"/>
             <doTry>

@@ -12,15 +12,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.crimss" />
 	</bean>
 
-	<bean id="crimssCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="crimss-camel"/>
-  	</bean> 
-
     <camelContext id="crimss-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
 
         <!-- Begin crimss routes -->
         <route id="crimssIngestRoute">

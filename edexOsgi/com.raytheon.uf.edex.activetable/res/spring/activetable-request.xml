@@ -89,7 +89,7 @@
     <bean id="fetchATSrv" class="com.raytheon.uf.edex.activetable.vtecsharing.FetchActiveTableSrv"/>
     <camelContext id="activeTableSharingRoutes"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<route id="activeSiteForFetchATSrv">
 			<from uri="jms-generic:queue:gfeSiteActivated" />
@@ -102,8 +102,7 @@
             </doTry>
 		</route>
 	</camelContext>
-    <bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="activeTableSharingRoutes" />
   	</bean>
 </beans>
