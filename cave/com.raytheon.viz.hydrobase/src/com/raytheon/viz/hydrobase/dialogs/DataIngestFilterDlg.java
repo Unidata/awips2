@@ -71,10 +71,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * Sep 4, 2008				lvenable	Initial creation
+ * Sep 4,  2008				lvenable	Initial creation
  * Dec 11, 2008 1787        askripsk    Connect to DB
  * Apr 18, 2013 1790        rferrel     Make dialog non-blocking.
  * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
+ * May 1,  2014 17096       xwei        By default the first item of the data 
+ *                                      list is selected
+ *
  * 
  * </pre>
  * 
@@ -642,7 +645,7 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
         typeSrcLbl.setEnabled(false);
         typeSrcLbl.setLayoutData(gd);
 
-        gd = new GridData();
+        gd = new GridData(SWT.FILL, SWT.CENTER, false, true);
         gd.horizontalSpan = 3;
         typeSrcFilterCbo = new Combo(filterGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
         typeSrcFilterCbo.select(0);
@@ -1045,6 +1048,8 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
 
             if (ingestDataList.getItemCount() > 0) {
                 updateDialogState(DialogStates.DATA_AVAILABLE);
+                ingestDataList.select(0);
+                updateSelectedInformation();
             } else {
                 updateDialogState(DialogStates.NO_DATA);
             }
