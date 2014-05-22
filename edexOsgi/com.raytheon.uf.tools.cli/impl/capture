@@ -7,6 +7,8 @@ grepString="(/awips2/cave/cave|/usr/local/viz/cave)"
 
 edexGrepString="edex.run.mode="
 
+xorgLogPath="/var/log"
+
 # the remote servers to grab top on.  Use to get general state of servers
 REMOTE_SERVERS_TO_CHECK="${DX_SERVERS}"
 
@@ -30,6 +32,7 @@ GRAB_REMOTE_VMSTAT="Y"
 GRAB_CAVE_AND_ALERTVIZ_LOGS="Y"
 GRAB_SCREENSHOT="Y"
 GRAB_CURRENT_QUERIES="Y"
+GRAB_XORG_LOG="Y"
 EDEX_MODE="N"
 FORCE="N"
 TGZ_OUTPUT="Y"
@@ -147,6 +150,16 @@ grabScreenShot() {
             let "count+=1"
          fi
       done
+   fi
+}
+
+# runs import to grab screen shot of users desktop
+grabXorgLog() {
+   if [ "$GRAB_XORG_LOG" == "y" ]; then
+      echo "Capturing Xorg logs"
+      t1=`date "+%Y%m%d %H:%M:%S"`
+      echo "${t1}: Capturing Xorg logs" >> $processFile
+      cp ${xorgLogPath}/Xorg*.log* ${dataPath} >> $processFile 2>&1 &
    fi
 }
 
@@ -434,6 +447,7 @@ checkYes TGZ_OUTPUT $TGZ_OUTPUT
 checkYes ACCCUM $ACCCUM
 checkYes RUN_VERSIONS $RUN_VERSIONS
 checkYes GRAB_SCREENSHOT $GRAB_SCREENSHOT
+checkYes GRAB_XORG_LOG $GRAB_XORG_LOG
 
 # if PID mode don't grab other hs_err_pids
 if [ ! -z $cavePid ]; then
@@ -452,6 +466,7 @@ if [ "$EDEX_MODE" == "y" ]; then
    MOVE_ALL_HS_ERR_PID="n"
    GRAB_REMOTE_TOP="n"
    GRAB_REMOTE_VMSTAT="n"
+   GRAB_XORG_LOG="n"
 fi
 
 umask 0002
@@ -553,6 +568,9 @@ else
    echo "${t1}: NO processes found for $user" >> $processFile
    echo "" >> $processFile
 fi
+
+# grab Xorg logs
+grabXorgLog
 
 # grab top for servers
 grabRemoteTop

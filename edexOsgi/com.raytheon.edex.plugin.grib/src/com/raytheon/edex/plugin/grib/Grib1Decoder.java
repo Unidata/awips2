@@ -899,7 +899,7 @@ public class Grib1Decoder extends AbstractDecoder {
     private String createModelName(int centerId, int subcenterId, int process,
             GridCoverage grid) {
         return GribModelLookup.getInstance().getModelName(centerId,
-                subcenterId, grid, process);
+                subcenterId, grid, process, null);
     }
 
     /**
@@ -915,7 +915,7 @@ public class Grib1Decoder extends AbstractDecoder {
     private void checkForecastFlag(DataTime time, int centerId,
             int subcenterId, int process, GridCoverage grid) {
         GridModel gridModel = GribModelLookup.getInstance().getModel(centerId,
-                subcenterId, grid, process);
+                subcenterId, grid, process, null);
         if ((gridModel != null) && gridModel.getAnalysisOnly()) {
             time.getUtilityFlags().remove(FLAG.FCST_USED);
         }

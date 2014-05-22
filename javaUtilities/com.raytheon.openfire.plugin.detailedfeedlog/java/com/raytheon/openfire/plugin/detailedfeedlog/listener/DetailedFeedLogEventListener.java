@@ -22,19 +22,19 @@ package com.raytheon.openfire.plugin.detailedfeedlog.listener;
 import java.util.Queue;
 import java.util.TimerTask;
 
+import org.dom4j.Element;
 import org.jivesoftware.openfire.MessageRouter;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.muc.MUCEventListener;
+import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
-import org.jivesoftware.openfire.user.User;
-import org.jivesoftware.openfire.user.UserManager;
-import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.util.TaskEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Message;
 import org.xmpp.packet.Message.Type;
+import org.xmpp.packet.Presence;
 
 import com.raytheon.openfire.plugin.detailedfeedlog.DetailedFeedLogPlugin;
 import com.raytheon.openfire.plugin.detailedfeedlog.LogEntry;
@@ -52,7 +52,11 @@ import com.raytheon.openfire.plugin.detailedfeedlog.LogEntry;
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2012            mnash       Initial creation
  * Apr 07, 2014 2937       bgonzale    Handle errors processing room events.
- * 
+ *                                     Fixed message from user.
+ *                                     Added getSiteFromPresence.  Use
+ *                                     MUCRoom to get presence and role
+ *                                     because UserManager is not able to
+ *                                     understand nicknames.
  * </pre>
  * 
  * @author mnash
@@ -72,6 +76,8 @@ public class DetailedFeedLogEventListener implements MUCEventListener {
     // this tag will tell CAVE that this is a history message
     private static final String HISTORY_START = "[[HISTORY]]";
 
+    private static final String SITE_INFO = "Site";
+
     /**
      * When the occupant joins, we want to send out the history to them. This
      * only happens in the permanent feed room.
@@ -84,21 +90,18 @@ public class DetailedFeedLogEventListener implements MUCEventListener {
             TimerTask messageTask = new TimerTask() {
                 @Override
                 public void run() {
-                    UserManager userManager = UserManager.getInstance();
                     Queue<LogEntry> log = DetailedFeedLogPlugin.getLog(roomJID
                             .getNode());
 
                     for (LogEntry entry : log) {
                         Message message = new Message();
                         message.setTo(roomJID + "/" + nickname);
-                        String usr = entry.getUsername();
+                        String sendUser = entry.getUsername();
                         try {
-                            User sendUser = userManager
-                                    .getUser(entry.getUser());
                             // set all the necessary values in the message to be
                             // sent out
                             message.setTo(user);
-                            message.setFrom(roomJID + "/" + nickname);
+                            message.setFrom(roomJID + "/" + sendUser);
                             String body = HISTORY_START
                                     + entry.getDate().getTime() + "|"
                                     + sendUser + "|" + entry.getSite() + "|"
@@ -109,8 +112,6 @@ public class DetailedFeedLogEventListener implements MUCEventListener {
                             router.route(message);
                             logger.info("Routed message : " + message.getBody()
                                     + " from " + sendUser + " to " + user);
-                        } catch (UserNotFoundException e) {
-                            logger.error(usr + " not found", e);
                         } catch (ArrayIndexOutOfBoundsException e) {
                             logger.error(
                                     "Failed to parse log history for Routing.  Bad Entry was date: "
@@ -134,10 +135,37 @@ public class DetailedFeedLogEventListener implements MUCEventListener {
             Message message) {
         if (isLoggedRoom(roomJID)) {
             if (message.getBody().startsWith(COMMAND_START) == false) {
-                DetailedFeedLogPlugin.log(message, roomJID.getNode());
+                MUCRoom mucRoom = XMPPServer.getInstance()
+                        .getMultiUserChatManager()
+                        .getMultiUserChatService(roomJID)
+                        .getChatRoom(roomJID.getNode());
+                MUCRole role = mucRoom.getOccupantByFullJID(user);
+                DetailedFeedLogPlugin.log(role.getNickname(),
+                        getSiteFromPresence(role.getPresence()),
+                        message.getBody(),
+                        roomJID.getNode());
             }
         }
     }
+
+    private String getSiteFromPresence(Presence presence) {
+        // need to get the site from the presence, add that to the text that we
+        // log, and use that for filtering on the client side
+        Element props = presence.getChildElement("properties",
+                "http://www.jivesoftware.com/xmlns/xmpp/properties");
+        String site = null;
+        for (Object propObj : props.elements("property")) {
+            Element prop = (Element) propObj;
+            String name = prop.elementText("name");
+            String value = prop.elementText("value");
+            if (SITE_INFO.equals(name)) {
+                site = value;
+                break;
+            }
+        }
+        return site;
+    }
+
 
     /**
      * Determine if this is the room that we want to log for here

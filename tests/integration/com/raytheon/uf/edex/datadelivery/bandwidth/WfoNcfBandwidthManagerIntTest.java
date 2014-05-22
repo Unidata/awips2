@@ -31,8 +31,8 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
@@ -101,7 +101,7 @@ public class WfoNcfBandwidthManagerIntTest extends
                         public Object route(IServerRequest request)
                                 throws Exception {
                             return ncfBandwidthManager
-                                    .handleRequest((IBandwidthRequest) request);
+                                    .handleRequest((BandwidthRequest) request);
                         }
                     });
         } catch (RegistryException e) {
@@ -217,7 +217,7 @@ public class WfoNcfBandwidthManagerIntTest extends
      */
     private void scheduleSbnSubscription(Subscription subscription,
             RequestType requestType) throws Exception {
-        IBandwidthRequest request = new IBandwidthRequest();
+        BandwidthRequest request = new BandwidthRequest();
         request.setRequestType(requestType);
         request.setNetwork(subscription.getRoute());
         request.setSubscriptions(Arrays.asList(subscription));
