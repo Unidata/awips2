@@ -8,14 +8,14 @@
 	<bean id="timerScriptRunner" class="com.raytheon.edex.services.ScriptRunner" >
 		<property name="type" value="timer" />
 	</bean>
-	
+
 	<!-- define the bean that handles data arrival script running -->
 	<!--
 	<bean id="dataScriptRunner" class="com.raytheon.edex.services.ScriptRunner">
 		<property name="type" value="data" />
 	</bean>
 	-->
-	<camelContext id="subscription-camel" 
+	<camelContext id="subscription-camel"
 	              xmlns="http://camel.apache.org/schema/spring"
                   errorHandlerRef="errorHandler">
 

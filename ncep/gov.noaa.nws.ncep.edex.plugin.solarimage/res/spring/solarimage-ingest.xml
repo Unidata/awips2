@@ -18,18 +18,12 @@
 		<constructor-arg value="jms-durable:queue:Ingest.SolarImage"/>
 	</bean>
 
-    <bean id="solarimageCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="solarimage-camel"/>
-  	</bean>
-  	
   	<!-- bean id="solarimageNotifyTransform"
 		class="com.raytheon.edex.plugin.satellite.notify.SatelliteNotifyTransform" /-->
 
 	<camelContext id="solarimage-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		
 		<endpoint id="solarimageFileEndpoint" uri="file:${edex.home}/data/sbn/solarimage?noop=true&amp;idempotent=false" />
 

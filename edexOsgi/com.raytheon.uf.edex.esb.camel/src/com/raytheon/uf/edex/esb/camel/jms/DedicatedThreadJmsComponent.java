@@ -86,7 +86,6 @@ public class DedicatedThreadJmsComponent extends JmsComponent {
             executor.setMaxPoolSize(Math.max(jmsE.getConcurrentConsumers(),
                     jmsE.getMaxConcurrentConsumers()));
             executor.setQueueCapacity(0);
-            executor.afterPropertiesSet();
 
             jmsE.setTaskExecutor(executor);
             jmsE.setMessageListenerContainerFactory(MonitoredDefaultMessageListenerContainerFactory
