@@ -43,6 +43,8 @@ import com.raytheon.hprof.data.heap.dump.InstanceDump;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 22, 2014  3093     bsteffen    Add printMB, printKB
+ * 
  * 
  * </pre>
  * 
@@ -98,6 +100,14 @@ public abstract class AbstractExporter {
 
     protected void println(String output) throws IOException {
         print(output + "\n");
+    }
+
+    protected void printMB(String desc, long bytes) throws IOException {
+        print(desc + (bytes / 1024 / 1024) + "MB\n");
+    }
+
+    protected void printKB(String desc, long bytes) throws IOException {
+        print(desc + (bytes / 1024) + "KB\n");
     }
 
     protected void close() {
