@@ -40,6 +40,7 @@ import com.raytheon.hprof.SmartInstance;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * May 05, 2014  3093     bsteffen    Initial creation
+ * May 22, 2014  3093     bsteffen    Use printMB, printKB
  * 
  * </pre>
  * 
@@ -114,17 +115,16 @@ public class RadarMosaicExporter extends RequestableResourceExporter {
                 for (SmartInstance record : recordMap.values()) {
                     subrscSize += record.get("cacheObject").getInt("size");
                 }
-                println("    Mosaiced resource memory used = "
-                        + (subrscSize / 1024) + "KB");
+                printKB("    Mosaiced resource memory used = ", subrscSize);
                 rscSize += subrscSize;
                 println("  }");
             }
-            println("  Mosaic memory used = " + (rscSize / 1024 / 1024) + "MB");
+            printMB("  Mosaic memory used = ", rscSize);
             totalSize += rscSize;
             println("}");
         }
         println("# Section 4 total size of all mosaics.");
-        println("Total memory used = " + (totalSize / 1024 / 1024) + "MB");
+        printMB("Total memory used = ", totalSize);
 
     }
 
