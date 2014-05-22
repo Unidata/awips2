@@ -42,6 +42,7 @@ import com.raytheon.hprof.data.heap.dump.ClassDump;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2014  2648     bsteffen    Initial doc
+ * May 22, 2014  3093     bsteffen    Use printMB, printKB
  * 
  * </pre>
  * 
@@ -94,10 +95,10 @@ public class GLInfoExporter extends AbstractExporter {
         long memMax = memoryCache.getLong("maxSize");
         long texUsed = textureCache.getLong("curSize");
         long texMax = textureCache.getLong("maxSize");
-        println("RAM texture cache using " + (memUsed / 1024 / 1024) + "MB of "
-                + (memMax / 1024 / 1024) + "MB");
-        println("GL texture cache using " + (texUsed / 1024 / 1024) + "MB of "
-                + (texMax / 1024 / 1024) + "MB");
+        printMB("RAM texture cache using ", memUsed);
+        printMB("RAM texture cache available is ", memMax);
+        printMB("GL texture cache using ", texUsed);
+        printMB("GL texture cache available is ", texMax);
         List<SmartInstance> geoms = getInstances("com.raytheon.viz.core.gl.GLGeometryObject2D");
         int coords = 0;
         for (SmartInstance geom : geoms) {
@@ -109,8 +110,7 @@ public class GLInfoExporter extends AbstractExporter {
                 }
             }
         }
-        println("GL vbo size(estimate) is " + (coords * 2 * 4 / 1024 / 1024)
-                + "MB");
+        printMB("GL vbo size(estimate) is ", coords * 2 * 4);
     }
 
 }
