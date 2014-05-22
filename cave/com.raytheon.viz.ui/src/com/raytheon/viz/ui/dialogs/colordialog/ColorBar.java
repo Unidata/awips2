@@ -21,8 +21,11 @@
 package com.raytheon.viz.ui.dialogs.colordialog;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 
@@ -61,9 +64,11 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Apr 08, 2014  2950     bsteffen    Support dynamic color counts and resizing.
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 08, 2014 2950       bsteffen    Support dynamic color counts and resizing.
+ *                                     for color editor's color bar for radar correlation coefficient.
+ * Apr 11, 2014 DR 15811   Qinglu Lin  Added decimalPlaceMap and logic to have 4 decimal places
  * 
  * </pre>
  * 
@@ -148,6 +153,18 @@ public class ColorBar extends Composite implements MouseListener,
     /** The color bar image with mask applied */
     protected Image colorBarWithMask;
 
+    private final Map<String, String> decimalPlaceMap = new HashMap<String, String>() {
+        private static final long serialVersionUID = 1L;
+        {
+            // keys are the last portion of the title in the color table editor for
+            // a specific radar product, in lower case and value is the decimals expected
+            // to be displayed in color bar.
+            put("correlation coeff", "0000");
+        }
+    };
+
+    private NumberFormat numberFormat = null;
+
     /**
      * Constructor.
      * 
@@ -180,6 +197,13 @@ public class ColorBar extends Composite implements MouseListener,
         super(parent, SWT.NONE);
         this.enabledColorMask = enableColorMask;
         this.cmapParams = cmapParams;
+
+        for (String s: decimalPlaceMap.keySet()) {
+            if (parent.getShell().getText().toLowerCase().contains(s)) {
+                numberFormat = new DecimalFormat("###,###,##0." + decimalPlaceMap.get(s));
+                break;
+            }
+        }
 
         colorHistory = new ArrayList<List<ColorData>>();
         colorHistory.add(ColorUtil.buildColorData(cmapParams.getColorMap()));
@@ -880,7 +904,10 @@ public class ColorBar extends Composite implements MouseListener,
                 if (Double.isNaN(lastVal)) {
                     return "NO DATA";
                 } else if (((Double) value).isNaN()) {
-                    return "> " + lastVal;
+                    if (numberFormat != null)
+                        return "> " + numberFormat.format(lastVal);
+                    else
+                        return "> " + lastVal;
                 }
             }
 
@@ -892,7 +919,9 @@ public class ColorBar extends Composite implements MouseListener,
                 return dmLabel;
             }
         }
-        return new DecimalFormat("0.0##").format(value);
+        NumberFormat format = numberFormat != null ?
+                numberFormat : new DecimalFormat("0.0##");
+        return format.format(value);
     }
 
     public Point getSliderRange() {

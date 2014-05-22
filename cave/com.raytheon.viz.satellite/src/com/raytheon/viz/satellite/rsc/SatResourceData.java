@@ -21,9 +21,12 @@ package com.raytheon.viz.satellite.rsc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -34,11 +37,14 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.viz.satellite.inventory.SatelliteDataCubeAdapter;
 
 /**
  * Resource data for satellite data
@@ -46,10 +52,12 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 17, 2009            njensen     Initial creation
- * Feb 20, 2000	2032	   jsanchez	   Added @XmlAccessorType(XmlAccessType.NONE).
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 17, 2009           njensen     Initial creation
+ * Feb 20, 2000	 2032	  jsanchez	  Added @XmlAccessorType(XmlAccessType.NONE).
+ * Apr 23, 2013  2947     bsteffen    Fix updates for derived products with
+ *                                    multiple records per frame.
  * 
  * </pre>
  * 
@@ -81,33 +89,42 @@ public class SatResourceData extends AbstractRequestableResourceData {
         return new SatResource(this, loadProperties);
     }
 
+
     @Override
     public void update(Object updateData) {
         if (updateData instanceof PluginDataObject[]) {
-            // This is here because derived updates will send us records that we
-            // don't want, so filter them.
+            /*
+             * This is here because derived updates will send us records that we
+             * don't want, so filter them.
+             */
             PluginDataObject[] pdos = (PluginDataObject[]) updateData;
-            List<PluginDataObject> wrongPDOs = new ArrayList<PluginDataObject>();
+            Set<DataTime> invalidTimes = new HashSet<DataTime>();
             for (PluginDataObject pdo : (PluginDataObject[]) updateData) {
                 try {
                     Map<String, Object> pdoMap = RecordFactory.getInstance()
                             .loadMapFromUri(pdo.getDataURI());
                     for (Entry<String, RequestConstraint> entry : metadataMap
                             .entrySet()) {
-                        if (entry.getKey().equals("DERIVED")) {
+                        if (entry.getKey().equals(
+                                SatelliteDataCubeAdapter.DERIVED)) {
                             continue;
                         }
                         Object pdoItem = pdoMap.get(entry.getKey());
                         RequestConstraint rc = entry.getValue();
-                        // Record Factor automatically replaces space with
-                        // underscore, but some derived parameters have
-                        // underscore in them
+                        /*
+                         * Record Factory automatically replaces space with
+                         * underscore, but some derived parameters have
+                         * underscore in them
+                         */
                         String pdoItemStr = pdoItem.toString()
                                 .replace(" ", "_");
-                        if (pdoItem == null
-                                || !(rc.evaluate(pdoItem) || rc
+                        if (!(rc.evaluate(pdoItem) || rc
                                         .evaluate(pdoItemStr))) {
-                            wrongPDOs.add(pdo);
+                            DataTime time = pdo.getDataTime();
+                            if (binOffset != null) {
+                                time = binOffset.getNormalizedTime(time);
+                            }
+                            invalidTimes.add(time);
                             break;
                         }
                     }
@@ -116,15 +133,35 @@ public class SatResourceData extends AbstractRequestableResourceData {
                             e.getLocalizedMessage(), e);
                 }
             }
-            if (wrongPDOs.size() == pdos.length) {
+            if (!invalidTimes.isEmpty()) {
+                /* Next time query should requery */
                 invalidateAvailableTimesCache();
-                return;
-            } else if (!wrongPDOs.isEmpty()) {
-                invalidateAvailableTimesCache();
+                /* Remove times from resources where three is new derived data. */
+                for (DataTime time : invalidTimes) {
+                    fireChangeListeners(ChangeType.DATA_REMOVE, time);
+                }
+                /*
+                 * Don't send updates for PDO's with invalidTimes, the time
+                 * matcher will pull in all the records including derived
+                 * records.
+                 */
                 List<PluginDataObject> pdoList = new ArrayList<PluginDataObject>(
                         Arrays.asList(pdos));
-                pdoList.removeAll(wrongPDOs);
-                updateData = pdoList.toArray(new PluginDataObject[0]);
+                Iterator<PluginDataObject> it = pdoList.iterator();
+                while (it.hasNext()) {
+                    DataTime t = it.next().getDataTime();
+                    if (binOffset != null) {
+                        t = binOffset.getNormalizedTime(t);
+                    }
+                    if (invalidTimes.contains(t)) {
+                        it.remove();
+                    }
+                }
+                if (pdoList.isEmpty()) {
+                    return;
+                } else {
+                    updateData = pdoList.toArray(new PluginDataObject[0]);
+                }
             }
         }
         super.update(updateData);
