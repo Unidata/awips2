@@ -22,9 +22,7 @@ package com.raytheon.uf.edex.core;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -42,6 +40,7 @@ import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.exception.ShutdownException;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
@@ -52,12 +51,13 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 04/23/08     1088        chammack    Split from Util
+ * 04/23/2008   1088        chammack    Split from Util
  * 11/22/2010   2235        cjeanbap    Added audio file to StatusMessage.
  * 02/02/2011   6500        cjeanbap    Added paramter to method signature and
  *                                      properly assign source value.
  * 06/12/2012   0609        djohnson    Use EDEXUtil for EDEX_HOME.
- * 3/18/2013    1802        bphillip    Added getList utility function
+ * 03/18/2013   1802        bphillip    Added getList utility function
+ * 04/10/2014   2726        rjpeter     Added methods for waiting for edex to be running.
  * </pre>
  * 
  * @author chammack
@@ -81,19 +81,17 @@ public class EDEXUtil implements ApplicationContextAware {
     // TODO
     private static final String alertEndpoint = "alertVizNotify";
 
-    private static int serverId;
-    static {
-        try {
-            String hostname = InetAddress.getLocalHost().getCanonicalHostName();
-            serverId = hostname.hashCode();
-        } catch (UnknownHostException e) {
-            serverId = 0;
-            // assume localhost, no network connection
-        }
-    }
+    private static final Object waiter = new Object();
 
-    public static int getServerId() {
-        return serverId;
+    private static volatile boolean shuttingDown = false;
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                shuttingDown = true;
+            }
+        });
     }
 
     @Override
@@ -146,8 +144,52 @@ public class EDEXUtil implements ApplicationContextAware {
         return "Operational".equals(System.getProperty("System.status"));
     }
 
+    /**
+     * Blocks until EDEX is in the running state.
+     */
+    public static void waitForRunning() {
+        synchronized (waiter) {
+            try {
+                while (!isRunning()) {
+                    waiter.wait(15000);
+                }
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Called once EDEX is in a running state to notify all waiting clients.
+     */
+    public static void notifyIsRunning() {
+        synchronized (waiter) {
+            waiter.notifyAll();
+        }
+    }
+
     public static boolean containsESBComponent(String name) {
         return CONTEXT.containsBean(name);
+    }
+
+    /**
+     * True if shutdown has been initiated, false otherwise.
+     * 
+     * @return
+     */
+    public static boolean isShuttingDown() {
+        return shuttingDown;
+    }
+
+    /**
+     * If EDEX is shutting down throws a ShutdownException
+     * 
+     * @throws ShutdownException
+     */
+    public static void checkShuttingDown() throws ShutdownException {
+        if (shuttingDown) {
+            throw new ShutdownException();
+        }
     }
 
     /**
@@ -176,9 +218,10 @@ public class EDEXUtil implements ApplicationContextAware {
         persistDir = envProperties.getEnvValue("PERSISTDIR");
         persistDir = FileUtil.convertFilePath(persistDir);
 
-        if (persistDir == null)
+        if (persistDir == null) {
             throw new PluginException(
                     "Unable to retrieve value for the PERSISTDIR");
+        }
 
         dbDirectory = new File(persistDir);
         dbDirectory.mkdirs();

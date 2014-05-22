@@ -32,10 +32,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a launcher for starting the ESB
@@ -47,8 +49,9 @@ import java.util.StringTokenizer;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 14, 2008            chammack     Initial creation
- * Feb 15, 2013 1638       mschenke    Removed reference to unused "stop" method
+ * Nov 14, 2008            chammack    Initial creation.
+ * Feb 15, 2013 1638       mschenke    Removed reference to unused "stop" method.
+ * Apr 15, 2014 2726       rjpeter     Use slf4j logger.
  * </pre>
  * 
  * @author chammack
@@ -61,13 +64,15 @@ public class Main {
 
     private File edexHome;
 
-    private Set<File> classPath = new HashSet<File>();
+    private final Set<File> classPath = new HashSet<File>();
 
-    private Set<File> extensions = new HashSet<File>();
+    private final Set<File> extensions = new HashSet<File>();
 
     private ClassLoader classLoader;
 
     private static final int MAXIMUM_RECURSION_DEPTH = 6;
+
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
 
@@ -82,9 +87,11 @@ public class Main {
         }
 
         if (!valid) {
-            System.out.println("Invalid or missing arguments.");
-            System.out.println("Usage: edex [operation]");
-            System.out.println("       where operation is start.");
+            StringBuilder msg = new StringBuilder(200);
+            msg.append("Invalid or missing arguments.")
+                    .append("\nUsage: edex [operation]")
+                    .append("\n       where operation is start.");
+            logger.error(msg.toString());
             System.exit(0);
         }
 
@@ -121,10 +128,12 @@ public class Main {
                     try {
                         fr = new FileReader(banner);
                         br = new BufferedReader(fr);
+                        StringBuilder msg = new StringBuilder(250);
                         while (br.ready()) {
                             String line = br.readLine();
-                            System.out.println(line);
+                            msg.append("\n").append(line);
                         }
+                        logger.info(msg.toString());
                     } catch (Throwable e) {
                         // ignore
                     } finally {
@@ -136,12 +145,13 @@ public class Main {
                             }
                         }
 
-                        if (fr != null)
+                        if (fr != null) {
                             try {
                                 fr.close();
                             } catch (RuntimeException e) {
                                 // ignore
                             }
+                        }
 
                     }
 
@@ -151,17 +161,18 @@ public class Main {
                 m.invoke(null, new Object[0]);
             }
             System.exit(0);
-        } catch (ClassNotFoundException e) {
-            System.out.println("Could not load class: " + e.getMessage());
+        } catch (ClassNotFoundException | LinkageError e) {
+            logger.error("Could not load class", e);
             if (cl != null) {
-                System.out.println("Class loader setup: ");
-                printClassLoaderTree(cl);
+                StringBuilder msg = new StringBuilder(1000);
+                msg.append("Class  loader setup:");
+                printClassLoaderTree(cl, msg);
+                logger.info(msg.toString());
             }
 
             System.exit(1);
         } catch (Throwable e) {
-            e.printStackTrace();
-            printClassLoaderTree(cl);
+            logger.error("Error occurred during startup: ", e);
             System.exit(1);
         }
     }
@@ -173,13 +184,12 @@ public class Main {
 
                 ArrayList<URL> urls = new ArrayList<URL>(500);
 
-                for (Iterator<File> iter = classPath.iterator(); iter.hasNext();) {
-                    File dir = iter.next();
+                for (File dir : classPath) {
                     try {
                         urls.add(dir.toURI().toURL());
                     } catch (MalformedURLException e) {
-                        System.out.println("Bad directory entry: " + dir
-                                + ":: Skipping.");
+                        logger.warn("Bad directory entry: " + dir
+                                + ":: Skipping.", e);
                     }
                 }
 
@@ -188,6 +198,7 @@ public class Main {
                 // Sort the dirs so that classpath built is
                 // consistently in the same order
                 Arrays.sort(extensionsArray, new Comparator<File>() {
+                    @Override
                     public int compare(File f1, File f2) {
                         return f1.getPath().compareTo(f2.getPath());
                     }
@@ -201,19 +212,20 @@ public class Main {
                             // Sort the jars so that classpath built is
                             // consistently in the same order
                             Arrays.sort(files, new Comparator<File>() {
+                                @Override
                                 public int compare(File f1, File f2) {
                                     return f1.getName().compareTo(f2.getName());
                                 }
                             });
 
-                            for (int j = 0; j < files.length; j++) {
-                                if (files[j].getName().endsWith(".zip")
-                                        || files[j].getName().endsWith(".jar")) {
+                            for (File file : files) {
+                                if (file.getName().endsWith(".zip")
+                                        || file.getName().endsWith(".jar")) {
                                     try {
-                                        urls.add(files[j].toURI().toURL());
+                                        urls.add(file.toURI().toURL());
                                     } catch (MalformedURLException e) {
-                                        System.out.println("Bad jar entry: "
-                                                + dir + ":: Skipping.");
+                                        logger.warn("Bad jar entry: " + dir
+                                                + ":: Skipping.", e);
                                     }
                                 }
                             }
@@ -241,10 +253,8 @@ public class Main {
                 }
             }
         } else {
-            System.out
-                    .println("WARNING: "
-                            + file
-                            + " exceeded maximum recursion depth.  Not traversing further.");
+            logger.warn(file
+                    + ": exceeded maximum recursion depth.  Not traversing further.");
         }
     }
 
@@ -281,7 +291,7 @@ public class Main {
     }
 
     public void addClassPathList(String fileList) {
-        if (fileList != null && fileList.length() > 0) {
+        if ((fileList != null) && (fileList.length() > 0)) {
             StringTokenizer tokenizer = new StringTokenizer(fileList, ";");
             while (tokenizer.hasMoreTokens()) {
                 addClassPath(new File(tokenizer.nextToken()));
@@ -303,28 +313,30 @@ public class Main {
      * @param cl
      * @return depth
      */
-    private static int printClassLoaderTree(ClassLoader cl) {
+    private static int printClassLoaderTree(ClassLoader cl, StringBuilder msg) {
         int depth = 0;
         if (cl.getParent() != null) {
-            depth = printClassLoaderTree(cl.getParent()) + 1;
+            depth = printClassLoaderTree(cl.getParent(), msg) + 1;
         }
 
-        StringBuffer indent = new StringBuffer();
+        StringBuilder indent = new StringBuilder(2 * depth);
         for (int i = 0; i < depth; i++) {
             indent.append("  ");
         }
 
         if (cl instanceof URLClassLoader) {
             URLClassLoader ucl = (URLClassLoader) cl;
-            System.out.println(indent + cl.getClass().getName() + " {");
+            msg.append("\n").append(indent).append(cl.getClass().getName())
+                    .append(" {");
             URL[] urls = ucl.getURLs();
-            for (int i = 0; i < urls.length; i++) {
-                System.out.println(indent + "  " + urls[i]);
+            for (URL url : urls) {
+                msg.append("\n").append(indent).append("  ").append(url);
             }
-            System.out.println(indent + "}");
+            msg.append("\n").append(indent).append("}");
         } else {
-            System.out.println(indent + cl.getClass().getName());
+            msg.append("\n").append(indent).append(cl.getClass().getName());
         }
+
         return depth;
     }
 

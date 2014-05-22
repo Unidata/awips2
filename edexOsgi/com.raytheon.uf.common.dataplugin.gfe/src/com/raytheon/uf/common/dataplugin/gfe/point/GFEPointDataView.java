@@ -31,12 +31,11 @@ import javax.persistence.Transient;
 import com.raytheon.uf.common.pointdata.IPointDataContainerReader;
 import com.raytheon.uf.common.pointdata.IPointDataViewReader;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * GFE Point Data View
  * 
  * <pre>
  * 
@@ -44,6 +43,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 4, 2009            njensen     Initial creation
+ * Apr 23, 2014  #3006    randerso    Added toString to aid in debugging
+ *                                    Fixed conversion of Double to float
  * 
  * </pre>
  * 
@@ -52,8 +53,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class GFEPointDataView implements IPointDataViewReader,
-        ISerializableObject {
+public class GFEPointDataView implements IPointDataViewReader {
 
     @DynamicSerializeElement
     private Map<String, GFEPointDataValue> valueMap = new HashMap<String, GFEPointDataValue>();
@@ -99,7 +99,7 @@ public class GFEPointDataView implements IPointDataViewReader,
             Type type = pd.getType();
             Object obj = pd.getValue();
             if (type == Type.FLOAT) {
-                return (Float) obj;
+                return ((Number) obj).floatValue();
             } else if (type == Type.STRING) {
                 return Float.valueOf((String) obj);
             } else {
@@ -262,6 +262,16 @@ public class GFEPointDataView implements IPointDataViewReader,
 
     public void setContainer(GFEPointDataContainer container) {
         parent = container;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return valueMap.toString();
     }
 
 }

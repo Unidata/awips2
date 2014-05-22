@@ -58,6 +58,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * 07 NOV 2012  15003	   mgamazaychikov	Do not perform QC check on standalone MWS headline.
  * 21 MAY 2013  16200      Qinglu Lin  Prevent countyOrZoneCounter from being increased for a line
  *                                     that has no word County/Parish/Municipality in it. 
+ * 13 MAY 2014  17177      Qinglu Lin  Updated runQC().
  * 
  * </pre>
  * 
@@ -305,7 +306,7 @@ public class TextSegmentCheck implements IQCCheck {
             // second bullet
             if (line.startsWith("*") && nb == 2) {
                 m = secondBulletPtrn.matcher(line);
-                if (m.find()) {
+                if (m.find() || line.contains("* UNTIL NOON") || line.contains("* UNTIL MIDNIGHT")) {
                     secondBulletFound = true;
                     insideFirstBullet = false;
                     continue;

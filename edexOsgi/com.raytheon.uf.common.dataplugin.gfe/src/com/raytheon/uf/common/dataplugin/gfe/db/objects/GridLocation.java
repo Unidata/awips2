@@ -99,6 +99,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                      made init method public for use in GFEDao
  * 09/30/13      #2333      mschenke    Added method to construct from {@link IGridGeometryProvider}
  * 10/22/13      #2361      njensen     Remove XML annotations
+ * 04/11/14      #2947      bsteffen    Remove ISpatialObject constructor.
+ * 
  * 
  * 
  * </pre>
@@ -341,19 +343,6 @@ public class GridLocation extends PersistableDataObject<String> implements
                         proj.getGridPointUR().x - proj.getGridPointLL().x,
                         proj.getGridPointUR().y - proj.getGridPointLL().y),
                 "GMT");
-    }
-
-    /**
-     * @param id
-     * @param coverage
-     */
-    public GridLocation(String id, ISpatialObject coverage) {
-        this.siteId = id;
-        this.crsObject = coverage.getCrs();
-        this.crsWKT = this.crsObject.toWKT();
-        this.geometry = (Polygon) coverage.getGeometry();
-        this.nx = coverage.getNx();
-        this.ny = coverage.getNy();
     }
 
     /**
