@@ -23,7 +23,8 @@ Require-Bundle: org.geotools;bundle-version="2.6.4",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  org.apache.commons.collections;bundle-version="3.2.0",
  org.apache.commons.cxf;bundle-version="1.0.0",
- com.raytheon.uf.common.http
+ com.raytheon.uf.common.http,
+ com.raytheon.uf.edex.soap;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.edex.wfs,
  com.raytheon.uf.edex.wfs.feature,
  com.raytheon.uf.edex.wfs.filter,
