@@ -7,7 +7,7 @@
  * in and to this copyrighted software are as specified in DFARS
  * 252.227-7014 which was made part of the above contract. 
  */
-package com.raytheon.uf.edex.ogc.common.soap;
+package com.raytheon.uf.edex.soap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2013            bclement     Initial creation
  * 5/2/2014     #3192      bhillip      Minor fix for CXF upgrade to 2.7.10
+ * May 23, 2014 3199       bclement     moved to edex.soap from edex.ogc.common
  * 
  * </pre>
  * 
