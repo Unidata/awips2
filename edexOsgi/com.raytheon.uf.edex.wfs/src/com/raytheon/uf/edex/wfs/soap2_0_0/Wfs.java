@@ -66,7 +66,7 @@ import com.raytheon.uf.edex.wfs.soap2_0_0.util.DescribeFeatureTypeResponseType;
  * @version 1.0
  */
 @GZIP
-@InInterceptors(interceptors = "com.raytheon.uf.edex.log.cxf.CXFLogger")
+@InInterceptors(interceptors = "com.raytheon.uf.edex.soap.CXFLogger")
 @WebService(name = "wfs", targetNamespace = "http://www.opengis.net/wfs/requests/2.0")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @BindingType(javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING)
