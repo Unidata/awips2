@@ -22,13 +22,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Record implementation for geomag k 1 min. 
+ * Record implementation for geomag k 1 min.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
  * 08/14/2013   T989       qzhou              Initial creation.
+ * 03/03/2014   #1110      qzhou              modified get/set
  * </pre>
  * 
  * @author qzhou
@@ -43,25 +44,26 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class GeoMagK1min extends PersistableDataObject<Object> {
 
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	public static final String ID_GEN = "idgen";
-	
-	/** The id */
+    private static final long serialVersionUID = 1L;
+
+    public static final String ID_GEN = "idgen";
+
+    /** The id */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
     private Integer id;
-	
-	/**
+
+    /**
      * station code
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private String stationCode;
-	
+
     /**
      * time tag
      */
@@ -69,7 +71,7 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     @XmlAttribute
     @DynamicSerializeElement
     private Date refTime;
-	
+
     /**
      * insert time tag
      */
@@ -77,110 +79,108 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     @XmlAttribute
     @DynamicSerializeElement
     private Date lastUpdate;
-	
+
     /**
      * H data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
-	private int kestIndex;
-   
-	/**
+    private int kestIndex;
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private float kestReal;
-	
-	/**
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private float kestGamma;
-	
+
     /**
      * H data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
-	private int hkIndex;
-   
-	/**
+    private int hkIndex;
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private float hkReal;
-	
-	/**
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private float hkGamma;
-	
+
     /**
      * H data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
-	private int dkIndex;
-   
-	/**
+    private int dkIndex;
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private float dkReal;
-	
-	/**
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private float dkGamma;
-	
-	/**
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private int hCount;
-	
-	/**
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private int dCount;
-	
-	/**
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private int aest;
-	
-	/**
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
+    @Column(length = 16)
     @DynamicSerializeElement
     private float ks;
-	
-	
-	
-	public GeoMagK1min() {
-		
-	}
-	
-	public void generateId() {
+
+    public GeoMagK1min() {
+
+    }
+
+    public void generateId() {
         this.id = hashCode();
     }
-	
-	/**
-     * @return the hHrAvg
+
+    /**
+     * @return the kestIndex
      */
     public int getKestIndex() {
         return kestIndex;
@@ -189,9 +189,9 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     public void setKestIndex(int kestIndex) {
         this.kestIndex = kestIndex;
     }
-    
+
     /**
-     * @return the dHrAvg
+     * @return the kestReal
      */
     public float getKestReal() {
         return kestReal;
@@ -200,9 +200,9 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     public void setKestReal(float kestReal) {
         this.kestReal = kestReal;
     }
-    
+
     /**
-     * @return the hHrAvg
+     * @return the kestGamma
      */
     public float getKestGamma() {
         return kestGamma;
@@ -211,95 +211,95 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     public void setKestGamma(float kestGamma) {
         this.kestGamma = kestGamma;
     }
-    
-	/**
-     * @return the hHrAvg
+
+    /**
+     * @return the hkReal
+     */
+    public float getHkReal() {
+        return hkReal;
+    }
+
+    public void setHkReal(float hkReal) {
+        this.hkReal = hkReal;
+    }
+
+    /**
+     * @return the hkGamma
+     */
+    public float getHkGamma() {
+        return hkGamma;
+    }
+
+    public void setHkGamma(float hkGamma) {
+        this.hkGamma = hkGamma;
+    }
+
+    /**
+     * @return the hkIndex
      */
     public int getHkIndex() {
         return hkIndex;
     }
 
-    public void setHKIndex(int hkIndex) {
+    public void setHkIndex(int hkIndex) {
         this.hkIndex = hkIndex;
     }
-    
-    /**
-     * @return the dHrAvg
-     */
-    public float getHKReal() {
-        return hkReal;
-    }
 
-    public void setHKReal(float hkReal) {
-        this.hkReal = hkReal;
-    }
-    
     /**
-     * @return the hHrAvg
+     * @return the dkIndex
      */
-    public float getHKGamma() {
-        return hkGamma;
-    }
-
-    public void setHKGamma(float hkGamma) {
-        this.hkGamma = hkGamma;
-    }
-    
-	/**
-     * @return the hHrAvg
-     */
-    public int getDKIndex() {
+    public int getDkIndex() {
         return dkIndex;
     }
 
-    public void setDKIndex(int dkIndex) {
+    public void setDkIndex(int dkIndex) {
         this.dkIndex = dkIndex;
     }
-    
+
     /**
-     * @return the dHrAvg
+     * @return the dkReal
      */
-    public float getDKReal() {
+    public float getDkReal() {
         return dkReal;
     }
 
-    public void setDKReal(float dkReal) {
+    public void setDkReal(float dkReal) {
         this.dkReal = dkReal;
     }
-    
+
     /**
-     * @return the hHrAvg
+     * @return the dkGamma
      */
-    public float getDKGamma() {
+    public float getDkGamma() {
         return dkGamma;
     }
 
-    public void setDKGamma(float dkGamma) {
+    public void setDkGamma(float dkGamma) {
         this.dkGamma = dkGamma;
     }
-    
+
     /**
-     * @return the dHrAvg
+     * @return the hCount
      */
-    public float getHCount() {
+    public int gethCount() {
         return hCount;
     }
 
-    public void setHCount(int hCount) {
+    public void sethCount(int hCount) {
         this.hCount = hCount;
     }
-    
+
     /**
-     * @return the dHrAvg
+     * @return the dCount
      */
-    public int getDCount() {
+    public int getdCount() {
         return dCount;
     }
 
-    public void setDCount(int dCount) {
+    public void setdCount(int dCount) {
         this.dCount = dCount;
     }
-    
+
     /**
      * @return the dHrAvg
      */
@@ -310,7 +310,7 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     public void setAest(int aest) {
         this.aest = aest;
     }
-    
+
     /**
      * @return the dHrAvg
      */
@@ -321,7 +321,7 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     public void setKs(float ks) {
         this.ks = ks;
     }
-    
+
     /**
      * @return The id
      */
@@ -333,7 +333,7 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
         this.id = id;
     }
 
-	/**
+    /**
      * @return the timeTag
      */
     public Date getRefTime() {
@@ -343,7 +343,7 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     public void setRefTime(Date refTime) {
         this.refTime = refTime;
     }
-    
+
     /**
      * @return the timeTag
      */
@@ -354,7 +354,7 @@ public class GeoMagK1min extends PersistableDataObject<Object> {
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
-    
+
     /**
      * @return the stationCode
      */

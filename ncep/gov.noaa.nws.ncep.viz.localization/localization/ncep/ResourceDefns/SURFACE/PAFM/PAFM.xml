@@ -5,17 +5,17 @@
     <resourceCategory>SURFACE</resourceCategory>
     <resourceParameters>
 pluginName=ncpafm
-reportType=PAFM
-spiFile=
-legendString=Point/Area Forecast Matrix
+matrixType=AREA
+spiFile=MTR.spi
+legendString=Area Forecast Matrix
 legendColor=RGB {0, 255, 0}
     </resourceParameters>
-    <rscImplementation>SurfacePlot</rscImplementation>
+    <rscImplementation>MatrixPlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>180</frameSpan>
-    <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
+    <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
     <dfltFrameCount>999</dfltFrameCount>
     <dfltTimeRange>168</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
