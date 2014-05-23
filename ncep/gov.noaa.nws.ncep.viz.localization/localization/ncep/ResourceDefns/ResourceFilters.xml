@@ -696,6 +696,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GHM">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HYSPLIT">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
