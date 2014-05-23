@@ -39,8 +39,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
+import com.raytheon.edex.plugin.shef.data.ShefRecord.ShefType;
 import com.raytheon.edex.plugin.shef.util.BitUtils;
-import com.raytheon.edex.plugin.shef.util.SHEFDate;
 import com.raytheon.edex.plugin.shef.util.ShefAdjustFactor;
 import com.raytheon.edex.plugin.shef.util.ShefStats;
 import com.raytheon.edex.plugin.shef.util.ShefUtil;
@@ -117,6 +117,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     data can be posted to appropriate pe-based tables only if the data 
  *                                     type is not READING like in A1 code.
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
+ *                                     Updated with more performance fixes.
  * 
  * </pre>
  * 
@@ -151,11 +152,16 @@ public class PostShef {
     /** Constant for ON */
     private static final String SHEF_ON = "ON";
 
+    private static final int MISSING = -999;
+
     /** Questionable/bad threshold value */
     private static final int QUESTIONABLE_BAD_THRESHOLD = 1073741824;
 
     /** Map of value to duration character */
     private static final Map<Integer, String> DURATION_MAP;
+
+    /** The time this class is created and the shef file is processed. */
+    private final long currentTime = System.currentTimeMillis();
 
     static {
         DURATION_MAP = Collections.unmodifiableMap(buildDurationMap());
@@ -250,6 +256,40 @@ public class PostShef {
     private boolean dataLog;
 
     private boolean perfLog;
+
+    /** Type Source list */
+    private List<String> tsList = new ArrayList<String>();
+
+    /** Use latest value flag */
+    private int useLatest = MISSING;
+
+    /** Begin basis time */
+    private long basisBeginTime = currentTime
+            - (basishrs * ShefConstants.MILLIS_PER_HOUR);
+
+    /** Basis time TimeStamp */
+    private java.sql.Timestamp basisTimeAnsi = new Timestamp(basisBeginTime);
+
+    /** River status update flag. update if true */
+    private boolean riverStatusUpdateFlag = true;
+
+    /** river status update query value */
+    private boolean riverStatusUpdateValueFlag;
+
+    /** Quality check flag, true to query for quality values */
+    private boolean qualityCheckFlag = true;
+
+    /** Type Source to use */
+    private String useTs = null;
+
+    /** basis time values from query */
+    private Object[] basisTimeValues = null;
+
+    /** Previous forecast query */
+    private String previousQueryForecast;
+
+    /** Forecast query results */
+    private Object[] queryForecastResults;
 
     /**
      * 
@@ -412,6 +452,12 @@ public class PostShef {
              */
             Location postLocData = null;
             for (ShefData data : dataValues) {
+                if (data.getObsTime() == null) {
+                    log.error(data.toString());
+                    log.error("Not posted:Record does not contain an observation time");
+                    return;
+                }
+
                 boolean same_lid_product = false;
 
                 String dataValue = data.getStringValue();
@@ -473,22 +519,9 @@ public class PostShef {
                  * is READING then the data doesn't get posted to the
                  * appropriate pe-based tables to match A1 logic. DR16711
                  */
-
                 if ((DataType.READING.equals(dataType))
                         && (Location.LOC_GEOAREA.equals(postLocData))) {
                     postLocData = Location.LOC_UNDEFINED;
-                }
-
-                SHEFDate d = data.getObsTime();
-                if (d == null) {
-                    log.error(data.toString());
-                    log.error("Not posted:Record does not contain an observation time");
-                    return;
-                }
-                Date obsTime = d.toCalendar().getTime();
-                Date createTime = null;
-                if (data.getCreateTime() != null) {
-                    createTime = data.getCreateTime().toCalendar().getTime();
                 }
 
                 /*
@@ -643,6 +676,11 @@ public class PostShef {
                  * outside of this time window, then do not post. skip this
                  * check if data is monthly data
                  */
+                Date obsTime = data.getObsTime().toCalendar().getTime();
+                Date createTime = null;
+                if (data.getCreateTime() != null) {
+                    createTime = data.getCreateTime().toCalendar().getTime();
+                }
 
                 if (DataType.READING.equals(dataType)
                         || TypeSource.PROCESSED_MEAN_AREAL_DATA
@@ -744,7 +782,7 @@ public class PostShef {
                  * the value.
                  */
                 boolean valueOk = false;
-                long qualityCode = -999;
+                long qualityCode = MISSING;
                 Date validTime = new Date(obsTime.getTime());
 
                 /* Don't perform the check if the value is a missing value */
@@ -1020,9 +1058,16 @@ public class PostShef {
             postTables.executeBatchUpdates();
         } catch (Exception e) {
             log.error("An error occurred posting shef data.", e);
-            // } finally {
-            // postTables.close();
         }
+
+        // Reset .E cache vars
+        tsList.clear();
+        useLatest = MISSING;
+        riverStatusUpdateFlag = true;
+        qualityCheckFlag = true;
+        useTs = null;
+        basisTimeValues = null;
+        previousQueryForecast = null;
     }
 
     /**
@@ -1217,26 +1262,54 @@ public class PostShef {
     private void loadMaxFcstData_lidpe(String tableName, String locId, String pe) {
         Object[] oa = null;
         if ((tableName != null) && (locId != null) && (pe != null)) {
-            String query = "select DISTINCT(ts) " + "from " + tableName
-                    + " where lid = '" + locId + "' and pe = '" + pe + "' and "
-                    + "validtime > CURRENT_TIMESTAMP and "
-                    + "probability < 0.0";
-
-            try {
-                oa = dao.executeSQLQuery(query);
-
-                for (int i = 0; i < oa.length; i++) {
-                    String ts = ShefUtil.getString(oa[i], null);
-                    if (ts != null) {
-                        loadMaxFcstItem(locId, pe, ts);
+            if (shefRecord.getShefType() == ShefType.E) {
+                // Only need to do this query once for each shef record for .E
+                if (tsList.isEmpty()) {
+                    String query = "select DISTINCT(ts) " + "from " + tableName
+                            + " where lid = '" + locId + "' and pe = '" + pe
+                            + "' and " + "validtime > CURRENT_TIMESTAMP and "
+                            + "probability < 0.0";
+                    try {
+                        oa = dao.executeSQLQuery(query);
+                        for (int i = 0; i < oa.length; i++) {
+                            String ts = ShefUtil.getString(oa[i], null);
+                            if (ts != null) {
+                                tsList.add(ts);
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("Query = [" + query + "]");
+                        log.error(shefRecord.getTraceId()
+                                + " - PostgresSQL error retrieving from "
+                                + tableName, e);
                     }
                 }
+            } else {
+                String query = "select DISTINCT(ts) " + "from " + tableName
+                        + " where lid = '" + locId + "' and pe = '" + pe
+                        + "' and " + "validtime > CURRENT_TIMESTAMP and "
+                        + "probability < 0.0";
 
-            } catch (Exception e) {
-                log.error("Query = [" + query + "]");
-                log.error(shefRecord.getTraceId()
-                        + " - PostgresSQL error retrieving from " + tableName,
-                        e);
+                try {
+                    oa = dao.executeSQLQuery(query);
+
+                    for (int i = 0; i < oa.length; i++) {
+                        String ts = ShefUtil.getString(oa[i], null);
+                        if (ts != null) {
+                            tsList.add(ts);
+                        }
+                    }
+
+                } catch (Exception e) {
+                    log.error("Query = [" + query + "]");
+                    log.error(shefRecord.getTraceId()
+                            + " - PostgresSQL error retrieving from "
+                            + tableName, e);
+                }
+            }
+
+            for (String ts : tsList) {
+                loadMaxFcstItem(locId, pe, ts);
             }
         }
     }
@@ -1247,64 +1320,96 @@ public class PostShef {
      * */
     private void loadMaxFcstItem(String lid, String pe, String ts) {
         Object[] oa = null;
+        int qcFilter = 1;
+        List<ShefData> shefList = null;
+
         String riverStatQuery = "select use_latest_fcst from riverstat where lid = '"
                 + lid + "'";
         String deleteQuery = "delete from riverstatus  " + "where lid= '" + lid
                 + "' and pe= '" + pe + "' and ts= '" + ts + "'";
-        int useLatest = 0;
-        int qcFilter = 1;
-        List<ShefData> shefList = null;
-        try {
-            oa = dao.executeSQLQuery(riverStatQuery);
+        if (shefRecord.getShefType() == ShefType.E) {
+            if (useLatest == MISSING) {
+                useLatest = 0;
+                try {
+                    oa = dao.executeSQLQuery(riverStatQuery);
 
-            /*
-             * get the setting for the use_latest_fcst field for the current
-             * location from the riverstat table.
-             */
+                    /*
+                     * get the setting for the use_latest_fcst field for the
+                     * current location from the riverstat table.
+                     */
 
-            if (oa == null) {
-                useLatest = 1;
-            } else {
-                if (oa.length > 0) {
-                    if ("T".equals(ShefUtil.getString(oa[0], null))) {
+                    if (oa == null) {
                         useLatest = 1;
+                    } else {
+                        if (oa.length > 0) {
+                            if ("T".equals(ShefUtil.getString(oa[0], null))) {
+                                useLatest = 1;
+                            }
+                        }
                     }
+                } catch (Exception e) {
+                    log.error("Query = [" + riverStatQuery + "]");
+                    log.error(shefRecord.getTraceId()
+                            + " - PostgresSQL error loading max forecast item",
+                            e);
                 }
             }
+        } else {
+            useLatest = 0;
+            try {
+                oa = dao.executeSQLQuery(riverStatQuery);
 
-            /*
-             * get the forecast time series for this location, pe, and ts using
-             * any instructions on any type-source to screen and whether to use
-             * only the latest basis time
-             */
-            long currentTime = System.currentTimeMillis();
-            long basisBeginTime = 0;
-
-            /*
-             * This code sets the time values
-             */
-            basisBeginTime = currentTime
-                    - (basishrs * ShefConstants.MILLIS_PER_HOUR);
-            shefList = buildTsFcstRiv(lid, pe, ts, qcFilter, useLatest,
-                    basisBeginTime);
-            if ((shefList != null) && (shefList.size() > 0)) {
-                ShefData maxShefDataValue = findMaxFcst(shefList);
-                boolean updateFlag = updateRiverStatus(lid, pe, ts);
-                postTables.postRiverStatus(shefRecord, maxShefDataValue,
-                        updateFlag);
-            } else {
                 /*
-                 * if no data were found, then delete any entries that may exist
-                 * for this key. this is needed if general applications are
-                 * using this function directly and delete all forecast data for
-                 * a given key
+                 * get the setting for the use_latest_fcst field for the current
+                 * location from the riverstat table.
                  */
-                dao.executeSQLUpdate(deleteQuery);
+
+                if (oa == null) {
+                    useLatest = 1;
+                } else {
+                    if (oa.length > 0) {
+                        if ("T".equals(ShefUtil.getString(oa[0], null))) {
+                            useLatest = 1;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Query = [" + riverStatQuery + "]");
+                log.error(shefRecord.getTraceId()
+                        + " - PostgresSQL error loading max forecast item", e);
             }
-        } catch (Exception e) {
-            log.error("Query = [" + riverStatQuery + "]");
-            log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error loading max forecast item", e);
+
+        }
+        /*
+         * get the forecast time series for this location, pe, and ts using any
+         * instructions on any type-source to screen and whether to use only the
+         * latest basis time
+         */
+        /*
+         * This code sets the time values
+         */
+        shefList = buildTsFcstRiv(lid, pe, ts, qcFilter, useLatest);
+        if ((shefList != null) && (shefList.size() > 0)) {
+            ShefData maxShefDataValue = findMaxFcst(shefList);
+
+            if (shefRecord.getShefType() == ShefType.E) {
+                if (riverStatusUpdateFlag) {
+                    riverStatusUpdateFlag = false;
+
+                    riverStatusUpdateValueFlag = updateRiverStatus(lid, pe, ts);
+                }
+            } else {
+                riverStatusUpdateValueFlag = updateRiverStatus(lid, pe, ts);
+            }
+            postTables.postRiverStatus(shefRecord, maxShefDataValue,
+                    riverStatusUpdateValueFlag);
+        } else {
+            /*
+             * if no data were found, then delete any entries that may exist for
+             * this key. this is needed if general applications are using this
+             * function directly and delete all forecast data for a given key
+             */
+            dao.executeSQLUpdate(deleteQuery);
         }
     }
 
@@ -1365,17 +1470,13 @@ public class PostShef {
      * is contained in the adjust_startend() function.
      **/
     private List<ShefData> buildTsFcstRiv(String lid, String pe,
-            String tsFilter, int qcFilter, int useLatest, long basisBegintime) {
+            String tsFilter, int qcFilter, int useLatest) {
         int fcstCount = 0;
-        String useTs = null;
         String tableName = null;
         String query = null;
         StringBuilder queryForecast = null;
 
-        java.sql.Timestamp basisTimeAnsi = null;
-
         boolean[] doKeep = null;
-        Object[] ulHead = null;
         Object[] row = null;
         Fcstheight[] fcstHead = null;
         Fcstheight fcstHght = null;
@@ -1383,7 +1484,11 @@ public class PostShef {
         List<ShefData> shefList = new ArrayList<ShefData>();
         ShefData shefDataValue = null;
 
-        if ((tsFilter == null) || (tsFilter.length() == 0)) {
+        if (shefRecord.getShefType() != ShefType.E) {
+            useTs = null;
+            basisTimeValues = null;
+        }
+        if ((tsFilter == null) || (tsFilter.length() == 0) && useTs == null) {
             useTs = getBestTs(lid, pe, "F%", 0);
             if (useTs == null) {
                 return null;
@@ -1398,27 +1503,27 @@ public class PostShef {
             } else {
                 tableName = "FcstDischarge";
             }
+            if (basisTimeValues == null) {
+                /*
+                 * retrieve a list of unique basis times; use descending sort.
+                 * only consider forecast data before some ending time, and with
+                 * some limited basis time ago
+                 */
+                query = "SELECT DISTINCT(basistime) FROM " + tableName + " "
+                        + "WHERE lid = '" + lid + "' and " + "pe = '" + pe
+                        + "' and " + "ts = '" + useTs + "' and "
+                        + "validtime >= CURRENT_TIMESTAMP and "
+                        + "basistime >= '" + basisTimeAnsi + "' and "
+                        + "value != " + ShefConstants.SHEF_MISSING_INT
+                        + " and " + "quality_code >= "
+                        + QUESTIONABLE_BAD_THRESHOLD + " "
+                        + "ORDER BY basistime DESC ";
 
-            basisTimeAnsi = new Timestamp(basisBegintime);
+                basisTimeValues = dao.executeSQLQuery(query);
 
-            /*
-             * retrieve a list of unique basis times; use descending sort. only
-             * consider forecast data before some ending time, and with some
-             * limited basis time ago
-             */
-            query = "SELECT DISTINCT(basistime) FROM " + tableName + " "
-                    + "WHERE lid = '" + lid + "' and " + "pe = '" + pe
-                    + "' and " + "ts = '" + useTs + "' and "
-                    + "validtime >= CURRENT_TIMESTAMP and " + "basistime >= '"
-                    + basisTimeAnsi + "' and " + "value != "
-                    + ShefConstants.SHEF_MISSING_INT + " and "
-                    + "quality_code >= " + QUESTIONABLE_BAD_THRESHOLD + " "
-                    + "ORDER BY basistime DESC ";
-
-            ulHead = dao.executeSQLQuery(query);
-
-            if ((ulHead == null) || (ulHead.length <= 0)) {
-                return null;
+                if ((basisTimeValues == null) || (basisTimeValues.length <= 0)) {
+                    return null;
+                }
             }
 
             /*
@@ -1435,9 +1540,10 @@ public class PostShef {
             queryForecast
                     .append("' AND validtime >= CURRENT_TIMESTAMP AND probability < 0.0 AND ");
 
-            if ((useLatest == 1) || (ulHead.length == 1)) {
+            if ((useLatest == 1)
+                    || (basisTimeValues != null && basisTimeValues.length == 1)) {
                 java.sql.Timestamp tempStamp = null;
-                tempStamp = (Timestamp) ulHead[0];
+                tempStamp = (Timestamp) basisTimeValues[0];
                 queryForecast.append("basistime >= '").append(tempStamp)
                         .append("' AND ");
             } else {
@@ -1451,13 +1557,18 @@ public class PostShef {
             queryForecast.append(ShefConstants.SHEF_MISSING).append(
                     " ORDER BY validtime ASC");
 
-            Object[] oa = dao.executeSQLQuery(queryForecast.toString());
+            if (!queryForecast.toString().equals(previousQueryForecast)) {
+                previousQueryForecast = queryForecast.toString();
+                queryForecastResults = dao.executeSQLQuery(queryForecast
+                        .toString());
+            }
             row = null;
 
-            if ((oa != null) && (oa.length > 0)) {
-                fcstHead = new Fcstheight[oa.length];
-                for (int i = 0; i < oa.length; i++) {
-                    row = (Object[]) oa[i];
+            if ((queryForecastResults != null)
+                    && (queryForecastResults.length > 0)) {
+                fcstHead = new Fcstheight[queryForecastResults.length];
+                for (int i = 0; i < queryForecastResults.length; i++) {
+                    row = (Object[]) queryForecastResults[i];
                     fcstHght = new Fcstheight();
                     FcstheightId id = new FcstheightId();
                     Date tmpDate = null;
@@ -1503,10 +1614,10 @@ public class PostShef {
              * the time series together for the multiple basis times.
              */
 
-            if ((useLatest == 1) || (ulHead.length <= 1)) {
+            if ((useLatest == 1) || (basisTimeValues.length <= 1)) {
                 Arrays.fill(doKeep, true);
             } else {
-                doKeep = setFcstKeep(ulHead, fcstHead);
+                doKeep = setFcstKeep(basisTimeValues, fcstHead);
             }
 
             /*
@@ -2489,56 +2600,48 @@ public class PostShef {
         boolean defRangeFound = false;
         boolean validDateRange = false;
 
+        boolean executeQuery = true;
+        if (!qualityCheckFlag) {
+            // If qualityCheckFlag is false the the query has already been
+            // executed
+            executeQuery = false;
+        }
+
+        if (shefRecord.getShefType() == ShefType.E) {
+            // if qualityCheckFlag is true then don't need to query
+            if (qualityCheckFlag) {
+                qualityCheckFlag = false;
+            }
+        }
+
         StringBuilder locLimitSql = new StringBuilder();
-        StringBuilder defLimitSql = null;
+        StringBuilder defLimitSql = new StringBuilder();
         try {
-            /* Get a Data Access Object */
-            String sqlStart = "select monthdaystart, monthdayend, gross_range_min, gross_range_max, reason_range_min, "
-                    + "reason_range_max, roc_max, alert_upper_limit, alert_roc_limit, alarm_upper_limit, "
-                    + "alarm_roc_limit, alert_lower_limit, alarm_lower_limit, alert_diff_limit, "
-                    + "alarm_diff_limit, pe, dur from ";
+            if (executeQuery) {
+                String sqlStart = "select monthdaystart, monthdayend, gross_range_min, gross_range_max, reason_range_min, "
+                        + "reason_range_max, roc_max, alert_upper_limit, alert_roc_limit, alarm_upper_limit, "
+                        + "alarm_roc_limit, alert_lower_limit, alarm_lower_limit, alert_diff_limit, "
+                        + "alarm_diff_limit, pe, dur from ";
 
-            locLimitSql.append(sqlStart);
-            locLimitSql.append("locdatalimits where ");
-            locLimitSql.append("lid = '").append(lid).append("' and pe = '")
-                    .append(data.getPhysicalElement().getCode())
-                    .append("' and dur = ").append(data.getDurationValue());
-
-            Object[] oa = dao.executeSQLQuery(locLimitSql.toString());
-
-            if (oa.length > 0) { // Location specific range is defined
-                for (int i = 0; i < oa.length; i++) {
-                    Object[] oa2 = (Object[]) oa[i];
-
-                    /* Check the date range */
-                    monthdaystart = ShefUtil.getString(oa2[0], "99-99");
-                    monthdayend = ShefUtil.getString(oa2[1], "00-00");
-
-                    validDateRange = checkRangeDate(
-                            data.getObservationTimeObj(), monthdaystart,
-                            monthdayend);
-
-                    if (validDateRange) {
-                        grossRangeMin = ShefUtil.getDouble(oa2[2], missing);
-                        grossRangeMax = ShefUtil.getDouble(oa2[3], missing);
-                        reasonRangeMin = ShefUtil.getDouble(oa2[4], missing);
-                        reasonRangeMax = ShefUtil.getDouble(oa2[5], missing);
-                        alertUpperLimit = ShefUtil.getDouble(oa2[7], missing);
-                        alertLowerLimit = ShefUtil.getDouble(oa2[11], missing);
-                        alarmLowerLimit = ShefUtil.getDouble(oa2[12], missing);
-                        alarmUpperLimit = ShefUtil.getDouble(oa2[9], missing);
-                        locRangeFound = true;
-                        break;
-                    }
-                }
-            } else { // Location specific range is undefined, check the
-                // default range
-                defLimitSql = new StringBuilder(sqlStart);
-                defLimitSql.append("datalimits where pe = '")
+                locLimitSql.append(sqlStart);
+                locLimitSql.append("locdatalimits where ");
+                locLimitSql.append("lid = '").append(lid)
+                        .append("' and pe = '")
                         .append(data.getPhysicalElement().getCode())
                         .append("' and dur = ").append(data.getDurationValue());
 
-                oa = dao.executeSQLQuery(defLimitSql.toString());
+                Object[] oa = dao.executeSQLQuery(locLimitSql.toString());
+
+                if (oa.length == 0) {
+                    // default range
+                    defLimitSql = new StringBuilder(sqlStart);
+                    defLimitSql.append("datalimits where pe = '")
+                            .append(data.getPhysicalElement().getCode())
+                            .append("' and dur = ")
+                            .append(data.getDurationValue());
+
+                    oa = dao.executeSQLQuery(defLimitSql.toString());
+                }
                 for (int i = 0; i < oa.length; i++) {
                     Object[] oa2 = (Object[]) oa[i];
 
