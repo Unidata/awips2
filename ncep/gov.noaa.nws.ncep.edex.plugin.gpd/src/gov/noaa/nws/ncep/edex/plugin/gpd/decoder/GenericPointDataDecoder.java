@@ -1,4 +1,8 @@
 /**
+ * This code has unlimited rights, and is provided "as is" by the National Centers 
+ * for Environmental Prediction, without warranty of any kind, either expressed or implied, 
+ * including but not limited to the implied warranties of merchantability and/or fitness 
+ * for a particular purpose.
  * 
  * 
  * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
@@ -25,6 +29,7 @@ import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataParameter
 import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataProductContainer;
 import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataProductInfo;
 import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataStationProduct;
+import gov.noaa.nws.ncep.common.dataplugin.gpd.query.GenericPointDataReqMsg.GenericPointDataReqType;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -34,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +53,8 @@ import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.io.IOUtils;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
@@ -262,7 +270,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
    	 ********************************************************************************************
 	 *   
 	 */
-	private String parseSoundingTable(String prodTblString,String prodName,int versionNum, int levelNumMax){
+	private String parseSoundingTable(String prodTblString,String prodName,int versionNum, int levelNumMax, GenericPointDataReqType reqType){
 		if( levelNumMax < 2) {//should set to a minimum of 2, see comments in parseSurfaceTable()
 			return "Bad input, max number of level should be greater than 1";
 		}
@@ -331,10 +339,14 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 		//remainDataString: point to data starting from first STID
 		String remainDataString = prodTblString.substring(stnIdIndex);
 		//split remaining data and parse data for each station. 
-		Date date=null;
+		//Chin NOTE: current time is reference time for OBS SND (e.g. Uair) and is forecast time for Model SND (for example pfc-nam)
+		Date currentTime=null;
+		//Chin Note: reference time is indeed reference time for Model SND. Currently, we use the first decoded TIME 
+		// as reference time.
+		Date refTime=null;
 		boolean firstRoundOfPersistence = true;
 		PointDataDescription pdd=null;
-		int blockCount=0;
+		//int blockCount=0;
 		List<GenericPointDataStationProduct> stnProdList = new ArrayList<GenericPointDataStationProduct>();
 		/*
 		 * Chin Note: To speed up HDF5 persistence speed and also avoid out of heap memory problem,
@@ -354,7 +366,9 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			else {
 				stnDataString = remainDataString;
 				found = false;
+				//System.out.println("reach last station, contents= \n"+stnDataString);
 			}
+			boolean goodStation = true;
 			//System.out.println(stnDataString);
 			int stnSndParmIndex = stnDataString.indexOf(sndParmArray[0]);
 			//System.out.println("stnSndParmIndex=" + stnSndParmIndex);
@@ -390,7 +404,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			int i=0;
 			GenericPointDataStationProduct stnProd = new GenericPointDataStationProduct(versionNum,prodName);
 			boolean reftimeNotAvail = true, stnIdNotAvail=true;
-			String stid="", reftime="";
+			String stid="", timeStr="";
 			for(String pm: stnMetaArray){
 				//System.out.println("Metainfo="+pm);	
 				if(pm.equals(GenericPointDataConstants.SND_STN_ID)){
@@ -450,16 +464,32 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 						SimpleDateFormat df = new SimpleDateFormat("yyMMdd/HHmm");
 						
 						try {
-							date = df.parse(stnMetaArray[i+1]);
-							reftime = stnMetaArray[i+1];
+							//For PFC sounding, reference time and forecast time may be different
+							//We use the first station's "TIME" decoded as reference time for all time lines / stations in
+							//one GEMPAK file..
+							// The rest decoded TIME is decoded as forecast time for each time line. 
+							//However, for UAIR, all decoded "TIME" are treated as reference time for that station/time line
+							if(refTime == null) 
+								refTime = df.parse(stnMetaArray[i+1]);
+							currentTime = df.parse(stnMetaArray[i+1]);
+							timeStr = stnMetaArray[i+1];
 							//System.out.println("date="+date.toString());
 							reftimeNotAvail=false;
 						} catch (ParseException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						if(date!=null)
-							stnProd.setRefTime(date);
+						if(currentTime!=null){
+							if(GenericPointDataReqType.STORE_GPD_MDL_SND_PRODUCT_FROM_GEMPAK_TBL == reqType){
+								stnProd.setRefTime(refTime);
+								int forecastTime= (int)((currentTime.getTime() - refTime.getTime())/1000);
+								stnProd.setForecastTime(forecastTime);
+							}
+							else {// should be (GenericPointDataReqType.STORE_GPD_OBS_SND_PRODUCT_FROM_GEMPAK_TBL == reqType){
+								stnProd.setRefTime(currentTime);
+								stnProd.setForecastTime(-1);
+							}
+						}
 						else {
 							//no mandatory reference time found
 							returnStatus = "*****************************************\nDropped one station product. TIME not found. \n"+ stnMetaDataStr + "\n";
@@ -543,9 +573,9 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 						}
 						else{
 							//Chin NOTE: with this simple error handling design,
-							//When a missing line in input table, we will drop all data for its station after the missing line.
+							//When a missing parameter in line, we will drop all data for this level.
 							//System.out.println("sdnParmlength="+stnSndDataParmAtCurLineArray.length+" should be"+  numSndParmAtLine);
-							returnStatus = returnStatus +"Dropped incomplete sounding data line @ "+ stid+ " Time="+reftime+"\n"+ lineStr + "\n";
+							returnStatus = returnStatus +"Dropped incomplete sounding data level, missing data at line @ "+ stid+ " Time="+timeStr+"\n"+ lineStr + "\n stnStr="+stnDataString+"\n found="+found;
 							goodLevel = false;
 							break;
 						}
@@ -553,10 +583,24 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 					}
 					if(goodLevel)
 						stnProd.getLevelLst().add(gpdLevel);
+					else{
+						//if there is a bad level, we drop this station
+						goodStation = false;
+						break;
+					}
 				}
-				stnProdList.add(stnProd);
+				if(goodStation)
+					stnProdList.add(stnProd);
 			}
 			if(firstRoundOfPersistence == true ){
+				int latestProdVersion = gpdDao.getGpdProductLatestVersion(currentTime, prodName);
+				if(versionNum <= latestProdVersion)
+					//input product should not have version smaller or equal to same product's latest product version in DB
+					//If a new product, its product version should be 0 and latestProdVersion should be  -1.
+					return "Data persistence failed. Input version number "+ versionNum+ " DB latest version number "+latestProdVersion;
+				prodInfo = gpdDao.lookupUpdateGpdProdInfo(prodInfo, true, versionNum);
+				if(prodInfo == null)
+					return "Data persistence failed. Bad Product info\n";
 				//NOte: we assume at first round, we will already have max level set for generating 
 				// pdd
 				pdd = createPointDataDescription(prodInfo);
@@ -564,7 +608,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			if(pdd != null && stnProdList.size() >=BLOCKSIZE ){
 				try {
 					String sts = performPersist( prodInfo,stnProdList
-							,versionNum, date, pdd, firstRoundOfPersistence) ;
+							,versionNum, pdd) ;
 					
 					if(sts.equals(OK)== false){
 						//either product info or version is not right, stop parsing.
@@ -576,7 +620,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				blockCount++;
+				//blockCount++;
 			}
 		}
 		//System.out.println("Prod " + prodName+": persisted "+ (blockCount*BLOCKSIZE + stnProdList.size())+ " records.");
@@ -585,7 +629,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 		if(pdd!=null && stnProdList.size() > 0 ){
 			try {
 				String sts = performPersist( prodInfo,stnProdList
-						,versionNum, date, pdd, firstRoundOfPersistence) ;
+						,versionNum,  pdd) ;
 				if(sts.equals(OK)== false){
 					//either product info or version is not right, stop parsing.
 					return returnStatus+ sts;
@@ -828,7 +872,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			
 			//to here means that this is a none numeric string, then it should be a station id line, ie. the first line of a record
 			//add first line to stnTbl
-			System.out.println(" line: "+stnlineStr + " length="+ stnlineStr.length());
+			//System.out.println(" line: "+stnlineStr + " length="+ stnlineStr.length());
 
 			stnTbl.add((new ArrayList(Arrays.asList(stnparmArry))));
 			currentIndex++;
@@ -876,7 +920,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			}
 			// get stnId value and drop it from table
 			String stnIdStr = stnTbl.get(0).get(0);
-			System.out.println("stnId="+stnIdStr);
+			//System.out.println("stnId="+stnIdStr);
 			if(stnIdStr.length()<=0){
 				returnStatus =returnStatus +  "Dropped one station product. STN not found \n"+ stnTbl.get(0) + "\n";
 				stnTbl.clear();
@@ -893,14 +937,16 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			}
 			try {
 				date = df.parse(refTime);
-				System.out.println("date="+date.toString());
+				//System.out.println("date="+date.toString());
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();
 				System.out.println("bad reftime"+refTime);
 			}
-			if(date!=null)
+			if(date!=null){
 				newstnProd.setRefTime(date);
+				newstnProd.setForecastTime(-1);
+			}
 			else{
 				returnStatus = returnStatus + "Dropped one station product. Time in bad format \n"+ stnTbl.get(0) + "\n";
 				stnTbl.clear();
@@ -945,13 +991,21 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			stnIndexInBlock++;
 			stnTbl.clear();
 			if(firstRoundOfPersistence == true ){
+				int latestProdVersion = gpdDao.getGpdProductLatestVersion(stnProdList.get(0).getRefTime(), prodName);
+				if(versionNum <= latestProdVersion)
+					//input product should not have version smaller or equal to same product's latest product version in DB
+					//If a new product, its product version should be 0 and latestProdVersion should be  -1.
+					return "Data persistence failed. Input version number "+ versionNum+ " DB latest version number "+latestProdVersion;
+				prodInfo = gpdDao.lookupUpdateGpdProdInfo(prodInfo, true, versionNum);
+				if(prodInfo == null)
+					return "Data persistence failed. Bad Product info\n";
 				pdd = createPointDataDescription(prodInfo);
 				
 			}
 			if(pdd != null && stnIndexInBlock >=BLOCKSIZE ){
 				try {
 					String sts = performPersist( prodInfo,stnProdList
-							,versionNum, stnProdList.get(0).getRefTime(), pdd, firstRoundOfPersistence) ;
+							,versionNum,  pdd) ;
 					if(sts.equals(OK)== false){
 						//either product info or version is not right, stop parsing.
 						return returnStatus+ sts;
@@ -971,7 +1025,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 		if(pdd!=null && stnIndexInBlock > 0 ){
 			try {
 				String sts = performPersist( prodInfo,stnProdList
-						,versionNum, stnProdList.get(0).getRefTime(), pdd, firstRoundOfPersistence) ;
+						,versionNum,  pdd) ;
 				if(sts.equals(OK)== false){
 					//either product info or version is not right, stop parsing.
 					return returnStatus+ sts;
@@ -989,19 +1043,10 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 	 * Return status: OK or error status
 	 */
 	private String performPersist(GenericPointDataProductInfo prodInfo,List<GenericPointDataStationProduct> stnProdLst 
-			, int prodVersion, Date refTime, PointDataDescription pdd, boolean firstRoundOfPersist) throws PluginException {
+			, int prodVersion, PointDataDescription pdd) throws PluginException {
 		String prodName = prodInfo.getName();		
 		List<PluginDataObject> rtObLst =null;
-		if(firstRoundOfPersist == true){
-			int latestProdVersion = gpdDao.getGpdProductLatestVersion(refTime, prodName);
-			if(prodVersion <= latestProdVersion)
-				//input product should not have version smaller or equal to same product's latest product version in DB
-				//If a new product, its product version should be 0 and latestProdVersion should be  -1.
-				return "Data persistence failed. Wrong version number!\n";
-			prodInfo = gpdDao.lookupUpdateGpdProdInfo(prodInfo, true, prodVersion);
-			if(prodInfo == null)
-				return "Data persistence failed. Bad Product info\n";
-		}
+		
 		
 		DataTime dataTime;
 		//System.out.println("GenericPointDataProductInfo is obtained! report name="+prodInfo.getName()+
@@ -1024,7 +1069,12 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 					stnPd.setNumLevel(numLevel);
 					PointDataView view = createPointDataView(pdd, stnPd);
 					if(view !=null){
-						dataTime = new DataTime(stnPd.getRefTime());
+						Date refTime = stnPd.getRefTime();
+						int forecastTimeSec = stnPd.getForecastTime();
+						if(forecastTimeSec == -1)
+							dataTime = new DataTime(stnPd.getRefTime());
+						else
+							dataTime = new DataTime(stnPd.getRefTime(), (int)forecastTimeSec);
 						gpdRec= new GenericPointDataRecord(prodInfo,location,stnPd.getSlat(), stnPd.getSlon(),view, dataTime, prodVersion);
 						rtObLst.add(gpdRec);
 					}
@@ -1037,9 +1087,9 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			long t1 = System.currentTimeMillis();
 			gpdDao.persistToDatabase(recordObjects);
 			long t2 = System.currentTimeMillis();
-			System.out.println("\nTime spent to persist "+recordObjects.length+ " records to HDF5: "
-					+ (t1 - t0)+" persist to Postgres: "
-					+ (t2 - t1));
+			//System.out.println("\nTime spent to persist "+recordObjects.length+ " records to HDF5: "
+			//		+ (t1 - t0)+" persist to Postgres: "
+			//		+ (t2 - t1));
 			totalHDF5Time = totalHDF5Time + (t1 - t0);
 		}
 		return OK;
@@ -1051,11 +1101,17 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 	 * @throws DecoderException
 	 * @throws PluginException 
 	 */
-	public String decodeTblProdFmCli(String prodTblString, String ProdName,int versionNum, int maxNumOfLevel)throws DecoderException, PluginException {
+	public String decodeGempakTblProdFmCli(String prodTblString, String ProdName,int versionNum, int maxNumOfLevel, GenericPointDataReqType reqType)throws DecoderException, PluginException {
 		long tin = System.currentTimeMillis();
 		String returnStatus="";	
+		totalHDF5Time=0;
 		if ( prodTblString !=null) {
 			//check to see what type of product is 
+			if(reqType == GenericPointDataReqType.STORE_GPD_OBS_SFC_PRODUCT_FROM_GEMPAK_TBL)
+				returnStatus = parseSurfaceTable(prodTblString, ProdName,versionNum);
+			else if(reqType == GenericPointDataReqType.STORE_GPD_OBS_SND_PRODUCT_FROM_GEMPAK_TBL||reqType == GenericPointDataReqType.STORE_GPD_MDL_SND_PRODUCT_FROM_GEMPAK_TBL)
+				returnStatus= parseSoundingTable(prodTblString, ProdName, versionNum,maxNumOfLevel,reqType);
+			/*
 			if(prodTblString.contains(GenericPointDataConstants.SND_PARM)){
 				//"SNPARM" is an unique string in sounding table file
 				totalHDF5Time=0;
@@ -1065,7 +1121,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 				totalHDF5Time=0;
 				//"YYMMDD/HHMM" is an unique string in surface table file
 				returnStatus = parseSurfaceTable(prodTblString, ProdName,versionNum);
-			}
+			}*/
 			else{
 				return("Decode failed! Bad product type, can not tell what product type is input!");
 			}
@@ -1134,7 +1190,7 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			if(prodInfo == null)
 				return "Data persistence failed. Bad Product info";
 			DataTime dataTime = new DataTime(gpdc.getRefTime());
-			System.out.println("GenericPointDataProductInfo is obtained! report name="+prodInfo.getName()+
+			System.out.println("GenericPointDataProductInfo is obtained! report name="+prodInfo.getName()+ " number of param="+prodInfo.getParameterLst().size() +
 					" Reftime="+ dataTime.getRefTimeAsCalendar().getTime()+" in ms="+ dataTime.getRefTimeAsCalendar().getTimeInMillis()+ " stnLstSize="+lstSize + " numMaxLvls="+prodInfo.getMaxNumberOfLevel());
 			
 			PointDataDescription pdd = createPointDataDescription(prodInfo);
@@ -1178,9 +1234,9 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 				toObjIx = fromObjIx+ 50;
 			}
 			recordObjects = rtObLst.subList(fromObjIx, toObjIx).toArray(new PluginDataObject[toObjIx-fromObjIx]);
-		EDEXUtil.checkPersistenceTimes(recordObjects);
-		gpdDao.persistToHDF5(recordObjects);
-		gpdDao.persistToDatabase(recordObjects);
+			EDEXUtil.checkPersistenceTimes(recordObjects);
+			gpdDao.persistToHDF5(recordObjects);
+			gpdDao.persistToDatabase(recordObjects);
 			fromObjIx = fromObjIx + 50;	
 			
 		}
@@ -1357,6 +1413,33 @@ SNPARM = PRES;TMPC;DWPT;HGHT;DRCT;SKNT;TMPK;RELH;MIXR;UKNT;VKNT;THTA;THTE
 			e.printStackTrace();
 		}
 		return INPUT_TYPE.GPD_UNKNOWN;
+	}
+	public void decodeGempakProdFmSbn(File inputFile)throws DecoderException, PluginException {
+		System.out.println("GPD decodeGempakProdFmSbn() entered!");
+		if(inputFile.getName().equals("test")){
+			test(inputFile);
+			return;// returnObjects;
+		}
+		
+		InputStream is = null; 
+		try {
+			is = new FileInputStream(inputFile);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return;// returnObjects;
+		} 
+		StringWriter writer = new StringWriter();
+		try {
+			IOUtils.copy(is, writer, "UTF-8");
+			String gempakFileStr = writer.toString();
+			String status = decodeGempakTblProdFmCli(gempakFileStr, "nampfc", 0, 100, GenericPointDataReqType.STORE_GPD_MDL_SND_PRODUCT_FROM_GEMPAK_TBL);
+			System.out.println(status);
+			is.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * Decode GPD XML file input from SBN/gpd
