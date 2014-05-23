@@ -15,6 +15,7 @@ import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.store.PgenStorageException;
 import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -24,16 +25,18 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
@@ -45,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	-----------------------------------
  * 03/13		#977		S. Gilbert	Initial creation
+ * 01/14        #1105       J. Wu       Pre-fill for each activity info.
  * 
  * </pre>
  * 
@@ -83,7 +87,7 @@ public class StoreActivityDialog extends CaveJFACEDialog {
 
     private Text forecasterText = null;
 
-    private Text modeText;
+    private Combo modeCombo;
 
     private Text statusText;
 
@@ -99,7 +103,7 @@ public class StoreActivityDialog extends CaveJFACEDialog {
 
     private Product activity;
 
-    private Text messageText;
+    // private Text messageText;
 
     /*
      * Constructor
@@ -120,11 +124,11 @@ public class StoreActivityDialog extends CaveJFACEDialog {
     private void setStoreMode(String btnName) {
 
         if (btnName.equals("Open")) {
-            title = "Open a PGEN Product file";
+            title = "Open a PGEN Activity file";
         } else if (btnName.equals("Save") || btnName.equals("Save All")) {
-            title = "Save the PGEN Product";
+            title = "Save the PGEN Activity";
         } else if (btnName.equals("Save As")) {
-            title = "Save the PGEN Product as";
+            title = "Save the PGEN Activity as";
         }
 
     }
@@ -185,9 +189,10 @@ public class StoreActivityDialog extends CaveJFACEDialog {
         /*
          * Initialize the Message Area
          */
-        Group g4 = new Group(dlgAreaForm, SWT.NONE);
-        g4.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        createMessageArea(g4);
+        /*
+         * Group g4 = new Group(dlgAreaForm, SWT.NONE); g4.setLayoutData(new
+         * GridData(GridData.FILL_HORIZONTAL)); createMessageArea(g4);
+         */
 
         setDialogFields();
         return dlgAreaForm;
@@ -199,58 +204,84 @@ public class StoreActivityDialog extends CaveJFACEDialog {
         GridData gdata = new GridData(SWT.FILL, SWT.CENTER, true, false);
 
         Label infoLabel = new Label(g1, SWT.NONE);
-        infoLabel.setText("Activity Label:");
+        infoLabel.setText("Activity Label*:");
 
         infoText = new Text(g1, SWT.NONE);
         infoText.setLayoutData(gdata);
+        infoText.setToolTipText("Input a file name - required.");
 
         Label nameLabel = new Label(g1, SWT.NONE);
-        nameLabel.setText("Activity Name:");
+        nameLabel.setText("Activity Name*:");
 
         nameText = new Text(g1, SWT.NONE);
         nameText.setLayoutData(gdata);
+        nameText.setToolTipText("Alias for this activity, just like your first name while activity "
+                + "type/subtype is the last name. Leave it as is");
 
         Label typeLabel = new Label(g1, SWT.NONE);
-        typeLabel.setText("Activity Type:");
+        typeLabel.setText("Activity Type*:");
+        typeLabel.setEnabled(false);
 
         typeText = new Text(g1, SWT.NONE);
         typeText.setLayoutData(gdata);
+        typeText.setEditable(false);
+        typeText.setToolTipText("Activity type as defined. Leave it as is");
 
         Label subtypeLabel = new Label(g1, SWT.NONE);
-        subtypeLabel.setText("Activity Subtype:");
+        subtypeLabel.setText("Activity Subtype*:");
+        subtypeLabel.setEnabled(false);
 
         subtypeText = new Text(g1, SWT.NONE);
         subtypeText.setLayoutData(gdata);
+        subtypeText.setEditable(false);
+        subtypeText
+                .setToolTipText("Activity subtype as defined. Leave it as is");
 
         Label siteLabel = new Label(g1, SWT.NONE);
-        siteLabel.setText("Site:");
+        siteLabel.setText("Site*:");
+        siteLabel.setEnabled(false);
 
         siteText = new Text(g1, SWT.NONE);
         siteText.setLayoutData(gdata);
+        siteText.setEditable(false);
+        siteText.setToolTipText("Site defined in localization. Leave it as is");
 
         Label deskLabel = new Label(g1, SWT.NONE);
         deskLabel.setText("Desk:");
+        deskLabel.setEnabled(false);
 
         deskText = new Text(g1, SWT.NONE);
         deskText.setLayoutData(gdata);
+        deskText.setEditable(false);
+        deskText.setToolTipText("Desk defined in localization or set when starting CAVE. Leave it as is");
 
         Label forecasterLabel = new Label(g1, SWT.NONE);
         forecasterLabel.setText("Forecaster:");
 
         forecasterText = new Text(g1, SWT.NONE);
         forecasterText.setLayoutData(gdata);
+        forecasterText
+                .setToolTipText("Forecaster's name, default is your user name, not required");
 
         Label modeLabel = new Label(g1, SWT.NONE);
         modeLabel.setText("Operating Mode:");
 
-        modeText = new Text(g1, SWT.NONE);
-        modeText.setLayoutData(gdata);
+        modeCombo = new Combo(g1, SWT.DROP_DOWN | SWT.READ_ONLY);
+
+        for (CAVEMode cm : CAVEMode.values()) {
+            modeCombo.add(cm.name());
+        }
+
+        modeCombo.select(0);
+        modeCombo
+                .setToolTipText("CAVE mode set at starting, or pick one here.");
 
         Label statusLabel = new Label(g1, SWT.NONE);
         statusLabel.setText("Activity Status:");
 
         statusText = new Text(g1, SWT.NONE);
         statusText.setLayoutData(gdata);
+        statusText.setToolTipText("Activity status, not in use yet.");
 
     }
 
@@ -259,10 +290,19 @@ public class StoreActivityDialog extends CaveJFACEDialog {
         g2.setLayout(new GridLayout(4, false));
 
         Label refTimeLabel = new Label(g2, SWT.NONE);
-        refTimeLabel.setText("Ref Time:");
+        refTimeLabel.setText("Ref Time*:");
 
         validDate = new DateTime(g2, SWT.BORDER | SWT.DATE);
+
+        validDate
+                .setToolTipText("Activity's reference date, changing it and saving the "
+                        + "activity will save the current activity as a new entry in PGEN DB.");
+
         validTime = new DateTime(g2, SWT.BORDER | SWT.TIME | SWT.SHORT);
+
+        validTime
+                .setToolTipText("Activity's reference time, changing it and saving the "
+                        + "activity will save the current activity as a new entry in PGEN DB.");
 
         Label utcLabel = new Label(g2, SWT.NONE);
         utcLabel.setText("UTC");
@@ -285,15 +325,14 @@ public class StoreActivityDialog extends CaveJFACEDialog {
 
     }
 
-    private void createMessageArea(Composite g4) {
-        g4.setLayout(new GridLayout(1, true));
-        GridData gdata = new GridData(SWT.FILL, SWT.CENTER, true, false);
-
-        messageText = new Text(g4, SWT.MULTI | SWT.READ_ONLY | SWT.H_SCROLL
-                | SWT.V_SCROLL);
-        messageText.setLayoutData(gdata);
-    }
-
+    /*
+     * private void createMessageArea(Composite g4) { g4.setLayout(new
+     * GridLayout(1, true)); GridData gdata = new GridData(SWT.FILL, SWT.CENTER,
+     * true, false);
+     * 
+     * messageText = new Text(g4, SWT.MULTI | SWT.READ_ONLY | SWT.H_SCROLL |
+     * SWT.V_SCROLL); messageText.setLayoutData(gdata); }
+     */
     /**
      * Save/Cancel button for "Save" a product file.
      */
@@ -318,17 +357,63 @@ public class StoreActivityDialog extends CaveJFACEDialog {
 
     private void setDialogFields() {
 
-        if (activity.getOutputFile() != null)
+        if (activity.getOutputFile() != null) {
             infoText.setText(activity.getOutputFile());
+        } else {
+            String filename = PgenSession.getInstance().getPgenResource()
+                    .buildFileName(activity);
+            filename = filename
+                    .substring(filename.lastIndexOf(File.separator) + 1);
+            // filename = filename.replace(".xml", ""); // remove ending ".xml"
+
+            infoText.setText(filename);
+        }
+
         if (activity.getName() != null)
             nameText.setText(activity.getName());
-        if (activity.getType() != null)
-            typeText.setText(activity.getType());
-        if (activity.getCenter() != null)
-            siteText.setText(activity.getCenter());
-        if (activity.getForecaster() != null)
-            forecasterText.setText(activity.getForecaster());
-        modeText.setText(CAVEMode.getMode().name());
+
+        /*
+         * Activity type/subtype is stored in Product as "type(subtype)", so we
+         * need to split it up here.
+         */
+        String type = activity.getType();
+        if (type != null) {
+            int loc1 = type.indexOf("(");
+            if (loc1 > 0) {
+                typeText.setText(type.substring(0, loc1));
+                String subtype = type.substring(loc1 + 1).replace(")", "");
+                if (subtype.length() > 0 && !subtype.equalsIgnoreCase("NONE"))
+                    subtypeText.setText(subtype);
+            } else {
+                typeText.setText(type);
+            }
+        }
+
+        siteText.setText(PgenUtil.getCurrentOffice());
+
+        // get the desk info.
+        String desk = LocalizationManager.getContextName(LocalizationLevel
+                .valueOf("DESK"));
+
+        if (desk != null && !desk.equalsIgnoreCase("none")) {
+            deskText.setText(desk);
+        }
+
+        forecasterText.setText(System.getProperty("user.name"));
+
+        // Select the cave mode.
+        String mode = CAVEMode.getMode().name();
+        int index = 0;
+        int ii = 0;
+        for (String md : modeCombo.getItems()) {
+            if (md.equals(mode)) {
+                index = ii;
+                break;
+            }
+            ii++;
+        }
+        modeCombo.select(index);
+
         statusText.setText("Unknown");
 
         Calendar datetime = activity.getTime().getStartTime();
@@ -369,28 +454,34 @@ public class StoreActivityDialog extends CaveJFACEDialog {
 
         // PgenSession.getInstance().getPgenPalette().setActiveIcon("Select");
 
-        activity.setInputFile(activityLabel);
-        activity.setOutputFile(activityLabel);
+        // activity.setInputFile(activityLabel);
+        // activity.setOutputFile(activityLabel);
 
         ActivityInfo info = getActivityInfo();
-        messageText.setText("Sending Activity...");
-        messageText.setBackground(shell.getDisplay().getSystemColor(
-                SWT.COLOR_WIDGET_BACKGROUND));
-        messageText.redraw();
+        activity.setInputFile(info.getActivityLabel());
+        activity.setOutputFile(info.getActivityLabel());
+        activity.setCenter(info.getSite());
+        activity.setForecaster(info.getForecaster());
 
+        /*
+         * messageText.setText("Sending Activity...");
+         * messageText.setBackground(shell.getDisplay().getSystemColor(
+         * SWT.COLOR_WIDGET_BACKGROUND)); messageText.redraw();
+         */
         try {
-            StorageUtils.storeProduct(info, activity, true);
+            // StorageUtils.storeProduct(info, activity, true);
+            String uri = StorageUtils.storeProduct(info, activity, true);
+            // System.out.println("Activity saved at dataURI: " + uri);
         } catch (PgenStorageException e) {
             e.printStackTrace();
-            messageText.setText(e.getMessage());
-            messageText.setBackground(shell.getDisplay().getSystemColor(
-                    SWT.COLOR_RED));
-            if (e.getMessage().contains("\n")) {
-                messageText.setSize(SWT.DEFAULT,
-                        5 * messageText.getLineHeight());
-                messageText.getShell().pack();
-                messageText.getShell().layout();
-            }
+            /*
+             * messageText.setText(e.getMessage());
+             * messageText.setBackground(shell.getDisplay().getSystemColor(
+             * SWT.COLOR_RED)); if (e.getMessage().contains("\n")) {
+             * messageText.setSize(SWT.DEFAULT, 5 *
+             * messageText.getLineHeight()); messageText.getShell().pack();
+             * messageText.getShell().layout(); }
+             */
             return;
         }
 
@@ -403,14 +494,18 @@ public class StoreActivityDialog extends CaveJFACEDialog {
     private ActivityInfo getActivityInfo() {
 
         ActivityInfo info = new ActivityInfo();
-        info.setActivityLabel(infoText.getText());
+        String lbl = infoText.getText();
+        if (!lbl.endsWith(".xml")) {
+            lbl += ".xml";
+        }
+        info.setActivityLabel(lbl);
         info.setActivityName(nameText.getText());
         info.setActivityType(typeText.getText());
         info.setActivitySubtype(subtypeText.getText());
         info.setSite(siteText.getText());
         info.setDesk(deskText.getText());
         info.setForecaster(forecasterText.getText());
-        info.setMode(modeText.getText());
+        info.setMode(modeCombo.getText());
         info.setStatus(statusText.getText());
 
         Calendar refTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
