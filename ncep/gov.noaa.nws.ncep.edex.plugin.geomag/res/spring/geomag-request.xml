@@ -38,4 +38,20 @@
 	   
 	</camelContext>
 	
+	<bean id="RetrieveHrAvgHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.RetrieveHrAvgRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveHrAvgRequest" />
+        <constructor-arg ref="RetrieveHrAvgHandler" />
+    </bean>
+    
+    <bean id="RetrieveK1minHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.RetrieveK1minRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveK1minRequest" />
+        <constructor-arg ref="RetrieveK1minHandler" />
+    </bean>
+    
 </beans>
