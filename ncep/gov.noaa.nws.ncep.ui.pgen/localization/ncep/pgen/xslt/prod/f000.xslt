@@ -2,6 +2,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method = "text"/>
 
+<xsl:import href="getSfcHighsLows.xslt"/>
+
 <!--
 	sfc_prog.xlt
 		- generate formatted SFC_PROG text	
@@ -9,40 +11,26 @@
 	Change Log:
 
 	B. Yin/Chugach	08/11	Initial Coding
+	B. Yin/SGT		02/14	Added contour support
 -->
 
 <xsl:variable name="newline"><xsl:text>
 </xsl:text></xsl:variable>
 
+
+
+
 <xsl:template match="/">
 
    <xsl:text>12HR PROG VALID xxxxxxZ</xsl:text>
    <xsl:value-of select="$newline"/>
-   <xsl:text>HIGHS </xsl:text>
-
-    <xsl:for-each select="/Products/Product/Layer/DrawableElement/DECollection">
-    	<xsl:if test="@pgenCategory= 'Symbol' and (@pgenType= 'HIGH_PRESSURE_H' or @pgenType ='FILLED_HIGH_PRESSURE_H')">
-	     <xsl:value-of select="DrawableElement/Text/textLine"/>
-              <xsl:text> </xsl:text>
-	      <xsl:value-of select="format-number(DrawableElement/Symbol/Point/@Lat,'##')"/>
-	      <xsl:value-of select="-1*format-number(DrawableElement/Symbol/Point/@Lon,'##')"/>
-              <xsl:text> </xsl:text>
-        </xsl:if>
-    </xsl:for-each>
-
-   <xsl:value-of select="$newline"/>
-   <xsl:text>LOWS </xsl:text>
-
-    <xsl:for-each select="/Products/Product/Layer/DrawableElement/DECollection">
-    	<xsl:if test="@pgenCategory= 'Symbol' and (@pgenType= 'LOW_PRESSURE_L' or @pgenType ='FILLED_LOW_PRESSURE_L')">
-	     <xsl:value-of select="DrawableElement/Text/textLine"/>
-              <xsl:text> </xsl:text>
-	      <xsl:value-of select="format-number(DrawableElement/Symbol/Point/@Lat,'##')"/>
-	      <xsl:value-of select="-1*format-number(DrawableElement/Symbol/Point/@Lon,'##')"/>
-              <xsl:text> </xsl:text>
-        </xsl:if>
-    </xsl:for-each>
-
+   
+<xsl:call-template name="getSfcHighsLows">
+	<xsl:with-param name="latFmt" select="'##'"/>
+	<xsl:with-param name="lonFmt" select="'##'"/>
+</xsl:call-template>
+      
+<!-- Fronts -->
     <xsl:for-each select="/Products/Product/Layer/DrawableElement/Line">
     	<xsl:if test="@pgenCategory= 'Front'">
    	      <xsl:value-of select="$newline"/>
@@ -66,7 +54,11 @@
     		<xsl:for-each select="Point">
 	      		<xsl:value-of select="format-number(@Lat,'##')"/>
 	      		<xsl:value-of select="-1*format-number(@Lon,'##')"/>
-              		<xsl:text> </xsl:text>
+              	<xsl:text> </xsl:text>
+              	             	
+              	<xsl:if test="position() mod 10 = 0 and not(position() = last())">
+          			<xsl:value-of select="$newline"/>
+				</xsl:if>
     		</xsl:for-each>
         </xsl:if>
     </xsl:for-each>
