@@ -7,7 +7,7 @@
  * in and to this copyrighted software are as specified in DFARS
  * 252.227-7014 which was made part of the above contract. 
  */
-package com.raytheon.uf.edex.ogc.common.soap;
+package com.raytheon.uf.edex.soap;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,6 +34,7 @@ import com.sun.xml.bind.v2.model.annotation.RuntimeAnnotationReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2012            bclement     Initial creation
+ * May 23, 2014 3199       bclement     moved to edex.soap from edex.ogc.common
  * 
  * </pre>
  * 
