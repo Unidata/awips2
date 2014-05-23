@@ -129,6 +129,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  								   Added code to plot stations within 25% of the area outside of the current display area.
  *  05/20/2013     988     Archana.S   Refactored this class for performance improvement	
  *  11/07/2013             sgurung     Added fix for "no data for every other frame" issue (earlier fix was added to 13.5.2 on 10/24/2013)
+ *  03/18/2013    1064     B. Hebbard  Added handling of matrixType request constraint, for PAFM
  * </pre>
  * 
  * @author brockwoo
@@ -984,7 +985,7 @@ public class NcPlotResource2 extends
 
     public void paintFrame(AbstractFrameData fd, final IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        Tracer.print("> Entry");
+        Tracer.printX("> Entry");
         currPaintProp = paintProps;
         if (fd == null)
             return;
@@ -1146,7 +1147,7 @@ public class NcPlotResource2 extends
                     + frameData.getShortFrameTime());
         }
         ss.release();
-        Tracer.print("< Exit");
+        Tracer.printX("< Exit");
     }
 
     public void initResource(IGraphicsTarget aTarget) throws VizException {
@@ -1185,13 +1186,13 @@ public class NcPlotResource2 extends
     }
 
     protected AbstractFrameData createNewFrame(DataTime frameTime, int timeInt) {
-        Tracer.print("> Entry");
+        Tracer.print("> Entry  " + Tracer.shortTimeString(frameTime));
         FrameData newFrame = new FrameData(frameTime, timeInt);
-        if (df == null)
+        if (df == null) // TODO why do this here??
             df = new DisplayElementFactory(NcDisplayMngr
                     .getActiveNatlCntrsEditor().getActiveDisplayPane()
                     .getTarget(), getDescriptor());
-        Tracer.print("< Exit");
+        Tracer.print("< Exit   " + Tracer.shortTimeString(frameTime));
         return newFrame;
     }
 
@@ -1761,9 +1762,22 @@ public class NcPlotResource2 extends
             FrameData firstFrame = (FrameData) getFrame(datatimeList.get(0));
             String tableName = this.metadataMap.get("pluginName")
                     .getConstraintValue();
-            String query = "select distinct(" + tableName + ".forecastTime), "
-                    + tableName + ".rangeEnd" + " from " + tableName
-                    + " where reftime = '" + cycleTimeStr + "';";
+            String matrixType = null;
+            RequestConstraint matrixTypeRC = this.metadataMap.get("matrixType");
+            if (matrixTypeRC != null) {
+                matrixType = matrixTypeRC.getConstraintValue();
+            }
+            String query = "";
+            if (matrixType == null || matrixType.isEmpty()) {
+                query = "select distinct(" + tableName + ".forecastTime), "
+                        + tableName + ".rangeEnd" + " from " + tableName
+                        + " where reftime = '" + cycleTimeStr + "';";
+            } else {
+                query = "select distinct(" + tableName + ".forecastTime), "
+                        + tableName + ".rangeEnd" + " from " + tableName
+                        + " where matrixtype = '" + matrixType + "'"
+                        + " AND reftime = '" + cycleTimeStr + "';";
+            }
             try {
                 List<Object[]> results = null;
                 results = DirectDbQuery.executeQuery(query, "metadata",
@@ -1845,6 +1859,14 @@ public class NcPlotResource2 extends
                                             frameRCMap.put("pluginName",
                                                     metadataMap
                                                             .get("pluginName"));
+
+                                            matrixTypeRC = this.metadataMap
+                                                    .get("matrixType"); // redundant?
+                                            if (matrixTypeRC != null) {
+                                                frameRCMap.put("matrixType",
+                                                        matrixTypeRC);
+                                            }
+
                                             frameRCMap
                                                     .put("dataTime.fcstTime",
                                                             new RequestConstraint(
