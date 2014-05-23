@@ -73,11 +73,11 @@ public class NsharpMapResource extends
 
     private static NatlCntrsEditor mapEditor = null;
 
-	private static  NsharpMapMouseHandler mouseHandler;
+    private static NsharpMapMouseHandler mouseHandler;
 
     private static Cursor waitCursor = null;
 
-	private static Control cursorControl;
+    private static Control cursorControl;
 
     private static boolean mouseHandlerRegistered = false;
 
@@ -90,110 +90,110 @@ public class NsharpMapResource extends
                             .getActivePage() != null) {
                 PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                         .getActivePage().bringToTop(mapEditor);
-				mapEditor.refresh();
-			}
+                mapEditor.refresh();
+            }
         } catch (Exception e) {
-		}
-		
-	}
+        }
 
-	public static NatlCntrsEditor getMapEditor() {
-		return mapEditor;
-	}
+    }
 
-	public static NsharpMapResource getMapRsc() {
-		return mapRsc;
-	}
+    public static NatlCntrsEditor getMapEditor() {
+        return mapEditor;
+    }
 
-	private NsharpMapResourceData nsharpMapResourceData;
+    public static NsharpMapResource getMapRsc() {
+        return mapRsc;
+    }
 
-	/** The set of symbols with similar attributes across many locations */
-	private SymbolLocationSet symbolSet = null;
+    private NsharpMapResourceData nsharpMapResourceData;
 
-	private SymbolLocationSet symbolToMark = null;
+    /** The set of symbols with similar attributes across many locations */
+    private SymbolLocationSet symbolSet = null;
 
-	private List<NsharpStationInfo> points = new ArrayList<NsharpStationInfo>();
+    private SymbolLocationSet symbolToMark = null;
 
-	private List<NsharpStationInfo> pickedPoint = new ArrayList<NsharpStationInfo>();
+    private List<NsharpStationInfo> points = new ArrayList<NsharpStationInfo>();
 
-	public void setPickedPoint(NsharpStationInfo point) {
-		this.pickedPoint.add(point);
-	}
-	
-	public List<NsharpStationInfo> getPoints() {
-		return points;
-	}
+    private List<NsharpStationInfo> pickedPoint = new ArrayList<NsharpStationInfo>();
 
-	public void setPoints(List<NsharpStationInfo> points) {
+    public void setPickedPoint(NsharpStationInfo point) {
+        this.pickedPoint.add(point);
+    }
+
+    public List<NsharpStationInfo> getPoints() {
+        return points;
+    }
+
+    public void setPoints(List<NsharpStationInfo> points) {
         if (points == null) {
-			this.pickedPoint.clear();
+            this.pickedPoint.clear();
             symbolToMark = null;
             symbolSet = null;
-			this.points.clear();
+            this.points.clear();
         } else {
-			this.points = points;
-		}
-	}
+            this.points = points;
+        }
+    }
 
-	public void addPoint(NsharpStationInfo point) {
-		points.add(point);
-	}
+    public void addPoint(NsharpStationInfo point) {
+        points.add(point);
+    }
 
-	/**
-	 * Default constructor
-	 */
-	protected NsharpMapResource(NsharpMapResourceData resourceData,
-			LoadProperties loadProperties) {
-		super(resourceData, loadProperties);
-		
+    /**
+     * Default constructor
+     */
+    protected NsharpMapResource(NsharpMapResourceData resourceData,
+            LoadProperties loadProperties) {
+        super(resourceData, loadProperties);
+
         // set the editable capability
         getCapability(EditableCapability.class).setEditable(true);
 
-		this.nsharpMapResourceData = resourceData;
+        this.nsharpMapResourceData = resourceData;
         // System.out.println("NsharpMapResource constructed");
-		
-	}
+
+    }
 
     public static void startWaitCursor() {
         waitCursor = new Cursor(Display.getCurrent(), SWT.CURSOR_WAIT);
-		cursorControl = Display.getCurrent().getCursorControl();
+        cursorControl = Display.getCurrent().getCursorControl();
         if (cursorControl != null && waitCursor != null)
-			cursorControl.setCursor(waitCursor);
-   	}
+            cursorControl.setCursor(waitCursor);
+    }
 
     public static void stopWaitCursor() {
         if (cursorControl != null && waitCursor != null) {
-   			cursorControl.setCursor(null);
-   		}
+            cursorControl.setCursor(null);
+        }
         if (waitCursor != null) {
-   			waitCursor.dispose();
+            waitCursor.dispose();
             waitCursor = null;
-   		}
-   	}
+        }
+    }
 
     private static void createMapEditor() {
-		// create an editor MapEditor
-		try {			
-			AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
-			
-			// Is this called in D2D. Should we only check for NcMapEditors.
+        // create an editor MapEditor
+        try {
+            AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
+
+            // Is this called in D2D. Should we only check for NcMapEditors.
             // If this isn't a NatlCntrsEditor should we look for one or just
             // create a new one.
-			//
+            //
             if (NcEditorUtil.getNcDisplayType(ed) == NcDisplayType.NMAP_DISPLAY) {
                 mapEditor = (NatlCntrsEditor) ed;
             } else {
                 mapEditor = (NatlCntrsEditor) NcDisplayMngr
                         .createNatlCntrsEditor(NcDisplayType.NMAP_DISPLAY,
                                 "Select NSharp Source");
-	        }
-		
+            }
+
             // for(int i=0; i<
             // mapEditor.getDescriptor().getResourceList().size(); i++)
             // System.out.println(
             // "A resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
-	        
-			ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
+
+            ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
             rbdLoader.addDefaultRBD(NcDisplayType.NMAP_DISPLAY, mapEditor);
             VizApp.runSync(rbdLoader);
             // System.out.println("NsharpMapResource create editor "+
@@ -207,9 +207,9 @@ public class NsharpMapResource extends
             System.out
                     .println("NsharpMapResource Could not load initial editor: "
                             + ve.getMessage());
-			ve.printStackTrace();
-		}
-	}
+            ve.printStackTrace();
+        }
+    }
 
     // private static void createMapEditorTest(){
     // // create an editor MapEditor
@@ -245,26 +245,26 @@ public class NsharpMapResource extends
     // }
     public static void registerMouseHandler() {
         if (mouseHandlerRegistered)
-			return;
-		
-		mouseHandler = getMouseHandler();
+            return;
+
+        mouseHandler = getMouseHandler();
         if (mapEditor != null && mouseHandler != null) {
             mapEditor.registerMouseHandler((IInputHandler) mouseHandler);
-			mouseHandlerRegistered = true;
-		}
-	}
+            mouseHandlerRegistered = true;
+        }
+    }
 
     public static void unregisterMouseHandler() {
         if (!mouseHandlerRegistered)
-			return;
-		mouseHandler = getMouseHandler();
+            return;
+        mouseHandler = getMouseHandler();
         if (mapEditor != null && mouseHandler != null) {
             mapEditor.unregisterMouseHandler((IInputHandler) mouseHandler);
             mouseHandlerRegistered = false;
-		}
-	}
+        }
+    }
 
-	/**
+    /**
      * Create a new MapResource and add it to the current editor.
      * 
      * @return the MapResource
@@ -273,54 +273,54 @@ public class NsharpMapResource extends
         if (mapRsc == null) {
             if (mapEditor == null) {
                 createMapEditor();// createMapEditor();
-    			
-    		}
+
+            }
             if (mapEditor != null) {
                 IMapDescriptor desc = (IMapDescriptor) mapEditor
                         .getActiveDisplayPane().getRenderableDisplay()
                         .getDescriptor();
-    			try {	                
+                try {
                     if (mapRscData == null)
                         mapRscData = new NsharpMapResourceData();
                     mapRsc = mapRscData.construct(new LoadProperties(), desc);
                     desc.getResourceList().add(mapRsc);
                     mapRsc.init(mapEditor.getActiveDisplayPane().getTarget());
-    				
+
                     // register mouse handler
-    				mouseHandler = getMouseHandler();
+                    mouseHandler = getMouseHandler();
                     mapEditor
                             .registerMouseHandler((IInputHandler) mouseHandler);
-    	            
-    			} catch (Exception e) {
-    				e.printStackTrace();           
-    			}
-    		}
-    	}
-    	
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         return mapRsc;
     }
 
     public static void deleteNsharpMapResource() {
         // System.out.println("NsharpMapResource:deleteNsharpMapResource ");
         if (mapRsc != null) {
-    		mapRsc.dispose();
-    		mapRsc = null;
-    	}
+            mapRsc.dispose();
+            mapRsc = null;
+        }
     }
 
-	/**
-	 * Called when resource is disposed
+    /**
+     * Called when resource is disposed
      * 
-	 * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-	 */
-	@Override
-	public void disposeInternal() {
+     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
+     */
+    @Override
+    public void disposeInternal() {
         // System.out.println("NsharpMapResource:disposeInternal "+
         // this.toString());
-		
+
         if (mapEditor != null) {
             mapEditor.unregisterMouseHandler(mouseHandler);
-			mouseHandler = null;
+            mouseHandler = null;
             // close editor
             /*
              * if((PlatformUI.getWorkbench()!=
@@ -331,65 +331,65 @@ public class NsharpMapResource extends
              * PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage
              * ().closeEditor(mapEditor, false);
              */
-			mapEditor = null;
-        	
+            mapEditor = null;
+
         }
-		pickedPoint = null;
-		points = null;
-		symbolSet = null;
-		symbolToMark = null;
-		mapRsc = null;
+        pickedPoint = null;
+        points = null;
+        symbolSet = null;
+        symbolToMark = null;
+        mapRsc = null;
         mapRscData = null;
         if (waitCursor != null)
-			waitCursor.dispose();
+            waitCursor.dispose();
         waitCursor = null;
         mouseHandlerRegistered = false;
-	}
+    }
 
     /*
      * (non-Javadoc)
      * 
      * @see
      * com.raytheon.viz.core.rsc.IVizResource#getCoordinateReferenceSystem()
-	 */
-	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+     */
+    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
 
-		if (descriptor == null)
-			return null;
+        if (descriptor == null)
+            return null;
 
-		return descriptor.getCRS();
+        return descriptor.getCRS();
 
-	}
+    }
 
     /*
      * (non-Javadoc)
      * 
-	 * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-	 */
-	@Override
-	public String getName() {
+     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
+     */
+    @Override
+    public String getName() {
 
-		return "NSHARP Resource";
+        return "NSHARP Resource";
 
-	}
+    }
 
     /*
      * (non-Javadoc)
      * 
      * @see com.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
      * IGraphicsTarget)
-	 */
-	@Override
-	public void initInternal(IGraphicsTarget target) throws VizException {
+     */
+    @Override
+    public void initInternal(IGraphicsTarget target) throws VizException {
         // System.out.println("NsharpMapResource:initInternal called");
         // mapfont = target.initializeFont("Monospace",
         // (float) (12 *
         // nsharpMapResourceData.getMarkerTextSize().getSoftwareSize()), null);
-		
+
         // make the nsharp map resource editable
         EditableManager.makeEditable(this,
                 getCapability(EditableCapability.class).isEditable());
-	}
+    }
 
     /*
      * (non-Javadoc)
@@ -397,65 +397,65 @@ public class NsharpMapResource extends
      * @see
      * com.raytheon.viz.core.rsc.IVizResource#isApplicable(com.raytheon.viz.
      * core.PixelExtent)
-	 */
-	public boolean isApplicable(PixelExtent extent) {
+     */
+    public boolean isApplicable(PixelExtent extent) {
 
-		return true;
+        return true;
 
-	}
+    }
 
     private void generateSymbolForDrawing() {
-		String type;
-		float lineWidth = nsharpMapResourceData.getMarkerWidth();
+        String type;
+        float lineWidth = nsharpMapResourceData.getMarkerWidth();
         Boolean clear = false;
 
-		String category = new String("Marker");
-		double sizeScale = nsharpMapResourceData.getMarkerSize();
+        String category = new String("Marker");
+        double sizeScale = nsharpMapResourceData.getMarkerSize();
 
-		if (points.isEmpty() == true) {
-			symbolSet = null;
+        if (points.isEmpty() == true) {
+            symbolSet = null;
         } else {
             // SymbolLocationSet constructor requires a positive-length array of
             // Coordinate
-			Coordinate[] locations =  new Coordinate[points.size()];
+            Coordinate[] locations = new Coordinate[points.size()];
             Color[] colors = new Color[] { new Color(
                     NsharpConstants.color_green.red,
-					NsharpConstants.color_green.green,
+                    NsharpConstants.color_green.green,
                     NsharpConstants.color_green.blue) };
             // System.out.println( "generateSymbolSet: size ="+ points.size());
-			int i = 0;
-			for (NsharpStationInfo p : points) {
-				double lon, lat;
-				lon = p.getLongitude();
-				lat = p.getLatitude();
+            int i = 0;
+            for (NsharpStationInfo p : points) {
+                double lon, lat;
+                lon = p.getLongitude();
+                lat = p.getLatitude();
                 locations[i++] = new Coordinate(lon, lat);
-			}
-			type = nsharpMapResourceData.getMarkerType().toString();
+            }
+            type = nsharpMapResourceData.getMarkerType().toString();
             // System.out.println( "generateSymbolSet done size ="+ i);
             symbolSet = new SymbolLocationSet(null, colors, lineWidth,
                     sizeScale, clear, locations, category, type);
 
-		}
+        }
         // generate symbol for picked stn to mark X
         if (pickedPoint != null && pickedPoint.size() > 0) {
-			Coordinate[] locations =  new Coordinate[pickedPoint.size()];
-			int i = 0;
-			for (NsharpStationInfo p : pickedPoint) {
-				double lon, lat;
-				lon = p.getLongitude();
-				lat = p.getLatitude();
+            Coordinate[] locations = new Coordinate[pickedPoint.size()];
+            int i = 0;
+            for (NsharpStationInfo p : pickedPoint) {
+                double lon, lat;
+                lon = p.getLongitude();
+                lat = p.getLatitude();
                 locations[i++] = new Coordinate(lon, lat);
-			}
-			type = nsharpMapResourceData.getStnMarkerType().toString();
+            }
+            type = nsharpMapResourceData.getStnMarkerType().toString();
             Color[] colors = new Color[] { new Color(
                     NsharpConstants.color_red.red,
-					NsharpConstants.color_red.green,
+                    NsharpConstants.color_red.green,
                     NsharpConstants.color_red.blue) };
             symbolToMark = new SymbolLocationSet(null, colors, lineWidth,
                     sizeScale * 2, clear, locations, category, type);
         } else
             symbolToMark = null;
-	}
+    }
 
     /*
      * (non-Javadoc)
@@ -463,46 +463,46 @@ public class NsharpMapResource extends
      * @see
      * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
      * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-	 */
-	@Override
-	public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
-	throws VizException {
+     */
+    @Override
+    public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
+            throws VizException {
         // System.out.println("paintInternal called!");
         // IFont font = target.initializeFont("Monospace",
         // (float) (12 *
         // nsharpMapResourceData.getMarkerTextSize().getSoftwareSize()), null);
-		
-		generateSymbolForDrawing();
+
+        generateSymbolForDrawing();
         DisplayElementFactory df = new DisplayElementFactory(target,
                 this.descriptor);
         if (symbolSet != null) {
             ArrayList<IDisplayable> elements = df.createDisplayElements(
                     symbolSet, paintProps);
             for (IDisplayable each : elements) {
-				try {
-					each.draw(target, paintProps);
-					each.dispose();
+                try {
+                    each.draw(target, paintProps);
+                    each.dispose();
                 } catch (Exception e) {
-					e.printStackTrace();
+                    e.printStackTrace();
                     // System.out.println("paintInternal caught draw exception!");
-				}
-			}
-		}
+                }
+            }
+        }
         if (symbolToMark != null) {
             ArrayList<IDisplayable> elements = df.createDisplayElements(
                     symbolToMark, paintProps);
             for (IDisplayable each : elements) {
-				try {
-					each.draw(target, paintProps);
-					each.dispose();
+                try {
+                    each.draw(target, paintProps);
+                    each.dispose();
                 } catch (Exception e) {
-					e.printStackTrace();
+                    e.printStackTrace();
                     // System.out.println("paintInternal caught draw exception!");
-				}
-			}
-		}
+                }
+            }
+        }
         // font.dispose();
-	}
+    }
 
     /*
      * (non-Javadoc)
@@ -510,12 +510,12 @@ public class NsharpMapResource extends
      * @see
      * com.raytheon.viz.core.rsc.capabilities.IProjectableResource#isProjectable
      * (org.opengis.referencing.crs.CoordinateReferenceSystem)
-	 */
-	public boolean isProjectable(CoordinateReferenceSystem mapData) {
+     */
+    public boolean isProjectable(CoordinateReferenceSystem mapData) {
 
-		return true;
+        return true;
 
-	}
+    }
 
     /*
      * (non-Javadoc)
@@ -523,94 +523,94 @@ public class NsharpMapResource extends
      * @see
      * com.raytheon.viz.core.rsc.capabilities.IProjectableResource#project(org
      * .opengis.referencing.crs.CoordinateReferenceSystem)
-	 */
-	@Override
-	public void project(CoordinateReferenceSystem mapData) throws VizException {
+     */
+    @Override
+    public void project(CoordinateReferenceSystem mapData) throws VizException {
         // System.out.println("NctextuiResource: project ");
-	}
-	
+    }
+
     /**
      * Returns the current mouse handler.
      * 
      * @return
-     */   
-    private static  NsharpMapMouseHandler getMouseHandler() {	
-    
+     */
+    private static NsharpMapMouseHandler getMouseHandler() {
+
         if (mouseHandler == null) {
-        	
-        	mouseHandler = new NsharpMapMouseHandler();
-        	
+
+            mouseHandler = new NsharpMapMouseHandler();
+
         }
 
         return mouseHandler;
-        
+
     }
-    
+
     @Override
-	public boolean okToUnload() {
-		/*
-		 * DisAllow unloading of Resource 
-		 */
-		
-		return false;
-		
-	}
+    public boolean okToUnload() {
+        /*
+         * DisAllow unloading of Resource
+         */
 
-	@Override
-	public void notifyRemove(ResourcePair rp) throws VizException {
-		// TODO Auto-generated method stub
-		
-	}
+        return false;
 
-	@Override
-	public void propertiesChanged(ResourceProperties updatedProps) {
+    }
+
+    @Override
+    public void notifyRemove(ResourcePair rp) throws VizException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
         if (updatedProps.isVisible()) {
             reopenTextView();
         } else {
             hideTextView();
-         }
+        }
     }
-    
+
     private void hideTextView() {
         IWorkbenchPage wpage = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();
-		
+
         IViewPart vpart = wpage.findView("gov.noaa.nws.ncep.ui.nsharp");
         if (wpage.isPartVisible(vpart)) {
-        	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+            NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
             if (paletteWin != null) {
-        		paletteWin.setEditorVisible(false);
-        		wpage.hideView(vpart);
-        	}
+                paletteWin.setEditorVisible(false);
+                wpage.hideView(vpart);
+            }
         }
-	}
-	    
+    }
+
     private void reopenTextView() {
         IWorkbenchPage wpage = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();
-		
+
         IViewPart vpart = wpage.findView("gov.noaa.nws.ncep.ui.nsharp");
         if (!wpage.isPartVisible(vpart)) {
-        	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+            NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
             if (paletteWin != null) {
-        		paletteWin.setEditorVisible(true);
-        		try {
+                paletteWin.setEditorVisible(true);
+                try {
                     vpart = wpage.showView("gov.noaa.nws.ncep.ui.nsharp");
-        		} catch (Exception e) {
-        			e.printStackTrace();
-        		}
-        	}
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
-	}
+    }
 
-	/**
-	 * Check if the resource is currently editable
-	 * 
-	 * @return editable
-	 */
-	public boolean isEditable() {
-		return getCapability(EditableCapability.class).isEditable();
-	}
+    /**
+     * Check if the resource is currently editable
+     * 
+     * @return editable
+     */
+    public boolean isEditable() {
+        return getCapability(EditableCapability.class).isEditable();
+    }
 
     public void setEditable(boolean enable) {
         getCapability(EditableCapability.class).setEditable(enable);
