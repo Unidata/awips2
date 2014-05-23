@@ -7,12 +7,12 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  javax.persistence;bundle-version="1.0.0"
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.geomag,
+ gov.noaa.nws.ncep.common.dataplugin.geomag.calculation,
  gov.noaa.nws.ncep.common.dataplugin.geomag.dao,
  gov.noaa.nws.ncep.common.dataplugin.geomag.exception,
+ gov.noaa.nws.ncep.common.dataplugin.geomag.request,
  gov.noaa.nws.ncep.common.dataplugin.geomag.table,
  gov.noaa.nws.ncep.common.dataplugin.geomag.util
 Import-Package: com.raytheon.uf.common.localization,
- gov.noaa.nws.ncep.common.dataplugin.geomag,
+ com.raytheon.uf.common.serialization.comm,
  org.apache.commons.logging
-
-
