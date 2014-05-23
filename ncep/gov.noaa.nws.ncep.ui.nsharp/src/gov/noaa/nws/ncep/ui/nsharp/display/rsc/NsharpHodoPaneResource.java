@@ -213,6 +213,20 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 			}
 		}
 		else if(compareSndIsOn && currentStnListIndex >=0 && currentTimeListIndex >=0){
+			//start FixMark:nearByStnCompSnd
+			List<NsharpResourceHandler.CompSndSelectedElem> sndCompElementList = rscHandler.getCompSndSelectedElemList();
+			for(NsharpResourceHandler.CompSndSelectedElem compElem: sndCompElementList){
+				NsharpSoundingElementStateProperty elemProp = stnTimeSndTable.get(compElem.getStnIndex()).get(compElem.getTimeIndex()).get(compElem.getSndIndex());
+				if(sndElemList.get(compElem.getSndIndex()).getActionState()== NsharpConstants.ActState.ACTIVE && 
+						elemProp!=null){
+					List<NcSoundingLayer> soundingLayeys = elemProp.getSndLyLst();
+					int colorIndex = elemProp.getCompColorIndex();
+					RGB color = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]).getLineColor();
+					createRscHodoWindShape(world, soundingLayeys, color);
+				}
+			}
+			
+			/* origonal code
 			for(NsharpOperationElement elm: sndElemList) {
 				if(elm.getActionState() == NsharpConstants.ActState.ACTIVE && 
 						stnTimeSndTable.get(currentStnListIndex).get(currentTimeListIndex).get(sndElemList.indexOf(elm))!=null){
@@ -221,7 +235,8 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 					RGB color = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]).getLineColor();
 					createRscHodoWindShape(world, soundingLayeys, color);
 				}
-			}
+			}*/
+			//end FixMark:nearByStnCompSnd
 		}
 		else if(overlayIsOn == true ){
 			previousSoundingLys = rscHandler.getPreviousSoundingLys();
