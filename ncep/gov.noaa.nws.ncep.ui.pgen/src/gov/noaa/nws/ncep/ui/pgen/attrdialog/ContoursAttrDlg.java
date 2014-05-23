@@ -99,6 +99,22 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 01/12		#?			J. Wu   	Fixed exceptions when closing the dialog.
  * 05/12		756			B. Yin		Fixed the place symbol exception
  * 12/13        1084        J. Wu       Add table-control for Cint in contoursInfo.xml
+ * 04/14        #1117       J. Wu       Add quick-access line types, set label focus,
+ *                                      up/down arrow hotkeys to change label.
+ * 04/21/2014   TTR992      D. Sushon   Contour tool's Label >> Edit option should not close
+ *                                      main Contour tool window on Cancel, changing a
+ *                                      symbol's label should not change the symbol;
+ * 04/21/2014   TTR992      D. Sushon   Contour tool's Label >> Edit option should not close
+ *                                      main Contour tool window on Cancel, changing a
+ *                                      symbol's label should not change the symbol;
+ * 04/25/2014   TTR868      D. Sushon   Editing/moving contour text attribute causes contour
+ *                                      to disappear. 
+ * 04/29/2014   trac 1132   D. Sushon   In testing solution for TTR 868, it was found that
+ *                                      similar changes to labels for other contour objects
+ *                                      caused a similar error (label or object or both
+ *                                      would disappear), this should now be fixed.
+ * 05/14        TTR1008     J. Wu       Set default contour parameters through settings_tbl.xml.
+ * 
  * </pre>
  * 
  * @author J. Wu
@@ -144,6 +160,10 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
     private final String DELETE_CONTOURLINE = "Delete";
 
+    private final int MAX_QUICK_LINES = 8;
+
+    private int numOfQuickLines = 2;
+
     private final int MAX_QUICK_SYMBOLS = 15;
 
     private int numOfQuickSymbols = 2;
@@ -162,13 +182,17 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
     private Button lineClosedBtn = null;
 
-    private Button lineTypeBtn = null;
-
     private Composite labelGrp = null;
+
+    private Button labelColorChkBox = null;
 
     private ArrayList<Button> labelBtns = null;
 
     private Spinner labelNumSpinner = null;
+
+    private List<Button> quickLineBtns = null;
+
+    private Button activeQuickLineBtn = null;
 
     private List<Button> quickSymbolBtns = null;
 
@@ -194,9 +218,13 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
     private LinkedHashMap<String, String> lineIconType = null;
 
+    private LinkedHashMap<String, IConfigurationElement> lineItemMap = null;
+
     private LinkedHashMap<String, IConfigurationElement> symbolItemMap = null;
 
     private LinkedHashMap<String, Boolean> quickSymbolType = null;
+
+    private LinkedHashMap<String, Boolean> quickLineType = null;
 
     private LineTypeSelectionDlg lineTypePanel = null;
 
@@ -272,6 +300,14 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         retrieveIconType();
 
+        if (quickLineType == null) {
+            quickLineType = getQuickLines();
+        }
+
+        if (quickLineBtns == null) {
+            quickLineBtns = new ArrayList<Button>();
+        }
+
         if (quickSymbolType == null) {
             quickSymbolType = getQuickSymbols();
         }
@@ -281,6 +317,20 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         }
 
         retrieveContoursSettings();
+
+        /*
+         * Get the default attributes from settings table.
+         */
+        Contours adc = (Contours) retrieveDefaultSettings("Contours");
+        if (adc != null) {
+            contourParm = adc.getParm();
+            contourLevel = adc.getLevel();
+            contourFcstHr = adc.getForecastHour();
+            contourCint = ContoursInfoDlg.getCints().get(
+                    contourParm + "-" + contourLevel);
+            contourTime1 = adc.getTime1();
+            contourTime2 = adc.getTime2();
+        }
 
     }
 
@@ -378,51 +428,97 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         layout2.horizontalSpacing = 1;
         layout2.marginWidth = 1;
         layout2.marginHeight = 1;
-        layout2.verticalSpacing = 1;
+        layout2.verticalSpacing = 0;
         lineComp.setLayout(layout2);
 
         Composite closelineComp = new Composite(lineComp, SWT.NONE);
-        GridLayout closelineCompGl = new GridLayout(3, false);
+        GridLayout closelineCompGl = new GridLayout(2, false);
         closelineCompGl.verticalSpacing = 0;
         closelineCompGl.marginHeight = 0;
         closelineCompGl.marginWidth = 1;
         closelineComp.setLayout(closelineCompGl);
 
-        lineTypeBtn = new Button(closelineComp, SWT.PUSH);
-        ;
-        lineTypeBtn.setToolTipText("Click to select a line type");
-        String ltype = retrieveDefaultLineType();
+        /*
+         * Create quick access line type buttons.
+         */
+        Composite quickLineComp = new Composite(closelineComp, SWT.NONE);
+        GridLayout quickLineCompGl = new GridLayout(2, false);
+        quickLineCompGl.marginHeight = 1;
+        quickLineCompGl.marginWidth = 1;
+        quickLineCompGl.verticalSpacing = 1;
+        quickLineCompGl.horizontalSpacing = 0;
+        quickLineComp.setLayout(quickLineCompGl);
 
-        if (lineTemplate == null) {
-            lineTemplate = (Line) contoursAttrSettings.get(ltype);
-            lineTemplate.setPgenType(ltype);
+        int ii = 0;
+        for (String str : quickLineType.keySet()) {
+
+            if (quickLineType.get(str) && ii < MAX_QUICK_LINES) {
+
+                ii++;
+
+                Button btn = new Button(quickLineComp, SWT.PUSH);
+                btn.setToolTipText(lineItemMap.get(str).getAttribute("label"));
+                btn.setImage(getIcon(str));
+                btn.setData(str);
+
+                quickLineBtns.add(btn);
+
+                btn.addListener(SWT.MouseDoubleClick, new Listener() {
+                    public void handleEvent(Event event) {
+                        openLineTypePanel();
+                    }
+                });
+
+                btn.addListener(SWT.MouseDown, new Listener() {
+                    @Override
+                    public void handleEvent(Event event) {
+
+                        Button btnClicked = (Button) event.widget;
+                        if (ContoursAttrDlg.this.drawContourLine()
+                                && btnClicked == activeQuickLineBtn) {
+                            openLineTypePanel();
+                        } else {
+                            activeQuickLineBtn = btnClicked;
+
+                            for (Button b : quickLineBtns) {
+                                if (b == activeQuickLineBtn) {
+                                    DrawableElement de = (Line) contoursAttrSettings
+                                            .get(b.getData().toString());
+                                    setButtonColor(b, defaultButtonColor,
+                                            de.getColors()[0]);
+                                } else {
+                                    setButtonColor(b, activeButtonColor,
+                                            defaultButtonColor);
+                                }
+                            }
+
+                            boolean typeChanged = changeLineType();
+
+                            if (!typeChanged
+                                    && !ContoursAttrDlg.this.drawContourLine()) {
+                                setDrawingStatus(ContourDrawingStatus.DRAW_LINE);
+                            }
+                        }
+                    }
+                });
+            }
         }
 
-        setButtonColor(lineTypeBtn, defaultButtonColor,
-                lineTemplate.getColors()[0]);
-        lineTypeBtn.setImage(getIcon(ltype));
-        lineTypeBtn.setData(ltype);
+        activeQuickLineBtn = quickLineBtns.get(0);
 
-        lineTypeBtn.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                if (!ContoursAttrDlg.this.drawContourLine()) {
-                    if (lineTemplate == null) {
-                        lineTemplate = (Line) contoursAttrSettings
-                                .get(retrieveDefaultLineType());
-                        lineTemplate.setPgenType(retrieveDefaultLineType());
-                    }
-                    setButtonColor(lineTypeBtn, defaultButtonColor,
-                            lineTemplate.getColors()[0]);
+        if (lineTemplate == null) {
+            lineTemplate = (Line) contoursAttrSettings.get(activeQuickLineBtn
+                    .getData().toString());
+        }
 
-                    setDrawingStatus(ContourDrawingStatus.DRAW_LINE);
-                } else {
-                    openLineTypePanel();
-                }
-            }
-        });
+        DrawableElement des = (Line) contoursAttrSettings
+                .get(activeQuickLineBtn.getData().toString());
+        setButtonColor(activeQuickLineBtn, defaultButtonColor,
+                des.getColors()[0]);
+
+        /* ****************************** */
 
         lineClosedBtn = new Button(closelineComp, SWT.CHECK);
-        ;
         lineClosedBtn.setText("Closed");
         lineClosedBtn.setToolTipText("Click to draw a closed line");
         lineClosedBtn.setSelection(drawClosedLine);
@@ -442,7 +538,6 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         // Create a composite to editing the line attributes.
         Button lineAttrBtn = new Button(editlineComp, SWT.PUSH);
-        ;
         lineAttrBtn.setText("Edit");
         lineAttrBtn.setToolTipText("Edit contour's line attributes");
         lineAttrBtn.addListener(SWT.MouseDown, new Listener() {
@@ -469,17 +564,20 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     } else {
 
                         if (lineTemplate == null) {
+                            // lineTemplate = (Line) contoursAttrSettings
+                            // .get(retrieveDefaultLineType());
+                            // lineTemplate.setPgenType(activeQuickLineBtn
+                            // .getData().toString());
                             lineTemplate = (Line) contoursAttrSettings
-                                    .get(retrieveDefaultLineType());
-                            lineTemplate.setPgenType(lineTypeBtn.getData()
-                                    .toString());
+                                    .get(activeQuickLineBtn.getData()
+                                            .toString());
                         }
 
                         lineAttrDlg.setAttrForDlg((IAttribute) lineTemplate);
 
                     }
 
-                    // disable un-used attributes
+                    // disable unused attributes
                     lineAttrDlg.disableWidgets();
 
                 } catch (VizException e) {
@@ -489,7 +587,6 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         });
 
         applyAllLineBtn = new Button(editlineComp, SWT.CHECK);
-        ;
         applyAllLineBtn.setText("All");
 
         /*
@@ -526,7 +623,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         quickCompGl.horizontalSpacing = 1;
         quickComp.setLayout(quickCompGl);
 
-        int ii = 0;
+        ii = 0;
         for (String str : quickSymbolType.keySet()) {
 
             if (quickSymbolType.get(str) && ii < MAX_QUICK_SYMBOLS) {
@@ -579,6 +676,15 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         }
 
         activeQuickSymbolBtn = quickSymbolBtns.get(0);
+        if (minmaxTemplate == null) {
+            try {
+                minmaxTemplate = (Symbol) contoursAttrSettings
+                        .get(activeQuickSymbolBtn.getData().toString());
+            } catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
+        }
+
         DrawableElement de = (SinglePointElement) contoursAttrSettings
                 .get(activeQuickSymbolBtn.getData().toString());
         setButtonColor(activeQuickSymbolBtn, defaultButtonColor,
@@ -591,7 +697,6 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         editSymbolAttrComp.setLayout(editSymbolAttrCompGl);
 
         Button editSymbolAttrBtn = new Button(editSymbolAttrComp, SWT.PUSH);
-        ;
         editSymbolAttrBtn.setText("Edit");
         editSymbolAttrBtn.setToolTipText("Edit contour's symbol attributes");
         editSymbolAttrBtn.addListener(SWT.MouseDown, new Listener() {
@@ -639,7 +744,6 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         });
 
         applyAllSymbolBtn = new Button(editSymbolAttrComp, SWT.CHECK);
-        ;
         applyAllSymbolBtn.setText("All");
 
         /*
@@ -681,12 +785,10 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     setButtonColor(circleTypeBtn, circleTemplate.getColors()[0]);
                     setDrawingStatus(ContourDrawingStatus.DRAW_CIRCLE);
                 }
-                // openSymbolPanel();
             }
         });
 
         hideCircleLabelBtn = new Button(circleTypeComp, SWT.CHECK);
-        ;
         hideCircleLabelBtn.setText("Hide\nLabel");
         hideCircleLabelBtn
                 .setToolTipText("Check to hide the label for this circle");
@@ -700,7 +802,6 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         editCircleComp.setLayout(editCircleCompGl);
 
         Button circleAttrBtn = new Button(editCircleComp, SWT.PUSH);
-        ;
         circleAttrBtn.setText("Edit");
         circleAttrBtn.setEnabled(true);
         circleAttrBtn.setToolTipText("Edit contour's circle attributes");
@@ -740,7 +841,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
                     }
 
-                    // disable un-used attributes
+                    // disable unused attributes
                     circleAttrDlg.disableWidgets();
 
                 } catch (VizException e) {
@@ -750,7 +851,6 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         });
 
         applyAllCircleBtn = new Button(editCircleComp, SWT.CHECK);
-        ;
         applyAllCircleBtn.setText("All");
         applyAllCircleBtn.setEnabled(true);
 
@@ -796,6 +896,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                         drawClosedLine = true;
                     }
                 } catch (NumberFormatException el) {
+                    //
                 }
 
             }
@@ -838,7 +939,6 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         editTextComp.setLayout(editTextCompGl);
 
         Button textAttrBtn = new Button(editTextComp, SWT.PUSH);
-        ;
         textAttrBtn.setText("Edit");
         textAttrBtn.setToolTipText("Edit contour's label attributes");
         textAttrBtn.addListener(SWT.MouseDown, new Listener() {
@@ -866,18 +966,29 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                             labelAttrDlg
                                     .setAttrForDlg((IAttribute) ((ContourLine) (de
                                             .getParent())).getLabels().get(0));
+                            if (isUseMainColor()) {
+                                labelAttrDlg.setColor(lineTemplate.getColors()[0]);
+                            }
                         } else if (de.getParent() instanceof ContourMinmax
                                 && ((ContourMinmax) (de.getParent()))
                                         .getLabel() != null) {
                             labelAttrDlg
                                     .setAttrForDlg((IAttribute) ((ContourMinmax) (de
                                             .getParent())).getLabel());
+                            if (isUseMainColor()) {
+                                labelAttrDlg.setColor(minmaxTemplate
+                                        .getColors()[0]);
+                            }
                         } else if (de.getParent() instanceof ContourCircle
                                 && ((ContourCircle) (de.getParent()))
                                         .getLabel() != null) {
                             labelAttrDlg
                                     .setAttrForDlg((IAttribute) ((ContourCircle) (de
                                             .getParent())).getLabel());
+                            if (isUseMainColor()) {
+                                labelAttrDlg.setColor(circleTemplate
+                                        .getColors()[0]);
+                            }
                         }
                     } else {
 
@@ -887,11 +998,24 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                         }
 
                         labelAttrDlg.setAttrForDlg((IAttribute) labelTemplate);
+
+                        if (isUseMainColor()) {
+                            if (drawingStatus == ContourDrawingStatus.DRAW_LINE) {
+                                labelAttrDlg.setColor(lineTemplate.getColors()[0]);
+                            } else if (drawingStatus == ContourDrawingStatus.DRAW_SYMBOL) {
+                                labelAttrDlg.setColor(minmaxTemplate
+                                        .getColors()[0]);
+
+                            } else if (drawingStatus == ContourDrawingStatus.DRAW_CIRCLE) {
+                                labelAttrDlg.setColor(circleTemplate
+                                        .getColors()[0]);
+                            }
+                        }
                     }
 
                     labelAttrDlg.setText(new String[] { getLabel() });
 
-                    // disable un-used attributes
+                    // disable unused attributes
                     labelAttrDlg.disableWidgets();
 
                 } catch (VizException e) {
@@ -901,8 +1025,18 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         });
 
         applyAllLabelBtn = new Button(editTextComp, SWT.CHECK);
-        ;
         applyAllLabelBtn.setText("All");
+
+        Composite applyLineColorComp = new Composite(textGrp, SWT.NONE);
+        GridLayout layout6 = new GridLayout(2, false);
+        layout6.horizontalSpacing = 1;
+        layout6.marginWidth = 1;
+        layout6.verticalSpacing = 0;
+        layout6.marginHeight = 0;
+        applyLineColorComp.setLayout(layout6);
+        labelColorChkBox = new Button(applyLineColorComp, SWT.CHECK);
+        labelColorChkBox.setText("Use Main Color");
+        labelColorChkBox.setSelection(true);
 
         // Create a composite to display contour levels created on the value of
         // CINT.
@@ -921,15 +1055,15 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                 false, false));
 
         selectLineBtn = new Button(editContourLineComp, SWT.PUSH);
-        ;
-        selectLineBtn.setText(SELECT_CONTOURLINE);
+        selectLineBtn.setImage(getIcon(SELECT_CONTOURLINE));
+        selectLineBtn.setData(SELECT_CONTOURLINE);
         selectLineBtn.setToolTipText("Select a contour component");
         selectLineBtn.addSelectionListener(this);
         setButtonColor(selectLineBtn, defaultButtonColor);
 
         deleteLineBtn = new Button(editContourLineComp, SWT.PUSH);
-        ;
-        deleteLineBtn.setText(DELETE_CONTOURLINE);
+        deleteLineBtn.setImage(getIcon(DELETE_CONTOURLINE));
+        deleteLineBtn.setData(DELETE_CONTOURLINE);
         deleteLineBtn.setToolTipText("Delete a contour component");
         deleteLineBtn.addSelectionListener(this);
         setButtonColor(deleteLineBtn, defaultButtonColor);
@@ -987,11 +1121,31 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         return lineClosedBtn.getSelection();
     }
 
+    /**
+     * Flag to see if we apply the line/symbol/color to its label.
+     */
+    public Boolean isUseMainColor() {
+        return labelColorChkBox.getSelection();
+    }
+
+    /**
+     * Get the text in the label text box.
+     */
     public String getLabel() {
 
         String lbl = labelTxt.getText();
         if (lbl == null || lbl.trim().length() == 0) {
-            lbl = new String("0.0");
+            lbl = new String("0");
+            if (labelBtns != null && labelBtns.size() > 0) {
+                lbl = labelBtns.get(0).getText();
+                for (Button btn : labelBtns) {
+                    if (btn.getSelection()) {
+                        lbl = btn.getText();
+                        break;
+                    }
+                }
+            }
+
             setLabel(lbl);
         }
 
@@ -1182,12 +1336,12 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     wids[jj].dispose();
                 }
             }
-
         }
 
         // pack it to force the change.
-        if (!firstTime)
+        if (!firstTime) {
             this.getShell().pack();
+        }
 
         // recreate.
         if (labelBtns != null) {
@@ -1274,7 +1428,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             /*
              * Which button?
              */
-            String btnName = b.getText();
+            // String btnName = b.getText();
+            String btnName = b.getData().toString();
 
             /*
              * Close the attribute editing dialogs.
@@ -1298,6 +1453,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
                 this.setDrawingStatus(ContourDrawingStatus.SELECT);
                 tool.setPgenSelectHandler();
+
+                setLabelFocus();
             }
 
             /*
@@ -1374,8 +1531,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     currentContours = newContours;
                     drawingLayer.removeSelected();
 
-                    if (tool != null)
+                    if (tool != null) {
                         tool.setCurrentContour(newContours);
+                    }
 
                 }
 
@@ -1392,12 +1550,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
      */
     private void setInfoBtnText() {
 
-        String str = contourParm + ", " + contourLevel + ", " + contourFcstHr
-                + "\n" + contourTime1.get(Calendar.YEAR) + "-"
-                + (contourTime1.get(Calendar.MONTH) + 1) + "-"
-                + contourTime1.get(Calendar.DAY_OF_MONTH) + "  "
-                + contourTime1.get(Calendar.HOUR_OF_DAY) + ":"
-                + contourTime1.get(Calendar.MINUTE) + "Z";
+        String str = Contours.getKey(this).replace('|', '\n');
 
         infoBtn.setText(str);
         infoComp.pack();
@@ -1457,6 +1610,12 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                                             .getCircle(), newEl);
                         }
 
+                        else {
+                            gov.noaa.nws.ncep.ui.pgen.elements.Text oldLabel = ((ContourCircle) newAdc)
+                                    .getLabel();
+                            ((DECollection) newAdc).replace(oldLabel, newEl);
+                        }
+
                         ((ContourCircle) newAdc)
                                 .updateLabelString(new String[] { getLabel() });
                         ((ContourCircle) newAdc).getLabel().setHide(
@@ -1466,6 +1625,23 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                         if (newEl instanceof Line) {
                             ((DECollection) newAdc).replace(
                                     ((ContourLine) newAdc).getLine(), newEl);
+                        }
+
+                        else {
+                            gov.noaa.nws.ncep.ui.pgen.elements.Text oldLabel = ((ContourLine) newAdc)
+                                    .getLabels().get(0);
+                            Coordinate opt = ((gov.noaa.nws.ncep.ui.pgen.elements.Text) de)
+                                    .getPosition();
+                            double dist = oldLabel.getPosition().distance(opt);
+                            for (gov.noaa.nws.ncep.ui.pgen.elements.Text lbl : ((ContourLine) newAdc)
+                                    .getLabels()) {
+                                if (lbl.getPosition().distance(opt) < dist) {
+                                    oldLabel = lbl;
+                                    dist = lbl.getPosition().distance(opt);
+                                }
+                            }
+
+                            ((DECollection) newAdc).replace(oldLabel, newEl);
                         }
 
                         ((ContourLine) newAdc).getLine().setPgenType(
@@ -1499,6 +1675,11 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                             ((DECollection) newAdc)
                                     .replace(((ContourMinmax) newAdc)
                                             .getSymbol(), newEl);
+                        } else {
+                            gov.noaa.nws.ncep.ui.pgen.elements.Text oldLabel = ((ContourMinmax) newAdc)
+                                    .getLabel();
+
+                            ((DECollection) newAdc).replace(oldLabel, newEl);
                         }
 
                         ((ContourMinmax) newAdc).getSymbol().setPgenCategory(
@@ -1522,8 +1703,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
              */
             newContours.update(this);
             drawingLayer.replaceElement(oldContours, newContours);
-            if (tool != null)
+            if (tool != null) {
                 tool.setCurrentContour(newContours);
+            }
 
             /*
              * Reset the selected contours and DE to the updated ones.
@@ -1547,8 +1729,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
                 newContours.update(this);
                 drawingLayer.replaceElement(oldContours, newContours);
-                if (tool != null)
+                if (tool != null) {
                     tool.setCurrentContour(newContours);
+                }
 
                 currentContours = newContours;
             }
@@ -1579,8 +1762,13 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         closeAttrEditDialogs();
 
-        if (g2gDlg != null)
+        if (g2gDlg != null) {
             g2gDlg.close();
+        }
+
+        if (quickLineBtns != null && quickLineBtns.size() > 0) {
+            quickLineBtns.clear();
+        }
 
         if (quickSymbolBtns != null && quickSymbolBtns.size() > 0) {
             quickSymbolBtns.clear();
@@ -1597,14 +1785,18 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
      */
     private void closeAttrEditDialogs() {
 
-        if (labelAttrDlg != null)
+        if (labelAttrDlg != null) {
             labelAttrDlg.close();
-        if (lineAttrDlg != null)
+        }
+        if (lineAttrDlg != null) {
             lineAttrDlg.close();
-        if (minmaxAttrDlg != null)
+        }
+        if (minmaxAttrDlg != null) {
             minmaxAttrDlg.close();
-        if (circleAttrDlg != null)
+        }
+        if (circleAttrDlg != null) {
             circleAttrDlg.close();
+        }
 
     }
 
@@ -1671,14 +1863,17 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
     public IAttribute getLineTemplate() {
         if (lineAttrDlg != null && lineAttrDlg.getShell() != null) {
             return lineAttrDlg;
-        } else if (lineTemplate != null) {
-            return lineTemplate;
         } else {
-            lineTemplate = (Line) contoursAttrSettings
-                    .get(retrieveDefaultLineType());
-            lineTemplate.setPgenType(lineTypeBtn.getData().toString());
-            return lineTemplate;
+            return (IAttribute) contoursAttrSettings.get(activeQuickLineBtn
+                    .getData().toString());
         }
+        /*
+         * else if (lineTemplate != null) { return lineTemplate; } else {
+         * lineTemplate = (Line) contoursAttrSettings
+         * .get(retrieveDefaultLineType());
+         * lineTemplate.setPgenType(activeQuickLineBtn.getData().toString());
+         * return lineTemplate; }
+         */
     }
 
     /**
@@ -1794,10 +1989,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
          */
         @Override
         public void cancelPressed() {
-            if (tool != null) {
-                tool.setPgenContoursHandler();
-            }
-            PgenUtil.setSelectingMode();
+            // if (tool != null) {tool.setPgenContoursHandler();}
+            // PgenUtil.setSelectingMode();
             this.close();
         }
 
@@ -1887,12 +2080,25 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                                     ((ContourLine) newAdc).getLine(), newEl);
                         }
 
+                        else {
+                            gov.noaa.nws.ncep.ui.pgen.elements.Text oldLabel = ((ContourLine) newAdc)
+                                    .getLabels().get(0);
+                            Coordinate opt = ((gov.noaa.nws.ncep.ui.pgen.elements.Text) de)
+                                    .getPosition();
+                            double dist = oldLabel.getPosition().distance(opt);
+                            for (gov.noaa.nws.ncep.ui.pgen.elements.Text lbl : ((ContourLine) newAdc)
+                                    .getLabels()) {
+                                if (lbl.getPosition().distance(opt) < dist) {
+                                    oldLabel = lbl;
+                                    dist = lbl.getPosition().distance(opt);
+                                }
+                            }
+
+                            ((DECollection) newAdc).replace(oldLabel, newEl);
+                        }
+
                         for (gov.noaa.nws.ncep.ui.pgen.elements.Text lbl : ((ContourLine) newAdc)
                                 .getLabels()) {
-
-                            if (lbl.equals(de)) {
-                                ((DECollection) newAdc).replace(lbl, newEl);
-                            }
 
                             boolean hide = lbl.getHide();
                             boolean auto = lbl.getAuto();
@@ -1989,8 +2195,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
              * Reset the selected Contours and DE to the updated ones.
              */
             currentContours = newContours;
-            if (tool != null)
+            if (tool != null) {
                 tool.setCurrentContour(newContours);
+            }
 
             if (newEl != null) {
                 drawingLayer.removeSelected();
@@ -2034,7 +2241,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             lineTemplate.setClosed(isClosedLine());
 
             if (ContoursAttrDlg.this.drawContourLine()) {
-                setButtonColor(lineTypeBtn, defaultButtonColor,
+                setButtonColor(activeQuickLineBtn, defaultButtonColor,
                         lineTemplate.getColors()[0]);
             }
 
@@ -2153,8 +2360,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
              * Reset the selected contours and DE to the updated ones.
              */
             currentContours = newContours;
-            if (tool != null)
+            if (tool != null) {
                 tool.setCurrentContour(newContours);
+            }
 
             if (newEl != null) {
                 drawingLayer.removeSelected();
@@ -2188,23 +2396,24 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
          */
         @Override
         public void okPressed() {
-            /*
-             * Update the circle template first.
-             */
-            circleTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Arc) new DrawableElementFactory()
-                    .create(DrawableType.ARC, this, "Arc", "Circle",
-                            (Coordinate) null, null);
+            if (ContoursAttrDlg.this.tool != null) {
+                /*
+                 * Update the circle template first.
+                 */
+                circleTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Arc) new DrawableElementFactory()
+                        .create(DrawableType.ARC, this, "Arc", "Circle",
+                                (Coordinate) null, null);
 
-            if (ContoursAttrDlg.this.drawCircle()) {
-                setButtonColor(circleTypeBtn, defaultButtonColor,
-                        circleTemplate.getColors()[0]);
+                if (ContoursAttrDlg.this.drawCircle()) {
+                    setButtonColor(circleTypeBtn, defaultButtonColor,
+                            circleTemplate.getColors()[0]);
+                }
+
+                /*
+                 * Update the Contours.
+                 */
+                updateCircleAttributes();
             }
-
-            /*
-             * Update the Contours.
-             */
-            updateCircleAttributes();
-
             this.close();
         }
 
@@ -2325,8 +2534,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
              * Reset the selected contours and DE to the updated ones.
              */
             currentContours = newContours;
-            if (tool != null)
+            if (tool != null) {
                 tool.setCurrentContour(newContours);
+            }
 
             if (newEl != null) {
                 drawingLayer.removeSelected();
@@ -2384,10 +2594,25 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             lineIconType.put(str, "Lines");
         }
 
+        //
+        lineItemMap = new LinkedHashMap<String, IConfigurationElement>();
+
+        HashMap<String, IConfigurationElement> itemMap = plt.getItemMap();
+        for (String str : itemMap.keySet()) {
+            IConfigurationElement ifg = itemMap.get(str);
+            String type = ifg.getName();
+            if (type.equalsIgnoreCase("object")) {
+                String cls = ifg.getAttribute("className");
+                if (cls.equals("Lines")) {
+                    lineItemMap.put(str, ifg);
+                }
+            }
+        }
+
         // Get all Symbols
         symbolItemMap = new LinkedHashMap<String, IConfigurationElement>();
 
-        HashMap<String, IConfigurationElement> itemMap = plt.getItemMap();
+        // HashMap<String, IConfigurationElement> itemMap = plt.getItemMap();
         for (String str : itemMap.keySet()) {
             IConfigurationElement ifg = itemMap.get(str);
             String type = ifg.getName();
@@ -2412,9 +2637,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         }
 
         /*
-         * Bet all Combo Symbols Combo symbol's class "ComboSymbol" and
-         * symbol/marker's class is "Symbol", switching between them requires
-         * more detailed handling - so we do not use combos for now.
+         * Bet all Combo symbol's class "ComboSymbol" and symbol/marker's class
+         * is "Symbol", switching between them requires more detailed handling -
+         * so we do not use combos for now.
          */
     }
 
@@ -2506,15 +2731,15 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
      * Set the line type and image.
      */
     public void setContourLineType(String str) {
-        lineTypeBtn.setData(str);
-        lineTypeBtn.setImage(getIcon(str));
+        activeQuickLineBtn.setData(str);
+        activeQuickLineBtn.setImage(getIcon(str));
     }
 
     /**
      * Get the line type (pgenType string).
      */
     public String getContourLineType() {
-        return lineTypeBtn.getData().toString();
+        return activeQuickLineBtn.getData().toString();
     }
 
     /**
@@ -2613,19 +2838,18 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             mainLayout.verticalSpacing = 0;
             top.setLayout(mainLayout);
 
-            final Color clr;
-            if (lineTemplate != null) {
-                clr = lineTemplate.getColors()[0];
-            } else {
-                clr = activeButtonColor;
-            }
-
             for (String str : objNames) {
                 Button btn = new Button(top, SWT.PUSH);
                 btn.setData(str);
                 btn.setImage(getIcon(str));
+                btn.setToolTipText(lineItemMap.get(str).getAttribute("label"));
 
                 if (str.equals(activator.getData().toString())) {
+                    Color clr = defaultButtonColor;
+                    Line ade = (Line) contoursAttrSettings.get(str);
+                    if (ade != null) {
+                        clr = ade.getColors()[0];
+                    }
                     setButtonColor(btn, clr);
                 } else {
                     setButtonColor(btn, defaultButtonColor);
@@ -2647,6 +2871,13 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
                         String objstr = event.widget.getData().toString();
                         selectedType = objstr;
+
+                        Color clr = defaultButtonColor;
+                        Line ade = (Line) retrieveDefaultSettings(objstr);
+                        if (ade != null) {
+                            clr = ade.getColors()[0];
+                        }
+
                         setButtonColor((Button) event.widget, clr);
 
                     }
@@ -2661,6 +2892,14 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
          * Updates the selected type's data string and image icon.
          */
         public void okPressed() {
+
+            Color clr = activeButtonColor;
+            Line ade = (Line) retrieveDefaultSettings(selectedType);
+            if (ade != null) {
+                clr = ade.getColors()[0];
+            }
+            setButtonColor(activator, clr);
+
             activator.setData(selectedType);
             activator.setImage(getIcon(selectedType));
             close();
@@ -2759,6 +2998,12 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     public void handleEvent(Event event) {
 
                         Control[] wids = top.getChildren();
+                        Color clr = activeButtonColor;
+                        SinglePointElement ade = (SinglePointElement) retrieveDefaultSettings(selectedType);
+                        if (ade != null) {
+                            clr = ade.getColors()[0];
+                        }
+                        setButtonColor(activator, clr);
 
                         if (wids != null) {
                             for (int kk = 0; kk < wids.length; kk++) {
@@ -2769,19 +3014,19 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
                         String objstr = event.widget.getData().toString();
                         selectedType = objstr;
-                        Color clr = defaultButtonColor;
+                        Color clr1 = defaultButtonColor;
                         // if ( objstr.equals( activator.getData().toString() )
                         // && minmaxTemplate != null ) {
                         // clr = minmaxTemplate.getColors()[0];
                         // }
                         // else {
-                        SinglePointElement ade = (SinglePointElement) retrieveDefaultSettings(objstr);
-                        if (ade != null) {
-                            clr = ade.getColors()[0];
+                        SinglePointElement ades = (SinglePointElement) retrieveDefaultSettings(objstr);
+                        if (ades != null) {
+                            clr1 = ades.getColors()[0];
                         }
                         // }
 
-                        setButtonColor((Button) event.widget, clr);
+                        setButtonColor((Button) event.widget, clr1);
 
                     }
                 });
@@ -2807,7 +3052,6 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
              * setButtonColor( activator, clr ); }
              */
             Color clr = activeButtonColor;
-            ;
             SinglePointElement ade = (SinglePointElement) retrieveDefaultSettings(selectedType);
             if (ade != null) {
                 clr = ade.getColors()[0];
@@ -2852,12 +3096,12 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             List<String> objs = new ArrayList<String>(lineIconType.keySet());
             Shell sh = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            lineTypePanel = new LineTypeSelectionDlg(sh, objs, lineTypeBtn,
-                    "Contours Line Types");
+            lineTypePanel = new LineTypeSelectionDlg(sh, objs,
+                    activeQuickLineBtn, "Contours Line Types");
         }
 
         if (lineTypePanel != null) {
-            lineTypePanel.setActivator(lineTypeBtn);
+            lineTypePanel.setActivator(activeQuickLineBtn);
             lineTypePanel.open();
         }
 
@@ -2884,6 +3128,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
          */
         @Override
         public void okPressed() {
+
             /*
              * Update the symbol template first.
              */
@@ -2901,6 +3146,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
              * Update the Contours.
              */
             updateMinmaxAttributes();
+
             this.close();
 
         }
@@ -2922,8 +3168,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             AbstractPgenTool apt = (AbstractPgenTool) VizPerspectiveListener
                     .getCurrentPerspectiveManager().getToolManager()
                     .getSelectedModalTool("gov.noaa.nws.ncep.viz.ui.modalTool");
-            if (apt instanceof PgenContoursTool)
+            if (apt instanceof PgenContoursTool) {
                 tool = (PgenContoursTool) apt;
+            }
             if (tool != null) {
                 tool.resetUndoRedoCount();
                 PgenSession.getInstance().getCommandManager()
@@ -3042,8 +3289,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
              * Reset the selected contours and DE to the updated ones.
              */
             currentContours = newContours;
-            if (tool != null)
+            if (tool != null) {
                 tool.setCurrentContour(newContours);
+            }
 
             if (newEl != null) {
                 drawingLayer.removeSelected();
@@ -3097,7 +3345,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         case DRAW_SYMBOL:
 
-            setButtonColor(lineTypeBtn, activeButtonColor, defaultButtonColor);
+            setButtonColor(activeQuickLineBtn, activeButtonColor,
+                    defaultButtonColor);
             setButtonColor(circleTypeBtn, activeButtonColor, defaultButtonColor);
             setButtonColor(selectLineBtn, defaultButtonColor);
 
@@ -3109,7 +3358,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         case DRAW_CIRCLE:
 
-            setButtonColor(lineTypeBtn, activeButtonColor, defaultButtonColor);
+            setButtonColor(activeQuickLineBtn, activeButtonColor,
+                    defaultButtonColor);
             setButtonColor(activeQuickSymbolBtn, activeButtonColor,
                     defaultButtonColor);
             setButtonColor(selectLineBtn, defaultButtonColor);
@@ -3152,6 +3402,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             break;
         }
 
+        // Set keyboard focus to the label text.
+        setLabelFocus();
+
     }
 
     /**
@@ -3161,7 +3414,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         setButtonColor(activeQuickSymbolBtn, activeButtonColor,
                 defaultButtonColor);
         setButtonColor(circleTypeBtn, activeButtonColor, defaultButtonColor);
-        setButtonColor(lineTypeBtn, activeButtonColor, defaultButtonColor);
+        setButtonColor(activeQuickLineBtn, activeButtonColor,
+                defaultButtonColor);
         setButtonColor(selectLineBtn, activeButtonColor);
 
         drawingStatus = ContourDrawingStatus.SELECT;
@@ -3223,6 +3477,11 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         if (contoursAttrSettings == null) {
             contoursAttrSettings = new HashMap<String, AbstractDrawableComponent>();
+
+            // Get all line types from "settings.tbl"
+            for (String str : quickLineType.keySet()) {
+                contoursAttrSettings.put(str, retrieveDefaultSettings(str));
+            }
 
             // Get all symbols/markers from "settings.tbl"
             for (String str : quickSymbolType.keySet()) {
@@ -3398,4 +3657,249 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         super.cancelPressed();
 
     }
+
+    /**
+     * Call this to keep keyboard focus on the contour label text field. So the
+     * user could type a new interval value without mouse click on the dialog.
+     * Also, the focus stays at the end of the text field so the user could use
+     * backspace to clean up the existing value.
+     */
+    public void setLabelFocus() {
+        // try {
+        if (!labelTxt.isDisposed()) {
+            labelTxt.setFocus();
+            labelTxt.setSelection(labelTxt.getText().length());
+
+            updateLabelBtnsSelection(labelTxt.getText());
+        }
+        // } catch (NullPointerException npe) {
+        // System.err.println(this.getClass().getCanonicalName()
+        // + ":\n--writeADescriptiveErrorMsgHere--\n"
+        // + npe.getMessage());
+        // npe.printStackTrace();
+        // minmaxTemplate = new Symbol(
+        // null,
+        // new Color[] { Color.green },
+        // 2.0F,
+        // 2.0,
+        // true, null, "Symbol",
+        // getActiveSymbolObjType()
+        // );
+        // }
+    }
+
+    /**
+     * Move the label selection up to next one or or down to previous one.
+     */
+    public void upDownLabelSelection(String which) {
+
+        if (labelBtns == null || labelBtns.size() == 0) {
+            return;
+        }
+
+        boolean upArrowClicked = which.equals("ARROW_UP");
+        int ii = 0;
+        for (Button btn : labelBtns) {
+
+            if (btn.getSelection()) {
+
+                int next;
+                if (upArrowClicked) {
+                    next = (ii + 1) % labelBtns.size();
+                } else {
+                    next = ((ii - 1) + labelBtns.size()) % labelBtns.size();
+                }
+
+                btn.setSelection(false);
+                labelBtns.get(next).setSelection(true);
+                labelTxt.setText(labelBtns.get(next).getText());
+
+                /*
+                 * Remember to keep focus on the label text field so the user
+                 * can edit it immediately.
+                 */
+                setLabelFocus();
+                break;
+            }
+
+            ii++;
+        }
+
+        if (labelTemplate != null) {
+            labelTemplate.setText(new String[] { getLabel() });
+        }
+
+    }
+
+    /**
+     * Get a list of fast access lines defined in for ContoursInfo.xml If none
+     * of them is selected, the "LINE_SOLID" and "LINE_DASHED_2" will be
+     * selected by default.
+     * 
+     * @param
+     * @return
+     */
+    private LinkedHashMap<String, Boolean> getQuickLines() {
+
+        LinkedHashMap<String, Boolean> lbls = new LinkedHashMap<String, Boolean>();
+        String xpath = ContoursInfoDlg.CNTRINFO_XPATH + "[@name='QuickLines']";
+
+        Document dm = ContoursInfoDlg.readInfoTbl();
+
+        int selected = 0;
+        if (dm != null) {
+            Node cntrInfo = dm.selectSingleNode(xpath);
+            List<Node> nodes = cntrInfo.selectNodes("object");
+            for (Node node : nodes) {
+                String quick = node.valueOf("@quickAccess");
+                if (quick != null && quick.trim().equalsIgnoreCase("true")) {
+                    lbls.put(node.valueOf("@name"), true);
+                    selected++;
+                } else {
+                    lbls.put(node.valueOf("@name"), false);
+                }
+            }
+        }
+
+        numOfQuickLines = selected;
+
+        if (selected == 0) {
+            lbls.put("LINE_SOLID", true);
+            lbls.put("LINE_DASHED_2", true);
+            numOfQuickLines = 2;
+        }
+
+        return lbls;
+    }
+
+    /**
+     * Set the active line's type and image to a selected one. If not found in
+     * the list, force to be the first one.
+     */
+    public void setActiveLine(DrawableElement elem) {
+
+        boolean found = false;
+        String lineType = elem.getPgenType();
+        Color clr = elem.getColors()[0];
+        for (Button btn : quickLineBtns) {
+
+            if (lineType.equals(btn.getData().toString())) {
+                btn.setToolTipText(lineItemMap.get(lineType).getAttribute(
+                        "label"));
+                btn.setImage(getIcon(lineType));
+                activeQuickLineBtn = btn;
+                setButtonColor(btn, defaultButtonColor, clr);
+                found = true;
+            } else {
+                setButtonColor(btn, activeButtonColor, defaultButtonColor);
+            }
+        }
+
+        if (!found) {
+            activeQuickLineBtn = quickLineBtns.get(0);
+            activeQuickLineBtn.setData(lineType);
+            activeQuickLineBtn.setImage(getIcon(lineType));
+            setButtonColor(activeQuickLineBtn, defaultButtonColor, clr);
+        }
+
+        contoursAttrSettings.put(lineType, elem);
+
+    }
+
+    /**
+     * Change the selected contour line's type.
+     */
+    public boolean changeLineType() {
+
+        /*
+         * Create a new Contours as well as a new ContourLine with a new line
+         * and a label.
+         */
+        boolean typeChanged = false;
+        DrawableElement de = drawingLayer.getSelectedDE();
+        if (de != null && de instanceof Line && de.getParent() != null
+                && de.getParent().getParent() instanceof Contours) {
+
+            DrawableElement newEl = (DrawableElement) de.copy();
+
+            Contours oldContours = (Contours) de.getParent().getParent();
+
+            Iterator<AbstractDrawableComponent> iterator = oldContours
+                    .getComponentIterator();
+
+            Contours newContours = new Contours();
+
+            /*
+             * Replace the selected contour line with a new contour line and
+             * copy over other non-selected contour lines.
+             */
+            while (iterator.hasNext()) {
+
+                AbstractDrawableComponent oldAdc = iterator.next();
+                AbstractDrawableComponent newAdc = oldAdc.copy();
+
+                if (oldAdc.equals(de.getParent())) {
+
+                    newEl.setParent(newAdc);
+
+                    if (oldAdc instanceof ContourLine) {
+
+                        if (newEl instanceof Line) {
+                            ((DECollection) newAdc).replace(
+                                    ((ContourLine) newAdc).getLine(), newEl);
+                        }
+
+                        String ltype = getContourLineType();
+                        ((ContourLine) newAdc).getLine().setPgenType(ltype);
+
+                        Line ade = (Line) contoursAttrSettings.get(ltype);
+                        if (ade != null) {
+                            ((ContourLine) newAdc).getLine().setColors(
+                                    ade.getColors());
+
+                            if (isUseMainColor()) {
+                                for (gov.noaa.nws.ncep.ui.pgen.elements.Text lbl : ((ContourLine) newAdc)
+                                        .getLabels()) {
+                                    lbl.setColors(ade.getColors());
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+
+                newAdc.setParent(newContours);
+                newContours.add(newAdc);
+            }
+
+            /*
+             * Update the contours attributes and replace the old one with the
+             * new Contours.
+             */
+            newContours.update(this);
+            drawingLayer.replaceElement(oldContours, newContours);
+            if (tool != null) {
+                tool.setCurrentContour(newContours);
+            }
+
+            /*
+             * Reset the selected contours and DE to the updated ones.
+             */
+            currentContours = newContours;
+            drawingLayer.removeSelected();
+            if (newEl != null) {
+                drawingLayer.setSelected(newEl);
+            }
+
+            if (mapEditor != null) {
+                mapEditor.refresh();
+            }
+
+            typeChanged = true;
+        }
+
+        return typeChanged;
+    }
+
 }
