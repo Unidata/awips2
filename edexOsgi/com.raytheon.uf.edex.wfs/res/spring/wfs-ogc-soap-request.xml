@@ -9,7 +9,7 @@
     </bean>
 
     <bean id="wfsSoapService"
-        class="com.raytheon.uf.edex.ogc.common.soap.JaxWsConfigServerFactoryBean"
+        class="com.raytheon.uf.edex.soap.JaxWsConfigServerFactoryBean"
         init-method="create">
         <property name="serviceClass" value="com.raytheon.uf.edex.wfs.soap2_0_0.Wfs" />
         <property name="address" value="http://0.0.0.0:8086/wfs2.0.0" />
