@@ -1,5 +1,9 @@
 package gov.noaa.nws.ncep.common.dataplugin.gpd.query;
 /**
+ * This code has unlimited rights, and is provided "as is" by the National Centers 
+ * for Environmental Prediction, without warranty of any kind, either expressed or implied, 
+ * including but not limited to the implied warranties of merchantability and/or fitness 
+ * for a particular purpose.
  * 
  * 
  * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
@@ -33,13 +37,24 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GenericPointDataReqMsg implements IServerRequest {
 	public static enum GenericPointDataReqType{
-		// get GPD in Java Object format
+		// get GPD data in Java Object format
 		GET_GPD_PRODUCT_OBJECT,
 		GET_GPD_STATION_PRODUCT_OBJECT,
 		GET_GPD_MOVING_PRODUCT_OBJECT,
 		GET_GPD_STATION_PRODUCT_OBJECT_LIST,
 		GET_GPD_MOVING_PRODUCT_OBJECT_LIST,
+		GET_GPD_STATION_MDL_SND_PRODUCT_OBJECT_LIST,
+		GET_GPD_MOVING_MDL_SND_PRODUCT_OBJECT_LIST,
 		GET_GPD_PRODUCT_INFO_OBJECT,
+		GET_GPD_PRODUCT_TIMELINE_OBJECT,
+		GET_GPD_PRODUCT_RANGESTART_TIME_OBJECT,
+		GET_GPD_STATION_INFO_COLLECTION_OBJECT,
+		GET_GPD_ALL_AVAILABLE_PRODUCTS,
+		GET_GPD_AVAILABLE_MODEL_SOUNDING_PRODUCTS, //GPD pfc sounding
+		GET_GPD_AVAILABLE_OBSERVED_SOUNDING_PRODUCTS,
+		GET_GPD_AVAILABLE_SURFACE_PRODUCTS,
+		
+		//The following request types should not be used by CAVA JAVA applications
 		//get/save product in XML format
 		GET_GPD_PRODUCT_XML,
 		GET_GPD_STATION_PRODUCT_XML,
@@ -52,6 +67,9 @@ public class GenericPointDataReqMsg implements IServerRequest {
 		GET_GPD_MOVING_PRODUCT_GEMPAK_TBL,
 		GET_GPD_PRODUCT_INFO_GEMPAK_TBL,
 		STORE_GPD_PRODUCT_FROM_GEMPAK_TBL,
+		STORE_GPD_MDL_SND_PRODUCT_FROM_GEMPAK_TBL,
+		STORE_GPD_OBS_SND_PRODUCT_FROM_GEMPAK_TBL,
+		STORE_GPD_OBS_SFC_PRODUCT_FROM_GEMPAK_TBL,
 		//Purge GPD DB
 		PURGE_GPD_PRODUCT_ONETIME,
 		PURGE_GPD_PRODUCT_ALLTIME,
@@ -61,9 +79,9 @@ public class GenericPointDataReqMsg implements IServerRequest {
 	public static enum GenericPointDataQueryKey{
 		BY_STN_ID,
 		BY_SLAT_SLON,
-		BY_REPORT_NAME
+		BY_PRODUCT_NAME
 	} 
-
+	
 	//required for all
 	@DynamicSerializeElement
 	@XmlAttribute(required = true)
@@ -117,9 +135,20 @@ public class GenericPointDataReqMsg implements IServerRequest {
 	@DynamicSerializeElement
     private String gpdDataString;
 	
-	// used for query a list of time line for one station or moving product 
+	// used for query a list of time line's sounding data for one station or moving product 
+	//con be a list of reference time (for observed data) or a list of range start time (for pfc data)
+	// used for CAVE Java query only...for now
 	@DynamicSerializeElement
-    private List<Date> refTimeList;
+    private List<Date> queryTimeList;
+	
+	//used for query station collection, forecast time, or pfc sounding data
+	// used for CAVE Java query only...for now
+	@DynamicSerializeElement
+    private String refTimeStr;
+	//used for query station collection for model/pfc sounding
+	// used for CAVE Java query only...for now
+	@DynamicSerializeElement
+    private String rangeStartTimeStr;
 	
 	public GenericPointDataReqMsg() {
 		super();
@@ -320,12 +349,24 @@ public class GenericPointDataReqMsg implements IServerRequest {
 		this.maxNumLevel = maxNumLevel;
 	}
 
-	public List<Date> getRefTimeList() {
-		return refTimeList;
+	public List<Date> getQueryTimeList() {
+		return queryTimeList;
 	}
 
-	public void setRefTimeList(List<Date> refTimeList) {
-		this.refTimeList = refTimeList;
+	public void setQueryTimeList(List<Date> queryTimeList) {
+		this.queryTimeList = queryTimeList;
+	}
+	public String getRefTimeStr() {
+		return refTimeStr;
+	}
+	public void setRefTimeStr(String refTimeStr) {
+		this.refTimeStr = refTimeStr;
+	}
+	public String getRangeStartTimeStr() {
+		return rangeStartTimeStr;
+	}
+	public void setRangeStartTimeStr(String rangeStartTimeStr) {
+		this.rangeStartTimeStr = rangeStartTimeStr;
 	}
 
 	
