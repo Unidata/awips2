@@ -112,6 +112,13 @@
         <constructor-arg ref="siteMapListener" />
     </bean>
     
+    <!-- subscription -->
+    
+    <!-- define the bean that handles Quartz scheduled script running -->
+    <bean id="timerScriptRunner" class="com.raytheon.uf.edex.plugin.text.subscription.services.ScriptRunner" >
+        <property name="type" value="timer" />
+    </bean>
+    
 	<camelContext id="text-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
@@ -127,6 +134,9 @@
 			<to uri="jms-durable:queue:Ingest.Text" />
 		</route>
 		-->
+                
+        <!-- Refer to edex.xml for name/location of properties file -->
+        <endpoint id="runnerCron" uri="quartz://runner/runnerScheduled/?cron=${subscription.cron}"/>
 
 		<!--
           Text routes.
@@ -252,6 +262,30 @@
         <route id="textDBStaticSetDirty">
             <from uri="jms-generic:topic:textDBFilesChanged"/>
             <bean ref="textDBStaticDataListener" method="setDirty"/>
+        </route>
+
+        <!-- Quartz Timer triggered script runner -->
+        <route id="runnerScheduled">
+            <from uri="runnerCron" />
+            <doTry>
+                <bean ref="timerScriptRunner" method="runScripts" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- LDAD (watch/warn) triggered script runner -->
+        <route id="ldadWatchWarn">
+           <from uri="jms-durable:queue:watchwarn"/>
+           <doTry>
+               <bean ref="ldadScriptRunner" method="runScripts" />
+               <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+               </doCatch>
+           </doTry>
         </route>
 	</camelContext>
 
