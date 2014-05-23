@@ -17,6 +17,7 @@ package gov.noaa.nws.ncep.viz.common.ui;
  * ------------ ---------- ----------- --------------------------
  * Nov 3,2010    324         X. Guo       Initial Creation
  * Dec 6,2010                X. Guo       Change clean up function
+ * Apr22,2014    1129        B. Hebbard   Move maxHi/maxLo from here to GridRelativeHiLoDisplay so can handle relative to current extent
  * 
  * </pre>
  * 
@@ -25,6 +26,7 @@ package gov.noaa.nws.ncep.viz.common.ui;
  */
 
 public class HILORelativeMinAndMaxLocator {
+
     // Grid point values array
     protected float[] grid;
 
@@ -39,12 +41,6 @@ public class HILORelativeMinAndMaxLocator {
 
     // Search Interpolation
     private boolean gridInterp;
-
-    // Maximum number of highs
-    private int gridMaxHi;
-
-    // Maximum number of lows
-    private int gridMaxLo;
 
     // Lower bound on maximum
     private float gridLowerMax;
@@ -119,8 +115,8 @@ public class HILORelativeMinAndMaxLocator {
 
     // HILO Min/Max locator construct
     public HILORelativeMinAndMaxLocator(float[] gridData, int col, int row,
-            int radius, boolean interp, int maxHi, int maxLo, float maxLowerBd,
-            float maxUpperBd, float minLowerBd, float minUpperBd) {
+            int radius, boolean interp, float maxLowerBd, float maxUpperBd,
+            float minLowerBd, float minUpperBd) {
 
         isHiLoRelativeMinAndMaxLocated = false;
         grid = gridData;
@@ -130,8 +126,6 @@ public class HILORelativeMinAndMaxLocator {
         if ((isHiLoRelativeMinAndMaxLocated = checkGridValues())) {
             setGridRadius(radius);
             gridInterp = interp;
-            gridMaxHi = maxHi;
-            gridMaxLo = maxLo;
             gridLowerMax = maxLowerBd;
             gridUpperMax = maxUpperBd;
             gridLowerMin = minLowerBd;
@@ -153,10 +147,10 @@ public class HILORelativeMinAndMaxLocator {
     }
 
     /**
-     * 9999 Find the extrema
+     * Find the extrema
      */
     private boolean findExtrema() {
-        int mm, nextr;
+        int mm;
         float rmin, rmax;
         xExtr = new float[GRID_MXM];
         yExtr = new float[GRID_MXM];
@@ -166,30 +160,27 @@ public class HILORelativeMinAndMaxLocator {
             if (mm == 0) {
                 rmin = gridLowerMin;
                 rmax = gridUpperMin;
-                nextr = gridMaxLo;
             } else {
                 rmin = gridLowerMax;
                 rmax = gridUpperMax;
-                nextr = gridMaxHi;
             }
 
             chkGribPoint(mm, rmin, rmax);
             // Sort extrema
             sortExtrema(mm);
             clusterLocator();
-            int ifinct = Math.min(numOfExtr, nextr);
 
             if (mm == 0) {
-                loadMinGridValues(ifinct);
+                loadMinGridValues();
             } else {
-                loadMaxGridValues(ifinct);
+                loadMaxGridValues();
             }
         }
         return true;
     }
 
     /**
-     * Check each point and see if it is present and visible
+     * Check each point and see if it is present
      */
     private void chkGribPoint(int mm, float min, float max) {
         int i, j, cidx, cidx1, ii, jj;
@@ -201,7 +192,8 @@ public class HILORelativeMinAndMaxLocator {
         for (j = gridRadius + 1; j <= gridRow - gridRadius; j++) {
             for (i = gridRadius + 1; i <= gridCol - gridRadius; i++) {
                 cidx = (j - 1) * gridCol + i - 1;
-                // Check the grid point is present and visible
+                // Check the grid point is present. (No visibility check
+                // possible at this stage.)
                 if (!checkGridMissingValues(grid[cidx])) {
                     ok = true;
                     alleq = true;
@@ -293,11 +285,11 @@ public class HILORelativeMinAndMaxLocator {
     /**
      * Load minimum grid values
      */
-    private void loadMinGridValues(int ifinct) {
-        dgMinCol = new float[ifinct];
-        dgMinRow = new float[ifinct];
-        dgMinVal = new float[ifinct];
-        for (int k = 0; k < ifinct; k++) {
+    private void loadMinGridValues() {
+        dgMinCol = new float[numOfExtr];
+        dgMinRow = new float[numOfExtr];
+        dgMinVal = new float[numOfExtr];
+        for (int k = 0; k < numOfExtr; k++) {
             dgMinCol[k] = xExtr[k];
             dgMinRow[k] = yExtr[k];
             dgMinVal[k] = vExtr[k];
@@ -307,11 +299,11 @@ public class HILORelativeMinAndMaxLocator {
     /**
      * Load maximum grid values
      */
-    private void loadMaxGridValues(int ifinct) {
-        dgMaxCol = new float[ifinct];
-        dgMaxRow = new float[ifinct];
-        dgMaxVal = new float[ifinct];
-        for (int k = 0; k < ifinct; k++) {
+    private void loadMaxGridValues() {
+        dgMaxCol = new float[numOfExtr];
+        dgMaxRow = new float[numOfExtr];
+        dgMaxVal = new float[numOfExtr];
+        for (int k = 0; k < numOfExtr; k++) {
             dgMaxCol[k] = xExtr[k];
             dgMaxRow[k] = yExtr[k];
             dgMaxVal[k] = vExtr[k];
@@ -616,8 +608,6 @@ public class HILORelativeMinAndMaxLocator {
                     + gridRow);
             System.out.println("    Radius:" + gridRadius + " interp:"
                     + gridInterp);
-            System.out.println("    Max number of highs:" + gridMaxHi
-                    + " Max number of lows:" + gridMaxLo);
             System.out.println("    Lower Bound on Max:" + gridLowerMax
                     + " Upper Bound on Max:" + gridUpperMax);
             System.out.println("    Lower Bound on Min:" + gridLowerMin

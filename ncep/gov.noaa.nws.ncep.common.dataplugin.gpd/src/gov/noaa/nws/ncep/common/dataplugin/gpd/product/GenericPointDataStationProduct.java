@@ -1,5 +1,9 @@
 /**
  * 
+  * This code has unlimited rights, and is provided "as is" by the National Centers 
+ * for Environmental Prediction, without warranty of any kind, either expressed or implied, 
+ * including but not limited to the implied warranties of merchantability and/or fitness 
+ * for a particular purpose.
  * 
  * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
  * 
@@ -19,6 +23,7 @@ package gov.noaa.nws.ncep.common.dataplugin.gpd.product;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -30,6 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.DataTime.FLAG;
 
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
@@ -64,6 +70,20 @@ public class GenericPointDataStationProduct {
 	@DynamicSerializeElement
 	@XmlAttribute
 	protected Date refTime;
+	
+	@DynamicSerializeElement
+	@XmlAttribute
+	//set to -1, if forecast time is not used, foe example, for observed surface, observed snd type of data.
+	//set forecast time in second.Its value is computed starting from reference time. So,
+	//if forecastTime =0, means its forecast time is the same time as reference time
+	//if forecastTime =3600, means its forecast time is one hour after the reference time
+	//When saving data, this value is actually saved to DataTime in PluginDataObject Object. And 
+	//utilityFlags is set to "FCST_USED" to indicate forecast time is used or not.
+	protected int forecastTime;
+	
+	@DynamicSerializeElement
+	@XmlAttribute
+	private String utilityFlag = null;
 	
 	//list of master level values
 	@DynamicSerializeElement
@@ -104,7 +124,7 @@ public class GenericPointDataStationProduct {
 		return slat;
 	}
 
-
+	
 	public void setSlat(float slat) {
 		this.slat = slat;
 	}
@@ -175,6 +195,27 @@ public class GenericPointDataStationProduct {
 	public void setRefTime(Date refTime) {
 		this.refTime = refTime;
 	}
+
+
+	public int getForecastTime() {
+		return forecastTime;
+	}
+	
+
+	public void setForecastTime(int forecastTime) {
+		this.forecastTime = forecastTime;
+	}
+
+
+	public String getUtilityFlag() {
+		return utilityFlag;
+	}
+
+
+	public void setUtilityFlag(String utilityFlag) {
+		this.utilityFlag = utilityFlag;
+	}
+
 
 
 }
