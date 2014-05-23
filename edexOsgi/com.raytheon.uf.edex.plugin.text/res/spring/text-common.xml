@@ -43,7 +43,18 @@
     </bean>
 
     <bean id="textdbsrv" class="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBSrv" />
+    
+    <!-- subscription -->
   
+    <bean id="subscriptionDao" class="com.raytheon.uf.edex.plugin.text.dao.SubscriptionDAO">
+       <property name="subscriptionNotifyURI" value="jms-generic:topic:subscription.notify"/>
+    </bean>
+
+    <!-- define the bean that handles ldad watch/warn script handling -->
+    <bean id="ldadScriptRunner" class="com.raytheon.uf.edex.plugin.text.subscription.services.ScriptRunner">
+        <property name="type" value="ldad" />
+    </bean>
+    
  	<camelContext id="autofax-common-camel" 
 	              xmlns="http://camel.apache.org/schema/spring"
                   errorHandlerRef="errorHandler">
@@ -64,6 +75,29 @@
             <bean ref="textdbsrv" method="processMessage" />
             <bean ref="serializationUtil" method="marshalToXml" />
         </route>
+        
+        <route id="subscriptionNotify">
+           <from uri="jms-generic:topic:subscription.notify"/>
+           <doTry>
+               <bean ref="subscriptionDao" method="updateCache" />
+               <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+               </doCatch>
+           </doTry>
+        </route>
+
+        <!-- LDAD (watch/warn) triggered script runner, internal use only -->
+        <route id="ldadWatchWarnDirect">
+            <from uri="direct-vm:ldadWatchWarnDirect"/>
+           <doTry>
+               <bean ref="ldadScriptRunner" method="runScripts" />
+               <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:subscription?level=ERROR"/>
+               </doCatch>
+           </doTry>
+        </route>        
 
 	</camelContext>
 
