@@ -19,6 +19,11 @@
             editDialogClass="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.EditPlotDataAttrsDialog"
             name="UpperAirPlot">
       </nc-resource>
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.PlotResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.EditPlotDataAttrsDialog"
+            name="MatrixPlot">
+      </nc-resource>
       
    </extension>
    <extension
@@ -178,6 +183,54 @@
             paramClass="String"
             paramName="legendString"
             defaultValue="SurfacePlot"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            paramClass="PlotModel"
+            paramName="plotModel"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="MatrixPlot">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="plotDensity"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="20"
+            ncResourceName="MatrixPlot">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="ConditionalFilter"
+            paramName="conditionalFilter"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="MatrixPlot">
+      </nc-resourceParameter>
+         
+      <nc-resourceParameter
+            ncResourceName="MatrixPlot"
+            paramClass="String"
+            paramName="matrixType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="MatrixPlot"
+            paramClass="String"
+            paramName="spiFile"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="MatrixPlot"
+            paramClass="String"
+            paramName="legendString"
+            defaultValue="MatrixPlot"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="MatrixPlot"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {155, 155, 155}"
             paramType="IMPLEMENTATION_PARAM">
       </nc-resourceParameter>
 
