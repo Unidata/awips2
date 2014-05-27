@@ -475,7 +475,8 @@ public class PostShef {
                     data.setCreationDateObj(d);
                     data.setCreationDate("1970-01-01 00:00:00");
                 }
-
+                
+                locId = data.getLocationId();
                 String key = locId + prodId + data.getObservationTime();
                 if (idLocations.containsKey(key)) {
                     postLocData = idLocations.get(key);
