@@ -533,5 +533,22 @@ if [ "${1}" = "-package" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-dev" ]; then
+
+        if [ ! $#  -eq 2 ]; then
+        usage
+        exit 1;
+        fi
+
+        echo -e "\n*** Executing $2  ***"
+        $2
+        if [ $? -ne 0 ]; then
+           exit 1
+        fi
+        echo -e "*** $2 Complete ***\n"
+        exit 0
+fi
+
+
 usage
 exit 0
