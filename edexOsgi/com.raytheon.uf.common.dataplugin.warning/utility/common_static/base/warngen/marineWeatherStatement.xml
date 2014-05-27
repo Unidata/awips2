@@ -124,6 +124,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="lightningCTA" bulletText="Intense lightning" parseString="INTENSE LIGHTNING IS OCCURRING WITH THIS STORM"/>
   <bullet bulletName="reportCTA" bulletText="Report severe weather to coast guard" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD"/>
   <bullet bulletName="fogCTA" bulletText="Dense fog" parseString="DENSE FOG WAS REDUCING VISIBILITIES TO"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/> 
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="MA" sig="S">
@@ -164,6 +166,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="lightningCTA" bulletText="Intense lightning" parseString="INTENSE LIGHTNING IS OCCURRING WITH THIS STORM"/>
   <bullet bulletName="reportCTA" bulletText="Report severe weather to coast guard" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD"/>
   <bullet bulletName="fogCTA" bulletText="Dense fog" parseString="DENSE FOG WAS REDUCING VISIBILITIES TO"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/> 
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
