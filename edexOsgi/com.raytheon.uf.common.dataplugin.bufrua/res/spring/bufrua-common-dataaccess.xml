@@ -1,0 +1,80 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="bufruaDataAccessFactory" class="com.raytheon.uf.common.pointdata.dataaccess.PointDataAccessFactory" />
+	
+	<bean factory-bean="bufruaDataAccessFactory" factory-method="register2D">
+		<constructor-arg value="numMand"/>
+		<constructor-arg value="prMan"/>
+		<constructor-arg value="MB"/>
+		<constructor-arg>
+			<list>
+				<value>prMan</value>
+				<value>htMan</value>
+				<value>tpMan</value>
+				<value>tdMan</value>
+				<value>wdMan</value>
+				<value>wsMan</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean factory-bean="bufruaDataAccessFactory" factory-method="register2D">
+		<constructor-arg value="numTrop"/>
+		<constructor-arg value="prTrop"/>
+		<constructor-arg value="MB"/>
+		<constructor-arg>
+			<list>
+				<value>prTrop</value>
+				<value>tpTrop</value>
+				<value>tdTrop</value>
+				<value>wdTrop</value>
+				<value>wsTrop</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean factory-bean="bufruaDataAccessFactory" factory-method="register2D">
+		<constructor-arg value="numMwnd"/>
+		<constructor-arg value="prMaxW"/>
+		<constructor-arg value="MB"/>
+		<constructor-arg>
+			<list>
+				<value>wdMaxW</value>
+				<value>wsMaxW</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean factory-bean="bufruaDataAccessFactory" factory-method="register2D">
+		<constructor-arg value="numSigT"/>
+		<constructor-arg value="prSigT"/>
+		<constructor-arg value="MB"/>
+		<constructor-arg>
+			<list>
+				<value>prSigT</value>
+				<value>tpSigT</value>
+				<value>tdSigT</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean factory-bean="bufruaDataAccessFactory" factory-method="register2D">
+		<constructor-arg value="numSigW"/>
+		<constructor-arg value="htSigW"/>
+		<constructor-arg value="FHAG"/>
+		<constructor-arg>
+			<list>
+				<value>wdSigW</value>
+				<value>wsSigW</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="bufrua"/>
+		<constructor-arg ref="bufruaDataAccessFactory"/>
+	</bean>	
+	
+</beans>
