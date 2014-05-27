@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bufrua Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrua
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -16,5 +16,6 @@ Require-Bundle: com.raytheon.uf.common.sounding;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
  javax.persistence,
  org.hibernate;bundle-version="1.0.0",
- javax.measure
+ javax.measure,
+ com.raytheon.uf.common.dataaccess;bundle-version="1.14.0"
 Import-Package: org.apache.commons.logging
