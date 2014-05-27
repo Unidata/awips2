@@ -11,6 +11,7 @@ function usage()
    echo "   -edex     only build the EDEX rpms."
    echo "   -qpid     build only the QPID rpms."
    echo "   -ldm      build the awips2-ldm rpm; requires root privileges."
+   echo "   -dev      call functions directly
    echo "   -package  create a yum repository tar file with the rpms that were just built."
    echo "   --help    display this message and exit."
 
