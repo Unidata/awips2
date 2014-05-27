@@ -349,9 +349,10 @@ CONDITIONS CAN DETERIORATE RAPIDLY IN WINTER WEATHER SITUATIONS. BE PREPARED FOR
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "includeSvrWatches")})
+#if(${list.contains($includedWatches, "torWatches")} && ${list.contains(${bullets}, "includeTorWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
-
+#end
+#if(${list.contains(${includedWatches}, "svrWatches")} && ${list.contains(${bullets}, "includeSvrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 ####################################
