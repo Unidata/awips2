@@ -4,6 +4,7 @@
  		* Date         Ticket#     Engineer    Description
  		* __________   _______     __________  __________________________
  		* 06/28/2011				F. J. Yen	Initial creation for OB11.5  
+ 		* 05/27/2014	2670		bsteffen	Add dataTime fields.  
     -->
 <pointDataDbDescription>
   <parameter name="latitude" queryName="location.latitude" type="FLOAT" unit="°" />
@@ -11,4 +12,6 @@
   <parameter name="stationId" queryName="location.stationId" type="STRING" />
   <parameter name="reportType" queryName="reportType" type="STRING" />
   <parameter name="dataURI" queryName="dataURI" type="STRING" />
+  <parameter name="refTime" queryName="dataTime.refTime" numDims="1" type="LONG" unit="ms"/>
+  <parameter name="forecastHr" queryName="dataTime.fcstTime" numDims="1" type="INT" unit="h" dbunit="s"/>
 </pointDataDbDescription>
