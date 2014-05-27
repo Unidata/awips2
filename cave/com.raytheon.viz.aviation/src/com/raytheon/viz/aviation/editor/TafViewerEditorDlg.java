@@ -234,6 +234,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02/12/2014   17076       lvenable    Mark guidance tabs as not current so they get refreshed
  * 02/19/2014   16980       zhao        add code to ensure the Alt flag is false after the Alt kay is released
  * 21Mar2014    #2925       lvenable    Fixed NPE error found during testing.
+ * 09Apr2014    #3005       lvenable    Added calls to mark the tabs as not current when the tabs are changed.
+ *                                      This will show the tab as updating in the header and data text controls.
  * 
  * </pre>
  * 
@@ -787,6 +789,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         for (TabItem tbi : guidanceViewerFolder.getItems()) {
             if (tbi.getControl() instanceof ViewerTab) {
                 ((ViewerTab) tbi.getControl()).setDisplayCurrent(false);
+                ((ViewerTab) tbi.getControl()).markTextAsUpdating();
             }
         }
     }
@@ -2036,7 +2039,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                             .getSelectionIndex());
                     String bbb = editorTafTabComp.getBBB();
 
-                    // DR16478
+                    // DR166478
                     if (toolName.equals("UseMetarForPrevailing")) {
                         if (checkBasicSyntaxError(true)) {
                             return;
@@ -2394,6 +2397,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                             .getSelectionIndex());
                     String site = currentTab.getSite(siteID);
                     currentTab.generateGuidance(site);
+                    currentTab.markTextAsUpdating();
                 }
             }
 
@@ -4348,11 +4352,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             populateTafViewer();
 
             // Mark tab displays no longer current.
-            for (TabItem tbi : guidanceViewerFolder.getItems()) {
-                if (tbi.getControl() instanceof ViewerTab) {
-                    ((ViewerTab) tbi.getControl()).setDisplayCurrent(false);
-                }
-            }
+            markTabsAsNotCurrent();
 
             // Update the metar and mos guidance in the viewer tab.
             updateViewerTab(stationName);
