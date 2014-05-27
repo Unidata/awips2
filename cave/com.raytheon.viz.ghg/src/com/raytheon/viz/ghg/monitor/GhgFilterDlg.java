@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 25 MAR 2008  N/A        lvenable    Initial creation
  * 17Jun2008    1157       MW Fegan    Hooked in configuration.
  * 28 Nov 2012  1353       rferrel     Changes for non-blocking dialog.
+ * 28 Mar 2014  15769      ryu         Removed "include OrgPil" check button.
  * 
  * </pre>
  * 
@@ -156,7 +157,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
      */
     private Button incPastEventsChk;
 
-    private Button incOrgPilEvents;
+    //private Button incOrgPilEvents;
 
     private GhgDataFilter filter = null;
 
@@ -238,7 +239,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
         filter.includeAlerts = incAlertsChk.getSelection();
         filter.includeMapSelections = incMapSelectionsChk.getSelection();
         filter.includePastEvents = incPastEventsChk.getSelection();
-        filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
+        //filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
 
         filter.name = "<Custom>";
 
@@ -269,7 +270,7 @@ public class GhgFilterDlg extends CaveSWTDialog {
         incAlertsChk.setSelection(filter.includeAlerts);
         incMapSelectionsChk.setSelection(filter.includeMapSelections);
         incPastEventsChk.setSelection(filter.includePastEvents);
-        incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
+        //incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
     }
 
     /**
@@ -571,10 +572,10 @@ public class GhgFilterDlg extends CaveSWTDialog {
             }
         });
 
-        incOrgPilEvents = new Button(filterOverrideGroup, SWT.CHECK);
-        incOrgPilEvents.setText("Include OrgPil Events");
-        incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
-        incOrgPilEvents.addSelectionListener(new SelectionAdapter() {
+        //incOrgPilEvents = new Button(filterOverrideGroup, SWT.CHECK);
+        //incOrgPilEvents.setText("Include OrgPil Events");
+        //incOrgPilEvents.setSelection(filter.includeOrgPilEvents);
+        //incOrgPilEvents.addSelectionListener(new SelectionAdapter() {
 
             /*
              * (non-Javadoc)
@@ -583,12 +584,14 @@ public class GhgFilterDlg extends CaveSWTDialog {
              * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
              * .swt.events.SelectionEvent)
              */
+        /*
             @Override
             public void widgetSelected(SelectionEvent e) {
                 filter.includeOrgPilEvents = incOrgPilEvents.getSelection();
                 updateDisplay();
             }
         });
+        */
     }
 
     /**

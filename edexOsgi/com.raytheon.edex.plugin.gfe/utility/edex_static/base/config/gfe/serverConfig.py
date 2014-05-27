@@ -39,6 +39,8 @@
 #    02/20/2014          #2824     randerso       Added log message when local override files are not found
 #    03/11/2014          #2897     dgilling       Add new MHWM databases to default configuration.
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
+#    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
+#    05/09/2014      3148          randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
 #
 ########################################################################
 
@@ -1152,7 +1154,7 @@ elif SID in CONUS_EAST_SITES:
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
                  'AKwave10',
@@ -1209,7 +1211,7 @@ else:   #######DCS3501 WEST_CONUS
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
                  'WCwave10',
@@ -1526,6 +1528,7 @@ D2DAccumulativeElements= {
     "HIRESWarw": ["tp"],
     "HIRESWnmm": ["tp"],
     "RTMA": ["tp"],
+    "HPCERP": ["tpHPCndfd"], 
 #DR20634    "SPC": ["tp"],
 
     #Dummy ones for the transition from Eta to NAM.  These are ignored.
