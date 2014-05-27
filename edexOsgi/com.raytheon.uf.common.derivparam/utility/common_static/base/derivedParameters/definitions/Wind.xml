@@ -34,7 +34,7 @@
     <!-- TODO this should be an auto-generated average however 
          auto-generated averages are currently pulling in kftAgl levels -->
     <Method name="Average" levels="0-6kmAgl">
-        <Field abbreviation="Wind" level="0kmAgl"/>
+        <Field abbreviation="Wind" level="0FHAG"/>
         <Field abbreviation="Wind" level="0.5kmAgl"/>
         <Field abbreviation="Wind" level="1kmAgl"/>
         <Field abbreviation="Wind" level="1.5kmAgl"/>
