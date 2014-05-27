@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Mar 20, 2014    #2934    dgilling    Added new parameters for PHISH/pSurge 2.0.
+  Apr 17, 2014    #2934    dgilling    Fix fillValue and valid_range values.
  -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
@@ -28,7 +29,7 @@
     <uiname>SURGE10pct</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -44,7 +45,7 @@
     <uiname>SURGE20pct</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -60,7 +61,7 @@
     <uiname>SURGE30pct</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -76,7 +77,7 @@
     <uiname>SURGE40pct</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -92,7 +93,7 @@
     <uiname>SURGE50pct</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -107,9 +108,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge25c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -122,9 +123,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge24c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -137,9 +138,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge23c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -152,9 +153,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge22c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -167,9 +168,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge21c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -182,9 +183,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge20c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -198,9 +199,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge19c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -214,9 +215,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge18c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -230,9 +231,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge17c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -246,9 +247,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge16c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -262,9 +263,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge15c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -278,9 +279,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge14c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -294,9 +295,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge13c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -310,9 +311,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge12c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -326,9 +327,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge11c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -342,9 +343,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge10c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -358,9 +359,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge09c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -374,9 +375,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge08c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -390,9 +391,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge07c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -406,9 +407,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge06c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -422,9 +423,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge05c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -438,9 +439,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge04c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -454,9 +455,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge03c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -470,9 +471,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge02c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
@@ -486,9 +487,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge01c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -501,9 +502,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge00c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -519,7 +520,7 @@
     <uiname>SURGE10pct_incr</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -534,7 +535,7 @@
     <uiname>SURGE20pct_incr</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -549,7 +550,7 @@
     <uiname>SURGE30pct_incr</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -564,7 +565,7 @@
     <uiname>SURGE40pct_incr</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -579,7 +580,7 @@
     <uiname>SURGE50pct_incr</uiname>
     <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -592,9 +593,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge20c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -607,9 +608,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge19c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -622,9 +623,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge18c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -637,9 +638,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge17c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -652,9 +653,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge16c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -667,9 +668,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge15c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -682,9 +683,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge14c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -697,9 +698,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge13c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -712,9 +713,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge12c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -727,9 +728,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge11c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -742,9 +743,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge10c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -757,9 +758,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge09c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -772,9 +773,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge08c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -787,9 +788,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge07c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -802,9 +803,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge06c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -817,9 +818,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge05c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -832,9 +833,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge04c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -847,9 +848,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge03c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -862,9 +863,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge02c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -877,9 +878,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge01c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
@@ -892,9 +893,9 @@
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge00c_incr</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>0 FHAG</levelsDesc>
     <levels>
