@@ -31,9 +31,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.hydrocommon.Activator;
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
-import com.raytheon.viz.hydrocommon.constants.StatusConstants;
 import com.raytheon.viz.hydrocommon.util.MPEColors;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
 
@@ -45,6 +43,8 @@ import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2008            randerso     Initial creation
+ * May 27, 2014  3133      njensen      Organized imports, fixed == to equals
+ * 
  * </pre>
  * 
  * @author randerso
@@ -52,7 +52,8 @@ import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
  */
 
 public class GetColorValues {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(GetColorValues.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GetColorValues.class);
 
     /** Return value if no close duration found */
     public static final int NO_DURATION_FOUND = -1;
@@ -130,14 +131,15 @@ public class GetColorValues {
                                     + "Metric\n"));
         }
 
-        //get color values from default setting in xml file.
-        if (application_name=="hydroview" && coloruse_name=="HEIGHT" ) {
-                 cvHead = getDefaultColorSet(application_name, coloruse_name,
-                     threshold_unit);
+        // get color values from default setting in xml file.
+        if ("hydroview".equals(application_name)
+                && "HEIGHT".equals(coloruse_name)) {
+            cvHead = getDefaultColorSet(application_name, coloruse_name,
+                    threshold_unit);
         } else {
-                // Try to find a user defined color set.
-                cvHead = getUserColorSet(user_id, application_name, coloruse_name,
-                                duration, threshold_unit);
+            // Try to find a user defined color set.
+            cvHead = getUserColorSet(user_id, application_name, coloruse_name,
+                    duration, threshold_unit);
         }
 
         if (cvHead == null) {
@@ -150,17 +152,13 @@ public class GetColorValues {
 
                 // Try to find a default color set.
                 cvHead = getDefaultColorSet(application_name, coloruse_name,
-                        threshold_unit);//, pColorSetGroup);
+                        threshold_unit);// , pColorSetGroup);
 
                 if ((cvHead == null) || (cvHead.size() == 0)) {
-                    statusHandler.handle(
-                                    Priority.PROBLEM,
-                                    "ERROR in "
-                                            + method
-                                            + " Colors/levels not defined for application "
-                                            + application_name + " use_name = "
-                                            + coloruse_name
-                                            + " logname = user_id");
+                    statusHandler.handle(Priority.PROBLEM, "ERROR in " + method
+                            + " Colors/levels not defined for application "
+                            + application_name + " use_name = " + coloruse_name
+                            + " logname = user_id");
                 }
             }
         }
@@ -200,7 +198,8 @@ public class GetColorValues {
                 application_name, coloruse_name, duration, threshold_unit);
 
         // does the closest one match?
-        if (closest_duration != NO_DURATION_FOUND && duration == closest_duration) {
+        if (closest_duration != NO_DURATION_FOUND
+                && duration == closest_duration) {
             cvHead = getColorValueTableEntries(user_id, application_name,
                     coloruse_name, closest_duration, threshold_unit);
         }
@@ -225,15 +224,17 @@ public class GetColorValues {
      */
     private static List<Colorvalue> getDefaultColorSet(
             final String application_name, final String coloruse_name,
-            String threshold_unit) {//, final List<NamedColorUseSet> pColorSetGroup) {
-        
+            String threshold_unit) {// , final List<NamedColorUseSet>
+                                    // pColorSetGroup) {
+
         List<NamedColorUseSet> pColorSetGroup = null;
         if (application_name.equals("hmapmpe")) {
             pColorSetGroup = MPEColors.build_mpe_colors();
         } else {
-            pColorSetGroup = HydroDisplayManager.getInstance().getDefaultNamedColorUseSetList();
+            pColorSetGroup = HydroDisplayManager.getInstance()
+                    .getDefaultNamedColorUseSetList();
         }
-        
+
         // Loop over the default colors provided by the user.
         // Look for the specified color use name.
         if (pColorSetGroup == null) {
@@ -253,8 +254,8 @@ public class GetColorValues {
                     Colorvalue cvNode = new Colorvalue(new ColorvalueId(
                             "default", application_name, coloruse_name,
                             pColorSet.default_duration, threshold.getValue(),
-                            threshold_unit), new Colorname(threshold
-                            .getColorName()));
+                            threshold_unit), new Colorname(
+                            threshold.getColorName()));
                     cvList.add(cvNode);
                 }
                 break;
@@ -362,7 +363,7 @@ public class GetColorValues {
             }
 
             // Free the memory used for the linked list of distinct durations.
-            // 
+            //
             if (results != null) {
                 results.clear();
                 results = null;
