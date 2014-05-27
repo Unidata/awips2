@@ -1,0 +1,38 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="pirepDataAccessFactory" class="com.raytheon.uf.common.pointdata.dataaccess.PointDataAccessFactory" />
+	
+	<bean factory-bean="pirepDataAccessFactory" factory-method="register2D">
+		<constructor-arg value="numLayer"/>
+		<!-- The level argument is not meaningful at all because there are no well defined levels for this data. -->
+		<constructor-arg value="skyBaseHeight"/>
+		<constructor-arg value="UNKNOWN"/>
+		<constructor-arg>
+			<list>
+				<value>ncPirepLayerData</value>
+				<value>hazardType</value>
+				<value>turbInten</value>
+				<value>turbFreq</value>
+				<value>turbType</value>
+				<value>iceInten</value>
+				<value>iceType</value>
+				<value>skyCover1</value>
+				<value>skyCover2</value>
+				<value>turbBaseHeight</value>
+				<value>turbTopHeight</value>
+				<value>iceBaseHeight</value>
+				<value>iceTopHeight</value>
+				<value>skyBaseHeight</value>
+				<value>skyTopHeight</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="pirep"/>
+		<constructor-arg ref="pirepDataAccessFactory"/>
+	</bean>	
+	
+</beans>
