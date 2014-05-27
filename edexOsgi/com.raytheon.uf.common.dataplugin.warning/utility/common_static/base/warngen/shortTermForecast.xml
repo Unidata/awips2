@@ -109,6 +109,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="frontalPassage" bulletText="cold frontal passage"/>
   <bullet bulletName="heavySnow" bulletText="heavy snow/low visibility"/>
   <bullet bulletName="snowAmt" bulletText="snowfall amounts"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR">
@@ -144,6 +146,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="frontalPassage" bulletText="cold frontal passage"/>
   <bullet bulletName="heavySnow" bulletText="heavy snow/low visibility"/>
   <bullet bulletName="snowAmt" bulletText="snowfall amounts"/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/>
 </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
