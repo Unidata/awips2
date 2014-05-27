@@ -22,8 +22,10 @@ package com.raytheon.viz.ghg.monitor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -115,7 +117,9 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  *                                      Changes for non-blocking GhgSaveDeleteFilterDlg.
  * 16 Jan 2013  1492       rferrel     Changes for non-blocking GhgFontDlg.
  * 29 Mar 2013  1790       rferrel     Bug fix for non-blocking dialogs.
- * 
+ * 10 Apr 2014  15769      ryu         Modify default configuration and menus to match A1.
+ *                                     Bring monitor to front before sending alert.
+ *                                     Adjusted delay for timer so it fires at the top of a minute.
  * </pre>
  * 
  * @author lvenable
@@ -206,6 +210,8 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
     private FilterDisplay filterDisplay;
 
     private Menu columnsMenu;
+    
+    private MenuItem identifyTestMI;
 
     /**
      * The status importance map.
@@ -263,22 +269,6 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         // Load the default configuration file.
         // If this fails, fall back to the hardcoded defaults.
         GhgConfigData configuration = GhgConfigData.getInstance();
-
-        try {
-            configuration.loadDefault();
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error loading default configuration", e);
-        }
-
-        configuration.makeCurrentFilterDefault();
-        configuration.makeCurrentAlertsDefault();
-        configuration.makeVisibleColumnsDefault();
-
-        configuration.setDefaultAsCurrent(FeatureEnum.FILTERS);
-        configuration.setDefaultAsCurrent(FeatureEnum.ALERTS);
-        configuration.setDefaultAsCurrent(FeatureEnum.COLUMNS);
-        // configuration.setDefaultAsCurrent(FeatureEnum.COLORS);
 
         try {
             // Try and read a saved config file
@@ -645,7 +635,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
 
         // Show Fire Wx menu item
         MenuItem showFireWxMI = new MenuItem(mapMenu, SWT.RADIO);
-        showFireWxMI.setText("Show Fire Wx");
+        showFireWxMI.setText("Show FireWx");
         showFireWxMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -802,12 +792,13 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         });
 
         // Identify TEST Events menu item
-        final MenuItem identifyTestMI = new MenuItem(appearanceMenu, SWT.CHECK);
+        identifyTestMI = new MenuItem(appearanceMenu, SWT.CHECK);
         identifyTestMI.setText("Identify TEST Events");
+        identifyTestMI.setSelection(GhgConfigData.getInstance().isIdentifyTestEvents());
         identifyTestMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                GhgDisplayManager.getInstance().setIdentifyTestData(
+                GhgConfigData.getInstance().setIdentifyTestEvents(
                         identifyTestMI.getSelection());
             }
         });
@@ -1751,6 +1742,9 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
         synchColumnsWithConfig();
         refresh(false);
         ghgTableComp.packColumns();
+        
+        identifyTestMI.setSelection(
+                configuration.isIdentifyTestEvents());
     }
 
     /**
@@ -1955,7 +1949,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
             buffer.append("Event is ongoing, but no current product exists describing event. ");
         }
 
-        buffer.append("  " + headline);
+        buffer.append("  Event=" + rec.getPhenSig() + " " + headline);
 
         StatusMessage.Importance importance = Importance.ALERT1;
         if (alertData.getAlertType() == AlertsEnum.AlertLvl2) {
@@ -1964,6 +1958,7 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
             importance = Importance.EXPIRED;
         }
 
+        bringToTop();
         StatusStore.updateStatus(STATUS_KEY, buffer.toString(), importance);
     }
 
@@ -2068,7 +2063,13 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
      * Initialize the auto-update timer
      */
     private void initTimer() {
-        int delay = 1000 * 60; // delay for 1 min.
+        Date date = SimulatedTime.getSystemTime().getTime();
+        long now = date.getTime();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.MINUTE, 1);
+        cal.set(Calendar.SECOND, 0);
+        int delay = (int) (cal.getTime().getTime() - now);
         int period = 1000 * 60; // repeat every min.
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
