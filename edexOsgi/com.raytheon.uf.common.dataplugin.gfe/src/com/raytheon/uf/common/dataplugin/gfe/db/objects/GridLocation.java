@@ -100,7 +100,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 09/30/13      #2333      mschenke    Added method to construct from {@link IGridGeometryProvider}
  * 10/22/13      #2361      njensen     Remove XML annotations
  * 04/11/14      #2947      bsteffen    Remove ISpatialObject constructor.
- * 
+ * 05/06/14      #3118      randerso    Added clone() method
  * 
  * 
  * </pre>
@@ -112,7 +112,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 @Table(name = "gfe_gridlocation", uniqueConstraints = { @UniqueConstraint(columnNames = { "dbId_id" }) })
 @DynamicSerialize
 public class GridLocation extends PersistableDataObject<String> implements
-        ISpatialObject {
+        ISpatialObject, Cloneable {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridLocation.class);
 
@@ -246,6 +246,37 @@ public class GridLocation extends PersistableDataObject<String> implements
         this.timeZone = timeZone;
 
         init();
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param gridLocation
+     */
+    public GridLocation(GridLocation other) {
+        // don't copy id or dbId
+        this.siteId = other.siteId;
+        this.nx = other.nx;
+        this.ny = other.ny;
+        this.timeZone = other.timeZone;
+        this.projection = other.projection;
+        this.origin = other.origin == null ? null : (Coordinate) other.origin
+                .clone();
+        this.extent = other.extent == null ? null : (Coordinate) other.extent
+                .clone();
+        this.geometry = (Polygon) other.geometry.clone();
+        this.crsWKT = other.crsWKT;
+        this.crsObject = other.crsObject;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public GridLocation clone() {
+        return new GridLocation(this);
     }
 
     /**
