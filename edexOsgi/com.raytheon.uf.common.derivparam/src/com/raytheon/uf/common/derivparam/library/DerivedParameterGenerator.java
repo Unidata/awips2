@@ -73,6 +73,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jan 30, 2014  #2725     ekladstrup  Refactor to remove dependencies on
  *                                     eclipse runtime and support some configuration
  *                                     through spring
+ * Mar 27, 2014  2945     bsteffen     Recursively find definitions in
+ *                                     subdirectories.
  * 
  * </pre>
  * 
@@ -206,7 +208,7 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
             LocalizationContext[] contexts = pm
                     .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
             LocalizationFile[] xmlFiles = pm.listFiles(contexts, XML_DIR,
-                    new String[] { ".xml" }, false, true);
+                    new String[] { ".xml" }, true, true);
             JAXBManager jaxbMan;
             try {
                 jaxbMan = new JAXBManager(DerivParamDesc.class);
