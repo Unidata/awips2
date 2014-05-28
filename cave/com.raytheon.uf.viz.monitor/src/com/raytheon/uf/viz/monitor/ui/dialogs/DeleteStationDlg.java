@@ -33,10 +33,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -52,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 2, 2009            lvenable     Initial creation
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Fixed issue with deleting a new station.
+ * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * 
  * </pre>
  * 
@@ -60,20 +58,17 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class DeleteStationDlg extends CaveSWTDialog {
 
-    /**
-     * Station list control.
-     */
+    /** Station list control. */
     private List stationList;
 
-    /**
-     * Control font.
-     */
+    /** Control font. */
     private Font controlFont;
 
-    /**
-     * Area configuration manager.
-     */
-    private MonitorConfigurationManager configMan;
+    /** Area configuration manager. */
+    private FSSObsMonitorConfigurationManager configMgr;
+
+    /** Monitoring Area Configuration Dialog */
+    private MonitoringAreaConfigDlg macDlg;
 
     /**
      * Constructor.
@@ -83,10 +78,12 @@ public class DeleteStationDlg extends CaveSWTDialog {
      * @param appName
      *            Application name.
      */
-    public DeleteStationDlg(Shell parent, AppName appName) {
+    public DeleteStationDlg(Shell parent, AppName appName,
+            MonitoringAreaConfigDlg macDlg) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(appName.toString() + ": Delete a Newly Entered Station");
-        configMan = getConfigManager(appName);
+        this.macDlg = macDlg;
+        configMgr = macDlg.getInstance();
     }
 
     /*
@@ -121,7 +118,7 @@ public class DeleteStationDlg extends CaveSWTDialog {
     }
 
     /**
-     * Create the list control.
+     * Creates the list control.
      */
     private void createListControl() {
         Composite listComp = new Composite(shell, SWT.NONE);
@@ -137,7 +134,7 @@ public class DeleteStationDlg extends CaveSWTDialog {
     }
 
     /**
-     * Create the Delete Station and Close buttons.
+     * Creates the Delete Station and Close buttons.
      */
     private void createBottomButtons() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -178,7 +175,7 @@ public class DeleteStationDlg extends CaveSWTDialog {
      * Populate list of added stations.
      */
     private void populate() {
-        java.util.List<String> addedStations = configMan.getAddedStations();
+        java.util.List<String> addedStations = configMgr.getAddedStations();
         stationList.setItems(addedStations.toArray(new String[addedStations
                 .size()]));
     }
@@ -192,8 +189,8 @@ public class DeleteStationDlg extends CaveSWTDialog {
             if (stationList.getSelectionIndex() != -1) {
                 int idx = stationList.getSelectionIndex();
                 String selection = stationList.getItem(idx);
-                retval = configMan.getAddedStations().get(idx);
-                configMan.getAddedStations().remove(idx);
+                retval = configMgr.getAddedStations().get(idx);
+                configMgr.getAddedStations().remove(idx);
                 stationList.remove(selection);
                 populate();
             } else {
@@ -206,24 +203,6 @@ public class DeleteStationDlg extends CaveSWTDialog {
             }
         }
         return retval;
-    }
-
-    /**
-     * Gets Configuration Manager.
-     * 
-     * @param app
-     * @return manager
-     */
-    private MonitorConfigurationManager getConfigManager(AppName app) {
-        MonitorConfigurationManager mngr = null;
-        if (app == AppName.FOG) {
-            mngr = FogMonitorConfigurationManager.getInstance();
-        } else if (app == AppName.SAFESEAS) {
-            mngr = SSMonitorConfigurationManager.getInstance();
-        } else if (app == AppName.SNOW) {
-            mngr = SnowMonitorConfigurationManager.getInstance();
-        }
-        return mngr;
     }
 
     /*

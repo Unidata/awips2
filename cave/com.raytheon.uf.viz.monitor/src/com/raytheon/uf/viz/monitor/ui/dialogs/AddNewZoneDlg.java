@@ -32,10 +32,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -52,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 2, 2009            lvenable     Initial creation
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
  * Apr 23, 2014 3054      skorolev     Deleted unnecessary parameter in addArea method.
+ * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * 
  * </pre>
  * 
@@ -60,45 +57,26 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class AddNewZoneDlg extends CaveSWTDialog {
 
-    /**
-     * Application name.
-     */
+    /** Application name. */
     private AppName appName;
 
-    /**
-     * Marine zone radio button.
-     */
+    /** Marine zone radio button. */
     private Button marineZoneRdo;
 
-    /**
-     * County radio button.
-     */
+    /** County radio button. */
     private Button countyRdo;
 
-    /**
-     * ID text control.
-     */
+    /** ID text control. */
     private Text idTF;
 
-    /**
-     * Centroid latitude text control.
-     */
+    /** Centroid latitude text control. */
     private Text centroidLatTF;
 
-    /**
-     * Centroid longitude text control.
-     */
+    /** Centroid longitude text control. */
     private Text centroidLonTF;
 
-    /**
-     * Call back interface.
-     */
-    private INewZoneStnAction macDlg;
-
-    /**
-     * Area configuration manager.
-     */
-    private MonitorConfigurationManager configMan;
+    /** Monitoring Area Configuration Dialog. */
+    private MonitoringAreaConfigDlg macDlg;
 
     /**
      * Constructor.
@@ -108,12 +86,12 @@ public class AddNewZoneDlg extends CaveSWTDialog {
      * @param appName
      *            Application name.
      */
-    public AddNewZoneDlg(Shell parent, AppName appName, INewZoneStnAction macDlg) {
+    public AddNewZoneDlg(Shell parent, AppName appName,
+            MonitoringAreaConfigDlg macDlg) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(appName.toString() + ": Add a New Zone to Monitor Area.");
         this.appName = appName;
         this.macDlg = macDlg;
-        configMan = getConfigManager(appName);
     }
 
     /*
@@ -313,7 +291,7 @@ public class AddNewZoneDlg extends CaveSWTDialog {
                     macDlg.latLonErrorMsg(latString, lonString);
                     return;
                 }
-                configMan.addArea(areaId, lat, lon, type);
+                macDlg.configMgr.addArea(areaId, lat, lon, type);
                 macDlg.addNewZoneAction(areaId, centroidLatTF.getText(),
                         centroidLonTF.getText());
             } catch (NumberFormatException e) {
@@ -334,23 +312,5 @@ public class AddNewZoneDlg extends CaveSWTDialog {
         messageBox.setText("Invalid input");
         messageBox.setMessage(msg);
         messageBox.open();
-    }
-
-    /**
-     * Gets Configuration Manager.
-     * 
-     * @param app
-     * @return manager
-     */
-    private MonitorConfigurationManager getConfigManager(AppName app) {
-        MonitorConfigurationManager mngr = null;
-        if (app == AppName.FOG) {
-            mngr = FogMonitorConfigurationManager.getInstance();
-        } else if (app == AppName.SAFESEAS) {
-            mngr = SSMonitorConfigurationManager.getInstance();
-        } else if (app == AppName.SNOW) {
-            mngr = SnowMonitorConfigurationManager.getInstance();
-        }
-        return mngr;
     }
 }

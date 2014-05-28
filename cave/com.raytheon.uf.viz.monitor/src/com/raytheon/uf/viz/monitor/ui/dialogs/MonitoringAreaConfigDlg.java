@@ -40,10 +40,7 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
@@ -73,6 +70,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 07, 2013 #2443         lvenable     Fixed image memory leak.
  * Jan 29, 2014 2757          skorolev     Added status variables.
  * Apr 23, 2014 3054          skorolev     Fixed issue with removing from list a new zone and a new station.
+ * Apr 28, 2014 3086          skorolev     Updated getConfigManager method.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -177,7 +176,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     private CommonConfig.AppName appName;
 
     /** The current site. **/
-    protected String currentSite = null;
+    protected static String currentSite = null;
 
     /** monitor area zones **/
     private java.util.List<String> maZones = null;
@@ -197,8 +196,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /** monitor area additional stations in the region **/
     private java.util.List<String> additionalStns = null;
 
-    /** Monitor Configuration Manager **/
-    private MonitorConfigurationManager configMgr = null;
+    /** current Monitor Configuration Manager **/
+    protected FSSObsMonitorConfigurationManager configMgr;
 
     /** Table mode **/
     private static enum Mode {
@@ -208,24 +207,16 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /** mode by default **/
     private Mode mode = Mode.Zone;
 
-    /**
-     * Add new Zone dialog.
-     */
+    /** Add new Zone dialog. */
     private AddNewZoneDlg addNewZoneDlg;
 
-    /**
-     * Add new Station dialog.
-     */
+    /** Add new Station dialog. */
     private AddNewStationDlg addNewStnDlg;
 
-    /**
-     * Edit newly added zone dialog.
-     */
+    /** Edit newly added zone dialog. */
     private EditNewZoneDlg editDlg;
 
-    /**
-     * Delete a Newly Entered Station dialog
-     */
+    /** Delete a Newly Entered Station dialog */
     private DeleteStationDlg deleteStnDlg;
 
     /**
@@ -245,6 +236,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         setText(title);
         this.appName = appName;
         currentSite = LocalizationManager.getInstance().getCurrentSite();
+        configMgr = getInstance();
     }
 
     /**
@@ -272,7 +264,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         }
         Collections.sort(maStations);
         // (3) set additional zones in the neighborhood of the monitor area
-        additionalZones = configMgr.getAdjacentAreaList(); // adjMgr.getAdjZones();
+        additionalZones = configMgr.getAdjacentAreaList();
         Collections.sort(additionalZones);
         // (4) set additional stations
         additionalStns = new ArrayList<String>();
@@ -323,13 +315,10 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         initFontAndImages();
         // Initialize all of the controls and layouts
         initComponents();
-        // set configuration and adjacent managers
-        configMgr = getConfigManager();
         // initialize zone/station lists
         initZoneStationLists();
         // Populate the dialog
         populateLeftLists();
-        // populateRightLists(); // this is called from populateLeftLists()
         setValues();
     }
 
@@ -362,7 +351,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Create the top configuration controls.
+     * Creates the top configuration controls.
      * 
      * @param parentComp
      */
@@ -416,7 +405,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Create the Monitor/Additional label and list controls.
+     * Creates the Monitor/Additional label and list controls.
      * 
      * @param parentComp
      *            Parent composite.
@@ -517,7 +506,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Create the Associated & MA/Regional labels and controls.
+     * Creates the Associated & MA/Regional labels and controls.
      * 
      * @param parentComp
      *            Parent composite.
@@ -528,14 +517,16 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         rightComp
                 .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         /*
-         * Create the Associated label and list control.
+         * Create the Associated label.
          */
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
         associatedLbl = new Label(rightComp, SWT.NONE);
         associatedLbl.setText("Associated Stations:");
         associatedLbl.setLayoutData(gd);
-
+        /*
+         * Create Associated list control.
+         */
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 185;
         gd.heightHint = 200;
@@ -573,9 +564,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                 maStationsRemoved = true;
             }
         });
-        /*
-         * Create the Additional label and list control.
-         */
+
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
         gd.verticalIndent = 5;
         gd.heightHint = 20;
@@ -614,7 +603,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                 }
             }
         });
-
+        /*
+         * Create the Additional stations list control.
+         */
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 185;
         gd.heightHint = 200;
@@ -640,7 +631,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Create the bottom scale controls.
+     * Creates the bottom scale controls.
      * 
      * @param parentComp
      *            Parent composite.
@@ -663,14 +654,14 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         timeLbl.setText("Time window (hrs)");
         timeLbl.setLayoutData(gd);
 
+        // Timewindow scale should be from 0.25(15 min) to 8 hours with step
+        // 0.05 hour(3 min).
         int max = (int) Math.round((8.00 - 0.25) / .05);
-        int defaultVal = (int) Math.round((2.00 - 0.25) / .05);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         timeWindow = new Scale(scaleComp, SWT.HORIZONTAL);
         timeWindow.setMinimum(0);
         timeWindow.setMaximum(max);
-        timeWindow.setSelection(defaultVal);
         timeWindow.setLayoutData(gd);
         timeWindow.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -722,8 +713,6 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         shipDistanceLBl.setFont(controlFont);
         shipDistanceLBl.setLayoutData(gd);
 
-        setShipDistScaleLabel();
-
         /*
          * Create the Fog check box.
          */
@@ -742,7 +731,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Create the bottom OK/Cancel buttons.
+     * Creates the bottom OK/Cancel buttons.
      */
     private void createBottomButtons() {
         addSeparator(shell);
@@ -781,7 +770,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Add a separator bar to the display.
+     * Adds a separator bar to the display.
      * 
      * @param parentComp
      *            Parent composite.
@@ -796,7 +785,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Round a value to the hundredths decimal place.
+     * Rounds a value to the hundredths decimal place.
      * 
      * @param val
      *            Value.
@@ -811,16 +800,17 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Set the time scale label.
+     * Sets the time scale label in hours.
      */
     protected void setTimeScaleLabel() {
+        // Conversion of a scale to hour.
         double val = timeWindow.getSelection() * .05 + .25;
         val = roundToHundredths(val);
         timeWindowLbl.setText(String.format("%5.2f", val));
     }
 
     /**
-     * Set the ship distance scale label.
+     * Sets the ship distance scale label.
      */
     protected void setShipDistScaleLabel() {
         shipDistanceLBl.setText(String.format("%5d",
@@ -828,7 +818,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Change the Zone and Station controls.
+     * Changes the Zone and Station controls.
      */
     private void changeZoneStationControls() {
         if (mode == Mode.Zone) {
@@ -851,7 +841,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Handle the Add New button click.
+     * Handles the Add New button click.
      */
     private void handleAddNewAction() {
         if (zoneRdo.getSelection() == true) {
@@ -900,7 +890,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Handle the Edit/Delete button click.
+     * Handles the Edit/Delete button click.
      */
     private void handleEditDeleteAction() {
         if (zoneRdo.getSelection() == true) {
@@ -922,7 +912,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             editDlg.open();
         } else {
             if (deleteStnDlg == null) {
-                deleteStnDlg = new DeleteStationDlg(shell, appName);
+                deleteStnDlg = new DeleteStationDlg(shell, appName, this);
                 deleteStnDlg.setCloseCallback(new ICloseCallback() {
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -941,7 +931,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Populate the MA-Regional list box.
+     * Populates the MA-Regional list box.
      */
     private void populateMaRegionalList() {
         maRegionalList.removeAll();
@@ -965,13 +955,11 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Populate the zone list boxes.
+     * Populates the zone list boxes.
      */
     private void populateLeftLists() {
         if (mode == Mode.Zone) {
-            /**
-             * Zone Mode
-             */
+            /** Zone Mode */
             Collections.sort(maZones);
             monitorAreaList
                     .setItems(maZones.toArray(new String[maZones.size()]));
@@ -979,9 +967,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             additionalList.setItems(additionalZones
                     .toArray(new String[additionalZones.size()]));
         } else {
-            /**
-             * Station Mode
-             */
+            /** Station Mode */
             Collections.sort(maStations);
             monitorAreaList.setItems(maStations.toArray(new String[maStations
                     .size()]));
@@ -990,18 +976,45 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                     .toArray(new String[additionalStns.size()]));
         }
         if (monitorAreaList.getItemCount() > 0) {
+            // select top of the list
             monitorAreaList.setSelection(0);
             handleMonitorAreaListSelection();
         }
     }
 
     /**
-     * Set the slider values and the check box.
+     * Sets the slider values and the check box.
      */
-    protected abstract void setValues();
+    protected void setValues() {
+        // Conversion scale to hour.
+        Double val = (configMgr.getTimeWindow() - .25) * 20;
+        timeWindow.setSelection(val.intValue());
+        setTimeScaleLabel();
+        // Set other values.
+        if (appName != AppName.SNOW) {
+            shipDistance.setSelection(configMgr.getShipDistance());
+            setShipDistScaleLabel();
+            fogChk.setSelection(configMgr.isUseAlgorithms());
+        }
+    }
 
     /**
-     * Show a dialog message.
+     * Gets changed slider values and the check box.
+     */
+    protected void getValues() {
+        // Conversion of a hour to scale.
+        double time = timeWindow.getSelection() * .05 + .25;
+        time = roundToHundredths(time);
+        configMgr.setTimeWindow(time);
+        // Get other values.
+        if (appName != AppName.SNOW) {
+            configMgr.setShipDistance(shipDistance.getSelection());
+            configMgr.setUseAlgorithms(fogChk.getSelection());
+        }
+    }
+
+    /**
+     * Shows a dialog message.
      * 
      * @param shell
      *            The parent shell
@@ -1021,7 +1034,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Add a zone or station to the monitoring area.
+     * Adds a zone or station to the monitoring area.
      */
     private void addZoneStn() {
 
@@ -1045,12 +1058,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                     .setItems(maZones.toArray(new String[maZones.size()]));
             monitorAreaList.setSelection(maZones.indexOf(entry));
             handleMonitorAreaListSelection();
-
             additionalZones.remove(entry);
-
             configMgr.addArea(entry, entry.charAt(2) == 'Z' ? ZoneType.MARITIME
                     : ZoneType.REGULAR);
-
             if (!configMgr.getAddedZones().contains(entry)) {
                 configMgr.getAddedZones().add(entry);
             }
@@ -1066,7 +1076,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Remove a zone or station from the monitoring area.
+     * Removes a zone or station from the monitoring area.
      */
     private void removeZoneStn() {
         if (monitorAreaList.getSelectionCount() == 0) {
@@ -1084,7 +1094,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         monitorAreaList.remove(monitorAreaList.getSelectionIndex());
         associatedList.removeAll();
         if (mode == Mode.Zone) {
-            additionalZones.add(entry);
+            if (!additionalZones.contains(entry)) {
+                additionalZones.add(entry);
+            }
             Collections.sort(additionalZones);
             additionalList.setItems(additionalZones
                     .toArray(new String[additionalZones.size()]));
@@ -1106,13 +1118,14 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Add an associated zone or station.
+     * Adds an associated zone or station.
      */
     private void addAssociated() {
         if (monitorAreaList.getSelectionCount() == 0) {
             if (mode == Mode.Zone) {
                 showMessage(shell, SWT.ERROR, "Select Needed",
                         "You must select a zone");
+                monitorAreaList.select(0);
             } else {
                 showMessage(shell, SWT.ERROR, "Select Needed",
                         "You must select a station");
@@ -1126,6 +1139,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             } else {
                 showMessage(shell, SWT.ERROR, "Select Needed",
                         "You must select a zone");
+                associatedList.select(0);
             }
             return;
         }
@@ -1187,7 +1201,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Remove an associated zone or station.
+     * Removes an associated zone or station.
      */
     private void removeAssociated() {
         if (associatedList.getItemCount() == 0) {
@@ -1230,14 +1244,13 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Handle the monitor area list selection.
+     * Handles the monitor area list selection.
      */
     private void handleMonitorAreaListSelection() {
         if (mode == Mode.Zone) {
             String zone = monitorAreaList.getItem(monitorAreaList
                     .getSelectionIndex());
             selectedStnZoneTF.setText(zone);
-
             java.util.List<String> stations = configMgr
                     .getAreaStationsWithType(zone);
             if (stations.size() > 1) {
@@ -1267,32 +1280,14 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Get the appropriate configuration manager.
-     * 
-     * @return The correct MonitorConfigurationManager
-     */
-    protected MonitorConfigurationManager getConfigManager() {
-        MonitorConfigurationManager configManager = null;
-        if (appName == AppName.FOG) {
-            configManager = FogMonitorConfigurationManager.getInstance();
-        } else if (appName == AppName.SNOW) {
-            configManager = SnowMonitorConfigurationManager.getInstance();
-        } else if (appName == AppName.SAFESEAS) {
-            configManager = SSMonitorConfigurationManager.getInstance();
-        }
-        return configManager;
-    }
-
-    /**
      * Called when the cancel or "X" button is clicked.
      */
     private void closeWithoutSave() {
         int choice = showMessage(shell, SWT.YES | SWT.NO, appName
                 + " Monitor Exit", "Are you sure you want to exit?");
         if (choice == SWT.YES) {
-            MonitorConfigurationManager configManager = getConfigManager();
-            configManager.setAddedZones(new ArrayList<String>());
-            configManager.setAddedStations(new ArrayList<String>());
+            configMgr.setAddedZones(new ArrayList<String>());
+            configMgr.setAddedStations(new ArrayList<String>());
             setReturnValue(true);
             close();
         }
@@ -1301,7 +1296,10 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /**
      * Sets algorithm text.
      */
-    protected abstract void setAlgorithmText();
+    protected void setAlgorithmText() {
+        fogChk.setText("The Fog Monitor overall threat level is "
+                + "considered when determining the anchor color.");
+    }
 
     /**
      * Handles OK button.
@@ -1309,12 +1307,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     protected abstract void handleOkBtnSelection();
 
     /**
-     * Reads configuration file.
-     */
-    protected abstract void readConfigData();
-
-    /**
-     * Add a new zone to monitor area and refresh GUI
+     * Adds a new zone to monitor area and refresh GUI
      * 
      * @param zone
      */
@@ -1325,7 +1318,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Add a new station to monitor area and refresh GUI
+     * Adds a new station to monitor area and refresh GUI
      * 
      * @param stnWithType
      *            (String of station ID with type)
@@ -1452,6 +1445,11 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         return false;
     }
 
+    /**
+     * Dialog asking to edit thresholds.
+     * 
+     * @return
+     */
     protected int editDialog() {
         showMessage(shell, SWT.ICON_INFORMATION | SWT.OK, appName
                 + " Config Change", "You're updating the " + appName
@@ -1459,11 +1457,18 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                 + " is running anywhere within "
                 + "the office, please clear it.\n");
 
-        String message2 = "New zones have been added, and their monitoring thresholds "
+        String message = "New zones have been added, and their monitoring thresholds "
                 + "have been set to default values; would you like to modify "
                 + "their threshold values now?";
         int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO,
-                "Edit Thresholds Now?", message2);
+                "Edit Thresholds Now?", message);
         return yesno;
     }
+
+    /**
+     * Gets Configuration manager.
+     * 
+     * @return manager
+     */
+    protected abstract FSSObsMonitorConfigurationManager getInstance();
 }
