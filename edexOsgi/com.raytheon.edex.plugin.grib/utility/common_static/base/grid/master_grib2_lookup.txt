@@ -40,32 +40,50 @@
 // that of the input hash, one might do this if one only wanted to
 // assign a specific level or change the perturbation, or prevent a more
 // broadly defined translation from affecting a specific case.
-s2s
-TP_254E3_T170L42A-NCEP-MDL_1073x689_21600-0 POP6hr
-TP_254E3_T170L42A-NCEP-MDL_1073x689_43200-0 POP12hr
+// 5km CONUS MOSGuide precip probability
+TP0.254mm_T170L42A-NCEP-MDL_1073x689_21600-0 POP6hr
+TP0.254mm_T170L42A-NCEP-MDL_1073x689_43200-0 POP12hr
+// 5km CONUS MOSGuide cumulative precip
+// these are unnessecary since A2 always appends duration 
 TP_T170L42A-NCEP-MDL_1073x689_21600-0 TP6hr
 TP_T170L42A-NCEP-MDL_1073x689_43200-0 TP12hr
+// 5km CONUS MOSGuide cumulative thunderstorm probabilities
+// these are unnessecary since A2 always appends duration 
 ThP_T170L42A-NCEP-MDL_1073x689_43200-0 ThP12hr
 ThP_T170L42A-NCEP-MDL_1073x689_21600-0 ThP6hr
 ThP_T170L42A-NCEP-MDL_1073x689_10800-0 ThP3hr
-TP_254E3_T170L42A-NCEP-MDL_1649x1105_21600-0 POP6hr
-TP_254E3_T170L42A-NCEP-MDL_1649x1105_43200-0 POP12hr
+// 2.5km MOSGuide
+TP0.254mm_T170L42A-NCEP-MDL_2145x1377_21600-0 POP6hr
+TP0.254mm_T170L42A-NCEP-MDL_2145x1377_43200-0 POP12hr
+// MOSGuide Alaska
+TP0.254mm_T170L42A-NCEP-MDL_1649x1105_21600-0 POP6hr
+TP0.254mm_T170L42A-NCEP-MDL_1649x1105_43200-0 POP12hr
+// TPCWindProb wind speed probabilities
 WS17.491m/s Prob34
 WS25.722m/s Prob50
 WS32.924m/s Prob64
 PWS17.491m/s PWS34
 PWS25.722m/s PWS50
 PWS32.924m/s PWS64
+// All European models(center 98) min/max temperature
+// these are unnessecary since A2 always appends duration 
 MxT_ECMFMOD-1DEG-ECMF_10800-0 MxT3hr
 MxT_ECMFMOD-1DEG-ECMF_21600-0 MxT6hr
 MnT_ECMFMOD-1DEG-ECMF_10800-0 MnT3hr
 MnT_ECMFMOD-1DEG-ECMF_21600-0 MnT6hr
+// All European models(center 98) precip
+// this gets converted to TP-ECMWF for storage.
 TP_ECMFMOD-1DEG-ECMF TP_ECMWF
+// HPCQPF cumulative precip
+// these are unnessecary since A2 always appends duration 
 TP_HPCQPF-NCEP-HPC_432000-0 TP120hr
 TP_HPCQPF-NCEP-HPC_172800-0 TP48hr
+// HPCQPF 6 hour cumulative precip
 TP_HPCQPF-NCEP-HPC_21600-0 tpHPCndfd
+// SREF snowfall statistics
 SNOLmean_43200-0 SNOL12mean
 SNOLsprd_43200-0 SNOL12sprd
+// SREF precip statistics
 TPmean_10800-0 TP3mean
 TPsprd_10800-0 TP3sprd
 TPmean_21600-0 TP6mean
@@ -74,30 +92,38 @@ TPmean_43200-0 TP12mean
 TPsprd_43200-0 TP12sprd
 TPmean_86400-0 TP24mean
 TPsprd_86400-0 TP24sprd
+// SREF visibility probabilities
 Vis1609.0m Visc1
 Vis4827.0m Visc2
+// SREF Wind Speed probabilities
 WS12.89m/s WSc1
 WS17.5m/s WSc2
-WS25.7m/s WSc3
+WS25.0m/s WSc3
 WS25.78m/s WSc4
+// SREF Height probabilities
 GH152.5gpm Cigc1
 GH305.0gpm Cigc2
 GH914.6gpm Cigc3
+// SREF temperature probability
 T273.0K Tc1
+// SREF CAPE probabilities
 CAPE500.0J/kg CAPEc1
 CAPE1000.0J/kg CAPEc2
 CAPE2000.0J/kg CAPEc3
 CAPE3000.0J/kg CAPEc4
 CAPE4000.0J/kg CAPEc5
+// SREF precip type probabilities
 CFRZR1.0 CFRZRc1
 CICEP1.0 CICEPc1
 CRAIN1.0 CRAINc1
 CSNOW1.0 CSNOWc1
+// SREF lifted index probabilities
 PLI0.0K PLIxc1
 PLI-2.0K PLIxc2
 PLI-4.0K PLIxc3
 PLI-6.0K PLIxc4
 PLI-8.0K PLIxc5
+// SREF precip probabilities
 TP0.25mm_10800-0  tp3c1
 TP1.27mm_10800-0 tp3c2
 TP2.54mm_10800-0 tp3c3
@@ -130,8 +156,9 @@ TP12.7mm_86400-0 tp24c5
 TP25.4mm_86400-0 tp24c6
 TP38.1mm_86400-0 tp24c7
 TP50.8mm_86400-0 tp24c8
+// SREF snowfall probabilities
 SNOL25.4mm_43200-0 SNOL12c1
-SNOL508.0mm_43200-0 SNOL12c2
+SNOL50.8mm_43200-0 SNOL12c2
 SNOL101.6mm_43200-0 SNOL12c3
 SNOL152.4mm_43200-0 SNOL12c4
 SNOL190.5mm_43200-0 SNOL12c5
@@ -139,41 +166,54 @@ SNOL203.2mm_43200-0 SNOL12c6
 SNOL254.0mm_43200-0 SNOL12c7
 SNOL304.8mm_43200-0 SNOL12c8
 SNOL406.4mm_43200-0 SNOL12c9
-SNOL609.6mm_43200-0 SNOL12c10
-T_66E2_CPCMANU-NCEP-CPC_1073x689_604800-0 PTAM
-T_33E2_CPCMANU-NCEP-CPC_1073x689_604800-0 PTBM
-TP_66E2_CPCMANU-NCEP-CPC_1073x689_604800-0 PPAM
-TP_33E2_CPCMANU-NCEP-CPC_1073x689_604800-0 PPBM
-T_66E2_CPCAUTO-NCEP-CPC_1073x689_172800-0 PTAS
-T_33E2_CPCAUTO-NCEP-CPC_1073x689_172800-0 PTBS
-TP_66E2_CPCAUTO-NCEP-CPC_1073x689_172800-0 PPAS
-TP_33E2_CPCAUTO-NCEP-CPC_1073x689_172800-0 PPBS
-T_66E2_CPCMANU-NCEP-CPC_825x553_604800-0 PTAM
-T_33E2_CPCMANU-NCEP-CPC_825x553_604800-0 PTBM
-TP_66E2_CPCMANU-NCEP-CPC_825x553_604800-0 PPAM
-TP_33E2_CPCMANU-NCEP-CPC_825x553_604800-0 PPBM
-T_66E2_CPCAUTO-NCEP-CPC_825x553_172800-0 PTAS
-T_33E2_CPCAUTO-NCEP-CPC_825x553_172800-0 PTBS
-TP_66E2_CPCAUTO-NCEP-CPC_825x553_172800-0 PPAS
-TP_33E2_CPCAUTO-NCEP-CPC_825x553_172800-0 PPBS
+SNOL609.4mm_43200-0 SNOL12c10
+// CPCOutlook Medium CONUS (process 200)
+T0.66K_CPCMANU-NCEP-CPC_1073x689_604800-0 PTAM
+T0.33K_CPCMANU-NCEP-CPC_1073x689_604800-0 PTBM
+TP0.66mm_CPCMANU-NCEP-CPC_1073x689_604800-0 PPAM
+TP0.33mm_CPCMANU-NCEP-CPC_1073x689_604800-0 PPBM
+// CPCOutlook Short CONUS (process 201)
+T0.66K_CPCAUTO-NCEP-CPC_1073x689_172800-0 PTAS
+T0.33K_CPCAUTO-NCEP-CPC_1073x689_172800-0 PTBS
+TP0.66mm_CPCAUTO-NCEP-CPC_1073x689_172800-0 PPAS
+TP0.33mm_CPCAUTO-NCEP-CPC_1073x689_172800-0 PPBS
+// CPCOutlook Medium Alaska (process 200)
+T0.66K_CPCMANU-NCEP-CPC_825x553_604800-0 PTAM
+T0.33K_CPCMANU-NCEP-CPC_825x553_604800-0 PTBM
+TP0.66mm_CPCMANU-NCEP-CPC_825x553_604800-0 PPAM
+TP0.33mm_CPCMANU-NCEP-CPC_825x553_604800-0 PPBM
+// CPCOutlook Short Alaska (process 201)
+T0.66K_CPCAUTO-NCEP-CPC_825x553_172800-0 PTAS
+T0.33K_CPCAUTO-NCEP-CPC_825x553_172800-0 PTBS
+TP0.66mm_CPCAUTO-NCEP-CPC_825x553_172800-0 PPAS
+TP0.33mm_CPCAUTO-NCEP-CPC_825x553_172800-0 PPBS
+// NMM (process 89) Min/Max temp
+// these are unnessecary since A2 always appends duration 
 MxT_NMM-NCEP_10800-0 MxT3hr
 MxT_NMM-NCEP_43200-0 MxT12hr
 MnT_NMM-NCEP_10800-0 MnT3hr
 MnT_NMM-NCEP_43200-0 MnT12hr
+// NMM (process 89) prob of precip
 POP_NMM-NCEP_10800-0 prcp3hr
 POP_NMM-NCEP_21600-0 prcp6hr
 POP_NMM-NCEP_43200-0 prcp12hr
+// NMM (process 89) precip accumulation
+// these are unnessecary since A2 always appends duration 
 TP_NMM-NCEP_10800-0 TP3hr
 TP_NMM-NCEP_21600-0 TP6hr
 TP_NMM-NCEP_43200-0 TP12hr
+// NMM (process 89) min/max Relative Humidity
+// these are unnessecary since A2 always appends duration 
 MAXRH_NMM-NCEP_10800-0 MAXRH3hr
 MAXRH_NMM-NCEP_43200-0 MAXRH12hr
-SnD_NMM-NCEP_10800-0 snowd3hr
-SnD_NMM-NCEP_21600-0 snowd6hr
-PTOR_254E3 PTOR
 MINRH_NMM-NCEP_10800-0 MINRH3hr
 MINRH_NMM-NCEP_43200-0 MINRH12hr
-TP_254E3 POP
+// NMM (process 89) snowfall
+// these are unnessecary since A2 always appends duration 
+SnD_NMM-NCEP_10800-0 snowd3hr
+SnD_NMM-NCEP_21600-0 snowd6hr
+// Catchall that always maps probability of precip over 0.245mm(1/100 in) to POP.
+TP0.254mm POP
 
 // Throw 1-hr and 2-hr precip on  the floor for RUC13
 CP_RUC2-NCEP_165x165_7200-0 PWS64
@@ -181,20 +221,107 @@ CP_RUC2-NCEP_165x165_10800-0 PWS64
 LgSP_RUC2-NCEP_165x165_7200-0 PWS64
 LgSP_RUC2-NCEP_165x165_10800-0 PWS64
 
-LAVV_32924E3 LAVV
-LOUV_25722E3 LOUV
-LAUV_17491E3 LAUV
+// Unused entries for TPCWindProb because of previously incorrect table entries
+// for parameters 198,199 and 200.
+LAVV32.924degrees LAVV
+LOUV25.722degrees LOUV
+LAUV17.491degrees LAUV
 
+// HPCqpfNDFD, this prevents the decoder from appending the duration
 PPFFG_75600-0 PPFFG
 PPFFG_108000-0 PPFFG
 PPFFG_172800-0 PPFFG
 PPFFG_259200-0 PPFFG
 
-# SPC
-SIGTRNDPROB_254E3 SIGTRNDPROB
-HAILPROB_254E3 HAILPROB
-SIGHAILPROB_254E3 SIGHAILPROB
-WINDPROB_254E3 WINDPROB
-SIGWINDPROB_254E3 SIGWINDPROB
-PRSVR_254E3 PRSVR
-PRSIGSV_254E3 PRSIGSV
+// SPCGuide Probability sever weather, strip off the bogus probability
+PTOR0.254% PTOR
+SIGTRNDPROB0.254% SIGTRNDPROB
+HAILPROB0.254% HAILPROB
+SIGHAILPROB0.254% SIGHAILPROB
+WINDPROB0.254% WINDPROB
+SIGWINDPROB0.254% SIGWINDPROB
+PRSVR0.254% PRSVR
+PRSIGSV0.254% PRSIGSV
+
+#TPCSurgeProb
+# For the pct parameters the parameters coming out of the grib files are coded
+# as the height where there is XX probability that the surge is less than a
+# height but the desired interpretation is XX probability that the surge is
+# greater than a height
+Surge10pct_21600-0 Surge90pct6hr
+Surge20pct_21600-0 Surge80pct6hr
+Surge30pct_21600-0 Surge70pct6hr
+Surge40pct_21600-0 Surge60pct6hr
+Surge50pct_21600-0 Surge50pct6hr
+Surge60pct_21600-0 Surge40pct6hr
+Surge70pct_21600-0 Surge30pct6hr
+Surge80pct_21600-0 Surge20pct6hr
+Surge90pct_21600-0 Surge10pct6hr
+# For the m parameters convert the abbreviation from the grib decoder contains
+# a height in meters but it was intended and can be dispalyed nicely as a
+# height in feet.
+Surge0.0m_21600-0 PSurge0ft6hr
+Surge0.3m_21600-0 PSurge1ft6hr
+Surge0.61m_21600-0 PSurge2ft6hr
+Surge0.91m_21600-0 PSurge3ft6hr
+Surge1.22m_21600-0 PSurge4ft6hr
+Surge1.52m_21600-0 PSurge5ft6hr
+Surge1.83m_21600-0 PSurge6ft6hr
+Surge2.13m_21600-0 PSurge7ft6hr
+Surge2.44m_21600-0 PSurge8ft6hr
+Surge2.74m_21600-0 PSurge9ft6hr
+Surge3.05m_21600-0 PSurge10ft6hr
+Surge3.35m_21600-0 PSurge11ft6hr
+Surge3.66m_21600-0 PSurge12ft6hr
+Surge3.96m_21600-0 PSurge13ft6hr
+Surge4.27m_21600-0 PSurge14ft6hr
+Surge4.57m_21600-0 PSurge15ft6hr
+Surge4.88m_21600-0 PSurge16ft6hr
+Surge5.18m_21600-0 PSurge17ft6hr
+Surge5.49m_21600-0 PSurge18ft6hr
+Surge5.79m_21600-0 PSurge19ft6hr
+Surge6.1m_21600-0 PSurge20ft6hr
+Surge6.4m_21600-0 PSurge21ft6hr
+Surge6.71m_21600-0 PSurge22ft6hr
+Surge7.01m_21600-0 PSurge23ft6hr
+Surge7.32m_21600-0 PSurge24ft6hr
+Surge7.62m_21600-0 PSurge25ft6hr
+# For the Cumulative this mapping not only inverses the percentages and
+# converts the heights, it also prevents the decoder from appending a duration
+# which is necessary because the duration increases for each forecast time.
+Surge10pctCumul Surge90pctCumul
+Surge20pctCumul Surge80pctCumul
+Surge30pctCumul Surge70pctCumul
+Surge40pctCumul Surge60pctCumul
+Surge50pctCumul Surge50pctCumul
+Surge60pctCumul Surge40pctCumul
+Surge70pctCumul Surge30pctCumul
+Surge80pctCumul Surge20pctCumul
+Surge90pctCumul Surge10pctCumul
+Surge0.0mCumul PSurge0ftCumul
+Surge0.3mCumul PSurge1ftCumul
+Surge0.61mCumul PSurge2ftCumul
+Surge0.91mCumul PSurge3ftCumul
+Surge1.22mCumul PSurge4ftCumul
+Surge1.52mCumul PSurge5ftCumul
+Surge1.83mCumul PSurge6ftCumul
+Surge2.13mCumul PSurge7ftCumul
+Surge2.44mCumul PSurge8ftCumul
+Surge2.74mCumul PSurge9ftCumul
+Surge3.05mCumul PSurge10ftCumul
+Surge3.35mCumul PSurge11ftCumul
+Surge3.66mCumul PSurge12ftCumul
+Surge3.96mCumul PSurge13ftCumul
+Surge4.27mCumul PSurge14ftCumul
+Surge4.57mCumul PSurge15ftCumul
+Surge4.88mCumul PSurge16ftCumul
+Surge5.18mCumul PSurge17ftCumul
+Surge5.49mCumul PSurge18ftCumul
+Surge5.79mCumul PSurge19ftCumul
+Surge6.1mCumul PSurge20ftCumul
+Surge6.4mCumul PSurge21ftCumul
+Surge6.71mCumul PSurge22ftCumul
+Surge7.01mCumul PSurge23ftCumul
+Surge7.32mCumul PSurge24ftCumul
+Surge7.62mCumul PSurge25ftCumul
+

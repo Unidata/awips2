@@ -82,16 +82,16 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
- * 06/18/12		 DR 15108   G. Zhang	Fix County FIPS 4-digit issue
+ * 06/18/12      DR 15108   G. Zhang    Fix County FIPS 4-digit issue
  * 01/02/13      DR 1569    D. Hladky   constants, arraylist to list and moved common menthods here
  * 03/01/13      DR 13228   G. Zhang    Add state for VGB query and related code
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * 08/20/13      2250       mnash       Fixed incorrect return types for database queries.
+ * 09/05/14      DR 17346   G. Zhang    Fixed issue with DB return types.
  * Apr 21, 2014  2060       njensen     Remove dependency on grid dataURI column
  * Apr 22, 2014  2984       njensen     Remove dependency on edex/CoreDao
  * 
  * </pre>
- * 
  * @author dhladky
  * @version 1
  */
@@ -258,7 +258,7 @@ public class FFMPUtils {
 
             if (results.length > 0) {
                 for (int i = 0; i < results.length; i++) {
-                    String column_name = (String) ((Object[]) results[i])[0];
+                    String column_name = (String) results[i]/*((Object[]) results[i])[0]*/;
                     if (column_name.startsWith("upstream")) {
                         upstreams.add("upstream" + j);
                         j++;
@@ -605,7 +605,7 @@ public class FFMPUtils {
                     for (int i = 0; i < results.length; i++) {
                         if (results[i] != null) {
                             keys.add(new Integer(
-                                    (String) ((Object[]) results[i])[0])
+                                    (String)results[i]/* ((Object[]) results[i])[0]*/)
                                     .longValue());
                         }
                     }
