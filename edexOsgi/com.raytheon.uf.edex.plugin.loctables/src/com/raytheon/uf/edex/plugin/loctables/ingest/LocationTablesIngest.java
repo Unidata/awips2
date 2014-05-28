@@ -29,10 +29,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.site.SiteUtil;
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.edex.ndm.ingest.IDataSetIngester;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.edex.plugin.loctables.util.CommonObsSpatialBuilder;
@@ -57,6 +55,7 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationStoreStrategy;
  * ------------ ---------- ----------- --------------------------
  * Apr 08, 2010            jkorman     Initial creation
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * Apr 28, 2014   3086     skorolev    Updated setupLocalFiles method
  * 
  * </pre>
  * 
@@ -120,19 +119,13 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
     private void setupLocalFiles() {
         String currentSite = SiteUtil.getSite();
 
-        List<MonitorConfigurationManager> monitors = new ArrayList<MonitorConfigurationManager>();
-        monitors.add(FogMonitorConfigurationManager.getInstance());
-        monitors.add(SSMonitorConfigurationManager.getInstance());
-        monitors.add(SnowMonitorConfigurationManager.getInstance());
-        for (MonitorConfigurationManager monitor : monitors) {
-            try {
-                monitor.readConfigXml(currentSite);
-            } catch (Throwable t) {
-                logger.error("Could not configure "
-                        + monitor.getClass().getName() + " for site "
-                        + currentSite, t);
-            }
-        }
+        List<FSSObsMonitorConfigurationManager> monitors = new ArrayList<FSSObsMonitorConfigurationManager>();
+        monitors.add(FSSObsMonitorConfigurationManager.getInstance(currentSite,
+                MonName.fog.name()));
+        monitors.add(FSSObsMonitorConfigurationManager.getInstance(currentSite,
+                MonName.ss.name()));
+        monitors.add(FSSObsMonitorConfigurationManager.getInstance(currentSite,
+                MonName.snow.name()));
     }
 
     /**

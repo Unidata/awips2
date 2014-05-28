@@ -34,10 +34,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.xml.StationIdXML;
@@ -58,7 +54,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009            lvenable     Initial creation
  * Nov 20, 2012 1297      skorolev     Changes for non-blocking dialog.
- * Apr 23, 2014 3054      skorolev     Added MESONET handling
+ * Apr 23, 2014 3054      skorolev     Added MESONET handling.
+ * Apr 28, 2014 3086      skorolev     Removed local getAreaConfigMgr method.
  * 
  * </pre>
  * 
@@ -69,50 +66,29 @@ public class AddNewStationDlg extends CaveSWTDialog {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AddNewStationDlg.class);
 
-    /**
-     * Application name.
-     */
+    /** Application name. */
     private AppName appName;
 
-    /**
-     * METAR radio button.
-     */
+    /** METAR radio button. */
     private Button metarRdo;
 
-    /**
-     * Maritime button.
-     */
+    /** Maritime button. */
     private Button maritimeRdo;
 
-    /**
-     * Mesonet button;
-     */
+    /** Mesonet button; */
     private Button mesonetRdo;
 
-    /**
-     * Station label.
-     */
+    /** Station label. */
     private Label stationLbl;
 
-    /**
-     * Station text control.
-     */
+    /** Station text control. */
     private Text stationTF;
 
-    /**
-     * Zone
-     */
+    /** Zone */
     private String area;
 
-    /**
-     * Call back interface
-     */
-    private INewZoneStnAction macDlg;
-
-    /**
-     * Area configuration manager.
-     */
-    private MonitorConfigurationManager configManager;
+    /** Call back interface */
+    private MonitoringAreaConfigDlg macDlg;
 
     /**
      * Constructor.
@@ -124,13 +100,12 @@ public class AddNewStationDlg extends CaveSWTDialog {
      * @param macDlg
      */
     public AddNewStationDlg(Shell parent, CommonConfig.AppName appName,
-            String area, INewZoneStnAction macDlg) {
+            String area, MonitoringAreaConfigDlg macDlg) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(appName.toString() + ": Add a New Stn to Monitor Area");
         this.appName = appName;
         this.area = area;
         this.macDlg = macDlg;
-        configManager = getConfigManager(appName);
     }
 
     /*
@@ -194,7 +169,7 @@ public class AddNewStationDlg extends CaveSWTDialog {
     }
 
     /**
-     * Create the text controls.
+     * Creates the text controls.
      */
     private void createTextControls() {
         Composite textComp = new Composite(shell, SWT.NONE);
@@ -231,27 +206,18 @@ public class AddNewStationDlg extends CaveSWTDialog {
         addBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                String stationType = StationIdXML.METAR;
+                /**
+                 * for DR #7854: add new station to Monitor Area Config GUI
+                 */
+                String type;
                 if (metarRdo.getSelection()) {
-                    stationType = StationIdXML.METAR;
-                } else if (mesonetRdo.getSelection()) {
-                    stationType = StationIdXML.MESONET;
-                    // TODO need to verify the stationType exists.
-                    // was in SSmesonetStationInfo.txt in AWIPS1.
+                    type = StationIdXML.METAR;
+                } else if (maritimeRdo.getSelection()) {
+                    type = StationIdXML.MARITIME;
                 } else {
-                    stationType = StationIdXML.MARITIME;
+                    type = StationIdXML.MESONET;
                 }
-                if (!stationTF.getText().isEmpty()) {
-                    configManager.addStation(area, stationTF.getText()
-                            .toUpperCase(), stationType, false);
-                    /**
-                     * for DR #7854: add new station to Monitor Area Config GUI
-                     */
-                    handleAddNewStation();
-                } else {
-                    displayInputErrorMsg("No Station ID entered."
-                            + "\nPlease enter a valid Station ID for the selected Station Type.");
-                }
+                handleAddNewStation(type);
             }
         });
 
@@ -270,8 +236,16 @@ public class AddNewStationDlg extends CaveSWTDialog {
 
     /**
      * Adds a new station.
+     * 
+     * @param type
      */
-    private void handleAddNewStation() {
+    private void handleAddNewStation(String type) {
+
+        if (stationTF.getText().isEmpty()) {
+            displayInputErrorMsg("No Station ID entered."
+                    + "\nPlease enter a valid Station ID for the selected Station Type.");
+            return;
+        }
         String stn = stationTF.getText().toUpperCase();
         if (!isValidStation(stn)) {
             displayInputErrorMsg("Invalid Station ID entered: "
@@ -279,13 +253,7 @@ public class AddNewStationDlg extends CaveSWTDialog {
                     + " \nPlease enter a valid Station ID for the selected Station Type.");
             return;
         }
-        if (metarRdo.getSelection()) {
-            stn = stn + "#METAR";
-        } else if (maritimeRdo.getSelection()) {
-            stn = stn + "#MARITIME";
-        } else {
-            stn = stn + "#MESONET";
-        }
+        stn = stn + "#" + type;
         if (macDlg.isExistingStation(stn)) {
             displayInputErrorMsg("The Station '"
                     + stn
@@ -293,7 +261,8 @@ public class AddNewStationDlg extends CaveSWTDialog {
             return;
         }
         macDlg.addNewStationAction(stn);
-
+        macDlg.getInstance().addStation(area, stn, type, false);
+        macDlg.getInstance().getStations().add(stn);
     }
 
     /**
@@ -342,17 +311,5 @@ public class AddNewStationDlg extends CaveSWTDialog {
         messageBox.setText("Invalid input");
         messageBox.setMessage(msg);
         messageBox.open();
-    }
-
-    private MonitorConfigurationManager getConfigManager(AppName app) {
-        MonitorConfigurationManager mngr = null;
-        if (app == AppName.FOG) {
-            mngr = FogMonitorConfigurationManager.getInstance();
-        } else if (app == AppName.SAFESEAS) {
-            mngr = SSMonitorConfigurationManager.getInstance();
-        } else if (app == AppName.SNOW) {
-            mngr = SnowMonitorConfigurationManager.getInstance();
-        }
-        return mngr;
     }
 }
