@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe.core.internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,9 @@ import com.raytheon.viz.gfe.Activator;
  * Jun 11, 2008             chammack    Initial creation
  * Sep 03, 2008  1448       chammack    Implement refactored interface
  * Mar 01, 2012  #346       dgilling    Use identity-based ListenerLists.
+ * May 22, 2014  #3110      randerso    Queue messages received prior to start rather 
+ *                                      than dropping them on the foor
+ * 
  * </pre>
  * 
  * @author chammack
@@ -64,11 +68,14 @@ public class NotificationRouter implements INotificationObserver {
 
     private String siteID;
 
+    private List<NotificationMessage[]> messageList;
+
     /**
      * Constructor
      */
     public NotificationRouter(String siteID) {
         this.siteID = siteID;
+        this.messageList = new LinkedList<NotificationMessage[]>();
         this.observers = new ListenerList(ListenerList.IDENTITY);
         this.observers
                 .add(new AbstractGFENotificationObserver<UserMessageNotification>(
@@ -173,7 +180,13 @@ public class NotificationRouter implements INotificationObserver {
      * Start routing
      */
     public void start() {
-        this.isReady = true;
+        synchronized (this) {
+            this.isReady = true;
+        }
+
+        for (NotificationMessage[] messages : messageList) {
+            notificationArrived(messages);
+        }
     }
 
     /**
@@ -185,10 +198,16 @@ public class NotificationRouter implements INotificationObserver {
         // If DataManager is not initialized yet, do not start listening
 
         if (!isReady) {
-            statusHandler
-                    .handle(Priority.VERBOSE,
-                            "Notification messages skipped because router is not started");
-            return;
+            synchronized (this) {
+                if (!isReady) {
+                    this.messageList.add(messages);
+                    statusHandler
+                            .handle(Priority.VERBOSE,
+                                    messages.length
+                                            + "notification messages queued because router is not started");
+                    return;
+                }
+            }
         }
 
         for (NotificationMessage message : messages) {
