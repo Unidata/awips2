@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    
+<!-- 
+       Refer to edex/modes/README.txt for documentation
+--> 
+<edexModes>
+    <mode name="request">
+        <exclude>grid-metadata.xml</exclude>
+    </mode>
+	<mode name="ingest">
+		<exclude>webservices.xml</exclude>
+        <exclude>ebxml.*\.xml</exclude>
+		<exclude>.*datadelivery.*</exclude>
+        <exclude>.*bandwidth.*</exclude>
+        <exclude>.*sbn-simulator.*</exclude>
+        <exclude>grid-metadata.xml</exclude>
+	</mode>
+	<mode name="registry">
+        <!-- Registry production mode -->
+        <include>ebxml.*\.xml</include>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <include>datadelivery-wfo-cron.xml</include>
+        <include>bandwidth-datadelivery-.*-wfo.xml</include>
+        <exclude>.*datadelivery.*-ncf.*</exclude>
+        <exclude>.*datadelivery.*-monolithic.*</exclude>
+        <exclude>harvester-*</exclude>
+        <exclude>crawler-*</exclude>
+	</mode>
+    <mode name="centralRegistry">
+        <!-- Central Registry production mode -->
+        <include>ebxml.*\.xml</include>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <include>bandwidth-datadelivery-.*-ncf.xml</include>
+        <exclude>.*datadelivery.*-wfo.*</exclude>
+        <exclude>.*datadelivery.*-monolithic.*</exclude>
+    </mode>
+    <mode name="dataDeliveryTemplate" template="true">
+        <include>database-common.xml</include>
+        <include>.*datadelivery.*</include>
+        <include>.*bandwidth.*</include>
+        <!-- Exclude the inmemory versions of Spring files -->
+        <exclude>.*bandwidth.*-inmemory.*.xml</exclude>
+        <include>time-common.xml</include>
+        <include>auth-common.xml</include>
+        <include>nwsauth-request.xml</include>
+        <include>grid-common.xml</include>
+        <include>grid-metadata.xml</include>
+        <include>gridcoverage-common.xml</include>
+        <include>parameter-common.xml</include>     
+        <include>pointdata-common.xml</include>
+        <include>obs-common.xml</include>
+        <include>madis-common.xml</include>
+        <include>level-common.xml</include>
+        <include>persist-ingest.xml</include>
+        <include>management-common.xml</include>
+        <include>event-ingest.xml</include>
+        <include>purge-logs.xml</include>
+        <!-- 
+            The pattern datadelivery-registry is used to signify spring configurations 
+            that should be loaded when running datadelivery and the registry in a single JVM 
+        -->
+        <include>.*datadelivery-registry.*</include>
+        <!-- 
+            The pattern datadelivery-standalone is used to signify spring configurations 
+            that should be loaded when running datadelivery with the registry in a separate JVM 
+        -->
+        <exclude>.*datadelivery-standalone.*</exclude>
+
+        <includeMode>statsTemplate</includeMode>
+    </mode>
+    <mode name="inMemoryBandwidthManager">
+        <!-- This is not an edex runtime mode -->
+        <include>bandwidth-datadelivery-inmemory-impl.xml</include>
+        <include>bandwidth-datadelivery.xml</include>
+        <include>bandwidth-datadelivery-wfo.xml</include>
+    </mode>
+	<!-- modes listed below are not supported in a production setting, they 
+		are for DEVELOPMENT purposes only -->
+    <mode name="devRegistry">
+        <include>ebxml.*\.xml</include>
+        <include>datadelivery-wfo-cron.xml</include>
+        <includeMode>dataDeliveryTemplate</includeMode>
+        <include>bandwidth-datadelivery-edex-impl-monolithic.xml</include>
+        <include>bandwidth-datadelivery-wfo.xml</include>
+        <exclude>.*datadelivery.*-ncf.*</exclude>
+    </mode>
+    <mode name="sbnSimulator">
+        <include>.*sbn-simulator-wfo.*</include>
+        <include>event-common.xml</include>
+        <include>eventbus-common.xml</include>
+        <exclude>.*sbn-simulator-ncf.*</exclude>
+    </mode>
+    <mode name="centralSbnSimulator">
+        <include>.*sbn-simulator-ncf.*</include>
+        <include>event-common.xml</include>
+        <include>eventbus-common.xml</include>
+        <exclude>.*sbn-simulator-wfo.*</exclude>
+    </mode>
+    <mode name="datadeliveryonly">
+        <include>.*datadelivery-standalone.*</include>
+        <exclude>.*datadelivery-registry.*</exclude>
+        <includeMode>dataDeliveryTemplate</includeMode>
+    </mode>
+</edexModes>
