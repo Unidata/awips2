@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.database.cluster.handler.SharedLockHandler.LockType;
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2014 2862       rferrel     Initial creation
  * Apr 24, 2014 2726       rjpeter     Added shutdown cancel
+ * May 28, 2014 3137       rferrel     Checks to prevent NullPointerException.
  * </pre>
  * 
  * @author rferrel
@@ -392,7 +393,10 @@ public class ArchivePurgeManager {
                 } else if (file.isDirectory()) {
                     purgeCount += purgeDir(file, defaultTimeFilter,
                             minPurgeTime, extPurgeTime, helper, category, ct);
-                    if (file.list().length == 0) {
+
+                    // Something other then purger deleted the directory.
+                    String[] fileList = file.list();
+                    if ((fileList != null) && (fileList.length == 0)) {
                         purgeCount += deleteFile(file);
                     }
                 } else if (defaultTimeFilter.accept(file)) {
@@ -429,7 +433,9 @@ public class ArchivePurgeManager {
                 if (!file.isHidden()) {
                     if (file.isDirectory()) {
                         purgeCount += purgeDir(file, fileDataFilter);
-                        if (file.list().length == 0) {
+                        // Something other then purger deleted the directory.
+                        String[] fileList = file.list();
+                        if ((fileList != null) && (fileList.length == 0)) {
                             purgeCount += deleteFile(file);
                         }
                     } else if (fileDataFilter.accept(file)) {
