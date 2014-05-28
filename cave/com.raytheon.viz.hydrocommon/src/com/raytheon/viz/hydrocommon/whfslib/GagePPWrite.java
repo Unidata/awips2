@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.hydrocommon.whfslib;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,33 +27,28 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Dailypp;
-import com.raytheon.uf.common.dataplugin.shef.tables.DailyppId;
+import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypc;
 import com.raytheon.uf.common.dataplugin.shef.tables.HourlypcId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;
 import com.raytheon.uf.common.dataplugin.shef.tables.HourlyppId;
 import com.raytheon.uf.common.dataplugin.shef.tables.IHourlyTS;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
-import com.raytheon.uf.common.dataquery.db.QueryResult;
-import com.raytheon.uf.edex.database.dao.CoreDao;
-import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.whfslib.GagePPOptions.shef_dup;
 import com.raytheon.viz.hydrocommon.whfslib.GagePPOptions.upd_action;
 
 /**
- * 
+ * TODO
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2008   1649     snaples     Initial creation
- * Aug 8, 2012   15271	  snaples     Updated hourly slot
+ * Nov 05, 2008   1649     snaples     Initial creation
+ * Aug 08, 2012   15271    snaples     Updated hourly slot
+ * May 27, 2014   3133     njensen     Removed dead code
  * 
  * </pre>
  * 
@@ -67,8 +61,6 @@ public final class GagePPWrite {
     private static IHourlyTS hourly_rec;
 
     private static Date datetime;
-
-    private static final char manual_qc_code = 'M';
 
     private static final float MISSING_PRECIP = -9999f;
 
@@ -134,7 +126,7 @@ public final class GagePPWrite {
         int is_pc = 0;
         int six = 0;
         Date dto = new Date(obsdate.getTime());
-        
+
         Calendar dt = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         dt.setTime(dto);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -142,14 +134,14 @@ public final class GagePPWrite {
         GagePPOptions opts = options;
         int hr = dt.get(Calendar.HOUR_OF_DAY);
         int min = dt.get(Calendar.MINUTE);
-        
+
         //
-        if (hr==0) {
-        	hr=24;
-        	dt.add(Calendar.DAY_OF_MONTH, -1);
-        	dto=dt.getTime();
+        if (hr == 0) {
+            hr = 24;
+            dt.add(Calendar.DAY_OF_MONTH, -1);
+            dto = dt.getTime();
         }
-        
+
         String obstime = sdf.format(dto);
 
         char sixhroffset = get_offset_code(min);
@@ -157,7 +149,7 @@ public final class GagePPWrite {
         char minoff = sixhroffset;
         char qcc = sixhrqc;
         hourly_rec = null;
-        
+
         //
         String where = "WHERE lid='" + id + "' AND ts='" + ts
                 + "' AND obsdate ='" + obstime + "'";
@@ -190,8 +182,8 @@ public final class GagePPWrite {
         }
 
         if (hourly_rec == null) {
-        	setMinOffset(minute_offset, hr, minoff);
-        	setHourlyQC(hourly_qc, hr, qcc);
+            setMinOffset(minute_offset, hr, minoff);
+            setHourlyQC(hourly_qc, hr, qcc);
             sixhr_offset[six] = sixhroffset;
             sixhr_qc[six] = sixhrqc;
 
@@ -253,11 +245,11 @@ public final class GagePPWrite {
             }
             old_offset = hourly_rec.getMinuteOffset().toCharArray();
             int slot = getOffset(old_offset, hr);
-            slot=hr-1;
+            slot = hr - 1;
             prev_offset = old_offset[slot];
             old_qc = hourly_rec.getHourlyQc().toCharArray();
             int qcslot = getOffset(old_qc, hr);
-            qcslot=hr-1;
+            qcslot = hr - 1;
             prev_qc = old_qc[qcslot];
 
             int use_value = 1;
@@ -383,94 +375,6 @@ public final class GagePPWrite {
 
     }
 
-    public static int gage_pp_write_daily_rec(Dailypp pDailyPP,
-            GagePPOptions pOptions, String obsdate, boolean rev_24hour_code,
-            long quality_code) {
-
-        int status = 0;
-        boolean record_exists;
-        Date dto = null;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        try {
-            dto = sdf.parse(obsdate);
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        Calendar dt = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        dt.setTime(dto);
-        dt.set(Calendar.HOUR_OF_DAY, 0);
-        dt.set(Calendar.MINUTE, 0);
-        dt.set(Calendar.SECOND, 0);
-        Date starttime = dt.getTime();
-        dt.add(Calendar.DATE, +1);
-        Date endtime = dt.getTime();
-        String where = null;
-        String update_action;
-        String qcsym = ShefQC.buildQcSymbol(quality_code);
-        String id = pDailyPP.getId().getLid();
-        String ts = pDailyPP.getId().getTs();
-        pDailyPP.setQc(qcsym);
-        DailyppId pid = new DailyppId();
-        pid.setLid(id);
-        pid.setObstime(dto);
-        pid.setTs(ts);
-        pDailyPP.setId(pid);
-
-        /*
-         * This routine writes a record out to the DailyPP table. It tests the
-         * shef_duplicate token to determine how it should handle duplicate
-         * reports and revisions.
-         */
-        update_action = determine_update_action(pOptions.shef_duplicate.name(),
-                rev_24hour_code);
-
-        /*
-         * The possible update actions are: DONT_UPDATE_ACTION, UPDATE_ACTION,
-         * IF_DIFFERENT_UPDATE_ACTION
-         */
-
-        /*
-         * Check if there is already a record in the DailyPP table for this
-         * record.
-         */
-        /* Construct the where clause. */
-        where = ("WHERE lid='" + id + "' and ts='" + ts + "' and obstime >='"
-                + starttime + "' and obstime <='" + endtime + "'");
-        ArrayList<Dailypp> pRecord = GetDailyPP(where);
-        Dailypp daily_rec = null;
-
-        if (pRecord.size() >= 1) {
-            record_exists = true;
-            daily_rec = pRecord.get(0);
-
-        } else {
-            record_exists = false;
-        }
-
-        if ((record_exists == false)
-                || (update_action == upd_action.UPDATE_ACTION.name())) {
-            /* Perform a Insert or Update. */
-            update_gage_rec(pDailyPP);
-        } else {
-            /* The record exists and update action is not UPDATE_ACTION */
-            if (update_action == upd_action.IF_DIFFERENT_UPDATE_ACTION.name()) {
-                /*
-                 * Check if the new value is different from the value which
-                 * already exists in the database.
-                 */
-                if (daily_rec.getValue() != pDailyPP.getValue()) {
-                    /* Update the record. */
-                    update_gage_rec(pDailyPP);
-
-                }
-            }
-        }
-
-        return status;
-    }
-
     /**
      * Returns a new hour slot based on current data. This is used to insert or
      * update an existing Hourlypp record.
@@ -498,10 +402,10 @@ public final class GagePPWrite {
         Arrays.fill(sixhr_qc, '-');
         Arrays.fill(sixhr_offset, '-');
 
-//        if (hour_slot == 0) {
-//            hour_slot = 24;
-//            dt.add(Calendar.HOUR_OF_DAY, -1);
-//        }
+        // if (hour_slot == 0) {
+        // hour_slot = 24;
+        // dt.add(Calendar.HOUR_OF_DAY, -1);
+        // }
         minute_offset[hour_slot] = zero_offset_code;
         hourly_qc[hour_slot] = manual_qc_code;
         set_hour_slot_value(hourly_rec, hour_slot, new_hourly_value);
@@ -529,33 +433,34 @@ public final class GagePPWrite {
      * @param hour
      * @param value
      */
-    public static final void setMinOffset(char [] minOffset, int hour, char value) {
-        if(hour == 0) {
+    public static final void setMinOffset(char[] minOffset, int hour, char value) {
+        if (hour == 0) {
             hour = 23;
         } else {
             hour--;
         }
         minOffset[hour] = value;
     }
-    
+
     // get the correct offset slot in array based on hour
-    public static final int getOffset(char[] minOffset, int hour){
-    	int slot = 0;
-    	if(hour == 0){
-    		slot = 23;
-    	}else {
-    		slot = hour--;
-    	}
-    	return slot;
+    public static final int getOffset(char[] minOffset, int hour) {
+        int slot = 0;
+        if (hour == 0) {
+            slot = 23;
+        } else {
+            slot = hour--;
+        }
+        return slot;
     }
+
     /**
      * 
      * @param qc
      * @param hour
      * @param value
      */
-    public static final void setHourlyQC(char [] qc, int hour, char value) {
-        if(hour == 0) {
+    public static final void setHourlyQC(char[] qc, int hour, char value) {
+        if (hour == 0) {
             hour = 23;
         } else {
             hour--;
@@ -751,8 +656,7 @@ public final class GagePPWrite {
                 && shefrec_rev == 1) {
             up_action = upd_action.UPDATE_ACTION.name();
         } else if (options_duplicate == shef_dup.IF_DIFFERENT_AND_REVCODE
-                .name()
-                && shefrec_rev == 1) {
+                .name() && shefrec_rev == 1) {
             up_action = upd_action.IF_DIFFERENT_UPDATE_ACTION.name();
         } else if (options_duplicate != shef_dup.IF_DIFFERENT_AND_REVCODE
                 .name()) {
@@ -1101,33 +1005,10 @@ public final class GagePPWrite {
             break;
 
         default:
-        	precip_value = new Short((short) MISSING_PRECIP);
+            precip_value = new Short((short) MISSING_PRECIP);
             break;
         }
 
         return precip_value;
-    }
-
-    public static ArrayList<Dailypp> GetDailyPP(String where) {
-        StringBuilder query = new StringBuilder("FROM ");
-        query.append(Dailypp.class.getName());
-        query.append(" ");
-        query.append(where);
-
-        ArrayList<Dailypp> retVal = new ArrayList<Dailypp>();
-        CoreDao dao = new CoreDao(DaoConfig.forDatabase("ihfs"));
-        QueryResult qu = dao.executeHQLQuery(query.toString());
-        List<Object[]> results = new ArrayList<Object[]>();
-        Object[] obj = new Object[qu.getColumnCount()];
-        for (int i = 0; i < qu.getResultCount(); i++) {
-            obj[0] = (qu.getRowColumnValue(i, 0));
-            results.add(obj);
-        }
-        retVal.ensureCapacity(results.size());
-        for (Object[] item : results) {
-            retVal.add((Dailypp) item[0]);
-        }
-
-        return retVal;
     }
 }
