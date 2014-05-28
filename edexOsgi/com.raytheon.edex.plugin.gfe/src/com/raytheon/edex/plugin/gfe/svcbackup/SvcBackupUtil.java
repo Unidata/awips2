@@ -43,8 +43,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.RunProcess;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
+import com.raytheon.uf.edex.auth.authorization.IAuthorizer;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.site.SiteAwareRegistry;
@@ -65,6 +65,7 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * May 02, 2013 #1762      dgilling    Remove check for national center, add
  *                                     method to retrieve list of svcbu
  *                                     sites.
+ * May 28, 2014 3211       njensen     Use IAuthorizer instead of IRoleStorage
  * 
  * </pre>
  * 
@@ -264,10 +265,9 @@ public class SvcBackupUtil {
     public static AuthorizationResponse authorizeWithLocalization(IUser user,
             AbstractGfePrivilegedRequest request) throws AuthorizationException {
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
-        IRoleStorage roles = manager.getRoleStorage();
+        IAuthorizer auth = manager.getAuthorizer();
         String roleId = request.getRoleId();
-        if (roles
-                .isAuthorized(roleId, user.uniqueId().toString(), LOCALIZATION)) {
+        if (auth.isAuthorized(roleId, user.uniqueId().toString(), LOCALIZATION)) {
             return new AuthorizationResponse(true);
         }
 
