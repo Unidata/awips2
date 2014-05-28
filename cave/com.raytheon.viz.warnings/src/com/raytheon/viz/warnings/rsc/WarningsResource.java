@@ -33,12 +33,14 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.vividsolutions.jts.geom.Geometry;
@@ -65,6 +67,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
  * Mar 04, 2014 2832       njensen     Moved disposeInternal() to abstract class
  * Apr 07, 2014 2959       njensen     Correct handling of color change
+ * Apr 14, 2014 DR 17257  D. Friedman  Redo time matching on per-minute refresh.
  * 
  * </pre>
  * 
@@ -86,6 +89,7 @@ public class WarningsResource extends AbstractWWAResource {
             }
             for (WarningsResource rsc : rscs) {
                 rsc.issueRefresh();
+                rsc.redoTimeMatching();
             }
         }
 
@@ -331,4 +335,14 @@ public class WarningsResource extends AbstractWWAResource {
         return r.getOfficeid() + '.' + r.getPhensig() + '.' + r.getEtn();
     }
 
+    /**
+     * Redo the time matching
+     */
+    protected void redoTimeMatching() {
+        AbstractTimeMatcher timeMatcher = this.getDescriptor().getTimeMatcher();
+        if (timeMatcher != null) {
+            timeMatcher.redoTimeMatching(this);
+            TimeMatchingJob.scheduleTimeMatch(this.getDescriptor());
+        }
+    }
 }
