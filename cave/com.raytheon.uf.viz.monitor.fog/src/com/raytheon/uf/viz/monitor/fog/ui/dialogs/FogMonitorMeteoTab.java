@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.monitor.fog.ui.dialogs;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -30,30 +29,60 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.data.RangesUtil;
 import com.raytheon.uf.viz.monitor.fog.threshold.FogMonitorMeteoData;
 import com.raytheon.uf.viz.monitor.fog.threshold.FogThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogMonitor;
+import com.raytheon.uf.viz.monitor.xml.AreaXML;
+import com.raytheon.uf.viz.monitor.xml.ThresholdsXML;
 
+/**
+ * Fog Monitor Meteo Table
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- -------------
+ * May 21, 2014 3086       skorolev    Cleaned code.
+ * 
+ * </pre>
+ * 
+ * @author
+ * @version 1.0
+ */
 public class FogMonitorMeteoTab extends TabItemComp implements
         IUpdateMonitorMeteo {
-    private MonitorConfigurationManager areaConfigMgr = null;
 
+    /** Dialog used for editing the Monitor meteo data. */
     private FogMonitorMeteoEditDlg fogMeteoEditDlg;
 
-    private ArrayList<String> areaIDArray;
+    /** List of zones */
+    private List<String> areaIDArray;
 
-    private ArrayList<FogMonitorMeteoData> fogDataArray;
+    /** Data Array */
+    private List<FogMonitorMeteoData> fogDataArray;
 
+    /**
+     * Constructor.
+     * 
+     * @param parent
+     * @param duKey
+     */
     public FogMonitorMeteoTab(TabFolder parent, DataUsageKey duKey) {
         super(parent, duKey);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#createListHeader(org
+     * .eclipse.swt.widgets.Composite)
+     */
     @Override
     protected void createListHeader(Composite parentComp) {
         Composite lblComp = new Composite(parentComp, SWT.NONE);
@@ -77,6 +106,11 @@ public class FogMonitorMeteoTab extends TabItemComp implements
         createLabelComp(meteoComp, "Vis(mi)", "", true);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#populateList()
+     */
     @Override
     protected void populateList() {
         if (fogDataArray == null) {
@@ -133,35 +167,41 @@ public class FogMonitorMeteoTab extends TabItemComp implements
         packListControls();
     }
 
+    /**
+     * Create Data Array.
+     */
     private void createDataArray() {
         fogDataArray = new ArrayList<FogMonitorMeteoData>();
 
         FogThresholdMgr ftm = FogThresholdMgr.getInstance();
 
-        areaConfigMgr = getAreaConfigMgr();
+        ThresholdsXML threshXML = ftm.getThresholdsXmlData(duKey);
 
-        List<String> areas = areaConfigMgr.getAreaList();
-        Collections.sort(areas);
+        List<AreaXML> areasArray = threshXML.getAreas();
 
-        for (String area : areas) {
-
+        for (AreaXML area : areasArray) {
+            String areaID = area.getAreaId();
             FogMonitorMeteoData fmmd = new FogMonitorMeteoData();
-
-            fmmd.setAreaID(area);
+            fmmd.setAreaID(areaID);
 
             /*
              * Visibility
              */
             String xmlKey = FogMonitor.FOG_MONITOR_METEO_VIS.getXmlKey();
-            fmmd.setMeteoVisR(ftm.getThresholdValue(duKey, threshKeyR, area,
+            fmmd.setMeteoVisR(ftm.getThresholdValue(duKey, threshKeyR, areaID,
                     xmlKey));
-            fmmd.setMeteoVisY(ftm.getThresholdValue(duKey, threshKeyY, area,
+            fmmd.setMeteoVisY(ftm.getThresholdValue(duKey, threshKeyY, areaID,
                     xmlKey));
 
             fogDataArray.add(fmmd);
         }
     }
 
+    /**
+     * Gets Data At First Selection
+     * 
+     * @return
+     */
     private FogMonitorMeteoData getDataAtFirstSelection() {
 
         int index = dataList.getSelectionIndex();
@@ -170,17 +210,27 @@ public class FogMonitorMeteoTab extends TabItemComp implements
 
     }
 
+    /**
+     * Update Fog Data Array.
+     * 
+     * @param fmmd
+     *            Meteo data
+     */
     private void updateFogDataArray(FogMonitorMeteoData fmmd) {
         int[] dataListIndexes = dataList.getSelectionIndices();
         int currentIndex = 0;
 
         for (int i = 0; i < dataListIndexes.length; i++) {
             currentIndex = dataListIndexes[i];
-
             fogDataArray.get(currentIndex).updateData(fmmd);
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#commitDataToXML()
+     */
     @Override
     public void commitDataToXML() {
         FogThresholdMgr ftm = FogThresholdMgr.getInstance();
@@ -202,15 +252,24 @@ public class FogMonitorMeteoTab extends TabItemComp implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#reloadData()
+     */
     @Override
     public void reloadData() {
         dataList.removeAll();
         fogDataArray.clear();
         fogDataArray = null;
-
         populateList();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.TabItemComp#editDataAction()
+     */
     @Override
     protected void editDataAction() {
         FogMonitorMeteoData fdmd = getDataAtFirstSelection();
@@ -223,21 +282,16 @@ public class FogMonitorMeteoTab extends TabItemComp implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.fog.ui.dialogs.IUpdateMonitorMeteo#
+     * updateThresholdData
+     * (com.raytheon.uf.viz.monitor.fog.threshold.FogMonitorMeteoData)
+     */
     @Override
     public void updateThresholdData(FogMonitorMeteoData fmmd) {
         updateFogDataArray(fmmd);
         populateList();
     }
-
-    private MonitorConfigurationManager getAreaConfigMgr() {
-        if (areaConfigMgr == null) {
-            LocalizationManager mgr = LocalizationManager.getInstance();
-            String siteScope = mgr.getCurrentSite();
-
-            areaConfigMgr = FogMonitorConfigurationManager.getInstance();
-            areaConfigMgr.readConfigXml(siteScope);
-        }
-        return areaConfigMgr;
-    }
-
 }
