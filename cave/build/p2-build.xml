@@ -325,10 +325,6 @@
         </antcall>
 		<antcall target="p2.build.repo">
 		     <param name="feature"
-			  value="com.raytheon.viz.dataaccess.feature" />
-		</antcall>
-		<antcall target="p2.build.repo">
-		     <param name="feature"
 			  value="com.raytheon.uf.viz.d2d.ui.awips.feature" />
 		</antcall>
 
