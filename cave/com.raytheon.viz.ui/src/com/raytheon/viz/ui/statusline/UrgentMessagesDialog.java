@@ -25,6 +25,8 @@ import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
@@ -48,6 +50,7 @@ import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
  * ------------ ---------- ----------- --------------------------
  * 	May 19, 2008					Eric Babin Initial Creation
  * 2008-12-09
+ *  Apr 10, 2014  15769    ryu         Disposing and reparenting dialog shell.
  * 
  * </pre>
  * 
@@ -101,6 +104,29 @@ public class UrgentMessagesDialog extends Dialog {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
+    @Override
+    public void create() {
+        super.create();
+        
+        getShell().addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                urgentBuffer.clear();
+                close();
+            }
+            
+        });
+    }
+    
+    public void reparent(Shell parent) {
+        if (getParentShell() != null && !getParentShell().isDisposed())
+            return;
+        if (parent != null) {
+            setParentShell(parent);
+        }
+    }
+    
     @Override
     public boolean close() {
         if (urgentBuffer.size() > 0) {

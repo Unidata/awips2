@@ -57,7 +57,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
 import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
-import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
+import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.DestinationGeodeticCalculator;
 import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
@@ -116,6 +116,7 @@ import com.vividsolutions.jts.geom.Point;
  *    Jun 24, 2013 DR 16317   D. Friedman Handle "motionless" track.
  *    Jun 25, 2013 16224      Qinglu Lin  Resolved the issue with "Date start" for pathcast in CON.
  *    Dec  4, 2013 2604       jsanchez    Refactored GisUtil.
+ *    Apr 29, 2014 3033       jsanchez    Updated method to retrieve files in localization.
  * </pre>
  * 
  * @author chammack
@@ -263,8 +264,8 @@ public class Wx {
             String trxFileStr = pathcastConfiguration
                     .getAreaNotationTranslationFile();
             if (trxFileStr != null) {
-                File trxFile = FileUtil.getFile(areaNotationAbbrevField,
-                        localizedSite);
+                File trxFile = WarnFileUtil.findFileInLocalizationIncludingBackupSite(
+                        areaNotationAbbrevField, localizedSite, null).getFile();
                 if (!trxFile.exists()) {
                     throw new WarngenException(
                             "Translation file does not exist: " + trxFileStr);
