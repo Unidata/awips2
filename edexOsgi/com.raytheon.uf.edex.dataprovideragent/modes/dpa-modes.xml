@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    
+<!-- 
+       Refer to edex/modes/README.txt for documentation
+--> 
+<edexModes>
+	<mode name="request">
+        <!-- exclude dpa services -->
+        <exclude>.*dpa.*</exclude>
+	</mode>
+	<mode name="ingest">  
+		<!-- exclude dpa services -->
+        <exclude>.*dpa.*</exclude>
+	</mode>
+	<mode name="dataProviderAgentTemplate" template="true">
+		<include>manualIngest*</include>
+		<include>time-common.xml</include>
+		<include>distribution-spring.xml</include>
+		<include>persist-ingest.xml</include>
+		<include>auth-common.xml</include>
+		<include>database-common.xml</include>
+		<!-- Remote connect to registry services -->
+		<include>datadelivery-standalone.xml</include>
+		<include>datadelivery-handlers.xml</include>
+		<include>datadelivery-handlers-impl.xml</include>
+		<include>request-router.xml</include>
+		<include>utility-request.xml</include>
+		<include>dpa-datadelivery.xml</include>
+		<!-- Don't want this for DPA, we don't need a local registry -->
+		<exclude>harvester-datadelivery-standalone.xml</exclude>
+		
+		<!-- OGC/DPA services -->
+		<include>ogc-common.xml</include>
+		<include>.*-ogc-request.xml</include>
+		<include>.*-ogc-rest-request.xml</include>
+		<include>.*-ogc-soap-request.xml</include>
+		<include>.*-ogc-soap-wsdl.xml</include>
+		<!--  Purge OGC/DPA registred plugins -->
+		<include>purge-spring.xml</include>
+		<include>purge-spring-impl.xml</include>
+        <include>purge-logs.xml</include>
+	</mode>
+	<!-- This is MADIS implmentation of dataprovideragent -->
+	<mode name="dataprovideragent">
+		<includeMode>dataProviderAgentTemplate</includeMode>
+		<!-- pointdata/madis specific services -->
+		<include>pointdata-common.xml</include>
+		<include>madis-common.xml</include>
+		<include>madis-ogc.xml</include>
+		<include>madis-ogc-registry.xml</include>
+		<!-- pointdata/obs specific services 
+		<include>obs-common.xml</include>
+		<include>pointdata-common.xml</include>
+		<include>obs-dpa-ingest.xml</include>
+		<include>obs-ogc.xml</include>-->
+		<!-- grid specific services 
+		<include>gridcoverage-.*.xml</include>
+		<include>grib-distribution.xml</include>
+		<include>level-common.xml</include>
+		<include>parameter-common.xml</include>	-->
+	</mode>
+</edexModes>
