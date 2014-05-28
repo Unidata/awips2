@@ -82,7 +82,9 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 18Jun2008    1157       MW Fegan    Use clone of default filter.
  * 20Jun2008    1157       MW Fegan    Add resetting to default alerts.
  * 28Nov2012    1353       rferrel     Sort the list of filter names for dialog display.
- * 
+ * 10Apr2014    15769      ryu         Modified default config and GUI items to match A1.
+ *                                     Default config changed to hard coding instead of reading
+ *                                     from config file. 
  * </pre>
  * 
  * @author lvenable
@@ -104,8 +106,8 @@ public final class GhgConfigData {
     /**
      * The VTEC Action Names
      */
-    public static final String[] vtecActionNames = { "CAN", "CON", "COR",
-            "EXA", "EXB", "EXP", "EXT", "UPG", "NEW", "ROU" };
+    public static final String[] vtecActionNames = { "CAN", "CON", 
+            "EXA", "EXB", "EXP", "EXT", "NEW", "UPG"};
 
     /**
      * The VTEC Afos Product (PIL) Names
@@ -198,6 +200,8 @@ public final class GhgConfigData {
     private DataEnum sortColumn;
 
     private boolean descending;
+
+    private boolean identifyTestEvents;
 
     /**
      * Alerts enumeration. Contains the available alerts. {@code display}
@@ -382,77 +386,12 @@ public final class GhgConfigData {
      * Initialize the configuration data.
      */
     private void init() {
-        alertLvl1Colors = new GhgColorData(new RGB(0, 0, 255), new RGB(255,
-                255, 0));
-        alertLvl2Colors = new GhgColorData(new RGB(255, 255, 255), new RGB(255,
-                0, 0));
-        expiredAlertColors = new GhgColorData(new RGB(255, 255, 255), new RGB(
-                171, 0, 201));
-        mapSelectionsColors = new GhgColorData(new RGB(255, 255, 255), new RGB(
-                0, 218, 240));
-        regularEntriesColors = new GhgColorData(new RGB(0, 0, 0), new RGB(180,
-                180, 180));
-        monitorSelectionsColors = new GhgColorData(new RGB(255, 255, 255),
-                new RGB(0, 0, 255));
-        testProductsColors = new GhgColorData(new RGB(255, 255, 255), new RGB(
-                128, 128, 128));
-
-        /* create the default alerts data */
-        defaultAlerts = new GhgAlertsConfigData();
-        defaultAlerts.setLocal(false);
-        defaultAlerts.setTest(false);
-        defaultAlerts.addAlert(new GhgAlertData(true, true, 10,
-                AlertsEnum.AlertLvl1));
-        defaultAlerts.addAlert(new GhgAlertData(true, true, 5,
-                AlertsEnum.AlertLvl2));
-        defaultAlerts.addAlert(new GhgAlertData(true, true, 0,
-                AlertsEnum.ExpiredAlert));
-        defaultAlerts.setActions(new String[] { "NEW", "CON", "COR", "EXT",
-                "EXA", "EXB" });
-        defaultAlerts.setPhenSigs(new String[] { "SV.W", "TO.W" });
-        defaultAlerts.setPils(new String[] { "SVR", "SVS", "TOR" });
-
-        final String siteId = SiteMap.getInstance().getSite4LetterId(
-                DataManager.getCurrentInstance().getSiteID());
-
-        /* generate some hardcoded default filter data */
-        GhgDataFilter filter = new GhgDataFilter() {
-            {
-                currentHazards = false;
-                name = DEFAULT_FILTER_NAME;
-                actions = new String[] { "CON", "EXA", "EXB", "EXT", "NEW" };
-                phenSigs = new String[] {};
-                pils = new String[] {};
-                wfos = new String[] { siteId };
-                geoids = new String[] {};
-                etns = new String[] {};
-                segs = new String[] {};
-
-                combineGeoId = true;
-                combineSegments = true;
-                combinePurgeTimes = true;
-                combineActions = true;
-
-                includeAlerts = true;
-                includeMapSelections = true;
-                includePastEvents = false;
-                includeOrgPilEvents = false;
-            }
-        };
-        defaultFilter = filter;
-
-        /* add a couple of named filters */
-        filters = new HashMap<String, GhgDataFilter>();
-
-        visibleColumns = new ArrayList<DataEnum>(DataEnum.values().length);
-        // The initial columns visible. These need to match the ones set up by
-        // GhgMonitorDlg.
-        visibleColumns.addAll(Arrays.asList(DataEnum.ACTION, DataEnum.ETN,
-                DataEnum.PHEN_SIG, DataEnum.START, DataEnum.END,
-                DataEnum.PURGE, DataEnum.ISSUE_TIME, DataEnum.PIL,
-                DataEnum.WFO, DataEnum.GEO_ID));
-        sortColumn = DataEnum.PURGE;
-
+        loadDefault();
+        
+        defaultFilter = currentFilter.clone();
+        defaultAlerts = currentAlerts.clone();
+        defaultColumns = new ArrayList<DataEnum>(visibleColumns);
+        
         // Get the VTECTable
         initializePython();
     }
@@ -839,12 +778,86 @@ public final class GhgConfigData {
         }
     }
 
-    public void load(boolean reportMissing) {
-        loadFrom(CONFIG_PATH, reportMissing);
+    public void loadDefault() {
+        alertLvl1Colors = new GhgColorData(new RGB(0, 0, 255), new RGB(255,
+                255, 0));
+        alertLvl2Colors = new GhgColorData(new RGB(255, 255, 255), new RGB(255,
+                0, 0));
+        expiredAlertColors = new GhgColorData(new RGB(255, 255, 255), new RGB(
+                171, 0, 201));
+        mapSelectionsColors = new GhgColorData(new RGB(255, 255, 255), new RGB(
+                0, 218, 240));
+        regularEntriesColors = new GhgColorData(new RGB(0, 0, 0), new RGB(180,
+                180, 180));
+        monitorSelectionsColors = new GhgColorData(new RGB(255, 255, 255),
+                new RGB(0, 0, 255));
+        testProductsColors = new GhgColorData(new RGB(255, 255, 255), new RGB(
+                128, 128, 128));
+
+        /* create the default alerts data */
+        GhgAlertsConfigData alerts = new GhgAlertsConfigData();
+        alerts.setLocal(true);
+        alerts.setTest(true);
+        alerts.addAlert(new GhgAlertData(true, true, 30,
+                AlertsEnum.AlertLvl1));
+        alerts.addAlert(new GhgAlertData(true, true, 10,
+                AlertsEnum.AlertLvl2));
+        alerts.addAlert(new GhgAlertData(true, true, 0,
+                AlertsEnum.ExpiredAlert));
+        alerts.setActions(new String[] { "NEW", "CON", "COR", "EXT",
+                "EXA", "EXB" });
+        alerts.setPhenSigs(new String[] {});
+        alerts.setPils(new String[] {});
+        currentAlerts = alerts;
+
+        final String siteId = SiteMap.getInstance().getSite4LetterId(
+                DataManager.getCurrentInstance().getSiteID());
+
+        /* generate some hardcoded default filter data */
+        currentFilter = new GhgDataFilter() {
+            {
+                currentHazards = false;
+                name = DEFAULT_FILTER_NAME;
+                actions = new String[] { "CON", "EXA", "EXB", "EXT", "NEW" };
+                phenSigs = new String[] {};
+                pils = new String[] {};
+                wfos = new String[] { siteId };
+                geoids = new String[] {};
+                etns = new String[] {};
+                segs = new String[] {};
+
+                combineGeoId = true;
+                combineSegments = true;
+                combinePurgeTimes = true;
+                combineActions = true;
+
+                includeAlerts = true;
+                includeMapSelections = true;
+                includePastEvents = false;
+                includeOrgPilEvents = false;
+            }
+        };
+
+        /* add a couple of named filters */
+        filters = new HashMap<String, GhgDataFilter>();
+
+        visibleColumns = new ArrayList<DataEnum>(DataEnum.values().length);
+        // The initial columns visible. These need to match the ones set up by
+        // GhgMonitorDlg.
+        visibleColumns.addAll(Arrays.asList(DataEnum.ACTION, DataEnum.ETN,
+                DataEnum.PHEN_SIG, DataEnum.START, DataEnum.END,
+                DataEnum.PURGE, DataEnum.ISSUE_TIME, DataEnum.PIL,
+                DataEnum.WFO));
+        sortColumn = DataEnum.PURGE;
+        
+        descending = false;
+        identifyTestEvents = true;
+        
+        //loadFrom(DEFAULT_PATH, true);
     }
 
-    public void loadDefault() {
-        loadFrom(DEFAULT_PATH, true);
+    public void load(boolean reportMissing) {
+        loadFrom(CONFIG_PATH, reportMissing);
     }
 
     /**
@@ -890,6 +903,9 @@ public final class GhgConfigData {
         currentFilter = config.getCurrentFilter();
         currentFont = config.getCurrentFont();
         filters = config.getFilters();
+        if (filters == null) {
+            filters = new HashMap<String, GhgDataFilter>();
+        }
 
         alertLvl1Colors = config.getAlertLvl1Colors();
         alertLvl2Colors = config.getAlertLvl2Colors();
@@ -902,6 +918,7 @@ public final class GhgConfigData {
         visibleColumns = config.getVisibleColumns();
         sortColumn = config.getSortColumn();
         descending = config.isDescending();
+        identifyTestEvents = config.isIdentifyTestEvents();
     }
 
     /**
@@ -947,6 +964,21 @@ public final class GhgConfigData {
      */
     public void setDescending(boolean descending) {
         this.descending = descending;
+    }
+
+    /**
+     * @return the identifyTestEvents
+     */
+    public boolean isIdentifyTestEvents() {
+        return identifyTestEvents;
+    }
+
+    /**
+     * @param identifyTestEvents
+     *            the identifyTestEvents to set
+     */
+    public void setIdentifyTestEvents(boolean identifyTestEvents) {
+        this.identifyTestEvents = identifyTestEvents;
     }
 
     /**
