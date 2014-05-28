@@ -26,6 +26,7 @@ import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -43,6 +44,7 @@ import com.raytheon.uf.edex.plugin.fssobs.common.FSSObsConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2010            skorolev     Initial creation
+ * May 23, 2014 3086       skorolev     Cleaned code.
  * 
  * </pre>
  * 
@@ -65,6 +67,13 @@ public class FSSObsGenerator extends CompositeProductGenerator {
         super(genName, productType);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator#generateProduct
+     * (com.raytheon.edex.urifilter.URIGenerateMessage)
+     */
     @Override
     public void generateProduct(URIGenerateMessage genMessage) {
 
@@ -99,24 +108,45 @@ public class FSSObsGenerator extends CompositeProductGenerator {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator#createFilters()
+     */
     @Override
     protected void createFilters() {
         ArrayList<URIFilter> tmp = new ArrayList<URIFilter>(3);
-        tmp.add(new FSSObsURIFilter("fog"));
-        tmp.add(new FSSObsURIFilter("ss"));
-        tmp.add(new FSSObsURIFilter("snow"));
+        tmp.add(new FSSObsURIFilter(MonName.fog.name()));
+        tmp.add(new FSSObsURIFilter(MonName.ss.name()));
+        tmp.add(new FSSObsURIFilter(MonName.snow.name()));
         filters = tmp.toArray(new FSSObsURIFilter[tmp.size()]);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator#configureFilters()
+     */
     @Override
     protected void configureFilters() {
     }
 
+    /**
+     * Sets Product Time.
+     * 
+     * @param filter
+     */
     public void setProductTime(URIFilter filter) {
         productTime = new DataTime(filter.getValidTime());
-
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator#isRunning()
+     */
     @Override
     public boolean isRunning() {
         return getConfigManager().getFSSState();
