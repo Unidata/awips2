@@ -75,12 +75,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * 
- *      SOFTWARE HISTORY
- *     
- *      Date         Ticket#     Engineer    Description
- *      ------------ ----------  ----------- --------------------------
- *      Jun 12, 2009 1937        askripsk    Initial creation
- *      21May2009          6309  garmendariz Modified path for Geotools 2.6.4
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 12, 2009  1937     askripsk    Initial creation
+ * May 21, 2009  6309     garmendariz Modified path for Geotools 2.6.4
+ * May 01, 2014  3100     bsteffen    perform time matching on data update.
+ * 
  * 
  * </pre>
  * 
@@ -123,6 +125,7 @@ public class RadarMosaicResource extends
     protected RadarMosaicResource(RadarMosaicResourceData rrd,
             LoadProperties loadProps) throws VizException {
         super(rrd, loadProps);
+        timeUpdateJob.setSystem(true);
         rrd.addChangeListener(this);
 
         if (this.getCapability(ColorableCapability.class).getColor() == null) {
@@ -198,8 +201,6 @@ public class RadarMosaicResource extends
                 rp.getResource().registerListener(this);
             }
         }
-
-         timeUpdateJob.setSystem(true);
     }
 
     private int getSeverity(ResourcePair rp) {
@@ -609,6 +610,10 @@ public class RadarMosaicResource extends
                 }
                 if (!dataTimes.contains(time)) {
                     dataTimes.add(time);
+                }
+                if (!Arrays.equals(timeMatchingMap.get(this), descriptor
+                        .getFramesInfo().getTimeMap().get(this))) {
+                    timeUpdateJob.schedule();
                 }
             }
             break;
