@@ -46,63 +46,6 @@
 	<field key="visCat" displayTypes="IMAGE"/>
 	<field key="ThPcat" displayTypes="IMAGE"/>
 	<field key="Cig" displayTypes="IMAGE"/>
-	<field key="PSurge0ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge0ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge10ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge10ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge11ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge11ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge12ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge12ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge13ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge13ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge14ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge14ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge15ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge15ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge16ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge16ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge17ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge17ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge18ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge18ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge19ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge19ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge1ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge1ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge20ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge20ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge21ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge22ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge23ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge24ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge25ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge2ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge2ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge3ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge3ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge4ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge4ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge5ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge5ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge6ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge6ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge7ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge7ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge8ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge8ftRun" displayTypes="IMAGE"/>
-	<field key="PSurge9ft6hr" displayTypes="IMAGE"/>
-	<field key="PSurge9ftRun" displayTypes="IMAGE"/>
-	<field key="Surge10pct6hr" displayTypes="IMAGE"/>
-	<field key="Surge10pctRun" displayTypes="IMAGE"/>
-	<field key="Surge20pct6hr" displayTypes="IMAGE"/>
-	<field key="Surge20pctRun" displayTypes="IMAGE"/>
-	<field key="Surge30pct6hr" displayTypes="IMAGE"/>
-	<field key="Surge30pctRun" displayTypes="IMAGE"/>
-	<field key="Surge40pct6hr" displayTypes="IMAGE"/>
-	<field key="Surge40pctRun" displayTypes="IMAGE"/>
-	<field key="Surge50pct6hr" displayTypes="IMAGE"/>
-	<field key="Surge50pctRun" displayTypes="IMAGE"/>						
 	<field key="SLDP" displayTypes="IMAGE"/>
 	<field key="TPFI" displayTypes="IMAGE"/>
 	<field key="TIPD" displayTypes="IMAGE"/>
@@ -140,4 +83,85 @@
 	<field key="DpDt" volumePlaneType="K"/>
 	<field key="OGRD" displayTypes="ARROW,STREAMLINE"/>
 	<field key="BARO" displayTypes="ARROW,STREAMLINE"/>
+	<field key="Surge10pctCumul_wTide" displayTypes="IMAGE" />
+	<field key="Surge20pctCumul_wTide" displayTypes="IMAGE" />
+	<field key="Surge30pctCumul_wTide" displayTypes="IMAGE" />
+	<field key="Surge40pctCumul_wTide" displayTypes="IMAGE" />
+	<field key="Surge50pctCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge2ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge3ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge4ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge5ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge6ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge7ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge8ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge9ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge10ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge11ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge12ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge13ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge14ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge15ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge16ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge17ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge18ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge19ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge20ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge21ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge22ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge23ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge24ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="PSurge25ftCumul_wTide" displayTypes="IMAGE" />
+	<field key="Surge10pctIncr_PHISH" displayTypes="IMAGE" />
+	<field key="Surge20pctIncr_PHISH" displayTypes="IMAGE" />
+	<field key="Surge30pctIncr_PHISH" displayTypes="IMAGE" />
+	<field key="Surge40pctIncr_PHISH" displayTypes="IMAGE" />
+	<field key="Surge50pctIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge0ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge1ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge2ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge3ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge4ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge5ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge6ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge7ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge8ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge9ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge10ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge11ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge12ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge13ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge14ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge15ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge16ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge17ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge18ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge19ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge20ftIncr_PHISH" displayTypes="IMAGE" />
+	<field key="Surge10pctCumul_PHISH" displayTypes="IMAGE" />
+	<field key="Surge20pctCumul_PHISH" displayTypes="IMAGE" />
+	<field key="Surge30pctCumul_PHISH" displayTypes="IMAGE" />
+	<field key="Surge40pctCumul_PHISH" displayTypes="IMAGE" />
+	<field key="Surge50pctCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge0ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge1ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge2ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge3ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge4ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge5ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge6ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge7ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge8ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge9ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge10ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge11ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge12ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge13ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge14ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge15ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge16ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge17ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge18ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge19ftCumul_PHISH" displayTypes="IMAGE" />
+	<field key="PSurge20ftCumul_PHISH" displayTypes="IMAGE" />
 </fieldDisplayTypesFile>
