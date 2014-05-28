@@ -51,6 +51,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Dec 22, 2009            mpduff      Initial creation
  * Jul 24, 2013   2219     mpduff      Improve error handling.
  * Oct 02, 2013   2361     njensen     Use JAXBManager for XML
+ * May 23, 2014   3086     skorolev    Cleaned code.
  * 
  * </pre>
  * 
@@ -69,14 +70,17 @@ public class AdjacentWfoMgr {
     private static final SingleTypeJAXBManager<AdjacentWfoXML> jaxb = SingleTypeJAXBManager
             .createWithoutException(AdjacentWfoXML.class);
 
-    /** Configuration XML. */
+    /** Configuration Adjacent WFO XML. */
     private AdjacentWfoXML adjXML = null;
 
-    private ArrayList<String> adjZones = null;
+    /** Adjacent zones */
+    private List<String> adjZones = null;
 
+    /** Current site */
     private final String currentSite;
 
-    private ArrayList<String> idList = null;
+    /** List of adjacent areas */
+    private List<String> idList = null;
 
     /** Adjacent area geometry */
     private Geometry geoAdjAreas = null;
@@ -128,6 +132,8 @@ public class AdjacentWfoMgr {
     }
 
     /**
+     * Gets Adjacent Wfo XML.
+     * 
      * @return the adjXML
      */
     public AdjacentWfoXML getAdjXML() {
@@ -135,6 +141,8 @@ public class AdjacentWfoMgr {
     }
 
     /**
+     * Sets Adjacent Wfo XML.
+     * 
      * @param adjXML
      *            the adjXML to set
      */
@@ -143,6 +151,8 @@ public class AdjacentWfoMgr {
     }
 
     /**
+     * Gets Adjacent Zones.
+     * 
      * @return the adjZones
      */
     public ArrayList<String> getAdjZones() {
@@ -156,9 +166,11 @@ public class AdjacentWfoMgr {
     }
 
     /**
+     * Gets list of adjacent areas.
+     * 
      * @return List of adjacent areas
      */
-    public ArrayList<String> getAdjIdList() {
+    public List<String> getAdjIdList() {
         return idList;
     }
 

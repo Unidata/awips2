@@ -32,9 +32,8 @@ import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -56,6 +55,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * Jan 02, 2014 2580       skorolev    Fixed FSSObs error.
  * Jan 06, 2014 2653       skorolev    Corrected decoding of snincrHourly and snincrTotal.
+ * Apr 28, 2014 3086       skorolev    Updated getStations method.
  * 
  * </pre>
  * 
@@ -85,13 +85,8 @@ public class FSSObsUtils {
      */
     private static final int CLR_SKY_CONDITION = 8888888;
 
-    /** Monitor ID **/
-    private enum monID {
-        ss, fog, snow
-    };
-
     /** Plug-in name **/
-    private enum plgn {
+    private enum Plgn {
         obs, sfcobs, ldadmesonet
     };
 
@@ -127,7 +122,7 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery(plgn.obs.toString());
+            request = new PointDataQuery(Plgn.obs.toString());
             request.requestAllLevels();
             request.addParameter(slct, uri, equ);
             request.setParameters(FSSObsDataTransform.OBS_PARAMS_LIST);
@@ -174,7 +169,7 @@ public class FSSObsUtils {
         PointDataQuery request = null;
         PointDataContainer result = null;
         try {
-            request = new PointDataQuery(plgn.sfcobs.toString());
+            request = new PointDataQuery(Plgn.sfcobs.toString());
             request.addParameter(slct, uri, equ);
             request.setParameters(FSSObsDataTransform.SFCOBS_PARAMS_LIST);
             result = request.execute();
@@ -206,7 +201,7 @@ public class FSSObsUtils {
                     .toConstraintMapping(DataURIUtil.createDataURIMap(uri));
             // Not actually in db
             rcMap.remove("pluginName");
-            request = new PointDataQuery(plgn.ldadmesonet.toString());
+            request = new PointDataQuery(Plgn.ldadmesonet.toString());
             for (Entry<String, RequestConstraint> entry : rcMap.entrySet()) {
                 RequestConstraint rc = entry.getValue();
                 String value = rc.getConstraintValue();
@@ -425,7 +420,7 @@ public class FSSObsUtils {
     }
 
     /**
-     * Gets stations which FSS monitor is using.
+     * Gets stations which FSSObs monitor is using.
      * 
      * @param monitor
      * @return stations
@@ -435,26 +430,26 @@ public class FSSObsUtils {
 
         List<String> stations = new ArrayList<String>();
         // Which monitor should use this station: fog, ss or snow
-        if (monitor.equals(monID.fog.name())) {
-            FogMonitorConfigurationManager fogConfigManager = FogMonitorConfigurationManager
-                    .getInstance();
-            fogConfigManager.readConfigXml(currentSite);
+        if (monitor.equals(MonName.fog.name())) {
+            FSSObsMonitorConfigurationManager fogConfigManager = new FSSObsMonitorConfigurationManager(
+                    currentSite, MonName.fog.name());
             List<String> fogStations = fogConfigManager.getStations();
             stations.addAll(fogStations);
+            fogConfigManager = null;
         }
-        if (monitor.equals(monID.ss.name())) {
-            SSMonitorConfigurationManager ssConfigManger = SSMonitorConfigurationManager
-                    .getInstance();
-            ssConfigManger.readConfigXml(currentSite);
+        if (monitor.equals(MonName.ss.name())) {
+            FSSObsMonitorConfigurationManager ssConfigManger = new FSSObsMonitorConfigurationManager(
+                    currentSite, MonName.ss.name());
             List<String> ssStaitions = ssConfigManger.getStations();
             stations.addAll(ssStaitions);
+            ssConfigManger = null;
         }
-        if (monitor.equals(monID.snow.name())) {
-            SnowMonitorConfigurationManager snowConfigManager = SnowMonitorConfigurationManager
-                    .getInstance();
-            snowConfigManager.readConfigXml(currentSite);
+        if (monitor.equals(MonName.snow.name())) {
+            FSSObsMonitorConfigurationManager snowConfigManager = new FSSObsMonitorConfigurationManager(
+                    currentSite, MonName.snow.name());
             List<String> snowStations = snowConfigManager.getStations();
             stations.addAll(snowStations);
+            snowConfigManager = null;
         }
         return stations;
     }

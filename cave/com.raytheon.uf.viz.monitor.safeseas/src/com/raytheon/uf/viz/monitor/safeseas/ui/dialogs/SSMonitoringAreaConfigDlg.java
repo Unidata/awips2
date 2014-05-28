@@ -22,7 +22,8 @@ package com.raytheon.uf.viz.monitor.safeseas.ui.dialogs;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
@@ -42,6 +43,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
  * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
+ * Apr 28, 2014 3086       skorolev    Updated getConfigManager.
  * 
  * </pre>
  * 
@@ -51,6 +53,9 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
+    /** Configuration manager for SAFESEAS monitor. */
+    private FSSObsMonitorConfigurationManager ssConfigMgr;
+
     /**
      * Constructor
      * 
@@ -59,11 +64,7 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public SSMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SAFESEAS);
-        readConfigData();
     }
-
-    private SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager
-            .getInstance();
 
     /*
      * (non-Javadoc)
@@ -80,27 +81,25 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     "Want to update the SAFESEAS setup files?");
             if (choice == SWT.OK) {
                 // Save the config xml file
-                configManager.setTimeWindow(timeWindow.getSelection());
-                configManager.setShipDistance(shipDistance.getSelection());
-                configManager.setUseAlgorithms(fogChk.getSelection());
+                getValues();
                 resetStatus();
-                configManager.saveConfigData();
+                ssConfigMgr.saveConfigXml();
                 /**
                  * DR#11279: re-initialize threshold manager and the monitor
                  * using new monitor area configuration
                  */
                 SSThresholdMgr.reInitialize();
                 SafeSeasMonitor.reInitialize();
-                if ((!configManager.getAddedZones().isEmpty())
-                        || (!configManager.getAddedStations().isEmpty())) {
+                if ((!ssConfigMgr.getAddedZones().isEmpty())
+                        || (!ssConfigMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
                         SSDispMonThreshDlg ssMonitorDlg = new SSDispMonThreshDlg(
                                 shell, CommonConfig.AppName.SAFESEAS,
                                 DataUsageKey.MONITOR);
                         ssMonitorDlg.open();
                     }
-                    configManager.getAddedZones().clear();
-                    configManager.getAddedStations().clear();
+                    ssConfigMgr.getAddedZones().clear();
+                    ssConfigMgr.getAddedStations().clear();
                 }
             }
         } else {
@@ -118,40 +117,26 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * setAlgorithmText()
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#getInstance
+     * ()
      */
-    @Override
-    protected void setAlgorithmText() {
-        fogChk.setText("The Fog Monitor overall threat level is "
-                + "considered when determining the anchor color.");
+    public FSSObsMonitorConfigurationManager getInstance() {
+        if (ssConfigMgr == null) {
+            ssConfigMgr = new FSSObsMonitorConfigurationManager(currentSite,
+                    MonName.ss.name());
+        }
+        return (FSSObsMonitorConfigurationManager) ssConfigMgr;
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#readConfigData
-     * ()
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#disposed()
      */
     @Override
-    protected void readConfigData() {
-        configManager.readConfigXml(currentSite);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#setValues
-     * ()
-     */
-    @Override
-    protected void setValues() {
-        timeWindow.setSelection(configManager.getTimeWindow());
-        setTimeScaleLabel();
-        shipDistance.setSelection(configManager.getShipDistance());
-        setShipDistScaleLabel();
-        fogChk.setSelection(configManager.isUseAlgorithms());
+    protected void disposed() {
+        ssConfigMgr = null;
     }
 }
