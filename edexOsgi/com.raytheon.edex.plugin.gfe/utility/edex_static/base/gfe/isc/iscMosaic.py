@@ -904,13 +904,12 @@ class IscMosaic:
 
         if self.__dbGrid is None or tr != self.__dbGrid[2]:
             self.__dbGrid = None
-            #grid = self.__dbwe.getGridAndHist(tr)
             grid = self._wec[tr]
             if grid is not None:
                 destGrid, history = grid
                 self.__dbGrid = (destGrid, history, tr)
             else:
-		logger.error("Unable to access grid for "+self.__printTR(tr) +" for " + self.__parmName) 
+                logger.error("Unable to access grid for %s for %s", printTR(tr), self.__parmName)
                 return None
 
         return (self.__dbGrid[0], self.__dbGrid[1])
