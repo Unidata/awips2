@@ -381,9 +381,19 @@ DENSE FOG WAS REDUCING VISIBILITIES TO BELOW ${visibility}. REDUCE YOUR SPEED...
 &&
 #end
 
+#############
+## WATCHES ##
+#############
+#if(${list.contains($includedWatches, "torWatches")} && ${list.contains(${bullets}, "includeTorWatches")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${list.contains(${includedWatches}, "svrWatches")} && ${list.contains(${bullets}, "includeSvrWatches")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+####################################
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
-
+####################################
 #end
 
 #printcoords(${areaPoly}, ${list})
