@@ -20,7 +20,7 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>^[AF][BS].... (KOMA|KOAX|KLSE|KARX|KDSM|KDMX|KDVN|KMLI|KEAX|KMCI|KFSD|KGRI|KGID|KLBF|KSTL|KLSX|KMSP|KMPX|KTOP|KZMP|KPQR).*</regex>
-    <regex>^FGUS.. (KKRF|KMSR ).*</regex>
+    <regex>^FGUS.. (KKRF|KMSR|KSTR ).*</regex>
     <regex>^FOUS[67]3 (KKRF|KMSR ).*</regex>
     <regex>^SRUS.. KOHD.*</regex>
     <regex>^SRUS[568][36].*</regex>
