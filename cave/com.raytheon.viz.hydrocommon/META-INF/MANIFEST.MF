@@ -2,28 +2,20 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hydrocommon Plug-in
 Bundle-SymbolicName: com.raytheon.viz.hydrocommon;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.viz.hydrocommon.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.core,
  com.raytheon.viz.ui,
- com.raytheon.edex.common,
- org.eclipse.core.expressions,
- org.geotools;bundle-version="2.4.0",
- javax.persistence;bundle-version="1.0.0",
- javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.hydro;bundle-version="1.0.0",
  com.raytheon.uf.common.colormap;bundle-version="1.11.13",
  com.raytheon.uf.common.mpe;bundle-version="1.11.13",
- com.raytheon.uf.viz.core.maps;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
- com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0",
- com.raytheon.uf.viz.datacube
+ com.raytheon.uf.viz.datacube,
+ com.raytheon.uf.viz.core.maps
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.hydrocommon,
  com.raytheon.viz.hydrocommon.actions,
