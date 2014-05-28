@@ -22,7 +22,7 @@
   <cronOTR cron="0 23,53 * * * ?"     productCode="74"  wmo="SDUS4" nnn="RCM"/>
   <cronOTR cron="0 15 * * * ?"        productCode="79"  wmo="SDUS6" nnn="N3P" radarTypes="WSR"/>
   <cronOTR cron="0 16 * * * ?"        productCode="136" randomWait="240"/>
-  <cronOTR cron="0 5 0,8,16 * * ?"    productCode="152" randomWait="600" radarTypes="WSR"/>
+  <cronOTR cron="0 5 0,8,16 * * ?"    productCode="152" randomWait="600"/>
   <cronOTR cron="0 1 0,6,12,18 * * ?">
     <request> <productCode>34</productCode> <pdw20>2</pdw20> </request>
     <request> <productCode>34</productCode> <pdw20>4</pdw20> </request>
