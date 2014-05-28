@@ -4,14 +4,14 @@
 
     <bean id="roleStorage" class="com.raytheon.uf.edex.plugin.nwsauth.NwsRoleStorage" />
     <bean id="authenticator"
-        class="com.raytheon.uf.edex.plugin.nwsauth.authentication.Authenticator" />
+        class="com.raytheon.uf.edex.auth.authentication.HonorSystemAuthenticator" />
     <bean id="authStorage"
-        class="com.raytheon.uf.edex.plugin.nwsauth.authentication.AuthenticationStorage" />
+        class="com.raytheon.uf.edex.auth.authentication.EmptyAuthenticationStorage" />
 
     <bean id="authManager" class="com.raytheon.uf.edex.auth.AuthManager">
         <property name="authenticationStorage" ref="authStorage" />
         <property name="authenticator" ref="authenticator" />
-        <property name="roleStorage" ref="roleStorage" />
+        <property name="authorizer" ref="roleStorage" />
     </bean>
 
     <bean id="authFactory" class="com.raytheon.uf.edex.auth.AuthManagerFactory"
