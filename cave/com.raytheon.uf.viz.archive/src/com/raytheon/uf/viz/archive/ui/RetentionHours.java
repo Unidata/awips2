@@ -39,6 +39,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 2, 2013  1966       rferrel     Initial creation
+ * May 28, 2014 3171       rferrel     Change retention labels.
  * 
  * </pre>
  * 
@@ -75,13 +76,17 @@ public class RetentionHours {
      */
     private final List<IModifyListener> listeners = new CopyOnWriteArrayList<IModifyListener>();
 
+    private final String tooltip;
+
     /**
      * Constructor with default 7 day retention.
      */
-    public RetentionHours(int minUnit, Spinner timeSpnr, Combo timeUnitCombo) {
+    public RetentionHours(int minUnit, Spinner timeSpnr, Combo timeUnitCombo,
+            String tooltip) {
         this.minUnit = minUnit;
         this.timeSpnr = timeSpnr;
         this.timeUnitCombo = timeUnitCombo;
+        this.tooltip = tooltip;
         init();
     }
 
@@ -89,6 +94,7 @@ public class RetentionHours {
      * Set up Listeners on the combo boxes for time conversion.
      */
     private void init() {
+        timeSpnr.setToolTipText(tooltip);
         timeSpnr.setMinimum(minUnit);
         timeSpnr.addSelectionListener(new SelectionAdapter() {
 
@@ -115,6 +121,7 @@ public class RetentionHours {
         });
         timeUnitCombo.setData(timeUnitCombo.getItem(timeUnitCombo
                 .getSelectionIndex()));
+        timeUnitCombo.setToolTipText(tooltip);
     }
 
     /**
