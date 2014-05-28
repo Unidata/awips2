@@ -141,6 +141,8 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  *                                     to simplify maintenance of this class.
  *                                     Changed handling of enabling/disabling Topo parm
  * 04/02/2014    #2969     randerso    Fix error when Toop parm is unloaded.
+ * 05/01/2014    #3105     dgilling    Ensure mutable db gets into availableServerDatabases
+ *                                     if it has to be created during ParmManager construction.
  * </pre>
  * 
  * @author chammack
@@ -1314,6 +1316,11 @@ public class ParmManager implements IParmManager, IMessageClient {
                 ServerResponse<?> sr = this.dataManager.getClient()
                         .createNewDb(mutableDbId);
                 containsMutable = sr.isOkay();
+
+                if (containsMutable) {
+                    this.availableServerDatabases.add(mutableDbId);
+                    Collections.sort(this.availableServerDatabases);
+                }
             }
 
             if (containsMutable) {
