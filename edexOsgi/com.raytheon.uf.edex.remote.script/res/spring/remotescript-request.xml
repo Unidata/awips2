@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <!-- Instantiate the handler class for RemoteScriptList Handler -->
+    <bean id="RemoteScriptListHandler"
+        class="com.raytheon.uf.edex.remote.script.RemoteScriptListHandler"/>
+    
+    <!-- Register the handler class with the RemoteScriptListRequest Register. -->
+    <bean id="remoteScriptListHandlerRegistered" factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.remote.script.RemoteScriptListRequest"/>
+        <constructor-arg ref="RemoteScriptListHandler"/>
+    </bean>
+    
+    <!-- Instantiate the handler class for RemoteScriptRun Handler -->
+    <bean id="RemoteScriptRunHandler"
+        class="com.raytheon.uf.edex.remote.script.RemoteScriptRunHandler"/>
+    
+    <!-- Register the handler class with the RemoteScriptRunRequest Register. -->
+    <bean id="remoteScriptRunHandlerRegistered" factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.remote.script.RemoteScriptRunRequest"/>
+        <constructor-arg ref="RemoteScriptRunHandler"/>
+    </bean>
+</beans>
+
