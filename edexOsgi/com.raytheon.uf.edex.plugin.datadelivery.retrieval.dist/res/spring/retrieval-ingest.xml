@@ -6,16 +6,13 @@
         <constructor-arg type="java.lang.String" value="dataDeliveryRetrieval" />
     </bean>
 
-    <bean id="dataDeliveryRetrievalProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
-        <property name="pluginName" ref="dataDeliveryRetrievalPluginName" />
-        <property name="pluginFQN"
-            value="com.raytheon.uf.edex.plugin.datadelivery.retrieval" />
-    </bean>
-
-    <bean id="dataDeliveryRetrievalRegistered" factory-bean="pluginRegistry"
+    <!-- Writes files that match pattern to DataDeliveryRetrieval process 
+        Queue -->
+    <bean factory-bean="distributionSrv"
         factory-method="register">
         <constructor-arg ref="dataDeliveryRetrievalPluginName" />
-        <constructor-arg ref="dataDeliveryRetrievalProperties" />
+        <constructor-arg
+            value="jms-durable:queue:dataDeliveryRetrievalProcess" />
     </bean>
 
 </beans>
