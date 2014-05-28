@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nwsRoleData xmlns:ns2="group">
+   <application>Remote Script</application>
+   <!-- Remote Script List permission.-->
+   <permission id="remote.script.list">
+      <description>
+         This permission allows the user to retrive a listing of remote scripts.
+       </description>
+   </permission>
+   <!-- Remote Script Execute permission. -->
+   <permission id="remote.script.run">
+      <description>
+         This permission allows the user to execute a remote script. 
+       </description>
+   </permission>
+   <user userId="ALL">
+         <userPermission>remote.script.list</userPermission>
+         <userPermission>remote.script.run</userPermission>
+   </user>
+</nwsRoleData>
