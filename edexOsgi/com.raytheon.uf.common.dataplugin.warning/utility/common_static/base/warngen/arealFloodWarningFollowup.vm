@@ -11,6 +11,7 @@
 ##           Evan Bookbinder 9-18-2013 implemented config.vm
 ##           Mike Rega       1-18-2014 added Alaska GP changes for 14.2.1
 ##           Mike Rega       2-27-2014 changed headline items to match 10-922
+##           Mike Rega       4-23-2014 fixed MND blank line
 #################################### SET SOME VARs ###################################
 #parse("config.vm")
 #set($hycType = "")
@@ -75,7 +76,6 @@ ${area.name}##
 #end
 -##
 #end
-
 #elseif(${CORCAN}=="true")
 ${ugclinecan}
 ################### VTEC/COUNTY LINE ##################
@@ -88,7 +88,6 @@ ${area.name}##
 #end
 -##
 #end
-
 #else
 ${ugcline}
 ################### VTEC/COUNTY LINE ##################
@@ -101,7 +100,6 @@ ${area.name}##
 #end
 -##
 #end
-
 #end
 
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
