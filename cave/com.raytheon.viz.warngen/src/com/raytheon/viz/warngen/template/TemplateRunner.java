@@ -159,6 +159,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Dec  4, 2013   2604     jsanchez    Refactored GisUtil and PortionsUtil.
  * Mar 17, 2014   DR 16309 Qinglu Lin  Updated getWatches(), processATEntries() and determineAffectedPortions(), and 
  *                                     added determineAffectedMarinePortions().
+ * Apr 28, 2014   3033     jsanchez    Set the site and backup site in Velocity Engine's properties
  * </pre>
  * 
  * @author njensen
@@ -892,7 +893,7 @@ public class TemplateRunner {
 
         long tz0 = System.currentTimeMillis();
         String script = createScript(warngenLayer.getTemplateName() + ".vm",
-                context, warngenLayer.getLocalizedSite());
+                context);
         System.out.println("velocity time: "
                 + (System.currentTimeMillis() - tz0));
 
@@ -907,36 +908,38 @@ public class TemplateRunner {
 
     private static VelocityEngine ENGINE;
 
-    public static void initialize() {
+    public static void initialize(String issuingSite) {
         synchronized (TemplateRunner.class) {
-            if (ENGINE == null) {
-                ENGINE = new VelocityEngine();
-                Properties p = new Properties();
-                p.setProperty("file.resource.loader.class",
-                        LocalizationResourceLoader.class.getName());
-                p.setProperty("runtime.log",
-                        FileUtil.join(FileUtil.join(
-                                LocalizationManager.getUserDir(), "logs"),
-                                "velocity.log"));
-                p.setProperty("velocimacro.permissions.allowInline", "true");
-                p.setProperty(
-                        "velocimacro.permissions.allow.inline.to.replace.global",
-                        "true");
-                ENGINE.init(p);
+            ENGINE = new VelocityEngine();
+            Properties p = new Properties();
+            p.setProperty("file.resource.loader.class",
+                    LocalizationResourceLoader.class.getName());
+            p.setProperty("runtime.log", FileUtil.join(
+                    FileUtil.join(LocalizationManager.getUserDir(), "logs"),
+                    "velocity.log"));
+            p.setProperty("velocimacro.permissions.allowInline", "true");
+            p.setProperty(
+                    "velocimacro.permissions.allow.inline.to.replace.global",
+                    "true");
+
+            String site = LocalizationManager.getInstance().getCurrentSite();
+            p.setProperty(LocalizationResourceLoader.PROPERTY_SITE, site);
+
+            if (issuingSite.equalsIgnoreCase(site) == false) {
+                p.setProperty(LocalizationResourceLoader.PROPERTY_BACKUP,
+                        issuingSite);
             }
+
+            ENGINE.init(p);
         }
     }
 
-    private static String createScript(String vmFile, VelocityContext context,
-            String site) throws VizException {
+    private static String createScript(String vmFile, VelocityContext context)
+            throws VizException {
         synchronized (TemplateRunner.class) {
-            if (ENGINE == null) {
-                initialize();
-            }
             StringWriter sw = new StringWriter();
             try {
                 // Update site for ENGINE
-                ENGINE.setProperty(LocalizationResourceLoader.SITE_KEY, site);
                 context.put("scriptLibrary", "VM_global_library.vm");
                 Template template = ENGINE.getTemplate(vmFile,
                         Velocity.ENCODING_DEFAULT);
