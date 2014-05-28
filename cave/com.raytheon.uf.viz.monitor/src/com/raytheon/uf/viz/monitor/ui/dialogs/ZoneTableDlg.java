@@ -43,13 +43,14 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
@@ -86,6 +87,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 26, 2012 1280      skorolev     Changes for non-blocking dialog. 
  * Nov.11, 2012 1297      skorolev     new abstract initiateProdArray()
  * May 13, 2014 3133      njensen      Updated getting ObsHistType from configMgr
+ * May 15, 2014 3086      skorolev     Replaced MonitorConfigurationManager with FSSObsMonitorConfigurationManager.
  * 
  * </pre>
  * 
@@ -227,6 +229,11 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     /** title of plot. **/
     private String dlgTitle;
 
+    /** current site **/
+    protected String site;
+
+    protected FSSObsMonitorConfigurationManager configMgr;
+
     /**
      * Constructor
      * 
@@ -238,6 +245,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK
                 | CAVE.INDEPENDENT_SHELL);
         this.appName = appName;
+        this.site = LocalizationManager.getInstance().getCurrentSite();
         dFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         this.obData = obData;
         // the zone table data of the latest nominal time:
@@ -472,16 +480,25 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Sets zone table sort column index and sort direction to the current zone
-     * table sort column index and sort direction
+     * Sets Column and Sort Direction for Zone table.
      */
-    protected abstract void setZoneSortColumnAndDirection();
+    protected void setZoneSortColumnAndDirection() {
+        if (zoneTblData != null) {
+            zoneSortColumn = zoneTblData.getSortColumn();
+            zoneSortDirection = zoneTblData.getSortDirection();
+        }
+    }
 
     /**
      * Sets station table sort column index and sort direction to the current
      * station table sort column index and sort direction
      */
-    protected abstract void setStnSortColumnAndDirection();
+    protected void setStnSortColumnAndDirection() {
+        if (stnTblData != null) {
+            stnSortColumn = stnTblData.getSortColumn();
+            stnSortDirection = stnTblData.getSortDirection();
+        }
+    }
 
     /**
      * Creates the station table.
@@ -713,15 +730,15 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         }
         // Set dialog index
         String dialogID = appName.name() + station;
-        MonitorConfigurationManager configMgr = getConfigMgr();
-        String strHistType = configMgr.getStationType(selectedZone, station);
+        String strHistType = getMonitorAreaConfigInstance().getStationType(
+                selectedZone, station);
         ObsHistType histType = ObsHistType.valueOf(strHistType);
 
         /**
          * For Snow monitor, no history table is displayed for a Maritime
          * station
          */
-        if (appName == AppName.SNOW && histType == ObsHistType.Maritime) {
+        if (appName == AppName.SNOW && histType == ObsHistType.MARITIME) {
             return;
         }
         ObsHistTableDlg obsHstTblDlg = (ObsHistTableDlg) openedDlgs
@@ -740,13 +757,6 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         }
         obsHstTblDlg.open();
     }
-
-    /**
-     * Gets Configuration manager.
-     * 
-     * @return manager
-     */
-    protected abstract MonitorConfigurationManager getConfigMgr();
 
     /**
      * Configuration button action method.
@@ -858,6 +868,7 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
     @Override
     protected void disposed() {
         setReturnValue(true);
+        configMgr = null;
     }
 
     /**
@@ -935,4 +946,11 @@ public abstract class ZoneTableDlg extends CaveSWTDialog implements
         }
         return varName;
     }
+
+    /**
+     * Gets Configuration manager.
+     * 
+     * @return manager
+     */
+    protected abstract FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance();
 }

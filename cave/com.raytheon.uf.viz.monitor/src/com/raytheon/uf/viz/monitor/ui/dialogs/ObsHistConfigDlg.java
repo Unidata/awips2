@@ -41,6 +41,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig;
 import com.raytheon.uf.viz.monitor.config.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.viz.monitor.xml.HistConfigXML;
@@ -54,7 +56,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2009            lvenable     Initial creation
+ * Apr  6, 2009            lvenable     Initial creation
+ * May 23, 2014 3068       skorolev     Corrected ObsHistType. Cleaned code.
  * 
  * </pre>
  * 
@@ -62,6 +65,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class ObsHistConfigDlg extends CaveSWTDialog {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ObsHistConfigDlg.class);
+
     /**
      * Application name.
      */
@@ -120,16 +127,34 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
      */
     private HistConfigXML cfgXML = null;
 
+    /**
+     * File in the localization system.
+     */
     private LocalizationFile locFile;
 
+    /**
+     * Composite for History Table.
+     */
     private final ObsHistTableComp obsHistTable;
 
+    /**
+     * History table observation type.
+     */
     private final ObsHistType obsType;
 
+    /**
+     * Keys for columns.
+     */
     private String[] colKeys;
 
+    /**
+     * Initiate Columns for Metar data.
+     */
     private boolean[] initColsMetar;
 
+    /**
+     * Initiate Columns for Maritime data.
+     */
     private boolean[] initColsMaritime;
 
     /**
@@ -165,13 +190,13 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
          * Element 1 of the metarCols is element 0 of the METAR checkbox array.
          */
         tableConfig = CommonTableConfig.getInstance();
-        initiateColums();
+        initiateColumns();
     }
 
     /**
-     * 
+     * Initiates Columns.
      */
-    private void initiateColums() {
+    private void initiateColumns() {
 
         this.setInitColsMetar(new boolean[tableConfig.getMetarConfigureNames().length + 1]);
         newVisColsMetar = new boolean[tableConfig.getMetarConfigureNames().length + 1];
@@ -213,8 +238,6 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
 
     }
 
-
-
     /**
      * Initialize the components on the display.
      */
@@ -243,11 +266,6 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
      */
     private void createColumnControls() {
         int gridColumns = 3;
-
-        // if (appName == CommonConfig.AppName.SNOW)
-        // {
-        // gridColumns = 1;
-        // }
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainControlComp = new Composite(shell, SWT.NONE);
@@ -279,7 +297,7 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
                 maritimeChkArray[i - 1].setEnabled(false);
             }
         }
-        if (obsType == ObsHistType.Maritime) {
+        if (obsType == ObsHistType.MARITIME) {
             for (int i = startingColIndex; i < newVisColsMetar.length; i++) {
                 metarChkArray[i - 1].setEnabled(false);
             }
@@ -413,7 +431,7 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 saveConfig();
-                initiateColums();
+                initiateColumns();
                 shell.dispose();
             }
         });
@@ -495,7 +513,7 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
         mainCheckBox.setSelection(allChecked);
 
         if ((obsType == ObsHistType.METAR && mainCheckBox == maritimeChk)
-                || (obsType == ObsHistType.Maritime && mainCheckBox == metarChk)) {
+                || (obsType == ObsHistType.MARITIME && mainCheckBox == metarChk)) {
             mainCheckBox.setEnabled(false);
         }
     }
@@ -512,6 +530,9 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
         return locFile;
     }
 
+    /**
+     * Saves Configuration file.
+     */
     private void saveConfig() {
         updateCheckBoxesStatus();
         this.cfgXML = new HistConfigXML();
@@ -519,7 +540,7 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
         cfgXML.setMetar(newVisColsMetar);
         locFile = getXmlFile();
         try {
-            System.out.println("Saving -- "
+            statusHandler.info("Saving -- "
                     + locFile.getFile().getAbsolutePath());
             JAXB.marshal(cfgXML, locFile.getFile());
             locFile.save();
@@ -528,6 +549,11 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Gets History Configuration XML.
+     * 
+     * @return
+     */
     private HistConfigXML getHistConfigFile() {
         // Open user file if exist.
         locFile = getXmlFile();
@@ -541,6 +567,11 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
         return cfgXML;
     }
 
+    /**
+     * Gets History Table Configuration Path.
+     * 
+     * @return
+     */
     private String getHistPath() {
         String fs = String.valueOf(File.separatorChar);
         StringBuilder sb = new StringBuilder();
@@ -549,6 +580,9 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
         return sb.toString();
     }
 
+    /**
+     * Updates Check Boxes Status.
+     */
     private void updateCheckBoxesStatus() {
         {
             if (!isSkipMaritime()) {
@@ -565,9 +599,13 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
 
     }
 
+    /**
+     * Apply Visible Columns.
+     */
     private void applyVisCols() {
         updateCheckBoxesStatus();
-        if (obsType.equals(ObsHistType.METAR)) {
+        if (obsType.equals(ObsHistType.METAR)
+                || obsType.equals(ObsHistType.MESONET)) {
             obsHistTable.showHideTableColumns(newVisColsMetar);
         } else {
             obsHistTable.showHideTableColumns(newVisColsMaritime);
@@ -575,8 +613,12 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
         obsHistTable.getParent().pack();
     }
 
+    /**
+     * Restore Visible Columns.
+     */
     private void restoreVisCols() {
-        if (obsType.equals(ObsHistType.METAR)) {
+        if (obsType.equals(ObsHistType.METAR)
+                || obsType.equals(ObsHistType.MESONET)) {
             obsHistTable.showHideTableColumns(getInitColsMetar());
         } else {
             obsHistTable.showHideTableColumns(getInitColsMaritime());
@@ -585,6 +627,8 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
     }
 
     /**
+     * Get Skip Maritime flag.
+     * 
      * @return the skipMaritime
      */
     protected boolean isSkipMaritime() {
@@ -592,6 +636,8 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
     }
 
     /**
+     * Sets Skip Maritime flag.
+     * 
      * @param skipMaritime
      *            the skipMaritime to set
      */
@@ -600,6 +646,8 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
     }
 
     /**
+     * Gets InitColsMetar flag.
+     * 
      * @return the initColsMetar
      */
     protected boolean[] getInitColsMetar() {
@@ -607,6 +655,8 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
     }
 
     /**
+     * Sets InitColsMetar flag.
+     * 
      * @param initColsMetar
      *            the initColsMetar to set
      */
@@ -615,6 +665,8 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
     }
 
     /**
+     * Gets InitColsMaritime flag.
+     * 
      * @return the initColsMaritime
      */
     protected boolean[] getInitColsMaritime() {
@@ -622,12 +674,13 @@ public class ObsHistConfigDlg extends CaveSWTDialog {
     }
 
     /**
+     * Sets InitColsMaritime flag.
+     * 
      * @param initColsMaritime
      *            the initColsMaritime to set
      */
     protected void setInitColsMaritime(boolean[] initColsMaritime) {
         this.initColsMaritime = initColsMaritime;
     }
-
 
 }
