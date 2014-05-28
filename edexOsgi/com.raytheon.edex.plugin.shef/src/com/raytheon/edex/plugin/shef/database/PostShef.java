@@ -2097,9 +2097,9 @@ public class PostShef {
         String telem = null;
         String sql = null;
         Object[] oa = null;
-
+        String key = locId + data.getPeTsE();
         try {
-            if (!ingestSwitchMap.containsKey(locId)) {
+            if (!ingestSwitchMap.containsKey(key)) {
                 errorMsg.append("Error getting connection to IHFS Database");
                 sql = "select lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input from IngestFilter where lid = '"
                         + locId + "'";
@@ -2136,11 +2136,11 @@ public class PostShef {
                     }
                 }
 
-                ingestSwitchMap.put(locId, ingestSwitch);
+                ingestSwitchMap.put(key, ingestSwitch);
             }
 
-            matchFound = ingestSwitchMap.containsKey(locId);
-            ingestSwitch = ingestSwitchMap.get(locId);
+            matchFound = ingestSwitchMap.containsKey(key);
+            ingestSwitch = ingestSwitchMap.get(key);
 
             /*
              * if there is no ingest record for this entry, then check if the
