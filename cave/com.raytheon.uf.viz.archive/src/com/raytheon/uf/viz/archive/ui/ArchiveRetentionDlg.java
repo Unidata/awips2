@@ -58,6 +58,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Oct 07, 2013 #2438      rferrel      Properly save and load retention times.
  * Apr 14, 2014 #3023      rferrel      Code clean up.
  * Apr 24, 2014 #3045      rferrel      Implement loadedAllDsipalyData.
+ * May 28, 2014 #3171      rferrel      Change retention labels.
  * 
  * </pre>
  * 
@@ -159,14 +160,16 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
         // composite for retention time selection
         Composite selectionComp = new Composite(retentionComp, SWT.NONE);
-        selectionComp.setLayout(new GridLayout(3, true));
+        selectionComp.setLayout(new GridLayout(3, false));
         selectionComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
                 false));
 
         gd = new GridData();
         gd.horizontalIndent = 20;
         Label minRetentionLbl = new Label(selectionComp, SWT.NONE);
-        minRetentionLbl.setText("Minimum Retention: ");
+        String tooltip = "Default retetion for all of\nthe Archive's Categories.";
+        minRetentionLbl.setText("Default Retention:");
+        minRetentionLbl.setToolTipText(tooltip);
         minRetentionLbl.setLayoutData(gd);
 
         gd = new GridData(60, SWT.DEFAULT);
@@ -179,7 +182,8 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
         Combo minRetentionCbo = new Combo(selectionComp, SWT.VERTICAL
                 | SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
-        minRetention = new RetentionHours(1, minRetentionSpnr, minRetentionCbo) {
+        minRetention = new RetentionHours(1, minRetentionSpnr, minRetentionCbo,
+                tooltip) {
 
             @Override
             protected boolean handleTimeSelection() {
@@ -195,8 +199,10 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
          */
         gd = new GridData();
         gd.horizontalIndent = 20;
+        tooltip = "Current Category's retention\nfor checked Data Sets.";
         Label extRetentionLbl = new Label(selectionComp, SWT.NONE);
-        extRetentionLbl.setText("Extended Retention: ");
+        extRetentionLbl.setText("Selected Retention: ");
+        extRetentionLbl.setToolTipText(tooltip);
         extRetentionLbl.setLayoutData(gd);
 
         gd = new GridData(60, SWT.DEFAULT);
@@ -209,7 +215,8 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
         Combo extRetentionCbo = new Combo(selectionComp, SWT.VERTICAL
                 | SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY);
-        extRetention = new RetentionHours(1, extRetentionSpnr, extRetentionCbo) {
+        extRetention = new RetentionHours(1, extRetentionSpnr, extRetentionCbo,
+                tooltip) {
 
             @Override
             protected boolean handleTimeSelection() {
