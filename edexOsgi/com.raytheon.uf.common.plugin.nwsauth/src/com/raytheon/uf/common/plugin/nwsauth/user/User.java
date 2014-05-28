@@ -1,5 +1,6 @@
 package com.raytheon.uf.common.plugin.nwsauth.user;
 
+import com.raytheon.uf.common.auth.user.AuthenticationData;
 import com.raytheon.uf.common.auth.user.IAuthenticationData;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
