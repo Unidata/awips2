@@ -22,7 +22,8 @@ package com.raytheon.uf.viz.monitor.fog.ui.dialogs;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
@@ -42,6 +43,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Nov 27, 2012 1351       skorolev     Changes for non-blocking dialog.
  * Jan 29, 2014 2757       skorolev     Changed OK button handler.
  * Apr 23, 2014 3054       skorolev     Fixed issue with removing a new station from list.
+ * Apr 28, 2014 3086       skorolev     Updated getConfigManager.
  * 
  * </pre>
  * 
@@ -50,13 +52,19 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  */
 
 public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
+
+    /** Configuration manager for Fog monitor. */
+    private static FSSObsMonitorConfigurationManager fogConfigMgr;
+
+    /**
+     * Constructor
+     * 
+     * @param parent
+     * @param title
+     */
     public FogMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.FOG);
-        readConfigData();
     }
-
-    private FogMonitorConfigurationManager configManager = FogMonitorConfigurationManager
-            .getInstance();
 
     /*
      * (non-Javadoc)
@@ -72,12 +80,10 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     "Fog Monitor Confirm Changes",
                     "Want to Update Fog Monitor's Setup files?");
             if (choice == SWT.OK) {
-                // Save the config xml file
-                configManager.setTimeWindow(timeWindow.getSelection());
-                configManager.setShipDistance(shipDistance.getSelection());
-                configManager.setUseAlgorithms(fogChk.getSelection());
+                // Save the configuration xml file
+                getValues();
                 resetStatus();
-                configManager.saveConfigData();
+                fogConfigMgr.saveConfigXml();
                 /**
                  * DR#11279: re-initialize threshold manager and the monitor
                  * using new monitor area configuration
@@ -85,16 +91,16 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 FogThresholdMgr.reInitialize();
                 FogMonitor.reInitialize();
 
-                if ((!configManager.getAddedZones().isEmpty())
-                        || (!configManager.getAddedStations().isEmpty())) {
+                if ((!fogConfigMgr.getAddedZones().isEmpty())
+                        || (!fogConfigMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
                         FogMonDispThreshDlg fogMonitorDlg = new FogMonDispThreshDlg(
                                 shell, CommonConfig.AppName.FOG,
                                 DataUsageKey.MONITOR);
                         fogMonitorDlg.open();
                     }
-                    configManager.getAddedZones().clear();
-                    configManager.getAddedStations().clear();
+                    fogConfigMgr.getAddedZones().clear();
+                    fogConfigMgr.getAddedStations().clear();
                 }
             }
         } else {
@@ -112,40 +118,26 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#
-     * setAlgorithmText()
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#getInstance
+     * ()
      */
-    @Override
-    protected void setAlgorithmText() {
-        fogChk.setText("Fog Monitor algorithms' threat level is considered when determining\n"
-                + "the guardian icon color.");
+    protected FSSObsMonitorConfigurationManager getInstance() {
+        if (fogConfigMgr == null) {
+            fogConfigMgr = new FSSObsMonitorConfigurationManager(currentSite,
+                    MonName.fog.name());
+        }
+        return (FSSObsMonitorConfigurationManager) fogConfigMgr;
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#readConfigData
-     * ()
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#disposed()
      */
     @Override
-    protected void readConfigData() {
-        configManager.readConfigXml(currentSite);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#setValues
-     * ()
-     */
-    @Override
-    protected void setValues() {
-        timeWindow.setSelection(configManager.getTimeWindow());
-        setTimeScaleLabel();
-        shipDistance.setSelection(configManager.getShipDistance());
-        setShipDistScaleLabel();
-        fogChk.setSelection(configManager.isUseAlgorithms());
+    protected void disposed() {
+        fogConfigMgr = null;
     }
 }

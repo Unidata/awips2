@@ -28,8 +28,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.fog.FogRecord.FOG_THREAT;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
 import com.raytheon.uf.common.monitor.data.ObConst.DisplayVarName;
@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Oct 30, 2012 1297       skorolev     Changed HashMap to Map
  * Nov 10, 2012 1297       skorolev     Added initiateProdArray
  * Dec 7,  2012 #1351      skorolev     Changes for non-blocking dialogs.
+ * Apr 28, 2014 3086       skorolev     Updated getConfigMgr method.
  * 
  * </pre>
  * 
@@ -74,6 +75,7 @@ public class SSZoneTableDlg extends ZoneTableDlg {
      * Constructor (Dec 30, 2009, zhao)
      * 
      * @param parent
+     * @param obData
      */
     public SSZoneTableDlg(Shell parent, ObMultiHrsReports obData) {
         super(parent, obData, CommonConfig.AppName.SAFESEAS);
@@ -236,16 +238,6 @@ public class SSZoneTableDlg extends ZoneTableDlg {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#getConfigMgr()
-     */
-    @Override
-    protected MonitorConfigurationManager getConfigMgr() {
-        return SSMonitorConfigurationManager.getInstance();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#handleLinkToFrame()
      */
@@ -279,6 +271,12 @@ public class SSZoneTableDlg extends ZoneTableDlg {
         // Not used
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
+     * setZoneSortColumnAndDirection()
+     */
     @Override
     protected void setZoneSortColumnAndDirection() {
         if (zoneTblData != null) {
@@ -297,6 +295,12 @@ public class SSZoneTableDlg extends ZoneTableDlg {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
+     * setStnSortColumnAndDirection()
+     */
     @Override
     protected void setStnSortColumnAndDirection() {
         if (stnTblData != null) {
@@ -313,5 +317,20 @@ public class SSZoneTableDlg extends ZoneTableDlg {
                 }
             }
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg#
+     * getMonitorAreaConfigInstance()
+     */
+    @Override
+    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
+        if (configMgr == null) {
+            configMgr = new FSSObsMonitorConfigurationManager(site,
+                    MonName.ss.name());
+        }
+        return configMgr;
     }
 }
