@@ -36,8 +36,8 @@ import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
 import com.raytheon.uf.common.dataplugin.warning.portions.PortionsUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
-import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
+import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.SpatialException;
@@ -77,6 +77,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    May  2, 2013  1963       jsanchez    Updated method to determine partOfArea.
  *    Aug 19, 2013  2177       jsanchez    Used portionsUtil to calculate area portion descriptions.
  *    Dec  4, 2013  2604       jsanchez    Refactored GisUtil and PortionsUtil.
+ *    Apr 29, 2014  3033       jsanchez    Updated method to retrieve files in localization.
+ *    May 16, 2014 DR 17365    D. Friedman Reduce precision of warning area to avoid topology errors.
  * </pre>
  * 
  * @author chammack
@@ -168,9 +170,10 @@ public class Area {
 
         if (areaConfig.getAreaNotationTranslationFile() != null) {
             try {
-                abbreviation = new Abbreviation(FileUtil.getFile(
-                        areaConfig.getAreaNotationTranslationFile(),
-                        localizedSite));
+                abbreviation = new Abbreviation(WarnFileUtil
+                        .findFileInLocalizationIncludingBackupSite(
+                                areaConfig.getAreaNotationTranslationFile(),
+                                localizedSite, null).getFile());
             } catch (FileNotFoundException e) {
                 statusHandler.handle(Priority.ERROR, "Unable to find "
                         + areaConfig.getAreaNotationTranslationFile() + "", e);
@@ -292,6 +295,15 @@ public class Area {
             Geometry warnPolygon, Geometry warnArea, String localizedSite,
             WarngenLayer warngenLayer) throws VizException {
         Map<String, Object> areasMap = new HashMap<String, Object>();
+
+        try {
+            Geometry precisionReducedArea = PolygonUtil.reducePrecision(warnArea);
+            if (precisionReducedArea.isValid()) {
+                warnArea = precisionReducedArea;
+            }
+        } catch (Exception e) {
+            // ignore
+        }
 
         String hatchedAreaSource = config.getHatchedAreaSource()
                 .getAreaSource();
