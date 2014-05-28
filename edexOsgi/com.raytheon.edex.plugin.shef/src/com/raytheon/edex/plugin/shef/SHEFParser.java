@@ -29,9 +29,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.plugin.shef.ShefSeparator.ShefDecoderInput;
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
@@ -48,7 +45,9 @@ import com.raytheon.uf.common.dataplugin.shef.util.SHEFErrorCodes;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * The SHEFParser provides the text parsing for SHEF data. This class was
@@ -61,6 +60,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2009            jkorman     Initial creation
+ * Apr 29, 2014   3088     mpduff      Changed to use UFStatus logging.
  * 
  * </pre>
  * 
@@ -69,7 +69,8 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  */
 public class SHEFParser {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(SHEFParser.class);
 
     private static final SHEFErrors ERR_LOGGER = SHEFErrors
             .registerLogger(SHEFParser.class);
@@ -101,7 +102,7 @@ public class SHEFParser {
         EOD_SENDCODES.add("PY");
         EOD_SENDCODES.add("QY");
     }
-    
+
     private static final String CARRIAGECONTROL = "\r\n";
 
     private String message;
@@ -181,10 +182,12 @@ public class SHEFParser {
     private boolean emitSkippedValues = false;
 
     private String reportLead = null;
-    
+
     /**
+     * Constructor
      * 
-     * @param traceId
+     * @param sdi
+     *            ShefDecoderInput
      */
     public SHEFParser(ShefDecoderInput sdi) {
         message = sdi.record;
@@ -213,9 +216,6 @@ public class SHEFParser {
      *            the locationId to set
      */
     public void setLocationId(String lid) {
-        if (log.isDebugEnabled()) {
-            log.debug(traceId + "- Setting locationId : " + lid);
-        }
         locationId = lid;
     }
 
@@ -231,9 +231,6 @@ public class SHEFParser {
      *            the obsTime to set
      */
     public void setObsTime(String obsTime) {
-        if (log.isDebugEnabled()) {
-            log.debug(traceId + "- Setting obsTime : " + obsTime);
-        }
         this.obsTime = obsTime;
     }
 
@@ -264,9 +261,6 @@ public class SHEFParser {
      *            the timeZone to set
      */
     public void setTimeZone(String timeZone) {
-        if (log.isDebugEnabled()) {
-            log.debug(traceId + "- Setting timeZone : " + timeZone);
-        }
         this.timeZone = timeZone;
     }
 
@@ -316,9 +310,6 @@ public class SHEFParser {
      *            the adjusted date to set
      */
     public void setAdjObsDate(SHEFDate adjDate) {
-        if (log.isDebugEnabled()) {
-            log.debug(traceId + "- Setting adjObsDate : " + adjDate);
-        }
         if (adjDate != null) {
             adjObsDate = new SHEFDate(adjDate);
         }
@@ -336,9 +327,6 @@ public class SHEFParser {
      *            the createTime to set
      */
     public void setCreateTime(SHEFDate createTime) {
-        if (log.isDebugEnabled()) {
-            log.debug(traceId + "- Setting createTime : " + createTime);
-        }
         this.createTime = createTime;
     }
 
@@ -387,6 +375,9 @@ public class SHEFParser {
         this.currentExtremum = currentExtremum;
     }
 
+    /**
+     * @param qual
+     */
     public void setCurrentQualifier(String qual) {
         if ("Z".equals(qual)) {
             currentQualifier = null;
@@ -395,13 +386,19 @@ public class SHEFParser {
         }
     }
 
+    /**
+     * Get the current qualifer
+     * 
+     * @return The current qualifier
+     */
     public String getCurrentQualifier() {
         return currentQualifier;
     }
 
     /**
+     * Decode the data.
      * 
-     * @return
+     * @return The decoded ShefRecord
      */
     public ShefRecord decode() {
         boolean revision = false;
@@ -472,7 +469,7 @@ public class SHEFParser {
             String identifier = "MSGPRODID";
             if (wmoHeader != null) {
                 if (awipsHeader != null) {
-                    if(awipsHeader.length() <= 6) {
+                    if (awipsHeader.length() <= 6) {
                         identifier = wmoHeader.getCccc() + awipsHeader;
                     } else {
                         identifier = awipsHeader;
@@ -533,15 +530,16 @@ public class SHEFParser {
                 sb.append(" ");
             }
             reportLead = sb.toString();
-        
+
             identifyUnknownToken(parts, false);
 
-            if(!validateRecord(parts,record)) {
+            if (!validateRecord(parts, record)) {
                 return record;
             }
-            int error = getObsDate().getError(); 
-            if(error != 0) {
-                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, error);
+            int error = getObsDate().getError();
+            if (error != 0) {
+                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR,
+                        error);
                 return record;
             }
             masterDate = new SHEFDate(getObsDate());
@@ -562,77 +560,102 @@ public class SHEFParser {
                 if (err < ParserToken.ERR_NO_ERROR) {
                     switch (err) {
                     case ParserToken.ERR_INV_CREATE_DATE: {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_019);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_019);
                         value = null;
                         break;
                     }
                     case ParserToken.ERR_INV_JUL_DATE: {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_016);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_016);
                         value = null;
                         break;
                     }
                     case ParserToken.ERR_INVALID_QUAL: {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_021);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_021);
                         value = null;
                         break;
                     }
                     case ParserToken.ERR_INV_SECONDS: {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_016);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_016);
                         value = null;
                         break;
                     }
                     case ParserToken.ERR_INV_MINUTES: {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_016);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_016);
                         value = null;
                         break;
                     }
                     case ParserToken.ERR_INV_HOURS: {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_016);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_016);
                         value = null;
                         break;
                     }
                     case ParserToken.ERR_INV_DAY: {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_017);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_017);
                         value = null;
                         break;
                     }
                     case ParserToken.ERR_INV_MONTH: {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_017);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_017);
                         value = null;
                         break;
                     }
-                    case ParserToken.ERR_LOG035 : {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_035);
+                    case ParserToken.ERR_LOG035: {
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_035);
                         value = null;
                         break;
                     }
-                    case ParserToken.ERR_LOG044 : {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_044);
+                    case ParserToken.ERR_LOG044: {
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_044);
                         value = null;
                         reSync = true;
                         break;
                     }
-                    case ParserToken.ERR_LOG079 : {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.WARNING, SHEFErrorCodes.LOG_035);
+                    case ParserToken.ERR_LOG079: {
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.WARNING,
+                                SHEFErrorCodes.LOG_035);
                         break;
                     }
                     }
                     break;
-                } else if(err > 0) {
-                    statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, err);
+                } else if (err > 0) {
+                    statusReporting(record, ERR_LOGGER,
+                            SHEFErrors.HANDLERS.ERROR, err);
                     value = null;
                     break;
                 }
-                if(reSync) {
+                if (reSync) {
                     break;
                 }
                 switch (token.getType()) {
                 case UNITS_CODE: {
 
                     currentUnits = token.getToken().substring(2);
-                    if(!isValidUnits(currentUnits)) {
+                    if (!isValidUnits(currentUnits)) {
                         // Handle the error condition
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_022);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_022);
                         // and return with the legal data found so far.
                         return record;
                     }
@@ -640,12 +663,14 @@ public class SHEFParser {
                 }
                 case QUAL_CODE: {
                     String q = token.getToken().substring(2);
-                    if(isValidQualityCode(q)) {
+                    if (isValidQualityCode(q)) {
                         setCurrentQualifier(q);
                         qualifier = getCurrentQualifier();
                     } else {
                         // Handle the error condition
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_085);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR,
+                                SHEFErrorCodes.LOG_085);
                         // and return with the legal data found so far.
                         return record;
                     }
@@ -664,9 +689,11 @@ public class SHEFParser {
                 case DATE_DATE:
                 case DATE_JUL: {
                     if ((d = masterDate.applyData(token)) != null) {
-                        if(d.isDSTExclusion()) {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_044);
-                            errorCode = 1; 
+                        if (d.isDSTExclusion()) {
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_044);
+                            errorCode = 1;
                         } else {
                             masterDate = d;
                             setObsDate(d);
@@ -679,9 +706,11 @@ public class SHEFParser {
                 }
                 case DATE_REL: {
                     if ((d = getObsDate().applyData(token)) != null) {
-                        if(d.isDSTExclusion()) {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_044);
-                            errorCode = 1; 
+                        if (d.isDSTExclusion()) {
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_044);
+                            errorCode = 1;
                         } else {
                             setAdjObsDate(d);
                         }
@@ -708,14 +737,15 @@ public class SHEFParser {
                 }
                 case PEDTSEP: {
                     String s = null;
-                    if(dateRelative) {
+                    if (dateRelative) {
                         s = token.getSendCode();
-                        if((s != null) && (s.length() >= 2)) {
-                            s = s.substring(0,2);
-                            if(EOD_SENDCODES.contains(s)) {
+                        if ((s != null) && (s.length() >= 2)) {
+                            s = s.substring(0, 2);
+                            if (EOD_SENDCODES.contains(s)) {
                                 // this is an error condition
                                 errorCode = SHEFErrorCodes.LOG_035;
-                                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, errorCode);
+                                statusReporting(record, ERR_LOGGER,
+                                        SHEFErrors.HANDLERS.ERROR, errorCode);
                                 trace = false;
                                 reSync = false;
                                 value = null;
@@ -725,7 +755,7 @@ public class SHEFParser {
                             }
                         }
                     }
-                    
+
                     s = token.getToken();
                     int currError = ShefUtil.validatePEDTSEP(s);
                     if (currError == 0) {
@@ -738,7 +768,8 @@ public class SHEFParser {
                         }
                     } else {
                         // Handle the error condition
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, currError);
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR, currError);
 
                         pedtsep = null;
                         // Reset the qualifier back if it was overridden
@@ -751,8 +782,10 @@ public class SHEFParser {
                 case QNUMERIC: {
                     if (!reSync) {
                         String s = token.getQualifier();
-                        if(!isValidQualityCode(s)) {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_021);
+                        if (!isValidQualityCode(s)) {
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_021);
                             value = null;
                         } else {
                             qualifier = s;
@@ -771,7 +804,7 @@ public class SHEFParser {
                     break;
                 }
                 case RETAINEDCOMMENT: {
-                    if(lastData != null) {
+                    if (lastData != null) {
                         lastData.setRetainedComment(token.getToken());
                         retainedComment = null;
                     } else {
@@ -791,11 +824,12 @@ public class SHEFParser {
                     }
                     break;
                 }
-                
+
                 default: {
 
                     // Handle the error condition
-                    statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_064);
+                    statusReporting(record, ERR_LOGGER,
+                            SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_064);
 
                     pedtsep = null;
                     value = null;
@@ -816,7 +850,7 @@ public class SHEFParser {
                     data.setUnitsCode(getCurrentUnits());
                     data.setStringValue(value);
                     data.setQualifier(qualifier);
-                    if(retainedComment != null) {
+                    if (retainedComment != null) {
                         data.setRetainedComment(retainedComment);
                         retainedComment = null;
                     } else {
@@ -843,7 +877,7 @@ public class SHEFParser {
                     trace = false;
 
                     reSync = false;
-                }                
+                }
                 if (errorCode > 0) {
                     // clear out the last value.
                     value = null;
@@ -867,8 +901,9 @@ public class SHEFParser {
             if (token != null) {
                 String pe = token.getSendCode();
                 if (pe != null) {
-                    if(pe != null) {
-                        if(pe.startsWith("HY") || pe.startsWith("QY") || pe.startsWith("PY")) {
+                    if (pe != null) {
+                        if (pe.startsWith("HY") || pe.startsWith("QY")
+                                || pe.startsWith("PY")) {
                             if ("Z".equals(timeZone)) {
                                 isValid = false;
                                 error = SHEFErrorCodes.LOG_035;
@@ -879,11 +914,12 @@ public class SHEFParser {
             }
         }
         if (!isValid) {
-            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, error);
+            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR,
+                    error);
         }
         return isValid;
     }
-    
+
     // *********************************
     // * B Record specific methods.
     // *********************************
@@ -918,9 +954,10 @@ public class SHEFParser {
             if (getPositionalData()) {
                 identifyUnknownToken(parts, false);
 
-                int error = getObsDate().getError(); 
-                if(error != 0) {
-                    statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, error);
+                int error = getObsDate().getError();
+                if (error != 0) {
+                    statusReporting(record, ERR_LOGGER,
+                            SHEFErrors.HANDLERS.ERROR, error);
                     return record;
                 }
 
@@ -980,14 +1017,18 @@ public class SHEFParser {
                         try {
                             interpretData(record, pattern, subList, localMaster);
                         } catch (Exception e) {
-                            ERR_LOGGER.error(getClass(), createRecordHeader(record, reportLead)
-                                    + createDataLine(pattern));
-                            ERR_LOGGER.error(getClass(), createDataLine(subList));
+                            ERR_LOGGER.error(getClass(),
+                                    createRecordHeader(record, reportLead)
+                                            + createDataLine(pattern));
+                            ERR_LOGGER.error(getClass(),
+                                    createDataLine(subList));
                             ERR_LOGGER.error(getClass(), "?");
-                            ERR_LOGGER.error(getClass(), "Exception " + e.getLocalizedMessage());
-                            ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_090);
+                            ERR_LOGGER.error(getClass(),
+                                    "Exception " + e.getLocalizedMessage());
+                            ERR_LOGGER
+                                    .error(getClass(), SHEFErrorCodes.LOG_090);
                         }
-                        
+
                     }
                 }
             }
@@ -1010,15 +1051,15 @@ public class SHEFParser {
         int error = 0;
 
         int currPos = -1;
-        for(ParserToken t : pattern) {
+        for (ParserToken t : pattern) {
             currPos++;
-            if(t.getError() != ParserToken.ERR_NO_ERROR) {
+            if (t.getError() != ParserToken.ERR_NO_ERROR) {
                 valid = false;
                 error = t.getError();
                 break;
             }
         }
-        if(valid) {
+        if (valid) {
             TokenType type = TokenType.NIL;
             ParserToken currToken = null;
             TokenType lastType = TokenType.NIL;
@@ -1027,12 +1068,12 @@ public class SHEFParser {
             do {
                 currPos++;
                 valid = (currPos < pattern.size());
-                if(valid) {
+                if (valid) {
                     currToken = pattern.get(currPos);
                     lastType = type;
                     type = currToken.getType();
                 }
-            } while(valid && (!(SLASH.equals(type))));
+            } while (valid && (!(SLASH.equals(type))));
             // Don't start other validation until we find the first /
             for (; (currPos < pattern.size()) && valid; currPos++) {
                 currToken = pattern.get(currPos);
@@ -1049,22 +1090,23 @@ public class SHEFParser {
                         }
                     }
                 }
-                if(TokenType.PEDTSEP.equals(currType)) {
+                if (TokenType.PEDTSEP.equals(currType)) {
                     peFound = true;
                 }
                 lastType = currToken.getType();
             } // for
-            // If we didn't find a pe, invalidate this pattern
+              // If we didn't find a pe, invalidate this pattern
             valid &= peFound;
-            if(valid) {
+            if (valid) {
                 for (ParserToken token : pattern) {
                     if (token != null) {
                         String pe = token.getSendCode();
-                        
+
                         if (pe != null) {
-                            if(pe.startsWith("HY")||pe.startsWith("QY")||pe.startsWith("PY")) {
-                                // if we found any of the above, examine the timezone
-                                // to see if it is ZULU
+                            if (pe.startsWith("HY") || pe.startsWith("QY")
+                                    || pe.startsWith("PY")) {
+                                // if we found any of the above, examine the
+                                // timezone to see if it is ZULU
                                 if ("Z".equals(timeZone)) {
                                     token.setError(ParserToken.ERR_LOG035);
                                 }
@@ -1076,7 +1118,7 @@ public class SHEFParser {
                 // this isn't right, leave it for now
                 error = SHEFErrorCodes.LOG_003;
             }
-            if(valid) {
+            if (valid) {
                 for (ParserToken t : pattern) {
 
                     TokenType tt = t.getType();
@@ -1097,7 +1139,7 @@ public class SHEFParser {
                         break;
                     }
                     } // switch
-                    if(!valid) {
+                    if (!valid) {
                         break;
                     }
                 } // for
@@ -1271,11 +1313,10 @@ public class SHEFParser {
             int errorCode = 0;
 
             int bDataPtr = 1;
-            
 
             ParserToken drCode = null;
             ParserToken drCodeOverride = null;
-            
+
             boolean createOverride = false;
             boolean reSync = false;
             boolean outOfData = false;
@@ -1284,9 +1325,9 @@ public class SHEFParser {
             boolean timeOverride = false;
 
             for (ParserToken pToken : pattern) {
-                
-                int exitStatus = tokenError(record, pattern, bdata, pToken); 
-                if(exitStatus == 1) {
+
+                int exitStatus = tokenError(record, pattern, bdata, pToken);
+                if (exitStatus == 1) {
                     value = null;
                     forceExit = true;
                     break;
@@ -1294,13 +1335,14 @@ public class SHEFParser {
                     value = null;
                     break;
                 }
-                
+
                 switch (pToken.getType()) {
                 case UNITS_CODE: {
                     currentUnits = pToken.getToken().substring(2);
-                    if(!isValidUnits(currentUnits)) {
-                        ERR_LOGGER.error(getClass(), createRecordHeader(record, reportLead)
-                                + createDataLine(pattern));
+                    if (!isValidUnits(currentUnits)) {
+                        ERR_LOGGER.error(getClass(),
+                                createRecordHeader(record, reportLead)
+                                        + createDataLine(pattern));
                         ERR_LOGGER.error(getClass(), createDataLine(bdata));
                         ERR_LOGGER.error(getClass(), " ?");
                         ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_022);
@@ -1310,9 +1352,10 @@ public class SHEFParser {
                 }
                 case QUAL_CODE: {
                     setCurrentQualifier(pToken.getToken().substring(2));
-                    if(!isValidQualityCode(getCurrentQualifier())) {
-                        ERR_LOGGER.error(getClass(), createRecordHeader(record, reportLead)
-                                + createDataLine(pattern));
+                    if (!isValidQualityCode(getCurrentQualifier())) {
+                        ERR_LOGGER.error(getClass(),
+                                createRecordHeader(record, reportLead)
+                                        + createDataLine(pattern));
                         ERR_LOGGER.error(getClass(), createDataLine(bdata));
                         ERR_LOGGER.error(getClass(), " ?");
                         ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_021);
@@ -1334,10 +1377,12 @@ public class SHEFParser {
                 case DATE_JUL: {
                     if (!timeOverride) {
                         if ((d = localMaster.applyData(pToken)) != null) {
-                            if(d.isDSTExclusion()) {
-                                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_044);
+                            if (d.isDSTExclusion()) {
+                                statusReporting(record, ERR_LOGGER,
+                                        SHEFErrors.HANDLERS.ERROR,
+                                        SHEFErrorCodes.LOG_044);
                                 forceExit = true;
-                                errorCode = 1; 
+                                errorCode = 1;
                             } else {
                                 localMaster = d;
                                 setObsDate(d);
@@ -1348,10 +1393,10 @@ public class SHEFParser {
                             errorCode = 1;
                         }
                     }
-                    // Even though the time may not get used because of override,
-                    // any date relative codes are cleared.
+                    // Even though the time may not get used because of
+                    // override, any date relative codes are cleared.
                     drCode = null;
-                    if(!timeOverride) {
+                    if (!timeOverride) {
                         drCodeOverride = null;
                     }
                     break;
@@ -1380,14 +1425,15 @@ public class SHEFParser {
                     String s = null;
                     // Need to check both Date Relative codes, so if either
                     // are not null...
-                    if((drCode != null) || (drCodeOverride != null)) {
+                    if ((drCode != null) || (drCodeOverride != null)) {
                         s = pToken.getSendCode();
-                        if((s != null) && (s.length() >= 2)) {
-                            s = s.substring(0,2);
-                            if(EOD_SENDCODES.contains(s)) {
+                        if ((s != null) && (s.length() >= 2)) {
+                            s = s.substring(0, 2);
+                            if (EOD_SENDCODES.contains(s)) {
                                 // this is an error condition
                                 errorCode = SHEFErrorCodes.LOG_035;
-                                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, errorCode);
+                                statusReporting(record, ERR_LOGGER,
+                                        SHEFErrors.HANDLERS.ERROR, errorCode);
                                 forceExit = true;
                                 reSync = false;
                                 break;
@@ -1404,29 +1450,30 @@ public class SHEFParser {
                             pedtsep = s;
                         }
                         // Is there a duration coded?
-                        if(s.length() >= 3) {
-                            if("V".equals(s.subSequence(2,3))) {
+                        if (s.length() >= 3) {
+                            if ("V".equals(s.subSequence(2, 3))) {
                                 // do we have a variable duration defined?
-                                if(currentDurationOverride == null) {
-                                    if(currentDuration == null) {
+                                if (currentDurationOverride == null) {
+                                    if (currentDuration == null) {
                                         // No duration at all!
                                         currError = SHEFErrorCodes.LOG_032;
                                     } else {
-                                        if(!"V".equals(currentDuration)) {
+                                        if (!"V".equals(currentDuration)) {
                                             currError = SHEFErrorCodes.LOG_032;
-                                        }                                    
-                                    }                                    
+                                        }
+                                    }
                                 } else {
-                                    if(!"V".equals(currentDurationOverride)) {
+                                    if (!"V".equals(currentDurationOverride)) {
                                         currError = SHEFErrorCodes.LOG_032;
-                                    }                                    
+                                    }
                                 }
-                                if(currError != 0) {
-                                    errorCode = 1; 
+                                if (currError != 0) {
+                                    errorCode = 1;
                                     forceExit = true;
                                     pedtsep = null;
                                     value = null;
-                                    // Reset the qualifier back if it was overridden
+                                    // Reset the qualifier back if it was
+                                    // overridden
                                     qualifier = getCurrentQualifier();
                                     retainedComment = null;
                                     reSync = true;
@@ -1441,19 +1488,20 @@ public class SHEFParser {
                         retainedComment = null;
                         reSync = true;
                     }
-                    if(currError != 0) {
+                    if (currError != 0) {
                         // Handle the error condition
-                        ERR_LOGGER.error(getClass(), createRecordHeader(record, reportLead)
-                                + createDataLine(pattern));
+                        ERR_LOGGER.error(getClass(),
+                                createRecordHeader(record, reportLead)
+                                        + createDataLine(pattern));
                         ERR_LOGGER.error(getClass(), createDataLine(bdata));
                         ERR_LOGGER.error(getClass(), " ?");
                         ERR_LOGGER.error(getClass(), currError);
                     }
 
-                    if(reSync) {
+                    if (reSync) {
                         break;
                     }
-                    
+
                     qualifier = getCurrentQualifier();
 
                     boolean empty = false;
@@ -1479,9 +1527,10 @@ public class SHEFParser {
                                 data.setDataSource(bRecordDataSource);
                                 data.setObservationTime(record.getRecordDate());
 
-                                SHEFDate date = getRelativeDate(localMaster, drCode,
-                                        drCodeOverride, record, timeOverride);
-                                if(date != null) {
+                                SHEFDate date = getRelativeDate(localMaster,
+                                        drCode, drCodeOverride, record,
+                                        timeOverride);
+                                if (date != null) {
                                     data.setObsTime(date);
 
                                     data.setCreateTime(getCreateTime());
@@ -1498,7 +1547,8 @@ public class SHEFParser {
                                         data.setQualifier(qualifierOverride);
                                     }
                                     data.setRetainedComment(retainedComment);
-                                    data.setRevisedRecord(record.isRevisedRecord());
+                                    data.setRevisedRecord(record
+                                            .isRevisedRecord());
                                     data.fixupDuration((durationValueOverride == null) ? durationValue
                                             : durationValueOverride);
 
@@ -1509,7 +1559,9 @@ public class SHEFParser {
                                         } else {
                                             ERR_LOGGER
                                                     .error(getClass(),
-                                                            createRecordHeader(record, reportLead)
+                                                            createRecordHeader(
+                                                                    record,
+                                                                    reportLead)
                                                                     + createDataLine(pattern));
                                             ERR_LOGGER.error(getClass(),
                                                     createDataLine(bdata));
@@ -1521,7 +1573,7 @@ public class SHEFParser {
                                         record.addDataValue(data);
                                     }
                                 } else {
-                                    errorCode = 1; 
+                                    errorCode = 1;
                                     forceExit = true;
                                 }
 
@@ -1535,8 +1587,8 @@ public class SHEFParser {
                         }
                         bToken = bdata.get(bDataPtr++);
 
-                        exitStatus = tokenError(record, pattern, bdata, bToken); 
-                        if(exitStatus == 1) {
+                        exitStatus = tokenError(record, pattern, bdata, bToken);
+                        if (exitStatus == 1) {
                             value = null;
                             forceExit = true;
                             dataFound = true;
@@ -1546,7 +1598,7 @@ public class SHEFParser {
                             dataFound = true;
                             break;
                         }
-                        
+
                         switch (bToken.getType()) {
                         case DATE_SEC:
                         case DATE_MIN:
@@ -1558,11 +1610,13 @@ public class SHEFParser {
                         case DATE_JUL: {
                             timeOverride = true;
                             if ((d = localMaster.applyData(bToken)) != null) {
-                                if(d.getError() == 0) {
-                                    if(d.isDSTExclusion()) {
-                                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_044);
+                                if (d.getError() == 0) {
+                                    if (d.isDSTExclusion()) {
+                                        statusReporting(record, ERR_LOGGER,
+                                                SHEFErrors.HANDLERS.ERROR,
+                                                SHEFErrorCodes.LOG_044);
                                         forceExit = true;
-                                        errorCode = 1; 
+                                        errorCode = 1;
                                         dataFound = true;
                                         timeOverride = false;
                                     } else {
@@ -1571,15 +1625,16 @@ public class SHEFParser {
                                         resetAdjObsDate();
                                     }
                                 } else {
-                                    statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, d.getError());
+                                    statusReporting(record, ERR_LOGGER,
+                                            SHEFErrors.HANDLERS.ERROR,
+                                            d.getError());
                                     break INNER;
                                 }
                             } else {
                                 errorCode = 1;
                             }
-//                            // Remove the 'local' override, but leave the
-//                            // outer override.
-//                            drCodeOverride = null;
+                            // Remove the 'local' override, but leave the
+                            // outer override.
                             break;
                         }
                         case DATE_REL: {
@@ -1594,12 +1649,15 @@ public class SHEFParser {
                         }
                         case UNITS_CODE: {
                             unitsOverride = bToken.getToken().substring(2);
-                            if(!isValidUnits(unitsOverride)) {
-                                ERR_LOGGER.error(getClass(), createRecordHeader(record, reportLead)
-                                        + createDataLine(pattern));
-                                ERR_LOGGER.error(getClass(), createDataLine(bdata));
+                            if (!isValidUnits(unitsOverride)) {
+                                ERR_LOGGER.error(getClass(),
+                                        createRecordHeader(record, reportLead)
+                                                + createDataLine(pattern));
+                                ERR_LOGGER.error(getClass(),
+                                        createDataLine(bdata));
                                 ERR_LOGGER.error(getClass(), " ?");
-                                ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_022);
+                                ERR_LOGGER.error(getClass(),
+                                        SHEFErrorCodes.LOG_022);
                                 dataFound = true;
                                 errorCode = 1;
                             }
@@ -1607,12 +1665,15 @@ public class SHEFParser {
                         }
                         case QUAL_CODE: {
                             qualifierOverride = bToken.getToken().substring(2);
-                            if(!isValidQualityCode(qualifierOverride)) {
-                                ERR_LOGGER.error(getClass(), createRecordHeader(record, reportLead)
-                                        + createDataLine(pattern));
-                                ERR_LOGGER.error(getClass(), createDataLine(bdata));
+                            if (!isValidQualityCode(qualifierOverride)) {
+                                ERR_LOGGER.error(getClass(),
+                                        createRecordHeader(record, reportLead)
+                                                + createDataLine(pattern));
+                                ERR_LOGGER.error(getClass(),
+                                        createDataLine(bdata));
                                 ERR_LOGGER.error(getClass(), " ?");
-                                ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_021);
+                                ERR_LOGGER.error(getClass(),
+                                        SHEFErrorCodes.LOG_021);
                                 dataFound = true;
                                 errorCode = 1;
                             }
@@ -1624,12 +1685,15 @@ public class SHEFParser {
                         }
                         case QNUMERIC: {
                             String ss = bToken.getQualifier();
-                            if(!isValidQualityCode(ss)) {
-                                ERR_LOGGER.error(getClass(), createRecordHeader(record, reportLead)
-                                        + createDataLine(pattern));
-                                ERR_LOGGER.error(getClass(), createDataLine(bdata));
+                            if (!isValidQualityCode(ss)) {
+                                ERR_LOGGER.error(getClass(),
+                                        createRecordHeader(record, reportLead)
+                                                + createDataLine(pattern));
+                                ERR_LOGGER.error(getClass(),
+                                        createDataLine(bdata));
                                 ERR_LOGGER.error(getClass(), " ?");
-                                ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_021);
+                                ERR_LOGGER.error(getClass(),
+                                        SHEFErrorCodes.LOG_021);
                                 value = null;
                             } else {
                                 qualifier = ss;
@@ -1646,7 +1710,7 @@ public class SHEFParser {
                         }
 
                         case RETAINEDCOMMENT: {
-                            if(lastData != null) {
+                            if (lastData != null) {
                                 lastData.setRetainedComment(bToken.getToken());
                                 retainedComment = null;
                             } else {
@@ -1662,7 +1726,8 @@ public class SHEFParser {
                         case UNKNOWN: {
                             if (isMissingValue(bToken.getToken())) {
                                 value = ShefConstants.SHEF_MISSING;
-                                qualifier = getMissingQualifier(bToken.getToken());
+                                qualifier = getMissingQualifier(bToken
+                                        .getToken());
                             } else if (isTraceValue(bToken.getToken())) {
                                 value = ShefConstants.SHEF_TRACE;
                                 trace = true;
@@ -1684,7 +1749,8 @@ public class SHEFParser {
                                 data.setDataSource(bRecordDataSource);
                                 data.setObservationTime(record.getRecordDate());
                                 SHEFDate date = getRelativeDate(localMaster,
-                                        drCode, drCodeOverride, record, timeOverride);
+                                        drCode, drCodeOverride, record,
+                                        timeOverride);
                                 if (date != null) {
                                     data.setObsTime(date);
                                     data.setCreateTime(getCreateTime());
@@ -1763,11 +1829,6 @@ public class SHEFParser {
                     break;
                 }
                 default: {
-                    if (log.isDebugEnabled()) {
-                        log.debug(traceId + "- Invalid token ["
-                                + pToken.getToken() + ":" + pToken.getType()
-                                + "] in \"B\" record");
-                    }
                 }
                 } // switch
                 if (errorCode > 0) {
@@ -1814,7 +1875,8 @@ public class SHEFParser {
                                             + createDataLine(pattern));
                             ERR_LOGGER.error(getClass(), createDataLine(bdata));
                             ERR_LOGGER.error(getClass(), " ?");
-                            ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_031);
+                            ERR_LOGGER
+                                    .error(getClass(), SHEFErrorCodes.LOG_031);
                         }
                     } else {
                         record.addDataValue(data);
@@ -1826,9 +1888,10 @@ public class SHEFParser {
             // out by a different error.
             // add one to the bdata.size because the bDataPtr doesn't get
             // incremented the last time through
-            if (bDataPtr+1 < bdata.size() && !forceExit) {
-                ERR_LOGGER.warning(getClass(), createRecordHeader(record, reportLead)
-                        + createDataLine(pattern));
+            if (bDataPtr + 1 < bdata.size() && !forceExit) {
+                ERR_LOGGER.warning(getClass(),
+                        createRecordHeader(record, reportLead)
+                                + createDataLine(pattern));
                 ERR_LOGGER.warning(getClass(), createDataLine(bdata));
                 ERR_LOGGER.warning(getClass(), " ?");
                 ERR_LOGGER.warning(getClass(), SHEFErrorCodes.LOG_041);
@@ -1845,8 +1908,7 @@ public class SHEFParser {
     private int tokenError(ShefRecord record, List<ParserToken> pattern,
             List<ParserToken> bdata, ParserToken token) {
         int errorCondition = 0;
-        
-        
+
         int err = token.getError();
         if (err < ParserToken.ERR_NO_ERROR) {
             ERR_LOGGER.error(getClass(), createDataLine(pattern));
@@ -1893,30 +1955,30 @@ public class SHEFParser {
                 errorCondition = 1;
                 break;
             }
-            case ParserToken.ERR_LOG035 : {
+            case ParserToken.ERR_LOG035: {
                 ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_035);
                 errorCondition = 1;
                 break;
             }
-            case ParserToken.ERR_LOG044 : {
+            case ParserToken.ERR_LOG044: {
                 ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_044);
                 errorCondition = 1;
                 break;
             }
-            case ParserToken.ERR_LOG079 : {
+            case ParserToken.ERR_LOG079: {
                 ERR_LOGGER.warning(getClass(), SHEFErrorCodes.LOG_079);
                 errorCondition = 2;
                 break;
             }
             }
-        } else if(err > 0) {
+        } else if (err > 0) {
             statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, err);
             errorCondition = 1;
         }
-       
+
         return errorCondition;
     }
-    
+
     /**
      * 
      * @param baseTime
@@ -1929,11 +1991,11 @@ public class SHEFParser {
             ParserToken drInner, ShefRecord record, boolean overRide) {
         SHEFDate date = null;
         ParserToken dateRelative = null;
-        if ((drOuter != null)&&(TokenType.DATE_REL.equals(drOuter.getType()))) {
+        if ((drOuter != null) && (TokenType.DATE_REL.equals(drOuter.getType()))) {
             if (drInner == null) {
                 dateRelative = drOuter;
             } else {
-                if(TokenType.DATE_REL.equals(drInner.getType())) {
+                if (TokenType.DATE_REL.equals(drInner.getType())) {
                     dateRelative = drInner;
                 } else {
                     date = new SHEFDate();
@@ -1941,7 +2003,8 @@ public class SHEFParser {
                 }
             }
         } else {
-            if ((drInner != null) && (TokenType.DATE_REL.equals(drInner.getType()))) {
+            if ((drInner != null)
+                    && (TokenType.DATE_REL.equals(drInner.getType()))) {
                 dateRelative = drInner;
             } else {
                 date = new SHEFDate();
@@ -1971,7 +2034,7 @@ public class SHEFParser {
      */
     private ShefRecord parseERecord(ShefRecord record) {
         reportLead = null;
-        
+
         if (getPositionalData()) {
             record.setTimeZone(tz);
             correctMissingDelimiters();
@@ -1980,7 +2043,7 @@ public class SHEFParser {
             PRIMARY: for (int i = 0; i < parts.size();) {
                 ParserToken t = parts.remove(i);
                 sb.append(t.getRawToken());
-                
+
                 switch (t.getType()) {
                 case TIMEZONE: {
                     break PRIMARY;
@@ -1995,16 +2058,17 @@ public class SHEFParser {
                 sb.append(" ");
             }
             reportLead = sb.toString();
-            
+
             identifyUnknownToken(parts, false);
 
-            if(!validateERecord(record)) {
+            if (!validateERecord(record)) {
                 return record;
             }
-            
-            int error = getObsDate().getError(); 
-            if(error != 0) {
-                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, error);
+
+            int error = getObsDate().getError();
+            if (error != 0) {
+                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR,
+                        error);
                 return record;
             }
 
@@ -2039,53 +2103,76 @@ public class SHEFParser {
                     if (err < ParserToken.ERR_NO_ERROR) {
                         switch (err) {
                         case ParserToken.ERR_INV_CREATE_DATE: {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_019);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_019);
                             break;
                         }
                         case ParserToken.ERR_INV_JUL_DATE: {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_079);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_079);
                             break;
                         }
                         case ParserToken.ERR_INVALID_QUAL: {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_021);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_021);
                             break;
                         }
                         case ParserToken.ERR_INV_SECONDS: {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_016);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_016);
                             break;
                         }
                         case ParserToken.ERR_INV_MINUTES: {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_016);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_016);
                             break;
                         }
                         case ParserToken.ERR_INV_HOURS: {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_016);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_016);
                             break;
                         }
                         case ParserToken.ERR_INV_DAY: {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_017);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_017);
                             break;
                         }
                         case ParserToken.ERR_INV_MONTH: {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_017);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_017);
                             break;
                         }
-                        case ParserToken.ERR_LOG044 : {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_017);
+                        case ParserToken.ERR_LOG044: {
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_017);
                             break;
                         }
-                        case ParserToken.ERR_LOG079 : {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.WARNING, SHEFErrorCodes.LOG_079);
+                        case ParserToken.ERR_LOG079: {
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.WARNING,
+                                    SHEFErrorCodes.LOG_079);
                             break;
                         }
-                        default : {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.WARNING, SHEFErrorCodes.LOG_090);
+                        default: {
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.WARNING,
+                                    SHEFErrorCodes.LOG_090);
                         }
                         }
                         value = null;
                         break;
-                    } else if(err > 0) {
-                        statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, err);
+                    } else if (err > 0) {
+                        statusReporting(record, ERR_LOGGER,
+                                SHEFErrors.HANDLERS.ERROR, err);
                         value = null;
                         break;
                     }
@@ -2109,16 +2196,18 @@ public class SHEFParser {
                             int currError = ShefUtil.validatePEDTSEP(s);
 
                             if (currError == 0) {
-                                PhysicalElement pe = PhysicalElement.getEnum(s.substring(0, 2));
+                                PhysicalElement pe = PhysicalElement.getEnum(s
+                                        .substring(0, 2));
                                 if (!PhysicalElement.UNKNOWN.equals(pe)) {
                                     pedtsep = s;
                                 }
                                 // Is there a duration coded?
-                                if(s.length() >= 3) {
-                                    if("V".equals(s.subSequence(2,3))) {
-                                        // do we have a variable duration defined?
-                                        if(!"Z".equals(currentDuration)) {
-                                            if("Z".equals(currentDurationOverride)) {
+                                if (s.length() >= 3) {
+                                    if ("V".equals(s.subSequence(2, 3))) {
+                                        // do we have a variable duration
+                                        // defined?
+                                        if (!"Z".equals(currentDuration)) {
+                                            if ("Z".equals(currentDurationOverride)) {
                                                 currError = SHEFErrorCodes.LOG_032;
                                             }
                                         } else {
@@ -2127,7 +2216,7 @@ public class SHEFParser {
                                     }
                                 }
                             }
-                            if(currError != 0) {
+                            if (currError != 0) {
                                 // Handle the error condition
                                 ERR_LOGGER.error(getClass(),
                                         createRecordHeader(record, reportLead)
@@ -2146,7 +2235,9 @@ public class SHEFParser {
                             // can't redeclare the PE once data processing has
                             // started.
                             // Handle the error condition
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_101);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_101);
                             reSync = true;
                         }
                         break;
@@ -2165,11 +2256,13 @@ public class SHEFParser {
                     case DATE_DATE:
                     case DATE_JUL: {
                         if ((d = masterDate.applyData(token)) != null) {
-                            if(d.isDSTExclusion()) {
-                                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_044);
+                            if (d.isDSTExclusion()) {
+                                statusReporting(record, ERR_LOGGER,
+                                        SHEFErrors.HANDLERS.ERROR,
+                                        SHEFErrorCodes.LOG_044);
                                 pedtsep = null;
                                 reSync = true;
-                            } else {                            
+                            } else {
                                 masterDate = d;
                                 setObsDate(d);
                                 resetAdjObsDate();
@@ -2185,8 +2278,10 @@ public class SHEFParser {
                     }
                     case DATE_REL: {
                         if ((d = masterDate.applyData(token)) != null) {
-                            if(d.isDSTExclusion()) {
-                                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_044);
+                            if (d.isDSTExclusion()) {
+                                statusReporting(record, ERR_LOGGER,
+                                        SHEFErrors.HANDLERS.ERROR,
+                                        SHEFErrorCodes.LOG_044);
                                 pedtsep = null;
                                 reSync = true;
                             } else {
@@ -2208,7 +2303,7 @@ public class SHEFParser {
 
                         resetAdjObsDate();
                         seriesSequence = 0;
-                        
+
                         break;
                     }
                     case QNUMERIC: {
@@ -2217,8 +2312,10 @@ public class SHEFParser {
                             if (haveInt) {
                                 // override the current qualifier.
                                 String ss = token.getQualifier();
-                                if(!isValidQualityCode(ss)) {
-                                    statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_021);
+                                if (!isValidQualityCode(ss)) {
+                                    statusReporting(record, ERR_LOGGER,
+                                            SHEFErrors.HANDLERS.ERROR,
+                                            SHEFErrorCodes.LOG_021);
                                     value = null;
                                     // But adjust the date
                                     incrementAdjObsDate(interval);
@@ -2250,7 +2347,7 @@ public class SHEFParser {
                         break;
                     }
                     case RETAINEDCOMMENT: {
-                        if(lastData != null) {
+                        if (lastData != null) {
                             lastData.setRetainedComment(token.getToken());
                             retainedComment = null;
                         } else {
@@ -2278,10 +2375,12 @@ public class SHEFParser {
                             value = ShefConstants.SHEF_TRACE;
                             trace = true;
                         } else {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_064);
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_064);
                             value = null;
                             // Several things to check for
-                            if(!haveInt || (pedtsep == null)) {
+                            if (!haveInt || (pedtsep == null)) {
                                 reSync = true;
                             }
                             break;
@@ -2300,8 +2399,7 @@ public class SHEFParser {
                     } // switch
                     if ((pedtsep != null) && (value != null)) {
                         ShefData data = new ShefData();
-                        data.setParameterCodeString(pedtsep,
-                                currentDuration);
+                        data.setParameterCodeString(pedtsep, currentDuration);
                         data.setLocationId(getLocationId());
                         data.setObservationTime(record.getRecordDate());
                         data.setObsTime(getAdjObsDate());
@@ -2311,7 +2409,7 @@ public class SHEFParser {
                         data.setStringValue(value);
                         data.setUnitsCode(getCurrentUnits());
                         data.setQualifier(qualifier);
-                        if(retainedComment != null) {
+                        if (retainedComment != null) {
                             data.setRetainedComment(retainedComment);
                             retainedComment = null;
                         } else {
@@ -2325,7 +2423,9 @@ public class SHEFParser {
                             if (legalTraceValue(data.getPhysicalElement())) {
                                 record.addDataValue(data);
                             } else {
-                                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_031);
+                                statusReporting(record, ERR_LOGGER,
+                                        SHEFErrors.HANDLERS.ERROR,
+                                        SHEFErrorCodes.LOG_031);
                             }
                         } else {
                             record.addDataValue(data);
@@ -2334,24 +2434,27 @@ public class SHEFParser {
                         qualifier = getCurrentQualifier();
 
                         incrementAdjObsDate(interval);
-                        if(getAdjObsDate().isDSTExclusion()) {
-                            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_044);
+                        if (getAdjObsDate().isDSTExclusion()) {
+                            statusReporting(record, ERR_LOGGER,
+                                    SHEFErrors.HANDLERS.ERROR,
+                                    SHEFErrorCodes.LOG_044);
                             reSync = true;
                         }
                         seriesSequence++;
                         trace = false;
-                    }                
-                    
-                      // For E records if we have a bad PEDTSEP or attempted
-                      // re-declaration of
-                      // PEDTSEP or the data time interval then we have to quit.
+                    }
+
+                    // For E records if we have a bad PEDTSEP or attempted
+                    // re-declaration of
+                    // PEDTSEP or the data time interval then we have to quit.
                     if (reSync) {
                         break;
                     }
                 } // for
                   // Check to see if we have "trailing" data to pickup
             } else {
-                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, SHEFErrorCodes.LOG_045);
+                statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR,
+                        SHEFErrorCodes.LOG_045);
                 record = null;
             }
         } else {
@@ -2383,7 +2486,8 @@ public class SHEFParser {
             }
             if (t != null) {
                 if (error > -9999) {
-                    statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, error);
+                    statusReporting(record, ERR_LOGGER,
+                            SHEFErrors.HANDLERS.ERROR, error);
                 } else {
 
                 }
@@ -2399,49 +2503,50 @@ public class SHEFParser {
     private boolean validateERecord(ShefRecord record) {
         boolean isValid = true;
         int error = 0;
-        for(ParserToken token : parts) {
-            
-            if(token != null) {
+        for (ParserToken token : parts) {
+
+            if (token != null) {
                 TokenType type = token.getType();
-                switch(type) {
-                case PEDTSEP : {
+                switch (type) {
+                case PEDTSEP: {
                     String pe = token.getSendCode();
-                    if(pe != null) {
-                        if(pe.startsWith("HY") || pe.startsWith("QY") || pe.startsWith("PY")) {
+                    if (pe != null) {
+                        if (pe.startsWith("HY") || pe.startsWith("QY")
+                                || pe.startsWith("PY")) {
                             error = SHEFErrorCodes.LOG_035;
                             isValid = false;
                         }
                     }
                     break;
                 }
-                case UNITS_CODE : {
+                case UNITS_CODE: {
                     isValid = isValidUnits(token.getRawToken().substring(2));
                     error = SHEFErrorCodes.LOG_022;
                     break;
                 }
-                case QUAL_CODE : {
-                    isValid = isValidQualityCode(token.getRawToken().substring(2));
+                case QUAL_CODE: {
+                    isValid = isValidQualityCode(token.getRawToken().substring(
+                            2));
                     error = SHEFErrorCodes.LOG_021;
                     break;
                 }
-                case UNKNOWN : {
-                    
-                    
-                    
+                case UNKNOWN: {
+
                 }
                 }
             }
         }
-        if(!isValid) {
-            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR, error);
+        if (!isValid) {
+            statusReporting(record, ERR_LOGGER, SHEFErrors.HANDLERS.ERROR,
+                    error);
         }
         return isValid;
     }
 
-    
-    private void statusReporting(ShefRecord record, SHEFErrors logger, SHEFErrors.HANDLERS handler, int error) {
-        switch(handler) {
-        case DEBUG : {
+    private void statusReporting(ShefRecord record, SHEFErrors logger,
+            SHEFErrors.HANDLERS handler, int error) {
+        switch (handler) {
+        case DEBUG: {
             ERR_LOGGER.debug(getClass(), createRecordHeader(record, reportLead)
                     + createDataLine(parts));
             ERR_LOGGER.debug(getClass(), "?");
@@ -2449,16 +2554,17 @@ public class SHEFParser {
 
             break;
         }
-        case WARNING : {
-            ERR_LOGGER.warning(getClass(), createRecordHeader(record, reportLead)
-                    + createDataLine(parts));
+        case WARNING: {
+            ERR_LOGGER.warning(getClass(),
+                    createRecordHeader(record, reportLead)
+                            + createDataLine(parts));
             ERR_LOGGER.warning(getClass(), "?");
             ERR_LOGGER.warning(getClass(), error);
-            
+
             break;
         }
-        case ERROR : {
-            
+        case ERROR: {
+
             ERR_LOGGER.error(getClass(), createRecordHeader(record, reportLead)
                     + createDataLine(parts));
             ERR_LOGGER.error(getClass(), "?");
@@ -2467,7 +2573,7 @@ public class SHEFParser {
         }
         }
     }
-    
+
     /**
      * 
      * Note - This method must only be used for "E" records.
@@ -2478,29 +2584,31 @@ public class SHEFParser {
         TokenType QNUMERIC = TokenType.QNUMERIC;
         TokenType COMMA = TokenType.COMMA;
         TokenType SPACE = TokenType.SPACE;
-        
+
         if ((parts != null) && (parts.size() > 0)) {
             ParserToken last = null;
-            // First pass through we are going to look for possible commas in the data.
-            for(int i = 0;i < parts.size();) {
-                ParserToken t = getToken(parts,i);
-             // do we have a comma?
-                if(COMMA.equals(t.getType())) {
+            // First pass through we are going to look for possible commas in
+            // the data.
+            for (int i = 0; i < parts.size();) {
+                ParserToken t = getToken(parts, i);
+                // do we have a comma?
+                if (COMMA.equals(t.getType())) {
                     // ok remove it
                     parts.remove(i);
-                    if(SPACE.equals(last.getType())) {
+                    if (SPACE.equals(last.getType())) {
                         // preceeded by a space, then we check the
                         // next token.
-                        t = getToken(parts,i);
-                        if(t.isValueToken()) {
+                        t = getToken(parts, i);
+                        if (t.isValueToken()) {
                             parts.remove(i);
                         }
                     } else {
-                        if((last != null) && (last.getType() != null)) {
-                            if(last.isValueToken()) {
-                                parts.set(i-1,new ParserToken("",TokenType.EMPTY));
-                                t = getToken(parts,i);
-                                if(t.isValueToken()) {
+                        if ((last != null) && (last.getType() != null)) {
+                            if (last.isValueToken()) {
+                                parts.set(i - 1, new ParserToken("",
+                                        TokenType.EMPTY));
+                                t = getToken(parts, i);
+                                if (t.isValueToken()) {
                                     parts.remove(i);
                                 }
                             }
@@ -2596,21 +2704,21 @@ public class SHEFParser {
                 String currToken = st.nextToken();
                 // Constructor will attempt to determine the token type
                 ParserToken t = new ParserToken(currToken.trim());
-                if(TokenType.COMMA.equals(last) && currToken.startsWith(" ")) {
+                if (TokenType.COMMA.equals(last) && currToken.startsWith(" ")) {
                     tokens.add(new ParserToken(" ", TokenType.SPACE));
                 }
-                if (TokenType.UNKNOWN.equals(t.getType()) || 
-                		TokenType.SPACEINMIDDLE.equals(t.getType())) {
+                if (TokenType.UNKNOWN.equals(t.getType())
+                        || TokenType.SPACEINMIDDLE.equals(t.getType())) {
                     // check possible failures
-                        List<ParserToken> subList = subTokenize(currToken);
-                        if (subList != null) {
-                            tokens.addAll(subList);
-                        }
+                    List<ParserToken> subList = subTokenize(currToken);
+                    if (subList != null) {
+                        tokens.addAll(subList);
+                    }
                 } else {
                     tokens.add(t);
                 }
-                if(tokens.size() > 0) {
-                    last = tokens.get(tokens.size() -1).getType();
+                if (tokens.size() > 0) {
+                    last = tokens.get(tokens.size() - 1).getType();
                 }
             }
             tokens = identifyEmpty(collapseSpaces(tokens));
@@ -2637,13 +2745,13 @@ public class SHEFParser {
                 continue;
             }
             ParserToken tt = new ParserToken(currToken);
-            if(TokenType.UNKNOWN.equals(tt.getType())) {
+            if (TokenType.UNKNOWN.equals(tt.getType())) {
                 tt = tt.check_D_Directives();
             }
             tokens.add(tt);
             lastToken = currToken;
         }
-        
+
         // Make a pass through the tokens to see if there are any
         // ill-formed retained comments
         for (int i = 0; i < tokens.size(); i++) {
@@ -2737,7 +2845,7 @@ public class SHEFParser {
         TokenType UNKNOWN = TokenType.UNKNOWN;
         TokenType NUMERIC = TokenType.NUMERIC;
         TokenType RETAINEDCOMMENT = TokenType.RETAINEDCOMMENT;
-        
+
         TokenType last = UNKNOWN;
         for (int i = 0; i < tokens.size(); i++) {
 
@@ -2764,7 +2872,7 @@ public class SHEFParser {
                 break;
             }
             case RETAINEDCOMMENT: {
-                if(!NUMERIC.equals(last)) {
+                if (!NUMERIC.equals(last)) {
                     last = RETAINEDCOMMENT;
                 }
                 break;
@@ -2788,7 +2896,7 @@ public class SHEFParser {
         TokenType SLASH = TokenType.SLASH;
         TokenType SPACE = TokenType.SPACE;
         TokenType COMMA = TokenType.COMMA;
-        
+
         TokenType NIL = TokenType.NIL;
 
         List<ParserToken> newTokens = new ArrayList<ParserToken>();
@@ -2818,8 +2926,8 @@ public class SHEFParser {
                         newTokens.add(t);
                     }
                 } else {
-                    if(SPACE.equals(t.getType())) {
-                        if(COMMA.equals(last)) {
+                    if (SPACE.equals(t.getType())) {
+                        if (COMMA.equals(last)) {
                             newTokens.add(t);
                         }
                     } else {
@@ -2833,8 +2941,8 @@ public class SHEFParser {
                     last = t.getType();
                 }
             } else {
-                if(SPACE.equals(t.getType())) {
-                    if(COMMA.equals(last)) {
+                if (SPACE.equals(t.getType())) {
+                    if (COMMA.equals(last)) {
                         last = t.getType();
                     }
                 } else {
@@ -2862,10 +2970,6 @@ public class SHEFParser {
                 ParserToken t = tokens.get(i);
                 if (TokenType.UNKNOWN.equals(t.getType())) {
                     String s = t.getToken().toUpperCase();
-                    if (log.isDebugEnabled()) {
-                        log.debug(traceId + "- Checking unknown token "
-                                + t.getType() + " " + s);
-                    }
                     if (s.length() >= 2) {
                         // Special check for MM, may be a PE or missing value.
                         if ("MM".equals(s)) {
@@ -2901,7 +3005,7 @@ public class SHEFParser {
                             PhysicalElement pe = PhysicalElement.getEnum(s
                                     .substring(0, 2));
                             if (!PhysicalElement.UNKNOWN.equals(pe)) {
-                                
+
                                 int error = SHEFErrorCodes.LOG_000;
                                 String sendCode = null;
 
@@ -2911,16 +3015,17 @@ public class SHEFParser {
                                 if (trans != null) {
                                     if (trans.length() > 3) {
                                         // Handle the send code translation
-                                        if(s.length() != 2) {
+                                        if (s.length() != 2) {
                                             error = SHEFErrorCodes.LOG_030;
                                         } else {
                                             // Only set the sendCode for true
-                                            // send codes, not duration overrides.
+                                            // send codes, not duration
+                                            // overrides.
                                             sendCode = pe.getCode();
                                             s = trans;
                                         }
                                     } else {
-                                        if(s.length() == 2) {
+                                        if (s.length() == 2) {
                                             s = trans;
                                         }
                                     }
@@ -2932,9 +3037,8 @@ public class SHEFParser {
                                 tokens.set(i, tt);
                                 // May be some other type of token
                             } else if (isMissingValue(t.getToken())) {
-                                String q = getMissingQualifier(t
-                                        .getToken());
-                                if("M".equals(q)) {
+                                String q = getMissingQualifier(t.getToken());
+                                if ("M".equals(q)) {
                                     q = ShefConstants.SHEF_MISSING + "M";
                                 } else {
                                     q = ShefConstants.SHEF_MISSING;
@@ -2947,9 +3051,8 @@ public class SHEFParser {
                             }
                         }
                     } else if (isMissingValue(t.getToken())) {
-                        String q = getMissingQualifier(t
-                                .getToken());
-                        if("M".equals(q)) {
+                        String q = getMissingQualifier(t.getToken());
+                        if ("M".equals(q)) {
                             q = ShefConstants.SHEF_MISSING + "M";
                         } else {
                             q = ShefConstants.SHEF_MISSING;
@@ -2962,7 +3065,7 @@ public class SHEFParser {
                         tt.setTrace(true);
                         tokens.set(i, tt);
                     } else {
-                        // With the 
+                        // With the
                         // We have a problem!
                         log.error(traceId + "- Could not identify token " + t);
                     }
@@ -2986,13 +3089,6 @@ public class SHEFParser {
                 } else {
                     i++;
                 }
-                // re-get the token
-//                t = tokens.get(ii);
-//                if (TokenType.UNKNOWN.equals(t.getType())) {
-//                    String s = t.getToken().toUpperCase();
-//                    ParserToken tt = t.analyzeUnknown(s);
-//                    tokens.set(ii, tt);
-//                }
             }
         }
     }
@@ -3015,9 +3111,8 @@ public class SHEFParser {
                     .length(), ShefConstants.UPPER_LID_LIMIT)) {
                 setLocationId(t.getToken());
 
-                // t = new ParserToken(getLocationId(), TokenType.LOC_ID);
                 t = ParserToken.createLocIdToken(getLocationId());
-                
+
                 parts.set(partsIndex, t);
                 if (t.getError() < 0) {
                     return foundPositionalData;
@@ -3053,12 +3148,11 @@ public class SHEFParser {
                                     setTimeZone(tzc);
                                 }
                                 checkForDefaultTimeZone();
-                                // Now check to see if what attempted to set as
-                                // the
-                                // timezone was indeed the timezone. If so, set
-                                // the
-                                // token
-                                // type to TIMEZONE
+                                /*
+                                 * Now check to see if what attempted to set as
+                                 * the timezone was indeed the timezone. If so,
+                                 * set the token type to TIMEZONE
+                                 */
                                 if (tzc.equals(getTimeZone())) {
                                     parts.set(partsIndex, new ParserToken(tzc,
                                             TokenType.TIMEZONE));
@@ -3074,9 +3168,6 @@ public class SHEFParser {
                                 partsIndex++;
                             }
                             tz = SHEFTimezone.sysTimeZones.get(timeZone);
-                            if (log.isDebugEnabled()) {
-                                log.info("Timezone set to " + tz);
-                            }
                             if (tz == null) {
                                 // indicate error - really bad!
                                 foundPositionalData = false;
@@ -3137,7 +3228,6 @@ public class SHEFParser {
         return foundPositionalData;
     } //
 
-
     /**
      * Move past any SPACE tokens in the data list.
      * 
@@ -3192,12 +3282,12 @@ public class SHEFParser {
      */
     private static void fixupDates(List<ParserToken> tokens, TimeZone tz) {
         for (ParserToken t : tokens) {
-            switch(t.getType()) {
+            switch (t.getType()) {
             case DATE_CREATE:
             case OBS_DATE_4:
             case OBS_DATE_6:
             case OBS_DATE_8: {
-                if(t.getError() == ParserToken.ERR_NO_ERROR) {
+                if (t.getError() == ParserToken.ERR_NO_ERROR) {
                     t.adjustToTimezone(tz);
                     t.getDateData().validate();
                 }
@@ -3395,7 +3485,7 @@ public class SHEFParser {
     private static boolean legalTraceValue(PhysicalElement pe) {
         return VALID_TRACE_PE.contains(pe);
     }
-    
+
     /**
      * 
      * @param qualCode
@@ -3404,7 +3494,7 @@ public class SHEFParser {
     private boolean isValidQualityCode(String qualCode) {
         // Set to false by exception
         boolean isValid = true;
-        if(qualCode != null) {
+        if (qualCode != null) {
             isValid = (ShefParm.getDataQualifierCodes(qualCode) != null);
         } else {
             isValid = false;
@@ -3414,13 +3504,14 @@ public class SHEFParser {
 
     /**
      * Determine if the units code is valid.
+     * 
      * @param unitsCode
      * @return
      */
     private static boolean isValidUnits(String unitsCode) {
         // Set to false by exception
         boolean isValid = true;
-        if(unitsCode != null) {
+        if (unitsCode != null) {
             isValid = ShefConstants.VALID_UNITS.indexOf(unitsCode) > -1;
         } else {
             isValid = false;
@@ -3436,19 +3527,16 @@ public class SHEFParser {
      */
     private static ParserToken getToken(List<ParserToken> list, int i) {
         ParserToken t = null;
-        if((list != null) && (i < list.size())) {
+        if ((list != null) && (i < list.size())) {
             t = list.get(i);
         }
-        if(t == null) {
+        if (t == null) {
             t = new ParserToken("^^^", TokenType.UNKNOWN);
         }
-        
+
         return t;
     }
-    
-    
-    
-    
+
     /**
      * 
      * @param msg
@@ -3486,7 +3574,7 @@ public class SHEFParser {
         if (rec != null) {
             recData.append(rec.getShefType().name());
             recData.append(rec.isRevisedRecord() ? "R " : " ");
-            if(reportLead != null) {
+            if (reportLead != null) {
                 recData.append(reportLead);
                 recData.append(" ");
             }
@@ -3504,7 +3592,7 @@ public class SHEFParser {
         Iterator<ParserToken> it = p.iterator();
         while (it.hasNext()) {
             ParserToken t = it.next();
-            if(t.getSendCode() != null) {
+            if (t.getSendCode() != null) {
                 sb.append(t.getSendCode());
             } else {
                 sb.append(t.getRawToken());
@@ -3543,7 +3631,7 @@ public class SHEFParser {
      */
     public static void main(String[] args) {
 
-//        List<ParserToken> list =
+        // List<ParserToken> list =
         // tokenize(".E  EE0165    0323 Z  DH01/HGI/DIH1 /\n" +
         // ".E1  1.0  2..0  3+0 \"comment 3\"  4.0 \"comment 4\"  5.0  6.0");
 
@@ -3555,31 +3643,28 @@ public class SHEFParser {
         // .A AA0447N 991216 Z DH09/ TX 20A\"comment\" /
         // .A AA0447P 991216 Z DH09/ TX 20R\'comment\' /
 
-//        tokenize(".A  AA0447L  991216  Z  DH09/ TX  20M\"comment\"");
+        // tokenize(".A  AA0447L  991216  Z  DH09/ TX  20M\"comment\"");
 
         // List<ParserToken> list =
         // tokenize(".E1  1.0  2..0  3+0 \"comment 3\"  4.0 \"comment 4\"  5.0  6.0 \"comment 5\"\n");
 
-//        System.out
-//                .println("------------------------------------------------------------");
-//        for (ParserToken t : list) {
-//            System.out.println(t);
-//        }
+        // System.out
+        // .println("------------------------------------------------------------");
+        // for (ParserToken t : list) {
+        // System.out.println(t);
+        // }
 
-         List<ParserToken> list =
-         tokenize(".E1  1.0  2..0  3+0 \"comment 3\"  4.0 \"comment 4\"  5.0  6.0 \"comment 5 \"");
-        
-         System.out
-         .println("------------------------------------------------------------");
-         for (ParserToken t : list) {
-         System.out.println(t);
-         }
+        List<ParserToken> list = tokenize(".E1  1.0  2..0  3+0 \"comment 3\"  4.0 \"comment 4\"  5.0  6.0 \"comment 5 \"");
+
+        System.out
+                .println("------------------------------------------------------------");
+        for (ParserToken t : list) {
+            System.out.println(t);
+        }
 
         ParserToken t = new ParserToken("HY");
         System.out.println(t + " " + t.getError());
-        
-        
-        
+
     }
 
 }
