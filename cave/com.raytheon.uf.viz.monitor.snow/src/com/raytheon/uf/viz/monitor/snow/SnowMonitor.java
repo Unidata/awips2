@@ -30,13 +30,13 @@ import java.util.regex.Pattern;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.monitor.IMonitor;
 import com.raytheon.uf.viz.monitor.Monitor;
@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
 import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowZoneTableDlg;
 import com.raytheon.uf.viz.monitor.util.MonitorThresholdConfiguration;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * 
@@ -73,6 +74,7 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * Oct 26, 2012 1280       skorolev    Clean code and made changes for non-blocking ZoneTableDlg
  * Nov. 1, 2012 1297       skorolev    Changed HashMap to Map and clean code
  * Feb 15, 2013 1638       mschenke    Changed code to reference DataURI.SEPARATOR instead of URIFilter
+ * Apr 28, 2014 3086       skorolev    Removed local getMonitorAreaConfig method.
  * 
  * </pre>
  * 
@@ -96,7 +98,7 @@ public class SnowMonitor extends ObsMonitor {
     private SnowMonitoringAreaConfigDlg areaDialog = null;
 
     /** SNOW configuration manager **/
-    private SnowMonitorConfigurationManager snowConfig = null;
+    private FSSObsMonitorConfigurationManager snowConfig;
 
     /**
      * This object contains all observation data necessary for the table dialogs
@@ -117,18 +119,19 @@ public class SnowMonitor extends ObsMonitor {
     private final List<ISnowResourceListener> snowResources = new ArrayList<ISnowResourceListener>();
 
     /** Pattern for SNOW **/
-    private final Pattern snowPattern = Pattern.compile(DataURI.SEPARATOR
-            + OBS + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR
-            + wildCard + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR
-            + wildCard + DataURI.SEPARATOR + wildCard
-            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR
-            + "snow");
+    private final Pattern snowPattern = Pattern.compile(DataURI.SEPARATOR + OBS
+            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + cwa + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + wildCard + DataURI.SEPARATOR + wildCard
+            + DataURI.SEPARATOR + "snow");
 
     /**
      * Private constructor, singleton
      */
     private SnowMonitor() {
         pluginPatterns.add(snowPattern);
+        snowConfig = new FSSObsMonitorConfigurationManager(currentSite,
+                MonName.snow.name());
         readTableConfig(MonitorThresholdConfiguration.SNOW_THRESHOLD_CONFIG);
         initObserver(OBS, this);
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
@@ -153,6 +156,8 @@ public class SnowMonitor extends ObsMonitor {
     // TODO: Provide the changes in EDEX URIFilters when area configuration file
     // has been changed.
     /**
+     * Re-initialization of monitor.
+     * 
      * DR#11279: When monitor area configuration is changed, this module is
      * called to re-initialize monitor using new monitor area configuration
      */
@@ -182,13 +187,21 @@ public class SnowMonitor extends ObsMonitor {
             if (areaDialog == null) {
                 areaDialog = new SnowMonitoringAreaConfigDlg(shell,
                         "SNOW Monitor Area Configuration");
+                areaDialog.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        areaDialog = null;
+                    }
+
+                });
             }
             areaDialog.open();
         }
     }
 
     /**
-     * Gets data
+     * Gets data.
      * 
      * @return obData
      */
@@ -235,7 +248,7 @@ public class SnowMonitor extends ObsMonitor {
     }
 
     /**
-     * Sort by Date
+     * Sort by Date.
      * 
      * @author dhladky
      * 
@@ -258,9 +271,8 @@ public class SnowMonitor extends ObsMonitor {
         Map<String, List<String>> zones = new HashMap<String, List<String>>();
         // create zones and station list
         try {
-            SnowMonitorConfigurationManager areaConfig = getMonitorAreaConfig();
-            for (String zone : areaConfig.getAreaList()) {
-                List<String> stations = areaConfig.getAreaStations(zone);
+            for (String zone : snowConfig.getAreaList()) {
+                List<String> stations = snowConfig.getAreaStations(zone);
                 zones.put(zone, stations);
             }
         } catch (Exception e) {
@@ -269,21 +281,6 @@ public class SnowMonitor extends ObsMonitor {
                             + this.getClass().getName());
         }
         MonitoringArea.setPlatformMap(zones);
-    }
-
-    /**
-     * Gets configuration manager
-     * 
-     * @return snowConfig
-     */
-    public SnowMonitorConfigurationManager getMonitorAreaConfig() {
-        if (snowConfig == null) {
-            LocalizationManager mgr = LocalizationManager.getInstance();
-            String siteScope = mgr.getCurrentSite();
-            snowConfig = SnowMonitorConfigurationManager.getInstance();
-            snowConfig.readConfigXml(siteScope);
-        }
-        return snowConfig;
     }
 
     /*
@@ -350,6 +347,8 @@ public class SnowMonitor extends ObsMonitor {
     }
 
     /**
+     * Gets Dialog Time.
+     * 
      * @return dialogTime
      */
     public Date getDialogTime() {
@@ -357,7 +356,7 @@ public class SnowMonitor extends ObsMonitor {
     }
 
     /**
-     * Sets dialog time
+     * Sets dialog time.
      * 
      * @param dialogTime
      */
@@ -366,27 +365,29 @@ public class SnowMonitor extends ObsMonitor {
     }
 
     /**
-     * add a listener
+     * Adds a listener.
      * 
      * @param isru
+     *            listener
      */
     public void addSnowResourceListener(ISnowResourceListener isru) {
         snowResources.add(isru);
     }
 
     /**
-     * remove a listener
+     * Removes a listener.
      * 
      * @param isru
+     *            listener
      */
     public void removeSnowResourceListener(ISnowResourceListener isru) {
         snowResources.remove(isru);
     }
 
     /**
-     * SnowResource sets the Drawtime
+     * SnowResource sets the Drawtime.
      * 
-     * @param drawTime
+     * @param dialogTime
      */
     public void updateDialogTime(Date dialogTime) {
         this.dialogTime = dialogTime;
@@ -394,7 +395,7 @@ public class SnowMonitor extends ObsMonitor {
     }
 
     /**
-     * Close SNOW zone table dialog
+     * Close SNOW zone table dialog.
      */
     public void closeDialog() {
         if (zoneDialog != null) {
@@ -424,6 +425,8 @@ public class SnowMonitor extends ObsMonitor {
     }
 
     /**
+     * Gets Zone Dialog.
+     * 
      * @return zoneDialog
      */
     public SnowZoneTableDlg getZoneDialog() {
