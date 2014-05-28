@@ -34,6 +34,7 @@ import com.raytheon.viz.aviation.guidance.GuidanceRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2011 8065       rferrel     Initial creation
+ * 09Apr2014    #3005      lvenable    Added hashcode method.
  * 
  * </pre>
  * 
@@ -76,4 +77,13 @@ public class CacheGuidanceRequest extends GuidanceRequest {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        final int prime = 31;
+        result = (prime * result) + ((siteID == null) ? 0 : siteID.hashCode());
+        return result;
+    }
+
 }
