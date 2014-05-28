@@ -177,12 +177,13 @@ import com.vividsolutions.jts.geom.Point;
  * Jun 27, 2013  2152       njensen     More thorough disposeInternal()
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 17, 2013  2197       njensen     Improved speed of getName()
- * Oct 18, 2013  DR 16151	gzhang		Used getAverageValue() for QPF Graph.
- * Jan 21, 2014  DR 15874   gzhang		Use getValue() for QPFSCAN independent. 
+ * Oct 18, 2013  DR 16151   gzhang      Used getAverageValue() for QPF Graph.
+ * Jan 21, 2014  DR 15874   gzhang      Use getValue() for QPFSCAN independent. 
  * Feb 19, 2014 2819        randerso    Removed unnecessary .clone() call
  * Mar  3, 2014 2804        mschenke    Set back up clipping pane
  * Apr 30, 2014  DR 16148   gzhang      Filter Basin Dates for Trend and Table Gap. 
  * May 05, 2014 3026        mpduff      Display Hpe bias source.
+ * May 19, 2014  DR 16096   gzhang      Make getBasin() protected for FFMPDataGenerator.
  * </pre>
  * 
  * @author dhladky
@@ -630,7 +631,7 @@ public class FFMPResource extends
      * @return
      * @throws VizException
      */
-    private FFMPBasin getBasin(Long key, FFMPRecord.FIELDS bfield,
+    protected FFMPBasin getBasin(Long key, FFMPRecord.FIELDS bfield,
             Date recentTime, boolean aggregate) throws VizException {
         FFMPBasin basin = null;
         if (aggregate) {
@@ -830,9 +831,7 @@ public class FFMPResource extends
                     switch (field) {
                     case QPF: {
                         value = getBasin(key, field, recentTime, aggregate)
-                                .getValue(recentTime);// DR 15874
-                        // .getAverageValue(recentTime,
-                        // getQpfSourceExpiration());
+                                .getValue(recentTime);
                         break;
                     }
                     case GUIDANCE: {
