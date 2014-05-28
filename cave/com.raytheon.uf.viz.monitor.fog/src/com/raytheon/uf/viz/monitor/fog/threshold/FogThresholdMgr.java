@@ -21,10 +21,10 @@ package com.raytheon.uf.viz.monitor.fog.threshold;
 
 import java.util.ArrayList;
 
-import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
-import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.MonName;
+import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogDisplay;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogMonitor;
@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.FogMonitor;
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009 #3963      lvenable     Initial creation
  * Feb 03, 2014 #2757      skorolev     Fixed reInitialize()
+ * May 20, 2014  3086      skorolev     Cleaned code.
  * 
  * </pre>
  * 
@@ -57,10 +58,11 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
      */
     private FogThresholdMgr() {
         super("DefaultFogDisplayThresholds.xml",
-                "DefaultFogMonitorThresholds.xml", "fog");
-
-        areaConfigMgr = getAreaConfigMgr();
-        init(); // call init() after areaConfigMgr is set
+                "DefaultFogMonitorThresholds.xml", AppName.FOG.name()
+                        .toLowerCase());
+        areaConfigMgr = new FSSObsMonitorConfigurationManager(site,
+                MonName.fog.name());
+        init();
     }
 
     /**
@@ -77,8 +79,11 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
     }
 
     /**
+     * Re-initialization of threshold manager.
+     * 
      * DR#11279: When monitor area configuration is changed, threshold manager
      * needs to be re-initialized using the new monitor area configuration
+     * 
      */
     public static void reInitialize() {
         if (classInstance != null) {
@@ -90,6 +95,13 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
         classInstance.saveMonitorThresholds();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#getThresholdKeys
+     * (com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey)
+     */
     @Override
     protected ArrayList<String> getThresholdKeys(DataUsageKey dataUsage) {
         ArrayList<String> threshKeys = new ArrayList<String>();
@@ -103,19 +115,22 @@ public class FogThresholdMgr extends AbstractThresholdMgr {
                 threshKeys.add(fogMon.getXmlKey());
             }
         }
-
         return threshKeys;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#
+     * getMonitorAreaConfigInstance()
+     */
     @Override
-    public MonitorConfigurationManager getAreaConfigMgr() {
+    protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
         if (areaConfigMgr == null) {
-            LocalizationManager mgr = LocalizationManager.getInstance();
-            String siteScope = mgr.getCurrentSite();
-
-            areaConfigMgr = FogMonitorConfigurationManager.getInstance();
-            areaConfigMgr.readConfigXml(siteScope);
+            areaConfigMgr = new FSSObsMonitorConfigurationManager(site,
+                    MonName.fog.name());
         }
         return areaConfigMgr;
     }
+
 }
