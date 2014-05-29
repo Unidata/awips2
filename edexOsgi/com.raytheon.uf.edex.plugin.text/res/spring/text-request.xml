@@ -122,6 +122,8 @@
         <property name="destinationResolver" ref="qpidNoDurableResolver"/>
     </bean>
 
+    <bean id="subscription" class="com.raytheon.uf.edex.plugin.text.subscription.services.SubscribeManager"/>
+
     <camelContext id="textdbsrv-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <proxy id="textdbRemoteRetrievalTarget"
@@ -130,6 +132,9 @@
 
         <endpoint id="textdbsrvXml_from"
             uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/textdbsrv?disableStreamCache=true" />
+            
+        <endpoint id="subscriptionHTTP_from"
+            uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/subscribe?disableStreamCache=true" />
 
         <route id="textdbsrvXml">
             <from uri="ref:textdbsrvXml_from" />
@@ -143,6 +148,13 @@
             <bean ref="serializationUtil" method="transformToThrift" />
             <to uri="jms-mhs:queue:fxa.mhs.request?requestTimeout=122000" pattern="InOut" />
             <bean ref="serializationUtil" method="transformFromThrift" />
+        </route>
+
+        <!-- SubscriptionSrv routes -->
+        <route id="subscriptionHTTP">
+            <from uri="ref:subscriptionHTTP_from" />
+            <bean ref="subscription" method="processRequest"/>
+            <bean ref="serializationUtil" method="marshalToXml" />
         </route>
     </camelContext>
 </beans>
