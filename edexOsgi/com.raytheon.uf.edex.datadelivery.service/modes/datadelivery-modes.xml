@@ -28,7 +28,6 @@
     </mode>
 	<mode name="ingest">
 		<exclude>webservices.xml</exclude>
-        <exclude>ebxml.*\.xml</exclude>
 		<exclude>.*datadelivery.*</exclude>
         <exclude>.*bandwidth.*</exclude>
         <exclude>.*sbn-simulator.*</exclude>
