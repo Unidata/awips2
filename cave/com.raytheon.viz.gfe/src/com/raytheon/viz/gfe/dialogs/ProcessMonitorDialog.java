@@ -35,8 +35,6 @@ import java.util.TimeZone;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
@@ -71,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Mar 7, 2008			   Eric Babin  Initial Creation
  * 02/12/2013       #1597  randerso    Modified TaskOutputDialog to support GFE Performance metrics
+ * 05/28/2014       #2841  randerso    Fixed some NPEs and layout issues
  * 
  * </pre>
  * 
@@ -221,20 +220,10 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
         layout.horizontalSpacing = 0;
         layout.verticalSpacing = 0;
         comp.setLayout(layout);
-        layoutData = new GridData(300, 200);
+        layoutData = new GridData(300, 120);
         comp.setLayoutData(layoutData);
 
         scrolled.setContent(comp);
-        scrolled.setExpandVertical(true);
-        scrolled.setMinSize(comp.getSize());
-
-        scrolled.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(ControlEvent e) {
-                scrolled.setMinSize(comp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-            }
-        });
-
         scrolled.layout();
         return comp;
     }
@@ -250,8 +239,8 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
         java.util.List<AbstractGfeTask> taskList = TaskManager.getInstance()
                 .getTaskList();
         for (AbstractGfeTask task : taskList) {
-            if (task.getStatus() == TaskStatus.FINISHED
-                    || task.getStatus() == TaskStatus.CANCELED) {
+            if ((task.getStatus() == TaskStatus.FINISHED)
+                    || (task.getStatus() == TaskStatus.CANCELED)) {
                 finished.add(task);
             } else {
                 pending.add(task);
@@ -344,10 +333,6 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
         }
         pendingComp.pack();
         pendingComp.layout();
-        ScrolledComposite scrolled = (ScrolledComposite) pendingComp
-                .getParent();
-        scrolled.setMinSize(finishedComp.getSize());
-        scrolled.layout();
 
         // create the finished controls
         for (AbstractGfeTask task : finished) {
@@ -377,9 +362,6 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
         }
         finishedComp.pack();
         finishedComp.layout();
-        scrolled = (ScrolledComposite) finishedComp.getParent();
-        scrolled.setMinSize(finishedComp.getSize());
-        scrolled.layout();
     }
 
     private void displayLog(AbstractGfeTask task) {
@@ -493,8 +475,11 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
                 label.setText("Elapsed:");
                 label.setLayoutData(layoutData);
 
-                long delta = task.getFinishedTime().getTime()
-                        - task.getStartedTime().getTime();
+                long delta = 0;
+                if (task.getStartedTime() != null) {
+                    delta = task.getFinishedTime().getTime()
+                            - task.getStartedTime().getTime();
+                }
                 Text elapsedText = new Text(elapsedComp, SWT.BORDER
                         | SWT.READ_ONLY);
                 elapsedText.setText(delta + " ms");
@@ -570,7 +555,7 @@ public class ProcessMonitorDialog extends CaveJFACEDialog implements
             InputStreamReader in = null;
             try {
                 File file = task.getLogFile();
-                if (file != null && file.exists()) {
+                if ((file != null) && file.exists()) {
                     in = new InputStreamReader(new FileInputStream(file),
                             "UTF-8");
                     int n = (int) file.length();
