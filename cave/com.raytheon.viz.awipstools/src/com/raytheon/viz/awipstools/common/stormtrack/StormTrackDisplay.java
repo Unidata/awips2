@@ -722,15 +722,6 @@ public class StormTrackDisplay implements IRenderable {
                     || currentState.newDuration != -1 || update) {
                 if (currentState.timePoints != null
                         && currentState.timePoints.length != frameCount) {
-                    // need to set theAnchorPoint and theAnchorIndex here
-                    // because timePoints get erased before we get to updateAnchorPoint
-                    DataTime frameTime = paintProps.getDataTime();
-                    for (int j=0;j<currentState.timePoints.length;j++){
-                        if (frameTime.equals(currentState.timePoints[j].time)) {
-                            theAnchorPoint = currentState.timePoints[j].coord;
-                            theAnchorIndex = j;
-                        }
-                    }
                     currentState.timePoints = null;
                 }
 
