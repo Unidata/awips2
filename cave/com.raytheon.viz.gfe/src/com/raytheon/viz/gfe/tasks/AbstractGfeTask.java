@@ -36,7 +36,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
 
 /**
- * TODO Add Description
+ * Base class for GFE tasks
  * 
  * <pre>
  * 
@@ -44,7 +44,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 11, 2011            randerso     Initial creation
+ * Apr 11, 2011            randerso    Initial creation
+ * May 28, 2014  #2841     randerso    Made TaskScheduler generic
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public abstract class AbstractGfeTask extends Thread implements
 
     private File logFile;
 
-    private TaskScheduler scheduler;
+    private TaskScheduler<AbstractGfeTask> scheduler;
 
     protected AbstractGfeTask(String displayName) {
         this.displayName = displayName;
