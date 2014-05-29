@@ -128,10 +128,6 @@
    <includes
          id="com.raytheon.uf.viz.thinclient.feature"
          version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.datadelivery.feature"
-         version="0.0.0"/>
          
    <includes
          id="com.raytheon.uf.viz.useradmin.feature"
