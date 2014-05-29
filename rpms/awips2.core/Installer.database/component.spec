@@ -273,7 +273,6 @@ execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/spatial_ref
 execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/rtpostgis.sql metadata
 execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.0/legacy.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata
-execute_psql_sql_script ${SQL_SHARE_DIR}/create_subscription_tables.sql metadata
 execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata
 
 # create the events schema
