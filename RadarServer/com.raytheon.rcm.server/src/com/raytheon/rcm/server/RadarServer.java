@@ -26,7 +26,6 @@ import com.raytheon.rcm.coll.Collector;
 import com.raytheon.rcm.coll.RequestScheduler;
 import com.raytheon.rcm.config.Configuration;
 import com.raytheon.rcm.config.ConfigurationProvider;
-import com.raytheon.rcm.config.MutableConfiguration;
 import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.NotificationEvent;
 import com.raytheon.rcm.event.RadarEvent;
@@ -39,16 +38,6 @@ import com.raytheon.rcm.rpsmgr.RPSListManager;
  * Main class for the Radar Server.
  * <p>
  * This is a container class for the various components of the Radar Server.
- *
- * <pre>
- *
- * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * ...
- * 2014-02-03   DR 14762   D. Friedman Connect configuration's event target to
- *                                     the RadarServer instance.
- * </pre>
  */
 public class RadarServer implements RadarEventListener {
     // protected ConfigurationProvider configurationProvider;
@@ -108,9 +97,6 @@ public class RadarServer implements RadarEventListener {
         connectionManager = new ConnectionManagerImpl(this, linkManager);
         addListener(connectionManager);
         // connectionManager =
-        if (configuration instanceof MutableConfiguration) {
-            ((MutableConfiguration) configuration).setConfigurationEventTarget(this);
-        }
     }
 
     public void addDefaultListeners() {

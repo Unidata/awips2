@@ -42,9 +42,6 @@ import com.raytheon.rcm.config.RadarType;
 import com.raytheon.rcm.config.StandardProductDistInfoDB;
 import com.raytheon.rcm.config.Util;
 import com.raytheon.rcm.config.awips1.Awips1RpsListUtil;
-import com.raytheon.rcm.event.ConfigEvent;
-import com.raytheon.rcm.event.ConfigEvent.Category;
-import com.raytheon.rcm.event.RadarEventListener;
 import com.raytheon.rcm.message.GSM;
 import com.raytheon.rcm.message.GraphicProduct.PDB;
 import com.raytheon.rcm.request.RpsList;
@@ -52,20 +49,6 @@ import com.raytheon.rcm.request.RpsXml;
 import com.raytheon.rcm.server.Log;
 
 
-/**
- * Represents the standard configuration model of the AWIPS 2 RadarServer.
- *
- * <pre>
- *
- * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * ...
- * 2014-02-03   DR 14762   D. Friedman Handle updated NDM config files.
- *                                     Send configuration events.
- * </pre>
- *
- */
 public class StandardConfig implements Configuration, MutableConfiguration {
 
 	final String generalPropBase = "com.raytheon.rcm";
@@ -75,7 +58,6 @@ public class StandardConfig implements Configuration, MutableConfiguration {
 	private StandardConfigProvider provider;
 	private HashMap<String, RadarConfig> radars = new HashMap<String, RadarConfig>();
 	private StandardProductDistInfoDB prodDistInfoDB = new StandardProductDistInfoDB();
-    private RadarEventListener configurationEventTarget;
 	
 	private int regionCodeFromWmoSiteInfo;
 
@@ -106,20 +88,11 @@ public class StandardConfig implements Configuration, MutableConfiguration {
 		return prodDistInfoDB;
 	}
 
-    public void setProdDistInfoDB(StandardProductDistInfoDB prodDistInfoDB) {
-        this.prodDistInfoDB = prodDistInfoDB;
-        if (configurationEventTarget != null) {
-            ConfigEvent ev = new ConfigEvent(Category.PROD_DISTRIBUTION);
-            configurationEventTarget.handleConfigEvent(ev);
-        }
-    }
-
 	@Override
 	public ProductDistributionInfo getProductDistInfo(String radarID, PDB pdb) {
 		RadarConfig rc = getConfigForRadar(radarID);
-		StandardProductDistInfoDB db = prodDistInfoDB;
-		if (db != null && rc != null)
-			return db.getProductDistInfo(rc, pdb.productCode, pdb);
+		if (prodDistInfoDB != null && rc != null)
+			return prodDistInfoDB.getProductDistInfo(rc, pdb.productCode, pdb);
 		else
 			return null;
 	}
@@ -128,9 +101,8 @@ public class StandardConfig implements Configuration, MutableConfiguration {
 	public ProductDistributionInfo getProductDistInfo(String radarID,
 			int messageCode) {
 		RadarConfig rc = getConfigForRadar(radarID);
-		StandardProductDistInfoDB db = prodDistInfoDB;
-		if (db != null && rc != null)
-			return db.getProductDistInfo(rc, messageCode, null);
+		if (prodDistInfoDB != null && rc != null)
+			return prodDistInfoDB.getProductDistInfo(rc, messageCode, null);
 		else
 			return null;
 	}
@@ -327,10 +299,6 @@ public class StandardConfig implements Configuration, MutableConfiguration {
 
 	void setRegionCodeFromWmoSiteInfo(int regionCodeFromWmoSiteInfo) {
 		this.regionCodeFromWmoSiteInfo = regionCodeFromWmoSiteInfo;
-		/* There is currently no need to send a configuration event for this
-		 * because the value is always queried from the configuration when
-		 * it is used.
-		 */
 	}
 
 	// TODO: Should not have to care about the opMode...
@@ -380,13 +348,8 @@ public class StandardConfig implements Configuration, MutableConfiguration {
 		// doc.regionCode = globals.regionCode; // Setting this directly is not supported...
 		doc.regionCode = null;
 		provider.updateRegionCode();
-
-        boolean result = saveConfig();
-        if (configurationEventTarget != null) {
-            ConfigEvent ev = new ConfigEvent(Category.GLOBAL_CONFIG);
-            configurationEventTarget.handleConfigEvent(ev);
-        }
-        return result;
+		
+		return saveConfig();
 	}
 
 	private boolean saveConfig() {
@@ -423,13 +386,7 @@ public class StandardConfig implements Configuration, MutableConfiguration {
 		RadarConfig oldConfig = radars.get(rc.getRadarID());
 		if (oldConfig != null) {
 			radars.put(rc.getRadarID(), rc);
-
-            boolean result = saveConfig();
-            if (configurationEventTarget != null) {
-                ConfigEvent ev = new ConfigEvent(rc.getRadarID(), oldConfig, rc);
-                configurationEventTarget.handleConfigEvent(ev);
-            }
-            return result;
+			return saveConfig();
 		} else {
 			Log.errorf("Attempt to change configuration of unknown radar '%s'", rc.getRadarID());
 			return false;
@@ -472,27 +429,6 @@ public class StandardConfig implements Configuration, MutableConfiguration {
     @Override
     public InputStream getDropInData(String name) throws IOException {
         return new FileInputStream(res.getDropInPath(name));
-    }
-
-    /*package*/ void notifyNationalRpsLists() {
-        if (configurationEventTarget != null) {
-            ConfigEvent ev = new ConfigEvent(Category.NATIONAL_RPS_LISTS);
-            configurationEventTarget.handleConfigEvent(ev);
-        }
-    }
-
-    public boolean storeConfigFile(String name, byte[] data) {
-        // Delegate to provider
-        return provider.storeNdmConfigFile(name, data);
-    }
-
-    public RadarEventListener getConfigurationEventTarget() {
-        return configurationEventTarget;
-    }
-
-    public void setConfigurationEventTarget(
-            RadarEventListener configurationEventTarget) {
-        this.configurationEventTarget = configurationEventTarget;
     }
 
 }
