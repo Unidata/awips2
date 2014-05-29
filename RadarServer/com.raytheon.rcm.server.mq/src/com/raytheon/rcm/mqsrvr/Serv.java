@@ -28,6 +28,7 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.rcm.event.ConfigEvent;
 import com.raytheon.rcm.event.RadarEvent;
 import com.raytheon.rcm.event.RadarEventListener;
 import com.raytheon.rcm.alertreq.AlertRequestDefinition;
@@ -52,19 +53,6 @@ import com.raytheon.rcm.server.StatusManager;
 import com.raytheon.rcm.server.StatusManager.RadarStatus;
 
 
-/**
- * Common RadarServer request message handler.
- *
- * <pre>
- *
- * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * ...
- * 2014-02-03   DR 14762   D. Friedman Handle NDM config files.
- * </pre>
- *
- */
 public class Serv {
 	
 	protected RadarServer server;
@@ -248,6 +236,9 @@ public class Serv {
 			return "The RadarServer's current configuration system does not support live changes.";
 		MutableConfiguration mc = (MutableConfiguration) config;
 		boolean result = mc.setGlobalConfig(global);
+
+		ConfigEvent ev = new ConfigEvent();
+		server.handleConfigEvent(ev);
 		
 		if (result)
 			return null;
@@ -260,8 +251,12 @@ public class Serv {
 		if (! (config instanceof MutableConfiguration))
 			return "The RadarServer's current configuration system does not support live changes.";
 		MutableConfiguration mc = (MutableConfiguration) config;
+		RadarConfig oldConfig = config.getConfigForRadar(rc.getRadarID());
 		boolean result = mc.setRadarConfig(rc);
 
+		ConfigEvent ev = new ConfigEvent(rc.getRadarID(), oldConfig, rc);
+		server.handleConfigEvent(ev);
+		
 		if (result)
 			return null;
 		else
@@ -293,16 +288,4 @@ public class Serv {
 		server.getConnectionManager().sendMessageToRadar(radarID, message);
 		return null;
 	}
-
-    public String sendConfigFile(String fileName, byte[] fileData) {
-        Configuration config = server.getConfiguration();
-        if (! (config instanceof MutableConfiguration))
-            return "The RadarServer's current configuration system does not support live changes.";
-        MutableConfiguration mc = (MutableConfiguration) config;
-        boolean result = mc.storeConfigFile(fileName, fileData);
-        if (result)
-            return null;
-        else
-            return "Error updating configuration.";
-    }
 }
