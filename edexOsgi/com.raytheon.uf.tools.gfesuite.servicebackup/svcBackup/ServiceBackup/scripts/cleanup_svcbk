@@ -49,7 +49,7 @@ fi
 
 if [ -d ${LOCALIZATION_PATH}/cave_static/site/${CAPS_FAILED_SITE}/gfe ]; then
     log_msg "Removing cave site configuration for site ${CAPS_FAILED_SITE}"
-    rm -fr ${LOCALIZATION_PATH}/cave_static/site/${SITE}/gfe
+    rm -fr ${LOCALIZATION_PATH}/cave_static/site/${CAPS_FAILED_SITE}/gfe
 fi
 
 if [ -d ${LOCALIZATION_PATH}/cave_static/site/${CAPS_FAILED_SITE}/bundles/maps ]; then
