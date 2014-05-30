@@ -21,5 +21,7 @@
 
 void read_dpa_fname ( const char rad [ 4 ] , const char * datetime ,
                       char fname [ 17 ] , long int * irc ) ;
+void read_daa_fname ( const char rad [ 4 ] , const char * datetime ,
+                      char fname [ 17 ] , long int * irc ) ;
 
 #endif /* #ifndef READ_DPA_FILENAME_H */
