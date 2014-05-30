@@ -32,6 +32,7 @@ import com.raytheon.viz.ghg.Activator;
 import com.raytheon.viz.ghg.constants.StatusConstants;
 import com.raytheon.viz.ghg.monitor.constants.GhgMenuConstants;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.DataEnum;
+import com.raytheon.viz.ghg.monitor.data.GhgConfigData;
 import com.raytheon.viz.ghg.monitor.data.GhgData;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorFilterChangeEvent;
 import com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent;
@@ -49,6 +50,7 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 10, 2010            mpduff     Initial creation
+ * Apr 9, 2014  15769      ryu        Moved attribute identifyTestData to configuration, as in A1.
  * 
  * </pre>
  * 
@@ -77,11 +79,6 @@ public class GhgDisplayManager {
      * Show label flag.
      */
     private boolean showLabels = false;
-
-    /**
-     * Identify test data flag.
-     */
-    private boolean identifyTestData = false;
 
     /**
      * List of GhgData records
@@ -334,20 +331,5 @@ public class GhgDisplayManager {
         for (GhgMonitorZoneSelectionListener listener : zoneSelectionListenerList) {
             listener.notifyUpdate(evt);
         }
-    }
-
-    /**
-     * @return the identifyTestData
-     */
-    public boolean isIdentifyTestData() {
-        return identifyTestData;
-    }
-
-    /**
-     * @param identifyTestData
-     *            the identifyTestData to set
-     */
-    public void setIdentifyTestData(boolean identifyTestData) {
-        this.identifyTestData = identifyTestData;
     }
 }
