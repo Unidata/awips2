@@ -43,10 +43,23 @@ enum MpeBestProdList  { RMOSAIC,
                         P3LMOSAIC,
                         RFCMOSAIC,
                         RFCBMOSAIC,
+                        RFCMMOSAIC,
                         QMOSAIC,
                         LQMOSAIC,
                         MLQMOSAIC,
-                        RFCMMOSAIC,
+			
+                        RDMOSAIC,
+                        AVGRDMOSAIC,
+                        MAXRDMOSAIC,
+                        BDMOSAIC,
+                        LDMOSAIC,
+                        MDMOSAIC,
+                        MLDMOSAIC,
+                        SRDMOSAIC, 
+                        SRDGMOSAIC,
+            LOCALFIELD1,
+			LOCALFIELD2,
+			LOCALFIELD3,
                         NUM_BEST_PRODUCTS } ;
 
 /* Added April 2, 2008.  These names correspond to the
@@ -71,7 +84,19 @@ static const char * MpeBestProdNames [ NUM_BEST_PRODUCTS ] =
                      "RFC Multi-sensor Mosaic",
                      "Raw Q2 Mosaic",
                      "Local Bias Q2 Mosaic",
-                     "Multi-sensor Q2 Mosaic"};
+		     "Multi-sensor Q2 Mosaic", 		   
+                     "DP Radar Mosaic",
+                     "DP Average Radar Mosaic",
+                     "DP Maximum Radar Mosaic", 
+                     "DP Field Bias Radar Mosaic",
+                     "DP Local Bias Radar Mosaic",
+                     "DP Multi-sensor Mosaic",
+                     "DP Local Bias Multi-sensor Mosaic",
+                     "DP Satellite Radar Mosaic",
+                     "DP Satellite Radar Gage Mosaic",
+             "Local Field 1", 
+		     "Local Field 2", 
+		     "Local Field 3"};
 
 
 /* Added April 3, 2008. These display field types correspond to the
@@ -99,9 +124,21 @@ static const enum DisplayFieldData MPEBestDisplayTypes [ NUM_BEST_PRODUCTS ] =
                       display_rfcmMosaic,
                       display_qMosaic,
                       display_lqMosaic,
-                      display_mlqMosaic };
+		      display_mlqMosaic,  
 
+	 	      display_rdMosaic,
+		      display_avgrdMosaic,
+		      display_maxrdMosaic,
+		      display_bdMosaic,
+		      display_ldMosaic,
+		      display_mdMosaic,
+		      display_mldMosaic,
+              display_srdMosaic,
+              display_srdgMosaic,
 
+              display_localField1,
+		      display_localField2,
+		      display_localField3 };
 
 /* The token names to for the list of mpe products to generate and the
    best qpe. */
@@ -113,10 +150,13 @@ static const enum DisplayFieldData MPEBestDisplayTypes [ NUM_BEST_PRODUCTS ] =
 /* Token which contains which of the radar mosaics to use
    as the base for the MPE products. */
 #define MPE_BASE_RADAR_MOSAIC_TOKEN "mpe_base_radar_mosaic"
+#define MPE_BASE_RADARDP_MOSAIC_TOKEN "mpe_base_radardp_mosaic"
 
 void get_mpe_product_state ( const char * product , const int * product_len ,
 			     const int * verbose , int * state ,
 			     int * exit_status ) ;
+
+int isInGenerateList(const char * qpeFieldName);
 
 void get_mpe_qpe_fieldtype (  const int * verbose , char * bestfield ,
 		              int * bestfield_len , int * exit_status ) ;
@@ -124,6 +164,8 @@ void get_mpe_qpe_fieldtype (  const int * verbose , char * bestfield ,
 void get_mpe_base_radar ( const int * verbose , char * base_radar_field ,
                           int * baseradar_len , int * exit_status );
 
+void get_mpe_base_radardp ( const int * verbose , char * base_radardp_field ,
+                          int * baseradar_len , int * exit_status );
 const char ** get_qpe_fields_array (  ) ;
 
 #endif /* #ifndef GET_MPE_PRODUCT_STATE_H */
