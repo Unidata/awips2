@@ -55,6 +55,7 @@
 #    Nov 07, 2013    2476          dgilling       Fix _getGridsResult() for retrieving 
 #                                                 Wx/Discrete in First mode.
 #    Dec 23, 2013    16893         ryu            Added unloadWEs() method (created by njensen)
+#    Apr 29, 2014    3097          randerso       Fixed getGrids() to return non-scalar grids as tuples in all cases
 #
 ########################################################################
 import types, string, time, sys
@@ -477,7 +478,9 @@ class SmartScript(BaseTool.BaseTool):
                         else:
                             # discrete or weather
                             keys = JUtil.javaObjToPyVal(jxlgrid.getKeyList())
-                            xlgrid.append(keys)                    
+                            xlgrid = (xlgrid[0], keys)
+                    else:
+                        xlgrid = (xlgrid[0], xlgrid[1])                    
                     xlated.append(xlgrid)
                 retVal = xlated
             else:
@@ -487,12 +490,14 @@ class SmartScript(BaseTool.BaseTool):
                 if len(result) == 1:
                     if result[0].dtype != numpy.int8:
                         # scalar
-                        result = result[0]
+                        retVal = result[0]
                     else:
                         # discrete or weather
                         keys = JUtil.javaObjToPyVal(slice.getKeyList())
-                        result.append(keys)
-                retVal = result
+                        retVal = (result[0], keys)
+                else:
+                    # vector
+                    retVal = (result[0], result[1])
 
         if retVal is None or retVal == []:
             if noDataError == 1:
