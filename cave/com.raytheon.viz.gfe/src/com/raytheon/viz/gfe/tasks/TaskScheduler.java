@@ -97,9 +97,11 @@ public class TaskScheduler<TaskType extends AbstractGfeTask> extends Job {
             allTasks.add(task);
             fireTaskStatusChanged(task);
         } catch (IllegalStateException e) {
-            statusHandler.error(String.format(
-                    "Unable to queue job: %s. Pending task limit (%d) exceeded."
-                            + task.getDisplayName(), pendingTaskLimit), e);
+            task.cancel();
+            statusHandler
+                    .error(String
+                            .format("Unable to queue job: %s. Pending task limit (%d) exceeded.",
+                                    task.getDisplayName(), pendingTaskLimit));
         }
         this.schedule();
     }
@@ -118,7 +120,7 @@ public class TaskScheduler<TaskType extends AbstractGfeTask> extends Job {
     }
 
     private synchronized void runTask(AbstractGfeTask task) {
-        System.out.println("runTask");
+        // System.out.println("runTask");
         runningTasks++;
         task.start();
 
@@ -134,8 +136,8 @@ public class TaskScheduler<TaskType extends AbstractGfeTask> extends Job {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        System.out.println("pending: " + pendingTasks.size() + " running: "
-                + runningTasks);
+        // System.out.println("pending: " + pendingTasks.size() + " running: "
+        // + runningTasks);
         while ((runningTasks < runningTaskLimit) && (pendingTasks.size() > 0)) {
             AbstractGfeTask task = pendingTasks.poll();
             runTask(task);
@@ -145,14 +147,14 @@ public class TaskScheduler<TaskType extends AbstractGfeTask> extends Job {
     }
 
     protected synchronized void taskCompleted(TaskType task) {
-        System.out.println("taskCompleted");
+        // System.out.println("taskCompleted");
         runningTasks--;
         finishTask(task);
     }
 
     protected synchronized void taskCanceled(TaskType task) {
         task.status = TaskStatus.CANCELED;
-        System.out.println("taskCompleted");
+        // System.out.println("taskCompleted");
         finishTask(task);
     }
 
