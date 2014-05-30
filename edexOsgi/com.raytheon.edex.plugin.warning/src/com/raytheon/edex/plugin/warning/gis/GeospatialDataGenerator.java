@@ -103,6 +103,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Oct 22, 2013  2361      njensen     Use JAXBManager for XML
  * Feb 07, 2014  16090  mgamazaychikov Changed visibility of some methods
  * Mar 19, 2014  2726      rjpeter     Made singleton instance.
+ * Apr 29, 2014  3033      jsanchez    Properly handled site and back up site files.
  * </pre>
  * 
  * @author rjpeter
@@ -167,7 +168,7 @@ public class GeospatialDataGenerator {
                 WarngenConfiguration template = null;
                 try {
                     template = WarngenConfiguration.loadConfig(templateName,
-                            site);
+                            site, null);
                 } catch (Exception e) {
                     statusHandler
                             .handle(Priority.ERROR,

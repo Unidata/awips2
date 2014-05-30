@@ -40,7 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
-import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
+import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -60,7 +60,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *    May 26, 2010 #4649       Qinglu Lin  Made including TO.A and SV.A mandatory
  *    Apr 24, 2013  1943       jsanchez    Marked areaConfig as Deprecated.
  *    Oct 22, 2013  2361       njensen     Removed ISerializableObject
- * 
+ *    Apr 28, 2014  3033       jsanchez    Properly handled back up configuration (*.xml) files.
  * </pre>
  * 
  * @author chammack
@@ -156,16 +156,20 @@ public class WarngenConfiguration {
      * 
      * @param templateName
      *            - the name of the warngen template
+     * @param localSite
+     *            - the site cave is localized to
+     * @param localSite
+     *            - the back up site
      * @return the warngen configuration
      * @throws VizException
      */
     public static WarngenConfiguration loadConfig(String templateName,
-            String localSite) throws FileNotFoundException, IOException,
-            JAXBException {
+            String localSite, String backupSite) throws FileNotFoundException,
+            IOException, JAXBException {
         WarngenConfiguration config = new WarngenConfiguration();
-
         // Open the template file
-        String xml = FileUtil.open(templateName + ".xml", localSite);
+        String xml = WarnFileUtil
+                .convertFileContentsToString(templateName + ".xml", localSite, backupSite);
 
         // Include external files, such as damInfo.txt
         Matcher m = p.matcher(xml);
@@ -173,7 +177,8 @@ public class WarngenConfiguration {
         try {
             while (m.find()) {
                 includeFile = m.group(1);
-                String includeXml = FileUtil.open(includeFile, localSite);
+                String includeXml = WarnFileUtil.convertFileContentsToString(includeFile, localSite,
+                        backupSite);
                 xml = xml.replace(m.group(0), includeXml);
             }
         } catch (Exception e) {
