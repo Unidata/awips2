@@ -85,6 +85,7 @@ typedef struct {
 		Widget          edit_multi_sensor_field_button;
 		Widget          edit_bias_value_button;
 		Widget          ignore_widget;
+		Widget          ignore_dp_widget;
 		Widget          edit_popupShell;
 		Widget          edit_canvas;
 		Widget          save_widget;
@@ -112,6 +113,11 @@ typedef struct {
                 Widget          rfc_qpe_mosaic;
                 Widget          transmit_rfc_qpe;
                 Widget          transmit_rfc_bias;
+		Widget          post_analysis_widget;
+
+		/* added by zhan */
+		Widget          restart_widget;
+
 	        } rfcwide_widget_struct;
 
 typedef struct {
@@ -152,6 +158,9 @@ Widget                          p3lmosaic_widget;
 Widget                          rawq2mosaic_widget;
 Widget                          locbiasq2mosaic_widget;
 Widget                          multiq2mosaic_widget;
+Widget                          localfield1_widget;
+Widget                          localfield2_widget;
+Widget                          localfield3_widget;
 Widget                          gageonly_widget;
 Widget                          xmrg_widget;
 Widget                          multihour_widget;
@@ -167,6 +176,18 @@ Widget                          srmosaic_widget;
 Widget                          srgmosaic_widget;
 Widget                          rfcbmosaic_widget;
 Widget                          rfcmmosaic_widget;
+
+//dual pol widgets
+Widget rdmosaic_widget;
+Widget  avgrdmosaic_widget;
+Widget  maxrdmosaic_widget;
+Widget  bdmosaic_widget;
+Widget  ldmosaic_widget;
+Widget  mdmosaic_widget;
+Widget  mldmosaic_widget;
+Widget  srdmosaic_widget;
+Widget  srdgmosaic_widget;
+
 Widget                          bias_widget;
 Widget                          bias_shell;
 Widget                          applyInfoPb[40];
