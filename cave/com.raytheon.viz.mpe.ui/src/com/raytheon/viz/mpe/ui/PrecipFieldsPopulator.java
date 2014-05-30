@@ -55,8 +55,21 @@ public class PrecipFieldsPopulator extends FieldsPopulator {
             DisplayFieldData.srMosaic, DisplayFieldData.sgMosaic,
             DisplayFieldData.srgMosaic, DisplayFieldData.p3lMosaic,
             DisplayFieldData.qmosaic, DisplayFieldData.lqmosaic,
-            DisplayFieldData.mlqmosaic, DisplayFieldData.localField1,
-            DisplayFieldData.localField2, DisplayFieldData.localField3 };
+            DisplayFieldData.mlqmosaic,
+            
+            DisplayFieldData.rdMosaic,
+            DisplayFieldData.avgrdMosaic,
+            DisplayFieldData.maxrdMosaic,
+            DisplayFieldData.bdMosaic,
+            DisplayFieldData.ldMosaic,
+            DisplayFieldData.mdMosaic,
+            DisplayFieldData.mldMosaic,
+            DisplayFieldData.srdMosaic,
+            DisplayFieldData.srdgMosaic,
+            
+            DisplayFieldData.localField1,
+            DisplayFieldData.localField2,
+            DisplayFieldData.localField3 };
 
     private static Map<DisplayFieldData, MenuData> textMap = new HashMap<DisplayFieldData, MenuData>();
     static {
@@ -78,7 +91,7 @@ public class PrecipFieldsPopulator extends FieldsPopulator {
         textMap.put(DisplayFieldData.satPre, new MenuData("Satellite Precip",
                 "S"));
         textMap.put(DisplayFieldData.lsatPre, new MenuData(
-                "Local Bias Satellite Preci", "o"));
+                "Local Bias Satellite Precip", "o"));
         textMap.put(DisplayFieldData.srMosaic, new MenuData(
                 "Satellite Radar Mosaic", "e"));
         textMap.put(DisplayFieldData.sgMosaic, new MenuData(
@@ -92,6 +105,26 @@ public class PrecipFieldsPopulator extends FieldsPopulator {
                 "Q2 Local Bias Mosaic", "B"));
         textMap.put(DisplayFieldData.mlqmosaic, new MenuData(
                 "Q2 Multi-sensor Mosaic", "i"));
+        
+        textMap.put(DisplayFieldData.rdMosaic, new MenuData(
+                "DP Radar Mosaic", "3"));
+        textMap.put(DisplayFieldData.avgrdMosaic, new MenuData(
+                "DP Avg Radar Mosaic", "4"));
+        textMap.put(DisplayFieldData.maxrdMosaic, new MenuData(
+                "DP Max Radar Mosaic", "5"));
+        textMap.put(DisplayFieldData.bdMosaic, new MenuData(
+                "DP Field Bias Radar Mosaic", "6"));
+        textMap.put(DisplayFieldData.ldMosaic, new MenuData(
+                "DP Local Bias Radar Mosaic", "7"));
+        textMap.put(DisplayFieldData.mdMosaic, new MenuData(
+                "DP Field Bias Multisensor Radar Mosaic", "8"));
+        textMap.put(DisplayFieldData.mldMosaic, new MenuData(
+                "DP Local Bias Multisensor Radar Mosaic", "9"));
+        textMap.put(DisplayFieldData.srdMosaic, new MenuData(
+                "DP Satellite Radar Mosaic", "0"));
+        textMap.put(DisplayFieldData.srdgMosaic, new MenuData(
+                "DP Satellite Radar Gage Mosaic", "1"));
+        
         textMap.put(DisplayFieldData.localField1, new MenuData(
                 "Local Field #1", "d"));
         textMap.put(DisplayFieldData.localField2, new MenuData(
