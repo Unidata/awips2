@@ -10,6 +10,7 @@
 * MACHINE:               Dell-Redhat Linux
 * MODIFICATION HISTORY:
 *   DATE         PROGRAMMER        DESCRIPTION/REASON
+*   07/2013      JingtaoD          MAX_RADAR_NUM
 *
 ********************************************************************************
 */
@@ -102,6 +103,7 @@
 #define    NUM_DSP_ROWS    524
 #define    NUM_DSP_ELEMENTS    NUM_DSP_ROWS * NUM_DSP_COLS
 
-#define    APPLY_POLYGON   0
+#define    APPLY_POLYGON   0 
+#define    MAX_RADAR_NUM   600
 
 #endif /* #ifndef EMPE_CONSTANTS_H */
