@@ -252,11 +252,17 @@ public class GenerateAccumGrids {
                     yyyyMMddHH.format(ts));
         }
 
+        System.out.println("GenerateAccumGrids.Read1hrQPEGrid(): qpe_filename: " + qpe_filename);
+        
         XmrgFile xmrg = new XmrgFile(qpe_filename);
         try {
-            xmrg.load();
-            Rectangle extent = xmrg.getHrapExtent();
-            DailyQcUtils.QPEgrid1hr = xmrg.getData(extent);
+            long fileLength = xmrg.getFile().length();
+            if (fileLength > 0)
+            {
+                xmrg.load();
+                Rectangle extent = xmrg.getHrapExtent();
+                DailyQcUtils.QPEgrid1hr = xmrg.getData(extent);
+            }
         } catch (FileNotFoundException e) {
             System.out.println("xmrg file not found: " + qpe_filename);
 
