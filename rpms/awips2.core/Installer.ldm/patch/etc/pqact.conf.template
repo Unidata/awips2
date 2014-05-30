@@ -320,6 +320,14 @@ ANY	^(LGXT[0-2][0-9]) KNHC (..)(..)(..)
 ANY	^(LGXP[0-9][0-9]) KNHC (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/TPC/\3\4Z_SURGE-\1_KNHC_\2\3\4_(seq).grib2.%Y%m%d%H
 
+# TPCSurge PHISH heights
+#ANY	^(L[l-X]X[QP][1-5]0) KNHC (..)(..)(..)
+#	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/TPC/\3\4Z_SURGE-\1_KNHC_\2\3\4_(seq).grib2.%Y%m%d%H
+
+# TPCSurge PHISH probabilities
+#ANY	^(L[H-G]X[A-M][0-2][0-9]) KNHC (..)(..)(..)
+#	FILE	-overwrite -log -close -edex	/data_store/grib2/(\2:yyyy)(\2:mm)\2/\3/TPC/\3\4Z_SURGE-\1_KNHC_\2\3\4_(seq).grib2.%Y%m%d%H
+
 # AWIPS1:	GRID    ^LDIZ11.*KWNS                   /Grid/SBN/rawGrib2
 # LDIZ11 KWNS 180039 !grib2/ncep/0/#202/FHRS//LVL
 
