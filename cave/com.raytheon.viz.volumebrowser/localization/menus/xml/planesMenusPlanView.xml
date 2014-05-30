@@ -333,6 +333,7 @@
     	<contribute xsi:type="menuItem" menuText="Primary" key="Primary"  indentText="false"/>
     	<contribute xsi:type="menuItem" menuText="Secondary" key="Secondary"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0BSS"  indentText="false"/>    	
+    	<contribute xsi:type="menuItem" menuText="0 AGL" key="0FHAG"  indentText="false"/>
     </contribute>
     
     <!-- 
