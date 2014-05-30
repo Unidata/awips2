@@ -78,6 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     updating RawPP records
  * Nov 24, 2008 1748      snaples      Added getters to MPEGageData
  * Jun 18, 2013 16053     snaples      Removed methods set and getRadarEditFlag
+ * Dec 15 2013  DCS 167   cgobs        DualPol capabilities
  * </pre>
  * 
  * @author randerso
@@ -149,7 +150,9 @@ public class MPEDataManager {
         private short[] unbiasedRadarData;
 
         private double rwBiasValUsed;
-
+//        private double daaBiasValUsed;
+       
+        
         private double memSpanUsed;
 
         private String editBias;
@@ -201,10 +204,22 @@ public class MPEDataManager {
             return rwBiasValUsed;
         }
 
+        /*
+        public double getDAABiasValUsed() {
+            return daaBiasValUsed;
+        }
+        */
+        
         public void setRwBiasValUsed(double rwBiasValUsed) {
             this.rwBiasValUsed = rwBiasValUsed;
         }
 
+        /*
+        public void setDAABiasValUsed(double daaBiasValUsed) {
+            this.daaBiasValUsed = daaBiasValUsed;
+        }
+        */
+        
         /**
          * @return the memSpanUsed
          */
@@ -769,7 +784,7 @@ public class MPEDataManager {
         }
     }
 
-    public Map<String, MPERadarData> readRadarData(Date date) {
+    public Map<String, MPERadarData> OrigReadRadarData(Date date) {
         getRadars();
         StringBuffer sqlQuery = new StringBuffer();
         sqlQuery.append("select radid,num_gages,rad_avail, rw_bias_val_used,mem_span_used, edit_bias, ignore_radar from rwradarresult where obstime='"
@@ -828,6 +843,98 @@ public class MPEDataManager {
                     statusHandler.handle(
                             Priority.PROBLEM,
                             "Record not found in RWRadarResult table for "
+                                    + radarLoc.getId() + " for time "
+                                    + sdf.format(date) + "Z");
+                    // VizApp.logAndAlert(IStatus.WARNING, null, "Warning",
+                    // "Record not found in RWRadarResult table for "
+                    // + radarLoc.getId() + " for time "
+                    // + sdf.format(date) + "Z", Activator
+                    // .getDefault(), Activator.PLUGIN_ID);
+                }
+
+                radarResultList.put(radarLoc.getId(), radarData);
+            }
+        } catch (VizException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return radarResultList;
+    }
+
+    public Map<String, MPERadarData> readSPRadarData(Date date)
+    {
+    	//reads DPA radar data
+    	return readRadarData(date, "rwradarresult");
+    	
+    }
+    
+    public Map<String, MPERadarData> readDPRadarData(Date date)
+    {
+    	//reads DAA radar data
+      	return readRadarData(date, "daaradarresult");
+    }
+    
+    
+    public Map<String, MPERadarData> readRadarData(Date date, String tableName) {
+        getRadars();
+        StringBuffer sqlQuery = new StringBuffer();
+        sqlQuery.append("select radid,num_gages, rad_avail, rw_bias_val_used, mem_span_used, edit_bias, ignore_radar from " + 
+        				 tableName + " where obstime='" + sdf.format(date) + "' and radid in(");
+        for (int i = 0; i < radarList.size(); i++) {
+            sqlQuery.append("'");
+            sqlQuery.append(radarList.get(i).getId());
+            sqlQuery.append("'");
+            if (i != radarList.size() - 1) {
+                sqlQuery.append(",");
+            }
+        }
+        sqlQuery.append(") order by radid asc");
+
+        Map<String, MPERadarData> radarResultList = new HashMap<String, MPERadarData>(
+                radarList.size());
+        try {
+            List<Object[]> results = DirectDbQuery
+                    .executeQuery(sqlQuery.toString(), HydroConstants.IHFS,
+                            QueryLanguage.SQL);
+            Iterator<Object[]> iter = results.iterator();
+            Object[] item = iter.hasNext() ? iter.next() : null;
+            for (MPERadarLoc radarLoc : radarList) {
+                MPERadarData radarData = new MPERadarData();
+
+                int compareResult = item == null ? -1 : radarLoc.getId()
+                        .compareTo((String) item[0]);
+
+                if (compareResult < 0) {
+                    radarData.setProductDate(date);
+
+                } else if (compareResult == 0) {
+                    radarData.setNumGages((Integer) item[1]);
+
+                    RadarAvailability radAvail = RadarAvailability.MISSING;
+                    if ("y".equals(item[2])) {
+                        radAvail = RadarAvailability.AVAILABLE;
+                    } else if ("z".equals(item[2])) {
+                        radAvail = RadarAvailability.ZERO;
+                    }
+                    radarData.setRadAvail(radAvail);
+
+                    radarData.setRwBiasValUsed((Double) item[3]);
+                    radarData.setMemSpanUsed((Double) item[4]);
+                    radarData.setEditBias((String) item[5]);
+                    radarData.setIgnoreRadar(!"n".equals(item[6]));
+
+                    if (radAvail.equals(RadarAvailability.AVAILABLE)
+                            || radAvail.equals(RadarAvailability.ZERO)) {
+                        radarData.setProductDate(readProductDateTime(
+                                radarLoc.getId(), date));
+                    }
+
+                    item = iter.hasNext() ? iter.next() : null;
+                } else {
+                    statusHandler.handle(
+                            Priority.PROBLEM,
+                            "Record not found in " + tableName + " table for "
                                     + radarLoc.getId() + " for time "
                                     + sdf.format(date) + "Z");
                     // VizApp.logAndAlert(IStatus.WARNING, null, "Warning",
