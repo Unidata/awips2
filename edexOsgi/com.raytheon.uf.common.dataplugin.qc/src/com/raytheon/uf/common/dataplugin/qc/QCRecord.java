@@ -680,7 +680,7 @@ public class QCRecord extends PluginDataObject implements ISpatialEnabled {
 
     @Embeddable
     @DynamicSerialize
-    private static class FakePointDataView {
+    public static class FakePointDataView {
         @DynamicSerializeElement
         @Column(name = "idx")
         int curIdx;

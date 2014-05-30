@@ -131,10 +131,82 @@ SREF243::SNOL12c2::Prob 12-hr SNOW > 2 in
 SREF243::SNOL12c5::Prob 12-hr SNOW > 7.5 in
 SREF243::SNOL12c4::Prob 12-hr SNOW > 6 in
 SREF243::SNOL12c1::Prob 12-hr SNOW > 1 in
-
 TPCWindProb::Prob34::Probability of Wind Speed > 34 knots
 TPCWindProb::Prob50::Probability of Wind Speed > 50 knots
 TPCWindProb::Prob64::Probability of Wind Speed > 64 knots
 TPCWindProb::PWS34::Incremental Prob WS 34 kts or greater
 TPCWindProb::PWS50::Incremental Prob WS 50 kts or greater
 TPCWindProb::PWS64::Incremental Prob WS 64 kts or greater
+// For the TPCSurgeProb parameters the names need to be converted from metric
+// and the percentages need to be inverted, for more information see the
+// comments in master_grib2_lookup.txt
+TPCSurgeProb::Surge10pct6hr::6 Hour Surge 10% Exceedance Ht
+TPCSurgeProb::Surge20pct6hr::6 Hour Surge 20% Exceedance Ht
+TPCSurgeProb::Surge30pct6hr::6 Hour Surge 30% Exceedance Ht
+TPCSurgeProb::Surge40pct6hr::6 Hour Surge 40% Exceedance Ht
+TPCSurgeProb::Surge50pct6hr::6 Hour Surge 50% Exceedance Ht
+TPCSurgeProb::Surge60pct6hr::6 Hour Surge 60% Exceedance Ht
+TPCSurgeProb::Surge70pct6hr::6 Hour Surge 70% Exceedance Ht
+TPCSurgeProb::Surge80pct6hr::6 Hour Surge 80% Exceedance Ht
+TPCSurgeProb::Surge90pct6hr::6 Hour Surge 90% Exceedance Ht
+TPCSurgeProb::PSurge0ft6hr::6 hour Prob of Surge > 0 ft
+TPCSurgeProb::PSurge1ft6hr::6 hour Prob of Surge > 1 ft
+TPCSurgeProb::PSurge2ft6hr::6 hour Prob of Surge > 2 ft
+TPCSurgeProb::PSurge3ft6hr::6 hour Prob of Surge > 3 ft
+TPCSurgeProb::PSurge4ft6hr::6 hour Prob of Surge > 4 ft
+TPCSurgeProb::PSurge5ft6hr::6 hour Prob of Surge > 5 ft
+TPCSurgeProb::PSurge6ft6hr::6 hour Prob of Surge > 6 ft
+TPCSurgeProb::PSurge7ft6hr::6 hour Prob of Surge > 7 ft
+TPCSurgeProb::PSurge8ft6hr::6 hour Prob of Surge > 8 ft
+TPCSurgeProb::PSurge9ft6hr::6 hour Prob of Surge > 9 ft
+TPCSurgeProb::PSurge10ft6hr::6 hour Prob of Surge > 10 ft
+TPCSurgeProb::PSurge11ft6hr::6 hour Prob of Surge > 11 ft
+TPCSurgeProb::PSurge12ft6hr::6 hour Prob of Surge > 12 ft
+TPCSurgeProb::PSurge13ft6hr::6 hour Prob of Surge > 13 ft
+TPCSurgeProb::PSurge14ft6hr::6 hour Prob of Surge > 14 ft
+TPCSurgeProb::PSurge15ft6hr::6 hour Prob of Surge > 15 ft
+TPCSurgeProb::PSurge16ft6hr::6 hour Prob of Surge > 16 ft
+TPCSurgeProb::PSurge17ft6hr::6 hour Prob of Surge > 17 ft
+TPCSurgeProb::PSurge18ft6hr::6 hour Prob of Surge > 18 ft
+TPCSurgeProb::PSurge19ft6hr::6 hour Prob of Surge > 19 ft
+TPCSurgeProb::PSurge20ft6hr::6 hour Prob of Surge > 20 ft
+TPCSurgeProb::PSurge21ft6hr::6 hour Prob of Surge > 21 ft
+TPCSurgeProb::PSurge22ft6hr::6 hour Prob of Surge > 22 ft
+TPCSurgeProb::PSurge23ft6hr::6 hour Prob of Surge > 23 ft
+TPCSurgeProb::PSurge24ft6hr::6 hour Prob of Surge > 24 ft
+TPCSurgeProb::PSurge25ft6hr::6 hour Prob of Surge > 25 ft
+TPCSurgeProb::Surge10pctCumul::Cumulative Surge 10% Exceedance Ht
+TPCSurgeProb::Surge20pctCumul::Cumulative Surge 20% Exceedance Ht
+TPCSurgeProb::Surge30pctCumul::Cumulative Surge 30% Exceedance Ht
+TPCSurgeProb::Surge40pctCumul::Cumulative Surge 40% Exceedance Ht
+TPCSurgeProb::Surge50pctCumul::Cumulative Surge 50% Exceedance Ht
+TPCSurgeProb::Surge60pctCumul::Cumulative Surge 60% Exceedance Ht
+TPCSurgeProb::Surge70pctCumul::Cumulative Surge 70% Exceedance Ht
+TPCSurgeProb::Surge80pctCumul::Cumulative Surge 80% Exceedance Ht
+TPCSurgeProb::Surge90pctCumul::Cumulative Surge 90% Exceedance Ht
+TPCSurgeProb::PSurge0ftCumul::Cumulative Prob of Surge > 0 ft
+TPCSurgeProb::PSurge1ftCumul::Cumulative Prob of Surge > 1 ft
+TPCSurgeProb::PSurge2ftCumul::Cumulative Prob of Surge > 2 ft
+TPCSurgeProb::PSurge3ftCumul::Cumulative Prob of Surge > 3 ft
+TPCSurgeProb::PSurge4ftCumul::Cumulative Prob of Surge > 4 ft
+TPCSurgeProb::PSurge5ftCumul::Cumulative Prob of Surge > 5 ft
+TPCSurgeProb::PSurge6ftCumul::Cumulative Prob of Surge > 6 ft
+TPCSurgeProb::PSurge7ftCumul::Cumulative Prob of Surge > 7 ft
+TPCSurgeProb::PSurge8ftCumul::Cumulative Prob of Surge > 8 ft
+TPCSurgeProb::PSurge9ftCumul::Cumulative Prob of Surge > 9 ft
+TPCSurgeProb::PSurge10ftCumul::Cumulative Prob of Surge > 10 ft
+TPCSurgeProb::PSurge11ftCumul::Cumulative Prob of Surge > 11 ft
+TPCSurgeProb::PSurge12ftCumul::Cumulative Prob of Surge > 12 ft
+TPCSurgeProb::PSurge13ftCumul::Cumulative Prob of Surge > 13 ft
+TPCSurgeProb::PSurge14ftCumul::Cumulative Prob of Surge > 14 ft
+TPCSurgeProb::PSurge15ftCumul::Cumulative Prob of Surge > 15 ft
+TPCSurgeProb::PSurge16ftCumul::Cumulative Prob of Surge > 16 ft
+TPCSurgeProb::PSurge17ftCumul::Cumulative Prob of Surge > 17 ft
+TPCSurgeProb::PSurge18ftCumul::Cumulative Prob of Surge > 18 ft
+TPCSurgeProb::PSurge19ftCumul::Cumulative Prob of Surge > 19 ft
+TPCSurgeProb::PSurge20ftCumul::Cumulative Prob of Surge > 20 ft
+TPCSurgeProb::PSurge21ftCumul::Cumulative Prob of Surge > 21 ft
+TPCSurgeProb::PSurge22ftCumul::Cumulative Prob of Surge > 22 ft
+TPCSurgeProb::PSurge23ftCumul::Cumulative Prob of Surge > 23 ft
+TPCSurgeProb::PSurge24ftCumul::Cumulative Prob of Surge > 24 ft
+TPCSurgeProb::PSurge25ftCumul::Cumulative Prob of Surge > 25 ft
