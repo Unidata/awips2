@@ -54,6 +54,6 @@ void MPEFieldGen_apply_mfb(const double * mfbias ,
 				if(RMosaic[i][j] != MOSAIC_DEFAULT)
 					BMosaic[i][j] = mfbias[k-1] * RMosaic[i][j] ;
 			}
-		}
-	}
-}
+		} /* for j */
+	}  /* for i */
+} /* end MPEFieldGen_apply_mfb */
