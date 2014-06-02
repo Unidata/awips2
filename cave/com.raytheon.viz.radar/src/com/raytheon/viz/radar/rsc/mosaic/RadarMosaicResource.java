@@ -22,6 +22,7 @@ package com.raytheon.viz.radar.rsc.mosaic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,6 +83,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 12, 2009  1937     askripsk    Initial creation
  * May 21, 2009  6309     garmendariz Modified path for Geotools 2.6.4
  * May 01, 2014  3100     bsteffen    perform time matching on data update.
+ * Jun 02, 2014  2918     bsteffen    Make dataTimes a synchronized list.
  * 
  * 
  * </pre>
@@ -123,7 +125,7 @@ public class RadarMosaicResource extends
     };
 
     protected RadarMosaicResource(RadarMosaicResourceData rrd,
-            LoadProperties loadProps) throws VizException {
+            LoadProperties loadProps) {
         super(rrd, loadProps);
         timeUpdateJob.setSystem(true);
         rrd.addChangeListener(this);
@@ -133,7 +135,7 @@ public class RadarMosaicResource extends
                     DEFAULT_COLOR);
         }
 
-        dataTimes = new ArrayList<DataTime>();
+        dataTimes = Collections.synchronizedList(new ArrayList<DataTime>());
         // add listener for underlying resources
         for (ResourcePair rp : getResourceList()) {
             if (rp.getResourceData() != null) {
@@ -206,7 +208,7 @@ public class RadarMosaicResource extends
     private int getSeverity(ResourcePair rp) {
         int maxSeverity = -1;
         if (rp.getResource() == null) {
-            ;
+            
         } else if (rp.getResource() instanceof BestResResource) {
             for (ResourcePair rp1 : ((BestResResource) rp.getResource())
                     .getResourceList()) {
@@ -236,6 +238,7 @@ public class RadarMosaicResource extends
      * @seecom.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
      * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
      */
+    @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         DataTime[] frameTimes = paintProps.getFramesInfo().getTimeMap()
@@ -247,7 +250,7 @@ public class RadarMosaicResource extends
         if (force) {
             redoTimeMatching(frameTimes);
         }
-        List<RadarRecord> recordsToMosaic = constructRecordsToMosaic(target);
+        List<RadarRecord> recordsToMosaic = constructRecordsToMosaic();
         if (recordsToMosaic.isEmpty() == false) {
             DataTime curTime = getTimeForResource(this);
             synchronized (this) {
@@ -270,7 +273,7 @@ public class RadarMosaicResource extends
      * @throws VizException
      */
     @SuppressWarnings("unchecked")
-    private List<RadarRecord> constructRecordsToMosaic(IGraphicsTarget target)
+    private List<RadarRecord> constructRecordsToMosaic()
             throws VizException {
         List<RadarRecord> recordsToMosaic = new ArrayList<RadarRecord>();
 
@@ -608,8 +611,10 @@ public class RadarMosaicResource extends
                 if (resourceData.getBinOffset() != null) {
                     time = resourceData.getBinOffset().getNormalizedTime(time);
                 }
-                if (!dataTimes.contains(time)) {
-                    dataTimes.add(time);
+                synchronized (dataTimes) {
+                    if (!dataTimes.contains(time)) {
+                        dataTimes.add(time);
+                    }
                 }
                 if (!Arrays.equals(timeMatchingMap.get(this), descriptor
                         .getFramesInfo().getTimeMap().get(this))) {
@@ -651,6 +656,7 @@ public class RadarMosaicResource extends
         return groupName;
     }
 
+    @Override
     public String[] getUpperText(DataTime time) {
         if (!getResourceData().getMergeUpperText()) {
             return null;
