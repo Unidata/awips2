@@ -56,6 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 10, 2013      1448       bgonzale    Added app context check in runOnSchedule().
  * Jan 18, 2013       1469      bkowal      Removed the hdf5 data directory.
  * Mar 28, 2014       2952      mpduff      Changed to use UFStatus for logging.
+ * Jun 05, 2014       3226      bclement    BinLightning refactor
  * 
  * </pre>
  * 
@@ -138,7 +139,7 @@ public class MpeLightningSrv {
             float[] latitudes = ltngRec.getLatitudes();
             float[] longitudes = ltngRec.getLongitudes();
             long[] obstimes = ltngRec.getObsTimes();
-            byte[] strikes = ltngRec.getStrikeCounts();
+            byte[] strikes = ltngRec.getPulseCounts();
 
             // convert latitude and longitude to grid coordinate
             HRAP hrap = HRAP.getInstance();

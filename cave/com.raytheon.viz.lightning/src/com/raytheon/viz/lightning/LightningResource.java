@@ -35,6 +35,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -94,6 +95,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *                                         fields when magnification set to 0
  *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
  *    Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
+ *    Jun 05, 2014  3226       bclement    reference datarecords by LightningConstants
  * 
  * </pre>
  * 
@@ -637,7 +639,15 @@ public class LightningResource extends
                     recordList.add(rec);
                 }
 
-                List<IDataRecord> times = recordMap.get("obsTime");
+                List<IDataRecord> times = recordMap
+                        .get(LightningConstants.TIME_DATASET);
+
+                List<IDataRecord> intensities = recordMap
+                        .get(LightningConstants.INTENSITY_DATASET);
+                List<IDataRecord> lats = recordMap
+                        .get(LightningConstants.LAT_DATASET);
+                List<IDataRecord> lons = recordMap
+                        .get(LightningConstants.LON_DATASET);
 
                 int k = 0;
                 for (IDataRecord timeRec : times) {
@@ -647,12 +657,13 @@ public class LightningResource extends
                     int numRecords = (int) time.getSizes()[0];
 
                     long[] timeData = time.getLongData();
-                    int[] intensityData = ((IntegerDataRecord) recordMap.get(
-                            "intensity").get(k)).getIntData();
-                    float[] latitudeData = ((FloatDataRecord) recordMap.get(
-                            "latitude").get(k)).getFloatData();
-                    float[] longitudeData = ((FloatDataRecord) recordMap.get(
-                            "longitude").get(k)).getFloatData();
+
+                    int[] intensityData = ((IntegerDataRecord) intensities
+                            .get(k)).getIntData();
+                    float[] latitudeData = ((FloatDataRecord) lats.get(k))
+                            .getFloatData();
+                    float[] longitudeData = ((FloatDataRecord) lons.get(k))
+                            .getFloatData();
 
                     for (int i = 0; i < numRecords; i++) {
 
