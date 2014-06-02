@@ -70,13 +70,14 @@
 * Modification History:
 * Date        Developer         Action
 * 10/24/2006  Guoxian Zhou      Modified from run_bmosaic.c
-*
+* 07/2013     JingtaoD          dual pol
 ***********************************************************************/
 
 static double ** Mosaic = NULL;
 
 static void initMosaicArray(const geo_data_struct * pGeoData) ;
 static void freeMosaicArray(const geo_data_struct * pGeoData) ;
+extern int dualpol_used;
 
 void runBDHRMosaic(const run_date_struct   * pRunDate ,
                    const geo_data_struct   * pGeoData ,
@@ -106,6 +107,7 @@ void runBDHRMosaic(const run_date_struct   * pRunDate ,
     const char * SAVE_JPEG_TOKEN = "bdhrmosaic_save_jpeg";
 
     static char strDateTime[ANSI_YEARSEC_TIME_LEN + 1] = {'\0'} ;
+    static char prdDateTime[ANSI_YEARSEC_TIME_LEN + 1] = {'\0'} ;
     static char fileName[PATH_LEN] = {'\0'} ;
     static char mosaicDir[PATH_LEN] = {'\0'} ;
 
@@ -122,6 +124,9 @@ void runBDHRMosaic(const run_date_struct   * pRunDate ,
     pRunTime = gmtime(&(pRunDate->tRunTime)) ;
     strftime(strDateTime, ANSI_YEARSEC_TIME_LEN + 1,
              "%Y%m%d%H%M", pRunTime);
+    strftime(prdDateTime, ANSI_YEARSEC_TIME_LEN + 1,
+                        "%Y-%m-%d %H:%M:%S", pRunTime);
+
 
     hpe_fieldgen_getCurrentTime(currTime) ;
     sprintf( message , "%s = time begin BDHRMosaic calculation.", currTime) ;
@@ -226,7 +231,15 @@ void runBDHRMosaic(const run_date_struct   * pRunDate ,
     sprintf( message , "%s = time end writing fields to flat files." ,
                     currTime) ;
     hpe_fieldgen_printMessage( message);
+    
+    sprintf ( message , "\nSTATUS:  In BDHRMOSAIC, insert/update HPERadarResult table");
+    printLogMessage( message );
 
+    wrtodb_HPERadarResult(fileName, prdDateTime, pEMPEParams, dualpol_used);
+    
+
+    sprintf ( message , "\nSTATUS:  In BDHRMOSAIC, complete insert/update HPERadarResult table");
+    printLogMessage( message );
 
     /*
      * run the nowcast
@@ -235,7 +248,7 @@ void runBDHRMosaic(const run_date_struct   * pRunDate ,
     {
         const char * mosaicID = "BDHR";
         runNowcast(pGeoData, pRunDate->tRunTime, mosaicID, pEMPEParams,
-                mosaicDir, Mosaic);
+                mosaicDir, Mosaic, dualpol_used);
     }
 
 
