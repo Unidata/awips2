@@ -9,6 +9,7 @@ Export-Package: com.raytheon.edex.plugin.binlightning.dao
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.exception,
  com.raytheon.edex.plugin,
+ com.raytheon.uf.common.numeric,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.wmo,
  gov.noaa.nws.ost.edex.plugin.binlightning,
