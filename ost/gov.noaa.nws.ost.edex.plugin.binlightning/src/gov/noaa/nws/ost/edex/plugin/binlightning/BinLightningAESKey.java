@@ -27,13 +27,14 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * BinLightningAESKey
- *
- * Simple representation of bin lightning AES encryption key and its associated key aliases in the keystore
+ * 
+ * Simple representation of bin lightning AES encryption key and its associated
+ * key aliases in the keystore
  * 
  * <pre>
  * 
@@ -42,11 +43,12 @@ import org.apache.commons.logging.LogFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20130503      DCS 112   Wufeng Zhou To handle both the new encrypted data and legacy bit-shifted data
+ * Jun 03, 2014 3226       bclement    moved from com.raytheon.edex.plugin.binlightning to gov.noaa.nws.ost.edex.plugin.binlightning
  * 
  * </pre>
  * 
  * @author Wufeng Zhou
- *
+ * 
  */
 public class BinLightningAESKey {
 	/** Default location to search for BinLightningAESKey.properties file, and keystore file (normally binLightningAESKeystore.jce as configured in properties file)  */
@@ -63,7 +65,8 @@ public class BinLightningAESKey {
     private static final Pattern KEY_ALIAS_PREFIX_PATTERN = Pattern.compile(KEY_ALIAS_PREFIX);
     private static final SimpleDateFormat KEY_ALIAS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	
-    private static Log logger = LogFactory.getLog(BinLightningAESKey.class);
+    private static IUFStatusHandler logger = UFStatus
+            .getHandler(BinLightningAESKey.class);
 
 	private static Properties props = new Properties();
 	private static KeyStore keystore; 
