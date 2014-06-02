@@ -6,6 +6,7 @@ package gov.noaa.nws.ost.edex.plugin.binlightning;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +16,14 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * EncryptedBinLightningCipher
- *
- * Use AES secret keys found in configured keystore to decrypt bin lightning data
+ * 
+ * Use AES secret keys found in configured keystore to decrypt bin lightning
+ * data
  * 
  * <pre>
  * 
@@ -30,11 +32,13 @@ import org.apache.commons.logging.LogFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20130503        DCS 112 Wufeng Zhou To handle both the new encrypted data and legacy bit-shifted data
+ * Jun 03, 2014 3226       bclement    moved from com.raytheon.edex.plugin.binlightning to gov.noaa.nws.ost.edex.plugin.binlightning
+ *                                      handled null return from BinLightningAESKey.getBinLightningAESKeys()
  * 
  * </pre>
  * 
  * @author Wufeng Zhou
- *
+ * 
  */
 public class EncryptedBinLightningCipher {
 	private static final String BINLIGHTNING_CIPHER_TYPE = "AES";
@@ -51,6 +55,9 @@ public class EncryptedBinLightningCipher {
 		protected HashMap<String, Cipher> initialValue() {
 			// get AES keys from keystore and create encryption and decryption ciphers from them
 			BinLightningAESKey[] keys = BinLightningAESKey.getBinLightningAESKeys();
+            if (keys == null) {
+                keys = new BinLightningAESKey[0];
+            }
 			HashMap<String, Cipher> cipherMap = new HashMap<String, Cipher>();
 			for (BinLightningAESKey key : keys) {
 				try {
@@ -67,7 +74,8 @@ public class EncryptedBinLightningCipher {
 		}		
 	};
 	
-    private static Log logger = LogFactory.getLog(EncryptedBinLightningCipher.class);
+    private static IUFStatusHandler logger = UFStatus
+            .getHandler(EncryptedBinLightningCipher.class);
 
     public EncryptedBinLightningCipher() {
 		
@@ -122,7 +130,7 @@ public class EncryptedBinLightningCipher {
 				
 				// wrong key will decrypt data into random noise/garbage, so we need to do a sanity check to make sure 
 				//   we are decrypting with the right key
-				if ( BinLigntningDecoderUtil.isKeepAliveRecord(decryptedData) == false && BinLigntningDecoderUtil.isLightningDataRecords(decryptedData) == false) {
+				if ( BinLightningDecoderUtil.isKeepAliveRecord(decryptedData) == false && BinLightningDecoderUtil.isLightningDataRecords(decryptedData) == false) {
 				//if (BinLigntningDecoderUtil.isValidMixedRecordData(decryptedData) == false) { // use this only if keep-alive record could be mixed with lightning records
 					throw new BinLightningDataDecryptionException("Decrypted data (" + decryptedData.length + " bytes) with key " 
 							+ preferredKeyList.get(i).getAlias() + " is not valid keep-alive or binLightning records.", decryptedData);
@@ -163,7 +171,11 @@ public class EncryptedBinLightningCipher {
 	 * @return preferred key list order
 	 */
 	private List<BinLightningAESKey> findPreferredKeyOrderForData(Date dataDate) {
-		List<BinLightningAESKey> defKeyList =  Arrays.asList(BinLightningAESKey.getBinLightningAESKeys());
+		BinLightningAESKey[] binLightningAESKeys = BinLightningAESKey.getBinLightningAESKeys();
+        if (binLightningAESKeys == null || binLightningAESKeys.length < 1) {
+            return Collections.emptyList();
+        }
+        List<BinLightningAESKey> defKeyList =  Arrays.asList(binLightningAESKeys);
 		if (dataDate == null) {
 			return defKeyList; // use default order
 		} 
