@@ -87,7 +87,7 @@
 void runProjection(const geo_data_struct * pGeoData, const time_t tRunTime,
         const char * mosaicID, const empe_params_struct * pEMPEParams,
         const projection_params_struct * pProjectionParams, const int timeDiff,
-        double ** currMosaic, double ** prevMosaic)
+        double ** currMosaic, double ** prevMosaic, const int radar_data_source)
 {
     const int rowSize = pGeoData->num_rows;
     const int colSize = pGeoData->num_cols;
@@ -234,7 +234,7 @@ void runProjection(const geo_data_struct * pGeoData, const time_t tRunTime,
     project(pGeoData, mosaicID, pEMPEParams, tRunTime, pProjectionParams,
             projStep, delt, mxpra, ibins, velocityX, velocityY, growth,
             pPoints, curr55Mean, currResidual, currErrVar, residualVariance,
-            projectionParam);
+            projectionParam, radar_data_source);
 
     free2DIntArray(ibins, rowSize);
     free2DDoubleArray(pMosaic, rowSize);
