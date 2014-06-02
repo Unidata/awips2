@@ -105,7 +105,7 @@ MPEFieldGen_get_intersection_point (double *a1x, double *a1y, double *a2x, doubl
    *x = (intercept_b - intercept_a) / (slope_a - slope_b);
    *y = slope_a * (*x) + intercept_a;
    return (3);
-}
+} /* end MPEFieldGen_get_intersection_point */
 
 
 //final computation where all the grid bins inside the gage triangles are 
@@ -339,7 +339,7 @@ MPEFieldGen_compute_adjusted_zval (p3_gage_struct * c, P3_CALIBRATE_DATA * cal,
       return (0); // *z returned, no computations could be performed
    }
    return (0);
-}
+} /* end MPEFieldGen_compute_adjusted_zval */
 
 /*///////////////////////////////////////////////////////////////////////////// */
 
@@ -376,7 +376,7 @@ MPEFieldGen_compute_ratio_and_diff_at_point (double rain_z, double radar_z,
       *diff = 0.0;
    }
    return (0);
-}
+} /* end MPEFieldGen_compute_ratio_and_diff_at_point */
 
 /*************************************************************************************/
 
@@ -429,7 +429,7 @@ MPEFieldGen_contour_data_sort_x (p3_gage_struct * c, long numpnt, long *sortx)
    }
 
    return (0);
-}
+} /* end MPEFieldGen_contour_data_sort_x */
 
 /*/////////////////////////////////////////////////////////////////////////*/
 
@@ -557,7 +557,7 @@ MPEFieldGen_closest_pnt_from_array (p3_gage_struct * c, long numpnt, long *sortx
       return (-1);		/* exact matches are flagged  */
    }
    return (0);
-}
+} /* end MPEFieldGen_closest_pnt_from_array */
 
 /*/////////////////////////////////////////////////////////////////////////////
 */
@@ -603,7 +603,7 @@ MPEFieldGen_point_below_line (double *x, double *y,
       }
    }
    return (0); // return false
-} 
+} /* end MPEFieldGen_point_below_line */ 
 
 /*//////////////////////////////////////////////////////////////////////////////*/
 
@@ -692,7 +692,7 @@ MPEFieldGen_pnt_in_tri (p3_gage_struct * con, TRIANGLE * tri, long triidx, DPOIN
    }
    /* if it gets to here then point is in or on the triangle  */
    return (1);
-}
+} /* end MPEFieldGen_pnt_in_tri */
 
 
 /**************************************************************************************/
@@ -730,7 +730,7 @@ MPEFieldGen_cross_reference_triangles (p3_gage_struct * c, long numpnt, TRIANGLE
       add_tripnt (tripnt, t[i].a, t[i].b, t[i].c, i);
    }
    return (tripnt);
-}
+} /* end MPEFieldGen_cross_reference_triangles */
 
 /***************************************************************************************/
 
@@ -780,7 +780,7 @@ MPEFieldGen_calc_z_value_with_known_triangle (p3_gage_struct * c,
    *z = PA.value * (1.0 - (d2 / d1)) + interp_rain * d2 / d1;
 
    return;
-}
+} /* end MPEFieldGen_calc_z_value_with_known_triangle */
 
 /************************************************************************************/
 
@@ -893,7 +893,9 @@ MPEFieldGen_determine_dataset_triangle (DPOINTL * pnt,
 	 //printf("return 5\n");
 	 return (tripnt[closest_point].tri_pnt[i]);
       }
-   }
+   } /* for i */
+
    //printf("return 6\n");
    return (-1);			/* point outside of convex hull */
-}
+
+} /* end MPEFieldGen_determine_dataset_triangle */
