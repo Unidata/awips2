@@ -29,11 +29,7 @@ import com.raytheon.edex.plugin.textlightning.impl.TextLightningParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Decoder for text lightning data
@@ -47,6 +43,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Mar 25, 2010            jsanchez    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Feb 12, 2014 2655       njensen     Set source
+ * Jun 05, 2014 3226       bclement    LightningStikePoint refactor
  * 
  * </pre>
  * 
@@ -56,9 +53,6 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 public class TextLightningDecoder extends AbstractDecoder implements
         IBinaryDecoder {
-
-    private static final IUFStatusHandler logger = UFStatus
-            .getHandler(TextLightningDecoder.class);
 
     private String traceId = null;
 
@@ -92,37 +86,19 @@ public class TextLightningDecoder extends AbstractDecoder implements
         BinLightningRecord report = null;
 
         if (strikes.size() > 0) {
-            report = new BinLightningRecord(strikes.size());
-            for (LightningStrikePoint strike : strikes) {
-                report.addStrike(strike);
-                logger.debug(traceId + "-" + strike);
-            }
+            report = new BinLightningRecord(strikes);
         } else {
             return new PluginDataObject[0];
         }
 
-        Calendar c = TimeTools.getSystemCalendar();
-        if (c == null) {
-            throw new DecoderException(traceId + "-Error decoding times");
-        }
+        Calendar c = TimeUtil.newGmtCalendar();
         report.setInsertTime(c);
 
-        Calendar cStart = report.getStartTime();
-        Calendar cStop = report.getStopTime();
+        report.setTraceId(traceId);
 
-        TimeRange range = new TimeRange(cStart.getTimeInMillis(),
-                cStop.getTimeInMillis());
-
-        DataTime dataTime = new DataTime(cStart, range);
-        report.setDataTime(dataTime);
-
-        if (report != null) {
-            report.setTraceId(traceId);
-
-            // TODO anyone have any idea what the source should actually be
-            // named?
-            report.setSource("text");
-        }
+        // TODO anyone have any idea what the source should actually be
+        // named?
+        report.setSource("text");
 
         return new PluginDataObject[] { report };
     }
