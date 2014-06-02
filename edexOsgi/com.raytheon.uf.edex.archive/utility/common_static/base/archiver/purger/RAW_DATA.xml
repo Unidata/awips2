@@ -27,6 +27,7 @@
  * Aug 05, 2013 2224       rferrel     Changes to add dataSet tags.
  * Oct 01, 2013 2147       rferrel     Date time stamp no longer requires an hour field.
  * Dec 12, 2013 2624       rferrel     Document Julian time stamp.
+ * May 14, 2014 2881       rferrel     Change retention times and data set modifications.
  * 
  * @author rferrel
  * @version 1.0
@@ -42,8 +43,8 @@
     The <category> has four types of tags:
         <name>              - Required tag. The id for the category such as grib2 or redbook.
                               Used in the GUIs to filter what is the display in the table.
-        <extRetentionHours>    - Optional tag. The  extended retentionHours for selected directories of this category.
-                              Default is the archive's <minRetentionHours>.
+        <extRetentionHours>    - Optional tag. The hours to retain data in directories of selected Data Sets for a category.
+                              Default is 1 hour.
         <dataSet>           - Required to have a least one. Each one contains a set of tags explained below.
         <selectedDisplayNames>  - A directory matching <dirPattern>. These are selected directories from the Retention GUI. The purger
                                   will used the category's <extRetentionHours> instead of the Arhivie's <minRetentionHours>.
@@ -136,48 +137,57 @@
 <archive>
     <name>Raw</name>
     <rootDir>/data_store/</rootDir>
-    <minRetentionHours>24</minRetentionHours>
+    <minRetentionHours>168</minRetentionHours>
     <category>
         <name>Local</name>
         <extRetentionHours>168</extRetentionHours>
-        <dataSet>
-            <dirPattern>(manual)</dirPattern>
-            <filePattern>.*\.(\d{4})(\d{2})(\d{2})_(\d{2}).*</filePattern>
-            <displayLabel>{1}</displayLabel>
-            <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        </dataSet>
-        <dataSet>
-            <dirPattern>(manual)</dirPattern>
-            <filePattern>.*_(\d{4})(\d{2})(\d{2})(\d{2})\..*</filePattern>
-            <displayLabel>{1}</displayLabel>
-            <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        </dataSet>
-         <dataSet>
-            <dirPattern>(manual)</dirPattern>
-            <filePattern>.*-(\d{10})</filePattern>
-            <displayLabel>{1}</displayLabel>
-            <timeType>EpochSec</timeType>
-            <dateGroupIndices>2</dateGroupIndices>
-        </dataSet>
-         <dataSet>
-            <dirPattern>(manual)</dirPattern>
-            <filePattern>.*\.wan(\d{10})</filePattern>
-            <displayLabel>{1}</displayLabel>
-            <timeType>EpochSec</timeType>
-            <dateGroupIndices>2</dateGroupIndices>
-        </dataSet>
-         <dataSet>
-            <dirPattern>(manual)/mpe</dirPattern>
-            <filePattern>.*[^\d](\d{4})(\d{2})(\d{2})(\d{2})(z|\d{2}z).*</filePattern>
-            <displayLabel>{1}</displayLabel>
-            <dateGroupIndices>2,3,4,5</dateGroupIndices>
-        </dataSet>
-         <dataSet>
-            <dirPattern>(manual)</dirPattern>
-            <filePattern>.*\.\d{8}\.\d{3}</filePattern>
-            <displayLabel>{1}</displayLabel>
-            <timeType>File</timeType>
-        </dataSet>
+      	<dataSet>
+        	<dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/\d{2}/</dirPattern>
+            <filePattern>.*(LAPS|MSAS).*</filePattern>
+            <timeType>Date</timeType>
+            <displayLabel>{1}-LAPS/MSAS</displayLabel>
+           <dateGroupIndices>2,3,4,5</dateGroupIndices>
+      	</dataSet>
+		<dataSet>
+			<dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(mpe)</dirPattern>
+			<filePattern>.*_(\d{4})(\d{2})(\d{2})(\d{2})z.*</filePattern>
+			<timeType>Date</timeType>
+			<displayLabel>{1}-MPE Local</displayLabel>
+			<dateGroupIndices>2,3,4,5</dateGroupIndices>
+		</dataSet>
+		<dataSet>
+			<dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(mpe)</dirPattern>
+			<filePattern>(ZETA98_)[A-Z].*(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})z.*</filePattern>
+			<timeType>Date</timeType>
+			<displayLabel>{1}-HPE/BiasHPE</displayLabel>
+			<dateGroupIndices>2,3,4,5</dateGroupIndices>
+		</dataSet>
+		<dataSet>
+			<dirPattern>(manual)/.*taf/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+			<timeType>Date</timeType>
+			<displayLabel>{1}-Local TAFs</displayLabel>
+			<dateGroupIndices>2,3,4,5</dateGroupIndices>
+		</dataSet>
+		<dataSet>
+			<dirPattern>(manual)/shef/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+			<timeType>Date</timeType>
+			<displayLabel>{1}-Various SHEF Products</displayLabel>
+			<dateGroupIndices>2,3,4,5</dateGroupIndices>
+		</dataSet>
+		<dataSet>
+			<dirPattern>(manual)/text/\d{8}/\d{2}</dirPattern>
+			<timeType>EpochSec</timeType>
+			<filePattern>.*(\d{10})</filePattern>
+			<displayLabel>{1}-Various Local Text Products</displayLabel>
+			<dateGroupIndices>2</dateGroupIndices>
+		</dataSet>
+		<dataSet>
+			<dirPattern>(manual)/warning/\d{8}/\d{2}</dirPattern>
+			<timeType>EpochSec</timeType>
+			<filePattern>.*(\d{10})</filePattern>
+			<displayLabel>{1}-Local Warnings</displayLabel>
+			<dateGroupIndices>2</dateGroupIndices>
+		</dataSet>
     </category>
     <category>
         <name>Model</name>
@@ -238,6 +248,12 @@
             <displayLabel>{1}</displayLabel>
             <dateGroupIndices>4,5,6,7</dateGroupIndices>
         </dataSet>
+        <dataSet>
+            <dirPattern>radar/(t...)/.*/.*/.*/.*/(netcdf)/.*</dirPattern>
+            <filePattern>(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(.*)</filePattern>
+            <displayLabel>{1}-{2}</displayLabel>    
+            <dateGroupIndices>3,4,5,6</dateGroupIndices>
+        </dataSet>        
     </category>
     <category>
         <name>Satellite</name>
