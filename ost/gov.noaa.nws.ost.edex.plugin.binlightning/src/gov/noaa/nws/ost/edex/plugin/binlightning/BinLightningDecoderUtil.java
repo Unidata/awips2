@@ -16,7 +16,6 @@ import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgMsgType;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.decodertools.core.BasePoint;
 
 /**
  * BinLigntningDecoderUtil
@@ -38,6 +37,7 @@ import com.raytheon.uf.edex.decodertools.core.BasePoint;
  *                                     moved from com.raytheon.edex.plugin.binlightning to gov.noaa.nws.ost.edex.plugin.binlightning
  *                                     moved decodeBinLightningData() and decodeBitShiftedBinLightningData() 
  *                                          to BinLightningDecoder to solve circular dependency
+ * Jun 05, 2014  3226      bclement    LightningStrikePoint refactor
  * </pre>
  * 
  * @author Wufeng Zhou
@@ -132,20 +132,16 @@ public class BinLightningDecoderUtil {
             // int reserved = buffer.getShort() & 0xffff;
 
             // Create the strike record from the report info and base time information. 
-			BasePoint base = new BasePoint(lat, lon);
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(epochTime);
-			base.setYear(cal.get(Calendar.YEAR));
-			base.setMonth(cal.get(Calendar.MONTH) + 1);
-			base.setDay(cal.get(Calendar.DAY_OF_MONTH));
-			base.setHour(cal.get(Calendar.HOUR_OF_DAY));
-			base.setMinute(cal.get(Calendar.MINUTE));
-			base.setSecond(cal.get(Calendar.SECOND));
-			base.setMillis(cal.get(Calendar.MILLISECOND));
 			
-			// new spec does not seem to have lightning message type indicator such as FL (Flash Lightning) or RT (Real Time flash lightning)
-			// The source of lightning data in the vendor specific data bytes (byte 16-17) may related to this (???),
-			// and it is used here for now.  04/182/013 Wufeng Zhou
+            /*
+             * new spec does not seem to have lightning message type indicator
+             * such as FL (Flash Lightning) or RT (Real Time flash lightning)
+             * The source of lightning data in the vendor specific data bytes
+             * (byte 16-17) may related to this (???),
+             * and it is used here for now. 04/182/013 Wufeng Zhou
+             */
 			/** 05/02/2013, found DSI-9603 Spec (http://www1.ncdc.noaa.gov/pub/data/documentlibrary/tddoc/td9603.pdf) on NLDN lightning data format,
 			 *   on Message Type and Stroke Type:
 			 *    POS: 37-38 Message Type
@@ -165,19 +161,24 @@ public class BinLightningDecoderUtil {
 				msgType = LtgMsgType.STRIKE_MSG_RT;
 			}
 			
-            LightningStrikePoint lsp = new LightningStrikePoint(base, lat, lon, msgType);
-            LtgStrikeType ltgStrikeType = LtgStrikeType.STRIKE_CG; // default ??
+            LightningStrikePoint lsp = new LightningStrikePoint(lat, lon, cal,
+                    msgType);
+            LtgStrikeType ltgStrikeType = LtgStrikeType.CLOUD_TO_GROUND; // default ??
             if (strokeType == 0x0000) {
-            	ltgStrikeType = LtgStrikeType.STRIKE_CG;
+            	ltgStrikeType = LtgStrikeType.CLOUD_TO_GROUND;
             } else if (strokeType == 0x00ff) {
-            	ltgStrikeType = LtgStrikeType.STRIKE_CC;
+            	ltgStrikeType = LtgStrikeType.CLOUD_TO_CLOUD;
             } else if (strokeType == 0xffff) {
-            	ltgStrikeType = LtgStrikeType.STRIKE_TF;
+            	ltgStrikeType = LtgStrikeType.TOTAL_FLASH;
             }
             lsp.setType(ltgStrikeType);
             
-            // as of OB13.3 for World Wide Lightning Location Network (WWLLN) data (decoded by textlightning though, not this bin lightning decoder),
-            // added lightning source field in LightningStrikePoint, as well as column in binlightning database table defaults to NLDN 
+            /*
+             * as of OB13.3 for World Wide Lightning Location Network (WWLLN)
+             * data (decoded by textlightning though, not this bin lightning
+             * decoder), added lightning source field in LightningStrikePoint,
+             * as well as column in binlightning database table defaults to NLDN
+             */
 			if (vendor == ((short)0x0001)) { // CONUS source
 				lsp.setLightSource("NLDN"); 
 			} else if (vendor == ((short)0x0002)) { // long range source, i.e., GLD360. 
@@ -185,7 +186,7 @@ public class BinLightningDecoderUtil {
 				lsp.setLightSource("GLD"); 
 			}
 
-            lsp.setStrikeCount(strokeMultiplicity);
+            lsp.setPulseCount(strokeMultiplicity);
             lsp.setStrikeStrength(strokeKiloAmps);
             // stroke duration does not seem to be used
             
