@@ -362,6 +362,12 @@
         id="com.raytheon.viz.gfe.SiteActivation"
         name="GFE Site Activation">
   </command>
+  <command
+        categoryId="com.raytheon.viz.gfe.GFECategory"
+        description="Coordinate Conversion"
+        id="com.raytheon.viz.gfe.CoordinateConversion"
+        name="GFE Coordinate Conversion">
+  </command>
   <category
         description="GFE Edit Tools"
         id="com.raytheon.viz.ui.modalTool.gfe"
@@ -976,6 +982,10 @@
      </activeWhen>
   </handler>
   <handler
+        class="com.raytheon.viz.gfe.actions.CoordinateConversionHandler"
+        commandId="com.raytheon.viz.gfe.CoordinateConversion">
+  </handler>
+  <handler
          class="com.raytheon.viz.gfe.export.image.GfeExportImageHandler"
          commandId="com.raytheon.uf.viz.image.export.save">
      <activeWhen>
@@ -1143,6 +1153,13 @@
                       label="Site Activation..."
                       style="push">
                 </command>
+                <!-- Commented out for now. May re-enable when DR #15463 is worked
+                <command
+                      commandId="com.raytheon.viz.gfe.CoordinateConversion"
+                      label="Coordinate Conversion..."
+                      style="push">
+                </command>
+                -->
 			</menu>
 			<menu label="WeatherElement" mnemonic="W">
 				<visibleWhen>
