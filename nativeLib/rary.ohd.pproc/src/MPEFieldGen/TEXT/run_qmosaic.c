@@ -145,9 +145,4 @@ void runQMosaic(const run_date_struct * pRunDate ,
    sprintf ( message, "%s = time   Done processing QMOSAIC", currTime );
    printMessage ( message, logFile );
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob92/ohd/pproc_lib/src/MPEFieldGen/RCS/run_qmosaic.c,v $";
- static char rcs_id2[] = "$Id: run_qmosaic.c,v 1.1 2009/07/27 17:58:41 pst Exp $";}
-/*  ===================================================  */
-
-}
+} /* end runQMosaic */

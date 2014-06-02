@@ -332,23 +332,23 @@ void readParams(empe_params_struct * pMPEParams )
      * read FXA_LOCAL_SITE environment variable.
      */
 
-    if((hpe_fieldgen_getAppsDefaults("FXA_LOCAL_SITE", tokenvalue) != 0))
+    if((hpe_fieldgen_getAppsDefaults("FXA_LOCAL_SITE", tokenvalue) != 0) &&
+       (hpe_fieldgen_getAppsDefaults("fxa_local_site", tokenvalue) != 0))
     {
        sprintf ( message , "ERROR: The value of token"
                  " \"FXA_LOCAL_SITE\" is not available."
                  "\n\tProgram exit.") ;
+       hpe_fieldgen_printMessage( message);		 
        shutdown( message );
     }
     else
     {
        strncpy ( pMPEParams->fxa_local_site, tokenvalue, WFO_LEN );
-/*
-       sprintf ( message, "\tFXA_LOCAL_SITE = %s\n"
-                          "\tBias information will be written to the "
-                          "RWBiasStat and RWBiasDyn tables under this id.",
+
+       sprintf ( message, "\tfxa_local_site = %s\n",                          
                            pMPEParams->fxa_local_site );
-       printMessage( message);
-*/
+       hpe_fieldgen_printMessage( message);
+
     }
 
     /*
