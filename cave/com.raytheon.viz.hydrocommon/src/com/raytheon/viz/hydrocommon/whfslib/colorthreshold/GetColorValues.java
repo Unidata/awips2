@@ -158,7 +158,7 @@ public class GetColorValues {
                     statusHandler.handle(Priority.PROBLEM, "ERROR in " + method
                             + " Colors/levels not defined for application "
                             + application_name + " use_name = " + coloruse_name
-                            + " logname = user_id");
+                                            + " user_id = " + user_id);
                 }
             }
         }

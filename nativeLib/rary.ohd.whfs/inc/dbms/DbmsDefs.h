@@ -208,6 +208,7 @@
 #define YES_NO_LEN		3
 #define ZIP_LEN			10
 #define ZONE_LEN                3
+#define BIAS_LEN        21
 
 #endif
 
