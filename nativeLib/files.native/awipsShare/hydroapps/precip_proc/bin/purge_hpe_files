@@ -5,6 +5,7 @@
 
 # David T. Miller   RSIS    OHD/HSEB
 # October 30 2007 (adapted from purge_mpe_files)
+# April 15, 2014  Add DualPol radar data DSA and DPR
 
 # This allows you to run this script from outside of ./whfs/bin
 RUN_FROM_DIR=`dirname $0`
@@ -146,6 +147,10 @@ DHRERROR=${apps_dir}/precip_proc/local/data/dhr_error
 DSPXMRG=${apps_dir}/precip_proc/local/data/dsp_decoded
 DSPARCHIVE=${apps_dir}/precip_proc/local/data/dsp_archive
 DSPERROR=${apps_dir}/precip_proc/local/data/dsp_error
+
+# Dual Pol DPR and DSA products 
+DPRXMRG=${apps_dir}/precip_proc/local/data/dpr_decoded
+DSAXMRG=${apps_dir}/precip_proc/local/data/dsa_decoded
 
 # Note kept these lines in case there's enough confidence to 
 # use the $PPROC_LOCAL_DATA value
@@ -485,6 +490,27 @@ else
 #   exit 1   
 fi
 
+if [[ -d $DSAXMRG && -n "$DSAXMRG" ]]
+then  
+   find $DSAXMRG -type f -name 'DSA*Z' -mmin +$XMRGAGE -print -exec rm {} \;  \
+   >> $fnm
+else
+   echo "DSA XMRG directory invalid.  " >> $fnm
+   echo "Check .Apps_defaults settings or set_hydro_env script" \
+   >> $fnm
+#   exit 1   
+fi
+
+if [[ -d $DPRXMRG && -n "$DPRXMRG" ]]
+then  
+   find $DPRXMRG -type f -name 'DPR*Z' -mmin +$XMRGAGE -print -exec rm {} \;  \
+   >> $fnm
+else
+   echo "DPR XMRG directory invalid.  " >> $fnm
+   echo "Check .Apps_defaults settings or set_hydro_env script" \
+   >> $fnm
+#   exit 1   
+fi
 
 Dte=`date -u`
 echo "End   purge_hpe_files at:  " $Dte >> $fnm

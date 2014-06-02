@@ -63,6 +63,9 @@ public class MonitorStateXML implements ISerializableObject {
     @XmlElement(name = "preciprate")
     private boolean preciprate = false;
     
+    @XmlElement(name = "hydrodualpol")
+    private boolean hydrodualpol = false;
+    
     @XmlElement(name = "scan")
     private boolean scan = false;
     
@@ -112,9 +115,18 @@ public class MonitorStateXML implements ISerializableObject {
     public void setPrecipRate(boolean preciprate) {
         this.preciprate = preciprate;
     }
-    
+
     public boolean isPrecipRate() {
         return preciprate;
+    }
+  
+    
+    public void setHydroDualPol(boolean hydrodualpol) {
+        this.hydrodualpol = hydrodualpol;
+    }
+    
+    public boolean isHydroDualPol() {
+        return hydrodualpol;
     }
     
     public void setScan(boolean scan) {
