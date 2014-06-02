@@ -57,6 +57,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.topo.TopoException;
 import com.raytheon.uf.common.topo.TopoQuery;
 
 /**
@@ -139,7 +140,7 @@ public class TopoDatabaseManager {
     public ServerResponse<ScalarGridSlice> getTopoData(final GridLocation gloc) {
         ServerResponse<ScalarGridSlice> sr = new ServerResponse<ScalarGridSlice>();
         ScalarGridSlice data = new ScalarGridSlice();
-        Grid2DFloat grid;
+        Grid2DFloat grid = null;
         String cacheGroupName = calcGroupName(gloc);
 
         try {
@@ -154,20 +155,27 @@ public class TopoDatabaseManager {
             // create new cache since file doesn't exist
             statusHandler.handle(Priority.DEBUG, "Calculating Topography for "
                     + gloc);
-            grid = processTopography(gloc, config.isTopoAllowedBelowZero());
-            if (grid.isValid()) {
-                writeTopoData(gloc, grid);
+
+            try {
+                grid = processTopography(gloc, config.isTopoAllowedBelowZero());
+                if (grid.isValid()) {
+                    writeTopoData(gloc, grid);
+                } else {
+                    sr.addMessage("Error calculating topography for " + gloc);
+                }
+            } catch (TopoException e1) {
+                sr.addMessage("Unable to calculate topography for " + gloc);
             }
         }
 
         // convert to IGridSlice
         if (sr.isOkay()) {
             data = makeGridSlice(gloc, grid);
+            sr.setPayload(data);
         } else {
             sr.addMessage("Unable to provide topography grid");
         }
 
-        sr.setPayload(data);
         return sr;
     }
 
@@ -225,9 +233,10 @@ public class TopoDatabaseManager {
      *            If set to false, values less than zero in the grid will be set
      *            to 0.
      * @return The topography grid.
+     * @throws TopoException
      */
     private Grid2DFloat processTopography(final GridLocation gloc,
-            boolean allowValuesBelowZero) {
+            boolean allowValuesBelowZero) throws TopoException {
         float[] heights = TopoQuery.getInstance().getHeight(
                 MapUtil.getGridGeometry(gloc));
         UnitConverter cvt = SI.METER.getConverterTo(NonSI.FOOT);
@@ -263,10 +272,18 @@ public class TopoDatabaseManager {
         if (!cachedFiles.contains(calcGroupName(gloc))) {
             // if not in list, then we need to make one
             statusHandler.debug("Calculating Topography for " + gloc);
-            Grid2DFloat grid = processTopography(gloc,
-                    config.isTopoAllowedBelowZero());
-            if (grid.isValid()) {
-                writeTopoData(gloc, grid);
+            try {
+                Grid2DFloat grid = processTopography(gloc,
+                        config.isTopoAllowedBelowZero());
+                if (grid.isValid()) {
+                    writeTopoData(gloc, grid);
+                } else {
+                    statusHandler.error("Error calculating topography for "
+                            + gloc);
+                }
+            } catch (TopoException e1) {
+                statusHandler.error("Unable to calculate topography for "
+                        + gloc);
             }
         }
 
