@@ -20,7 +20,8 @@
 package com.raytheon.uf.common.dataplugin.binlightning.impl;
 
 /**
- * Enums for the lightning message type, Flash or RT Flash.
+ * Stroke type enum for lightning pulses. Mainly categorizes between return and
+ * non-return strokes.
  * 
  * <pre>
  * 
@@ -28,41 +29,32 @@ package com.raytheon.uf.common.dataplugin.binlightning.impl;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20070810            379 jkorman     Initial Coding from prototype.
- * Jun 3, 2014  3226      bclement     added id, added TOTAL_LIGHTNING
+ * Jun 3, 2014  3226      bclement     Initial creation
  * 
  * </pre>
  * 
- * @author jkorman
+ * @author bclement
  * @version 1.0
  */
-public enum LtgMsgType
-{
-    STRIKE_MSG_FL((byte) 0, "FL"), STRIKE_MSG_RT((byte) 1, "RT"), TOTAL_LIGHTNING(
-            (byte) 2, "TL");
+public enum LtgPulseType {
 
-    private final String msgType;
+    RETURN_STROKE((byte) 0), NON_RETURN_STROKE((byte) 1), KEEP_ALIVE((byte) 9);
 
     private final byte id;
 
     /**
-     * Construct the type.
-     * 
-     * @param type
-     *            Lightning message type.
+     * @param id
      */
-    private LtgMsgType(byte id, String type)
-    {
-        this.msgType = type;
+    private LtgPulseType(byte id) {
         this.id = id;
     }
 
     /**
      * @param id
-     * @return null if no type found for id
+     * @return null if no type is found for id
      */
-    public static LtgMsgType getById(byte id) {
-        for (LtgMsgType type : LtgMsgType.values()) {
+    public static LtgPulseType getById(byte id) {
+        for (LtgPulseType type : LtgPulseType.values()) {
             if (type.id == id) {
                 return type;
             }
@@ -71,16 +63,7 @@ public enum LtgMsgType
     }
 
     /**
-     * Get the message type value.
-     * @return The strike message value.
-     */
-    public String getType()
-    {
-        return msgType;
-    }
-
-    /**
-     * @return unique id for type
+     * @return unique id for this type
      */
     public byte getId() {
         return this.id;
