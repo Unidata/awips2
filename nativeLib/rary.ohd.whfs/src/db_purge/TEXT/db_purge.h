@@ -26,6 +26,7 @@ void delete_file(char	* dir_envstr,
 		 char	* file,
 		 char	* where);
 void delete_files();
+void delete_daa_files(char * table, char * timestring);
 void lower_trim(char* string);
 
 
