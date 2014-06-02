@@ -114,6 +114,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                      Added function to create a D2DGridDatabase object only if there is
  *                                      data in postgres for the desired model/reftime
  * 04/17/2014   #2934       dgilling    Change getGridParmInfo to use D2DParm's GridParmInfo.
+ * 05/22/2014   #3071       randerso    Improved error logging
  * 
  * </pre>
  * 
@@ -808,10 +809,10 @@ public class D2DGridDatabase extends VGridDatabase {
 
         long t0 = System.currentTimeMillis();
 
+        Integer fcstHr = null;
         try {
             // Gets the metadata from the grib metadata database
             D2DParm parm = this.gfeParms.get(parmId);
-            Integer fcstHr = null;
             if (!GridPathProvider.STATIC_PARAMETERS.contains(parmId
                     .getParmName())) {
                 fcstHr = parm.getTimeRangeToFcstHr().get(timeRange);
@@ -822,9 +823,10 @@ public class D2DGridDatabase extends VGridDatabase {
             }
             d2dRecord = d2dDao.getGrid(d2dModelName, refTime,
                     parm.getComponents()[0], parm.getLevel(), fcstHr, gpi);
-        } catch (DataAccessLayerException e) {
+        } catch (Exception e) {
             throw new GfeException(
-                    "Error retrieving D2D Grid record from database", e);
+                    "Error retrieving D2D Grid record from database for "
+                            + parmId + " fcstHr: " + fcstHr, e);
         }
         long t1 = System.currentTimeMillis();
 
@@ -964,9 +966,10 @@ public class D2DGridDatabase extends VGridDatabase {
                     throw new GfeException("Unable to remap UV wind grids", e);
                 }
                 return;
-            } catch (DataAccessLayerException e) {
+            } catch (Exception e) {
                 throw new GfeException(
-                        "Unable to retrieve wind grids from D2D database", e);
+                        "Unable to retrieve wind grids from D2D database for "
+                                + parmId + " fcstHr: " + fcstHr, e);
             }
 
         } else {
@@ -999,9 +1002,10 @@ public class D2DGridDatabase extends VGridDatabase {
                     throw new GfeException("Unable to remap wind grids", e);
                 }
                 return;
-            } catch (DataAccessLayerException e) {
+            } catch (Exception e) {
                 throw new GfeException(
-                        "Unable to retrieve wind grids from D2D database", e);
+                        "Unable to retrieve wind grids from D2D database for "
+                                + parmId + " fcstHr: " + fcstHr, e);
             }
         }
     }
