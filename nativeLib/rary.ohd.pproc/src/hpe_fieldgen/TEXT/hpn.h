@@ -99,15 +99,15 @@ void project(const geo_data_struct * pGeoData, const char * mosaicID,
         const double maxProjectedRate, int ** ibins, double ** velocityX,
         double ** velocityY, double ** growth, int ** pCount, double ** rmean,
         double ** resid, double ** pObservedVar, const double varres,
-        double projParam);
+        double projParam, const int radar_data_source);
 
 void runProjection(const geo_data_struct * pGeoData, const time_t tRunTime,
         const char * mosaicID, const empe_params_struct * pEMPEParams,
         const projection_params_struct * pProjectionParams, const int timeDiff,
-        double ** currMosaic, double ** prevMosaic);
+        double ** currMosaic, double ** prevMosaic, const int radar_data_source);
 
 void runNowcast(const geo_data_struct * pGeoData, const time_t tRunTime,
         const char * mosaicID, const empe_params_struct * pEMPEParams,
-        const char * pInputDir, double ** currMosaic);
+        const char * pInputDir, double ** currMosaic, const int radar_data_source);
 
 #endif /*HPN_H_*/
