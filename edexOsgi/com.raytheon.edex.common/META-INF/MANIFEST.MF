@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common Plug-in
 Bundle-SymbolicName: com.raytheon.edex.common
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0
 Bundle-Vendor: RAYTHEON
 Eclipse-BuddyPolicy: registered, ext, global
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
@@ -18,7 +18,6 @@ Export-Package: com.raytheon.edex.colormap,
  com.raytheon.edex.plugin.factory,
  com.raytheon.edex.site,
  com.raytheon.edex.subscription,
- com.raytheon.edex.topo,
  com.raytheon.edex.urifilter,
  com.raytheon.edex.util,
  com.raytheon.edex.utility
