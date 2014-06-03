@@ -135,6 +135,21 @@ checkYes() {
    fi
 }
 
+#check if at least 1 GB of free mem exists to run jmap
+checkJmapMem() {
+   CAP_MEM=1000
+   let freeMem=`free -m |grep buffers/cache|awk '{print $4}'`
+
+   if [ $freeMem -gt $CAP_MEM ]; then
+       echo "${t1}: ${freeMem}M free, running jmap" >> $processFile
+       return 1
+   else
+       echo "${t1}: ${freeMem}M free, skipping jmap" >> $processFile
+       return 0
+   fi
+}
+
+
 # runs import to grab screen shot of users desktop
 grabScreenShot() {
    if [ "$GRAB_SCREENSHOT" == "y" ]; then
@@ -561,7 +576,13 @@ if [ ! -z "${myProcs}" ]; then
    IFS=$PREV_IFS
 
    launchJstacks
-   launchJmaps
+
+   checkJmapMem
+   let rc=$?
+   if [ $rc -eq 1 ]; then 
+       launchJmaps
+   fi
+
 else
    t1=`date "+%Y%m%d %H:%M:%S"`
    echo "*** NO processes found for user $user, capturing limited data to $dataPath"
