@@ -117,7 +117,8 @@ void runSatpre  ( const run_date_struct * pRunDate,
 
      /* Satellite data are not freed.  They are saved in case they are need in
         subsequent MPE fields and mosaics. */
-   }
+
+   } /* if ( strcmp ( pMPEParams->qpe_fieldtype, "satpre") == 0) */
 
    getCurrentTime ( currTime );
    sprintf ( message, "%s = time end   SATPRE calc\n", currTime );
@@ -125,9 +126,4 @@ void runSatpre  ( const run_date_struct * pRunDate,
 
    return ;
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source$";
- static char rcs_id2[] = "$Id$";}
-/*  ===================================================  */
-
-}
+} /* end runSatpre */
