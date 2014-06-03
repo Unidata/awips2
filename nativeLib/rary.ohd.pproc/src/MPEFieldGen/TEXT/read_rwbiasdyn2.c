@@ -14,7 +14,7 @@ void MPEFieldGen_read_rwbiasdyn2(const char *rad,
 		     double *sumrad,
 		     double *bias, 
 	    	     int *lag,
-	  	     char sstr1[19],
+	  	     char sstr1[20], /* Why the magic number? */
 	  	     long int *irc)
 
 /*
@@ -37,6 +37,8 @@ void MPEFieldGen_read_rwbiasdyn2(const char *rad,
    memset(rrad,'\0',4);
    strncpy(rrad,rad,3);
    memset(strp,'\0',22);
+   memset(sstr1,'\0',20);
+
 
    memset(dude,'\0',22);
    strncpy(dude,str,19);
@@ -62,6 +64,8 @@ void MPEFieldGen_read_rwbiasdyn2(const char *rad,
 	/*------------------------------------------*/
 	
 	timet_to_yearsec_ansi(firstTime, obstime_ANSI);
+        strncpy(sstr1,obstime_ANSI,19);
+        sstr1[19] = '\0';
 	sprintf(where, " WHERE radid='%s' AND obstime='%s' AND "
                        " office_id = '%s'", rrad, obstime_ANSI,
                         site_id);
@@ -107,10 +111,4 @@ void MPEFieldGen_read_rwbiasdyn2(const char *rad,
 
    return ;
 
-
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEFieldGen/RCS/read_rwbiasdyn2.c,v $";
- static char rcs_id2[] = "$Id: read_rwbiasdyn2.c,v 1.1 2007/10/15 12:19:13 dsa Exp $";}
-/*  ===================================================  */
-
-}  /*  end read_rwbiasdyn2 function  */
+} /* end MPEFieldGen_read_rwbiasdyn2 */ 
