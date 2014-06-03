@@ -134,6 +134,8 @@
 #* ------------ ----------  ----------- --------------------------
 #*                                      Initial creation.
 #* Mar 07, 2013 1735        rferrel     Use SiteGridManager to limit calls to server.
+#* Jun 03, 2014 2715        rferrel     WxTarDelta and WxGridDelta method changed to also check
+#*                                       ocassional (TEMPO) values.
 ##  
 
 import logging, time, cPickle
@@ -412,9 +414,17 @@ Arguments: WX (list)"""
     def method(self, taf, grids):
         self.setmsg('%s forecasted but not in grids',
             ' or '.join(self.args['wx']))
-        if 'wx' not in taf or 'pstr' not in taf['wx']:
+        
+        # In AWIPS I only checked taf['wx']['pstr'].
+        # This change allows current TEMPO values to be checked.
+        if 'wx' not in taf:
             return False
-        wx = taf['wx']['pstr']  # only prevailing conditions
+        if 'pstr' in taf['wx']:
+            wx = taf['wx']['pstr']
+        elif 'ostr' in taf['wx']:
+            wx = taf['wx']['ostr']
+        else:
+            return False
         if not Avn.any(self.args['wx'], Avn.curry(_WX, wx)):
             return False
         if 'wx' not in grids:
@@ -443,18 +453,27 @@ Arguments: WX (list)"""
     def method(self, taf, grids):
         self.setmsg('%s occured in grids but not forecasted',
             ' or '.join(self.args['wx']))
-        if 'wx' not in grids or 'pstr' not in grids['wx']:
-            return 0
-        wx = grids['wx']['pstr']    # only prevailing conditions
+        
+        # AWIPS I only checced grids['wx']['pstr'].
+        # This change allows current TEMPO values to be checked.
+        if 'wx' not in grids:
+            return False
+        if 'pstr' in grids['wx'] :
+            wx = grids['wx']['pstr']
+        elif 'ostr' in grids['wx']:
+            wx = grids['wx']['ostr']
+        else:
+            return False
+        
         if not Avn.any(self.args['wx'], Avn.curry(_WX, wx)):
-            return 0
+            return False
         if 'wx' not in taf:
-            return 1
+            return True
         if 'pstr' in taf:
             wx = taf['wx']['pstr']
             if Avn.any(self.args['wx'], Avn.curry(_WX, wx)):
-                return 0
+                return False
         if 'ostr' not in taf['wx']:
-            return 1
+            return True
         wx = taf['wx']['ostr']
         return not Avn.any(self.args['wx'], Avn.curry(_WX, wx))
