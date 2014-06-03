@@ -2173,7 +2173,7 @@ public class IFPGridDatabase extends GridDatabase {
         ParmStorageInfo psi = this.parmStorageInfo.get(parmId
                 .getCompositeName());
         if (psi != null) {
-            psi.getParmID();
+            rval = psi.getParmID();
         }
 
         if (rval == null) {
