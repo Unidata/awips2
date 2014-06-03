@@ -11,6 +11,7 @@
 * MODIFICATION HISTORY:
 *   DATE         PROGRAMMER        DESCRIPTION/REASON
 * May 2011       S Naples          Added process_PC token
+* Sep 2013         				   Added dual-pol changes
 ********************************************************************************
 */
 
@@ -20,6 +21,15 @@
 #include "mpe_db_tables.h"
 #include "mpe_constants.h"
 #include "mpe_field_names.h"
+/*-----------------------------------------------------------------*/
+/* polarization type (SinglePol or DualPol) for multisensor fields */
+/*-----------------------------------------------------------------*/
+
+typedef enum MultisensorPolarizationType
+{
+  SinglePol,
+  DualPol
+} MultisensorPolarizationType;
 
 /*--------------------------------*/
 /*  definition of variables       */
@@ -47,11 +57,25 @@ typedef struct _mpe_params_struct
     char xmrgdtform[XMRGDTFORM_LEN+1];
 
     /** number of minutes around top of hour in which to search
-      * for a top-of-hour product. 
+      * for a top-of-hour DPA product. 
       * determined by token "dpa_wind".
       * default = 10 minutes.
       **/
     int dpa_wind;
+    /** number of minutes around top of hour in which to search
+      * for a top-of-hour DAA product. 
+      * determined by token "daa_wind".
+      * default = 5 minutes.
+      **/
+    int daa_wind;
+
+    /** 
+     * minimum coverage of an hour
+     * for a radar product to be considered good
+     * units = minutes                        
+     * default = 60 
+     **/
+    int daa_min_coverage_dur;    
 
     /** check if need delete zeros in gage data
       * determined by token "mpe_del_gage_zeros".
@@ -83,11 +107,17 @@ typedef struct _mpe_params_struct
     char qpe_fieldtype[MOSAIC_TYPE_LEN];
     enum DisplayFieldData mosaic_type;
     
-    /** blnMeanFieldBias = the mean field bias flag.
+    /** blnMeanFieldBias = the mean field bias flag for single-pol radars
       *  = 0 -- don't compute mean field bias
       *  = 1 -- compute mean field bias
       **/
     int blnMeanFieldBias;
+
+    /** blnMeanFieldBiasDP = the mean field bias flag for dual-pol radars
+      *  = 0 -- don't compute mean field bias
+      *  = 1 -- compute mean field bias
+      **/
+    int blnMeanFieldBiasDP;
 
     /** locbias_1hr_rerun = the local bias rerun.
       *  = 0 -- do not recalc local bias on rerun
@@ -104,7 +134,20 @@ typedef struct _mpe_params_struct
      */
     int sat_avail;
     int radar_avail_num ;
-    int build_neighbor_list ;
+/*----------------------------------------------------------------------*/
+/*  neighbor list generation flag                                       */
+/*  build_neighbor_list_SP = 0 -- neighbor list not generated           */
+/*                         = 1 -- neighbor list generated for this hour for SP multisensor fields*/
+/*  (same definitionsfor build_neighbor_list_DP)                        */
+/*----------------------------------------------------------------------*/
+    int build_neighbor_list_SP ;
+    int build_neighbor_list_DP ;
+
+/*-----------------------------------------------------------------*/
+/* polarization type (SinglePol or DualPol) for multisensor fields */
+/*-----------------------------------------------------------------*/
+
+    enum MultisensorPolarizationType  polarizationType;
 
     /** mpe_save_netcdf = integer value of mpe_save_netcdf token.
       * if token is found as "ON",
