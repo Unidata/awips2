@@ -144,38 +144,40 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
      * .graphics.events.rendering.IRenderEvent)
      */
     @Override
-    public DrawStringEvent createDiffObject(IRenderEvent event) {
-        DrawStringEvent diffEvent = (DrawStringEvent) event;
-        DrawStringEvent diffObject = new DrawStringEvent();
-        diffObject.alpha = diffEvent.alpha;
-        diffObject.boxColor = diffEvent.boxColor;
-        diffObject.shadowColor = diffEvent.shadowColor;
-        diffObject.xOrColors = diffEvent.xOrColors;
-        diffObject.fontId = diffEvent.fontId;
-        diffObject.magnification = diffEvent.magnification;
-        diffObject.rotation = diffEvent.rotation;
-        if (Arrays.equals(colors, diffEvent.colors) == false) {
-            diffObject.colors = diffEvent.colors;
+    public DrawStringEvent createDiffObject(IRenderEvent newEvent) {
+        DrawStringEvent newStringEvent = (DrawStringEvent) newEvent;
+        DrawStringEvent diffStringEvent = new DrawStringEvent();
+        diffStringEvent.alpha = newStringEvent.alpha;
+        diffStringEvent.boxColor = newStringEvent.boxColor;
+        diffStringEvent.shadowColor = newStringEvent.shadowColor;
+        diffStringEvent.xOrColors = newStringEvent.xOrColors;
+        diffStringEvent.fontId = newStringEvent.fontId;
+        diffStringEvent.magnification = newStringEvent.magnification;
+        diffStringEvent.rotation = newStringEvent.rotation;
+        if (Arrays.equals(colors, newStringEvent.colors) == false) {
+            diffStringEvent.colors = newStringEvent.colors;
         }
-        if (Arrays.equals(text, diffEvent.text) == false) {
-            diffObject.text = diffEvent.text;
+        if (Arrays.equals(text, newStringEvent.text) == false) {
+            diffStringEvent.text = newStringEvent.text;
         }
-        if (Arrays.equals(point, diffEvent.point) == false) {
-            diffObject.point = diffEvent.point;
+        if (Arrays.equals(point, newStringEvent.point) == false) {
+            diffStringEvent.point = newStringEvent.point;
         }
-        if (horizontalAlignment != diffEvent.horizontalAlignment) {
-            diffObject.horizontalAlignment = diffEvent.horizontalAlignment;
+        if (horizontalAlignment != newStringEvent.horizontalAlignment) {
+            diffStringEvent.horizontalAlignment = newStringEvent.horizontalAlignment;
         }
-        if (verticalAlignment != diffEvent.verticalAlignment) {
-            diffObject.verticalAlignment = diffEvent.verticalAlignment;
+        if (verticalAlignment != newStringEvent.verticalAlignment) {
+            diffStringEvent.verticalAlignment = newStringEvent.verticalAlignment;
         }
-        if (!textStyles.equals(diffEvent.textStyles)) {
-            diffObject.textStyles = diffEvent.textStyles;
+        if (newStringEvent.textStyles != null
+                && newStringEvent.textStyles.equals(textStyles) == false) {
+            diffStringEvent.textStyles = newStringEvent.textStyles;
         }
-        if (diffEvent.textStyleColorMap != null) {
-            diffObject.textStyleColorMap = diffEvent.textStyleColorMap;
+        if (newStringEvent.textStyleColorMap != null
+                && newStringEvent.textStyleColorMap.equals(textStyleColorMap) == false) {
+            diffStringEvent.textStyleColorMap = newStringEvent.textStyleColorMap;
         }
-        return diffObject;
+        return diffStringEvent;
     }
 
     /*
