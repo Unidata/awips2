@@ -19,30 +19,41 @@
  **/
 package com.raytheon.edex.plugin.binlightning;
 
-import gov.noaa.nws.ost.edex.plugin.binlightning.BinLigntningDecoderUtil;
+import gov.noaa.nws.ost.edex.plugin.binlightning.BinLightningAESKey;
+import gov.noaa.nws.ost.edex.plugin.binlightning.BinLightningDataDecryptionException;
+import gov.noaa.nws.ost.edex.plugin.binlightning.BinLightningDecoderUtil;
+import gov.noaa.nws.ost.edex.plugin.binlightning.EncryptedBinLightningCipher;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
+import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
+import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
+import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 
 /**
  * AWIPS decoder adapter strategy for binary lightning data.<br/>
@@ -84,6 +95,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     and to used WMO header to distinguish bit-shifted 
  *                                     GLD360 and NLDN data.
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Jun 03, 2014 3226       bclement    removed unused WMO patterns, switched to UFStatus
+ *                                      removed TimeTools usage, removed constructDataURI() call
+ *                                      added decodeBinLightningData() and decodeBitShiftedBinLightningData() from BinLightningDecoderUtil
  * 
  * </pre>
  * 
@@ -91,16 +105,14 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * @version 1.0
  */
 public class BinLightningDecoder extends AbstractDecoder {
-    private static final String SFUS_PATTERN = "SFUS41 KWBC \\d{6}[^\\r\\n]*[\\r\\n]+";
-
-    private static final String SFPA_PATTERN = "SFPA41 KWBC \\d{6}[^\\r\\n]*[\\r\\n]+";
 
     // Allow ingest up to 10 minutes into the future.
     private static final long TEN_MINUTES = 10 * 60 * 1000L;
 
     private final SimpleDateFormat SDF;
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(BinLightningDecoder.class);
 
     /**
      * Default lightning strike type for FLASH messages. RT_FLASH documents
@@ -166,7 +178,8 @@ public class BinLightningDecoder extends AbstractDecoder {
                 //     both encrypted data and legacy data
                 //  
                 
-                List<LightningStrikePoint> strikes = BinLigntningDecoderUtil.decodeBinLightningData(data, pdata, traceId, wmoHdr, baseTime.getTime());
+                List<LightningStrikePoint> strikes = decodeBinLightningData(
+                        data, pdata, traceId, wmoHdr, baseTime.getTime());
 
                 if (strikes == null) { // keep-alive record, log and return
                 	logger.info(traceId + " - found keep-alive record. ignore for now.");
@@ -189,7 +202,7 @@ public class BinLightningDecoder extends AbstractDecoder {
                     return new PluginDataObject[0];
                 }
 
-                Calendar c = TimeTools.copy(baseTime);
+                Calendar c = TimeUtil.newCalendar(baseTime);
                 if (c == null) {
                     throw new DecoderException(traceId +  " - Error decoding times");
                 }
@@ -212,14 +225,7 @@ public class BinLightningDecoder extends AbstractDecoder {
 
                     if (report != null) {
                         report.setTraceId(traceId);
-                        //report.setPluginName("binlightning"); // line disappear in OB15.5.3
-                        try {
-                            report.constructDataURI();
-                            reports = new PluginDataObject[] { report };
-                        } catch (PluginException e) {
-                        	logger.error("Error constructing datauri", e);
-                            throw new DecoderException("Error constructing datauri", e);
-                        }
+                        reports = new PluginDataObject[] { report };
                     }
                 }
             }
@@ -227,6 +233,261 @@ public class BinLightningDecoder extends AbstractDecoder {
         	logger.error("No WMOHeader found in data");
         }
         return reports;
+    }
+
+    /**
+     * Decode bin lightning data, able to handle both legacy bit-shifted and new
+     * encryted data
+     * 
+     * The BinLightningDecoder.decode() method will use this method to decode
+     * data, which will try to decrypt first, and decode the old fashioned way
+     * when decryption fails
+     * 
+     * @author Wufeng Zhou
+     * 
+     * @param data
+     *            - data content from file, including WMO header section
+     * @param pdata
+     *            - data with WMO header stripped, optional, if null, will strip
+     *            WMO header internally from passed in data parameter
+     * @param traceId
+     *            - the file name of the data to be deoced
+     * @param wmoHdr
+     *            - WMOHeader, added 12/24/2013 to help distinguish bit-shifted
+     *            NLDN and GLD360 data (GLD data will have header starts like
+     *            SFPA)
+     * @param dataDate
+     *            - date of the data, optional, used as a hint to find
+     *            appropriate encryption key faster
+     * @return null if keep-alive record, otherwise a list (could be empty) of
+     *         LightningStrikePoint
+     */
+    public static List<LightningStrikePoint> decodeBinLightningData(
+            byte[] data, byte[] pdata, String traceId, WMOHeader wmoHdr,
+            Date dataDate) {
+        if (pdata == null) { // if data without header not passed, we'll strip
+                             // the WMO header here
+            WMOHeader header = new WMOHeader(data);
+            if (header.isValid() && header.getMessageDataStart() > 0) {
+                pdata = new byte[data.length - header.getMessageDataStart()];
+                System.arraycopy(data, header.getMessageDataStart(), pdata, 0,
+                        data.length - header.getMessageDataStart());
+            }
+        }
+
+        List<LightningStrikePoint> strikes = new ArrayList<LightningStrikePoint>();
+        boolean needDecrypt = true; // set as default unless clear evidence says
+                                    // otherwise
+        boolean decodeDone = false;
+        EncryptedBinLightningCipher cipher = new EncryptedBinLightningCipher();
+
+        //
+        // Using different WMO headers to indicate whether the data is encrypted
+        // or not would be a nice option.
+        // However, that idea has been discussed but not adopted.
+        // If in the future, WMO header can be different for legacy and
+        // encrypted data, or some other metadata can be used to decide
+        // whether deceyption is needed, logic can be added here.
+        //
+        // Before that happens, we'll use hints and trial & error to decode the
+        // data
+        // Hints: Per lightning data format spec, there are 3 bytes in the WMO
+        // header starting line that indicates the size of the encrypted block
+        // or the ASCII sequence # for legacy bit-shifted data
+        // However, the starting line is optional and AWIPS decode may not see
+        // it at all because TG will strip that starting line away
+        // We'll try to use this hint first, if is is not found, then trial and
+        // error way to decrypt and decode
+        //
+        // As of 11/05/2013, There is change in data spec. that the 3-bytes will
+        // not be encoded as encrypted block size anymore (it will always be
+        // transmission sequence # if present)
+        // So there should have some minor changes in the logic below for
+        // decoding the data.
+        // However, as reading into the
+        // com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory.getDecoder()
+        // and follow-on code, we see the following data patterns
+        // for legacy bit-shifted data, which could be used to reduce guess-work
+        // in data decryption:
+        // The bit-shifted data will have multiple groups of the following
+        // patterns:
+        // 1-byte (unsigned byte): for size count
+        // 1-byte (unsigned byte): for flash type:
+        // 0x96 for FLASH_RPT (message size is 6 bytes each)
+        // 0x97 for RT_FLASH_RPT (message size is 8 bytes each)
+        // 0xd0 for OTHER_RPT (The D2D decoders declare but do not define this
+        // message, so unimplemented decoder)
+        // 0xd1 for COMM_RPT (The D2D decoders declare but do not define this
+        // message, so unimplemented decoder)
+        // 4-bytes: date time
+        // multiple of 6 or 8 bytes (as determined by 2nd byte flash type) with
+        // count indicated in 1st byte
+        //
+        // So this is be used to determine whether the data need to be
+        // decrypted.
+
+        /*
+         * // looks like previous assumption on block size bytes are not valid
+         * any more. 11/20/2013 if (data != null) { byte[] sizeSeqBytes =
+         * BinLigntningDecoderUtil.findSizeOrSeqBytesFromWMOHeader(data); if
+         * (sizeSeqBytes != null) { // if this is in the header (which may not),
+         * use that as a hint to determine which decoding route to go if
+         * (BinLigntningDecoderUtil
+         * .isPossibleWMOHeaderSequenceNumber(sizeSeqBytes) &&
+         * BinLigntningDecoderUtil
+         * .getEncryptedBlockSizeFromWMOHeader(sizeSeqBytes) != pdata.length) {
+         * // looks like a sequence #, and if treat as size, it does not equal
+         * to the data block size, so most likely legacy data needDecrypt =
+         * false; } } }
+         */
+
+        if (needDecrypt) {
+            try {
+                // NOTE: 11/14/2013 WZ:
+                // encrypted test data on TNCF (got from Melissa Porricelli)
+                // seems to have extra 4 bytes (0x0d 0x0d 0x0a 0x03) at the end,
+                // making the data size not a multiple of 16. However, original
+                // test data do not have this trailing bytes. while NCEP test
+                // data has extra 8 trailing bytes.
+                // Brain Rapp's email on 11/13/2013 confirms that Unidata LDM
+                // software used by AWIPS II will strips off all SBN protocol
+                // headers
+                // that precede the WMO header and adds its own 11 byte header
+                // like this: "soh  cr  cr  nl   2   5   4  sp  cr  cr  nl". It
+                // also adds a four byte trailer consisting of "cr cr nl etx"
+                // (0x0d 0x0d 0x0a 0x03)
+                // So, it seems necessary to trim trailing bytes if it is not
+                // multiple of 16, warning messages will be logged though
+                int dataLengthToBeDecrypted = pdata.length;
+                if (pdata.length % 16 != 0) {
+                    dataLengthToBeDecrypted = pdata.length
+                            - (pdata.length % 16);
+                    logger.warn(traceId + " - Data length from file " + traceId
+                            + " is " + pdata.length + " bytes, trailing "
+                            + (pdata.length - dataLengthToBeDecrypted)
+                            + " bytes has been trimmed to "
+                            + dataLengthToBeDecrypted
+                            + " bytes for decryption.");
+                }
+                byte[] encryptedData = new byte[dataLengthToBeDecrypted];
+                encryptedData = Arrays.copyOfRange(pdata, 0,
+                        dataLengthToBeDecrypted);
+
+                byte[] decryptedData = cipher.decryptData(encryptedData,
+                        dataDate);
+                // decrypt ok, then decode, first check if keep-alive record
+                if (BinLightningDecoderUtil.isKeepAliveRecord(decryptedData)) {
+                    logger.info(traceId
+                            + " - Keep-alive record detected, ignore for now.");
+                    decodeDone = true;
+                    return null;
+                }
+                // not keep-alive record, then check data validity and decode
+                // into an ArrayList<LightningStrikePoint> of strikes
+                if (BinLightningDecoderUtil
+                        .isLightningDataRecords(decryptedData)) {
+                    strikes = BinLightningDecoderUtil
+                            .decodeDecryptedBinLightningData(decryptedData);
+                    decodeDone = true;
+                } else {
+                    logger.info(traceId
+                            + " - Failed data validity check of the decrypted data, will try decode the old-fashioned way.");
+                    decodeDone = false;
+                }
+            } catch (IllegalBlockSizeException e) {
+                logger.info(traceId
+                        + " - "
+                        + e.getMessage()
+                        + ": Decryption failed, will try decode the old-fashioned way.");
+                decodeDone = false;
+            } catch (BadPaddingException e) {
+                logger.info(traceId
+                        + " - "
+                        + e.getMessage()
+                        + ": Decryption failed, will try decode the old-fashioned way.");
+                decodeDone = false;
+            } catch (BinLightningDataDecryptionException e) {
+                logger.info(traceId
+                        + " - "
+                        + e.getMessage()
+                        + ": Decryption failed, will try decode the old-fashioned way.");
+                decodeDone = false;
+            }
+        }
+
+        if (decodeDone == false) { // not decoded through decrypt->decode
+                                   // process, try the legacy decoder
+            logger.info(traceId + " - decoding as bit-shifted data");
+            // bit-shifting data format check call here will get us some more
+            // information on the data, also can compare the strikes with the
+            // decoder result
+            int estimatedStrikes = BinLightningDecoderUtil
+                    .getBitShiftedDataStrikeCount(pdata);
+            strikes = decodeBitShiftedBinLightningData(pdata, wmoHdr);
+            if (estimatedStrikes != strikes.size()) {
+                logger.warn(traceId
+                        + ": bit-shifted decoder found "
+                        + strikes
+                        + " strikes, which is different from estimate from data pattern examination: "
+                        + estimatedStrikes);
+            }
+        }
+
+        return strikes;
+    }
+
+    /**
+     * extracted from the original {@link #decode(byte[], Headers)} method then
+     * modified by Wufeng Zhou
+     * 
+     * @param pdata
+     * @param wmoHdr
+     *            - WMOHeader, added 12/24/2013 to help distinguish bit-shifted
+     *            NLDN and GLD360 data (GLD data will have header starts like
+     *            SFPA)
+     * @return
+     */
+    public static List<LightningStrikePoint> decodeBitShiftedBinLightningData(
+            byte[] pdata, WMOHeader wmoHdr) {
+        List<LightningStrikePoint> strikes = new ArrayList<LightningStrikePoint>();
+
+        IBinDataSource msgData = new LightningDataSource(pdata);
+
+        boolean continueDecode = true;
+        while (continueDecode) {
+            IBinLightningDecoder decoder = BinLightningFactory
+                    .getDecoder(msgData);
+
+            switch (decoder.getError()) {
+            case IBinLightningDecoder.NO_ERROR: {
+                for (LightningStrikePoint strike : decoder) {
+                    // use WMO Header to distinguish NLDN or GLD360 data because
+                    // no bit-shifted data spec available for GLD360.
+                    // 12/24/2013, WZ
+                    // The WMO header start string is defined in
+                    // BinLightningAESKey.properties file (normally, GLD360 data
+                    // will have WMO header
+                    // starts with SFPA41, or SFPA99 for test data.)
+                    String gld360WMOHeaderString = BinLightningAESKey
+                            .getProps().getProperty(
+                                    "binlightning.gld360WMOHeaderStartString",
+                                    "");
+                    if (gld360WMOHeaderString.trim().equals("") == false
+                            && wmoHdr.getWmoHeader().startsWith(
+                                    gld360WMOHeaderString)) {
+                        // GLD360 data based on the setup
+                        strike.setLightSource("GLD");
+                    }
+                    strikes.add(strike);
+                }
+                break;
+            }
+            default: {
+                continueDecode = false;
+            }
+            }
+        }
+        return strikes;
     }
 
     /**
