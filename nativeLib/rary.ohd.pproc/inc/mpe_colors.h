@@ -35,6 +35,12 @@
 #define num_6hr_gridded_freezing_colors 16
 #define num_6hr_mean_freezing_colors 16
 
+#define num_precip_diff_colors  19
+#define num_precip_diff_levels  17
+
+#define num_precip_ratio_colors  17
+#define num_precip_ratio_levels  15
+
 void writeDefaultMPEColorDataFile();
 
 static const char * height_colors [ num_height_colors ] =
@@ -266,4 +272,82 @@ static const double mean_temperature_levels_6hr [ num_6hr_mean_temperature_color
  	                20.0, 30.0, 40.0, 50.0, 60.0, 70.0,
 			80.0, 90.0, 100.0, 110.0, 120.0 };	
 			           
+/*
+static const char * precip_diff_colors [ num_precip_diff_colors ] =
+              { "GRAY30", "GRAY30" ,
+                 "DODGERBLUE1" , "CYAN" ,  "DARKGREEN" ,
+                 "GREEN" , "GREENYELLOW" , "YELLOW" ,
+
+                 "DARKORANGE1" ,"BLACK" ,  "BLACK",
+
+                 "RED" , "RED2" , "RED3" ,
+                 "MAGENTA1" , "MAGENTA2", "DARKORCHID"
+              } ;
+*/
+
+static const char * precip_diff_colors [ num_precip_diff_colors ] =
+              { "GRAY30", "GRAY30" ,
+
+                 "MAGENTA1" ,"MEDIUMORCHID",  "DARKORCHID",
+                 "MEDIUMBLUE" ,"BLUE", "DODGERBLUE", "DARKTURQUOISE" ,
+
+                 "CYAN",
+
+                 "BLACK" , "BLACK",
+                 "GREEN" , "GREENYELLOW" , "YELLOW" ,
+
+                 "DARKORANGE1" ,
+
+                 "ORANGERED" , "RED2" , "RED3"
+
+              } ;
+
+static const double precip_diff_levels [ num_precip_diff_colors ] =
+              { -9999, -8888,
+                 -0.75 , -0.5, -.25 ,
+              -0.1, -0.08 , -0.06 ,-0.03,
+
+                -0.01, //CYAN
+
+                0.0, 0.01,
+
+                0.03, 0.06 , 0.08 ,
+
+                0.1,
+                0.25 , 0.50 , .75
+                } ;
+
+
+static const char * precip_ratio_colors [ num_precip_ratio_colors ] =
+              {  "GRAY30", "GRAY30" ,
+
+                 "MAGENTA1", "MEDIUMORCHID",  "DARKORCHID",
+                 "MEDIUMBLUE" ,"DODGERBLUE", "DARKTURQUOISE" ,"CYAN",
+
+                 "BLACK",
+                 "GREEN", "GREENYELLOW" , "YELLOW" ,
+
+                 "DARKORANGE1" ,
+
+                 "ORANGERED" , "RED2" , "RED3"
+
+              } ;
+
+
+static const double precip_ratio_levels [ num_precip_ratio_colors ] =
+                {
+                -9999, -8888,
+
+                0.1, 0.2 ,
+                0.3, 0.5 , 0.6 , 0.75,
+
+                0.95, 1.05,
+
+                1.5, 2.0 , 4.0 ,
+
+                6.0,
+                8.0 , 16.0 , 32.0
+                } ;
+
+
 #endif /* #ifndef MPE_COLORS_H */
