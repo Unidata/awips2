@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="jt-zonalstats-1.3.1.jar"/>
 	<classpathentry kind="lib" path="common-2.6.0.jar"/>
 	<classpathentry kind="lib" path="commons-dbcp-1.3.jar"/>
 	<classpathentry kind="lib" path="commons-jxpath-1.3.jar"/>
@@ -34,6 +35,7 @@
 	<classpathentry exported="true" kind="lib" path="net.opengis.ows-10.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="net.opengis.wfs-10.5.jar"/>
 	<classpathentry kind="lib" path="jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="jt-utils-1.3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jts-1.13.jar" sourcepath="jts-1.13-sources.jar"/>
 	<classpathentry kind="lib" path="picocontainer-1.2.jar"/>
 	<classpathentry kind="lib" path="xsd-2.6.0.jar"/>
