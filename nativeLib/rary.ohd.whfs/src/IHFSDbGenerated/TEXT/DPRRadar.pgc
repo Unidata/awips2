@@ -1,0 +1,922 @@
+/*
+    File: DPRRadar.pgc
+    Author  : CDBGEN
+    Created : Wed Dec 04 19:07:10 EST 2013 using database hd_ob9eempty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DPRRadar.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DPRRadar_t
+{
+    char		radid[4];
+    dtime_t		obstime;
+    short		volcovpat;
+    short		opermode;
+    float		maxval;
+    float		scale;
+    float		setoff;
+    long		j_end_date;
+    long		j_end_time;
+    short		mean_field_bias;
+    short		precipdetectedflag;
+    char		grid_filename[21];
+
+    int		ind_volcovpat;
+    int		ind_opermode;
+    int		ind_maxval;
+    int		ind_scale;
+    int		ind_setoff;
+    int		ind_j_end_date;
+    int		ind_j_end_time;
+    int		ind_mean_field_bias;
+    int		ind_precipdetectedflag;
+    int		ind_grid_filename;
+} DPRRadar_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DPRRadar * GetDPRRadar(const char * where)
+{
+
+    DPRRadar * listPtr = NULL;
+    DPRRadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DPRRadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPRRadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDPRRadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDPRRadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDPRRadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+    :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale, 
+    :dbs.setoff:dbs.ind_setoff, :dbs.j_end_date:dbs.ind_j_end_date, 
+    :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+    :dbs.precipdetectedflag:dbs.ind_precipdetectedflag, :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDPRRadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DPRRadar *) malloc(sizeof(DPRRadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->volcovpat = dbs.volcovpat;
+            setNullIfIndicated(dbs.ind_volcovpat, SHORT, &structPtr->volcovpat);
+
+            structPtr->opermode = dbs.opermode;
+            setNullIfIndicated(dbs.ind_opermode, SHORT, &structPtr->opermode);
+
+            structPtr->maxval = dbs.maxval;
+            setNullIfIndicated(dbs.ind_maxval, FLOAT, &structPtr->maxval);
+
+            structPtr->scale = dbs.scale;
+            setNullIfIndicated(dbs.ind_scale, FLOAT, &structPtr->scale);
+
+            structPtr->setoff = dbs.setoff;
+            setNullIfIndicated(dbs.ind_setoff, FLOAT, &structPtr->setoff);
+
+            structPtr->j_end_date = dbs.j_end_date;
+            setNullIfIndicated(dbs.ind_j_end_date, INT, &structPtr->j_end_date);
+
+            structPtr->j_end_time = dbs.j_end_time;
+            setNullIfIndicated(dbs.ind_j_end_time, INT, &structPtr->j_end_time);
+
+            structPtr->mean_field_bias = dbs.mean_field_bias;
+            setNullIfIndicated(dbs.ind_mean_field_bias, SHORT, &structPtr->mean_field_bias);
+
+            structPtr->precipdetectedflag = dbs.precipdetectedflag;
+            setNullIfIndicated(dbs.ind_precipdetectedflag, SHORT, &structPtr->precipdetectedflag);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+        :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale, 
+        :dbs.setoff:dbs.ind_setoff, :dbs.j_end_date:dbs.ind_j_end_date, 
+        :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+        :dbs.precipdetectedflag:dbs.ind_precipdetectedflag, :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDPRRadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DPRRadar * SelectDPRRadar(const char * where)
+{
+
+    DPRRadar * listPtr = NULL;
+    DPRRadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DPRRadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPRRadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDPRRadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDPRRadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDPRRadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+    :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale, 
+    :dbs.setoff:dbs.ind_setoff, :dbs.j_end_date:dbs.ind_j_end_date, 
+    :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+    :dbs.precipdetectedflag:dbs.ind_precipdetectedflag, :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDPRRadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DPRRadar *) malloc(sizeof(DPRRadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->volcovpat = dbs.volcovpat;
+            setNullIfIndicated(dbs.ind_volcovpat, SHORT, &structPtr->volcovpat);
+
+            structPtr->opermode = dbs.opermode;
+            setNullIfIndicated(dbs.ind_opermode, SHORT, &structPtr->opermode);
+
+            structPtr->maxval = dbs.maxval;
+            setNullIfIndicated(dbs.ind_maxval, FLOAT, &structPtr->maxval);
+
+            structPtr->scale = dbs.scale;
+            setNullIfIndicated(dbs.ind_scale, FLOAT, &structPtr->scale);
+
+            structPtr->setoff = dbs.setoff;
+            setNullIfIndicated(dbs.ind_setoff, FLOAT, &structPtr->setoff);
+
+            structPtr->j_end_date = dbs.j_end_date;
+            setNullIfIndicated(dbs.ind_j_end_date, INT, &structPtr->j_end_date);
+
+            structPtr->j_end_time = dbs.j_end_time;
+            setNullIfIndicated(dbs.ind_j_end_time, INT, &structPtr->j_end_time);
+
+            structPtr->mean_field_bias = dbs.mean_field_bias;
+            setNullIfIndicated(dbs.ind_mean_field_bias, SHORT, &structPtr->mean_field_bias);
+
+            structPtr->precipdetectedflag = dbs.precipdetectedflag;
+            setNullIfIndicated(dbs.ind_precipdetectedflag, SHORT, &structPtr->precipdetectedflag);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+        :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale, 
+        :dbs.setoff:dbs.ind_setoff, :dbs.j_end_date:dbs.ind_j_end_date, 
+        :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+        :dbs.precipdetectedflag:dbs.ind_precipdetectedflag, :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDPRRadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDPRRadarCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DPRRadar ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDPRRadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDPRRadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDPRRadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDPRRadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDPRRadar(const DPRRadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPRRadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.maxval = structPtr->maxval;
+    dbs.ind_maxval = getIndicator(FLOAT, (void *)&structPtr->maxval);
+
+    dbs.scale = structPtr->scale;
+    dbs.ind_scale = getIndicator(FLOAT, (void *)&structPtr->scale);
+
+    dbs.setoff = structPtr->setoff;
+    dbs.ind_setoff = getIndicator(FLOAT, (void *)&structPtr->setoff);
+
+    dbs.j_end_date = structPtr->j_end_date;
+    dbs.ind_j_end_date = getIndicator(INT, (void *)&structPtr->j_end_date);
+
+    dbs.j_end_time = structPtr->j_end_time;
+    dbs.ind_j_end_time = getIndicator(INT, (void *)&structPtr->j_end_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.precipdetectedflag = structPtr->precipdetectedflag;
+    dbs.ind_precipdetectedflag = getIndicator(SHORT, (void *)&structPtr->precipdetectedflag);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DPRRadar (radid,obstime,
+        volcovpat,opermode,maxval,
+        scale,setoff,j_end_date,
+        j_end_time,mean_field_bias,precipdetectedflag,
+        grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat,
+         :dbs.opermode:dbs.ind_opermode, :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale,
+         :dbs.setoff:dbs.ind_setoff, :dbs.j_end_date:dbs.ind_j_end_date, :dbs.j_end_time:dbs.ind_j_end_time,
+         :dbs.mean_field_bias:dbs.ind_mean_field_bias, :dbs.precipdetectedflag:dbs.ind_precipdetectedflag, :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDPRRadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDPRRadar(const DPRRadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPRRadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.maxval = structPtr->maxval;
+    dbs.ind_maxval = getIndicator(FLOAT, (void *)&structPtr->maxval);
+
+    dbs.scale = structPtr->scale;
+    dbs.ind_scale = getIndicator(FLOAT, (void *)&structPtr->scale);
+
+    dbs.setoff = structPtr->setoff;
+    dbs.ind_setoff = getIndicator(FLOAT, (void *)&structPtr->setoff);
+
+    dbs.j_end_date = structPtr->j_end_date;
+    dbs.ind_j_end_date = getIndicator(INT, (void *)&structPtr->j_end_date);
+
+    dbs.j_end_time = structPtr->j_end_time;
+    dbs.ind_j_end_time = getIndicator(INT, (void *)&structPtr->j_end_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.precipdetectedflag = structPtr->precipdetectedflag;
+    dbs.ind_precipdetectedflag = getIndicator(SHORT, (void *)&structPtr->precipdetectedflag);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DPRRadar (radid,obstime,
+        volcovpat,opermode,maxval,
+        scale,setoff,j_end_date,
+        j_end_time,mean_field_bias,precipdetectedflag,
+        grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat,
+         :dbs.opermode:dbs.ind_opermode, :dbs.maxval:dbs.ind_maxval, :dbs.scale:dbs.ind_scale,
+         :dbs.setoff:dbs.ind_setoff, :dbs.j_end_date:dbs.ind_j_end_date, :dbs.j_end_time:dbs.ind_j_end_time,
+         :dbs.mean_field_bias:dbs.ind_mean_field_bias, :dbs.precipdetectedflag:dbs.ind_precipdetectedflag, :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDPRRadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDPRRadar(const DPRRadar *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DPRRadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.maxval = structPtr->maxval;
+    dbs.ind_maxval = getIndicator(FLOAT, (void *)&structPtr->maxval);
+
+    dbs.scale = structPtr->scale;
+    dbs.ind_scale = getIndicator(FLOAT, (void *)&structPtr->scale);
+
+    dbs.setoff = structPtr->setoff;
+    dbs.ind_setoff = getIndicator(FLOAT, (void *)&structPtr->setoff);
+
+    dbs.j_end_date = structPtr->j_end_date;
+    dbs.ind_j_end_date = getIndicator(INT, (void *)&structPtr->j_end_date);
+
+    dbs.j_end_time = structPtr->j_end_time;
+    dbs.ind_j_end_time = getIndicator(INT, (void *)&structPtr->j_end_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.precipdetectedflag = structPtr->precipdetectedflag;
+    dbs.ind_precipdetectedflag = getIndicator(SHORT, (void *)&structPtr->precipdetectedflag);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    sprintf(queryBuffer, " UPDATE DPRRadar SET " );
+    strcat(queryBuffer, "radid = ? , obstime = ? , volcovpat = ? , opermode = ? , maxval = ? ,     ");
+    strcat(queryBuffer, "scale = ? , setoff = ? , j_end_date = ? , j_end_time = ? , mean_field_bias = ? ,     ");
+    strcat(queryBuffer, "precipdetectedflag = ? , grid_filename = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDPRRadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, :dbs.maxval:dbs.ind_maxval,
+     :dbs.scale:dbs.ind_scale, :dbs.setoff:dbs.ind_setoff, :dbs.j_end_date:dbs.ind_j_end_date, :dbs.j_end_time:dbs.ind_j_end_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias,
+     :dbs.precipdetectedflag:dbs.ind_precipdetectedflag, :dbs.grid_filename:dbs.ind_grid_filename;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDPRRadar() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDPRRadar(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DPRRadar ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDPRRadar() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDPRRadarByRecord (const DPRRadar * newStructPtr, const DPRRadar * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDPRRadarPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDPRRadar(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDPRRadar(const DPRRadar * structPtr)
+{
+    UpdateDPRRadarByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDPRRadar(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDPRRadar(const DPRRadar * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DPRRadarExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDPRRadar(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDPRRadarByRecord(const DPRRadar * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDPRRadarPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDPRRadar(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DPRRadarExists(const DPRRadar * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDPRRadarPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDPRRadarCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDPRRadarPrimaryKeyWhereString (const DPRRadar * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND obstime = '%s' ",
+            structPtr->radid, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDPRRadar( DPRRadar * structPtr)
+{
+    DPRRadar* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DPRRadar * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDPRRadarDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDPRRadarErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
