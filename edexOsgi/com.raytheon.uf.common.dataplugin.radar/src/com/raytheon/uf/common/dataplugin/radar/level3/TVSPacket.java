@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -34,10 +33,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 13, 2009            chammack     Initial creation
- * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 13, 2009           chammack    Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -46,7 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class TVSPacket extends SymbologyPacket implements ISerializableObject {
+public class TVSPacket extends SymbologyPacket {
 
     public TVSPacket(int packetId, DataInputStream in) throws IOException {
         super(packetId, in);
@@ -59,7 +59,7 @@ public class TVSPacket extends SymbologyPacket implements ISerializableObject {
     protected final boolean isElevated = false;
 
     @DynamicSerialize
-    public static class TVSPoint implements SymbologyPoint, ISerializableObject {
+    public static class TVSPoint implements SymbologyPoint {
 
         @DynamicSerializeElement
         public boolean elevated = false;
