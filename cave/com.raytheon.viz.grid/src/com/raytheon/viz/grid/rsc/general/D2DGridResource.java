@@ -98,7 +98,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    plugin.
  * Feb 28, 2013  2791     bsteffen    Use DataSource instead of FloatBuffers
  *                                    for data access
- * 
+ * Mar 27, 2014  2945     bsteffen    Enable omitting the plane from the legend
+ *                                    based off style rules.
+ *
  * </pre>
  * 
  * @author bsteffen
@@ -321,6 +323,10 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
 
         if (stylePreferences != null) {
             legendParams.unit = stylePreferences.getDisplayUnitLabel();
+            if (stylePreferences.getDisplayFlags() != null) {
+                legendParams.isPlaneLabelDisplayed = !stylePreferences
+                        .getDisplayFlags().hasFlag("NoPlane");
+            }
         }
 
         if ((legendParams.unit == null) || legendParams.unit.isEmpty()) {

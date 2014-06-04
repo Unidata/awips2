@@ -29,7 +29,7 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
 
-import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
+import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -37,7 +37,7 @@ import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 
 /**
- * TODO Add Description
+ * Loads the appropriate files in the localization for the Velocity Engine.
  * 
  * <pre>
  * 
@@ -47,7 +47,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * ------------ ---------- ----------- --------------------------
  * Aug 18, 2011            mschenke     Initial creation
  * 06/01/2012   DR 14555   D. Friedman  Support new version of Velocity.
- * 
+ * Apr 28, 2014 3033       jsanchez     Retrieved the site and back up from the extended properties.
  * </pre>
  * 
  * @author mschenke
@@ -57,7 +57,9 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 public class LocalizationResourceLoader extends FileResourceLoader implements
         ILocalizationFileObserver {
 
-    public static final String SITE_KEY = "SITE";
+    public static final String PROPERTY_BACKUP = "file.resource.loader.backup";
+
+    public static final String PROPERTY_SITE = "file.resource.loader.site";
 
     private String site;
 
@@ -94,7 +96,8 @@ public class LocalizationResourceLoader extends FileResourceLoader implements
             throw new RuntimeException("Unable to locate file: " + name
                     + ", resource loader has not been initialized");
         }
-        String site = configuration.getString(SITE_KEY);
+        String site = configuration.getString("site");
+        String backup = configuration.getString("backup");
         if (site == null || site.equals(this.site) == false) {
             // We changed sites since last time, clear out cache
             for (LocalizationFile file : fileMap.values()) {
@@ -108,7 +111,7 @@ public class LocalizationResourceLoader extends FileResourceLoader implements
         try {
             LocalizationFile file = fileMap.get(name);
             if (file == null || file.exists() == false) {
-                file = FileUtil.getLocalizationFile(name, site);
+                file = WarnFileUtil.findFileInLocalizationIncludingBackupSite(name, site, backup);
                 file.addFileUpdatedObserver(this);
                 fileMap.put(name, file);
             }
