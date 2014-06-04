@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.common.dataplugin.geomag.dao;
 
+import gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagAvg;
+
 import java.util.Date;
 import java.util.List;
 
@@ -11,19 +13,20 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
-import gov.noaa.nws.ncep.common.dataplugin.geomag.GeoMagAvg;
-
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
- * Record implementation for geomag avgDao. 
+ * Record implementation for geomag avgDao.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
  * 08/14/2013   T989       qzhou              Initial creation.
+ * 03/13/2014              sgurung            Added method purgeDataByRefTime()
  * </pre>
  * 
  * @author qzhou
@@ -31,16 +34,16 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  */
 
 public class GeoMagAvgDao extends CoreDao {
-	 /**
+    /**
      * Creates a new GribModelDao
      */
     public GeoMagAvgDao() {
         super(DaoConfig.forClass(GeoMagAvg.class));
     }
-    
+
     /**
      * Retrieves a GeoMagAvgId based on the given id
-     *
+     * 
      * @param id
      *            The given ID number
      * @return The GeoMagAvgId
@@ -49,13 +52,14 @@ public class GeoMagAvgDao extends CoreDao {
         return (GeoMagAvg) super.queryById(id);
     }
 
-    public int getAreaId (int id){
-        return queryById(id).getId();
-    }
-    
-
+    /**
+     * Retrieves data from postGres
+     * 
+     * @return Criteria list
+     */
     @SuppressWarnings("unchecked")
-    public List<GeoMagAvg> getAvgForStation(final String stationCode, final Date start, final Date end) {
+    public List<GeoMagAvg> getAvgForStation(final String stationCode,
+            final Date start, final Date end) {
         return (List<GeoMagAvg>) txTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus status) {
@@ -64,19 +68,17 @@ public class GeoMagAvgDao extends CoreDao {
                 Criteria crit = sess.createCriteria(GeoMagAvg.class);
                 Criterion where1 = Restrictions.eq("stationCode", stationCode);
                 crit.add(where1);
-//                Criterion where2 = Restrictions.gt("avgTime", start);
-//                crit.add(where2);
-//                Criterion where3 = Restrictions.le("avgTime", end);
-//                crit.add(where3);
-                Criterion where2 = Restrictions.between("avgTime", start, end);//include bounds, but don't need bounds
-                crit.add(where2); 
+
+                Criterion where2 = Restrictions.between("avgTime", start, end);
+                crit.add(where2);
                 return crit.list();
             }
         });
     }
-    
+
     @SuppressWarnings("unchecked")
-    public List<GeoMagAvg> getSingleAvg(final String stationCode, final Date date) {
+    public List<GeoMagAvg> getSingleAvg(final String stationCode,
+            final Date date) {
         return (List<GeoMagAvg>) txTemplate.execute(new TransactionCallback() {
             @Override
             public Object doInTransaction(TransactionStatus status) {
@@ -86,9 +88,17 @@ public class GeoMagAvgDao extends CoreDao {
                 Criterion where1 = Restrictions.eq("stationCode", stationCode);
                 crit.add(where1);
                 Criterion where2 = Restrictions.eq("avgTime", date);
-                crit.add(where2); 
+                crit.add(where2);
                 return crit.list();
             }
         });
+    }
+
+    public int purgeDataByRefTime(Date refTime) throws DataAccessLayerException {
+        DatabaseQuery deleteStmt = new DatabaseQuery(this.daoClass);
+        // add 30 minutes to get hourly average reference time
+        Date avgTime = new Date(refTime.getTime() + (30 * 60000));
+        deleteStmt.addQueryParam("avgTime", avgTime);
+        return this.deleteByCriteria(deleteStmt);
     }
 }

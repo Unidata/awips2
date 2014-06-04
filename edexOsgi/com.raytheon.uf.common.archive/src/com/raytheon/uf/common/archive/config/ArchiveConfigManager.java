@@ -97,6 +97,7 @@ import com.raytheon.uf.common.util.FileUtil;
  *                                     populate the display label.
  * Apr 01, 2014 2862       rferrel     Moved purge only routines to ArchivePurgeManager.
  * Apr 29, 2014 3036       rferrel     Check for missing archive root directories.
+ * May 22, 2014 3181       rferrel     Add check for valid array index.
  * </pre>
  * 
  * @author rferrel
@@ -657,6 +658,14 @@ public class ArchiveConfigManager {
                     dirs.add(dirToScan);
                     tmpDirs.clear();
                     int subExprIndex = 0;
+
+                    /*
+                     * Will never match when pattern's directories shorter then
+                     * directories being scanned.
+                     */
+                    if ((tokens.length - rootFileDepth) > subExpr.length) {
+                        continue DIR_PATTERN_LOOP;
+                    }
 
                     for (int i = rootFileDepth; i < tokens.length; i++) {
                         Pattern subPattern = Pattern.compile("^"
