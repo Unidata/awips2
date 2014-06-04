@@ -205,8 +205,7 @@ public class PgenUtil {
     public static final String FIVE_ZERO = "00000";
 
     // Default CAVE window title string
-    // public static String caveTitle = "CAVE";
-    public static String caveTitle = null;
+    public static String caveTitle = "CAVE";
 
     /**
      * Check the given editor for a PgenResource. If editor is null then the
@@ -1961,7 +1960,7 @@ public class PgenUtil {
                 && PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                         .getShell() != null) {
             // Save the existing title to reset.
-            if (caveTitle == null) {
+            if (caveTitle.equalsIgnoreCase("CAVE")) {
                 caveTitle = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getShell().getText();
             }
