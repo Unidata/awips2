@@ -1,0 +1,525 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<gridParamInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <valtimeMINUSreftime>
+    <fcst>0</fcst>
+    <fcst>3600</fcst>
+    <fcst>7200</fcst>
+    <fcst>10800</fcst>
+    <fcst>14400</fcst>
+    <fcst>18000</fcst>
+    <fcst>21600</fcst>
+    <fcst>25200</fcst>
+    <fcst>28800</fcst>
+    <fcst>32400</fcst>
+    <fcst>36000</fcst>
+    <fcst>39600</fcst>
+    <fcst>43200</fcst>
+    <fcst>46800</fcst>
+    <fcst>50400</fcst>
+    <fcst>54000</fcst>
+  </valtimeMINUSreftime>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>refc</short_name>
+    <long_name>composite radar reflectivity</long_name>
+    <units>dBZ</units>
+    <udunits>decibals</udunits>
+    <uiname>Refc</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>EA</levelsDesc>
+    <levels>
+      <level>EA</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>refd</short_name>
+    <long_name>derived radar reflectivity</long_name>
+    <units>dBZ</units>
+    <udunits>decibals</udunits>
+    <uiname>Refd</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>FHAG 1000 HYB 1</levelsDesc>
+    <levels>
+      <level>FHAG1000</level>
+      <level>HYB1</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>sli</short_name>
+    <long_name>Surface lifted index</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>LftInd</uiname>
+    <valid_range>-20.0</valid_range>
+    <valid_range>20.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>MB 0&gt;500</levelsDesc>
+    <levels>
+      <level>MB0500</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cape</short_name>
+    <long_name>Convective Available Potential Energy</long_name>
+    <units>J/kg</units>
+    <udunits>joule/Kilogram</udunits>
+    <uiname>CAPE</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>6000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC BL 0&gt;180 0&gt;255</levelsDesc>
+    <levels>
+      <level>SFC</level>
+      <level>BL0180</level>
+      <level>BL0255</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>m</units>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tp</short_name>
+    <long_name>total precipitation</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>totPrecip</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>weasd</short_name>
+    <long_name>water equivalent of accumulated snow depth</long_name>
+    <units>ml</units>
+    <udunits>mil</udunits>
+    <uiname>waterEqvAccSnowDepth</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cpozp</short_name>
+    <long_name>Probability of freezing precip</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>FreezePcpProb</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>tcc</short_name>
+    <long_name>Total Cloud Cover</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>totalCldCvr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>EA</levelsDesc>
+    <levels>
+      <level>EA</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>lcdc</short_name>
+    <long_name>Low-level cloud fraction</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>lowLvlCldFr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>LCY</levelsDesc>
+    <levels>
+      <level>LCY</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>mcdc</short_name>
+    <long_name>Mid-level cloud fraction</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>midLvlCldFr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>MCY</levelsDesc>
+    <levels>
+      <level>MCY</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>hcdc</short_name>
+    <long_name>High-level cloud fraction</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>highLvlCldFr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>HCL</levelsDesc>
+    <levels>
+      <level>HCL</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>crain</short_name>
+    <long_name>Categorical rain</long_name>
+    <units>yes=1, no=0</units>
+    <udunits />
+    <uiname>CategoricalRain</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>uw</short_name>
+    <long_name>u wind component</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>uWind</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>10 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cin</short_name>
+    <long_name>Convective Inhibition</long_name>
+    <units>J/kg</units>
+    <udunits>joule/Kilogram</udunits>
+    <uiname>convInhib</uiname>
+    <valid_range>-1000.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC BL 0&gt;255</levelsDesc>
+    <levels>
+      <level>SFC</level>
+      <level>BL0255</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>mmsp</short_name>
+    <long_name>pressure at mean sea level</long_name>
+    <units>Pa</units>
+    <udunits>pascal</udunits>
+    <uiname>PMSL</uiname>
+    <valid_range>80000.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>MSL</levelsDesc>
+    <levels>
+      <level>MSL</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>snd</short_name>
+    <long_name>Snow depth</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>snowDepth</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>10.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>csnow</short_name>
+    <long_name>Categorical snow</long_name>
+    <units>yes=1, no=0</units>
+    <udunits />
+    <uiname>CategoricalSnow</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cicep</short_name>
+    <long_name>Categorical ice pellets</long_name>
+    <units>yes=1, no=0</units>
+    <udunits />
+    <uiname>CategoricalIcePlt</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>bli</short_name>
+    <long_name>Best lifted index</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>bestLftInd</uiname>
+    <valid_range>-20.0</valid_range>
+    <valid_range>50.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>BL 0&gt;180</levelsDesc>
+    <levels>
+      <level>BL0180</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>m</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>wgs</short_name>
+    <long_name>Wind Gust Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>windGustSpeed</uiname>
+    <valid_range>0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>10 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>wgs1hr</short_name>
+    <long_name>Max 1hr Wind Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>maxWindSpeed</uiname>
+    <valid_range>0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>10 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>dpt</short_name>
+    <long_name>Dewpoint Temperature</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>Td</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 2</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>heli</short_name>
+    <long_name>helicity sigma</long_name>
+    <units>m/s2</units>
+    <udunits>meter/second2</udunits>
+    <uiname>hel</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>FHAG 1000 3000</levelsDesc>
+    <levels>
+      <level>FHAG1000</level>
+      <level>FHAG3000</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>vis</short_name>
+    <long_name>visibility</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>Vis</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>vw</short_name>
+    <long_name>v wind component</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>vWind</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>10 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>t</short_name>
+    <long_name>Temperature</long_name>
+    <units>K</units>
+    <udunits>degree_Kelvin</udunits>
+    <uiname>T</uiname>
+    <valid_range>180.0</valid_range>
+    <valid_range>330.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>2 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG2</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>s^-1</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>gh</short_name>
+    <long_name>Geopotential height</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>geoPotHt</uiname>
+    <valid_range>-2000.0</valid_range>
+    <valid_range>20000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>CBL CTL</levelsDesc>
+    <levels>
+      <level>CBL</level>
+      <level>CTL</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>p</short_name>
+    <long_name>pressure</long_name>
+    <units>Pa</units>
+    <udunits>pascal</udunits>
+    <uiname>atmP</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>pw</short_name>
+    <long_name>precipitable water</long_name>
+    <units>mm</units>
+    <udunits>millimeter</udunits>
+    <uiname>precipH2O</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>300.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>EA</levelsDesc>
+    <levels>
+      <level>EA</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>cfrzr</short_name>
+    <long_name>Categorical freezing rain</long_name>
+    <units>yes=1, no=0</units>
+    <udunits />
+    <uiname>CategoricalFrzRain</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>1.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>wd</short_name>
+    <long_name>Wind Direction</long_name>
+    <units>degreeTrue</units>
+    <udunits>degree_True</udunits>
+    <uiname>windDir</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>360.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 10</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo">
+    <short_name>mwind</short_name>
+    <long_name>Maximum Wind Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>maxWindSpeed</uiname>
+    <valid_range>0</valid_range>
+    <valid_range>150</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>10 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+</gridParamInfo>
