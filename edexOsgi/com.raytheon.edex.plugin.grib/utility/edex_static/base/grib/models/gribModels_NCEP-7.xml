@@ -10,7 +10,6 @@
 
 <gribModelSet>
 	<!-- SUBCENTER 0 -->
-	<model>
 		<name>GFSLAMP</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -2824,7 +2823,28 @@
 		<name>estofsPR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
-		<grid>2145137701</grid>
+		<grid>339227001</grid>
+		<process>
+			<id>1</id>
+			<id>14</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>estofsHW</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>321225001</grid>
+		<process>
+			<id>14</id>
+		</process>
+	</model>
+
+	<model>
+		<name>estofsAK</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>825553001</grid>
 		<process>
 			<id>14</id>
 		</process>
