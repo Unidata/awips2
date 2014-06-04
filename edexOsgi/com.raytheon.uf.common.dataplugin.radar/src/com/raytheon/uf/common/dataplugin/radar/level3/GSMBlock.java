@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.radar.level3;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -31,11 +30,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 1-26-2009               mnash       Initial creation
- * 1-20-2010     DR 4059   Zihou Wang  Decode more GSM status
- * 03/01/13      DR15496   zwang       Decode expanded GSM
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 26, 2009           mnash       Initial creation
+ * Jan 20, 2010  4059     Zihou Wang  Decode more GSM status
+ * Mar 01, 2013  15496    zwang       Decode expanded GSM
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author mnash
@@ -43,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class GSMBlock extends AbstractBlock implements ISerializableObject {
+public class GSMBlock extends AbstractBlock {
 
     private static final int BLOCK_ID = 2;
 
@@ -60,7 +61,7 @@ public class GSMBlock extends AbstractBlock implements ISerializableObject {
     }
 
     @DynamicSerialize
-    public static class GSMMessage implements ISerializableObject {
+    public static class GSMMessage {
 
         @DynamicSerializeElement
         public int mode;
