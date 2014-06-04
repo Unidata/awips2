@@ -26,7 +26,6 @@ import java.util.List;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataParameter;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -36,10 +35,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 4, 2009            mnash     Initial creation
- * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 04, 2009           mnash       Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -48,8 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class GenericDataPacket extends SymbologyPacket implements
-        ISerializableObject {
+public class GenericDataPacket extends SymbologyPacket {
 
     public GenericDataPacket(int packetId, DataInputStream in)
             throws IOException {
@@ -189,9 +188,6 @@ public class GenericDataPacket extends SymbologyPacket implements
      */
     public void setGenTime(long genTime) {
         this.genTime = genTime;
-
-        long timestamp = genTime * 1000; // msec
-        java.util.Date d = new java.util.Date(timestamp);
     }
 
     /**
