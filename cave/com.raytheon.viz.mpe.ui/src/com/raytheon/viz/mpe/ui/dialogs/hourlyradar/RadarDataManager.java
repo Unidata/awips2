@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -79,15 +80,13 @@ public class RadarDataManager {
      * @param radId
      *            The radar id
      * @param dtg
-     *            The obstime for the file
+     *            The obstime for the record and the associated file name
      * @return The filename
      * @throws VizException
      */
     public String getDPAFileName(String radId, Date dtg) throws VizException {
         String filename = null;
-        // String fname = FileUtil.join(dirname, radId.toUpperCase()
-        // + MPEConstants.DATE_FORMAT_MMDDYYYYHHMM.format(dtg) + "Z");
-
+ 
         String where = " where radId = '" + radId + "' and obstime = '"
                 + HydroConstants.DATE_FORMAT.format(dtg) + "'";
         String query = "select grid_filename from dpaRadar " + where;
@@ -103,6 +102,300 @@ public class RadarDataManager {
         return filename;
     }
 
+    
+    /**
+     * Get the DAA filename.
+     * 
+     * @param radId
+     *            The radar id
+     * @param dtg
+     *            The obstime for the record and the associated file name
+     * @return The filename
+     * @throws VizException
+     */
+    public String getDAAFileName(String radId, Date dtg) throws VizException {
+        String filename = null;
+ 
+        String where = " where radId = '" + radId + "' and obstime = '"
+                + HydroConstants.DATE_FORMAT.format(dtg) + "'";
+        String query = "select grid_filename from daaRadar " + where;
+        System.out.println(query);
+        List<Object[]> rs = DirectDbQuery.executeQuery(query,
+                HydroConstants.IHFS, QueryLanguage.SQL);
+
+        if (rs.size() > 0) {
+            filename = (String) rs.get(0)[0];
+            System.out.println("DAA filename: " + filename);
+        }
+
+        return filename;
+    }
+    
+    /**
+     * Get the closest obstime to the TOH (top of hour) from either the DpaRadar table or the DaaRadar table,
+     * within the time window.
+     * @param topOfHourDateTime
+     *            The current time looking for
+     * @return The best obstime for topOfHourDateTime
+     * @throws VizException
+     */
+
+    public Date getClosestObstimeToTOH(String radId, Date topOfHourDateTime, String tableName)
+        
+    {
+    	AppsDefaults ad = AppsDefaults.getInstance();
+    	
+    	int timeWindow = 0;
+    	
+    	if (tableName.equalsIgnoreCase("DpaRadar"))
+    	{
+    		timeWindow = ad.getInt("dpa_wind", 10);
+    	}
+    	else if (tableName.equalsIgnoreCase("DaaRadar"))
+    	{
+    		timeWindow = ad.getInt("daa_wind", 10);
+    	}
+    	else
+    	{
+    		throw(new Error("You must pass in either DaaRadar or DpaRadar"));
+    	}
+    	
+    	
+        Date beforeTime = getLatestObstimeBeforeTOH(radId, topOfHourDateTime, tableName);
+        Date atOrAfterTime = getEarliestObstimeOnOrAfterTOH(radId, topOfHourDateTime, tableName);
+            
+        Date bestObstime = getBestObsTime(topOfHourDateTime, beforeTime, atOrAfterTime, timeWindow);
+
+        return bestObstime;
+    }
+ 
+    public Date getObstimeAtTOH(String radId, Date topOfHourDateTime, String tableName)
+    {
+    	   //TableName can be either "dparadar" or  "daaradar"
+    	
+    	  Date bestObstime = null;
+
+          // Get the next hour
+          Calendar cal = new GregorianCalendar();
+          cal.setTime(topOfHourDateTime);
+      //    cal.add(Calendar.HOUR, 1);
+
+          // Query for the latest obstime less than the next hour
+          String where = " where obstime = '"
+                  + HydroConstants.DATE_FORMAT.format(cal.getTime())
+                  + "' and radId = '" + radId + "'";
+          String query = "select obstime from " + tableName + " " + where;
+
+          try
+          {
+
+        	  List<Object[]> rs = DirectDbQuery.executeQuery(query,
+        			  HydroConstants.IHFS, QueryLanguage.SQL);
+
+        	  if (rs.size() > 0)
+        	  {
+        		  bestObstime = topOfHourDateTime;
+        	  }
+        	  else
+        	  {
+        		  bestObstime = null;
+        	  }
+
+          }
+          
+          catch(VizException e)
+          {
+        	  e.printStackTrace();
+        	  bestObstime = null;
+          }
+
+          return bestObstime;
+      
+    }
+    
+    public Date getLatestObstimeBeforeTOH(String radId, Date topOfHourDateTime, String tableName)
+    {
+        Date latestObsTime = null;
+
+        // Get the next hour
+        Calendar topOfHourCalendar = new GregorianCalendar();
+        topOfHourCalendar.setTime(topOfHourDateTime);
+        
+        Calendar previousTopOfHourCalendar = new GregorianCalendar();
+        previousTopOfHourCalendar.setTime(topOfHourDateTime);
+        previousTopOfHourCalendar.add(Calendar.HOUR, -1);
+
+        // Query for the latest obstime less than the next hour
+        String where = " where obstime < '"
+                + HydroConstants.DATE_FORMAT.format(topOfHourCalendar.getTime()) 
+                + "' AND  obstime >= '"
+                + HydroConstants.DATE_FORMAT.format(previousTopOfHourCalendar.getTime())
+                + "' AND radId = '" + radId + "'";
+        
+        String query = "select max(obstime) from " + tableName + " " + where;
+
+        
+        try
+        {
+
+        	List<Object[]> rs = DirectDbQuery.executeQuery(query,
+        			HydroConstants.IHFS, QueryLanguage.SQL);
+
+        	if (rs.size() > 0) {
+        		latestObsTime = (Date) rs.get(0)[0];
+        	}      	
+        	else
+        	{
+        		latestObsTime = null;
+        	}
+        		
+        }
+        catch (VizException e)
+        {
+        	e.printStackTrace();
+        	latestObsTime = null;
+        }
+
+        return latestObsTime;
+    }
+    
+    public Date getEarliestObstimeOnOrAfterTOH(String radId, Date topOfHourDateTime, String tableName)
+    {
+        Date earliestObsTime = null;
+
+        // Get the next hour
+        Calendar topOfHourCalendar = new GregorianCalendar();
+        topOfHourCalendar.setTime(topOfHourDateTime);
+        
+        Calendar nextTopOfHourCalendar = new GregorianCalendar();
+        nextTopOfHourCalendar.setTime(topOfHourDateTime);
+        nextTopOfHourCalendar.add(Calendar.HOUR, 1);
+
+        // Query for the latest obstime less than the next hour
+        String where = " where obstime >= '"
+                + HydroConstants.DATE_FORMAT.format(topOfHourCalendar.getTime()) 
+                + "' AND  obstime < '"
+                + HydroConstants.DATE_FORMAT.format(nextTopOfHourCalendar.getTime())
+                + "' AND radId = '" + radId + "'";
+        
+        String query = "select min(obstime) from " + tableName + " " + where;
+
+        
+        try
+        {
+
+        	List<Object[]> rs = DirectDbQuery.executeQuery(query,
+        			HydroConstants.IHFS, QueryLanguage.SQL);
+
+        	if (rs.size() > 0) {
+        		earliestObsTime = (Date) rs.get(0)[0];
+        	}      	
+        	else
+        	{
+        		earliestObsTime = null;
+        	}
+        		
+        }
+        catch (VizException e)
+        {
+        	e.printStackTrace();
+        	earliestObsTime = null;
+        }
+
+        return earliestObsTime;
+    }
+    
+    
+    private Date getBestObsTime(Date topOfHourDateTime, 
+    							Date beforeTOHDateTime,
+    							Date atOrAfterTOHDateTime,
+    							int timeWindowInMinutes)
+    {
+    	Date bestDateTime = null;
+    	
+    	final long MILLIS_PER_MINUTE = 1000 * 60;
+    	
+    	long startTime = topOfHourDateTime.getTime() - timeWindowInMinutes * MILLIS_PER_MINUTE;
+    	long endTime = topOfHourDateTime.getTime() + timeWindowInMinutes * MILLIS_PER_MINUTE;
+    	
+    	long topOfHourTime = topOfHourDateTime.getTime();
+    	long atOrAfterTime = -1;
+    	long beforeTime = -1;
+    	
+    	long millisAfter = -1;
+    	long millisBefore = -1;
+    	
+ 
+    	//check the obstime that is at or after the TOH
+    	if (atOrAfterTOHDateTime != null )
+    	{
+    		atOrAfterTime = atOrAfterTOHDateTime.getTime();
+    		
+    		//Check the time window
+    		if ( (atOrAfterTime >= topOfHourTime)  && (atOrAfterTime <= endTime) )
+    		{
+    			millisAfter = atOrAfterTime - topOfHourTime;
+    			
+    			//Check for exactly TOH
+        		if (millisAfter == 0)
+        		{
+        			return topOfHourDateTime; //found record exactly at TOH
+        		}
+    		}
+    	}
+    	
+    	
+    	if ( beforeTOHDateTime != null)
+    	{
+    		beforeTime = beforeTOHDateTime.getTime();
+	
+    		if ( (beforeTime >= startTime)  && (beforeTime < topOfHourTime) )
+    		{
+    			millisBefore = topOfHourTime - beforeTime;
+    		}
+    	}
+    	
+    	
+    	
+    	//both valid 
+    	if ( (millisAfter >= 0)  && (millisBefore > 0 ) )
+    	{
+    		if (millisAfter <= millisBefore)
+    		{
+    			//after time wins
+    			bestDateTime = atOrAfterTOHDateTime;
+    		}
+    		else
+    		{
+    			//before time wins
+    			bestDateTime = beforeTOHDateTime;
+    		}
+    		
+    	}
+    	
+    	//before is null
+    	else if (millisAfter >= 0)
+    	{
+    		bestDateTime = atOrAfterTOHDateTime;
+    	}
+    	else if (millisBefore > 0)
+    	{
+    		bestDateTime  = beforeTOHDateTime;
+    	}
+    	
+    	else //There are no valid records within the time window
+    	{
+    		
+    		bestDateTime = null;
+    	}
+    	
+    	
+    	return bestDateTime;
+    }
+    
+    
+
+
     /**
      * Get the latest obstime from the DpaRadar table.
      * 
@@ -110,6 +403,13 @@ public class RadarDataManager {
      *            The current time looking for
      * @return The max obstime for that date
      * @throws VizException
+     */
+    
+    /*
+     * this function was previously used (erroneously) to find the date/time for a search
+     * in the RWRadarResult table for the 4 panel window
+     * it is not used anywhere else
+     * PST - 1/10/14
      */
     public Date getLatestObstimeDpaRadar(String radId, Date date)
             throws VizException {
@@ -215,7 +515,7 @@ public class RadarDataManager {
      * @return true if ignore_radar set to 'y'
      * @throws VizException
      */
-    public boolean getIgnoreRadar(String radId, Date dpaDate)
+    public boolean getIgnoreRadarSP(String radId, Date dpaDate)
             throws VizException {
         boolean ignore = false;
 
@@ -230,7 +530,49 @@ public class RadarDataManager {
                 + HydroConstants.DATE_FORMAT.format(dpaDate) + "'";
         final String query = "select ignore_radar from rwRadarResult ";
 
+        //System.out.printf("getIgnoreRadarSP: query = %s %s\n" ,query, where);
+        
         List<Object[]> rs = DirectDbQuery.executeQuery(query + where,
+                HydroConstants.IHFS, QueryLanguage.SQL);
+
+        if (rs.size() > 0) {
+            String value = (String) rs.get(0)[0];
+            if (value.equalsIgnoreCase("Y")) {
+                ignore = true;
+            }
+        }
+
+        return ignore;
+    }
+
+    /**
+     * Get the ignore_radar value in IHFS.
+     * 
+     * @param radId
+     *            The Radar ID
+     * @param dpaDate
+     *            The data date
+     * @return true if ignore_radar set to 'y'
+     * @throws VizException
+     */
+    public boolean getIgnoreRadarDP(String radId, Date daaDate)
+            throws VizException {
+        boolean ignore = false;
+
+        // need date to be to the current hour
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(daaDate);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        daaDate = cal.getTime();
+
+        final String where = "WHERE radid='" + radId + "' AND obstime='"
+                + HydroConstants.DATE_FORMAT.format(daaDate) + "'";
+        final String query = "select ignore_radar from DAARadarResult ";
+      
+        //System.out.printf("getIgnoreRadarDP: query = %s %s\n" ,query, where);
+        
+        List<Object[]> rs = DirectDbQuery.executeQuery(query + " " + where,
                 HydroConstants.IHFS, QueryLanguage.SQL);
 
         if (rs.size() > 0) {
@@ -253,7 +595,7 @@ public class RadarDataManager {
      * @return number of rows modified
      * @throws VizException
      */
-    public int updateIgnoreRadar(String radId, Date dpaDate, boolean ignoreRadar)
+    public int updateIgnoreRadarSP(String radId, Date dpaDate, boolean ignoreRadar)
             throws VizException {
         int status = 1;
 
@@ -276,6 +618,50 @@ public class RadarDataManager {
 
         final String sql = "update rwRadarResult set ignore_radar = '" + ignore
                 + "' ";
+
+        //System.out.printf("updateIgnoreRadarSP: query = %s %s\n" ,sql, where);
+        
+        status = DirectDbQuery.executeStatement(sql + where,
+                HydroConstants.IHFS, QueryLanguage.SQL);
+
+        return status;
+    }
+
+    /**
+     * Update the ignore_radar field in DAARadarResult table in IHFS.
+     * 
+     * @param radId
+     *            The radar id field
+     * @param ignoreRadar
+     *            true to ignore radar
+     * @return number of rows modified
+     * @throws VizException
+     */
+    public int updateIgnoreRadarDP(String radId, Date daaDate, boolean ignoreRadar)
+            throws VizException {
+        int status = 1;
+
+        // need date to be to the current hour
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(daaDate);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        daaDate = cal.getTime();
+
+        final String where = "WHERE radid='" + radId + "' AND obstime='"
+                + HydroConstants.DATE_FORMAT.format(daaDate) + "'";
+
+        String ignore = null;
+        if (ignoreRadar) {
+            ignore = "y";
+        } else {
+            ignore = "n";
+        }
+
+        final String sql = "update DAARadarResult set ignore_radar = '" + ignore
+                + "' ";
+
+        //System.out.printf("updateIgnoreRadarDP: query = %s %s\n" ,sql, where);
 
         status = DirectDbQuery.executeStatement(sql + where,
                 HydroConstants.IHFS, QueryLanguage.SQL);
@@ -400,18 +786,18 @@ public class RadarDataManager {
     }
 
     /**
-     * Get the ignore_radar value in IHFS.
+     * Get the rad_avail value from RWRadarResult table
      * 
      * @param radId
      *            The Radar ID
      * @param dpaDate
      *            The data date
-     * @return true if ignore_radar set to 'y'
-     * @throws VizException
+	 *  @return int  0 = available with > 0 precip 
+	 *				 1 = not available
+	 *			     2 = available with all precip == 0
      */
-    public int getAvailableRadar(String radId, Date dpaDate)
+    public int getAvailableRadarSP(String radId, Date dpaDate)
             throws VizException {
-        int avail = 0;
 
         // need date to be to the current hour
         Calendar cal = new GregorianCalendar();
@@ -424,12 +810,61 @@ public class RadarDataManager {
                 + HydroConstants.DATE_FORMAT.format(dpaDate) + "'";
         final String query = "select rad_avail from rwRadarResult ";
 
+        System.out.printf("getAvailableRadarSP: query = %s %s\n" ,query, where);
         List<Object[]> rs = DirectDbQuery.executeQuery(query + where,
                 HydroConstants.IHFS, QueryLanguage.SQL);
 
-        if (rs.size() > 0) {
+        // if record not found, then rs.size() = 0
+        int avail = 1;
+        if (rs.size() > 0)
+        {
             String value = (String) rs.get(0)[0];
-            avail = 1;
+            
+            if ("y".equals(value)) {
+                avail = 0;
+            } else if ("z".equals(value)) {
+                avail = 2;
+            }
+        }
+
+        return avail;
+    }
+//---------------------------------------------
+    /**
+     * Get the rad_avail value from the DAARadarResult table
+     * 
+     * @param radId
+     *            The Radar ID
+     * @param dpaDate
+     *            The data date
+ 	 * @return int  0 = available with > 0 precip 
+	 *			    1 = not available
+	 *			    2 = available with all precip == 0
+     */
+    public int getAvailableRadarDP(String radId, Date daaDate)
+            throws VizException {
+
+        // need date to be to the current hour
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(daaDate);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        daaDate = cal.getTime();
+
+        final String where = "WHERE radid='" + radId + "' AND obstime='"
+                + HydroConstants.DATE_FORMAT.format(daaDate) + "'";
+        final String query = "select rad_avail from DAARadarResult ";
+
+        System.out.printf("getAvailableRadarDP: query = %s %s\n" ,query, where);
+        List<Object[]> rs = DirectDbQuery.executeQuery(query + where,
+                HydroConstants.IHFS, QueryLanguage.SQL);
+
+        // if record not found, then rs.size() = 0
+        int avail = 1;
+        if (rs.size() > 0)
+        {
+            String value = (String) rs.get(0)[0];
+            
             if ("y".equals(value)) {
                 avail = 0;
             } else if ("z".equals(value)) {
