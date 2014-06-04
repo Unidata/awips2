@@ -12,11 +12,8 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-//TODO fix?
-@Ignore
 public class FfgParserTest {
     FfgRecord record = new FfgRecord();
 
@@ -83,11 +80,11 @@ public class FfgParserTest {
         Iterator<FfgPrecip> it = ppp.iterator();
         while (it.hasNext()) {
             FfgPrecip pr = it.next();
-            assertEquals(3.0, pr.getFf01());
-            assertEquals(4.2, pr.getFf03());
-            assertEquals(4.5, pr.getFf06());
-            assertEquals(4.8, pr.getFf12());
-            assertEquals(6.0, pr.getFf24());
+            assertEquals(3.0, pr.getFf01(), 0.01);
+            assertEquals(4.2, pr.getFf03(), 0.01);
+            assertEquals(4.5, pr.getFf06(), 0.01);
+            assertEquals(4.8, pr.getFf12(), 0.01);
+            assertEquals(6.0, pr.getFf24(), 0.01);
         }
     }
 
@@ -100,11 +97,11 @@ public class FfgParserTest {
         Iterator<FfgPrecip> it = ppp.iterator();
         while (it.hasNext()) {
             FfgPrecip pr = it.next();
-            assertEquals(3.0, pr.getFf01());
-            assertEquals(4.2, pr.getFf03());
-            assertEquals(4.5, pr.getFf06());
-            assertEquals(4.8, pr.getFf12());
-            assertEquals(6.0, pr.getFf24());
+            assertEquals(3.0f, pr.getFf01(), 0.01);
+            assertEquals(4.2f, pr.getFf03(), 0.01);
+            assertEquals(4.5f, pr.getFf06(), 0.01);
+            assertEquals(4.8f, pr.getFf12(), 0.01);
+            assertEquals(6.0f, pr.getFf24(), 0.01);
         }
     }
 
@@ -117,13 +114,13 @@ public class FfgParserTest {
         Iterator<FfgPrecip> it = ppp.iterator();
         while (it.hasNext()) {
             FfgPrecip pr = it.next();
-            assertEquals(3.0, pr.getFf01());
+            assertEquals(3.0, pr.getFf01(), 0.01);
             assertEquals(IDecoderConstantsN.FLOAT_MISSING.doubleValue(),
                     (double) pr.getFf03(), 0.0);
-            assertEquals(4.5, pr.getFf06());
+            assertEquals(4.5, pr.getFf06(), 0.01);
             assertEquals(IDecoderConstantsN.FLOAT_MISSING.doubleValue(),
                     (double) pr.getFf12(), 0.0);
-            assertEquals(6.0, pr.getFf24());
+            assertEquals(6.0, pr.getFf24(), 0.01);
         }
     }
 
@@ -136,7 +133,7 @@ public class FfgParserTest {
         Iterator<FfgPrecip> it = ppp.iterator();
         while (it.hasNext()) {
             FfgPrecip pr = it.next();
-            assertEquals(3.0, pr.getFf01());
+            assertEquals(3.0, pr.getFf01(), 0.01);
             assertEquals(IDecoderConstantsN.FLOAT_MISSING.doubleValue(),
                     (double) pr.getFf03(), 0.0);
             assertEquals(IDecoderConstantsN.FLOAT_MISSING.doubleValue(),

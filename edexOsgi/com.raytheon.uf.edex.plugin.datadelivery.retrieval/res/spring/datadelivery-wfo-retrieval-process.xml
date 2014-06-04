@@ -4,22 +4,21 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="dataDeliveryRetrievalDecoder"
-        class="com.raytheon.uf.edex.plugin.datadelivery.retrieval.SbnDataDeliveryRetrievalDecoder">
-        <constructor-arg value="notifyRetrieval" />
-    </bean>
+    class="com.raytheon.uf.edex.plugin.datadelivery.retrieval.SbnDataDeliveryRetrievalDecoder">
+    <constructor-arg value="notifyRetrieval" />
+</bean>
 
     <camelContext id="dataDeliveryRetrieval-camel"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="dataDeliveryRetrievalProcess">
             <from
-                uri="jms-generic:queue:dataDeliveryRetrievalProcess?destinationResolver=#qpidDurableResolver" />
+                uri="jms-durable:queue:dataDeliveryRetrievalProcess" />
             <doTry>
                 <bean ref="stringToFile" />
                 <bean ref="dataDeliveryRetrievalDecoder" method="process" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
-                    <to
-                        uri="log:dataDeliveryRetrieval" />
+                    <to uri="log:dataDeliveryRetrieval" />
                 </doCatch>
             </doTry>
         </route>
