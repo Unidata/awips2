@@ -25,18 +25,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * A block of data containing graphics organized into multiple pages.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -44,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class GraphicBlock extends AbstractBlock implements ISerializableObject {
+public class GraphicBlock extends AbstractBlock {
 
     private static final int BLOCK_ID = 2;
 

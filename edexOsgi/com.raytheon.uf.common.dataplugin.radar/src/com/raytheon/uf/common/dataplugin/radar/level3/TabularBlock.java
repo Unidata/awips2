@@ -26,18 +26,17 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Object representing a block of tabular data.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -46,7 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class TabularBlock extends AbstractBlock implements ISerializableObject {
+public class TabularBlock extends AbstractBlock {
 
     private static final int BLOCK_ID = 3;
 
