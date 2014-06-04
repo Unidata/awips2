@@ -44,10 +44,10 @@
 	<model>
 		<name>estofsUS</name>
 		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>2145137701</grid>
+		<subcenter>0</subcenter>
+		<grid>888</grid>
 		<process>
-			<id>1</id>
+			<id>999</id>
 		</process>
 	</model>
 
@@ -58,6 +58,15 @@
 		<grid>888</grid>
 		<process>
 			<id>999</id>
+		</process>
+	</model>
+
+	<model>
+		<name>HRRR</name>
+ 		<center>7</center>
+		<subcenter>0</subcenter>
+		<process>
+			<id>83</id>
 		</process>
 	</model>
 
@@ -2903,20 +2912,10 @@
 	</model>
 
 	<model>
-		<name>estofsUS</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>1971</grid>
-		<process>
-			<id>14</id>
-		</process>
-	</model>
-
-	<model>
 		<name>estofsPR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
-		<grid>339227-95</grid>
+		<grid>2145137701</grid>
 		<process>
 			<id>14</id>
 		</process>

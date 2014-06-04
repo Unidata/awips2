@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter abbreviation="WGS1hr" name="Max 1-hr Wind Gust Speed" unit="m/s">
+    <Method name="Alias" levels="Surface">
+    	<Field abbreviation="WGS1hr" level="10FHAG"/>
+    </Method>
+        <Method name="Vector" levels="Surface" >
+        <Field abbreviation="MAXUW1hr" level="FHAG10" />
+        <Field abbreviation="MAXVW1hr" level="FHAG10" />
+    </Method>
+</DerivedParameter>
