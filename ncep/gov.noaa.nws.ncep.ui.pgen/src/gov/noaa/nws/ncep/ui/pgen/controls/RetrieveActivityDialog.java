@@ -21,6 +21,8 @@ import gov.noaa.nws.ncep.ui.pgen.store.StorageUtils;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -69,6 +71,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	-----------------------------------
  * 03/13		#977		S.gilbert	Modified from PgenFileManageDialog1
+ * 01/2014      #1105       jwu         Ues "subtype" for query as well.
  * 
  * </pre>
  * 
@@ -85,6 +88,10 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
     class ActivityElement {
         String dataURI;
 
+        /*
+         * This will be a combo of "Product"'s activity type/subtype in format
+         * of type(subtype).
+         */
         String activityType;
 
         String activityLabel;
@@ -118,6 +125,10 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
     private List dirList = null;
 
     private ListViewer fileListViewer = null;
+
+    private Button listLatestBtn = null;
+
+    private Button listAllBtn = null;
 
     private Button browseBtn = null;
 
@@ -173,7 +184,7 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
     private void setTitle(String btnName) {
 
         if (btnName.equals("Open")) {
-            title = "Rretrive a PGEN Activity";
+            title = "Retrieve a PGEN Activity";
         }
 
     }
@@ -285,16 +296,18 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
 
         dirList.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event e) {
-                if (dirList.getSelectionCount() > 0) {
-
-                    selectedDir = dirList.getSelection()[0];
-                    fileListViewer.setInput(activityMap.get(selectedDir));
-                    fileListViewer.getList().setToolTipText(null);
-                    fileListViewer.refresh();
-
-                    // Update the full file name with the new path
-                    fullName = null;
-                }
+                listActivities();
+                /*
+                 * if (dirList.getSelectionCount() > 0) {
+                 * 
+                 * selectedDir = dirList.getSelection()[0];
+                 * fileListViewer.setInput(activityMap.get(selectedDir));
+                 * fileListViewer.getList().setToolTipText(null);
+                 * fileListViewer.refresh();
+                 * 
+                 * // Update the full file name with the new path fullName =
+                 * null; }
+                 */
             }
         });
 
@@ -309,6 +322,33 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
         layoutData8.left = new FormAttachment(dirList, 0, SWT.LEFT);
 
         fileLbl.setLayoutData(layoutData8);
+
+        listLatestBtn = new Button(topForm, SWT.RADIO);
+        listLatestBtn.setText("Latest");
+        listLatestBtn.setSelection(true);
+
+        FormData layoutData20 = new FormData();
+        layoutData20.top = new FormAttachment(dirList, 20, SWT.BOTTOM);
+        layoutData20.left = new FormAttachment(fileLbl, 10, SWT.RIGHT);
+        listLatestBtn.setLayoutData(layoutData20);
+        listLatestBtn.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent ev) {
+                listActivities();
+            }
+        });
+
+        listAllBtn = new Button(topForm, SWT.RADIO);
+        listAllBtn.setText("All");
+
+        FormData layoutData21 = new FormData();
+        layoutData21.top = new FormAttachment(dirList, 20, SWT.BOTTOM);
+        layoutData21.left = new FormAttachment(listLatestBtn, 10, SWT.RIGHT);
+        listAllBtn.setLayoutData(layoutData21);
+        listAllBtn.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent ev) {
+                listActivities();
+            }
+        });
 
         fileListViewer = new ListViewer(topForm, SWT.SINGLE | SWT.BORDER
                 | SWT.V_SCROLL);
@@ -414,6 +454,7 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(PgenRecord.class.getName());
         request.addRequestField(PgenRecord.ACTIVITY_TYPE);
+        request.addRequestField(PgenRecord.ACTIVITY_SUBTYPE);
         request.addRequestField(PgenRecord.ACTIVITY_LABEL);
         request.addRequestField(PgenRecord.DATAURI);
         request.addRequestField(PgenRecord.REF_TIME);
@@ -426,6 +467,15 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
                 ActivityElement elem = new ActivityElement();
                 elem.activityType = (String) result
                         .get(PgenRecord.ACTIVITY_TYPE);
+
+                if (result.get(PgenRecord.ACTIVITY_SUBTYPE) != null) {
+                    String subtype = (String) result
+                            .get(PgenRecord.ACTIVITY_SUBTYPE);
+                    if (!subtype.isEmpty() && !subtype.equalsIgnoreCase("NONE")) {
+                        elem.activityType += "(" + subtype + ")";
+                    }
+                }
+
                 elem.activityLabel = (String) result
                         .get(PgenRecord.ACTIVITY_LABEL);
                 elem.dataURI = (String) result.get(PgenRecord.DATAURI);
@@ -692,4 +742,51 @@ public class RetrieveActivityDialog extends CaveJFACEDialog {
 
     }
 
+    /**
+     * List all activities for an activity type/subtype or just the latest ones.
+     */
+    private void listActivities() {
+
+        boolean listLatest = listLatestBtn.getSelection();
+        if (dirList.getSelectionCount() > 0) {
+
+            selectedDir = dirList.getSelection()[0];
+            java.util.List<ActivityElement> elems = activityMap
+                    .get(selectedDir);
+
+            java.util.List<ActivityElement> filterElms = new ArrayList<ActivityElement>();
+
+            if (elems.size() > 0) {
+                if (listLatest) {
+
+                    // Sort all entries based on time, latest first.
+                    Collections.sort(elems, new Comparator<ActivityElement>() {
+                        @Override
+                        public int compare(ActivityElement ae1,
+                                ActivityElement ae2) {
+                            return -1 * ae1.refTime.compareTo(ae2.refTime);
+                        }
+                    });
+
+                    // Pick unique labels.
+                    java.util.List<String> actLbls = new ArrayList<String>();
+                    for (ActivityElement ae : elems) {
+                        if (!actLbls.contains(ae.activityLabel)) {
+                            actLbls.add(ae.activityLabel);
+                            filterElms.add(ae);
+                        }
+                    }
+                } else {
+                    filterElms.addAll(elems);
+                }
+            }
+
+            fileListViewer.setInput(filterElms);
+            fileListViewer.getList().setToolTipText(null);
+            fileListViewer.refresh();
+
+            // Update the full file name with the new path
+            fullName = null;
+        }
+    }
 }

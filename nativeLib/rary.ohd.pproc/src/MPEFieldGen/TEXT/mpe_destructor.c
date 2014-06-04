@@ -19,25 +19,31 @@
 
 #include "mpe_fieldgen.h"
 
-// ADDED BY RAM FOR THE AVERAGE AND MAX MOSAIC CALCULATION
 // ------------------
 extern double  ** MPEFieldGen_MaxMosaic;
 extern double  ** MPEFieldGen_AvgMosaic;
 extern int     ** MPEFieldGen_AvgMosaicNumRadars;
 
+extern double  ** MPEFieldGen_MaxRDMosaic;
+extern double  ** MPEFieldGen_AvgRDMosaic;
+extern int     ** MPEFieldGen_AvgRDMosaicNumRadars;
+
 extern int     ** MPEFieldGen_P3Mosaic;
 // -------------------
 
 extern double  ** MPEFieldGen_RMosaic;
+extern double  ** MPEFieldGen_RDMosaic;
 extern double  ** MPEFieldGen_BMosaic;
+extern double  ** MPEFieldGen_BDMosaic;
 extern double  ** MPEFieldGen_LMosaic;
-extern double  ** QMosaic;
-extern double  ** LQMosaic;
+extern double  ** MPEFieldGen_QMosaic;
+extern double  ** MPEFieldGen_LQMosaic;
 extern int     ** MPEFieldGen_ID;
+extern int     ** MPEFieldGen_IDDP; //djsiii not sure about the prefix here
 extern int     ** Q2ID;
 extern double ** MPEFieldGen_QPEMosaic;
 extern double ** MPEFieldGen_umeang;
-extern double * MPEFieldGen_meanFieldBias;
+//extern double * MPEFieldGen_meanFieldBias;
 extern short ** MPEFieldGen_radarMiscBins;
 extern double ** RfcBMosaic;
 
@@ -71,6 +77,23 @@ void destructor()
     {
         free(MPEFieldGen_ID);
         MPEFieldGen_ID = NULL;
+    }
+
+    if(MPEFieldGen_IDDP != NULL)
+    {
+    	for(i = 0; i < rowSize; i++)
+    	{
+        	if(MPEFieldGen_IDDP[i] != NULL)
+        	{
+            	free(MPEFieldGen_IDDP[i]);
+            	MPEFieldGen_IDDP[i] = NULL;
+        	}
+    	}
+    }
+    if(MPEFieldGen_IDDP != NULL)
+    {
+        free(MPEFieldGen_IDDP);
+        MPEFieldGen_IDDP = NULL;
     }
 
     if(Q2ID != NULL)
@@ -107,22 +130,40 @@ void destructor()
         MPEFieldGen_RMosaic = NULL;
     }
 
-    if(QMosaic != NULL)
+    if(MPEFieldGen_RDMosaic != NULL)
+    {
+    	for(i = 0; i < rowSize; i++)
+    	{
+        	if(MPEFieldGen_RDMosaic[i] != NULL)
+        	{
+            	free(MPEFieldGen_RDMosaic[i]);
+            	MPEFieldGen_RDMosaic[i] = NULL;
+        	}
+    	}
+    }
+    if(MPEFieldGen_RDMosaic != NULL)
+    {
+        free(MPEFieldGen_RDMosaic);
+        MPEFieldGen_RDMosaic = NULL;
+    }
+
+    if(MPEFieldGen_QMosaic != NULL)
         {
             for(i = 0; i < rowSize; i++)
             {
-                    if(QMosaic[i] != NULL)
+                    if(MPEFieldGen_QMosaic[i] != NULL)
                     {
-                    free(QMosaic[i]);
-                    QMosaic[i] = NULL;
+                    free(MPEFieldGen_QMosaic[i]);
+                    MPEFieldGen_QMosaic[i] = NULL;
                     }
             }
         }
-        if(QMosaic != NULL)
+        if(MPEFieldGen_QMosaic != NULL)
         {
-            free(QMosaic);
-            QMosaic = NULL;
+            free(MPEFieldGen_QMosaic);
+            MPEFieldGen_QMosaic = NULL;
         }
+
 
     // Added by Ram for the average and max mosaic destruction/deallocation
      // ------------------------
@@ -171,6 +212,54 @@ void destructor()
         MPEFieldGen_AvgMosaicNumRadars = NULL;
     }
 
+/* new block */
+
+     // ------------------------
+    for(i = 0; i < rowSize; i++)
+    {
+        if(MPEFieldGen_MaxRDMosaic[i] != NULL)
+        {
+            free(MPEFieldGen_MaxRDMosaic[i]);
+            MPEFieldGen_MaxRDMosaic[i] = NULL;
+        }
+    }
+    if(MPEFieldGen_MaxRDMosaic != NULL)
+    {
+        free(MPEFieldGen_MaxRDMosaic);
+        MPEFieldGen_MaxRDMosaic = NULL;
+    }
+
+    
+    for(i = 0; i < rowSize; i++)
+    {
+        if(MPEFieldGen_AvgRDMosaic[i] != NULL)
+        {
+            free(MPEFieldGen_AvgRDMosaic[i]);
+            MPEFieldGen_AvgRDMosaic[i] = NULL;
+        }
+    }
+    if(MPEFieldGen_AvgRDMosaic != NULL)
+    {
+        free(MPEFieldGen_AvgRDMosaic);
+        MPEFieldGen_AvgRDMosaic = NULL;
+    }
+
+
+    
+    for(i = 0; i < rowSize; i++)
+    {
+        if(MPEFieldGen_AvgRDMosaicNumRadars[i] != NULL)
+        {
+            free(MPEFieldGen_AvgRDMosaicNumRadars[i]);
+            MPEFieldGen_AvgRDMosaicNumRadars[i] = NULL;
+        }
+    }
+
+    if(MPEFieldGen_AvgRDMosaicNumRadars != NULL)
+    {
+        free(MPEFieldGen_AvgRDMosaicNumRadars);
+        MPEFieldGen_AvgRDMosaicNumRadars = NULL;
+    }
 
     for(i = 0; i < rowSize; i++)
     {
@@ -188,9 +277,7 @@ void destructor()
 // ---------------------------
 
 
-
-
-
+/* end of new block */
 
     if(MPEFieldGen_BMosaic != NULL)
     {
@@ -209,6 +296,27 @@ void destructor()
         MPEFieldGen_BMosaic = NULL;
     }
 
+/* new block */
+
+    if(MPEFieldGen_BDMosaic != NULL)
+    {
+        for(i = 0; i < rowSize; i++)
+        {
+            if(MPEFieldGen_BDMosaic[i] != NULL)
+            {
+                free(MPEFieldGen_BDMosaic[i]);
+                MPEFieldGen_BDMosaic[i] = NULL;
+            }
+        }
+    }
+    if(MPEFieldGen_BDMosaic != NULL)
+    {
+        free(MPEFieldGen_BDMosaic);
+        MPEFieldGen_BDMosaic = NULL;
+    }
+
+/* end of new block */
+
     if(MPEFieldGen_LMosaic != NULL)
     {
         for(i = 0; i < rowSize; i++)
@@ -226,21 +334,21 @@ void destructor()
         MPEFieldGen_LMosaic = NULL;
     }
 
-    if(LQMosaic != NULL)
+    if(MPEFieldGen_LQMosaic != NULL)
         {
             for(i = 0; i < rowSize; i++)
             {
-                if(LQMosaic[i] != NULL)
+                if(MPEFieldGen_LQMosaic[i] != NULL)
                 {
-                    free(LQMosaic[i]);
-                    LQMosaic[i] = NULL;
+                    free(MPEFieldGen_LQMosaic[i]);
+                    MPEFieldGen_LQMosaic[i] = NULL;
                 }
             }
             }
-        if(LQMosaic != NULL)
+        if(MPEFieldGen_LQMosaic != NULL)
         {
-            free(LQMosaic);
-            LQMosaic = NULL;
+            free(MPEFieldGen_LQMosaic);
+            MPEFieldGen_LQMosaic = NULL;
         }
 
 
@@ -423,7 +531,8 @@ void destructor()
 
     /* Free memory associated with the station location buffer. */
     free_mpe_latlon_info ( );
-}
+
+} /* end destructor() */
 
 void destructorByRadarLoc ( int radarLocNum )
 {
@@ -444,11 +553,8 @@ void destructorByRadarLoc ( int radarLocNum )
       MPEFieldGen_radarMiscBins = NULL;
    }
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob83/ohd/pproc_lib/src/MPEFieldGen/RCS/mpe_destructor.c,v $";
- static char rcs_id2[] = "$Id: mpe_destructor.c,v 1.1 2007/10/15 12:19:10 dsa Exp $";}
 /*  ===================================================  */
 
-}
+} /* end destructorByRadarLoc */
 
 
