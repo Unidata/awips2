@@ -901,4 +901,9 @@
         <datasetId>PROB3HR</datasetId>
         <dt>3</dt>
     </info>
+    <info>
+        <title>HRRR</title>
+        <datasetId>HRRR</datasetId>
+        <dt>1</dt>
+    </info>
 </datasetInfoSet>
