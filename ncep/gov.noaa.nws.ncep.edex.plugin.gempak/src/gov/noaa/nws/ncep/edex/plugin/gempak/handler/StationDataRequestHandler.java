@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.uf.common.pointdata.PointDataContainer;
-import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
+import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.edex.pointdata.PointDataQuery;
 
@@ -19,7 +19,7 @@ public class StationDataRequestHandler implements
     private static final String REF_TIME = "dataTime.refTime";
 
     private static final String REF_HOUR = "refHour";
-    
+
     private static final String REP_TYPE = "reportType";
 
     @Override
@@ -35,10 +35,12 @@ public class StationDataRequestHandler implements
 
         query.setParameters(request.getParmList());
         query.addParameter(STATION_ID, request.getStationId(), "=");
-        query.addParameter(REF_HOUR, request.getRefTime().toString(), "=");
+        if (!request.getPluginName().equalsIgnoreCase("bufrua")) {
+            query.addParameter(REF_HOUR, request.getRefTime().toString(), "=");
+        }
         query.addParameter(REF_TIME, request.getRefTime().toString(), "<=");
-        if ( ! request.getPartNumber().equals("0") ) {
-        	query.addParameter(REP_TYPE, request.getPartNumber(), "=");
+        if (!request.getPartNumber().equals("0")) {
+            query.addParameter(REP_TYPE, request.getPartNumber(), "=");
         }
 
         query.requestAllLevels();
@@ -56,21 +58,21 @@ public class StationDataRequestHandler implements
                 int dimensions = pdv.getDimensions(param);
                 Type t = pdv.getType(param);
                 switch (t) {
-                  case FLOAT:
-                  case DOUBLE:
-                  case INT:
-                  case LONG:
+                case FLOAT:
+                case DOUBLE:
+                case INT:
+                case LONG:
                     if (dimensions == 2) {
-	                    params.put(param, pdv.getNumberAllLevels(param));
+                        params.put(param, pdv.getNumberAllLevels(param));
                     } else {
-	                    params.put(param, pdv.getNumber(param));
+                        params.put(param, pdv.getNumber(param));
                     }
                     break;
-                  case STRING:
+                case STRING:
                     if (dimensions == 2) {
-	                    params.put(param, pdv.getStringAllLevels(param));
+                        params.put(param, pdv.getStringAllLevels(param));
                     } else {
-	                    params.put(param, pdv.getString(param));
+                        params.put(param, pdv.getString(param));
                     }
                     break;
                 }

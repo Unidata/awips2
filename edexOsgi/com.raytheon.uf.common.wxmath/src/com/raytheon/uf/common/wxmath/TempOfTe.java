@@ -32,14 +32,17 @@ import java.util.Arrays;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 03, 2013 2043       bsteffen    Ported from meteolib C
- * Aug 13, 2013 2262       njensen     Moved from deriv params
- * Aug 21, 2013 2289       bsteffen    Add more pressure levels to TeTable.
- *                                     Remove redundant adiabatic_te calls.
- *                                     Use binary search in Arrays class.
- *                                     Return table values when possible.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 03, 2013  2043     bsteffen    Ported from meteolib C
+ * Aug 13, 2013  2262     njensen     Moved from deriv params
+ * Aug 21, 2013  2289     bsteffen    Add more pressure levels to TeTable.
+ *                                    Remove redundant adiabatic_te calls.
+ *                                    Use binary search in Arrays class.
+ *                                    Return table values when possible.
+ * May 12, 2014  2289     bsteffen    Change pmin to 200 because adiabetic_te
+ *                                    is not reliable for all temperatures 
+ *                                    for smaller pressures.
  * 
  * </pre>
  * 
@@ -55,7 +58,7 @@ public class TempOfTe {
 
     private static final int nt = 1 + tmax - tmin;
 
-    private static final int pmin = 100;
+    private static final int pmin = 200;
 
     private static final int pmax = 1000;
 
