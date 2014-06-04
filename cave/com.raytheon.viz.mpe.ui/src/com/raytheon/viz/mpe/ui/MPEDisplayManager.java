@@ -80,6 +80,7 @@ import com.raytheon.viz.mpe.MPECommandConstants;
 import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarLoc;
+import com.raytheon.viz.mpe.ui.dialogs.hourlyradar.RadarDataManager;
 import com.raytheon.viz.mpe.ui.displays.MPEMapRenderableDisplay;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData;
@@ -132,6 +133,12 @@ public class MPEDisplayManager {
     private int dqcDays = Integer.parseInt(AppsDefaults.getInstance().getToken(
             "mpe_dqc_num_days"));
 
+    /** Radar Type for Radar Coverage Map Legend **/
+    public static enum AvailableRadarGridType
+    {
+        DUAL_POL, SINGLE_POL, SINGLE_AND_DUAL_POL, MISSING
+    };
+    
     /**
      * @return the qpf
      */
@@ -273,7 +280,16 @@ public class MPEDisplayManager {
             DisplayFieldData.Xmrg, DisplayFieldData.rfcMosaic,
             DisplayFieldData.rfcbMosaic, DisplayFieldData.rfcmMosaic,
             DisplayFieldData.qmosaic, DisplayFieldData.lqmosaic,
-            DisplayFieldData.mlqmosaic, DisplayFieldData.localField1,
+            DisplayFieldData.mlqmosaic,
+            
+            // Dual Pol fields
+            DisplayFieldData.rdMosaic, DisplayFieldData.avgrdMosaic,
+            DisplayFieldData.maxrdMosaic, DisplayFieldData.bdMosaic,
+            DisplayFieldData.ldMosaic,
+            DisplayFieldData.mdMosaic, DisplayFieldData.mldMosaic,
+            DisplayFieldData.srdMosaic, DisplayFieldData.srdgMosaic,
+            
+            DisplayFieldData.localField1,
             DisplayFieldData.localField2, DisplayFieldData.localField3 };
 
     public static final String APPLICATION_NAME = "hmapmpe";
@@ -417,6 +433,8 @@ public class MPEDisplayManager {
     private final MPEFieldResourceData fieldResourceData = new MPEFieldResourceData();
 
     private MPEFieldResource displayedFieldResource;
+    
+    private ComparisonFields comparisonFields = new ComparisonFields();
 
     private Date editTime;
 
@@ -718,11 +736,23 @@ public class MPEDisplayManager {
      */
     public void displayFieldData(DisplayFieldData fieldToDisplay,
             int accumulationHrs, ArealDisplay arealDisplay) {
+    	
         if (displayedField != fieldToDisplay || displayedFieldResource == null
                 || accumulationHrs != displayedAccumHrs
                 || arealDisplay != displayedArealDisplay) {
             DisplayFieldData oldField = displayedField;
             displayedField = fieldToDisplay;
+            
+            //check for comparisonFields
+            if  ( displayedField.isAComparisonField() )
+            {
+            	displayedField.setComparisonFields(comparisonFields);
+            }
+            else
+            {
+            	displayedField.setComparisonFields(null);
+            }
+            
             displayedAccumHrs = accumulationHrs;
             displayedArealDisplay = arealDisplay;
             ResourceList list = display.getDescriptor().getResourceList();
@@ -938,14 +968,15 @@ public class MPEDisplayManager {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         String dirname = appsDefaults.getToken(fieldData.getDirToken());
         String cv_use = fieldData.getCv_use();
+        String fileNamePrefix = fieldData.getFileNamePrefix();
         String prismType = null;
         String dateFormatString = MPEDateFormatter.yyyyMMddHH;
         switch (fieldData) {
         case rfcMosaic:
-            cv_use += "01";
+        	fileNamePrefix += "01";
             break;
         case Xmrg:
-            cv_use = cv_use.toLowerCase();
+        	fileNamePrefix = fileNamePrefix.toLowerCase();
             dateFormatString = MPEDateFormatter.MMddyyyyHH;
             break;
         case Prism:
@@ -972,7 +1003,7 @@ public class MPEDisplayManager {
             fname = FileUtil.join(dirname, "prism_" + prismType + "_"
                     + mpe_site_id + "_" + dateString);
         } else {
-            fname = FileUtil.join(dirname, cv_use + dateString + "z");
+            fname = FileUtil.join(dirname, fileNamePrefix + dateString + "z");
         }
         return new XmrgFile(fname);
     }
@@ -992,6 +1023,7 @@ public class MPEDisplayManager {
         if (durationInHrs == 0) {
             durationInHrs = 1;
         }
+        
         ColorMapParameters params = new ColorMapParameters();
         params.setFormatString("0.00");
         params.setDisplayUnit(displayUnit);
@@ -1059,18 +1091,25 @@ public class MPEDisplayManager {
         params.setColorMapMax(params.getDataMax());
 
         // Check for Index parameter and set labels to radar sites
-        if (displayField == DisplayFieldData.Index) {
+        // Determine and store radar type (S/D/M) for display in legend
+        // See getAvailableRadarGridType method in .../MPEGui/TEXT/drawMpeLegend.c
+        if (displayField == DisplayFieldData.Index)
+        {
             MPERadarLoc[] radars = MPEDataManager.getInstance().getRadars()
                     .toArray(new MPERadarLoc[0]);
             DataMappingEntry[] entries = dm.getEntries().toArray(
                     new DataMappingEntry[0]);
-
+          
             int offset = 2;
-            for (int i = offset; i < entries.length; ++i) {
+            for (int i = offset; i < entries.length; ++i)
+            {
                 int radarIdx = i - offset;
-                if (radarIdx < radars.length) {
+                if (radarIdx < radars.length)
+                {
                     entries[i].setLabel(radars[radarIdx].getId());
-                } else {
+                }
+                else
+                {
                     entries[i].setLabel("");
                 }
             }
@@ -1168,4 +1207,75 @@ public class MPEDisplayManager {
             rsc.reloadGages();
         }
     }
+
+	public ComparisonFields getComparisonFields() {
+		return comparisonFields;
+	}
+
+	public void setComparisonFields(ComparisonFields comparisonFields) {
+		this.comparisonFields = comparisonFields;
+	}
+	
+	public  AvailableRadarGridType getAvailableRadarType(String radId) {
+		// get radar type (SINGLE_POL/DUAL_POL/MISSING)
+		// check for DAA radar in DAARadarResult table - if found then return "DUAL_POL"
+		// else check for DPA radar in RWRadarResult table - if found then return "SINGLE_POL"
+		// else return "MISSING" - this is the default value
+		AvailableRadarGridType type = AvailableRadarGridType.MISSING;
+	
+		Date dateTime = getCurrentDisplayedDate();
+		int available;
+		
+		boolean dualPolAvailable = false;
+		boolean singlePolAvailable = false;
+		
+		RadarDataManager radarDataManager = RadarDataManager.getInstance();
+
+		try 
+		{
+			available = radarDataManager.getAvailableRadarDP(radId, dateTime);
+
+			if(available == 0 || available == 2)
+			{
+				dualPolAvailable = true;
+			}
+
+			available = radarDataManager.getAvailableRadarSP(radId, dateTime);
+			if(available == 0 || available == 2)
+			{
+				singlePolAvailable = true;
+			}
+		}
+		
+		catch (VizException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (singlePolAvailable)
+		{
+			if (dualPolAvailable)
+			{
+				type = AvailableRadarGridType.SINGLE_AND_DUAL_POL;
+			}
+			else
+			{
+				type = AvailableRadarGridType.SINGLE_POL;
+			}
+		}
+		
+		else if (dualPolAvailable)
+		{
+			type = AvailableRadarGridType.DUAL_POL;
+		}
+		
+		else
+		{
+			type = AvailableRadarGridType.MISSING;
+		}
+		
+		
+		return type;
+	}
 }

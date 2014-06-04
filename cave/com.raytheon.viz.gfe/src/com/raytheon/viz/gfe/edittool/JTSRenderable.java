@@ -25,6 +25,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -46,6 +47,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * May 5, 2008				chammack	Initial creation
+ * May 15, 2014  #3069      randerso    Made labelSpacing settable.
+ *                                      Fixed label coordinates after ReferencedGeometry
+ *                                      was made non-destructive.
  * 
  * </pre>
  * 
@@ -62,6 +66,8 @@ public class JTSRenderable implements IRenderable {
     private IFont labelFont;
 
     private RGB color = ColorUtil.WHITE;
+
+    private int labelSpacing = 50;
 
     /**
      * @return the color
@@ -91,6 +97,10 @@ public class JTSRenderable implements IRenderable {
      */
     public void setLineWidth(float lineWidth) {
         this.lineWidth = lineWidth;
+    }
+
+    public void setLabelSpacing(int labelSpacing) {
+        this.labelSpacing = labelSpacing;
     }
 
     private float lineWidth = 1.0f;
@@ -127,17 +137,17 @@ public class JTSRenderable implements IRenderable {
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-        EditToolPaintProperties etpp = (EditToolPaintProperties) paintProps;
+        IDescriptor descriptor = ((EditToolPaintProperties) paintProps)
+                .getDescriptor();
 
         if (this.wireframeShape == null) {
 
-            this.wireframeShape = target.createWireframeShape(true,
-                    etpp.getDescriptor());
+            this.wireframeShape = target.createWireframeShape(true, descriptor);
         }
 
         if (!this.pendingGeometies.isEmpty()) {
             JTSCompiler jtsCompiler = new JTSCompiler(null, wireframeShape,
-                    etpp.getDescriptor());
+                    descriptor);
             while (!this.pendingGeometies.isEmpty()) {
                 Geometry geom = this.pendingGeometies.remove();
                 jtsCompiler.handle(geom);
@@ -146,10 +156,11 @@ public class JTSRenderable implements IRenderable {
                     String label = (String) geom.getUserData();
                     double[] coord = new double[2];
                     int numCoords = geom.getNumPoints();
-                    for (int j = 0; j < numCoords; j += 50) {
+                    for (int j = 0; j < numCoords; j += this.labelSpacing) {
                         Coordinate c = geom.getCoordinates()[j];
                         coord[0] = c.x;
                         coord[1] = c.y;
+                        coord = descriptor.worldToPixel(coord);
                         this.wireframeShape.addLabel(label, coord);
                     }
                 }

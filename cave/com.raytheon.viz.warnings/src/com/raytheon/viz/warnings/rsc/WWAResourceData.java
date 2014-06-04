@@ -41,6 +41,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * ------------ ---------- ----------- --------------------------
  * May 3, 2011            jsanchez     Initial creation
  * Oct 25, 2013 2249       rferrel     getAvailableTimes always returns a non-empty list.
+ * Apr 28, 2014 DR 17310   D. Friedman Handle null VTEC fields.
  * 
  * </pre>
  * 
@@ -79,8 +80,8 @@ public class WWAResourceData extends AbstractRequestableResourceData {
             for (int i = 0; i < objects.length; i++) {
                 records.add((AbstractWarningRecord) objects[i]);
             }
-            watchResource = ((AbstractWarningRecord) objects[0]).getSig()
-                    .equals("A");
+            watchResource = "A".equals(((AbstractWarningRecord) objects[0])
+                    .getSig());
         } else if (loadProperties.isLoadWithoutData()) {
             // I must be trying to load without data, Ill try.
             RequestConstraint phenSig = metadataMap.get("phensig");
@@ -172,8 +173,10 @@ public class WWAResourceData extends AbstractRequestableResourceData {
         TreeSet<DataTime> startTimes = new TreeSet<DataTime>();
         for (AbstractWarningRecord warnRec : warnings) {
             boolean valid = true;
-            WarningAction action = WarningAction.valueOf(warnRec.getAct());
-            if (action == WarningAction.CAN || action == WarningAction.EXP) {
+            WarningAction action = warnRec.getAct() != null ?
+                    WarningAction.valueOf(warnRec.getAct()) : null;
+            if ((action == WarningAction.CAN || action == WarningAction.EXP) &&
+                    warnRec.getEtn() != null && warnRec.getPhensig() != null) {
                 valid = false;
                 for (AbstractWarningRecord w : warnings) {
                     if (warnRec.equals(w)) {
@@ -182,8 +185,8 @@ public class WWAResourceData extends AbstractRequestableResourceData {
                     TimeRange tr = new TimeRange(w.getStartTime(),
                             w.getEndTime());
                     if (tr.contains(warnRec.getStartTime().getTime())
-                            && w.getEtn().equals(warnRec.getEtn()) == false
-                            && w.getPhensig().equals(warnRec.getPhensig()) == false) {
+                            && warnRec.getEtn().equals(w.getEtn()) == false
+                            && warnRec.getPhensig().equals(w.getPhensig()) == false) {
                         valid = true;
                     }
                 }

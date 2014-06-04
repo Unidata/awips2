@@ -1,10 +1,12 @@
-RPS List rps-RPGOP-tcp.VCP11.rps created    2010:11:18:17:28:33 ... 46 products
+RPS List rps-RPGOP-tcp.VCP11.rps created    2014:02:18:17:28:33 ... 48 products
  An RPS list contains the fields: Prod-Name, Mnemonic, Prod-Code
  Number of Data Levels, Resolution, Layer Code, Elevation, Contour Interval,
  Priority, Req Interval, Map, Lower Layer, Upper Layer, multCut, endHour, timeSpan
  The record format is: '%-39s  %-3s%4d%4d%6d %c%6d%7d%2d%2d%c%3d%3d %c%7d%7d'
 Reflectivity (Z)                         Z    94 256   100 -  8226     -1 0 1N -1 -1 N     -1      0
+Reflectivity (Z)                         Z    94 256   100 -     5     -1 0 1N -1 -1 Y     -1      0
 Velocity (V)                             V    99 256    25 -  8226     -1 0 1N -1 -1 N     -1      0
+Velocity (V)                             V    99 256    25 -     5     -1 0 1N -1 -1 Y     -1      0
 Reflectivity (Z)                         Z    19  16   100 -     5     -1 0 1N -1 -1 N     -1      0
 Reflectivity (Z)                         Z    20  16   200 -     5     -1 0 1N -1 -1 N     -1      0
 Velocity (V)                             V    27  16   100 -     5     -1 0 1N -1 -1 N     -1      0
