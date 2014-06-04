@@ -813,6 +813,9 @@ public class D2DGridDatabase extends VGridDatabase {
         try {
             // Gets the metadata from the grib metadata database
             D2DParm parm = this.gfeParms.get(parmId);
+            if (parm == null) {
+                throw new GfeException("Unknown parmId: " + parmId);
+            }
             if (!GridPathProvider.STATIC_PARAMETERS.contains(parmId
                     .getParmName())) {
                 fcstHr = parm.getTimeRangeToFcstHr().get(timeRange);
