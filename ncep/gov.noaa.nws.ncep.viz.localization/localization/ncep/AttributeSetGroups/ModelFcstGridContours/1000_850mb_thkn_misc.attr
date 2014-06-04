@@ -1,0 +1,24 @@
+!
+! Log:
+! J. Carr/HPC            9/98   initial creation
+!
+GDATTIM = F00-F204
+GLEVEL = 850:1000
+GVCORD = pres
+SKIP   = 0
+SCALE  = -1
+GDPFUN = sm9s(sub(hght@850,hght@1000))
+TYPE   = c
+CINT   = 1
+LINE   = 3/5/1/2
+FINT   =
+FLINE  =
+HILO   =
+HLSYM  =
+WIND   =
+TITLE  = 1/-1/~ ? 1000-850 MB THKN!0
+TEXT   = 1/21//hw
+COLORS = 2
+MARKER = 2
+GRDLBL = 5
+FILTER = yes

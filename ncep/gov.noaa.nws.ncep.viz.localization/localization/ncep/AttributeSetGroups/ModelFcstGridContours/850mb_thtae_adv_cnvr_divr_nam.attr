@@ -1,0 +1,27 @@
+!
+! Restore File : 850_thtae_adv_cnvr_divr
+!
+! Log:
+! J.Carr/HPC     06/04/2001       Created restore file.
+!
+GLEVEL = 850!!!!!!1000:700
+GVCORD = pres!pres!pres!pres
+SKIP   = 0/2;1
+SCALE  = 4!-1!0!!!!4
+GDPFUN = adv(thte(pres;tmpc;dwpc),wind)!hght!thte(pres;tmpc;dwpc)//te!te!te!kntv(wnd)!sm5s(msdv(thte,wind))
+TYPE   = c/f!c!c!c!c!b!c
+CINT   = 2!3/90/96!4//304!4/308/324!4/328!!3//-3!
+LINE   = 32/1/2!1//2!23/10/3!22/10/3!21/1/2!6/1/2
+FINT   = -14;-10;-6;-2;2;6;10;14
+FLINE  = 7;29;30;24;0;14;15;18;5
+HILO   = 0!
+HLSYM  = 0!
+CLRBAR = 1/V/LL!0
+WIND   = bk0!bk0!bk0!bk0!bk0!bk9/0.7/2/112!bk0
+REFVEC = 10
+TITLE  = 1/-2/~ ? 850mb THTAE ADV and WIND/(CNVRG-AQUA)|~@ THTAE ADVCN/CNVRG!0
+TEXT   = l/22/2/hw
+IJSKIP = yes
+COLORS = 2
+MARKER = 2
+GRDLBL = 5
