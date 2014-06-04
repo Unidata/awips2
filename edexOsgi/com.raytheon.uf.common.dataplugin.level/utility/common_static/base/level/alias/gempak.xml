@@ -140,5 +140,4 @@
     <alias base="SP">SPXX</alias>
 	<alias base="IDRL">IDRL</alias>
 	<alias base="SRCS">SRCS</alias>
-	<alias base="NTAT">NTAT</alias>    
 </aliasList>

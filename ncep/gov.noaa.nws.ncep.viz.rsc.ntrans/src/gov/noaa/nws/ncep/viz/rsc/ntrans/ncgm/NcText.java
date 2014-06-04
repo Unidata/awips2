@@ -4,7 +4,7 @@
 package gov.noaa.nws.ncep.viz.rsc.ntrans.ncgm;
 
 import gov.noaa.nws.ncep.viz.rsc.ntrans.jcgm.Text;
-import gov.noaa.nws.ncep.viz.rsc.ntrans.rsc.NtransResource.ImageBuilder;
+import gov.noaa.nws.ncep.viz.rsc.ntrans.rsc.ImageBuilder;
 
 import java.io.DataInput;
 import java.io.IOException;
@@ -38,13 +38,19 @@ public class NcText extends Text implements INcCommand {
      * @throws IOException
      */
     public NcText(int ec, int eid, int l, DataInput in) throws IOException {
-        // To handle little-endian strings, we need to bump an odd length ("l") parameter
-        // up one to make it even (ending on two-byte CGM word boundary), so that we
-        // get the last character.  (Will be flipped into place later.)  Note that
-        // special case of l=31 indicates "long form" (string length >=31 char, to
-        // be specified in following 2-byte integer), so the parent constructor for
-        // Command has also been modified to interpret l=32 fed up to it as a signal
-        // to handle as l=31, then "bump" the long-form length it reads (from next
+        // To handle little-endian strings, we need to bump an odd length ("l")
+        // parameter
+        // up one to make it even (ending on two-byte CGM word boundary), so
+        // that we
+        // get the last character. (Will be flipped into place later.) Note that
+        // special case of l=31 indicates "long form" (string length >=31 char,
+        // to
+        // be specified in following 2-byte integer), so the parent constructor
+        // for
+        // Command has also been modified to interpret l=32 fed up to it as a
+        // signal
+        // to handle as l=31, then "bump" the long-form length it reads (from
+        // next
         // 2 bytes) up to even value if needed.
         super(ec, eid, (l + 1) / 2 * 2, in);
     }

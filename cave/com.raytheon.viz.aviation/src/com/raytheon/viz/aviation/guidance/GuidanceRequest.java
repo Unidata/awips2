@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.core.jobs.QueueJobRequest;
  * Jul 28, 2009            njensen     Initial creation
  * Nov 12, 2010 6195       rferrel     Added types for clearing cache.
  * Apr 14, 2011 8065       rferrel     Implement equals
+ * 10Apr2014    #3005      lvenable    Added Eclipse generated hashcode method.
  * 
  * </pre>
  * 
@@ -210,6 +211,19 @@ public class GuidanceRequest extends QueueJobRequest<String[]> {
      */
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((format == null) ? 0 : format.hashCode());
+        result = prime * result
+                + ((guidanceType == null) ? 0 : guidanceType.hashCode());
+        result = prime * result + ((model == null) ? 0 : model.hashCode());
+        result = prime * result + ((siteIDs == null) ? 0 : siteIDs.hashCode());
+        result = prime * result + ((tag == null) ? 0 : tag.hashCode());
+        return result;
     }
 
     /*
