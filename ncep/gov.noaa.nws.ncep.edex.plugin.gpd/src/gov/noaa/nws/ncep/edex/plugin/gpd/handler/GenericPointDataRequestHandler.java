@@ -1,4 +1,8 @@
 /**
+ * This code has unlimited rights, and is provided "as is" by the National Centers 
+ * for Environmental Prediction, without warranty of any kind, either expressed or implied, 
+ * including but not limited to the implied warranties of merchantability and/or fitness 
+ * for a particular purpose.
  * 
  * 
  * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
@@ -390,7 +394,7 @@ public class GenericPointDataRequestHandler implements IRequestHandler<GenericPo
 		if(gpdDao== null)
 			return null;
 		GenericPointDataReqType msgType = request.getReqType();
-		String reportName;
+		String prodName= request.getProductName();;
 		Date refTime;
 		float slon ;
 		float slat;
@@ -399,9 +403,8 @@ public class GenericPointDataRequestHandler implements IRequestHandler<GenericPo
 		case GET_GPD_PRODUCT_INFO_GEMPAK_TBL:
 		case GET_GPD_PRODUCT_INFO_OBJECT:
 		case GET_GPD_PRODUCT_INFO_XML:
-			reportName = request.getProductName();
-			if(reportName !=null){
-				GenericPointDataProductInfo prodInfo = gpdDao.getGpdProdInfo(reportName);
+			if(prodName !=null){
+				GenericPointDataProductInfo prodInfo = gpdDao.getGpdProdInfo(prodName);
 				//*System.out.println(" report name= "+prodInfo.getName()+ " master="+prodInfo.getMasterLevel().getName()+ " maxLevel="+prodInfo.getMaxNumberOfLevel());
 				//for(Parameter pam: prodInfo.getParameterLst() ){
 				//	System.out.println("parm ="+pam.getAbbreviation());
@@ -418,10 +421,9 @@ public class GenericPointDataRequestHandler implements IRequestHandler<GenericPo
 		case GET_GPD_STATION_PRODUCT_GEMPAK_TBL:
 		case GET_GPD_STATION_PRODUCT_OBJECT:
 		case GET_GPD_STATION_PRODUCT_XML:
-			reportName = request.getProductName();
 			String stnId = request.getStnId();
 			refTime = request.getRefTime();
-			stnProd=gpdDao.getGpdProduct(refTime,GenericPointDataQueryKey.BY_STN_ID, stnId,-9999,-9999,reportName,request.isQuerySpecifiedProductVersion(), request.getProductVersion());
+			stnProd=gpdDao.getGpdProduct(refTime,GenericPointDataQueryKey.BY_STN_ID, stnId,-9999,-9999,prodName,request.isQuerySpecifiedProductVersion(), request.getProductVersion());
 			//System.out.println("stnProduct id="+ stnProd.getLocation().getStationId());
 			if(stnProd!=null)
 				if(msgType.equals(GenericPointDataReqType.GET_GPD_STATION_PRODUCT_OBJECT)){
@@ -438,11 +440,10 @@ public class GenericPointDataRequestHandler implements IRequestHandler<GenericPo
 		case GET_GPD_MOVING_PRODUCT_GEMPAK_TBL:
 		case GET_GPD_MOVING_PRODUCT_OBJECT:
 		case GET_GPD_MOVING_PRODUCT_XML:
-			reportName = request.getProductName();
 			slon = request.getSlon();
 			slat = request.getSlat();
 			refTime = request.getRefTime();
-			stnProd=gpdDao.getGpdProduct(refTime,GenericPointDataQueryKey.BY_SLAT_SLON,null, slat,slon,reportName,request.isQuerySpecifiedProductVersion(), request.getProductVersion());
+			stnProd=gpdDao.getGpdProduct(refTime,GenericPointDataQueryKey.BY_SLAT_SLON,null, slat,slon,prodName,request.isQuerySpecifiedProductVersion(), request.getProductVersion());
 			//System.out.println("stnProduct id="+ stnProd.getLocation().getStationId());
 			if(stnProd!=null)
 				if(msgType.equals(GenericPointDataReqType.GET_GPD_MOVING_PRODUCT_OBJECT)){
@@ -459,9 +460,8 @@ public class GenericPointDataRequestHandler implements IRequestHandler<GenericPo
 		case GET_GPD_PRODUCT_GEMPAK_TBL:
 		case GET_GPD_PRODUCT_OBJECT:
 		case GET_GPD_PRODUCT_XML:
-			reportName = request.getProductName();
 			refTime = request.getRefTime();
-			GenericPointDataProductContainer pdCon=gpdDao.getGpdProduct(refTime,GenericPointDataQueryKey.BY_REPORT_NAME,null, -9999,-9999,reportName,request.isQuerySpecifiedProductVersion(), request.getProductVersion());//(refTime, reportName,request.isQuerySpecifiedProductVersion(), request.getProductVersion());
+			GenericPointDataProductContainer pdCon=gpdDao.getGpdProduct(refTime,GenericPointDataQueryKey.BY_PRODUCT_NAME,null, -9999,-9999,prodName,request.isQuerySpecifiedProductVersion(), request.getProductVersion());//(refTime, reportName,request.isQuerySpecifiedProductVersion(), request.getProductVersion());
 			//System.out.println("stnProduct id="+ stnProd.getLocation().getStationId());
 			if(pdCon!=null)
 				if(msgType.equals(GenericPointDataReqType.GET_GPD_PRODUCT_OBJECT)){
@@ -476,27 +476,45 @@ public class GenericPointDataRequestHandler implements IRequestHandler<GenericPo
 				}
 			break;
 		case GET_GPD_STATION_PRODUCT_OBJECT_LIST:
-			reportName = request.getProductName();
 			stnId = request.getStnId();
-			return (Object)gpdDao.getGpdStationProduct(request.getRefTimeList(),GenericPointDataQueryKey.BY_STN_ID, stnId,-9999,-9999,reportName);
+			return (Object)gpdDao.getGpdStationProduct(request.getQueryTimeList(),GenericPointDataQueryKey.BY_STN_ID, stnId,-9999,-9999,prodName);
+		case GET_GPD_STATION_MDL_SND_PRODUCT_OBJECT_LIST:
+			stnId = request.getStnId();
+			//System.out.println("GET_GPD_STATION_MDL_SND_PRODUCT_OBJECT_LIST stnProduct id="+ stnId);
+			return (Object)gpdDao.getGpdStationModelSndProduct(request.getQueryTimeList(),request.getRefTime(),GenericPointDataQueryKey.BY_STN_ID, stnId,-9999,-9999,prodName);
 			//System.out.println("stnProduct id="+ stnProd.getLocation().getStationId());
 		case GET_GPD_MOVING_PRODUCT_OBJECT_LIST:
-			reportName = request.getProductName();
 			slon = request.getSlon();
 			slat = request.getSlat();
-			return (Object)gpdDao.getGpdStationProduct(request.getRefTimeList(),GenericPointDataQueryKey.BY_SLAT_SLON, null,slat,slon,reportName);
-			//System.out.println("stnProduct id="+ stnProd.getLocation().getStationId());
-			
+			return (Object)gpdDao.getGpdStationProduct(request.getQueryTimeList(),GenericPointDataQueryKey.BY_SLAT_SLON, null,slat,slon,prodName);
+		case GET_GPD_MOVING_MDL_SND_PRODUCT_OBJECT_LIST:
+			slon = request.getSlon();
+			slat = request.getSlat();
+			return (Object)gpdDao.getGpdStationModelSndProduct(request.getQueryTimeList(),request.getRefTime(),GenericPointDataQueryKey.BY_SLAT_SLON, null,slat,slon,prodName);
 		case STORE_GPD_PRODUCT_FROM_XML:
 			return (decoder.decodeXmlProdFmCli(request.getGpdDataString()));
 		case STORE_GPD_PRODUCT_FROM_GEMPAK_TBL:
-			return (decoder.decodeTblProdFmCli(request.getGpdDataString(), request.getProductName(), request.getProductVersion(), request.getMaxNumLevel()));
+		case STORE_GPD_OBS_SFC_PRODUCT_FROM_GEMPAK_TBL:
+		case STORE_GPD_OBS_SND_PRODUCT_FROM_GEMPAK_TBL:
+		case STORE_GPD_MDL_SND_PRODUCT_FROM_GEMPAK_TBL:
+			return (decoder.decodeGempakTblProdFmCli(request.getGpdDataString(), prodName, request.getProductVersion(), request.getMaxNumLevel(), msgType));
 		case PURGE_GPD_EXPIRED_PRODUCT:
 			gpdDao.purgeExpiredData();	
 			break;
 		case PURGE_GPD_ALL_PRODUCTS:
 			gpdDao.purgeAllData();
 			break;
+		case GET_GPD_PRODUCT_TIMELINE_OBJECT:
+			return (Object)(gpdDao.getGpdProductTimeline(prodName));
+		case GET_GPD_PRODUCT_RANGESTART_TIME_OBJECT:
+			return (Object)(gpdDao.getGpdProductRangestartTimes(prodName,request.getRefTimeStr()));
+		case GET_GPD_STATION_INFO_COLLECTION_OBJECT:
+			return (Object)(gpdDao.getGpdStationInfoCollection(request.getRefTimeStr(), request.getRangeStartTimeStr(),prodName));
+		case GET_GPD_ALL_AVAILABLE_PRODUCTS:
+		case GET_GPD_AVAILABLE_OBSERVED_SOUNDING_PRODUCTS:
+		case GET_GPD_AVAILABLE_MODEL_SOUNDING_PRODUCTS:
+		case GET_GPD_AVAILABLE_SURFACE_PRODUCTS:
+			return (Object)  (gpdDao.getGpdAvailProducts(msgType));
 		default:
 			break;
 		}

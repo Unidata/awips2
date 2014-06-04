@@ -468,6 +468,12 @@
           <gnam>PMSL</gnam>
           <scale>0</scale>    
      </parmeterinfo>
+          <parmeterinfo>
+          <name>Mean Sea Level Pressure</name>
+          <units>hPa</units>
+          <gnam>MMSL</gnam>
+          <scale>0</scale>    
+     </parmeterinfo>
      <parmeterinfo>
           <name>Pressure Tendency</name>
           <units>hPa/s</units>
