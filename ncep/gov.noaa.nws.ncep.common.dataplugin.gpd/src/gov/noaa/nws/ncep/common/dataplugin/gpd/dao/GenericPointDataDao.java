@@ -1,5 +1,8 @@
 /**
- * 
+ * This code has unlimited rights, and is provided "as is" by the National Centers 
+ * for Environmental Prediction, without warranty of any kind, either expressed or implied, 
+ * including but not limited to the implied warranties of merchantability and/or fitness 
+ * for a particular purpose.
  * 
  * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
  * 
@@ -26,8 +29,13 @@ import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataProductIn
 import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataStationProduct;
 import gov.noaa.nws.ncep.common.dataplugin.gpd.query.GenericPointDataQuery;
 import gov.noaa.nws.ncep.common.dataplugin.gpd.query.GenericPointDataReqMsg.GenericPointDataQueryKey;
+import gov.noaa.nws.ncep.common.dataplugin.gpd.query.GenericPointDataReqMsg.GenericPointDataReqType;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingStnInfo;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingStnInfoCollection;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingTimeLines;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +43,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +57,7 @@ import org.hibernate.criterion.Restrictions;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
+import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -75,7 +86,7 @@ public class GenericPointDataDao extends
 
     @Override
     public String[] getKeysRequiredForFileName() {
-        return new String[] { GenericPointDataConstants.DB_REFTIME_NAME,
+        return new String[] { GenericPointDataConstants.DB_REF_TIME,
                 GenericPointDataConstants.DB_PROD_NAME,
                 GenericPointDataConstants.DB_MASTER_LEVEL_NAME };
     }
@@ -96,7 +107,9 @@ public class GenericPointDataDao extends
     @Override
     public String getPointDataFileName(GenericPointDataRecord p) {
         Date refTime = (p.getDataTime().getRefTime());
-        String dateStr = hdfFileDateFormat.format(refTime);
+        int forecasttime = p.getDataTime().getFcstTime();
+        String dateStr = hdfFileDateFormat.format(refTime) + "-f"
+                + forecasttime;
         // System.out.println("gpd getPointDataFileName1 called and return: "+"gpd-"+p.getProductInfo().getName()+dateStr+/*"-"+p.getReportType().getMasterLevel().getName()+*/".h5");
         return "gpd-" + p.getProductInfo().getName() + dateStr + ".h5";
     }
@@ -123,10 +136,12 @@ public class GenericPointDataDao extends
     public String getPointDataFileName(Map<String, Object> dbResults) {
         String reportname = (String) dbResults
                 .get(GenericPointDataConstants.DB_PROD_NAME);
-        // String lmName=
-        // (String)dbResults.get(GenericPointDataConstants.DB_MASTER_LEVEL_NAME);
+        int forecasttime = (Integer) dbResults
+                .get(GenericPointDataConstants.DB_FORECAST_TIME);
         String dateStr = hdfFileDateFormat.format(dbResults
-                .get(GenericPointDataConstants.DB_REFTIME_NAME));
+                .get(GenericPointDataConstants.DB_REF_TIME))
+                + "-f"
+                + forecasttime;
         String filename = PLUGIN_HDF5_DIR + reportname + File.separator
                 // + lmName + File.separator
                 + this.pluginName + "-" + reportname + /* "-"+lmName+ */dateStr
@@ -158,7 +173,10 @@ public class GenericPointDataDao extends
 
         Date refTime = ((PluginDataObject) persistable).getDataTime()
                 .getRefTime();
-        String dateStr = hdfFileDateFormat.format(refTime);
+        int forecasttime = ((PluginDataObject) persistable).getDataTime()
+                .getFcstTime();
+        String dateStr = hdfFileDateFormat.format(refTime) + "-f"
+                + forecasttime;
         String fileName = persistable.getPluginName() + "-"
                 + rec.getProductInfo().getName() + /*
                                                     * "-"+rec.getReportType().
@@ -174,11 +192,17 @@ public class GenericPointDataDao extends
     /*
      * This function is for development testing.. not used in production code
      */
-    public PointDataDescription getPointDataDescription()
-            throws SerializationException {
+    public PointDataDescription getPointDataDescription() throws JAXBException {
         if (pdd == null) {
-            pdd = PointDataDescription.fromStream(this.getClass()
-                    .getResourceAsStream("/res/pointdata/gpd.xml"));
+            try {
+                pdd = PointDataDescription.fromStream(this.getClass()
+                        .getResourceAsStream("/res/pointdata/gpd.xml"));
+            } catch (SerializationException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                // statusHandler.handle(Priority.PROBLEM,
+                // e.getLocalizedMessage(), e);
+            }
         }
         return pdd;
     }
@@ -415,6 +439,7 @@ public class GenericPointDataDao extends
 
             Criterion nameCrit = Restrictions.eq("name", prod.getName());
             crit.add(nameCrit);
+            // query
             List<?> vals = crit.list();
             if (vals.size() > 0) {
                 // the product is already in DB
@@ -440,7 +465,7 @@ public class GenericPointDataDao extends
                     // prod version > 0, disallow update prod info
                 } else {
                     // TBD...do we need clone it?
-                    returnProdInfo = dbProdInfo;// .clone();
+                    returnProdInfo = dbProdInfo;
                 }
 
             } else if (createProd) {
@@ -630,6 +655,15 @@ public class GenericPointDataDao extends
             GenericPointDataQueryKey quertKey, String stnId, float slat,
             float slon, GenericPointDataProductInfo prodInfo, int productVersion)
             throws Exception {
+        return (getPointDataContainer(refTime, null, quertKey, stnId, slat,
+                slon, prodInfo, productVersion));
+    }
+
+    private PointDataContainer getPointDataContainer(Date refTime,
+            Date rangeStartTime, GenericPointDataQueryKey quertKey,
+            String stnId, float slat, float slon,
+            GenericPointDataProductInfo prodInfo, int productVersion)
+            throws Exception {
         String prodName = prodInfo.getName();
 
         PointDataContainer pdc = null;
@@ -648,15 +682,14 @@ public class GenericPointDataDao extends
             }
             returnParametersString.append(parameter);
         }
-        // also add the 3 HDF5 mandatory datasets
+        // also add the 3 HDF5 mandatory data sets
         returnParametersString.append(","
                 + GenericPointDataConstants.HDF5_LEVEL_VALUE);
         returnParametersString.append(","
                 + GenericPointDataConstants.HDF5_NUM_LEVEL);
         returnParametersString.append(","
                 + GenericPointDataConstants.HDF5_STN_ID);
-        System.out.println("gpd dao hdf5 parameterlist="
-                + returnParametersString.toString());
+        // System.out.println("gpd dao hdf5 parameterlist="+returnParametersString.toString());
 
         // 2nd:: add return fields form DB. the parameter name need to be
         // defined in
@@ -666,7 +699,10 @@ public class GenericPointDataDao extends
                 + GenericPointDataConstants.DB_STN_CATALOGTYPE);
         returnParametersString.append("," + GenericPointDataConstants.DB_SLAT);
         returnParametersString.append("," + GenericPointDataConstants.DB_SLON);
-
+        returnParametersString.append(","
+                + GenericPointDataConstants.DB_UTILITY_FLAGS);
+        returnParametersString.append(","
+                + GenericPointDataConstants.DB_FORECAST_TIME);
         // parameters defined in
         // /gov.noaa.nws.ncep.edex.plugin.gpd/utility/common_static/base/path/gpdPathKeys.xml
         // AND those returned by dao.getKeysRequiredForFileName()
@@ -681,25 +717,33 @@ public class GenericPointDataDao extends
         if (quertKey == GenericPointDataQueryKey.BY_STN_ID)
             pdq.addParameter("location.stationId", stnId, "=");
         else if (quertKey == GenericPointDataQueryKey.BY_SLAT_SLON) {
-            pdq.addParameter("slat", Float.toString(slat + 0.001f), "<");
-            pdq.addParameter("slon", Float.toString(slon + 0.001f), "<");
-            pdq.addParameter("slat", Float.toString(slat - 0.001f), ">");
-            pdq.addParameter("slon", Float.toString(slon - 0.001f), ">");
+            pdq.addParameter("slat", Float.toString(slat), "=");
+            pdq.addParameter("slon", Float.toString(slon), "=");
+
         }
 
         String dateStr = dbRefTimeFormat.format(refTime);
-        pdq.addParameter("dataTime.refTime", dateStr, "=");
-        pdq.addParameter("productVersion", Integer.toString(productVersion),
-                "=");
-        System.out.println("requestig refTime = " + dateStr);
+        pdq.addParameter(GenericPointDataConstants.DB_REF_TIME, dateStr, "=");
+        if (rangeStartTime != null) {
+            String rangedateStr = dbRefTimeFormat.format(rangeStartTime);
+            pdq.addParameter(GenericPointDataConstants.DB_RANGESTART_TIME,
+                    rangedateStr, "=");
+        }
+        pdq.addParameter(GenericPointDataConstants.DB_PRODUCT_VERSION,
+                Integer.toString(productVersion), "=");
+        // System.out.println("requestig refTime = "+ dateStr);
         pdq.requestAllLevels();
-        pdc = pdq.execute();
+        try {
+            pdc = pdq.execute();
+        } catch (StorageException e) {
+            System.out.println("HDF5 query StorageException " + e);
+        }
 
         return pdc;
     }
 
     /*
-     * TBM...Chin delet this leter...not used public
+     * TBM...Chin delete this later...not used public
      * GenericPointDataProductContainer getGpdProduct(Date refTime, String
      * prodName,boolean useSpecifiedProductVersion, int productVersion)throws
      * Exception{ GenericPointDataProductInfo prodInfo = getGpdProdInfo(
@@ -791,6 +835,7 @@ public class GenericPointDataDao extends
             GenericPointDataQueryKey key, String stnId, float slat, float slon,
             String prodName, boolean useSpecifiedProductVersion,
             int productVersion) throws Exception {
+        long t01 = System.currentTimeMillis();
         GenericPointDataProductInfo prodInfo = getGpdProdInfo(prodName);
         if (prodInfo == null) {
             System.out.println("report is not in DB");
@@ -809,7 +854,7 @@ public class GenericPointDataDao extends
             System.out.println("pdc is null");
             return null;
         }
-        System.out.println("pdc CurrentSz()=" + pdc.getCurrentSz());
+        // System.out.println("pdc CurrentSz()="+pdc.getCurrentSz());
         GenericPointDataProductContainer prodCon = new GenericPointDataProductContainer();
         prodCon.setProductInfo(prodInfo);
         prodCon.setRefTime(refTime);
@@ -891,6 +936,19 @@ public class GenericPointDataDao extends
                 // slon value is retrieved already, so drop it here
                 parameters.remove(GenericPointDataConstants.DB_SLON);
             }
+            String utFlag = null;
+            if (parameters.contains(GenericPointDataConstants.DB_UTILITY_FLAGS)) {
+                utFlag = pdv
+                        .getString(GenericPointDataConstants.DB_UTILITY_FLAGS);
+                // System.out.println("utFlag= "+ utFlag);
+                parameters.remove(GenericPointDataConstants.DB_UTILITY_FLAGS);
+            }
+            int forecastTime = 0;
+            if (parameters.contains(GenericPointDataConstants.DB_FORECAST_TIME)) {
+                forecastTime = pdv
+                        .getInt(GenericPointDataConstants.DB_FORECAST_TIME);
+                parameters.remove(GenericPointDataConstants.DB_FORECAST_TIME);
+            }
             // PDV id is not returned back to user, so drop it here
             parameters.remove(GenericPointDataConstants.HDF5_PDV_ID);
 
@@ -904,6 +962,8 @@ public class GenericPointDataDao extends
             stnPd.setNumLevel(numLevel);
             stnPd.setSlat(rtnslat);
             stnPd.setSlon(rtnslon);
+            stnPd.setForecastTime(forecastTime);
+            stnPd.setUtilityFlag(utFlag);
             for (String parm : parameters) {
                 if (numLevel > 1) {
                     // these parameters are data parameters and should be 2
@@ -920,6 +980,7 @@ public class GenericPointDataDao extends
                         levelList.get(j).getGpdParameters().add(gpdParm);
                     }
                 } else {
+                    // System.out.println("parm ="+parm);
                     GenericPointDataParameter gpdParm = new GenericPointDataParameter(
                             parm, pdv.getFloat(parm));
                     levelList.get(0).getGpdParameters().add(gpdParm);
@@ -927,6 +988,10 @@ public class GenericPointDataDao extends
             }
             prodCon.getStnProdLst().add(stnPd);
         }
+
+        long t02 = System.currentTimeMillis();
+        System.out.println("ThrifClient: getGpdProduct()  took " + (t02 - t01)
+                + " ms in total for query stn=" + stnId);
         return prodCon;
     }
 
@@ -952,8 +1017,8 @@ public class GenericPointDataDao extends
                 System.out.println("pdc is null");
                 continue;
             }
-            System.out.println(refTime.toString() + " pdc CurrentSz()="
-                    + pdc.getCurrentSz());
+            // System.out.println(refTime.toString()
+            // +" pdc CurrentSz()="+pdc.getCurrentSz());
 
             for (int i = 0; i < pdc.getCurrentSz(); i++) {
                 PointDataView pdv = pdc.readRandom(i);
@@ -1036,6 +1101,23 @@ public class GenericPointDataDao extends
                     // slon value is retrieved already, so drop it here
                     parameters.remove(GenericPointDataConstants.DB_SLON);
                 }
+                String utFlag = null;
+                if (parameters
+                        .contains(GenericPointDataConstants.DB_UTILITY_FLAGS)) {
+                    utFlag = pdv
+                            .getString(GenericPointDataConstants.DB_UTILITY_FLAGS);
+                    System.out.println("utFlag= " + utFlag);
+                    parameters
+                            .remove(GenericPointDataConstants.DB_UTILITY_FLAGS);
+                }
+                int forecastTime = 0;
+                if (parameters
+                        .contains(GenericPointDataConstants.DB_FORECAST_TIME)) {
+                    forecastTime = pdv
+                            .getInt(GenericPointDataConstants.DB_FORECAST_TIME);
+                    parameters
+                            .remove(GenericPointDataConstants.DB_FORECAST_TIME);
+                }
                 // PDV id is not returned back to user, so drop it here
                 parameters.remove(GenericPointDataConstants.HDF5_PDV_ID);
 
@@ -1049,6 +1131,8 @@ public class GenericPointDataDao extends
                 stnPd.setNumLevel(numLevel);
                 stnPd.setSlat(rtnslat);
                 stnPd.setSlon(rtnslon);
+                stnPd.setForecastTime(forecastTime);
+                stnPd.setUtilityFlag(utFlag);
                 for (String parm : parameters) {
                     if (numLevel > 1) {
                         // these parameters are data parameters and should be 2
@@ -1076,8 +1160,182 @@ public class GenericPointDataDao extends
         return stnProdList;
     }
 
+    public List<GenericPointDataStationProduct> getGpdStationModelSndProduct(
+            List<Date> rangeStartTimeList, Date referenceTime,
+            GenericPointDataQueryKey key, String stnId, float slat, float slon,
+            String prodName) throws Exception {
+        long t01 = System.currentTimeMillis();
+        GenericPointDataProductInfo prodInfo = getGpdProdInfo(prodName);
+        if (prodInfo == null) {
+            System.out.println("product is not in DB");
+            return null;
+        }
+        int productVersion = getGpdProductLatestVersion(referenceTime, prodName);
+        if (productVersion < 0) {
+            System.out.println("product version not available");
+            return null;
+        }
+
+        List<GenericPointDataStationProduct> stnProdList = new ArrayList<GenericPointDataStationProduct>();
+        for (Date rangeStartTime : rangeStartTimeList) {
+
+            PointDataContainer pdc = getPointDataContainer(referenceTime,
+                    rangeStartTime, key, stnId, slat, slon, prodInfo,
+                    productVersion);
+            if (pdc == null) {
+                System.out.println("pdc is null");
+                continue;
+            }
+            // System.out.println(rangeStartTime.toString()
+            // +" pdc CurrentSz()="+pdc.getCurrentSz());
+
+            for (int i = 0; i < pdc.getCurrentSz(); i++) {
+                PointDataView pdv = pdc.readRandom(i);
+                // System.out.println("pdv#"+i+" *********************************************");
+                Set<String> parameters = new HashSet<String>(pdv.getContainer()
+                        .getParameters());
+                int numLevel = 0;
+                if (parameters
+                        .contains(GenericPointDataConstants.HDF5_NUM_LEVEL)) {
+                    numLevel = pdv
+                            .getInt(GenericPointDataConstants.HDF5_NUM_LEVEL);
+                    // System.out.println("numLevel= "+ numLevel);
+                    // numLevel value is retrieved already, so drop it here
+                    parameters.remove(GenericPointDataConstants.HDF5_NUM_LEVEL);
+                } else
+                    continue; // level number is 0, no need to continue on this
+                              // PDV.
+
+                List<GenericPointDataLevel> levelList;
+                if (parameters
+                        .contains(GenericPointDataConstants.HDF5_LEVEL_VALUE)) {
+                    levelList = new ArrayList<GenericPointDataLevel>(numLevel);
+                    if (numLevel > 1) {
+                        Number[] num = pdv
+                                .getNumberAllLevels(GenericPointDataConstants.HDF5_LEVEL_VALUE);// pdv.getNumberAllLevels(parm,numLevel);
+                        int count = 0;
+                        for (Number n : num) {
+                            count++;
+                            if (count > numLevel)
+                                break;
+                            // System.out.println("Level " +count+
+                            // " value="+n.floatValue());
+                            GenericPointDataLevel gpdLevel = new GenericPointDataLevel();
+                            gpdLevel.setLevelValue(n.floatValue());
+                            levelList.add(gpdLevel);
+                        }
+                    } else {
+                        GenericPointDataLevel gpdLevel = new GenericPointDataLevel();
+                        gpdLevel.setLevelValue(pdv
+                                .getFloat(GenericPointDataConstants.HDF5_LEVEL_VALUE));
+                        levelList.add(gpdLevel);
+                    }
+                    // level value is retrieved already, so drop it here
+                    parameters
+                            .remove(GenericPointDataConstants.HDF5_LEVEL_VALUE);
+                } else
+                    continue; // no level value, no need to continue on this
+                              // PDV.
+
+                int stnCatalogType = ObStation.CAT_TYPE_MESONET;
+                if (parameters
+                        .contains(GenericPointDataConstants.DB_STN_CATALOGTYPE)) {
+                    stnCatalogType = pdv
+                            .getInt(GenericPointDataConstants.DB_STN_CATALOGTYPE);
+                    // System.out.println("stnCatalogType= "+ stnCatalogType);
+                    // DB_STN_CATALOGTYPE value is retrieved already, so drop it
+                    // here
+                    parameters
+                            .remove(GenericPointDataConstants.DB_STN_CATALOGTYPE);
+                }
+                String rtnstnId = stnId;
+                if (parameters.contains(GenericPointDataConstants.HDF5_STN_ID)) {
+                    rtnstnId = pdv
+                            .getString(GenericPointDataConstants.HDF5_STN_ID);
+                    // System.out.println("stnId= "+ rtnstnId);
+                    // stnId is input parameter, can drop it here.
+                    parameters.remove(GenericPointDataConstants.HDF5_STN_ID);
+                }
+                float rtnslat = slat;
+                if (parameters.contains(GenericPointDataConstants.DB_SLAT)) {
+                    rtnslat = pdv.getFloat(GenericPointDataConstants.DB_SLAT);
+                    // System.out.println("slat= "+ rtnslat);
+                    // slat value is retrieved already, so drop it here
+                    parameters.remove(GenericPointDataConstants.DB_SLAT);
+                }
+                float rtnslon = slon;
+                if (parameters.contains(GenericPointDataConstants.DB_SLON)) {
+                    rtnslon = pdv.getFloat(GenericPointDataConstants.DB_SLON);
+                    // System.out.println("slon= "+ rtnslon);
+                    // slon value is retrieved already, so drop it here
+                    parameters.remove(GenericPointDataConstants.DB_SLON);
+                }
+                String utFlag = null;
+                if (parameters
+                        .contains(GenericPointDataConstants.DB_UTILITY_FLAGS)) {
+                    utFlag = pdv
+                            .getString(GenericPointDataConstants.DB_UTILITY_FLAGS);
+                    System.out.println("utFlag= " + utFlag);
+                    parameters
+                            .remove(GenericPointDataConstants.DB_UTILITY_FLAGS);
+                }
+                int forecastTime = 0;
+                if (parameters
+                        .contains(GenericPointDataConstants.DB_FORECAST_TIME)) {
+                    forecastTime = pdv
+                            .getInt(GenericPointDataConstants.DB_FORECAST_TIME);
+                    parameters
+                            .remove(GenericPointDataConstants.DB_FORECAST_TIME);
+                }
+                // PDV id is not returned back to user, so drop it here
+                parameters.remove(GenericPointDataConstants.HDF5_PDV_ID);
+
+                GenericPointDataStationProduct stnPd = new GenericPointDataStationProduct();
+                stnPd.setProductName(prodName);
+                stnPd.setRefTime(referenceTime);
+                stnPd.setLevelLst(levelList);
+                stnPd.setProductVersion(productVersion);
+                stnPd.getLocation().setStationId(rtnstnId);
+                stnPd.getLocation().setCatalogType(stnCatalogType);
+                stnPd.setNumLevel(numLevel);
+                stnPd.setSlat(rtnslat);
+                stnPd.setSlon(rtnslon);
+                stnPd.setForecastTime(forecastTime);
+                stnPd.setUtilityFlag(utFlag);
+
+                for (String parm : parameters) {
+                    if (numLevel > 1) {
+                        // these parameters are data parameters and should be 2
+                        // dimensional float value per design
+                        // If a new "meta" data is queried, then we should take
+                        // care of that data specifically before here.
+                        Number[] num = pdv.getNumberAllLevels(parm);// ,numLevel);
+                        // System.out.println("parm ="+parm);
+                        for (int j = 0; j < numLevel; j++) {
+                            Number n = num[j];
+                            // System.out.println(" value="+n.floatValue());
+                            GenericPointDataParameter gpdParm = new GenericPointDataParameter(
+                                    parm, n.floatValue());
+                            levelList.get(j).getGpdParameters().add(gpdParm);
+                        }
+                    } else {
+                        GenericPointDataParameter gpdParm = new GenericPointDataParameter(
+                                parm, pdv.getFloat(parm));
+                        levelList.get(0).getGpdParameters().add(gpdParm);
+                    }
+                }
+                stnProdList.add(stnPd);
+            }
+        }
+        long t02 = System.currentTimeMillis();
+        System.out.println("ThrifClient: getGpdStationModelSndProduct()  took "
+                + (t02 - t01) + " ms in total for query stn=" + stnId);
+
+        return stnProdList;
+    }
+
     /*
-     * TBM...Chin delet this leter...not used public
+     * TBM...Chin delete this later...not used public
      * GenericPointDataStationProduct getGpdStationProduct(Date refTime,
      * GenericPointDataQueryKey key, String stnId, double slat, double slon,
      * String reportName,boolean useSpecifiedProductVersion, int
@@ -1291,8 +1549,9 @@ public class GenericPointDataDao extends
                         GenericPointDataRecord rec = (GenericPointDataRecord) pdo;
                         String directory = PLUGIN_HDF5_DIR
                                 + rec.getProductInfo().getName();
-
-                        String dateStr = hdfFileDateFormat.format(refTime);
+                        int forecasttime = rec.getDataTime().getFcstTime();
+                        String dateStr = hdfFileDateFormat.format(refTime)
+                                + "-f" + forecasttime;
                         String fileName = this.pluginName + "-"
                                 + rec.getProductInfo().getName() + dateStr
                                 + ".h5";
@@ -1343,4 +1602,123 @@ public class GenericPointDataDao extends
         return results;
     }
 
+    /*
+     * Return distinct reference time lines for one product
+     */
+    public NcSoundingTimeLines getGpdProductTimeline(String prodName) {
+        Object[] synopTimeAry = null;
+        NcSoundingTimeLines tl = new NcSoundingTimeLines();
+        String queryStr;
+        queryStr = new String(
+                "Select Distinct reftime FROM gpd where productinfo_name='"
+                        + prodName + "' ORDER BY reftime DESC");
+        synopTimeAry = (Object[]) executeSQLQuery(queryStr);
+        tl.setTimeLines(synopTimeAry);
+        return tl;
+    }
+
+    /*
+     * Return distinct rangestart times for one product at one reference time.
+     * Input reference time string format is "yyyy-mm-dd HH"
+     */
+    public NcSoundingTimeLines getGpdProductRangestartTimes(String prodName,
+            String refTimeStr) {
+
+        Object[] refTimeAry = null;
+        NcSoundingTimeLines tl = new NcSoundingTimeLines();
+
+        String queryStr = new String(
+                "Select Distinct rangestart FROM gpd where productinfo_name='"
+                        + prodName + "' AND reftime='" + refTimeStr + ":00:00'"
+                        + " ORDER BY rangestart");
+        refTimeAry = (Object[]) executeSQLQuery(queryStr);
+        tl.setTimeLines(refTimeAry);
+
+        return tl;
+    }
+
+    /*
+     * Return distinct station id(s) for one product at one reference time
+     */
+    public NcSoundingStnInfoCollection getGpdStationInfoCollection(
+            String selectedRefTime, String selectedRangeStartTime,
+            String prodName) {
+        NcSoundingStnInfoCollection stnInfoCol = new NcSoundingStnInfoCollection();
+        List<NcSoundingStnInfo> stationInfoList = new ArrayList<NcSoundingStnInfo>();
+        String queryStr;
+        Object[] rtnobjArray;
+        queryStr = new String(
+                "Select Distinct slat, slon, id, location_gid, reftime, rangestart FROM gpd where reftime='"
+                        + selectedRefTime
+                        + "' AND rangestart='"
+                        + selectedRangeStartTime
+                        + "' AND productinfo_name='"
+                        + prodName
+                        + "' AND slat BETWEEN -89.9 AND 89.9 AND slon BETWEEN -179.9 AND 179.9");
+        rtnobjArray = executeSQLQuery(queryStr);
+        String stnId = "";
+        Double slat, slon;
+        Timestamp synoptictime = null, rsTime = null;
+        for (int j = 0; j < rtnobjArray.length; j++) {
+            Object[] objArray = (Object[]) rtnobjArray[j];
+            // ids.add(((Integer)objArray[2]));
+            // We save lat/lon as float in DB.
+            // To make sure the double number get the same precision as the
+            // float number saved in DB
+            // we have to do the following conversion.
+            slat = new Double(objArray[0].toString());
+            slon = new Double(objArray[1].toString());
+            stnId = (String) objArray[3];
+            stnId = stnId.replace("1000-", "");
+            synoptictime = (Timestamp) objArray[4];
+            rsTime = (Timestamp) objArray[5];
+            NcSoundingStnInfo stn = stnInfoCol.getNewStnInfo();
+            stn.setStnId(stnId);
+            stn.setStationLongitude(slon);
+            stn.setStationLatitude(slat);
+            stn.setSynopTime(synoptictime);
+            stn.setRangeStartTime(rsTime);
+            stationInfoList.add((NcSoundingStnInfo) stn);
+        }
+        NcSoundingStnInfo[] stationInfoAry = new NcSoundingStnInfo[stationInfoList
+                .size()];
+        stnInfoCol.setStationInfo(stationInfoList.toArray(stationInfoAry));
+        // *System.out.println("stn size = "+
+        // stnInfoCol.getStationInfo().length);
+        return stnInfoCol;
+    }
+
+    public Object[] getGpdAvailProducts(GenericPointDataReqType reqType) {
+        String queryStr;
+        Object[] rtnobjArray;
+        switch (reqType) {
+        case GET_GPD_AVAILABLE_OBSERVED_SOUNDING_PRODUCTS:
+            queryStr = new String(
+                    "Select Distinct productinfo_name FROM gpd where productinfo_name IN (Select Distinct name FROM gpd_productinfo where maxnumberoflevel > 8) AND gpd.utilityflags = '[]'");
+            break;
+        case GET_GPD_AVAILABLE_MODEL_SOUNDING_PRODUCTS:
+            queryStr = new String(
+                    "Select Distinct productinfo_name FROM gpd where productinfo_name IN (Select Distinct name FROM gpd_productinfo where maxnumberoflevel > 8) AND gpd.utilityflags = '[FCST_USED]'");
+            break;
+        case GET_GPD_AVAILABLE_SURFACE_PRODUCTS:
+            queryStr = new String(
+                    "Select Distinct name FROM gpd_productinfo where maxnumberoflevel=1");
+            break;
+        case GET_GPD_ALL_AVAILABLE_PRODUCTS:
+            queryStr = new String("Select Distinct name FROM gpd_productinfo");
+            break;
+        default:
+            return null;
+        }
+        rtnobjArray = executeSQLQuery(queryStr);
+
+        // List<String> prodList = new ArrayList<String>();
+        // for (int j =0; j <rtnobjArray.length; j++){
+        // Object[] objArray = (Object[] )rtnobjArray[j];
+        // System.out.println("prod="+rtnobjArray[j]);
+        // String prodName= (String)rtnobjArray[j];
+        // prodList.add(prodName);
+        // }
+        return rtnobjArray;
+    }
 }

@@ -123,7 +123,6 @@ import com.raytheon.viz.warngen.util.FipsUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -209,7 +208,10 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     searchGeospatialDataAccessor() and updated it; changed getCountyGeospatialDataAcessor()
  *                                     to getGeospatialDataAcessor(); changed getAllCountyUgcs() to getAllUgcs(); changed 
  *                                     getUgcsForWatches() to getUgcsForCountyWatches().
+ * 04/15/2014  DR 17247    D. Friedman Rework error handling in AreaHatcher.
  * 04/23/2014  DR 16356    Qinglu Lin  Updated initializeState() and added reset().
+ * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
+ * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
  * </pre>
  * 
  * @author mschenke
@@ -407,13 +409,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private Geometry hatchedWarningArea;
 
+        private Exception hatchException;
+
         private Geometry warningArea;
 
         private Polygon warningPolygon;
 
         private Polygon oldWarningPolygon;
-
-        private boolean haveInput;
 
         public AreaHatcher(PolygonUtil polygonUtil) {
             super("Hatching Warning Area");
@@ -429,15 +431,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
          */
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            while ((this.warningArea != null) && (this.warningPolygon != null)) {
-                Geometry warningArea;
-                Polygon warningPolygon;
-                synchronized (polygonUtil) {
-                    warningArea = this.warningArea;
-                    warningPolygon = this.warningPolygon;
-                    this.warningArea = this.warningPolygon = null;
-                }
+            Geometry warningArea;
+            Polygon warningPolygon;
 
+            synchronized (polygonUtil) {
+                warningArea = this.warningArea;
+                warningPolygon = this.warningPolygon;
+                this.warningArea = this.warningPolygon = null;
+            }
+
+            if (warningArea != null && warningPolygon != null) {
+                Polygon inputWarningPolygon = warningPolygon;
+                Polygon outputHatchedArea = null;
+                Geometry outputHatchedWarningArea = null;
                 try {
                     warningPolygon = PolygonUtil
                             .removeDuplicateCoordinate(warningPolygon);
@@ -456,9 +462,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         coords = PolygonUtil.removeOverlaidLinesegments(coords);
                         GeometryFactory gf = new GeometryFactory();
                         LinearRing lr = gf.createLinearRing(coords);
-                        hatchedArea = gf.createPolygon(lr, null);
+                        outputHatchedArea = gf.createPolygon(lr, null);
                         int adjustPolygon_counter = 0;
-                        while (!hatchedArea.isValid()
+                        while (!outputHatchedArea.isValid()
                                 && (adjustPolygon_counter < 1)) {
                             System.out.println("Calling adjustPolygon #"
                                     + adjustPolygon_counter);
@@ -469,18 +475,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             coords = PolygonUtil
                                     .removeOverlaidLinesegments(coords);
                             lr = gf.createLinearRing(coords);
-                            hatchedArea = gf.createPolygon(lr, null);
+                            outputHatchedArea = gf.createPolygon(lr, null);
                             adjustPolygon_counter += 1;
                         }
                         int counter = 0;
-                        if (!hatchedArea.isValid() && (counter < 2)) {
+                        if (!outputHatchedArea.isValid() && counter < 2) {
                             System.out
                                     .println("calling adjustVertex & alterVertexes: loop #"
                                             + counter);
                             int adjustVertex_counter = 0;
                             lr = gf.createLinearRing(coords);
-                            hatchedArea = gf.createPolygon(lr, null);
-                            while (!hatchedArea.isValid()
+                            outputHatchedArea = gf.createPolygon(lr, null);
+                            while (!outputHatchedArea.isValid()
                                     && (adjustVertex_counter < 5)) {
                                 System.out.println("    Calling adjustVertex #"
                                         + adjustVertex_counter);
@@ -490,13 +496,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 coords = PolygonUtil
                                         .removeOverlaidLinesegments(coords);
                                 lr = gf.createLinearRing(coords);
-                                hatchedArea = gf.createPolygon(lr, null);
+                                outputHatchedArea = gf.createPolygon(lr, null);
                                 adjustVertex_counter += 1;
                             }
                             int inner_counter = 0;
                             System.out.println("");
-                            while (!hatchedArea.isValid()
-                                    && (inner_counter < 5)) {
+                            while (!outputHatchedArea.isValid()
+                                    && inner_counter < 5) {
                                 System.out
                                         .println("    Calling alterVertexes #"
                                                 + inner_counter);
@@ -506,21 +512,34 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 coords = PolygonUtil
                                         .removeOverlaidLinesegments(coords);
                                 lr = gf.createLinearRing(coords);
-                                hatchedArea = gf.createPolygon(lr, null);
+                                outputHatchedArea = gf.createPolygon(lr, null);
                                 inner_counter += 1;
                             }
                             counter += 1;
                         }
-                        hatchedWarningArea = createWarnedArea(
-                                latLonToLocal(hatchedArea),
+                        for (Coordinate c : outputHatchedArea.getCoordinates()) {
+                            if (Double.isNaN(c.x) || Double.isNaN(c.y)) {
+                                throw new IllegalStateException(
+                                        "Invalid coordinate " + c);
+                            }
+                        }
+                        outputHatchedWarningArea = createWarnedArea(
+                                latLonToLocal(outputHatchedArea),
                                 latLonToLocal(warningArea));
-                    } else {
-                        this.hatchedArea = null;
-                        this.hatchedWarningArea = null;
                     }
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+                    this.hatchedArea = outputHatchedArea;
+                    this.hatchedWarningArea = outputHatchedWarningArea;
+                } catch (Exception e) {
+                    this.hatchException = e;
+                    /*
+                     * This is DEBUG so as to not distract the user when the
+                     * result may not even be used. If there is an an attempt to
+                     * use the result, the error is reported with a higher
+                     * priority in getHatchedAreas().
+                     */
+                    statusHandler.handle(Priority.DEBUG, String.format(
+                            "Error redrawing polygon: %s\n Input: %s\n",
+                            e.getLocalizedMessage(), inputWarningPolygon), e);
                 }
             }
 
@@ -533,27 +552,38 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 this.warningPolygon = warningPolygon;
                 this.warningArea = warningArea;
                 this.oldWarningPolygon = oldWarningPolygon;
-                this.haveInput = true;
+
+                this.hatchedArea = null;
+                this.hatchedWarningArea = null;
+                this.hatchException = null;
             }
             schedule();
         }
 
         public synchronized Geometry[] getHatchedAreas() {
-            Polygon hatchedArea = null;
-            Geometry hatchedWarningArea = null;
             while (getState() != Job.NONE) {
                 try {
                     join();
                 } catch (InterruptedException e) {
-                    break;
+                    return new Geometry[] { null, null };
                 }
             }
-            if (!this.haveInput) {
+            if (getResult() == null) {
                 return null;
             }
-            hatchedArea = this.hatchedArea;
-            hatchedWarningArea = this.hatchedWarningArea;
-            return new Geometry[] { hatchedArea, hatchedWarningArea };
+            if (this.hatchException == null) {
+                return new Geometry[] { hatchedArea, hatchedWarningArea };
+            } else {
+                String message;
+                if (hatchException instanceof VizException) {
+                    message = hatchException.getLocalizedMessage();
+                } else {
+                    message = "Could not redraw box from warned area: "
+                            + hatchException.getLocalizedMessage();
+                }
+                statusHandler.handle(Priority.PROBLEM, message, hatchException);
+                return new Geometry[] { null, null };
+            }
         }
 
     }
@@ -1095,7 +1125,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         WarngenConfiguration config = null;
         try {
             config = WarngenConfiguration.loadConfig(templateName,
-                    getLocalizedSite());
+                    LocalizationManager.getInstance().getCurrentSite(),
+                    backupSite);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred loading template " + templateName, e);
@@ -1346,7 +1377,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     public void setBackupSite(String site) {
         if (site.equalsIgnoreCase("none")) {
-            backupSite = "";
+            backupSite = null;
         } else {
             backupSite = site;
         }
@@ -1354,7 +1385,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     public String getLocalizedSite() {
         String site = "";
-        if ((backupSite == null) || "".equals(backupSite)) {
+        if (backupSite == null) {
             site = LocalizationManager.getInstance().getCurrentSite();
         } else {
             site = backupSite;
@@ -1483,9 +1514,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
         GeospatialDataList gdl = searchGeospatialDataAccessor();
         if (gdl == null) {
             // Cause county geospatial data to be loaded
-            // TODO: Should not be referencing tornadoWarning.
+            /*
+             * TODO This code needs to be refactored because 'tornadoWarning'
+             * should not be hard coded. What if the file tornadoWarning does
+             * not exist in the base? The 'tornadoWarning' was originally not
+             * the filename. What happens in the future if the base file gets
+             * changed again? A ticket should be opened for this to be resolved.
+             */
             WarngenConfiguration torConfig = WarngenConfiguration.loadConfig(
-                    "tornadoWarning", getLocalizedSite());
+                    "tornadoWarning", getLocalizedSite(), null);
             loadGeodataForConfiguration(torConfig);
             gdl = searchGeospatialDataAccessor();
         }
@@ -2443,8 +2480,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     state.resetMarked();
                     state.geometryChanged = true;
                     issueRefresh();
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Could not redraw box from warned area");
                     result = false;
                 }
                 System.out.println("Time to createWarningPolygon: "
@@ -2823,7 +2858,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
 
             if (!intersectFlag) {
-                state.setWarningPolygon(gf.createPolygon(ring, null));
+                Polygon p = gf.createPolygon(ring, null);
+                if (p.isValid() && latLonToLocal(p).isValid()) {
+                    state.setWarningPolygon(p);
+                }
             }
         } catch (Exception e) {
 
@@ -3404,8 +3442,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     /**
-     * Like buildArea, but does not take inclusion filters into account.  Also
+     * Like buildArea, but does not take inclusion filters into account. Also
      * returns a Geometry in lat/lon space.
+     * 
      * @param inputArea
      * @return
      */
@@ -3422,7 +3461,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Geometry intersection = null;
             try {
                 // Get intersection between county and hatched boundary
-                intersection = GeometryUtil.intersection(localHatchedArea, prepGeom);
+                intersection = GeometryUtil.intersection(localHatchedArea,
+                        prepGeom);
                 if (oldWarningArea != null) {
                     intersection = GeometryUtil.intersection(intersection,
                             oldWarningArea);
@@ -3434,8 +3474,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
             newHatchedArea = union(newHatchedArea, intersection);
         }
-        Geometry result = newHatchedArea != null ? newHatchedArea : new GeometryFactory()
-            .createGeometryCollection(new Geometry[0]);
+        Geometry result = newHatchedArea != null ? newHatchedArea
+                : new GeometryFactory()
+                        .createGeometryCollection(new Geometry[0]);
         return localToLatLon(result);
     }
 

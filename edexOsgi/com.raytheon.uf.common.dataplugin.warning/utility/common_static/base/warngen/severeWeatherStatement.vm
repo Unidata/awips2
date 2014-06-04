@@ -10,6 +10,7 @@
 ##         EVAN BOOKBINDER 9-18-2013  Implemented config.vm    ##
 ##         MIKE DANGELO 1-22-2104  Tweaked default CTA wording to fix parseString problems and torEmerCTA to use new verbage ##
 ##         Removed preAmbleTOR (not used) -mmd 1/23/2014, preAmble for other tor-sighted/confirmed bullets retained
+##         Mike Rega 4/24/2014 fixed MND blank line in CAN     ##
 #################################################################
 ##
 ###################################################################
@@ -76,7 +77,6 @@ ${area.name}##
 #end
 -##
 #end
-
 #elseif(${CORCAN}=="true")
 ${ugclinecan}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
@@ -87,7 +87,6 @@ ${area.name}##
 #end
 -##
 #end
-
 #else
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
