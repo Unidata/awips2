@@ -123,7 +123,7 @@ void readDPARadar(const char * rad,
       found = 1;
       strncpy ( fname, pDPARadarHead->grid_filename, 17);
    }
-   else
+   else /* ( pDPARadarHead == NULL ) */
    {
       /*  Search for non-top-of-hour record.
           If searching in window around 00z, then need to use date 
@@ -201,7 +201,7 @@ void readDPARadar(const char * rad,
             break;
          }
       }
-   }
+   } /* ( pDPARadarHead == NULL ) */
 
    /*----------------------------------------------------------*/
    /*  no DPA product found after checking at top-of-hour      */
@@ -224,4 +224,5 @@ void readDPARadar(const char * rad,
    }
 
    return;
-}
+
+} /* end readDPARadar */

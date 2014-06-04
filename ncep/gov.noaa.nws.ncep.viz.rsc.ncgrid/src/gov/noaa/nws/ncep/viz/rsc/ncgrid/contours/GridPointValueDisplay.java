@@ -19,6 +19,8 @@
  ******************************************************************************************/
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+
 import java.nio.FloatBuffer;
 
 import org.eclipse.swt.graphics.RGB;
@@ -42,8 +44,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
-
 /**
  * Display grid point values
  * 
@@ -55,6 +55,7 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * June, 2010    164        M. Li     	Initial creation
  * October,2011             X. Guo      Display grid point in GRID_CENTER
  * Apr, 2013				B. Yin		Don't plot missing values
+ * 02/04/2014	936			T. Lee		Implemented textSize 
  * 
  * </pre>
  * 
@@ -72,11 +73,13 @@ public class GridPointValueDisplay implements IRenderable {
 
     private RGB color;
 
+    private int textSize;
+
     private FloatBuffer displayValues;
 
     private IFont font;
 
-    public GridPointValueDisplay(FloatBuffer values, RGB color,
+    public GridPointValueDisplay(FloatBuffer values, RGB color, int textSize,
             IMapDescriptor descriptor, ISpatialObject gridLocation) {
 
         this.displayValues = values;
@@ -84,6 +87,7 @@ public class GridPointValueDisplay implements IRenderable {
         this.gridGeometryOfGrid = MapUtil.getGridGeometry(gridLocation);
         this.gridDims = new int[] { gridLocation.getNx(), gridLocation.getNy() };
         this.color = color;
+        this.textSize = textSize;
     }
 
     /*
@@ -100,7 +104,8 @@ public class GridPointValueDisplay implements IRenderable {
         if (paintProps.isZooming()) {
             return;
         }
-        font = target.initializeFont("Monospace", 10,
+
+        font = target.initializeFont("Monospace", textSize,
                 new IFont.Style[] { IFont.Style.BOLD });
 
         IExtent screenExtentInPixels = paintProps.getView().getExtent();
@@ -122,8 +127,9 @@ public class GridPointValueDisplay implements IRenderable {
         for (int i = 0; i < gridDims[0]; i += interv + 1) {
 
             for (int j = 0; j < gridDims[1]; j += interv + 1) {
-            	if (displayValues.get((i + (j * this.gridDims[0])) ) == IDecoderConstantsN.GRID_MISSING) continue;
- 	
+                if (displayValues.get((i + (j * this.gridDims[0]))) == IDecoderConstantsN.GRID_MISSING)
+                    continue;
+
                 ReferencedCoordinate c = new ReferencedCoordinate(
                         new Coordinate(i, j), this.gridGeometryOfGrid,
                         Type.GRID_CENTER);
