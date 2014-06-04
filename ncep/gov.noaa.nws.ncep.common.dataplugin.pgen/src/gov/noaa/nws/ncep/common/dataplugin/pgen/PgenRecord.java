@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 26, 2013            bhebbard    Added SequenceGenerator annotation
  * Jul 22, 2013 1977       rjpeter     Added getDataURI and annotations.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Jan,29, 2014 1105       jwu         Added ACTIVITY_SUBTYPE
  * </pre>
  * 
  * @author sgilbert
@@ -52,6 +53,8 @@ public class PgenRecord extends PersistablePluginDataObject {
     public static final String DATAURI = "dataURI";
 
     public static final String ACTIVITY_TYPE = "activityType";
+
+    public static final String ACTIVITY_SUBTYPE = "activitySubtype";
 
     public static final String ACTIVITY_LABEL = "activityLabel";
 

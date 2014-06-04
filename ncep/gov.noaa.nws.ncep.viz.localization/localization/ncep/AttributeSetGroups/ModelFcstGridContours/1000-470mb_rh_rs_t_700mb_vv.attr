@@ -25,5 +25,4 @@ WIND=
 TITLE=1/-1/~ 1000-440 MB RH, TEMP (BL yel,850 red), 700 Omega!0
 COLORS=2                                                                       
 MARKER=2                                                                       
-GRDLBL=5                                                                       
-       
+GRDLBL=5

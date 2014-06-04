@@ -38,7 +38,9 @@ package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
 import gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.NcPlotResource2.Station;
 
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -50,6 +52,9 @@ import java.util.Date;
 import com.raytheon.uf.common.time.DataTime;
 
 public class Tracer {
+
+    private static boolean enabled = false;
+
     // save it static to have it available on every call
 
     private static Method m;
@@ -60,9 +65,8 @@ public class Tracer {
 
     Calendar cal = Calendar.getInstance();
 
-    String logFileName = /*
-                          * "/export/cdbsrv/bhebbard/pointdatadisplay/" +
-                          */dateFormat.format(cal.getTime());
+    String logFileName = "/export/cdbsrv/bhebbard/pointdatadisplay/"
+            + dateFormat.format(cal.getTime());
 
     private static PrintWriter writer = null;
 
@@ -95,37 +99,41 @@ public class Tracer {
     }
 
     public static void print(String message) {
-        long elapsedTime = 0;
-        if (startTime < 0) {
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-            Calendar cal = Calendar.getInstance();
-            String logFileName = /*
-                                  * "/export/cdbsrv/bhebbard/pointdatadisplay/"
-                                  * +
-                                  */dateFormat.format(cal.getTime());
-            /*
-             * try { writer = new PrintWriter(logFileName, "UTF-8"); } catch
-             * (FileNotFoundException e) { // TODO Auto-generated catch block.
-             * Please revise as // appropriate. //
-             * statusHandler.handle(Priority.PROBLEM, //
-             * e.getLocalizedMessage(), e); System.out.println("[" +
-             * "FileNotFoundException" + "] " + message); } catch
-             * (UnsupportedEncodingException e) { // TODO Auto-generated catch
-             * block. Please revise as // appropriate. //
-             * statusHandler.handle(Priority.PROBLEM, //
-             * e.getLocalizedMessage(), e); System.out.println("[" +
-             * "UnsupportedEncodingException" + "] " + message); }
-             * System.out.println("[Logging to " + logFileName + "]");
-             */
-            startTime = System.nanoTime();
-        } else {
-            elapsedTime = (System.nanoTime() - startTime) / 1000000;
+        if (enabled) {
+            long elapsedTime = 0;
+            if (startTime < 0) {
+                DateFormat dateFormat = new SimpleDateFormat(
+                        "yyyy-MM-dd-HH-mm-ss");
+                Calendar cal = Calendar.getInstance();
+                String logFileName = "/export/cdbsrv/bhebbard/pointdatadisplay/"
+                        + dateFormat.format(cal.getTime());
+                try {
+                    writer = new PrintWriter(logFileName, "UTF-8");
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    // statusHandler.handle(Priority.PROBLEM,
+                    // e.getLocalizedMessage(), e);
+                    System.out.println("[" + "FileNotFoundException" + "] "
+                            + message);
+                } catch (UnsupportedEncodingException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    // statusHandler.handle(Priority.PROBLEM,
+                    // e.getLocalizedMessage(), e);
+                    System.out.println("[" + "UnsupportedEncodingException"
+                            + "] " + message);
+                }
+                System.out.println("[Logging to " + logFileName + "]");
+                startTime = System.nanoTime();
+            } else {
+                elapsedTime = (System.nanoTime() - startTime) / 1000000;
+            }
+            System.out.println("[" + elapsedTime + getMethodName(1) + "] "
+                    + message);
+            writer.println("[" + elapsedTime + getMethodName(1) + "] "
+                    + message);
         }
-        /*
-         * System.out.println("[" + elapsedTime + getMethodName(1) + "] " +
-         * message); writer.println("[" + elapsedTime + getMethodName(1) + "] "
-         * + message);
-         */
     }
 
     public static void printX(String message) {
@@ -139,7 +147,7 @@ public class Tracer {
         Date frameDate = dt.getRefTime();
         DecimalFormat df = new DecimalFormat("00");
         String returnString = Integer.toString(frameDate.getDate()) + "/"
-                + df.format(frameDate.getHours() + 5) // TODOhorror!!
+                + df.format(frameDate.getHours() + 4) // TODOhorror!!
                 + df.format(frameDate.getMinutes());
         if (dt.getFcstTime() != 0) {
             returnString += "(" + dt.getFcstTime() + ")";

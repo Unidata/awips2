@@ -47,10 +47,12 @@
 
 double ** MLQMosaic ;
 
+/* NOTE - These function prototypes should go in a .h file. djsiii 17 Sep 2013 */
+
 void allocMLQMosaicMemory(const geo_data_struct * pGeoData) ;
 void releaseMLQMosaicMemory(const geo_data_struct * pGeoData) ;
-
 void releaseMLQMosaicMemory(const geo_data_struct * pGeoData) ;
+
 
 void runMLQMosaic(const run_date_struct * pRunDate ,
                 const geo_data_struct * pGeoData ,
@@ -150,6 +152,7 @@ void runMLQMosaic(const run_date_struct * pRunDate ,
             }
             first = 0 ;
         }
+
         sprintf(fileName, "MLQMOSAIC%sz", dateYMD );
         MPEFieldGen_writeArray(pGeoData, mosaicDir, fileName,
                    FACTOR_PRECIP, replace_missing,
@@ -185,8 +188,10 @@ void runMLQMosaic(const run_date_struct * pRunDate ,
             }
         }
     }
+
     releaseMLQMosaicMemory(pGeoData) ;
-}
+
+} /* end runMLQMosaic */
 
 
 void allocMLQMosaicMemory(const geo_data_struct * pGeoData)
@@ -217,7 +222,7 @@ void allocMLQMosaicMemory(const geo_data_struct * pGeoData)
             shutDownMPE( message, logFile );
         }
     }
-}
+} /* end allocMLQMosaicMemory */
 
 void releaseMLQMosaicMemory(const geo_data_struct * pGeoData)
 {
@@ -238,9 +243,4 @@ void releaseMLQMosaicMemory(const geo_data_struct * pGeoData)
         MLQMosaic = NULL;
     }
 
-/*  ==============  Statements containing RCS keywords:  */
-{static char rcs_id1[] = "$Source: /fs/hseb/ob92/ohd/pproc_lib/src/MPEFieldGen/RCS/run_mlqmosaic.c,v $";
- static char rcs_id2[] = "$Id: run_mlqmosaic.c,v 1.1 2009/07/27 17:58:29 pst Exp $";}
-/*  ===================================================  */
-
-}
+} /* end releaseMLQMosaicMemory */
