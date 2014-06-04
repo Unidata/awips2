@@ -24,19 +24,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * {@link SymbologyPacket} representing multiple points of hda hail.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 5, 2008            mnash     Initial creation
- * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 05, 2008           mnash       Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * </pre>
  * 
  * @author mnash
@@ -44,8 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class HdaHailPacket extends SymbologyPacket implements
-        ISerializableObject {
+public class HdaHailPacket extends SymbologyPacket {
 
     public HdaHailPacket(int packetId, DataInputStream in) throws IOException {
         super(packetId, in);
@@ -56,8 +55,7 @@ public class HdaHailPacket extends SymbologyPacket implements
     }
 
     @DynamicSerialize
-    public static class HdaHailPoint implements SymbologyPoint,
-            ISerializableObject {
+    public static class HdaHailPoint implements SymbologyPoint {
 
         public int getI() {
             return i;
