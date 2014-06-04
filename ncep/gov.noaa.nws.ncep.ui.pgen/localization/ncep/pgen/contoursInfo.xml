@@ -3,9 +3,9 @@
   This xml file is used to provide Contours attributes information, including
   the parameter name, level, forecast hour, and cint.
   
-  It is also used to select a list of symbols/markers that will show up
-  in the Contours attributes GUI for quick access. The first 15 symbols/markers
-  with their "quickAccess" flags as "true" will be used.
+  It is also used to select a list of line types, and a list of symbols/markers that will 
+  show up in the Contours attributes GUI for quick access. The first 8 line types and the first 
+  15 symbols/markers with their "quickAccess" flags as "true" will be used.
 -->
 <root>
 	<contoursInfo name="Parm" >
@@ -89,6 +89,8 @@
      
      If none of them is set to "true", "FILLED_HIGH_PRESSURE_H" and "FILLED_LOW_PRESSURE_L" 
      will appear on the GUI as the defaults.
+     
+     A maximum of 15 symbols could be specified.
 -->             
 	
 	<contoursInfo name="QuickSymbols">
@@ -168,6 +170,56 @@
        <object name="FILLED_STAR"			quickAccess="false"	label="Filled Star"		className="Marker"/>
        <object name="MINUS_SIGN" 			quickAccess="false"	label="Minus Sign"		className="Marker"/>
     
+	</contoursInfo>		
+
+<!-- The following are line types defined in pgen/plugin.xml.
+     
+     Change the value of "quickAccess" to "true" if you want it to appear on the
+     Contours Attribute window for quick access. Don't change anything else!
+     
+     If none of them is set to "true", "LINE_SOLID" and "LINE_DASHED_2" 
+     will appear on the GUI as the defaults.
+     
+     A maximum of 8 line types could be specified.
+-->             
+	
+	<contoursInfo name="QuickLines">
+<!-- All available lines -->             
+         <object name="LINE_SOLID" 			quickAccess="true" label="Solid Line"/>
+         <object name="POINTED_ARROW" 		quickAccess="false" label="Line with open arrow head"/>
+	 	 <object name="FILLED_ARROW" 		quickAccess="false" label="Line with closed arrow head"/>
+         <object name="LINE_DASHED_2" 		quickAccess="true" label="Dotted Line" />
+         <object name="LINE_DASHED_3"		quickAccess="false" label="Short Dashed" />
+         <object name="LINE_DASHED_4"		quickAccess="false" label="Medium Dashed" />
+         <object name="LINE_DASHED_5"		quickAccess="false" label="Long Dash Short Dash" />
+         <object name="LINE_DASHED_6"		quickAccess="false" label="Long Dashed" />            
+         <object name="LINE_DASHED_7"		quickAccess="false" label="Long Dash Three Short Dashes" />
+         <object name="LINE_DASHED_8"		quickAccess="false" label="Long Dash Dot" />
+         <object name="LINE_DASHED_9"		quickAccess="false" label="Medium Dash Dot Dot Dot" />
+         <object name="LINE_DASHED_10"		quickAccess="false" label="Long Dash Dot Dot" />
+         <object name="DASHED_ARROW"		quickAccess="false" label="Dashed Line with open arrow head" />
+         <object name="DASHED_ARROW_FILLED" quickAccess="false" label="Dashed Line with filled arrow head" />
+         <object name="BALL_CHAIN"			quickAccess="false" label="Ball-and-Chain" />
+         <object name="ZIGZAG"				quickAccess="false" label="ZigZag" />
+         <object name="SCALLOPED"  			quickAccess="false" label="Scallop" />
+         <object name="ANGLED_TICKS_ALT" 	quickAccess="false" label="Alternating Angled Ticks" />
+         <object name="FILLED_CIRCLES" 		quickAccess="false" label="Filled Circle" />
+         <object name="LINE_WITH_CARETS" 	quickAccess="false" label="Line-Caret-Line" />
+         <object name="LINE_CARET_LINE" 	quickAccess="false" label="Line-Caret-Line with spaces" />
+         <object name="SINE_CURVE"  		quickAccess="false" label="Sine Curve" />
+         <object name="BOX_CIRCLE"  		quickAccess="false" label="Box-Circle" />
+         <object name="FILL_OPEN_BOX" 		quickAccess="false" label="Filled Box-Open Box with filled arrow head" />
+         <object name="LINE_X_LINE"  		quickAccess="false" label="Line-X-Line" />
+  	     <object name="LINE_XX_LINE" 		quickAccess="false" label="Line-2Xs-Line" />
+         <object name="FILL_CIRCLE_X"  		quickAccess="false" label="Filled Circle-X" />
+         <object name="BOX_X" 				quickAccess="false" label="Box-X" />
+         <object name="LINE_CIRCLE_ARROW" 	quickAccess="false" label="Line-Circle-Line with filled arrow head" />
+         <object name="DOUBLE_LINE"  		quickAccess="false" label="Double Line" />
+         <object name="ZZZ_LINE" 			quickAccess="false" label="Z-Line" />
+         <object name="TICK_MARKS"  		quickAccess="false" label="Tick Mark" />
+         <object name="STREAM_LINE"  		quickAccess="false" label="Streamline-like" />  
+	     <object name="LINE_FILLED_CIRCLE_ARROW" 	quickAccess="false" label="Line-Filled-Circle-Line with filled arrow head"/>
+ 
 	</contoursInfo>		
 			
 </root>

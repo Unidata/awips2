@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <resource>
+    <loadProperties>
+    </loadProperties>
+    <properties isSystemResource="false" isBlinking="false"
+      isMapLayer="false" isHoverOn="false" isVisible="true" />
+    <resourceData xsi:type="NC-PlotResourceData"
+      retrieveData="false" isUpdatingOnMetadataOnly="false"
+      isRequeryNecessaryOnTimeMatch="false">
+      <legendColor>${legendColor}</legendColor>
+      <legendString>${legendString}</legendString>
+      <spiFile>${spiFile}</spiFile>
+      <levelKey>Surface</levelKey>
+	  <plotDensity>${plotDensity}</plotDensity>      
+
+	 ${plotModel}
+	 
+	 ${conditionalFilter}
+	        
+      <frameSpan>${frameSpan}</frameSpan>
+      <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
+      <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+      <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+      <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+            
+      <metadataMap>
+        <mapping key="matrixType">
+          <constraint constraintValue="${matrixType}" constraintType="IN" />
+        </mapping>
+        <mapping key="pluginName">
+          <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+        </mapping>
+      </metadataMap>
+    </resourceData>
+  </resource>
+</resourceGroup>

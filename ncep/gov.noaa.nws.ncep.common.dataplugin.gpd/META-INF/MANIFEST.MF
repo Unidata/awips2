@@ -13,6 +13,7 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
 Import-Package: com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.edex.pointdata,
+ gov.noaa.nws.ncep.edex.common.sounding,
  org.apache.commons.logging
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.gpd,
  gov.noaa.nws.ncep.common.dataplugin.gpd.dao,
