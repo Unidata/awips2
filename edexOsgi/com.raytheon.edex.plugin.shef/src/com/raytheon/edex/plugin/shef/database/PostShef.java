@@ -84,6 +84,7 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -119,6 +120,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 02/18/2014   16572      l. Bousaidi only apply adjust factor to non missing values.
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  *                                     Updated with more performance fixes.
+ * 05/28/2014   3222       mpduff      Fix posting time to be processed time so db doesn't show all post times the same
  * 
  * </pre>
  * 
@@ -459,6 +461,8 @@ public class PostShef {
                     return;
                 }
 
+                postDate.setTime(getToNearestSecond(TimeUtil
+                        .currentTimeMillis()));
                 boolean same_lid_product = false;
 
                 String dataValue = data.getStringValue();
@@ -476,7 +480,7 @@ public class PostShef {
                     data.setCreationDateObj(d);
                     data.setCreationDate("1970-01-01 00:00:00");
                 }
-                
+
                 locId = data.getLocationId();
                 String key = locId + prodId + data.getObservationTime();
                 if (idLocations.containsKey(key)) {
@@ -731,7 +735,7 @@ public class PostShef {
                  * shefrec structure
                  */
                 if (!dataValue.equals(ShefConstants.SHEF_MISSING)) {
-                      adjustRawValue(locId, data);
+                    adjustRawValue(locId, data);
                 }
                 /*
                  * multiply non-missing values of discharge values and
@@ -2537,6 +2541,8 @@ public class PostShef {
      */
     private void postProductLink(String locId, String productId, Date obsTime) {
         PersistableDataObject link = null;
+
+        postDate.setTime(getToNearestSecond(TimeUtil.currentTimeMillis()));
         try {
             /* Get a Data Access Object */
             link = new Productlink(new ProductlinkId(locId, productId, obsTime,
@@ -2915,6 +2921,7 @@ public class PostShef {
             ShefData data, String locId, String tableName, String dataValue,
             String qualifier, long qualityCode) {
         PersistableDataObject dataObj = null;
+        postDate.setTime(getToNearestSecond(TimeUtil.currentTimeMillis()));
 
         if (ShefConstants.COMMENT_VALUE.equalsIgnoreCase(tableName)) {
             Commentvalue comment = new Commentvalue(new CommentvalueId());
@@ -3161,6 +3168,19 @@ public class PostShef {
         }
 
         return dataObj;
+    }
+
+    /**
+     * Convert the provided millisecond value to the nearest second.
+     * 
+     * @param time
+     *            time in milliseconds
+     * 
+     * @return milliseconds rounded to the nearest second.
+     */
+    private long getToNearestSecond(long time) {
+        // Force time to nearest second.
+        return time - (time % 1000);
     }
 
     public void close() {
