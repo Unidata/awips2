@@ -24,20 +24,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Decodes the (non-DMD) mesocyclone packet
+ * Decodes the wind barb packet.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 1-23-2009               mnash     Initial creation
- * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 23, 2009           mnash       Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -46,8 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class WindBarbPacket extends SymbologyPacket implements
-        ISerializableObject {
+public class WindBarbPacket extends SymbologyPacket {
 
     public WindBarbPacket(int packetId, DataInputStream in) throws IOException {
         super(packetId, in);
@@ -58,8 +57,7 @@ public class WindBarbPacket extends SymbologyPacket implements
     }
 
     @DynamicSerialize
-    public static class WindBarbPoint implements SymbologyPoint,
-            ISerializableObject {
+    public static class WindBarbPoint implements SymbologyPoint {
 
         @DynamicSerializeElement
         protected int colorValue;
