@@ -19,19 +19,20 @@
  **/
 package com.raytheon.uf.common.dataplugin.radar.level3;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * UnlinkedVectors are used within {@link SymbologyPacket}s to represent a
+ * single graphical line in a specific color.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 14, 2010            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 14, 2010           mnash       Initial creation
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -40,7 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class UnlinkedVector implements ISerializableObject {
+public class UnlinkedVector {
     @DynamicSerializeElement
     private int theColor;
 
