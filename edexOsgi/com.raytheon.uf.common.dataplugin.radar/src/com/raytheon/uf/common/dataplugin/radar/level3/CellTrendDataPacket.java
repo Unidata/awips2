@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -34,10 +33,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 19, 2009            mnash     Initial creation
- * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 19, 2009           mnash       Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -46,8 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class CellTrendDataPacket extends SymbologyPacket implements
-        ISerializableObject {
+public class CellTrendDataPacket extends SymbologyPacket {
 
     @DynamicSerializeElement
     private String cellID;
@@ -68,8 +67,7 @@ public class CellTrendDataPacket extends SymbologyPacket implements
     private ArrayList<Integer> volumeScan;
 
     @DynamicSerialize
-    public static class CellTrendData implements SymbologyPoint,
-            ISerializableObject {
+    public static class CellTrendData implements SymbologyPoint {
         @DynamicSerializeElement
         private int trendCode;
 
@@ -159,7 +157,6 @@ public class CellTrendDataPacket extends SymbologyPacket implements
         int latestScan = 0;
         int bytesRead = 8;
         CellTrendData trendData;
-        ArrayList<Integer> data;
         while (bytesRead < blockLength) {
             // Read current Trend Code
             trendCode = in.readShort();
