@@ -24,27 +24,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * A type of {@link SymbologyPacket} containing {@link LinkedVector}s
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 5, 2008            mnash     Initial creation
- * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 05, 2008           mnash       Initial creation
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
 @DynamicSerialize
-public class LinkedVectorPacket extends SymbologyPacket implements
-        ISerializableObject {
+public class LinkedVectorPacket extends SymbologyPacket {
     private static final int LINKED_VECTOR_PACKET9 = 9;
 
     /**
