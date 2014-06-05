@@ -23,7 +23,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -33,9 +32,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * July 31, 2009           askripsky   Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 31, 2009           askripsky   Initial creation
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -44,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class AlertAdaptationParameters implements ISerializableObject {
+public class AlertAdaptationParameters {
     @DynamicSerializeElement
     protected ArrayList<AAPCategory> categories;
 
@@ -57,7 +57,7 @@ public class AlertAdaptationParameters implements ISerializableObject {
     }
 
     @DynamicSerialize
-    public static class AAPCategory implements ISerializableObject {
+    public static class AAPCategory {
 
         @DynamicSerializeElement
         protected int alertGroup;
