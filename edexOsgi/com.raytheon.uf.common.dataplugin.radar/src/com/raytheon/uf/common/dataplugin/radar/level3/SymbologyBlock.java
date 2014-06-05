@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -35,11 +34,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11-02-2007   465        randerso    Major revision to support full level 3 radar decode
- * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
- * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 02, 2007  465      randerso    Major revision to support full level 3 radar decode
+ * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
+ * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -47,8 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class SymbologyBlock extends AbstractBlock implements
-        ISerializableObject {
+public class SymbologyBlock extends AbstractBlock {
 
     private static final int BLOCK_ID = 1;
 
@@ -135,23 +133,6 @@ public class SymbologyBlock extends AbstractBlock implements
             }
         }
         this.layers = layerList.toArray(new Layer[layerList.size()]);
-    }
-
-    /**
-     * This method will return an object representing the layer number passed
-     * in. This method will examine the layer and create and instance of its
-     * actual type (i.e. Radial) and return that layer.<br/>
-     * <br/>
-     * <b>Important</b> Presently, only radial data is supported. All others
-     * will return null.
-     * 
-     * @return An object for that layer
-     * @throws IOException
-     */
-    public SymbologyPacket getSymbologyLayerContent(int layerNumber)
-            throws IOException {
-        SymbologyPacket symLayer = null;
-        return symLayer;
     }
 
     /**
