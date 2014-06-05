@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 05/14/2014   #3069      randerso    Changed to store math transforms and CRS instead of
  *                                     GridGeometry2D since GeoTools now changes the supplied
  *                                     math transform when creating GridGeometry2D
+ * 06/05/2014   #3243      bsteffen    Remove deprecated lambert conformal call.
+ * 
  * 
  * </pre>
  * 
@@ -93,7 +95,7 @@ public class ProjectionData {
 
         /** Lat/Lon (implemented as Equidistant Cylindrical) map projection */
         LATLON
-    };
+    }
 
     @Column(length = 32, nullable = false)
     @DynamicSerializeElement
@@ -311,7 +313,7 @@ public class ProjectionData {
                 crs = MapUtil.constructLambertConformal(
                         MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS,
                         this.stdParallelOne, this.stdParallelTwo,
-                        this.latLonOrigin.x);
+                        this.latLonOrigin.x, this.latLonOrigin.y);
                 break;
 
             case MERCATOR:
