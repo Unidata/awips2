@@ -43,6 +43,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * Sep 30, 2013  2333     mschenke    Refactored to store points in crs space
  * Apr 15, 2014  3017     bsteffen    Add new getCoverage methods to support
  *                                    either one corner + dx/dy or two corners.
+ * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
+ * 
  * 
  * </pre>
  */
@@ -327,7 +329,7 @@ public class SatSpatialFactory {
 
     private static ProjectedCRS createLambertCrs(double latin, double lov) {
         return MapUtil.constructLambertConformal(MapUtil.AWIPS_EARTH_RADIUS,
-                MapUtil.AWIPS_EARTH_RADIUS, latin, latin, lov);
+                MapUtil.AWIPS_EARTH_RADIUS, latin, latin, lov, latin);
     }
 
     private static ProjectedCRS createEqCylCrs(double latin, double lov) {
