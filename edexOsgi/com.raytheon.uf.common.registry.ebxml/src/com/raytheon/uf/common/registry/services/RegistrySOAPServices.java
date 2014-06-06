@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.common.registry.services;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -28,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.ws.wsaddressing.W3CEndpointReference;
 import javax.xml.ws.wsaddressing.W3CEndpointReferenceBuilder;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.Cataloger;
@@ -46,15 +43,12 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transports.http.configuration.ConnectionType;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 
-import com.raytheon.uf.common.comm.ProxyConfiguration;
-import com.raytheon.uf.common.comm.ProxyUtil;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.security.SecurityConfiguration;
 
 /**
  * 
@@ -74,6 +68,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 11/20/2013   2534        bphillip    Eliminated service caching
  * 1/15/2014    2613        bphillip    Eliminated service caching...again
  * 2/19/2014    2769        bphillip    Renamed getPort method
+ * 6/5/2014     1712        bphillip    Moved configuration out to separate class.  Added outbound interceptor
  * </pre>
  * 
  * @author bphillip
@@ -84,12 +79,6 @@ public class RegistrySOAPServices {
     /** The logger */
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistrySOAPServices.class);
-
-    /** Default timeout for receiving HTTP data */
-    protected static final long DEFAULT_RECEIVE_TIMEOUT = 60000;
-
-    /** Default value for establishing an HTTP connection */
-    protected static final long DEFAULT_CONNECT_TIMEOUT = 10000;
 
     /** Path separator */
     protected static final String PATH_SEPARATOR = "/";
@@ -112,44 +101,11 @@ public class RegistrySOAPServices {
     /** The name of the validator service */
     protected static final String VALIDATOR_SERVICE_NAME = "validator";
 
-    protected static final ProxyConfiguration proxyConfig;
+    protected WSS4JOutInterceptor securityInterceptor;
 
-    protected static final HTTPClientPolicy httpClientPolicy;
+    protected RegistryServiceConfiguration serviceConfig;
 
-    protected static final String HTTP_RECEIVE_TIMEOUT_PROPERTY = "ebxml-http-receive-timeout";
-
-    protected static final String HTTP_CONNECTION_TIMEOUT_PROPERTY = "ebxml-http-connection-timeout";
-
-    static {
-        proxyConfig = getProxyConfiguration();
-        httpClientPolicy = new HTTPClientPolicy();
-
-        try {
-            httpClientPolicy.setReceiveTimeout(Long.parseLong(System
-                    .getProperty(HTTP_RECEIVE_TIMEOUT_PROPERTY)));
-        } catch (NumberFormatException e) {
-            statusHandler
-                    .error("ebxml-http-receive-timeout not specified.  Using default value of 1 minute",
-                            e);
-            httpClientPolicy.setReceiveTimeout(DEFAULT_RECEIVE_TIMEOUT);
-        }
-        try {
-            httpClientPolicy.setConnectionTimeout(Long.parseLong(System
-                    .getProperty(HTTP_CONNECTION_TIMEOUT_PROPERTY)));
-        } catch (NumberFormatException e) {
-            statusHandler
-                    .error("ebxml-http-connection-timeout not specified.  Using default value of 10 seconds",
-                            e);
-            httpClientPolicy.setConnectionTimeout(DEFAULT_CONNECT_TIMEOUT);
-        }
-        httpClientPolicy.setConnection(ConnectionType.CLOSE);
-        httpClientPolicy.setMaxRetransmits(5);
-        if (proxyConfig != null) {
-            httpClientPolicy.setProxyServer(proxyConfig.getHost());
-            httpClientPolicy.setProxyServerPort(proxyConfig.getPort());
-            httpClientPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
-        }
-    }
+    protected SecurityConfiguration securityConfig;
 
     /**
      * Gets the notification listener service URL for the given host
@@ -342,11 +298,15 @@ public class RegistrySOAPServices {
         W3CEndpointReferenceBuilder endpointBuilder = new W3CEndpointReferenceBuilder();
         endpointBuilder.wsdlDocumentLocation(serviceUrl.toString() + WSDL);
         endpointBuilder.address(serviceUrl.toString());
-        W3CEndpointReference ref = endpointBuilder.build();
-        T port = (T) ref.getPort(serviceInterface);
+        T port = (T) endpointBuilder.build().getPort(serviceInterface);
 
         Client client = ClientProxy.getClient(port);
-        ((HTTPConduit) client.getConduit()).setClient(httpClientPolicy);
+        client.getOutInterceptors().add(this.securityInterceptor);
+
+        HTTPConduit conduit = (HTTPConduit) client.getConduit();
+        conduit.setClient(serviceConfig.getHttpClientPolicy());
+        conduit.setTlsClientParameters(securityConfig.getTlsParams());
+
         // Create HTTP header containing the calling registry
         Map<String, List<String>> headers = new HashMap<String, List<String>>();
         headers.put(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
@@ -355,23 +315,15 @@ public class RegistrySOAPServices {
         return port;
     }
 
-    /**
-     * Gets the proxy configuration
-     * 
-     * @return The proxy configuration
-     */
-    protected static ProxyConfiguration getProxyConfiguration() {
-        ProxyConfiguration proxyConfig = null;
-        File proxyFile = PathManagerFactory.getPathManager().getStaticFile(
-                "datadelivery" + File.separator + "proxy.properties");
-        if (proxyFile != null) {
-            try {
-                proxyConfig = ProxyUtil.getProxySettings(proxyFile);
-            } catch (IOException e) {
-                throw new RegistryServiceException(
-                        "Error reading proxy properties", e);
-            }
-        }
-        return proxyConfig;
+    public void setSecurityInterceptor(WSS4JOutInterceptor securityInterceptor) {
+        this.securityInterceptor = securityInterceptor;
+    }
+
+    public void setServiceConfig(RegistryServiceConfiguration serviceConfig) {
+        this.serviceConfig = serviceConfig;
+    }
+
+    public void setSecurityConfig(SecurityConfiguration securityConfig) {
+        this.securityConfig = securityConfig;
     }
 }
