@@ -3,8 +3,8 @@ package gov.noaa.nws.ncep.viz.rsc.lightning.rsc;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
+import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
@@ -18,6 +18,7 @@ import java.util.List;
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -42,15 +43,14 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 
 /**
- * LigntningResource - Display Lightning data.
- *  *
+ * LigntningResource - Display Lightning data. *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -65,10 +65,11 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *  05/23/12      785      Q. Zhou      Added getName for legend.
  *  12/19/2012    #960     Greg Hull    override propertiesChanged() to update colorBar.
  *  05/07/2013    #993     Greg Hull	change key for strikeMap from URI to the HDF5 group
- *  
+ *  Jun 05, 2014  3226     bclement     reference datarecords by LightningConstants
+ * 
  * </pre>
  * 
- * @author ghull 
+ * @author ghull
  * @version 1.0
  */
 public class LightningResource extends AbstractNatlCntrsResource<LightningResourceData, NCMapDescriptor> 
@@ -366,20 +367,17 @@ public class LightningResource extends AbstractNatlCntrsResource<LightningResour
 					
 					for( int s=0 ; s<hdf5Rec.getSizes()[0] ; s++ ) {
 						LtngStrikeDataObj strikeInfo = strikeList.get(s);
-						if( hdf5Rec.getName().equals("intensity") ) {
+                        String name = hdf5Rec.getName();
+                        if (name.equals(LightningConstants.INTENSITY_DATASET)) {
 						    strikeInfo.intensity = ((IntegerDataRecord) hdf5Rec).getIntData()[s];
-						} else if( hdf5Rec.getName().equals("latitude") ) {
+                        } else if (name.equals(LightningConstants.LAT_DATASET)) {
 						    strikeInfo.lat = ((FloatDataRecord) hdf5Rec).getFloatData()[s];
-						} else if( hdf5Rec.getName().equals("longitude") ) {
+                        } else if (name.equals(LightningConstants.LON_DATASET)) {
 							strikeInfo.lon = ((FloatDataRecord) hdf5Rec).getFloatData()[s];
-						} else if( hdf5Rec.getName().equals("obsTime") ) {
+                        } else if (name.equals(LightningConstants.TIME_DATASET)) {
 							strikeInfo.strikeTime = ((LongDataRecord) hdf5Rec).getLongData()[s];
-//        			                if( strikeInfo.obsTime > latestStrike ) {
-//        			                	latestStrike = strikeInfo.obsTime;
-//        			                }
-//        						} else if( hdf5Rec.getName().equals("strikeCount") ) {
-//        							strikeInfo.lon = ((FloatDataRecord) hdf5Rec).getFloatData()[s];      							
-						} else if( hdf5Rec.getName().equals("msgType") ) {
+                        } else if (name
+                                .equals(LightningConstants.MSG_TYPE_DATASET)) {
 							// ignore
 						}
 					}    				
