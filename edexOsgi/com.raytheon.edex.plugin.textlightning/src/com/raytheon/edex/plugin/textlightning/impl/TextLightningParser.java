@@ -50,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                      lgtng intensities -999 to
  *                                      999
  * Feb 12, 2014       2655 njensen      Use status handler for logging
+ * Jun 05, 2014 3226       bclement     LightningStikePoint refactor
  * 
  * </pre>
  * 
@@ -177,7 +178,7 @@ public class TextLightningParser {
                                 Double.parseDouble(latitude),
                                 Double.parseDouble(longitude));
                         strike.setStrikeStrength(Double.parseDouble(strength));
-                        strike.setStrikeCount(Integer.parseInt(count));
+                        strike.setPulseCount(Integer.parseInt(count));
                         strike.setMonth(Integer.parseInt(month));
                         strike.setDay(Integer.parseInt(day));
                         strike.setYear(Integer.parseInt(year));
@@ -186,7 +187,7 @@ public class TextLightningParser {
                         strike.setSecond(Integer.parseInt(sec));
                         strike.setMillis(0);
                         strike.setMsgType(LtgMsgType.STRIKE_MSG_FL);
-                        strike.setType(LtgStrikeType.STRIKE_CG);
+                        strike.setType(LtgStrikeType.CLOUD_TO_GROUND);
                         strike.setLightSource("UNKN");
                         reports.add(strike);
                     } else {
@@ -214,7 +215,7 @@ public class TextLightningParser {
                                     Double.parseDouble(latitude), lon);
                             strike.setStrikeStrength(Double
                                     .parseDouble(strength));
-                            strike.setStrikeCount(Integer.parseInt(count));
+                            strike.setPulseCount(Integer.parseInt(count));
                             strike.setMonth(Integer.parseInt(month));
                             strike.setDay(Integer.parseInt(day));
                             strike.setYear(Integer.parseInt(year) + 2000);
@@ -223,7 +224,7 @@ public class TextLightningParser {
                             strike.setSecond(Integer.parseInt(sec));
                             strike.setMillis(Integer.parseInt(msec) * 10);
                             strike.setMsgType(LtgMsgType.STRIKE_MSG_FL);
-                            strike.setType(LtgStrikeType.STRIKE_CG);
+                            strike.setType(LtgStrikeType.CLOUD_TO_GROUND);
                             strike.setLightSource("UNKN");
                             reports.add(strike);
                         } else {
@@ -250,7 +251,7 @@ public class TextLightningParser {
                                         Double.parseDouble(longitude));
                                 strike.setStrikeStrength(Double
                                         .parseDouble(strength));
-                                strike.setStrikeCount(Integer.parseInt(count));
+                                strike.setPulseCount(Integer.parseInt(count));
                                 strike.setMonth(Integer.parseInt(month));
                                 strike.setDay(Integer.parseInt(day));
                                 strike.setYear(Integer.parseInt(year));
@@ -259,7 +260,7 @@ public class TextLightningParser {
                                 strike.setSecond(Integer.parseInt(sec));
                                 strike.setMillis(Integer.parseInt(msec) * 10);
                                 strike.setMsgType(LtgMsgType.STRIKE_MSG_FL);
-                                strike.setType(LtgStrikeType.STRIKE_CG);
+                                strike.setType(LtgStrikeType.CLOUD_TO_GROUND);
                                 strike.setLightSource(sls);
                                 reports.add(strike);
                             } else {
