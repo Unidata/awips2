@@ -26,7 +26,6 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.core.BasePoint;
 import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
 
 /**
@@ -42,6 +41,7 @@ import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
  * 20070810            379 jkorman     Initial Coding from prototype.
  * 20070912            379 jkorman     Code review cleanup.
  * May 14, 2014 2536       bclement    removed TimeTools
+ * Jun 05, 2014 3226       bclement    parseDate() now returns calendar
  * </pre>
  * 
  * @author jkorman
@@ -87,13 +87,12 @@ abstract class BaseLightningDecoder implements IBinLightningDecoder
     /**
      * Parse the date field from a given data source. It is assumed that the
      * data source is pointing to the current date/time data.
-     * @return A BasePoint object with the time fields set to the observation
-     * time.
+     * 
+     * @return A Calendar object with the time fields set to the observation
+     *         time.
      */
-    BasePoint parseDate(IBinDataSource msgData)
+    protected Calendar parseDate(IBinDataSource msgData)
     {
-        BasePoint point = new BasePoint();
-        
         //********* Don't reorder these reads!!!
         int b1 = msgData.getU8();
         int b2 = msgData.getU8();
@@ -103,22 +102,18 @@ abstract class BaseLightningDecoder implements IBinLightningDecoder
         // number of days since BASE_TIME
         int days = ((word1 & DAYS_MASK) >> DAYS_SHFT);
         obsTime.add(Calendar.DAY_OF_MONTH, days);
-        
-        point.setYear(obsTime.get(Calendar.YEAR));
-        //Increment month, Calendar returns 0..11
-        point.setMonth(obsTime.get(Calendar.MONTH) + 1);
-        point.setDay(obsTime.get(Calendar.DAY_OF_MONTH));
 
         int hours = (word1 & HOURS_HI_BIT_MASK) << HOURS_HI_BIT_SHFT;
         hours += (b2 & HOURS_LO_NYB_MASK) >>> HOURS_LO_NYB_SHFT;
-        point.setHour(hours);
+        obsTime.set(Calendar.HOUR, hours);
 
         int minutes = (b2 & MIN_P1_MASK) << MIN_P1_SHFT;
         minutes += (b1 & MIN_P2_MASK) >>> MIN_P2_SHFT;
-        point.setMinute(minutes);
+        obsTime.set(Calendar.MINUTE, minutes);
         
-        point.setSecond((b1 & SECONDS_MASK));
-        return point;
+        obsTime.set(Calendar.SECOND, (b1 & SECONDS_MASK));
+        obsTime.set(Calendar.MILLISECOND, 0);
+        return obsTime;
     }
     
     /**

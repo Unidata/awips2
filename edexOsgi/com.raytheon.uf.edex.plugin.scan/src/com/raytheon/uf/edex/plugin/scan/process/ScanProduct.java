@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * 05/07/2009   2037       dhladky     Initial Creation.
  * Apr 30, 2014 2060       njensen     Updates for removal of grid dataURI column
+ * Jun 05, 2014  3226      bclement    compare lightning strike type by id instead of ordinal
  * 
  * </pre>
  * 
@@ -292,7 +293,7 @@ public abstract class ScanProduct implements Serializable {
                                         rec.getIntensities()[i],
                                         rec.getStrikeTypes()[i],
                                         rec.getMsgTypes()[i],
-                                        rec.getStrikeCounts()[i]);
+                                        rec.getPulseCounts()[i]);
 
                                 strikeList.add(strike);
                             }
@@ -310,8 +311,8 @@ public abstract class ScanProduct implements Serializable {
                         if (ls.getIntensity() > 0) {
                             totalPosStrikes++;
                         }
-                        if (ls.getStrikeType() == LtgStrikeType.STRIKE_CG
-                                .ordinal()) {
+                        if (ls.getStrikeType() == LtgStrikeType.CLOUD_TO_GROUND
+                                .getId()) {
                             totalCGStrikes++;
                         }
                         totalStrikes++;
