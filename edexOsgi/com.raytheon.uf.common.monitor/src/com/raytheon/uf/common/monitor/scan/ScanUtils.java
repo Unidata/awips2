@@ -76,6 +76,8 @@ import com.vividsolutions.jts.io.WKTWriter;
  * 12/20/2013   DR 16894   gzhang     Fixed getZRvalue2() bias issue.
  * 05/12/2014   3133       njensen    Extracted getLightningRecord
  * 05/13/2014   3133       njensen    Moved convertStrankValue here from ScanConfig
+ * Jun 05, 2014 3226       bclement   BinLightning refactor
+ *                                    compare lightning strike type by id instead of ordinal
  * </pre>
  * 
  * @author dhladky
@@ -1292,7 +1294,7 @@ public class ScanUtils {
                             (double) rec.getLatitudes()[i],
                             (double) rec.getLongitudes()[i],
                             rec.getIntensities()[i], rec.getStrikeTypes()[i],
-                            rec.getMsgTypes()[i], rec.getStrikeCounts()[i]);
+                            rec.getMsgTypes()[i], rec.getPulseCounts()[i]);
 
                     strikeList.add(strike);
                 }
@@ -1311,7 +1313,7 @@ public class ScanUtils {
                 if (ls.getIntensity() > 0) {
                     totalPosStrikes++;
                 }
-                if (ls.getStrikeType() == LtgStrikeType.STRIKE_CG.ordinal()) {
+                if (ls.getStrikeType() == LtgStrikeType.CLOUD_TO_GROUND.getId()) {
                     totalCGStrikes++;
                 }
                 totalStrikes++;
