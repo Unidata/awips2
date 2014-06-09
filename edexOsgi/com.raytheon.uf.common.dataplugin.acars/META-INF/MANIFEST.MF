@@ -12,5 +12,6 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  javax.persistence,
  org.hibernate;bundle-version="1.0.0",
- javax.measure;bundle-version="1.0.0"
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataaccess;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.common.dataplugin.acars
