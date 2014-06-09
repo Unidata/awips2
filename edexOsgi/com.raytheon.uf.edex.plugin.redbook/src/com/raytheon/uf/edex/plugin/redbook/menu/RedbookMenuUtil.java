@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.plugin.redbook.ingest.xml.RedbookMenusXML;
  * Mar 14, 2014   2855     mpduff      Refactored common code.
  * Mar 19, 2014   2860     mpduff      Implemented Redbook UpperAir.
  * Apr 30, 2014   2860     mpduff      Fixed instances of empty substitution tags.
+ * Jun 09, 2014   3266     njensen     Removed reference to dataURIs
  * 
  * </pre>
  * 
@@ -98,8 +99,7 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
      */
     protected void createContext() {
         try {
-            Class[] classes = new Class[] { RedbookMenusXML.class };
-            JAXBContext jax = JAXBContext.newInstance(classes);
+            JAXBContext jax = JAXBContext.newInstance(RedbookMenusXML.class);
             this.unmarshaller = jax.createUnmarshaller();
         } catch (JAXBException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -188,8 +188,6 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
 
                 commonBundleMenuContribution.substitutions = subList
                         .toArray(new VariableSubstitution[subList.size()]);
-                commonBundleMenuContribution.dataURIs = dataUriList
-                        .toArray(new String[dataUriList.size()]);
             }
 
             return commonBundleMenuContribution;
