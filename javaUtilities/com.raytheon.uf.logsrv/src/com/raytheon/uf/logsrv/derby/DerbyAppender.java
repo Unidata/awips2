@@ -36,6 +36,7 @@ import com.raytheon.uf.logsrv.StoredMsg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2013            njensen     Initial creation
+ * Jun 09, 2014 3027       njensen     Change shouldStoreMsg() to protected
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ public class DerbyAppender extends AppenderBase<ILoggingEvent> {
      * @param event
      * @return
      */
-    private boolean shouldStoreMsg(ILoggingEvent event) {
+    protected boolean shouldStoreMsg(ILoggingEvent event) {
         return true;
     }
 }
