@@ -22,7 +22,7 @@
   <parameter name="latitude" queryName="location.latitude" type="FLOAT" unit="°" />
   <parameter name="longitude" queryName="location.longitude" type="FLOAT" unit="°" />
   <parameter name="stationId" queryName="location.stationId" type="STRING" />
-  <parameter name="flightLevel" queryName="location.flightLevel" type="INT" />
+  <parameter name="flightLevel" queryName="location.flightLevel" type="INT" unit="m" />
   <parameter name="timeObs" queryName="timeObs" numDims="1" type="LONG" unit="ms" />
   <parameter name="wmoHeader" queryName="wmoHeader" type="STRING" />
   <parameter name="tailNumber" queryName="tailNumber" type="STRING" />
