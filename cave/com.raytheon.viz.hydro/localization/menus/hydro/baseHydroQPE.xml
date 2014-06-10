@@ -48,68 +48,55 @@
 	
 	<contribute xsi:type="bundleItem" file="bundles/hydro/AutoSPE.xml"
 		menuText="1hr Auto SPE" id="AutoSPE">
-		<dataURI>/grib/%/AUTOSPE/%</dataURI>
 	    <substitute key="model" value="SPE"/>
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="Manual SPE" id="MSPEMenu">
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="1hr Manual SPE" id="1ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="3600"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="2hr Manual SPE" id="2ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="7200"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="3hr Manual SPE" id="3ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="10800"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="4hr Manual SPE" id="4ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="14400"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="5hr Manual SPE" id="5ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="18000"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="6hr Manual SPE" id="6ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="21600"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="7hr Manual SPE" id="7ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="25200"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="8hr Manual SPE" id="8ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="28800"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="9hr Manual SPE" id="9ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="32400"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="10hr Manual SPE" id="10ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="36000"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="11hr Manual SPE" id="11ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="39600"/>
 		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
 			menuText="12hr Manual SPE" id="12ManSPE">
-			<dataURI>/grib/%/MANSPE/%</dataURI>
 	    	<substitute key="fcsttime" value="43200"/>
 		</contribute>
     </contribute>
