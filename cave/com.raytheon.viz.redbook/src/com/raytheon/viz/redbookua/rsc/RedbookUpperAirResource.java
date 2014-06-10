@@ -70,7 +70,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.pointdata.PlotData;
-import com.raytheon.viz.pointdata.PlotModelFactory2;
+import com.raytheon.viz.pointdata.PlotModelFactory;
 import com.raytheon.viz.redbook.Activator;
 import com.raytheon.viz.redbook.RedbookWMOMap;
 import com.raytheon.viz.redbookua.RedbookUpperAirDecoder;
@@ -108,7 +108,7 @@ public class RedbookUpperAirResource extends
 
     private String humanReadableName;
 
-    private PlotModelFactory2 plotModelFactory;
+    private PlotModelFactory plotModelFactory;
 
     private IGraphicsTarget graphicsTarget;
 
@@ -244,9 +244,9 @@ public class RedbookUpperAirResource extends
         this.graphicsTarget = target;
     }
 
-    protected PlotModelFactory2 getPlotModelFactory() {
+    protected PlotModelFactory getPlotModelFactory() {
         if (plotModelFactory == null) {
-            plotModelFactory = new PlotModelFactory2(getDescriptor(),
+            plotModelFactory = new PlotModelFactory(getDescriptor(),
                     "redbookuaDesign.svg");
             plotModelFactory.setColor(getCapability(ColorableCapability.class)
                     .getColor());
@@ -378,7 +378,7 @@ public class RedbookUpperAirResource extends
             if (pointData == null)
                 retrieveAndDecodeData();
 
-            PlotModelFactory2 pmf;
+            PlotModelFactory pmf;
 
             synchronized (job) {
                 plotSettingsChanged = false;

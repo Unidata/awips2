@@ -55,9 +55,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.vaa.util.CommonUtil;
-import com.raytheon.viz.pointdata.Activator;
 import com.raytheon.viz.pointdata.util.SymbolLoader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -70,9 +68,10 @@ import com.vividsolutions.jts.geom.Polygon;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 23, 2009 3268       jsanchez     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 23, 2009  3268     jsanchez    Initial creation
+ * Jun 06, 2014  2061     bsteffen    Remove unneccessary imports
  * 
  * </pre>
  * 
