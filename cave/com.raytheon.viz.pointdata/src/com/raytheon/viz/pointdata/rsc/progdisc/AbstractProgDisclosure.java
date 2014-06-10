@@ -16,7 +16,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.viz.pointdata.rsc.PlotResource2.Station;
+import com.raytheon.viz.pointdata.rsc.PlotResource.Station;
 
 /**
  * 
@@ -26,11 +26,12 @@ import com.raytheon.viz.pointdata.rsc.PlotResource2.Station;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 12, 2011            bsteffen    Initial creation
- * Jul 01, 2011            njensen     Added queuing
- * Dec 02, 2013 2573       njensen     Smarter queuing
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 12, 2011           bsteffen    Initial creation
+ * Jul 01, 2011           njensen     Added queuing
+ * Dec 02, 2013  2573     njensen     Smarter queuing
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * 
  * </pre>
  * 
