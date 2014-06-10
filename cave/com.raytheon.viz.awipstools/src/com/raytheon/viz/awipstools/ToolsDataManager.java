@@ -27,7 +27,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,14 +34,14 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.xml.bind.JAXB;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -51,6 +50,8 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationFileInputStream;
+import com.raytheon.uf.common.localization.LocalizationFileOutputStream;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -60,7 +61,6 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.common.RangeRing;
@@ -86,14 +86,14 @@ import com.vividsolutions.jts.geom.LineString;
  * 07-11-12     #875       rferrel     Move points to PointsDataManager.
  * 01-29-14     DR 16351   D. Friedman Fix updates to storm track from preferences.
  * 04-02-14     DR 16351   D. Friedman Fix updates to storm track from preferences. (backport from 14.2.2)
+ * 06-03-24     3191       njensen     Improved saving/loading storm track data
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class ToolsDataManager implements ILocalizationFileObserver,
-        IPropertyChangeListener {
+public class ToolsDataManager implements ILocalizationFileObserver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ToolsDataManager.class);
 
@@ -103,13 +103,9 @@ public class ToolsDataManager implements ILocalizationFileObserver,
 
     private static final String P_RANGERING_LOCATIONS = "rangeRingLocations";
 
-    private static final String P_STORMTRACK_SPEED = "stormSpeed";
+    private static final String TOOLS_DIR = "awipsTools";
 
-    private static final String P_STORMTRACK_ANGLE = "stormAngle";
-
-    private static final String P_STORMTRACK_POINTS = "stormCoordinates";
-
-    private static final String P_STORMTRACK_DATE = "stormDate";
+    private static final String STORM_TRACK_FILE = "stormTrackData.xml";
 
     private static final int[] DEFAULT_LINE_RADIUS = { 120, 120, 120, 120, 240,
             240, 216, 216, 360, 360 };
@@ -140,8 +136,6 @@ public class ToolsDataManager implements ILocalizationFileObserver,
 
     private boolean stormTrackDirty = false;
 
-    private String site;
-
     private LocalizationFile userToolsDir;
 
     private IPathManager pathMgr;
@@ -156,19 +150,19 @@ public class ToolsDataManager implements ILocalizationFileObserver,
     }
 
     private ToolsDataManager() {
-        site = LocalizationManager.getInstance().getCurrentSite();
-
         pathMgr = PathManagerFactory.getPathManager();
         pointsManager = PointsDataManager.getInstance();
         LocalizationContext userCtx = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-
-        userToolsDir = pathMgr.getLocalizationFile(userCtx, "awipsTools"
-                + File.separator + site);
+        /*
+         * TODO: Since it's already under the user localization, why does it
+         * then want to have the site underneath that? If anyone knows, please
+         * document it and remove this TODO. PointsManager does a similar thing.
+         */
+        userToolsDir = pathMgr.getLocalizationFile(userCtx, TOOLS_DIR
+                + IPathManager.SEPARATOR
+                + LocalizationManager.getInstance().getCurrentSite());
         userToolsDir.addFileUpdatedObserver(this);
-
-        CorePlugin.getDefault().getPreferenceStore()
-                .addPropertyChangeListener(this);
     }
 
     public Collection<String> getBaselineNames() {
@@ -253,67 +247,73 @@ public class ToolsDataManager implements ILocalizationFileObserver,
     }
 
     private void loadStormData() {
-        stormData = new StormTrackData();
-        HierarchicalPreferenceStore store = (HierarchicalPreferenceStore) CorePlugin
-                .getDefault().getPreferenceStore();
-        store.setDefault(P_STORMTRACK_SPEED, 35.0);
-        double speed = store.getDouble(P_STORMTRACK_SPEED);
-        stormData.setMotionSpeed(speed);
-
-        store.setDefault(P_STORMTRACK_ANGLE, 60.0);
-        double angle = store.getDouble(P_STORMTRACK_ANGLE);
-        stormData.setMotionDirection(angle);
-
-        long date = store.getLong(P_STORMTRACK_DATE);
-        if (date > 0) {
-            stormData.setDate(new Date(date));
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationFile f = pathMgr.getLocalizationFile(
+                userToolsDir.getContext(), userToolsDir.getName()
+                        + IPathManager.SEPARATOR + STORM_TRACK_FILE);
+        if (f.exists()) {
+            LocalizationFileInputStream is = null;
+            try {
+                is = f.openInputStream();
+                stormData = JAXB.unmarshal(is, StormTrackData.class);
+            } catch (Exception e) {
+                statusHandler.error("Error loading storm track data", e);
+                stormData = defaultStormTrackData();
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        statusHandler.handle(Priority.DEBUG,
+                                "Error closing storm track data input stream",
+                                e);
+                    }
+                }
+            }
+        } else {
+            stormData = defaultStormTrackData();
         }
-        String[] points = store.getStringArray(P_STORMTRACK_POINTS);
-        if (points != null) {
-            setCoordinates(stormData, points);
-        }
+
         stormTrackDirty = false;
     }
 
-    private void setCoordinates(StormTrackData data, String[] points) {
-        Coordinate[] coords = new Coordinate[points.length];
-        for (int i = 0; i < points.length; ++i) {
-            String[] latLon = points[i].split("[ ]");
-            try {
-                coords[i] = new Coordinate(Double.parseDouble(latLon[0]),
-                        Double.parseDouble(latLon[1]));
-            } catch (NumberFormatException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error reading storm track coordinates", e);
-                coords = new Coordinate[0];
-                break;
-            }
-        }
-        data.setCoordinates(coords);
+    /**
+     * Creates and returns a default storm track data
+     * 
+     * @return
+     */
+    private static StormTrackData defaultStormTrackData() {
+        StormTrackData data = new StormTrackData();
+        data.setMotionSpeed(35.0);
+        data.setMotionDirection(60.0);
+        data.setDate(SimulatedTime.getSystemTime().getTime());
+        return data;
     }
 
     private void storeStormData() {
         synchronized (stormLock) {
             // Update the store time
             stormData.setDate(SimulatedTime.getSystemTime().getTime());
-            HierarchicalPreferenceStore store = (HierarchicalPreferenceStore) CorePlugin
-                    .getDefault().getPreferenceStore();
-            store.setValue(P_STORMTRACK_SPEED, stormData.getMotionSpeed());
-            store.setValue(P_STORMTRACK_ANGLE, stormData.getMotionDirection());
-            Coordinate[] coordinates = stormData.getCoordinates();
-            if (coordinates != null) {
-                String[] coords = new String[coordinates.length];
-                for (int i = 0; i < coordinates.length; ++i) {
-                    coords[i] = coordinates[i].x + " " + coordinates[i].y;
-                }
-                store.setValue(P_STORMTRACK_POINTS, coords);
-            }
-            store.setValue(P_STORMTRACK_DATE, stormData.getDate().getTime());
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationFile f = pathMgr.getLocalizationFile(
+                    userToolsDir.getContext(), userToolsDir.getName()
+                            + IPathManager.SEPARATOR + STORM_TRACK_FILE);
+            LocalizationFileOutputStream os = null;
             try {
-                store.save();
-            } catch (IOException e) {
+                os = f.openOutputStream();
+                JAXB.marshal(stormData, os);
+                os.closeAndSave();
+            } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error saving storm track data", e);
+                try {
+                    if (os != null) {
+                        os.close();
+                    }
+                } catch (IOException e1) {
+                    statusHandler.handle(Priority.DEBUG,
+                            "Error closing storm track data output stream", e1);
+                }
             }
         }
     }
@@ -594,11 +594,18 @@ public class ToolsDataManager implements ILocalizationFileObserver,
      */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
+        /*
+         * This will receive messages about points updates too, but since the
+         * PointsManager is listening for those we don't care.
+         */
         String fileName = new File(message.getFileName()).getName();
         if (fileName.startsWith(BASELINE_PREFIX)) {
             baselineFileUpdated(fileName);
-        } else {
-            pointsManager.fileUpdated(message);
+        } else if (fileName.equals(STORM_TRACK_FILE)) {
+            stormTrackDirty = true;
+            for (Object listener : stormListeners.getListeners()) {
+                ((IToolChangedListener) listener).toolChanged();
+            }
         }
     }
 
@@ -643,44 +650,4 @@ public class ToolsDataManager implements ILocalizationFileObserver,
         stormListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse
-     * .jface.util.PropertyChangeEvent)
-     */
-    @Override
-    public void propertyChange(PropertyChangeEvent event) {
-        String key = event.getProperty();
-        if ((P_STORMTRACK_ANGLE.equals(key) || P_STORMTRACK_DATE.equals(key)
-                || P_STORMTRACK_POINTS.equals(key) || P_STORMTRACK_SPEED
-                .equals(key)) && stormData != null) {
-            synchronized (stormLock) {
-                Object value = event.getNewValue();
-                if (P_STORMTRACK_ANGLE.equals(key) && value instanceof Double) {
-                    stormData.setMotionDirection((Double) value);
-                } else if (P_STORMTRACK_DATE.equals(key)
-                        && value instanceof Long) {
-                    stormData.setDate(new Date((Long) value));
-                } else if (P_STORMTRACK_POINTS.equals(key)
-                        && value instanceof String[]) {
-                    setCoordinates(stormData, (String[]) value);
-                } else if (P_STORMTRACK_SPEED.equals(key)
-                        && value instanceof Double) {
-                    stormData.setMotionSpeed((Double) value);
-                } else {
-                    /* Incompatible value indicates update from preference
-                     * store.  We will want to reload.
-                     */
-                    stormTrackDirty = true;
-                }
-            }
-
-            // fire listeners
-            for (Object listener : stormListeners.getListeners()) {
-                ((IToolChangedListener) listener).toolChanged();
-            }
-        }
-    }
 }
