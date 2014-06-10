@@ -19,7 +19,8 @@
 -->
 <project name="com.raytheon.uf.logsrv" default="dist">
   
-  <property name="foss" location="../../cots/"/>
+  <property name="corefoss" location="../../../ufcore-foss/lib/"/>
+  <property name="a2foss" location="../../../AWIPS2_foss/lib/"/>
   <property name="src" location="src"/>
   <property name="bin" location="bin"/>
   <property name="qualifier" value="${date}"/>
@@ -66,24 +67,24 @@
 	
 	<target name="tar" depends="build">
 		<tar destfile="${ant.project.name}-${Bundle-Version}.tar.gz" compression="gzip">
-			<tarfileset dir="${foss}/org.slf4j" prefix="${prefix}/lib/">
+			<tarfileset dir="${corefoss}/org.slf4j" prefix="${prefix}/lib/">
 			   <include name="slf4j-api*.jar"/>
 				<exclude name="*sources.jar"/>
 			</tarfileset>
-			<tarfileset dir="${foss}/ch.qos.logback" prefix="${prefix}/lib/">
+			<tarfileset dir="${corefoss}/ch.qos.logback" prefix="${prefix}/lib/">
 			    <include name="logback*.jar"/>
 				<exclude name="*sources.jar"/>
 			</tarfileset>
-            <tarfileset dir="${foss}/org.apache.derby" prefix="${prefix}/lib/">
+            <tarfileset dir="${a2foss}/org.apache.derby" prefix="${prefix}/lib/">
                <include name="derby*.jar"/>
             </tarfileset>
-            <tarfileset dir="${foss}/javax.mail" prefix="${prefix}/lib/">
+            <tarfileset dir="${a2foss}/javax.mail" prefix="${prefix}/lib/">
                <include name="mail.jar"/>
             </tarfileset>
-            <tarfileset dir="${foss}/org.quartz" prefix="${prefix}/lib/">
+            <tarfileset dir="${corefoss}/org.quartz" prefix="${prefix}/lib/">
                    <include name="quartz*.jar"/>
             </tarfileset>			
-            <tarfileset dir="${foss}/org.apache.commons.lang" prefix="${prefix}/lib/">
+            <tarfileset dir="${corefoss}/org.apache.commons.lang" prefix="${prefix}/lib/">
                <include name="commons-lang*.jar"/>
             </tarfileset>
             <tarfileset dir="./" prefix="${prefix}/lib/">

@@ -46,6 +46,7 @@ import com.raytheon.uf.logsrv.report.data.LogReportEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 27, 2013            njensen     Initial creation
+ * Jun 09, 2014 3027       njensen     Fix reconnect after error logic
  * 
  * </pre>
  * 
@@ -269,7 +270,10 @@ public class DerbyDao {
             } catch (SQLException e) {
                 // ignore
             }
-            connection = null;
+            if (connection.equals(this.connection)) {
+                this.connection = null;
+            }
+
         }
 
         try {
