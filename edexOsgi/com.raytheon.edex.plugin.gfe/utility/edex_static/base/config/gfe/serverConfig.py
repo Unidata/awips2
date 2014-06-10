@@ -40,6 +40,7 @@
 #    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
 #    05/09/2014      3148          randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
 #
+#    05/29/2014      3224          randerso       Added "SPC":8 to D2DDBVERSIONS 
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1025,6 +1026,7 @@ D2DDBVERSIONS = {
       "TPCStormSurge": 1,
       "CRMTopo": 1,
       "NED": 1,
+      "SPC": 8,
       }
 
 #---------------------------------------------------------------------------
