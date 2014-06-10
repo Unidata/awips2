@@ -99,6 +99,7 @@ import com.vividsolutions.jts.geom.LineString;
  *  06-11-2013  DR 16234   D. Friedman Fix pivot index when frames count is reduced.
  *  06-24-2013  DR 16317   D. Friedman Handle "motionless" track.
  *  04-07-2014  DR 17232   D. Friedman Make sure pivot indexes are valid.
+ *  06-03-14    3191       njensen     Fix postData to not retrieve
  * 
  * </pre>
  * 
@@ -1394,7 +1395,7 @@ public class StormTrackDisplay implements IRenderable {
     }
 
     private void postData(StormTrackState state) {
-        StormTrackData data = dataManager.getStormTrackData();
+        StormTrackData data = new StormTrackData();
         Coordinate[] coords = new Coordinate[state.timePoints.length];
         for (int i = 0; i < coords.length; ++i) {
             coords[i] = new Coordinate(state.timePoints[i].coord);
