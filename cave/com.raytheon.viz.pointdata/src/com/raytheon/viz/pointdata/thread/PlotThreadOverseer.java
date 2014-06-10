@@ -35,8 +35,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotInfo;
-import com.raytheon.viz.pointdata.PlotModelFactory2;
-import com.raytheon.viz.pointdata.PlotModelFactory2.PlotModelElement;
+import com.raytheon.viz.pointdata.PlotModelFactory;
+import com.raytheon.viz.pointdata.PlotModelFactory.PlotModelElement;
 
 /**
  * Oversees a variety of threads used to concurrently and quickly get plots on
@@ -50,9 +50,10 @@ import com.raytheon.viz.pointdata.PlotModelFactory2.PlotModelElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 21, 2014 2868       njensen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 21, 2014  2868     njensen     Initial creation
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * 
  * </pre>
  * 
@@ -78,7 +79,7 @@ public class PlotThreadOverseer {
     protected List<PlotModelGeneratorJob> imageCreationJobList = new ArrayList<PlotModelGeneratorJob>(
             IMAGE_THREADS);
 
-    protected List<PlotModelFactory2> plotCreatorList = new ArrayList<PlotModelFactory2>(
+    protected List<PlotModelFactory> plotCreatorList = new ArrayList<PlotModelFactory>(
             IMAGE_THREADS);
 
     protected ConcurrentLinkedQueue<PlotInfo[]> sampleTextQueue = new ConcurrentLinkedQueue<PlotInfo[]>();
@@ -113,7 +114,7 @@ public class PlotThreadOverseer {
         List<PlotModelElement> plotFields = null;
         List<PlotModelElement> sampleFields = null;
         for (int i = 0; i < IMAGE_THREADS; i++) {
-            PlotModelFactory2 plotModelFactory = new PlotModelFactory2(
+            PlotModelFactory plotModelFactory = new PlotModelFactory(
                     mapDescriptor, plotModelFile);
             plotCreatorList.add(plotModelFactory);
             imageCreationJobList.add(new PlotModelGeneratorJob(this, caller,
@@ -147,7 +148,7 @@ public class PlotThreadOverseer {
          * TODO do we care?
          */
         for (int i = 0; i < SAMPLE_THREADS; i++) {
-            PlotModelFactory2 plotModelFactory = new PlotModelFactory2(
+            PlotModelFactory plotModelFactory = new PlotModelFactory(
                     mapDescriptor, plotModelFile);
             sampleTextJobList.add(new PlotSampleGeneratorJob(this, caller,
                     plotModelFactory));
@@ -242,14 +243,14 @@ public class PlotThreadOverseer {
     }
 
     public void setPlotModelColor(RGB color) {
-        for (PlotModelFactory2 pmf : plotCreatorList) {
+        for (PlotModelFactory pmf : plotCreatorList) {
             pmf.setColor(color);
         }
         // don't clear the image cache, it's magic
     }
 
     public void setPlotModelLineStyle(LineStyle lineStyle) {
-        for (PlotModelFactory2 pmf : plotCreatorList) {
+        for (PlotModelFactory pmf : plotCreatorList) {
             pmf.setLineStyle(lineStyle);
         }
         for (PlotModelGeneratorJob job : imageCreationJobList) {
@@ -258,7 +259,7 @@ public class PlotThreadOverseer {
     }
 
     public void setPlotModelLineWidth(int outlineWidth) {
-        for (PlotModelFactory2 pmf : plotCreatorList) {
+        for (PlotModelFactory pmf : plotCreatorList) {
             pmf.setLineWidth(outlineWidth);
         }
         for (PlotModelGeneratorJob job : imageCreationJobList) {
@@ -267,19 +268,19 @@ public class PlotThreadOverseer {
     }
 
     public void setPlotMissingData(boolean plotMissingData) {
-        for (PlotModelFactory2 pmf : plotCreatorList) {
+        for (PlotModelFactory pmf : plotCreatorList) {
             pmf.setPlotMissingData(plotMissingData);
         }
     }
 
     public void setLowerLimit(double lowerLimit) {
-        for (PlotModelFactory2 pmf : plotCreatorList) {
+        for (PlotModelFactory pmf : plotCreatorList) {
             pmf.setLowerLimit(lowerLimit);
         }
     }
 
     public void setUpperLimit(double upperLimit) {
-        for (PlotModelFactory2 pmf : plotCreatorList) {
+        for (PlotModelFactory pmf : plotCreatorList) {
             pmf.setUpperLimit(upperLimit);
         }
     }
@@ -289,7 +290,7 @@ public class PlotThreadOverseer {
     }
 
     public void setPlotModelSize(long round) {
-        for (PlotModelFactory2 pmf : plotCreatorList) {
+        for (PlotModelFactory pmf : plotCreatorList) {
             pmf.setPlotDimensions(round, round);
         }
         for (PlotModelGeneratorJob job : imageCreationJobList) {

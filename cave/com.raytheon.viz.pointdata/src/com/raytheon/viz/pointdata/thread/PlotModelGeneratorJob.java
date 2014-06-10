@@ -35,7 +35,7 @@ import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotInfo;
-import com.raytheon.viz.pointdata.PlotModelFactory2;
+import com.raytheon.viz.pointdata.PlotModelFactory;
 
 /**
  * Job that generates plot images using a PlotModelFactory2.
@@ -44,10 +44,12 @@ import com.raytheon.viz.pointdata.PlotModelFactory2;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 22, 2011            njensen     Initial creation
- * Mar 21, 2014 2868       njensen     Major refactor
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 22, 2011           njensen     Initial creation
+ * Mar 21, 2014  2868     njensen     Major refactor
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
+ * 
  * 
  * </pre>
  * 
@@ -57,7 +59,7 @@ import com.raytheon.viz.pointdata.PlotModelFactory2;
 
 public class PlotModelGeneratorJob extends AbstractPlotCreationJob {
 
-    private PlotModelFactory2 plotCreator;
+    private PlotModelFactory plotCreator;
 
     private IGraphicsTarget target;
 
@@ -65,7 +67,7 @@ public class PlotModelGeneratorJob extends AbstractPlotCreationJob {
     private Map<BufferedImage, IImage> imageCache = new LRUMap(1000);
 
     protected PlotModelGeneratorJob(PlotThreadOverseer parent,
-            IPlotModelGeneratorCaller caller, PlotModelFactory2 plotCreator,
+            IPlotModelGeneratorCaller caller, PlotModelFactory plotCreator,
             IGraphicsTarget target) {
         super("Creating plots", parent, caller);
         this.plotCreator = plotCreator;

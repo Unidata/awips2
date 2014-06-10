@@ -9,20 +9,23 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.viz.pointdata.rsc.PlotResource2.Station;
+import com.raytheon.viz.pointdata.rsc.PlotResource.Station;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
- * TODO Add Description
+ * Progressive disclosure for plots with no predetermined ordering. Points to
+ * disclose are chosen arbitrarily.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 12, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 12, 2011           bsteffen    Initial creation
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
+ * 
  * 
  * </pre>
  * 
