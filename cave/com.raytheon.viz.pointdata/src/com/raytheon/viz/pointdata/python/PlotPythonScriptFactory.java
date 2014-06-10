@@ -28,7 +28,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
-import com.raytheon.viz.pointdata.PlotModelFactory2;
+import com.raytheon.viz.pointdata.PlotModelFactory;
 
 /**
  * Builds a plot delegate python script based on the script text extracted from
@@ -40,9 +40,10 @@ import com.raytheon.viz.pointdata.PlotModelFactory2;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 14, 2014 2868       njensen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 14, 2014  2868     njensen     Initial creation
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * 
  * </pre>
  * 
@@ -87,7 +88,7 @@ public class PlotPythonScriptFactory extends
                 IPathManager pm = PathManagerFactory.getPathManager();
                 LocalizationFile[] files = pm.listFiles(pm
                         .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
-                        PlotModelFactory2.PLOT_MODEL_DIR, null, false, false);
+                        PlotModelFactory.PLOT_MODEL_DIR, null, false, false);
                 StringBuilder includeBuilder = new StringBuilder();
                 for (LocalizationFile lf : files) {
                     if (lf.exists() && lf.isDirectory()) {
@@ -103,7 +104,7 @@ public class PlotPythonScriptFactory extends
             if (baseFilePath == null) {
                 File baseFile = PathManagerFactory.getPathManager()
                         .getStaticFile(
-                                PlotModelFactory2.PLOT_MODEL_DIR
+                                PlotModelFactory.PLOT_MODEL_DIR
                                         + IPathManager.SEPARATOR
                                         + "PlotModelInterface.py");
                 baseFilePath = baseFile.getAbsolutePath();
