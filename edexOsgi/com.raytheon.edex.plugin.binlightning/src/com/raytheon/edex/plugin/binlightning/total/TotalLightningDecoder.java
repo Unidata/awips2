@@ -19,6 +19,9 @@
  **/
 package com.raytheon.edex.plugin.binlightning.total;
 
+import gov.noaa.nws.ost.edex.plugin.binlightning.EncryptedBinLightningCipher;
+
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,6 +43,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.common.wmo.WMOTimeParser;
 
 /**
  * Decoder for Earth Networks Total Lightning data
@@ -50,7 +54,8 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 30, 2014 3226       bclement     Initial creation
+ * May 30, 2014 3226       bclement    Initial creation
+ * Jun 09, 2014 3226       bclement    added encryption support
  * 
  * </pre>
  * 
@@ -81,8 +86,18 @@ public class TotalLightningDecoder {
     // constant metadata
     public static final String DATA_SOURCE = "ENTLN";
 
+    /* in bytes, header is total size of flash and pulses */
+    private static final int COMBINATION_PACKET_HEADER_SIZE = 2;
+
+    /* in bytes, doesn't include checksum */
+    private static final int FLASH_PACKET_SIZE = 25;
+
     private static final IUFStatusHandler log = UFStatus
             .getHandler(TotalLightningDecoder.class);
+
+    private static final EncryptedBinLightningCipher CIPHER = new EncryptedBinLightningCipher();
+
+    public static final String TOTAL_LIGHTNING_KEYSTORE_PREFIX = "total.lightning";
 
     /**
      * Parse total lightning data into BinLightningRecords
@@ -99,7 +114,7 @@ public class TotalLightningDecoder {
             byte[] pdata = BinLightningDecoder.extractPData(wmoHdr, data);
             if (pdata != null) {
                 try {
-                    rval = decodeInternal(fileName, pdata);
+                    rval = decodeInternal(wmoHdr, fileName, pdata);
                 } catch (Exception e) {
                     error(e, headers, wmoHdr);
                     rval = new PluginDataObject[0];
@@ -113,6 +128,27 @@ public class TotalLightningDecoder {
             rval = new PluginDataObject[0];
         }
         return rval;
+    }
+
+    /**
+     * @param data
+     * @param startIndex
+     *            starting index of flash packet (not combination packet)
+     * @return true if there if a valid flash packet in data starting at index
+     */
+    private static boolean validFlashPacket(byte[] data, int startIndex) {
+        /* plus one to include packet checksum */
+        final int packetWithChecksum = FLASH_PACKET_SIZE + 1;
+        if (data.length < startIndex + packetWithChecksum) {
+            return false;
+        }
+        ChecksumByteBuffer buff = new ChecksumByteBuffer(ByteBuffer.wrap(data,
+                startIndex, packetWithChecksum));
+        for (int i = 0; i < FLASH_PACKET_SIZE; ++i) {
+            /* build up sum in buffer */
+            buff.get();
+        }
+        return passesCheckSum(buff, false);
     }
 
     /**
@@ -141,20 +177,50 @@ public class TotalLightningDecoder {
 
 
     /**
+     * @param wmoHdr
      * @param fileName
      * @param pdata
      *            data after WMO header is removed
      * @return
      * @throws DecoderException
      */
-    private PluginDataObject[] decodeInternal(String fileName, byte[] pdata)
+    private PluginDataObject[] decodeInternal(WMOHeader wmoHdr,
+            String fileName, byte[] pdata)
             throws DecoderException {
-        List<LightningStrikePoint> decodeStrikes = decodeStrikes(fileName,
-                pdata);
-        BinLightningRecord record = new BinLightningRecord(decodeStrikes);
-        return new PluginDataObject[] { record };
+        if (!validFlashPacket(pdata, COMBINATION_PACKET_HEADER_SIZE)) {
+            /* assume data is encrypted if we can't understand it */
+            pdata = decrypt(wmoHdr, fileName, pdata);
+        }
+        List<LightningStrikePoint> strikes = decodeStrikes(fileName, pdata);
+        if (!strikes.isEmpty()) {
+            BinLightningRecord record = new BinLightningRecord(strikes);
+            return new PluginDataObject[] { record };
+        } else {
+            return new PluginDataObject[0];
+        }
     }
 
+
+    /**
+     * @param wmoHdr
+     * @param fileName
+     * @param pdata
+     * @return
+     * @throws DecoderException
+     */
+    private byte[] decrypt(WMOHeader wmoHdr, String fileName, byte[] pdata)
+            throws DecoderException {
+        Calendar baseTime = WMOTimeParser.findDataTime(wmoHdr.getYYGGgg(),
+                fileName);
+        pdata = EncryptedBinLightningCipher.prepDataForDecryption(pdata,
+                fileName);
+        try {
+            return CIPHER.decryptData(pdata, baseTime.getTime(),
+                    TOTAL_LIGHTNING_KEYSTORE_PREFIX);
+        } catch (Exception e) {
+            throw new DecoderException("Problem decrypting total lightning", e);
+        }
+    }
 
     /**
      * Extract strike data from raw binary
@@ -169,10 +235,17 @@ public class TotalLightningDecoder {
         List<LightningStrikePoint> rval = new ArrayList<LightningStrikePoint>();
         ChecksumByteBuffer buff = new ChecksumByteBuffer(pdata);
         while (buff.position() < buff.size()) {
+            int startingPostion = buff.position();
             int totalBytes = UnsignedNumbers.ushortToInt(buff.getShort());
-            if (totalBytes > (buff.size() - buff.position())) {
-                log.error("Truncated total lightning packet in file: "
-                        + fileName);
+            if (totalBytes > (buff.size() - startingPostion)) {
+                if (validFlashPacket(pdata, buff.position())) {
+                    log.error("Truncated total lightning packet in file: "
+                            + fileName);
+                } else {
+                    int extra = buff.size() - startingPostion;
+                    log.warn("Extra data at end of lightning packets: " + extra
+                            + " bytes");
+                }
                 break;
             }
             /* start flash packet */
@@ -189,7 +262,7 @@ public class TotalLightningDecoder {
 
             int pulseCount = UnsignedNumbers.ubyteToShort(buff.get());
             strike.setPulseCount(pulseCount);
-            checkSum(buff, false);
+            ensureCheckSum(buff, false);
 
             List<LightningPulsePoint> pulses = new ArrayList<LightningPulsePoint>(
                     pulseCount);
@@ -202,12 +275,14 @@ public class TotalLightningDecoder {
                 decodeCommonFields(pulse, buff);
                 /* discard pulse count (already set in strike) */
                 buff.get();
-                checkSum(buff, false);
+                ensureCheckSum(buff, false);
                 pulses.add(pulse);
             }
             strike.setPulses(pulses);
-            checkSum(buff, true);
-            rval.add(strike);
+            ensureCheckSum(buff, true);
+            if (strike.getType() != LtgStrikeType.KEEP_ALIVE) {
+                rval.add(strike);
+            }
         }
         return rval;
     }
@@ -245,17 +320,28 @@ public class TotalLightningDecoder {
     }
 
     /**
+     * @see #passesCheckSum(ChecksumByteBuffer, boolean)
+     * @param buff
+     * @param total
+     * @throws DecoderException
+     */
+    private static void ensureCheckSum(ChecksumByteBuffer buff, boolean total)
+            throws DecoderException {
+        if (!passesCheckSum(buff, total)) {
+            throw new DecoderException("Checksum failed");
+        }
+    }
+
+    /**
      * Ensure data integrity, resets appropriate sum(s) in buffer after check
      * 
      * @param buff
      * @param total
      *            true if total sum should be checked, otherwise checks packet
      *            sum
-     * @throws DecoderException
-     *             if check fails
+     * @return true if checksum passes
      */
-    private static void checkSum(ChecksumByteBuffer buff, boolean total)
-            throws DecoderException {
+    private static boolean passesCheckSum(ChecksumByteBuffer buff, boolean total) {
         long rawsum = total ? buff.getTotalSum() : buff.getPacketSum();
         /* convert to overflowed unsigned byte */
         rawsum &= 0xFF;
@@ -263,8 +349,10 @@ public class TotalLightningDecoder {
         long mungedSum = (256 - rawsum) & 0xFF;
         /* get expected after sum so it is not reflected in sum */
         long expected = UnsignedNumbers.ubyteToShort(buff.get());
-        if (mungedSum != expected) {
-            throw new DecoderException("Checksum failed: expected " + expected
+
+        boolean rval = mungedSum == expected;
+        if (!rval) {
+            log.debug("Checksum failed: expected " + expected
                     + " got " + mungedSum);
         }
         if (total) {
@@ -272,6 +360,7 @@ public class TotalLightningDecoder {
         } else {
             buff.resetPacketSum();
         }
+        return rval;
     }
 
     /**
