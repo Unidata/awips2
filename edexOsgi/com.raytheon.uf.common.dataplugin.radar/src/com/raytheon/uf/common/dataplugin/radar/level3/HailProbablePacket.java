@@ -22,6 +22,8 @@ package com.raytheon.uf.common.dataplugin.radar.level3;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+
 /**
  * Hail probable uses the same decoder as TVS
  * 
@@ -39,7 +41,7 @@ import java.io.IOException;
  * @author mnash
  * @version 1.0
  */
-
+@DynamicSerialize
 public class HailProbablePacket extends HailPositivePacket {
 
     public HailProbablePacket(int packetId, DataInputStream in)
