@@ -21,10 +21,18 @@ package com.raytheon.viz.awipstools.common;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Data representing a storm track that can be saved to XML
  * 
  * <pre>
  * 
@@ -32,20 +40,29 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2009            bwoodle     Initial creation
+ * Jun 03, 2014 3191       njensen      Added xml annotations
  * 
  * </pre>
  * 
  * @author bwoodle
  * @version 1.0
  */
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement
 public class StormTrackData {
 
+    @XmlJavaTypeAdapter(DateAdapter.class)
+    @XmlElement(name = "stormDate")
     private Date date;
 
+    @XmlElement(name = "stormAngle")
     private double motionDirection;
 
+    @XmlElement(name = "stormSpeed")
     private double motionSpeed;
 
+    @XmlJavaTypeAdapter(CoordAdapter.class)
+    @XmlElement(name = "stormCoordinates")
     private Coordinate[] coordinates;
 
     public StormTrackData() {
@@ -123,4 +140,19 @@ public class StormTrackData {
         return date != null && !Double.isNaN(motionDirection)
                 && !Double.isNaN(motionSpeed);
     }
+
+    private static class DateAdapter extends XmlAdapter<Long, Date> {
+
+        @Override
+        public Date unmarshal(Long v) throws Exception {
+            return new Date(v);
+        }
+
+        @Override
+        public Long marshal(Date v) throws Exception {
+            return v.getTime();
+        }
+
+    }
+
 }
