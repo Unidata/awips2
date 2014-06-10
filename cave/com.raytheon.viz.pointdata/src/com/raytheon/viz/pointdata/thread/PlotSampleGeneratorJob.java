@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.Status;
 
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotInfo;
-import com.raytheon.viz.pointdata.PlotModelFactory2;
+import com.raytheon.viz.pointdata.PlotModelFactory;
 
 /**
  * Job that uses the provided plot model factory to generate a sampling message
@@ -35,11 +35,12 @@ import com.raytheon.viz.pointdata.PlotModelFactory2;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 13, 2011            njensen     Initial creation
- * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
- * Mar 21, 2014 2868       njensen     Major refactor
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 13, 2011           njensen     Initial creation
+ * Jun 25, 2013  1869     bsteffen    Fix plot sampling.
+ * Mar 21, 2014  2868     njensen     Major refactor
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * 
  * </pre>
  * 
@@ -49,10 +50,10 @@ import com.raytheon.viz.pointdata.PlotModelFactory2;
 
 public class PlotSampleGeneratorJob extends AbstractPlotCreationJob {
 
-    private PlotModelFactory2 plotFactory;
+    private PlotModelFactory plotFactory;
 
     public PlotSampleGeneratorJob(PlotThreadOverseer parent,
-            IPlotModelGeneratorCaller caller, PlotModelFactory2 factory) {
+            IPlotModelGeneratorCaller caller, PlotModelFactory factory) {
         super("Generating samples", parent, caller);
         this.plotFactory = factory;
     }

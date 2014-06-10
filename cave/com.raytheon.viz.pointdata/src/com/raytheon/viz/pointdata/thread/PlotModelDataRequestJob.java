@@ -28,9 +28,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -40,7 +40,7 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotData;
 import com.raytheon.viz.pointdata.PlotInfo;
-import com.raytheon.viz.pointdata.PlotModelFactory2.PlotModelElement;
+import com.raytheon.viz.pointdata.PlotModelFactory.PlotModelElement;
 import com.raytheon.viz.pointdata.PointDataRequest;
 import com.raytheon.viz.pointdata.rsc.PlotResourceData;
 
@@ -52,11 +52,12 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 22, 2011            njensen     Initial creation
- * May 14, 2013 1869       bsteffen    Get plots working without dataURI
- * Mar 21, 2014 2868       njensen     Major refactor
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 22, 2011           njensen     Initial creation
+ * May 14, 2013  1869     bsteffen    Get plots working without dataURI
+ * Mar 21, 2014  2868     njensen     Major refactor
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * 
  * </pre>
  * 
