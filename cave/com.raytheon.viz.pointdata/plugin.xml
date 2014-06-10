@@ -43,12 +43,6 @@
                resourceType="PLAN_VIEW">
          </resource>
          <resource
-               class="com.raytheon.viz.pointdata.rsc.PlotResource2"
-               name="Point Data2"
-               renderingOrderId="PLOT"
-               resourceType="PLAN_VIEW">
-         </resource>
-         <resource
                class="com.raytheon.viz.pointdata.rsc.PlotBlendedResource"
                name="Blended Plot Data"
                renderingOrderId="PLOT"
