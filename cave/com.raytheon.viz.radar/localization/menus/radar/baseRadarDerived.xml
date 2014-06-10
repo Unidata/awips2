@@ -29,7 +29,6 @@
 	    </contribute>	
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml" 
 				menuText="User Sel Lyr Ref (ULR)" id="${icao}UserSelLyrRefULR">
-			<dataURI>/radar/%/${icao}/137/%</dataURI>
 	        <substitute key="product" value="137"/>
 	        <substitute key="elevation" value="0.0--0.0"/>
 	    </contribute>	
