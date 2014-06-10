@@ -30,6 +30,7 @@ import java.util.List;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.binlightning.BinLightningDecoder;
+import com.raytheon.edex.plugin.binlightning.filter.LightningGeoFilter;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.BaseLightningPoint;
@@ -56,6 +57,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * ------------ ---------- ----------- --------------------------
  * May 30, 2014 3226       bclement    Initial creation
  * Jun 09, 2014 3226       bclement    added encryption support
+ * Jun 10, 2014 3226       bclement    added filter support
  * 
  * </pre>
  * 
@@ -193,7 +195,8 @@ public class TotalLightningDecoder {
         }
         List<LightningStrikePoint> strikes = decodeStrikes(fileName, pdata);
         if (!strikes.isEmpty()) {
-            BinLightningRecord record = new BinLightningRecord(strikes);
+            BinLightningRecord record = LightningGeoFilter
+                    .createFilteredRecord(strikes);
             return new PluginDataObject[] { record };
         } else {
             return new PluginDataObject[0];
