@@ -32,7 +32,8 @@ import com.raytheon.uf.common.numeric.UnsignedNumbers;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 3, 2014  3226      bclement     Initial creation
+ * Jun 03, 2014  3226      bclement    Initial creation
+ * Jun 09, 2014 3226       bclement    Added ByteBuffer constructor
  * 
  * </pre>
  * 
@@ -60,6 +61,13 @@ public class ChecksumByteBuffer {
      */
     public ChecksumByteBuffer(byte[] data) {
         this.buff = ByteBuffer.wrap(data);
+    }
+
+    /**
+     * @param buff
+     */
+    public ChecksumByteBuffer(ByteBuffer buff) {
+        this.buff = buff;
     }
 
     /**
