@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -34,6 +36,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 20130503        DCS 112 Wufeng Zhou To handle both the new encrypted data and legacy bit-shifted data
  * Jun 03, 2014 3226       bclement    moved from com.raytheon.edex.plugin.binlightning to gov.noaa.nws.ost.edex.plugin.binlightning
  *                                      handled null return from BinLightningAESKey.getBinLightningAESKeys()
+ * Jun 09, 2014 3226       bclement    refactored to support multiple stores for different data types
  * 
  * </pre>
  * 
@@ -41,39 +44,69 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  */
 public class EncryptedBinLightningCipher {
-	private static final String BINLIGHTNING_CIPHER_TYPE = "AES";
 
 	/** Maximum size of the encrypted block, determined by 3 byte length field in the header */
 	private static final int MAX_SIZE_ENCRYPTED_BLOCK = 0xffffff;
 	    
-    /** 
-     * Cipher creation is a relatively expensive operation and would be better to reuse it in the same thread.
-     **/
-	private static final ThreadLocal<HashMap<String, Cipher>> decryptCipherMap = new ThreadLocal<HashMap<String, Cipher>>() {
-
-		@Override
-		protected HashMap<String, Cipher> initialValue() {
-			// get AES keys from keystore and create encryption and decryption ciphers from them
-			BinLightningAESKey[] keys = BinLightningAESKey.getBinLightningAESKeys();
-            if (keys == null) {
-                keys = new BinLightningAESKey[0];
-            }
-			HashMap<String, Cipher> cipherMap = new HashMap<String, Cipher>();
-			for (BinLightningAESKey key : keys) {
-				try {
-					SecretKeySpec skeySpec = (SecretKeySpec)key.getKey();
-					Cipher cipher = Cipher.getInstance(BINLIGHTNING_CIPHER_TYPE);
-					cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-					
-					cipherMap.put(key.getAlias(), cipher);
-				} catch (Exception e) {
-					logger.error("Fail to create decrypt Cipher from key " + key.getAlias(), e);
-				}
-			}
-			return cipherMap;
-		}		
-	};
+    private static final Map<String, Map<String, Cipher>> decryptCipherMapCache = new ConcurrentHashMap<String, Map<String, Cipher>>(
+            2);
 	
+    /**
+     * Get cipher map using cache
+     * 
+     * @param propertyPrefix
+     *            datatype properties file prefix
+     * @return
+     */
+    private static Map<String, Cipher> getCachedCipherMap(String propertyPrefix) {
+        Map<String, Cipher> rval = decryptCipherMapCache.get(propertyPrefix);
+        if (rval == null) {
+            synchronized (decryptCipherMapCache) {
+                if (rval == null) {
+                    rval = createCipherMap(propertyPrefix);
+                    decryptCipherMapCache.put(propertyPrefix, rval);
+                }
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * Create a mapping key aliases to keys for datatype
+     * 
+     * @param propertyPrefix
+     *            datatype properties file prefix
+     * @return
+     */
+    private static Map<String, Cipher> createCipherMap(String propertyPrefix) {
+        /*
+         * get AES keys from keystore and create encryption and decryption
+         * ciphers from them
+         */
+        BinLightningAESKey[] keys = BinLightningAESKey
+                .getBinLightningAESKeys(propertyPrefix);
+        if (keys == null) {
+            keys = new BinLightningAESKey[0];
+        }
+        HashMap<String, Cipher> cipherMap = new HashMap<String, Cipher>();
+        for (BinLightningAESKey key : keys) {
+            try {
+                SecretKeySpec skeySpec = (SecretKeySpec) key.getKey();
+                String algorithm = BinLightningAESKey
+                        .getCipherAlgorithm(propertyPrefix);
+                Cipher cipher = Cipher.getInstance(algorithm);
+                cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+
+                cipherMap.put(key.getAlias(), cipher);
+            } catch (Exception e) {
+                logger.error(
+                        "Fail to create decrypt Cipher from key "
+                                + key.getAlias(), e);
+            }
+        }
+        return cipherMap;
+    }
+
     private static IUFStatusHandler logger = UFStatus
             .getHandler(EncryptedBinLightningCipher.class);
 
@@ -85,24 +118,33 @@ public class EncryptedBinLightningCipher {
      * decrypt data with AES keys
      * 
      * @param data
+     * @param propertyPrefix
+     *            prefix for lightning type configuration
      * @return
      * @throws IllegalBlockSizeException
      * @throws BadPaddingException
      */
-	public byte[] decryptData(byte[] data) throws IllegalBlockSizeException, BadPaddingException, BinLightningDataDecryptionException {
-		return decryptData(data, null);
+    public byte[] decryptData(byte[] data, String propertyPrefix)
+            throws IllegalBlockSizeException, BadPaddingException,
+            BinLightningDataDecryptionException {
+        return decryptData(data, null, propertyPrefix);
 	}
 	
-	/**
-	 * decrypt data with AES keys, using data observation date as a hint to find the best suitable key to try first
-	 * 
-	 * @param data
-	 * @param dataDate
-	 * @return
-	 * @throws IllegalBlockSizeException
-	 * @throws BadPaddingException
-	 */
-	public byte[] decryptData(byte[] data, Date dataDate) throws IllegalBlockSizeException, BadPaddingException, BinLightningDataDecryptionException {
+    /**
+     * decrypt data with AES keys, using data observation date as a hint to find
+     * the best suitable key to try first
+     * 
+     * @param data
+     * @param dataDate
+     * @param propertyPrefix
+     *            prefix for lightning type configuration
+     * @return
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
+     */
+    public byte[] decryptData(byte[] data, Date dataDate, String propertyPrefix)
+            throws IllegalBlockSizeException, BadPaddingException,
+            BinLightningDataDecryptionException {
 		if (data == null) {
 			throw new IllegalBlockSizeException("Data is null");
 		}
@@ -110,12 +152,14 @@ public class EncryptedBinLightningCipher {
 			throw new IllegalBlockSizeException("Data is empty");
 		}
 		if (data.length > MAX_SIZE_ENCRYPTED_BLOCK) {
-			throw new IllegalBlockSizeException("Block size exceeds maxinum expected.");
+            throw new IllegalBlockSizeException(
+                    "Block size exceeds maximum expected.");
 		}
 		
-		HashMap<String, Cipher> cipherMap = EncryptedBinLightningCipher.decryptCipherMap.get();
+        Map<String, Cipher> cipherMap = getCachedCipherMap(propertyPrefix);
 		// find the preferred key order to try decryption based on data date
-		List<BinLightningAESKey> preferredKeyList = findPreferredKeyOrderForData(dataDate);
+        List<BinLightningAESKey> preferredKeyList = findPreferredKeyOrderForData(
+                dataDate, propertyPrefix);
 		
 		if (preferredKeyList == null || preferredKeyList.size() == 0) {
 			throw new BinLightningDataDecryptionException("No AES key found to decrypt data. Please make sure keystore is properly configured with key(s).");
@@ -124,7 +168,12 @@ public class EncryptedBinLightningCipher {
 		// try to decrypt the data using ciphers in the list until successful
 		byte[] decryptedData = null;
 		for (int i = 0; i < preferredKeyList.size(); i++) {
-			Cipher cipher = cipherMap.get(preferredKeyList.get(i).getAlias());
+            String alias = preferredKeyList.get(i).getAlias();
+            Cipher cipher = cipherMap.get(alias);
+            if (cipher == null) {
+                logger.warn("No cipher found for alias: " + alias);
+                continue;
+            }
 			try {
 				decryptedData = cipher.doFinal(data, 0, data.length);
 				
@@ -133,45 +182,63 @@ public class EncryptedBinLightningCipher {
 				if ( BinLightningDecoderUtil.isKeepAliveRecord(decryptedData) == false && BinLightningDecoderUtil.isLightningDataRecords(decryptedData) == false) {
 				//if (BinLigntningDecoderUtil.isValidMixedRecordData(decryptedData) == false) { // use this only if keep-alive record could be mixed with lightning records
 					throw new BinLightningDataDecryptionException("Decrypted data (" + decryptedData.length + " bytes) with key " 
-							+ preferredKeyList.get(i).getAlias() + " is not valid keep-alive or binLightning records.", decryptedData);
+                                    + alias
+                                    + " is not valid keep-alive or binLightning records.",
+                            decryptedData);
 				}				
-				logger.info("Data (" + data.length + " bytes) decrypted to " + decryptedData.length + " bytes with key: " + preferredKeyList.get(i).getAlias()); 
+                logger.info("Data (" + data.length + " bytes) decrypted to "
+                        + decryptedData.length + " bytes with key: " + alias);
 				break; // decrypt ok, break out
 			} catch (IllegalBlockSizeException e) {
 				// ignore exception if not the last, and try next cipher
-				logger.info("Fail to decrypt data (" + data.length + " bytes) with key: " + preferredKeyList.get(i).getAlias() + " - " + e.getMessage() + ", will try other available key"); 
+                logger.info("Fail to decrypt data (" + data.length
+                        + " bytes) with key: " + alias + " - " + e.getMessage()
+                        + ", will try other available key");
 				if (i == (preferredKeyList.size() - 1)) {
 					logger.error("Fail to decrypt with all known keys, either data is not encrypted or is invalid: " + e.getMessage()); 
 					throw e;
 				}
 			} catch (BadPaddingException e) {
 				// ignore exception if not the last, and try next cipher
-				logger.info("Fail to decrypt data (" + data.length + " bytes) with key: " + preferredKeyList.get(i).getAlias() + " - " + e.getMessage() + ", will try other available key"); 
+                logger.info("Fail to decrypt data (" + data.length
+                        + " bytes) with key: " + alias + " - " + e.getMessage()
+                        + ", will try other available key");
 				if (i == (preferredKeyList.size() - 1)) {
 					logger.error("Fail to decrypt with all known keys, either data is not encrypted or is invalid: " + e.getMessage()); 
 					throw e;
 				}
 			} catch (BinLightningDataDecryptionException e) {
 				// ignore exception if not the last, and try next cipher
-				logger.info("Fail to decrypt data (" + data.length + " bytes) with key: " + preferredKeyList.get(i).getAlias() + " - " + e.getMessage() + ", will try other available key"); 
+                logger.info("Fail to decrypt data (" + data.length
+                        + " bytes) with key: " + alias + " - " + e.getMessage()
+                        + ", will try other available key");
 				if (i == (preferredKeyList.size() - 1)) {
 					logger.error("Fail to decrypt with all known keys, either data is not encrypted or is invalid: " + e.getMessage()); 
 					throw e;
 				}
 			}
 		}
+        if (decryptedData == null) {
+            throw new BinLightningDataDecryptionException(
+                    "No ciphers found for data type: " + propertyPrefix);
+        }
 		return decryptedData;
 	}
 	
-	/**
-	 * Assuming the best keys to decrypt data should be issued before the data observation date, so 
-	 * if there were many keys issued, this hopefully will reduce the unnecessary decryption tries
-	 *  
-	 * @param dataDate
-	 * @return preferred key list order
-	 */
-	private List<BinLightningAESKey> findPreferredKeyOrderForData(Date dataDate) {
-		BinLightningAESKey[] binLightningAESKeys = BinLightningAESKey.getBinLightningAESKeys();
+    /**
+     * Assuming the best keys to decrypt data should be issued before the data
+     * observation date, so if there were many keys issued, this hopefully will
+     * reduce the unnecessary decryption tries
+     * 
+     * @param dataDate
+     * @param propertyPrefix
+     *            prefix for lightning type configuration
+     * @return preferred key list order
+     */
+    private List<BinLightningAESKey> findPreferredKeyOrderForData(
+            Date dataDate, String propertyPrefix) {
+        BinLightningAESKey[] binLightningAESKeys = BinLightningAESKey
+                .getBinLightningAESKeys(propertyPrefix);
         if (binLightningAESKeys == null || binLightningAESKeys.length < 1) {
             return Collections.emptyList();
         }
@@ -198,4 +265,41 @@ public class EncryptedBinLightningCipher {
 		}
 	}
 		
+    /**
+     * ensures that the data is the appropriate length for AES decryption.
+     * Copies data to new array.
+     * 
+     * @param pdata
+     * @param traceId
+     * @return
+     */
+    public static byte[] prepDataForDecryption(byte[] pdata, String traceId) {
+        /*
+         * NOTE: 11/14/2013 WZ:
+         * encrypted test data on TNCF (got from Melissa Porricelli)
+         * seems to have extra 4 bytes (0x0d 0x0d 0x0a 0x03) at the end,
+         * making the data size not a multiple of 16. However, original
+         * test data do not have this trailing bytes. while NCEP test
+         * data has extra 8 trailing bytes.
+         * Brain Rapp's email on 11/13/2013 confirms that Unidata LDM
+         * software used by AWIPS II will strips off all SBN protocol
+         * headers
+         * that precede the WMO header and adds its own 11 byte header
+         * like this: "soh  cr  cr  nl   2   5   4  sp  cr  cr  nl". It
+         * also adds a four byte trailer consisting of "cr cr nl etx"
+         * (0x0d 0x0d 0x0a 0x03)
+         * So, it seems necessary to trim trailing bytes if it is not
+         * multiple of 16, warning messages will be logged though
+         */
+        int dataLengthToBeDecrypted = pdata.length;
+        if (pdata.length % 16 != 0) {
+            dataLengthToBeDecrypted = pdata.length - (pdata.length % 16);
+            logger.warn(traceId + " - Data length from file " + traceId
+                    + " is " + pdata.length + " bytes, trailing "
+                    + (pdata.length - dataLengthToBeDecrypted)
+                    + " bytes has been trimmed to " + dataLengthToBeDecrypted
+                    + " bytes for decryption.");
+        }
+        return Arrays.copyOfRange(pdata, 0, dataLengthToBeDecrypted);
+    }
 }
