@@ -26,7 +26,6 @@ import gov.noaa.nws.ost.edex.plugin.binlightning.EncryptedBinLightningCipher;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -86,6 +85,7 @@ import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
  *                                      removed TimeTools usage, removed constructDataURI() call
  *                                      added decodeBinLightningData() and decodeBitShiftedBinLightningData() from BinLightningDecoderUtil
  * Jun 05, 2014 3226       bclement    LightningStikePoint refactor, added extractPData()
+ * Jun 09, 2014 3226       bclement    moved data array decrypt prep to EncryptedBinLightingCipher
  * 
  * </pre>
  * 
@@ -101,6 +101,8 @@ public class BinLightningDecoder extends AbstractDecoder {
 
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(BinLightningDecoder.class);
+
+    public static final String BINLIGHTNING_KEYSTORE_PREFIX = "binlightning";
 
     /**
      * Default lightning strike type for FLASH messages. RT_FLASH documents
@@ -343,40 +345,11 @@ public class BinLightningDecoder extends AbstractDecoder {
 
         if (needDecrypt) {
             try {
-                /*
-                 * NOTE: 11/14/2013 WZ:
-                 * encrypted test data on TNCF (got from Melissa Porricelli)
-                 * seems to have extra 4 bytes (0x0d 0x0d 0x0a 0x03) at the end,
-                 * making the data size not a multiple of 16. However, original
-                 * test data do not have this trailing bytes. while NCEP test
-                 * data has extra 8 trailing bytes.
-                 * Brain Rapp's email on 11/13/2013 confirms that Unidata LDM
-                 * software used by AWIPS II will strips off all SBN protocol
-                 * headers
-                 * that precede the WMO header and adds its own 11 byte header
-                 * like this: "soh  cr  cr  nl   2   5   4  sp  cr  cr  nl". It
-                 * also adds a four byte trailer consisting of "cr cr nl etx"
-                 * (0x0d 0x0d 0x0a 0x03)
-                 * So, it seems necessary to trim trailing bytes if it is not
-                 * multiple of 16, warning messages will be logged though
-                 */
-                int dataLengthToBeDecrypted = pdata.length;
-                if (pdata.length % 16 != 0) {
-                    dataLengthToBeDecrypted = pdata.length
-                            - (pdata.length % 16);
-                    logger.warn(traceId + " - Data length from file " + traceId
-                            + " is " + pdata.length + " bytes, trailing "
-                            + (pdata.length - dataLengthToBeDecrypted)
-                            + " bytes has been trimmed to "
-                            + dataLengthToBeDecrypted
-                            + " bytes for decryption.");
-                }
-                byte[] encryptedData = new byte[dataLengthToBeDecrypted];
-                encryptedData = Arrays.copyOfRange(pdata, 0,
-                        dataLengthToBeDecrypted);
+                byte[] encryptedData = EncryptedBinLightningCipher
+                        .prepDataForDecryption(pdata, traceId);
 
                 byte[] decryptedData = cipher.decryptData(encryptedData,
-                        dataDate);
+                        dataDate, BINLIGHTNING_KEYSTORE_PREFIX);
                 // decrypt ok, then decode, first check if keep-alive record
                 if (BinLightningDecoderUtil.isKeepAliveRecord(decryptedData)) {
                     logger.info(traceId
