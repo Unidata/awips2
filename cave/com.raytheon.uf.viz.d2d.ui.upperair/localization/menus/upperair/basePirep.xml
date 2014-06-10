@@ -20,27 +20,21 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	    <contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-	                menuText="Low Level" id="lowLevel"
-	                productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+	                menuText="Low Level" id="lowLevel">
 	        <substitute key="svg0" value="pirepPlotDesign.svg"/>
 	        <substitute key="svg1" value="pirepPlotDesign.svg"/>
 	        <substitute key="legend" value="PIREP Plot 000-180 hft"/>
 	        <substitute key="between" value="0--18000"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-	                menuText="Mid Level" id="midLevel"
-	                productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+	                menuText="Mid Level" id="midLevel">
 	        <substitute key="svg0" value="pirepPlotDesign.svg"/>
 	        <substitute key="svg1" value="pirepPlotDesign.svg"/>
 	        <substitute key="legend" value="PIREP Plot 180-260 hft"/>
 	        <substitute key="between" value="18000--26000"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-	                menuText="Hi Level" id="hiLevel"
-	                productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+	                menuText="Hi Level" id="hiLevel">
 	        <substitute key="svg0" value="pirepPlotDesign.svg"/>
 	        <substitute key="svg1" value="pirepPlotDesign.svg"/>
 	        <substitute key="legend" value="PIREP Plot 260-500 hft"/>
@@ -49,27 +43,21 @@
 	    <contribute xsi:type="titleItem" 
 				titleText="------ Icing  ------" id="IcingLine"/>
 		<contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-               menuText="Low Level" id="lowLevel"
-               productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+               menuText="Low Level" id="lowLevel">
 	        <substitute key="svg0" value="pirepIcingDesign.svg"/>
 	        <substitute key="svg1" value="airepIcingDesign.svg"/>
 	        <substitute key="legend" value="PIREP Icing 000-180 hft"/>
 	        <substitute key="between" value="0--18000"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-	                menuText="Mid Level" id="midLevel"
-	                productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+	                menuText="Mid Level" id="midLevel">
 	        <substitute key="svg0" value="pirepIcingDesign.svg"/>
 	        <substitute key="svg1" value="airepIcingDesign.svg"/>
 	        <substitute key="legend" value="PIREP Icing 180-260 hft"/>
 	        <substitute key="between" value="18000--26000"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-	                menuText="Hi Level" id="hiLevel"
-	                productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+	                menuText="Hi Level" id="hiLevel">
 	        <substitute key="svg0" value="pirepIcingDesign.svg"/>
 	        <substitute key="svg1" value="airepIcingDesign.svg"/>
 	        <substitute key="legend" value="PIREP Icing 260-500 hft"/>
@@ -78,27 +66,21 @@
 		<contribute xsi:type="titleItem" 
 				titleText="------ Turbulence  ------" id="TurbLine"/>
 		<contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-	                menuText="Low Level" id="lowLevel"
-	                productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+	                menuText="Low Level" id="lowLevel">
 	        <substitute key="svg0" value="pirepTurbDesign.svg"/>
 	        <substitute key="svg1" value="airepTurbDesign.svg"/>
 	        <substitute key="legend" value="PIREP Turb 000-180 hft"/>
 	        <substitute key="between" value="0--18000"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-	                menuText="Mid Level" id="midLevel"
-	                productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+	                menuText="Mid Level" id="midLevel">
 	        <substitute key="svg0" value="pirepTurbDesign.svg"/>
 	        <substitute key="svg1" value="airepTurbDesign.svg"/>
 	        <substitute key="legend" value="PIREP Turb 180-260 hft"/>
 	        <substitute key="between" value="18000--26000"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/PirepPlot.xml" 
-	                menuText="Hi Level" id="hiLevel"
-	                productInterval="3600" productOffset="1800">
-	        <dataURI>/pirep/%</dataURI>
+	                menuText="Hi Level" id="hiLevel">
 	        <substitute key="svg0" value="pirepTurbDesign.svg"/>
 	        <substitute key="svg1" value="airepTurbDesign.svg"/>
 	        <substitute key="legend" value="PIREP Turb 260-500 hft"/>
