@@ -44,7 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import com.raytheon.viz.pointdata.PlotModelFactory2.PlotModelElement;
+import com.raytheon.viz.pointdata.PlotModelFactory.PlotModelElement;
 import com.raytheon.viz.pointdata.util.PointDataInventory;
 
 /**
@@ -54,9 +54,10 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 18, 2013   2391     mpduff      Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 18, 2013  2391     mpduff      Initial creation
+ * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
  * 
  * </pre>
  * 
@@ -137,7 +138,7 @@ public class PlotModels {
                 try {
                     if (!models.containsKey(fileName)) {
                         List<String> params = new ArrayList<String>();
-                        List<PlotModelElement> fields = new PlotModelFactory2(
+                        List<PlotModelElement> fields = new PlotModelFactory(
                                 fakeDescriptor, fileName).getPlotFields();
                         for (PlotModelElement p : fields) {
                             if (!p.parameter.equals("")
