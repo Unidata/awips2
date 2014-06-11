@@ -35,7 +35,6 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -47,17 +46,18 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Mar 12, 2007 1003        bwoodle     initial creation
- * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
- * May 02, 2013 1949        rjpeter     Moved ugcZones to be a column inside
- *                                      table.
- * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
- *                                      spatial
- * Aug 08, 2013 2243        jsanchez    Removed super method in copy
- *                                      constructor.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 12, 2007  1003     bwoodle     initial creation
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 02, 2013  1949     rjpeter     Moved ugcZones to be a column inside
+ *                                    table.
+ * Jul 16, 2013  2181     bsteffen    Convert geometry types to use hibernate-
+ *                                    spatial
+ * Aug 08, 2013  2243     jsanchez    Removed super method in copy constructor.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * 
  * </pre>
  * 
  * @author bwoodle
@@ -277,11 +277,6 @@ public abstract class AbstractWarningRecord extends PluginDataObject {
      */
     public AbstractWarningRecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     public String createWarningProduct() {

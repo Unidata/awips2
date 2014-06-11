@@ -20,17 +20,7 @@
 package com.raytheon.uf.common.dataplugin.acars;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -48,7 +38,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -63,19 +52,20 @@ import com.vividsolutions.jts.geom.Geometry;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009 1939       jkorman     Initial creation
- * Apr 09, 2009 952        jsanchez    Updated getValue method.  Added a
- *                                     getMessageData method.
- * Apr 21, 2009 2245       jsanchez    Returned temperature unit to kelvin.
- * May 21, 2009 2338       jsanchez    Updated the getMessageData.
- * Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                     forecastTime
- * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                     PluginDataObject.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date         Ticket#  Engineer    Description
+ * ------------ -------- ----------- --------------------------
+ * Jan 21, 2009  1939    jkorman     Initial creation
+ * Apr 09, 2009  952     jsanchez    Updated getValue method.  Added a
+ *                                   getMessageData method.
+ * Apr 21, 2009  2245    jsanchez    Returned temperature unit to kelvin.
+ * May 21, 2009  2338    jsanchez    Updated the getMessageData.
+ * Apr 04, 2013  1846    bkowal      Added an index on refTime and
+ *                                   forecastTime
+ * Apr 12, 2013  1857    bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869    bsteffen    Remove dataURI column from
+ *                                   PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter    Make getPluginName abstract
+ * Jun 11, 2014  2061     bsteffen   Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -95,40 +85,9 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
-        IDecoderGettable, Comparable<ACARSRecord> {
+        Comparable<ACARSRecord> {
 
     private static final long serialVersionUID = 1L;
-
-    private static final String TEXT_FMT = "%1$s %2$td/%2$tH%2$tM";
-
-    public static final Unit<Length> FLIGHT_LEVEL_UNIT = SI.METER;
-
-    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
-
-    public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
-
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Pressure> PRESSURE_UNIT = SI.PASCAL;
-
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("T", SFC_TEMP);
-        PARM_MAP.put("DpT", SFC_DWPT);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-
-        PARM_MAP.put("altitude", UA_FLTLVL);
-        PARM_MAP.put("turbc", "turbc");
-    }
-
-    public static final String TAIL_NUM = "tailNumber";
-
-    public static final String FLIGHT_NUM = "tailNumber";
 
     // Time of the observation.
     @Column
@@ -654,74 +613,6 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
         this.usedInSounding = usedInSounding;
     }
 
-    /**
-     * 
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        String retValue = null;
-        if (TAIL_NUM.equals(paramName)) {
-            retValue = getTailNumber();
-        } else if (FLIGHT_NUM.equals(paramName)) {
-            retValue = getFlightNumber();
-        } else if ("TEXT".equals(paramName)) {
-            retValue = String.format(TEXT_FMT, getTailNumber(), getTimeObs());
-        }
-        return retValue;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        String pName = PARM_MAP.get(paramName);
-
-        if (SFC_TEMP.equals(pName) && (temp != null)) {
-            a = new Amount(temp, TEMPERATURE_UNIT);
-        } else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
-            a = new Amount(windSpeed, WIND_SPEED_UNIT);
-        } else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
-            a = new Amount(windDirection, WIND_DIR_UNIT);
-        } else if (STA_LAT.equals(pName)) {
-            a = new Amount(getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(getLongitude(), LOCATION_UNIT);
-        } else if (UA_FLTLVL.equals(pName) && (getFlightLevel() != null)) {
-            a = new Amount(getFlightLevel().intValue(), FLIGHT_LEVEL_UNIT);
-        } else if (SFC_DWPT.equals(pName) && (getDwpt() != null)) {
-            a = new Amount(getDwpt(), TEMPERATURE_UNIT);
-        }
-
-        return a;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    public static final Double calcHumidity(Double temp, Double dwpt) {
-        Double humidity = null;
-        if ((temp != null) && (dwpt != null)) {
-        }
-        return humidity;
-    }
-
-    @Override
-    public String getMessageData() {
-        return String.format(TEXT_FMT, getTailNumber(), getTimeObs());
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -777,14 +668,9 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
      */
     @Override
     public int compareTo(ACARSRecord other) {
-
-        final int BEFORE = -1;
-        final int EQUAL = 0;
-        final int AFTER = 1;
-
-        int result = EQUAL;
+        int result = 0;
         if (this == other) {
-            result = EQUAL;
+            result = 0;
         } else {
             if (getTailNumber().equals(getTailNumber())) {
                 result = timeObs.compareTo(other.timeObs);
