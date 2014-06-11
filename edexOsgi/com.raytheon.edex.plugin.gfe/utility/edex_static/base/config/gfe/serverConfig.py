@@ -1595,7 +1595,7 @@ localRTMAParms = []
 localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
-localISCExtraParms = []
+localHRRRParms = localESTOFSParms = localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
@@ -1876,12 +1876,12 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (AKwave10, WAVEPARMS + localAKwave10Parms),
              (AKwave4, WAVEPARMS + localAKwave4Parms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
-             (ESTOFS, ESTOFSPARMS + localESTOFSparms),
+             (ESTOFS, ESTOFSPARMS + localESTOFSParms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
              (GLWM, GLWMPARMS + localGLWMParms),            #####DCS3499
              (HIRESWarw, STD3_MODEL + localHIRESWarwParms), #####DCS3501
              (HIRESWnmm, STD3_MODEL + localHIRESWnmmParms),
-             (HRRR, HRRRPARMS + localHRRRparms),
+             (HRRR, HRRRPARMS + localHRRRParms),
 #DR20634             (SPC, SPCPARMS + localSPCParms),
              (WCwave10, WAVEPARMS + localWCwave10Parms),
              (WCwave4, WAVEPARMS + localWCwave4Parms),
