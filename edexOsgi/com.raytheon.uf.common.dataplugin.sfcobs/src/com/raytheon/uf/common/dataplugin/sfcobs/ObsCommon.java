@@ -21,19 +21,8 @@ package com.raytheon.uf.common.dataplugin.sfcobs;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
-import javax.measure.quantity.Angle;
-import javax.measure.quantity.DataAmount;
-import javax.measure.quantity.Length;
-import javax.measure.quantity.Pressure;
-import javax.measure.quantity.Temperature;
-import javax.measure.quantity.Velocity;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -51,7 +40,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -69,15 +57,16 @@ import com.vividsolutions.jts.geom.Geometry;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 01, 2009            jkorman     Initial creation
- * Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                     forecastTime
- * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                     PluginDataObject.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 01, 2009           jkorman     Initial creation
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -97,54 +86,9 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ObsCommon extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData {
+        ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = 1L;
-
-    private static final int MISSING = -9999;
-
-    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
-
-    public static final Unit<Velocity> WIND_SPEED_UNIT = SI.METERS_PER_SECOND;
-
-    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Pressure> PRESSURE_UNIT = SI.PASCAL;
-
-    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-
-    public static final Unit<Length> WAVE_UNIT = SI.METER;
-
-    public static final Unit<Length> VISIBILITY_UNIT = NonSI.MILE;
-
-    public static final Unit<DataAmount> CLOUD_COVER = NonSI.OCTET;
-
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("T", SFC_TEMP);
-        PARM_MAP.put("DpT", SFC_DWPT);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-        PARM_MAP.put("WGS", SFC_WNDGST);
-        PARM_MAP.put("Px", PRES_STATION);
-        PARM_MAP.put("PMSL", PRES_SLP);
-        PARM_MAP.put("ASET", PRES_ALTSG);
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("WT", "WT");
-        PARM_MAP.put("TCC", "TCC");
-        PARM_MAP.put("WP", "WP");
-        PARM_MAP.put("WH", "WH");
-        PARM_MAP.put("SWP", "SWP");
-        PARM_MAP.put("SWH", "SWH");
-        PARM_MAP.put("SWS", "SWS");
-        PARM_MAP.put("SWD", "SWD");
-        PARM_MAP.put("SWGS", "SWGS");
-        PARM_MAP.put("PCHNG", "PCHNG");
-        PARM_MAP.put("PKWND", "PKWND");
-        PARM_MAP.put("VIS", "VIS");
-        PARM_MAP.put("COVpct", "COVpct");
-    }
 
     //
     @DataURI(position = 1)
@@ -1496,22 +1440,6 @@ public class ObsCommon extends PersistablePluginDataObject implements
         interWinds.add(wind);
     }
 
-    /**
-     * Set the data uri for this observation.
-     * 
-     * @param dataURI
-     */
-    @Override
-    public void setDataURI(String dataURI) {
-        super.setDataURI(dataURI);
-        identifier = dataURI;
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
     @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
@@ -1577,84 +1505,6 @@ public class ObsCommon extends PersistablePluginDataObject implements
      */
     public Boolean getLocationDefined() {
         return location.getLocationDefined();
-    }
-
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    /**
-     * Get the value and units of a named parameter within this observation.
-     * 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-
-        String pName = PARM_MAP.get(paramName);
-
-        if (SFC_TEMP.equals(pName) && (temp != null)) {
-            a = new Amount(temp, TEMPERATURE_UNIT);
-        } else if (SFC_DWPT.equals(pName) && (dwpt != null)) {
-            a = new Amount(dwpt, TEMPERATURE_UNIT);
-        } else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
-            a = new Amount(windSpeed, WIND_SPEED_UNIT);
-        } else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
-            a = new Amount(windDirection, WIND_DIR_UNIT);
-        } else if (SFC_WNDGST.equals(pName) && (windGust != null)) {
-            a = new Amount(windGust, WIND_SPEED_UNIT);
-        } else if (PRES_STATION.equals(pName) && (pressureStation != null)) {
-            a = new Amount(pressureStation, PRESSURE_UNIT);
-        } else if (PRES_SLP.equals(pName) && (pressureSealevel != null)) {
-            a = new Amount(pressureSealevel, PRESSURE_UNIT);
-        } else if (PRES_ALTSG.equals(pName) && (pressureAltimeter != null)) {
-            a = new Amount(pressureAltimeter, PRESSURE_UNIT);
-        } else if (STA_LAT.equals(pName)) {
-            a = new Amount(this.getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(this.getLongitude(), LOCATION_UNIT);
-        } else if ("WT".equals(pName) && (this.seaTemp != null)) {
-            a = new Amount(this.seaTemp, TEMPERATURE_UNIT);
-        } else if ("TCC".equals(pName) && (this.totalCloudCover != null)) {
-            a = new Amount(this.totalCloudCover, CLOUD_COVER);
-        } else if ("COVpct".equals(pName) && (this.totalCloudCover != null)) {
-            a = new Amount(this.totalCloudCover * 10, CLOUD_COVER);
-        } else if ("WP".equals(pName)) {
-            a = new Amount(wavePeriod, WAVE_UNIT);
-        } else if ("WH".equals(pName)) {
-            a = new Amount(waveHeight, WAVE_UNIT);
-        } else if ("SWP".equals(pName)) {
-            a = new Amount(primarySwellWavePeriod, WAVE_UNIT);
-        } else if ("SWH".equals(pName)) {
-            a = new Amount(primarySwellWaveHeight, WAVE_UNIT);
-        } else if ("PCHNG".equals(pName) && (pressChange3Hr != MISSING)) {
-            a = new Amount(pressChange3Hr, PRESSURE_UNIT);
-        } else if ("VIS".equals(pName) && (this.horzVisibility != null)) {
-            a = new Amount(this.horzVisibility / 1000, VISIBILITY_UNIT);
-        } else if ("PKWND".equals(paramName) && (peakWindSpeed != MISSING)) {
-            a = new Amount(peakWindSpeed, WIND_SPEED_UNIT);
-        } else if ("SWS".equals(paramName) || "SWGS".equals(paramName)) {
-            a = new Amount(1, WIND_SPEED_UNIT);
-        } else if ("SWD".equals(paramName) && (primarySwellWaveDir != MISSING)) {
-            a = new Amount(primarySwellWaveDir, WIND_DIR_UNIT);
-        }
-
-        return a;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
     }
 
     @Override
