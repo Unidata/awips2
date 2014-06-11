@@ -37,6 +37,7 @@ import javax.crypto.IllegalBlockSizeException;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
+import com.raytheon.edex.plugin.binlightning.filter.LightningGeoFilter;
 import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
 import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
@@ -86,6 +87,7 @@ import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
  *                                      added decodeBinLightningData() and decodeBitShiftedBinLightningData() from BinLightningDecoderUtil
  * Jun 05, 2014 3226       bclement    LightningStikePoint refactor, added extractPData()
  * Jun 09, 2014 3226       bclement    moved data array decrypt prep to EncryptedBinLightingCipher
+ * Jun 10, 2014 3226       bclement    added filter support
  * 
  * </pre>
  * 
@@ -190,7 +192,7 @@ public class BinLightningDecoder extends AbstractDecoder {
                 // post processing data - if not keep-alive record
                 BinLightningRecord report = null;
                 if (strikes.size() > 0) {
-                    report = new BinLightningRecord(strikes);
+                    report = LightningGeoFilter.createFilteredRecord(strikes);
                 } else {
                     return new PluginDataObject[0];
                 }
