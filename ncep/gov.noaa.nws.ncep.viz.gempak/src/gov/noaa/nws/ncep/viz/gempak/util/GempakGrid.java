@@ -1,10 +1,5 @@
 package gov.noaa.nws.ncep.viz.gempak.util;
 
-import java.util.ArrayList;
-
-import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
-import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
-import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
 import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag;
 
 import javax.measure.converter.UnitConverter;
@@ -18,7 +13,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.viz.core.comm.Connector;
+import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
+import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
@@ -269,8 +266,7 @@ public class GempakGrid {
 			CharSequence spacingUnit = "km";
 			double dx = 12.191;
 			double dy = 12.191;
-			crs = MapUtil.constructLambertConformal(majorAxis, minorAxis, latin1,
-	                latin2, lov);
+			crs = MapUtil.constructLambertConformal(majorAxis, minorAxis, latin1, latin2, lov, latin1);
 	        crsWKT = crs.toWKT();
 	        try {
 	            Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
