@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -46,6 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869      bsteffen    Remove dataURI column from
  *                                    PluginDataObject.
  * Aug 30, 2013 2298      rjpeter     Make getPluginName abstract
+ * Jun 11, 2014 2061      bsteffen    Remove IDecoderGettable
+ * 
  * </pre>
  * 
  * @author F. J. Yen, SIB
@@ -417,12 +418,6 @@ public class StormTrackRecord extends PluginDataObject {
      */
     public StormTrackRecord(String uri) {
         super(uri);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public String getReportType() {
