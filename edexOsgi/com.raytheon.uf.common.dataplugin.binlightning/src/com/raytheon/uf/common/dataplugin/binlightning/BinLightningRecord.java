@@ -21,6 +21,7 @@ package com.raytheon.uf.common.dataplugin.binlightning;
 
 import java.io.FileNotFoundException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -88,6 +89,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *  May 14, 2014 2536       bclement    removed TimeTools usage
  *  Jun 05, 2014 3226       bclement    moved data arrays into map for easier management
  *                                      replaced addStrike() with List constructor, added pulses
+ *  Jun 10, 2014 3226       bclement    collections instead of lists, made data source logic public
  * 
  * </pre>
  * 
@@ -162,7 +164,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * 
      * @param strikes
      */
-    public BinLightningRecord(final List<LightningStrikePoint> strikes) {
+    public BinLightningRecord(final Collection<LightningStrikePoint> strikes) {
         final int arraysSize = strikes.size();
         long[] obsTimes = new long[arraysSize];
         float[] latitudes = new float[arraysSize];
@@ -191,8 +193,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
                 sensorCounts);
 
         if (arraysSize > 0) {
-            LightningStrikePoint sample = strikes.get(0);
-            setDataSource(sample);
+            LightningStrikePoint sample = strikes.iterator().next();
+            this.source = getDataSource(sample);
         }
 
         long startTimeMillis = Long.MAX_VALUE;
@@ -248,7 +250,7 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * @param pulseDataCount
      *            total number of pulses for all strikes
      */
-    private void setPulseData(final List<LightningStrikePoint> strikes,
+    private void setPulseData(final Collection<LightningStrikePoint> strikes,
             final int pulseDataCount) {
         long[] pulseTimes = new long[pulseDataCount];
         float[] pulseLats = new float[pulseDataCount];
@@ -292,22 +294,15 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
      * Extract data source from strike
      * 
      * @param strike
+     * @return
      */
-    private void setDataSource(LightningStrikePoint strike) {
-        if (source == null) {
-            if (strike.getLightSource() == null) {
-                source = "NLDN";
-            } else if (strike.getLightSource().isEmpty()) {
-                source = "UNKN";
-            } else {
-                source = strike.getLightSource();
-            }
+    public static String getDataSource(LightningStrikePoint strike) {
+        if (strike.getLightSource() == null) {
+            return "NLDN";
+        } else if (strike.getLightSource().isEmpty()) {
+            return "UNKN";
         } else {
-            if (strike.getLightSource() == null) {
-                source = "NLDN";
-            } else if (!source.equals(strike.getLightSource())) {
-                source = "UNKN";
-            }
+            return strike.getLightSource();
         }
     }
 
