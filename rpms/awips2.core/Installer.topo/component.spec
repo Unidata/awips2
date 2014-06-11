@@ -78,18 +78,18 @@ fi
 
 TOPO_TO_COPY=\
 (\
-   'gtopo30.h5'\
-   'srtm30.h5'\
-   'srtm30_plus.h5'\
-   'defaultTopo.h5' \
    'akTopo.dat.gz' \
    'caribTopo.dat.gz' \
    'modelStaticTopo.h5' \
    'pacTopo.dat.gz' \
+   'srtm30.h5'\
    'staticTopo.h5' \
    'usTopo.dat.gz' \
    'worldTopo.dat.gz' \
 )
+#   'gtopo30.h5'\
+#   'defaultTopo.h5' \
+#   'srtm30_plus.h5'\
 # !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
 
 for topoFile in ${TOPO_TO_COPY[*]};

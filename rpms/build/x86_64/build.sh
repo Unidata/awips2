@@ -254,8 +254,28 @@ if [ "${1}" = "-delta" ]; then
 fi
 
 if [ "${1}" = "-full" ]; then
-# m.james - commenting out as complete
-#   buildRPM "awips2-common-base"
+# ALL FROM HERE CONFIRMED to build at Unidata on 64bit fc12 after mucking with /usr/lib64 sym links
+# and installing a few packages and editing some spec files...
+#
+# WHAT DOESN'T GET BUILT?
+# 	awips2-java		( can be built if just download 1.7 jdk tgz.  1.6 from 14.1.1 works fine for 14.2.1)
+# 	awips2-edex-native	( can't find it anywhere in 14.2.1 edex build.  )
+# 	awips2-cave-etc		( also can't find it.  in 14.1.1 was putting files in /awips2/cave/etc/ )
+# 	netcdf			( not sure where
+#	netcdf-devel			or exactly how
+# 	netcdf-AWIPS				these are built )
+#
+# WHAT IS BEING BUILT for 14.2.1
+#
+   buildRPM "awips2-postgres"
+   buildRPM "awips2-python"
+   buildRPM "awips2-aviation-shared"
+   buildRPM "awips2-pypies"
+   buildRPM "awips2-hydroapps-shared"
+   buildRPM "awips2-adapt-native"
+   buildRPM "awips2-database-standalone-configuration"
+   buildRPM "awips2-tools"
+   buildRPM "awips2-common-base"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
@@ -265,11 +285,12 @@ if [ "${1}" = "-full" ]; then
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "awips2-python"
+   buildQPID
+   buildRPM "awips2-python-jimporter"
+   buildRPM "awips2-python-ufpy"
    buildRPM "awips2-python-cherrypy"
    buildRPM "awips2-python-dynamicserialize"
    buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-jimporter"
    buildRPM "awips2-python-matplotlib"
    buildRPM "awips2-python-nose"
    buildRPM "awips2-python-numpy"
@@ -282,7 +303,6 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-thrift"
    buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-ufpy"
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-pygtk"
    buildRPM "awips2-python-pycairo"
@@ -291,6 +311,11 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
+#
+# awips2-data.hdf5 and awips2-data.gfe require shapefiles in a 
+# directory 'awipscm' which is not provided in the source or ADE, 
+# but what extracted from the built RPMs used in 14.1.1
+#
    buildRPM "awips2-data.hdf5-topo"
    buildRPM "awips2-data.gfe"
    buildRPM "awips2"
@@ -299,7 +324,10 @@ if [ "${1}" = "-full" ]; then
       exit 1
    fi
    buildRPM "awips2-httpd-pypies"
-   buildJava
+#
+# Not building java
+#
+#   buildJava
    buildRPM "awips2-groovy"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
@@ -307,11 +335,13 @@ if [ "${1}" = "-full" ]; then
    fi
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-notification"
-   buildRPM "awips2-python-shapely"
-   buildRPM "awips2-postgres"
    buildRPM "awips2-database"
    buildRPM "awips2-maps-database"
    buildRPM "awips2-ncep-database"
+   buildRPM "awips2-python-shapely"
+#
+# pgadmin3 requires jasperlib from /awips2/python/lib
+#
    buildRPM "awips2-pgadmin3"
    buildRPM "awips2-ldm"
    exit 0
@@ -402,27 +432,15 @@ fi
 if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
-   #buildRPM "awips2-python-numpy"
-   #buildRPM "awips2-ant"
    buildRPM "awips2-python-dynamicserialize"
-   #buildRPM "awips2-python"
-   #buildRPM "awips2-adapt-native"
-   #unpackHttpdPypies
-   #if [ $? -ne 0 ]; then
-   #   exit 1
-   #fi
-   #buildRPM "awips2-httpd-pypies"
-   #buildRPM "awips2-hydroapps-shared"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
-   #buildRPM "awips2-tools"
-   #buildRPM "awips2-cli"
+   buildRPM "awips2-cli"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi
    buildRPM "awips2-alertviz"
-
    exit 0
 fi
 
