@@ -5,7 +5,6 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.nctaf;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -20,7 +19,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -42,6 +40,7 @@ import com.raytheon.uf.common.time.DataTime;
  * 09/22/2011   458			sgurung	    Initial Creation
  * 09/29/2011               sgurung     Added reportType
  * 10/26/2011               sgurung     Added tafValidPeriod
+ * 06/11/2014   2061        bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -51,7 +50,7 @@ import com.raytheon.uf.common.time.DataTime;
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class NcTafBulletinRecord implements ISpatialEnabled, IDecoderGettable,
+public class NcTafBulletinRecord implements ISpatialEnabled,
 		IPointData {
 
 	private static final long serialVersionUID = 1L;
@@ -411,30 +410,6 @@ public class NcTafBulletinRecord implements ISpatialEnabled, IDecoderGettable,
 	@Override
 	public void setPointDataView(PointDataView pointDataView) {
 		this.pointDataView = pointDataView;
-	}
-
-	@Override
-	public Amount getValue(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getString(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String[] getStrings(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
