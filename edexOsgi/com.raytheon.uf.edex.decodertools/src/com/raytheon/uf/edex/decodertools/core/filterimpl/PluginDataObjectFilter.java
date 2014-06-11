@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
@@ -48,15 +47,16 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * TODO Add Description
+ * Filter {@link PluginDataObject}s based off configurable parameters.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 16, 2009            jkorman     Initial creation
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 16, 2009           jkorman     Initial creation
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -102,8 +102,9 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                             stream.read(data);
                             stream.close();
 
-                            AbstractObsFilter filter = (AbstractObsFilter) SerializationUtil
-                                    .unmarshalFromXml(new String(data));
+                            AbstractObsFilter filter = SerializationUtil
+                                    .unmarshalFromXml(AbstractObsFilter.class,
+                                            new String(data));
 
                             setFilterElements(filter.getFilterElements());
                             setFilterName(filter.getFilterName());
@@ -230,11 +231,6 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         private static final long serialVersionUID = 1L;
 
         SurfaceObsLocation location;
-
-        @Override
-        public IDecoderGettable getDecoderGettable() {
-            return null;
-        }
 
         @Override
         public ISpatialObject getSpatialObject() {
