@@ -33,7 +33,6 @@ import org.hibernate.annotations.Index;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -70,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 07, 2013 1869            bsteffen    Remove dataURI column from
  *                                          PluginDataObject.
  * Aug 06, 2013 2228            njensen     Use deserialize(byte[])
+ * Jun 11, 2014 2061            bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -518,16 +518,6 @@ public class MosaicRecord extends PersistablePluginDataObject implements
         this.elevation = elevation;
     }
 
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return The IDecoderGettable reference for this record. Null for this
-     *         class.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
 
     /**
      * @return the symbologyBlock
