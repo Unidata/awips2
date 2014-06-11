@@ -101,6 +101,7 @@ import com.vividsolutions.jts.geom.LineString;
  *  01-28-2014  DR16465 mgamazaychikov Fixed the problem with anchor point when frame 
  *                                     count changes; made line width configurable.
  *  04-07-2014  DR 17232   D. Friedman Make sure pivot indexes are valid.
+ *  06-03-14    3191       njensen     Fix postData to not retrieve
  * 
  * </pre>
  * 
@@ -722,6 +723,15 @@ public class StormTrackDisplay implements IRenderable {
                     || currentState.newDuration != -1 || update) {
                 if (currentState.timePoints != null
                         && currentState.timePoints.length != frameCount) {
+                    // need to set theAnchorPoint and theAnchorIndex here
+                    // because timePoints get erased before we get to updateAnchorPoint
+                    DataTime frameTime = paintProps.getDataTime();
+                    for (int j=0;j<currentState.timePoints.length;j++){
+                        if (frameTime.equals(currentState.timePoints[j].time)) {
+                            theAnchorPoint = currentState.timePoints[j].coord;
+                            theAnchorIndex = j;
+                        }
+                    }
                     currentState.timePoints = null;
                 }
 
@@ -1397,7 +1407,7 @@ public class StormTrackDisplay implements IRenderable {
     }
 
     private void postData(StormTrackState state) {
-        StormTrackData data = dataManager.getStormTrackData();
+        StormTrackData data = new StormTrackData();
         Coordinate[] coords = new Coordinate[state.timePoints.length];
         for (int i = 0; i < coords.length; ++i) {
             coords[i] = new Coordinate(state.timePoints[i].coord);
