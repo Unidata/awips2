@@ -41,6 +41,7 @@ import com.raytheon.uf.logsrv.config.LogSrvConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 30, 2013            njensen     Initial creation
+ * Jun 11, 2014 2840       njensen     Renamed create report job
  * 
  * </pre>
  * 
@@ -56,8 +57,8 @@ public class JobScheduler {
         Scheduler sched = factory.getScheduler();
         sched.start();
 
-        JobDetail job = new JobDetail("Create and Send Report Job",
-                CreateSendReportJob.class);
+        JobDetail job = new JobDetail("Create and Send/Save Report Job",
+                CreateReportJob.class);
         job.getJobDataMap().put("config", config);
         String[] split = config.getTimeToSend().split(":");
         int hour = Integer.parseInt(split[0]);
@@ -70,6 +71,8 @@ public class JobScheduler {
         Trigger countTrigger = TriggerUtils.makeHourlyTrigger();
         countTrigger.setName("Count Trigger");
         sched.scheduleJob(countJob, countTrigger);
+
+        // TODO contemplate a purge job for the outputDir
     }
 
 }
