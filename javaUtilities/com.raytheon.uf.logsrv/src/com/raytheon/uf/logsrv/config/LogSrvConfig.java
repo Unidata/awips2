@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.Validate;
 
+import com.raytheon.uf.logsrv.LogService;
+
 /**
  * A configuration for the logging service.
  * 
@@ -36,6 +38,7 @@ import org.apache.commons.lang.Validate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 29, 2013            njensen     Initial creation
+ * Jun 11, 2014 2840       njensen     Added outputDir
  * 
  * </pre>
  * 
@@ -47,10 +50,10 @@ import org.apache.commons.lang.Validate;
 @XmlAccessorType(XmlAccessType.NONE)
 public class LogSrvConfig {
 
-    @XmlElement()
+    @XmlElement(required = true)
     private String clusterName;
 
-    @XmlElement
+    @XmlElement(required = true)
     private String databaseDir;
 
     @XmlElement
@@ -65,8 +68,10 @@ public class LogSrvConfig {
     @XmlElement
     private String toAddress;
 
-    @XmlElement
+    @XmlElement(required = true)
     private String timeToSend;
+
+    private String outputDir;
 
     public String getFromAddress() {
         return fromAddress;
@@ -124,19 +129,27 @@ public class LogSrvConfig {
         this.databaseDir = databaseDir;
     }
 
+    public String getOutputDir() {
+        return outputDir;
+    }
+
+    public void setOutputDir(String outputDir) {
+        this.outputDir = outputDir;
+    }
+
     /**
      * Validates that the config has every value set.
      */
     public void validate() {
         Validate.notEmpty(clusterName, "Config must include a clusterName");
         Validate.notEmpty(databaseDir, "Config must include a databaseDir");
-        Validate.notEmpty(fromAddress, "Config must include a fromAddress");
-        Validate.notEmpty(smtpHost, "Config must include an smtpHost");
         Validate.notEmpty(timeToSend, "Config must include a timeToSend");
-        Validate.notEmpty(toAddress, "Config must include a toAddress");
-        if (smtpPort <= 0) {
-            throw new IllegalArgumentException(
-                    "Config must include an smtpPort");
+        if ((outputDir == null)
+                && (fromAddress == null || toAddress == null
+                        || smtpHost == null || smtpPort == 0)) {
+            LogService
+                    .getLogger()
+                    .warn("Config appears misconfigured and will not save or email the report!");
         }
     }
 
