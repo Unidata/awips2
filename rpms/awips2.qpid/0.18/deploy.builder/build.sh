@@ -18,10 +18,10 @@ cd ../SPECS
 if [ $? -ne 0 ]; then
    exit 1
 fi
-patch -p1 -i ${__SPECS_PATCH0}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
+#patch -p1 -i ${__SPECS_PATCH0}
+#if [ $? -ne 0 ]; then
+#   exit 1
+#fi
 
 pushd . > /dev/null
 cd ../
@@ -49,7 +49,7 @@ if [ -d ${TOPDIR}/SRPMS ]; then
    fi
 fi
 mkdir ${TOPDIR}/SRPMS
-
+echo $LD_LIBRARY_PATH
 # build the rpm
 rpmbuild -ba \
    --define "_topdir ${TOPDIR}" \
