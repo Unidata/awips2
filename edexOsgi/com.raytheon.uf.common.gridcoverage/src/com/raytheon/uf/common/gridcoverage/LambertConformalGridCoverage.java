@@ -52,11 +52,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
- * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 07, 2009  1994     bphillip    Initial Creation
+ * Sep 10, 2012  15270    D. Friedman Fix subgrid model name handling.
+ * Jan 17, 2014  2125     rjpeter     Removed invalid @Table annotation.
+ * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -121,7 +123,7 @@ public class LambertConformalGridCoverage extends GridCoverage {
     @Override
     public void initialize() throws GridCoverageException {
         crs = MapUtil.constructLambertConformal(majorAxis, minorAxis, latin1,
-                latin2, lov);
+                latin2, lov, latin1);
         crsWKT = crs.toWKT();
         generateGeometry();
     }
