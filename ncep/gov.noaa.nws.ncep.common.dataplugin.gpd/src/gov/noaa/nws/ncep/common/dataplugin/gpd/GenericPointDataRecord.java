@@ -13,6 +13,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 05/30/2013				Chin J. Chen	Initial coding
+ * Jun 11, 2014 2061        bsteffen    Remove IDecoderGettable
  *
  * </pre>
  * 
@@ -24,7 +25,6 @@ package gov.noaa.nws.ncep.common.dataplugin.gpd;
 import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataProductInfo;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -41,7 +41,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -62,7 +61,7 @@ import com.raytheon.uf.common.time.DataTime;
 @XmlRootElement
 public class GenericPointDataRecord extends PersistablePluginDataObject
         implements
-        /* ISpatialEnabled, */IDecoderGettable, IPointData, IPersistable {
+        /* ISpatialEnabled, */IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -203,12 +202,6 @@ public class GenericPointDataRecord extends PersistablePluginDataObject
     }
 
     @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public PointDataView getPointDataView() {
         return this.pointDataView;
     }
@@ -216,30 +209,6 @@ public class GenericPointDataRecord extends PersistablePluginDataObject
     @Override
     public void setPointDataView(PointDataView pointDataView) {
         this.pointDataView = pointDataView;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /*
