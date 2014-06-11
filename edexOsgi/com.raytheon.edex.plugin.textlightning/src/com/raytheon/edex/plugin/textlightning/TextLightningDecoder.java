@@ -44,6 +44,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Feb 12, 2014 2655       njensen     Set source
  * Jun 05, 2014 3226       bclement    LightningStikePoint refactor
+ * Jun 10, 2014 3226       bclement    fixed source
  * 
  * </pre>
  * 
@@ -55,6 +56,12 @@ public class TextLightningDecoder extends AbstractDecoder implements
         IBinaryDecoder {
 
     private String traceId = null;
+
+    /*
+     * inferred from Wufeng Zhou comment in BinLightningDecoderUtil, stands for
+     * World Wide Lightning Location Network
+     */
+    private static final String SOURCE = "WWLLN";
 
     /**
      * Construct a TextLightning decoder. Calling hasNext() after construction
@@ -96,9 +103,7 @@ public class TextLightningDecoder extends AbstractDecoder implements
 
         report.setTraceId(traceId);
 
-        // TODO anyone have any idea what the source should actually be
-        // named?
-        report.setSource("text");
+        report.setSource(SOURCE);
 
         return new PluginDataObject[] { report };
     }
