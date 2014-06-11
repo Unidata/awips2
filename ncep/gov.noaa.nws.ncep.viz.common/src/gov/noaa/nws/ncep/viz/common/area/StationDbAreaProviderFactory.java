@@ -9,13 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -25,20 +21,22 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
 /**
- *  generate a PredefinedArea (IGridGeometryProvider) from a station in common_obs_spatial.
- *  
- *  TODO : allow user to set/override the projection and/or the extents.
- *  
+ * generate a PredefinedArea (IGridGeometryProvider) from a station in
+ * common_obs_spatial.
+ * 
+ * TODO : allow user to set/override the projection and/or the extents.
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 05/20/14       #862      Greg Hull    Created.
+ * 06/06/14       #3243     bsteffen     Remove deprecated lambert conformal call.
  * 
  * </pre>
  * 
- * @author 
+ * @author
  * @version 1
  */
 public class StationDbAreaProviderFactory implements INcAreaProviderFactory {
@@ -274,7 +272,7 @@ public class StationDbAreaProviderFactory implements INcAreaProviderFactory {
     	else if( proj.equals( "Lambert_Conformal_Conic_1SP" ) ) {
     		return MapUtil.constructLambertConformal( 
     				MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS, 
-    				loc.y, loc.y, loc.x );
+                    loc.y, loc.y, loc.x, loc.y);
     	}
     	else {
     		return null;
