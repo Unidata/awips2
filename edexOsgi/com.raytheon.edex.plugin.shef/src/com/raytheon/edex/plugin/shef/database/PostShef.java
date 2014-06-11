@@ -121,6 +121,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  *                                     Updated with more performance fixes.
  * 05/28/2014   3222       mpduff      Fix posting time to be processed time so db doesn't show all post times the same
+ * 06/02/2014              mpduff      Fix for caching of range checks.
  * 
  * </pre>
  * 
@@ -293,6 +294,39 @@ public class PostShef {
 
     /** Forecast query results */
     private Object[] queryForecastResults;
+
+    /** Location range data found flag */
+    private boolean locRangeFound = false;
+
+    /** Default range data found flag */
+    private boolean defRangeFound = false;
+
+    /** Valid date range flag */
+    private boolean validDateRange = false;
+
+    /** Gross range minimum value */
+    private double grossRangeMin = ShefConstants.SHEF_MISSING_INT;
+
+    /** Gross range maximum value */
+    private double grossRangeMax = ShefConstants.SHEF_MISSING_INT;
+
+    /** Reasonable range minimum value */
+    private double reasonRangeMin = ShefConstants.SHEF_MISSING_INT;
+
+    /** Reasonable range maximum value */
+    private double reasonRangeMax = ShefConstants.SHEF_MISSING_INT;
+
+    /** Alert upper limit value */
+    private double alertUpperLimit = ShefConstants.SHEF_MISSING_INT;
+
+    /** Alarm upper limit value */
+    private double alarmUpperLimit = ShefConstants.SHEF_MISSING_INT;
+
+    /** Alert lower limit value */
+    private double alertLowerLimit = ShefConstants.SHEF_MISSING_INT;
+
+    /** Alarm lower limit value */
+    private double alarmLowerLimit = ShefConstants.SHEF_MISSING_INT;
 
     /**
      * 
@@ -1076,6 +1110,18 @@ public class PostShef {
         useTs = null;
         basisTimeValues = null;
         previousQueryForecast = null;
+        locRangeFound = false;
+        defRangeFound = false;
+        validDateRange = false;
+        grossRangeMin = ShefConstants.SHEF_MISSING_INT;
+        grossRangeMax = ShefConstants.SHEF_MISSING_INT;
+        reasonRangeMin = ShefConstants.SHEF_MISSING_INT;
+        reasonRangeMax = ShefConstants.SHEF_MISSING_INT;
+        alertUpperLimit = ShefConstants.SHEF_MISSING_INT;
+        alarmUpperLimit = ShefConstants.SHEF_MISSING_INT;
+        alertLowerLimit = ShefConstants.SHEF_MISSING_INT;
+        alarmLowerLimit = ShefConstants.SHEF_MISSING_INT;
+
     }
 
     /**
@@ -2580,14 +2626,6 @@ public class PostShef {
         long qualityCode = ShefConstants.DEFAULT_QC_VALUE;
         String monthdaystart = null;
         String monthdayend = null;
-        double grossRangeMin = missing;
-        double grossRangeMax = missing;
-        double reasonRangeMin = missing;
-        double reasonRangeMax = missing;
-        double alertUpperLimit = missing;
-        double alarmUpperLimit = missing;
-        double alertLowerLimit = missing;
-        double alarmLowerLimit = missing;
 
         alertAlarm = ShefConstants.NO_ALERTALARM;
 
@@ -2605,10 +2643,6 @@ public class PostShef {
                     + "'", e);
             return ShefConstants.QC_MANUAL_FAILED;
         }
-
-        boolean locRangeFound = false;
-        boolean defRangeFound = false;
-        boolean validDateRange = false;
 
         boolean executeQuery = true;
         if (!qualityCheckFlag) {
