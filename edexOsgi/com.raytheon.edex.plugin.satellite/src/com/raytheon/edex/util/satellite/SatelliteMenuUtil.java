@@ -46,12 +46,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 18, 2011            mnash     Initial creation
- * Sep 10, 2012 15337      kshresth  Changed sector on OCONUS:Products under 
- * 									 Derived Products Imagery Display
- * Nov 01, 2012 15346      kshresth  Added Satellite Products for OCONUS
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 18, 2011           mnash       Initial creation
+ * Sep 10, 2012  15337    kshresth    Changed sector on OCONUS:Products under 
+ * 									  Derived Products Imagery Display
+ * Nov 01, 2012  15346    kshresth    Added Satellite Products for OCONUS
+ * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
+ * 
  * 
  * </pre>
  * 
@@ -65,7 +67,7 @@ public class SatelliteMenuUtil extends AbstractMenuUtil {
 
     private static final CoordinateReferenceSystem conusCRS = MapUtil
             .constructLambertConformal(MapUtil.AWIPS_EARTH_RADIUS,
-                    MapUtil.AWIPS_EARTH_RADIUS, 25, 25, -95);
+                    MapUtil.AWIPS_EARTH_RADIUS, 25, 25, -95, 25);
 
     // The western edge of the west conus satellite image in conusCRS
     private static final double westConusWestEdge = -4226066.525608903;
