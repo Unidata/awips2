@@ -23,36 +23,35 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * TODO Add Description
+ * Filter {@link PluginDataObject}s based off their distance from a specific
+ * point.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 23, 2009            jkorman     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 23, 2009           jkorman     Initial creation
+ * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RadiusFilterElement extends AbstractFilterElement implements ISerializableObject {
+public class RadiusFilterElement extends AbstractFilterElement {
 
     private static final String FMT = "RadiusFilterElement:%s[%8.4f,%9.4f,%5.1f]";
     
@@ -170,6 +169,7 @@ public class RadiusFilterElement extends AbstractFilterElement implements ISeria
         return pointLon;
     }
 
+    @Override
     public String toString() {
         return String.format(FMT,getFilterElementName(),pointLat,pointLon,radius); 
     }
