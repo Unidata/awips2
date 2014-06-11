@@ -9,7 +9,6 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarCodedMessage.xml"
 		menuText="10km Radar Coded Msg" id="10kmRadarCodedMsg">
-		<dataURI>/grib/%/301</dataURI>
 	</contribute>
 	<contribute xsi:type="subinclude" fileName="menus/radar/airportRadars.xml" />
 	<contribute xsi:type="titleItem" titleText="------ Mosaic ------"
