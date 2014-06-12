@@ -20,4 +20,5 @@
     -->
 <requestPatterns xmlns:ns2="group">
     <regex>^IS[IMN]</regex>
+    <regex>^IOB</regex>
 </requestPatterns>
