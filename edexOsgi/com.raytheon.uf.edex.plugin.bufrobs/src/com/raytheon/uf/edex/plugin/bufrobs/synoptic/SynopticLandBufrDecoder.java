@@ -23,16 +23,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-
 import com.raytheon.edex.plugin.sfcobs.SfcObsPointDataTransform;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
-import com.raytheon.uf.common.nc.bufr.BufrDataItem;
 import com.raytheon.uf.common.nc.bufr.BufrParser;
 import com.raytheon.uf.common.nc.bufr.util.BufrMapper;
-import com.raytheon.uf.common.nc.bufr.util.TranslationTableGenerator;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
@@ -56,6 +51,9 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2014 2906       bclement     Initial creation
+ * Jun 12, 2014 3229       bclement     moved location fields to parent class
+ *                                      moved processGeneralFields() and processPrecip() to parent class
+ *                                      override parent createStationId(), removed getTranslationFile() override
  * 
  * </pre>
  * 
@@ -64,12 +62,6 @@ import com.vividsolutions.jts.geom.Point;
  */
 public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
 
-    public static final Set<String> LOCATION_FIELDS = new HashSet<String>(
-            Arrays.asList(SfcObsPointDataTransform.LATITUDE,
-                    SfcObsPointDataTransform.LONGITUDE,
-                    SfcObsPointDataTransform.STATION_ID,
-                    SfcObsPointDataTransform.ELEVATION));
-    
     public static final Set<String> SUB_STRUCT_FIELDS = new HashSet<String>(
             Arrays.asList(SfcObsPointDataTransform.WIND_GUST));
 
@@ -83,7 +75,7 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
 
     public static final String PRECIP_FIELD = "precip";
 
-    public static final String TIME_PERIOD_FIELD = "Time period or displacement";
+    public static final String PRECIP_TIME_PERIOD_FIELD = "Time period or displacement";
 
     private final ObStationDao stationDao = new ObStationDao();
 
@@ -120,7 +112,7 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
         for (String baseName : baseNames) {
             if (level == 1) {
                 /* process top level fields */
-                if (LOCATION_FIELDS.contains(baseName)) {
+                if (DEFAULT_LOCATION_FIELDS.contains(baseName)) {
                     processLocationField(record.getLocation(), parser, baseName);
                 } else {
                     processGeneralFields(record, parser, baseName);
@@ -128,7 +120,7 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
             } else if (level > 1) {
                 /* process substructure fields */
                 if (PRECIP_FIELD.equalsIgnoreCase(baseName)) {
-                    processPrecip(record, parser);
+                    processPrecip(record, parser, PRECIP_TIME_PERIOD_FIELD);
                 } else if (SUB_STRUCT_FIELDS.contains(baseName)) {
                     processGeneralFields(record, parser, baseName);
                 }
@@ -136,82 +128,31 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
         }
     }
 
-    /**
-     * Determines if field is table lookup or direct and handles accordingly
+    /*
+     * (non-Javadoc)
      * 
-     * @param record
-     * @param parser
-     * @param baseName
-     * @throws BufrObsDecodeException
+     * @see
+     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder#createStationId
+     * (com.raytheon.uf.common.nc.bufr.BufrParser)
      */
-    protected void processGeneralFields(ObsCommon record, BufrParser parser,
-            String baseName) throws BufrObsDecodeException {
-        String unitStr = parser.getFieldUnits();
-        if (unitStr != null && isTableLookup(unitStr)) {
-            processLookupTableField(record, parser, baseName);
-        } else {
-            processDirectField(record, parser, baseName);
-        }
-    }
-
-    /**
-     * Precip doesn't have individual fields for different hour periods. One
-     * structure contains the general precip field with a time period. This
-     * method parses the time period to determine what field the precip data is
-     * for.
-     * 
-     * @param record
-     * @param parser
-     * @throws BufrObsDecodeException
-     */
-    protected void processPrecip(ObsCommon record, BufrParser parser)
+    @Override
+    protected String createStationId(BufrParser parser)
             throws BufrObsDecodeException {
-        Number precip = getInUnits(parser, SI.MILLIMETER);
-        if (precip == null) {
-            /* missing value */
-            return;
+        /* WMO indexes have two parts, block and id */
+        Number id = (Number) getFieldValue(parser, false);
+        if (id == null) {
+            log.debug("BUFR file " + parser.getFile()
+                    + " missing station id field: " + parser.getFieldName());
+            return null;
         }
-        BufrDataItem timeData = parser.scanForStructField(TIME_PERIOD_FIELD,
-                false);
-        if (timeData == null || timeData.getValue() == null) {
-            log.error("Found precipitation field missing time data. Field: "
-                    + parser.getFieldName() + ", Table: "
-                    + parser.getFieldUnits());
-            return;
+        Number block = getWMOBlock(parser);
+        if (block == null) {
+            log.debug("BUFR file " + parser.getFile()
+                    + " missing station id field: " + WMO_BLOCK_FIELD);
+            return null;
         }
-        Number period = getInUnits(timeData.getVariable(), timeData.getValue(),
-                NonSI.HOUR);
-        PointDataView pdv = record.getPointDataView();
-        switch (Math.abs(period.intValue())) {
-        case 1:
-            pdv.setFloat(SfcObsPointDataTransform.PRECIP1_HOUR,
-                    precip.intValue());
-            break;
-        case 3:
-            /* text synop obs doesn't have 3HR precip */
-            log.debug("Received precip period not supported by point data view: "
-                    + Math.abs(period.intValue()) + " HOUR");
-            break;
-        case 6:
-            pdv.setFloat(SfcObsPointDataTransform.PRECIP6_HOUR,
-                    precip.intValue());
-            break;
-        case 12:
-            pdv.setFloat(SfcObsPointDataTransform.PRECIP12_HOUR,
-                    precip.intValue());
-            break;
-        case 18:
-            pdv.setFloat(SfcObsPointDataTransform.PRECIP18_HOUR,
-                    precip.intValue());
-            break;
-        case 24:
-            pdv.setFloat(SfcObsPointDataTransform.PRECIP24_HOUR,
-                    precip.intValue());
-            break;
-        default:
-            log.error("Unknown precipitation period '" + period.intValue()
-                    + "' in BUFR file " + parser.getFile());
-        }
+
+        return String.format(WMO_INDEX_FORMAT, block, id);
     }
 
     /*
@@ -237,8 +178,7 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
      * @param parser
      * @param record
      */
-    protected void finalizePresentWeather(BufrParser parser,
-            ObsCommon record) {
+    protected void finalizePresentWeather(BufrParser parser, ObsCommon record) {
         /* this code comes from the abstract synoptic text decoder */
         // Fixup the present weather string
         PointDataView pdv = record.getPointDataView();
@@ -308,19 +248,6 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
     @Override
     protected String getAliasMapFile() {
         return ALIAS_FILE_NAME;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrObsDecoder#getTranslationFile
-     * (java.lang.String)
-     */
-    @Override
-    protected String getTranslationFile(String tableId) {
-        tableId = TranslationTableGenerator.replaceWhiteSpace(tableId, "_");
-        return SYNOPTIC_LAND_NAMESPACE + "-" + tableId + ".xml";
     }
 
     /*
