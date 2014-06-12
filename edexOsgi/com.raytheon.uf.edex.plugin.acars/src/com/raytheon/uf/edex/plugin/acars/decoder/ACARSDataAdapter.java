@@ -24,6 +24,7 @@ import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.Sub
 import static com.raytheon.uf.edex.plugin.acars.common.ACARSConstants.NO_ICING;
 import static com.raytheon.uf.edex.plugin.acars.common.ACARSConstants.RESERVE_13;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -49,13 +50,14 @@ import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 22, 2009 1939       jkorman     Initial creation
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- * Sep 18, 2013 2339       njensen     Index safety check in getTailNumber()
- * Mar 27, 2014 2811       skorolev    Added check for empty message.
- * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 22, 2009  1939     jkorman     Initial creation
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Sep 18, 2013  2339     njensen     Index safety check in getTailNumber()
+ * Mar 27, 2014  2811     skorolev    Added check for empty message.
+ * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
+ * Jun 12, 2014  2061     bsteffen    Generate unique stationid
  * 
  * </pre>
  * 
@@ -81,6 +83,9 @@ public class ACARSDataAdapter {
     // Map detailed flight phase [0-08-009] to flight phase [0-08-004]
     private static final int[] DETAIL_PHASE_MAP = { 3, 4, 2, 3, 4, 5, 6, 5, 5,
             5, 5, 6, 6, 6, 6, 7, };
+
+    private static final DecimalFormat STATION_ID_FORMAT = new DecimalFormat(
+            "###.###");
 
     private String traceId = null;
 
@@ -495,6 +500,7 @@ public class ACARSDataAdapter {
             if (hgt != null) {
                 loc.setFlightLevel(hgt.intValue());
             }
+            generateStationId(loc);
         }
         return loc;
     }
@@ -534,8 +540,17 @@ public class ACARSDataAdapter {
             loc.setLatitude(lat);
             loc.setLongitude(lon);
             loc.setLocation(lat, lon);
+            generateStationId(loc);
         }
         return loc;
+    }
+
+    private static void generateStationId(AircraftObsLocation loc) {
+        synchronized (STATION_ID_FORMAT) {
+            loc.setStationId(STATION_ID_FORMAT.format(loc.getLongitude()) + ":"
+                    + STATION_ID_FORMAT.format(loc.getLatitude()));
+
+        }
     }
 
     /**
