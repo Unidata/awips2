@@ -229,7 +229,7 @@
             	classname="com.oopsconsultancy.xmltask.ant.XmlTask">
 			<classpath>
 				<pathelement path="${builder}/../lib/ant/xmltask-v1.15.1.jar"/>
-				<pathelement path="${builder}/../lib/ant/xalan-2.7.1.jar"/>
+				<pathelement path="${builder}/../lib/ant/xalan-2.7.2.jar"/>
 			</classpath>
 		</taskdef>
         	
