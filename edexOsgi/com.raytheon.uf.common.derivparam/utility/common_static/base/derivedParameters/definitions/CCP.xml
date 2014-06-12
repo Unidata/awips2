@@ -31,7 +31,7 @@
     <Method name="Alias" levels="MidLyr">
         <Field abbreviation="MCDC" level="MidLyr"/>
     </Method>
-    <Method name="Alias"levels="LowLyr">
+    <Method name="Alias" levels="LowLyr">
         <Field abbreviation="LCDC" level="LowLyr"/>
     </Method>
     <Method models="HPCGuide" displayName="Total Cloud Cover" name="Multiply">
