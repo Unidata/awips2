@@ -65,6 +65,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2014   2632     mpduff      Initial creation
  * Mar 27, 2014   2632     mpduff      Corrected the OK, Apply, Cancel actions
+ * Jun 12, 2014   3269     mpduff      Corrected button state.
  * 
  * </pre>
  * 
@@ -135,6 +136,7 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 editNotifierTask();
+                setButtonState();
             }
         });
 
@@ -176,6 +178,7 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
             taskList.clear();
             taskList.addAll(dataMap.values());
         }
+        dataMap.clear();
         for (NotifierTask task : taskList) {
             dataMap.put(task.getUserName(), task);
         }
@@ -204,11 +207,12 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
                 @Override
                 public void dialogClosed(Object returnValue) {
                     updatePrefs((Map<String, NotifierTask>) returnValue);
+                    setButtonState();
                 }
             };
 
             AddNotifierDlg dlg = new AddNotifierDlg(getShell(),
-                    new String[] { task.getUserName() }, callback);
+                    new String[] { task.getUserName() }, true, dataMap, callback);
             dlg.open();
         }
     }
@@ -247,7 +251,7 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
                     setButtonState();
                 }
             };
-            AddNotifierDlg dlg = new AddNotifierDlg(getShell(), contacts,
+            AddNotifierDlg dlg = new AddNotifierDlg(getShell(), contacts, false, dataMap,
                     callback);
             dlg.open();
         } else {
@@ -257,6 +261,8 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
                     .setMessage("User must be logged in to Collaboration to add contact notifiers.");
             messageDialog.open();
         }
+        
+        setButtonState();
     }
 
     /**
