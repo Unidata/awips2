@@ -33,6 +33,5 @@ Require-Bundle: org.apache.commons.codec;bundle-version="1.4.0",
  org.apache.commons.cxf;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.edex.security;bundle-version="1.14.0"
-Import-Package: com.raytheon.uf.common.registry.ebxml.version,
- com.sun.xml.bind.marshaller,
+Import-Package: com.sun.xml.bind.marshaller,
  com.vividsolutions.jts.geom
