@@ -1931,7 +1931,17 @@
 			<id>100</id>
 		</process>
 	</model>
-
+	
+    <model>
+        <name>rap200</name>
+        <center>7</center>
+        <subcenter>0</subcenter>
+        <grid>RAP200</grid>
+        <process>
+            <id>105</id>
+        </process>
+    </model>
+    
 	<model>
 		<name>gfs32</name>
 		<center>7</center>
