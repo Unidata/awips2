@@ -76,6 +76,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Dec 10, 2013 2616       mpduff      Added stationId to the unique constraint
  * jan 22, 2014 2713       dhladky     Calendar conversion.
  * Mar 21, 2014  2939      dhladky     Fixed mismatches in HDF5, DB records.
+ * Jan 08, 2014  3141      dhladky     Bad index for WFS requests.
  * 
  * </pre>
  * 
@@ -88,7 +89,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(name = "madis", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "latitude", "longitude", "stationId", "refTime", "provider", "subProvider", "restriction" }) })
 @org.hibernate.annotations.Table(appliesTo = "madis", indexes = { @Index(name = "madis_wfsQueryIndex", columnNames = {
-        "refTime", "location" }), })
+        "insertTime", "location" }), })
 @DynamicSerialize
 public class MadisRecord extends PersistablePluginDataObject implements
         ISpatialEnabled, IPointData {
