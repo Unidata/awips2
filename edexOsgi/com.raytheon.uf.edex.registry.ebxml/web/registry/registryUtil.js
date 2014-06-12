@@ -31,7 +31,7 @@ Date         Ticket#     Engineer    Description
 */
 	
 	function callRestService(url,arg){
-		var url = "http://"+window.location.host+"/"+url
+		var url = "https://"+window.location.host+"/"+url
 		if(arg != null){
 			url+="/"+arg;
 		}
