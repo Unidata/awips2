@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Feb 13, 2014 2751       bclement    made AbstractUsersLabelProvider generic
  * Feb 17, 2014 2751       bclement    added block image logic to userLabelProvider
  * Mar 06, 2014 2848       bclement    get venueName directly from session
+ * Jun 12, 2014 3267       bclement    fixed missing null-check for outdated UI info
  * 
  * </pre>
  * 
@@ -122,7 +123,12 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             if (!account.isSameUser(user)) {
                 ContactsManager cm = conn.getContactsManager();
                 RosterEntry entry = cm.getRosterEntry(user);
-                if (ContactsManager.isBlocked(entry)) {
+                /*
+                 * if entry is null here, it means that the UI has an outdated
+                 * roster entry, this will get resolved on the next refresh
+                 * which is likely already starting to happen right now
+                 */
+                if (entry != null && ContactsManager.isBlocked(entry)) {
                     rval = true;
                 }
             }
