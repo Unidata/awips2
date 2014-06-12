@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 21, 2009  6309     garmendariz Modified path for Geotools 2.6.4
  * May 01, 2014  3100     bsteffen    perform time matching on data update.
  * Jun 02, 2014  2918     bsteffen    Make dataTimes a synchronized list.
+ * Jun 12, 2014  3263     bsteffen    Check for null when async time matching.
  * 
  * 
  * </pre>
@@ -367,6 +368,15 @@ public class RadarMosaicResource extends
      * off the UI thread, preferably in the timeUpdateJob.
      */
     private void updateTimes() {
+        DataTime[] frameTimes = descriptor.getTimeMatchingMap().get(this);
+        if (frameTimes == null) {
+            /*
+             * This has not been time matched so cannot time match against
+             * mosaiced resources.
+             */
+            issueRefresh();
+            return;
+        }
         for (ResourcePair pair : getResourceList()) {
             try {
                 if (!(pair.getResourceData() instanceof AbstractRequestableResourceData)) {
@@ -375,8 +385,7 @@ public class RadarMosaicResource extends
                 AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) pair
                         .getResourceData();
                 DataTime[] availableTimes = arrd.getAvailableTimes();
-                DataTime[] frameTimes = descriptor.getTimeMatchingMap().get(
-                        this);
+
                 DataTime[] displayTimes = timeMatch(frameTimes, availableTimes);
                 // request any new times.
                 PluginDataObject[] pdos = arrd.getLatestPluginDataObjects(
