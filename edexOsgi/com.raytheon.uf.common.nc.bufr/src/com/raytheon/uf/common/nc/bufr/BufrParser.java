@@ -59,6 +59,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Apr 01, 2014 2905       bclement    moved splitter functionality to separate utility
  *                                     added scanForStructField()
  * Apr 29, 2014 2906       bclement    added close()
+ * Jun 12, 2014 3229       bclement    fixed empty array in structure problem
  * 
  * </pre>
  * 
@@ -496,8 +497,9 @@ public class BufrParser {
             Variable var, boolean charArrayAsString) {
         Array array = typedArray.array;
         DataType type = typedArray.type;
+        long size = array.getSize();
         Object value;
-        if (charArrayAsString && array.getSize() > 1
+        if (charArrayAsString && size > 1
                 && type.equals(DataType.CHAR)) {
             int len = (int) array.getSize();
             StringBuilder builder = new StringBuilder(len);
@@ -505,8 +507,10 @@ public class BufrParser {
                 builder.append(array.getChar(i));
             }
             value = builder.toString();
-        } else {
+        } else if (size == 1) {
             value = array.getObject(0);
+        } else {
+            return null;
         }
 
         return processValue(value, var);
@@ -635,7 +639,16 @@ public class BufrParser {
             StructureLevel level = structStack.peek();
             StructureData s = level.getStructData();
             Member m = level.getCurrentMember();
-            rval = new TypedArray(s.getArray(m), m.getDataType());
+            Array memberArray = m.getDataArray();
+            /*
+             * StructureData.getArray() doesn't handle if the member has an
+             * empty array, skip structure access and return direct array
+             */
+            if (memberArray != null && memberArray.getSize() < 1) {
+                rval = new TypedArray(m.getDataArray(), m.getDataType());
+            } else {
+                rval = new TypedArray(s.getArray(m), m.getDataType());
+            }
         } else if (currentVar != null) {
             rval = new TypedArray(currentVar.read(), currentVar.getDataType());
         }
