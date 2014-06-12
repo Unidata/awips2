@@ -82,6 +82,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Dec 04, 2013 2584       dhladky     Versions for Registry objects
  * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
  * Apr 24, 2014 2992       dhladky     fixed all objects in ebxml owned by NCF, bad.
+ * 6/5/2014     1712       bphillip    Registry now communicates over https
  * 
  * </pre>
  * 
@@ -107,7 +108,7 @@ public final class RegistryUtil {
     static {
         if (System.getenv("EBXML_REGISTRY_HOST") != null
                 && System.getenv("EBXML_REGISTRY_WEBSERVER_PORT") != null) {
-            LOCAL_REGISTRY_ADDRESS = "http://"
+            LOCAL_REGISTRY_ADDRESS = "https://"
                     + System.getenv("EBXML_REGISTRY_HOST") + ":"
                     + System.getenv("EBXML_REGISTRY_WEBSERVER_PORT");
         }
