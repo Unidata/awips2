@@ -149,7 +149,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("svrwx", new PluginPlotProperties(false));
         pluginProps.put("ldadhydro", new PluginPlotProperties(false));
         pluginProps.put("textPoints", new PluginPlotProperties(false));
-        pluginProps.put("acars", new PluginPlotProperties(false));
 
         /*
          * The good ones, these don't even need to be here because this is the
@@ -180,6 +179,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("madis", new PluginPlotProperties());
         pluginProps.put("pirep", new PluginPlotProperties());
         pluginProps.put("airep", new PluginPlotProperties());
+        pluginProps.put("acars", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
