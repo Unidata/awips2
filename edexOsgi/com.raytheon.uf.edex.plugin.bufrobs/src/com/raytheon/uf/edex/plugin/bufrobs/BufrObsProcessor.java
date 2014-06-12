@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.plugin.bufrobs;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +47,8 @@ import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryKey;
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2014 2906       bclement     Initial creation
  * Apr 29, 2014 2906       bclement     close parser when finished
+ * Jun 12, 2014 3229       bclement     changed subcat attribute to use local to handle override
+ *                                      added registerAll()
  * 
  * </pre>
  * 
@@ -59,7 +62,7 @@ public class BufrObsProcessor {
 
     public static final String BUFR_CAT_ATTRIBUTE = "BUFR:category";
 
-    public static final String BUFR_SUBCAT_ATTRIBUTE = "BUFR:subCategory";
+    public static final String BUFR_SUBCAT_ATTRIBUTE = "BUFR:localSubCategory";
 
     private static final List<AbstractBufrSfcObsDecoder> decoders = new ArrayList<AbstractBufrSfcObsDecoder>();
 
@@ -147,6 +150,19 @@ public class BufrObsProcessor {
     public BufrObsProcessor register(AbstractBufrSfcObsDecoder decoder) {
         synchronized (decoders) {
             decoders.add(decoder);
+        }
+        return this;
+    }
+
+    /**
+     * @see #register(AbstractBufrSfcObsDecoder)
+     * @param collection
+     * @return
+     */
+    public BufrObsProcessor registerAll(
+            Collection<AbstractBufrSfcObsDecoder> collection) {
+        synchronized (decoders) {
+            decoders.addAll(collection);
         }
         return this;
     }
