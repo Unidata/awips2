@@ -1,22 +1,22 @@
-##############################################################################
-# COPYRIGHT (c), 2009, RAYTHEON COMPANY
-# ALL RIGHTS RESERVED, An Unpublished Work 
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
 # 
-# RAYTHEON PROPRIETARY
-# If the end user is not the U.S. Government or any agency thereof, use
-# or disclosure of data contained in this source code file is subject to
-# the proprietary restrictions set forth in the Master Rights File.
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
 # 
-#  U.S. GOVERNMENT PURPOSE RIGHTS NOTICE
-# If the end user is the U.S. Government or any agency thereof, this source
-# code is provided to the U.S. Government with Government Purpose Rights.
-# Use or disclosure of data contained in this source code file is subject to
-# the "Government Purpose Rights" restriction in the Master Rights File.
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
 # 
-#  U.S. EXPORT CONTROLLED TECHNICAL DATA
-#  Use or disclosure of data contained in this source code file is subject to
-#  the export restrictions set forth in the Master Rights File.
-##############################################################################
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
 
 #
 # Python import hook (PEP 302) for importing Java classes through JEP
@@ -26,7 +26,8 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/03/09                      njensen       Initial Creation.
+#    12/03/09                      njensen        Initial Creation.
+#    06/12/14        3262          njensen        More precise java package names  
 #    
 # 
 #
@@ -37,6 +38,7 @@ import jep
 
 PACKAGES = [
             'java',
+            'javax',
             'com',
             'gov',
             'org',
@@ -49,10 +51,30 @@ class JavaImporter:
     def __init__(self):
         pass
     
+    #
+    # Following PEP 302, this method checks if this importer applies to
+    # this package/module.  When python goes to import, it will loop through
+    # the importers of sys.meta_path in order and use the first one that
+    # returns True to load the module.  If none return True, it falls back to
+    # the built-in importer.
+    #
+    # For example, if a piece of python code has:
+    #
+    # from java.util import ArrayList
+    #
+    # that will pseudo-translate to:
+    #
+    # if JavaImporterInstance.find_module("java"):
+    #    if JavaImporterInstance.find_module("java.util"):
+    #       JavaImporterInstance.load_module("java.util.ArrayList")
+    #
+    # For a python module, this method should ideally always return False so
+    # that python will fall back to its built-in importer.
+    #    
     def find_module(self, fullname, path=None):                
-        found = False
-        for p in PACKAGES:
-            if fullname.startswith(p):
+        found = False        
+        for pkg in PACKAGES:
+            if fullname == pkg or fullname.startswith(pkg + "."):
                 found = True
                 break
         if not found:
