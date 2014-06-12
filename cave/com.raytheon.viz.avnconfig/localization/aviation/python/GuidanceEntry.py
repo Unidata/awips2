@@ -36,7 +36,7 @@ _Logger = logging.getLogger(Avn.CATEGORY)
 #    ------------    ----------    -----------    --------------------------
 #    07/22/09                      njensen       Initial Creation.
 #    02/13/2013      1549          rferrel        Change to properly display grid data.
-#    
+#    06/06/2014      3252          rferrel       tampgen no longer thows exception when missing data.
 # 
 #
 
@@ -309,7 +309,7 @@ def tafgen(siteObjs, model, format='short', routine = False, highlightFlightCat=
         
 def __makeHeader(model, data):
     #print '__makeHeader data: ', data
-    if data and data['itime'] and data['itime']['value']:
+    if data and 'itime' in data and 'value' in data['itime']:
         date = time.strftime('%m/%d/%y %H%M UTC', time.gmtime(data['itime']['value']))
     else:
         date = 'Unable to determine data/time'
@@ -415,6 +415,10 @@ def tampgen(selSite, siteObjs, model, format, taf, tafHeader, cvOnly, routine = 
         return [msg]
 
     tafWithHeader = [__makeHeader('%s TAF/%s' % (selSite,model), selLAMP.data)]
+    if str(tafWithHeader).find('Unable to determine data/time') > 0 :
+        tafWithHeader.append('')
+        return tafWithHeader
+    
     import TafDecoder, AvnParser, TAMPGenerator, ProbReader
     decoder = TafDecoder.Decoder()
     for siteID, LAMP in zip(siteIDs, LAMPs):
