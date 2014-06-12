@@ -33,16 +33,14 @@ import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transports.http.configuration.ConnectionType;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
 import com.google.common.io.Resources;
-import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.registry.RegistryJaxbManager;
 import com.raytheon.uf.common.registry.RegistryNamespaceMapper;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.services.rest.IRegistryObjectsRestService;
 import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService;
+import com.raytheon.uf.edex.security.SecurityConfiguration;
 
 /**
  * 
@@ -63,6 +61,7 @@ import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService
  * 12/2/2013    1829        bphillip    Removed expectedType argument on getRegistryObject method
  * 1/15/2014    2613        bphillip    Removed Service cache due to unexpected behavior
  * 2/19/2014    2769        bphillip    Added service cache
+ * 6/5/2014     1712        bphillip    Moved configuration out to separate class
  * </pre>
  * 
  * @author bphillip
@@ -76,23 +75,9 @@ public class RegistryRESTServices {
     /** JAXB Manager */
     private RegistryJaxbManager jaxbManager;
 
-    /** Policy used for rest connections */
-    private static final HTTPClientPolicy restPolicy;
+    private RegistryServiceConfiguration serviceConfig;
 
-    static {
-        ProxyConfiguration proxyConfig = RegistrySOAPServices
-                .getProxyConfiguration();
-        restPolicy = new HTTPClientPolicy();
-        restPolicy.setConnection(ConnectionType.CLOSE);
-        restPolicy.setConnectionTimeout(2000);
-        restPolicy.setReceiveTimeout(30000);
-        restPolicy.setMaxRetransmits(1);
-        if (proxyConfig != null) {
-            restPolicy.setProxyServer(proxyConfig.getHost());
-            restPolicy.setProxyServerPort(proxyConfig.getPort());
-            restPolicy.setNonProxyHosts(proxyConfig.getNonProxyHosts());
-        }
-    }
+    private SecurityConfiguration securityConfig;
 
     public RegistryRESTServices() throws JAXBException {
         jaxbManager = new RegistryJaxbManager(new RegistryNamespaceMapper());
@@ -192,12 +177,22 @@ public class RegistryRESTServices {
         T service = JAXRSClientFactory.create(url, serviceClass);
         Client client = (Client) Proxy.getInvocationHandler((Proxy) service);
         ClientConfiguration config = WebClient.getConfig(service);
+
         HTTPConduit conduit = config.getHttpConduit();
-        conduit.setClient(restPolicy);
+        conduit.setClient(serviceConfig.getHttpClientPolicy());
+        conduit.setTlsClientParameters(securityConfig.getTlsParams());
 
         // Create HTTP header containing the calling registry
         client.header(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
                 RegistryUtil.LOCAL_REGISTRY_ADDRESS);
         return service;
+    }
+
+    public void setServiceConfig(RegistryServiceConfiguration serviceConfig) {
+        this.serviceConfig = serviceConfig;
+    }
+
+    public void setSecurityConfig(SecurityConfiguration securityConfig) {
+        this.securityConfig = securityConfig;
     }
 }
