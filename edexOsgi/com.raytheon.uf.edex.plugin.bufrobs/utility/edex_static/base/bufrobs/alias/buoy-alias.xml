@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="buoy">
+ <!-- time not included since it is processed before anything else -->
+ <alias base="stationId">WMO Region number/geographical area</alias>
+ <!-- alternate lat/lon comes from Argos and is more accurate,
+      decoder falls back to coarse lon/lat if not present -->
+ <alias base="latitude">Alternate latitude (high accuracy)</alias>
+ <alias base="longitude">Alternate longitude (high accuracy)</alias>
+ <alias base="elevation">Height of station ground above mean sea level</alias>
+ <alias base="temperature">Temperature/dry-bulb temperature</alias>
+ <alias base="dewpoint">Dew-point temperature</alias>
+ <alias base="windSpeed">Wind speed</alias>
+ <alias base="windDir">Wind direction</alias>
+ <alias base="windGust">Maximum wind gust speed</alias>
+ <!-- following not available in buoy
+ <alias base="peakWindSpeedTime"></alias>
+ <alias base="peakWindSpeed"></alias>
+ <alias base="peakWindDir"></alias>
+ -->
+ <alias base="seaLevelPress">Pressure reduced to mean sea level</alias>
+ <!-- buoy does not contain altimeter data
+ <alias base="altimeter"></alias>
+ -->
+ <alias base="stationPress">Pressure</alias>
+ <!-- table lookup -->
+ <alias base="pressChangeChar">Characteristic of pressure tendency</alias>
+ <alias base="pressChange3Hour">3-hour pressure change</alias>
+ <!-- following not available in buoy
+ <alias base="totCloudAmount"></alias>
+ <alias base="lowCloudHeight"></alias>
+ <alias base="lowCloudAmount></alias>
+ <alias base="lowCloudType"></alias>
+ <alias base="midCloudType"></alias>
+ <alias base="hiCloudType"></alias>
+ <alias base="visibility"></alias>
+ <alias base="wx_present"></alias>
+ <alias base="presWeather"></alias>
+ <alias base="wx_past_1"></alias>
+ <alias base="wx_past_2"></alias>
+   -->
+ <!-- map all precip to same base, use associated time period in parser -->
+ <alias base="precip">Total precipitation/total water equivalent</alias>
+ <!-- following not available in buoy 
+ <alias base="precip24Hour">Total precipitation past 24 hours</alias>
+ <alias base="equivWindSpeed10m"></alias>
+ <alias base="equivWindSpeed20m"></alias>
+ <alias base="iceCode"></alias>
+ <alias base="wetBulb"></alias>
+ -->
+ <alias base="seaSurfaceTemp">Sea/water temperature</alias>
+ <alias base="platformTrueDirection">Direction of motion of moving observing platform</alias>
+ <alias base="platformTrueSpeed">Platform drift speed (high precision)</alias>
+ <alias base="windWaveHeight">Height of wind waves</alias>
+ <alias base="windWavePeriod">Period of wind waves</alias>
+ <alias base="waveHeight">Height of waves</alias>
+ <alias base="wavePeriod">Period of waves</alias>
+ <!-- following not available in buoy 
+ <alias base="waveSteepness"></alias>
+ <alias base="highResWaveHeight"></alias>
+ <alias base="primarySwellWaveDir"></alias>
+ <alias base="primarySwellWavePeriod"></alias>
+ <alias base="primarySwellWaveHeight"></alias>
+ <alias base="secondarySwellWaveDir"></alias>
+ <alias base="secondarySwellWavePeriod"></alias>
+ <alias base="secondarySwellWaveHeight"></alias>
+ <alias base="numInterWinds"></alias>
+ <alias base="interWindTime"></alias>
+  -->
+</aliasList>
