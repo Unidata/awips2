@@ -26,11 +26,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
@@ -59,6 +61,7 @@ import com.raytheon.uf.common.nc.bufr.tables.TranslationTableManager;
 import com.raytheon.uf.common.nc.bufr.time.BufrTimeFieldParser;
 import com.raytheon.uf.common.nc.bufr.time.TimeFieldParseException;
 import com.raytheon.uf.common.nc.bufr.util.BufrMapper;
+import com.raytheon.uf.common.nc.bufr.util.TranslationTableGenerator;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -86,6 +89,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2014 2906       bclement     Initial creation
  * Apr 21, 2014 2906       bclement     populated wmo header in record for consistency
+ * Jun 12, 2014 3229       bclement     default implementation for getTranslationFile() and createStationId()
+ *                                      moved processGeneralFields() and processPrecip() from synoptic land decoder
+ * 
  * 
  * </pre>
  * 
@@ -93,6 +99,12 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * @version 1.0
  */
 public abstract class AbstractBufrSfcObsDecoder {
+
+    public static final Set<String> DEFAULT_LOCATION_FIELDS = new HashSet<String>(
+            Arrays.asList(SfcObsPointDataTransform.LATITUDE,
+                    SfcObsPointDataTransform.LONGITUDE,
+                    SfcObsPointDataTransform.STATION_ID,
+                    SfcObsPointDataTransform.ELEVATION));
 
     public static final String localizationAliasDirectory = "bufrobs"
             + File.separator + "alias";
@@ -429,12 +441,15 @@ public abstract class AbstractBufrSfcObsDecoder {
     }
 
     /**
-     * Get obs-type specific translation table file name
+     * Get translation table file name
      * 
      * @param tableId
      * @return
      */
-    abstract protected String getTranslationFile(String tableId);
+    protected String getTranslationFile(String tableId) {
+        tableId = TranslationTableGenerator.replaceWhiteSpace(tableId, "_");
+        return tableId + ".xml";
+    }
 
     /**
      * Get obs-type specific parameter alias file name
@@ -539,7 +554,7 @@ public abstract class AbstractBufrSfcObsDecoder {
     }
 
     /**
-     * Find and format WMO Index to stationId
+     * Find and format stationId
      * 
      * @param parser
      * @return null if no station id found
@@ -547,21 +562,13 @@ public abstract class AbstractBufrSfcObsDecoder {
      */
     protected String createStationId(BufrParser parser)
             throws BufrObsDecodeException {
-        /* WMO indexes have two parts, block and id */
-        Number id = (Number) getFieldValue(parser, false);
-        if (id == null) {
-            log.debug("BUFR file " + parser.getFile()
-                    + " missing station id field: " + parser.getFieldName());
+        /* most subclasses will override this */
+        Object obj = getFieldValue(parser, true);
+        if (obj != null) {
+            return obj.toString();
+        } else {
             return null;
         }
-        Number block = getWMOBlock(parser);
-        if (block == null) {
-            log.debug("BUFR file " + parser.getFile()
-                    + " missing station id field: " + WMO_BLOCK_FIELD);
-            return null;
-        }
-
-        return String.format(WMO_INDEX_FORMAT, block, id);
     }
 
     /**
@@ -857,6 +864,84 @@ public abstract class AbstractBufrSfcObsDecoder {
             value = getFieldValue(parser, false);
         }
         return value;
+    }
+
+    /**
+     * Determines if field is table lookup or direct and handles accordingly
+     * 
+     * @param record
+     * @param parser
+     * @param baseName
+     * @throws BufrObsDecodeException
+     */
+    protected void processGeneralFields(ObsCommon record, BufrParser parser,
+            String baseName) throws BufrObsDecodeException {
+        String unitStr = parser.getFieldUnits();
+        if (unitStr != null && isTableLookup(unitStr)) {
+            processLookupTableField(record, parser, baseName);
+        } else {
+            processDirectField(record, parser, baseName);
+        }
+    }
+
+    /**
+     * Precip doesn't have individual fields for different hour periods. One
+     * structure contains the general precip field with a time period. This
+     * method parses the time period to determine what field the precip data is
+     * for.
+     * 
+     * @param record
+     * @param parser
+     * @throws BufrObsDecodeException
+     */
+    protected void processPrecip(ObsCommon record, BufrParser parser,
+            String precipTimePeriodField) throws BufrObsDecodeException {
+        Number precip = getInUnits(parser, SI.MILLIMETER);
+        if (precip == null) {
+            /* missing value */
+            return;
+        }
+        BufrDataItem timeData = parser.scanForStructField(
+                precipTimePeriodField, false);
+        if (timeData == null || timeData.getValue() == null) {
+            log.error("Found precipitation field missing time data. Field: "
+                    + parser.getFieldName() + ", Table: "
+                    + parser.getFieldUnits());
+            return;
+        }
+        Number period = getInUnits(timeData.getVariable(), timeData.getValue(),
+                NonSI.HOUR);
+        PointDataView pdv = record.getPointDataView();
+        switch (Math.abs(period.intValue())) {
+        case 1:
+            pdv.setFloat(SfcObsPointDataTransform.PRECIP1_HOUR,
+                    precip.intValue());
+            break;
+        case 3:
+            /* text synop obs doesn't have 3HR precip */
+            log.debug("Received precip period not supported by point data view: "
+                    + Math.abs(period.intValue()) + " HOUR");
+            break;
+        case 6:
+            pdv.setFloat(SfcObsPointDataTransform.PRECIP6_HOUR,
+                    precip.intValue());
+            break;
+        case 12:
+            pdv.setFloat(SfcObsPointDataTransform.PRECIP12_HOUR,
+                    precip.intValue());
+            break;
+        case 18:
+            pdv.setFloat(SfcObsPointDataTransform.PRECIP18_HOUR,
+                    precip.intValue());
+            break;
+        case 24:
+            pdv.setFloat(SfcObsPointDataTransform.PRECIP24_HOUR,
+                    precip.intValue());
+            break;
+        default:
+            log.error("Unknown precipitation period '" + period.intValue()
+                    + "' in BUFR file " + parser.getFile());
+        }
     }
 
     /**

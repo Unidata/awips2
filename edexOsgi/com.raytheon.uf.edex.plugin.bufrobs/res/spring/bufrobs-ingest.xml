@@ -9,9 +9,18 @@
     <bean id="bufrobsSynopticLandDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.synoptic.SynopticLandBufrDecoder">
         <constructor-arg ref="sfcobsPluginName" />
     </bean>
+    
+    <bean id="bufrobsBuoyDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.buoy.BuoyBufrDecoder" depends-on="sfcObsRegistered">
+        <constructor-arg ref="sfcobsPluginName" />
+    </bean>
 
-    <bean factory-bean="bufrobsProcessor" factory-method="register">
-        <constructor-arg ref="bufrobsSynopticLandDecoder" />
+    <bean factory-bean="bufrobsProcessor" factory-method="registerAll">
+        <constructor-arg>
+            <list>
+                <ref bean="bufrobsSynopticLandDecoder" />
+                <ref bean="bufrobsBuoyDecoder" />
+            </list>
+        </constructor-arg>
     </bean>
 
     <bean id="bufrobsCamelRegistered" factory-bean="contextManager" factory-method="register" depends-on="persistCamelRegistered">
