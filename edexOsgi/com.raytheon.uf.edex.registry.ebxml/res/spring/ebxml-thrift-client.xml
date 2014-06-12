@@ -18,6 +18,6 @@
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.registry.IRegistryRequest"/>
         <constructor-arg ref="edexRegistryManager"/>
-    </bean>
+    </bean> 
 
 </beans>
