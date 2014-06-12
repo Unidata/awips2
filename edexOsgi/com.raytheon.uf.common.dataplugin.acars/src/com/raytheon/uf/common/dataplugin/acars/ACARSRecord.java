@@ -21,8 +21,6 @@ package com.raytheon.uf.common.dataplugin.acars;
 
 import java.util.Calendar;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -64,8 +62,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 12, 2013  1857    bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013  1869    bsteffen    Remove dataURI column from
  *                                   PluginDataObject.
- * Aug 30, 2013  2298     rjpeter    Make getPluginName abstract
- * Jun 11, 2014  2061     bsteffen   Remove IDecoderGettable
+ * Aug 30, 2013  2298    rjpeter     Make getPluginName abstract
+ * Jun 11, 2014  2061    bsteffen    Remove IDecoderGettable, drop datauri
+ * 
  * 
  * </pre>
  * 
@@ -74,13 +73,14 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "acarsseq")
-@Table(name = "acars", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "acars", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "refTime", "tailNumber", "flightLevel", "latitude", "longitude" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
 @org.hibernate.annotations.Table(appliesTo = "acars", indexes = { @Index(name = "acars_refTimeIndex", columnNames = {
-        "refTime", "forecastTime" }) })
+ "refTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -679,13 +679,6 @@ public class ACARSRecord extends PluginDataObject implements ISpatialEnabled,
             }
         }
         return result;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override
