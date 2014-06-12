@@ -1,24 +1,77 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-	<bean id="registryRestClient" class="com.raytheon.uf.common.registry.services.RegistryRESTServices"/>
-	<bean id="registryWebServiceClient" class="com.raytheon.uf.common.registry.services.RegistrySOAPServices"/>
-	
+	<bean id="registryRestClient"
+		class="com.raytheon.uf.common.registry.services.RegistryRESTServices">
+		<property name="serviceConfig" ref="RegistryServiceConfig" />
+		<property name="securityConfig" ref="securityConfiguration" />
+	</bean>
+	<bean id="registryWebServiceClient"
+		class="com.raytheon.uf.common.registry.services.RegistrySOAPServices">
+		<property name="securityInterceptor" ref="securityOutInterceptor" />
+		<property name="serviceConfig" ref="RegistryServiceConfig" />
+		<property name="securityConfig" ref="securityConfiguration" />
+	</bean>
+
+	<bean id="RegistryServiceConfig"
+		class="com.raytheon.uf.common.registry.services.RegistryServiceConfiguration" />
+
 	<bean id="webServiceInInterceptor"
 		class="com.raytheon.uf.edex.registry.ebxml.services.RegistryServiceInInterceptor" />
+
+	<bean id="encryptedPropertyLoader" class="com.raytheon.uf.edex.security.EncryptedProperties">
+		<constructor-arg value="/awips2/edex/conf/security/security.properties"/>
+	</bean>
+
+	<bean id="securityOutInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor">
+		<constructor-arg>
+			<map>
+				<entry key="mustUnderstand" value="false" />
+				<entry key="enableNonceCache" value="false" />
+				<entry key="enableTimestampCache" value="false" />
+				<entry key="enableSamlOneTimeUseCache" value="false" />
+				<entry key="action" value="Signature" />
+				<entry key="user" value="${EBXML_REGISTRY_USER}" />
+				<entry key="signaturePropRefId" value="propRef"/>
+				<entry key="propRef"  value-ref="encryptedPropertyLoader"/>
+				<entry key="passwordCallbackClass"
+					value="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
+				<entry key="signatureParts"
+					value="{Element}{http://schemas.xmlsoap.org/soap/envelope/}Body" />
+				<entry key="signatureAlgorithm" value="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean id="securityInInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+		<constructor-arg>
+			<map>
+				<entry key="enableNonceCache" value="false" />
+				<entry key="enableTimestampCache" value="false" />
+				<entry key="enableSamlOneTimeUseCache" value="false" />
+				<entry key="action" value="Signature" />
+				<entry key="signaturePropRefId" value="propRef"/>
+				<entry key="propRef"  value-ref="encryptedPropertyLoader"/>
+				<entry key="passwordCallbackClass"
+					value="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
+				<entry key="signatureAlgorithm" value="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+			</map>
+		</constructor-arg>
+	</bean>
 
 	<!-- QUERY -->
 	<!-- Define concrete implementation of the service -->
 	<bean id="queryServiceImpl"
 		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl">
-		<property name="federationDao" ref="federationDao"/>
-		<property name="referenceResolver" ref="objectReferenceResolver"/>
+		<property name="federationDao" ref="federationDao" />
+		<property name="referenceResolver" ref="objectReferenceResolver" />
 		<property name="queryDefinitionDao" ref="queryDefinitionDao" />
-		<property name="classificationNodeDao" ref="classificationNodeDao"/>
-		<property name="registryObjectDao" ref="registryObjectDao"/>
-		<property name="sessionFactory" ref="metadataSessionFactory"/>
-		<property name="registrySoapClient" ref="registryWebServiceClient"/>
+		<property name="classificationNodeDao" ref="classificationNodeDao" />
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+		<property name="registrySoapClient" ref="registryWebServiceClient" />
 	</bean>
 
 	<!-- NOTIFICATION LISTENER -->
@@ -28,7 +81,7 @@
 		<property name="lcm" ref="lcmServiceImpl" />
 		<property name="registryObjectDao" ref="registryObjectDao" />
 		<property name="registryDao" ref="registryDao" />
-		<property name="registrySoapClient" ref="registryWebServiceClient"/>
+		<property name="registrySoapClient" ref="registryWebServiceClient" />
 	</bean>
 
 
@@ -40,8 +93,8 @@
 		<property name="validator" ref="validatorServiceImpl" />
 		<property name="registryObjectDao" ref="registryObjectDao" />
 		<property name="cataloger" ref="catalogerServiceImpl" />
-		<property name="referenceResolver" ref="objectReferenceResolver"/>
-		<property name="xpathProcessor" ref="registryXpathProcessor"/>
+		<property name="referenceResolver" ref="objectReferenceResolver" />
+		<property name="xpathProcessor" ref="registryXpathProcessor" />
 	</bean>
 
 	<!-- VALIDATOR -->
