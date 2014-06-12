@@ -21,8 +21,8 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
@@ -68,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 20, 2014    2632    mpduff      Initial creation
  * Mar 05, 2014    2632    mpduff      Changed task set to map of user->task.
  * Mar 27, 2014    2632    mpduff      Sorted users in combo box, changed how Add action works.
+ * Jun 12, 2014    3269    mpduff      Changed to use the unsaved values upon open.
  * 
  * </pre>
  * 
@@ -84,7 +85,7 @@ public class AddNotifierDlg extends CaveSWTDialog {
     private final Map<Button, Notifier> buttonMap = new HashMap<Button, Notifier>();
 
     /** Set of NotifierTask objects */
-    private final Map<String, NotifierTask> taskMap = new HashMap<String, NotifierTask>();
+    private Map<String, NotifierTask> taskMap = new HashMap<String, NotifierTask>();
 
     /** The user select Combo box */
     private Combo userCbo;
@@ -101,8 +102,8 @@ public class AddNotifierDlg extends CaveSWTDialog {
     /** Close callback */
     private final ICloseCallback callback;
 
-    /** The class return value */
-    private boolean returnValue = false;
+    /** Flag for dialog mode, edit or new */
+    private boolean editFlag;
 
     /**
      * Constructor.
@@ -111,16 +112,22 @@ public class AddNotifierDlg extends CaveSWTDialog {
      * @param userIds
      * @param callback
      */
-    public AddNotifierDlg(Shell parent, String[] userIds,
+    public AddNotifierDlg(Shell parent, String[] userIds, boolean editFlag, Map<String, NotifierTask> taskMap,
             ICloseCallback callback) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
-        setText("Add Notifier");
+        if (editFlag) {
+        	setText("Edit Notifier");
+        } else {
+        	setText("Add Notifier");
+        }
         this.userIds = userIds;
         this.callback = callback;
+        this.editFlag = editFlag;
+        this.taskMap = taskMap;
     }
 
     public AddNotifierDlg(Shell parent, String[] userIds) {
-        this(parent, userIds, null);
+        this(parent, userIds, false, null, null);
     }
 
     /*
@@ -311,25 +318,24 @@ public class AddNotifierDlg extends CaveSWTDialog {
         comp.setLayoutData(gd);
 
         GridData btnData = new GridData(75, SWT.DEFAULT);
-        Button addBtn = new Button(comp, SWT.PUSH);
-        addBtn.setText("Add");
-        addBtn.setLayoutData(btnData);
-        addBtn.addSelectionListener(new SelectionAdapter() {
+        Button okBtn = new Button(comp, SWT.PUSH);
+      	okBtn.setText("OK");
+        okBtn.setLayoutData(btnData);
+        okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 addNotifierTask();
-                returnValue = true;
+                close();
             }
         });
 
         btnData = new GridData(75, SWT.DEFAULT);
         Button cancelBtn = new Button(comp, SWT.PUSH);
-        cancelBtn.setText("Close");
+        cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(btnData);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                returnValue = false;
                 close();
             }
         });
@@ -342,7 +348,7 @@ public class AddNotifierDlg extends CaveSWTDialog {
      */
     @Override
     protected void opened() {
-        List<NotifierTask> taskList = NotifierTools.getNotifierTasks();
+        Collection<NotifierTask> taskList = taskMap.values();
         for (NotifierTask task : taskList) {
             this.taskMap.put(task.getUserName(), task);
             if (task.getUserName().equals(userCbo.getText())) {
@@ -418,12 +424,6 @@ public class AddNotifierDlg extends CaveSWTDialog {
         this.taskMap.put(task.getUserName(), task);
 
         updatePreferences();
-
-        MessageBox messageDialog = new MessageBox(this.getShell(), SWT.OK);
-        messageDialog.setText("Notifier Saved");
-        messageDialog
-                .setMessage("The contact notifier was successfully saved.");
-        messageDialog.open();
     }
 
     /**
