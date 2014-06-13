@@ -36,6 +36,7 @@
 #  Jun 24, 2013 DR 16317   D. Friedman If no storm line, parse storm motion from event text.
 #  Aug 21, 2013 DR16501 m.gamazaychikov    Adjusted calculation of Purge time in NoVTECWarningDecoder.
 #  Sep 12, 2013 DR2249     rferrel     When incoming file from warngen adjust start time from file's timestamp.
+# Jun 10, 2014  3268     dgilling       Update location of WclInfo class.
 # </pre>
 #
 # @author rferrel
@@ -168,7 +169,7 @@ class StdWarningDecoder():
         if self._productPil[0:3] == "WCL":
             endpoint = "WCLWatch"
             # build a Java object for the warning
-            from com.raytheon.edex.plugin.gfe.wcl import WclInfo
+            from com.raytheon.edex.plugin.gfe.watch import WclInfo
             import JUtil
             lines = JUtil.pyValToJavaObj(self._lines)
             warning = WclInfo(long(self._issueTime * 1000),
