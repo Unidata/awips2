@@ -52,9 +52,9 @@ public class AutoUpdateAction extends AbstractHandler implements IElementUpdater
 
 	public AutoUpdateAction() {
 		autoUpdateOnIcon = AbstractUIPlugin.imageDescriptorFromPlugin(
-        		Activator.PLUGIN_ID, "icons/star.png");
+        		Activator.PLUGIN_ID, "icons/check-square-o.png");
 		autoUpdateOffIcon = AbstractUIPlugin.imageDescriptorFromPlugin(
-        		Activator.PLUGIN_ID, "icons/star-o.png");
+        		Activator.PLUGIN_ID, "icons/square-o.png");
 		autoUpdateDisabledIcon = AbstractUIPlugin.imageDescriptorFromPlugin(
         		Activator.PLUGIN_ID, "icons/refresh.png");;
 	}
