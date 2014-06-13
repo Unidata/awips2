@@ -78,6 +78,8 @@
 		<!-- end of ncep excludes -->
 	</mode>
 	<mode name="ingest">
+        <exclude>mpeLightningSrv-ingest.xml</exclude>
+        <exclude>rpgenvdata-spring.xml</exclude>
 		<exclude>webservices.xml</exclude>
 		<exclude>ebxml.*\.xml</exclude>
 		<exclude>.*request.*</exclude>
@@ -137,7 +139,7 @@
     	<include>logFilePurger-spring.xml</include>
     	<include>mpeFieldgen-spring.xml</include>
     	<include>mpeHpeFilePurge-spring.xml</include>
-    	<include>mpeLightningSrv-ingest.xml</include>
+    	<!--  include>mpeLightningSrv-ingest.xml</include -->
     	<include>mpeProcessGrib-spring.xml</include>
     	<include>ohdSetupService-spring.xml</include>
     	<include>pointDataRetrievel-spring.xml</include>
@@ -218,7 +220,7 @@
 		<include>qpf-common.xml</include>
 		<include>cpgsrv-spring.xml</include>
 		<include>persist-ingest.xml</include>
-		<include>binlightning-common.xml</include>
+		<!-- include>binlightning-common.xml</include -->
 		<include>parameter-common.xml</include>
 		<include>gridcoverage-common.xml</include>
 		<include>grid-common.xml</include>
