@@ -121,6 +121,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  *                                     data that is eligible to be purged.
  * 05/22/14     #3071      randerso    Expand publish time to time constraint quantum after truncating it 
  *                                     to the purge time
+ * 06/12/14     #3244      randerso    Improved error handling
  * 
  * </pre>
  * 
@@ -966,13 +967,15 @@ public class GridParmManager {
      */
     public ServerResponse<?> versionPurge() {
 
-        ServerResponse<List<DatabaseID>> sr = new ServerResponse<List<DatabaseID>>();
-        sr = getDbInventory();
-        if (!sr.isOkay()) {
-            sr.addMessage("VersionPurge failed - couldn't get inventory");
+        ServerResponse<?> sr = new ServerResponse<Object>();
+
+        ServerResponse<List<DatabaseID>> ssr = getDbInventory();
+        if (!ssr.isOkay()) {
+            sr.addMessage("VersionPurge failed - couldn't get database inventory");
+            sr.addMessages(ssr);
             return sr;
         }
-        List<DatabaseID> currentInv = sr.getPayload();
+        List<DatabaseID> currentInv = ssr.getPayload();
 
         // sort the inventory by site, type, model, time (most recent first)
         Collections.sort(currentInv);
@@ -1083,7 +1086,9 @@ public class GridParmManager {
                     ServerResponse<Integer> sr1 = gp.timePurge(purgeTime,
                             gridNotify, lockNotify);
                     sr.addMessages(sr1);
-                    purgedCount += sr1.getPayload();
+                    if (sr1.isOkay()) {
+                        purgedCount += sr1.getPayload();
+                    }
 
                     gridNotifications.addAll(gridNotify);
                     lockNotifications.addAll(lockNotify);
