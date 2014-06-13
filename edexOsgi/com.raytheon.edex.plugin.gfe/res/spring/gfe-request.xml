@@ -334,6 +334,7 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupServerRequest" />
 		<constructor-arg ref="GetServiceBackupServerRequestHandler" />
 	</bean>
+
 	
 	<bean id="AbortOperationRequestHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.AbortOperationRequestHandler" />
@@ -374,6 +375,13 @@
 			value="com.raytheon.uf.common.dataplugin.gfe.request.CheckServiceBackupPrimarySiteRequest" />
 		<constructor-arg ref="CheckPrimarySiteHandler" />
 	</bean>
+
+	<bean id="GetServiceBackupPrimarySitesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupPrimarySiteHandler"/>
+	<bean factory-bean="handlerRegistry" factory-method="register">
+	         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupPrimarySiteRequest"/>
+	         <constructor-arg ref="GetServiceBackupPrimarySitesHandler"/>
+	 </bean>
+
 	
 	<bean id="CleanupSvcBuLogRequestHandler"
 		class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuLogRequestHandler" />
