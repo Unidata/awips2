@@ -53,6 +53,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo;
+import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
@@ -103,6 +104,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 08/05/13     #1571      randerso    Added support for storing GridLocation and ParmStorageInfo in database
  * 09/30/2013   #2147      rferrel     Changes to archive hdf5 files.
  * 10/15/2013   #2446      randerso    Added ORDER BY clause to getOverlappingTimes
+ * 06/12/14     #3244      randerso    Improved error handling
  * 
  * </pre>
  * 
@@ -482,8 +484,21 @@ public class GFEDao extends DefaultPluginDao {
 
             try {
                 GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
-                gridParmMgr.versionPurge();
-                gridParmMgr.gridsPurge(gridNotifcations, lockNotifications);
+
+                PurgeLogger.logInfo("Purging expired database versions...",
+                        "gfe");
+                ServerResponse<?> sr = gridParmMgr.versionPurge();
+                if (!sr.isOkay()) {
+                    PurgeLogger.logError(sr.message(), "gfe");
+                }
+
+                PurgeLogger.logInfo("Purging expired grids...", "gfe");
+                sr = gridParmMgr
+                        .gridsPurge(gridNotifcations, lockNotifications);
+                if (!sr.isOkay()) {
+                    PurgeLogger.logError(sr.message(), "gfe");
+                }
+
                 PurgeLogger.logInfo(
                         "Purging Expired pending isc send requests...", "gfe");
                 int requestsPurged = new IscSendRecordDao()
