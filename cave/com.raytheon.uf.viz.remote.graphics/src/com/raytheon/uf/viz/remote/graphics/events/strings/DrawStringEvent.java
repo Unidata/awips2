@@ -114,7 +114,6 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
     @Deprecated
     private RGB boxColor;
 
-
     /**
      * @deprecated Once backwards compatibility is not needed switch to
      *             {@link #textStyleColorMap}
@@ -249,6 +248,9 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
                             .get(TextStyle.DROP_SHADOW);
                 }
             }
+        } else if (!SUPPORT_STYLE_COLORS) {
+            /* No TextStyle 14.3 is an empty set, not null. */
+            this.textStyles = EnumSet.noneOf(TextStyle.class);
         }
 
     }
@@ -257,7 +259,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         DrawableString ds = new DrawableString(text, colors);
         ds.basics.alpha = alpha;
         ds.basics.xOrColors = xOrColors;
-        
+
         ds.horizontalAlignment = horizontalAlignment;
         ds.verticallAlignment = verticalAlignment;
         ds.magnification = magnification;
@@ -267,9 +269,9 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
             for (Entry<TextStyle, RGB> entry : textStyleColorMap.entrySet()) {
                 ds.addTextStyle(entry.getKey(), entry.getValue());
             }
-        }else{
-            if(textStyles != null){
-                for(TextStyle style : textStyles){
+        } else {
+            if (textStyles != null) {
+                for (TextStyle style : textStyles) {
                     if (style.equals(TextStyle.BOXED)) {
                         ds.addTextStyle(style);
                         ds.addTextStyle(TextStyle.BLANKED, boxColor);
@@ -280,6 +282,8 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
                         ds.addTextStyle(style);
                     }
                 }
+            } else {
+                System.out.println();
             }
         }
         return ds;
