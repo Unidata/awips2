@@ -71,6 +71,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.LeaderChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
@@ -105,6 +106,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 29, 2014 3061       bclement    added createInviteMessage()
  * May 09, 2014 3107       bclement    default to trust transfer event when verify errors out
  * May 14, 2014 3061       bclement    added better checks for when to send invite/session payloads
+ * Jun 16, 2014 3288       bclement    feed venue configuration changes
  * 
  * </pre>
  * 
@@ -133,9 +135,9 @@ public class SharedDisplaySession extends VenueSession implements
     private boolean closed = false;
 
     public SharedDisplaySession(EventBus externalBus,
-            CollaborationConnection manager, String venueName, String handle,
+            CollaborationConnection manager, VenueId venueId, String handle,
             String sessionId) {
-        super(externalBus, manager, venueName, handle, sessionId);
+        super(externalBus, manager, venueId, handle, sessionId);
         init();
     }
 
