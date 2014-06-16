@@ -46,6 +46,7 @@ import com.raytheon.openfire.plugin.configuration.collaboration.configuration.Co
 import com.raytheon.openfire.plugin.configuration.collaboration.http.HttpStatusMonitor;
 import com.raytheon.openfire.plugin.configuration.collaboration.iq.AbstractConfigHandler;
 import com.raytheon.openfire.plugin.configuration.collaboration.iq.DataAuthHandler;
+import com.raytheon.openfire.plugin.configuration.collaboration.iq.FeedVenueConfigHandler;
 import com.raytheon.openfire.plugin.configuration.collaboration.iq.HttpAddressHandler;
 import com.raytheon.openfire.plugin.configuration.collaboration.iq.SecurityToggleHandler;
 import com.raytheon.openfire.plugin.configuration.collaboration.listener.CollaborationSessionEventListener;
@@ -66,6 +67,7 @@ import com.raytheon.openfire.plugin.configuration.collaboration.listener.Collabo
  * Feb 14, 2013 2756       bclement    rename and refactor for operation with generic http
  *                                     server configured over XMPP
  * Mar 04, 2014 2756       bclement    added dataserver security toggle update to setLegacySupport
+ * Jun 16, 2014 3288       bclement    feed venue configuration handler
  * 
  * </pre>
  * 
@@ -153,8 +155,9 @@ public class HttpConfigurationPlugin implements Plugin {
         DataAuthHandler authHandler = new DataAuthHandler();
         HttpAddressHandler addressHandler = new HttpAddressHandler();
         SecurityToggleHandler secTogHandler = new SecurityToggleHandler();
-        registerConfigHandlers(server,
-                Arrays.asList(authHandler, addressHandler, secTogHandler));
+        FeedVenueConfigHandler feedConfigHandler = new FeedVenueConfigHandler();
+        registerConfigHandlers(server, Arrays.asList(authHandler,
+                addressHandler, secTogHandler, feedConfigHandler));
 
         /* Retrieve openfire components. */
         serverId = new JID(server.getServerInfo().getXMPPDomain());
