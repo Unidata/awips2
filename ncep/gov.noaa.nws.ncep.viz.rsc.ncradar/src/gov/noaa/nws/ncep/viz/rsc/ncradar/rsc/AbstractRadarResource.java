@@ -16,9 +16,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.measure.Measure;
+import javax.measure.quantity.Length;
 import javax.measure.unit.NonSI;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
@@ -39,7 +40,6 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
 import com.raytheon.viz.radar.DefaultVizRadarRecord;
 import com.raytheon.viz.radar.VizRadarRecord;
@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/10/13      #999      G. Hull     rm interrogate and inspect. (add back when supported by NCP.)
  * 06/10/13      #999      G. Hull     rm IRadarTextGeneratingResource and IRadarConfigListener since not supported by NCP.
  * 06/10/2013    #999      G. Hull     rm IDataScaleResource
+ * 06/16/2014    #2061     bsteffen    update IRangeableResource
  * 
  * </pre>
  * 
@@ -316,8 +317,8 @@ implements IResourceDataChanged, IRangeableResource {
      * getElevation()
      */
     @Override
-    public Amount getElevation() {
-        return new Amount(0.0, NonSI.FOOT);
+    public Measure<?, Length> getElevation() {
+        return Measure.valueOf(0.0, NonSI.FOOT);
     }
 
     /*
