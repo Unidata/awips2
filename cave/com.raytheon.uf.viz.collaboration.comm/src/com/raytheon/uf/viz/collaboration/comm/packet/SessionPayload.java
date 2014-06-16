@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.SerializationMode;
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2013 2562       bclement     Initial creation
  * Feb 27, 2013 2756       bclement     extends BaseExtension
+ * Jun 12, 2013 2903       bclement     default to wrap jaxb xml in base64
  * 
  * </pre>
  * 
@@ -55,6 +56,8 @@ public class SessionPayload extends BaseExtension {
 
     private static final IUFStatusHandler log = UFStatus
             .getHandler(SessionPayload.class);
+
+    public static final String XML_ENCODING = "UTF-8";
 
     public static enum PayloadType {
         Config, Command, Invitation;
@@ -133,7 +136,13 @@ public class SessionPayload extends BaseExtension {
                 CollaborationXmlManager jaxb = CollaborationXmlManager
                         .getInstance();
                 String xml = jaxb.marshalToFragment(data);
-                builder.appendText(xml);
+                /*
+                 * wrap JAXB XML in base64 to avoid problems with openfire
+                 * disconnecting due to complex XML
+                 */
+                String base64Xml = Base64.encodeBytes(xml
+                        .getBytes(XML_ENCODING));
+                builder.appendText(base64Xml);
             } catch (Exception je) {
                 throw new CollaborationException(
                         "[JAXB] Could not serialize object", je);
