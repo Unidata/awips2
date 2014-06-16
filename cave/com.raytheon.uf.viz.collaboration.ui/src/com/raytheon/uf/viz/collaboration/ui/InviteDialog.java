@@ -68,6 +68,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * Mar 06, 2014 2848       bclement    moved join logic to separate method
  * Mar 27, 2014 2632       mpduff      Set the OK button as the default button.
  * Apr 18, 2014 2955       mpduff      Make dialog non-modal.
+ * Jun 16, 2014 3288       bclement    pass along venueId instead of just the name
  * 
  * </pre>
  * 
@@ -299,7 +300,7 @@ public class InviteDialog extends CaveSWTDialogBase {
      */
     public void join(IVenueInvitationEvent invitation, String handle)
             throws CollaborationException {
-        String venueName = invitation.getRoomId().getName();
+        VenueId venueId = invitation.getRoomId();
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         // create session object
@@ -314,7 +315,7 @@ public class InviteDialog extends CaveSWTDialogBase {
                     SharedDisplayRole.PARTICIPANT);
             session = displaySession;
         } else {
-            session = connection.createTextOnlyVenue(venueName, handle);
+            session = connection.createTextOnlyVenue(venueId, handle);
         }
         try {
             // join session
