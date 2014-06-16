@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.PeerToPeerComm
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CreateSessionData;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.ISharedEditorsManagerListener;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
@@ -95,6 +96,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Mar 06, 2014 2848       bclement    moved session creation logic to separate method
  * Apr 16, 2014 3021       bclement    increased width of dialog
  * Apr 22, 2014 3056       bclement    made room name lowercase to match xmpp server
+ * Jun 16, 2014 3288       bclement    added call to get full venue ID for chosen name
  * 
  * </pre>
  * 
@@ -471,8 +473,9 @@ public class CreateSessionDialog extends CaveSWTDialog {
                     }
 
                     if (focusField == null) {
-                        CreateSessionData result = new CreateSessionData(name,
-                                handle);
+                        VenueId venueId = VenueSession.createVenueId(name);
+                        CreateSessionData result = new CreateSessionData(
+                                venueId, handle);
                         result.setSubject(subject);
                         result.setCollaborationSessioh(sharedSessionDisplay
                                 .getSelection());
@@ -574,7 +577,8 @@ public class CreateSessionDialog extends CaveSWTDialog {
             err = "Session name contains invalid characters.";
         } else {
             try {
-                if (VenueSession.roomExistsOnServer(name)) {
+                if (VenueSession.roomExistsOnServer(VenueId.DEFAULT_SUBDOMAIN,
+                        name)) {
                     err = "Session already exists. Pick a different name.";
                 }
             } catch (XMPPException e) {
