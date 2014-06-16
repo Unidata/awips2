@@ -19,6 +19,11 @@
    				url="http-collaboration-monitor-admin.jsp"
    				description="Click to administer settings for the Http Collaboration Monitor." />
    		</sidebar>
+   		<sidebar id="sidebar-server-settings">
+   			<id item="feed-venue-admin" name="Feed Venue Settings"
+   				url="feed-venue-admin.jsp"
+   				description="Click to administer settings for the Collaboration Feed Venue." />
+   		</sidebar>
    	</tab>
    </adminconsole>
 </plugin>
