@@ -40,6 +40,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTimeComparator;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -71,12 +72,17 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 10, 2009            chammack    Initial creation
- * Jul 03, 2013 2159       bsteffen    Synchronize TimeCache access.
- * Aug  9, 2013 DR 16448   D. Friedman Validate time match basis in redoTimeMatching
- * May  5, 2014 DR 17201   D. Friedman Make same-radar time matching work more like A1.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 10, 2009           chammack    Initial creation
+ * Jul 03, 2013  2159     bsteffen    Synchronize TimeCache access.
+ * Aug  9, 2013  16448    D. Friedman Validate time match basis in
+ *                                    redoTimeMatching
+ * May  5, 2014  17201    D. Friedman Make same-radar time matching work more
+ *                                    like A1.
+ * May  5, 2014  3265     bsteffen    Better handling of resources returning
+ *                                    null dataTimes.
+ * 
  * 
  * </pre>
  * 
@@ -791,7 +797,12 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                     .getResourceData();
 
             DataTime[] dt = resource.getDataTimes();
-            Arrays.sort(dt);
+            /*
+             * Passing in the comparator allows it to handle null times. Ideally
+             * there should be no null times but if there is this is not the
+             * place to break things.
+             */
+            Arrays.sort(dt, new DataTimeComparator());
             PluginDataObject[] pdo = arrd.getLatestPluginDataObjects(dataTimes,
                     dt);
             if (pdo.length > 0) {
