@@ -732,6 +732,20 @@
 		<versionsToKeep>5</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
+        <!-- Purge rule for the HRRR model -->
+        <rule>
+                <keyValue>HRRR</keyValue>
+                <versionsToKeep>4</versionsToKeep>
+        </rule>
+	<!-- Purge rule for the ESTOFS model -->
+	<rule>
+		<keyValue>estofsUS</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<keyValue>estofsPR</keyValue>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
 	<!-- Purge rule for the GFS199 (Guam-GFSDNG) model -->
 	<rule>
 		<keyValue>GFS199</keyValue>
