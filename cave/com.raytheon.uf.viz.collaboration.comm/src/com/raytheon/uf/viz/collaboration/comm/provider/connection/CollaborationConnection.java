@@ -48,6 +48,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.xmpp.PacketConstants;
 import com.raytheon.uf.common.xmpp.iq.AuthInfo;
 import com.raytheon.uf.common.xmpp.iq.AuthInfoProvider;
+import com.raytheon.uf.common.xmpp.iq.FeedVenueConfig;
+import com.raytheon.uf.common.xmpp.iq.FeedVenueConfigProvider;
 import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
@@ -62,12 +64,14 @@ import com.raytheon.uf.viz.collaboration.comm.provider.account.AccountManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.account.ClientAuthManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CreateSessionData;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.FeedVenueConfigManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.PeerToPeerChat;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserSearch;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
@@ -121,6 +125,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 23, 2014 2822       bclement    added resource name and getCollaborationVersion()
  * May 09, 2014 3107       bclement    added ability for packet timeout to be set via system properties
  * May 19, 2014 3180       bclement    added getJoinedVenueSessions()
+ * Jun 16, 2014 3288       bclement    feed venue configuration changes
  * 
  * </pre>
  * 
@@ -137,6 +142,8 @@ public class CollaborationConnection implements IEventPublisher {
                 PacketConstants.COLLAB_XMLNS, new SessionPayloadProvider());
         pm.addIQProvider(PacketConstants.QUERY_ELEMENT_NAME,
                 AuthInfo.AUTH_QUERY_XMLNS, new AuthInfoProvider());
+        pm.addIQProvider(PacketConstants.QUERY_ELEMENT_NAME,
+                FeedVenueConfig.FEED_QUERY_XMLNS, new FeedVenueConfigProvider());
         /*
          * smack doesn't support some of the OWNER operations such as getting
          * all subscriptions on a node. PubSubOperations creates the request
@@ -437,6 +444,7 @@ public class CollaborationConnection implements IEventPublisher {
             }
             connection = null;
         }
+        FeedVenueConfigManager.reset();
         PeerToPeerCommHelper.reset();
         synchronized (CollaborationConnection.class) {
             if (this == instance) {
@@ -483,9 +491,9 @@ public class CollaborationConnection implements IEventPublisher {
         SharedDisplayVenueInvite sdvInvite = (SharedDisplayVenueInvite) invitation
                 .getInvite();
         String sessionId = invitation.getInvite().getSessionId();
-        String venueName = invitation.getRoomId().getName();
+        VenueId venueId = invitation.getRoomId();
         SharedDisplaySession rval = new SharedDisplaySession(eventBus, this,
-                venueName, handle, sessionId);
+                venueId, handle, sessionId);
         setupCollaborationVenue(rval, sdvInvite.getSessionLeader(),
                 sdvInvite.getDataProvider());
         return rval;
@@ -526,12 +534,12 @@ public class CollaborationConnection implements IEventPublisher {
      * server. The session should be unregistered when no longer active using
      * {@link CollaborationConnection#removeSession(ISession)}
      * 
-     * @param venueName
+     * @param venueId
      * @param handle
      * @return
      */
-    public VenueSession createTextOnlyVenue(String venueName, String handle) {
-        return createTextOnlyVenue(new CreateSessionData(venueName, handle));
+    public VenueSession createTextOnlyVenue(VenueId venueId, String handle) {
+        return createTextOnlyVenue(new CreateSessionData(venueId, handle));
     }
 
     /**
@@ -551,14 +559,13 @@ public class CollaborationConnection implements IEventPublisher {
     /**
      * Check if venue exists on server
      * 
+     * @param subdomain
      * @param venueName
      * @return false on error
      */
-    public boolean venueExistsOnServer(String venueName) {
-        String roomId = VenueSession.getRoomId(connection.getServiceName(),
-                venueName);
+    public boolean venueExistsOnServer(String subdomain, String venueName) {
         try {
-            return VenueSession.roomExistsOnServer(connection, roomId);
+            return VenueSession.roomExistsOnServer(subdomain, venueName);
         } catch (XMPPException e) {
             statusHandler.error("Unable to check for room on server", e);
             return false;
@@ -674,4 +681,5 @@ public class CollaborationConnection implements IEventPublisher {
     protected static IUFStatusHandler getStatusHandler() {
         return statusHandler;
     }
+
 }
