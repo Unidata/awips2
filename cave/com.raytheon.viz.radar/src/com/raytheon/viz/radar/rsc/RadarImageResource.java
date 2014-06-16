@@ -72,7 +72,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
-import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.util.DataUtilities;
@@ -85,9 +84,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 4, 2010            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 04, 2010           mnash       Initial creation
+ * Jun 11, 2014  2061     bsteffen    Move rangeable capability to radial
+ *                                    resource
  * 
  * </pre>
  * 
@@ -345,9 +346,6 @@ public class RadarImageResource<D extends IDescriptor> extends
                         paintProps.getAlpha());
             }
         }
-        RangeRingsOverlayCapability rrcap = getCapability(RangeRingsOverlayCapability.class);
-        rrcap.setRangeableResource(this);
-        rrcap.paint(target, paintProps);
     }
 
     public void paintRadar(IGraphicsTarget target, PaintProperties paintProps)
