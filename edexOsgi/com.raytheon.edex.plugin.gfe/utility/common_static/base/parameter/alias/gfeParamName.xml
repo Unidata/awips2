@@ -23,8 +23,10 @@
     <alias base="DIRSW">dirsw</alias>
     <alias base="DpD">dpd</alias>
     <alias base="DpT">dpt</alias>
+    <alias base="ELEV">ELEV</alias>
     <alias base="EMSP">emsp</alias>
     <alias base="EPT">ept</alias>
+    <alias base="ETSRG">ETSRG</alias>
     <alias base="GeH">geh</alias>
     <alias base="GH">gh</alias>
     <alias base="GVV">gvv</alias>
@@ -268,6 +270,7 @@
     <alias base="ThP6hr">thp6hr</alias>
     <alias base="Tmean">tmean</alias>
     <alias base="TOTSN">totsn</alias>
+    <alias base="TP1hr">tp1hr</alias>
     <alias base="TP120hr">tp120hr</alias>
     <alias base="tp12c1">tp12c1</alias>
     <alias base="tp12c2">tp12c2</alias>
