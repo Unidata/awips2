@@ -9,7 +9,7 @@
 		<property name="securityConfig" ref="securityConfiguration" />
 	</bean>
 	<bean id="registryWebServiceClient"
-		class="com.raytheon.uf.common.registry.services.RegistrySOAPServices">
+		class="com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices">
 		<property name="securityInterceptor" ref="securityOutInterceptor" />
 		<property name="serviceConfig" ref="RegistryServiceConfig" />
 		<property name="securityConfig" ref="securityConfiguration" />

@@ -62,7 +62,6 @@ import com.raytheon.uf.common.registry.constants.DeletionScope;
 import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -72,6 +71,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
+import com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 

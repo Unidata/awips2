@@ -45,10 +45,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
-import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
