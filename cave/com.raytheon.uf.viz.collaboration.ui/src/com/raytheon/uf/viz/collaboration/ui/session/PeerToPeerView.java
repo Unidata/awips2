@@ -42,9 +42,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
 import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
@@ -63,13 +65,14 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Jan 30, 2014 2698       bclement    added getDisplayName
  * Feb 13, 2014 2751       bclement   made parent generic
  * Feb 28, 2014 2632       mpduff      Override appendMessage for notifiers
+ * Jun 17, 2014 3078       bclement    changed peer type to IUser
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class PeerToPeerView extends AbstractSessionView<UserId> implements
+public class PeerToPeerView extends AbstractSessionView<IUser> implements
         IPrintableView {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerView.class);
@@ -84,7 +87,7 @@ public class PeerToPeerView extends AbstractSessionView<UserId> implements
 
     private static Color black = null;
 
-    private UserId peer;
+    private IUser peer;
 
     private boolean online = true;
 
@@ -191,7 +194,7 @@ public class PeerToPeerView extends AbstractSessionView<UserId> implements
 
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, String subject, List<StyleRange> ranges) {
+            String name, IUser userId, String subject, List<StyleRange> ranges) {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
@@ -210,7 +213,7 @@ public class PeerToPeerView extends AbstractSessionView<UserId> implements
 
     @Override
     public void styleAndAppendText(StringBuilder sb, int offset, String name,
-            UserId userId, List<StyleRange> ranges, Color color) {
+            IUser userId, List<StyleRange> ranges, Color color) {
         StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
                 color, null, SWT.NORMAL);
         ranges.add(range);
@@ -244,11 +247,8 @@ public class PeerToPeerView extends AbstractSessionView<UserId> implements
     protected String getSessionName() {
         if (peer == null) {
             return getViewSite().getSecondaryId();
-        } else if (peer instanceof UserId) {
-            return CollaborationConnection.getConnection().getContactsManager()
-                    .getDisplayName(peer);
         } else {
-            return peer.getFQName();
+            return getDisplayName(peer);
         }
     }
 
@@ -264,13 +264,13 @@ public class PeerToPeerView extends AbstractSessionView<UserId> implements
         return new SessionMsgArchive(me.getHost(), me.getName(), peer.getName());
     }
 
-    public void setPeer(UserId peer) {
+    public void setPeer(IUser peer) {
         this.peer = peer;
         setPartName(getSessionName());
         initMessageArchive();
     }
 
-    public UserId getPeer() {
+    public IUser getPeer() {
         return peer;
     }
 
@@ -340,8 +340,15 @@ public class PeerToPeerView extends AbstractSessionView<UserId> implements
      * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
      */
     @Override
-    protected String getDisplayName(UserId userId) {
-        CollaborationConnection conn = CollaborationConnection.getConnection();
-        return conn.getContactsManager().getDisplayName(userId);
+    protected String getDisplayName(IUser user) {
+        if (user instanceof UserId) {
+            return CollaborationConnection.getConnection().getContactsManager()
+                    .getDisplayName((UserId) user);
+        } else if (user instanceof VenueParticipant) {
+            VenueParticipant participant = (VenueParticipant) user;
+            return participant.getHandle() + " in " + participant.getRoom();
+        } else {
+            return peer.getFQName();
+        }
     }
 }
