@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.registry.services;
+package com.raytheon.uf.edex.registry.ebxml.services.soap;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,6 +46,8 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.services.RegistryServiceConfiguration;
+import com.raytheon.uf.common.registry.services.RegistryServiceException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.security.SecurityConfiguration;
