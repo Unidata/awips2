@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jun 25, 2012           bsteffen    Initial creation
  * Jul 18, 2013  2189     mschenke    Added ability to specify font type
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
+ * Jun 17, 2014  2903     bclement    added PIPE to PointStyle
  * 
  * </pre>
  * 
@@ -372,6 +373,9 @@ public abstract class AbstractGraphicsTarget implements IGraphicsTarget {
                 break;
             case X:
                 text = "x";
+                break;
+            case PIPE:
+                text = "|";
                 break;
             case NONE:
             default:
