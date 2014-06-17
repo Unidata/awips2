@@ -233,11 +233,8 @@ curTime=`date +%Y%m%d_%H%M%S`
     shift
   done
 
-  # Special instructions for the 64-bit jvm.
-  ARCH_ARGS=""
-  if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
-    ARCH_ARGS="-vm /awips2/java/jre/lib/amd64/server/libjvm.so"
-  fi
+  # Eclipse recommends explicitly setting the JVM to use
+  ARCH_ARGS="-vm /awips2/java/bin/java"
 
   lookupINI "${USER_ARGS[@]}"
 
