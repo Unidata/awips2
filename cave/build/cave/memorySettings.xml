@@ -394,7 +394,7 @@
             <site-type>wfo</site-type>
 			<ini-substitutions>
 				<max-memory>
-					<value>3072M</value>
+					<value>2560M</value>
 				</max-memory>
 			
 				<max-perm>
@@ -433,7 +433,7 @@
             <site-type>cwsu</site-type>
 			<ini-substitutions>
 				<max-memory>
-					<value>3072M</value>
+					<value>2560M</value>
 				</max-memory>
 			
 				<max-perm>
