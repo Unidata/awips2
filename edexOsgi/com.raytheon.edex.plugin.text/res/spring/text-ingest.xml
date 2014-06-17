@@ -106,7 +106,7 @@
 		</route>
 
 		<route id="textUndecodedIngestRoute">
-			<from uri="jms-durable:queue:Ingest.Text?concurrentConsumers=2" />
+			<from uri="jms-durable:queue:Ingest.Text?concurrentConsumers=4" />
 			<setHeader headerName="pluginName">
 				<constant>text</constant>
 			</setHeader>			
