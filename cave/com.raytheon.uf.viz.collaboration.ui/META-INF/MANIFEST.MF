@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Collaboration UI Plugin
 Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.ui;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0
 Bundle-Activator: com.raytheon.uf.viz.collaboration.ui.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
@@ -19,4 +19,5 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core;bundle-version="1.12.1174",
  org.jivesoftware.smack;bundle-version="3.3.0"
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.uf.viz.core.maps.display
+Import-Package: com.raytheon.uf.common.xmpp.iq,
+ com.raytheon.uf.viz.core.maps.display

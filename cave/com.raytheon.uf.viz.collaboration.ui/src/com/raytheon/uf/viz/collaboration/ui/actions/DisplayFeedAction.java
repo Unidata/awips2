@@ -33,15 +33,19 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.jivesoftware.smack.XMPPConnection;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.xmpp.iq.FeedVenueConfig;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.FeedVenueConfigManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionFeedView;
@@ -66,6 +70,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Mar 06, 2014 2848       bclement    removed CollaborationConnection.joinTextOnlyVenue()
  * Apr 10, 2014 2937       bgonzale    Connect to the venue after the feed view is available
  *                                     to display messages.
+ * Jun 16, 2014 3288       bclement    feed venue configuration changes
  * 
  * </pre>
  * 
@@ -77,9 +82,6 @@ public class DisplayFeedAction extends Action {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DisplayFeedAction.class);
-
-    // TODO make this configurable?
-    public static final String FEED_VENUE = "nws-collaboration";
 
     public DisplayFeedAction() {
         super("Display Feed", SWT.TOGGLE);
@@ -108,8 +110,9 @@ public class DisplayFeedAction extends Action {
         String sessionId = null;
         for (ISession session : connection.getSessions()) {
             if (session instanceof IVenueSession) {
-                if (((IVenueSession) session).getVenueName()
-                        .equalsIgnoreCase(FEED_VENUE)) {
+                FeedVenueConfig config = FeedVenueConfigManager.getConfig();
+                if (((IVenueSession) session).getVenueName().equalsIgnoreCase(
+                        config.getName())) {
                     sessionId = session.getSessionId();
                 }
             }
@@ -128,7 +131,9 @@ public class DisplayFeedAction extends Action {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         String defaultHandle = HandleUtil.getDefaultHandle();
-        VenueSession session = connection.createTextOnlyVenue(FEED_VENUE,
+        FeedVenueConfig config = FeedVenueConfigManager.getConfig();
+        VenueId venueId = createVenueId(config);
+        VenueSession session = connection.createTextOnlyVenue(venueId,
                 defaultHandle);
         try {
             session.configureVenue();
@@ -150,13 +155,29 @@ public class DisplayFeedAction extends Action {
         }
     }
 
+    /**
+     * Create venue ID using configuration and the server name of the XMPP
+     * server currently connected
+     * 
+     * @param config
+     * @return
+     */
+    private static VenueId createVenueId(FeedVenueConfig config) {
+        CollaborationConnection conn = CollaborationConnection.getConnection();
+        XMPPConnection xmpp = conn.getXmppConnection();
+        return new VenueId(config.getSubdomain(), xmpp.getServiceName(),
+                config.getName());
+    }
+
     @Override
     public void run() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
-        if (!connection.venueExistsOnServer(FEED_VENUE)) {
+        FeedVenueConfig config = FeedVenueConfigManager.getConfig();
+        if (!connection.venueExistsOnServer(config.getSubdomain(),
+                config.getName())) {
             statusHandler.info("Feed venue doesn't exist on server: "
-                    + FEED_VENUE);
+                    + config.getName());
             setChecked(false);
             return;
         }
