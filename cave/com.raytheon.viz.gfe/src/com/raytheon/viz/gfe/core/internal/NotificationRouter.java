@@ -50,7 +50,7 @@ import com.raytheon.viz.gfe.Activator;
  * Sep 03, 2008  1448       chammack    Implement refactored interface
  * Mar 01, 2012  #346       dgilling    Use identity-based ListenerLists.
  * May 22, 2014  #3110      randerso    Queue messages received prior to start rather 
- *                                      than dropping them on the foor
+ *                                      than dropping them on the floor
  * 
  * </pre>
  * 
@@ -203,8 +203,8 @@ public class NotificationRouter implements INotificationObserver {
                     this.messageList.add(messages);
                     statusHandler
                             .handle(Priority.VERBOSE,
-                                    messages.length
-                                            + "notification messages queued because router is not started");
+                                    messageList.size()
+                                            + " notification messages queued because router is not started");
                     return;
                 }
             }
