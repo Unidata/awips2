@@ -1,5 +1,5 @@
 /**
-* This software was developed and / or modified by Raytheon Company,
+ * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
  * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
@@ -17,10 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.registry.ebxml;
+package com.raytheon.uf.edex.registry.ebxml.services.soap;
 
-import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
-
+import com.raytheon.uf.common.registry.ebxml.SOAPRegistryManager;
 
 /**
  * Remote version of the {@link SOAPRegistryManager}.
@@ -44,18 +43,18 @@ public class RemoteSOAPRegistryHandler extends RemoteSOAPRegistryManager {
 
     /** remote registry port **/
     private String port;
-    
+
     /** remote registry protocol **/
     private String protocol;
-    
+
     /** remote host complete precursor URL */
     public String remoteHostUrl = null;
-    
+
     /** default constructor **/
     public RemoteSOAPRegistryHandler() {
-        
+
     }
-    
+
     /** Bean constructor **/
     public RemoteSOAPRegistryHandler(RegistrySOAPServices rss) {
         super(rss);
@@ -63,7 +62,7 @@ public class RemoteSOAPRegistryHandler extends RemoteSOAPRegistryManager {
 
     @Override
     protected String getRemoteHost() {
-        
+
         if (remoteHostUrl == null) {
             StringBuffer buf = new StringBuffer();
             buf.append(protocol);
@@ -71,7 +70,7 @@ public class RemoteSOAPRegistryHandler extends RemoteSOAPRegistryManager {
             buf.append(host);
             buf.append(":");
             buf.append(port);
-            
+
             remoteHostUrl = buf.toString();
         }
 
