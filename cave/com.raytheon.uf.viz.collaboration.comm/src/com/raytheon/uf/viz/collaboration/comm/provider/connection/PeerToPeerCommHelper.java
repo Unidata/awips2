@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Feb 24, 2014 2756       bclement    moved xmpp objects to new packages
  * Apr 14, 2014 2903       bclement    moved from session subpackage to connection
  * Jun 17, 2014 3078       bclement    routing for private chat messages
+ * Jun 17, 2014 3078       bclement    only accept config from server, don't route data without sessionId
  * 
  * </pre>
  * 
@@ -113,8 +114,13 @@ public class PeerToPeerCommHelper implements PacketListener {
         if (packet instanceof Message) {
             Message msg = (Message) packet;
             String fromStr = msg.getFrom();
+
             if (fromStr == null) {
-                // from server
+                /*
+                 * Messages coming from the server will either have a null
+                 * 'from' address or it will be the host name of the server.
+                 * Normalize so that it is always just the name of the server.
+                 */
                 UserId account = CollaborationConnection.getConnection()
                         .getUser();
                 fromStr = account.getHost();
@@ -133,7 +139,7 @@ public class PeerToPeerCommHelper implements PacketListener {
                     // TODO Legacy config support
                     body = body.substring(Tools.CONFIG_PREAMBLE.length(),
                             body.length() - Tools.DIRECTIVE_SUFFIX.length());
-                    this.handleConfiguration(body);
+                    this.handleConfiguration(fromStr, body);
                 } else {
                     // anything else pass to the normal text
                     routeMessage(msg);
@@ -144,11 +150,11 @@ public class PeerToPeerCommHelper implements PacketListener {
                 if (payload != null) {
                     switch (payload.getPayloadType()) {
                     case Command:
-                        routeData(payload,
-                                (String) msg.getProperty(Tools.PROP_SESSION_ID));
+                        routeData(payload, msg);
                         break;
                     case Config:
-                        handleConfiguration(payload.getData().toString());
+                        handleConfiguration(fromStr, payload.getData()
+                                .toString());
                         break;
                     default:
                         // do nothing
@@ -158,28 +164,40 @@ public class PeerToPeerCommHelper implements PacketListener {
         }
     }
 
-
     /**
-     * Post data as event either to associated session, or general event bus
+     * Post data as event to associated session
      * 
      * @param payload
-     * @param sessionId
+     * @param msg
      */
-    private void routeData(SessionPayload payload, String sessionId) {
+    private void routeData(SessionPayload payload, Message msg) {
+        String sessionId = (String) msg.getProperty(Tools.PROP_SESSION_ID);
         Object object = payload.getData();
-        if (object != null) {
-            if (sessionId == null) {
-                manager.postEvent(object);
+        if (object != null && sessionId != null) {
+            // Ok, we have a session id.
+            ISession session = manager.getSession(sessionId);
+            if (session != null) {
+                /*
+                 * TODO 14.4 sends objects using venue handles, pre-14.4 uses
+                 * actual user IDs. Once all clients are using venue handles, we
+                 * should validate that the message is coming from a participant
+                 * in the venue session. See Omaha #3294
+                 */
+                session.postEvent(object);
             } else {
-                // Ok, we have a session id.
-                ISession session = manager.getSession(sessionId);
-                if (session != null) {
-                    session.postEvent(object);
-                } else {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "ERROR: Unknown sessionid [" + sessionId + "]");
-                }
+                statusHandler.handle(Priority.PROBLEM,
+                        "ERROR: Unknown sessionid [" + sessionId + "]");
             }
+        } else {
+            String warning = "Received null for the following: ";
+            if (object == null) {
+                warning += "payload data, ";
+            }
+            if (sessionId == null) {
+                warning += "session ID, ";
+            }
+            warning += "from " + msg.getFrom();
+            statusHandler.debug(warning);
         }
     }
 
@@ -226,9 +244,18 @@ public class PeerToPeerCommHelper implements PacketListener {
     /**
      * Parse server configuration and notify general event bus of config event
      * 
+     * @param from
+     *            used the validate that the configuration comes from the server
      * @param body
      */
-    private void handleConfiguration(String body) {
+    private void handleConfiguration(String from, String body) {
+        /* ignore config that doesn't come from server */
+        UserId account = CollaborationConnection.getConnection().getUser();
+        if (!from.equals(account.getHost())) {
+            statusHandler.debug("Ignoring config message from " + from + ": "
+                    + body);
+            return;
+        }
         // Determine if an error has occurred.
         if (IHttpXmppMessage.configErrorPattern.matcher(body).matches()) {
             statusHandler.handle(
