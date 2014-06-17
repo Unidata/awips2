@@ -107,6 +107,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * May 09, 2014 3107       bclement    default to trust transfer event when verify errors out
  * May 14, 2014 3061       bclement    added better checks for when to send invite/session payloads
  * Jun 16, 2014 3288       bclement    feed venue configuration changes
+ * Jun 17, 2014 3078       bclement    peer to peer communication uses private chat
  * 
  * </pre>
  * 
@@ -236,11 +237,7 @@ public class SharedDisplaySession extends VenueSession implements
          * break backwards compatibility
          */
         boolean doSend = true;
-        UserId userid = getVenue().getParticipantUserid(participant);
-        if (userid == null) {
-            log.warn("Attempted to send object to peer when actual userid is unknown");
-            doSend = false;
-        } else if (hasRole(SharedDisplayRole.DATA_PROVIDER)
+        if (hasRole(SharedDisplayRole.DATA_PROVIDER)
                 && !isSharedDisplayClient(participant)) {
             /*
              * data provider (leader) sends the bulk of the peer to peer
@@ -253,7 +250,7 @@ public class SharedDisplaySession extends VenueSession implements
         if (doSend) {
             SessionPayload payload = new SessionPayload(PayloadType.Command,
                     obj);
-            Message msg = new Message(userid.getFQName(), Type.normal);
+            Message msg = new Message(participant.getFQName(), Type.normal);
             msg.addExtension(payload);
             msg.setFrom(conn.getUser());
             msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
