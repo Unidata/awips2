@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  *                                      moved url validation from regex to java utility
  * Feb 24, 2014 2756       bclement    moved xmpp objects to new packages
  * Apr 14, 2014 2903       bclement    moved from session subpackage to connection
+ * Jun 17, 2014 3078       bclement    routing for private chat messages
  * 
  * </pre>
  * 
@@ -119,8 +120,10 @@ public class PeerToPeerCommHelper implements PacketListener {
                 fromStr = account.getHost();
             }
             if (IDConverter.isFromRoom(fromStr)) {
-                // venues will have their own listeners
-                return;
+                if (msg.getType().equals(Message.Type.groupchat)) {
+                    /* group chat is picked up by listeners on the venue */
+                    return;
+                }
             }
             String body = msg.getBody();
             if (body != null) {
@@ -186,7 +189,13 @@ public class PeerToPeerCommHelper implements PacketListener {
      * @param message
      */
     private void routeMessage(Message message) {
-        IUser fromId = IDConverter.convertFrom(message.getFrom());
+        String fromStr = message.getFrom();
+        IUser fromId;
+        if (IDConverter.isFromRoom(fromStr)) {
+            fromId = IDConverter.convertFromRoom(null, fromStr);
+        } else {
+            fromId = IDConverter.convertFrom(message.getFrom());
+        }
         TextMessage textMsg = new TextMessage(fromId, message.getBody());
         textMsg.setFrom(fromId);
         textMsg.setBody(message.getBody());
