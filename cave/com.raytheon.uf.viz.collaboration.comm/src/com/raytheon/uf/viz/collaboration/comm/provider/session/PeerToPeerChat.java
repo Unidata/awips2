@@ -35,7 +35,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied.Property;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * 
@@ -53,6 +52,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
  * Apr 11, 2014 2903       bclement    made constructor public b/c connection code moved packages
+ * Jun 17, 2014 3078       bclement    changed sendPeerToPeer() 'to' object to IUser
  * 
  * </pre>
  * 
@@ -120,7 +120,7 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
      * @throws CollaborationException
      */
     @Override
-    public void sendPeerToPeer(UserId to, String message)
+    public void sendPeerToPeer(IUser to, String message)
             throws CollaborationException {
         TextMessage msg = new TextMessage(to, message);
         this.sendPeerToPeer(msg);
