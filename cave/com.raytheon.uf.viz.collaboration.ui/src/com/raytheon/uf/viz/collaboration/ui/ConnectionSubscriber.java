@@ -44,7 +44,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEve
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.jobs.AwayTimeOut;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
@@ -75,6 +74,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Apr 08, 2014 2785      mpduff      removed preference listener
  * Apr 11, 2014 2903      bclement    added disconnect handler
  * Apr 24, 2014 2955      bclement    ignore duplicate session invites
+ * Jun 17, 2014 3078      bclement    reworked peerToPeerMessage() to use IUser
  * 
  * </pre>
  * 
@@ -263,18 +263,10 @@ public class ConnectionSubscriber {
             @Override
             public void run() {
                 IUser peer = message.getFrom();
-
-                UserId user = null;
-                if (peer instanceof UserId) {
-                    user = (UserId) peer;
-                } else {
-                    user = CollaborationConnection.getConnection()
-                            .getContactsManager().getUser(peer.getFQName());
-                }
-                PeerToPeerView view = new PeerToPeerChatAction(user)
+                PeerToPeerView view = new PeerToPeerChatAction(peer)
                         .createP2PChat(IWorkbenchPage.VIEW_CREATE);
-                message.setFrom(view.getPeer());
                 if (view != null) {
+                    message.setFrom(view.getPeer());
                     view.appendMessage(message);
                 }
             }
