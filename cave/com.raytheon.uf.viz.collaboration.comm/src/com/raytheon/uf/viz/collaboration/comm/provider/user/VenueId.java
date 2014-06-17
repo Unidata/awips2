@@ -34,6 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * Mar 29, 2012            jkorman     Initial creation
  * Feb 13, 2014 2751       bclement    removed resource, fixed getFQN
  * May 19, 2014 3180       bclement    added isSameVenue() fromString() and hashcode/equals
+ * Jun 16, 2014 3288       bclement    added constructors, default subdomain
  * 
  * </pre>
  * 
@@ -43,9 +44,38 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 public class VenueId implements IQualifiedID {
 
+    public static final String DEFAULT_SUBDOMAIN = "conference";
+
     private String host;
 
     private String name;
+
+    /**
+     * 
+     */
+    public VenueId() {
+    }
+
+    /**
+     * @param host
+     * @param name
+     */
+    public VenueId(String host, String name) {
+        this.host = host;
+        this.name = name;
+    }
+
+    /**
+     * subdomain and domain are combined to create the host
+     * 
+     * @param subdomain
+     * @param domain
+     * @param name
+     */
+    public VenueId(String subdomain, String domain, String name) {
+        this.host = subdomain + "." + domain;
+        this.name = name;
+    }
 
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setHost(java.lang.String)

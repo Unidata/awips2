@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+
 /**
  * Configuration used to create a new session
  * 
@@ -32,6 +34,7 @@ package com.raytheon.uf.viz.collaboration.comm.provider.session;
  * Jan 30, 2014 2698       bclement    moved to collaboration.comm project from collaboration.ui
  *                                     added handle
  * Mar 10, 2014 2848       bclement    added constructor with required fields
+ * Jun 16, 2014 3288       bclement    changed String venueName to VenueId venueId
  * 
  * </pre>
  * 
@@ -39,7 +42,7 @@ package com.raytheon.uf.viz.collaboration.comm.provider.session;
  * @version 1.0
  */
 public class CreateSessionData {
-    private String name;
+    private VenueId venueId;
 
     private String handle;
 
@@ -54,13 +57,13 @@ public class CreateSessionData {
     private String sessionId;
 
     /**
-     * @param name
-     *            name of session venue
+     * @param id
+     *            id of session venue
      * @param handle
      *            name user is known by in venue
      */
-    public CreateSessionData(String name, String handle) {
-        this.name = name;
+    public CreateSessionData(VenueId venueId, String handle) {
+        this.venueId = venueId;
         this.handle = handle;
         this.collaborationSession = false;
     }
@@ -73,12 +76,18 @@ public class CreateSessionData {
         this.sessionId = sessionId;
     }
 
-    public String getName() {
-        return name;
+    /**
+     * @return
+     */
+    public VenueId getVenueId() {
+        return venueId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    /**
+     * @param venueId
+     */
+    public void setVenueId(VenueId venueId) {
+        this.venueId = venueId;
     }
 
     /**

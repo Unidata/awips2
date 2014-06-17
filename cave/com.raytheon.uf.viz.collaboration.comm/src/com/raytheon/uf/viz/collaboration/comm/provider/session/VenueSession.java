@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.Venue;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
@@ -111,6 +112,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 23, 2014 2822       bclement    added formatInviteAddress()
  * Apr 29, 2014 3061       bclement    moved invite payload to shared display session
  * May 09, 2014 3107       bclement    removed catch from isRoomOwner() so callers know about errors
+ * Jun 16, 2014 3288       bclement    changed String venueName to VenueId venueId, added createVenueId()
  * 
  * 
  * </pre>
@@ -142,7 +144,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
     private volatile boolean admin = false;
 
-    private String venueName;
+    private VenueId venueId;
 
     private volatile boolean otherParticipants = false;
 
@@ -152,9 +154,9 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param eventBus
      */
     public VenueSession(EventBus externalBus, CollaborationConnection manager,
-            String venueName, String handle, String sessionId) {
+            VenueId venueId, String handle, String sessionId) {
         super(externalBus, manager, sessionId);
-        this.venueName = venueName;
+        this.venueId = venueId;
         this.handle = handle;
     }
 
@@ -166,7 +168,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
     public VenueSession(EventBus externalBus, CollaborationConnection manager,
             CreateSessionData data) {
         super(externalBus, manager);
-        this.venueName = data.getName();
+        this.venueId = data.getVenueId();
         this.handle = data.getHandle();
     }
 
@@ -313,32 +315,10 @@ public class VenueSession extends BaseSession implements IVenueSession {
          */
         CollaborationConnection manager = getSessionManager();
         XMPPConnection conn = manager.getXmppConnection();
-        String roomId = getRoomId(conn.getServiceName(), venueName);
-        this.muc = new MultiUserChat(conn, roomId);
+        this.muc = new MultiUserChat(conn, venueId.getFQName());
         this.venue = new Venue(conn, muc);
         createListeners();
         setHandle(manager, handle);
-    }
-
-    /**
-     * Construct room id from name and host
-     * 
-     * @param host
-     * @param roomName
-     * @return
-     */
-    public static String getRoomId(String host, String roomName) {
-        return roomName + "@" + getQualifiedHost(host);
-    }
-
-    /**
-     * Prepend conference subdomain on host
-     * 
-     * @param host
-     * @return
-     */
-    public static String getQualifiedHost(String host) {
-        return "conference." + host;
     }
 
     /**
@@ -352,7 +332,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
         try {
             CollaborationConnection manager = getSessionManager();
             XMPPConnection conn = manager.getXmppConnection();
-            String roomId = getRoomId(conn.getServiceName(), data.getName());
+            String roomId = venueId.getFQName();
             if (roomExistsOnServer(conn, roomId)) {
                 throw new CollaborationException("Session name already in use");
             }
@@ -360,7 +340,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             createListeners();
             setHandle(manager, data.getHandle());
             muc.create(this.handle);
-            muc.sendConfigurationForm(getRoomConfig(data.getName()));
+            muc.sendConfigurationForm(getRoomConfig());
             muc.changeSubject(data.getSubject());
             this.venue = new Venue(conn, muc);
             sendPresence(CollaborationConnection.getConnection().getPresence());
@@ -378,7 +358,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     msg = xmppError.getCondition();
                 }
             } else {
-                msg = "Error creating venue " + data.getName();
+                msg = "Error creating venue " + data.getVenueId();
             }
             closeMuc();
             throw new CollaborationException(msg, e);
@@ -403,11 +383,10 @@ public class VenueSession extends BaseSession implements IVenueSession {
     /**
      * Get filled out configuration form for room creation
      * 
-     * @param roomName
      * @return
      * @throws CollaborationException
      */
-    protected Form getRoomConfig(String roomName) throws CollaborationException {
+    protected Form getRoomConfig() throws CollaborationException {
         Form form;
         try {
             form = muc.getConfigurationForm();
@@ -425,8 +404,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
                 submitForm.setDefaultAnswer(field.getVariable());
             }
         }
-        submitForm.setAnswer("muc#roomconfig_roomname", roomName);
-        submitForm.setAnswer("muc#roomconfig_roomdesc", roomName);
+        submitForm.setAnswer("muc#roomconfig_roomname", venueId.getName());
+        submitForm.setAnswer("muc#roomconfig_roomdesc", venueId.getName());
         submitForm.setAnswer("muc#roomconfig_publicroom", false);
         submitForm.setAnswer("muc#roomconfig_membersonly", true);
         submitForm.setAnswer("muc#roomconfig_allowinvites", true);
@@ -440,11 +419,12 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @return true if room exists on server
      * @throws XMPPException
      */
-    public static boolean roomExistsOnServer(String roomName)
+    public static boolean roomExistsOnServer(String subdomain, String roomName)
             throws XMPPException {
         CollaborationConnection conn = CollaborationConnection.getConnection();
         XMPPConnection xmpp = conn.getXmppConnection();
-        String id = getRoomId(xmpp.getServiceName(), roomName);
+        String id = new VenueId(subdomain, xmpp.getServiceName(), roomName)
+                .getFQName();
         return roomExistsOnServer(conn.getXmppConnection(), id);
     }
 
@@ -858,10 +838,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     message.setBody(moddedBody);
                     TextMessage msg = new TextMessage(message.getFrom(),
                             message.getBody());
-                    UserId account = CollaborationConnection.getConnection()
-                            .getUser();
                     msg.setFrom(new VenueParticipant(this.getVenueName(),
-                            getQualifiedHost(account.getHost()), msgHandle));
+                            venueId.getHost(), msgHandle));
                     msg.setTimeStamp(time);
                     msg.setSubject(site);
                     msg.setStatus(SEND_HISTORY);
@@ -939,8 +917,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
     @Override
     public VenueParticipant getUserID() {
         UserId account = getAccount();
-        return new VenueParticipant(this.getVenueName(),
-                getQualifiedHost(account.getHost()), handle, account);
+        return new VenueParticipant(this.getVenueName(), venueId.getHost(),
+                handle, account);
     }
 
     /**
@@ -998,7 +976,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      */
     @Override
     public String getVenueName() {
-        return venueName;
+        return venueId.getName();
     }
 
     /*
@@ -1011,4 +989,19 @@ public class VenueSession extends BaseSession implements IVenueSession {
     public boolean hasOtherParticipants() {
         return otherParticipants;
     }
+
+    /**
+     * Create a venue ID with the default subdomain on the currently connected
+     * server
+     * 
+     * @param venueName
+     * @return
+     */
+    public static VenueId createVenueId(String venueName) {
+        CollaborationConnection conn = CollaborationConnection.getConnection();
+        XMPPConnection xmpp = conn.getXmppConnection();
+        return new VenueId(VenueId.DEFAULT_SUBDOMAIN, xmpp.getServiceName(),
+                venueName);
+    }
+
 }
