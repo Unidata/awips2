@@ -4,7 +4,7 @@
 	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
 	<bean id="registryRestClient"
-		class="com.raytheon.uf.common.registry.services.RegistryRESTServices">
+		class="com.raytheon.uf.edex.registry.ebxml.services.RegistryRESTServices">
 		<property name="serviceConfig" ref="RegistryServiceConfig" />
 		<property name="securityConfig" ref="securityConfiguration" />
 	</bean>
