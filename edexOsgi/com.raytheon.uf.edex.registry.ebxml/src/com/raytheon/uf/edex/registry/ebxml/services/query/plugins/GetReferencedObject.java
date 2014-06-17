@@ -42,10 +42,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
-import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.ObjectReferenceResolver;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
+import com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
