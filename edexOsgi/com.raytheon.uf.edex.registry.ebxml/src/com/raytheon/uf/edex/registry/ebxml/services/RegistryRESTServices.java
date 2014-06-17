@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.registry.services;
+package com.raytheon.uf.edex.registry.ebxml.services;
 
 import java.lang.reflect.Proxy;
 import java.net.URL;
@@ -38,6 +38,8 @@ import com.google.common.io.Resources;
 import com.raytheon.uf.common.registry.RegistryJaxbManager;
 import com.raytheon.uf.common.registry.RegistryNamespaceMapper;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.services.RegistryServiceConfiguration;
+import com.raytheon.uf.common.registry.services.RegistryServiceException;
 import com.raytheon.uf.common.registry.services.rest.IRegistryObjectsRestService;
 import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService;
 import com.raytheon.uf.edex.security.SecurityConfiguration;
