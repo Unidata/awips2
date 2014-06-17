@@ -88,6 +88,10 @@
 		<exclude>grid-staticdata-process.xml</exclude>
 		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
+		<exclude>ldad.*</exclude>
+		<exclude>mosaic.*</exclude>
+		<exclude>DPADecoder.*</exclude>
+		<exclude>hpeDHRDecoder.*</exclude>
 		<includeMode>excludeDpaAndOgc</includeMode>
 		<exclude>obs-ingest-metarshef.xml</exclude>
 		<!-- ncep excludes until tested -->
