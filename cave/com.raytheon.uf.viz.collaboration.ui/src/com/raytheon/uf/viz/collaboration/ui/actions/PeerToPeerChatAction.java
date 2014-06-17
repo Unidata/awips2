@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
+import java.util.Collection;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -28,8 +30,11 @@ import org.jivesoftware.smack.packet.Presence.Type;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -45,6 +50,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
+ * Jun 17, 2014 3078      bclement     changed user type to IUser, added isAvailable()
  * 
  * </pre>
  * 
@@ -57,9 +63,9 @@ public class PeerToPeerChatAction extends Action {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerChatAction.class);
 
-    private final UserId user;
+    private final IUser user;
 
-    public PeerToPeerChatAction(UserId user) {
+    public PeerToPeerChatAction(IUser user) {
         super("Chat", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "chats.gif"));
         this.user = user;
@@ -68,15 +74,44 @@ public class PeerToPeerChatAction extends Action {
 
     @Override
     public void run() {
-        Presence presence = CollaborationConnection.getConnection()
-                .getContactsManager().getPresence(user);
-        if (presence.getType() != Type.unavailable) {
-            UserId loginUserId = CollaborationConnection.getConnection()
-                    .getUser();
-            if (!loginUserId.equals(user)) {
-                createP2PChat(IWorkbenchPage.VIEW_ACTIVATE);
+        if (isAvailable(user)) {
+            createP2PChat(IWorkbenchPage.VIEW_ACTIVATE);
+        }
+    }
+
+    /**
+     * @param user
+     * @return true if user is available for chat
+     */
+    private boolean isAvailable(IUser user) {
+        boolean rval = false;
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        if (user instanceof UserId) {
+            Presence presence = connection.getContactsManager().getPresence(
+                    (UserId) user);
+            if (presence.getType() != Type.unavailable) {
+                UserId loginUserId = CollaborationConnection.getConnection()
+                        .getUser();
+                rval = !loginUserId.isSameUser(user);
+            }
+        } else if (user instanceof VenueParticipant) {
+            VenueParticipant participant = (VenueParticipant) user;
+            Collection<IVenueSession> sessions = connection
+                    .getJoinedVenueSessions();
+            for (IVenueSession sesh : sessions) {
+                String venueName = sesh.getVenueName();
+                if (venueName.equals(participant.getRoom())) {
+                    Presence presence = sesh.getVenue().getPresence(
+                            (VenueParticipant) user);
+                    if (presence.getType() != Type.unavailable) {
+                        rval = true;
+                        break;
+                    }
+                }
             }
         }
+        return rval;
     }
 
     /**
@@ -84,17 +119,7 @@ public class PeerToPeerChatAction extends Action {
      * users are available.
      */
     public void updateEnabled() {
-        boolean enabled = false;
-        Presence presence = CollaborationConnection.getConnection()
-                .getContactsManager().getPresence(user);
-        if (presence.getType() != Type.unavailable) {
-            UserId loginUserId = CollaborationConnection.getConnection()
-                    .getUser();
-            if (!loginUserId.getName().equals(user.getName())) {
-                enabled = true;
-            }
-        }
-        setEnabled(enabled);
+        setEnabled(isAvailable(user));
     }
 
     /**
@@ -108,9 +133,9 @@ public class PeerToPeerChatAction extends Action {
      */
     public PeerToPeerView createP2PChat(Integer viewMode) {
         try {
-            String name = user.getName();
+            String id = user.getFQName();
             PeerToPeerView p2pView = (PeerToPeerView) CaveWorkbenchPageManager
-                    .getActiveInstance().showView(PeerToPeerView.ID, name,
+                    .getActiveInstance().showView(PeerToPeerView.ID, id,
                             viewMode);
             if (p2pView.getPeer() == null) {
                 p2pView.setPeer(user);
