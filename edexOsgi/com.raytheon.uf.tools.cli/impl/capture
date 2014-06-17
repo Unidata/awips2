@@ -51,7 +51,7 @@ usage() {
    echo "  The servers to grab top information from, make sure list is quoted and space delimited"
    echo
    echo -e "-d {y/n}\t\tdefault [$RUN_JMAP]"
-   echo "  Run jmap to grab the head dump information"
+   echo "  Run jmap to grab the heap dump information"
    echo
    echo -e "-e {request/ingest/ingestGrib/ingestDat}"
    echo "  Run edex mode and grab information about the jvm passed.  May be used multiple times to grab data about multiple jvms"
