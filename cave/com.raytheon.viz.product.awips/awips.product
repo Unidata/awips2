@@ -16,10 +16,9 @@
    <launcherArgs>
       <programArgs>-data @user.home/caveData -user @user.home/caveData -clean</programArgs>
       <programArgsLin>-consoleLog</programArgsLin>
-      <vmArgs>-Xincgc -Dosgi.instance.area.readOnly=true 
+      <vmArgs>-XX:+UseG1GC
+-Dosgi.instance.area.readOnly=true 
 -Declipse.log.enabled=false
--XX:+UnlockDiagnosticVMOptions
--XX:+UnsyncloadClass
 -Dorg.eclipse.update.reconcile=false
 -XX:MaxPermSize=128m
 -Dorg.eclipse.ui/KEY_CONFIGURATION_ID=com.raytheon.viz.ui.awips.scheme
@@ -32,7 +31,7 @@
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=98</vmArgs>
-      <vmArgsLin>-Xmx1280M -XX:MaxDirectMemorySize=2G</vmArgsLin>
+      <vmArgsLin>-Xmx2048M -XX:MaxDirectMemorySize=2G</vmArgsLin>
       <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx768M</vmArgsWin>
    </launcherArgs>
 
