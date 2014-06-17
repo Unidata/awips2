@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -35,6 +34,10 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
@@ -58,7 +61,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.jivesoftware.smack.packet.Presence;
 
@@ -68,11 +70,11 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
@@ -81,11 +83,11 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.sounds.SoundUtil;
-import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
 
 /**
  * The ViewPart of a text only room, contains methods that are used by the
@@ -111,6 +113,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Mar 11, 2014 #2865      lvenable    Added null checks in threads
  * Mar 28, 2014 #2960      lvenable    Added check to make sure the SashForm is not getting
  *                                     negative weights - set to zero if negative.
+ * Jun 17, 2014 3078       bclement    added private chat to menu and double click
  * 
  * </pre>
  * 
@@ -141,8 +144,6 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     private Image highlightedRightArrow;
 
     private Image highlightedDownArrow;
-
-    protected Action chatAction;
 
     protected SessionColorManager colorManager;
 
@@ -189,24 +190,6 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     }
 
     protected void createActions() {
-        chatAction = new Action("Chat") {
-            @Override
-            public void run() {
-                try {
-                    ISession session = CollaborationConnection.getConnection()
-                            .getPeerToPeerSession();
-                    CaveWorkbenchPageManager.getActiveInstance().showView(
-                            PeerToPeerView.ID, session.getSessionId(),
-                            IWorkbenchPage.VIEW_ACTIVATE);
-                } catch (PartInitException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to open chat", e);
-                } catch (CollaborationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
-            }
-        };
     }
 
     /**
@@ -234,6 +217,12 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     }
 
     protected void fillContextMenu(IMenuManager manager) {
+        IStructuredSelection selection = (IStructuredSelection) usersTable
+                .getSelection();
+        VenueParticipant entry = (VenueParticipant) selection.getFirstElement();
+        if (!entry.isSameUser(session.getUserID())) {
+            manager.add(new PeerToPeerChatAction(entry));
+        }
     }
 
     @Subscribe
@@ -370,19 +359,24 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         });
 
         ColumnViewerToolTipSupport.enableFor(usersTable, ToolTip.RECREATE);
-        // TODO this needs to be a private chat through the muc
-        // usersTable.addDoubleClickListener(new IDoubleClickListener() {
-        // @Override
-        // public void doubleClick(DoubleClickEvent event) {
-        // StructuredSelection selection = (StructuredSelection) usersTable
-        // .getSelection();
-        //
-        // Object o = selection.getFirstElement();
-        // if (o instanceof UserId) {
-        // new PeerToPeerChatAction((UserId) o).run();
-        // }
-        // }
-        // });
+        usersTable.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                StructuredSelection selection = (StructuredSelection) usersTable
+                        .getSelection();
+
+                Object o = selection.getFirstElement();
+                if (o instanceof IUser) {
+                    IUser user = (IUser) o;
+                    CollaborationConnection connection = CollaborationConnection
+                            .getConnection();
+                    UserId accountUser = connection.getUser();
+                    if (!accountUser.isSameUser(user)) {
+                        new PeerToPeerChatAction(user).run();
+                    }
+                }
+            }
+        });
 
         if (session != null) {
             refreshParticipantList();
