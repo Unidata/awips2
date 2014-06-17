@@ -145,6 +145,7 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * Apr 08, 2014  2950     bsteffen    Reduce oversized colormaps.
  * May 08, 2014  2920     bsteffen    Fix default color of BOXED text.
+ * Jun 17, 2014  2903     bclement    added PIPE to PointStyle
  * 
  * </pre>
  * 
@@ -2262,6 +2263,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
             int pointsPerLocation = 1;
             int geomType = GL.GL_LINES;
             switch (pointStyle) {
+            case PIPE:
             case POINT:
             case DASH: {
                 pointsPerLocation = 2;
@@ -2358,6 +2360,9 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                     buf.put(new float[] { x - xTick, y + yTick, x + xTick,
                             y + yTick, x + xTick, y - yTick, x - xTick,
                             y - yTick });
+                    break;
+                case PIPE:
+                    buf.put(new float[] { x, y - yTick, x, y + yTick });
                     break;
                 }
             }
