@@ -50,6 +50,7 @@ import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.graph.GraphPreferences;
 import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
@@ -97,6 +98,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     capability.
  * Feb 14, 2011 8244       bkowal      enabled magnification for wind barbs.
  * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
+ * Jun 18, 2014 3242       njensen     Added ensembleId to legend
  * 
  * </pre>
  * 
@@ -359,9 +361,13 @@ public class TimeSeriesResource extends
             // Connects adjacent data points with a line
             if (prevScreen != null) {
                 OutlineCapability lineCap = getCapability(OutlineCapability.class);
-                target.drawLine(screen[0], screen[1], 0.0, prevScreen[0],
-                        prevScreen[1], 0.0, color, lineCap.getOutlineWidth(),
-                        lineCap.getLineStyle());
+                DrawableLine line = new DrawableLine();
+                line.addPoint(screen[0], screen[1]);
+                line.addPoint(prevScreen[0], prevScreen[1]);
+                line.basics.color = color;
+                line.width = lineCap.getOutlineWidth();
+                line.lineStyle = lineCap.getLineStyle();
+                target.drawLine(line);
             }
 
             prevScreen = screen;
@@ -501,6 +507,11 @@ public class TimeSeriesResource extends
                 "TSer", units != null && units.equals("") == false ? "("
                         + units + ")" : ""));
 
+        if (adapter.getEnsembleId() != null) {
+            sb.append(" Perturbation ");
+            sb.append(adapter.getEnsembleId());
+        }
+
         if (secondaryResource != null) {
             return ICombinedResourceData.CombineUtil.getName(sb.toString(),
                     secondaryResource.getName(), combineOperation);
@@ -533,6 +544,7 @@ public class TimeSeriesResource extends
         return (units != null ? units : adapter.getParameterName());
     }
 
+    @Override
     public void redraw() {
         // Only used if wireframe shapes are constructed
     }
@@ -583,10 +595,10 @@ public class TimeSeriesResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         String inspect = null;
-        double[] worldCoord = descriptor.pixelToWorld(
-                new double[] { coord.getObject().x, coord.getObject().y });
-        Coordinate c = descriptor.getGraphCoordiante(this,
-                new Coordinate(worldCoord[0], worldCoord[1]));
+        double[] worldCoord = descriptor.pixelToWorld(new double[] {
+                coord.getObject().x, coord.getObject().y });
+        Coordinate c = descriptor.getGraphCoordiante(this, new Coordinate(
+                worldCoord[0], worldCoord[1]));
         if (c != null && data != null) {
             double[] vals = data.inspectXY(c);
             NumberFormat nf = NumberFormat.getInstance();
