@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -43,9 +42,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class WclInfo implements ISerializableObject {
-
-    private static final long serialVersionUID = 1L;
+public class WclInfo {
 
     @XmlAttribute
     @DynamicSerializeElement
