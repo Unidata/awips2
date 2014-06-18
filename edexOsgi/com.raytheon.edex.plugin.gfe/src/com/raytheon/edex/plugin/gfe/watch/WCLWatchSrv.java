@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * ------------ ---------- ----------- --------------------------
  * ??? ??, 20??            wldougher    Initial creation
  * Jun 09, 2014  #3268     dgilling     Ensure code works in multi-domain scenarios.
+ * Jun 13, 2014  #3278     dgilling     Ensure temporary files get deleted.
  * 
  * </pre>
  * 
@@ -152,7 +153,13 @@ public class WCLWatchSrv {
         // Move the file to the wcl folder
         // Rename it to <wclDir>/<completeProductPil>
         statusHandler.info("Placing WCL Procedure Utility in ifpServer ");
-        makePermanent(tmpFile, completeProductPil, siteIDs);
+        try {
+            makePermanent(tmpFile, completeProductPil, siteIDs);
+        } finally {
+            if (tmpFile != null) {
+                tmpFile.delete();
+            }
+        }
 
         if (doNotify && wclInfo.getNotify()) {
             for (String siteID : sitesToNotify) {
@@ -166,40 +173,22 @@ public class WCLWatchSrv {
         }
 
         statusHandler.debug("handleWclWatch() ending");
-        return;
     }
 
     /**
-     * Convert a temporary parsed WCL file to a permanent one by moving it to
-     * the WCL directory. This is done through File.renameTo(). Unfortunately,
-     * that method returns a boolean success flag rather than throwing an error,
-     * so all we can do is tell the user that the rename failed, not why.
-     * 
-     * @param wclData
-     *            WCL data to write to file.
-     * @param completeProductPil
-     *            The simple name of the file.
-     * 
-     * @throws EdexException
-     *             if WCL file cannot be opened, written, or closed.
-     */
-    /**
-     * Convert a temporary parsed WCL file to a permanent one by moving it to
-     * the WCL directory. This is done through File.renameTo(). Unfortunately,
-     * that method returns a boolean success flag rather than throwing an error,
-     * so all we can do is tell the user that the rename failed, not why.
+     * Convert a temporary parsed WCL file to a permanent one by copying its
+     * contents to the localization path cave_static.SITE/gfe/wcl/ for each of
+     * the specified sites.
      * 
      * @param tmpFile
-     *            The temporary file (may be null)
+     *            The temporary file (may be {@code null})
      * @param completeProductPil
-     *            The simple name of the file.
+     *            The base name of the files to write.
      * @param siteIDs
      *            The set of siteIDs to write out the WCL data for.
-     * @throws EdexException
-     *             if tmpFile cannot be renamed.
      */
     protected void makePermanent(File tmpFile, String completeProductPil,
-            Collection<String> siteIDs) throws EdexException {
+            Collection<String> siteIDs) {
         statusHandler.debug("makePermanent(" + tmpFile + ","
                 + completeProductPil + ") started");
         if (tmpFile != null) {
@@ -243,7 +232,7 @@ public class WCLWatchSrv {
         File tmpFile = null;
         PrintStream wclOut = null;
         try {
-            tmpFile = File.createTempFile("wcl", null, null);
+            tmpFile = File.createTempFile("wcl", null);
             wclOut = new PrintStream(tmpFile);
             wclOut.println(wclStr);
         } catch (IOException e) {
