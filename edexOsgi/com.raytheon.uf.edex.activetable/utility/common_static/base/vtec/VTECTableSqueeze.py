@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/17/13        #3296         randerso       Default debug to False to avoid logging overhead        
+#
+
 import os, sys, time, copy, LogStream
 
 # This class takes a VTEC active table and eliminates unnecessary 
@@ -27,7 +35,7 @@ import os, sys, time, copy, LogStream
 class VTECTableSqueeze:
 
     #constructor
-    def __init__(self, currentTime, debug=True):
+    def __init__(self, currentTime, debug=False):
         self.__ctime = currentTime
         self.__thisYear = time.gmtime(self.__ctime)[0]
         self.__debug = debug
