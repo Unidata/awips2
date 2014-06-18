@@ -40,7 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineSegment;
 
 /**
- * TODO Add Description
+ * A resource for displaying the background of the hodograph
  * 
  * <pre>
  * 
@@ -48,7 +48,8 @@ import com.vividsolutions.jts.geom.LineSegment;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 17, 2011            bsteffen     Initial creation
+ * Nov 17, 2011            bsteffen    Initial creation
+ * Jun 18, 2014 3242       njensen     Replace deprecated calls
  * 
  * </pre>
  * 
@@ -88,7 +89,7 @@ public class HodographBackgroundResource extends
 
         List<DrawableString> labels = new ArrayList<DrawableString>();
         for (int i = 90; i <= 360; i += 90) {
-            DrawableString label = labelDirection(target, paintProps, i);
+            DrawableString label = labelDirection(paintProps, i);
             if (label != null) {
                 labels.add(label);
             }
@@ -101,8 +102,8 @@ public class HodographBackgroundResource extends
         target.drawRect(extent, GREY, 2.0f, 1.0);
     }
 
-    private DrawableString labelDirection(IGraphicsTarget target,
-            PaintProperties paintProps, int direction) {
+    private DrawableString labelDirection(PaintProperties paintProps,
+            int direction) {
         IExtent extent = paintProps.getView().getExtent();
         double padding = 3 * paintProps.getView().getExtent().getWidth()
                 / paintProps.getCanvasBounds().width;
@@ -110,7 +111,7 @@ public class HodographBackgroundResource extends
         DrawableString label = new DrawableString(direction + "\u00B0", GREY);
         label.verticallAlignment = VerticalAlignment.MIDDLE;
         label.horizontalAlignment = HorizontalAlignment.CENTER;
-        label.textStyle = TextStyle.BLANKED;
+        label.addTextStyle(TextStyle.BLANKED);
         double[] center = descriptor
                 .polarToPixel(new double[] { 20, direction });
         double[] point = descriptor
@@ -171,7 +172,7 @@ public class HodographBackgroundResource extends
                 double[] screen = descriptor.polarToPixel(new double[] { mag,
                         225 });
                 label.setCoordinates(screen[0], screen[1]);
-                label.textStyle = TextStyle.BLANKED;
+                label.addTextStyle(TextStyle.BLANKED);
                 labelList.add(label);
             }
             // Add the lines
