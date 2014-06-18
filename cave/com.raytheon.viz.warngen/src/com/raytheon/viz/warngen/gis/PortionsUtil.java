@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.vividsolutions.jts.geom.Geometry;
@@ -39,6 +40,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2013  2177       jsanchez     Initial creation
  * Sep 22, 2013 2177       jsanchez     Updated logic. Used GisUtil for very small portions.
+ * Jun 17, 2014 DR 17390   Qinglu Lin   Update getPortions().
  * 
  * </pre>
  * 
@@ -78,8 +80,15 @@ public class PortionsUtil {
 			// This takes into account the warned areas that are very small
 			// the convex hull of the warned area is used for case the
 			// warnedArea is a geometry collection.
-			portions = GisUtil.calculateLocationPortion(countyOrZone,
-					warnedArea.convexHull(), useExtreme);
+            CountyUserData cud = (CountyUserData) countyOrZone.getUserData();
+            String countyName = (String) cud.entry.attributes.get("COUNTYNAME");
+            if (countyName == null) {
+                portions = GisUtil.calculateLocationPortion(countyOrZone,
+                        warnedArea.convexHull(), useExtreme, true);
+            } else {
+                portions = GisUtil.calculateLocationPortion(countyOrZone,
+                        warnedArea.convexHull(), useExtreme, false);
+            }
 		} else {
 			portions = getAreaDesc(entityData.getMeanMask(),
 					entityData.getCoverageMask(), entityData.getOctants(),
