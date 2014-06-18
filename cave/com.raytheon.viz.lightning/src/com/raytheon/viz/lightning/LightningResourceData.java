@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2009            chammack     Initial creation
  * Feb 27, 2013 DCS 152    jgerth       Support for WWLLN and multiple sources
+ * Jun 19, 2014  3214      bclement     added pulse and could flash support
  * 
  * </pre>
  * 
@@ -63,6 +64,12 @@ public class LightningResourceData extends AbstractRequestableResourceData {
 
     @XmlAttribute
     private boolean handlingNegativeStrikes = true;
+
+    @XmlAttribute
+    private boolean handlingCloudFlashes = false;
+
+    @XmlAttribute
+    private boolean handlingPulses = false;
 
     @XmlAttribute
     private String plotLightSource = "";
@@ -146,8 +153,63 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     }
 
     /**
-     * @return plotLightSource
-     *            the lightSource to get - JJG
+     * @return the handlingCloudFlashes
+     */
+    public boolean isHandlingCloudFlashes() {
+        return handlingCloudFlashes;
+    }
+
+    /**
+     * @param handlingCloudFlashes
+     *            the handlingCloudFlashes to set
+     */
+    public void setHandlingCloudFlashes(boolean handlingCloudFlashes) {
+        this.handlingCloudFlashes = handlingCloudFlashes;
+    }
+
+    /**
+     * @return the handlingPulses
+     */
+    public boolean isHandlingPulses() {
+        return handlingPulses;
+    }
+
+    /**
+     * @see #isHandlingCloudFlashes()
+     * @see #isHandlingNegativeStrikes()
+     * @see #isHandlingPositiveStrikes()
+     * @see #isHandlingPulses()
+     * @return true if resource data handles exactly one type of data
+     */
+    public boolean isExclusiveForType() {
+        boolean[] bools = { isHandlingCloudFlashes(),
+                isHandlingNegativeStrikes(), isHandlingPositiveStrikes(),
+                isHandlingPulses() };
+        boolean handlingZero = true;
+        boolean handlingMoreThanOne = false;
+        for (boolean handlingSomething : bools) {
+            if (handlingSomething) {
+                if (handlingZero) {
+                    handlingZero = false;
+                } else {
+                    handlingMoreThanOne = true;
+                    break;
+                }
+            }
+        }
+        return !handlingZero && !handlingMoreThanOne;
+    }
+
+    /**
+     * @param handlingPulses
+     *            the handlingPulses to set
+     */
+    public void setHandlingPulses(boolean handlingPulses) {
+        this.handlingPulses = handlingPulses;
+    }
+
+    /**
+     * @return plotLightSource the lightSource to get - JJG
      */
     public String getPlotLightSource() {
     	return plotLightSource;
@@ -177,20 +239,55 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         this.countPosition = countPosition;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + countPosition;
+        result = prime * result + (handlingCloudFlashes ? 1231 : 1237);
+        result = prime * result + (handlingNegativeStrikes ? 1231 : 1237);
+        result = prime * result + (handlingPositiveStrikes ? 1231 : 1237);
+        result = prime * result + (handlingPulses ? 1231 : 1237);
+        result = prime * result
+                + ((plotLightSource == null) ? 0 : plotLightSource.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj) {
-        // TODO Auto-generated method stub
-        if (!super.equals(obj)) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
             return false;
-        }
-
-        if (obj instanceof LightningResourceData == false) {
+        if (getClass() != obj.getClass())
             return false;
-        }
-
         LightningResourceData other = (LightningResourceData) obj;
-        return (this.handlingNegativeStrikes == other.handlingNegativeStrikes && this.handlingPositiveStrikes == other.handlingPositiveStrikes &&
-        		this.plotLightSource == other.plotLightSource && this.countPosition == other.countPosition);
+        if (countPosition != other.countPosition)
+            return false;
+        if (handlingCloudFlashes != other.handlingCloudFlashes)
+            return false;
+        if (handlingNegativeStrikes != other.handlingNegativeStrikes)
+            return false;
+        if (handlingPositiveStrikes != other.handlingPositiveStrikes)
+            return false;
+        if (handlingPulses != other.handlingPulses)
+            return false;
+        if (plotLightSource == null) {
+            if (other.plotLightSource != null)
+                return false;
+        } else if (!plotLightSource.equals(other.plotLightSource))
+            return false;
+        return true;
     }
 
 }
