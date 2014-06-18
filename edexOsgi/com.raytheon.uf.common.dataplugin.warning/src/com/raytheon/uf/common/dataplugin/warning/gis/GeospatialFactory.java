@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                     So, do not add the returned value of getFeAreaField() 
  *                                     to areaFields.
  * Jan  9, 2013   15600    Qinglu Lin  Execute "timezones = myTimeZones;" even if timezones != null.
+ * Jun 17, 2014  DR 17390  Qinglu Lin  Updated getMetaDataMap() for lonField and latField.
  * 
  * </pre>
  * 
@@ -210,6 +211,9 @@ public class GeospatialFactory {
             if (feAreaField != null) {
                 areaFields.add(feAreaField);
             }
+
+            areaFields.add("LON");
+            areaFields.add("LAT");
 
             if (timeZoneField != null) {
                 areaFields.add(timeZoneField);
