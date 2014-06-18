@@ -90,6 +90,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *  Jun 05, 2014 3226       bclement    moved data arrays into map for easier management
  *                                      replaced addStrike() with List constructor, added pulses
  *  Jun 10, 2014 3226       bclement    collections instead of lists, made data source logic public
+ *  Jun 19, 2014 3214       bclement    populated pulse index array with -1 when missing pulse data
  * 
  * </pre>
  * 
@@ -113,6 +114,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
     private static final long serialVersionUID = 1L;
 
     public static final String PLUGIN_NAME = "binlightning";
+
+    public static final int MISSING_PULSE_INDEX_VALUE = -1;
 
     // Data store data items
     @Transient
@@ -231,6 +234,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
                 if (pulseCounts[i] != pulses.size()) {
                     pulseCounts[i] = (byte) pulses.size();
                 }
+            } else {
+                pulseIndexes[i] = MISSING_PULSE_INDEX_VALUE;
             }
         }
 
