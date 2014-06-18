@@ -109,12 +109,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.apache.xerces"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.owasp.esapi"
          download-size="0"
          install-size="0"
@@ -149,13 +143,6 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="org.apache.xml.apis"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="org.apache.xml.resolver"
