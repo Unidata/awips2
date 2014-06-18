@@ -43,6 +43,7 @@ import logging
 import os
 import sys
 import time
+import errno
 
 import ActiveTableRecord
 import siteConfig
