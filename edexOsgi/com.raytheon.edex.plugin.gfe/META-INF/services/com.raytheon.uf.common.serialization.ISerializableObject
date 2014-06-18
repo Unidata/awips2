@@ -1,4 +1,3 @@
-com.raytheon.edex.plugin.gfe.wcl.WclInfo
 com.raytheon.edex.plugin.gfe.isc.IscSendRecord
 com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecord
 com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecordPK
