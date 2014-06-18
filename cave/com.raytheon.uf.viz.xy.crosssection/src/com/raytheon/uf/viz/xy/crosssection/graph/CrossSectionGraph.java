@@ -76,10 +76,11 @@ import com.vividsolutions.jts.geom.Point;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2010            bsteffen     Initial creation
+ * Jul 3, 2010             bsteffen    Initial creation
  * Feb 15, 2013 1638       mschenke    Got rid of viz/edex topo classes 
  *                                     and moved into common
  * Aug 13, 2013 2262       dgilling    Use new wxmath hgt2pres method.
+ * Jun 14, 2014 3242       njensen     Null safety checks
  * 
  * </pre>
  * 
@@ -158,11 +159,13 @@ public class CrossSectionGraph extends AbstractGraph {
      */
     @Override
     protected void createAxes() {
-        yAxisPlacer.setPixelWidth(graphExtent.getWidth());
+        if (yAxisPlacer != null && xAxisPlacer != null) {
+            yAxisPlacer.setPixelWidth(graphExtent.getWidth());
 
-        createHeightAxis(
-                ((CrossSectionDescriptor) descriptor).getHeightScale(),
-                zoomLevel);
+            createHeightAxis(
+                    ((CrossSectionDescriptor) descriptor).getHeightScale(),
+                    zoomLevel);
+        }
     }
 
     @Override
@@ -217,7 +220,7 @@ public class CrossSectionGraph extends AbstractGraph {
                 titleColor);
         titleString.font = titleFont;
         titleString.setCoordinates(x, y);
-        titleString.textStyle = TextStyle.DROP_SHADOW;
+        titleString.addTextStyle(TextStyle.DROP_SHADOW);
         titleString.horizontalAlignment = HorizontalAlignment.LEFT;
         titleString.verticallAlignment = VerticalAlignment.BOTTOM;
         titleString.magnification = currentMagnification;
@@ -243,7 +246,7 @@ public class CrossSectionGraph extends AbstractGraph {
 
         paintHeightUnits(target, paintProps);
 
-        paintTopoLine(target, paintProps);
+        paintTopoLine(target);
 
         paintCities(target, paintProps);
 
@@ -316,7 +319,7 @@ public class CrossSectionGraph extends AbstractGraph {
             caret.setCoordinates(x, y);
             city.setCoordinates(x, y);
             caret.font = city.font = unitsFont;
-            city.textStyle = TextStyle.BLANKED;
+            city.addTextStyle(TextStyle.BLANKED);
             caret.horizontalAlignment = city.horizontalAlignment = HorizontalAlignment.CENTER;
             caret.verticallAlignment = VerticalAlignment.BOTTOM;
             city.verticallAlignment = VerticalAlignment.MIDDLE;
@@ -361,8 +364,7 @@ public class CrossSectionGraph extends AbstractGraph {
         target.drawStrings(labels);
     }
 
-    protected void paintTopoLine(IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
+    protected void paintTopoLine(IGraphicsTarget target) throws VizException {
         // Draw topo graph
 
         RGB graphColor = ((CrossSectionDescriptor) descriptor)
