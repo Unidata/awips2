@@ -30,7 +30,7 @@
 	<default-memory-setting>
 		<default-max-memory>
 			<jvm-arg>Xmx</jvm-arg>
-			<value>1280M</value>
+			<value>2048M</value>
 		</default-max-memory>
 		
 		<default-max-perm>
