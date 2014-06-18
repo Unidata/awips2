@@ -63,9 +63,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 6, 2009            mschenke     Initial creation
- * Feb 10, 2011 8244      bkowal       Keep track of the current
+ * Nov 6, 2009             mschenke    Initial creation
+ * Feb 10, 2011 8244       bkowal      Keep track of the current
  *                                     magnification settings.
+ * Jun 18, 2014 3242       njensen     Replace deprecated calls
  * 
  * </pre>
  * 
@@ -529,7 +530,7 @@ public abstract class AbstractGraph implements IGraph {
         double ratio = paintProps.getCanvasBounds().height
                 / paintProps.getView().getExtent().getHeight();
         DrawableString titleString = new DrawableString(title, titleColor);
-        titleString.textStyle = TextStyle.DROP_SHADOW;
+        titleString.addTextStyle(TextStyle.DROP_SHADOW);
         titleString.horizontalAlignment = HorizontalAlignment.LEFT;
         titleString.verticallAlignment = VerticalAlignment.BOTTOM;
         titleString.rotation = 90;
@@ -865,6 +866,7 @@ public abstract class AbstractGraph implements IGraph {
      */
     protected abstract void createAxes();
 
+    @Override
     public void setCurrentMagnification(Double currentMagnification) {
         this.currentMagnification = currentMagnification;
     }
