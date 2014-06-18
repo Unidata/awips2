@@ -25,7 +25,7 @@
       <resource
             class="com.raytheon.viz.lightning.LightningResource"
             name="Lightning"
-            recordClass="com.raytheon.edex.plugin.binlightning.BinLightningRecord"
+            recordClass="com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord"
             renderingOrderId="PLOT"
             resourceType="PLAN_VIEW">
       </resource>
