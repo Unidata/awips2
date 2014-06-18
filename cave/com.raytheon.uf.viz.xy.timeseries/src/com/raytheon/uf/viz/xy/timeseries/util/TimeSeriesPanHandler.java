@@ -28,7 +28,7 @@ import com.raytheon.viz.ui.input.PanHandler;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * A pan handler for time series.
  * 
  * <pre>
  * 
@@ -36,6 +36,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 16, 2009            mschenke     Initial creation
+ * Jun 14, 2014 3242       njensen      Null safety checks
  * 
  * </pre>
  * 
@@ -94,6 +95,7 @@ public class TimeSeriesPanHandler extends AbstractGraphInputHandler {
             IGraph graphToUse = desc.getGraphResource().getClosestGraph(grid);
 
             if (graphToUse != null
+                    && graphToUse.getExtent() != null
                     && graphToUse.getExtent().contains(
                             new double[] { grid.x, grid.y, grid.z })) {
                 this.graph = graphToUse;
@@ -150,6 +152,7 @@ public class TimeSeriesPanHandler extends AbstractGraphInputHandler {
      * 
      * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int, int)
      */
+    @Override
     public boolean handleMouseUp(int x, int y, int button) {
         IDisplayPaneContainer editor = display.getContainer();
         if (button != 1) {
