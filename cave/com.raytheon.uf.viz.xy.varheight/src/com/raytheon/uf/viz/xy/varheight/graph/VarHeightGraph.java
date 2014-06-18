@@ -55,16 +55,17 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
- * TODO Add Description
+ * The background graph for a var height display
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2010            bsteffen     Initial creation
- * Feb 10, 2011 8244      bkowal       replaced deprecrated method calls;
+ * Jul 03, 2010            bsteffen    Initial creation
+ * Feb 10, 2011 8244       bkowal      replaced deprecrated method calls;
  *                                     magnitude influences axis label font.
+ * Jun 18, 2014 3242       njensen     Replaced deprecated calls
  * 
  * </pre>
  * 
@@ -248,7 +249,7 @@ public class VarHeightGraph extends AbstractGraph {
                     }
                     DrawableString parameters = new DrawableString("", rcsColor);
                     parameters.font = unitsFont;
-                    parameters.textStyle = TextStyle.DROP_SHADOW;
+                    parameters.addTextStyle(TextStyle.DROP_SHADOW);
                     parameters.horizontalAlignment = HorizontalAlignment.CENTER;
                     parameters.verticallAlignment = VerticalAlignment.TOP;
                     parameters.magnification = this.currentMagnification;
