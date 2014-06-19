@@ -40,15 +40,16 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
- * TODO Add Description
+ * Zoom handler for var height displays
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2010            bsteffen     Initial creation
+ * Jul 3, 2010             bsteffen    Initial creation
  * Dec 11, 2013 DR 16795   D. Friedman Transform pixel coordinate for zoom
+ * Jun 18, 2014 3242       njensen     Null safety checks
  * 
  * </pre>
  * 
@@ -122,7 +123,8 @@ public class VarHeightZoomHandler extends AbstractGraphInputHandler {
             zoomIndex += 1;
         }
 
-        /* Convert from the overall display coordinate space to the coordinate
+        /*
+         * Convert from the overall display coordinate space to the coordinate
          * space for our resource.
          */
         DirectPosition2D dp = new DirectPosition2D(grid.x, grid.y);
@@ -137,8 +139,9 @@ public class VarHeightZoomHandler extends AbstractGraphInputHandler {
             if (rsc.getResource() instanceof IGraphableResource<?, ?>) {
                 IGraph graph = desc.getGraph((IGraphableResource<?, ?>) rsc
                         .getResource());
-                if (graph.getExtent().contains(new double[] { dp.x, dp.y })) {
-                    graph.zoom((int) Math.pow(2, zoomIndex), new Coordinate(dp.x, dp.y));
+                Coordinate c = new Coordinate(dp.x, dp.y);
+                if (graphContainsCoordinate(graph, c)) {
+                    graph.zoom((int) Math.pow(2, zoomIndex), c);
                 }
 
             }
