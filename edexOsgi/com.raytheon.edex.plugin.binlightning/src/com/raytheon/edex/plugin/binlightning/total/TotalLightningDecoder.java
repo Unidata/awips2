@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.binlightning.total;
 
+import gov.noaa.nws.ost.edex.plugin.binlightning.DecryptedLightningValidator;
 import gov.noaa.nws.ost.edex.plugin.binlightning.EncryptedBinLightningCipher;
 
 import java.nio.ByteBuffer;
@@ -58,6 +59,7 @@ import com.raytheon.uf.common.wmo.WMOTimeParser;
  * May 30, 2014 3226       bclement    Initial creation
  * Jun 09, 2014 3226       bclement    added encryption support
  * Jun 10, 2014 3226       bclement    added filter support
+ * Jun 19, 2014 3226       bclement    added validator callback
  * 
  * </pre>
  * 
@@ -100,6 +102,13 @@ public class TotalLightningDecoder {
     private static final EncryptedBinLightningCipher CIPHER = new EncryptedBinLightningCipher();
 
     public static final String TOTAL_LIGHTNING_KEYSTORE_PREFIX = "total.lightning";
+
+    private static final DecryptedLightningValidator validator = new DecryptedLightningValidator() {
+        @Override
+        public boolean isValid(byte[] data) {
+            return validFlashPacket(data, COMBINATION_PACKET_HEADER_SIZE);
+        }
+    };
 
     /**
      * Parse total lightning data into BinLightningRecords
@@ -219,7 +228,7 @@ public class TotalLightningDecoder {
                 fileName);
         try {
             return CIPHER.decryptData(pdata, baseTime.getTime(),
-                    TOTAL_LIGHTNING_KEYSTORE_PREFIX);
+                    TOTAL_LIGHTNING_KEYSTORE_PREFIX, validator);
         } catch (Exception e) {
             throw new DecoderException("Problem decrypting total lightning", e);
         }
