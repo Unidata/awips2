@@ -233,9 +233,6 @@ curTime=`date +%Y%m%d_%H%M%S`
     shift
   done
 
-  # Eclipse recommends explicitly setting the JVM to use
-  ARCH_ARGS="-vm /awips2/java/bin/java"
-
   lookupINI "${USER_ARGS[@]}"
 
   if [[ "${runMonitorThreads}" == "true" ]] ; then 
@@ -244,9 +241,9 @@ curTime=`date +%Y%m%d_%H%M%S`
   fi
 
   if [[ "${redirect}" == "true" ]] ; then 
-    exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} "${CAVE_INI_ARG}" "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
+    exec ${CAVE_INSTALL}/cave ${SWITCHES} "${CAVE_INI_ARG}" "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
   else
-    exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} "${CAVE_INI_ARG}" "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
+    exec ${CAVE_INSTALL}/cave ${SWITCHES} "${CAVE_INI_ARG}" "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
   fi
 ) &
 
