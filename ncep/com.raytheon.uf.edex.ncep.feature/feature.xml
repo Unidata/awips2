@@ -123,13 +123,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.aww"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.edex.plugin.convsigmet"
          download-size="0"
          install-size="0"
@@ -180,13 +173,6 @@
 
    <plugin
          id="gov.noaa.nws.ncep.edex.plugin.ncscat"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.nctext"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -291,34 +277,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.ncpafm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.ncscd"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.nctaf"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.ncuair"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.edex.plugin.sgwh"
          download-size="0"
          install-size="0"
@@ -375,13 +333,6 @@
 
    <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.ntrans"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.ntrans"
          download-size="0"
          install-size="0"
          version="0.0.0"
