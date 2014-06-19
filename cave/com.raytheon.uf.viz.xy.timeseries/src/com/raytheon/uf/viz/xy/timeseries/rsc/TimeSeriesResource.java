@@ -53,6 +53,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -72,7 +73,6 @@ import com.raytheon.uf.viz.xy.graph.labeling.DoubleLabel;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
-import com.raytheon.uf.viz.xy.map.rsc.PointRenderable;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.uf.viz.xy.timeseries.display.TimeSeriesDescriptor;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
@@ -114,9 +114,6 @@ public class TimeSeriesResource extends
 
     private final SimpleDateFormat timeSampleFormat = new SimpleDateFormat(
             "HH:mm'Z' EEE");
-
-    /** Inset map point */
-    protected PointRenderable point = null;
 
     /** The graph preferences */
     protected GraphPreferences prefs;
@@ -625,14 +622,12 @@ public class TimeSeriesResource extends
             PaintProperties paintProps, MapDescriptor insetMapDescriptor)
             throws VizException {
         // paint a point
-        if (point == null) {
-            point = new PointRenderable(resourceData.getCoordinate(),
-                    getCapability(ColorableCapability.class).getColor(),
-                    insetMapDescriptor);
-        } else {
-            point.setColor(getCapability(ColorableCapability.class).getColor());
-        }
-        point.paint(target, paintProps);
+        Coordinate point = resourceData.getCoordinate();
+        double[] pixels = insetMapDescriptor.worldToPixel(new double[] {
+                point.x, point.y });
+        target.drawPoint(pixels[0], pixels[1], 0.0,
+                getCapability(ColorableCapability.class).getColor(),
+                PointStyle.STAR);
     }
 
     public String[] getTitles() {
