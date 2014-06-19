@@ -2,35 +2,32 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Satellite Visualization Plug-in
 Bundle-SymbolicName: com.raytheon.viz.satellite;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 1.14.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui
-Eclipse-BuddyPolicy: ext, global
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- com.raytheon.uf.viz.core,
+Require-Bundle:  org.eclipse.core.runtime;bundle-version="3.8",
+ com.raytheon.uf.viz.core;bundle-version="1.14",
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.satellite,
- com.raytheon.uf.common.datastorage,
- com.raytheon.uf.common.serialization.comm,
- com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.14",
+ com.raytheon.uf.common.datastorage;bundle-version="1.14",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14",
  com.raytheon.uf.common.colormap,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.message,
- com.raytheon.uf.viz.productbrowser,
+ com.raytheon.uf.common.pointdata;bundle-version="1.13",
+ com.raytheon.uf.viz.productbrowser;bundle-version="1.14",
  com.raytheon.uf.common.derivparam;bundle-version="1.14.0",
  com.raytheon.uf.viz.ui.menus,
  com.raytheon.uf.common.style,
- com.raytheon.viz.ui,
- com.raytheon.viz.core,
- javax.measure,
+ com.raytheon.viz.ui;bundle-version="1.14",
  com.raytheon.uf.common.inventory;bundle-version="1.14.0",
  com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
- com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.14",
  com.raytheon.uf.common.comm,
- com.raytheon.uf.common.numeric,
- com.raytheon.viz.alerts
-Bundle-ActivationPolicy: lazy
+ com.raytheon.uf.common.numeric;bundle-version="1.14",
+ com.raytheon.viz.alerts,
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.14",
+ javax.measure
+Import-Package: com.raytheon.viz.core.rsc,
+ com.raytheon.viz.core.rsc.hdf5
 Export-Package: com.raytheon.viz.satellite,
  com.raytheon.viz.satellite.rsc
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
