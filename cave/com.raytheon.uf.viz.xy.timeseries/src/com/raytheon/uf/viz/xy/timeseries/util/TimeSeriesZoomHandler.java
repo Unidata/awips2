@@ -189,16 +189,4 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
         return grid;
     }
 
-    /**
-     * Checks whether or not the coordinate is in the extent of a graph
-     * 
-     * @param graph
-     * @param coord
-     * @return
-     */
-    private boolean graphContainsCoordinate(IGraph graph, Coordinate coord) {
-        return (graph != null && graph.getExtent() != null && graph.getExtent()
-                .contains(new double[] { coord.x, coord.y }));
-    }
-
 }
