@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,12 +35,15 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
+import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
@@ -96,6 +100,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
  *    Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
  *    Jun 05, 2014  3226       bclement    reference datarecords by LightningConstants
+ *    Jun 19, 2014  3214       bclement    added pulse and could flash support
  * 
  * </pre>
  * 
@@ -118,6 +123,10 @@ public class LightningResource extends
         public List<double[]> posLatLonList = new ArrayList<double[]>();
 
         public List<double[]> negLatLonList = new ArrayList<double[]>();
+
+        public List<double[]> cloudLatLonList = new ArrayList<double[]>();
+
+        public List<double[]> pulseLatLonList = new ArrayList<double[]>();
     }
 
     private static class LightningFrameMetadata {
@@ -242,9 +251,13 @@ public class LightningResource extends
 
     private IFont font;
 
-    private List<double[]> currPosList = null;
+    private List<double[]> currPosList = Collections.emptyList();
 
-    private List<double[]> currNegList = null;
+    private List<double[]> currNegList = Collections.emptyList();
+
+    private List<double[]> currCloudList = Collections.emptyList();
+
+    private List<double[]> currPulseList = Collections.emptyList();
 
     public LightningResource(LightningResourceData resourceData,
             LoadProperties loadProperties, String ls, int pa) {
@@ -317,11 +330,20 @@ public class LightningResource extends
         } else {
             timeString = convertTimeIntervalToString(absTimeInterval);
         }
-
-        if (!this.resourceData.isHandlingNegativeStrikes()) {
-            this.resourceName = timeString + "Positive";
-        } else if (!this.resourceData.isHandlingPositiveStrikes()) {
-            this.resourceName = timeString + "Negative";
+        if (this.resourceData.isExclusiveForType()) {
+            String modifier;
+            if (this.resourceData.isHandlingCloudFlashes()) {
+                modifier = "Cloud Flash";
+            } else if (this.resourceData.isHandlingNegativeStrikes()) {
+                modifier = "Negative";
+            } else if (this.resourceData.isHandlingPositiveStrikes()) {
+                modifier = "Positive";
+            } else if (this.resourceData.isHandlingPulses()) {
+                modifier = "Pulse";
+            } else {
+                modifier = "";
+            }
+            this.resourceName = timeString + modifier;
         } else {
             this.resourceName = timeString;
         }
@@ -376,6 +398,8 @@ public class LightningResource extends
 
         int posCount = 0;
         int negCount = 0;
+        int cloudCount = 0;
+        int pulseCount = 0;
         
         if (magnification == 0.0) magnification=(float) 0.01;
         
@@ -393,49 +417,35 @@ public class LightningResource extends
                 } else {
                     if (needsUpdate) {
                         needsUpdate = false;
-                        currNegList = new ArrayList<double[]>(
-                                bundle.posLatLonList.size());
-                        currPosList = new ArrayList<double[]>(
-                                bundle.negLatLonList.size());
-
-                        if (resourceData.isHandlingPositiveStrikes()) {
-                            for (double[] pos : bundle.posLatLonList) {
-                                currPosList.add(descriptor.worldToPixel(pos));
-                            }
-                        }
                         if (resourceData.isHandlingNegativeStrikes()) {
-                            for (double[] neg : bundle.negLatLonList) {
-                                currNegList.add(descriptor.worldToPixel(neg));
-                            }
+                            currNegList = convertToPixel(bundle.negLatLonList);
+                        }
+                        if (resourceData.isHandlingPositiveStrikes()) {
+                            currPosList = convertToPixel(bundle.posLatLonList);
+                        }
+                        if (resourceData.isHandlingCloudFlashes()) {
+                            currCloudList = convertToPixel(bundle.cloudLatLonList);
+                        }
+                        if (resourceData.isHandlingPulses()) {
+                            currPulseList = convertToPixel(bundle.pulseLatLonList);
                         }
                     }
 
                     if (resourceData.isHandlingPositiveStrikes()) {
-                        List<double[]> positive = new ArrayList<double[]>(
-                                currPosList.size());
-                        for (double[] pos : currPosList) {
-                            if (extent.contains(pos)) {
-                                positive.add(pos);
-                            }
-                        }
-                        posCount = positive.size();
-
-                        target.drawPoints(positive, color, PointStyle.CROSS,
-                                magnification);
+                        posCount = drawFilteredPoints(target, magnification,
+                                color, PointStyle.CROSS, extent, currPosList);
                     }
-
                     if (resourceData.isHandlingNegativeStrikes()) {
-                        List<double[]> negative = new ArrayList<double[]>(
-                                currPosList.size());
-                        for (double[] neg : currNegList) {
-                            if (extent.contains(neg)) {
-                                negative.add(neg);
-                            }
-                        }
-                        negCount = negative.size();
-
-                        target.drawPoints(negative, color, PointStyle.DASH,
-                                magnification);
+                        negCount = drawFilteredPoints(target, magnification,
+                                color, PointStyle.DASH, extent, currNegList);
+                    }
+                    if (resourceData.isHandlingCloudFlashes()) {
+                        cloudCount = drawFilteredPoints(target, magnification,
+                                color, PointStyle.CIRCLE, extent, currCloudList);
+                    }
+                    if (resourceData.isHandlingPulses()) {
+                        pulseCount = drawFilteredPoints(target, magnification,
+                                color, PointStyle.PIPE, extent, currPulseList);
                     }
                 }
             }
@@ -447,30 +457,86 @@ public class LightningResource extends
                 .getHeight();
 
         if (this.resourceData.isHandlingPositiveStrikes()) {
-            DrawableString pos = new DrawableString(posCount + " + Strikes",
-                    color);
-            pos.setCoordinates(225, height * (2 + 2*this.posAdj));
-            // jjg above
-            pos.font = font;
-            pos.verticallAlignment = VerticalAlignment.TOP;
-            pos.horizontalAlignment = HorizontalAlignment.RIGHT;
-            strings.add(pos);
+            strings.add(createLegendString(color, posCount, " + Strikes",
+                    height, 2));
         }
-
         if (this.resourceData.isHandlingNegativeStrikes()) {
-            DrawableString neg = new DrawableString(negCount + " - Strikes",
-                    color);
-            neg.setCoordinates(225, height * (3 + 2*this.posAdj));
-            // jjg above
-            neg.font = font;
-            neg.verticallAlignment = VerticalAlignment.TOP;
-            neg.horizontalAlignment = HorizontalAlignment.RIGHT;
-            strings.add(neg);
+            strings.add(createLegendString(color, negCount, " - Strikes",
+                    height, 3));
         }
-
+        if (this.resourceData.isHandlingCloudFlashes()) {
+            strings.add(createLegendString(color, cloudCount, " Cloud Flashes",
+                    height, 4));
+        }
+        if (this.resourceData.isHandlingPulses()) {
+            strings.add(createLegendString(color, pulseCount, " Pulses",
+                    height, 5));
+        }
         target.getExtension(ICanvasRenderingExtension.class).drawStrings(
                 paintProps, strings.toArray(new DrawableString[0]));
 
+    }
+
+    /**
+     * Create lightning legend string in upper left corner of display
+     * 
+     * @param color
+     * @param count
+     * @param msg
+     * @param height
+     * @param verticalOffset
+     *            vertical position of legend string (starting at 2)
+     * @return
+     */
+    private DrawableString createLegendString(RGB color, int count, String msg,
+            double height, int verticalOffset) {
+        DrawableString pos = new DrawableString(count + msg, color);
+        pos.setCoordinates(225, height * (verticalOffset + 2 * this.posAdj));
+        // jjg above
+        pos.font = font;
+        pos.verticallAlignment = VerticalAlignment.TOP;
+        pos.horizontalAlignment = HorizontalAlignment.RIGHT;
+        return pos;
+    }
+
+    /**
+     * Draw points on target using provided styling. Points are filtered by
+     * extent.
+     * 
+     * @param target
+     * @param magnification
+     * @param color
+     * @param style
+     * @param extent
+     * @param pixelList
+     * @return count of points that matched filter
+     * @throws VizException
+     */
+    private static int drawFilteredPoints(IGraphicsTarget target,
+            float magnification, RGB color, PointStyle style, IExtent extent,
+            List<double[]> pixelList) throws VizException {
+        List<double[]> filtered = new ArrayList<double[]>(pixelList.size());
+        for (double[] pxl : pixelList) {
+            if (extent.contains(pxl)) {
+                filtered.add(pxl);
+            }
+        }
+        target.drawPoints(filtered, color, style, magnification);
+        return filtered.size();
+    }
+
+    /**
+     * convert list of world coordinates to pixel coordinates
+     * 
+     * @param lonLats
+     * @return
+     */
+    private List<double[]> convertToPixel(List<double[]> lonLats) {
+        List<double[]> rval = new ArrayList<double[]>(lonLats.size());
+        for (double[] lonLat : lonLats) {
+            rval.add(descriptor.worldToPixel(lonLat));
+        }
+        return rval;
     }
 
     /*
@@ -628,29 +694,27 @@ public class LightningResource extends
 
                 long tDS1 = System.currentTimeMillis();
                 dsTime += (tDS1 - tDS0);
-                Map<String, List<IDataRecord>> recordMap = new HashMap<String, List<IDataRecord>>();
                 // Throw in a map for easy accessibility
-                for (IDataRecord rec : records) {
-                    List<IDataRecord> recordList = recordMap.get(rec.getName());
-                    if (recordList == null) {
-                        recordList = new ArrayList<IDataRecord>();
-                        recordMap.put(rec.getName(), recordList);
-                    }
-                    recordList.add(rec);
-                }
+                Map<String, List<IDataRecord>> recordMap = createRecordMap(records);
 
                 List<IDataRecord> times = recordMap
                         .get(LightningConstants.TIME_DATASET);
-
                 List<IDataRecord> intensities = recordMap
                         .get(LightningConstants.INTENSITY_DATASET);
                 List<IDataRecord> lats = recordMap
                         .get(LightningConstants.LAT_DATASET);
                 List<IDataRecord> lons = recordMap
                         .get(LightningConstants.LON_DATASET);
+                List<IDataRecord> types = recordMap
+                        .get(LightningConstants.STRIKE_TYPE_DATASET);
+                List<IDataRecord> pulseIndexes = recordMap
+                        .get(LightningConstants.PULSE_INDEX_DATASET);
 
                 int k = 0;
                 for (IDataRecord timeRec : times) {
+                    if (hasPulseData(pulseIndexes, k)) {
+                        populatePulseData(frame, bundle, timeRec.getGroup(), ds);
+                    }
                     LongDataRecord time = (LongDataRecord) timeRec;
                     // Now loop through the obs times and intensities and
                     // start categorizing strikes
@@ -664,16 +728,26 @@ public class LightningResource extends
                             .getFloatData();
                     float[] longitudeData = ((FloatDataRecord) lons.get(k))
                             .getFloatData();
+                    byte[] typeData = ((ByteDataRecord) types.get(k))
+                            .getByteData();
 
                     for (int i = 0; i < numRecords; i++) {
 
                         DataTime dt = new DataTime(new Date(timeData[i]));
                         dt = frame.offset.getNormalizedTime(dt);
                         List<double[]> list;
-                        if (intensityData[i] > 0) {
-                            list = bundle.posLatLonList;
-                        } else {
-                            list = bundle.negLatLonList;
+                        LtgStrikeType type = LtgStrikeType.getById(typeData[i]);
+                        switch(type){
+                        case CLOUD_TO_CLOUD:
+                            list = bundle.cloudLatLonList;
+                            break;
+                        default:
+                            if (intensityData[i] > 0) {
+                                list = bundle.posLatLonList;
+                            } else {
+                                list = bundle.negLatLonList;
+                            }
+                            break;
                         }
 
                         double[] latLon = new double[] { longitudeData[i],
@@ -689,7 +763,6 @@ public class LightningResource extends
                     }
                     k++;
                 }
-
             } catch (StorageException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Storage error retrieving lightning data", e);
@@ -704,6 +777,101 @@ public class LightningResource extends
 
         System.out.println("Decoded: " + strikeCount + " strikes in "
                 + (t1 - t0) + "ms (hdf5 time = " + dsTime + "ms)");
+    }
+
+    /**
+     * Unpack records into map keyed by record name
+     * 
+     * @param records
+     * @return
+     */
+    private static Map<String, List<IDataRecord>> createRecordMap(
+            IDataRecord[] records) {
+        Map<String, List<IDataRecord>> recordMap = new HashMap<String, List<IDataRecord>>();
+        for (IDataRecord rec : records) {
+            List<IDataRecord> recordList = recordMap.get(rec.getName());
+            if (recordList == null) {
+                recordList = new ArrayList<IDataRecord>();
+                recordMap.put(rec.getName(), recordList);
+            }
+            recordList.add(rec);
+        }
+        return recordMap;
+    }
+
+    /**
+     * Search records and return first found with name
+     * 
+     * @param records
+     * @param name
+     * @return null if none found
+     */
+    private static IDataRecord findDataRecord(IDataRecord[] records, String name) {
+        IDataRecord rval = null;
+        for (IDataRecord record : records) {
+            if (record.getName().equals(name)) {
+                rval = record;
+                break;
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * @param pulseIndexes
+     * @param recordIndex
+     * @return true if any data record in list has a valid pulse index
+     */
+    private static boolean hasPulseData(List<IDataRecord> pulseIndexes,
+            int recordIndex) {
+        if (pulseIndexes != null) {
+            IDataRecord record = pulseIndexes.get(recordIndex);
+            int[] indexData = ((IntegerDataRecord) record).getIntData();
+            for (int i = 0; i < indexData.length; ++i) {
+                if (indexData[i] >= 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Read pulse data from datastore and populate in frame
+     * 
+     * @param frame
+     * @param bundle
+     * @param group
+     * @param ds
+     */
+    private static void populatePulseData(LightningFrameMetadata frame,
+            LightningFrame bundle, String group, IDataStore ds) {
+        try {
+            IDataRecord[] records = ds.retrieve(group + DataURI.SEPARATOR
+                    + LightningConstants.PULSE_HDF5_GROUP_SUFFIX);
+            FloatDataRecord latRecord = (FloatDataRecord) findDataRecord(
+                    records, LightningConstants.LAT_DATASET);
+            FloatDataRecord lonRecord = (FloatDataRecord) findDataRecord(
+                    records, LightningConstants.LON_DATASET);
+            if (latRecord == null || lonRecord == null) {
+                throw new StorageException(
+                        "Missing pulse latitude and/or longitude data", null);
+            }
+            float[] lats = latRecord.getFloatData();
+            float[] lons = lonRecord.getFloatData();
+            if (lats.length != lons.length) {
+                throw new StorageException(
+                        "Mismatched pulse latitude/longitude data", latRecord);
+            }
+            for (int i = 0; i < lats.length; ++i) {
+                bundle.pulseLatLonList.add(new double[] { lons[i], lats[i] });
+            }
+        } catch (FileNotFoundException e) {
+            statusHandler.error("Unable to open lightning file", e);
+        } catch (StorageException e) {
+            statusHandler.error("Unable to read pulse datasets for group "
+                    + group, e);
+        }
     }
 
 }
