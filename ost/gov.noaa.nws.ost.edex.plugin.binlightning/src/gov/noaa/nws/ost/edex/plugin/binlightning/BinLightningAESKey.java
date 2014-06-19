@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -29,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.crypto.spec.IvParameterSpec;
+
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -47,6 +52,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 20130503      DCS 112   Wufeng Zhou To handle both the new encrypted data and legacy bit-shifted data
  * Jun 03, 2014 3226       bclement    moved from com.raytheon.edex.plugin.binlightning to gov.noaa.nws.ost.edex.plugin.binlightning
  * Jun 09, 2014 3226       bclement    refactored to support multiple stores for different data types
+ * Jun 19, 2014 3226       bclement    added getInitializationVector()
  * 
  * </pre>
  * 
@@ -66,6 +72,8 @@ public class BinLightningAESKey {
     public static final String KEYSTORE_PASS_PROP_SUFFIX = ".AESKeystorePassword";
 
     public static final String CIPHER_ALGORITHM_SUFFIX = ".cipherAlgorithm";
+
+    public static final String CIPHER_INITIALIZATION_VECTOR_SUFFIX = ".initializationVectorFile";
 
     public static final String DEFAULT_CIPHER_ALGORITHM = "AES";
 
@@ -311,6 +319,32 @@ public class BinLightningAESKey {
     public static String getCipherAlgorithm(String propertyPrefix) {
         return props.getProperty(propertyPrefix + CIPHER_ALGORITHM_SUFFIX,
                 DEFAULT_CIPHER_ALGORITHM);
+    }
+
+    /**
+     * Create a Cipher initialization vector parameter spec for data type
+     * 
+     * @param propertyPrefix
+     *            prefix for properties associated with a particular lightning
+     *            data type
+     * @return null if not found or error occurred
+     */
+    public static IvParameterSpec getInitializationVector(String propertyPrefix) {
+        IvParameterSpec rval = null;
+        String ivFileName = props.getProperty(propertyPrefix
+                + CIPHER_INITIALIZATION_VECTOR_SUFFIX);
+        if (ivFileName != null) {
+            Path ivPath = Paths.get(ivFileName);
+            try {
+                byte[] ivData = Files.readAllBytes(ivPath);
+                rval = new IvParameterSpec(ivData);
+            } catch (IOException e) {
+                logger.error(
+                        "Unable to create initialization vector for type: "
+                        + propertyPrefix, e);
+            }
+        }
+        return rval;
     }
 	
 	private String alias;
