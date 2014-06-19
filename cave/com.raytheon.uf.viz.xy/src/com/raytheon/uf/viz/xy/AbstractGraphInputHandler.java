@@ -20,7 +20,9 @@
 package com.raytheon.uf.viz.xy;
 
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.viz.ui.input.InputAdapter;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Abstract class for graph input handlers, get constructed at the editor level
@@ -31,7 +33,8 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 1, 2009            mschenke     Initial creation
+ * Oct 01, 2009            mschenke    Initial creation
+ * Jun 14, 2014 3242       njensen     Added graphContainsCoordinate()
  * 
  * </pre>
  * 
@@ -53,5 +56,17 @@ public abstract class AbstractGraphInputHandler extends InputAdapter {
 
     public void setRenderableDisplay(IRenderableDisplay display) {
         this.display = display;
+    }
+
+    /**
+     * Checks whether or not the coordinate is in the extent of a graph
+     * 
+     * @param graph
+     * @param coord
+     * @return
+     */
+    protected boolean graphContainsCoordinate(IGraph graph, Coordinate coord) {
+        return (graph != null && graph.getExtent() != null && graph.getExtent()
+                .contains(new double[] { coord.x, coord.y }));
     }
 }
