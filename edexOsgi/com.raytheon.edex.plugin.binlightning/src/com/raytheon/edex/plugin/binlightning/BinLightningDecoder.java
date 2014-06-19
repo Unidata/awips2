@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.binlightning;
 import gov.noaa.nws.ost.edex.plugin.binlightning.BinLightningAESKey;
 import gov.noaa.nws.ost.edex.plugin.binlightning.BinLightningDataDecryptionException;
 import gov.noaa.nws.ost.edex.plugin.binlightning.BinLightningDecoderUtil;
+import gov.noaa.nws.ost.edex.plugin.binlightning.DecryptedLightningValidator;
 import gov.noaa.nws.ost.edex.plugin.binlightning.EncryptedBinLightningCipher;
 
 import java.text.SimpleDateFormat;
@@ -88,6 +89,7 @@ import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
  * Jun 05, 2014 3226       bclement    LightningStikePoint refactor, added extractPData()
  * Jun 09, 2014 3226       bclement    moved data array decrypt prep to EncryptedBinLightingCipher
  * Jun 10, 2014 3226       bclement    added filter support
+ * Jun 19, 2014 3226       bclement    added validator callback
  * 
  * </pre>
  * 
@@ -113,6 +115,23 @@ public class BinLightningDecoder extends AbstractDecoder {
     public LtgStrikeType DEFAULT_FLASH_TYPE = LtgStrikeType.CLOUD_TO_GROUND;
 
     private String traceId = null;
+
+    /**
+     * callback for validating decryption results
+     */
+    private static DecryptedLightningValidator validator = new DecryptedLightningValidator() {
+        @Override
+        public boolean isValid(byte[] decryptedData) {
+            return BinLightningDecoderUtil.isKeepAliveRecord(decryptedData) == false
+                    && BinLightningDecoderUtil
+                            .isLightningDataRecords(decryptedData) == false;
+            /*
+             * use this if keep-alive record could be mixed with lightning
+             * records
+             */
+             // return BinLigntningDecoderUtil.isValidMixedRecordData(decryptedData) == false
+        }
+    };
    
     /**
      * Construct a BinLightning decoder. Calling hasNext() after construction
@@ -351,7 +370,7 @@ public class BinLightningDecoder extends AbstractDecoder {
                         .prepDataForDecryption(pdata, traceId);
 
                 byte[] decryptedData = cipher.decryptData(encryptedData,
-                        dataDate, BINLIGHTNING_KEYSTORE_PREFIX);
+                        dataDate, BINLIGHTNING_KEYSTORE_PREFIX, validator);
                 // decrypt ok, then decode, first check if keep-alive record
                 if (BinLightningDecoderUtil.isKeepAliveRecord(decryptedData)) {
                     logger.info(traceId
