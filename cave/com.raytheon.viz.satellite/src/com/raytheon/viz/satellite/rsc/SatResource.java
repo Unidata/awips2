@@ -24,15 +24,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.measure.Measure;
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Temperature;
 import javax.measure.unit.Unit;
 
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -43,6 +47,7 @@ import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
@@ -67,6 +72,12 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.rsc.interrogation.ClassInterrogationKey;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogatable;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
+import com.raytheon.uf.viz.core.rsc.interrogation.StringInterrogationKey;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.raytheon.viz.satellite.inventory.DerivedSatelliteRecord;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
@@ -75,6 +86,14 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Provides satellite raster rendering support
+ * 
+ * This resource implements the {@link Interrogatable} interface and provides
+ * the keys for accessing the value at a point({@link Interrogator#VALUE}), the
+ * full {@link SatelliteRecord}({@link #SATELLITE_RECORD_INTERROGATE_KEY}), a
+ * {@link GeographicDataSource} for the currently displayed tileset/level(
+ * {@link #DATA_SOURCE_INTERROGATE_KEY}), and a special key that returns the
+ * same value but is only applicable to satellite data types(
+ * {@link #SATELLITE_DATA_INTERROGATE_ID})
  * 
  * <pre>
  * 
@@ -101,6 +120,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  Apr 09, 2014  2947      bsteffen    Improve flexibility of sat derived
  *                                      parameters, implement ImageProvider
  *  May 06, 2014            njensen     Improve error message
+ *  Jun 12, 2014  3238      bsteffen    Implement Interrogatable
  * 
  * </pre>
  * 
@@ -109,28 +129,49 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class SatResource extends
         AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor>
-        implements ImageProvider {
+        implements ImageProvider, Interrogatable {
 
-    /** String id to look for satellite-provided data values */
+    /**
+     * String id to look for satellite-provided data values
+     * 
+     * @deprecated use #SATELLITE_DATA_INTERROGATE_KEY and
+     *             {@link #interrogate(ReferencedCoordinate, DataTime, InterrogationKey...)}
+     */
+    @Deprecated
     public static final String SATELLITE_DATA_INTERROGATE_ID = "satelliteDataValue";
+
+    @SuppressWarnings("unchecked")
+    public static final InterrogationKey<Measure<? extends Number, ?>> SATELLITE_DATA_INTERROGATE_KEY = new StringInterrogationKey<>(
+            SATELLITE_DATA_INTERROGATE_ID,
+            (Class<Measure<? extends Number, ?>>) ((Class<?>) Measure.class));
+
+    private static final InterrogationKey<SatelliteRecord> SATELLITE_RECORD_INTERROGATE_KEY = new ClassInterrogationKey<>(
+            SatelliteRecord.class);
+
+    private static final InterrogationKey<GeographicDataSource> DATA_SOURCE_INTERROGATE_KEY = new ClassInterrogationKey<>(
+            GeographicDataSource.class);
 
     private static class InterrogationResult {
 
-        private final SatelliteRecord record;
+        private final SatTileSetRenderable renderable;
 
         private final double value;
 
-        public InterrogationResult(SatelliteRecord record, double value) {
-            this.record = record;
+        public InterrogationResult(SatTileSetRenderable renderable, double value) {
+            this.renderable = renderable;
             this.value = value;
         }
 
         public SatelliteRecord getRecord() {
-            return record;
+            return renderable.getSatelliteRecord();
         }
 
         public double getValue() {
             return value;
+        }
+
+        public GeographicDataSource getDataSource() {
+            return renderable.getCurrentLevelDataSource();
         }
 
     }
@@ -225,8 +266,7 @@ public class SatResource extends
                 for (SatTileSetRenderable renderable : tileMap.values()) {
                     double rValue = renderable.interrogate(latLon, requestUnit);
                     if (Double.isNaN(rValue) == false) {
-                        result = new InterrogationResult(
-                                renderable.getSatelliteRecord(), rValue);
+                        result = new InterrogationResult(renderable, rValue);
                     }
                 }
             }
@@ -548,6 +588,56 @@ public class SatResource extends
             }
         }
         return true;
+    }
+
+    @Override
+    public Set<InterrogationKey<?>> getInterrogationKeys() {
+        Set<InterrogationKey<?>> result = new HashSet<>();
+        result.add(Interrogator.VALUE);
+        result.add(SATELLITE_DATA_INTERROGATE_KEY);
+        result.add(SATELLITE_RECORD_INTERROGATE_KEY);
+        result.add(DATA_SOURCE_INTERROGATE_KEY);
+        return result;
+    }
+
+    @Override
+    public InterrogateMap interrogate(ReferencedCoordinate coordinate,
+            DataTime time, InterrogationKey<?>... keys) {
+        InterrogateMap result = new InterrogateMap();
+        SatRenderable renderable = (SatRenderable) getRenderable(time);
+        if (renderable == null) {
+            return result;
+        }
+        ColorMapParameters parameters = getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
+        Unit<?> dataUnit = parameters.getColorMapUnit();
+        InterrogationResult renderableResult = null;
+        try {
+            renderableResult = renderable.interrogate(coordinate.asLatLon(),
+                    dataUnit);
+        } catch (VizException | TransformException | FactoryException e) {
+            statusHandler.error("Cannot interrogate satellite data", e);
+        }
+        if (renderableResult == null) {
+            return result;
+        }
+        double dataValue = renderableResult.getValue();
+        Measure<Double, ?> value = Measure.valueOf(dataValue, dataUnit);
+        for (InterrogationKey<?> key : keys) {
+            if (Interrogator.VALUE.equals(key)) {
+                result.put(Interrogator.VALUE, value);
+            } else if (SATELLITE_DATA_INTERROGATE_KEY.equals(key)) {
+                result.put(SATELLITE_DATA_INTERROGATE_KEY, value);
+            } else if (SATELLITE_RECORD_INTERROGATE_KEY.equals(key)) {
+                result.put(SATELLITE_RECORD_INTERROGATE_KEY,
+                        renderableResult.getRecord());
+            } else if (DATA_SOURCE_INTERROGATE_KEY.equals(key)) {
+                result.put(DATA_SOURCE_INTERROGATE_KEY,
+                        renderableResult.getDataSource());
+            }
+        }
+
+        return result;
     }
 
 }
