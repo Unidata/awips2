@@ -20,18 +20,24 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="bundleItem" file="bundles/LightningPlot60Min.xml" 
-                menuText="1hr CG flash plot" id="1HrLightningFlashPlot">
+                menuText="1hr plot" id="1HrLightningFlashPlot">
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningPlot15Min.xml" 
-                menuText="15min CG flash plot" id="15MinLightningFlashPlot">
+                menuText="15min plot" id="15MinLightningFlashPlot">
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningPlot15MinPN.xml" 
-                menuText="15min Pos/Neg CG flash plot" id="15MinPNLightningFlashPlot">
+                menuText="15min Pos/Neg plot" id="15MinPNLightningFlashPlot">
     </contribute> 
     <contribute xsi:type="bundleItem" file="bundles/LightningPlot5Min.xml" 
-                menuText="5min CG flash plot" id="5MinLightningFlashPlot">
+                menuText="5min plot" id="5MinLightningFlashPlot">
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
-                menuText="1min Lgtng Seq CG flash" id="1MinLightningFlashSeq">
+                menuText="1min Lgtng Seq Plot" id="1MinLightningFlashSeq">
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/LightningCloudSeq.xml" 
+                menuText="1min Cloud Flash Seq Plot" id="1MinLightningCloudFlashSeq">
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/LightningPulseSeq.xml" 
+                menuText="1min Pulse Seq Plot" id="1MinLightningPulseSeq">
     </contribute>
 </menuTemplate>
