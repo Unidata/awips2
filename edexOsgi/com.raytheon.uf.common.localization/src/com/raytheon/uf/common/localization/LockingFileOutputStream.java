@@ -35,7 +35,9 @@ import com.raytheon.uf.common.localization.FileLocker.Type;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 23, 2011            mschenke     Initial creation
+ * Jun 23, 2011            mschenke    Initial creation
+ * Jun 05, 2014 3248       njensen     Fix constructors so lock is obtained
+ *                                      before super constructor called
  * 
  * </pre>
  * 
@@ -46,7 +48,9 @@ import com.raytheon.uf.common.localization.FileLocker.Type;
 public class LockingFileOutputStream extends FileOutputStream {
 
     private File file;
-
+    
+    private final Object locker;
+    
     /**
      * Create a new LockingFileOuputStream, creates an exclusive lock on the
      * file
@@ -55,9 +59,7 @@ public class LockingFileOutputStream extends FileOutputStream {
      * @throws FileNotFoundException
      */
     public LockingFileOutputStream(File file) throws FileNotFoundException {
-        super(file);
-        this.file = file;
-        FileLocker.lock(this, file, Type.WRITE);
+        this(file, false);
     }
 
     /**
@@ -70,9 +72,40 @@ public class LockingFileOutputStream extends FileOutputStream {
      */
     public LockingFileOutputStream(File file, boolean isAppending)
             throws FileNotFoundException {
+        this(file, isAppending, new Object());
+    }
+    
+    /**
+     * Intentionally private constructor that takes a locker object to provide a
+     * unique lock tied to this stream instance. This constructor enforces that
+     * the FileLocker lock will be obtained before the super constructor is
+     * called. Otherwise, if isAppending is false, the super constructor will
+     * set the file length to zero, wiping out the contents, and we absolutely
+     * must have the write lock before that.
+     * 
+     * @param file
+     * @param isAppending
+     * @param locker
+     * @throws FileNotFoundException
+     */
+    private LockingFileOutputStream(File file, boolean isAppending, Object locker) throws FileNotFoundException {
+        this(file, isAppending, locker, FileLocker.lock(locker, file, Type.WRITE));
+    }
+    
+    /**
+     * Intentionally private constructor that should be called after the file
+     * lock is obtained.
+     * 
+     * @param file
+     * @param isAppending
+     * @param locker
+     * @param gotLock
+     * @throws FileNotFoundException
+     */
+    private LockingFileOutputStream(File file, boolean isAppending, Object locker, boolean gotLock) throws FileNotFoundException {
         super(file, isAppending);
         this.file = file;
-        FileLocker.lock(this, file, Type.WRITE);
+        this.locker = locker;
     }
 
     @Override
@@ -106,7 +139,10 @@ public class LockingFileOutputStream extends FileOutputStream {
         }
     }
 
+    /**
+     * Unlocks the file lock associated with the stream.
+     */
     public void unlock() {
-        FileLocker.unlock(this, file);
+        FileLocker.unlock(locker, file);
     }
 }
