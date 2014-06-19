@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -37,6 +38,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Jun 03, 2014 3226       bclement    moved from com.raytheon.edex.plugin.binlightning to gov.noaa.nws.ost.edex.plugin.binlightning
  *                                      handled null return from BinLightningAESKey.getBinLightningAESKeys()
  * Jun 09, 2014 3226       bclement    refactored to support multiple stores for different data types
+ * Jun 19, 2014 3226       bclement    added validator callback, added initialization vector support
  * 
  * </pre>
  * 
@@ -88,15 +90,21 @@ public class EncryptedBinLightningCipher {
         if (keys == null) {
             keys = new BinLightningAESKey[0];
         }
+        String algorithm = BinLightningAESKey
+                .getCipherAlgorithm(propertyPrefix);
+        IvParameterSpec iv = BinLightningAESKey
+                .getInitializationVector(propertyPrefix);
         HashMap<String, Cipher> cipherMap = new HashMap<String, Cipher>();
         for (BinLightningAESKey key : keys) {
             try {
                 SecretKeySpec skeySpec = (SecretKeySpec) key.getKey();
-                String algorithm = BinLightningAESKey
-                        .getCipherAlgorithm(propertyPrefix);
-                Cipher cipher = Cipher.getInstance(algorithm);
-                cipher.init(Cipher.DECRYPT_MODE, skeySpec);
 
+                Cipher cipher = Cipher.getInstance(algorithm);
+                if (iv != null) {
+                    cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+                } else {
+                    cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+                }
                 cipherMap.put(key.getAlias(), cipher);
             } catch (Exception e) {
                 logger.error(
@@ -120,14 +128,17 @@ public class EncryptedBinLightningCipher {
      * @param data
      * @param propertyPrefix
      *            prefix for lightning type configuration
+     * @param validator
+     *            used to validate decrypted data
      * @return
      * @throws IllegalBlockSizeException
      * @throws BadPaddingException
      */
-    public byte[] decryptData(byte[] data, String propertyPrefix)
+    public byte[] decryptData(byte[] data, String propertyPrefix,
+            DecryptedLightningValidator validator)
             throws IllegalBlockSizeException, BadPaddingException,
             BinLightningDataDecryptionException {
-        return decryptData(data, null, propertyPrefix);
+        return decryptData(data, null, propertyPrefix, validator);
 	}
 	
     /**
@@ -138,11 +149,14 @@ public class EncryptedBinLightningCipher {
      * @param dataDate
      * @param propertyPrefix
      *            prefix for lightning type configuration
+     * @param validator
+     *            used to validate decrypted data
      * @return
      * @throws IllegalBlockSizeException
      * @throws BadPaddingException
      */
-    public byte[] decryptData(byte[] data, Date dataDate, String propertyPrefix)
+    public byte[] decryptData(byte[] data, Date dataDate,
+            String propertyPrefix, DecryptedLightningValidator validator)
             throws IllegalBlockSizeException, BadPaddingException,
             BinLightningDataDecryptionException {
 		if (data == null) {
@@ -179,8 +193,7 @@ public class EncryptedBinLightningCipher {
 				
 				// wrong key will decrypt data into random noise/garbage, so we need to do a sanity check to make sure 
 				//   we are decrypting with the right key
-				if ( BinLightningDecoderUtil.isKeepAliveRecord(decryptedData) == false && BinLightningDecoderUtil.isLightningDataRecords(decryptedData) == false) {
-				//if (BinLigntningDecoderUtil.isValidMixedRecordData(decryptedData) == false) { // use this only if keep-alive record could be mixed with lightning records
+                if (!validator.isValid(decryptedData)) {
 					throw new BinLightningDataDecryptionException("Decrypted data (" + decryptedData.length + " bytes) with key " 
                                     + alias
                                     + " is not valid keep-alive or binLightning records.",
