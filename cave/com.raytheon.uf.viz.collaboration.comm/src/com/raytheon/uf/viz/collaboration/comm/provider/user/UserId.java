@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
  * Jan 30, 2014 2698       bclement    removed unneeded isSameUser(string, string)
  *                                     improved other isSameUser so it won't blow up on nulls
  * Feb 13, 2014 2751       bclement    changed to implement IUser
+ * Jun 20, 2014 3281       bclement    added getClientIndependentId()
  * 
  * </pre>
  * 
@@ -267,6 +268,17 @@ public class UserId implements IUser {
         builder.append(this.name, other.getName());
         builder.append(this.host, other.getHost());
         return builder.isEquals();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IUser#
+     * getClientIndependentId()
+     */
+    @Override
+    public String getClientIndependentId() {
+        return getNormalizedId();
     }
 
 }
