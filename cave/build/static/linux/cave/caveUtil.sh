@@ -32,6 +32,7 @@
 # Feb 20, 2014  #2780     bclement    added site type ini file check
 #
 # Mar 13  2014  #15348    kjohnson    added function to remove logs
+# Jun 20, 2014  #3245     bclement    forEachRunningCave now accounts for child processes
 
 
 source /awips2/cave/iniLookup.sh
@@ -135,17 +136,23 @@ function copyVizShutdownUtilIfNecessary()
 function forEachRunningCave()
 {
    local user=`whoami`
-   local caveProcs=`ps -ef | grep -E "(/awips2/cave|/usr/local/viz)/cave " | grep -v "grep" | grep $user`
 
-   # preserve IFS and set it to line feed only
-   local PREV_IFS=$IFS
-   IFS=$'\n'
-
-   for caveProc in $caveProcs
+   for parent in $(pgrep -u $user '^cave$')
    do
-      "$@" $caveProc
+       # the cave process starts a new JVM as a child process
+       # find all children of the cave process
+       children=$(pgrep -P $parent)
+       if [[ -z $children ]]
+       then
+           # no children, assume that this is a main cave process
+           "$@" $(ps --no-header -fp $parent)
+       else
+           for child in $children
+           do
+               "$@" $(ps --no-header -fp $child)
+           done
+       fi
    done
-   IFS=$PREV_IFS
 }
 
 # takes in ps string of cave process, stores pid in _pids and increments _numPids
