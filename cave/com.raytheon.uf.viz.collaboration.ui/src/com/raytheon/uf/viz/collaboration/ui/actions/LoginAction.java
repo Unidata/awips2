@@ -38,7 +38,8 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2012            bsteffen     Initial creation
- * Apr 11, 2014 2903       bclement    added success flag
+ * Apr 11, 2014 2903       bclement     added success flag
+ * Jun 20, 2014 3281       bclement     success when already logged in
  * 
  * </pre>
  * 
@@ -66,6 +67,9 @@ public class LoginAction extends Action {
                 return;
             }
             success = new LoginDialog(shell).login();
+        } else {
+            /* already logged in, mission accomplished */
+            success = true;
         }
     }
 
