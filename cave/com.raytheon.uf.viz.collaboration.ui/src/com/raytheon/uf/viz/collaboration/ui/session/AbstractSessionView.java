@@ -91,6 +91,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Mar 06, 2014 #2865      lvenable    Fixed font memory leaks added SWT dispose checks when
  *                                     running in an asynchronous thread.
  * Mar 11, 2014 #2865      lvenable    Added null checks for msgArchive.
+ * Jun 20, 2014 3281       bclement    made sendErrorMessage() public
  * </pre>
  * 
  * @author rferrel
@@ -590,7 +591,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
      * @param sb
      *            builder containing message
      */
-    protected void sendErrorMessage(StringBuilder sb) {
+    public void sendErrorMessage(StringBuilder sb) {
         sendGenericMessage(sb, SWT.COLOR_RED);
     }
 
