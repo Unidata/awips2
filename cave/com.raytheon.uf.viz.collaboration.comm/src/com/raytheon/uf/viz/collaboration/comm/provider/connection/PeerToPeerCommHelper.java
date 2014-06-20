@@ -25,6 +25,7 @@ import java.net.URL;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.XMPPError;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -35,7 +36,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpXmppMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
@@ -66,6 +66,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Apr 14, 2014 2903       bclement    moved from session subpackage to connection
  * Jun 17, 2014 3078       bclement    routing for private chat messages
  * Jun 17, 2014 3078       bclement    only accept config from server, don't route data without sessionId
+ * Jun 20, 2014 3281       bclement    refactored processPacket(), added chat error handling
  * 
  * </pre>
  * 
@@ -131,36 +132,79 @@ public class PeerToPeerCommHelper implements PacketListener {
                     return;
                 }
             }
+            XMPPError error = msg.getError();
+            SessionPayload payload = (SessionPayload) msg
+                    .getExtension(PacketConstants.COLLAB_XMLNS);
             String body = msg.getBody();
-            if (body != null) {
-                Activator.getDefault().getNetworkStats()
-                        .log(Activator.PEER_TO_PEER, 0, body.length());
-                if (body.startsWith(Tools.CONFIG_PREAMBLE)) {
-                    // TODO Legacy config support
-                    body = body.substring(Tools.CONFIG_PREAMBLE.length(),
-                            body.length() - Tools.DIRECTIVE_SUFFIX.length());
-                    this.handleConfiguration(fromStr, body);
-                } else {
-                    // anything else pass to the normal text
-                    routeMessage(msg);
-                }
-            } else {
-                SessionPayload payload = (SessionPayload) msg
-                        .getExtension(PacketConstants.COLLAB_XMLNS);
-                if (payload != null) {
-                    switch (payload.getPayloadType()) {
-                    case Command:
-                        routeData(payload, msg);
-                        break;
-                    case Config:
-                        handleConfiguration(fromStr, payload.getData()
-                                .toString());
-                        break;
-                    default:
-                        // do nothing
-                    }
-                }
+            if (error != null) {
+                processError(fromStr, msg, error);
+            } else if (payload != null) {
+                processPayload(fromStr, msg, payload);
+            } else if (body != null) {
+                processBody(fromStr, msg, body);
             }
+        }
+    }
+
+    /**
+     * Process chat message error
+     * 
+     * @param fromStr
+     * @param msg
+     * @param error
+     */
+    private void processError(String fromStr, Message msg, XMPPError error) {
+        ChatMessageEvent event = createMessageEvent(msg);
+        /*
+         * errors in text messages happen when the message is bounced back from
+         * the server, inform chat view that the message can't be delivered
+         */
+        String errorText = "Unable to deliver message to " + fromStr;
+        event.setError(errorText);
+        routeMessage(msg, event);
+    }
+
+    /**
+     * Process collaboration payload packet from server
+     * 
+     * @param fromStr
+     * @param msg
+     * @param payload
+     */
+    private void processPayload(String fromStr, Message msg,
+            SessionPayload payload) {
+        if (payload != null) {
+            switch (payload.getPayloadType()) {
+            case Command:
+                routeData(payload, msg);
+                break;
+            case Config:
+                handleConfiguration(fromStr, payload.getData().toString());
+                break;
+            default:
+                // do nothing
+            }
+        }
+    }
+
+    /**
+     * Process text message from XMPP server
+     * 
+     * @param fromStr
+     * @param msg
+     * @param body
+     */
+    private void processBody(String fromStr, Message msg, String body) {
+        Activator.getDefault().getNetworkStats()
+                .log(Activator.PEER_TO_PEER, 0, body.length());
+        if (body.startsWith(Tools.CONFIG_PREAMBLE)) {
+            // TODO Legacy config support
+            body = body.substring(Tools.CONFIG_PREAMBLE.length(), body.length()
+                    - Tools.DIRECTIVE_SUFFIX.length());
+            this.handleConfiguration(fromStr, body);
+        } else {
+            // anything else pass to the normal text
+            routeMessage(msg, createMessageEvent(msg));
         }
     }
 
@@ -202,11 +246,12 @@ public class PeerToPeerCommHelper implements PacketListener {
     }
 
     /**
-     * Post text message to chat
+     * Construct TextMessage and ChatMessageEvent from XMPP message
      * 
      * @param message
+     * @return
      */
-    private void routeMessage(Message message) {
+    private ChatMessageEvent createMessageEvent(Message message) {
         String fromStr = message.getFrom();
         IUser fromId;
         if (IDConverter.isFromRoom(fromStr)) {
@@ -224,8 +269,15 @@ public class PeerToPeerCommHelper implements PacketListener {
                 textMsg.setProperty(key, (String) v);
             }
         }
-        ITextMessageEvent chatEvent = new ChatMessageEvent(textMsg);
+        return new ChatMessageEvent(textMsg);
+    }
 
+    /**
+     * Post text message event to chat
+     * 
+     * @param message
+     */
+    private void routeMessage(Message message, ChatMessageEvent chatEvent) {
         String sessionId = (String) message.getProperty(
                 Tools.PROP_SESSION_ID);
         // Now find out who gets the message. If the message doesn't contain
