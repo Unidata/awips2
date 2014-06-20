@@ -30,6 +30,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity.user;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2014 2751       bclement     Initial creation
+ * Jun 20, 2014 3281       bclement     added getClientIndependentId()
  * 
  * </pre>
  * 
@@ -44,5 +45,13 @@ public interface IUser extends IQualifiedID {
      * @return true if other user represents same person as this user
      */
     public boolean isSameUser(IUser other);
+
+    /**
+     * Get the user's id without any information specific to which client the
+     * user is using (resource)
+     * 
+     * @return
+     */
+    public String getClientIndependentId();
 
 }
