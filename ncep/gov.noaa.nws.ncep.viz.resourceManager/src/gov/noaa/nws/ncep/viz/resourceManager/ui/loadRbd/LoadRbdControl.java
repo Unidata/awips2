@@ -50,7 +50,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -137,6 +136,8 @@ public class LoadRbdControl extends Composite {
     private Button load_btn = null;
 
     private Button load_and_close_btn = null;
+
+    private Button no_duplicate_displays_btn = null;
 
     private Button auto_update_btn = null;
 
@@ -344,14 +345,22 @@ public class LoadRbdControl extends Composite {
         fd = new FormData();
         fd.top = new FormAttachment(0, 5);
         fd.right = new FormAttachment(100, -10);
-
         load_and_close_btn.setLayoutData(fd);
+
         load_btn = new Button(load_form, SWT.PUSH);
         load_btn.setText("  Load RBDs  ");
         fd = new FormData();
         fd.top = new FormAttachment(0, 5);
         fd.right = new FormAttachment(load_and_close_btn, -20, SWT.LEFT);
         load_btn.setLayoutData(fd);
+
+        no_duplicate_displays_btn = new Button(load_form, SWT.CHECK);
+        fd = new FormData();
+        no_duplicate_displays_btn.setText("Do not load duplicate RBDs");
+        fd.top = new FormAttachment(0, 5);
+        fd.left = new FormAttachment(load_btn, -300, SWT.LEFT);
+        no_duplicate_displays_btn.setLayoutData(fd);
+        no_duplicate_displays_btn.setSelection(true);
 
         addListeners();
 
@@ -614,6 +623,12 @@ public class LoadRbdControl extends Composite {
                 loadRBD(true);
             }
         });
+
+        no_duplicate_displays_btn.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent ev) {
+            }
+        });
+
     }
 
     private void initWidgets() throws VizException {
@@ -788,6 +803,9 @@ public class LoadRbdControl extends Composite {
 
         // timelineControl.updateTimeMatcher();
 
+        boolean duplicatesRBDsAllowed = false;
+        duplicatesRBDsAllowed = !no_duplicate_displays_btn.getSelection();
+
         for (AbstractRBD<?> rbdBndl : seldRbdsList) {
             String rbdName = rbdBndl.getRbdName();
             // NCTimeMatcher timeMatcher = rbdBndl.getTimeMatcher();
@@ -845,31 +863,18 @@ public class LoadRbdControl extends Composite {
                 // // }
                 // }
 
-                AbstractEditor newEditor = NcDisplayMngr.findDisplayByName(
-                        rbdBndl.getDisplayType(), rbdName);
+                AbstractEditor newEditor = NcDisplayMngr
+                        .findDisplayByNameAndType(rbdBndl.getDisplayType(),
+                                rbdName);
 
-                // if there is already a display with this RBD name then prompt
-                // if the user wants to replace it
+                // if there is already a display with this RBD name then check
+                // whether duplicates have been allowed
+                boolean duplicateRBD = false;
                 if (newEditor != null
                         && NcEditorUtil.getPaneLayout(newEditor)
                                 .getNumberOfPanes() == paneCount) {
-
-                    MessageDialog confirmDlg = new MessageDialog(
-                            PlatformUI.getWorkbench()
-                                    .getActiveWorkbenchWindow().getShell(),
-                            "Reload?",
-                            null,
-                            "A Display already exists for RBD  "
-                                    + rbdName
-                                    + ".\n\n"
-                                    + "Do you want to re-load this RBD in to Display '"
-                                    + NcEditorUtil.getDisplayName(newEditor)
-                                    + "', or create a new Display?",
-                            MessageDialog.QUESTION, new String[] { "Reload",
-                                    "New Display" }, 0);
-                    confirmDlg.open();
-
-                    if (confirmDlg.getReturnCode() == MessageDialog.CANCEL) {
+                    duplicateRBD = true;
+                    if (duplicatesRBDsAllowed) {
                         newEditor = null;
                     }
                 }
@@ -903,7 +908,9 @@ public class LoadRbdControl extends Composite {
                     // true );
                 }
 
-                rbdLoader.addRBD(rbdBndl, newEditor);
+                if (!duplicateRBD || (duplicateRBD && duplicatesRBDsAllowed)) {
+                    rbdLoader.addRBD(rbdBndl, newEditor);
+                }
 
             } catch (VizException e) {
                 MessageBox mb = new MessageBox(shell, SWT.OK);
