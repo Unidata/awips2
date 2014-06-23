@@ -248,13 +248,13 @@ void mean_wind_npw(float pbot, float ptop, float *mnu, float *mnv,
 	      w1 = 1;
 	      usum = usum + i_wndu(i, I_PRES);
 	      vsum = vsum + i_wndv(i, I_PRES);
-	      //wgt = wgt + w1;
+	      wgt = wgt + w1;
 	      num++;
 	   }
 	}
 
-	*mnu = (usum / num);
-	*mnv = (vsum / num);
+	*mnu = (usum / wgt);
+	*mnv = (vsum / wgt);
 
 	if (qc(*mnu) && qc(*mnv)) {
 	  *wdir = angle(*mnu, *mnv);
@@ -458,8 +458,8 @@ float helicity(float lower, float upper, float sdir, float sspd,
 	   if (upper == -1 || lower == -1) {
 	     ix1 = i_hght(esfc(50.0), I_PRES);
 	     if (!qc(ix1)) {
-	       //fprintf(stderr,
-	        // "helicity: effective surface not found in sounding.\n");
+	       fprintf(stderr, 
+	         "helicity: effective surface not found in sounding.\n");
 	       return RMISSD;
 	     }
 	   }
