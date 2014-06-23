@@ -2,9 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Vil Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.fog
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
 Require-Bundle: com.raytheon.uf.common.monitor;bundle-version="1.0.0",
  com.raytheon.edex.common;bundle-version="1.11.1",
  com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.1";resolution:=optional,
@@ -17,7 +16,7 @@ Require-Bundle: com.raytheon.uf.common.monitor;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174"
 Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.edex.decodertools.time
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.fog,
  com.raytheon.uf.edex.plugin.fog.common
