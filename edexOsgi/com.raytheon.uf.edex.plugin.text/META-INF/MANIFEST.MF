@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Text Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.text
 Bundle-Version: 1.14.0.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.apache.commons.lang,
  com.raytheon.edex.common,
