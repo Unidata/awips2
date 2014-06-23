@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
  * Jun 17, 2014 3078      bclement     changed user type to IUser, added isAvailable()
+ * Jun 20, 2014 3281      bclement     fixed secondary id bug by using user.getClientIndependentId()
  * 
  * </pre>
  * 
@@ -133,7 +134,7 @@ public class PeerToPeerChatAction extends Action {
      */
     public PeerToPeerView createP2PChat(Integer viewMode) {
         try {
-            String id = user.getFQName();
+            String id = user.getClientIndependentId();
             PeerToPeerView p2pView = (PeerToPeerView) CaveWorkbenchPageManager
                     .getActiveInstance().showView(PeerToPeerView.ID, id,
                             viewMode);
