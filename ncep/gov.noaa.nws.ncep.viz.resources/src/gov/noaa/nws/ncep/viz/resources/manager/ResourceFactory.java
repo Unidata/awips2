@@ -7,7 +7,12 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.HashMap;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.xml.sax.InputSource;
 
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -37,6 +42,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 11/17/11     #518        Greg Hull       set dfltFrameTimes (GDATTIM)
  * 02/10/13     #972        Greg Hull       getSupportedDisplayTypes
  * 10/29/13     #2491       bsteffen        Use AbstratRBD JAXBManager instead of SerializationUtil.
+ * 05/14/14     #1048       Bruce Hebbard   Before substituting string variables into XML, encode special characters as XML predefined entities
  * 
  * </pre>
  * 
@@ -56,8 +62,8 @@ public class ResourceFactory {
         private Boolean isBaseLevelResource = false;
 
         // called when loading an existing RBD into the dialog and we need to
-        // get the attribute values
-        // from the edited RBD instead of the original attrSet file.
+        // get the attribute values from the edited RBD instead of the original
+        // attrSet file.
         protected ResourceSelection(ResourcePair rp) throws VizException {
             rscPair = rp;
             rscData = (INatlCntrsResourceData) rp.getResourceData();
@@ -116,10 +122,10 @@ public class ResourceFactory {
 
             // TODO : Would it be nice to give an indication that this is the
             // dominant resource???
-            // if( rscData instanceof AbstractNatlCntrsRequestableResourceData
+            // if (rscData instanceof AbstractNatlCntrsRequestableResourceData
             // &&
-            // ((AbstractNatlCntrsRequestableResourceData)rscData).getIsDominant()
-            // ) {
+            // ((AbstractNatlCntrsRequestableResourceData)rscData).getIsDominant())
+            // {
             // rsc_label = rscData.getFullResourceName() + " (D)";
             // }
 
@@ -188,9 +194,27 @@ public class ResourceFactory {
         }
 
         try {
+            // Before substituting variables, make sure all their values are
+            // XML-friendly strings
+            if (rscParams != null) {
+                for (String attrName : rscParams.keySet()) {
+                    String attrValue = rscParams.get(attrName);
+                    // Only 'sanitize' value string if it DOES contain
+                    // XML-sensitive characters, but is NOT itself an
+                    // XML fragment (like <colorBar>...</colorBar>)
+                    if (attrValue != null && XMLSpecialCharacter.in(attrValue)
+                            && !isXMLFragment(attrValue)) {
+                        rscParams.put(attrName,
+                                XMLSpecialCharacter.encode(attrValue));
+                    }
+                }
+            }
+
+            // Perform variable substitution
             String substStr = VariableSubstitutionUtil.processVariables(
                     bundleStr, rscParams);
 
+            // Unmarshal the resource (group) from XML
             // ResourceGroup rscGroup = SerializationUtil.unmarshalFromXml(
             // ResourceGroup.class, substStr );
             ResourceGroup rscGroup = (ResourceGroup) AbstractRBD
@@ -235,5 +259,22 @@ public class ResourceFactory {
         }
 
         return null;
+    }
+
+    private static boolean isXMLFragment(String s) {
+        // Determine whether the (trimmed) input string is a valid XML fragment.
+        String t = s.trim();
+        // We can quickly rule out something that looks nothing like XML...
+        if (!t.startsWith("<") || !t.endsWith(">")) {
+            return false;
+        }
+        // ...but otherwise, see if it passes the parse test.
+        try {
+            DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                    .parse(new InputSource(new StringReader(t)));
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 }

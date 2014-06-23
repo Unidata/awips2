@@ -140,6 +140,8 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * 07/26         TTR        J. Wu         Extract "DEL_PART" in DeletePartCommand into deleteLinePart().
  * 12/13         #1089      B. Yin        Removed the UTC time functions to a new class.
  * 12/13         #1091      J. Wu         Added getLayerMergeOption()
+ * 05/14         TTR 995    J. Wu         Added getContourLabelAutoPlacement().
+ * 05/14         TTR998     J. Wu         Added pixelToLatlon().
  * 
  * </pre>
  * 
@@ -825,7 +827,7 @@ public class PgenUtil {
      * @param pts
      *            An array of points in lat/lon coordinates
      * @param mapDescriptor
-     *            Descriptoer to use for world to pixel transform
+     *            Descriptor to use for world to pixel transform
      * @return The array of points in pixel coordinates
      */
     public static final double[][] latlonToPixel(Coordinate[] pts,
@@ -841,6 +843,27 @@ public class PgenUtil {
         }
 
         return pixels;
+    }
+
+    /**
+     * Converts an array of point in pixel coordinates to lat/lons
+     * 
+     * @param pixels
+     *            An array of points in pixel coordinates
+     * @param mapDescriptor
+     *            Descriptor to use for world to pixel transform
+     * @return The array list of points in lat/lon coordinates
+     */
+    public static final ArrayList<Coordinate> pixelToLatlon(double[][] pixels,
+            IMapDescriptor mapDescriptor) {
+        ArrayList<Coordinate> crd = new ArrayList<Coordinate>();
+
+        for (int ii = 0; ii < pixels.length; ii++) {
+            double[] pt = mapDescriptor.pixelToWorld(pixels[ii]);
+            crd.add(new Coordinate(pt[0], pt[1]));
+        }
+
+        return crd;
     }
 
     /**
@@ -2344,13 +2367,23 @@ public class PgenUtil {
     }
 
     /**
-     * Returns text auto placement flag
+     * ReturnsCCFP text box auto placement flag
      * 
      * @return
      */
     public static boolean getTextAutoPlacement() {
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
         return prefs.getBoolean(PgenPreferences.P_AUTOPLACE_TEXT);
+    }
+
+    /**
+     * Returns contour's label auto placement flag
+     * 
+     * @return
+     */
+    public static boolean getContourLabelAutoPlacement() {
+        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+        return prefs.getBoolean(PgenPreferences.P_AUTOPLACE_CONTOUR_LABEL);
     }
 
     /**
