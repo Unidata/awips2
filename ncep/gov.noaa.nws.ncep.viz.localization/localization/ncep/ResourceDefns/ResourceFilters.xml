@@ -1110,6 +1110,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM">
 <filters>Forecast,Regional</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="FIREWX">
+<filters>Forecast,Regional,NSBN</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_ASIA">
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
