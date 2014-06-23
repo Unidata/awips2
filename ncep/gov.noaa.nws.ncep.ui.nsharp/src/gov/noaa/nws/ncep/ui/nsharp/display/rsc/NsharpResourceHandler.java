@@ -987,6 +987,7 @@ public class NsharpResourceHandler {
         // update active sounding layer and picked stn info
         // re-populate snd data to nsharp native code lib for later calculating
         nsharpNative.populateSndgData(soundingLys);
+
         if (skewtPaneRsc != null)
             skewtPaneRsc.resetData(soundingLys, previousSoundingLys);
         if (hodoPaneRsc != null)
@@ -1049,6 +1050,12 @@ public class NsharpResourceHandler {
             insetPaneRsc.createInsetWireFrameShapes();
         if (witoPaneRsc != null)
             witoPaneRsc.createAllWireFrameShapes();
+        if (spcGraphsPaneRsc != null) {
+            // Chin: SPC graphs performance concern, as it need to call get
+            // info functions from bigSharo.so and cause long delay.
+            // Therefore, do it once only when reset data.
+            spcGraphsPaneRsc.getSpcGraphsInfo();
+        }
     }
 
     private class NsharpOperationElementComparator implements
@@ -3396,6 +3403,7 @@ public class NsharpResourceHandler {
         // elementColorMap.put(NsharpConstants.ActState.OVERLAY,NsharpConstants.color_red);
         // elementColorMap.put(NsharpConstants.LoadState.AVAIL.name(),NsharpConstants.color_yellow);
         nsharpNative = new NsharpNative();
+
         // System.out.println("NsharpResourceHandler constructed"+this.toString()
         // + " nsharpNative="+nsharpNative.toString());
         // based on BigNsharp storm slinky color used and gempak color
