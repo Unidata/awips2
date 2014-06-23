@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
  * Jan 29, 2014            bclement     Initial creation
  * Feb 13, 2014 2751       bclement     no longer is a subclass of UserId
  * Apr 22, 2014 3056       bclement     made equals case insensitive
+ * Jun 20, 2014 3281       bclement     added getClientIndependentId()
  * 
  * </pre>
  * 
@@ -298,6 +299,18 @@ public class VenueParticipant implements IUser {
     @Override
     public String getFQName() {
         return getRoomId() + "/" + handle;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IUser#
+     * getClientIndependentId()
+     */
+    @Override
+    public String getClientIndependentId() {
+        /* room participant id's don't contain client info */
+        return getFQName();
     }
 
 }
