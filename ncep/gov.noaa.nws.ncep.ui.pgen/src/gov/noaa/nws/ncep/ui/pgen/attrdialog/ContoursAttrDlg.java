@@ -18,10 +18,6 @@ import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
@@ -118,6 +114,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      windows could be created with no way to remove,
  *                                      should now be fixed.
  * 05/14        TTR1008     J. Wu       Set default contour parameters through settings_tbl.xml.
+ * 05/14        TTR990      J. Wu       Set default attributes for different contour labels.
  * 
  * </pre>
  * 
@@ -139,6 +136,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
     public static enum ContourDrawingStatus {
         DRAW_LINE, DRAW_SYMBOL, DRAW_CIRCLE, SELECT
     }
+
+    private static String labelSuffix = "|label";
 
     private ContourDrawingStatus drawingStatus = ContourDrawingStatus.DRAW_LINE;
 
@@ -996,10 +995,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                         }
                     } else {
 
-                        if (labelTemplate == null) {
-                            labelTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Text) contoursAttrSettings
-                                    .get("General Text");
-                        }
+                        labelTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Text) contoursAttrSettings
+                                .get(getLabelTempKey());
 
                         labelAttrDlg.setAttrForDlg((IAttribute) labelTemplate);
 
@@ -1843,13 +1840,32 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
      * @return the labelTemplate
      */
     public IAttribute getLabelTemplate() {
+
         if (labelAttrDlg != null && labelAttrDlg.getShell() != null) {
             return labelAttrDlg;
-        } else if (labelTemplate != null) {
-            return labelTemplate;
         } else {
-            return (IAttribute) contoursAttrSettings.get("General Text");
+            return (IAttribute) contoursAttrSettings.get(getLabelTempKey());
         }
+    }
+
+    /*
+     * @param key to retrieve the label template
+     */
+    private String getLabelTempKey() {
+
+        String tempKey = "General Text";
+        if (drawSymbol() && activeQuickSymbolBtn != null) {
+            tempKey = new String(activeQuickSymbolBtn.getData().toString()
+                    + labelSuffix);
+        } else if (drawContourLine() && activeQuickLineBtn != null) {
+            tempKey = new String(activeQuickLineBtn.getData().toString()
+                    + labelSuffix);
+        } else if (drawCircle()) {
+            tempKey = new String("Circle" + labelSuffix);
+        }
+
+        return tempKey;
+
     }
 
     /**
@@ -1986,6 +2002,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             labelTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Text) new DrawableElementFactory()
                     .create(DrawableType.TEXT, this, "Text", "General Text",
                             (Coordinate) null, null);
+
+            String lblKey = new String(getLabelTempKey());
+            contoursAttrSettings.put(lblKey, labelTemplate);
 
             labelTemplate.setText(new String[] { getLabel() });
 
@@ -3533,32 +3552,35 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             }
 
             // Get Default for Circle.
-            // contoursAttrSettings.put( "Circle", retrieveDefaultSettings(
-            // "Circle" ) );
+            contoursAttrSettings.put("Circle",
+                    retrieveDefaultSettings("Circle"));
+
+            // Get Default for label.
+            contoursAttrSettings.put("General Text",
+                    retrieveDefaultSettings("General Text"));
 
             /*
              * Get line, text, symbols/markers, circles found in the Contours in
              * "settings.tbl"
              */
             AbstractDrawableComponent adc = retrieveDefaultSettings("Contours");
-            boolean lineFound = false;
-            boolean labelFound = false;
-            boolean circleFound = false;
             if (adc != null && adc instanceof Contours) {
                 List<ContourLine> cline = ((Contours) adc).getContourLines();
                 if (cline != null && cline.size() > 0) {
-                    Line ln = cline.get(0).getLine();
-                    if (ln != null) {
-                        contoursAttrSettings.put(ln.getPgenType(), ln.copy());
-                        lineFound = true;
-                    }
+                    for (ContourLine cln : cline) {
+                        Line ln = cln.getLine();
+                        if (ln != null) {
+                            contoursAttrSettings.put(ln.getPgenType(),
+                                    ln.copy());
 
-                    if (cline.get(0).getLabels() != null
-                            && cline.get(0).getLabels().size() > 0) {
-                        labelFound = true;
-                        contoursAttrSettings.put(cline.get(0).getLabels()
-                                .get(0).getPgenType(), cline.get(0).getLabels()
-                                .get(0).copy());
+                            if (cln.getLabels() != null
+                                    && cln.getLabels().size() > 0) {
+                                String lblKey = new String(ln.getPgenType()
+                                        + labelSuffix);
+                                contoursAttrSettings.put(lblKey, cln
+                                        .getLabels().get(0).copy());
+                            }
+                        }
                     }
                 }
 
@@ -3568,10 +3590,11 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     for (ContourMinmax cmx : csymbols) {
                         contoursAttrSettings.put(cmx.getSymbol().getPgenType(),
                                 cmx.getSymbol().copy());
-                        if (!labelFound) {
-                            contoursAttrSettings.put(cmx.getLabel()
-                                    .getPgenType(), cmx.getLabel());
-                            labelFound = true;
+
+                        if (cmx.getLabel() != null) {
+                            String lblKey = new String(cmx.getSymbol()
+                                    .getPgenType() + labelSuffix);
+                            contoursAttrSettings.put(lblKey, cmx.getLabel());
                         }
                     }
                 }
@@ -3582,47 +3605,15 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                     Arc cc = (Arc) ccircles.get(0).getCircle();
                     if (cc != null) {
                         contoursAttrSettings.put(cc.getPgenType(), cc.copy());
-                        circleFound = true;
                     }
 
-                    if (!labelFound) {
-                        if (ccircles.get(0).getLabel() != null) {
-                            labelFound = true;
-                            contoursAttrSettings.put(ccircles.get(0).getLabel()
-                                    .getPgenType(), ccircles.get(0).getLabel()
-                                    .copy());
-                        }
+                    if (ccircles.get(0).getLabel() != null) {
+                        String lblKey = new String(cc.getPgenType()
+                                + labelSuffix);
+                        contoursAttrSettings.put(lblKey, ccircles.get(0)
+                                .getLabel().copy());
                     }
                 }
-            }
-
-            // Build a default line, text, circle as template
-            if (!lineFound) {
-                Line dln = new Line(null, new Color[] { Color.red }, 2.0f, 2.0,
-                        false, false, null, 2, FillPattern.SOLID, "Lines",
-                        "LINE_SOLID");
-
-                contoursAttrSettings.put("LINE_SOLID", dln);
-            }
-
-            if (!labelFound) {
-                gov.noaa.nws.ncep.ui.pgen.elements.Text txt = new gov.noaa.nws.ncep.ui.pgen.elements.Text(
-                        null, "Courier", 14.0f, TextJustification.CENTER, null,
-                        0.0, TextRotation.SCREEN_RELATIVE,
-                        new String[] { "text" }, FontStyle.REGULAR,
-                        Color.GREEN, 0, 0, true, DisplayType.NORMAL, "Text",
-                        "General Text");
-
-                contoursAttrSettings.put("General Text", txt);
-            }
-
-            if (!circleFound) {
-
-                Arc ccr = new Arc(null, Color.red, 2.0f, 2.0, false, false, 2,
-                        FillPattern.SOLID, "Circle", null, null, "Arc", 1.0,
-                        0.0, 360.0);
-
-                contoursAttrSettings.put("Circle", ccr);
             }
         }
     }
@@ -3709,27 +3700,12 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
      * backspace to clean up the existing value.
      */
     public void setLabelFocus() {
-        // try {
         if (!labelTxt.isDisposed()) {
             labelTxt.setFocus();
             labelTxt.setSelection(labelTxt.getText().length());
 
             updateLabelBtnsSelection(labelTxt.getText());
         }
-        // } catch (NullPointerException npe) {
-        // System.err.println(this.getClass().getCanonicalName()
-        // + ":\n--writeADescriptiveErrorMsgHere--\n"
-        // + npe.getMessage());
-        // npe.printStackTrace();
-        // minmaxTemplate = new Symbol(
-        // null,
-        // new Color[] { Color.green },
-        // 2.0F,
-        // 2.0,
-        // true, null, "Symbol",
-        // getActiveSymbolObjType()
-        // );
-        // }
     }
 
     /**
