@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * 											a GEMPAK grid file
  * 09/10		#215		J. Wu   	Checked working directory and PATH.
  * 11/10		#345		J. Wu   	Added support for circle.
+ * 05/14        TTR989      J. Wu       Allow environmental variable in PATH.
  * 
  * </pre>
  * 
@@ -418,25 +419,60 @@ public class ContoursToGrid extends GraphToGrid {
             }
         }
 
-        String fullFile = new String(path + "/" + gdoutf);
-
         /*
+         * GEMPAK cannot accept a PATH with upper case letter, however, it takes
+         * environmental variables (which is UPPER CASE!). So we need to parse
+         * the environmental variables in the PATH before checking upper case
+         * characters.
+         * 
          * Check if the PATH is valid and exists
          */
-        File grdfile = new File(path);
-
-        Pattern ptn = Pattern.compile("[A-Z]");
-        Matcher mt = ptn.matcher(path);
-
         String msg = null;
-        if (mt.find()) {
-            msg = new String("The PATH cannot have upper case in it");
-        } else {
-            if (!grdfile.exists()) {
-                msg = new String(
-                        "The PATH does not exist, please create it first");
+
+        String[] dirs = path.split(File.separator);
+        StringBuilder rpath = new StringBuilder();
+        for (String str : dirs) {
+            if (str.trim().startsWith("$")) {
+                String val = System.getenv(str.substring(1));
+                if (val != null) {
+                    rpath.append(val);
+                    rpath.append(File.separator);
+                } else {
+                    msg = new String(str + " is not defined.");
+                    rpath = new StringBuilder(path);
+                    break;
+                }
+            } else if (str.trim().startsWith("~")) {
+                rpath.append(System.getProperty("user.home"));
+                rpath.append(File.separator);
+            } else {
+                rpath.append(str);
+                rpath.append(File.separator);
             }
         }
+
+        String fpath = rpath.toString();
+        if (fpath.endsWith(File.separator)) {
+            fpath = fpath.substring(0, fpath.length() - 1);
+        }
+
+        Pattern ptn = Pattern.compile("[A-Z]");
+        Matcher mt = ptn.matcher(fpath);
+
+        File grdfile = new File(fpath);
+
+        if (msg == null) {
+            if (mt.find()) {
+                msg = new String("The PATH cannot have upper case in it");
+            } else {
+                if (!grdfile.exists()) {
+                    msg = new String(
+                            "The PATH does not exist, please create it first");
+                }
+            }
+        }
+
+        String fullFile = new String(fpath + "/" + gdoutf);
 
         if (msg != null) {
 
