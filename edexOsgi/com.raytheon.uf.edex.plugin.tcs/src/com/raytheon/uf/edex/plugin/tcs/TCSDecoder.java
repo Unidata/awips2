@@ -20,8 +20,8 @@
 
 package com.raytheon.uf.edex.plugin.tcs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.plugin.tcs.decoder.TCSDataAdapter;
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2009             jsanchez     Initial creation
  * May 14, 2014 2536        bclement     moved WMO Header to common
+ * Jun 23, 2014 3272        nabowle      Switch to slf4j.
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ import com.raytheon.uf.edex.plugin.tcs.decoder.TCSDataAdapter;
  * @version 1.0
  */
 public class TCSDecoder {
-    private Log logger = LogFactory.getLog(getClass());
+    private static Logger logger = LoggerFactory.getLogger(TCSDecoder.class);
 
     private final String pluginName;
 
