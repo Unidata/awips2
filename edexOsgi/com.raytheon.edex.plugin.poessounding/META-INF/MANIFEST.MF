@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Poessounding Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.poessounding
-Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
@@ -13,7 +12,7 @@ Require-Bundle: com.raytheon.edex.common,
  javax.persistence
 Export-Package: com.raytheon.edex.plugin.poessounding,
  com.raytheon.edex.plugin.poessounding.decoder
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin.poessounding,
  com.raytheon.uf.common.geospatial.spi,
  com.raytheon.uf.common.pointdata,
