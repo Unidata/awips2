@@ -318,6 +318,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HWRF_NT">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HYSPLIT_NT">
+<filters>Forecast,NTRANS</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ICEACCR_NT">
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
@@ -702,7 +705,13 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NMM40">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM40">
+<filters>Forecast,Regional,SBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM5">
+<filters>Forecast,Regional,SBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM40_SFC">
 <filters>Forecast,Regional,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP">
@@ -1077,6 +1086,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NOGAPS">
 <filters>Forecast,Global</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAVGEM">
+<filters>Forecast,Global,NSBN</filters>
+</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="MPE_MOSAIC_SJU">
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
@@ -1157,6 +1169,9 @@
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GWW233">
 <filters>Forecast</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="NAM32">
+<filters>Forecast,Regional,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="NAM32PR">
 <filters>Forecast,Regional,SBN</filters>

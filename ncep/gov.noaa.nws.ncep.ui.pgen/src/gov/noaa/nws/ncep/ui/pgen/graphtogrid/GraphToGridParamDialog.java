@@ -19,8 +19,10 @@ import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.viz.gempak.nativelib.LibraryLoader;
 
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TimeZone;
@@ -70,6 +73,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 10/11		?			J. Wu   	Remove entry if the given table does not exist.
  * 08/13		TTR778		J. Wu		Load libg2g when this dialog is created.
  * 12/13        1090        J. Wu       Allow either table or element applied to g2g.
+ * 05/14        TTR989      J. Wu       Find current contour via contour parameters.
  * 
  * </pre>
  * 
@@ -858,11 +862,12 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
 
         if (cntAttrDlg instanceof ContoursAttrDlg) {
 
+            // First try to get from dialog
             curCnt = ((ContoursAttrDlg) cntAttrDlg).getCurrentContours();
 
+            // Then try to get from the selected DE's parent....
             if (curCnt == null) {
                 DrawableElement de = drawingLayer.getSelectedDE();
-
                 if (de != null
                         && (de.getParent() instanceof ContourLine
                                 || de.getParent() instanceof ContourMinmax || de
@@ -871,6 +876,27 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
                     curCnt = (Contours) de.getParent().getParent();
                 }
             }
+
+            // Finally try to get from PgenResource - matching this contour
+            // dialog's attributes.
+            if (curCnt == null) {
+                Iterator<AbstractDrawableComponent> it = drawingLayer
+                        .getActiveLayer().getComponentIterator();
+                while (it.hasNext()) {
+                    AbstractDrawableComponent de = it.next();
+                    if (de instanceof Contours && !(de instanceof Outlook)) {
+                        Contours thisContour = (Contours) de;
+                        ContoursAttrDlg thisDlg = (ContoursAttrDlg) cntAttrDlg;
+
+                        if (thisContour.getKey().equals(
+                                Contours.getKey(thisDlg))) {
+                            curCnt = (Contours) de;
+                            break;
+                        }
+                    }
+                }
+            }
+
         } else if (cntAttrDlg instanceof OutlookAttrDlg) {
             curCnt = ((OutlookAttrDlg) cntAttrDlg).getCurrentOtlk();
         }

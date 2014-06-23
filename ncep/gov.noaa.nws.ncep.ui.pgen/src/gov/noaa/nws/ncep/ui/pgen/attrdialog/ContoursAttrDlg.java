@@ -113,6 +113,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      similar changes to labels for other contour objects
  *                                      caused a similar error (label or object or both
  *                                      would disappear), this should now be fixed.
+ * 05/02/2014   ?           D. Sushon   In testing solution for trac 1132, it was found that
+ *                                      multiple instances of the contour dialog's Edit
+ *                                      windows could be created with no way to remove,
+ *                                      should now be fixed.
  * 05/14        TTR1008     J. Wu       Set default contour parameters through settings_tbl.xml.
  * 
  * </pre>
@@ -1960,6 +1964,16 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         }
 
+        @Override
+        public int open() {
+
+            if (this.getShell() == null || this.getShell().isDisposed()) {
+                return super.open();
+            } else {
+                return CANCEL;
+            }
+        }
+
         /**
          * Update the label attributes
          */
@@ -1991,6 +2005,11 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
         public void cancelPressed() {
             // if (tool != null) {tool.setPgenContoursHandler();}
             // PgenUtil.setSelectingMode();
+            this.close();
+        }
+
+        @Override
+        public void handleShellCloseEvent() {
             this.close();
         }
 
@@ -2260,6 +2279,11 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
             this.close();
         }
 
+        @Override
+        public void handleShellCloseEvent() {
+            this.close();
+        }
+
         /**
          * disable un-used widgets
          */
@@ -2422,6 +2446,11 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
          */
         @Override
         public void cancelPressed() {
+            this.close();
+        }
+
+        @Override
+        public void handleShellCloseEvent() {
             this.close();
         }
 
@@ -3123,6 +3152,16 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
 
         }
 
+        @Override
+        public int open() {
+
+            if (this.getShell() == null || this.getShell().isDisposed()) {
+                return super.open();
+            } else {
+                return CANCEL;
+            }
+        }
+
         /**
          * Update the min/max attributes
          */
@@ -3156,6 +3195,11 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
          */
         @Override
         public void cancelPressed() {
+            this.close();
+        }
+
+        @Override
+        public void handleShellCloseEvent() {
             this.close();
         }
 
