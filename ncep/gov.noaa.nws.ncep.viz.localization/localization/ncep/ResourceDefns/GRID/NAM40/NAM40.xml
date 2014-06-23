@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="http://www.example.org/productType">
-    <resourceDefnName>NMM40</resourceDefnName>
+    <resourceDefnName>NAM40</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
@@ -13,7 +13,7 @@
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
     <resourceParameters>
 pluginName=grid
-GDFILE=ETA212
+GDFILE=mesoEta212
 
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>
