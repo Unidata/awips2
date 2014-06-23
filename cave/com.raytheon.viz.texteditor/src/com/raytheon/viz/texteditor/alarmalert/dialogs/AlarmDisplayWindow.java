@@ -62,6 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * Sep 25, 2012 1196       lvenable    Dialog refactor for AlarmDisplayWindow.Added DO_NOT_BLOCK.
  * Nov 20, 2013 2488       randerso    Changed to use DejaVu font
+ * Jun 23, 2014 #3161      lvenable    Added SWT dialog trim to the dialogs for thin client.
  * 
  * </pre>
  * 
@@ -106,8 +107,9 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     protected AlarmDisplayWindow(Shell parentShell,
             java.util.List<StdTextProduct> prodList,
             ACCUMULATE_STATE accum_state) {
-        super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT
-                | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE,
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.INDEPENDENT_SHELL
+                        | CAVE.DO_NOT_BLOCK);
         setText("Alarm Display Window");
         prods = prodList;
         if (prods == null) {
