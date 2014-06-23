@@ -212,6 +212,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/23/2014  DR 16356    Qinglu Lin  Updated initializeState() and added reset().
  * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
  * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
+ * 06/23/2014  DR16322 m.gamazaychikov Fix Warngen unloading previously loaded maps.
  * </pre>
  * 
  * @author mschenke
@@ -352,11 +353,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private Set<String> mapsToLoad;
 
+        private Set<String> preloadedMaps;
+
         private final MapManager manager;
 
         public CustomMaps() {
             super("Loading WarnGen Maps");
             manager = MapManager.getInstance(descriptor);
+            preloadedMaps=new HashSet<String>();
         }
 
         @Override
@@ -373,7 +377,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
                 if (toLoad != null) {
                     for (String loaded : customMaps) {
-                        manager.unloadMap(loaded);
+                        if (!preloadedMaps.contains(loaded)) {
+                            manager.unloadMap(loaded);
+                        }
                     }
 
                     for (String load : toLoad) {
@@ -389,6 +395,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         public void loadCustomMaps(Collection<String> maps) {
+            for (String map : maps) {
+                if (manager.isMapLoaded(map)) {
+                    preloadedMaps.add(map);
+                }
+            }
             synchronized (this) {
                 mapsToLoad = new HashSet<String>(maps);
             }
