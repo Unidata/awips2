@@ -31,6 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012            jkorman     Initial creation
+ * Jun 20, 2014 3281       bclement    added hasError() getError()
  * 
  * </pre>
  * 
@@ -40,9 +41,18 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 
 public interface ITextMessageEvent {
     
-
     /**
      * @return the message
      */
     public TextMessage getMessage();
+
+    /**
+     * @return true if error is set
+     */
+    public boolean hasError();
+
+    /**
+     * @return error message
+     */
+    public String getError();
 }
