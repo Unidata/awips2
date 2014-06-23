@@ -140,6 +140,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 										this class
  * 11/13        TTR 752     J. Wu       added methods to compute an element's range record.
  * 12/13		#1089		B. Yin		Modify watch to display county list
+ * 05/14        TTR 995     J. Wu       Make contour label auto-placement an option.
  * </pre>
  * 
  * @author sgilbert
@@ -336,10 +337,6 @@ public class DisplayElementFactory {
                     list.addAll(createDisplayElementsForLines(de, smoothpts,
                             paintProps));
 
-                    // Draw labels for contour lines.
-                    // list.addAll( adjustContourLineLabels( elem, paintProps,
-                    // smoothpts ) );
-
                 }
 
                 return list;
@@ -382,7 +379,6 @@ public class DisplayElementFactory {
         LinePatternManager lpl = LinePatternManager.getInstance();
         try {
             pattern = lpl.getLinePattern(de.getPatternName());
-            // System.out.println("&&&pattern "+pattern.getMaxExtent());
         } catch (LinePatternException lpe) {
             /*
              * could not find desired line pattern. Used solid line as default.
@@ -623,7 +619,7 @@ public class DisplayElementFactory {
         /*
          * Draw labels for contour lines.
          */
-        list.addAll(adjustContourLineLabels(elem, paintProps, smoothpts));
+        // ???list.addAll(adjustContourLineLabels(elem, paintProps, smoothpts));
 
         return list;
     }
@@ -1342,7 +1338,9 @@ public class DisplayElementFactory {
                     || tparent instanceof ContourCircle) {
                 return slist;
             } else if (tparent instanceof ContourMinmax) {
-                if (((Text) txt).getAuto() != null && ((Text) txt).getAuto()) {
+                boolean forceAuto = PgenUtil.getContourLabelAutoPlacement();
+                if (((Text) txt).getAuto() != null && ((Text) txt).getAuto()
+                        || forceAuto) {
                     Coordinate loc = ((ISinglePoint) ((ContourMinmax) tparent)
                             .getSymbol()).getLocation();
                     double[] pixel = iDescriptor.worldToPixel(new double[] {
@@ -1356,6 +1354,11 @@ public class DisplayElementFactory {
                             pixel[0], pixel[1], 0.0 });
                     ((Text) txt).setLocationOnly(new Coordinate(nloc[0],
                             nloc[1]));
+                    // Only adjust once if auto-place flag in preference is
+                    // false.
+                    if (!forceAuto) {
+                        ((Text) txt).setAuto(false);
+                    }
                 }
             }
         }
@@ -3093,7 +3096,6 @@ public class DisplayElementFactory {
          */
         double psize = pattern.getLength() * sfactor;
         double numPatterns = Math.floor(totalDist / psize);
-        // System.out.println("NUM_OF_PATTERN_ITERATIONS="+numPatterns+":"+psize);
 
         /*
          * Calculate the amount to increase or decrease the pattern length so
@@ -5153,6 +5155,8 @@ public class DisplayElementFactory {
 
             boolean lineClosed = cline.getLine().isClosedLine();
 
+            boolean forceAuto = PgenUtil.getContourLabelAutoPlacement();
+
             /*
              * Find the visible part of the line.
              */
@@ -5328,13 +5332,17 @@ public class DisplayElementFactory {
                 loc[1] = txtPositions.get(kk).y;
 
                 tps = iDescriptor.pixelToWorld(loc);
-                if (txt.getAuto() != null && txt.getAuto()) {
+                if (txt.getAuto() != null && txt.getAuto() || forceAuto) {
                     txt.setLocationOnly(new Coordinate(tps[0], tps[1]));
                 }
 
                 txt.setParent(null);
                 dlist.addAll(createDisplayElements((IText) txt, paintProps));
                 txt.setParent(cline);
+
+                if (!forceAuto) {
+                    txt.setAuto(false);
+                }
             }
 
         }
@@ -5356,7 +5364,9 @@ public class DisplayElementFactory {
 
             Text labelText = ((ContourCircle) parent).getLabel();
 
-            if (labelText.getAuto() != null && labelText.getAuto()) {
+            boolean forceAuto = PgenUtil.getContourLabelAutoPlacement();
+
+            if (labelText.getAuto() != null && labelText.getAuto() || forceAuto) {
                 /*
                  * Find the visible part of the circle.
                  */
@@ -5409,6 +5419,10 @@ public class DisplayElementFactory {
             dlist.addAll(createDisplayElements((IText) labelText, paintProps));
             labelText.setParent(parent);
 
+            if (!forceAuto) {
+                labelText.setAuto(false);
+            }
+
         }
 
         return dlist;
@@ -5455,8 +5469,7 @@ public class DisplayElementFactory {
                         spdCoors.get(0),
                         gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType.ARROW,
                         10, vDir, 1.0, false, "Vector", "Arrow");
-                // System.out.println("generate a text for " + spd + " at: "
-                // + getCcfpTxtPts(v).x + "," + getCcfpTxtPts(v).y);
+
                 Text spdTxt = new Text(null, "Courier",
                         14.0f,
                         TextJustification.CENTER,// .LEFT_JUSTIFY,
@@ -5582,13 +5595,10 @@ public class DisplayElementFactory {
      */
     public PgenRangeRecord findTextBoxRange(IText txt,
             PaintProperties paintProps) {
-        // System.out.println("findTextBoxRange for IText .... enter ");
 
         setScales(paintProps);
 
         double[] tmp = { txt.getPosition().x, txt.getPosition().y, 0.0 };
-        // System.out.println("findTextBoxRange for IText .... "
-        // + txt.getPosition().x + "," + txt.getPosition().y);
         double[] loc = iDescriptor.worldToPixel(tmp);
 
         double horizRatio = paintProps.getView().getExtent().getWidth()
@@ -5601,7 +5611,6 @@ public class DisplayElementFactory {
          */
         IFont font = initializeFont(txt.getFontName(), txt.getFontSize(),
                 txt.getStyle());
-        // System.out.println("findTextBoxRange for IText .... 1 ");
 
         /*
          * apply X offset in half-characters
@@ -5638,14 +5647,12 @@ public class DisplayElementFactory {
             ((Text) txt).setXOffset(0);
             ((Text) txt).setYOffset(0);
         }
-        // System.out.println("findTextBoxRange for IText .... 2 ");
 
         /*
          * Get text color
          */
         Color clr = getDisplayColor(txt.getTextColor());
         RGB textColor = new RGB(clr.getRed(), clr.getGreen(), clr.getBlue());
-        // System.out.println("findTextBoxRange for IText .... 2.5 ");
 
         /*
          * Get angle rotation for text. If rotation is "North" relative,
@@ -5654,7 +5661,6 @@ public class DisplayElementFactory {
         double rotation = txt.getRotation();
         if (txt.getRotationRelativity() == TextRotation.NORTH_RELATIVE)
             rotation += northOffsetAngle(txt.getPosition());
-        // System.out.println("findTextBoxRange for IText .... 3 ");
 
         /*
          * create drawableString and calculate its bounds
@@ -5666,13 +5672,10 @@ public class DisplayElementFactory {
         dstring.horizontalAlignment = HorizontalAlignment.CENTER;
         dstring.verticallAlignment = VerticalAlignment.MIDDLE;
         dstring.rotation = rotation;
-        // System.out.println("findTextBoxRange for IText .... 3.1 ");
 
         Rectangle2D bounds = target.getStringsBounds(dstring);
-        // System.out.println("findTextBoxRange for IText .... 3.1.1 ");
         double xOffset = (bounds.getWidth() + 1) * horizRatio / 2;
         double yOffset = (bounds.getHeight() + 1) * vertRatio / 2;
-        // System.out.println("findTextBoxRange for IText .... 3.2 ");
 
         /*
          * Set proper alignment
@@ -5699,7 +5702,6 @@ public class DisplayElementFactory {
                 break;
             }
         }
-        // System.out.println("findTextBoxRange for IText .... 4 ");
 
         dstring.horizontalAlignment = align;
 
@@ -5711,7 +5713,6 @@ public class DisplayElementFactory {
 
         IExtent box = new PixelExtent(dstring.basics.x - left, dstring.basics.x
                 + right, dstring.basics.y - yOffset, dstring.basics.y + yOffset);
-        // System.out.println("findTextBoxRange for IText .... 5 ");
 
         List<Coordinate> rngBox = new ArrayList<Coordinate>();
         rngBox.add(new Coordinate(box.getMinX() - PgenRangeRecord.RANGE_OFFSET,
@@ -5725,8 +5726,6 @@ public class DisplayElementFactory {
 
         List<Coordinate> textPos = new ArrayList<Coordinate>();
         textPos.add(new Coordinate(loc[0], loc[1]));
-
-        // System.out.println("findTextBoxRange for IText .... return ");
 
         return new PgenRangeRecord(rngBox, textPos, false);
     }
