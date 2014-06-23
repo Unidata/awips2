@@ -98,7 +98,8 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * Sep 25, 2012  1196      lvenable    Dialog refactor for AlarmDisplayWindow.
  * Mar 05,2013  15173   mgamazaychikov The dimensions and location of closed window
- * 									   are saved and set on the next open. 
+ * 									   are saved and set on the next open.
+ * Jun 23, 2014 #3161      lvenable    Added SWT dialog trim to the dialogs for thin client.
  * 
  * </pre>
  * 
@@ -142,7 +143,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      * Location and dimensions of the dialog on the close.
      */
     private static Point closeLocation = null;
-    
+
     private static Point closeDimensions = null;
 
     /**
@@ -151,12 +152,12 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     private boolean canRedraw = true;
 
     /**
-     * Maximum width,initial height and offset of the window 
+     * Maximum width,initial height and offset of the window
      */
     private static final int SHELL_WIDTH = 350;
-    
+
     private static final int INIT_HEIGHT = 200;
-    
+
     private static final int INIT_OFFSET = 15;
 
     /**
@@ -164,8 +165,8 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      * @param style
      */
     private CurrentAlarmQueue(Shell parentShell) {
-        super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT
-                | CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE,
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("Current Alarm Queue");
     }
 
@@ -261,10 +262,10 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         shellComp = new Composite(shell, SWT.NONE);
         shellComp.setLayout(constructShellLayout());
         shellComp.setLayoutData(gd);
-        
+
         /*
-         * DR15173 - Create a listener to save the location 
-         * 			 and dimensions of closed window.
+         * DR15173 - Create a listener to save the location and dimensions of
+         * closed window.
          */
         shell.addShellListener(new ShellAdapter() {
             public void shellClosed(ShellEvent event) {
@@ -289,11 +290,13 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
                 Display.getDefault().asyncExec(new Runnable() {
                     @Override
                     public void run() {
-                    	/*
-                    	 * DR15173 - Enforce that the window width does not exceed the SHELL_WIDTH.
-                    	 */
-                    	shell.setBounds(location.x, location.y, SHELL_WIDTH, point.y);
-                    	shell.setMinimumSize(SHELL_WIDTH, 0);
+                        /*
+                         * DR15173 - Enforce that the window width does not
+                         * exceed the SHELL_WIDTH.
+                         */
+                        shell.setBounds(location.x, location.y, SHELL_WIDTH,
+                                point.y);
+                        shell.setMinimumSize(SHELL_WIDTH, 0);
                         canRedraw = true;
                     }
                 });
@@ -302,7 +305,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
 
         // Initialize all of the controls and layouts
         initializeComponents();
-        
+
         // Set the shell location and dimensions.
         setShellGeometry();
     }
@@ -310,26 +313,25 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     /**
      * Sets the geometry for the Current Alarm Queue shell
      */
-	private void setShellGeometry() {
-		Rectangle displayArea = shell.getDisplay().getClientArea();
-		int locationX = displayArea.x + INIT_OFFSET;
-		int locationY = displayArea.y + INIT_OFFSET;
-		int width = SHELL_WIDTH;
-		int height = INIT_HEIGHT;
-		if (CurrentAlarmQueue.closeLocation != null) {
-			locationX = CurrentAlarmQueue.closeLocation.x;
-			locationY = CurrentAlarmQueue.closeLocation.y;
-		}
-		if (CurrentAlarmQueue.closeDimensions != null) {
-			height = CurrentAlarmQueue.closeDimensions.y;
-		}
-		shell.setMinimumSize(width, height);
-		shell.setLocation(locationX, locationY);
-		return;
-	}
+    private void setShellGeometry() {
+        Rectangle displayArea = shell.getDisplay().getClientArea();
+        int locationX = displayArea.x + INIT_OFFSET;
+        int locationY = displayArea.y + INIT_OFFSET;
+        int width = SHELL_WIDTH;
+        int height = INIT_HEIGHT;
+        if (CurrentAlarmQueue.closeLocation != null) {
+            locationX = CurrentAlarmQueue.closeLocation.x;
+            locationY = CurrentAlarmQueue.closeLocation.y;
+        }
+        if (CurrentAlarmQueue.closeDimensions != null) {
+            height = CurrentAlarmQueue.closeDimensions.y;
+        }
+        shell.setMinimumSize(width, height);
+        shell.setLocation(locationX, locationY);
+        return;
+    }
 
-
-	/**
+    /**
      * Initializes each component of the shell
      */
     private void initializeComponents() {
