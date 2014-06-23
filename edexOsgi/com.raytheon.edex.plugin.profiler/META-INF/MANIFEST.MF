@@ -5,8 +5,7 @@ Bundle-SymbolicName: com.raytheon.edex.plugin.profiler
 Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.dataplugin.profiler,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
