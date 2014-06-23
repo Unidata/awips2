@@ -24,10 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.dataplugin.exception.UnrecognizedDataException;
 import com.raytheon.uf.common.dataplugin.tcs.Radius;
 import com.raytheon.uf.common.dataplugin.tcs.TropicalCycloneSummary;
 import com.raytheon.uf.common.dataplugin.tcs.util.TCSConstants;
@@ -51,6 +52,9 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  *                                      subclasses can use TimeTools
  *                                      for time calculations.
  * May 14, 2014 2536       bclement     moved WMO Header to common, removed constructDataURI() call
+ * Jun 23, 2014 3272       nabowle      Throw UnrecognizedDataException in
+ *                                      {@link #getDecodedData()} if there were
+ *                                      no reports. Switch to slf4j.
  * 
  * </pre>
  * 
@@ -59,7 +63,8 @@ import com.raytheon.uf.edex.plugin.tcs.TropicalCycloneSummaryDao;
  */
 public abstract class TCSDataAdapter implements TCSConstants {
 
-    protected static Log logger = LogFactory.getLog(TCSDataAdapter.class);
+    protected static Logger logger = LoggerFactory
+            .getLogger(TCSDataAdapter.class);
 
     protected PointDataDescription pointDataDescription;
 
@@ -124,7 +129,8 @@ public abstract class TCSDataAdapter implements TCSConstants {
         return next;
     }
 
-    public TropicalCycloneSummary getDecodedData() {
+    public TropicalCycloneSummary getDecodedData()
+            throws UnrecognizedDataException {
         boolean isFirstReport = true;
         int COLUMN_WIDTH = 4;
         TropicalCycloneSummary headReport = null;
@@ -188,6 +194,11 @@ public abstract class TCSDataAdapter implements TCSConstants {
                 row++;
             }
         }
+
+        if (view == null || headReport == null) {
+            throw new UnrecognizedDataException("No reports were found.");
+        }
+
         view.setInt("size", row);
         headReport.setPointDataView(view);
         return headReport;
