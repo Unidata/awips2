@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Ccfp Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.ccfp
 Bundle-Version: 1.14.0.qualifier
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.edex.common
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
@@ -11,7 +10,7 @@ Require-Bundle: com.raytheon.edex.common,
  javax.persistence,
  com.raytheon.uf.common.status
 Export-Package: com.raytheon.uf.edex.plugin.ccfp
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.wmo

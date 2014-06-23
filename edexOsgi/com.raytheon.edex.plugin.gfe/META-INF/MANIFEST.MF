@@ -2,10 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gfe EDEX Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.gfe
-Bundle-Version: 1.12.1174.qualifier
-Eclipse-BuddyPolicy: registered, ext, global
+Bundle-Version: 1.14.0.qualifier
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.edex.common
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174",
  org.jep,
