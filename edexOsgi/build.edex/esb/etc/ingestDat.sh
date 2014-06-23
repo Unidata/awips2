@@ -21,8 +21,7 @@
 export INIT_MEM=256 # in Meg
 export MAX_MEM=1792 # in Meg
 
-export METADATA_POOL_MIN=15
-export METADATA_POOL_MAX=30
+export METADATA_POOL_MAX=25
 export EDEX_DEBUG_PORT=5008
 export EDEX_JMX_PORT=1619
 export MGMT_PORT=9604
