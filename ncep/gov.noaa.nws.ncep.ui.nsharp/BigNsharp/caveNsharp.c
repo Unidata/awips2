@@ -12,6 +12,7 @@
 #include "Sndglib/sndglib.h"
 #define cavesars            cavesars_
 #define cavespnsharp        cavespnsharp_
+#define sars            sars_
 #define hailcast1       hailcast1_
 void cavesars(float *, float *, float * , float *, float *, float *, float *, float *, float *, int *, float *, float *, float *, float *, char *[15], float *[15], char *[80],int *);
 void cavespnsharp(float *, float *, float * , float *, float *, float *, int *, float *, float *, char *[15], float *[15], char *[80],
@@ -152,14 +153,21 @@ typedef struct sarsInfoStr
 	int numHailstr; //max=12
 	char hailStr[SARS_STRING_LINES][SARS_STRING_LEN];
 	int hailStrColor[SARS_STRING_LINES];
-	//char sighailStr[2][SARS_STRING_LEN];
-	//int sighailStrColor;
 	int numsupcellstr; //max=12
 	char supcellStr[SARS_STRING_LINES][SARS_STRING_LEN];
 	int supcellStrColor[SARS_STRING_LINES];
-	//char torStr[2][SARS_STRING_LEN];
-	//int torStrColor;
 } SarsInfoStr;
+
+#define HAIL_STRING_LEN  80
+#define HAIL_STRING_LINES  8
+typedef struct hailInfoStr
+{
+	char reportHailStr[10];
+	int matches;// 0 means no match
+	int member; // 0 means No Convecting members
+	char hailStr[HAIL_STRING_LINES][HAIL_STRING_LEN];
+	int hailStrColor[HAIL_STRING_LINES];
+} HailInfoStr;
 
 struct Sounding staticSounding;
 
@@ -266,7 +274,6 @@ int  populateSndgDataStatic(CaveSndgParms snDataArray[], int arraySize, int data
 		minArraySize = arraySize;
 	s = getSoundingAndInit( minArraySize);
 	s->datatype = datatype;
-
 
 	/* Populate data*/
 	for (i=0;i<minArraySize;i++)
@@ -1452,7 +1459,7 @@ void getWinterInfo( WinterInfoStr * winterInfo )
 	short phase;
 	char st[100];
 	struct _ptype ptype1;
-	//char  pt[80];
+	memset(winterInfo,0, sizeof(WinterInfoStr));
 
 	tIndex = getParmIndex("TEMP");
 	pIndex = getParmIndex("PRES");
@@ -1721,14 +1728,17 @@ void getFireInfo(FireInfoStr * fireInfo)
  * All original BigNsharp plotting are removed.
  *************************************************************/
 {
-	float ix1, ix2, ix3, ix4, pres,  h2, p1, p2, sfctemp, sfcdwpt, sfcpres, sfcrh;
-	short  oldlplchoice, pIndex, zIndex, tIndex;
+	float ix1, ix2, ix3, ix4, pres,  h2, p1, p2, sfctemp, sfcdwpt, sfcpres, sfcrh,ws,wd;
+	short  oldlplchoice, pIndex, zIndex, tIndex, wsIndex, wdIndex;
 	Parcel pcl;
 
+	memset(fireInfo,0, sizeof(FireInfoStr));
 	oldlplchoice = lplvals.flag;
 	tIndex = getParmIndex("TEMP");
 	pIndex = getParmIndex("PRES");
 	zIndex = getParmIndex("HGHT");
+	wsIndex = getParmIndex("SPED");
+	wdIndex = getParmIndex("DRCT");
 
 
 	define_parcel(1, 0);
@@ -1781,8 +1791,16 @@ void getFireInfo(FireInfoStr * fireInfo)
 	if ((ix1 < 0.5) && (pcl.bplus > 50) && (sfcrh < 35)){
 		fireInfo->pwColor = 2;
 	}
+	else
+		fireInfo->pwColor = 31;
 	sprintf( fireInfo->pw, "PW  = %s", qc2( ix1, "in", 2 ));
-	max_wind(&ix1, &ix2, &ix3, -1, p2);
+	//Chin:06062014 max_wind() will crash if sfc layer wind not available, therefore add the following checking
+	wd = sndg[sfc()][wdIndex];
+	ws = sndg[sfc()][wsIndex];
+	if(wd<0 || ws < 0)
+		ix3 = -1;
+	else
+	    max_wind(&ix1, &ix2, &ix3, -1, p2);
 	if (ix3 < 0)
 		strcpy( fireInfo->blMax, "BL max = M");
 	else{
@@ -1794,6 +1812,7 @@ void getFireInfo(FireInfoStr * fireInfo)
 		else fireInfo->blMaxColor =8;
 		sprintf( fireInfo->blMax, "BL max = %4.0f/%.0f", ix2, ix3);
 	}
+
 	ix3 = fosberg(&ix4);
 	if (ix3 < 0)
 		strcpy( fireInfo->fosberg, "Fosberg FWI = M");
@@ -1840,16 +1859,17 @@ void getSarsInfo(SarsInfoStr * sarsInfo)
 	float srh3, matches, p1, p2, haillist[15], suplist[15], oldlplpres;
 	float mucp, mlcp, mllcl, srh1, shr3k, shr6k, shr9k;
 	short txtlin, txtrow, oldlplchoice, pIndex, zIndex, tIndex, trow2, i;
-	short tdIndex, nsndgs, trx, j, temp_mark, y, totalsndgs;
+	short tdIndex, nsndgs, trx, j, temp_mark, y;
+	int totalsndgs;
 	char st[100], st1[20], st2[20], sndglist[15][15], tempStr[16];
 	char tortags[3][10] = { "NONTOR", "WEAKTOR", "SIGTOR" };
 	Parcel pcl;
 	Parcel pcl2;
 
 	//initialize SarsInfoStr
+	memset(sarsInfo,0, sizeof(SarsInfoStr));
 	sarsInfo->numHailstr =SARS_STRING_LINES;
 	sarsInfo->numsupcellstr=SARS_STRING_LINES;
-	//memset(sarsInfo->hailStr,'\0', 600);
 
 	tIndex = getParmIndex("TEMP");
 	pIndex = getParmIndex("PRES");
@@ -2065,13 +2085,13 @@ void getSarsInfo(SarsInfoStr * sarsInfo)
 }
 /*************************************************************
  * Chin Note: this function is derived from show_skewtpage1()
- * plus show_hail_new() of xwvid3.c
+ * and show_hail_new() of xwvid3.c
  * of BigNsharp by John Hart  NSSFC KCMO
  * Chin: Rewrite code to get all computed parameters/string for
  * CAVE.
  * All original BigNsharp gui functions are removed.
  *************************************************************/
-void getHailInfo(){
+void getHailInfo(HailInfoStr * hailInfo){
 	float hvars[30], h2[100];
 	float ix1, ix2, ix3, ix4,  mumixr,esicat;
 	float T0, Td0, el, pbot, ptop, base, depth, effdep, ebs;
@@ -2082,17 +2102,17 @@ void getHailInfo(){
 	float srh3, matches, matches2, avsize, p1, haillist[15];
 	short txtlin, txtrow, oldlplchoice, trow2, i, j;
 	short nsndgs, trx, temp_mark, y;
-	char st[100], st1[20], sndglist[15][15];
+	char st1[20], sndglist[15][15];
+	int totalsndgs;
 	Parcel pcl;
 	Parcel pcl2;
-
-	// Chin: use memset() instead
+	memset(hailInfo, 0, sizeof(HailInfoStr));
+	write_hail_file("HAIL");
 	memset(h2, 0, sizeof(h2));
 	memset(hvars,0, sizeof(hvars));
-	//was::for (i=0;i<100;i++) {h2[i] = 0.0;}
-	//was::for (i=0;i<30;i++) {hvars[i] = 0.0;}
 
-	/* Compute Effective Vertical Shear.  Default to 6km if not available */
+
+	//Compute Effective Vertical Shear.  Default to 6km if not available */
 	ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
 	pIndex = getParmIndex("PRES");
 	tIndex = getParmIndex("TEMP");
@@ -2102,8 +2122,8 @@ void getHailInfo(){
 	el = 12000.0;
 	if (pcl.bplus >= 100) {
 		el = agl(i_hght(pcl.elpres, I_PRES));
-		/* 24 Mar 2008 */
-		/*  effective_inflow_layer(100, -250, &pbot, &ptop);*/
+		// 24 Mar 2008 */
+		//  effective_inflow_layer(100, -250, &pbot, &ptop);*/
 	}
 	base = agl(i_hght(p_bot, I_PRES));
 	depth = (el - base);
@@ -2113,14 +2133,16 @@ void getHailInfo(){
 	//printf("Shear = %.1f kt    %.1f mps\nEBS = %.6f\nDepth = %.1f m\n", ix4, kt_to_mps(ix4), ebs, effdep);
 	T0 = sndg[sfc()][tIndex];
 	Td0 = sndg[sfc()][tdIndex];
+	mumixr = mixratio(lplvals.pres, lplvals.dwpt);
 	hailcast1(&T0, &Td0, &ebs, &hvars, &mumixr, &esicat);
 
 	h2[0]=1;
 	h2[1]=0;
-	for (i=0;i<=30;i++)
+	for (i=0;i<30;i++)
 	{
-		printf( "HVARS[%d] = %f\n", i, hvars[i]);
+		//printf( "HVARS[%d] = %f\n", i, hvars[i]);
 		h2[i+2] = hvars[i];
+		//printf( "h2[%d] = %f\n", i, h2[i]);
 	}
 	//CHin Note::: Above code are from show_skewtpage1(). It does some parameters setting before calling show_hail_new().
 	//Chin note::: From here down are rewriting code of show_hail_new(&h2);
@@ -2139,75 +2161,43 @@ void getHailInfo(){
 	ix1 = parcel( -1, -1, sfcpres, sfctemp, sfcdwpt, &pcl);
 
 	// ----- Hail Model Output -----
-	// Chin:: resume work from here...
-	set_font(4);
-	setcolor(31);
-	sprintf(st, "Hailcast1 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[18], ctof(h2[2]), ctof(h2[3]),h2[25]);
-	outgtext ( st, txtlin, txtrow );
+	sprintf(hailInfo->hailStr[0], "Hailcast1 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[18], ctof(h2[2]), ctof(h2[3]),h2[25]);
+	hailInfo->hailStrColor[0] = 31;
 
-	if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(3);
-	if (h2[24] >= 1.95) setcolor(2);
+	if (h2[24] >= 1.00 && h2[18] >= 1) hailInfo->hailStrColor[1] = 3;
+	if (h2[24] >= 1.95) hailInfo->hailStrColor[1] = 2;
+	sprintf(hailInfo->hailStr[1], "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[19], h2[20],h2[21],h2[22], h2[23]);
 
-	txtrow += 15;
-	sprintf(st, "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[19], h2[20],h2[21],h2[22], h2[23]);
-	outgtext ( st, txtlin, txtrow );
+	hailInfo->hailStrColor[2] = 31;//setcolor(31);
+	sprintf(hailInfo->hailStr[2], "Hailcast2 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[4], ctof(h2[2]), ctof(h2[3]),h2[17]);
 
-	txtrow +=20;
-	set_font(4);
-	setcolor(31);
-	if(h2[4] == 0) setcolor(31);
-	sprintf(st, "Hailcast2 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[4], ctof(h2[2]), ctof(h2[3]),h2[17]);
-	outgtext ( st, txtlin, txtrow );
-
-	if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(3);
-	if (h2[15] >= 1.95) setcolor(2);
-
+	if (h2[15] >= 1.00 && h2[4] >= 1) hailInfo->hailStrColor[3] = 3;
+	if (h2[15] >= 1.95) hailInfo->hailStrColor[3] = 2;
 	if(h2[4] == 0) h2[15] = 0;
-	sprintf(st, "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[5], h2[6],h2[7],h2[8], h2[9]);
-	txtrow += 14;
-	outgtext ( st, txtlin, txtrow );
-
-
-
-	txtrow += 15;
-	setcolor(31);
-	moveto(txtlin, txtrow);
-	lineto(txtlin+340, txtrow);
-
-
-
-	setcolor(31);
-	set_font(6);
+	sprintf(hailInfo->hailStr[3], "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[5], h2[6],h2[7],h2[8], h2[9]);
 	if (h2[4] == 0 && h2[18] == 0) {
-		sprintf(st, "No Convecting Members");
-		txtrow += 6;
-		ix1 = (350 - getgtextextent(st))/2;
-		outgtext(st, txtlin + ix1 - 5, txtrow);
+		hailInfo->hailStrColor[4] = 31;
+		sprintf(hailInfo->hailStr[4], "No Convecting Members");
+		hailInfo->member = 0;
+		hailInfo->hailStrColor[5] = 31;
+		sprintf(hailInfo->hailStr[5], "");
 	}else{
 		// If convecting members then...........
-		txtrow +=4;
-		if (h2[24] < 1.00) setcolor(31);
-		if (h2[24] >= 1.00 && h2[18] >= 1)  setcolor(3);
-		if (h2[24] >= 1.95)  setcolor(2);
-		sprintf(st, "Hailcast1--->   %.1f", h2[24]);
-		ix1 = (350 - getgtextextent(st))/2;
-		outgtext(st, txtlin + ix1 - 85, txtrow);
+		hailInfo->member = 1;
+		if (h2[24] < 1.00) hailInfo->hailStrColor[4] = 31;
+		if (h2[24] >= 1.00 && h2[18] >= 1)  hailInfo->hailStrColor[4] = 3;
+		if (h2[24] >= 1.95)  hailInfo->hailStrColor[4] = 2;
+		sprintf(hailInfo->hailStr[4], "Hailcast1--->   %.1f", h2[24]);
 
-		if (h2[15] < 1.00)  setcolor(31);
-		if (h2[15] >= 1.00 && h2[4] >= 1)  setcolor(3);
-		if (h2[15] >= 1.95)  setcolor(2);
-		sprintf(st, "Hailcast2--->   %.1f",h2[15]);
-		ix1 = (350 - getgtextextent(st))/2;
-		outgtext(st, txtlin + ix1 + 70, txtrow);
+		if (h2[15] < 1.00)  hailInfo->hailStrColor[5] = 31;
+		if (h2[15] >= 1.00 && h2[4] >= 1) hailInfo->hailStrColor[5] = 3;
+		if (h2[15] >= 1.95)  hailInfo->hailStrColor[5] = 2;
+		sprintf(hailInfo->hailStr[5], "Hailcast2--->   %.1f",h2[15]);
 
 	}
 
-	txtrow += 18;
-	setcolor(31);
-	moveto(txtlin, txtrow);
-	lineto(txtlin+340, txtrow);
+	// Compute SARS Data
 
-	/* Compute SARS Data */
 	define_parcel(4, 100);
 	mlcape = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
 	define_parcel(3, 400);
@@ -2232,363 +2222,95 @@ void getHailInfo(){
 		srh3 = helicity(p_bot, p_top, st_dir, st_spd, &ix2, &ix3);
 	}
 
-
-	sars(&mumixr, &mucape, &t500, &lr75, &shr6, &shr9, &shr3, &ship, &srh3, &nsndgs, &matches, &p1, &avsize, &matches2, sndglist, &haillist, &sars_filename);
-
-	for (i=0; i < 15; i++) sndglist[i][14] = '\0';
-	printf( "%d High Quality HAIL Matches were found.\n", nsndgs);
-	for (i=0;i<nsndgs;i++) { printf( "HAIL match = %s  %.2f\n", sndglist[i], haillist[i]); }
-	printf( "%.0f Total matches were found.\n", matches);
-	printf( "%.0f Percent were SIG HAIL.\n", p1);
+	cavesars(&mumixr, &mucape, &t500, &lr75, &shr6, &shr9, &shr3, &ship, &srh3, &nsndgs, &matches, &p1, &avsize, &matches2, sndglist, &haillist, &sars_filename,&totalsndgs);
 
 
-	/* ----- SARS matches ----- */
-	/*  SARS hail size */
-	txtrow += 6;
-	set_font(4);
-	 setcolor(5);
-	strcpy( st, "* * * SARS HAIL SIZE * * *" );
-	ix1 = (350 - getgtextextent(st))/2;
-	outgtext(st, txtlin + ix1 - 5, txtrow);
-
-	txtrow += 15;
-	set_font(6);
+	// ----- SARS matches -----
+	//  SARS hail size
+	hailInfo->matches= matches2;
 	if (matches2 == 0) {
-		 setcolor(31);
-		sprintf(st, "No Matches");
-		ix1 = (350 - getgtextextent(st))/2;
-		outgtext ( st, txtlin + ix1 - 5, txtrow );
+		hailInfo->hailStrColor[6] = 31;
+		sprintf(hailInfo->hailStr[6], "No Matches");
+		hailInfo->hailStrColor[7] = 31;
+		sprintf(hailInfo->hailStr[7], "");
 	}
-	if (matches2 == 1 || avsize <= 1.49)  setcolor(31);
-	if (matches2 >= 2 && (avsize < 2.06 && avsize > 1.49))  setcolor(3);
-	if (matches2 >= 2 && avsize >= 2.06)  setcolor(2);
+	if (matches2 == 1 || avsize <= 1.49) {
+		hailInfo->hailStrColor[6] = 31;
+		hailInfo->hailStrColor[7] = 31;
+	}
+	if (matches2 >= 2 && (avsize < 2.06 && avsize > 1.49)){
+		hailInfo->hailStrColor[6] = 3;
+		hailInfo->hailStrColor[7] = 3;
+	}
+	if (matches2 >= 2 && avsize >= 2.06) {
+		hailInfo->hailStrColor[6] = 2;
+		hailInfo->hailStrColor[7] = 2;
+	}
 	if (matches2 >= 1) {
-		set_font(6);
 		if (avsize <= 1.49) {
-			sprintf(st, "Best guess from SARS = < 1 inch");
-			ix1 = (350 - getgtextextent(st))/2;
-			outgtext ( st, txtlin + ix1 - 5, txtrow );
+			sprintf(hailInfo->hailStr[6], "Best guess from SARS = < 1 inch");
 		}
 		if ((avsize > 1.49) && (avsize <= 1.68)) {
-			sprintf(st, "Best guess from SARS = 1 - 1.5 inch");
-			ix1 = (350 - getgtextextent(st))/2;
-			outgtext ( st, txtlin + ix1 - 5, txtrow );
+			sprintf(hailInfo->hailStr[6], "Best guess from SARS = 1 - 1.5 inch");
 		}
 		if ((avsize > 1.68) && (avsize <= 2.06)) {
-			sprintf(st, "Best guess from SARS = 1.75 inch");
-			ix1 = (350 - getgtextextent(st))/2;
-			outgtext ( st, txtlin + ix1 - 5, txtrow );
+			sprintf(hailInfo->hailStr[6], "Best guess from SARS = 1.75 inch");
 		}
 		if ((avsize > 2.06) && (avsize <= 2.39)) {
-			sprintf(st, "Best guess from SARS = 2 inch");
-			ix1 = (350 - getgtextextent(st))/2;
-			outgtext ( st, txtlin + ix1 - 5, txtrow );
+			sprintf(hailInfo->hailStr[6], "Best guess from SARS = 2 inch");
 		}
 		if ((avsize > 2.39) && (avsize <= 2.52)) {
-			sprintf(st, "Best guess from SARS = 2.5 inch");
-			ix1 = (350 - getgtextextent(st))/2;
-			outgtext ( st, txtlin + ix1 - 5, txtrow );
+			sprintf(hailInfo->hailStr[6], "Best guess from SARS = 2.5 inch");
 		}
 		if ((avsize > 2.52) && (avsize <= 2.56)) {
-			sprintf(st, "Best guess from SARS = 2.75 inch");
-			ix1 = (350 - getgtextextent(st))/2;
-			outgtext ( st, txtlin + ix1 - 5, txtrow );
+			sprintf(hailInfo->hailStr[6], "Best guess from SARS = 2.75 inch");
 		}
 		if ((avsize > 2.56) && (avsize <= 2.64)) {
-			sprintf(st, "Best guess from SARS = 3 - 4 inch");
-			ix1 = (350 - getgtextextent(st))/2;
-			outgtext ( st, txtlin + ix1 - 5, txtrow );
+			sprintf(hailInfo->hailStr[6], "Best guess from SARS = 3 - 4 inch");
 		}
 		if (avsize > 2.64) {
-			sprintf(st, "Best guess from SARS = > 4 inch");
-			ix1 = (350 - getgtextextent(st))/2;
-			outgtext ( st, txtlin + ix1 - 5, txtrow );
+			sprintf(hailInfo->hailStr[6], "Best guess from SARS = > 4 inch");
 		}
-		txtrow += 18;
-		set_font(4);
-		sprintf(st, "AVG size = %.2f (based on %.0f matches)", avsize, matches2);
-		ix1 = (350 - getgtextextent(st))/2;
-		outgtext(st, txtlin + ix1 - 5, txtrow);
+		sprintf(hailInfo->hailStr[7], "AVG size = %.2f (based on %.0f matches)", avsize, matches2);
 	}
-
-	txtrow += 18;
-	 setcolor(31);
-	moveto(txtlin, txtrow);
-	lineto(txtlin+340, txtrow);
 	if (matches2 > 0) {
-		txtrow += 7;
-		set_font(4);
-		 setcolor(31);
-		strcpy( st, "SARS output ranges for reported sizes (white)");
-		ix1 = (350 - getgtextextent(st))/2;
-		outgtext(st, txtlin + ix1 - 5, txtrow);
-
-		txtrow += 18;
-		/* SARS for reported < 1" hail */
+		// SARS for reported < 1" hail
 		if (avsize <= 1.49) {
-			 setcolor(31);
-			set_font(6);
-			strcpy(st, "<1");
-			outgtext(st, txtlin + 60, txtrow);
-			set_font(4);
-			strcpy(st, "1-1.5");
-			outgtext(st, txtlin + 95, txtrow);
-			strcpy(st, "1.75");
-			outgtext(st, txtlin + 130, txtrow);
-			strcpy(st, "2");
-			outgtext(st, txtlin + 165, txtrow);
-			strcpy(st, "2.5");
-			outgtext(st, txtlin + 200, txtrow);
-			strcpy(st, "2.75");
-			outgtext(st, txtlin + 235, txtrow);
-			strcpy(st, "3-4");
-			outgtext(st, txtlin + 270, txtrow);
-			strcpy(st, ">4");
-			outgtext(st, txtlin + 305, txtrow);
-			 setcolor(27);
-			rectangle(0, txtlin + 56, txtrow - 5, txtlin + 91, txtrow + 60);
+			//Chin: only report the size was set to font6 (larger font) for plotting larger font at GUI
+			strcpy(hailInfo->reportHailStr, "<1");
 		}
-		/* SARS for reported 1-1.5" hail */
-		if ((avsize > 1.49) && (avsize <= 1.68)) {
-			 setcolor(31);
-			set_font(4);
-			strcpy(st, "<1");
-			outgtext(st, txtlin + 60, txtrow);
-			set_font(6);
-			strcpy(st, "1-1.5");
-			outgtext(st, txtlin + 95, txtrow);
-			set_font(4);
-			strcpy(st, "1.75");
-			outgtext(st, txtlin + 130, txtrow);
-			strcpy(st, "2");
-			outgtext(st, txtlin + 165, txtrow);
-			strcpy(st, "2.5");
-			outgtext(st, txtlin + 200, txtrow);
-			strcpy(st, "2.75");
-			outgtext(st, txtlin + 235, txtrow);
-			strcpy(st, "3-4");
-			outgtext(st, txtlin + 270, txtrow);
-			strcpy(st, ">4");
-			outgtext(st, txtlin + 305, txtrow);
-			 setcolor(27);
-			rectangle(0, txtlin + 91, txtrow - 5, txtlin + 126, txtrow + 60);
+		// SARS for reported 1-1.5" hail
+		else if ((avsize > 1.49) && (avsize <= 1.68)) {
+			strcpy(hailInfo->reportHailStr, "1-1.5");
 		}
-		/* SARS for reported 1.75" hail */
-		if ((avsize > 1.68) && (avsize <= 2.06)) {
-			 setcolor(31);
-			set_font(4);
-			strcpy(st, "<1");
-			outgtext(st, txtlin + 60, txtrow);
-			strcpy(st, "1-1.5");
-			outgtext(st, txtlin + 95, txtrow);
-			set_font(6);
-			strcpy(st, "1.75");
-			outgtext(st, txtlin + 130, txtrow);
-			set_font(4);
-			strcpy(st, "2");
-			outgtext(st, txtlin + 165, txtrow);
-			strcpy(st, "2.5");
-			outgtext(st, txtlin + 200, txtrow);
-			strcpy(st, "2.75");
-			outgtext(st, txtlin + 235, txtrow);
-			strcpy(st, "3-4");
-			outgtext(st, txtlin + 270, txtrow);
-			strcpy(st, ">4");
-			outgtext(st, txtlin + 305, txtrow);
-			 setcolor(27);
-			rectangle(0, txtlin + 126, txtrow - 5, txtlin + 161, txtrow + 60);
+		// SARS for reported 1.75" hail
+		else if ((avsize > 1.68) && (avsize <= 2.06)) {
+			strcpy(hailInfo->reportHailStr, "1.75");
 		}
-		/* SARS for reported 2" hail */
-		if ((avsize > 2.06) && (avsize <= 2.39)) {
-			 setcolor(31);
-			set_font(4);
-			strcpy(st, "<1");
-			outgtext(st, txtlin + 60, txtrow);
-			strcpy(st, "1-1.5");
-			outgtext(st, txtlin + 95, txtrow);
-			strcpy(st, "1.75");
-			outgtext(st, txtlin + 130, txtrow);
-			set_font(6);
-			strcpy(st, "2");
-			outgtext(st, txtlin + 165, txtrow);
-			set_font(4);
-			strcpy(st, "2.5");
-			outgtext(st, txtlin + 200, txtrow);
-			strcpy(st, "2.75");
-			outgtext(st, txtlin + 235, txtrow);
-			strcpy(st, "3-4");
-			outgtext(st, txtlin + 270, txtrow);
-			strcpy(st, ">4");
-			outgtext(st, txtlin + 305, txtrow);
-			 setcolor(27);
-			rectangle(0, txtlin + 161, txtrow - 5, txtlin + 196, txtrow + 60);
+		// SARS for reported 2" hail
+		else if ((avsize > 2.06) && (avsize <= 2.39)) {
+			strcpy(hailInfo->reportHailStr, "2");
 		}
-		/* SARS for reported 2.5" hail */
-		if ((avsize > 2.39) && (avsize <= 2.52)) {
-			 setcolor(31);
-			set_font(4);
-			strcpy(st, "<1");
-			outgtext(st, txtlin + 60, txtrow);
-			strcpy(st, "1-1.5");
-			outgtext(st, txtlin + 95, txtrow);
-			strcpy(st, "1.75");
-			outgtext(st, txtlin + 130, txtrow);
-			strcpy(st, "2");
-			outgtext(st, txtlin + 165, txtrow);
-			set_font(6);
-			strcpy(st, "2.5");
-			outgtext(st, txtlin + 200, txtrow);
-			set_font(4);
-			strcpy(st, "2.75");
-			outgtext(st, txtlin + 235, txtrow);
-			strcpy(st, "3-4");
-			outgtext(st, txtlin + 270, txtrow);
-			strcpy(st, ">4");
-			outgtext(st, txtlin + 305, txtrow);
-			 setcolor(27);
-			rectangle(0, txtlin + 196, txtrow - 5, txtlin + 231, txtrow + 60);
+		// SARS for reported 2.5" hail
+		else if ((avsize > 2.39) && (avsize <= 2.52)) {
+			strcpy(hailInfo->reportHailStr, "2.5");
 		}
-		/* SARS for reported 2.75" hail */
-		if ((avsize > 2.52) && (avsize <= 2.56)) {
-			 setcolor(31);
-			set_font(4);
-			strcpy(st, "<1");
-			outgtext(st, txtlin + 60, txtrow);
-			strcpy(st, "1-1.5");
-			outgtext(st, txtlin + 95, txtrow);
-			strcpy(st, "1.75");
-			outgtext(st, txtlin + 130, txtrow);
-			strcpy(st, "2");
-			outgtext(st, txtlin + 165, txtrow);
-			strcpy(st, "2.5");
-			outgtext(st, txtlin + 200, txtrow);
-			set_font(6);
-			strcpy(st, "2.75");
-			outgtext(st, txtlin + 235, txtrow);
-			set_font(4);
-			strcpy(st, "3-4");
-			outgtext(st, txtlin + 270, txtrow);
-			strcpy(st, ">4");
-			outgtext(st, txtlin + 305, txtrow);
-			 setcolor(27);
-			rectangle(0, txtlin + 231, txtrow - 5, txtlin + 266, txtrow + 60);
-		}
-		/* SARS for reported 3-4" hail */
-		if ((avsize > 2.56) && (avsize <= 2.64)) {
-			 setcolor(31);
-			set_font(4);
-			strcpy(st, "<1");
-			outgtext(st, txtlin + 60, txtrow);
-			strcpy(st, "1-1.5");
-			outgtext(st, txtlin + 95, txtrow);
-			strcpy(st, "1.75");
-			outgtext(st, txtlin + 130, txtrow);
-			strcpy(st, "2");
-			outgtext(st, txtlin + 165, txtrow);
-			strcpy(st, "2.5");
-			outgtext(st, txtlin + 200, txtrow);
-			strcpy(st, "2.75");
-			outgtext(st, txtlin + 235, txtrow);
-			set_font(6);
-			strcpy(st, "3-4");
-			outgtext(st, txtlin + 270, txtrow);
-			set_font(4);
-			strcpy(st, ">4");
-			outgtext(st, txtlin + 305, txtrow);
-			 setcolor(27);
-			rectangle(0, txtlin + 266, txtrow - 5, txtlin + 301, txtrow + 60);
-		}
-		/* SARS for reported >4" hail */
-		if (avsize > 2.64) {
-			 setcolor(31);
-			set_font(4);
-			strcpy(st, "<1");
-			outgtext(st, txtlin + 60, txtrow);
-			strcpy(st, "1-1.5");
-			outgtext(st, txtlin + 95, txtrow);
-			strcpy(st, "1.75");
-			outgtext(st, txtlin + 130, txtrow);
-			strcpy(st, "2");
-			outgtext(st, txtlin + 165, txtrow);
-			strcpy(st, "2.5");
-			outgtext(st, txtlin + 200, txtrow);
-			strcpy(st, "2.75");
-			outgtext(st, txtlin + 235, txtrow);
-			strcpy(st, "3-4");
-			outgtext(st, txtlin + 270, txtrow);
-			set_font(6);
-			strcpy(st, ">4");
-			outgtext(st, txtlin + 305, txtrow);
-			 setcolor(27);
-			rectangle(0, txtlin + 301, txtrow - 5, txtlin + 336, txtrow + 60);
-		}
+		//* SARS for reported 2.75" hail
+		else if ((avsize > 2.52) && (avsize <= 2.56)) {
 
-		txtrow += 15;
-		 setcolor(31);
-		set_font(4);
-		strcpy(st, "+1 STD");
-		outgtext(st, txtlin, txtrow);
-		 setcolor(27);
-		strcpy(st, "1.9");
-		outgtext(st, txtlin + 60, txtrow);
-		strcpy(st, "2.0");
-		outgtext(st, txtlin + 95, txtrow);
-		strcpy(st, "2.3");
-		outgtext(st, txtlin + 130, txtrow);
-		strcpy(st, "2.8");
-		outgtext(st, txtlin + 165, txtrow);
-		strcpy(st, "2.9");
-		outgtext(st, txtlin + 200, txtrow);
-		strcpy(st, "3.0");
-		outgtext(st, txtlin + 235, txtrow);
-		strcpy(st, "3.0");
-		outgtext(st, txtlin + 270, txtrow);
-		strcpy(st, "3.0");
-		outgtext(st, txtlin + 305, txtrow);
+			strcpy(hailInfo->reportHailStr, "2.75");
 
-		txtrow += 15;
-		 setcolor(31);
-		strcpy(st, "AVG");
-		outgtext(st, txtlin, txtrow);
-		 setcolor(27);
-		strcpy(st, "1.5");
-		outgtext(st, txtlin + 60, txtrow);
-		strcpy(st, "1.5");
-		outgtext(st, txtlin + 95, txtrow);
-		strcpy(st, "1.8");
-		outgtext(st, txtlin + 130, txtrow);
-		strcpy(st, "2.3");
-		outgtext(st, txtlin + 165, txtrow);
-		strcpy(st, "2.5");
-		outgtext(st, txtlin + 200, txtrow);
-		strcpy(st, "2.5");
-		outgtext(st, txtlin + 235, txtrow);
-		strcpy(st, "2.6");
-		outgtext(st, txtlin + 270, txtrow);
-		strcpy(st, "2.7");
-		outgtext(st, txtlin + 305, txtrow);
+		}
+		//* SARS for reported 3-4" hail
+		else if ((avsize > 2.56) && (avsize <= 2.64)) {
+			strcpy(hailInfo->reportHailStr, "3-4");
+		}
+		//* SARS for reported >4" hail
+		else if (avsize > 2.64) {
 
-		txtrow += 15;
-		 setcolor(31);
-		strcpy(st, "-1 STD");
-		outgtext(st, txtlin, txtrow);
-		 setcolor(27);
-		strcpy(st, "1.1");
-		outgtext(st, txtlin + 60, txtrow);
-		strcpy(st, "1.1");
-		outgtext(st, txtlin + 95, txtrow);
-		strcpy(st, "1.3");
-		outgtext(st, txtlin + 130, txtrow);
-		strcpy(st, "1.7");
-		outgtext(st, txtlin + 165, txtrow);
-		strcpy(st, "2.1");
-		outgtext(st, txtlin + 200, txtrow);
-		strcpy(st, "2.1");
-		outgtext(st, txtlin + 235, txtrow);
-		strcpy(st, "2.2");
-		outgtext(st, txtlin + 270, txtrow);
-		strcpy(st, "2.4");
-		outgtext(st, txtlin + 305, txtrow);
+			strcpy(hailInfo->reportHailStr, ">4");
+
+		}
 	}
 
 	/* ----- Set Parcel Back ----- */
