@@ -361,6 +361,7 @@ float parcel(float lower, float upper, float pres, float temp,
 	pcl->cape3km     = RMISSD;
 	pcl->cape6km	 = RMISSD;
 	pcl->wm10c       = RMISSD;
+        pcl->wm20c       = RMISSD;
 	pcl->wm30c	 = RMISSD;
 	pcl->li5         = RMISSD;
 	pcl->li3         = RMISSD;
@@ -634,7 +635,11 @@ float parcel(float lower, float upper, float pres, float temp,
 	      else
 	        pcl->bfzl = totp;
 
-	      if (qc(pe2 = temp_lvl(0, &pe2))) {
+             /* error check for LCL temp colder than 0 C by Patrick Marsh and RLT 1/6/12 */
+	      pe2 = temp_lvl(0, &pe2);
+	      if (pe2 > pcl->lclpres) {
+		pcl->bfzl = 0.0; }
+	      else if (qc(pe2)) {
 		h2 = i_hght(pe2, I_PRES);
 		te2 = i_vtmp(pe2, I_PRES);
 		tp2 = wetlift(pe3, tp3, pe2);
@@ -661,7 +666,11 @@ float parcel(float lower, float upper, float pres, float temp,
 	      else
 	        pcl->wm10c = totp;
 
-	      if (qc(pe2 = temp_lvl( -10.0, &pe2))) {
+             /* error check for LCL temp colder than -10 C by Patrick Marsh and RLT 1/6/12 */
+              pe2 = temp_lvl(-10.0, &pe2);
+              if (pe2 > pcl->lclpres) {
+                pcl->wm10c = 0.0; }
+              else if (qc(pe2)) {
 		h2 = i_hght(pe2, I_PRES);
 		te2 = i_vtmp(pe2, I_PRES);
 		tp2 = wetlift(pe3, tp3, pe2);
@@ -674,6 +683,39 @@ float parcel(float lower, float upper, float pres, float temp,
 		  pcl->wm10c += lyrf;
 	      }
 	    }
+
+
+            /* ----- Is this the -20c level ----- */
+            if ((te2 <= -20.0) && (!qc(pcl->wm20c))) {
+              pe3 = pelast;
+              h3 = i_hght(pe3, I_PRES);
+              te3 = i_vtmp(pe3, I_PRES);
+              tp3 = wetlift(pe1, tp1, pe3);
+              lyrf = lyre;
+
+              if (lyrf > 0.0)
+                pcl->wm20c = totp - lyrf;
+              else
+                pcl->wm20c = totp;
+
+             /* error check for LCL temp colder than -20 C by Patrick Marsh and RLT 1/6/12 */
+              pe2 = temp_lvl(-20.0, &pe2);
+              if (pe2 > pcl->lclpres) {
+                pcl->wm20c = 0.0; }
+              else if (qc(pe2)) {
+                h2 = i_hght(pe2, I_PRES);
+                te2 = i_vtmp(pe2, I_PRES);
+                tp2 = wetlift(pe3, tp3, pe2);
+                tdef3 = (virtemp(pe3, tp3, tp3) - te3) /
+                                (te3 + 273.15);
+                tdef2 = (virtemp(pe2, tp2, tp2) - te2) /
+                                (te2 + 273.15);
+                lyrf = 9.8 * (tdef3 + tdef2) / 2.0 * (h2 - h3);
+                if (lyrf > 0.0)
+                  pcl->wm20c += lyrf;
+              }
+            }
+
 
             /* ----- Is this the -30c level ----- */
             if ((te2 <= -30.0) && (!qc(pcl->wm30c))) {
@@ -688,7 +730,11 @@ float parcel(float lower, float upper, float pres, float temp,
               else
                 pcl->wm30c = totp;
 
-              if (qc(pe2 = temp_lvl( -30.0, &pe2))) {
+	      /* error check for LCL temp colder than -30 C by Patrick Marsh and RLT 1/6/12 */
+              pe2 = temp_lvl(-30.0, &pe2);
+              if (pe2 > pcl->lclpres) {
+                pcl->wm30c = 0.0; }
+              else if (qc(pe2)) {
                 h2 = i_hght(pe2, I_PRES);
                 te2 = i_vtmp(pe2, I_PRES);
                 tp2 = wetlift(pe3, tp3, pe2);
@@ -1360,14 +1406,8 @@ float unstbl_lvl(float *param, float lower, float upper)
 	if (upper == -1) { upper = sndg[sfc()][idxp] - 300.0; }
 
 	/* ----- Make sure this is a valid layer ----- */
-	while (!qc(i_dwpt(upper, I_PRES))) {
-		upper += 50.0;
-		if (upper >= 1000 ){
-			return RMISSD;
-		}
-	}
-	if (!qc(i_temp(lower, I_PRES))) { lower = sndg[sfc()][idxp];} //Chin fixed 8/30/2011 was i_pres(sfc()); }
-
+	while (!qc(i_dwpt(upper, I_PRES))) { upper += 50.0; }
+		if (!qc(i_temp(lower, I_PRES))) { lower = i_pres(sfc()); }
 	/* Find lowest observation in layer ----- */
 	i = 0;
 	while(sndg[i][idxp] > lower)  { i++; }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <inventoryEnabled>false</inventoryEnabled>
     <resourceDefnName>LocalRadar</resourceDefnName>
     <resourceCategory>RADAR</resourceCategory>
     <resourceParameters>
