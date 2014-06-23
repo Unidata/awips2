@@ -434,8 +434,6 @@ public class NtransResource extends
                     // TODO assert
                 } else {
                     wireframeForThisKey.compile();
-                    // TODO to be correct, should be lineWidth in effect at
-                    // individual wireframe paints
                     target.drawWireframeShape(wireframeForThisKey, key.color,
                             (float) key.width);
                     wireframeForThisKey.dispose();
