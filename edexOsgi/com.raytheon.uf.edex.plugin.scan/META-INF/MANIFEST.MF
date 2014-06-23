@@ -4,8 +4,7 @@ Bundle-Name: Scan Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.scan
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.11.26",
  com.raytheon.uf.common.dataplugin.scan;bundle-version="1.11.26",
  com.raytheon.uf.common.monitor;bundle-version="1.11.26",
