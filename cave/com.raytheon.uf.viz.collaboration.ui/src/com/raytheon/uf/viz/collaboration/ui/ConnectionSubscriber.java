@@ -74,7 +74,8 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Apr 08, 2014 2785      mpduff      removed preference listener
  * Apr 11, 2014 2903      bclement    added disconnect handler
  * Apr 24, 2014 2955      bclement    ignore duplicate session invites
- * Jun 17, 2014 3078      bclement    reworked peerToPeerMessage() to use IUser
+ * Jun 17, 2014 3078      bclement    reworked peer2PeerMessage() to use IUser
+ * Jun 20, 2014 3281      bclement    added error message display to peer2PeerMessage()
  * 
  * </pre>
  * 
@@ -256,7 +257,7 @@ public class ConnectionSubscriber {
      * @param messageEvent
      */
     @Subscribe
-    public void peer2peerMessage(ITextMessageEvent messageEvent) {
+    public void peer2peerMessage(final ITextMessageEvent messageEvent) {
         final TextMessage message = messageEvent.getMessage();
         VizApp.runAsync(new Runnable() {
 
@@ -266,8 +267,13 @@ public class ConnectionSubscriber {
                 PeerToPeerView view = new PeerToPeerChatAction(peer)
                         .createP2PChat(IWorkbenchPage.VIEW_CREATE);
                 if (view != null) {
-                    message.setFrom(view.getPeer());
-                    view.appendMessage(message);
+                    if (messageEvent.hasError()) {
+                        view.sendErrorMessage(new StringBuilder(messageEvent
+                                .getError()));
+                    } else {
+                        message.setFrom(view.getPeer());
+                        view.appendMessage(message);
+                    }
                 }
             }
         });
