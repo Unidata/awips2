@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Sfcobs Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.sfcobs
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
@@ -15,7 +14,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.localization;bundle-version="1.14.0"
 Export-Package: com.raytheon.edex.plugin.sfcobs,
  com.raytheon.edex.plugin.sfcobs.common
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin.sfcobs,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
