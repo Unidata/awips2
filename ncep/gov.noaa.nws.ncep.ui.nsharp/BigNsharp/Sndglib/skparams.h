@@ -33,6 +33,7 @@ float sweat_index(float *param);
 void  define_parcel(short flag, float pres);
 short grab_level(float pres);
 float ThetaE_diff(float *param);
+float ThetaE_diff2(float *param);
 float Mean_WBtemp(float *param, float lower, float upper);
 float Rogash_QPF(float *param);
 float Mean_thetae(float *param, float lower, float upper);

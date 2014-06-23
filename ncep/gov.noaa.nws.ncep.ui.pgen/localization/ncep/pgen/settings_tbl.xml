@@ -898,6 +898,21 @@
                             </Text>
                         </DrawableElement>
                     </DECollection>
+                    <DECollection collectionName="ContourLine">
+                        <DrawableElement>
+                            <Line flipSide="false" fillPattern="SOLID" filled="false" closed="false" smoothFactor="2" sizeScale="1.0" lineWidth="2.0" pgenCategory="Lines" pgenType="LINE_DASHED_2">
+                                <Color alpha="255" blue="0" green="0" red="255"/>
+                                <Point Lon="-93.17081927650509" Lat="40.87516972680109"/>
+                                <Point Lon="-85.02701620703793" Lat="42.02491213499612"/>
+                                <Point Lon="-80.75710539213382" Lat="41.75491730938651"/>
+                            </Line>
+                            <Text auto="false" hide="false" xOffset="0" yOffset="0" displayType="NORMAL" mask="true" rotationRelativity="SCREEN_RELATIVE" rotation="0.0" justification="CENTER" style="REGULAR" fontName="Courier" fontSize="14.0" pgenType="General Text" pgenCategory="Text">
+                                <Color alpha="255" blue="0" green="0" red="255"/>
+                                <Point Lon="-100.62891386216378" Lat="40.527972367697075"/>
+                                <textLine>0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>                    
                     <DECollection collectionName="ContourMinmax">
                         <DrawableElement>
                             <Symbol pgenCategory="Symbol" pgenType="FILLED_HIGH_PRESSURE_H" lineWidth="2.0" sizeScale="2.0" clear="true">
@@ -975,6 +990,20 @@
                                 <Point Lat="21.165113167611565" Lon="-85.14814732119048"/>
                                 <textLine>0.0</textLine>
                             </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourCircle">
+                        <DrawableElement>
+                            <Text auto="false" hide="false" xOffset="0" yOffset="0" displayType="NORMAL" mask="true" rotationRelativity="SCREEN_RELATIVE" rotation="0.0" justification="CENTER" style="REGULAR" fontName="Courier" fontSize="14.0" pgenType="General Text" pgenCategory="Text">
+                                <Color alpha="255" blue="0" green="255" red="0"/>
+                                <Point Lon="-100.82145703284284" Lat="36.710993353045694"/>
+                                <textLine>0</textLine>
+                            </Text>
+                            <Arc fillPattern="SOLID" filled="false" closed="false" smoothFactor="2" sizeScale="1.0" lineWidth="3.0" axisRatio="1.0" startAngle="0.0" endAngle="360.0" pgenType="Circle" pgenCategory="Arc">
+                                <Color alpha="255" blue="255" green="0" red="0"/>
+                                <Point Lon="-104.23734546074009" Lat="37.99632151589769"/>
+                                <Point Lon="-100.37082103093299" Lat="36.47725770318215"/>
+                            </Arc>
                         </DrawableElement>
                     </DECollection>
                 </Contours>
