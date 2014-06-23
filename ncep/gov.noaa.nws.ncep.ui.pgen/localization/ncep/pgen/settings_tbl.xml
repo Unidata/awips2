@@ -35,7 +35,7 @@
                                     <Point Lat="24.370719825166535" Lon="-122.20535221347572"/>
                                     <textLine>FL300</textLine>
                                 </Text>
-                                <Vector pgenCategory="Vector" pgenType="Barb" direction="323.01585993274364" speed="120.0" arrowHeadSize="1.0" directionOnly="false" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Vector pgenCategory="Vector" pgenType="Barb" direction="323.01585993274364" speed="120.0" arrowHeadSize="1.0" directionOnly="false" lineWidth="3.0" sizeScale="2.0" clear="true">
                                     <Color red="255" green="0" blue="0" alpha="255"/>
                                     <Point Lat="23.48763893335557" Lon="-120.67426748783554"/>
                                 </Vector>
