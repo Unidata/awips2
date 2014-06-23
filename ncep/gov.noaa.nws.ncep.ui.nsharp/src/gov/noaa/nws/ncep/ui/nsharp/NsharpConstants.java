@@ -225,9 +225,9 @@ public class NsharpConstants {
 
     public static RGB color_green = new RGB(0, 255, 0);// green
 
-    public static RGB color_darkgreen = new RGB(0x2f, 0x4f, 0x2f);// green
+    public static RGB color_darkgreen = new RGB(0, 153, 0);// green
 
-    public static RGB color_mdgreen = new RGB(0x34, 0x80, 0x17);// green
+    public static RGB color_mdgreen = new RGB(0, 204, 0);// green
 
     public static RGB color_coral = new RGB(0xf0, 0x80, 0x80);
 
@@ -310,6 +310,7 @@ public class NsharpConstants {
          */
         private static final long serialVersionUID = 1L;
         {
+            put(0, NsharpConstants.color_white);
             put(1, NsharpConstants.color_vanilla);
             put(2, NsharpConstants.color_red);
             put(3, NsharpConstants.color_green);
