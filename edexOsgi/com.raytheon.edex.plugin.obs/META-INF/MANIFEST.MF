@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Obs Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.obs
-Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.edex.plugin.obs,
  com.raytheon.edex.plugin.obs.metar,
@@ -20,7 +19,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.7",
  com.raytheon.uf.edex.ndm;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.14.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util,
  com.raytheon.uf.common.status,
