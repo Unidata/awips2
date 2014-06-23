@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <inventoryEnabled>true</inventoryEnabled>    
     <resourceDefnName>GINI_GOES11</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
     <resourceParameters>
