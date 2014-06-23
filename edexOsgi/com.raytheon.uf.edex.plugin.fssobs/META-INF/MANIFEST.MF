@@ -2,10 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Datobs
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.fssobs
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.12.1153",
  com.raytheon.edex.common;bundle-version="1.12.1153",
  com.raytheon.uf.common.monitor.cpg;bundle-version="1.12.1153",
