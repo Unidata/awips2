@@ -75,6 +75,7 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * Sep 20,2011  1196       rferrel     Change dialogs so they do not block.
  * Mar 05,2013  15173   mgamazaychikov Set the initial location and dimension of 
  * 									   dialog as it is in A1.
+ * Jun 23, 2014 #3161      lvenable    Added SWT dialog trim to the dialogs for thin client.
  * 
  * </pre>
  * 
@@ -121,7 +122,9 @@ public class AlarmAlertDlg extends CaveSWTDialog {
     private static File currentFile;
 
     private static final int HEIGHT_HINT = 150;
+
     private static final int WIDTH_HINT = 500;
+
     private static Point shellLocation = null;
 
     private ILocalizationFileObserver listener = new ILocalizationFileObserver() {
@@ -143,8 +146,8 @@ public class AlarmAlertDlg extends CaveSWTDialog {
      * @param parentShell
      */
     protected AlarmAlertDlg(Shell parentShell) {
-        super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT
-                | CAVE.DO_NOT_BLOCK);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE,
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         setText("(init) Alarm/Alert and Proximity Alarm Products");
     }
 
@@ -197,18 +200,18 @@ public class AlarmAlertDlg extends CaveSWTDialog {
     /**
      * Sets the shell location.
      */
-	private void setLocation() {
-		int shellSizeX = getShell().getSize().x;
-		int shellSizeY = getShell().getSize().y;
-		Rectangle displayArea = shell.getDisplay().getClientArea();
-		int locationX = displayArea.width - shellSizeX;
-		int locationY = displayArea.y + shellSizeY;
-		shellLocation = new Point(locationX, locationY);
-		shell.setLocation(locationX, locationY);
-		return;
-	}
+    private void setLocation() {
+        int shellSizeX = getShell().getSize().x;
+        int shellSizeY = getShell().getSize().y;
+        Rectangle displayArea = shell.getDisplay().getClientArea();
+        int locationX = displayArea.width - shellSizeX;
+        int locationY = displayArea.y + shellSizeY;
+        shellLocation = new Point(locationX, locationY);
+        shell.setLocation(locationX, locationY);
+        return;
+    }
 
-	@Override
+    @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
 
@@ -222,11 +225,11 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
         // Initialize all of the controls and layouts
         initializeComponents();
-        
+
         // Set the shell location
-		if (shellLocation != null) {
-			shell.setLocation(shellLocation);
-		}
+        if (shellLocation != null) {
+            shell.setLocation(shellLocation);
+        }
 
         shell.addShellListener(new ShellAdapter() {
             public void shellClosed(ShellEvent event) {
