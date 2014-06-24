@@ -22,7 +22,6 @@
 export INIT_MEM=512 # in Meg
 export MAX_MEM=1536 # in Meg
 
-export METADATA_POOL_MIN=10
 export EDEX_DEBUG_PORT=5009
 export EDEX_JMX_PORT=1620
 export LOG_CONF=logback-registry.xml
