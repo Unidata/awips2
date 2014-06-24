@@ -109,6 +109,8 @@ public class SatelliteDecoder {
     private static final String SAT_HDR_TT = "TI";
 
     private static final int GINI_HEADER_SIZE = 512;
+    
+    private static final int UCAR = 99;
 
     private static final int INITIAL_READ = GINI_HEADER_SIZE + 128;
 
@@ -192,7 +194,7 @@ public class SatelliteDecoder {
 
                 // read the source
                 byte sourceByte = byteBuffer.get(0);
-                if (entityByte == 99) sourceByte = (byte) (100+byteBuffer.get(0));
+                if (entityByte == UCAR) sourceByte = (byte) (100+byteBuffer.get(0));
                 SatelliteSource source = dao.getSource(sourceByte);
                 if (source == null) {
                     throw new UnrecognizedDataException(
@@ -202,7 +204,7 @@ public class SatelliteDecoder {
 
                 // read the sector ID
                 byte sectorByte = byteBuffer.get(2);
-                if (entityByte == 99) sectorByte = (byte) (100+byteBuffer.get(2));
+                if (entityByte == UCAR) sectorByte = (byte) (100+byteBuffer.get(2));
                 SatelliteSectorId sector = dao.getSectorId(sectorByte);
                 if (sector == null) {
                     throw new UnrecognizedDataException(
@@ -216,7 +218,7 @@ public class SatelliteDecoder {
                  * products start at 68 in satellite_physical_elements
                  * - can't change to int, must keep it byte because of ISpatialEnabled in viz.rsc??
                  */
-                if (entityByte == 99) physByte = (byte) (50+byteBuffer.get(3));  
+                if (entityByte == UCAR) physByte = (byte) (50+byteBuffer.get(3));  
 				
                 SatellitePhysicalElement physElem = dao
                         .getPhysicalElement(physByte);
@@ -230,7 +232,7 @@ public class SatelliteDecoder {
 
                 // read the units
                 SatelliteUnit unit = dao.getUnit(byteBuffer.get(3));
-                if (entityByte == 99) {
+                if (entityByte == UCAR) {
                     unit = dao.getUnit((int) (100+byteBuffer.get(3)));
                 }
                 if (unit != null) {
@@ -239,9 +241,9 @@ public class SatelliteDecoder {
 
                 // read the century
                 intValue = 1900 + byteBuffer.get(8);
-                	if (byteBuffer.get(8) < 100) {
-		    		intValue = 2000 +  byteBuffer.get(8);
-				}
+                	// correction for pngg2gini
+                	if (entityByte == UCAR && byteBuffer.get(8) < 100)
+                		intValue = 2000 +  byteBuffer.get(8);
                 calendar.set(Calendar.YEAR, intValue);
 
                 // read the month of the year
