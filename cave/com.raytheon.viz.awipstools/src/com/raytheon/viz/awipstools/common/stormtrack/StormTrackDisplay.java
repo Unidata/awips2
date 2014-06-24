@@ -102,6 +102,8 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     count changes; made line width configurable.
  *  04-07-2014  DR 17232   D. Friedman Make sure pivot indexes are valid.
  *  06-03-14    3191       njensen     Fix postData to not retrieve
+ *  06-17-2014  DR17409 mgamazaychikov Fix futurePoints calculation in generateNewTrackInfo()
+ *                                     and generateExistingTrackInfo()
  * 
  * </pre>
  * 
@@ -922,7 +924,7 @@ public class StormTrackDisplay implements IRenderable {
         // time, the arrow of the pathcast is drawn behind the last frame
         if (state.duration >= 0) {
             for (int i = 1; i < futurePoints.length - (remainder == 0 ? 0 : 1); ++i) {
-                timeInMillis += minIntervalInSeconds * 1000;
+                timeInMillis += interval * 60 * 1000;
                 DataTime time = new DataTime(new Date(timeInMillis));
 
                 double distance = speed
@@ -1074,7 +1076,7 @@ public class StormTrackDisplay implements IRenderable {
         // time, the arrow of the pathcast is drawn behind the last frame
         if (state.duration >= 0) {
             for (int i = 1; i < futurePoints.length - (remainder == 0 ? 0 : 1); ++i) {
-                timeInMillis += minIntervalInSeconds * 1000;
+                timeInMillis += interval * 60 * 1000;
                 DataTime time = new DataTime(new Date(timeInMillis));
 
                 double distance = speed
