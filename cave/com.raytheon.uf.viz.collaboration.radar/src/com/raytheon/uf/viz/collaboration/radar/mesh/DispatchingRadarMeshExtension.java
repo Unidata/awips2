@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.radar.mesh;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -38,9 +37,11 @@ import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 13, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 13, 2012           mschenke    Initial creation
+ * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
+ *                                    Mesh
  * 
  * </pre>
  * 
@@ -57,19 +58,19 @@ public class DispatchingRadarMeshExtension extends
      * 
      * @see
      * com.raytheon.viz.radar.rsc.image.IRadialMeshExtension#constructMesh(com
-     * .raytheon.uf.common.dataplugin.radar.RadarRecord,
+     * .raytheon.viz.radar.rsc.image.IRadialMeshExtension.RadialMeshData,
      * org.geotools.coverage.grid.GeneralGridGeometry)
      */
     @Override
-    public IMesh constructMesh(RadarRecord radarData,
+    public IMesh constructMesh(RadialMeshData meshData,
             GeneralGridGeometry targetGeometry) throws VizException {
         DispatchingMesh wrapping = new DispatchingMesh(target
                 .getWrappedObject().getExtension(IRadialMeshExtension.class)
-                .constructMesh(radarData, targetGeometry),
+                .constructMesh(meshData, targetGeometry),
                 target.getDispatcher());
         CreateRadarRadialMesh create = RemoteGraphicsEventFactory.createEvent(
                 CreateRadarRadialMesh.class, wrapping);
-        create.setRadarRecord(radarData);
+        create.setMeshData(meshData);
         create.setTargetGeometry(targetGeometry);
         target.dispatch(create);
         return wrapping;
