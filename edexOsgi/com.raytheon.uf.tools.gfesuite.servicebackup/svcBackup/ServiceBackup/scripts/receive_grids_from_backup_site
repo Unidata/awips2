@@ -1,4 +1,35 @@
 #!/bin/bash
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+##############################################################################
+# Receive grids from backup site
+# This script is run when importing your digital data back from the backup site.
+# The grids are placed in the Restore database.
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/16/15        3276          randerso       Added -T to iscMosaic call
+##############################################################################
+
 if [ ${#AWIPS_HOME} = 0 ]
 then
         path_to_script=`readlink -f $0`
@@ -94,7 +125,7 @@ if [ -a ${import_file} ]
 then
     #use iscMosaic to load grids into databases
     log_msg "Running iscMosaic to unpack griddded data..."
-    ${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${SITE}_GRID__Restore_00000000_0000 -f ${import_file} -n -x
+    ${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${SITE}_GRID__Restore_00000000_0000 -f ${import_file} -n -T -x 
     if [ $? -ne 0 ]; 
     then
 		log_msg "ERROR: iscMosaic failed to run correctly. Please re-run iscMosaic manually."
