@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
@@ -37,6 +38,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sep 14, 2010           mnash       Initial creation
  * Jul 29, 2013  2148     mnash       Refactor registering of packets to Spring
  * Jun 04, 2014  3232     bsteffen    Remove ISerializableObject
+ * Jun 24, 2014  3311     njensen     Add DynamicSerialize annotation
  * 
  * </pre>
  * 
@@ -44,7 +46,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 
+@DynamicSerialize
 public class UnlinkedContourVectorPacket extends SymbologyPacket {
+
     private static final int CONTOUR_VECTOR_PACKET3501 = 0x3501;
 
     /**
