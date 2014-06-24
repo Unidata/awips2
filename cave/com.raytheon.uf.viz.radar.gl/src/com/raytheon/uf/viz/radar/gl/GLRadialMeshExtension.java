@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.radar.gl;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -34,9 +33,11 @@ import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 19, 2010            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 19, 2010           mschenke    Initial creation
+ * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
+ *                                    Mesh
  * 
  * </pre>
  * 
@@ -51,20 +52,14 @@ public class GLRadialMeshExtension extends GraphicsExtension<IGLTarget>
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.viz.radar.IRadarGraphicsFactoryAdapter#constructMesh(com
-     * .raytheon.uf.viz.core.cache.CacheObject,
-     * com.raytheon.uf.viz.core.drawables.IDescriptor)
+     * com.raytheon.viz.radar.rsc.image.IRadialMeshExtension#constructMesh(com
+     * .raytheon.viz.radar.rsc.image.IRadialMeshExtension.RadialMeshData,
+     * org.geotools.coverage.grid.GeneralGridGeometry)
      */
     @Override
-    public IMesh constructMesh(RadarRecord radarData,
+    public IMesh constructMesh(RadialMeshData meshData,
             GeneralGridGeometry targetGeometry) throws VizException {
-        String format = radarData.getFormat();
-        if ("Radial".equals(format)) {
-            return RadarRadialMesh.getMesh(radarData, targetGeometry);
-        } else {
-            throw new VizException(
-                    "Cannot construct radial meshes for non radial RadarRecords");
-        }
+        return RadarRadialMesh.getMesh(meshData, targetGeometry);
     }
 
     /*
