@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -35,22 +35,28 @@ import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
 
 /**
  * TODO Add Description
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2009            jsanchez    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- * 
+ * Jun 24, 2014 3235       nabowle     InternalReport patterns are now
+ *                                     precompiled.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
  * @version 1.0
  */
 public class TCEData extends TCGDataAdapter {
+
+    private static final Pattern STATION_ID_PATTERN = Pattern.compile("(\\w{2,2}\\d{6,6})");
+
+    private static final Pattern REF_HOUR_PATTERN = Pattern.compile("(\\d{4,4})");
 
     private float latitude = -9999;
 
@@ -132,8 +138,7 @@ public class TCEData extends TCGDataAdapter {
     }
 
     private void parseStationIdInfo(String stationIdInfo) {
-        Pattern p = Pattern.compile("(\\w{2,2}\\d{6,6})");
-        Matcher m = p.matcher(stationIdInfo);
+        Matcher m = STATION_ID_PATTERN.matcher(stationIdInfo);
         if (m.find()) {
             stationId = m.group();
         }
@@ -147,8 +152,7 @@ public class TCEData extends TCGDataAdapter {
     }
 
     private void parseRefhour(String refhourInfo) {
-        Pattern p = Pattern.compile("(\\d{4,4})");
-        Matcher m = p.matcher(refhourInfo);
+        Matcher m = REF_HOUR_PATTERN.matcher(refhourInfo);
         if (m.find()) {
             hour = Integer.parseInt(m.group().substring(0, 2));
             minute = Integer.parseInt(m.group().substring(2));
@@ -156,8 +160,7 @@ public class TCEData extends TCGDataAdapter {
     }
 
     private void parseLatitude(String latitudeInfo) {
-        Pattern p = Pattern.compile(InternalReport.LAT_PTRN);
-        Matcher m = p.matcher(latitudeInfo);
+        Matcher m = InternalReport.LAT_PTRN.matcher(latitudeInfo);
         if (m.find()) {
             latitude = Float.parseFloat(m.group().substring(8).trim());
             if (latitudeInfo.contains("SOUTH")) {
@@ -168,8 +171,7 @@ public class TCEData extends TCGDataAdapter {
     }
 
     private void parseLongitude(String longitudeInfo) {
-        Pattern p = Pattern.compile(InternalReport.LON_PTRN);
-        Matcher m = p.matcher(longitudeInfo);
+        Matcher m = InternalReport.LON_PTRN.matcher(longitudeInfo);
         if (m.find()) {
             longitude = Float.parseFloat(m.group().substring(10).trim());
             if (longitudeInfo.contains("WEST")) {
