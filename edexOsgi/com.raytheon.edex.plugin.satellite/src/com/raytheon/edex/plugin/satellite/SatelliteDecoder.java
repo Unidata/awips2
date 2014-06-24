@@ -228,13 +228,20 @@ public class SatelliteDecoder {
                 record.setPhysicalElement(physElem.getElementName());
 
                 // read the units
-                SatelliteUnit unit = dao.getUnit(byteBuffer.get(3));
+                if (entityByte == 99) {
+                    SatelliteUnit unit = dao.getUnit((byte) (100+byteBuffer.get(3)));
+		} else {
+                    SatelliteUnit unit = dao.getUnit(byteBuffer.get(3));
+		}
                 if (unit != null) {
                     record.setUnits(unit.getUnitName());
                 }
 
                 // read the century
                 intValue = 1900 + byteBuffer.get(8);
+		if (byteBuffer.get(8) < 100) {
+		    intValue = 2000 +  byteBuffer.get(8);
+		}
                 calendar.set(Calendar.YEAR, intValue);
 
                 // read the month of the year
