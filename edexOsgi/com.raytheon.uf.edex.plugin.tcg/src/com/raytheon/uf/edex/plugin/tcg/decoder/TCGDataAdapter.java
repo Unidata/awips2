@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.tcg.TCGStormType;
@@ -40,7 +40,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
 
 /**
- * TODO Add Description
+ * Base class for Tropical Cyclone Guidance (TCG) products.
  * 
  * <pre>
  * 
@@ -52,6 +52,7 @@ import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
  * Jun 28, 2012  #826      dgilling     Ensure getDataTime properly
  *                                      handles time zones.
  * May 14, 2014 2536       bclement     moved WMO Header to common, removed constructDataURI() call
+ * Jun 24, 2014 3235       nabowle      Switch to slf4j.
  * 
  * </pre>
  * 
@@ -60,7 +61,8 @@ import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
  */
 public abstract class TCGDataAdapter {
 
-    protected static Log logger = LogFactory.getLog(TCGDataAdapter.class);
+    protected static Logger logger = LoggerFactory
+            .getLogger(TCGDataAdapter.class);
 
     protected PointDataDescription pointDataDescription;
 
@@ -136,7 +138,7 @@ public abstract class TCGDataAdapter {
 
     /**
      * Does this parser contain any more reports.
-     * 
+     *
      * @return Does this parser contain any more reports.
      */
     public boolean hasNext() {
@@ -154,7 +156,7 @@ public abstract class TCGDataAdapter {
     /**
      * Get the next available report. Returns a null reference if no more
      * reports are available.
-     * 
+     *
      * @return The next available report.
      */
     public TropicalCycloneGuidance next() {
@@ -200,7 +202,7 @@ public abstract class TCGDataAdapter {
     }
 
     /**
-     * 
+     *
      * @param obsData
      * @return
      */
