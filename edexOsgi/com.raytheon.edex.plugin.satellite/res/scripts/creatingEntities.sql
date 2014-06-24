@@ -38,3 +38,4 @@ INSERT INTO awips.satellite_creating_entities VALUES (26,'NOAA16');
 INSERT INTO awips.satellite_creating_entities VALUES (27,'NOAA17');
 INSERT INTO awips.satellite_creating_entities VALUES (28,'NOAA18');
 INSERT INTO awips.satellite_creating_entities VALUES (29,'NOAA19');
+INSERT INTO awips.satellite_creating_entities VALUES (99,'NEXRCOMP');

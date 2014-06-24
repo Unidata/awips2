@@ -17,4 +17,5 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-insert into awips.satellite_sources values (1,'NESDIS')
+insert into awips.satellite_sources values (1,'NESDIS');
+insert into awips.satellite_sources values (101,'UCAR');
