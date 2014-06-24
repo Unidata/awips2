@@ -333,15 +333,15 @@ def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
     logger.info("Updated " + mode + " Active Table: decoded\n" +
        active.printActiveTable(decoded, combine=1))
 
-    updatedList = ArrayList()
+    updatedList = ArrayList(len(updatedTable))
     for x in updatedTable:
         updatedList.add(x.javaRecord())
     
-    purgedList = ArrayList()
+    purgedList = ArrayList(len(purgeRecords))
     for x in purgeRecords:
         purgedList.add(x.javaRecord())
     
-    changeList = ArrayList()
+    changeList = ArrayList(len(changes))
     if (changedFlag):
         from com.raytheon.uf.common.activetable import VTECChange
         for c in changes:
