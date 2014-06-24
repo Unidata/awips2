@@ -24,9 +24,9 @@
         <constructor-arg ref="smartInitSrvCfg"/>
     </bean>
 
-    <bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.spc.SPCWatchSrv"/>
-    <bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.tpc.TPCWatchSrv"/>
-    <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.wcl.WCLWatchSrv"/>
+	<bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.watch.SPCWatchSrv" />
+	<bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.watch.TPCWatchSrv" />
+	<bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.watch.WCLWatchSrv" />
 
     <bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
 
@@ -34,7 +34,7 @@
         <route id="SPCWatch">
             <from uri="vm:gfe.spcWatch"/>
             <doTry>
-                <bean ref="spcWatch" method="handleSpcWatch"/>
+    			<bean ref="spcWatch" method="handleWatch" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to
@@ -46,7 +46,7 @@
         <route id="TPCWatch">
             <from uri="vm:gfe.tpcWatch"/>
             <doTry>
-                <bean ref="tpcWatch" method="handleTpcWatch"/>
+    			<bean ref="tpcWatch" method="handleWatch" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to
