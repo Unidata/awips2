@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,19 +37,21 @@ import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
- * 
+ * Parses a subset of Tropical Cyclone Guidance data that contain multiple storm
+ * track predictions from various models such as BAM(S/M/D) and LBAR.
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2009            jsanchez    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- * 
+ * Jun 23, 2014 3235       nabowle     Clear the coordinates map properly.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
  * @version 1.0
  */
@@ -68,6 +71,7 @@ public class HURData extends TCGDataAdapter {
 
         List<TropicalCycloneGuidance> reports = new ArrayList<TropicalCycloneGuidance>();
         List<InternalReport> parts = InternalReport.identifyMessage(message);
+        List<Coordinate> list;
 
         if (parts != null) {
             clearData();
@@ -83,8 +87,9 @@ public class HURData extends TCGDataAdapter {
                 } else if (InternalType.MODEL_INFO.equals(t)) {
                     parseModelInfo(s);
                 } else if (InternalType.END.equals(t)) {
-                    for (String model : coordinates.keySet()) {
-                        List<Coordinate> list = coordinates.get(model);
+                    for (Entry<String, List<Coordinate>> entry : coordinates
+                            .entrySet()) {
+                        list = entry.getValue();
                         if (list.size() == forecastTimes.size()) {
                             for (int i = 0; i < list.size(); i++) {
                                 TropicalCycloneGuidance rpt = new TropicalCycloneGuidance();
@@ -98,7 +103,7 @@ public class HURData extends TCGDataAdapter {
                                 rpt.setStormName(stormName);
                                 rpt.setType(stormType);
                                 rpt.setProductType(productType);
-                                rpt.setModelName(model);
+                                rpt.setModelName(entry.getKey());
                                 rpt.setLocation(location);
                                 rpt.setInsertTime(Calendar.getInstance(TimeZone
                                         .getTimeZone("GMT")));
@@ -131,16 +136,14 @@ public class HURData extends TCGDataAdapter {
     }
 
     private void parseModelInfo(String modelInfo) {
-        Pattern modelPtrn = Pattern.compile(InternalReport.MODEL_PTRN);
-        Pattern latlonPtrn = Pattern.compile(InternalReport.LATLON_PTRN);
-        Matcher m = modelPtrn.matcher(modelInfo);
+        Matcher m = InternalReport.MODEL_PTRN.matcher(modelInfo);
         if (m.find()) {
             String model = m.group();
             List<Coordinate> coordinate = coordinates.get(model);
             if (coordinate == null) {
                 coordinate = new ArrayList<Coordinate>();
             }
-            m = latlonPtrn.matcher(modelInfo);
+            m = InternalReport.LATLON_PTRN.matcher(modelInfo);
             while (m.find()) {
                 String latlon[] = m.group().split(" ");
                 int n = latlon.length - 1;
@@ -214,16 +217,9 @@ public class HURData extends TCGDataAdapter {
         }
     }
 
-    private void refreshMaps() {
-        coordinates.put("BAMS", null);
-        coordinates.put("BAMD", null);
-        coordinates.put("BAMD", null);
-        coordinates.put("LBAR", null);
-    }
-
     @Override
     public void clearData() {
-        refreshMaps();
+        coordinates.clear();
         forecastTimes.clear();
         stationId = null;
         stormType = TCGStormType.UNKNOWN;
