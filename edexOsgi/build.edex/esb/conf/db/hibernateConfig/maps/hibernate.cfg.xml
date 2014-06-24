@@ -59,12 +59,15 @@
 
 		<!-- c3p0 Connection Pool Properties -->
 		<!-- Additional properties may be added to c3p0.properties -->
-		<property name="hibernate.c3p0.acquire_increment">1</property>
-		<property name="hibernate.c3p0.idle_test_period">60</property>
-		<property name="hibernate.c3p0.timeout">300</property>
-		<property name="hibernate.c3p0.min_size">1</property>
-		<property name="hibernate.c3p0.max_size">20</property>
-		<property name="hibernate.c3p0.max_statements">20</property>
+        <property name="hibernate.c3p0.initial_pool_size">0</property>
+        <property name="hibernate.c3p0.min_size">0</property>
+        <property name="hibernate.c3p0.max_size">20</property>
+        <property name="hibernate.c3p0.acquire_increment">1</property>
+        <property name="hibernate.c3p0.idle_test_period">60</property>
+        <property name="hibernate.c3p0.max_idle_time">600</property>
+        <property name="hibernate.c3p0.preferred_test_query">select 1</property>
+        <property name="hibernate.c3p0.timeout">300</property>
+        <property name="hibernate.c3p0.max_statements">20</property>
 
 
 		<!-- Cache Properties  -->
