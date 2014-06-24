@@ -212,7 +212,11 @@ public class SatelliteDecoder {
 
                 // read the physical element
                 byte physByte = byteBuffer.get(3);
-                if (entityByte == 99) physByte = (byte) (100+byteBuffer.get(3));
+                /* 50 here because of byte limit +127, so NEXRCOMP 
+                 * products start at 68 in satellite_physical_elements
+                 * - can't change to int, must keep it byte because of ISpatialEnabled in viz.rsc??
+                 */
+                if (entityByte == 99) physByte = (byte) (50+byteBuffer.get(3));  
 				
                 SatellitePhysicalElement physElem = dao
                         .getPhysicalElement(physByte);
@@ -222,26 +226,22 @@ public class SatelliteDecoder {
                                     + physByte);
                 }
 
-
-
-
                 record.setPhysicalElement(physElem.getElementName());
 
                 // read the units
+                SatelliteUnit unit = dao.getUnit(byteBuffer.get(3));
                 if (entityByte == 99) {
-                    SatelliteUnit unit = dao.getUnit((byte) (100+byteBuffer.get(3)));
-		} else {
-                    SatelliteUnit unit = dao.getUnit(byteBuffer.get(3));
-		}
+                    unit = dao.getUnit((int) (100+byteBuffer.get(3)));
+                }
                 if (unit != null) {
                     record.setUnits(unit.getUnitName());
                 }
 
                 // read the century
                 intValue = 1900 + byteBuffer.get(8);
-		if (byteBuffer.get(8) < 100) {
-		    intValue = 2000 +  byteBuffer.get(8);
-		}
+                	if (byteBuffer.get(8) < 100) {
+		    		intValue = 2000 +  byteBuffer.get(8);
+				}
                 calendar.set(Calendar.YEAR, intValue);
 
                 // read the month of the year
