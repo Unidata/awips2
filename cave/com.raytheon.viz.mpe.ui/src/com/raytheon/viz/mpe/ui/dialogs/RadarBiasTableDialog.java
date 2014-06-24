@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -72,7 +73,7 @@ import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
  * Feb 2, 2014   16201     snaples     Added saved data flag support
  * Apr 4, 2014   17223     snaples     Updated other_office_id and rfc_bias to object 
  *                                     array so that called procedure can update and return values properly.
- * 
+ * May 1, 2014 16626 snaples Updated the Manual Bias button to allow revert to original value.
  * </pre>
  * 
  * @author snaples
@@ -147,6 +148,10 @@ public class RadarBiasTableDialog extends Dialog {
     Button mbiasBtn = null;
 
     Button[] manEdit = null;
+    
+    Text[] lbTxts = null;
+    
+    private final Map<String, Integer> biasChgs = new HashMap<String, Integer>();
 
     static {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -343,7 +348,7 @@ public class RadarBiasTableDialog extends Dialog {
         dt = pgsdf.format(dt3);
         rsList = new HashMap<String, MPERadarData>(radIds.length);
         rsList = MPEDataManager.getInstance().readRadarData(dt3);
-        Text[] lbTxts = new Text[radIds.length];
+        lbTxts = new Text[radIds.length];
         manEdit = new Button[radIds.length];
 
         for (int i = 0; i < radIds.length; i++) {
@@ -398,9 +403,10 @@ public class RadarBiasTableDialog extends Dialog {
 
             });
 
-            bias = String.format("%-1.2f", radarresultdata.getRwBiasValUsed());
             oldbias[i] = (float) radarresultdata.getRwBiasValUsed();
             editbias[i] = 0.0f;
+            editbias[i] = oldbias[i];
+            bias = String.format("%-1.2f", editbias[i]);
 
             gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
             final Text lbiasTxt = new Text(biasListComp, SWT.SINGLE
@@ -442,16 +448,36 @@ public class RadarBiasTableDialog extends Dialog {
 
             lbTxts[i] = lbiasTxt;
             gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
-            mbiasBtn = new Button(biasListComp, SWT.TOGGLE | SWT.READ_ONLY);
-            // mbiasBtn.setEnabled(false);
+            final Button mbiasBtn = new Button(biasListComp, SWT.TOGGLE);
             mbias = ("n".equalsIgnoreCase(radarresultdata.getEditBias()) || radarresultdata
                     .getEditBias() == null) ? "NO" : "YES";
             mbiasBtn.setText(mbias);
             mbiasBtn.setLayoutData(gd);
             mbiasBtn.setData(i);
-            mbiasBtn.setSelection(false);
             manEdit[i] = mbiasBtn;
 
+            mbiasBtn.addSelectionListener(new SelectionAdapter() {
+                /**
+                 * (non-Javadoc)
+                 *
+                 * @see
+                 * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
+                 * .swt.events.SelectionEvent)
+                 */ 
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    final int ai = (Integer) mbiasBtn.getData();
+                    if ("YES".equalsIgnoreCase(mbiasBtn.getText())) {
+                        manEdit[ai].setSelection(false);
+                        editbias[ai] = oldbias[ai];
+                        lbTxts[ai].setText(String.format("%-1.2f", editbias[ai]));
+                        biasChgs.put(radIds[ai], ai);
+                        applyBtn.setEnabled(false);
+                        manEdit[ai].setText("NO");
+                    }
+                }
+            });
+            
             gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
             Label acoefLbl = new Label(biasListComp, SWT.CENTER);
             if (abzerocoef.mlt_zrcoef == 0.0) {
@@ -515,29 +541,27 @@ public class RadarBiasTableDialog extends Dialog {
         final float memspan = -99.0f;
         ArrayList<Rwradarresult> rwr = new ArrayList<Rwradarresult>();
         Rwradarresult rwrr = new Rwradarresult();
-        for (int i = 0; i < radIds.length; i++) {
-            if (radIds[i].equals("ZZZ")) {
-                continue;
-            }
-            if (manEdit[i] != null
-                    && "YES".equalsIgnoreCase(manEdit[i].getText())) {
-                where = String.format("WHERE radid='%s' AND obstime='%s'",
-                        radIds[i], obstime);
-                rwr = (ArrayList<Rwradarresult>) IHFSDbGenerated
-                        .GetRWRadarResult(where);
-                if (rwr.size() != 0) {
-                    rwrr = rwr.get(0);
-                } else {
-                    continue;
-                }
-                rwrr.setEditBias("y");
-                rwrr.setMemSpanUsed((double) memspan);
-                rwrr.setRwBiasValUsed((double) editbias[i]);
-                IHFSDbGenerated.UpdateRWRadarResult(rwrr);
+        Iterator<String> bi = biasChgs.keySet().iterator();
+        while (bi.hasNext()) {
+            String rid = bi.next();
+            where = String.format("WHERE radid='%s' AND obstime='%s'",rid, obstime);
+            rwr = (ArrayList<Rwradarresult>) IHFSDbGenerated.GetRWRadarResult(where);
+            if (rwr.size() != 0) {
+                rwrr = rwr.get(0);
             } else {
                 continue;
             }
+            int indexval = biasChgs.get(rid);
+            if("YES".equalsIgnoreCase(manEdit[indexval].getText())){
+                rwrr.setEditBias("y");
+                rwrr.setMemSpanUsed((double) memspan);
+            } else {
+                rwrr.setEditBias("n");
+            }
+            rwrr.setRwBiasValUsed((double) editbias[indexval]);
+            IHFSDbGenerated.UpdateRWRadarResult(rwrr);
         }
+        biasChgs.clear();
         return;
     }
 }
