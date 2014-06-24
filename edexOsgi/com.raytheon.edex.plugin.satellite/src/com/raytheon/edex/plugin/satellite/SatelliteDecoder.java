@@ -57,7 +57,7 @@ import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.common.util.header.WMOHeaderFinder;
 
 /**
- * Decodes GINI formatted satelitte data into {@link SatelliteRecord}s.
+ * Decodes GINI formatted satellite data into {@link SatelliteRecord}s.
  * 
  * <pre>
  * 
@@ -180,16 +180,7 @@ public class SatelliteDecoder {
                 // get the scanning mode
                 int scanMode = byteBuffer.get(37);
 
-                // read the source
-                byte sourceByte = byteBuffer.get(0);
-                SatelliteSource source = dao.getSource(sourceByte);
-                if (source == null) {
-                    throw new UnrecognizedDataException(
-                            "Unknown satellite source id: " + sourceByte);
-                }
-                record.setSource(source.getSourceName());
-
-                // read the creating entity
+		// read the creating entity
                 byte entityByte = byteBuffer.get(1);
                 SatelliteCreatingEntity entity = dao
                         .getCreatingEntity(entityByte);
@@ -199,8 +190,19 @@ public class SatelliteDecoder {
                 }
                 record.setCreatingEntity(entity.getEntityName());
 
+                // read the source
+                byte sourceByte = byteBuffer.get(0);
+                if (entityByte == 99) sourceByte = (byte) (100+byteBuffer.get(0));
+                SatelliteSource source = dao.getSource(sourceByte);
+                if (source == null) {
+                    throw new UnrecognizedDataException(
+                            "Unknown satellite source id: " + sourceByte);
+                }
+                record.setSource(source.getSourceName());
+
                 // read the sector ID
                 byte sectorByte = byteBuffer.get(2);
+                if (entityByte == 99) sectorByte = (byte) (100+byteBuffer.get(2));
                 SatelliteSectorId sector = dao.getSectorId(sectorByte);
                 if (sector == null) {
                     throw new UnrecognizedDataException(
@@ -210,6 +212,8 @@ public class SatelliteDecoder {
 
                 // read the physical element
                 byte physByte = byteBuffer.get(3);
+                if (entityByte == 99) physByte = (byte) (100+byteBuffer.get(3));
+				
                 SatellitePhysicalElement physElem = dao
                         .getPhysicalElement(physByte);
                 if (physElem == null) {
@@ -217,6 +221,10 @@ public class SatelliteDecoder {
                             "Unknown satellite physical element id: "
                                     + physByte);
                 }
+
+
+
+
                 record.setPhysicalElement(physElem.getElementName());
 
                 // read the units
@@ -328,6 +336,7 @@ public class SatelliteDecoder {
                  * If input was SBN-compressed, we already have the data loaded.
                  * If not, load it now.
                  */
+                // TODO: Add check for PNG compression for non-SBN data
                 if (tempBytes == null) {
                     tempBytes = new byte[nx * ny];
                     f.seek(offsetOfDataInFile);

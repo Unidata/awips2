@@ -28,3 +28,5 @@ INSERT INTO awips.satellite_sector_ids VALUES (7,'Puerto Rico Regional');
 INSERT INTO awips.satellite_sector_ids VALUES (8,'Puerto Rico National');
 INSERT INTO awips.satellite_sector_ids VALUES (9,'Supernational');
 INSERT INTO awips.satellite_sector_ids VALUES (10,'NH Composite - Meteosat-GOES E-GOES W-GMS');
+// for Unidata NEXRCOMP
+INSERT INTO awips.satellite_sector_ids VALUES (101,'CONUS');
