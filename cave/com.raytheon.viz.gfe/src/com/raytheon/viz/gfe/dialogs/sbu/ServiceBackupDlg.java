@@ -94,6 +94,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  *                                      from A1 DR 21404, some code cleanup.
  * May 01, 2013    1762    dgilling     Remove national center check.
  * Jul 22, 2013    1762    dgilling     Fix running as primary check.
+ * Jun 10,2014   DR-17401  lshi		
  * 
  * </pre>
  * 
@@ -161,8 +162,15 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     private boolean authorized;
 
     private SVCBU_OP currentOperation = SVCBU_OP.no_backup;
+    
+    private boolean isTerminated = false;
+    
 
-    /**
+    public boolean isTerminated() {
+		return isTerminated;
+	}
+
+	/**
      * @param parentShell
      */
     public ServiceBackupDlg(Shell parentShell) {
@@ -170,6 +178,13 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         authorized = CheckPermissions.getAuthorization();
         this.site = LocalizationManager.getInstance().getCurrentSite();
         this.runningAsPrimary = CheckPermissions.runningAsPrimary(this.site);
+        
+    	if (!CheckPermissions.getPrimarySites().contains(this.site)) {
+        	displayMessage("You cannot run Service Backup as " + this.site + " - EXITING!!!");
+        	isTerminated = true;
+        	return;
+        }
+        
         if (!ServiceBackupJobManager.getInstance().isRunning()) {
             ServiceBackupJobManager.getInstance().start();
         }
@@ -177,7 +192,6 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         progress = new ProgressDlg(getShell());
         progress.setBlockOnOpen(false);
         updateJob = new Job("SvcbuUpdateJob") {
-
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 VizApp.runAsync(new Runnable() {
@@ -225,7 +239,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     @Override
     public boolean close() {
         updateJob.cancel();
-        return super.close();
+        return super.close();      
     }
 
     /*
@@ -492,7 +506,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
     }
 
     private void doImportConfig() {
-
+    	
         switch (currentOperation) {
         case svcbuMode:
             displayMessage("" + this.failedSite.toUpperCase()
@@ -548,7 +562,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                 if (startGFE) {
                     jobManager.addJob(new SvcbuStartGfeJob(failedSite,
                             this.site));
-                }
+                }               
             }
         }
     }
@@ -776,7 +790,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
                 jobManager.addJob(new SvcbuExitJob(this, this.site));
             }
         }
-
+        
     }
 
     private void doClean(boolean showMessage) {

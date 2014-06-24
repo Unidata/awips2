@@ -115,6 +115,7 @@ import com.vividsolutions.jts.geom.Point;
  *    Jun 24, 2013 DR 16317   D. Friedman Handle "motionless" track.
  *    Jun 25, 2013 16224      Qinglu Lin  Resolved the issue with "Date start" for pathcast in CON.
  *    Apr 29, 2014 3033       jsanchez    Updated method to retrieve files in localization.
+ *    Jun 17, 2014 DR 17390   Qinglu Lin  Updated getClosestPoints().
  * </pre>
  * 
  * @author chammack
@@ -766,7 +767,7 @@ public class Wx {
                         cp.partOfArea = GisUtil.asStringList(GisUtil
                                 .calculateLocationPortion(
                                         cp.prepGeom.getGeometry(), reference,
-                                        false));
+                                        false, true));
                         distance = 0;
                     }
                 }
