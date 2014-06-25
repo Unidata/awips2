@@ -21,10 +21,6 @@
 	<bean id="webServiceInInterceptor"
 		class="com.raytheon.uf.edex.registry.ebxml.services.RegistryServiceInInterceptor" />
 
-	<bean id="encryptedPropertyLoader" class="com.raytheon.uf.edex.security.EncryptedProperties">
-		<constructor-arg value="/awips2/edex/conf/security/security.properties"/>
-	</bean>
-
 	<bean id="securityOutInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor">
 		<constructor-arg>
 			<map>
