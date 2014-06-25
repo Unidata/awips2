@@ -38,7 +38,6 @@
 	<vbSource key="HRRR" category="Volume" />
 	<vbSource key="HiResW-NMM-GU" category="Volume" />
 	<vbSource key="HiResW-NMM-HI" category="Volume" />
-	<vbSource key="rap200" category="Volume" />
 	<vbSource key="MRF204" category="Volume" />
 	<vbSource key="LAMPQPF" category="Volume" />
 	<vbSource key="LAPS" category="Volume" />
@@ -52,6 +51,7 @@
 	<vbSource key="SREF243" category="Volume" />
 	<vbSource key="RSM" category="Volume" />
 	<vbSource key="RUC130" category="Volume" />
+	<vbSource key="RAP200" category="Volume" />
 	<vbSource key="RUC236" category="Volume" />
 	<vbSource key="GFS161" category="Volume" />
 	<vbSource key="MRF205" category="Volume" />
