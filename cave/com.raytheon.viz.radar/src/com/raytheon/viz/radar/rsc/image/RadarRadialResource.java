@@ -56,6 +56,7 @@ import com.raytheon.viz.radar.interrogators.RadarRadialInterrogator;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
 import com.raytheon.viz.radar.rsc.RadarProductFactory;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
+import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension.RadialMeshData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -71,6 +72,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 31, 2013  2190     mschenke    Convert interrogate string "msl" to
  *                                    Measure and put in as "height"
  * Jun 11, 2014  2061     bsteffen    Move rangeable methods here.
+ * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
+ *                                    Mesh
  * 
  * </pre>
  * 
@@ -244,7 +247,7 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
     public IMesh buildMesh(IGraphicsTarget target, VizRadarRecord radarRecord)
             throws VizException {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
-                radarRecord, descriptor.getGridGeometry());
+                new RadialMeshData(radarRecord), descriptor.getGridGeometry());
     }
 
     @Override
