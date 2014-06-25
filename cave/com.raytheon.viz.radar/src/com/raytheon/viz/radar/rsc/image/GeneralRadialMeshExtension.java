@@ -17,20 +17,21 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.kml.export.graphics.ext.radar;
+package com.raytheon.viz.radar.rsc.image;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.FactoryException;
 
+import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.kml.export.graphics.KmlGraphicsTarget;
-import com.raytheon.uf.viz.kml.export.graphics.ext.KmlMesh;
-import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
+import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 
 /**
- * Creates a KMLMesh by constructing a RadialBinCRS based CrigGeometry object.
+ * 
+ * Default implementation of {@link IRadialMeshExtension} that just delegates to
+ * {@link IMapMeshExtension}.
  * 
  * <pre>
  * 
@@ -38,34 +39,30 @@ import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
  * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Jun 06, 2012           bsteffen    Initial creation
- * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
- *                                    Mesh
+ * Jun 24, 2014  3072     bsteffen     Initial creation
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-
-public class KmlRadialMeshExtension extends
-        GraphicsExtension<KmlGraphicsTarget> implements IRadialMeshExtension {
+public class GeneralRadialMeshExtension extends
+        GraphicsExtension<IGraphicsTarget> implements IRadialMeshExtension {
 
     @Override
-    public int getCompatibilityValue(KmlGraphicsTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE;
+    public int getCompatibilityValue(IGraphicsTarget target) {
+        return Compatibilty.GENERIC;
     }
-
 
     @Override
     public IMesh constructMesh(RadialMeshData meshData,
             GeneralGridGeometry targetGeometry) throws VizException {
         try {
-            return new KmlMesh(meshData.getGridGeometry());
+            return target.getExtension(IMapMeshExtension.class).constructMesh(
+                    meshData.getGridGeometry(), targetGeometry);
         } catch (FactoryException e) {
             throw new VizException(e);
         }
     }
-
 
 }
