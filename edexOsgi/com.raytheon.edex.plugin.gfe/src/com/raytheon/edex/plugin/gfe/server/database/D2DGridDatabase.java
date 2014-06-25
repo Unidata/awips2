@@ -114,6 +114,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  *                                      Added function to create a D2DGridDatabase object only if there is
  *                                      data in postgres for the desired model/reftime
  * 04/17/2014   #2934       dgilling    Change getGridParmInfo to use D2DParm's GridParmInfo.
+ * 06/24/2014   #3317       randerso    Don't allow database to be created if it exceeds D2DDBVERSIONS and 
+ *                                      should be purged.
  * 
  * </pre>
  * 
@@ -176,8 +178,9 @@ public class D2DGridDatabase extends VGridDatabase {
             String d2dModelName, Date refTime) {
         try {
             GFED2DDao dao = new GFED2DDao();
-            // TODO create query for single refTime
-            List<Date> result = dao.getModelRunTimes(d2dModelName, -1);
+            int dbVersions = config.desiredDbVersions(getDbId(d2dModelName,
+                    refTime, config));
+            List<Date> result = dao.getModelRunTimes(d2dModelName, dbVersions);
 
             if (result.contains(refTime)) {
                 D2DGridDatabase db = new D2DGridDatabase(config, d2dModelName,
