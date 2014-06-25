@@ -284,8 +284,8 @@
           </menu>
           <menu
                 id="volume"
-                label="Volume"
-                mnemonic="V">
+                label="Models"
+                mnemonic="M">
              <visibleWhen>
                 <reference
                       definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
