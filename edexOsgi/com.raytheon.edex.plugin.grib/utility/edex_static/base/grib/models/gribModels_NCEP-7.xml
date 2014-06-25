@@ -1902,7 +1902,7 @@
 	</model>
 	
     <model>
-        <name>rap200</name>
+        <name>RAP200</name>
         <center>7</center>
         <subcenter>0</subcenter>
         <grid>RAP200</grid>
