@@ -29,7 +29,7 @@
 				<entry key="enableTimestampCache" value="false" />
 				<entry key="enableSamlOneTimeUseCache" value="false" />
 				<entry key="action" value="Signature" />
-				<entry key="user" value="${EBXML_REGISTRY_USER}" />
+				<entry key="user" value="${ebxml.registry.user}" />
 				<entry key="signaturePropRefId" value="propRef"/>
 				<entry key="propRef"  value-ref="encryptedPropertyLoader"/>
 				<entry key="passwordCallbackClass"
