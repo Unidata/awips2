@@ -45,7 +45,7 @@
 					</New>
 				</Arg>
 				<Set name="port">
-					<SystemProperty name="EBXML_REGISTRY_WEBSERVER_PORT"
+					<SystemProperty name="ebxml.registry.webserver.port"
 						default="8082" />
 				</Set>
 				<Set name="maxIdleTime">30000</Set>
@@ -65,12 +65,12 @@
 								<New class="org.eclipse.jetty.webapp.WebAppContext">
 									<Set name="descriptor">WEB-INF/web.xml</Set>
 									<Set name="resourceBase">
-										<Env name="EBXML_REGISTRY_WEBSERVER_HOME" />
+									    <SystemProperty name="ebxml.registry.webserver.home" />
 									</Set>
 									<Set name="contextPath">/</Set>
 									<Set name="parentLoaderPriority">true</Set>
 									<Set name="war">
-										<Env name="EBXML_REGISTRY_WEBSERVER_HOME" />
+										<SystemProperty name="ebxml.registry.webserver.home" />
 									</Set>
 									<Set name="systemClasses">
 										<Array type="java.lang.String">
