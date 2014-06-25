@@ -31,7 +31,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -44,6 +43,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.ConnectivityPreferenceDialog;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.localization.ServerRemembrance;
+import com.raytheon.uf.viz.core.localization.TextOrCombo;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
@@ -65,6 +66,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Feb 20, 2014  2704     njensen     Fix issues where settings are valid
  *                                    but dialog doesn't realize it
  * Jun 03, 2014  3217     bsteffen    Add option to always open startup dialog.
+ * Jun 24, 2014  3236     njensen     Add ability to remember multiple servers
  * 
  * 
  * 
@@ -141,7 +143,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     private IConnectivityCallback jmsCallback = new JmsCallback();
 
-    private Text proxyText;
+    private TextOrCombo proxySrv;
 
     private String proxyAddress;
 
@@ -183,11 +185,15 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
             }
         });
 
-        proxyText = new Text(proxyComp, SWT.NONE | SWT.BORDER);
+        IPreferenceStore thinPrefs = Activator.getDefault()
+                .getPreferenceStore();
+        String[] proxyOptions = ServerRemembrance.getServerOptions(thinPrefs,
+                ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
+        proxySrv = new TextOrCombo(proxyComp, SWT.BORDER, proxyOptions);
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
-        proxyText.setLayoutData(gd);
-        proxyText.setText(proxyAddress == null ? "" : proxyAddress);
-        proxyText.setBackground(getTextColor(servicesGood && pypiesGood));
+        proxySrv.widget.setLayoutData(gd);
+        proxySrv.setText(proxyAddress == null ? "" : proxyAddress);
+        proxySrv.widget.setBackground(getTextColor(servicesGood && pypiesGood));
 
         new Label(textBoxComp, SWT.NONE);
 
@@ -235,20 +241,28 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     @Override
     protected void applySettings() {
-        IPersistentPreferenceStore localStore = LocalizationManager
-                .getInstance()
-                .getLocalizationStore();
-        IPersistentPreferenceStore store = Activator.getDefault()
+        IPersistentPreferenceStore thinStore = Activator.getDefault()
                 .getPreferenceStore();
-        store.setValue(ThinClientPreferenceConstants.P_DISABLE_JMS, disableJms);
+        thinStore.setValue(ThinClientPreferenceConstants.P_DISABLE_JMS,
+                disableJms);
+        thinStore.setValue(ThinClientPreferenceConstants.P_USE_PROXIES,
+                useProxy);
+
+        IPersistentPreferenceStore localStore = LocalizationManager
+                .getInstance().getLocalizationStore();
         localStore.setValue(
                 LocalizationConstants.P_LOCALIZATION_PROMPT_ON_STARTUP,
                 alwaysPrompt);
+
         if (useProxy) {
-            store.setValue(ThinClientPreferenceConstants.P_USE_PROXIES,
-                    useProxy);
-            store.setValue(ThinClientPreferenceConstants.P_PROXY_ADDRESS,
+            thinStore.setValue(ThinClientPreferenceConstants.P_PROXY_ADDRESS,
                     proxyAddress);
+            String proxyServerOptions = ServerRemembrance.formatServerOptions(
+                    proxyAddress, thinStore,
+                    ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS);
+            thinStore.setValue(
+                    ThinClientPreferenceConstants.P_PROXY_SERVER_OPTIONS,
+                    proxyServerOptions);
 
             if (getAlertVizServer() != null) {
                 localStore.setValue(LocalizationConstants.P_ALERT_SERVER,
@@ -257,13 +271,6 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
             LocalizationManager.getInstance().setCurrentSite(getSite());
 
             try {
-                store.save();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.SIGNIFICANT,
-                                "Unable to persist thinclient localization preference store",
-                                e);
-            }
-            try {
                 localStore.save();
             } catch (IOException e) {
                 statusHandler.handle(Priority.SIGNIFICANT,
@@ -271,6 +278,19 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
             }
         } else {
             super.applySettings();
+        }
+
+        /*
+         * Have to store the thin client preferences either way to remember the
+         * JMS and proxy checkboxes correctly
+         */
+        try {
+            thinStore.save();
+        } catch (IOException e) {
+            statusHandler
+                    .handle(Priority.SIGNIFICANT,
+                            "Unable to persist thinclient localization preference store",
+                            e);
         }
 
     }
@@ -287,9 +307,9 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         details = null;
 
         // validate proxy
-        if (proxyText != null && !proxyText.isDisposed()
-                && proxyText.isEnabled()) {
-            proxyAddress = proxyText.getText();
+        if (proxySrv != null && !proxySrv.widget.isDisposed()
+                && proxySrv.widget.isEnabled()) {
+            proxyAddress = proxySrv.getText();
         }
         if (proxyAddress != null && proxyAddress.length() > 0) {
             validateServices();
@@ -297,8 +317,9 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         } else {
             status = "Please enter a thin client proxy server address";
         }
-        if (proxyText != null && !proxyText.isDisposed()) {
-            proxyText.setBackground(getTextColor(servicesGood && pypiesGood));
+        if (proxySrv != null && !proxySrv.widget.isDisposed()) {
+            proxySrv.widget.setBackground(getTextColor(servicesGood
+                    && pypiesGood));
         }
 
         validateJms(servicesGood);
@@ -345,15 +366,15 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
 
     private void updateProxyEnabled() {
         useProxy = useProxyCheck.getSelection();
-        proxyText.setEnabled(useProxy);
+        proxySrv.widget.setEnabled(useProxy);
         super.setLocalizationEnabled(!useProxy);
         if (useProxy) {
-            if (localizationText != null && !localizationText.isDisposed()) {
-                localizationText.setBackground(getTextColor(true));
+            if (localizationSrv != null && !localizationSrv.widget.isDisposed()) {
+                localizationSrv.widget.setBackground(getTextColor(true));
             }
         } else {
-            if (proxyText != null && !proxyText.isDisposed()) {
-                proxyText.setBackground(getTextColor(true));
+            if (proxySrv != null && !proxySrv.widget.isDisposed()) {
+                proxySrv.widget.setBackground(getTextColor(true));
             }
         }
         validate();
