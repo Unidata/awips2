@@ -67,13 +67,9 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
         extends AbstractVizResource<T, IDescriptor> implements
         ILegendDecorator, IContextMenuProvider {
 
-    private static final int TOP_OFFSET_IN_PIXELS = 7;
-    
-    private static final int TOP_LINE_HEIGHT = 11;
-    
-    private static final double TEXT_HEIGHT = 14.15;
+    private static final int BOTTOM_OFFSET_IN_PIXELS = 7;
 
-    private static final int LEFT_OFFSET_IN_PIXELS = 8;
+    private static final int RIGHT_OFFSET_IN_PIXELS = 18;
 
     private InputAdapter resourceClickedHandler = new InputAdapter() {
 
@@ -162,7 +158,8 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
         LegendEntry[] legendData = getLegendData(descriptor);
         List<DrawableString> legendStrings = new ArrayList<DrawableString>();
 
-        double yStart = TOP_OFFSET_IN_PIXELS + ( TEXT_HEIGHT * legendData.length );
+        double yStart = paintProps.getCanvasBounds().height
+                - (BOTTOM_OFFSET_IN_PIXELS);
         for (LegendEntry le : legendData) {
             String allText = "";
             for (LegendData ld : le.legendParts) {
@@ -172,8 +169,8 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
             Rectangle2D allTextBounds = target
                     .getStringBounds(le.font, allText);
 
-            //double xStart = LEFT_OFFSET_IN_PIXELS + allTextBounds.getWidth();
-            double xStart = LEFT_OFFSET_IN_PIXELS;
+            double xStart = paintProps.getCanvasBounds().width
+                    - ((RIGHT_OFFSET_IN_PIXELS + allTextBounds.getWidth()));
 
             double maxHeight = 0.0;
             for (LegendData ld : le.legendParts) {
@@ -191,7 +188,7 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
                 }
             }
 
-            yStart -= TEXT_HEIGHT;
+            yStart -= maxHeight;
         }
 
         target.getExtension(ICanvasRenderingExtension.class).drawStrings(
@@ -224,16 +221,19 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
         // Get the ratio for pixel to gl pixel conversion
         double ratio = descriptor.getRenderableDisplay().getView().getExtent()
                 .getWidth()
-        		/ descriptor.getRenderableDisplay().getBounds().width;
+                / descriptor.getRenderableDisplay().getBounds().width;
+
         IExtent extent = descriptor.getRenderableDisplay().getView()
                 .getExtent();
 
-        double x2 = x * ratio;
-        double y2 = y * ratio;
+        x = extent.getMinX() + (x * ratio);
+        y = extent.getMinY() + (y * ratio);
 
-        //double yStart = (TOP_OFFSET_IN_PIXELS - TOP_LINE_HEIGHT) * ratio;
-        
-        double yStart = ( TOP_OFFSET_IN_PIXELS + ( TEXT_HEIGHT * legendData.length ) ) * ratio;
+        double yStart = extent.getMaxY() - ((BOTTOM_OFFSET_IN_PIXELS) * ratio);
+
+        if (y > yStart) {
+            return null;
+        }
 
         for (LegendEntry le : legendData) {
             String allText = "";
@@ -243,24 +243,24 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
 
             Rectangle2D allTextBounds = target
                     .getStringBounds(le.font, allText);
-            
-            double yEnd = yStart - (TEXT_HEIGHT * ratio);
-            if (y2 <= yStart && y2 > yEnd) {
+
+            double yEnd = yStart - (allTextBounds.getHeight() * ratio);
+            if (y <= yStart && y > yEnd) {
                 // Found the entry, look at data
-            	double xStart = LEFT_OFFSET_IN_PIXELS * ratio;
-                double xEnd = ( LEFT_OFFSET_IN_PIXELS + allTextBounds.getWidth() ) * ratio;
-                if (x2 > xEnd) {
+                double xEnd = extent.getMaxX()
+                        - (RIGHT_OFFSET_IN_PIXELS * ratio);
+                if (x > xEnd) {
                     return null;
                 }
-                //double xStart = xEnd - allTextBounds.getWidth();
-                if (x2 < xStart) {
+                double xStart = xEnd - (allTextBounds.getWidth() * ratio);
+                if (x < xStart) {
                     return null;
                 }
                 for (LegendData ld : le.legendParts) {
                     String text = ld.label;
                     Rectangle2D textBounds = target.getStringBounds(le.font,
                             text);
-                    xEnd = xStart + textBounds.getWidth();
+                    xEnd = xStart + (textBounds.getWidth() * ratio);
                     if (x <= xEnd) {
                         return ld.resource;
                     }
@@ -296,11 +296,11 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
         IExtent extent = descriptor.getRenderableDisplay().getView()
                 .getExtent();
 
-        double yStart = extent.getMaxY() + TOP_OFFSET_IN_PIXELS;
+        double yStart = extent.getMaxY() - (BOTTOM_OFFSET_IN_PIXELS * ratio);
 
-        //if (y > yStart) {
-        //    return new ResourcePair[0];
-        //}
+        if (y > yStart) {
+            return new ResourcePair[0];
+        }
 
         for (LegendEntry le : legendData) {
             String allText = "";
@@ -311,8 +311,8 @@ public abstract class AbstractLegendResource<T extends AbstractResourceData>
             Rectangle2D allTextBounds = target
                     .getStringBounds(le.font, allText);
 
-            double yEnd = allTextBounds.getHeight();
-            if (y >= yStart && y < yEnd) {
+            double yEnd = yStart - (allTextBounds.getHeight() * ratio);
+            if (y <= yStart && y > yEnd) {
                 // Found the entry
                 for (LegendData ld : le.legendParts) {
                     rps.add(ld.resource);
