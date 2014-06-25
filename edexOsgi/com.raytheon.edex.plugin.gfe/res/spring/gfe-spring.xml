@@ -132,6 +132,19 @@
             </doTry>
         </route>
 
+        <!-- Convert the topic into a queue so only one consumer gets each message and we still have competing consumers. -->
+        <route id="gfePurgeNotificationQueueRoute">
+            <from uri="jms-generic:topic:pluginPurged"/>
+            <doTry>
+                <to uri="jms-generic:queue:gfePurgeNotification"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:ifpServer?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
     </camelContext>
 
     <bean factory-bean="clusteredCamelContextMgr" factory-method="register">
