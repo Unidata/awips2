@@ -776,8 +776,11 @@ void main_mpe_fieldgen_for_calls_from_editor(int num_args, char ** args)
                      break;
 
                 case lsatpre :
-	                  ptrMPEParams->polarizationType = SinglePol ;
-                     runLSatpre ( ptrRunDate,
+                	sprintf( message , "STATUS: BEFORE calling MPEFieldGen_runLSatpre in main \n") ;
+                	printMessage( message, logFile );
+
+                	ptrMPEParams->polarizationType = SinglePol ;
+                     MPEFieldGen_runLSatpre ( ptrRunDate,
                                   ptrGeoData,
                                   ptrMPEParams,
                                   gageSize, iug, ivg, zg,
