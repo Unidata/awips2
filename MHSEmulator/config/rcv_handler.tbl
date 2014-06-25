@@ -1,7 +1,0 @@
-11 /awips2/GFESuite/bin/iscDataRec %MSGID %SUBJECT %ENCLIST
-20 /bin/mv %ENCLOSE(1) %CENTRAL_SERVER/%SUBJECT
-21 msg_send -e %CENTRAL_SERVER/%SUBJECT -a %SENDER -c 22
-22 /awips2/GFESuite/ServiceBackup/scripts/receive_configuration %ENCLIST
-23 msg_send -e %CENTRAL_SERVER/%SUBJECT -a %SENDER -c 24
-24 /awips2/GFESuite/ServiceBackup/scripts/receive_grids %ENCLIST
-25 /awips2/GFESuite/ServiceBackup/scripts/receive_grids_from_backup_site %ENCLOSE(1)
