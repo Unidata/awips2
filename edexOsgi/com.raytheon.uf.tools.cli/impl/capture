@@ -2,9 +2,6 @@
 # base path to save capture data to, will create subdirectory for each workstation
 basePath="/data/fxa/cave"
 
-# the grep string to find the cave processes
-grepString="(/awips2/cave/cave|/usr/local/viz/cave)"
-
 edexGrepString="edex.run.mode="
 
 xorgLogPath="/var/log"
@@ -58,9 +55,6 @@ usage() {
    echo
    echo -e "-f {y/n}\t\tdefault [$FORCE]"
    echo "  Force a jstack/jmap by default"
-   echo
-   echo -e "-g {grep string}\tdefault [$grepString]"
-   echo "  The grep string used to find the processes"
    echo
    echo -e "-l {y/n}\t\tdefault [$GRAB_CAVE_AND_ALERTVIZ_LOGS]"
    echo "  Captures the cave and alertviz logs.  If run for a specific pid the only cave log captured will be for that pid"
@@ -420,6 +414,35 @@ runVersions() {
    $cmd >> ${dataPath}/versions.log 2>&1
 }
 
+# take in pid, output process name without args
+getCommandName() {
+    ps --no-header c -p $1 -o cmd
+}
+
+# take in pid, output parent process id
+getParentPid() {
+    ps --no-header -p $1 -o ppid
+}
+
+# take in pid, output associated cave executable pid if found, otherwise output given pid
+determineCaveProcess() {
+   local RVAL=$1
+   # check if supplied PID is for the cave executable
+   local CMD_NAME=$(getCommandName $1)
+   if [[ ! $CMD_NAME =~ cave ]]
+   then
+       # worker pid probably provided, check parent
+       RVAL=$(getParentPid $1)
+       if [[ ! $(getCommandName $RVAL) =~ cave ]]
+       then
+           # parent wasn't cave either... continue on using PID provided
+           echo "${t1}: Unable to find cave process for pid $1, proceeding with provided PID" >> $processFile
+           RVAL=$1
+       fi
+   fi
+   echo $RVAL
+}
+
 # parse command line
 while [ ! -z "$1" ]; do
    arg=$1
@@ -430,7 +453,6 @@ while [ ! -z "$1" ]; do
       -d) RUN_JMAP="$1"; shift 1;;
       -e) EDEX_MODE="Y"; edexProcs[$edexProcCount]="$1"; shift 1; let "edexProcCount+=1";;
       -f) FORCE="$1"; shift 1;;
-      -g) grepString="$1"; shift 1;;
       -l) GRAB_CAVE_AND_ALERTVIZ_LOGS="$1"; shift 1;;
       -m) MOVE_ALL_HS_ERR_PID="$1"; shift 1;;
       -p) cavePid="$1"; shift 1;;
@@ -537,9 +559,26 @@ if [ "$EDEX_MODE" == "y" ]; then
    done
 
    grepString="${grepString}) "
+   procs=`ps -ef | grep -E "$grepString" | grep -v "grep"`
+else
+   #list of cave process ids to get ps output for
+   caveProcNums=""
+   for parent in $(pgrep '^cave$')
+   do
+       # the cave process starts a new JVM as a child process
+       # find all children of the cave process
+       children=$(pgrep -P $parent)
+       if [[ -z $children ]]
+       then
+           # no children, assume that this is a main cave process
+           caveProcNums="$caveProcNums $parent"
+       else
+           # otherwise, only get ps output for children
+           caveProcNums="$caveProcNums $children"
+       fi
+   done
+   procs=$(ps --no-header -fp $caveProcNums)
 fi
-
-procs=`ps -ef | grep -E "$grepString" | grep -v "grep" | grep -v "cave.sh"`
 
 if [ ! -z "$cavePid" ]; then
    # limit cave procs to the requested PID
@@ -670,7 +709,8 @@ if [ "${GRAB_CAVE_AND_ALERTVIZ_LOGS}" == "y" ]; then
       echo "${t1}: Capturing cave logs" >> $processFile
       mkdir -p ${dataPath}/consoleLogs
       if [ ! -z ${cavePid} ]; then
-         find $dir  -type f -name "*${cavePid}*" -exec cp {} ${dataPath}/consoleLogs \;
+         # logs have cave executable pid in the name, not worker pid
+         find $dir  -type f -name "*$(determineCaveProcess ${cavePid})*" -exec cp {} ${dataPath}/consoleLogs \;
       else
          find $dir  -type f -mmin -120 -exec cp {} ${dataPath}/consoleLogs \;
       fi
