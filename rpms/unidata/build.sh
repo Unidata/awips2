@@ -89,12 +89,16 @@ cp -v ${dir}/buildEnvironment.sh .
 #
 # PRIMARY GROUPS confirmed to work for Unidata 14.2.1
 #/bin/bash build.sh -full > ${dir}/build-${timestamp}.log
-/bin/bash build.sh -viz > ${dir}/build-VIZ-${timestamp}.log
+#/bin/bash build.sh -viz > ${dir}/build-VIZ-${timestamp}.log
+#/bin/bash build.sh -ldm >> ${dir}/build-LDM-${timestamp}.log
+
+/bin/bash build.sh -edex > ${dir}/build-EDEX-${timestamp}.log
+
+
 #/bin/bash build.sh -postgres > ${dir}/build-${timestamp}.log
 #/bin/bash build.sh -qpid > ${dir}/build-QPID-${timestamp}.log
 #/bin/bash build.sh -python-qpid > ${dir}/build-${timestamp}.log
 #/bin/bash build.sh -python > ${dir}/build-${timestamp}.log
-#/bin/bash build.sh -edex > ${dir}/build-EDEX-${timestamp}.log
 #/bin/bash build.sh -psql > ${dir}/build-${timestamp}.log
 #/bin/bash build.sh -java > ${dir}/build-${timestamp}.log
 # remain untried / redundant
@@ -105,7 +109,6 @@ cp -v ${dir}/buildEnvironment.sh .
 #/bin/bash build.sh -delta > ${dir}/build-${timestamp}.log
 #/bin/bash build.sh -rh6 > ${dir}/build-rh6-${timestamp}.log
 #/bin/bash build.sh -custom >> ${dir}/build-CUSTOM-${timestamp}.log
-#/bin/bash build.sh -ldm >> ${dir}/build-LDM-${timestamp}.log
 popd > /dev/null 2>&1
 
 export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
