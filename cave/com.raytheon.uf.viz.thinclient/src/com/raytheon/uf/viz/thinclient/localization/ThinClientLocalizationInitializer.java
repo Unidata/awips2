@@ -31,6 +31,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.comm.ConnectivityManager;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
@@ -107,7 +108,7 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                 try {
                     ConnectivityManager.checkLocalizationServer(servicesProxy,
                             true);
-                } catch (ServerRequestException e) {
+                } catch (ServerRequestException | VizCommunicationException e) {
                     HttpClient.getInstance().setCompressRequests(false);
                     statusHandler
                             .error("Server ("
