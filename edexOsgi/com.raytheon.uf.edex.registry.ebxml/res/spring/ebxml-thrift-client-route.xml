@@ -7,7 +7,7 @@
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <endpoint id="ebxmlThriftService_from"
-            uri="jetty:http://0.0.0.0:${EBXML_THRIFT_SERVICE_PORT}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+            uri="jetty:http://0.0.0.0:${ebxml.thrift.service.port}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
 
         <route id="ebxmlThriftService">
             <from uri="ref:ebxmlThriftService_from" />
