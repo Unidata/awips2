@@ -165,7 +165,7 @@ public class McidasDecoder extends AbstractDecoder {
             /*
              * Element (pixel) resolution
              */
-            int xres = byteArrayToInt(area, 48, endian);
+            int xres = byteArrayToInt(area, 48, endian); //W13
 
             /*
              * Maximum number of bands per scan line int zres = byteArrayToInt
@@ -175,7 +175,7 @@ public class McidasDecoder extends AbstractDecoder {
             /*
              * Length of the data block line prefix
              */
-            int prefix = byteArrayToInt(area, 56, endian);
+            int prefix = byteArrayToInt(area, 56, endian); //W15
             record.setPrefix(prefix);
 
             /*
@@ -186,8 +186,8 @@ public class McidasDecoder extends AbstractDecoder {
             /*
              * Get and set the area creation time
              */
-            yyddd = byteArrayToInt(area, 64, endian);
-            hhmmss = byteArrayToInt(area, 68, endian);
+            yyddd = byteArrayToInt(area, 64, endian); //W46
+            hhmmss = byteArrayToInt(area, 68, endian); //W47
 
             if (hhmmss != 0) {
                 cal = convertJulianToCalendar(yyddd, hhmmss);
@@ -198,7 +198,7 @@ public class McidasDecoder extends AbstractDecoder {
              * Get and set image type, e.g., VIS, IR, IR2 from satellite name
              * and image type number
              */
-            int imageTypeNumber = byteArrayToInt(area, 72, endian);
+            int imageTypeNumber = byteArrayToInt(area, 72, endian); //W52
             record.setImageTypeNumber(imageTypeNumber);
             if (imageTypeNumber <= 0) {
                 imageTypeNumber = -1;
@@ -392,9 +392,10 @@ public class McidasDecoder extends AbstractDecoder {
             String navtyp = byteArrayToString(navigation, 0, endian);
 
             /*
-             * For map coverage compliance: 1: Mecator (MERC), 3: Lamber
-             * Conformal (LAMB), 5: Polar Steoreographic (PS)
+             * For map coverage compliance: 1: Mecator (MERC), 3: Lambert
+             * Conformal (LAMB), 5: Polar Stereographic (PS)
              */
+            // TODO add MSAT and GVAR ??
             int resolution = 0;
             Integer iproj = 0;
             if (navtyp.trim().equals("PS") || navtyp.equals("MERC")
@@ -414,6 +415,8 @@ public class McidasDecoder extends AbstractDecoder {
                 iproj = 3;
             } else {
                 // native satellite projections ( not remapped )
+            	// Unidata UNIWISC feed includes navigation types GVAR, MSAT, RECT, MOLL
+            	resolution = byteArrayToInt(navigation, 16, endian) / 1000;
                 iproj = 7585;
             }
             record.setResolution(resolution);
@@ -479,7 +482,7 @@ public class McidasDecoder extends AbstractDecoder {
             double ryp = (ny - ((double) (n2 - ulline) / yres));
 
             /*
-             * Polar steoreographic projection (PS)
+             * Polar stereographic projection (PS)
              */
             Float dy = 0.f;
             Float lllat = 0.f, lllon = 0.f, urlat = 0.f, urlon = 0.f;
@@ -523,7 +526,7 @@ public class McidasDecoder extends AbstractDecoder {
             }
 
             /*
-             * Mercator projection
+             * Mercator projection (MERC)
              */
             else if (iproj == 1) {
                 proj = "MER";
@@ -684,7 +687,7 @@ public class McidasDecoder extends AbstractDecoder {
             } else if (iproj == 7585) {
                 // native satellite projections ( not remapped )
                 proj = navtyp;
-                int ilonrad = byteArrayToInt(navigation, 20, endian);
+                int ilonrad = byteArrayToInt(navigation, 20, endian);  // W6
                 clon = ilonrad / 10000000.f;
                 clon = (float) Math.toDegrees(clon);
 
