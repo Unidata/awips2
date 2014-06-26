@@ -1,4 +1,4 @@
-##
+# #
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
 # 
@@ -16,7 +16,7 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
-##
+# #
 
 # File auto-generated against equivalent DynamicSerialize Java class
 # and then modified post-generation to add additional features to better
@@ -30,7 +30,7 @@
 #    05/28/13         2023         dgilling       Implement __str__().
 #    01/22/14         2667         bclement       preserved milliseconds in string representation 
 #    03/03/14         2673         bsteffen       allow construction using a Date for refTime
-#
+#    06/24/14         3096         mnash          implement __cmp__
 #
 
 import calendar
@@ -73,43 +73,14 @@ class DataTime(object):
             if self.validPeriod is None:
                 validTimeMillis = self.refTime.getTime() + long(self.fcstTime * 1000)
                 self.validPeriod = TimeRange()
-                self.validPeriod.setStart(validTimeMillis/1000)
-                self.validPeriod.setEnd(validTimeMillis/1000)
+                self.validPeriod.setStart(validTimeMillis / 1000)
+                self.validPeriod.setEnd(validTimeMillis / 1000)
                 
         # figure out utility flags
         if fcstTime:
             self.utilityFlags.add("FCST_USED")
         if self.validPeriod and self.validPeriod.isValid():
             self.utilityFlags.add("PERIOD_USED") 
-
-    def __str__(self):
-        buffer = StringIO.StringIO()
-        
-        if self.refTime is not None:
-            refTimeInSecs = self.refTime.getTime() / 1000
-            micros = (self.refTime.getTime() % 1000) * 1000
-            dtObj = datetime.datetime.utcfromtimestamp(refTimeInSecs)
-            dtObj = dtObj.replace(microsecond=micros)
-            buffer.write(dtObj.isoformat(' '))
-        
-        if "FCST_USED" in self.utilityFlags:
-            hrs = int(self.fcstTime / 3600)
-            mins = int((self.fcstTime - (hrs * 3600)) / 60)
-            buffer.write(" (" + str(hrs))
-            if mins != 0:
-                buffer.write(":" + str(mins))
-            buffer.write(")")
-        
-        if "PERIOD_USED" in self.utilityFlags:
-            buffer.write("[")
-            buffer.write(self.validPeriod.start.isoformat(' '))
-            buffer.write("--")
-            buffer.write(self.validPeriod.end.isoformat(' '))
-            buffer.write("]")
-        
-        strVal = buffer.getvalue()
-        buffer.close()
-        return strVal
     
     def getRefTime(self):
         return self.refTime
@@ -140,4 +111,64 @@ class DataTime(object):
 
     def setLevelValue(self, levelValue):
         self.levelValue = numpy.float64(levelValue)
-
+    
+    def __cmp__(self, other):
+        if other is None :
+            return 1
+        
+        # compare the valid times, which are the ref times + forecast times
+        validTimeCmp = cmp(self.getRefTime().getTime() + self.getFcstTime(),
+                           other.getRefTime().getTime() + other.getFcstTime())
+        if validTimeCmp != 0 :
+            return validTimeCmp
+        
+        # compare the forecast times
+        fcstTimeCmp = cmp(self.getFcstTime(), other.getFcstTime())
+        if fcstTimeCmp != 0 :
+            return fcstTimeCmp
+        
+        # compare the level values
+        levelCmp = cmp(self.getLevelValue(), other.getLevelValue())
+        if levelValue != 0 :
+            return levelValue
+        
+        # compare the valid periods
+        period1 = self.getValidPeriod()
+        period2 = other.getValidPerid()
+        
+        if period1 is None :
+            return -1
+        elif period2 is None :
+            return 1
+        
+        return cmp(period1.getDuration(), period2.getDuration())
+        
+            
+    def __str__(self):
+        buffer = StringIO.StringIO()
+        
+        if self.refTime is not None:
+            refTimeInSecs = self.refTime.getTime() / 1000
+            micros = (self.refTime.getTime() % 1000) * 1000
+            dtObj = datetime.datetime.utcfromtimestamp(refTimeInSecs)
+            dtObj = dtObj.replace(microsecond=micros)
+            buffer.write(dtObj.isoformat(' '))
+        
+        if "FCST_USED" in self.utilityFlags:
+            hrs = int(self.fcstTime / 3600)
+            mins = int((self.fcstTime - (hrs * 3600)) / 60)
+            buffer.write(" (" + str(hrs))
+            if mins != 0:
+                buffer.write(":" + str(mins))
+            buffer.write(")")
+        
+        if "PERIOD_USED" in self.utilityFlags:
+            buffer.write("[")
+            buffer.write(self.validPeriod.start.isoformat(' '))
+            buffer.write("--")
+            buffer.write(self.validPeriod.end.isoformat(' '))
+            buffer.write("]")
+        
+        strVal = buffer.getvalue()
+        buffer.close()
+        return strVal
