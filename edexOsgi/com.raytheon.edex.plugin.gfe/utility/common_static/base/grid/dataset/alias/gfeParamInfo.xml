@@ -92,6 +92,7 @@
     <alias base="GFS199">gfs161</alias>
     <alias base="RUC130">ruc130</alias>
     <alias base="RTMA">rtmaNDFD</alias>
+    <alias base="URMA25">urmaNDFD</alias>
     <alias base="RTMA-Mosaic">rtmaNDFD</alias>
     <alias base="AK-RTMA">aKrtmaNDFD</alias>
     <alias base="NamDNG5">NamDNG5</alias>
