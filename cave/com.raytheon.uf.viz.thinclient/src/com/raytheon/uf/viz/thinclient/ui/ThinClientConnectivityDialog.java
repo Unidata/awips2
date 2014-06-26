@@ -26,6 +26,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -194,6 +195,19 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         proxySrv.widget.setLayoutData(gd);
         proxySrv.setText(proxyAddress == null ? "" : proxyAddress);
         proxySrv.widget.setBackground(getTextColor(servicesGood && pypiesGood));
+        proxySrv.addSelectionListener(new SelectionListener() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // user clicked an option
+                validate();
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                // user hit Enter
+                performOk();
+            }
+        });
 
         new Label(textBoxComp, SWT.NONE);
 
