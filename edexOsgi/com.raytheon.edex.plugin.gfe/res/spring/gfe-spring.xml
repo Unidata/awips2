@@ -29,9 +29,12 @@
     <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.watch.WCLWatchSrv"/>
 
     <bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
-    
+
     <camelContext id="gfe-camel-spring" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-        <endpoint id="smartInitLauncher" uri="timer://smartInitThread?repeatCount=${smartinit.threads}"/>
+        <!-- TODO: This can be switched back to original thread count and use a bean to
+             subtract one from the thread count once this issue has been fixed.
+             https://issues.apache.org/jira/browse/CAMEL-7540 -->
+        <endpoint id="smartInitLauncher" uri="quartz://smartInitThread?trigger.repeatCount=${smartinit.additional.threads}&amp;trigger.repeatInterval=1"/>
 
         <route id="SPCWatch">
             <from uri="vm:gfe.spcWatch"/>
