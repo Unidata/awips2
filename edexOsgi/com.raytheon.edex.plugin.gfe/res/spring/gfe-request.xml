@@ -415,7 +415,7 @@
         <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
         <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
         <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
-        <endpoint id="iscSendLauncher" uri="timer://iscSendThread?repeatCount=1"/>
+        <endpoint id="iscSendLauncher" uri="quartz://iscSendThread?trigger.repeatCount=0&amp;trigger.repeatInterval=1"/>
 
         <route id="exportDigitalData">
             <from uri="exportDigitalDataCron"/>
