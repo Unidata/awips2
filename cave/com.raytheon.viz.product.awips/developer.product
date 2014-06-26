@@ -29,7 +29,14 @@
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
 -Dviz.memory.warn.threshold=99
--XX:MaxDirectMemorySize=1G</vmArgs>
+-XX:MaxDirectMemorySize=1G
+-XX:+UnlockExperimentalVMOptions
+-XX:G1HeapRegionSize=1
+-XX:InitiatingHeapOccupancyPercent=25
+-XX:G1MixedGCCountTarget=16
+-XX:G1MixedGCLiveThresholdPercent=25
+-XX:G1OldCSetRegionThresholdPercent=25
+-XX:G1HeapWastePercent=5</vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8</vmArgsWin>
    </launcherArgs>
 
