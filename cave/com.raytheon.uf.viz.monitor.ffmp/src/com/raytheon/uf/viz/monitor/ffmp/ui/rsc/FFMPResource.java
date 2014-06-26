@@ -36,6 +36,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.measure.Measure;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -52,6 +54,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
@@ -120,6 +123,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.core.rsc.interrogation.ClassInterrogationKey;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogatable;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
@@ -184,6 +192,7 @@ import com.vividsolutions.jts.geom.Point;
  * Apr 30, 2014  DR 16148   gzhang      Filter Basin Dates for Trend and Table Gap. 
  * May 05, 2014 3026        mpduff      Display Hpe bias source.
  * May 19, 2014  DR 16096   gzhang      Make getBasin() protected for FFMPDataGenerator.
+ * 06/24/2016               mnash       Make FFMPResource implement Interrogatable
  * </pre>
  * 
  * @author dhladky
@@ -192,7 +201,8 @@ import com.vividsolutions.jts.geom.Point;
 
 public class FFMPResource extends
         AbstractVizResource<FFMPResourceData, MapDescriptor> implements
-        IResourceDataChanged, IFFMPResourceListener, FFMPListener {
+        IResourceDataChanged, IFFMPResourceListener, FFMPListener,
+        Interrogatable {
 
     /** Status handler */
     private final IUFStatusHandler statusHandler = UFStatus
@@ -3152,7 +3162,7 @@ public class FFMPResource extends
         boolean guid = false;
         Date oldestRefTime = getOldestTime();
         Date mostRecentRefTime = getPaintTime().getRefTime();
-        
+
         Date barrierTime = getTableTime();// DR 16148
         Date minUriTime = getTimeOrderedKeys().get(0);// DR 16148
 
@@ -3167,10 +3177,11 @@ public class FFMPResource extends
 
             if (rateBasin != null) {
                 for (Date date : rateBasin.getValues().keySet()) {
-                    
-                    if (date.before(minUriTime) || date.before(barrierTime) || date.after(mostRecentRefTime))   
+
+                    if (date.before(minUriTime) || date.before(barrierTime)
+                            || date.after(mostRecentRefTime))
                         continue;// DR 16148
-                    
+
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
                             date);
                     fgd.setRate(dtime, (double) rateBasin.getValue(date));
@@ -3195,8 +3206,9 @@ public class FFMPResource extends
             if (qpeBasin != null) {
 
                 for (Date date : qpeBasin.getValues().keySet()) {
-                    
-                    if (date.before(minUriTime) || date.before(barrierTime) || date.after(mostRecentRefTime))   
+
+                    if (date.before(minUriTime) || date.before(barrierTime)
+                            || date.after(mostRecentRefTime))
                         continue;// DR 16148
 
                     double dtime = FFMPGuiUtils.getTimeDiff(mostRecentRefTime,
@@ -4187,5 +4199,59 @@ public class FFMPResource extends
 
             return Status.OK_STATUS;
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.interrogation.Interrogatable#
+     * getInterrogationKeys()
+     */
+    @Override
+    public Set<InterrogationKey<?>> getInterrogationKeys() {
+        Set<InterrogationKey<?>> set = new HashSet<InterrogationKey<?>>();
+        set.add(Interrogator.GEOMETRY);
+        set.add(Interrogator.VALUE);
+        set.add(new ClassInterrogationKey<Double>(Double.class));
+        return set;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.interrogation.Interrogatable#interrogate
+     * (com.raytheon.uf.common.geospatial.ReferencedCoordinate,
+     * com.raytheon.uf.common.time.DataTime,
+     * com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey<?>[])
+     */
+    @Override
+    public InterrogateMap interrogate(ReferencedCoordinate coordinate,
+            DataTime time, InterrogationKey<?>... keys) {
+        InterrogateMap map = new InterrogateMap();
+        try {
+            FFMPBasinMetaData metaBasin = monitor.getTemplates(getSiteKey())
+                    .findBasinByLatLon(getSiteKey(), coordinate.asLatLon());
+            if (metaBasin != null) {
+                Float value = getBasinValue(metaBasin.getPfaf(), getPaintTime()
+                        .getRefTime(), true);
+                if (value != null) {
+                    ColorMapParameters parameters = getCapability(
+                            ColorMapCapability.class).getColorMapParameters();
+                    map.put(Interrogator.VALUE,
+                            Measure.valueOf(value, parameters.getDisplayUnit()));
+                }
+                Geometry geom = monitor.getTemplates(getSiteKey())
+                        .getRawGeometries(getSiteKey(), metaBasin.getCwa())
+                        .get(metaBasin.getPfaf());
+                if (geom != null) {
+                    map.put(Interrogator.GEOMETRY, geom);
+                }
+            }
+        } catch (TransformException | FactoryException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to transform coordinate to lat/lon value", e);
+        }
+        return map;
     }
 }
