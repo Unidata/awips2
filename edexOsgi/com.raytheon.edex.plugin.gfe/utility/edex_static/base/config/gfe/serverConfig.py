@@ -41,6 +41,7 @@
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
 #    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
 #    05/09/2014      3148          randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
+#    06/20/2014          #3230     rferrel        Added URMA25.
 #
 ########################################################################
 
@@ -1197,6 +1198,7 @@ elif SID in CONUS_EAST_SITES:
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+                 'URMA25',
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1255,6 +1257,7 @@ else:   #######DCS3501 WEST_CONUS
                  'NPHwave4',
                  'WPHwave10',
                  'GLOBHwave',
+                 'URMA25',
                ]
 
 if SID in GreatLake_SITES:
