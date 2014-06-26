@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import com.raytheon.edex.plugin.shef.util.SHEFDate;
 import com.raytheon.edex.plugin.shef.util.ShefParm;
+import com.raytheon.uf.common.dataplugin.shef.tables.IngestfilterId;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Duration;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Extremum;
@@ -47,6 +48,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 03/19/08     387         M. Duff     Initial creation.  
  * 10/16/2008   1548        jelkins     Integrated ParameterCode Types
  * 04/29/2014   3088        mpduff      cleanup.
+ * 06/26/2014   3321        mpduff      Added ingestfilter primary key getter.
  * 
  * </pre>
  */
@@ -805,12 +807,28 @@ public class ShefData implements ISerializableObject {
      * 
      * @return
      */
-    public String getPeTsE() {
+    public String getPeDTsE() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getPhysicalElement().getCode());
         sb.append(this.getTypeSource().getCode());
         sb.append(this.getExtremum().getCode());
+        sb.append(this.getDurationCodeVariable());
         return sb.toString();
+    }
+
+    /**
+     * Get the ingest filter table primary key value for this data object.
+     * 
+     * @return The primary key object
+     */
+    public IngestfilterId getIngestFilterKey() {
+        IngestfilterId id = new IngestfilterId();
+        id.setLid(this.getLocationId());
+        id.setDur(this.getDurationValue());
+        id.setExtremum(this.getExtremum().getCode());
+        id.setPe(this.getPhysicalElement().getCode());
+        id.setTs(this.getTypeSource().getCode());
+        return id;
     }
 
     /**
@@ -885,5 +903,4 @@ public class ShefData implements ISerializableObject {
         }
 
     }
-
 }
