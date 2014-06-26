@@ -30,7 +30,14 @@
 -Dlogback.configurationFile=logback-viz-core.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
--Dviz.memory.warn.threshold=98</vmArgs>
+-Dviz.memory.warn.threshold=98
+-XX:+UnlockExperimentalVMOptions
+-XX:G1HeapRegionSize=1
+-XX:InitiatingHeapOccupancyPercent=25
+-XX:G1MixedGCCountTarget=16
+-XX:G1MixedGCLiveThresholdPercent=25
+-XX:G1OldCSetRegionThresholdPercent=25
+-XX:G1HeapWastePercent=5</vmArgs>
       <vmArgsLin>-Xmx2048M -XX:MaxDirectMemorySize=2G</vmArgsLin>
       <vmArgsWin>-Dfile.encoding=UTF-8 -Xmx768M</vmArgsWin>
    </launcherArgs>
