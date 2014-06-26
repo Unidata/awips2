@@ -32,6 +32,11 @@
 		<processorName>OverwriteGribPostProcessor</processorName>
 	</postProcessedModel>
 
+	<postProcessedModel>
+		<modelName>URMA25</modelName>
+		<processorName>OverwriteGribPostProcessor</processorName>
+	</postProcessedModel>
+
 	<!-- Post processor definition for FFG grids. Similar to the models using 
 		the overwrite post processor, FFG gridded data is also updated without changing 
 		the associated metadata. In this case, the previous updates need to be retained. -->
