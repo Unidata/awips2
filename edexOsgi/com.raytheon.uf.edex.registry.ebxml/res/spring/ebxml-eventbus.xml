@@ -1,6 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean factory-bean="eventBus" factory-method="register">
 		<constructor-arg ref="RegistrySubscriptionManager" />
@@ -14,7 +15,36 @@
 		<constructor-arg ref="AuditableEventService" />
 	</bean>
 	
-		<bean factory-bean="eventBus" factory-method="register">
+	<bean factory-bean="eventBus" factory-method="register">
 		<constructor-arg ref="RegistryGarbageCollector" />
 	</bean>
+	
+	<!-- TODO: This is a sample external endpoint for registry events. 
+	     It is dormant as long as the ${registry.event.external.publish} prop
+	     is set to false.  Which by default until Hazard Services uses this, will be.
+	     When Hazard Services comes on line, the  sampleExternalMessageHandler and the
+	     route can go away. -->
+	     
+	<bean id="sampleExternalMessageHandler"
+		class="com.raytheon.uf.edex.registry.ebxml.publish.SampleExternalMessageHandler">
+	</bean>     
+
+	<camelContext id="externalRegistryEventDelivery-camel"
+		xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+		<endpoint id="externalRegistryEventDelivery"
+			uri="jms-generic:topic:registryExternalPublishTopic" />
+		<route id="registryExternalPublishTopic">
+			<from ref="externalRegistryEventDelivery" />
+			<doTry>
+				<pipeline>
+					<bean ref="serializationUtil" method="transformFromThrift"/>
+					<bean ref="sampleExternalMessageHandler" method="notify" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:externalRegistryEventDelivery?level=ERROR" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
 </beans>
