@@ -122,7 +122,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     Updated with more performance fixes.
  * 05/28/2014   3222       mpduff      Fix posting time to be processed time so db doesn't show all post times the same
  * 06/02/2014              mpduff      Fix for caching of range checks.
- * 
+ * 06/26/2014   3321       mpduff      Fix ingestSwitchMap checks
  * </pre>
  * 
  * @author mduff
@@ -228,7 +228,7 @@ public class PostShef {
     private Map<String, ShefAdjustFactor> adjustmentMap = new HashMap<String, ShefAdjustFactor>();
 
     /** Map of location identifier to IngestSwitch */
-    private Map<String, IngestSwitch> ingestSwitchMap = new HashMap<String, IngestSwitch>();
+    private Map<IngestfilterId, IngestSwitch> ingestSwitchMap = new HashMap<IngestfilterId, IngestSwitch>();
 
     // AppsDefaults tokens
     private String undefStation;
@@ -529,7 +529,7 @@ public class PostShef {
                 if (dataLog) {
                     log.info(LOG_SEP);
                     log.info("Posting process started for LID [" + locId
-                            + "] PEDTSEP [" + data.getPeTsE() + "] value ["
+                            + "] PEDTSEP [" + data.getPeDTsE() + "] value ["
                             + dataValue + "]");
                 }
 
@@ -650,7 +650,7 @@ public class PostShef {
                 if (Location.LOC_LOCATION.equals(postLocData)
                         || (Location.LOC_GEOAREA.equals(postLocData))) {
                     if (!DataType.CONTINGENCY.equals(dataType)) {
-                        ingestSwitch = checkIngest(locId, data, ingestSwitch);
+                        ingestSwitch = checkIngest(locId, data);
                     }
                     if (ShefConstants.IngestSwitch.POST_PE_OFF
                             .equals(ingestSwitch)) {
@@ -2123,8 +2123,7 @@ public class PostShef {
      *            ingest switch setting
      * @return
      */
-    private IngestSwitch checkIngest(String locId, ShefData data,
-            ShefConstants.IngestSwitch ingestSwitch) {
+    private IngestSwitch checkIngest(String locId, ShefData data) {
         StringBuilder errorMsg = new StringBuilder();
         boolean matchFound = false;
         int hNum = 0;
@@ -2150,7 +2149,12 @@ public class PostShef {
         String telem = null;
         String sql = null;
         Object[] oa = null;
-        String key = locId + data.getPeTsE();
+
+        IngestfilterId key = data.getIngestFilterKey();// .getPeDTsE();
+
+        // Default to off
+        ShefConstants.IngestSwitch ingestSwitch = IngestSwitch.POST_PE_OFF;
+
         try {
             if (!ingestSwitchMap.containsKey(key)) {
                 errorMsg.append("Error getting connection to IHFS Database");
@@ -2192,7 +2196,6 @@ public class PostShef {
                 ingestSwitchMap.put(key, ingestSwitch);
             }
 
-            matchFound = ingestSwitchMap.containsKey(key);
             ingestSwitch = ingestSwitchMap.get(key);
 
             /*
