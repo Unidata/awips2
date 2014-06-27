@@ -31,7 +31,7 @@
     <regex>^SFUS4[^1].*</regex>
     <regex>^SFP[^A].*</regex>
     <regex>^SFPA[^4].*</regex>
-    <regex>^SFPA4[^1].*</regex>
+    <regex>^SFPA4[^12].*</regex>
     <regex>^BMBB91.*</regex>
     <regex>^N.*</regex>
     <regex>^F[EHIJKLMQVWX].*</regex>
