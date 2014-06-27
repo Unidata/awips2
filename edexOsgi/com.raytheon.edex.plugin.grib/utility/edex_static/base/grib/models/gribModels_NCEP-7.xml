@@ -1365,26 +1365,6 @@
 	</model>
 
 	<model>
-		<name>hireswArwGuam</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>11731129</grid>
-		<process>
-			<id>116</id>
-		</process>
-	</model>
-
-	<model>
-		<name>hireswArwPR</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>13560489</grid>
-		<process>
-			<id>116</id>
-		</process>
-	</model>
-
-	<model>
 		<name>HiResW-NMM-East</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -1440,26 +1420,6 @@
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255006</grid>
-		<process>
-			<id>112</id>
-		</process>
-	</model>
-
-	<model>
-		<name>hireswNmmGuam</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>11731129</grid>
-		<process>
-			<id>112</id>
-		</process>
-	</model>
-
-	<model>
-		<name>hireswNmmPR</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>13560489</grid>
 		<process>
 			<id>112</id>
 		</process>
