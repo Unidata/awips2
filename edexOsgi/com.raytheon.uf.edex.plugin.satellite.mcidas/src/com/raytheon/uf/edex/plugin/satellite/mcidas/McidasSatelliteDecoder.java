@@ -248,7 +248,6 @@ public class McidasSatelliteDecoder {
             rec.constructDataURI();
 
             // Set the data into the IDataRecord
-            // Set the data into the IDataRecord
             IDataRecord dataRec = SatelliteRecord.getDataRecord(rec);
             if (dataRec != null) {
                 rec.setMessageData(dataRec);
