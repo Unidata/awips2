@@ -1,5 +1,5 @@
 /*
-f * Timeline
+ * Timeline
  * 
  * Date created 03 MARCH 2010
  *
