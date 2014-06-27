@@ -25,14 +25,12 @@
 	<vbSource key="AVN-NorthernHemisphere" category="Volume" />
 	<vbSource key="HiResW-ARW-AK" category="Volume" />
 	<vbSource key="HiResW-ARW-East" category="Volume" />
-	<vbSource key="HiResW-ARW-PR" category="Volume" />
 	<vbSource key="HiResW-ARW-SJU" category="Volume" />
 	<vbSource key="HiResW-ARW-West" category="Volume" />
 	<vbSource key="HiResW-ARW-GU" category="Volume" />
 	<vbSource key="HiResW-ARW-HI" category="Volume" />
 	<vbSource key="HiResW-NMM-AK" category="Volume" />
 	<vbSource key="HiResW-NMM-East" category="Volume" />
-	<vbSource key="HiResW-NMM-PR" category="Volume" />
 	<vbSource key="HiResW-NMM-SJU" category="Volume" />
 	<vbSource key="HiResW-NMM-West" category="Volume" />
 	<vbSource key="HRRR" category="Volume" />
