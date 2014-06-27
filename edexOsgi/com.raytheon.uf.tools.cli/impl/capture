@@ -351,7 +351,10 @@ runJmap() {
       dumpPath="${dumpPath}.hprof"
    fi
 
-   local cmd="/awips2/java/bin/jmap -dump:format=b,file=${dumpPath}"
+   # Java 1.7 has a bug that causes jmap to crash processes using the G1 garbage collector
+   # more info at http://stackoverflow.com/questions/20571004/garbage-collector-first-and-jmap-eof-bug
+   # workaround is to add the 'live' option to jmap to limit the dump to only live objects
+   local cmd="/awips2/java/bin/jmap -dump:live,format=b,file=${dumpPath}"
    echo "${t1}: Running command: $cmd $options $pid >> $log 2>&1 &" >> $processFile
    $cmd $options $pid >> $log 2>&1 &
 
