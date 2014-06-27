@@ -86,6 +86,8 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 01/09/2014  DR 16974   D. Friedman  Improve followup redraw-from-hatched-area polygons.
  * 04/15/2014  DR 17247   D. Friedman  Prevent some invalid coordinates in adjustVertex.
  * 05/16/2014  DR 17365   D. Friedman  Prevent some Coordinate reuse. Add reducePrecision.
+ * 06/27/2014  DR 17443   D. Friedman  Fix some odd cases in which parts of a polygon not covering a
+ *                                     hatched area would be retained after redrawing.
  * </pre>
  * 
  * @author mschenke
@@ -417,12 +419,15 @@ public class PolygonUtil {
                     p1--;
 
                 if (p1 >= 0) {
+                    Coordinate last = new Coordinate();
                     int n, best1, best2;
                     for (n = k = 0; k < npoints; k++) {
                         if (match[k] == nv)
                             continue;
                         best1 = match[p1];
                         best2 = match[k];
+                        last.x = longest[p1].x;
+                        last.y = longest[p1].y;
                         p1 = k;
                         if (best1 < 0 && best2 < 0) {
                             if (k == n)
@@ -460,16 +465,59 @@ public class PolygonUtil {
                                 best1 += nv;
                             else if (dn - da < -len2)
                                 best2 += nv;
-                            if (best1 < best2)
+
+                            /*
+                             * We have apparently jumped from side best1 to side
+                             * best2. Should we add all of the original
+                             * vert[best1] -> vert[best2] vertices? If this is
+                             * significantly longer then the distance from the
+                             * last contour point to this one, it is probably
+                             * the wrong thing to do.
+                             *
+                             * The factor of 3 assumes that all points along the
+                             * contour we ware redrawing are fairly close so
+                             * that three times the length from any one point to
+                             * another is not very long.
+                             */
+                            double maxPatchLen = last.distance(longest[k]) * 3;
+                            double patchLen = 0;
+
+                            int va = Math.min(best1, best2);
+                            int vb = Math.max(best1, best2);
+                            if (va < nv) {
+                                patchLen =  totlen[Math.min(nv, vb)] - totlen[va];
+                                if (vb >= nv)
+                                    patchLen += totlen[vb % nv];
+                            } else {
+                                patchLen = totlen[vb % nv] - totlen[va % nv];
+                            }
+
+                            if (patchLen >= maxPatchLen) {
+                                /*
+                                 * Adding all of the other vertices would be
+                                 * going of the rails, so just add a vertex for
+                                 * the last point (since it may be far from
+                                 * vert[best1] and the current point. Only add
+                                 * one point if adding two would cause the
+                                 * output in longest to overtake the input.
+                                 */
+                                if (n + 1 < k) {
+                                    fixed[n] = 1;
+                                    longest[n++] = new Coordinate(last);
+                                }
+                                fixed[n] = 1;
+                                longest[n++] = longest[k];
+                            } else if (best1 < best2) {
                                 for (best1++; best1 <= best2; best1++) {
                                     fixed[n] = 1;
                                     longest[n++] = new Coordinate(vert[best1]);
                                 }
-                            else
+                            } else {
                                 for (; best1 > best2; best1--) {
                                     fixed[n] = 1;
                                     longest[n++] = new Coordinate(vert[best1]);
                                 }
+                            }
                             continue;
                         }
                         fixed[n] = 1;
