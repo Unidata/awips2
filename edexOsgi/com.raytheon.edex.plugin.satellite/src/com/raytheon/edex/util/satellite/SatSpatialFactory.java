@@ -141,7 +141,7 @@ public class SatSpatialFactory {
      * @param ny
      *            the number of rows of data.
      * @param lov
-     *            the longitude orientatition, used by
+     *            the longitude orientation, used by
      *            {@link #PROJ_CYLIN_EQUIDISTANT}, {@link #PROJ_LAMBERT},
      *            {@link #PROJ_POLAR}.
      * @param latin
@@ -152,7 +152,7 @@ public class SatSpatialFactory {
      *            the latitude of a corner of the grid, if dy is positive this
      *            is an upper corner.
      * @param lo1
-     *            the longitide of a corner of the grid, if dx is positive this
+     *            the longitude of a corner of the grid, if dx is positive this
      *            is a left corner
      * @param dx
      *            the distance between columns measured in CRS meters.

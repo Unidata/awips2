@@ -718,6 +718,16 @@
 			<id>105</id>
 		</process>
 	</model>
+	
+	<model>
+		<name>RUC252</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>252</grid>
+		<process>
+			<id>105</id>
+		</process>
+	</model>
 
 	<model>
 		<name>rapIcing</name>

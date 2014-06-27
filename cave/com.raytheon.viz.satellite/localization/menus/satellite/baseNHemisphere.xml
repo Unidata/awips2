@@ -18,7 +18,6 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-    <!-- 
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="separator" id="beforeNHemisphere" />
 	<contribute xsi:type="titleItem" 
@@ -64,4 +63,3 @@
         <substitute key="colormap" value="Sat/IR/IR WV"/>
     </contribute> 
 </menuTemplate>
--->
