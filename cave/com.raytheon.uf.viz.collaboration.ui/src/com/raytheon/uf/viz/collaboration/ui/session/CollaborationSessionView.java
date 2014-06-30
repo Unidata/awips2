@@ -70,6 +70,8 @@ import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDr
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingEvent.CollaborationEventType;
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingResource;
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingResourceData;
+import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingToolLayer;
+import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingUIManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.ContextManager;
 import com.raytheon.uf.viz.core.VizApp;
@@ -103,6 +105,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Mar 18, 2014 2895       njensen     Fix lockAction enable/disable logic
  * Apr 15, 2014 2822       bclement    only allow transfer leader if participant is using shared display
  * May 05, 2014 3076       bclement    added clear all action
+ * Jun 30, 2014 1798       bclement    added disableCurrentLayer()
  * 
  * </pre>
  * 
@@ -765,7 +768,9 @@ public class CollaborationSessionView extends SessionView implements
         // TODO this method has more to do with displays than the view,
         // would be good to separate it out somehow
 
+        /* a null remoteDisplay means DEACTIVATE */
         if (remoteDisplay == null) {
+            disableCurrentLayer();
             currentDisplay = null;
             VizApp.runAsync(actionUpdater);
             return;
@@ -826,20 +831,7 @@ public class CollaborationSessionView extends SessionView implements
                  */
                 CollaborationDrawingResource resource = getCurrentDrawingResource();
                 if (resource != null) {
-                    DrawingToolLayer layer = getCurrentLayer();
-                    if (layer != null) {
-                        switch (layer.getDrawMode()) {
-                        case DRAW:
-                            layer.doneDrawing();
-                            break;
-                        case ERASE:
-                            layer.doneErasing();
-                            break;
-                        default:
-                            // not drawing
-                        }
-                        layer.setDrawMode(DrawMode.NONE);
-                    }
+                    disableCurrentLayer();
                 }
                 currentDisplay = display;
 
@@ -864,11 +856,55 @@ public class CollaborationSessionView extends SessionView implements
                     listener.dispose();
                 }
                 if (display == currentDisplay) {
+                    disableCurrentLayer();
                     currentDisplay = null;
                     VizApp.runAsync(actionUpdater);
                 }
                 break;
             }
+        }
+    }
+
+    /**
+     * prevent the current layer from drawing/erasing and clear the cursor
+     */
+    private void disableCurrentLayer() {
+        final DrawingToolLayer layer = getCurrentLayer();
+        if (layer != null) {
+            /*
+             * Set done to handle disabling when the user is currently
+             * drawing/erasing. Must be done before clearing cursor.
+             */
+            switch (layer.getDrawMode()) {
+            case DRAW:
+                layer.doneDrawing();
+                break;
+            case ERASE:
+                layer.doneErasing();
+                break;
+            default:
+                // not drawing
+            }
+            /*
+             * Handles the case where the user has a draw/erase cursor, has the
+             * mouse over the map, and the layer gets deactivated.
+             */
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    /* skip if we got a new layer which that updated the cursor */
+                    if (getCurrentLayer() == null
+                            && layer instanceof CollaborationDrawingToolLayer) {
+                        CollaborationDrawingToolLayer cdtl = (CollaborationDrawingToolLayer) layer;
+                        CollaborationDrawingUIManager manager = cdtl
+                                .getResource().getManager();
+                        if (manager != null) {
+                            manager.clearCursor();
+                        }
+                    }
+                }
+            });
+            layer.setDrawMode(DrawMode.NONE);
         }
     }
 
