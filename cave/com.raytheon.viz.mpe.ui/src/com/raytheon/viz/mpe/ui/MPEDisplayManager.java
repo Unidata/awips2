@@ -107,6 +107,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Feb 02, 2014  16201     snaples      Added saved data flag support
  * Feb 04, 2014   16410    lbousaidi    changed the first letter of the month to lower case.
  * Feb 19, 2014   2628     mpduff       Change cast from short to int when creating color bar.
+ * Jun 30, 2014  17457     snaples      Added default case to switch in getXmrgfile.
  * 
  * </pre>
  * 
@@ -967,7 +968,6 @@ public class MPEDisplayManager {
     public static XmrgFile getXmrgFile(DisplayFieldData fieldData, Date date) {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         String dirname = appsDefaults.getToken(fieldData.getDirToken());
-        String cv_use = fieldData.getCv_use();
         String fileNamePrefix = fieldData.getFileNamePrefix();
         String prismType = null;
         String dateFormatString = MPEDateFormatter.yyyyMMddHH;
@@ -990,6 +990,8 @@ public class MPEDisplayManager {
         case mintempPrism:
             prismType = "min_temp";
             dateFormatString = MPEDateFormatter.MMM;
+            break;
+        default:
             break;
         }
 
