@@ -48,4 +48,3 @@ INSERT INTO awips.satellite_units VALUES (128,'dBZ');
 INSERT INTO awips.satellite_units VALUES (129,'Kg/M**2');
 INSERT INTO awips.satellite_units VALUES (130,'inches');
 INSERT INTO awips.satellite_units VALUES (131,'inches');
-INSERT INTO awips.satellite_units VALUES (132,'WTF');

@@ -57,7 +57,7 @@ import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.common.util.header.WMOHeaderFinder;
 
 /**
- * Decodes GINI formatted satelitte data into {@link SatelliteRecord}s.
+ * Decodes GINI formatted satellite data into {@link SatelliteRecord}s.
  * 
  * <pre>
  * 
@@ -92,7 +92,9 @@ import com.raytheon.uf.common.util.header.WMOHeaderFinder;
  * Jan 20, 2014  2359     njensen     Better error handling when fields are not
  *                                    recognized
  * Apr 15, 2014  3017     bsteffen    Call new methods in SatSpatialFactory
- * 
+ *                                    recognized
+ * Jun 30, 2014           mj/UCAR	  Added support for UCAR NEXRCOMP GINI images
+ *									  from the FNEXRAD IDD LDM feed
  * </pre>
  * 
  * @author bphillip
@@ -109,6 +111,10 @@ public class SatelliteDecoder {
     private static final String SAT_HDR_TT = "TI";
 
     private static final int GINI_HEADER_SIZE = 512;
+    
+    private static final int UCAR = 99;
+    
+    private static final int UCAR_PRODUCT_OFFSET = 100;
 
     private static final int INITIAL_READ = GINI_HEADER_SIZE + 128;
 
@@ -180,15 +186,6 @@ public class SatelliteDecoder {
                 // get the scanning mode
                 int scanMode = byteBuffer.get(37);
 
-                // read the source
-                byte sourceByte = byteBuffer.get(0);
-                SatelliteSource source = dao.getSource(sourceByte);
-                if (source == null) {
-                    throw new UnrecognizedDataException(
-                            "Unknown satellite source id: " + sourceByte);
-                }
-                record.setSource(source.getSourceName());
-
                 // read the creating entity
                 byte entityByte = byteBuffer.get(1);
                 SatelliteCreatingEntity entity = dao
@@ -199,8 +196,19 @@ public class SatelliteDecoder {
                 }
                 record.setCreatingEntity(entity.getEntityName());
 
+                // read the source
+                byte sourceByte = byteBuffer.get(0);
+                if (entityByte == UCAR) sourceByte = (byte) (UCAR_PRODUCT_OFFSET+byteBuffer.get(0));
+                SatelliteSource source = dao.getSource(sourceByte);
+                if (source == null) {
+                    throw new UnrecognizedDataException(
+                            "Unknown satellite source id: " + sourceByte);
+                }
+                record.setSource(source.getSourceName());
+
                 // read the sector ID
                 byte sectorByte = byteBuffer.get(2);
+                if (entityByte == UCAR) sectorByte = (byte) (UCAR_PRODUCT_OFFSET+byteBuffer.get(2));
                 SatelliteSectorId sector = dao.getSectorId(sectorByte);
                 if (sector == null) {
                     throw new UnrecognizedDataException(
@@ -209,7 +217,9 @@ public class SatelliteDecoder {
                 record.setSectorID(sector.getSectorName());
 
                 // read the physical element
-                byte physByte = byteBuffer.get(3);
+                int physByte = byteBuffer.get(3);
+                if (entityByte == UCAR) physByte = (int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3));  
+				
                 SatellitePhysicalElement physElem = dao
                         .getPhysicalElement(physByte);
                 if (physElem == null) {
@@ -217,16 +227,23 @@ public class SatelliteDecoder {
                             "Unknown satellite physical element id: "
                                     + physByte);
                 }
+
                 record.setPhysicalElement(physElem.getElementName());
 
                 // read the units
                 SatelliteUnit unit = dao.getUnit(byteBuffer.get(3));
+                if (entityByte == UCAR) {
+                    unit = dao.getUnit((int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3)));
+                }
                 if (unit != null) {
                     record.setUnits(unit.getUnitName());
                 }
 
                 // read the century
                 intValue = 1900 + byteBuffer.get(8);
+                // correction for pngg2gini
+                if (entityByte == UCAR && byteBuffer.get(8) < 100)
+                	intValue = 2000 +  byteBuffer.get(8);
                 calendar.set(Calendar.YEAR, intValue);
 
                 // read the month of the year
@@ -328,6 +345,7 @@ public class SatelliteDecoder {
                  * If input was SBN-compressed, we already have the data loaded.
                  * If not, load it now.
                  */
+                // TODO: Add check for PNG compression for non-SBN data
                 if (tempBytes == null) {
                     tempBytes = new byte[nx * ny];
                     f.seek(offsetOfDataInFile);
