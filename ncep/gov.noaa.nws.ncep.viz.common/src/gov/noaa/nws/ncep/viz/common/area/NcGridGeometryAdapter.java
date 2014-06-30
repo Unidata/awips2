@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.viz.common.area;
 
+import gov.noaa.nws.ncep.edex.util.McidasCRSBuilder;
+
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
@@ -21,10 +23,11 @@ import com.raytheon.uf.common.serialization.adapters.GridGeometrySerialized;
  * 
  * <pre>
  * 
- * SOFTWARE HISTORY
+ * SOFTWARE HISTORY 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 11/2013		1066		G. Hull     Created.
+ * 03/2014      TTR957      B. Yin      Handle native satellite navigation.
  * 
  * </pre>
  * 
@@ -52,7 +55,7 @@ public class NcGridGeometryAdapter extends GridGeometryAdapter {
         try {
             crs = CRS.parseWKT(v.CRS);
         } catch (Exception e) {
-            crs = null;
+            crs = McidasCRSBuilder.constructCRSfromWKT(v.CRS);
         }
 
         if (crs == null) {
