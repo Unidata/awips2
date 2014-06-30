@@ -43,6 +43,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2012            mschenke     Initial creation
+ * Jun 30, 2014 1798       bclement     updated clearCursor() to only clear its own cursor
+ *                                      updateCursor() no longer clears cursor
  * 
  * </pre>
  * 
@@ -137,12 +139,38 @@ public class DrawingToolUIManager extends InputAdapter {
         return false;
     }
 
+    /**
+     * @see #getCurrentShell()
+     * @see #clearCursor(Shell)
+     */
+    public void clearCursor() {
+        clearCursor(currentShell);
+    }
+
+    /**
+     * Clear cursor from shell if this manager set its current cursor
+     * 
+     * @param shell
+     */
     protected void clearCursor(Shell shell) {
         if (shell != null) {
-            shell.setCursor(normal);
+            Cursor cursor = shell.getCursor();
+            /*
+             * Only alternative to checking references is to check if the mouse
+             * is outside of this layer's map editor. This is to prevent this
+             * manager from clearing another session's cursor.
+             */
+            if (cursor == erasor || cursor == pencil) {
+                shell.setCursor(normal);
+            }
         }
     }
 
+    /**
+     * Sets cursor icon according to draw mode
+     * 
+     * @param shell
+     */
     protected void updateCursor(Shell shell) {
         if (shell == null) {
             return;
@@ -159,9 +187,11 @@ public class DrawingToolUIManager extends InputAdapter {
             }
             break;
         default:
-            // normal never gets set and thus will always be null, this is
-            // the desired behavior
-            shell.setCursor(normal);
+            /*
+             * only active layers (draw mode not equal to NONE) need to update
+             * the cursor. cursor will have already been cleared by
+             * handleMouseExit()
+             */
         }
     }
 
@@ -218,6 +248,8 @@ public class DrawingToolUIManager extends InputAdapter {
         case ERASE:
             drawingLayer.doneErasing();
             break;
+        default:
+            /* no action */
         }
         container.refresh();
         handlingInput = false;
