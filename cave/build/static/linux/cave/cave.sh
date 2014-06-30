@@ -47,7 +47,7 @@ JAVA_INSTALL="/awips2/java"
 PYTHON_INSTALL="/awips2/python"
 export AWIPS_INSTALL_DIR="${CAVE_INSTALL}"
 
-MAX_MEM_PROPORTION="0.9"
+MAX_MEM_PROPORTION="0.85"
 
 source ${CAVE_INSTALL}/caveUtil.sh
 RC=$?
@@ -241,9 +241,9 @@ curTime=`date +%Y%m%d_%H%M%S`
   fi
 
   if [[ "${redirect}" == "true" ]] ; then 
-    exec ${CAVE_INSTALL}/cave ${SWITCHES} "${CAVE_INI_ARG}" "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
   else
-    exec ${CAVE_INSTALL}/cave ${SWITCHES} "${CAVE_INI_ARG}" "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
   fi
 ) &
 
