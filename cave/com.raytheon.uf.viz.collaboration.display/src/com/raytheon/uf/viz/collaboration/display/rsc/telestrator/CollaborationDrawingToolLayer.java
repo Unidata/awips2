@@ -42,6 +42,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2012            mschenke     Initial creation
+ * Jun 30, 2014 1798       bclement     added getResource(), made fields final
  * 
  * </pre>
  * 
@@ -51,9 +52,9 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class CollaborationDrawingToolLayer extends DrawingToolLayer {
 
-    private CollaborationDrawingResource resource;
+    private final CollaborationDrawingResource resource;
 
-    private List<Coordinate> coordinates = new ArrayList<Coordinate>();
+    private final List<Coordinate> coordinates = new ArrayList<Coordinate>();
 
     /**
      * @param targetGeometry
@@ -190,4 +191,12 @@ public class CollaborationDrawingToolLayer extends DrawingToolLayer {
         }
         return data;
     }
+
+    /**
+     * @return the resource
+     */
+    public CollaborationDrawingResource getResource() {
+        return resource;
+    }
+
 }
