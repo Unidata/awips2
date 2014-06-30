@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
 
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
@@ -67,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 11, 2013  16795    D. Friedman Transform pixel coordinate in inspect
  * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
  *                                    plugin.
+ * Jun 30, 2014  3165     njensen     Use ColorMapLoader to get ColorMap
  * 
  * </pre>
  * 
@@ -227,7 +230,12 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
                 colorMap = "Grid/gridded data";
             }
 
-            colorMapParams.setColorMap(target.buildColorMap(colorMap));
+            try {
+                colorMapParams.setColorMap(ColorMapLoader
+                        .loadColorMap(colorMap));
+            } catch (ColorMapException e) {
+                throw new VizException(e);
+            }
         }
 
         target.setupClippingPlane(descriptor.getGraph(this).getExtent());
@@ -247,6 +255,7 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
         }
     }
 
+    @Override
     public void resourceChanged(ChangeType type, Object object) {
 
         if (secondaryResource != null) {
