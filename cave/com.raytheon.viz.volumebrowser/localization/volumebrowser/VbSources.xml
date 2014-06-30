@@ -7,36 +7,37 @@
 	________________________Omaha,_NE_68106 ________________________402.291.0100 
 	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
 <vbSourceList>
-	<vbSource key="DGEX186" category="Volume" />
 	<vbSource key="GFS160" category="Volume" />
 	<vbSource key="ETA242" category="Volume" />
 	<vbSource key="mesoEta216" category="Volume" />
 	<vbSource key="SREF216" category="Volume" />
 	<vbSource key="Aviation" category="Volume" views="PLANVIEW TIMESERIES" />
 	<vbSource key="DGEX185" category="Volume" />
+	<vbSource key="DGEX186" category="Volume" />
 	<vbSource key="ECMWF-HiRes" category="Volume" />
 	<vbSource key="ECMF-NorthernHemisphere" category="Volume" />
-	<vbSource key="AVN203" category="Volume" />
-	<vbSource key="GFS201" category="Volume" />
 	<vbSource key="GFS212" category="Volume" />
 	<vbSource key="AVN225" category="Volume" />
 	<vbSource key="GFS213" category="Volume" />
+	<vbSource key="MRF204" category="Volume" />
+    <vbSource key="MRF205" category="Volume" />
+    <vbSource key="AVN203" category="Volume" />
+    <vbSource key="GFS201" category="Volume" />
 	<vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AVN-NorthernHemisphere" category="Volume" />
 	<vbSource key="HiResW-ARW-AK" category="Volume" />
 	<vbSource key="HiResW-ARW-East" category="Volume" />
-	<vbSource key="HiResW-ARW-SJU" category="Volume" />
-	<vbSource key="HiResW-ARW-West" category="Volume" />
 	<vbSource key="HiResW-ARW-GU" category="Volume" />
 	<vbSource key="HiResW-ARW-HI" category="Volume" />
+	<vbSource key="HiResW-ARW-SJU" category="Volume" />
+	<vbSource key="HiResW-ARW-West" category="Volume" />
 	<vbSource key="HiResW-NMM-AK" category="Volume" />
 	<vbSource key="HiResW-NMM-East" category="Volume" />
+	<vbSource key="HiResW-NMM-GU" category="Volume" />
+    <vbSource key="HiResW-NMM-HI" category="Volume" />
 	<vbSource key="HiResW-NMM-SJU" category="Volume" />
 	<vbSource key="HiResW-NMM-West" category="Volume" />
 	<vbSource key="HRRR" category="Volume" />
-	<vbSource key="HiResW-NMM-GU" category="Volume" />
-	<vbSource key="HiResW-NMM-HI" category="Volume" />
-	<vbSource key="MRF204" category="Volume" />
 	<vbSource key="LAMPQPF" category="Volume" />
 	<vbSource key="LAPS" category="Volume" />
 	<vbSource key="ETA218" category="Volume" />
@@ -45,17 +46,16 @@
 	<vbSource key="ETA" category="Volume" />
 	<vbSource key="ETA207" category="Volume" />
 	<vbSource key="NOGAPS" category="Volume" />
-	<vbSource key="GFS254" category="Volume" />
-	<vbSource key="SREF243" category="Volume" />
-	<vbSource key="RSM" category="Volume" />
+	<vbSource key="radar" name="Radar" category="Volume" />
 	<vbSource key="RUC130" category="Volume" />
 	<vbSource key="RAP200" category="Volume" />
 	<vbSource key="RUC236" category="Volume" />
+	<vbSource key="GFS254" category="Volume" />
+    <vbSource key="SREF243" category="Volume" />
+    <vbSource key="RSM" category="Volume" />
 	<vbSource key="GFS161" category="Volume" />
-	<vbSource key="MRF205" category="Volume" />
 	<vbSource key="SREF212" category="Volume" views="PLANVIEW TIMESERIES" />
 	<vbSource key="UKMET-NorthernHemisphere" category="Volume" />
-	<vbSource key="radar" name="Radar" category="Volume" />
 	<vbSource key="MOSGuide-AK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AK-HPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AK-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
