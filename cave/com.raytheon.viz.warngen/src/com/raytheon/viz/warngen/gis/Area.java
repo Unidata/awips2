@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Aug 19, 2013  2177       jsanchez    Used portionsUtil to calculate area portion descriptions.
  *    Apr 29, 2014  3033       jsanchez    Updated method to retrieve files in localization.
  *    May 16, 2014 DR 17365    D. Friedman Reduce precision of warning area to avoid topology errors.
+ *    Jun 30, 2014 DR 17447    Qinglu lin  Updated findAffectedAreas().
  * </pre>
  * 
  * @author chammack
@@ -178,6 +179,7 @@ public class Area {
         }
 
         List<String> uniqueFips = new ArrayList<String>();
+        List<String> uniqueCountyname = new ArrayList<String>();
         List<AffectedAreas> areas = new ArrayList<AffectedAreas>();
         for (GeospatialData regionFeature : countyMap.values()) {
             Geometry regionGeom = regionFeature.geometry;
@@ -257,8 +259,12 @@ public class Area {
 
                 area.points = pointList.toArray(new String[pointList.size()]);
             }
-            if (uniqueFips.contains(area.fips) == false) {
+            String countyName = (String)regionFeature.attributes.get("COUNTYNAME");
+            if (uniqueFips.contains(area.fips) == false || !uniqueCountyname.contains(countyName)) {
                 uniqueFips.add(area.fips);
+                if (countyName != null) {
+                    uniqueCountyname.add(countyName);
+                }
                 areas.add(area);
             }
         }
