@@ -112,11 +112,5 @@
 		<processorName>RUC130GribPostProcessor</processorName>
 	</postProcessedModel>
 
-	<!-- Post processor definition for the TPCSurgeProb model -->
-	<postProcessedModel>
-		<modelName>TPCSurgeProb</modelName>
-		<processorName>TPCSurgeProbPostProcessor</processorName>
-	</postProcessedModel>
-
 </postProcessedModels>
 
