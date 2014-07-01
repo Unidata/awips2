@@ -40,6 +40,7 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
  * Oct 03, 2008            njensen      Initial creation
  * Jul 10, 2009  #2590     njensen      Added multiple site support
  * May 12, 2014  #3157     dgilling     Re-factor based on AbstractWatchNotifierSrv.
+ * Jun 10, 2014  #3268     dgilling     Re-factor based on AbstractWatchNotifierSrv.
  * </pre>
  * 
  * @author njensen
