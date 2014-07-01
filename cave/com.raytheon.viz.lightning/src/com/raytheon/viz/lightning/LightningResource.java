@@ -100,6 +100,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
  *    Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
  *    Jun 05, 2014  3226       bclement    reference datarecords by LightningConstants
+ *    Jun 06, 2014  DR 17367   D. Friedman Fix cache object usage.
  *    Jun 19, 2014  3214       bclement    added pulse and could flash support
  * 
  * </pre>
@@ -548,6 +549,24 @@ public class LightningResource extends
      */
     @Override
     public void remove(DataTime dataTime) {
+        /*
+         * Workaround for time matching which does not know about records at the
+         * end of a time period that may contain data for the next period. If we
+         * are asked to remove the latest data time and there is only one record
+         * we know about, return without removing the time.
+         */
+        if (dataTimes.indexOf(dataTime) == dataTimes.size() - 1) {
+            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap.get(dataTime);
+            if (co != null) {
+                LightningFrameMetadata metadata = co.getMetadata();
+                synchronized (metadata) {
+                    if (metadata.newRecords.size() + metadata.processed.size() < 2) {
+                        return;
+                    }
+                }
+            }
+        }
+
         dataTimes.remove(dataTime);
         cacheObjectMap.remove(dataTime);
     }
@@ -591,20 +610,20 @@ public class LightningResource extends
 
             List<BinLightningRecord> records = entry.getValue();
 
-            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap
-                    .get(dt);
             LightningFrameMetadata frame;
-            if (co == null) {
-                // New frame
-                frame = new LightningFrameMetadata(dt,
-                        resourceData.getBinOffset(), this.lightSource);
-                co = CacheObject.newCacheObject(frame, resourceBuilder);
-                cacheObjectMap.put(dt, co);
-                dataTimes.add(dt);
-            } else {
-                // Frame exists
-                frame = co.getMetadata();
+            CacheObject<LightningFrameMetadata, LightningFrame> co;
+            synchronized (cacheObjectMap) {
+                co = cacheObjectMap.get(dt);
+                if (co == null) {
+                    // New frame
+                    LightningFrameMetadata key = new LightningFrameMetadata(dt,
+                            resourceData.getBinOffset(), this.lightSource);
+                    co = CacheObject.newCacheObject(key, resourceBuilder);
+                    cacheObjectMap.put(dt, co);
+                    dataTimes.add(dt);
+                }
             }
+            frame = co.getMetadata();
 
             synchronized (frame) {
                 // Add as new records
