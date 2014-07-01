@@ -1,4 +1,34 @@
 #!/bin/bash
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+##############################################################################
+# Process Received Digital Grids
+# This is run at the backup site to merge the failed site's grids into the 
+# Fcst database.
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/16/15        3276          randerso       Added -T to iscMosaic call
+##############################################################################
 
 import_file=${1}
 log_msg Processing file: $import_file
@@ -98,7 +128,7 @@ log_msg "CDSPORT is $CDSPORT"
 
 log_msg Beginning iscMosaic
 log_msg 75
-${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${SITE}_GRID__Fcst_00000000_0000 -f ${SVCBU_HOME}/${failed_site}Grd.netcdf.gz -n
+${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${SITE}_GRID__Fcst_00000000_0000 -f ${SVCBU_HOME}/${failed_site}Grd.netcdf.gz -n -T
 if [ $? -ne 0 ]
 then
     log_msg "ERROR: iscMosaic failed to import grids from ${SITE}_GRID__Fcst_00000000_0000"
