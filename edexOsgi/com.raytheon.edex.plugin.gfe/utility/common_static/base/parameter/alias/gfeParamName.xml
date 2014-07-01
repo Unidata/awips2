@@ -30,6 +30,7 @@
     <alias base="GeH">geh</alias>
     <alias base="GH">gh</alias>
     <alias base="GVV">gvv</alias>
+    <alias base="HAILPROB">hailprob</alias>
     <alias base="Heli">heli</alias>
     <alias base="HIdx">hidx</alias>
     <alias base="HTSGW">htsgw</alias>
@@ -48,14 +49,20 @@
     <alias base="PoT">pot</alias>
     <alias base="P">p</alias>
     <alias base="PR">pr</alias>
+    <alias base="PRSVR">prsvr</alias>
+    <alias base="PRSIGSV">prsigsv</alias>
     <alias base="PVV">pvv</alias>
     <alias base="PW">pw</alias>
     <alias base="RH">rh</alias>
     <alias base="SCP">scp</alias>
     <alias base="SHF">shf</alias>
     <alias base="SH">sh</alias>
+    <alias base="SIGHAILPROB">sighailprob</alias>
+    <alias base="SIGTRNDPROB">sigtrndprob</alias>
+    <alias base="SIGWINDPROB">sigwindprob</alias>
     <alias base="SLI">sli</alias>
     <alias base="SnD">snd</alias>
+    <alias base="SRCONO">srcono</alias>
     <alias base="SVV">svv</alias>
     <alias base="SWDIR">swdir</alias>
     <alias base="SWELL">swell</alias>
@@ -81,6 +88,7 @@
     <alias base="WEASD">weasd</alias>
     <alias base="WGH">wgh</alias>
     <alias base="WGS">wgs</alias>
+    <alias base="WINDPROB">windprob</alias>
     <alias base="WS">ws</alias>
     <alias base="WVDIR">wvdir</alias>
     <alias base="WVHGT">wvhgt</alias>
