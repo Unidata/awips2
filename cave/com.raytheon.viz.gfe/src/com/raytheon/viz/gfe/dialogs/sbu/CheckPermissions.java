@@ -19,9 +19,12 @@
  **/
 package com.raytheon.viz.gfe.dialogs.sbu;
 
+import java.util.Set;
+
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.dataplugin.gfe.request.CheckPermissionsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.CheckServiceBackupPrimarySiteRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupPrimarySiteRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -46,7 +49,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Jul 22, 2013  #1762     dgilling     Ensure all fields of
  *                                      CheckServiceBackupPrimarySiteRequest are
  *                                      filled.
- * 
+ * Jun 10, 2013 DR-17401	lshi	    Added getPrimarySites()
  * </pre>
  * 
  * @author bphillip
@@ -103,5 +106,22 @@ public class CheckPermissions {
                     .error("Error checking if running as primary site!", e);
         }
         return false;
+    }
+    
+    public static Set<String> getPrimarySites() {
+        Set <String> primary = null;
+        
+        GetServiceBackupPrimarySiteRequest request = new GetServiceBackupPrimarySiteRequest();
+        try {
+            @SuppressWarnings("unchecked")
+            ServerResponse<Set<String>> sr = (ServerResponse<Set<String>>) ThriftClient
+                    .sendRequest(request);
+            primary = sr.getPayload();
+            return primary;
+        } catch (VizException e) {
+            statusHandler
+            .error("Error getting primary site(s)!", e);
+        }
+        return primary;
     }
 }
