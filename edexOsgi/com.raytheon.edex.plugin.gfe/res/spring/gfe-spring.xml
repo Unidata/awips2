@@ -24,9 +24,9 @@
         <constructor-arg ref="smartInitSrv"/>
     </bean>
 
-    <bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.watch.SPCWatchSrv"/>
-    <bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.watch.TPCWatchSrv"/>
-    <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.watch.WCLWatchSrv"/>
+    <bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.spc.SPCWatchSrv"/>
+    <bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.tpc.TPCWatchSrv"/>
+    <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.wcl.WCLWatchSrv"/>
 
     <bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
 
