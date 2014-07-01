@@ -37,6 +37,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -59,7 +61,6 @@ import com.raytheon.uf.viz.core.IMeshCallback;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -278,7 +279,11 @@ public class RadarImageResource<D extends IDescriptor> extends
                 colorMapName = "Radar/OSF/16 Level Reflectivity";
             }
 
-            params.setColorMap(ColorMapLoader.loadColorMap(colorMapName));
+            try {
+                params.setColorMap(ColorMapLoader.loadColorMap(colorMapName));
+            } catch (ColorMapException e) {
+                throw new VizException(e);
+            }
 
         }
 
