@@ -85,6 +85,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -122,6 +123,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  *                                     Updated with more performance fixes.
  * May 14, 2014 2536       bclement    removed TimeTools usage
+ * 05/28/2014   3222       mpduff      Fix posting time to be processed time so db doesn't show all post times the same
+ * 06/02/2014              mpduff      Fix for caching of range checks.
  * </pre>
  * 
  * @author mduff
@@ -294,6 +297,39 @@ public class PostShef {
     /** Forecast query results */
     private Object[] queryForecastResults;
 
+    /** Location range data found flag */
+    private boolean locRangeFound = false;
+
+    /** Default range data found flag */
+    private boolean defRangeFound = false;
+
+    /** Valid date range flag */
+    private boolean validDateRange = false;
+
+    /** Gross range minimum value */
+    private double grossRangeMin = ShefConstants.SHEF_MISSING_INT;
+
+    /** Gross range maximum value */
+    private double grossRangeMax = ShefConstants.SHEF_MISSING_INT;
+
+    /** Reasonable range minimum value */
+    private double reasonRangeMin = ShefConstants.SHEF_MISSING_INT;
+
+    /** Reasonable range maximum value */
+    private double reasonRangeMax = ShefConstants.SHEF_MISSING_INT;
+
+    /** Alert upper limit value */
+    private double alertUpperLimit = ShefConstants.SHEF_MISSING_INT;
+
+    /** Alarm upper limit value */
+    private double alarmUpperLimit = ShefConstants.SHEF_MISSING_INT;
+
+    /** Alert lower limit value */
+    private double alertLowerLimit = ShefConstants.SHEF_MISSING_INT;
+
+    /** Alarm lower limit value */
+    private double alarmLowerLimit = ShefConstants.SHEF_MISSING_INT;
+
     /**
      * 
      * @param date
@@ -461,6 +497,8 @@ public class PostShef {
                     return;
                 }
 
+                postDate.setTime(getToNearestSecond(TimeUtil
+                        .currentTimeMillis()));
                 boolean same_lid_product = false;
 
                 String dataValue = data.getStringValue();
@@ -479,6 +517,7 @@ public class PostShef {
                     data.setCreationDate("1970-01-01 00:00:00");
                 }
 
+                locId = data.getLocationId();
                 String key = locId + prodId + data.getObservationTime();
                 if (idLocations.containsKey(key)) {
                     postLocData = idLocations.get(key);
@@ -732,7 +771,7 @@ public class PostShef {
                  * shefrec structure
                  */
                 if (!dataValue.equals(ShefConstants.SHEF_MISSING)) {
-                      adjustRawValue(locId, data);
+                    adjustRawValue(locId, data);
                 }
 
             dataValue = data.getStringValue();
@@ -1075,6 +1114,18 @@ public class PostShef {
         useTs = null;
         basisTimeValues = null;
         previousQueryForecast = null;
+        locRangeFound = false;
+        defRangeFound = false;
+        validDateRange = false;
+        grossRangeMin = ShefConstants.SHEF_MISSING_INT;
+        grossRangeMax = ShefConstants.SHEF_MISSING_INT;
+        reasonRangeMin = ShefConstants.SHEF_MISSING_INT;
+        reasonRangeMax = ShefConstants.SHEF_MISSING_INT;
+        alertUpperLimit = ShefConstants.SHEF_MISSING_INT;
+        alarmUpperLimit = ShefConstants.SHEF_MISSING_INT;
+        alertLowerLimit = ShefConstants.SHEF_MISSING_INT;
+        alarmLowerLimit = ShefConstants.SHEF_MISSING_INT;
+
     }
 
     /**
@@ -2103,9 +2154,9 @@ public class PostShef {
         String telem = null;
         String sql = null;
         Object[] oa = null;
-
+        String key = locId + data.getPeTsE();
         try {
-            if (!ingestSwitchMap.containsKey(locId)) {
+            if (!ingestSwitchMap.containsKey(key)) {
                 errorMsg.append("Error getting connection to IHFS Database");
                 sql = "select lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input from IngestFilter where lid = '"
                         + locId + "'";
@@ -2142,11 +2193,11 @@ public class PostShef {
                     }
                 }
 
-                ingestSwitchMap.put(locId, ingestSwitch);
+                ingestSwitchMap.put(key, ingestSwitch);
             }
 
-            matchFound = ingestSwitchMap.containsKey(locId);
-            ingestSwitch = ingestSwitchMap.get(locId);
+            matchFound = ingestSwitchMap.containsKey(key);
+            ingestSwitch = ingestSwitchMap.get(key);
 
             /*
              * if there is no ingest record for this entry, then check if the
@@ -2540,6 +2591,8 @@ public class PostShef {
      */
     private void postProductLink(String locId, String productId, Date obsTime) {
         PersistableDataObject link = null;
+
+        postDate.setTime(getToNearestSecond(TimeUtil.currentTimeMillis()));
         try {
             /* Get a Data Access Object */
             link = new Productlink(new ProductlinkId(locId, productId, obsTime,
@@ -2577,14 +2630,6 @@ public class PostShef {
         long qualityCode = ShefConstants.DEFAULT_QC_VALUE;
         String monthdaystart = null;
         String monthdayend = null;
-        double grossRangeMin = missing;
-        double grossRangeMax = missing;
-        double reasonRangeMin = missing;
-        double reasonRangeMax = missing;
-        double alertUpperLimit = missing;
-        double alarmUpperLimit = missing;
-        double alertLowerLimit = missing;
-        double alarmLowerLimit = missing;
 
         alertAlarm = ShefConstants.NO_ALERTALARM;
 
@@ -2602,10 +2647,6 @@ public class PostShef {
                     + "'", e);
             return ShefConstants.QC_MANUAL_FAILED;
         }
-
-        boolean locRangeFound = false;
-        boolean defRangeFound = false;
-        boolean validDateRange = false;
 
         boolean executeQuery = true;
         if (!qualityCheckFlag) {
@@ -2918,6 +2959,7 @@ public class PostShef {
             ShefData data, String locId, String tableName, String dataValue,
             String qualifier, long qualityCode) {
         PersistableDataObject dataObj = null;
+        postDate.setTime(getToNearestSecond(TimeUtil.currentTimeMillis()));
 
         if (ShefConstants.COMMENT_VALUE.equalsIgnoreCase(tableName)) {
             Commentvalue comment = new Commentvalue(new CommentvalueId());
@@ -3164,6 +3206,19 @@ public class PostShef {
         }
 
         return dataObj;
+    }
+
+    /**
+     * Convert the provided millisecond value to the nearest second.
+     * 
+     * @param time
+     *            time in milliseconds
+     * 
+     * @return milliseconds rounded to the nearest second.
+     */
+    private long getToNearestSecond(long time) {
+        // Force time to nearest second.
+        return time - (time % 1000);
     }
 
     public void close() {
