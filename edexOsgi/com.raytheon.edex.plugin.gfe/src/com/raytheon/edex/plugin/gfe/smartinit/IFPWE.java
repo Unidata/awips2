@@ -89,6 +89,7 @@ import com.raytheon.uf.common.util.Pair;
  *                                      Added getKeys(tr) to get grid times overlapping a time range
  *                                      Removed caching of inventory as it was not being updated when 
  *                                      grids were updated/deleted
+ * Jul 01, 2014  #3149      randerso    Changed to use updated GetGridRequest. Cleaned up code
  * 
  * </pre>
  * 
@@ -201,39 +202,19 @@ public class IFPWE {
      * @throws GfeException
      */
     public IGridSlice getItem(TimeRange timeRange) throws GfeException {
-        GetGridRequest req = new GetGridRequest();
-        req.setParmId(parmId);
-        GFERecord gfeRec = new GFERecord(parmId, timeRange);
-        ArrayList<GFERecord> gfeList = new ArrayList<GFERecord>();
-        gfeList.add(gfeRec);
-        req.setRecords(gfeList);
+        GetGridRequest req = new GetGridRequest(parmId,
+                Arrays.asList(timeRange));
         ArrayList<GetGridRequest> reqList = new ArrayList<GetGridRequest>();
         reqList.add(req);
-        List<IGridSlice> data = new ArrayList<IGridSlice>();
 
         ServerResponse<List<IGridSlice>> ssr = gridParmMgr.getGridData(reqList);
-        data = ssr.getPayload();
-
-        IGridSlice slice = null;
-        if ((data == null) || (data.size() == 0)) {
+        if (!ssr.isOkay()) {
             String msg = "Error getting grid data for " + parmId.toString()
-                    + " at time " + timeRange.toString();
-            for (ServerMsg smsg : ssr.getMessages()) {
-                msg += "\n" + smsg.getMessage();
-            }
+                    + " at time " + timeRange.toString() + ssr.message();
             throw new GfeException(msg);
-        } else if (data.size() > 1) {
-            // theoretically should never get here
-            String msg = "Retrieved too much data for " + parmId.toString()
-                    + "at time " + timeRange.toString();
-            for (ServerMsg smsg : ssr.getMessages()) {
-                msg += "\n" + smsg.getMessage();
-            }
-            throw new GfeException(msg);
-        } else {
-            slice = data.get(0);
         }
 
+        IGridSlice slice = ssr.getPayload().get(0);
         return slice;
     }
 
