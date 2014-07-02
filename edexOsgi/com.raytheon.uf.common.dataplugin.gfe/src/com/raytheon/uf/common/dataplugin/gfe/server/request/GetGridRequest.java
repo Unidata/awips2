@@ -20,12 +20,9 @@
 
 package com.raytheon.uf.common.dataplugin.gfe.server.request;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
@@ -38,6 +35,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
+ * 07/01/2014   #3149      randerso    Simplified to contain only a ParmID and 
+ *                                     list of TimeRanges.
  * 
  * </pre>
  * 
@@ -46,40 +45,17 @@ import com.raytheon.uf.common.time.TimeRange;
  */
 
 @DynamicSerialize
-public class GetGridRequest implements ISerializableObject {
+public class GetGridRequest {
 
     /** The records to be saved */
 
     @DynamicSerializeElement
-    private List<GFERecord> records;
+    private List<TimeRange> times;
 
     /** The parmID of the request */
 
     @DynamicSerializeElement
     private ParmID parmId;
-
-    /**
-     * Denotes whether the data retrieved from this request will be converted to
-     * match the corresponding grid parm info
-     */
-
-    @DynamicSerializeElement
-    private boolean convertUnit = false;
-
-    /**
-     * @return the convertUnit
-     */
-    public boolean isConvertUnit() {
-        return convertUnit;
-    }
-
-    /**
-     * @param convertUnit
-     *            the convertUnit to set
-     */
-    public void setConvertUnit(boolean convertUnit) {
-        this.convertUnit = convertUnit;
-    }
 
     /**
      * Creates a new GetGridRequest
@@ -96,19 +72,9 @@ public class GetGridRequest implements ISerializableObject {
      * @param times
      *            The times of the requested grids
      */
-    public GetGridRequest(List<GFERecord> records) {
-        if (records.size() > 0) {
-            parmId = records.get(0).getParmId();
-        }
-        this.records = records;
-    }
-
-    public GetGridRequest(ParmID parmId, List<TimeRange> trs) {
+    public GetGridRequest(ParmID parmId, List<TimeRange> times) {
         this.parmId = parmId;
-        records = new ArrayList<GFERecord>();
-        for (TimeRange tr : trs) {
-            records.add(new GFERecord(parmId, tr));
-        }
+        this.times = times;
     }
 
     public ParmID getParmId() {
@@ -120,19 +86,11 @@ public class GetGridRequest implements ISerializableObject {
     }
 
     public List<TimeRange> getTimes() {
-        List<TimeRange> times = new ArrayList<TimeRange>();
-        for (GFERecord rec : records) {
-            times.add(rec.getTimeRange());
-        }
-        return times;
+        return this.times;
     }
 
-    public List<GFERecord> getRecords() {
-        return records;
-    }
-
-    public void setRecords(List<GFERecord> records) {
-        this.records = records;
+    public void setTimes(List<TimeRange> times) {
+        this.times = times;
     }
 
 }
