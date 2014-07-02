@@ -25,7 +25,9 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
-import com.raytheon.viz.core.ColorUtil;
+import com.raytheon.uf.viz.collaboration.display.Activator;
+import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
 /**
  * 
@@ -41,6 +43,7 @@ import com.raytheon.viz.core.ColorUtil;
  * Apr 03, 2012            mnash       Initial creation
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Mar 06, 2014 2848       bclement    synchronized color access
+ * Jul 02, 2014 1255       bclement    collaboration specific RGB presets
  * 
  * </pre>
  * 
@@ -50,9 +53,22 @@ import com.raytheon.viz.core.ColorUtil;
 
 public class SessionColorManager {
 
+    public static final String SESSION_COLOR_PREFERENCE_KEY = "collaborationParticipantColor";
+
     private final Map<VenueParticipant, RGB> colors = new HashMap<VenueParticipant, RGB>();
 
-    private static final RGB[] rgbPresets = ColorUtil.getResourceColorPresets();
+    private static final RGB[] rgbPresets;
+
+    static {
+        HierarchicalPreferenceStore prefs = (HierarchicalPreferenceStore) Activator
+                .getDefault().getPreferenceStore();
+        String[] names = prefs.getStringArray(SESSION_COLOR_PREFERENCE_KEY);
+        rgbPresets = new RGB[names.length];
+        int i = 0;
+        for (String name : names) {
+            rgbPresets[i++] = RGBColors.getRGBColor(name);
+        }
+    }
 
     /**
      * Get a map of venue participants to their assigned colors used for
