@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
-import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -76,6 +75,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 04/23/13     #1949      rjpeter     Removed excess validation on retrieval, added 
  *                                     inventory for a given time range.
  * 06/13/13     #2044      randerso    Refactored to use non-singleton LockManager
+ * 07/01/2014   #3149      randerso    Removed unit conversion (unused) 
  * </pre>
  * 
  * @author bphillip
@@ -325,12 +325,7 @@ public class GridParm {
 
         if (!CollectionUtil.isNullOrEmpty(reqTimes)) {
             // Get the data
-            if (getRequest.isConvertUnit() && (db instanceof D2DGridDatabase)) {
-                sr = ((D2DGridDatabase) db).getGridData(id, reqTimes,
-                        getRequest.isConvertUnit());
-            } else {
-                sr = db.getGridData(id, reqTimes);
-            }
+            sr = db.getGridData(id, reqTimes);
             if (!sr.isOkay()) {
                 sr.addMessage("Failure in retrieving grid data from GridDatabase");
                 return sr;
