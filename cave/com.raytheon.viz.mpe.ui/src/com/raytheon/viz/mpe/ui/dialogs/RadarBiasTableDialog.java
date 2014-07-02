@@ -432,7 +432,6 @@ public class RadarBiasTableDialog extends Dialog {
                     try {
                         float parsedFloat = Float.parseFloat(lbiasTxt.getText());
                         editbias[ei] = parsedFloat;
-                        manEdit[ei].setSelection(!mbiasBtn.getSelection());
                         manEdit[ei].setText("YES");
                         lbiasTxt.setBackground(getParent().getDisplay()
                                 .getSystemColor(SWT.COLOR_WHITE));
