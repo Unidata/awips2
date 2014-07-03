@@ -16,5 +16,5 @@ pluginName=grid
 GDFILE=OPCWave181
 
 </resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>

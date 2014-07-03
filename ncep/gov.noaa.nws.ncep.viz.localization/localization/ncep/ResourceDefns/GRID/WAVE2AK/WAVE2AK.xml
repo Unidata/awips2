@@ -16,5 +16,5 @@ pluginName=grid
 GDFILE=AKWAVE239
 
 </resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>
