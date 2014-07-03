@@ -17,5 +17,5 @@ GDFILE=AUTOSPE
 
 </resourceParameters>
 <attrSetOrg>BY_ATTR_SET_GROUP</attrSetOrg>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>

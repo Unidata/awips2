@@ -16,5 +16,5 @@ pluginName=grid
 GDFILE=HPCGuide-AK
 
 </resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>

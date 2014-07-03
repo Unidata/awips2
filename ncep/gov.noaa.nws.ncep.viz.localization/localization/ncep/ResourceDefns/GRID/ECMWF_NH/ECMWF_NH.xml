@@ -16,5 +16,5 @@ pluginName=grid
 GDFILE=ECMWF-HiRes
 
 </resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>

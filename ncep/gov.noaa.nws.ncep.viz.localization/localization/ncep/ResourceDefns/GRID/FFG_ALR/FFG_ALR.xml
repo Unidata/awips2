@@ -16,5 +16,5 @@ pluginName=grid
 GDFILE=FFG-ALR
 
 </resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>

@@ -16,5 +16,5 @@ pluginName=grid
 GDFILE=UKMET38
 
 </resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>

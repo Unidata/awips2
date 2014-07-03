@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="http://www.example.org/productType">
+    <resourceDefnName>Arctic</resourceDefnName>
+    <resourceCategory>SATELLITE</resourceCategory>
+    <rscImplementation>McidasSatellite</rscImplementation>
+    <subTypeGenerator>areaName,resolution</subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <attrSetOrg>DETERMINE_BY_RSC_CATEGORY</attrSetOrg>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+    <resourceParameters>
+legendColor=RGB {200, 200, 200}
+pluginName=mcidas
+satelliteName=NP_COMP
+! mcidas DB table valid values are
+! (GOES12, GOES13, .....)
+! This must match the value in the
+
+</resourceParameters>
+    <inventoryEnabled>true</inventoryEnabled>
+    <addToURICatalog>false</addToURICatalog>
+</ResourceDefinition>

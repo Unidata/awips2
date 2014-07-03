@@ -16,5 +16,5 @@ pluginName=grid
 GDFILE=FFG-TIR
 
 </resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>

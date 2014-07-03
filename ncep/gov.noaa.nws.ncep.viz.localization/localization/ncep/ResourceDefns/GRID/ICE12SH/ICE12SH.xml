@@ -16,5 +16,5 @@ pluginName=grid
 GDFILE=iceSH12
 
 </resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
+    <inventoryEnabled>false</inventoryEnabled>
 </ResourceDefinition>
