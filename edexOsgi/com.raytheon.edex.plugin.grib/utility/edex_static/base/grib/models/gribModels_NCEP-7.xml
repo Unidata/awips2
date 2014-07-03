@@ -1053,7 +1053,7 @@
 	</model>
 
 	<model>
-		<name>GFS230</name>
+		<name>GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>230</grid>
