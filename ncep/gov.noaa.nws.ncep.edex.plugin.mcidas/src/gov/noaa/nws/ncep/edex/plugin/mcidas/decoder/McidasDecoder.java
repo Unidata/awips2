@@ -40,6 +40,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 05/2010      144         L. Lin      Migration to TO11DR11.
  * 11/2011                  T. Lee      Enhanced for ntbn
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * 07/2014         M. James/Unidata     Reset areaId for UNIWISC 
+ * 					GOES 13/15 ranges
  * </pre>
  * 
  * @author tlee
@@ -49,6 +51,10 @@ public class McidasDecoder extends AbstractDecoder {
     final int RADIUS = 6371200;
 
     final int SIZE_OF_AREA = 256;
+    
+    final int GOES_WEST_AREANUM = 1104;
+    
+    final int GOES_EAST_AREANUM = 1103;
 
     final double PI = 3.14159265;
 
@@ -222,7 +228,19 @@ public class McidasDecoder extends AbstractDecoder {
              * Get area file number (AFN)
              */
             int areaId = byteArrayToInt(area, 128, endian);
-
+			/*
+			 * Here we need to account for the ranges of areaIds
+			 * in UNIWISC McIDAS files for GVAR GOES-13/15
+			 * solution is to redefine before querying dao 
+			 */
+            switch (sid) {
+            	case 184:
+            		areaId = GOES_WEST_AREANUM;
+            		break;
+            	case 180:
+            		areaId = GOES_EAST_AREANUM; 
+            		break;
+            }
             /*
              * Get and set the area name from AFN. If area name has a "|", parse
              * the file and the 1st part is the group name for the satellite.
