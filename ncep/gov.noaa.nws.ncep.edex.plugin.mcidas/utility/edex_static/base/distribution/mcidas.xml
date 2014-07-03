@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <requestPatterns xmlns:ns2="group">
-   <regex>^MCIDAS.*</regex> 
+   <regex>^MCIDAS.*</regex>
+   <regex>^pnga2area.*</regex> 
    <regex>.*uniwisc.*</regex>
    <!-- <regex>^MANUAL INGEST.*</regex>  -->
 </requestPatterns>
