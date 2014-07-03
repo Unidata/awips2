@@ -58,7 +58,6 @@
 	</bean>
 
 	<!-- QUERY -->
-	<!-- Define concrete implementation of the service -->
 	<bean id="queryServiceImpl"
 		class="com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl">
 		<property name="federationDao" ref="federationDao" />
@@ -71,7 +70,6 @@
 	</bean>
 
 	<!-- NOTIFICATION LISTENER -->
-	<!-- Define concrete implementation of the service -->
 	<bean id="notificationServiceImpl"
 		class="com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerImpl">
 		<property name="lcm" ref="lcmServiceImpl" />
@@ -82,7 +80,6 @@
 
 
 	<!-- LIFE CYCLE MANAGER -->
-	<!-- Define concrete implementation of the service -->
 	<bean id="lcmServiceImpl"
 		class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl">
 		<property name="queryManager" ref="queryServiceImpl" />
@@ -94,7 +91,6 @@
 	</bean>
 
 	<!-- VALIDATOR -->
-	<!-- Define concrete implementation of the service -->
 	<bean id="validatorServiceImpl"
 		class="com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl">
 		<property name="queryManager" ref="queryServiceImpl" />
@@ -102,35 +98,13 @@
 		<property name="registryObjectTypeValidator" ref="registryObjectTypeValidator" />
 	</bean>
 
-
 	<!-- CATALOGER -->
-	<!-- Define concrete implementation of the service -->
 	<bean id="catalogerServiceImpl"
 		class="com.raytheon.uf.edex.registry.ebxml.services.cataloger.CatalogerImpl">
 		<property name="registryObjectDao" ref="registryObjectDao" />
 	</bean>
 
 	<!-- REST Service Beans -->
-	<bean name="AddRegistryParty"
-		class="com.raytheon.uf.edex.registry.ebxml.web.AddRegistryParty">
-		<property name="partyDao" ref="partyDao" />
-		<property name="lcm" ref="lcmServiceImpl" />
-		<property name="webUtil" ref="RegistryWebUtil" />
-	</bean>
-
-	<bean name="ModifyRegistryParty"
-		class="com.raytheon.uf.edex.registry.ebxml.web.ModifyRegistryParty">
-		<property name="partyDao" ref="partyDao" />
-		<property name="lcm" ref="lcmServiceImpl" />
-		<property name="webUtil" ref="RegistryWebUtil" />
-	</bean>
-
-	<bean name="DeleteRegistryParty"
-		class="com.raytheon.uf.edex.registry.ebxml.web.DeleteRegistryParty">
-		<property name="partyDao" ref="partyDao" />
-		<property name="webUtil" ref="RegistryWebUtil" />
-	</bean>
-
 	<bean id="registryObjectsRestService"
 		class="com.raytheon.uf.edex.registry.ebxml.services.rest.RegistryObjectsRestService">
 		<property name="registryObjectDao" ref="registryObjectDao" />
@@ -145,21 +119,6 @@
 		class="com.raytheon.uf.edex.registry.ebxml.services.rest.QueryProtocolRestService">
 		<property name="queryManager" ref="queryServiceImpl" />
 		<property name="queryDefinitionDao" ref="queryDefinitionDao" />
-	</bean>
-
-	<bean id="RegistryWebUtil" class="com.raytheon.uf.edex.registry.ebxml.web.RegistryWebUtil">
-		<property name="lcm" ref="lcmServiceImpl" />
-		<property name="personDao" ref="personDao" />
-		<property name="classificationNodeDao" ref="classificationNodeDao" />
-	</bean>
-
-	<bean id="RegistryWebAdmin"
-		class="com.raytheon.uf.edex.registry.ebxml.web.RegistryWebAdmin">
-		<property name="partyDao" ref="partyDao" />
-		<property name="classificationNodeDao" ref="classificationNodeDao" />
-		<property name="organizationDao" ref="organizationDao" />
-		<property name="personDao" ref="personDao" />
-		<property name="roleDao" ref="roleDao" />
 	</bean>
 
 	<bean id="AuditableEventService"
