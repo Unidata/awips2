@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="http://www.example.org/productType">
-    <resourceDefnName>FNEXRAD</resourceDefnName>
+    <resourceDefnName>NEXRCOMP</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
     <rscImplementation>GiniSatellite</rscImplementation>
     <subTypeGenerator>sectorID</subTypeGenerator>
