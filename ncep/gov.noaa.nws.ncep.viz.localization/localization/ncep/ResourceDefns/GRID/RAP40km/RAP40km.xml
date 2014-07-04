@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="http://www.example.org/productType">
-    <resourceDefnName>NAM80</resourceDefnName>
+    <resourceDefnName>RAP40km</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
@@ -9,11 +9,11 @@
     <frameSpan>60</frameSpan>
     <timelineGenMethod>USE_CYCLE_TIME_FCST_HOURS</timelineGenMethod>
     <dfltFrameCount>999</dfltFrameCount>
-    <dfltTimeRange>96</dfltTimeRange>
+    <dfltTimeRange>48</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
     <resourceParameters>
 pluginName=grid
-GDFILE=ETA
+GDFILE=RAP40km
 
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>
