@@ -129,7 +129,8 @@ if [[ -z $IGNORE_NUM_CAVES ]]; then
    lookupINI "$@"
    launcherRegex='--launcher.ini\s(.+\.ini)'
    # default to cave.ini
-   targetIni="/awips2/cave/cave.ini"
+   # targetIni="/awips2/cave/cave.ini"
+   targetIni="/awips2/cave/NCP.ini"
    if [[ $CAVE_INI_ARG =~ $launcherRegex ]]
    then
         targetIni="${BASH_REMATCH[1]}"
