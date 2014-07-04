@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="http://www.example.org/productType">
-    <resourceDefnName>Arctic</resourceDefnName>
+    <resourceDefnName>Arctic Composite</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
     <rscImplementation>McidasSatellite</rscImplementation>
     <subTypeGenerator>areaName,resolution</subTypeGenerator>
@@ -15,7 +15,7 @@
     <resourceParameters>
 legendColor=RGB {200, 200, 200}
 pluginName=mcidas
-satelliteName=NP_COMP
+satelliteName=ARCTIC
 ! mcidas DB table valid values are
 ! (GOES12, GOES13, .....)
 ! This must match the value in the
