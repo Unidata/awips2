@@ -483,49 +483,75 @@
                         value="CREATE_RBD">
                   </parameter>
                </command>
-	            <command
-                   commandId="gov.noaa.nws.ncep.ui.pgen.palette"
-                   icon="icons/edit.png"
-                   id="gov.noaa.nws.ncep.ui.actions.productGeneration"
-                   label="Pgen"
-                   mode="FORCE_TEXT"
-                   style="push"
-                   tooltip="Pgen">
-                <visibleWhen>
-	               <reference
-	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-	               </reference>
-	            </visibleWhen>
-	            </command>
+               <command
+                     commandId="gov.noaa.nws.ncep.viz.ui.actions.clearData"
+                     icon="icons/reply-all.png"
+                     id="gov.noaa.nws.ncep.viz.ui.actions.clearData"
+                     label="Clear"
+                     mode="FORCE_TEXT"
+                     style="push"
+                     tooltip="Clear">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="gov.noaa.nws.ncep.viz.tools.pan"
+                     icon="icons/arrows-alt.png"
+                     id="gov.noaa.nws.ncep.viz.tools.pan"
+                     label="Pan"
+                     style="radio"
+                     tooltip="Pan">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="gov.noaa.nws.ncep.viz.tools.zoom"
+                     disabledIcon="icons/search.png"
+                     icon="icons/search-plus.png"
+                     id="gov.noaa.nws.ncep.viz.tools.zoom"
+                     label="Zoom"
+                     style="radio"
+                     tooltip="Zoom">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="gov.noaa.nws.ncep.viz.tools.unzoom"
+                     icon="icons/search-minus.png"
+                     id="gov.noaa.nws.ncep.viz.tools.unzoom"
+                     label="Unzoom"
+                     style="push"
+                     tooltip="Unzoom">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="gov.noaa.nws.ncep.viz.ui.autoUpdate"
+                     icon="icons/check.png"
+                     id="gov.noaa.nws.ncep.viz.ui.autoUpdate"
+                     label="Auto Update"
+                     mode="FORCE_TEXT"
+                     style="toggle"
+                     tooltip="Auto Update">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
  
-              <command
-                    commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
-                    icon="icons/nsharp.png"
-                    id="gov.noaa.nws.ncep.ui.nsharp.palette"
-                    label="Nsharp"
-                    mode="FORCE_TEXT"
-                    style="push"
-                    tooltip="Nsharp">
-                <visibleWhen>
-                   <reference
-                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                   </reference>
-                </visibleWhen>
-             </command>
-             <command
-                   commandId="gov.noaa.nws.ncep.ui.nctextui.palette"
-                   icon="icons/nwx.png"
-                   id="gov.noaa.nws.ncep.ui.nctextui.palette"
-                   label="Nctext"
-                   mode="FORCE_TEXT"
-                   style="push"
-                   tooltip="Nctext">
-                <visibleWhen>
-                   <reference
-                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                   </reference>
-                </visibleWhen>
-             </command>
              
              <!--command
                    commandId="com.raytheon.viz.ui.actions.notImplemented"
@@ -547,73 +573,47 @@
             <toolbar
                   id="NC-2">
                <command
-                     commandId="gov.noaa.nws.ncep.viz.tools.pan"
-                     icon="icons/arrows-alt.png"
-                     id="gov.noaa.nws.ncep.viz.tools.pan"
-                     label="Pan"
-                     style="radio"
-                     tooltip="Pan">
+                     commandId="gov.noaa.nws.ncep.ui.pgen.palette"
+                     icon="icons/edit.png"
+                     id="gov.noaa.nws.ncep.ui.actions.productGeneration"
+                     label="Pgen"
+                     mode="FORCE_TEXT"
+                     style="push"
+                     tooltip="Pgen">
                   <visibleWhen>
                      <reference
                            definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
                      </reference>
                   </visibleWhen>
-               </command>	            
-	            <command
-	               commandId="gov.noaa.nws.ncep.viz.tools.zoom"
-                   id="gov.noaa.nws.ncep.viz.tools.zoom"
-                   icon="icons/search-plus.png"
-                   disabledIcon="icons/search.png"
-                   label="Zoom"
-                   style="radio"
-                   tooltip="Zoom">
-                <visibleWhen>
-	               <reference
-	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-	               </reference>
-	            </visibleWhen>
-	            </command>
-	            <command
-                   commandId="gov.noaa.nws.ncep.viz.tools.unzoom"
-                   id="gov.noaa.nws.ncep.viz.tools.unzoom"
-                   icon="icons/search-minus.png"
-                   label="Unzoom"
-                   style="push"
-                   tooltip="Unzoom">
-                <visibleWhen>
-	               <reference
-	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-	               </reference>
-	            </visibleWhen>
-	            </command>
-             <command
-                   commandId="gov.noaa.nws.ncep.viz.ui.actions.clearData"
-                   icon="icons/reply-all.png"
-                   id="gov.noaa.nws.ncep.viz.ui.actions.clearData"
-                   label="Clear"
-                   mode="FORCE_TEXT"
-                   style="push"
-                   tooltip="Clear">
-                <visibleWhen>
-                   <reference
-                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                   </reference>
-                </visibleWhen>
-             </command>
-             <command
-                   commandId="gov.noaa.nws.ncep.viz.ui.autoUpdate"
-                   icon="icons/refresh.png"
-                   id="gov.noaa.nws.ncep.viz.ui.autoUpdate"
-                   label="Auto Update"
-                   mode="FORCE_TEXT"
-                   style="toggle"
-                   tooltip="Auto Update">
-                <visibleWhen>
-                   <reference
-                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                   </reference>
-                </visibleWhen>
-             </command>
+               </command>
+               <command
+                     commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
+                     icon="icons/nsharp.png"
+                     id="gov.noaa.nws.ncep.ui.nsharp.palette"
+                     label="Nsharp"
+                     mode="FORCE_TEXT"
+                     style="push"
+                     tooltip="Nsharp">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
+               <command
+                     commandId="gov.noaa.nws.ncep.ui.nctextui.palette"
+                     icon="icons/nwx.png"
+                     id="gov.noaa.nws.ncep.ui.nctextui.palette"
+                     label="Nctext"
+                     mode="FORCE_TEXT"
+                     style="push"
+                     tooltip="Nctext">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>
 	        </toolbar>
          </menuContribution>
          <menuContribution
