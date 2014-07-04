@@ -234,7 +234,7 @@
 	</model>
 
 	<model>
-		<name>mesoEta212</name>
+		<name>NAM40km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
@@ -782,7 +782,7 @@
 	</model>
 
 	<model>
-		<name>mesoEta216</name>
+		<name>NAM-AK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>216</grid>
@@ -802,7 +802,7 @@
 	</model>
 
 	<model>
-		<name>ETA218</name>
+		<name>NAM12km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>218</grid>
@@ -1053,7 +1053,7 @@
 	</model>
 
 	<model>
-		<name>GFS</name>
+		<name>GFS230</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>230</grid>
@@ -1304,12 +1304,11 @@
 	</model>
 
 	<model>
-		<name>Aviation</name>
+		<name>RAP20km</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>252</grid>
 		<process>
-			<id>191</id>
 			<id>105</id>
 		</process>
 	</model>
@@ -1658,7 +1657,7 @@
 	</model>
 
 	<model>
-		<name>GFS0.5</name>
+		<name>GFS</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>4</grid>
