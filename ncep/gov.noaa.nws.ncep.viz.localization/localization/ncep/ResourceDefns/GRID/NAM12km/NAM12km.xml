@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ResourceDefinition xmlns:ns2="http://www.example.org/productType">
-    <resourceDefnName>NAM45AK</resourceDefnName>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <inventoryEnabled>true</inventoryEnabled>
+    <resourceDefnName>NAM12km</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
+    <resourceParameters>
+GDFILE=nam12km
+pluginName=grid
+    </resourceParameters>
     <rscImplementation>ModelFcstGridContours</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
@@ -11,10 +16,4 @@
     <dfltFrameCount>999</dfltFrameCount>
     <dfltTimeRange>96</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
-    <resourceParameters>
-pluginName=grid
-GDFILE=mesoEta216
-
-</resourceParameters>
-    <inventoryEnabled>true</inventoryEnabled>
 </ResourceDefinition>

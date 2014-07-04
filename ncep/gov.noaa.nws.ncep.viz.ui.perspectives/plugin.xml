@@ -485,7 +485,6 @@
                </command>
                <command
                      commandId="gov.noaa.nws.ncep.viz.ui.actions.clearData"
-                     icon="icons/reply-all.png"
                      id="gov.noaa.nws.ncep.viz.ui.actions.clearData"
                      label="Clear"
                      mode="FORCE_TEXT"
