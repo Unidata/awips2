@@ -47,6 +47,7 @@ fi
 
 # create the ldm directory
 /bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
+/bin/mkdir -p %{_build_root}/awips2/tools/bin
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -137,6 +138,10 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
+/bin/cp edex %{_build_root}/awips2/tools/bin
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %pre
 if [ -d /tmp/ldm ]; then
@@ -155,8 +160,8 @@ _ldm_dir=/usr/local/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
 _myHost=`echo ${_myHost} | cut -f1 -d'-'`
-sed -i 's/EDEX_HOSTNAME/'$_myHost'/' /usr/local/ldm/etc/ldmd.conf
 pushd . > /dev/null 2>&1
+sed -i 's/EDEX_HOSTNAME/'$_myHost'/' ${_ldm_dir}/etc/ldmd.conf
 cd ${_ldm_dir}/SOURCES
 # unpack the ldm source
 /bin/tar -xf %{_ldm_src_tar} \
@@ -338,5 +343,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /usr/local/ldm/SOURCES/*
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
+%attr(755,root,root) /awips2/tools/bin/edex
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log
