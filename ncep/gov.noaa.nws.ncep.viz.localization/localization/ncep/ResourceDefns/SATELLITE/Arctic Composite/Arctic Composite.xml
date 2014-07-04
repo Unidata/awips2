@@ -6,7 +6,7 @@
     <subTypeGenerator>areaName,resolution</subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
-    <frameSpan>60</frameSpan>
+    <frameSpan>180</frameSpan>
     <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
     <dfltFrameCount>10</dfltFrameCount>
     <dfltTimeRange>48</dfltTimeRange>
