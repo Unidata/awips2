@@ -69,10 +69,10 @@
 <filters>Observed</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="AVNMOS">
-<filters>Forecast,MOS</filters>
+<filters>MOS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ETAMOS">
-<filters>Forecast,MOS</filters>
+<filters>MOS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="FFG">
 <filters></filters>
@@ -81,16 +81,16 @@
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HPCMOS">
-<filters>Forecast,MOS</filters>
+<filters>MOS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSXMOS">
-<filters>Forecast,MOS</filters>
+<filters>MOS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="LAMPMOS">
-<filters>Forecast,MOS</filters>
+<filters>MOS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSMOS">
-<filters>Forecast,MOS</filters>
+<filters>MOS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SHIP">
 <filters>Observed</filters>
@@ -208,7 +208,7 @@
 <filters>SCAT</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ENS_CYC_FCST">
-<filters>Forecast,Hurricane</filters>
+<filters>Hurricane</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ISIG">
 <filters>SigMet</filters>
@@ -244,147 +244,147 @@
 <filters>AWW</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CGM">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <!--
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CMCE_AVGSPR_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CMCE_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CMC_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CMCVER_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CPC_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="DGEX_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECENS_AVGSPR_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECENS_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF_HR_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWFVER_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ENSVER_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOCWAVE_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GDAS_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GEFS_AVGSPR_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GEFS_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSP_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSVER_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSVERP_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GHM_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HPCQPF_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="HPCVER_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HWRF_NT">
-<filters>Forecast,NTRANS</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="HWRF-NT">
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ICEACCR_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="JMAP_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MEDRT_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAEFS_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM20_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM44_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM_NT">
-<filters>Forecast,NTRANS</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-NT">
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAMVER_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAVGEM_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NOGAPS_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NWW3_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NWW3P_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="OPC_ENS_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="OTHER_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAPP_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SREFX_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SST_NT">
 <filters>Analysis,NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMETVER_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="VAFTAD_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>NTRANS</filters>
 </ResourceDefinitionFilter>
 -->
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAMSND">
-<filters>Forecast,MODEL</filters>
+<filters>MODEL</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="AIREP">
 <filters>Observed</filters>
@@ -677,150 +677,161 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GeoPolitical">
 <filters>AdministrativeBoundaries</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="USAK">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="USAK">
 <filters></filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_E">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-NMM-East">
+<filters>Mesoscale</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="ECMWF">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
-
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF">
-<filters>Forecast</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP">
-<filters>Forecast,Regional</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS40US">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-40km">
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CMC">
-<filters>Forecast</filters>
+<filters>CONUS</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GEFS">
-<filters>Forecast,Ensemble,Global</filters>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="GEFS">
+<filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NWW3">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="NWW3">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MOS">
-<filters>Forecast,SBN</filters>
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET">
-<filters>Forecast,Global</filters>
+<filters>Global</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS_AK">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="AK-GFS">
+<filters>Alaska,NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS95US">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-95km">
+<filters>CONUS,NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_W">
-<filters>Forecast</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-NMM-West">
+<filters>Mesoscale</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAMDNG5_AK">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NamDNG5">
+<filters>Alaska,NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="MOS_AK">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="AK-MOS">
+<filters>Alaska,NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_NA">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="UKMET_NA">
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP40km">
-<filters>Forecast,Regional,CONDUIT</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-40km">
+<filters>CONUS,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP20km">
-<filters>Forecast,Regional,CONDUIT</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-20km">
+<filters>CONUS,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_NMM_HI">
-<filters>Forecast</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-13km">
+<filters>CONUS,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM40km">
-<filters>Forecast,Regional,CONDUIT</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Hawaii-WRF-NMM">
+<filters>Hawaii,NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA_AK">
-<filters>Analysis,NSBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-40km">
+<filters>CONUS,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAMDNG5">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-RTMA">
+<filters>Analysis,Alaska,NGRID</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NamDNG5">
+<filters>CONUS,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS">
-<filters>Forecast,Global,CONDUIT</filters>
+<filters>Global,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-AK45km">
-<filters>Forecast,Regional,CONDUIT</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NAM-45km">
+<filters>Alaska,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-AK11km">
-<filters>Forecast,Regional,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NAM-11km">
+<filters>Alaska,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="SREF40">
-<filters>Forecast,SBN</filters>
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS_NH">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-NH">
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_W">
-<filters>Forecast</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-ARW-West">
+<filters>Mesoscale</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOCWAVE">
-<filters>Forecast</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOC-WW3">
+<filters>Ocean,FNMOC</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="ESTOFS_US">
-<filters>Forecast</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOC-FAROP">
+<filters>Ocean,FNMOC</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM90km">
-<filters>Forecast,Regional,CONDUIT</filters>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="ESTOFS">
+<filters>Ocean</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAMNEST_HI">
-<filters>Forecast</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NOGAPS">
-<filters>Forecast,Global</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAVGEM">
+<filters>Global,Ocean,FNMOC</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NDFD">
-<filters>Forecast,CONDUIT</filters>
+<filters>CONUS,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM12km">
-<filters>Forecast,CONDUIT</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-12km">
+<filters>CONUS,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM40km">
-<filters>Forecast,CONDUIT</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-40km">
+<filters>CONUS,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_E">
-<filters>Forecast</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-90km">
+<filters>CONUS,NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="WAVE2AK">
-<filters>Forecast</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-ARW-East">
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="HIRESW_ARW_HI">
-<filters>Forecast</filters>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="WAVE2AK">
+<filters>Ocean</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="Hawaii-WRF-ARW">
+<filters>Hawaii</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="SREF45">
-<filters>Forecast,SBN</filters>
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AVIATION">
-<filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSLAMPTstorm">
+<filters>NGRID</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="LAMP-2p5km">
+<filters>NGRID</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="AVIATION">
+<filters>NGRID</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA-2p5km">
+<filters>Analysis,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA">
-<filters>Analysis,NSBN</filters>
+<filters>Analysis,NGRID</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="Hawaii-RTMA">
+<filters>Analysis,Hawaii,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="SREF2P5">
-<filters>Forecast,SBN</filters>
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="LocalRadar">
-<filters>LocalRadar</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="NIDS">
+<filters>Radar</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="FNEXRAD">
-<filters>Satellite</filters>
+<filters>Radar</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM_00">
-<filters>Forecast,Ensemble</filters>
+<filters>Ensemble</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GEFS_ENS">
-<filters>Forecast,Ensemble,Global</filters>
+<filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS_ENS">
-<filters>Forecast,Ensemble,Global</filters>
+<filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="POES-NPOESS">
 <filters>GINI</filters>
@@ -856,6 +867,6 @@
 <filters>GINI</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="TAF">
-<filters>Forecast,SBN</filters>
+<filters>NGRID</filters>
 </ResourceDefinitionFilter>
 </ResourceDefinitionFilters>
