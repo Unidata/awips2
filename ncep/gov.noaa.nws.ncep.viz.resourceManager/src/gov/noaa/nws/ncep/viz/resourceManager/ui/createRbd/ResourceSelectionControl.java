@@ -340,7 +340,7 @@ public class ResourceSelectionControl extends Composite {
         fd.right = new FormAttachment( addResourceBtn, -10, SWT.LEFT  );
     	can_btn.setLayoutData( fd );
 
-    	
+    	/*
     	replaceResourceBtn = new Button( sel_rsc_comp, SWT.None );
     	fd = new FormData();
     	fd.left = new FormAttachment( 50, 20 );
@@ -351,11 +351,12 @@ public class ResourceSelectionControl extends Composite {
     	// both for now unless we change it to be one or the other
 //    	addResourceBtn.setVisible(  !replaceBtnVisible );
     	replaceResourceBtn.setVisible( replaceBtnVisible );
+    	*/
     	
     	addToAllPanesBtn = new Button( sel_rsc_comp, SWT.CHECK );
     	fd = new FormData();
     	fd.left = new FormAttachment( seldRscNameTxt, 40, SWT.RIGHT );
-    	fd.top  = new FormAttachment( replaceResourceBtn, 0, SWT.TOP );
+    	fd.top  = new FormAttachment( addResourceBtn, 0, SWT.TOP );
     	addToAllPanesBtn.setLayoutData( fd );
     	addToAllPanesBtn.setText( "Add To All Panes" ); 
 
@@ -365,18 +366,23 @@ public class ResourceSelectionControl extends Composite {
     	cycleTimeCombo = new Combo( sel_rsc_comp, SWT.READ_ONLY );
     	fd = new FormData();
 //    	fd.left = new FormAttachment( addResourceBtn, 30, SWT.RIGHT );
-    	fd.left = new FormAttachment( 80, 0 );
-    	fd.right = new FormAttachment( 100, -20 );
+    	//fd.left = new FormAttachment( 55, 0 );
+        fd.right = new FormAttachment( can_btn, -10, SWT.LEFT  );
+        fd.width = 130;
+        fd.top  = new FormAttachment( seldRscNameTxt, 0, SWT.TOP );
+    	//fd.right = new FormAttachment( 100, -20 );
     	//fd.bottom  = new FormAttachment( 100, -10 );
-    	fd.top  = new FormAttachment( seldRscNameTxt, 0, SWT.TOP );
     	
     	cycleTimeCombo.setLayoutData( fd );
     	
        	cycleTimeLbl = new Label( sel_rsc_comp, SWT.None );
        	cycleTimeLbl.setText("Cycle Time");
        	fd = new FormData();
-    	fd.left = new FormAttachment( cycleTimeCombo, 0, SWT.LEFT );
-    	fd.bottom = new FormAttachment( cycleTimeCombo, -3, SWT.TOP );
+    	//fd.left = new FormAttachment( cycleTimeCombo, 0, SWT.LEFT );
+        fd.right = new FormAttachment( cycleTimeCombo, -10, SWT.LEFT  );
+        //fd.top  = new FormAttachment( seldRscNameTxt, 0, SWT.TOP );
+
+    	fd.bottom = new FormAttachment( cycleTimeCombo, -5, SWT.BOTTOM );
     	cycleTimeLbl.setLayoutData( fd );
     }
 
@@ -759,11 +765,14 @@ public class ResourceSelectionControl extends Composite {
         });
        	
        	// TODO : do we want replace to pop down the dialog? 
+       	/*
        	replaceResourceBtn.addSelectionListener( new SelectionAdapter() {
+       	 
         	public void widgetSelected( SelectionEvent ev ) {
         		selectResource( true, false );
         	}
        	});
+       	*/
 
        	// a double click will add the resource and close the dialog
        	rscAttrSetLViewer.getList().addListener(SWT.MouseDoubleClick, new Listener() {
@@ -1076,7 +1085,7 @@ public class ResourceSelectionControl extends Composite {
 		if( enableSelections ) {
 			
 			addResourceBtn.setEnabled( true );	
-			replaceResourceBtn.setEnabled( replaceBtnEnabled );	
+			//replaceResourceBtn.setEnabled( replaceBtnEnabled );	
 
 			if( rscDefn.isForecast() ) {
 
@@ -1110,7 +1119,7 @@ public class ResourceSelectionControl extends Composite {
 			if( seldResourceName.isLatestCycleTime() ) {
 				
 				addResourceBtn.setEnabled( false );	
-				replaceResourceBtn.setEnabled( false );	
+				//replaceResourceBtn.setEnabled( false );	
 				seldRscNameTxt.setText( "" );				
 			}
 			else {			
@@ -1120,7 +1129,7 @@ public class ResourceSelectionControl extends Composite {
 		else {
 			seldRscNameTxt.setText( "" );
 			addResourceBtn.setEnabled( false );	
-			replaceResourceBtn.setEnabled( false );	
+			//replaceResourceBtn.setEnabled( false );	
 
 			availDataTimeLbl.setVisible( true );
 			availDataTimeLbl.setText( availMsg );

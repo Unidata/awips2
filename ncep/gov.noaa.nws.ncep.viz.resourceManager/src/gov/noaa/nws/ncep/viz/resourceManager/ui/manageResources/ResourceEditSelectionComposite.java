@@ -261,7 +261,8 @@ public class ResourceEditSelectionComposite extends Composite {
     	
     	
     	// first create the lists and then attach the label to the top of them
-        rscGroupLViewer = new ListViewer( sel_rsc_comp, 
+        
+    	rscGroupLViewer = new ListViewer( sel_rsc_comp, 
         		                SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     	fd = new FormData(); //150, rscListViewerHeight);
     	fd.top = new FormAttachment( rscTypeLViewer.getList(), 0, SWT.TOP );
