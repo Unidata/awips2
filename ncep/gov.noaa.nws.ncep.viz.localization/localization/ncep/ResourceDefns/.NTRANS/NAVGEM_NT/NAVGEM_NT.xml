@@ -5,7 +5,7 @@
     <resourceCategory>NTRANS</resourceCategory>
 	<resourceParameters>
 pluginName=ntrans
-modelName=navgem
+modelName=NAVGEM
 	</resourceParameters>
     <rscImplementation>NTRANS</rscImplementation>
     <subTypeGenerator>metafileName,productName</subTypeGenerator>
