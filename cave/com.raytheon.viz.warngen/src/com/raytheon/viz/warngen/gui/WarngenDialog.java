@@ -154,6 +154,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Oct 01, 2013 DR16612 m.gamazaychikov Fixed inconsistencies with track locking and updateListSelected method
  *  Oct 29, 2013 DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the polygon the be used.
  *  Apr 28, 2014    3033     jsanchez    Re-initialized the Velocity Engine when switching back up sites.
+ *  Jul 01, 2014 DR 17450    D. Friedman Use list of templates from backup site.
  * </pre>
  * 
  * @author chammack
@@ -482,30 +483,39 @@ public class WarngenDialog extends CaveSWTDialog implements
      * @param productType2
      */
     private void createOtherProductsList(Group productType2) {
-        other = new Button(productType, SWT.RADIO);
-        other.setText("Other:");
-        other.setEnabled(true);
-        other.addSelectionListener(new SelectionAdapter() {
+        if (other == null) {
+            other = new Button(productType, SWT.RADIO);
+            other.setText("Other:");
+            other.setEnabled(true);
+            other.addSelectionListener(new SelectionAdapter() {
 
-            @Override
-            public void widgetSelected(SelectionEvent arg0) {
-                otherSelected();
+                @Override
+                public void widgetSelected(SelectionEvent arg0) {
+                    otherSelected();
+                }
+
+            });
+
+            otherProductListCbo = new Combo(productType, SWT.READ_ONLY
+                    | SWT.DROP_DOWN);
+            GridData gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+            otherProductListCbo.setLayoutData(gd);
+            otherProductListCbo.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent arg0) {
+                    otherProductSelected();
+                }
+
+            });
+        } else {
+            other.setSelection(false);
+            if (mainProductBtns.length > 0 && mainProductBtns.length > 0) {
+                other.moveBelow(mainProductBtns[mainProductBtns.length - 1]);
             }
+            otherProductListCbo.moveBelow(other);
+        }
 
-        });
-
-        otherProductListCbo = new Combo(productType, SWT.READ_ONLY
-                | SWT.DROP_DOWN);
-        GridData gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        otherProductListCbo.setLayoutData(gd);
         updateOtherProductList(otherProductListCbo);
-        otherProductListCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent arg0) {
-                otherProductSelected();
-            }
-
-        });
     }
 
     private void createMainProductButtons(Group productType) {
@@ -517,12 +527,13 @@ public class WarngenDialog extends CaveSWTDialog implements
             mainProducts.add(str);
         }
 
-        String defaultTemplate = warngenLayer.getDialogConfig()
-                .getDefaultTemplate();
-        if ((defaultTemplate == null) || defaultTemplate.equals("")) {
-            defaultTemplate = mainProducts.get(0).split("/")[1];
-        }
+        String defaultTemplate = getDefaultTemplate();
 
+        if (mainProductBtns != null) {
+            for (Button button : mainProductBtns) {
+                button.dispose();
+            }
+        }
         mainProductBtns = new Button[mainProducts.size()];
 
         if (mainProducts.size() > 0) {
@@ -538,24 +549,28 @@ public class WarngenDialog extends CaveSWTDialog implements
             mainProductBtns[0].addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    changeTemplate(mainProducts.get(0).split("/")[1]);
+                    uiChangeTemplate(mainProducts.get(0).split("/")[1]);
                 }
             });
         }
 
         GridData gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.horizontalIndent = 30;
-        updateListCbo = new Combo(productType, SWT.READ_ONLY | SWT.DROP_DOWN);
-        updateListCbo.setLayoutData(gd);
-        recreateUpdates();
+        if (updateListCbo == null) {
+            gd.horizontalIndent = 30;
+            updateListCbo = new Combo(productType, SWT.READ_ONLY | SWT.DROP_DOWN);
+            updateListCbo.setLayoutData(gd);
+            recreateUpdates();
 
-        updateListCbo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent arg0) {
-                updateListSelected();
-            }
+            updateListCbo.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent arg0) {
+                    updateListSelected();
+                }
 
-        });
+            });
+        } else if (mainProductBtns.length > 0) {
+            updateListCbo.moveBelow(mainProductBtns[0]);
+        }
 
         for (int cnt = 1; cnt < mainProducts.size(); cnt++) {
             final String[] tmp = mainProducts.get(cnt).split("/");
@@ -584,7 +599,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                             }
                         }
 
-                        changeTemplate(templateName);
+                        uiChangeTemplate(templateName);
                     }
                 }
             });
@@ -681,7 +696,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         backupGroup.setLayout(new GridLayout(2, false));
 
         Label label2 = new Label(backupGroup, SWT.BOLD);
-        label2.setText("Full:");
+        label2.setText("WFO:");
         label2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         backupSiteCbo = new Combo(backupGroup, SWT.READ_ONLY | SWT.DROP_DOWN);
         backupSiteCbo.addSelectionListener(new SelectionAdapter() {
@@ -1320,9 +1335,28 @@ public class WarngenDialog extends CaveSWTDialog implements
             } else {
                 new TemplateRunnerInitJob(backupSite).schedule();
             }
-            // Refresh template
-            changeTemplate(warngenLayer.getTemplateName());
-            resetPressed();
+
+            /*
+             * When the product selection buttons are recreated below, the
+             * button for the default template will be selected and mainProducts
+             * will have been recreated. Then getDefaultTemplate() can be used
+             * here to change the state.
+             */
+            createMainProductButtons(productType);
+            createOtherProductsList(productType);
+
+            //  Don't let errors prevent the new controls from being displayed!
+            try {
+                changeTemplate(getDefaultTemplate());
+                resetPressed();
+            } catch (Exception e) {
+                statusHandler
+                        .error("Error occurred while switching to the default template.",
+                                e);
+            }
+
+            productType.layout(true, true);
+            getShell().pack(true);
         }
 
         if (backupSiteCbo.getSelectionIndex() == 0) {
@@ -1483,6 +1517,19 @@ public class WarngenDialog extends CaveSWTDialog implements
         return result;
     }
 
+    /** Called by controls that can change the current template.  Do not
+     * do anything if the request template is already selected.  This
+     * check is necessary to prevent certain state being reset if
+     * a followup has been selected as this is not handled by
+     * changeTemplate() (DR 14515.)
+     */
+    private void uiChangeTemplate(String templateName) {
+        if (templateName.equals(warngenLayer.getTemplateName())) {
+            return;
+        }
+        changeTemplate(templateName);
+    }
+
     /**
      * This method updates the Warngen Layer and Warngen Dialog based on a new
      * template selection. This method should also be called when the CWA is
@@ -1494,11 +1541,6 @@ public class WarngenDialog extends CaveSWTDialog implements
      *            - The button that has been clicked
      */
     private void changeTemplate(String templateName) {
-
-        // DR 14515
-        if (templateName.equals(warngenLayer.getTemplateName())) {
-            return;
-        }
 
         String lastAreaSource = warngenLayer.getConfiguration()
                 .getHatchedAreaSource().getAreaSource();
@@ -1634,6 +1676,7 @@ public class WarngenDialog extends CaveSWTDialog implements
         otherProducts = new HashMap<String, String>();
         String[] otherProductsStr = warngenLayer.getDialogConfig()
                 .getOtherWarngenProducts().split(",");
+        theList.removeAll();
         for (String str : otherProductsStr) {
             String[] s = str.split("/");
             otherProducts.put(s[0], s[1]);
@@ -1784,7 +1827,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             templateName = otherProducts.get(otherProductListCbo
                     .getItem(otherProductListCbo.getSelectionIndex()));
         }
-        changeTemplate(templateName);
+        uiChangeTemplate(templateName);
         otherProductListCbo.pack(true);
         productType.layout();
 
@@ -2251,7 +2294,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             templateName = otherProducts.get(otherProductListCbo
                     .getItem(otherProductListCbo.getSelectionIndex()));
         }
-        changeTemplate(templateName);
+        uiChangeTemplate(templateName);
     }
 
     private void refreshDisplay() {
@@ -2501,6 +2544,15 @@ public class WarngenDialog extends CaveSWTDialog implements
         warngenLayer.setBoxEditable(layerEditable && boxEditable
                 && !polygonLocked);
         warngenLayer.issueRefresh();
+    }
+
+    private String getDefaultTemplate() {
+        String defaultTemplate = warngenLayer.getDialogConfig()
+                .getDefaultTemplate();
+        if ((defaultTemplate == null) || defaultTemplate.equals("")) {
+            defaultTemplate = mainProducts.get(0).split("/")[1];
+        }
+        return defaultTemplate;
     }
 
 }
