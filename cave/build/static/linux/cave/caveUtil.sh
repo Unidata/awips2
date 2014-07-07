@@ -33,6 +33,7 @@
 #
 # Mar 13  2014  #15348    kjohnson    added function to remove logs
 # Jun 20, 2014  #3245     bclement    forEachRunningCave now accounts for child processes
+# Jul 02, 2014  #3245     bclement    account for memory override in vm arguments
 
 
 source /awips2/cave/iniLookup.sh
@@ -145,11 +146,11 @@ function forEachRunningCave()
        if [[ -z $children ]]
        then
            # no children, assume that this is a main cave process
-           "$@" $(ps --no-header -fp $parent)
+           "$@" "$(ps --no-header -fp $parent)"
        else
            for child in $children
            do
-               "$@" $(ps --no-header -fp $child)
+               "$@" "$(ps --no-header -fp $child)"
            done
        fi
    done
@@ -186,6 +187,14 @@ function readMemFromIni()
             break
         fi
     done < "$inifile"
+    convertMemToBytes $mem $unit
+}
+
+# takes in integer amount and string units (K|M|G), echos the amount converted to bytes
+function convertMemToBytes()
+{
+    local mem=$1
+    local unit=$2
     # convert to bytes
     case "$unit" in
         [kK]) 
@@ -213,14 +222,22 @@ function addMemOfCave()
 {
     local inifile
     # get ini file from process string
-    local regex='--launcher.ini\s(.+\.ini)'
-    if [[ $1 =~ $regex ]]
+    local iniRegex='--launcher.ini\s(.+\.ini)'
+    local xmxRegex='-Xmx([0-9]*)([^\s]*)'
+    if [[ $1 =~ $xmxRegex ]]
     then
-        inifile="${BASH_REMATCH[1]}"
+       local mem="${BASH_REMATCH[1]}"
+       local unit="${BASH_REMATCH[2]}"
+       let "_totalRunningMem+=$(convertMemToBytes $mem $unit)"
     else
-        inifile="/awips2/cave/cave.ini"
+       if [[ $1 =~ $iniRegex ]]
+       then
+          inifile="${BASH_REMATCH[1]}"
+       else
+          inifile="/awips2/cave/cave.ini"
+       fi
+       let "_totalRunningMem+=$(readMemFromIni "$inifile")"
     fi
-    let "_totalRunningMem+=$(readMemFromIni "$inifile")"
 }
 
 # finds total max memory of running caves in bytes and places it in _totalRunningMem
