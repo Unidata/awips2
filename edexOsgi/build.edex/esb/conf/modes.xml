@@ -78,8 +78,8 @@
 		<!-- end of ncep excludes -->
 	</mode>
 	<mode name="ingest">
-        <exclude>mpeLightningSrv-ingest.xml</exclude>
-        <exclude>rpgenvdata-spring.xml</exclude>
+        	<exclude>mpeLightningSrv-ingest.xml</exclude>
+        	<exclude>rpgenvdata-spring.xml</exclude>
 		<exclude>webservices.xml</exclude>
 		<exclude>ebxml.*\.xml</exclude>
 		<exclude>.*request.*</exclude>
@@ -89,7 +89,13 @@
 		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
 		<exclude>ldad.*</exclude>
+		<exclude>bufrquikscat.*</exclude>
 		<exclude>mosaic.*</exclude>
+		<exclude>viirs.*</exclude>
+		<exclude>satellite.mcidas.*</exclude>
+		<exclude>geomag.*</exclude>
+		<exclude>solarimage.*</exclude>
+		<exclude>q2.*</exclude>
 		<exclude>DPADecoder.*</exclude>
 		<exclude>hpeDHRDecoder.*</exclude>
 		<includeMode>excludeDpaAndOgc</includeMode>
@@ -103,7 +109,7 @@
 		<exclude>nctaf-ingest.xml</exclude>
 		<exclude>nctext-ingest.xml</exclude>
 		<exclude>ncuair-ingest.xml</exclude>
-        <exclude>ntrans-ingest.xml</exclude>
+        	<exclude>ntrans-ingest.xml</exclude>
 		<!-- end of ncep excludes -->
 	 	<!-- exclude DAT -->
 		<exclude>ffmp-ingest.xml</exclude>
@@ -115,7 +121,7 @@
 		<exclude>qpf-ingest.xml</exclude>
 		<exclude>fssobs-ingest.xml</exclude>
 		<exclude>cpgsrv-spring.xml</exclude>
-        <exclude>.*sbn-simulator.*</exclude>
+        	<exclude>.*sbn-simulator.*</exclude>
 	</mode>
     <mode name="ingestHydro">
     	<include>distribution-spring.xml</include>
@@ -194,15 +200,15 @@
 		<include>persist-ingest.xml</include>
 		<include>management-common.xml</include>
 	 	<include>database-common.xml</include>
-        <include>event-ingest.xml</include>
+        	<include>event-ingest.xml</include>
 		<!-- ncep excludes until tested -->
 		<exclude>ncep-util-on-edex-ingestGrib</exclude>
 		<exclude>h5uair-ingest.xml</exclude>
 		<exclude>h5uair-common.xml</exclude>
 		<exclude>h5scd-ingest.xml</exclude>
 		<!-- end of ncep excludes -->
-        <includeMode>statsTemplate</includeMode>
-        <includeMode>excludeDpaAndOgc</includeMode>
+        	<includeMode>statsTemplate</includeMode>
+        	<includeMode>excludeDpaAndOgc</includeMode>
 	</mode>
 	<!-- Runs separate now, not just high mem -->
 	<mode name="ingestDat">
@@ -237,7 +243,7 @@
 		<include>shef-common.xml</include>
 		<include>satellite-common.xml</include>
 		<include>satellite-dataplugin-common.xml</include>
-        <include>ohd-common-database.xml</include>
+        	<include>ohd-common-database.xml</include>
 		<include>ohd-common.xml</include>
 		<include>management-common.xml</include>
 		<include>auth-common.xml</include>
@@ -248,10 +254,10 @@
 		<include>manualIngest-common.xml</include>
 		<include>dataaccess-common.xml</include>
 		<exclude>nctext-common.xml</exclude>
-        <includeMode>excludeDpaAndOgc</includeMode>
-        <includeMode>statsTemplate</includeMode>
+        	<includeMode>excludeDpaAndOgc</includeMode>
+        	<includeMode>statsTemplate</includeMode>
 	</mode>
-	<mode name="registry">
+    <mode name="registry">
         <!-- Registry production mode -->
         <include>ebxml.*\.xml</include>
         <includeMode>dataDeliveryTemplate</includeMode>
@@ -261,7 +267,7 @@
         <exclude>.*datadelivery.*-monolithic.*</exclude>
         <exclude>harvester-*</exclude>
         <exclude>crawler-*</exclude>
-	</mode>
+    </mode>
     <mode name="centralRegistry">
         <!-- Central Registry production mode -->
         <include>ebxml.*\.xml</include>
