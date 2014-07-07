@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Lightning Plug-in
 Bundle-SymbolicName: com.raytheon.viz.lightning;singleton:=true
-Bundle-Version: 1.14.0
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: Raytheon
 Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.0.0",
  com.raytheon.viz.core,
