@@ -34,13 +34,13 @@
     <Method name="Alias" models="MSAS" levels="Surface" displayName="NWS MSLP">
         <Field abbreviation="MSLP" level="MSL"/>
     </Method>
-    <Method name="Alias" models="ETA mesoEta212 mesoEta215 ETA218 ETA242 ETA207" levels="Surface" displayName="ETA Model MSLP">
+    <Method name="Alias" models="ETA NAM-40km mesoEta215 NAM-12km ETA242 ETA207" levels="Surface" displayName="ETA Model MSLP">
         <Field abbreviation="EMSP" level="Surface"/>
     </Method>
-    <Method name="Alias" models="HiResW-ARW-East HiResW-ARW-West HiResW-ARW-AK HiResW-ARW-PR HiResW-ARW-SJU" levels="Surface" displayName="ETA Model MSLP">
+    <Method name="Alias" models="WRF--ARW-East WRF--ARW-West WRF--ARW-AK WRF--ARW-PR WRF--ARW-SJU" levels="Surface" displayName="ETA Model MSLP">
         <Field abbreviation="EMSP" level="MSL"/>
     </Method>
-    <Method name="Alias" models="HiResW-NMM-East HiResW-NMM-West HiResW-NMM-AK HiResW-NMM-PR HiResW-NMM-SJU" levels="Surface" displayName="ETA Model MSLP">
+    <Method name="Alias" models="WRF--NMM-East WRF--NMM-West WRF--NMM-AK WRF--NMM-PR WRF--NMM-SJU" levels="Surface" displayName="ETA Model MSLP">
         <Field abbreviation="EMSP" level="MSL"/>
     </Method>
     <Method name="Alias" levels="Surface">

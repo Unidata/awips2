@@ -19,7 +19,7 @@
         further_licensing_information.
     -->
 <subGridDef>
-   <modelNames>mesoEta212 mesoEta215 ETA212</modelNames>
+   <modelNames>NAM-40km mesoEta215 ETA212</modelNames>
    <referenceGrid>215</referenceGrid>
    <nx>175</nx>
    <ny>173</ny>

@@ -6,10 +6,10 @@
 	climoPWimp |0| |Import NARR PW     |mm         |CONTOUR,IMAGE,OTHER|Layer |       *Import,Layer,GFS212|PW,Layer,NARR|       
 																					  *Import,Layer,GFS213|PW,Layer,NARR|       
 																					  *Import,Layer,RUC|PW,Layer,NARR|       
-																					  *Import,Layer,RUC130|PW,Layer,NARR|       
-																					  *Import,Layer,RUC236|PW,Layer,NARR|       
-																					  *Import,Layer,ETA212|PW,Layer,NARR|       
-																					  *Import,Layer,ETA218|PW,Layer,NARR|       
+																					  *Import,Layer,RAP-13km|PW,Layer,NARR|       
+																					  *Import,Layer,RAP-40km|PW,Layer,NARR|       
+																					  *Import,Layer,NAM-40km|PW,Layer,NARR|       
+																					  *Import,Layer,NAM-12km|PW,Layer,NARR|       
 																					  *Import,Layer,ETA|PW,Layer,NARR
 
 	varId: |climoPWimp| 
@@ -31,16 +31,16 @@
 	functionName, planeList, source: |Import,Layer,RUC|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,RUC130|
+	functionName, planeList, source: |Import,Layer,RAP-13km|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,RUC236|
+	functionName, planeList, source: |Import,Layer,RAP-40km|
 	varId, plane, source: |PW,Layer,NARR| 
 	
 	functionName, planeList, source: |Import,Layer,ETA212|
 	varId, plane, source: |PW,Layer,NARR| 
 	
-	functionName, planeList, source: |Import,Layer,ETA218|
+	functionName, planeList, source: |Import,Layer,NAM-12km|
 	varId, plane, source: |PW,Layer,NARR| 
 	
 	functionName, planeList, source: |Import,Layer,ETA|
@@ -59,16 +59,16 @@
     <Method models="RUC" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="RUC130" levels="Layer" name="Import">
+    <Method models="RAP-13km" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="RUC236" levels="Layer" name="Import">
+    <Method models="RAP-40km" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
     <Method models="ETA212" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
-    <Method models="ETA218" levels="Layer" name="Import">
+    <Method models="NAM-12km" levels="Layer" name="Import">
         <Field model="NARR" level="Layer" abbreviation="PW"/>
     </Method>
     <Method models="ETA" levels="Layer" name="Import">

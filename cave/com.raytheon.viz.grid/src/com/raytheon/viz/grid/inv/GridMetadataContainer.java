@@ -137,7 +137,7 @@ public class GridMetadataContainer extends MetadataContainer {
     /**
      * Takes the list of constraintMaps and merges the constraint maps that
      * different by only one key into a new list of constraint maps. EX: 5
-     * RequestConstraint Maps for GFS40 Temp on 5 MB levels will be consolidated
+     * RequestConstraint Maps for GFS-40km Temp on 5 MB levels will be consolidated
      * into a single RequestConstraint Map using an IN List for the MB levels.
      * 
      * @param constraintMaps

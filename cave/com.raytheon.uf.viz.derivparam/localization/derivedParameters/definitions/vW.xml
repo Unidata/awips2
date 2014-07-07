@@ -55,7 +55,7 @@
     <Method levels="Surface" name="Alias">
         <Field level="BLyr" abbreviation="vW"/>
     </Method>
-    <Method models="mesoEta212" levels="Surface" name="Import">
+    <Method models="NAM-40km" levels="Surface" name="Import">
         <Field level="10FHAG" model="mesoEta215" abbreviation="vW"/>
     </Method>
     <Method levels="925MB" name="Average">

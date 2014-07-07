@@ -48,7 +48,7 @@
         <Field level="950MB" abbreviation="RH"/>
         <Field level="900MB" abbreviation="RH"/>
     </Method>
-    <Method models="mesoEta212" levels="2FHAG" name="Import">
+    <Method models="NAM-40km" levels="2FHAG" name="Import">
         <Field level="2FHAG" model="mesoEta215" abbreviation="RH"/>
     </Method>
     <Method levels="S,TEMP,TILT" name="Slice">

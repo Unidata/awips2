@@ -36,7 +36,7 @@
 				<constraint constraintValue="grid"/>
 			</mapping>
 			<mapping key="info.datasetId">
-                <constraint constraintValue="RUC236"/>
+                <constraint constraintValue="RAP-40km"/>
             </mapping>
         </constraints>
 	</source>
