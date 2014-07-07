@@ -38,6 +38,7 @@ PG_FILE=$DATA_PATH'pg_hba.conf'
 EDEX_ENV_FILE=$EDEX_PATH'bin/setup.env'
 PY_FILE=$AWIPS_HOME'httpd_pypies/etc/httpd/conf/httpd.conf'
 EDEX_CAMEL=/etc/init.d/edex_camel
+LDMD_CONF=/usr/local/ldm/etc/ldmd.conf
 
 # valid options
 options=( 'status' 'start' 'stop' 'log' 'setup' 'test' )
@@ -56,9 +57,9 @@ IP=`ifconfig | grep "inet addr" | grep -v 127.0.0 | grep -v 192.168 | awk '{ pri
 # truncate
 IP_CIDR="${IP%.*}"
 
-editFiles=($PG_FILE $EDEX_ENV_FILE $PY_FILE $EDEX_CAMEL)
-boolFiles=(true true true true)
-editFuncs=(edit_pg edit_edex edit_py edit_camel )
+editFiles=($PG_FILE $EDEX_ENV_FILE $LDMD_CONF $PY_FILE $EDEX_CAMEL)
+boolFiles=(true true true true true)
+editFuncs=(edit_pg edit_edex edit_ldm edit_py edit_camel )
 
 YMD=`date '+%Y%m%d'`
 
@@ -175,6 +176,10 @@ edit_pg() { # edex pg_hba.conf
 	sed -i.setup_$YMD 's/'$schStr'/'$subStr'/g' $PG_FILE
 	echo '[edit] '$subStr' added to '$iPG_FILE
 	echo '       File backed up to '$PG_FILE'.setup_'$YMD
+}
+
+edit_ldm() {
+	sed -i.setup_$YMD 's/EDEX_HOSTNAME/'$HOSTNAME'/g' $LDMD_CONF
 }
 
 edit_edex() { # setup.env automatic edit
