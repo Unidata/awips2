@@ -2,12 +2,18 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Lightning Plug-in
 Bundle-SymbolicName: com.raytheon.viz.lightning;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: Raytheon
 Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.0.0",
  com.raytheon.viz.core,
- com.raytheon.viz.ui
+ com.raytheon.viz.ui,
+ com.raytheon.viz.grid;bundle-version="1.14.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ com.raytheon.uf.common.colormap;bundle-version="1.14.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.lightning
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.raytheon.uf.viz.productbrowser
+Import-Package: com.raytheon.uf.common.numeric.buffer,
+ com.raytheon.uf.common.numeric.filter,
+ com.raytheon.uf.common.numeric.source,
+ com.raytheon.uf.viz.productbrowser
