@@ -229,6 +229,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ldm"
       return 0
    fi
+   if [ "${1}" = "awips2-edex-upc" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.upc"
+      return 0
+   fi
    if [ "${1}" = "awips2-postgres" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.postgres"
       return 0

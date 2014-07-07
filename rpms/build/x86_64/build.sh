@@ -489,6 +489,12 @@ if [ "${1}" = "-ldm" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-upc" ]; then
+   buildRPM "awips2-edex-upc"
+
+   exit 0
+fi
+
 if [ "${1}" = "-package" ]; then
    repository_directory="awips2-repository-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
    if [ -d ${WORKSPACE}/${repository_directory} ]; then
