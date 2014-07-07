@@ -88,8 +88,9 @@
 		<exclude>grid-staticdata-process.xml</exclude>
 		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
-		<exclude>ldad.*</exclude>
+		<exclude>aww-ingest.xml</exclude>
 		<exclude>bufrquikscat.*</exclude>
+		<exclude>ldad.*</exclude>
 		<exclude>mosaic.*</exclude>
 		<exclude>viirs.*</exclude>
 		<exclude>satellite.mcidas.*</exclude>
@@ -101,7 +102,6 @@
 		<includeMode>excludeDpaAndOgc</includeMode>
 		<exclude>obs-ingest-metarshef.xml</exclude>
 		<!-- ncep excludes until tested -->
-		<exclude>aww-ingest.xml</exclude>
 		<exclude>ncep-util-on-edex-ingest</exclude>
 		<exclude>ncep-util-on-edex-ingestGrib</exclude>
 		<exclude>ncscd-ingest.xml</exclude>
@@ -113,6 +113,8 @@
 		<!-- end of ncep excludes -->
 	 	<!-- exclude DAT -->
 		<exclude>ffmp-ingest.xml</exclude>
+		<exclude>modelsounding-ingest.xml</exclude>
+		<exclude>regionalsat.*</exclude>
 		<exclude>scan-ingest.xml</exclude>
 		<exclude>cwat-ingest.xml</exclude>
 		<exclude>fog-ingest.xml</exclude>
@@ -120,6 +122,17 @@
 		<exclude>preciprate-ingest.xml</exclude>
 		<exclude>qpf-ingest.xml</exclude>
 		<exclude>fssobs-ingest.xml</exclude>
+		<exclude>geomag.*</exclude>
+		<exclude>gpd.*</exclude>
+		<exclude>idft.*</exclude>
+		<exclude>madis.*</exclude>
+		<exclude>preciprate.*</exclude>
+		<exclude>qc.*</exclude>
+		<exclude>ssha.*</exclude>
+		<exclude>svrwx.*</exclude>
+		<exclude>stormtrack.*</exclude>
+		<exclude>sgwh.*</exclude>
+		<exclude>solarimage.*</exclude>
 		<exclude>cpgsrv-spring.xml</exclude>
         	<exclude>.*sbn-simulator.*</exclude>
 	</mode>
