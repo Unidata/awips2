@@ -279,14 +279,18 @@
 		     <param name="feature"
 		          value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
+		<antcall target="p2.build.repo">
+		             <param name="feature"
+		                  value="com.raytheon.uf.viz.useradmin.feature" />
+		</antcall>
         <antcall target="p2.build.repo">
              <param name="feature"
-                  value="com.raytheon.uf.viz.datadelivery.feature" />
+                  value="com.raytheon.uf.viz.registry.feature" />
         </antcall>
         <antcall target="p2.build.repo">
              <param name="feature"
-                  value="com.raytheon.uf.viz.useradmin.feature" />
-        </antcall>		
+                  value="com.raytheon.uf.viz.datadelivery.feature" />
+        </antcall>        	
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.npp.feature" />
