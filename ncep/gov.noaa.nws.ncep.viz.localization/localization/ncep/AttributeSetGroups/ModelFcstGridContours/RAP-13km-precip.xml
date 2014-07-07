@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
-    <resource>RAP-13km</resource>
-    <attrSetGroupName>precip</attrSetGroupName>
-    <attrSetNames>precip_1hr,precip_1hr_mm,precip_3hr,precip_3hr_emsl</attrSetNames>
-</AttributeSetGroup>
