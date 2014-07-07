@@ -52,15 +52,12 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetDiscreteDefinitionRequest"/>
         <constructor-arg ref="discreteDefinitionHandler"/>
     </bean>
-    <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler"/>
+    <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler">
+        <property name="byteLimitInMB" value="${thriftService.byteLimitInMB}" />
+    </bean>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetGridDataRequest"/>
         <constructor-arg ref="gridDataHandler"/>
-    </bean>
-    <bean id="pythonGridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetPythonGridDataHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetPythonGridDataRequest"/>
-        <constructor-arg ref="pythonGridDataHandler"/>
     </bean>
     <bean id="gridInventoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridInventoryHandler"/>
     <bean id="getGridInventoryRequestRegister" factory-bean="handlerRegistry" factory-method="register">
