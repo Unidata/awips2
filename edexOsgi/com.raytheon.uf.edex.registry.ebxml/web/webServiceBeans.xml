@@ -117,9 +117,6 @@
 			<ref bean="registryObjectsRestService" />
 			<ref bean="repositoryObjectsRestService" />
 			<ref bean="queryProtocolRestService" />
-			<ref bean="AddRegistryParty" />
-			<ref bean="ModifyRegistryParty" />
-			<ref bean="DeleteRegistryParty" />
 		</jaxrs:serviceBeans>
 	</jaxrs:server>
 	<!-- End REST Endpoint definitions -->
