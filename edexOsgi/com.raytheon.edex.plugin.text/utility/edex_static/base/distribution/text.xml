@@ -19,7 +19,10 @@
         further_licensing_information.
     -->
 <requestPatterns>
-    <regex>^[ACFNRUW][A-Z].*</regex>
+    <!-- prevents US058 FNMOC grids from being matched -->
+    <regex>^[ACNFRW][A-Z].*</regex>
+    <regex>^U[A-R|T-Z].*</regex>
+    <regex>^US[A-Z].*</regex>
     <regex>^S[A-CEG-Z].*</regex>
     <!-- Only have AFOS mapping for T[BCX] -->
     <regex>^T[BCX].*</regex>
