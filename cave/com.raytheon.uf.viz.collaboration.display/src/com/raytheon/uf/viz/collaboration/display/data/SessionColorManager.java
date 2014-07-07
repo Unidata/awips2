@@ -28,6 +28,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
+import com.raytheon.viz.core.ColorUtil;
 
 /**
  * 
@@ -44,6 +45,7 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Mar 06, 2014 2848       bclement    synchronized color access
  * Jul 02, 2014 1255       bclement    collaboration specific RGB presets
+ *                                      falls back to ColorUtil resource color presets
  * 
  * </pre>
  * 
@@ -63,10 +65,14 @@ public class SessionColorManager {
         HierarchicalPreferenceStore prefs = (HierarchicalPreferenceStore) Activator
                 .getDefault().getPreferenceStore();
         String[] names = prefs.getStringArray(SESSION_COLOR_PREFERENCE_KEY);
-        rgbPresets = new RGB[names.length];
-        int i = 0;
-        for (String name : names) {
-            rgbPresets[i++] = RGBColors.getRGBColor(name);
+        if (names.length > 0) {
+            rgbPresets = new RGB[names.length];
+            int i = 0;
+            for (String name : names) {
+                rgbPresets[i++] = RGBColors.getRGBColor(name);
+            }
+        } else {
+            rgbPresets = ColorUtil.getResourceColorPresets();
         }
     }
 
