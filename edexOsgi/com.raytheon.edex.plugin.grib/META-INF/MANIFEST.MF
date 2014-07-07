@@ -17,7 +17,6 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.14.0",
  com.raytheon.uf.edex.python.decoder,
  org.apache.camel;bundle-version="2.12.3",
  org.apache.commons.lang;bundle-version="2.3.0",
- org.apache.commons.logging;bundle-version="1.0.4",
  javax.measure,
  ucar.nc2
 Export-Package: com.raytheon.edex.plugin.grib,
@@ -25,4 +24,5 @@ Export-Package: com.raytheon.edex.plugin.grib,
  com.raytheon.edex.plugin.grib.spatial,
  com.raytheon.edex.plugin.grib.util,
  com.raytheon.edex.util.grib
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.apache.commons.logging
