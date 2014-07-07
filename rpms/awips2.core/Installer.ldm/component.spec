@@ -9,7 +9,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: %{_ldm_version}
-Release: 10
+Release: 11
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
@@ -47,7 +47,6 @@ fi
 
 # create the ldm directory
 /bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
-/bin/mkdir -p %{_build_root}/awips2/tools/bin
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -135,10 +134,6 @@ if [ $? -ne 0 ]; then
 fi
 
 /bin/cp logrotate.d/* %{_build_root}/etc/logrotate.d
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-/bin/cp edex %{_build_root}/awips2/tools/bin
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -343,6 +338,5 @@ rm -rf ${RPM_BUILD_ROOT}
 /usr/local/ldm/SOURCES/*
 
 %attr(755,root,root) /etc/profile.d/awipsLDM.csh
-%attr(755,root,root) /awips2/tools/bin/edex
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log
