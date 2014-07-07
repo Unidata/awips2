@@ -24,13 +24,28 @@
 			<substitute key="source" value="NLDN"/>
 		</contribute>
 	</contribute>
+    <contribute xsi:type="subMenu" menuText="NLDN Grid" id="entlnGridSubmenu">
+        <contribute xsi:type="subinclude" fileName="menus/lightning/gridLightningMenuItems.xml">
+            <substitute key="source" value="NLDN"/>
+        </contribute>
+    </contribute>
 	<contribute xsi:type="subMenu" menuText="GLD" id="GLDSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/lightning/gldLightningBundleItems.xml">
 			<substitute key="source" value="GLD"/>
 		</contribute>
 	</contribute>	
+    <contribute xsi:type="subMenu" menuText="GLD Grid" id="entlnGridSubmenu">
+        <contribute xsi:type="subinclude" fileName="menus/lightning/gridLightningMenuItems.xml">
+            <substitute key="source" value="GLD"/>
+        </contribute>
+    </contribute>
     <contribute xsi:type="subMenu" menuText="Total Lightning" id="ENTLNSubMenu">
         <contribute xsi:type="subinclude" fileName="menus/lightning/entlnLightningBundleItems.xml">
+            <substitute key="source" value="ENTLN"/>
+        </contribute>
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Total Lightning Grid" id="entlnGridSubmenu">
+        <contribute xsi:type="subinclude" fileName="menus/lightning/gridLightningMenuItems.xml">
             <substitute key="source" value="ENTLN"/>
         </contribute>
     </contribute>
