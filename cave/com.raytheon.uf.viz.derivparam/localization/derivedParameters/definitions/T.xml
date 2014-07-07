@@ -95,7 +95,7 @@
     <Method levels="Surface" name="Alias">
         <Field level="2FHAG" abbreviation="T"/>
     </Method>
-    <Method models="mesoEta212" levels="2FHAG" name="Import">
+    <Method models="NAM-40km" levels="2FHAG" name="Import">
         <Field level="2FHAG" model="mesoEta215" abbreviation="T"/>
     </Method>
     <Method levels="S,K,Ke,TROP" name="Slice">

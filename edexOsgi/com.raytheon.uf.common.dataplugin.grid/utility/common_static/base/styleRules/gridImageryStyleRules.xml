@@ -2220,14 +2220,14 @@
 		</imageStyle>
 	</styleRule>
 	<!--
-		* NBE, ETA, mesoEta212, ETA207, mesoEta216, mesoEta217, ETA218, ETA242, GFS213, GFS212
+		* NBE, ETA, NAM-40km, ETA207, mesoEta216, mesoEta217, ETA218, ETA242, GFS213, GFS212
 		J/kg | -1| 0 | 1 | 450 | |,x| 29 | 0 | 100
 	-->
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>NBE</parameter>
 			<creatingEntity>ETA</creatingEntity>
-			<creatingEntity>mesoEta212</creatingEntity>
+			<creatingEntity>NAM-40km</creatingEntity>
 			<creatingEntity>ETA207</creatingEntity>
 			<creatingEntity>mesoEta216</creatingEntity>
 			<creatingEntity>mesoEta217</creatingEntity>

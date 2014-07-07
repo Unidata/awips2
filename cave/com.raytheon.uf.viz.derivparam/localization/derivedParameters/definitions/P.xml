@@ -109,7 +109,7 @@
         <ConstantField value="-1.0"/>
     </Method>
     <Method models="radar" levels="S,TEMP" name="Import">
-        <Field model="ETA218" abbreviation="P"/>
+        <Field model="NAM-12km" abbreviation="P"/>
     </Method>
     <Method models="radar" levels="S,TEMP" name="Import">
         <Field model="ETA207" abbreviation="P"/>
@@ -118,7 +118,7 @@
         <Field model="GFS213" abbreviation="P"/>
     </Method>
     <Method models="radar" levels="WetBulb0" name="Import">
-        <Field model="ETA218" abbreviation="P"/>
+        <Field model="NAM-12km" abbreviation="P"/>
     </Method>
     <Method models="radar" levels="WetBulb0" name="Import">
         <Field model="ETA207" abbreviation="P"/>

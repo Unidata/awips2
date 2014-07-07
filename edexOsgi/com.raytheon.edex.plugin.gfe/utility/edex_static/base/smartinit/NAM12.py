@@ -18,7 +18,7 @@
 # further licensing information.
 ##
 #
-#  NAM12 SmartInit
+#  NAM-12km SmartInit
 #
 #  Comments below for each algorithm.
 #
@@ -59,9 +59,9 @@ USE_WETBULB = 1
 #
 #============================================================================
 from Init import *
-class NAM12Forecaster(Forecaster):
+class NAM-12kmForecaster(Forecaster):
     def __init__(self):
-        Forecaster.__init__(self, "NAM12", "NAM12")
+        Forecaster.__init__(self, "NAM-12km", "NAM-12km")
         self.BLcubeTime = (None, None)
 
     def levels(self):
@@ -1687,4 +1687,4 @@ class NAM12Forecaster(Forecaster):
         return value
 
 def main():
-    NAM12Forecaster().run()
+    NAM-12kmForecaster().run()

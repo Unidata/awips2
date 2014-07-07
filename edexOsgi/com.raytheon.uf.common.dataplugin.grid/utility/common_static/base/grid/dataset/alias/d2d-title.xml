@@ -64,8 +64,8 @@
 	<alias base="ENSEMBLE">GFSensemble</alias>
 	<alias base="ETA207">NAM95</alias>
 	<alias base="ETA212">NAMWX</alias>
-	<alias base="ETA218">NAM12</alias>
-	<alias base="ETA242">AK-NAM12</alias>
+	<alias base="ETA218">NAM-12km</alias>
+	<alias base="ETA242">AK-NAM-12km</alias>
 	<alias base="EtaBufr">NAM Bufr</alias>
 	<alias base="ETA">NAM80</alias>
 	<alias base="GFS160">AK-GFS</alias>
@@ -84,11 +84,11 @@
 	<alias base="HurWind226">TPC-HurWind</alias>
 	<alias base="HurWind250">HawHurWind</alias>
 	<alias base="MANSPE">SPE</alias>
-	<alias base="mesoEta212">NAM40</alias>
+	<alias base="NAM-40km">NAM-40km</alias>
 	<alias base="mesoEta215">NAM20</alias>
-	<alias base="mesoEta216">AK-NAM40</alias>
+	<alias base="mesoEta216">AK-NAM-40km</alias>
 	<alias base="mesoEta217">AK-NAM20</alias>
-	<alias base="mesoEta237">PR-NAM12</alias>
+	<alias base="mesoEta237">PR-NAM-12km</alias>
 	<alias base="MOSGuide-AK">AK-GriddedMOS</alias>
 	<alias base="MOSGuide">GriddedMOS</alias>
 	<alias base="MPE-Local">MPE</alias>

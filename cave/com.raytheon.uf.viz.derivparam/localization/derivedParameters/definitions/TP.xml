@@ -35,7 +35,7 @@
     <Method name="Alias">
         <Field abbreviation="PAcc"/>
     </Method>
-    <Method name="Alias" models="RUC130">
+    <Method name="Alias" models="RAP-13km">
         <Field abbreviation="TP1hr"/>
     </Method>
     <Method name="Add">
@@ -55,13 +55,13 @@
     <Method name="Alias">
         <Field abbreviation="TP2hr"/>
     </Method>
-    <Method name="Supplement" models="mesoEta212 mesoEta215">
+    <Method name="Supplement" models="NAM-40km mesoEta215">
         <Field abbreviation="TP3hr"/>
     </Method>
-    <Method name="Supplement" models="HiResW-ARW-East HiResW-ARW-West HiResW-ARW-AK HiResW-ARW-SJU HiResW-ARW-HI HiResW-ARW-GU">
+    <Method name="Supplement" models="WRF-ARW-East WRF-ARW-West WRF-ARW-AK WRF-ARW-SJU Hawaii-WRF-ARW WRF-ARW-GU">
         <Field abbreviation="TP3hr"/>
     </Method>
-    <Method name="Supplement" models="HiResW-NMM-East HiResW-NMM-West HiResW-NMM-AK HiResW-NMM-SJU HiResW-NMM-HI HiResW-NMM-GU">
+    <Method name="Supplement" models="WRF-NMM-East WRF-NMM-West WRF-NMM-AK WRF-NMM-SJU Hawaii-WRF-NMM WRF-NMM-GU">
         <Field abbreviation="TP3hr"/>
     </Method>
     <Method name="Alias">
