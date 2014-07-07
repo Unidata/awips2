@@ -209,6 +209,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/15/2014  DR 17247    D. Friedman Rework error handling in AreaHatcher.
  * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
  * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
+ * 07/01/2014  DR 17450    D. Friedman Use list of templates from backup site.
  * </pre>
  * 
  * @author mschenke
@@ -1369,6 +1370,49 @@ public class WarngenLayer extends AbstractStormTrackResource {
             backupSite = null;
         } else {
             backupSite = site;
+        }
+
+        DialogConfiguration dc = null;
+        if (backupSite != null) {
+            boolean haveBackupConfig = DialogConfiguration.isSiteDialogConfigExtant(backupSite);
+            if (haveBackupConfig) {
+                try {
+                    dc = DialogConfiguration.loadDialogConfigNoUser(backupSite);
+                } catch (Exception e) {
+                    statusHandler.error(String.format(
+                            "Unable to load WarnGen configuration for site %s.  Falling back to local configuration.",
+                            getLocalizedSite()), e);
+                }
+            } else {
+                statusHandler.warn(String.format(
+                        "WarnGen configuration for site %s does not exist.  Falling back to local configuration.",
+                        backupSite));
+            }
+            if (dc == null) {
+                try {
+                    dc = DialogConfiguration.loadDialogConfigNoUser(LocalizationManager
+                            .getInstance().getCurrentSite());
+                } catch (Exception e) {
+                    dc = new DialogConfiguration();
+                    statusHandler.error(String.format(
+                            "Unable to load WarnGen configuration for site %s.",
+                            getLocalizedSite()), e);
+                }
+            }
+        } else {
+            try {
+                dc = DialogConfiguration.loadDialogConfig(LocalizationManager
+                        .getInstance().getCurrentSite());
+            } catch (Exception e) {
+                dc = new DialogConfiguration();
+                statusHandler.error(
+                        "Unable to load local WarnGen configuration.", e);
+            }
+        }
+        if (dc != null && dialogConfig != null) {
+            dialogConfig.setDefaultTemplate(dc.getDefaultTemplate());
+            dialogConfig.setMainWarngenProducts(dc.getMainWarngenProducts());
+            dialogConfig.setOtherWarngenProducts(dc.getOtherWarngenProducts());
         }
     }
 
