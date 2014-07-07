@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FFMP common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.ffmp
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.ffmp,
  com.raytheon.uf.common.dataplugin.ffmp.dataaccess
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
@@ -14,16 +14,16 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.hydro;bundle-version="1.11.11",
  com.raytheon.uf.common.mpe;bundle-version="1.11.11",
  com.raytheon.uf.common.localization;bundle-version="1.11.13",
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status,
  com.raytheon.uf.common.site,
- com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
- com.raytheon.uf.common.cache;bundle-version="1.12.1174",
- com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
- com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.shef,
+ com.raytheon.uf.common.cache,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.dataplugin.grid,
+ com.raytheon.uf.common.dataaccess,
  com.google.guava;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
- com.raytheon.uf.common.message;bundle-version="1.12.1174",
+ com.raytheon.uf.common.message,
  com.raytheon.uf.common.dataquery,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.dataplugin
