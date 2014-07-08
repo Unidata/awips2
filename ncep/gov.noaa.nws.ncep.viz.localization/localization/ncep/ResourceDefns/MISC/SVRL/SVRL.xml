@@ -10,10 +10,9 @@ color=RGB {155, 155, 155}
     <rscImplementation>SVRL</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
-    <timeMatchMethod>EVENT</timeMatchMethod>
-    <frameSpan>0</frameSpan>
-    <timelineGenMethod>USE_MANUAL_TIMELINE</timelineGenMethod>
-    <dfltFrameCount>10</dfltFrameCount>
+    <frameSpan>10</frameSpan>
+    <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
+    <dfltFrameCount>37</dfltFrameCount>
     <dfltTimeRange>6</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
 </ResourceDefinition>
