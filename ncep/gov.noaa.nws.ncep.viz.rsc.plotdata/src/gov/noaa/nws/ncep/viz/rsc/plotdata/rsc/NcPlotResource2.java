@@ -130,6 +130,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  05/20/2013     988     Archana.S   Refactored this class for performance improvement	
  *  11/07/2013             sgurung     Added fix for "no data for every other frame" issue (earlier fix was added to 13.5.2 on 10/24/2013)
  *  03/18/2013    1064     B. Hebbard  Added handling of matrixType request constraint, for PAFM
+ *  06/24/2014    1009     kbugenhagen Reload framedata if no stations found
  * </pre>
  * 
  * @author brockwoo
@@ -243,7 +244,7 @@ public class NcPlotResource2 extends
 
         @Override
         public void run() {
-            Tracer.print("> Entry  START TASK "
+            Tracer.print("> Entry  START FcstFrameLoaderTask TASK "
                     + Tracer.shortTimeString(frameTime));
             Semaphore sm = new Semaphore(1);
             sm.acquireUninterruptibly();
@@ -334,7 +335,7 @@ public class NcPlotResource2 extends
 
         @Override
         public void run() {
-            Tracer.print("> Entry  START TASK "
+            Tracer.print("> Entry  START FrameLoaderTask TASK "
                     + Tracer.shortTimeString(dataTime));
             Tracer.print("About to run postgres query for frame: "
                     + Tracer.shortTimeString(dataTime));
@@ -717,7 +718,7 @@ public class NcPlotResource2 extends
         }
 
         public boolean calcStaticStationInfo(Station station) {
-            Tracer.printX("> Entry");
+            Tracer.print("> Entry");
             SPIEntry obsStation = null;
             Coordinate thisLocation = null;
             Coordinate thisPixelLocation = null;
@@ -1065,7 +1066,10 @@ public class NcPlotResource2 extends
                             frameData.stationMap.values());
                 } else {
                     Tracer.print("Calling from paintFrame() - no stations in stationMap for frame: "
-                            + frameData.getShortFrameTime());
+                            + frameData.getShortFrameTime()
+                            + ".  Loading frame data again.");
+                    loadFrameData();
+                    issueRefresh();
                 }
 
                 // TODO??CHECK frameData.progressiveDisclosureInProgress = true;
@@ -1591,35 +1595,40 @@ public class NcPlotResource2 extends
         sm.acquireUninterruptibly(1);
         FrameData fd = ((FrameData) getFrame(time));
 
-        if (listOfStringsToDraw != null && !listOfStringsToDraw.isEmpty())
-            fd.drawableStrings = new ArrayList<DrawableString>(
-                    listOfStringsToDraw);
-        else
-            fd.drawableStrings = new ArrayList<DrawableString>(0);
+        if (fd != null) {
+            if (listOfStringsToDraw != null && !listOfStringsToDraw.isEmpty())
+                fd.drawableStrings = new ArrayList<DrawableString>(
+                        listOfStringsToDraw);
+            else
+                fd.drawableStrings = new ArrayList<DrawableString>(0);
 
-        if (listOfVectors != null && !listOfVectors.isEmpty())
-            fd.listOfWindVectors = new ArrayList<IVector>(listOfVectors);
-        else
-            fd.listOfWindVectors = new ArrayList<IVector>(0);
+            if (listOfVectors != null && !listOfVectors.isEmpty())
+                fd.listOfWindVectors = new ArrayList<IVector>(listOfVectors);
+            else
+                fd.listOfWindVectors = new ArrayList<IVector>(0);
 
-        if (listOfSymbolLocSet != null && !listOfSymbolLocSet.isEmpty()) {
-            fd.listOfSymbolLocSet = new ArrayList<SymbolLocationSet>(
-                    listOfSymbolLocSet);
-        } else
-            fd.listOfSymbolLocSet = new ArrayList<SymbolLocationSet>(0);
+            if (listOfSymbolLocSet != null && !listOfSymbolLocSet.isEmpty()) {
+                fd.listOfSymbolLocSet = new ArrayList<SymbolLocationSet>(
+                        listOfSymbolLocSet);
+            } else
+                fd.listOfSymbolLocSet = new ArrayList<SymbolLocationSet>(0);
 
-        fd.setOfStationsLastRendered = new HashSet<Station>();
-        fd.setOfStationsLastRendered.addAll(collectionOfStationsToBeRendered);
+            fd.setOfStationsLastRendered = new HashSet<Station>();
+            fd.setOfStationsLastRendered
+                    .addAll(collectionOfStationsToBeRendered);
 
-        for (Station stn : collectionOfStationsToBeRendered) {
-            String stnKey = getStationMapKey(stn.info.latitude.doubleValue(),
-                    stn.info.longitude.doubleValue());
-            synchronized (fd.stationMap) {
-                fd.stationMap.put(stnKey, stn);
+            for (Station stn : collectionOfStationsToBeRendered) {
+                String stnKey = getStationMapKey(
+                        stn.info.latitude.doubleValue(),
+                        stn.info.longitude.doubleValue());
+                synchronized (fd.stationMap) {
+                    fd.stationMap.put(stnKey, stn);
+                }
             }
+
+            fd.progressiveDisclosureInProgress = false;
         }
 
-        fd.progressiveDisclosureInProgress = false;
         Tracer.print("renderingComplete() called for the frame "
                 + Tracer.shortTimeString(time) + " with "
                 + collectionOfStationsToBeRendered.size() + " stations");
