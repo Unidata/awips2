@@ -38,17 +38,8 @@ public class PressureChange3HrAndTendency extends AbstractMetParameter implement
             Number n = (Number) new Integer(ptsy.getStringValue());
             Amount ptsyAmount = new Amount(n, Unit.ONE);
             Amount theP03CAmount = PRLibrary.prP03CAbsVal(p, ptsyAmount);
-
-            this.setValue(theP03CAmount);
             this.setAssociatedMetParam(copyDerivedPTSY(ptsy));
-
-            // Works, ptsy values can be seen form here
-            // System.out.print("==> derive called: ptsy: " + ptsy.toString());
-            if (this.getAssociatedMetParam() == null) {
-                // System.out.print(": BUT assoc metparm IS NULL");
-            } else {
-                // System.out.println(": ASSOC metparm to string: " + this.getAssociatedMetParam().toString());
-            }
+            this.setValue(theP03CAmount);
 
         } else {
             this.setValueToMissing();

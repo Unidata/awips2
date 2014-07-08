@@ -865,12 +865,23 @@ public final class PRLibrary {
 
         ptsyValue = ptsy.getValue().intValue();
 
-        // Make into a negative value
-        if (ptsyValue > 0 && ptsyValue < 4) {
-            p03c = Math.abs(p03cavValue) * -1;
-        } // Positive value
-        else if (ptsyValue > 4 && ptsyValue < 8) {
+        // No sign
+        if (p03cavValue == 0.0) {
+            return new Amount(p03cavValue, SI.PASCAL);
+        }
+
+        // No sign
+        if (ptsyValue == 4) {
+            return new Amount(p03cavValue, SI.PASCAL);
+        }
+
+        // Make into positive value
+        if (ptsyValue >= 0 && ptsyValue <= 4) {
             p03c = Math.abs(p03cavValue);
+
+        } // Make into a negative value
+        else if (ptsyValue > 4 && ptsyValue <= 8) {
+            p03c = Math.abs(p03cavValue) * -1;
         }
 
         return new Amount(p03c, SI.PASCAL);
