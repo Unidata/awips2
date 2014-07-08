@@ -7,8 +7,14 @@
 
      Manually edit the XML file in the Eclipse IDE to remove any '&' character in the field 'geog_area_name'.
      In the Eclipse IDE, after removing the '&' character, right-click and select Validate
-     to get rid of any error messages attributed to the '&' character. -->
+     to get rid of any error messages attributed to the '&' character. 
 
+     Important Note: all entries here will be loaded at CAVE startup so it may take longer for CAVE to start
+     up if too many entries are included here. For a faster startup, make sure only the items listed in 
+     AreaMenus.xml as "GEMPAK" sub-menu entries are activated here (uncommented).     
+-->
+
+<!--
      <geographical_data>
           <geog_code>SHM</geog_code>
           <geog_area_name>SOUTHERN_HEMISPHERE</geog_area_name>
@@ -44,7 +50,7 @@
           <upper_right_lon>-64.00</upper_right_lon>
           <map_projection_string> STR/90;-78;-7</map_projection_string>
      </geographical_data>
-
+-->
      <geographical_data>
           <geog_code>TROPSFC</geog_code>
           <geog_area_name>TROPICAL SURFACE  </geog_area_name>
@@ -56,7 +62,7 @@
           <upper_right_lon>-55.00</upper_right_lon>
           <map_projection_string> MER</map_projection_string>
      </geographical_data>
-
+<!--
      <geographical_data>
           <geog_code>EPACSFC</geog_code>
           <geog_area_name>EPAC SURFACE      </geog_area_name>
@@ -80,7 +86,7 @@
           <upper_right_lon>-80.00</upper_right_lon>
           <map_projection_string> MER</map_projection_string>
      </geographical_data>
-
+-->
      <geographical_data>
           <geog_code>AHSF</geog_code>
           <geog_area_name>ATLC HIGH SEAS    </geog_area_name>
@@ -104,7 +110,7 @@
           <upper_right_lon>-75.00</upper_right_lon>
           <map_projection_string> MER</map_projection_string>
      </geographical_data>
-
+ 
      <geographical_data>
           <geog_code>SHSF</geog_code>
           <geog_area_name>SPAC HIGH SEAS    </geog_area_name>
@@ -116,7 +122,7 @@
           <upper_right_lon>-75.00</upper_right_lon>
           <map_projection_string> MER</map_projection_string>
      </geographical_data>
-
+<!-- 
      <geographical_data>
           <geog_code>TROPFUL</geog_code>
           <geog_area_name>TROPICAL SFC MAP  </geog_area_name>
@@ -5288,4 +5294,5 @@
           <upper_right_lon>34.00</upper_right_lon>
           <map_projection_string> MER</map_projection_string>
      </geographical_data>
- </geogCodeList>
+--> 
+</geogCodeList>
