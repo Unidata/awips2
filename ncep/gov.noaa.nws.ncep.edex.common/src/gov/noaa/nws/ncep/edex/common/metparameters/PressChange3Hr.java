@@ -51,12 +51,26 @@ public class PressChange3Hr extends AbstractMetParameter implements javax.measur
             Number n = (Number) new Integer(ptsy.getStringValue());
             Amount ptsyAmount = new Amount(n, Unit.ONE);
             Amount theP03CAmount = PRLibrary.prP03CAbsVal(p, ptsyAmount);
+            this.setAssociatedMetParam(copyDerivedPTSY(ptsy));
             this.setValue(theP03CAmount);
-
         } else {
             this.setValueToMissing();
         }
 
         return this;
     }
+
+    private PressureTendencySymbol copyDerivedPTSY(PressureTendencySymbol ptsy) {
+
+        PressureTendencySymbol cptsy = new PressureTendencySymbol();
+
+        cptsy.setDataTime(ptsy.getDataTime());
+        cptsy.setStringValue(ptsy.getStringValue());
+        cptsy.setUnit(ptsy.getUnit());
+        cptsy.setValidTime(ptsy.getValidTime());
+
+        return cptsy;
+
+    }
+
 }
