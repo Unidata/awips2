@@ -218,9 +218,14 @@
         	<taskdef resource="net/sf/antcontrib/antlib.xml" 
         		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" />   
         	
-            <taskdef name="xmltask" 
-            	classpath="${builder}/../lib/ant/xmltask-v1.15.1.jar"
-            	classname="com.oopsconsultancy.xmltask.ant.XmlTask" />
+            <taskdef name="xmltask"
+                classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+                    <classpath>
+                            <pathelement path="${builder}/../lib/ant/xmltask-v1.15.1.jar"/>
+                            <pathelement path="${builder}/../lib/ant/xalan-2.7.1.jar"/>
+                    </classpath>
+            </taskdef>
+
         	
             <!-- Generate the 32-bit CAVE ini files -->
         	<var name="cave.arch" value="arch.x86" />
