@@ -5,7 +5,7 @@
 Name: awips2-edex-upc
 Summary: AWIPS II UPC EDEX Tools
 Version: 14.2.1
-Release: 1 
+Release: 1
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A
@@ -15,7 +15,7 @@ Vendor: Unidata
 Packager: Michael James
 
 AutoReq: no
-PreReq: awips2-edex-configuration
+PreReq: awips2-common-base
 provides: awips2-edex-upc
 
 %description
@@ -50,6 +50,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/tools/bin
 
 %post
 /awips2/tools/bin/edex setup
+chmod 775 /awips2/edex/data/manual/
 
 %postun
 

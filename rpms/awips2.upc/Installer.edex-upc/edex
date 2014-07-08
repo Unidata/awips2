@@ -57,9 +57,9 @@ IP=`ifconfig | grep "inet addr" | grep -v 127.0.0 | grep -v 192.168 | awk '{ pri
 # truncate
 IP_CIDR="${IP%.*}"
 
-editFiles=($PG_FILE $EDEX_ENV_FILE $LDMD_CONF $PY_FILE $EDEX_CAMEL)
+editFiles=($PG_FILE $EDEX_ENV_FILE $PY_FILE $EDEX_CAMEL $LDMD_CONF)
 boolFiles=(true true true true true)
-editFuncs=(edit_pg edit_edex edit_ldm edit_py edit_camel )
+editFuncs=(edit_pg edit_edex edit_py edit_camel edit_ldm)
 
 YMD=`date '+%Y%m%d'`
 
@@ -174,12 +174,13 @@ edit_pg() { # edex pg_hba.conf
 	schStr=`grep "\/24" $PG_FILE | head -1 | awk '{ print $4 }' | cut -d/ -f1`
 	subStr=$IP_CIDR'.0'
 	sed -i.setup_$YMD 's/'$schStr'/'$subStr'/g' $PG_FILE
-	echo '[edit] '$subStr' added to '$iPG_FILE
+	echo '[edit] '$subStr' added to '$PG_FILE
 	echo '       File backed up to '$PG_FILE'.setup_'$YMD
 }
 
 edit_ldm() {
 	sed -i.setup_$YMD 's/EDEX_HOSTNAME/'$HOSTNAME'/g' $LDMD_CONF
+	echo '[edit] '$HOSTNAME' added to '$LDMD_CONF
 }
 
 edit_edex() { # setup.env automatic edit
