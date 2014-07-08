@@ -1436,6 +1436,26 @@
 	</model>
 
 	<model>
+		<name>HiResW-NMM-US</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>14731025001</grid>
+		<process>
+			<id>112</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>HiResW-ARW-US</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>14731025001</grid>
+		<process>
+			<id>116</id>
+		</process>
+	</model>
+
+	<model>
 		<name>HiResW-NMM-East</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
