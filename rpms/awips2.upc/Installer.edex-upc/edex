@@ -36,8 +36,6 @@ LOG_PATH=$EDEX_PATH'logs/'
 # files
 PG_FILE=$DATA_PATH'pg_hba.conf'
 EDEX_ENV_FILE=$EDEX_PATH'bin/setup.env'
-PY_FILE=$AWIPS_HOME'httpd_pypies/etc/httpd/conf/httpd.conf'
-EDEX_CAMEL=/etc/init.d/edex_camel
 LDMD_CONF=/usr/local/ldm/etc/ldmd.conf
 
 # valid options
@@ -52,14 +50,14 @@ nopts=${options[@]}
 # OS X
 #IP=`ifconfig  | grep -E 'inet.[0-9]' | grep -v '127.0.0.1' | awk '{ print $2}'`
 # Linux
-IP=`ifconfig | grep "inet addr" | grep -v 127.0.0 | grep -v 192.168 | awk '{ print $2 }' | cut -d: -f2`
+IP=`/sbin/ifconfig | grep "inet addr" | grep -v 127.0.0 | grep -v 192.168 | awk '{ print $2 }' | cut -d: -f2`
 
 # truncate
 IP_CIDR="${IP%.*}"
 
-editFiles=($PG_FILE $EDEX_ENV_FILE $PY_FILE $EDEX_CAMEL $LDMD_CONF)
-boolFiles=(true true true true true)
-editFuncs=(edit_pg edit_edex edit_py edit_camel edit_ldm)
+editFiles=($PG_FILE $EDEX_ENV_FILE $LDMD_CONF)
+boolFiles=(true true true)
+editFuncs=(edit_pg edit_edex edit_ldm)
 
 YMD=`date '+%Y%m%d'`
 
@@ -70,7 +68,7 @@ edex_status() { # report back edex server on/off status
 	echo ''
 	echo '[edex status]'
 	# CHECK POSTGRES
-	postgres_prc=`ps aux | grep postgresql\/bin\/postmaster | grep -v grep | awk '{ print $11 }'`
+	postgres_prc=`ps aux | grep postgresql | grep -v grep | awk '{ print $11 }'`
 	if [ -z $postgres_prc ]; then
 		echo ' postgres    :: not running'
 	else
@@ -79,7 +77,7 @@ edex_status() { # report back edex server on/off status
 	fi
 
 	# CHECK PYPIES
-    	pypies_prc=`ps aux | grep awips2\/httpd_pypies\/usr\/sbin\/httpd | grep -v grep | head -1 | awk '{ print $11 }'`
+    	pypies_prc=`ps aux | grep httpd_pypies | grep -v grep | head -1 | awk '{ print $11 }'`
     	if [ -z $pypies_prc ]; then
     		echo ' pypies      :: not running'
     	else
@@ -88,36 +86,36 @@ edex_status() { # report back edex server on/off status
     	fi
 
 	# CHECK QPID
-	qpid_prc=`ps aux | grep awips2\/qpid\/sbin\/qpidd | grep -v grep | awk '{ print $11 }'`
+	qpid_prc=`ps aux | grep qpid- | grep -v grep | head -1 | awk '{ print $11 }'`
 	if [ -z $qpid_prc ]; then
 		echo ' qpid        :: not running'
 	else
-		qpidPid=`ps aux | grep awips2\/qpid\/sbin\/qpidd | grep -v grep | awk '{ print $2 }'`
+		qpidPid=`ps aux | grep qpid- | grep -v grep | head -1 | awk '{ print $2 }'`
 		echo ' qpid        :: running :: pid '$qpidPid''
 	fi
 
 	# CHECK EDEX
-	edex_ingest_ps=`ps aux | grep awips2\/edex\/bin\/start | grep ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $15 }'`
+	edex_ingest_ps=`ps aux | grep ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $15 }'`
 	if [ -z $edex_ingest_ps ]; then
 		echo ' EDEXingest  :: not running'
 	else
-		edex_ingest_pid=`ps aux | grep awips2\/edex\/bin\/start | grep ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $2 }'`
+		edex_ingest_pid=`ps aux | grep ingest | grep -v ingestGrib | grep -v ingestDat | awk '{ print $2 }'`
 		echo ' EDEXingest  :: running :: pid '$edex_ingest_pid''
 	fi
 	
-	edex_ingestGrib_ps=`ps aux | grep awips2\/edex\/bin\/start | grep ingestGrib | awk '{ print $15 }'`
+	edex_ingestGrib_ps=`ps aux | grep ingestGrib | awk '{ print $15 }'`
 	if [ -z $edex_ingestGrib_ps ]; then
 		echo ' EDEXgrib    :: not running'
 	else
-		edex_ingestGrib_pid=`ps aux | grep awips2\/edex\/bin\/start | grep ingestGrib | awk '{ print $2 }'`
+		edex_ingestGrib_pid=`ps aux | grep ingestGrib | awk '{ print $2 }'`
 		echo ' EDEXgrib    :: running :: pid '$edex_ingestGrib_pid''
 	fi
 	
-	edex_request_ps=`ps aux | grep awips2\/edex\/bin\/start | grep request | awk '{ print $15 }'`
+	edex_request_ps=`ps aux | grep request | awk '{ print $15 }'`
 	if [ -z $edex_request_ps ]; then
 		echo ' EDEXrequest :: not running'	
 	else
-		edex_request_pid=`ps aux | grep awips2\/edex\/bin\/start | grep request | awk '{ print $2 }'`
+		edex_request_pid=`ps aux | grep request | awk '{ print $2 }'`
 		echo ' EDEXrequest :: running :: pid '$edex_request_pid''
 	fi
 
@@ -174,14 +172,15 @@ edit_pg() { # edex pg_hba.conf
 	schStr=`grep "\/24" $PG_FILE | head -1 | awk '{ print $4 }' | cut -d/ -f1`
 	subStr=$IP_CIDR'.0'
 	sed -i.setup_$YMD 's/'$schStr'/'$subStr'/g' $PG_FILE
-	echo '[edit] '$subStr' added to '$PG_FILE
+	echo '[edit] '$subStr' added to '$iPG_FILE
 	echo '       File backed up to '$PG_FILE'.setup_'$YMD
 }
 
-edit_ldm() {
+edit_ldm() { # edex pg_hba.conf
 	sed -i.setup_$YMD 's/EDEX_HOSTNAME/'$HOSTNAME'/g' $LDMD_CONF
-	echo '[edit] '$HOSTNAME' added to '$LDMD_CONF
+	echo '[edit] Hostname '$HOSTNAME' added to '$LDMD_CONF
 }
+
 
 edit_edex() { # setup.env automatic edit
 	sed -i.setup_$YMD 's/localhost/'$HOSTNAME'/g' $EDEX_ENV_FILE
@@ -189,17 +188,6 @@ edit_edex() { # setup.env automatic edit
 	#echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
 	echo '       DATA_ARCHIVE_ROOT set to /data_store in '$EDEX_ENV_FILE
 	echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
-}
-
-edit_py() {
-	sed -i.setup_$YMD 's/Group awips/Group fxalpha/g' $PY_FILE
-	echo '[edit] Group fxalpha added to '$PY_FILE
-	echo '       File backed up to '$PY_FILE'.setup_'$YMD
-}
-
-edit_camel() {
-	sed -i "s/ 'ingestDat'//" $EDEX_CAMEL
-	echo '[edit] Removed ingestDat from '$EDEX_CAMEL
 }
 
 edex_edits() {
@@ -280,27 +268,17 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
 		continue=true
 	fi
 
-	# Pypies config
-	pyGrep=`grep "Group fxalpha" $PY_FILE | head -1`
-	echo -n ' Checking '$PY_FILE
-	if [[ ! -z ${pyGrep} ]]; then
+	# LDM
+	ldmGrep=`grep "EDEX_HOSTNAME" $LDMD_CONF | head -1`
+	echo -n ' Checking '$LDMD_CONF
+	if [[ ! -z ${ldmGrep} ]]; then
 		echo ' [OK]'
 		boolFiles[2]=false
 	else
-		echo -e '\n      ** Missing Group fxalpha'
+		echo -e '\n      ** Missing '$HOSTNAME
 		continue=true
 	fi
 
-	# edex_camel
-	camelGrep=`grep ingestDat $EDEX_CAMEL`
-        echo -n ' Checking '$EDEX_CAMEL
-	if [[ -z ${camelGrep} ]]; then
-		echo ' [OK]'
-		boolFiles[3]=false
-	else
-		echo -e '\n	** ingestDat to be removed'
-		continue=true
-	fi
 	echo ''
 	edex_edits
 	if [ $continue=true ]; then

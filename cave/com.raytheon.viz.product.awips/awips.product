@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean</programArgs>
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog -alertviz</programArgs>
       <programArgsLin>-consoleLog</programArgsLin>
       <vmArgs>-Xincgc -Dosgi.instance.area.readOnly=true 
 -Declipse.log.enabled=false
@@ -55,7 +55,6 @@
             winLargeLow="/com.raytheon.viz.ui.personalities.awips/alertViz_icon48x48_8bit.bmp"/>
       </win>
    </launcher>
-
 
    <vm>
       <linux include="true">jdk1.6.0</linux>
