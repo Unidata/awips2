@@ -39,6 +39,7 @@ import javax.xml.bind.annotation.XmlElements;
  * ------------ ---------- ----------- --------------------------
  * Sep 7, 2010            bsteffen     Initial creation
  * 03/05/2013   DCS51     zwang        Handle GFM product
+ * 07/08/2013   DR17356   zwang        Tag SAILS product
  * 
  * </pre>
  * 
@@ -60,6 +61,7 @@ public class UpperText {
             @XmlElement(name = "productDependentDate", type = ProdDepDateTextContributor.class),
             @XmlElement(name = "productDependentUSPMax", type = USPMaxTextContributor.class),
             @XmlElement(name = "productDependentDVLMax", type = DigitalVilMaxTextContributor.class),
+            @XmlElement(name = "sails", type = SailsTextContributor.class),
             @XmlElement(name = "gfmCount", type = GfmTextContributor.class),
             @XmlElement(name = "srmMovement", type = SrmMovementTextContributor.class),
             @XmlElement(name = "srmSource", type = SrmSourceTextContributor.class) })
