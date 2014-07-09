@@ -26,10 +26,16 @@
 <upperTextSet>
 
 	<!-- Reflectivities -->
-	<upperText productCodes='187 186 181 180 153 98 97 96 95 94 38 37 36 35 21 20 19 18 17 16'>
+	<upperText productCodes='187 186 181 180 98 97 96 95 38 37 36 35 21 20 19 18 17 16'>
 		<vcp />
 		<resolution />
 		<productDependent format='MX: %ddBZ' index='3' />
+	</upperText>
+	<upperText productCodes='153 94'>
+		<vcp />
+		<resolution />
+		<productDependent format='MX: %ddBZ' index='3' />
+		<sails />
 	</upperText>
 	<upperText productCodes='32'>
 		<vcp />
@@ -46,7 +52,7 @@
 	</upperText>
 	
 	<!-- Velocities -->
-	<upperText productCodes='183 182 154 99 27 26 25 24 23 22'>
+	<upperText productCodes='183 182 27 26 25 24 23 22'>
 		<vcp />
 		<resolution />
 		<productDependent format='MN: %dkt' index='3' />
@@ -55,12 +61,28 @@
 		<srmSource />
 		<srmMovement />
 	</upperText>
+	<upperText productCodes='154 99'>
+		<vcp />
+		<resolution />
+		<productDependent format='MN: %dkt' index='3' />
+		<productDependent format='MX: %dkt' index='4' />
+		<blank />
+		<sails />
+		<srmSource />
+		<srmMovement />
+	</upperText>
 	
 	<!-- Base Spectrum Width -->
-	<upperText productCodes='185 155 30 29 28'>
+	<upperText productCodes='185 30 29 28'>
 		<vcp />
 		<resolution />
 		<productDependent format='MX: %dkt' index='3' />
+	</upperText>
+	<upperText productCodes='155'>
+		<vcp />
+		<resolution />
+		<productDependent format='MX: %dkt' index='3' />
+		<sails />
 	</upperText>
 	
 	<!-- Storm Rel Vel Region -->
@@ -286,6 +308,7 @@
 		<resolution />
 		<productDependent format='MN: %.1fdB' index='3' multiplier='0.1' />
 		<productDependent format='MX: %.1fdB' index='4' multiplier='0.1' />
+		<sails />
 	</upperText>
 
 	<!-- Corr Coeff -->
@@ -294,6 +317,7 @@
 		<resolution />
 		<productDependent format='MN: %.3f' index='3' multiplier='0.004' />
 		<productDependent format='MX: %.3f' index='4' multiplier='0.004' />
+		<sails />
 	</upperText>
 	
 	<!-- Spec Diff Phase -->
@@ -302,15 +326,24 @@
 		<resolution />
 		<productDependent format='MN: %.2f Deg/km' index='3' multiplier='0.05' />
 		<productDependent format='MX: %.2f Deg/km' index='4' multiplier='0.05' />
+		<sails />
 	</upperText>
 	
 	<!-- hydro class -->
-	<upperText productCodes='164 165 177'>
+	<upperText productCodes='177'>
 		<vcp />
 		<resolution />
 		<productDependent format='Filter Size: %d' index='3'>
 			<flag value='0' label='' />
 		</productDependent>
+	</upperText>
+	<upperText productCodes='164 165'>
+		<vcp />
+		<resolution />
+		<productDependent format='Filter Size: %d' index='3'>
+			<flag value='0' label='' />
+		</productDependent>
+		<sails />
 	</upperText>
 	
 	<!-- Dual Pol Precip -->
