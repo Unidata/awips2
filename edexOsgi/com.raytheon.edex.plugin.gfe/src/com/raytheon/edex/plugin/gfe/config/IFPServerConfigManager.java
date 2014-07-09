@@ -25,8 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import jep.JepException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,6 +54,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Dec 11, 2012 14360     ryu         Throw specific exception for missing configuration.
  * Feb 20, 2014 #2824     randerso    Fixed import of localVTECPartners to use siteID
  *                                    Added common python path for LogStream
+ * Jul 09, 2014 #3146     randerso    Improved exception handling
  * 
  * </pre>
  * 
@@ -178,7 +177,7 @@ public class IFPServerConfigManager {
             SimpleServerConfig simpleConfig = (SimpleServerConfig) py.execute(
                     "getSimpleConfig", null);
             siteConfig = new IFPServerConfig(simpleConfig);
-        } catch (JepException e) {
+        } catch (Throwable e) {
             throw new GfeConfigurationException(
                     "Exception occurred while processing serverConfig for site "
                             + siteID, e);
