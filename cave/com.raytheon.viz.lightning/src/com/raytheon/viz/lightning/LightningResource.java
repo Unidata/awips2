@@ -102,6 +102,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *    Jun 05, 2014  3226       bclement    reference datarecords by LightningConstants
  *    Jun 06, 2014  DR 17367   D. Friedman Fix cache object usage.
  *    Jun 19, 2014  3214       bclement    added pulse and could flash support
+ *    Jul 09, 2014  3214       bclement    fixed cache object usage for pulse and cloud flash
  * 
  * </pre>
  * 
@@ -207,16 +208,26 @@ public class LightningResource extends
             int doubleCount = 0;
             if (object != null) {
                 synchronized (object) {
-                    for (double[] arr : object.posLatLonList) {
-                        doubleCount += arr.length;
-                    }
-                    for (double[] arr : object.negLatLonList) {
-                        doubleCount += arr.length;
-                    }
+                    doubleCount += getSize(object.posLatLonList);
+                    doubleCount += getSize(object.negLatLonList);
+                    doubleCount += getSize(object.cloudLatLonList);
+                    doubleCount += getSize(object.pulseLatLonList);
                 }
             }
             // 8 bytes per double
             return doubleCount * 8;
+        }
+
+        /**
+         * @param lonLatList
+         * @return total number of doubles in list
+         */
+        private static int getSize(List<double[]> lonLatList) {
+            int rval = 0;
+            for (double[] arr : lonLatList) {
+                rval += arr.length;
+            }
+            return rval;
         }
 
         /*
@@ -642,6 +653,8 @@ public class LightningResource extends
                             .retrieveObject(frame);
                     existing.posLatLonList.addAll(newBundle.posLatLonList);
                     existing.negLatLonList.addAll(newBundle.negLatLonList);
+                    existing.cloudLatLonList.addAll(newBundle.cloudLatLonList);
+                    existing.pulseLatLonList.addAll(newBundle.pulseLatLonList);
                 }
             }
         }
