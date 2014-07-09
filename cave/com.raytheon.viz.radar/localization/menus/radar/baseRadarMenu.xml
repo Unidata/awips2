@@ -20,6 +20,24 @@
 		<substitute key="name" value="0.5 Reflectivity" />
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+        menuText="0.5 Differential Refl" id="Radar05ZDR">
+        <substitute key="product" value="159,158" />
+        <substitute key="elevation" value="0.5" />
+        <substitute key="name" value="0.5 Diff Reflectivity" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+        menuText="0.5 Specific Diff Phase" id="Radar05KDP">
+        <substitute key="product" value="163,162" />
+        <substitute key="elevation" value="0.5" />
+        <substitute key="name" value="0.5 Specific Diff Phase" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
+        menuText="0.5 Correlation Coeff" id="Radar05CC">
+        <substitute key="product" value="161,160" />
+        <substitute key="elevation" value="0.5" />
+        <substitute key="name" value="0.5 Correlation Coefficient" />
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarMosaic.xml"
 		menuText="Hybrid Scan Refl" id="RadarHybridScanRefl">
 		<substitute key="product" value="33" />
 		<substitute key="elevation" value="0.0" />
