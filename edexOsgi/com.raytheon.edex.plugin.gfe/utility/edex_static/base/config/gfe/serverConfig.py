@@ -39,10 +39,11 @@
 #    02/20/2014          #2824     randerso       Added log message when local override files are not found
 #    03/11/2014          #2897     dgilling       Add new MHWM databases to default configuration.
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
-#    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
-#    05/09/2014      3148          randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
+#    04/17/2014          #2934     dgilling       Remove alias for TPCSurgeProb D2D database.
+#    05/09/2014          #3148     randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
 #
-#    05/29/2014      3224          randerso       Added "SPC":8 to D2DDBVERSIONS 
+#    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
+#    07/09/2014          #3146     randerso       Removed unused import
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -1985,7 +1986,7 @@ DATABASES.append((ISC, ISCPARMS))
 #----------------------------------------------------------------------------
 # Server settings     DO NOT CHANGE THESE DEFINITIONS
 #----------------------------------------------------------------------------
-from com.raytheon.edex.plugin.gfe.config import IFPServerConfig, SimpleServerConfig
+from com.raytheon.edex.plugin.gfe.config import SimpleServerConfig
 IFPConfigServer = SimpleServerConfig()
 #IFPConfigServer.allowedNodes             = []
 IFPConfigServer.allowTopoBelowZero       = 1
