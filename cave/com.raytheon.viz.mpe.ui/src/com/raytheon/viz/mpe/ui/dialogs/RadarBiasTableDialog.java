@@ -472,7 +472,6 @@ public class RadarBiasTableDialog extends Dialog {
                         editbias[ai] = oldbias[ai];
                         lbTxts[ai].setText(String.format("%-1.2f", editbias[ai]));
                         biasChgs.put(radIds[ai], ai);
-                        applyBtn.setEnabled(false);
                         manEdit[ai].setText("NO");
                     }
                 }
