@@ -123,6 +123,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 05/28/2014   3222       mpduff      Fix posting time to be processed time so db doesn't show all post times the same
  * 06/02/2014              mpduff      Fix for caching of range checks.
  * 06/26/2014   3321       mpduff      Fix ingestSwitchMap checks
+ * 07/10/2014   3370       mpduff      Fix update/insert issue for riverstatus
  * </pre>
  * 
  * @author mduff
@@ -273,9 +274,6 @@ public class PostShef {
 
     /** Basis time TimeStamp */
     private java.sql.Timestamp basisTimeAnsi = new Timestamp(basisBeginTime);
-
-    /** River status update flag. update if true */
-    private boolean riverStatusUpdateFlag = true;
 
     /** river status update query value */
     private boolean riverStatusUpdateValueFlag;
@@ -1105,7 +1103,6 @@ public class PostShef {
         // Reset .E cache vars
         tsList.clear();
         useLatest = MISSING;
-        riverStatusUpdateFlag = true;
         qualityCheckFlag = true;
         useTs = null;
         basisTimeValues = null;
@@ -1446,15 +1443,7 @@ public class PostShef {
         if ((shefList != null) && (shefList.size() > 0)) {
             ShefData maxShefDataValue = findMaxFcst(shefList);
 
-            if (shefRecord.getShefType() == ShefType.E) {
-                if (riverStatusUpdateFlag) {
-                    riverStatusUpdateFlag = false;
-
-                    riverStatusUpdateValueFlag = updateRiverStatus(lid, pe, ts);
-                }
-            } else {
-                riverStatusUpdateValueFlag = updateRiverStatus(lid, pe, ts);
-            }
+            riverStatusUpdateValueFlag = updateRiverStatus(lid, pe, ts);
             postTables.postRiverStatus(shefRecord, maxShefDataValue,
                     riverStatusUpdateValueFlag);
         } else {
@@ -2157,10 +2146,8 @@ public class PostShef {
 
         try {
             if (!ingestSwitchMap.containsKey(key)) {
-                errorMsg.append("Error getting connection to IHFS Database");
                 sql = "select lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input from IngestFilter where lid = '"
                         + locId + "'";
-                errorMsg.setLength(0);
                 errorMsg.append("Error requesting IngestFilter data:  " + sql);
                 oa = dao.executeSQLQuery(sql);
                 if (oa.length > 0) {
@@ -2196,6 +2183,7 @@ public class PostShef {
                 ingestSwitchMap.put(key, ingestSwitch);
             }
 
+            matchFound = ingestSwitchMap.containsKey(key);
             ingestSwitch = ingestSwitchMap.get(key);
 
             /*
@@ -2444,7 +2432,7 @@ public class PostShef {
         if (!matchFound) {
             log.warn(locId + " - " + data.getPhysicalElement() + "("
                     + data.getDuration() + ")" + data.getTypeSource()
-                    + data.getExtremum() + " ingest " + "filter not defined");
+                    + data.getExtremum() + " ingest filter not defined");
             stats.incrementWarningMessages();
             ingestSwitch = ShefConstants.IngestSwitch.POST_PE_OFF;
         }
