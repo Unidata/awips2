@@ -19,6 +19,10 @@
 		<constructor-arg ref="RegistryGarbageCollector" />
 	</bean>
 	
+	<bean factory-bean="eventBus" factory-method="register">
+		<constructor-arg ref="credentialCache" />
+	</bean>
+	
 	<!-- TODO: This is a sample external endpoint for registry events. 
 	     It is dormant as long as the ${registry.event.external.publish} prop
 	     is set to false.  Which by default until Hazard Services uses this, will be.
