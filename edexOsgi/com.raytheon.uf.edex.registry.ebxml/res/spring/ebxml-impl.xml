@@ -1,6 +1,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	
+	<bean id="encryption" class="com.raytheon.uf.common.security.encryption.AESEncryptor"/>
 
 	<bean id="edexRegistryManagerFactory"
 		class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManagerFactory">
@@ -17,7 +19,6 @@
 
 	<bean id="edexRegistryManager"
 		class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager">
-		<property name="xacmlPep" ref="XACMLPolicyEnforcementPoint" />
 		<property name="registryHandler" ref="registryHandler" />
 	</bean>
 
@@ -62,6 +63,14 @@
     <bean id="registryIdUtil"
         class="com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil">
         <constructor-arg ref="registryObjectDao" />
+    </bean>
+    
+    <bean id="registryUsers" class="com.raytheon.uf.edex.registry.ebxml.RegistryUsers">
+    	<property name="personDao" ref="personDao"/>
+    	<property name="roleDao" ref="roleDao"/>
+    	<property name="lcm" ref="lcmServiceImpl"/>
+    	<property name="encryption" ref="encryption" />
+    	<property name="securityConfig" ref="securityConfiguration"/>
     </bean>
 
 </beans>

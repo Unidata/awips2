@@ -48,6 +48,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * ------------ ----------  ----------- --------------------------
  * 9/5/2013     1538        bphillip    Initial implementation
  * 2/27/2014    2769        bphillip    Changed verbose output to debug level
+ * 7/10/2014    1717        bphillip    Added session
  * </pre>
  * 
  * @author bphillip
@@ -66,6 +67,14 @@ public class RegistryServiceInInterceptor extends
     @SuppressWarnings("unchecked")
     @Override
     public void handleMessage(Message message) throws Fault {
+        /*
+         * Request the current session so that login credentials can be
+         * maintained across multiple calls
+         */
+        HttpServletRequest req = (HttpServletRequest) message
+                .get("HTTP.REQUEST");
+        req.getSession(true);
+
         if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
             StringBuilder logMessage = new StringBuilder();
             HttpServletRequest request = (HttpServletRequest) message

@@ -28,9 +28,11 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.apache.ws.security.WSPasswordCallback;
 
+import com.raytheon.uf.edex.registry.ebxml.web.security.CredentialCache;
+
 /**
  * 
- * Password callback class used with WS security. Currently unused.
+ * Password callback class used with WS security.
  * 
  * <pre>
  * 
@@ -39,6 +41,7 @@ import org.apache.ws.security.WSPasswordCallback;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 3, 2012            bphillip     Initial creation
+ * 7/10/2014    1717       bphillip    Get user information from CredentialCache
  * 
  * </pre>
  * 
@@ -59,7 +62,8 @@ public class PasswordCallback implements CallbackHandler {
         for (Callback call : callbacks) {
             if (call instanceof WSPasswordCallback) {
                 WSPasswordCallback cb = (WSPasswordCallback) call;
-                cb.setPassword("password");
+                cb.setPassword(CredentialCache.getInstance().getUserPassword(
+                        ((WSPasswordCallback) call).getIdentifier()));
             }
         }
     }
