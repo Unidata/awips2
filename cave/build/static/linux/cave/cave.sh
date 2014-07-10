@@ -30,6 +30,7 @@
 #                                     around this script.
 # Jan 24, 2014  #2739     bsteffen    Log exit status
 # Jan 30, 2014  #2593     bclement    warns based on memory usage, fixed for INI files with spaces
+# Jul 10, 2014  #3363     bclement    logs command used to launch application to console logs
 #
 #
 
@@ -240,10 +241,13 @@ curTime=`date +%Y%m%d_%H%M%S`
     nohup ${CAVE_INSTALL}/monitorThreads.sh $pid >> /dev/null 2>&1 &
   fi
 
+  echo "Launching cave application using the following command: " >> ${LOGFILE}
+  echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} ${USER_ARGS[@]}" >> ${LOGFILE}
+
   if [[ "${redirect}" == "true" ]] ; then 
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" >> ${LOGFILE} 2>&1
   else
-    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
+    exec ${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES} "${USER_ARGS[@]}" 2>&1 | tee -a ${LOGFILE}
   fi
 ) &
 
