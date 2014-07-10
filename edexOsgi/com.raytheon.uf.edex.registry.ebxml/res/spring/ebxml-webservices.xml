@@ -2,6 +2,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	
+	<bean id="credentialCache"
+		class="com.raytheon.uf.edex.registry.ebxml.web.security.CredentialCache"
+		factory-method="getInstance">
+		<property name="restServices" ref="registryRestClient" />
+		<property name="personDao" ref="personDao" />
+		<property name="txTemplate" ref="metadataTxTemplate" />
+		<property name="securityConfig" ref="securityConfiguration"/>
+		<property name="encryption" ref="encryption"/>
+	</bean>
 
 	<bean id="registryRestClient"
 		class="com.raytheon.uf.edex.registry.ebxml.services.RegistryRESTServices">
@@ -20,6 +30,16 @@
 
 	<bean id="webServiceInInterceptor"
 		class="com.raytheon.uf.edex.registry.ebxml.services.RegistryServiceInInterceptor" />
+		
+	<bean id="xacmlInterceptor" class="com.raytheon.uf.edex.registry.acp.xacml.XACMLInterceptor">
+		<constructor-arg ref="XACMLPolicyAdministrator"/>
+		<constructor-arg ref="XACMLPolicyDecisionPoint"/>
+	</bean>
+	
+	<bean id="authenticationInterceptor" class="org.apache.cxf.interceptor.security.JAASLoginInterceptor">
+   		<property name="contextName" value="RegistryRealm"/>
+ 
+	</bean>
 
 	<bean id="securityOutInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor">
 		<constructor-arg>
@@ -28,30 +48,14 @@
 				<entry key="enableNonceCache" value="false" />
 				<entry key="enableTimestampCache" value="false" />
 				<entry key="enableSamlOneTimeUseCache" value="false" />
-				<entry key="action" value="Signature" />
-				<entry key="user" value="${ebxml.registry.user}" />
+				<entry key="action" value="UsernameToken Signature" />
+				<entry key="user" value="${edex.security.keystore.alias}" />
 				<entry key="signaturePropRefId" value="propRef"/>
 				<entry key="propRef"  value-ref="encryptedPropertyLoader"/>
 				<entry key="passwordCallbackClass"
 					value="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
 				<entry key="signatureParts"
 					value="{Element}{http://schemas.xmlsoap.org/soap/envelope/}Body" />
-				<entry key="signatureAlgorithm" value="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
-			</map>
-		</constructor-arg>
-	</bean>
-
-	<bean id="securityInInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
-		<constructor-arg>
-			<map>
-				<entry key="enableNonceCache" value="false" />
-				<entry key="enableTimestampCache" value="false" />
-				<entry key="enableSamlOneTimeUseCache" value="false" />
-				<entry key="action" value="Signature" />
-				<entry key="signaturePropRefId" value="propRef"/>
-				<entry key="propRef"  value-ref="encryptedPropertyLoader"/>
-				<entry key="passwordCallbackClass"
-					value="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
 				<entry key="signatureAlgorithm" value="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
 			</map>
 		</constructor-arg>

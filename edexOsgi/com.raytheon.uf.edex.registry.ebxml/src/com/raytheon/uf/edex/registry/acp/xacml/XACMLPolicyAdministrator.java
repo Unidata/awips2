@@ -49,7 +49,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.acp.xacml.util.XACMLParser;
 import com.raytheon.uf.edex.registry.ebxml.dao.ExtrinsicObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
@@ -68,6 +67,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/9/2013     1802        bphillip     Import changes due to moved constant classes
  * 5/21/2013    2022        bphillip     Implemented RegistryInitializedListener
  * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
+ * 7/10/2014    1717        bphillip     No longer implements RegistryInitializedListener
  * </pre>
  * 
  * @author bphillip
@@ -75,7 +75,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  */
 @Service
 @Transactional
-public class XACMLPolicyAdministrator implements RegistryInitializedListener {
+public class XACMLPolicyAdministrator {
 
     /** The status handler */
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -181,16 +181,6 @@ public class XACMLPolicyAdministrator implements RegistryInitializedListener {
                                     Charset.forName("UTF-8")));
         }
         return policySet;
-    }
-
-    @Override
-    public void executeAfterRegistryInit() throws EbxmlRegistryException {
-        try {
-            loadAccessControlPolicies();
-        } catch (MsgRegistryException e) {
-            throw new EbxmlRegistryException(e);
-        }
-
     }
 
     /**
