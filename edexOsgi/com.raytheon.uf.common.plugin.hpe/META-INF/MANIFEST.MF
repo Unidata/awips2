@@ -4,8 +4,7 @@ Bundle-Name: Hpe
 Bundle-SymbolicName: com.raytheon.uf.common.plugin.hpe
 Bundle-Version: 1.14.3.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.core.runtime,
- com.raytheon.uf.common.util;bundle-version="1.14.0",
+Require-Bundle: com.raytheon.uf.common.util;bundle-version="1.14.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
  javax.persistence;bundle-version="1.0.0",
