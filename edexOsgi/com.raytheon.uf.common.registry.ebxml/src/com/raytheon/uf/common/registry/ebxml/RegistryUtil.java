@@ -54,7 +54,6 @@ import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.StringSlotConverter;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
-import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.ReflectionException;
 import com.raytheon.uf.common.util.ReflectionUtil;
@@ -84,6 +83,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Apr 24, 2014 2992       dhladky     fixed all objects in ebxml owned by NCF, bad.
  * 6/5/2014     1712       bphillip    Registry now communicates over https
  * June 25, 2014 3273      dhladky     Remove all DD environment variables from setup.env
+ * 7/10/2014    1717       bphillip    Changed default user
  * 
  * </pre>
  * 
@@ -104,7 +104,7 @@ public final class RegistryUtil {
     
     public static final String registryUser = "Registry";
     
-    public static final String defaultUser = "NCF";
+    public static final String defaultUser = RegistryObjectType.SYSTEM_USER;
 
     static {
         if (System.getProperty("ebxml.registry.host") != null
@@ -121,7 +121,7 @@ public final class RegistryUtil {
     /**
      * The default internal owner is the local registry ID
      */
-    public static final String DEFAULT_OWNER = ClusterIdUtil.getId();
+    public static final String DEFAULT_OWNER = defaultUser;
 
     // A private mapping of attribute types to slot types, used when storing an
     // object to the registry to map QueryableAttributes to SlotConverters.
