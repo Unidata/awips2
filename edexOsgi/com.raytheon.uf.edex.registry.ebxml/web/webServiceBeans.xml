@@ -19,7 +19,7 @@
     http://cxf.apache.org/configuration/security                
     http://cxf.apache.org/schemas/configuration/security.xsd">
 
-	<context:property-placeholder />
+	<context:property-placeholder/>
 
 	<import resource="classpath:META-INF/cxf/cxf.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
@@ -65,6 +65,8 @@
 	<jaxws:server id="QueryService" address="/queryManager">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="QueryServiceWrapper" />
@@ -74,6 +76,8 @@
 	<jaxws:server id="NotificationListenerService" address="/notificationListener">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="NotificationListenerServiceWrapper" />
@@ -83,6 +87,8 @@
 	<jaxws:server id="LifecycleManagerService" address="/lifecycleManager">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="LifecycleManagerServiceWrapper" />
@@ -92,6 +98,8 @@
 	<jaxws:server id="ValidatorService" address="/validator">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="ValidatorServiceWrapper" />
@@ -101,6 +109,8 @@
 	<jaxws:server id="CatalogerService" address="/cataloger">
 		<jaxws:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxws:inInterceptors>
 		<jaxws:serviceBean>
 			<ref bean="catalogerServiceImpl" />
@@ -112,11 +122,14 @@
 	<jaxrs:server id="registryRestServices" address="/rest">
 		<jaxrs:inInterceptors>
 			<ref bean="webServiceInInterceptor" />
+			<ref bean="authenticationInterceptor" />
+			<ref bean="xacmlInterceptor" />
 		</jaxrs:inInterceptors>
 		<jaxrs:serviceBeans>
 			<ref bean="registryObjectsRestService" />
 			<ref bean="repositoryObjectsRestService" />
 			<ref bean="queryProtocolRestService" />
+			<ref bean="registryUsers" />
 		</jaxrs:serviceBeans>
 	</jaxrs:server>
 	<!-- End REST Endpoint definitions -->
