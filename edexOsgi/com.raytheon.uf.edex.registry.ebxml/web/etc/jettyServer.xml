@@ -26,7 +26,7 @@
 			<New
 				class="com.raytheon.uf.edex.registry.ebxml.web.security.SslNetworkTrafficSelectChannelConnector">
 				<Arg>
-					<New class="org.eclipse.jetty.http.ssl.SslContextFactory">
+					<New class="com.raytheon.uf.edex.registry.ebxml.web.security.RegistrySSLContextFactory">
 						<Set name="keyStore">
 							<SystemProperty name="edex.security.keystore.path" />
 						</Set>
@@ -63,9 +63,19 @@
 						<Array type="org.eclipse.jetty.server.Handler">
 							<Item>
 								<New class="org.eclipse.jetty.webapp.WebAppContext">
+									<Set name="securityHandler">
+										<New class="org.eclipse.jetty.security.ConstraintSecurityHandler">
+											<Set name="loginService">
+												<New class="org.eclipse.jetty.plus.jaas.JAASLoginService">
+													<Set name="name"><SystemProperty name="edex.security.auth.loginService.name" /></Set>
+													<Set name="loginModuleName"><SystemProperty name="edex.security.auth.loginService.realm" /></Set>
+												</New>
+											</Set>
+										</New>
+									</Set>
 									<Set name="descriptor">WEB-INF/web.xml</Set>
 									<Set name="resourceBase">
-									    <SystemProperty name="ebxml.registry.webserver.home" />
+										<SystemProperty name="ebxml.registry.webserver.home" />
 									</Set>
 									<Set name="contextPath">/</Set>
 									<Set name="parentLoaderPriority">true</Set>

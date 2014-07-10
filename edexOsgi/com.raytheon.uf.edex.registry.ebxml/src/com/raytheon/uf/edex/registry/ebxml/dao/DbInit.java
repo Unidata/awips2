@@ -67,6 +67,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyAdministrator;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
@@ -93,6 +94,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * Nov 14, 2013 2552        bkowal      EbxmlJaxbManager is now accessed via getInstance
  * Dec 20, 2013 2636        mpduff      Set initialized to true before postInitialized is called.
  * Dec 04, 2013 2584        dhladky     Version based EbxmlJaxbManager
+ * 7/10/2014    1717        bphillip    Removed xacml policy admin object
  * </pre>
  * 
  * @author bphillip
@@ -118,6 +120,8 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     private SessionFactory sessionFactory;
 
     private ApplicationContext applicationContext;
+    
+    private XACMLPolicyAdministrator xacmlPolicyAdmin;
 
     /**
      * Creates a new instance of DbInit. This constructor should only be called
@@ -137,6 +141,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         executeRegistrySql();
 
         populateDB();
+        xacmlPolicyAdmin.loadAccessControlPolicies();
     }
 
     public static boolean isDbInitialized() {
@@ -404,4 +409,13 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
             throws BeansException {
         this.applicationContext = applicationContext;
     }
+
+    /**
+     * @param xacmlPolicyAdmin the xacmlPolicyAdmin to set
+     */
+    public void setXacmlPolicyAdmin(XACMLPolicyAdministrator xacmlPolicyAdmin) {
+        this.xacmlPolicyAdmin = xacmlPolicyAdmin;
+    }
+    
+    
 }
