@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * 1/15/2014    2613        bphillip    Removed Service cache due to unexpected behavior
  * 2/19/2014    2769        bphillip    Added service cache
  * 6/5/2014     1712        bphillip    Moved configuration out to separate class
+ * 7/10/2014    1717        bphillip    Added authorization policy
  * </pre>
  * 
  * @author bphillip
@@ -183,6 +184,7 @@ public class RegistryRESTServices {
         HTTPConduit conduit = config.getHttpConduit();
         conduit.setClient(serviceConfig.getHttpClientPolicy());
         conduit.setTlsClientParameters(securityConfig.getTlsParams());
+        conduit.setAuthorization(securityConfig.getAuthPolicy());
 
         // Create HTTP header containing the calling registry
         client.header(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME,
