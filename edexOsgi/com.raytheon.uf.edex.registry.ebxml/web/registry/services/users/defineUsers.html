@@ -1,0 +1,180 @@
+<html>
+
+<head>
+	<style type="text/css"> 
+		a {font-weight:bold;}  
+		td {width:175px;}
+		button {width:190px;}
+		input{width:200px;}
+		select {width:200px;}
+		body {  font-family: Helvetica;
+  				margin-left: 75px;
+  				margin-right: 75px;
+  				background: #D3D3D3;}
+	</style>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<script type="text/javascript" src='/registry/registryUtil.js'></script>
+	<script type="text/javascript" src='/registry/services/query/queryUtil.js'></script>
+	<script type="text/javascript" src='/dataDeliveryUtil.js'></script>
+  	<title>Registry User Administration</title>
+</head>
+
+<body onload="refreshUserTable()">
+
+	<h2>Registry User Administration</h2>
+
+	<h3>Add User</h3>
+	<table>
+		<tr>
+			<td>User ID:</td>
+			<td><input id="userIdInput" type="text"></input></td>
+		</tr>
+		<tr>
+			<td>Password:</td>
+			<td><input id="passwordInput" type="password"></input></td>
+			
+		</tr>
+		<tr>
+			<td>Role:</td>
+			<td>
+				<select id="roleSelect">
+					<option value="RegistryAdministrator">RegistryAdministrator</option>
+					<option value="RegistryLocalAdministrator">RegistryLocalAdministrator</option>
+					<option value="RegistryUser">RegistryUser</option>
+					<option value="RegistryGuest">RegistryGuest</option>
+				</select></td>
+		</tr>
+		<tr>
+			<td/>
+			<td><button type="button" style='width:120px' onclick="addUser()">Add User</button></td>
+		</tr>
+	</table>
+	<p><p>
+	<hr align="left" width="500"/>
+	<h3>Update User</h3>
+	<table>
+		<tr>
+			<td>User ID:</td>
+			<td><select id="modifyUserSelect"/></input></td>
+		</tr>
+		<tr>
+			<td>Password:</td>
+			<td><input id="modifyPasswordInput" type="text"></input></td>
+			
+		</tr>
+		<tr>
+			<td>Role:</td>
+			<td>
+				<select id="modifyRoleSelect">
+					<option value="RegistryAdministrator">RegistryAdministrator</option>
+					<option value="RegistryLocalAdministrator">RegistryLocalAdministrator</option>
+					<option value="RegistryUser">RegistryUser</option>
+					<option value="RegistryGuest">RegistryGuest</option>
+				</select></td>
+		</tr>
+		<tr>
+			<td><button type="button" style='width:120px' onclick="updatePassword()">Update Password</button></td>
+			<td><button type="button" style='width:120px' onclick="updateRole()">Update Role</button></td>
+		</tr>
+	</table>
+	
+	
+	<p><p>
+	<hr align="left" width="500"/>
+	<h3>Delete User</h3>
+	<table>
+		<tr>
+			<td>User ID:</td>
+			<td><select id="deleteUserSelect"/></input></td>
+		</tr>
+		<tr>
+			<td/>
+			<td><button type="button" style='width:120px' onclick="deleteUser()">Delete User</button></td>
+		</tr>
+	</table>
+	
+	<p><p>
+	<hr align="left" width="500"/>
+	<p><p>
+	<h3>Current Users</h3>
+	<span id="userTableSpan"/>
+	
+	
+</body>
+
+<script language="JavaScript"> 
+
+	function refreshUserTable(){
+		clearComboBox("modifyUserSelect")
+		clearComboBox("deleteUserSelect")
+		var users = callRestService("rest/registryUsers/getUsers").split(";")
+		var usersHTML = "<table border='1'><tr><th style='width:100px;'>User ID</th><th>Role</th></tr>"
+			for(var i = 0; i < users.length-1;i+=2){
+				addOptionToList("modifyUserSelect",users[i],users[i])
+				addOptionToList("deleteUserSelect",users[i],users[i])
+				usersHTML+="<tr>"
+				usersHTML+="<td style='width:30px;'>"+users[i]+"</td>"
+				usersHTML+="<td>"+users[i+1]+"</td>"
+				usersHTML+="</tr>"
+			}
+			usersHTML+="</table>";
+		document.getElementById("userTableSpan").innerHTML=usersHTML
+	}
+	
+	function addUser(){
+		var elem = document.getElementById("roleSelect")
+		var idx = elem.selectedIndex;
+		var selectedRole=elem.options[elem.selectedIndex].value
+		
+		var url = "rest/registryUsers/addUser?"
+		url += "userName="+document.getElementById("userIdInput").value
+		url += "&pwd="+document.getElementById("passwordInput").value
+		url += "&role="+selectedRole
+		
+		if(confirm("Add user "+document.getElementById("userIdInput").value+"?")){
+			var response = callRestService(url)
+			refreshUserTable()
+			alert(response)
+		}
+	}
+	
+	function updatePassword(){
+		var userToModify = document.getElementById("modifyUserSelect").value
+		var newPass = document.getElementById("modifyPasswordInput").value
+		
+		var url = "rest/registryUsers/changePassword?"
+		url+="userName="+userToModify
+		url+="&pwd="+newPass
+		if(confirm("Update password for user "+userToModify+"?")){
+			var response = callRestService(url)
+			refreshUserTable()
+			alert(response)
+		}
+	}
+	
+	function updateRole(){
+		var userToModify = document.getElementById("modifyUserSelect").value
+		var newRole =document.getElementById("modifyRoleSelect").value
+		
+		var url = "rest/registryUsers/changeRole?"
+		url+="userName="+userToModify
+		url+="&role="+newRole
+		if(confirm("Update role for user "+userToModify+"?")){
+			var response = callRestService(url)
+			refreshUserTable()
+			alert(response)
+		}
+	}
+	
+	function deleteUser(){
+		var userToDelete = getSelectedComboValue("deleteUserSelect")
+		if(confirm("Delete user "+userToDelete+"?")){
+			var response = callRestService("rest/registryUsers/deleteUser/"+userToDelete)
+			refreshUserTable()
+			alert(response)
+		}
+	}
+</script>
+</html>
+

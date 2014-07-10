@@ -12,6 +12,49 @@
 	version="2.4">
 	<display-name>Data Delivery Web Services</display-name>
 
+	<security-role>
+		<role-name>RegistryAdministrator</role-name>
+	</security-role>
+	<security-role>
+		<role-name>RegistryLocalAdministrator</role-name>
+	</security-role>
+	<security-role>
+		<role-name>RegistryUser</role-name>
+	</security-role>
+	<security-role>
+		<role-name>RegistryGuest</role-name>
+	</security-role>
+
+	<!-- Restrict user administration to only the registry admin -->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>
+				Registry User Admin pages
+			</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>RegistryLocalAdministrator</role-name>
+			<role-name>RegistryAdministrator</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>
+				Registry User Admin pages
+			</web-resource-name>
+			<url-pattern>/registry/services/users/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>RegistryAdministrator</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>RegistryRealm</realm-name>
+	</login-config>
+
 	<context-param>
 		<param-name>webAppRootKey</param-name>
 		<param-value>registryEbxml</param-value>
