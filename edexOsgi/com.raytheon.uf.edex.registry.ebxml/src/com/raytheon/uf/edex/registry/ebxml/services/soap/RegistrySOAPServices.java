@@ -71,6 +71,7 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * 1/15/2014    2613        bphillip    Eliminated service caching...again
  * 2/19/2014    2769        bphillip    Renamed getPort method
  * 6/5/2014     1712        bphillip    Moved configuration out to separate class.  Added outbound interceptor
+ * 7/10/2014    1717        bphillip    Added authorization policy
  * </pre>
  * 
  * @author bphillip
@@ -308,6 +309,7 @@ public class RegistrySOAPServices {
         HTTPConduit conduit = (HTTPConduit) client.getConduit();
         conduit.setClient(serviceConfig.getHttpClientPolicy());
         conduit.setTlsClientParameters(securityConfig.getTlsParams());
+        conduit.setAuthorization(securityConfig.getAuthPolicy());
 
         // Create HTTP header containing the calling registry
         Map<String, List<String>> headers = new HashMap<String, List<String>>();

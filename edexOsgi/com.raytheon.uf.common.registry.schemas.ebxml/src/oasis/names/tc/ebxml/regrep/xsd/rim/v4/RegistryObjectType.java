@@ -93,6 +93,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode, toString and equals
+ * 7/10/2014     1717       bphillip    Added default user
  * </pre>
  * 
  * @author bphillip
@@ -122,6 +123,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class RegistryObjectType extends IdentifiableType {
 
     private static final long serialVersionUID = -7436174012584469534L;
+    
+    public static final String SYSTEM_USER = "System";
 
     @XmlElement(name = "Name")
     @DynamicSerializeElement
@@ -172,7 +175,7 @@ public class RegistryObjectType extends IdentifiableType {
 
     @XmlAttribute
     @DynamicSerializeElement
-    protected String owner;
+    protected String owner = SYSTEM_USER;
 
     @XmlAttribute
     @DynamicSerializeElement

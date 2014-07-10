@@ -9,5 +9,7 @@ Require-Bundle: org.eclipse.jetty;bundle-version="7.6.14",
  com.raytheon.uf.edex.core;bundle-version="1.14.0",
  com.raytheon.uf.common.util;bundle-version="1.14.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- org.apache.commons.cxf;bundle-version="2.7.11"
+ org.apache.commons.cxf;bundle-version="2.7.11",
+ com.raytheon.uf.common.security;bundle-version="1.14.0",
+ org.apache.ws.security;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.security
