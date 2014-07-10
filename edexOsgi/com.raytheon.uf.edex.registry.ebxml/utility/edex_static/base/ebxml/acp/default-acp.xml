@@ -54,9 +54,33 @@
 							DataType="http://www.w3.org/2001/XMLSchema#string" />
 					</ActionMatch>
 				</Action>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">execute</AttributeValue>
+						<ActionAttributeDesignator
+							AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+							DataType="http://www.w3.org/2001/XMLSchema#string" />
+					</ActionMatch>
+				</Action>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GET</AttributeValue>
+						<ActionAttributeDesignator
+							AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+							DataType="http://www.w3.org/2001/XMLSchema#string" />
+					</ActionMatch>
+				</Action>
+				<Action>
+					<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+						<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POST</AttributeValue>
+						<ActionAttributeDesignator
+							AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+							DataType="http://www.w3.org/2001/XMLSchema#string" />
+					</ActionMatch>
+				</Action>
 			</Actions>
 		</Target>
-		<Rule RuleId="urn:oasis:names:tc:xacml:2.0:conformance-test:IIA008:rule"
+		<Rule RuleId="urn:oasis:names:tc:xacml:2.0:data-delivery:default-noop-rule"
 			Effect="Permit">
 			<Description>
 				Default access control policy for accessing registry

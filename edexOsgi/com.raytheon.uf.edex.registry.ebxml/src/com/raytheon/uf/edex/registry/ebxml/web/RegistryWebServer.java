@@ -54,6 +54,7 @@ public class RegistryWebServer implements RegistryInitializedListener {
 
     /** The jetty server instance */
     private final Server jettyServer;
+   
 
     /**
      * Creates a new Jetty Server with the given configuration file
@@ -63,22 +64,19 @@ public class RegistryWebServer implements RegistryInitializedListener {
      * @throws Exception
      *             If errors occur while configuring the Jetty Server
      */
-    public RegistryWebServer(String jettyConfigFile, SecurityConfiguration securityConfiguration) throws Exception {
+    public RegistryWebServer(String jettyConfigFile,
+            SecurityConfiguration securityConfiguration) throws Exception {
         try {
             statusHandler.info("Configuring registry web server from file ["
                     + jettyConfigFile + "]");
             FileInputStream fis = null;
             try {
-            	// Temporarily add the security properties to the java properties so it can be configured properly
-            	System.getProperties().putAll(securityConfiguration.getSecurityProperties());
+                System.getProperties().putAll(
+                        securityConfiguration.getSecurityProperties());
                 fis = new FileInputStream(jettyConfigFile);
                 XmlConfiguration configuration = new XmlConfiguration(fis);
                 jettyServer = (Server) configuration.configure();
             } finally {
-            	// Remove the security properties from the environment
-            	for(Object property: securityConfiguration.getSecurityProperties().keySet()){
-            		System.getProperties().remove(property);
-            	}
                 if (fis != null) {
                     fis.close();
                 }
