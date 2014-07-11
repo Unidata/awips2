@@ -35,6 +35,7 @@
 # Jun 20, 2014  #3245     bclement    forEachRunningCave now accounts for child processes
 # Jul 02, 2014  #3245     bclement    account for memory override in vm arguments
 # Jul 10, 2014  #3363     bclement    fixed precedence order for ini file lookup
+# Jul 11, 2014  #3371     bclement    added killSpawn()
 
 
 source /awips2/cave/iniLookup.sh
@@ -312,13 +313,23 @@ function deleteOldCaveDiskCaches()
    cd $curDir
 }
 
+# takes in a process id
+# kills spawned subprocesses of pid
+# and then kills the process itself
+function killSpawn()
+{
+    pid=$1
+    pkill -P $pid
+    kill $pid
+}
+
 # log the exit status and time to a log file, requires 2 args pid and log file
 function logExitStatus()
 {
    pid=$1
    logFile=$2
    
-   trap 'kill $pid' SIGHUP SIGINT SIGQUIT SIGTERM
+   trap 'killSpawn $pid' SIGHUP SIGINT SIGQUIT SIGTERM
    wait $pid
    exitCode=$?
    curTime=`date --rfc-3339=seconds`
