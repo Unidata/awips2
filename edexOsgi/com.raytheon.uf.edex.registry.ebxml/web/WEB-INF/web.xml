@@ -66,17 +66,6 @@
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
-	<servlet>
-		<display-name>DWR Servlet</display-name>
-		<servlet-name>dwr-invoker</servlet-name>
-		<servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>dwr-invoker</servlet-name>
-		<url-pattern>/dwr/*</url-pattern>
-	</servlet-mapping>
-
 	<welcome-file-list>
 		<welcome-file>registry/RegistryInterface.html</welcome-file>
 	</welcome-file-list>
