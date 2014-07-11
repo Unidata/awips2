@@ -342,26 +342,32 @@ runJmap() {
    local t1=`date "+%Y%m%d %H:%M:%S"`
    local log="${prePath}dump.log"
    local dumpPath="${prePath}dump"
+   local heapPath="${prePath}heap"
 
    if [ "$ACCUM" == "y" ]; then
       # accum needs to change hprof by date
       local t2=`date "+%Y%m%d_%H%M%S"`
       dumpPath="${dumpPath}_${t2}.hprof"
+      heapPath="${heapPath}_${t2}.txt"
    else
       dumpPath="${dumpPath}.hprof"
+      heapPath="${heapPath}.txt"
    fi
+
+   echo "${t1}: Running command: /awips2/java/bin/jmap -heap $pid" >> $processFile
+   /awips2/java/bin/jmap -heap $pid >> ${heapPath} 2>&1
 
    # Java 1.7 has a bug that causes jmap to crash processes using the G1 garbage collector
    # more info at http://stackoverflow.com/questions/20571004/garbage-collector-first-and-jmap-eof-bug
    # workaround is to add the 'live' option to jmap to limit the dump to only live objects
    local cmd="/awips2/java/bin/jmap -dump:live,format=b,file=${dumpPath}"
-   echo "${t1}: Running command: $cmd $options $pid >> $log 2>&1 &" >> $processFile
-   $cmd $options $pid >> $log 2>&1 &
+   echo "${t1}: Running command: $cmd $options $pid >> $log 2>&1" >> $processFile
+   $cmd $options $pid >> $log 2>&1
 
    if [[ "$?" != "0" && $FORCE != "y" ]]; then
       t1=`date "+%Y%m%d %H:%M:%S"`
       echo "${t1}: jmap for $pid failed to connect, rerunning with -F" >> $processFile
-      $cmd $options -F $pid >> $log 2>&1 &
+      $cmd $options -F $pid >> $log 2>&1
    fi
 }
 
