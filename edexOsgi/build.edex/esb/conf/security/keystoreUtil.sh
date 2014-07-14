@@ -29,7 +29,7 @@ fi
 
 while [ -z $keystorePw ];
 do
-	echo -n "Enter password for keystore [$keystore]: "
+	echo -n "Enter desired password for keystore [$keystore]: "
 	read keystorePw
 	if [ -z $keystorePw ];
 	then
@@ -49,7 +49,7 @@ done
 
 while [ -z $keyPw ];
 do
-	echo -n "Enter password for key [$keyAlias]: "
+	echo -n "Enter desired password for key [$keyAlias]: "
 	read keyPw
 	if [ -z $keyPw ];
 	then
@@ -109,6 +109,10 @@ echo "Done!"
 echo -n "Moving key store and trust store to [$securityDir] ..."
 mv $truststore $keystore $securityDir
 echo "Done!"
+
+echo "Keystores are located at $securityDir"
+echo "The public key for this server is located at $(pwd)/$keyAlias$publicKeyFile"
+echo "This file may be disseminated to other registry federation memebers who wish to interact with this server"
 
 }
 
