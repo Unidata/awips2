@@ -74,9 +74,6 @@
    <logger name="org.springframework">
       <level value="ERROR"/>
    </logger>
-   <logger name="uk.ltd.getahead">
-      <level value="WARN"/>
-   </logger>
 
    <!-- default logging --> 
    <root> 
