@@ -30,7 +30,6 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- uk.ltd.getahead;bundle-version="1.0.0",
  javax.mail;bundle-version="1.0.0",
  org.apache.commons.validator;bundle-version="1.2.0",
  com.sun.xml.bind;bundle-version="1.0.0",
