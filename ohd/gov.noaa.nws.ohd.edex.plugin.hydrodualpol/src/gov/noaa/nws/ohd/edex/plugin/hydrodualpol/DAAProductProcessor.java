@@ -2,19 +2,13 @@ package gov.noaa.nws.ohd.edex.plugin.hydrodualpol;
 
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
-import org.eclipse.jface.viewers.deferred.SetModel;
-
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyBlock;
@@ -22,11 +16,9 @@ import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.TextSymbolPacket;
 import com.raytheon.uf.common.dataplugin.shef.tables.DAARadar;
 import com.raytheon.uf.common.dataplugin.shef.tables.DAARadarId;
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.util.TimeUtil;
-
-import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;

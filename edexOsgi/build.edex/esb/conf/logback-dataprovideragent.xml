@@ -60,9 +60,6 @@
    <logger name="org.springframework">
       <level value="ERROR"/>
    </logger>
-   <logger name="uk.ltd.getahead">
-      <level value="WARN"/>
-   </logger>
    <logger name="org.hibernate" additivity="false">
       <level value="ERROR"/>
       <appender-ref ref="HibernateLog" />
