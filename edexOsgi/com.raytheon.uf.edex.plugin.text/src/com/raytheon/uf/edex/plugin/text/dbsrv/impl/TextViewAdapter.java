@@ -43,6 +43,7 @@ import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.serialization.MarshalOptions;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.site.SiteMap;
@@ -72,6 +73,7 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  * --------------------------------
  * 27Apr2012     564       jkorman     Added sort to ALL times retrieval.
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv, added marshalToStream()
+ * Jul 15, 2014 3373       bclement    jaxb manager api changes
  * 
  * </pre>
  * 
@@ -457,7 +459,7 @@ public class TextViewAdapter implements ICommandExecutor {
         } catch (JAXBException e) {
             throw new SerializationException("Unable to create JAXB manager", e);
         }
-        jaxbManager.marshalToStream(prod, stream, false);
+        jaxbManager.marshalToStream(prod, stream, MarshalOptions.UNFORMATTED);
     }
 
     /**
