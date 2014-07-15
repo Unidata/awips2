@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
@@ -37,7 +38,6 @@ import com.raytheon.uf.common.monitor.xml.FFMPRunXML;
 import com.raytheon.uf.common.monitor.xml.SourceIngestConfigXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
  * 
@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * ------------ ---------- ----------- --------------------------
  * 06/21/2009   2521       dhladky    Initial Creation.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
+ * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * 
  * </pre>
  * 
@@ -252,8 +253,7 @@ public class FFMPURIFilter extends URIFilter {
                 .getInstance();
         FFMPRunConfigurationManager runConfig = FFMPRunConfigurationManager
                 .getInstance();
-        FFMPRunXML runner = runConfig.getRunner(PropertiesFactory.getInstance()
-                .getEnvProperties().getEnvValue("SITENAME"));
+        FFMPRunXML runner = runConfig.getRunner(SiteUtil.getSite());
 
         for (SourceXML source : sourceConfig.getSources()) {
 
@@ -273,21 +273,22 @@ public class FFMPURIFilter extends URIFilter {
                     for (String dataKey : sicx.getDataKey()) {
 
                         String matcher = null;
-						// RFC FFG, special matching criteria and override potentials
-						if (source.isRfc()) {
-							String pathReplace = source.getDataPath(dataKey);
-							if (pathReplace.equals(source.getDataPath())) {
-								matcher = replaceWildCard(
-										"FFG-" + dataKey.substring(1),
-										source.getDataPath(),
-										sicx.getUriSubLocation());
-							} else {
-								matcher = pathReplace;
-							}
-						}
-						// All others use this pattern
-						else {
-							matcher = replaceWildCard(dataKey,
+                        // RFC FFG, special matching criteria and override
+                        // potentials
+                        if (source.isRfc()) {
+                            String pathReplace = source.getDataPath(dataKey);
+                            if (pathReplace.equals(source.getDataPath())) {
+                                matcher = replaceWildCard(
+                                        "FFG-" + dataKey.substring(1),
+                                        source.getDataPath(),
+                                        sicx.getUriSubLocation());
+                            } else {
+                                matcher = pathReplace;
+                            }
+                        }
+                        // All others use this pattern
+                        else {
+                            matcher = replaceWildCard(dataKey,
                                     source.getDataPath(dataKey),
                                     sicx.getUriSubLocation());
                         }
