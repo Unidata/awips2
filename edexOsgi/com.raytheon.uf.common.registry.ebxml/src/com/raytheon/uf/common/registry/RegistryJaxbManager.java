@@ -19,10 +19,12 @@
  **/
 package com.raytheon.uf.common.registry;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.serialization.jaxb.JaxbMarshallerStrategy;
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
 /**
@@ -38,6 +40,7 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/8/2013     1692        bphillip    Initial implementation
+ * Jul 15, 2014 3373       bclement     jaxb manager changes
  * </pre>
  * 
  * @author bphillip
@@ -47,17 +50,6 @@ public class RegistryJaxbManager extends JAXBManager {
 
     /** The namespace mapper property name on the marshaller */
     private static final String NAMESPACE_PREFIX_MAPPER_PROPERTY = "com.sun.xml.bind.namespacePrefixMapper";
-
-    protected NamespacePrefixMapper namespaceMapper;
-
-    /**
-     * Creates a new RegistryJaxbManager. Hidden from public use
-     * 
-     * @throws JAXBException
-     */
-    protected RegistryJaxbManager() throws JAXBException {
-        super();
-    }
 
     /**
      * Creates a new RegistryJaxbManager with the given namespace mapper
@@ -72,25 +64,29 @@ public class RegistryJaxbManager extends JAXBManager {
     public RegistryJaxbManager(RegistryNamespaceMapper namespaceMapper)
             throws JAXBException {
         super(
+                createStrategy(namespaceMapper),
                 oasis.names.tc.ebxml.regrep.xsd.lcm.v4.ObjectFactory.class,
                 oasis.names.tc.ebxml.regrep.xsd.query.v4.ObjectFactory.class,
                 oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectFactory.class,
                 oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectFactory.class,
                 oasis.names.tc.ebxml.regrep.xsd.spi.v4.ObjectFactory.class,
                 com.raytheon.uf.common.registry.services.rest.response.RestCollectionResponse.class);
-        this.namespaceMapper = namespaceMapper;
     }
 
-    @Override
-    protected Marshaller getMarshaller() throws JAXBException {
-        Marshaller m = marshallers.poll();
-        if (m == null) {
-            m = getJaxbContext().createMarshaller();
-            if (namespaceMapper != null) {
-                m.setProperty(NAMESPACE_PREFIX_MAPPER_PROPERTY, namespaceMapper);
+    private static JaxbMarshallerStrategy createStrategy(
+            final NamespacePrefixMapper namespaceMapper) {
+        return new JaxbMarshallerStrategy() {
+            @Override
+            protected Marshaller createMarshaller(JAXBContext context)
+                    throws JAXBException {
+                Marshaller rval = super.createMarshaller(context);
+                if (namespaceMapper != null) {
+                    rval.setProperty(NAMESPACE_PREFIX_MAPPER_PROPERTY,
+                            namespaceMapper);
+                }
+                return rval;
             }
-        }
-        return m;
+        };
     }
 
 }
