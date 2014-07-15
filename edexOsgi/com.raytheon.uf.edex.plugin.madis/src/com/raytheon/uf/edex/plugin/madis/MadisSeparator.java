@@ -23,9 +23,10 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
- * Madis record separation. 
+ * Madis record separation.
+ * 
  * <pre>
- *                     
+ * 
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#     Engineer    Description
@@ -39,20 +40,19 @@ import com.raytheon.uf.edex.core.EdexException;
  * @version 1
  */
 
-
 public class MadisSeparator {
-  
+
     private static final Pattern regex = Pattern.compile(",");
 
-    public static final String pathPrefix = EDEXUtil.EDEX_HOME + File.separatorChar + "data"
+    public static final String pathPrefix = EDEXUtil.getEdexData()
             + File.separatorChar + "madis" + File.separatorChar;
 
     private static final String pathSuffix = ".madis";
 
     private String madisRoute;
-    
+
     private int timeback;
-        
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(MadisSeparator.class);
 
@@ -69,15 +69,14 @@ public class MadisSeparator {
         }
     }
 
-    public void separate(byte[] inputData)
-            throws DecoderException {
-        
+    public void separate(byte[] inputData) throws DecoderException {
+
         InputStream is = null;
         BufferedReader bfReader = null;
         long time = System.currentTimeMillis();
-        
+
         if (inputData != null) {
-    
+
             is = new ByteArrayInputStream(inputData);
             bfReader = new BufferedReader(new InputStreamReader(is));
             String line = null;
@@ -85,13 +84,13 @@ public class MadisSeparator {
             MadisIngestObject mio = null;
             String headerLine = null;
             int i = 0;
-            
+
             try {
-                
+
                 long time3 = 0l;
                 int j = 1;
-                
-                while((line = bfReader.readLine()) != null) {
+
+                while ((line = bfReader.readLine()) != null) {
                     // Get the file type, D or F
                     if (i == 0) {
                         time3 = System.currentTimeMillis();
@@ -125,10 +124,10 @@ public class MadisSeparator {
                     sendFile(mio);
                     long time4 = System.currentTimeMillis();
                     statusHandler.handle(Priority.INFO,
-                            "MADIS separated record wrote: "+j+" "
+                            "MADIS separated record wrote: " + j + " "
                                     + (time4 - time3) + " ms");
                 }
-                
+
             } catch (IOException e) {
                 statusHandler.handle(Priority.ERROR,
                         "Could not open MADIS CSV file!", e);
@@ -137,17 +136,18 @@ public class MadisSeparator {
                     try {
                         bfReader.close();
                     } catch (IOException e) {
-                        statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
                     }
                 }
             }
         }
-        
+
         long time2 = System.currentTimeMillis();
         statusHandler.handle(Priority.INFO, "MADIS separation total: "
                 + (time2 - time) + " ms");
     }
-    
+
     /**
      * Gets the correct MADIS header type
      * 
@@ -170,14 +170,16 @@ public class MadisSeparator {
                     "Unknown format for MADIS CSV file! " + commaSepList);
         }
     }
-    
+
     /**
      * Writes the object to the File System
+     * 
      * @param mio
      */
-    private static void sendObject(MadisIngestObject mio, String path) throws Exception {
+    private static void sendObject(MadisIngestObject mio, String path)
+            throws Exception {
         FileOutputStream fos = null;
-        
+
         try {
             File file = new File(path);
             file.createNewFile();
@@ -187,57 +189,62 @@ public class MadisSeparator {
             statusHandler.handle(Priority.PROBLEM, "Couldn't create file", e);
             throw new Exception("Unable to write File, FileNotFound!", e);
         } catch (SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM, "Serialization exception writing file", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Serialization exception writing file", e);
             throw new Exception("Unable to write File, Serialization!", e);
         } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "IO Exception creating file", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "IO Exception creating file", e);
             throw new Exception("Unable to write File, IO!", e);
         } finally {
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                     statusHandler.handle(Priority.PROBLEM, "Problem closing the stream!", e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Problem closing the stream!", e);
                 }
             }
         }
     }
-    
+
     /**
      * Send the path to QPID
+     * 
      * @param path
      * @param route
      */
     private static void sendPath(String path, String route) throws Exception {
         try {
-            EDEXUtil.getMessageProducer().sendAsyncUri(
-                    route, path);
+            EDEXUtil.getMessageProducer().sendAsyncUri(route, path);
         } catch (EdexException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
-            throw new Exception("Unable to send Path message, EdexException!", e);
-        } 
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            throw new Exception("Unable to send Path message, EdexException!",
+                    e);
+        }
     }
-    
+
     /**
      * Get the file from the path
+     * 
      * @param path
      * @param route
      */
     public static MadisIngestObject getObject(String path) {
-        
+
         FileInputStream fis = null;
         MadisIngestObject mio = null;
-        
+
         try {
             fis = new FileInputStream(new File(path));
-            mio = SerializationUtil.transformFromThrift(MadisIngestObject.class, fis);
-            
+            mio = SerializationUtil.transformFromThrift(
+                    MadisIngestObject.class, fis);
+
         } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Couldn't find the file", e);
+            statusHandler.handle(Priority.PROBLEM, "Couldn't find the file", e);
         } catch (SerializationException e) {
-            statusHandler.handle(Priority.PROBLEM, "Couldn't de-serialize the file", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Couldn't de-serialize the file", e);
         } finally {
             if (fis != null) {
                 try {
@@ -248,18 +255,20 @@ public class MadisSeparator {
                 }
             }
         }
-        
+
         return mio;
     }
-    
+
     /**
      * Gets the filePath and sends to queue and disk
+     * 
      * @param mio
      */
     private void sendFile(MadisIngestObject mio) {
-        
+
         StringBuilder filePath = new StringBuilder();
-        filePath.append(pathPrefix).append(UUID.randomUUID().toString()).append(pathSuffix);
+        filePath.append(pathPrefix).append(UUID.randomUUID().toString())
+                .append(pathSuffix);
         String path = filePath.toString();
         try {
             sendObject(mio, path);
@@ -269,7 +278,7 @@ public class MadisSeparator {
                     "Could not write file or place message on queue!", e);
         }
     }
-    
+
     /**
      * Cleans up any orphaned files that might be hanging around
      */
