@@ -30,6 +30,9 @@ import org.eclipse.ui.IWorkbenchWindow;
 import com.raytheon.uf.common.localization.AutoUpdatingLocalizationFile;
 import com.raytheon.uf.common.localization.AutoUpdatingLocalizationFile.AutoUpdatingFileChangedListener;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
@@ -41,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
 import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
 import com.raytheon.uf.viz.core.procedures.Bundle;
@@ -61,7 +65,8 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  * Oct 08, 2013           mschenke    Initial creation
  * Oct 22, 2013  2491     bsteffen    Change from SerializationUtil to
  *                                    ProcedureXmlManager
- * Mar 24, 2014  2954     mpduff      Check for missing map scale files and handle the situation.
+ * Mar 24, 2014  2954     mpduff      Log when missing map scale files
+ * Jul 15, 2014  2954     njensen     Added fallbacks when missing map scale files
  * 
  * </pre>
  * 
@@ -79,6 +84,11 @@ public class MapScalesManager {
 
     private static final String DEFAULT_SCALES_FILE = "scalesInfo.xml";
 
+    // TODO would be better to fall back to a worldwide display
+    private static final String LAST_RESORT_NAME = "Northern Hemisphere";
+
+    private static final String LAST_RESORT_FILENAME = "NHemisphere.xml";
+
     /**
      * Manager class for a single {@link MapScale}. Is able to create a Bundle
      * for the scale. May provide functions for modifying/saving scales
@@ -94,7 +104,7 @@ public class MapScalesManager {
 
         private final String displayName;
 
-        private final PartId[] partIds;
+        private PartId[] partIds;
 
         private final AutoUpdatingLocalizationFile scaleFile;
 
@@ -103,13 +113,15 @@ public class MapScalesManager {
         private final boolean isCustom;
 
         private ManagedMapScale(String baseDir, MapScale scale)
-                throws SerializationException {
+                throws IllegalStateException, SerializationException {
             this.isCustom = false;
+            this.partIds = scale.getPartIds();
+            this.displayName = scale.getDisplayName();
+
             LocalizationFile file = PathManagerFactory.getPathManager()
                     .getStaticLocalizationFile(
                             baseDir + IPathManager.SEPARATOR
                                     + scale.getFileName());
-
             if (file == null || !file.exists()) {
                 throw new IllegalStateException(
                         "scalesInfo.xml references missing file "
@@ -117,9 +129,18 @@ public class MapScalesManager {
             }
             this.scaleFile = new AutoUpdatingLocalizationFile(file);
             this.scaleFile.addListener(listener);
-            this.partIds = scale.getPartIds();
-            this.displayName = scale.getDisplayName();
             loadBundleXml();
+
+            /*
+             * TODO this is inefficient to unmarshal it eagerly for no purpose
+             * other than to validate, but it ensures that if the files exist
+             * but have bad XML, then the thrown exception from getScaleBundle()
+             * will cause the fallback code to be triggered, leading to no blank
+             * panes
+             */
+
+            // validate the XML is good
+            getScaleBundle();
         }
 
         private ManagedMapScale(String displayName, Bundle scaleBundle)
@@ -190,7 +211,9 @@ public class MapScalesManager {
         @Override
         public void fileChanged(AutoUpdatingLocalizationFile file) {
             try {
-                loadMapScales();
+                MapScales scales = file.loadObject(getJAXBManager(),
+                        MapScales.class);
+                loadMapScales(scales);
             } catch (SerializationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -198,7 +221,7 @@ public class MapScalesManager {
         }
     };
 
-    private final AutoUpdatingLocalizationFile scalesFile;
+    private AutoUpdatingLocalizationFile scalesFile;
 
     private final String scaleBundleDir;
 
@@ -223,36 +246,106 @@ public class MapScalesManager {
      */
     public MapScalesManager(String scalesDir, String scalesFile)
             throws SerializationException {
-        this(scalesDir, PathManagerFactory.getPathManager()
+        String filename = scalesDir + IPathManager.SEPARATOR + scalesFile;
+        LocalizationFile locFile = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(
-                        scalesDir + IPathManager.SEPARATOR + scalesFile));
+filename);
+        MapScales scales = null;
+        try {
+            this.scalesFile = new AutoUpdatingLocalizationFile(locFile);
+            scales = this.scalesFile.loadObject(getJAXBManager(),
+                    MapScales.class);
+        } catch (SerializationException e) {
+            /*
+             * failed to load scalesInfo file, try and fall back to BASE
+             */
+            if (!locFile.getContext().getLocalizationLevel()
+                    .equals(LocalizationLevel.BASE)) {
+                locFile = PathManagerFactory.getPathManager()
+                        .getLocalizationFile(
+                                new LocalizationContext(
+                                        LocalizationType.CAVE_STATIC,
+                                        LocalizationLevel.BASE), filename);
+                this.scalesFile = new AutoUpdatingLocalizationFile(locFile);
+                scales = this.scalesFile.loadObject(getJAXBManager(),
+                        MapScales.class);
+            } else {
+                throw e;
+            }
+        }
+        this.scaleBundleDir = scalesDir;
+        this.scalesFile.addListener(listener);
+        loadMapScales(scales);
+    }
+
+    private synchronized void loadMapScales(MapScales scales)
+ {
+        List<ManagedMapScale> storedScales = new ArrayList<ManagedMapScale>();
+        List<PartId> failedParts = new ArrayList<PartId>();
+        for (MapScale scale : scales.getScales()) {
+            try {
+                storedScales.add(new ManagedMapScale(scaleBundleDir, scale));
+            } catch (Exception e) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Error loading " + scale.getDisplayName()
+                        + " scale. ");
+                if (scale.getPartIds() != null && scale.getPartIds().length > 0) {
+                    sb.append(scale.getDisplayName()
+                            + " pane will attempt to revert to working scale. ");
+                }
+                sb.append(scale.getDisplayName()
+                        + " will not appear in the menu. ");
+                statusHandler.error(sb.toString(), e);
+                if (scale.getPartIds() != null) {
+                    for (PartId p : scale.getPartIds()) {
+                        failedParts.add(p);
+                    }
+                }
+            }
+        }
+        this.storedScales = storedScales;
+
+        // storedScales must be set before handleMissingParts()
+        if (!failedParts.isEmpty()) {
+            handleMissingParts(failedParts);
+        }
     }
 
     /**
-     * Construct a MapScalesManager for the given scales file. File must be
-     * deserializable into a {@link MapScales} object
+     * Handles the parts that referenced scales files that couldn't be found.
      * 
-     * @param bundleDir
-     *            directory bundle files are relative to
-     * @param scalesFile
-     * @throws SerializationException
+     * @param missingParts
+     *            the parts that were missing
+     * @param goodScales
+     *            the scales that successfully loaded
      */
-    public MapScalesManager(String bundleDir, LocalizationFile scalesFile)
-            throws SerializationException {
-        this.scaleBundleDir = bundleDir;
-        this.scalesFile = new AutoUpdatingLocalizationFile(scalesFile);
-        this.scalesFile.addListener(listener);
-        loadMapScales();
-    }
+    protected void handleMissingParts(List<PartId> missingParts) {
+        /*
+         * if the missing part was a side view, fall back to the main pane
+         */
+        ManagedMapScale mainPane = findEditorScale();
 
-    private synchronized void loadMapScales() throws SerializationException {
-        List<ManagedMapScale> storedScales = new ArrayList<ManagedMapScale>();
-        MapScales scales = this.scalesFile.loadObject(getJAXBManager(),
-                MapScales.class);
-        for (MapScale scale : scales.getScales()) {
-            storedScales.add(new ManagedMapScale(scaleBundleDir, scale));
+        if (mainPane == null) {
+            /*
+             * main pane is missing too, so fall back to a base scale that is
+             * guaranteed to be there
+             */
+            mainPane = getLastResortScale();
+            storedScales.add(mainPane);
         }
-        this.storedScales = storedScales;
+
+        /*
+         * Set all the missing parts to the scale in the main pane
+         */
+        List<PartId> combinedParts = new ArrayList<PartId>(
+                mainPane.partIds.length + missingParts.size());
+        for (PartId p : mainPane.getPartIds()) {
+            combinedParts.add(p);
+        }
+        for (PartId p : missingParts) {
+            combinedParts.add(p);
+        }
+        mainPane.partIds = combinedParts.toArray(new PartId[0]);
     }
 
     /**
@@ -336,12 +429,12 @@ public class MapScalesManager {
     }
 
     /**
-     * Gets the {@link ManagedMapScale}s defined for the partId
+     * Gets the Bundle defined for the partId.
      * 
      * @param partId
      * @return
      */
-    public ManagedMapScale[] getScalesForPart(String partId) {
+    public Bundle getScaleBundleForPart(String partId) {
         List<ManagedMapScale> scalesForPart = new ArrayList<ManagedMapScale>();
         for (ManagedMapScale scale : storedScales) {
             for (PartId part : scale.getPartIds()) {
@@ -351,7 +444,26 @@ public class MapScalesManager {
                 }
             }
         }
-        return scalesForPart.toArray(new ManagedMapScale[0]);
+
+        Bundle b = null;
+        for (ManagedMapScale scale : scalesForPart) {
+            try {
+                b = scale.getScaleBundle();
+            } catch (SerializationException e) {
+                statusHandler.error("Error deserializing bundle for scale: "
+                        + scale, e);
+            }
+
+            if (b != null) {
+                break;
+            }
+        }
+
+        if (b != null) {
+            b.setView(partId);
+        }
+
+        return b;
     }
 
     /**
@@ -407,5 +519,55 @@ public class MapScalesManager {
             }
         }
         return jaxbManager;
+    }
+
+    /**
+     * Gets a base scale that should always be there and should always work.
+     * Used to prevent blank panes if scale overrides are misconfigured.
+     * 
+     * @return
+     */
+    protected ManagedMapScale getLastResortScale() {
+        ManagedMapScale scale = null;
+        PartId fallbackPartId = new PartId();
+        fallbackPartId.setId(VizMapEditor.EDITOR_ID);
+        fallbackPartId.setView(false);
+        MapScale fallback = new MapScale();
+        fallback.setPartIds(new PartId[] { fallbackPartId });
+        fallback.setDisplayName(LAST_RESORT_NAME);
+        fallback.setFileName(LAST_RESORT_FILENAME);
+        try {
+            scale = new ManagedMapScale(scaleBundleDir, fallback);
+        } catch (Exception e) {
+            statusHandler.fatal("Error loading the last resort scale "
+                    + LAST_RESORT_FILENAME, e);
+            // things will null pointer if this ever hits, but come on
+        }
+        return scale;
+    }
+
+    /**
+     * Finds the editor pane (ie VizMapEditor.EDITOR_ID) associated with a list
+     * of scales
+     * 
+     * @return the first scale tied to a VizMapEditor, or null if none are found
+     */
+    public ManagedMapScale findEditorScale() {
+        ManagedMapScale editorScale = null;
+        for (ManagedMapScale scale : storedScales) {
+            PartId[] parts = scale.partIds;
+            if (parts != null) {
+                for (PartId p : parts) {
+                    if (VizMapEditor.EDITOR_ID.equals(p.getId())) {
+                        editorScale = scale;
+                        break;
+                    }
+                }
+            }
+            if (editorScale != null) {
+                break;
+            }
+        }
+        return editorScale;
     }
 }
