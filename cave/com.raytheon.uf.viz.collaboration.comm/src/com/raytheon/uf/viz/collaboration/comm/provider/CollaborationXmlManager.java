@@ -19,13 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.UnmarshallerHandler;
 
@@ -60,6 +59,7 @@ import com.raytheon.uf.viz.core.reflect.SubClassLocator;
  * ------------- -------- ----------- --------------------------
  * Oct 31, 2013  2491     bsteffen    Initial creation
  * Dec 18, 2013  2562     bclement    extend jaxb manager, xpp/fragment support
+ * Jul 15, 2014  3373     bclement    jaxb manager changes, unmarshalFromXPP() doesn't pool
  * 
  * </pre>
  * 
@@ -147,43 +147,14 @@ public class CollaborationXmlManager extends JAXBManager {
      */
     public Object unmarshalFromXPP(XmlPullParser parser)
             throws CollaborationException {
-        Unmarshaller unmarshaller = null;
         try {
-            unmarshaller = getUnmarshaller();
+            JAXBContext ctx = getJaxbContext();
+            Unmarshaller unmarshaller = ctx.createUnmarshaller();
             UnmarshallerHandler handler = unmarshaller.getUnmarshallerHandler();
             PullParserJaxbAdapter adapter = new PullParserJaxbAdapter(parser, handler);
             return adapter.unmarshal();
         } catch (Exception e) {
             throw new CollaborationException("Unable to unmarshal data", e);
-        } finally {
-            // TODO magic number 10 because QUEUE_SIZE isn't visible
-            if ((unmarshaller != null) && (unmarshallers.size() < 10)) {
-                unmarshallers.add(unmarshaller);
-            }
-        }
-    }
-
-    /**
-     * Marshal object to unformatted (not pretty-printed) XML fragment (no XML
-     * preamble)
-     * 
-     * @param obj
-     * @return
-     * @throws JAXBException
-     */
-    public String marshalToFragment(Object obj) throws JAXBException {
-        Marshaller msh = getMarshaller();
-        try {
-            StringWriter writer = new StringWriter();
-            msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-            msh.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-            msh.marshal(obj, writer);
-            return writer.toString();
-        } finally {
-            // TODO magic number 10 because QUEUE_SIZE isn't visible
-            if ((msh != null) && (marshallers.size() < 10)) {
-                marshallers.add(msh);
-            }
         }
     }
 
