@@ -38,6 +38,7 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 8/8/2013     1692        bphillip    Initial implementation
+ * Jul 15, 2014 3373        bclement    removed warning
  * </pre>
  * 
  * @author bphillip
@@ -73,7 +74,7 @@ public class RegistryNamespaceMapper extends NamespacePrefixMapper implements
     }
 
     @Override
-    public Iterator getPrefixes(String namespaceURI) {
+    public Iterator<?> getPrefixes(String namespaceURI) {
         throw new UnsupportedOperationException();
     }
 
