@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * Abstract Main method class provides supporting functions for the main methods
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Oct 28, 2008            jelkins     Initial creation
  * Oct 19, 2012  #1274     bgonzale    Set AppContext on the process builder in ctor.
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
+ * Jul 10, 2014   2914     garmendariz Remove EnvProperties
  * </pre>
  * 
  * @author jelkins
@@ -117,9 +118,8 @@ public class MainMethod extends Process {
         try {
             processBuilder.environment().put(
                     "apps_dir",
-                    new File(PropertiesFactory.getInstance().getEnvProperties()
-                            .getEnvValue("SHAREDIR")
-                            + File.separator + "hydroapps").getCanonicalPath());
+                    new File(EDEXUtil.getEdexShare() + File.separator
+                            + "hydroapps").getCanonicalPath());
             AppsDefaults.getInstance().setAppContext(processBuilder);
         } catch (IOException e) {
             log.error("Unable to get apps_dir", e);
