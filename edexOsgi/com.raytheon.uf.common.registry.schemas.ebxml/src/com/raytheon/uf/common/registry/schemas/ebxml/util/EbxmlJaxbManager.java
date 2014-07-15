@@ -50,6 +50,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2013  ----      njensen     Initial release.
  * Nov 24, 2013  2584      dhladky     versioning
+ * Jul 15, 2014  3373      bclement    pooling jaxb manager
  * </pre>
  * 
  * @author njensen
@@ -118,7 +119,7 @@ public class EbxmlJaxbManager {
 
     public synchronized JAXBManager getJaxbManager() throws JAXBException {
         if (jaxb == null) {
-            jaxb = new JAXBManager(jaxables.toArray(new Class[0]));
+            jaxb = new JAXBManager(true, jaxables.toArray(new Class[0]));
         }
         return jaxb;
     }
