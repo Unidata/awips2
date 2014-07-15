@@ -94,13 +94,15 @@
 				<for list="${wa.to.deploy}" param="wa"
 				delimiter="${path.separator}">
 					<sequential>
+						<basename property="wa.name" file="@{wa}" />
 						<if>
-							<available file="@{wa}/edexOsgi/build.edex/wa-build.xml"
+							<available file="@{wa}/edex/deploy-${wa.name}/wa-deploy.xml"
 								type="file" />
 							<then>
 		        				<ant 
-		        					antfile="@{wa}/edexOsgi/build.edex/wa-build.xml" 
-		        					inheritall="true" inheritrefs="true"/>
+		        					antfile="@{wa}/edex/deploy-${wa.name}/wa-deploy.xml" 
+		        					inheritall="true" inheritrefs="true"
+							        useNativeBasedir="true" />
 							</then>
 						</if>
 					</sequential>
