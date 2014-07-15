@@ -43,7 +43,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * This class should only be used by the QC plug-ins.
@@ -62,9 +62,9 @@ public class QCPaths {
         PYTHON_INCLUDE_PATH = PyUtil.buildJepIncludePath(pathMgr.getFile(
                 pathMgr.getContext(LocalizationType.COMMON_STATIC,
                         LocalizationLevel.BASE), "python").getAbsolutePath());
-        QC_RAW_DIR = PropertiesFactory.getInstance().getEnvProperties()
-                .getEnvValue("HDF5DIR")
-                + "/QC/";
+        QC_RAW_DIR = EDEXUtil.getEdexData() + File.separator
+                + System.getProperty("HDF5_PATH");
+
     }
 
     public static String getPythonScriptPath(String scriptFileName) {
@@ -138,6 +138,11 @@ public class QCPaths {
                     }
                 }
             }
+
+            if (jar != null) {
+                jar.close();
+            }
+
             return pdds;
         } catch (SerializationException e) {
             throw new RuntimeException(
