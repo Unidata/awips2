@@ -50,7 +50,7 @@ import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.plugin.text.dao.AfosToAwipsDao;
 import com.raytheon.uf.edex.plugin.text.db.TextDB;
@@ -80,6 +80,7 @@ import com.raytheon.uf.edex.plugin.text.impl.separator.WMOMessageSeparator;
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Mar 14, 2014 2652        skorolev    Changed logging for skipped headers.
  * May 12, 2014 2536        bclement    added createTextRecord(), removed deprecated code
+ * Jul 10, 2014 2914        garmendariz Remove EnvProperties
  * </pre>
  * 
  * @author
@@ -93,12 +94,10 @@ public class TextDecoder extends AbstractDecoder {
 
     private static final long MSG_HDR_LOG_PERIOD = 10 * 60 * 1000;
 
-    private static boolean moveBadTxt = Boolean.parseBoolean(PropertiesFactory
-            .getInstance().getEnvProperties()
-            .getEnvValue("FXADEBUGSAVEBADTEXTFILES"));
+    private static boolean moveBadTxt = Boolean.parseBoolean(System
+            .getProperty("fxadebugsavedbadtextfiles"));
 
-    private static String badTxtDir = PropertiesFactory.getInstance()
-            .getEnvProperties().getEnvValue("DEFAULTDATADIR")
+    private static String badTxtDir = EDEXUtil.getEdexData() + File.separator
             + "badTxt";
 
     private final Log logger = LogFactory.getLog(getClass());
