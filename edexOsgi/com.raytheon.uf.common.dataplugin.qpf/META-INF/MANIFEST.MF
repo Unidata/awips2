@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: QPF common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.qpf
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.qpf
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization,
@@ -14,4 +14,3 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage
-Import-Package: org.apache.commons.logging
