@@ -20,11 +20,8 @@
 package com.raytheon.viz.lightning;
 
 import java.awt.Font;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,27 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
-import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
-import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.datastorage.Request;
-import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
-import com.raytheon.uf.common.datastorage.records.LongDataRecord;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.BinOffset;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -62,7 +45,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.cache.CacheObject;
-import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -75,6 +57,9 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.viz.lightning.cache.LightningFrame;
+import com.raytheon.viz.lightning.cache.LightningFrameMetadata;
+import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
 
 /**
  * LightningResource
@@ -101,8 +86,10 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *    Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
  *    Jun 05, 2014  3226       bclement    reference datarecords by LightningConstants
  *    Jun 06, 2014  DR 17367   D. Friedman Fix cache object usage.
- *    Jun 19, 2014  3214       bclement    added pulse and could flash support
- *    Jul 09, 2014  3214       bclement    fixed cache object usage for pulse and cloud flash
+ *    Jun 19, 2014  3214       bclement    added pulse and cloud flash support
+ *    Jul 07, 2014  3333       bclement    removed lightSource field
+ *    Jul 10, 2014  3333       bclement    moved cache object inner classes to own package
+ *                                          moved name formatting to static method
  * 
  * </pre>
  * 
@@ -113,142 +100,6 @@ public class LightningResource extends
         AbstractVizResource<LightningResourceData, IMapDescriptor> implements
         IResourceDataChanged {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(LightningResource.class);
-
-    private static class LightningFrame {
-
-        public LightningFrameMetadata metadata;
-
-        public DataTime frameTime;
-
-        public List<double[]> posLatLonList = new ArrayList<double[]>();
-
-        public List<double[]> negLatLonList = new ArrayList<double[]>();
-
-        public List<double[]> cloudLatLonList = new ArrayList<double[]>();
-
-        public List<double[]> pulseLatLonList = new ArrayList<double[]>();
-    }
-
-    private static class LightningFrameMetadata {
-
-        private BinOffset offset;
-
-        private DataTime frameTime;
-        
-        private String lightSource;
-        
-        private List<BinLightningRecord> newRecords = new ArrayList<BinLightningRecord>();
-
-        private List<BinLightningRecord> processed = new ArrayList<BinLightningRecord>();
-
-        public LightningFrameMetadata(DataTime frameTime, BinOffset offset, String ls) {
-            this.frameTime = frameTime;
-            this.offset = offset;
-            this.lightSource = ls;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result
-                    + ((frameTime == null) ? 0 : frameTime.hashCode());
-            result = prime * result
-                    + ((offset == null) ? 0 : offset.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            LightningFrameMetadata other = (LightningFrameMetadata) obj;
-            if (frameTime == null) {
-                if (other.frameTime != null)
-                    return false;
-            } else if (!frameTime.equals(other.frameTime))
-                return false;
-            if (offset == null) {
-                if (other.offset != null)
-                    return false;
-            } else if (!offset.equals(other.offset))
-                return false;
-            if (lightSource == null) {
-                if (other.lightSource != null)
-                    return false;
-            } else if (!lightSource.equals(other.lightSource))
-                return false;
-            return true;
-        }
-
-    }
-
-    private static class LightningFrameRetriever implements
-            IObjectRetrieverAndDisposer<LightningFrameMetadata, LightningFrame> {
-
-        @Override
-        public LightningFrame retrieveObject(LightningFrameMetadata metadata) {
-            synchronized (metadata) {
-                LightningFrame bundle = new LightningFrame();
-                bundle.frameTime = metadata.frameTime;
-                bundle.metadata = metadata;
-                populateData(metadata, bundle);
-                return bundle;
-            }
-        }
-
-        @Override
-        public int getSize(LightningFrame object) {
-            int doubleCount = 0;
-            if (object != null) {
-                synchronized (object) {
-                    doubleCount += getSize(object.posLatLonList);
-                    doubleCount += getSize(object.negLatLonList);
-                    doubleCount += getSize(object.cloudLatLonList);
-                    doubleCount += getSize(object.pulseLatLonList);
-                }
-            }
-            // 8 bytes per double
-            return doubleCount * 8;
-        }
-
-        /**
-         * @param lonLatList
-         * @return total number of doubles in list
-         */
-        private static int getSize(List<double[]> lonLatList) {
-            int rval = 0;
-            for (double[] arr : lonLatList) {
-                rval += arr.length;
-            }
-            return rval;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer
-         * #disposeObject(java.lang.Object)
-         */
-        @Override
-        public void disposeObject(LightningFrame object) {
-            LightningFrameMetadata metadata = object.metadata;
-            synchronized (metadata) {
-                metadata.newRecords.addAll(metadata.processed);
-                metadata.processed.clear();
-            }
-        }
-    }
-
-    private static final LightningFrameRetriever resourceBuilder = new LightningFrameRetriever();
-
     private Map<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>> cacheObjectMap;
 
     private DataTime lastPaintedTime;
@@ -256,8 +107,6 @@ public class LightningResource extends
     private boolean needsUpdate;
 
     private String resourceName;
-    
-    private String lightSource;
     
     private int posAdj;
 
@@ -272,13 +121,12 @@ public class LightningResource extends
     private List<double[]> currPulseList = Collections.emptyList();
 
     public LightningResource(LightningResourceData resourceData,
-            LoadProperties loadProperties, String ls, int pa) {
+            LoadProperties loadProperties, int pa) {
         super(resourceData, loadProperties);
         resourceData.addChangeListener(this);
 
         this.dataTimes = new ArrayList<DataTime>();
         this.cacheObjectMap = new ConcurrentHashMap<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>>();
-        this.lightSource = ls;
         this.posAdj = pa;
     }
 
@@ -329,52 +177,71 @@ public class LightningResource extends
             }
 
         });
+        this.resourceName = formatResourceName(resourceData)
+                + "Lightning Plot ";
+    }
 
-        String timeString = "";
-        int absTimeInterval = Math.abs(this.resourceData.getBinOffset()
+    /**
+     * Create a resource name string from resource data configuration. Includes
+     * time interval, cloud flash, pos/neg, pulse and source name.
+     * 
+     * @param resourceData
+     * @return
+     */
+    public static String formatResourceName(LightningResourceData resourceData) {
+        String rval = "";
+        int absTimeInterval = Math.abs(resourceData.getBinOffset()
                 .getInterval());
 
         // If a virtual offset is provided, it is aged lightning, so use
         // the virtual offset to provide the "Old" time
-        int virtualOffset = this.resourceData.getBinOffset().getVirtualOffset();
+        int virtualOffset = resourceData.getBinOffset().getVirtualOffset();
         if (virtualOffset != 0) {
-            timeString = convertTimeIntervalToString(virtualOffset) + "Old ";
+            rval = convertTimeIntervalToString(virtualOffset) + "Old ";
         } else {
-            timeString = convertTimeIntervalToString(absTimeInterval);
+            rval = convertTimeIntervalToString(absTimeInterval);
         }
-        if (this.resourceData.isExclusiveForType()) {
+        if (resourceData.isExclusiveForType()) {
             String modifier;
-            if (this.resourceData.isHandlingCloudFlashes()) {
-                modifier = "Cloud Flash";
-            } else if (this.resourceData.isHandlingNegativeStrikes()) {
-                modifier = "Negative";
-            } else if (this.resourceData.isHandlingPositiveStrikes()) {
-                modifier = "Positive";
-            } else if (this.resourceData.isHandlingPulses()) {
-                modifier = "Pulse";
+            if (resourceData.isHandlingCloudFlashes()) {
+                modifier = "Cloud Flash ";
+            } else if (resourceData.isHandlingNegativeStrikes()) {
+                modifier = "Negative ";
+            } else if (resourceData.isHandlingPositiveStrikes()) {
+                modifier = "Positive ";
+            } else if (resourceData.isHandlingPulses()) {
+                modifier = "Pulse ";
             } else {
-                modifier = "";
+                /* space to preserve formatting */
+                modifier = " ";
             }
-            this.resourceName = timeString + modifier;
-        } else {
-            this.resourceName = timeString;
+            rval += modifier;
         }
 
-        String lightType = " ";
-        if (!this.lightSource.isEmpty()) {
-        	lightType += this.lightSource + " ";
+        HashMap<String, RequestConstraint> metadata = resourceData
+                .getMetadataMap();
+        if (metadata != null && metadata.containsKey(LightningConstants.SOURCE)) {
+            rval += metadata.get(LightningConstants.SOURCE)
+                    .getConstraintValue() + " ";
         }
-        this.resourceName += lightType + "Lightning Plot ";
+        return rval;
     }
 
-    private String convertTimeIntervalToString(int time) {
+    /**
+     * Format time interval to human readable display string
+     * 
+     * @param time
+     *            in seconds
+     * @return
+     */
+    private static String convertTimeIntervalToString(int time) {
         time = Math.abs(time);
         String timeString = null;
-        if (time >= 60 * 60) {
-            int hrs = time / (60 * 60);
+        if (time >= TimeUtil.SECONDS_PER_HOUR) {
+            int hrs = time / (TimeUtil.SECONDS_PER_HOUR);
             timeString = hrs + " Hour ";
-        } else if (time < 60 * 60) {
-            int mins = time / 60;
+        } else {
+            int mins = time / TimeUtil.SECONDS_PER_MINUTE;
             timeString = mins + " Minute ";
         }
 
@@ -430,16 +297,20 @@ public class LightningResource extends
                     if (needsUpdate) {
                         needsUpdate = false;
                         if (resourceData.isHandlingNegativeStrikes()) {
-                            currNegList = convertToPixel(bundle.negLatLonList);
+                            currNegList = convertToPixel(bundle
+                                    .getNegLatLonList());
                         }
                         if (resourceData.isHandlingPositiveStrikes()) {
-                            currPosList = convertToPixel(bundle.posLatLonList);
+                            currPosList = convertToPixel(bundle
+                                    .getPosLatLonList());
                         }
                         if (resourceData.isHandlingCloudFlashes()) {
-                            currCloudList = convertToPixel(bundle.cloudLatLonList);
+                            currCloudList = convertToPixel(bundle
+                                    .getCloudLatLonList());
                         }
                         if (resourceData.isHandlingPulses()) {
-                            currPulseList = convertToPixel(bundle.pulseLatLonList);
+                            currPulseList = convertToPixel(bundle
+                                    .getPulseLatLonList());
                         }
                     }
 
@@ -571,7 +442,8 @@ public class LightningResource extends
             if (co != null) {
                 LightningFrameMetadata metadata = co.getMetadata();
                 synchronized (metadata) {
-                    if (metadata.newRecords.size() + metadata.processed.size() < 2) {
+                    if (metadata.getNewRecords().size()
+                            + metadata.getProcessed().size() < 2) {
                         return;
                     }
                 }
@@ -586,30 +458,28 @@ public class LightningResource extends
         Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
 
         for (BinLightningRecord obj : objs) {
-        	if (obj.getSource().equals(this.lightSource) || this.lightSource.isEmpty()) {
-        		DataTime time = new DataTime(obj.getStartTime());
-        		DataTime end = new DataTime(obj.getStopTime());
-        		time = this.getResourceData().getBinOffset()
-        		.getNormalizedTime(time);
-        		end = this.getResourceData().getBinOffset().getNormalizedTime(end);
+            DataTime time = new DataTime(obj.getStartTime());
+            DataTime end = new DataTime(obj.getStopTime());
+            time = this.getResourceData().getBinOffset()
+                    .getNormalizedTime(time);
+            end = this.getResourceData().getBinOffset().getNormalizedTime(end);
 
-        		// check for frames in the middle
-        		// get interval ( in seconds ) between frames
-        		int interval = this.getResourceData().getBinOffset().getInterval();
-        		while (end.greaterThan(time) || end.equals(time)) {
-        			List<BinLightningRecord> records = recordMap.get(time);
-        			if (records == null) {
-        				records = new ArrayList<BinLightningRecord>();
-        				recordMap.put(time, records);
-        			}
-        			records.add(obj);
+            // check for frames in the middle
+            // get interval ( in seconds ) between frames
+            int interval = this.getResourceData().getBinOffset().getInterval();
+            while (end.greaterThan(time) || end.equals(time)) {
+                List<BinLightningRecord> records = recordMap.get(time);
+                if (records == null) {
+                    records = new ArrayList<BinLightningRecord>();
+                    recordMap.put(time, records);
+                }
+                records.add(obj);
 
-        			// increment to the next time
-        			long newTime = time.getRefTime().getTime() + (interval * 1000);
-        			TimeRange range = new TimeRange(newTime, newTime);
-        			time = new DataTime(newTime, range);
-        		}
-        	}
+                // increment to the next time
+                long newTime = time.getRefTime().getTime() + (interval * 1000);
+                TimeRange range = new TimeRange(newTime, newTime);
+                time = new DataTime(newTime, range);
+            }
         }
 
         for (Map.Entry<DataTime, List<BinLightningRecord>> entry : recordMap
@@ -621,42 +491,25 @@ public class LightningResource extends
 
             List<BinLightningRecord> records = entry.getValue();
 
-            LightningFrameMetadata frame;
+            LightningFrameRetriever retriever = LightningFrameRetriever
+                    .getInstance();
             CacheObject<LightningFrameMetadata, LightningFrame> co;
             synchronized (cacheObjectMap) {
                 co = cacheObjectMap.get(dt);
                 if (co == null) {
-                    // New frame
+                    /*
+                     * no local reference to cache object, create key and get
+                     * cache object which may be new or from another resource
+                     */
                     LightningFrameMetadata key = new LightningFrameMetadata(dt,
-                            resourceData.getBinOffset(), this.lightSource);
-                    co = CacheObject.newCacheObject(key, resourceBuilder);
+                            resourceData.getBinOffset());
+                    co = CacheObject.newCacheObject(key, retriever);
                     cacheObjectMap.put(dt, co);
                     dataTimes.add(dt);
                 }
             }
-            frame = co.getMetadata();
 
-            synchronized (frame) {
-                // Add as new records
-                for (BinLightningRecord record : records) {
-                    if (frame.newRecords.contains(record) == false
-                            && frame.processed.contains(record) == false) {
-                        frame.newRecords.add(record);
-                    }
-                }
-
-                if (frame.processed.size() > 0 && frame.newRecords.size() > 0) {
-                    // if we've already processed some records, request the
-                    // new ones now and merge
-                    LightningFrame existing = co.getObjectSync();
-                    LightningFrame newBundle = resourceBuilder
-                            .retrieveObject(frame);
-                    existing.posLatLonList.addAll(newBundle.posLatLonList);
-                    existing.negLatLonList.addAll(newBundle.negLatLonList);
-                    existing.cloudLatLonList.addAll(newBundle.cloudLatLonList);
-                    existing.pulseLatLonList.addAll(newBundle.pulseLatLonList);
-                }
-            }
+            retriever.updateAndGet(records, co);
         }
         issueRefresh();
     }
@@ -688,222 +541,6 @@ public class LightningResource extends
         // force a repaint
         needsUpdate = true;
         issueRefresh();
-    }
-
-    private static void populateData(LightningFrameMetadata frame,
-            LightningFrame bundle) {
-        long t0 = System.currentTimeMillis();
-        long strikeCount = 0;
-        long dsTime = 0;
-
-        // Bin up requests to the same hdf5
-        Map<File, List<BinLightningRecord>> fileMap = new HashMap<File, List<BinLightningRecord>>();
-
-        for (BinLightningRecord record : frame.newRecords) {
-            File f = HDF5Util.findHDF5Location(record);
-            List<BinLightningRecord> recList = fileMap.get(f);
-            if (recList == null) {
-                recList = new ArrayList<BinLightningRecord>();
-                fileMap.put(f, recList);
-            }
-            recList.add(record);
-            frame.processed.add(record);
-        }
-        frame.newRecords.clear();
-
-        for (File f : fileMap.keySet()) {
-            List<BinLightningRecord> recList = fileMap.get(f);
-            String[] groups = new String[recList.size()];
-            for (int i = 0; i < recList.size(); i++) {
-                groups[i] = recList.get(i).getDataURI();
-            }
-
-            // Go fetch data
-            try {
-                long tDS0 = System.currentTimeMillis();
-                IDataStore ds = DataStoreFactory.getDataStore(f);
-                IDataRecord[] records = ds.retrieveGroups(groups, Request.ALL);
-
-                long tDS1 = System.currentTimeMillis();
-                dsTime += (tDS1 - tDS0);
-                // Throw in a map for easy accessibility
-                Map<String, List<IDataRecord>> recordMap = createRecordMap(records);
-
-                List<IDataRecord> times = recordMap
-                        .get(LightningConstants.TIME_DATASET);
-                List<IDataRecord> intensities = recordMap
-                        .get(LightningConstants.INTENSITY_DATASET);
-                List<IDataRecord> lats = recordMap
-                        .get(LightningConstants.LAT_DATASET);
-                List<IDataRecord> lons = recordMap
-                        .get(LightningConstants.LON_DATASET);
-                List<IDataRecord> types = recordMap
-                        .get(LightningConstants.STRIKE_TYPE_DATASET);
-                List<IDataRecord> pulseIndexes = recordMap
-                        .get(LightningConstants.PULSE_INDEX_DATASET);
-
-                int k = 0;
-                for (IDataRecord timeRec : times) {
-                    if (hasPulseData(pulseIndexes, k)) {
-                        populatePulseData(frame, bundle, timeRec.getGroup(), ds);
-                    }
-                    LongDataRecord time = (LongDataRecord) timeRec;
-                    // Now loop through the obs times and intensities and
-                    // start categorizing strikes
-                    int numRecords = (int) time.getSizes()[0];
-
-                    long[] timeData = time.getLongData();
-
-                    int[] intensityData = ((IntegerDataRecord) intensities
-                            .get(k)).getIntData();
-                    float[] latitudeData = ((FloatDataRecord) lats.get(k))
-                            .getFloatData();
-                    float[] longitudeData = ((FloatDataRecord) lons.get(k))
-                            .getFloatData();
-                    byte[] typeData = ((ByteDataRecord) types.get(k))
-                            .getByteData();
-
-                    for (int i = 0; i < numRecords; i++) {
-
-                        DataTime dt = new DataTime(new Date(timeData[i]));
-                        dt = frame.offset.getNormalizedTime(dt);
-                        List<double[]> list;
-                        LtgStrikeType type = LtgStrikeType.getById(typeData[i]);
-                        switch(type){
-                        case CLOUD_TO_CLOUD:
-                            list = bundle.cloudLatLonList;
-                            break;
-                        default:
-                            if (intensityData[i] > 0) {
-                                list = bundle.posLatLonList;
-                            } else {
-                                list = bundle.negLatLonList;
-                            }
-                            break;
-                        }
-
-                        double[] latLon = new double[] { longitudeData[i],
-                                latitudeData[i] };
-
-                        // only add the strike to the list if the data time
-                        // of the strike matches the data time of the frame
-                        if (dt.equals(bundle.frameTime)) {
-                            list.add(latLon);
-                            strikeCount++;
-                        }
-
-                    }
-                    k++;
-                }
-            } catch (StorageException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Storage error retrieving lightning data", e);
-            } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to open lightning file", e);
-            }
-
-        }
-
-        long t1 = System.currentTimeMillis();
-
-        System.out.println("Decoded: " + strikeCount + " strikes in "
-                + (t1 - t0) + "ms (hdf5 time = " + dsTime + "ms)");
-    }
-
-    /**
-     * Unpack records into map keyed by record name
-     * 
-     * @param records
-     * @return
-     */
-    private static Map<String, List<IDataRecord>> createRecordMap(
-            IDataRecord[] records) {
-        Map<String, List<IDataRecord>> recordMap = new HashMap<String, List<IDataRecord>>();
-        for (IDataRecord rec : records) {
-            List<IDataRecord> recordList = recordMap.get(rec.getName());
-            if (recordList == null) {
-                recordList = new ArrayList<IDataRecord>();
-                recordMap.put(rec.getName(), recordList);
-            }
-            recordList.add(rec);
-        }
-        return recordMap;
-    }
-
-    /**
-     * Search records and return first found with name
-     * 
-     * @param records
-     * @param name
-     * @return null if none found
-     */
-    private static IDataRecord findDataRecord(IDataRecord[] records, String name) {
-        IDataRecord rval = null;
-        for (IDataRecord record : records) {
-            if (record.getName().equals(name)) {
-                rval = record;
-                break;
-            }
-        }
-        return rval;
-    }
-
-    /**
-     * @param pulseIndexes
-     * @param recordIndex
-     * @return true if any data record in list has a valid pulse index
-     */
-    private static boolean hasPulseData(List<IDataRecord> pulseIndexes,
-            int recordIndex) {
-        if (pulseIndexes != null) {
-            IDataRecord record = pulseIndexes.get(recordIndex);
-            int[] indexData = ((IntegerDataRecord) record).getIntData();
-            for (int i = 0; i < indexData.length; ++i) {
-                if (indexData[i] >= 0) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Read pulse data from datastore and populate in frame
-     * 
-     * @param frame
-     * @param bundle
-     * @param group
-     * @param ds
-     */
-    private static void populatePulseData(LightningFrameMetadata frame,
-            LightningFrame bundle, String group, IDataStore ds) {
-        try {
-            IDataRecord[] records = ds.retrieve(group + DataURI.SEPARATOR
-                    + LightningConstants.PULSE_HDF5_GROUP_SUFFIX);
-            FloatDataRecord latRecord = (FloatDataRecord) findDataRecord(
-                    records, LightningConstants.LAT_DATASET);
-            FloatDataRecord lonRecord = (FloatDataRecord) findDataRecord(
-                    records, LightningConstants.LON_DATASET);
-            if (latRecord == null || lonRecord == null) {
-                throw new StorageException(
-                        "Missing pulse latitude and/or longitude data", null);
-            }
-            float[] lats = latRecord.getFloatData();
-            float[] lons = lonRecord.getFloatData();
-            if (lats.length != lons.length) {
-                throw new StorageException(
-                        "Mismatched pulse latitude/longitude data", latRecord);
-            }
-            for (int i = 0; i < lats.length; ++i) {
-                bundle.pulseLatLonList.add(new double[] { lons[i], lats[i] });
-            }
-        } catch (FileNotFoundException e) {
-            statusHandler.error("Unable to open lightning file", e);
-        } catch (StorageException e) {
-            statusHandler.error("Unable to read pulse datasets for group "
-                    + group, e);
-        }
     }
 
 }
