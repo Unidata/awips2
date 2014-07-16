@@ -29,6 +29,13 @@
             renderingOrderId="PLOT"
             resourceType="PLAN_VIEW">
       </resource>
+      <resource
+            class="com.raytheon.viz.lightning.GridLightningResource"
+            name="GridLightning"
+            recordClass="com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord"
+            renderingOrderId="PLOT"
+            resourceType="PLAN_VIEW">
+      </resource>
    </extension>
 
       <extension
