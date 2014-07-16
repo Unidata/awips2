@@ -28,6 +28,7 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
+import com.raytheon.uf.common.dataaccess.exception.IncompatibleRequestException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
@@ -40,6 +41,7 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.HucLevelGeometriesFactory;
+import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
@@ -70,6 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 1, 2014  3099       bkowal      No longer use an empty pfaf list when the
  *                                     data request locationNames list is empty.
  * Jun 24, 2014 3170       mnash       Get the accumulated time if multiple times are requested
+ * Jul 14, 2014 3184       njensen     Overrode getAvailableLevels()
  * 
  * </pre>
  * 
@@ -353,5 +356,11 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
         }
 
         return pfafList.toArray(new String[pfafList.size()]);
+    }
+
+    @Override
+    public Level[] getAvailableLevels(IDataRequest request) {
+        throw new IncompatibleRequestException(request.getDatatype()
+                + " data does not support the concept of levels");
     }
 }
