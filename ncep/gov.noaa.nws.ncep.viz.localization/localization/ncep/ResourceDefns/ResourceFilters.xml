@@ -4,58 +4,6 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GOES15-SXI-FM3">
 <filters>GOES</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-A-EUVI">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-A-HI1">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-A-HI2">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-A-COR1">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-A-COR2">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-B-EUVI">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-B-HI1">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-B-HI2">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-B-COR1">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="STEREO-B-COR2">
-<filters>STEREO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SDO-HMI-SIDE1">
-<filters>SDO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SDO-AIA">
-<filters>SDO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SDO-THEMATIC">
-<filters>SDO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NSO-GONG">
-<filters>NSO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SOHO-EIT">
-<filters>SOHO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SOHO-LASCO-C2">
-<filters>SOHO</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="SOHO-LASCO-C3">
-<filters>SOHO</filters>
-</ResourceDefinitionFilter>
-
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="PAFM">
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
@@ -683,9 +631,6 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-NMM-East">
 <filters>Mesoscale</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="ECMWF">
-<filters>Forecast</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-40km">
 <filters>NGRID</filters>
 </ResourceDefinitionFilter>
@@ -695,17 +640,8 @@
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GEFS">
 <filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="NWW3">
-<filters>Forecast</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MOS">
 <filters>NGRID</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET">
-<filters>Global</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="AK-GFS">
-<filters>Alaska,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-95km">
 <filters>CONUS,NGRID</filters>
@@ -715,12 +651,6 @@
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NamDNG5">
 <filters>Alaska,NGRID</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="AK-MOS">
-<filters>Alaska,NGRID</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="UKMET_NA">
-<filters>NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-40km">
 <filters>CONUS,CONDUIT</filters>
@@ -746,14 +676,11 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS">
 <filters>Global,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NAM-45km">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NAM">
 <filters>Alaska,CONDUIT</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NAM-11km">
 <filters>Alaska,NGRID</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="SREF40">
-<filters>NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-NH">
 <filters>NGRID</filters>
@@ -766,9 +693,6 @@
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOC-FAROP">
 <filters>Ocean,FNMOC</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="ESTOFS">
-<filters>Ocean</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAVGEM">
 <filters>Global,Ocean,FNMOC</filters>
@@ -788,22 +712,13 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-ARW-East">
 <filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="WAVE2AK">
-<filters>Ocean</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="Hawaii-WRF-ARW">
 <filters>Hawaii</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="SREF45">
-<filters>NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSLAMPTstorm">
 <filters>NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="LAMP-2p5km">
-<filters>NGRID</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="AVIATION">
 <filters>NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA-2p5km">
@@ -815,17 +730,11 @@
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="Hawaii-RTMA">
 <filters>Analysis,Hawaii,NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="SREF2P5">
-<filters>NGRID</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NIDS">
 <filters>Radar</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="FNEXRAD">
 <filters>Radar</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM_00">
-<filters>Ensemble</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GEFS_ENS">
 <filters>Ensemble,Global</filters>
