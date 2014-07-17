@@ -259,6 +259,8 @@ filename);
             /*
              * failed to load scalesInfo file, try and fall back to BASE
              */
+            statusHandler.error("Error loading " + DEFAULT_SCALES_FILE
+                    + ". Attempting to revert to base version. ", e);
             if (!locFile.getContext().getLocalizationLevel()
                     .equals(LocalizationLevel.BASE)) {
                 locFile = PathManagerFactory.getPathManager()
