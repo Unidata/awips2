@@ -27,9 +27,16 @@
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="41"/>
 	</contribute>
+
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="GFS CONUS 40km" id="GFS-40km" useReferenceTime="true">
 		<substitute key="modelName" value="GFS212"/>
+		<substitute key="TP" value="TP"/>
+		<substitute key="frameCount" value="41"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
+		menuText="FNMOC NAVGEM" id="NAVGEM" useReferenceTime="true">
+		<substitute key="modelName" value="NAVGEM"/> 
 		<substitute key="TP" value="TP"/>
 		<substitute key="frameCount" value="41"/>
 	</contribute>
@@ -73,19 +80,19 @@
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="RAP 13km" id="RAP-13km" useReferenceTime="true">
-		<substitute key="modelName" value="${RAP13model}"/>
-		<substitute key="TP" value="TP3hr"/>
+		<substitute key="modelName" value="RAP-13km"/>
+		<substitute key="TP" value="TP1hr"/>
 		<substitute key="frameCount" value="9"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="RAP 20km" id="RAP-20km" useReferenceTime="true">
-		<substitute key="modelName" value="${RAP20model}"/>
+		<substitute key="modelName" value="RAP-20km"/>
 		<substitute key="TP" value="TP1hr"/>
 		<substitute key="frameCount" value="9"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
 		menuText="RAP 40km" id="RAP-40km" useReferenceTime="true">
-		<substitute key="modelName" value="${RAPmodel}"/>
+		<substitute key="modelName" value="RAP-40km"/>
 		<substitute key="TP" value="TP1hr"/>
 		<substitute key="frameCount" value="9"/>
 	</contribute>

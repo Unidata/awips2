@@ -410,18 +410,20 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
 
         	if( !NsharpGridInventory.getInstance().isInitialized() ) {
         		// TODO : change to a confirm to create an inventory.
-        		MessageDialog errDlg = new MessageDialog(
+        		/*
+        		  MessageDialog errDlg = new MessageDialog(
+        		 
         				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", null,
         				"Unable to find an Inventory to support Grid Model times. Please wait while one"+
         						" is created.", MessageDialog.ERROR,
         						new String[] { "OK" }, 0);
         		errDlg.open();
-
+        		*/
         		try {
         			NsharpGridInventory.createInventory();
         		} 
         		catch (VizException e) {			
-        			errDlg = new MessageDialog(
+        			MessageDialog errDlg = new MessageDialog(
         					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Error", null,
         					"Error creating Inventory to support Grid Model times.", MessageDialog.ERROR,
         					new String[] { "OK" }, 0);
