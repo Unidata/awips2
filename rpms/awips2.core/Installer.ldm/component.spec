@@ -22,7 +22,9 @@ Packager: Bryan Kowal
 AutoReq: no
 Requires: awips2-qpid-lib
 requires: awips2-python
-requires: awips2-python
+requires: gcc
+requires: gcc-c++
+requires: libxml2-devel
 provides: awips2-ldm
 provides: awips2-base-component
 
@@ -44,7 +46,6 @@ fi
 %build
 
 %install
-
 # create the ldm directory
 /bin/mkdir -p %{_build_root}/usr/local/ldm/SOURCES
 if [ $? -ne 0 ]; then
@@ -66,7 +67,6 @@ fi
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 
 _ldm_destination=%{_build_root}/usr/local/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
@@ -156,7 +156,6 @@ _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
 _myHost=`echo ${_myHost} | cut -f1 -d'-'`
 pushd . > /dev/null 2>&1
-sed -i 's/EDEX_HOSTNAME/'$_myHost'/' ${_ldm_dir}/etc/ldmd.conf
 cd ${_ldm_dir}/SOURCES
 # unpack the ldm source
 /bin/tar -xf %{_ldm_src_tar} \

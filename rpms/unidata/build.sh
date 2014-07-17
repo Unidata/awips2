@@ -91,8 +91,8 @@ cp -v ${dir}/buildEnvironment.sh .
 #/bin/bash build.sh -edex > ${dir}/build-EDEX-${timestamp}.log
 #/bin/bash build.sh -full > ${dir}/build-${timestamp}.log
 #/bin/bash build.sh -viz > ${dir}/build-VIZ-${timestamp}.log
-/bin/bash build.sh -upc > ${dir}/build-UPC-${timestamp}.log
-#/bin/bash build.sh -ldm > ${dir}/build-LDM-${timestamp}.log
+#/bin/bash build.sh -upc > ${dir}/build-UPC-${timestamp}.log
+/bin/bash build.sh -ldm > ${dir}/build-LDM-${timestamp}.log
 
 
 
