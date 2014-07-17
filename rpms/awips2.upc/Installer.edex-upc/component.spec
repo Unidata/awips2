@@ -44,7 +44,7 @@ fi
 # create build root directory
 rm -rf ${RPM_BUILD_ROOT}/awips2
 mkdir -p ${RPM_BUILD_ROOT}/awips2/tools/bin
-/bin/cp %{_baseline_workspace}/rpms/awips2.core/Installer.upc/edex ${RPM_BUILD_ROOT}/awips2/tools/bin/
+/bin/cp %{_baseline_workspace}/rpms/awips2.upc/Installer.edex-upc/edex ${RPM_BUILD_ROOT}/awips2/tools/bin/
 
 %pre
 

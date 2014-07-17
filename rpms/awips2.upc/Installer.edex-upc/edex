@@ -184,9 +184,9 @@ edit_ldm() { # edex pg_hba.conf
 
 edit_edex() { # setup.env automatic edit
 	sed -i.setup_$YMD 's/localhost/'$HOSTNAME'/g' $EDEX_ENV_FILE
-	sed -i.setup_$YMD 's/tmp\/sbn/data_store/g' $EDEX_ENV_FILE
+	sed -i.setup_$YMD 's/tmp\/sbn/awips2\/data_store/g' $EDEX_ENV_FILE
 	#echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
-	echo '       DATA_ARCHIVE_ROOT set to /data_store in '$EDEX_ENV_FILE
+	echo '       DATA_ARCHIVE_ROOT set to /awips2/data_store in '$EDEX_ENV_FILE
 	echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
 }
 
@@ -263,7 +263,7 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
 			echo '      ** Missing '$HOSTNAME
 		fi
 		if [[ ! -z ${envGrep2} ]]; then
-			echo '      ** Missing /data_store'
+			echo '      ** Missing /awips2/data_store'
 		fi
 		continue=true
 	fi

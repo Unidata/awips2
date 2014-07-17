@@ -430,17 +430,17 @@ fi
 
 
 if [ "${1}" = "-viz" ]; then
-   buildRPM "awips2"
-   buildRPM "awips2-common-base"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-gfesuite-client"
-   buildRPM "awips2-gfesuite-server"
-   buildRPM "awips2-cli"
+   #buildRPM "awips2"
+   #buildRPM "awips2-common-base"
+   #buildRPM "awips2-python-dynamicserialize"
+   #buildRPM "awips2-gfesuite-client"
+   #buildRPM "awips2-gfesuite-server"
+   #buildRPM "awips2-cli"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   buildRPM "awips2-alertviz"
+   #buildRPM "awips2-alertviz"
    exit 0
 fi
 
