@@ -6,10 +6,10 @@
 	<property name="build.ws"
 		value="gtk" />
 	<property name="build.arch"
-		value="x86" />
+		value="x86_64" />
 	<!-- Copy the zip file that is produced to this location. -->
 	<property name="destination.dir"
-		value="" />
+		value="/awips2/jenkins/build/dump/" />
 	
 	<target name="usage">
 		<echo 
