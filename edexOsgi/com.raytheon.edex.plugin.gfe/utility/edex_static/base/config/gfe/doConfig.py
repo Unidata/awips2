@@ -31,6 +31,7 @@
 #    08/09/2013          #1571     randerso       Changed projections to use the Java             
 #                                                 ProjectionType enumeration
 #    07/09/2014          #3146     randerso       Added check for duplicate smartInit
+#                                  rferrel        Corrected log to alertviz.
 #
 ########################################################################
 import types
@@ -531,11 +532,12 @@ def otherParse(serverhost, mhsid, port,
             LogStream.logProblem(message);
             
             # log error to alertViz
-            from ufpy import NotificationMessage
-            nfm = NotificationMessage.NotificationMessage(message=message,
-                  category="GFE", priority=1, source="GFE")
-            nfm.send()
-                                 
+            from com.raytheon.uf.edex.core import EDEXUtil 
+            from com.raytheon.uf.common.status import UFStatus_Priority as Priority
+            EDEXUtil.sendMessageAlertViz(Priority.ERROR,
+                    "com.raytheon.edex.plugin.gfe", "GFE", "GFE", message,
+                    message, None)
+
             # remove duplicate
             for module in modules[1:]:
                 javainitmodules.remove(module)
