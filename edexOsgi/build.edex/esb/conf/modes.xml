@@ -79,6 +79,15 @@
 	</mode>
 	<mode name="ingest">
         	<exclude>mpeLightningSrv-ingest.xml</exclude>
+        	<exclude>mpe.*-spring.xml</exclude>
+        	<exclude>freezingLevel-spring.xml</exclude>
+        	<exclude>gfe.*</exclude>
+        	<exclude>arealQpeGen-spring.xml</exclude>
+        	<exclude>arealffgGenerator-spring.xml</exclude>
+        	<exclude>ohd-common.xml</exclude>
+        	<exclude>ohd-common-database.xml</exclude>
+        	<exclude>ohdSetupService-spring.xml</exclude>
+        	<exclude>alarmWhfs-spring.xml</exclude>
         	<exclude>rpgenvdata-spring.xml</exclude>
 		<exclude>webservices.xml</exclude>
 		<exclude>ebxml.*\.xml</exclude>
