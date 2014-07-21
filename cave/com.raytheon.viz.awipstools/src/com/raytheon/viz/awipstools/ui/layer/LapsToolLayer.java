@@ -26,6 +26,7 @@ import java.util.Arrays;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -53,8 +54,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
- * 
+ *                         bsteffen    Intial creation.
+ * 07-21-14     #3412      mapeters    Updated deprecated drawCircle call.
  * </pre>
  * 
  * @author bsteffen
@@ -165,7 +166,11 @@ public class LapsToolLayer extends AbstractMovableToolLayer<Coordinate>
         double radius = (MAGIC_CIRCLE_RADIUS * paintProps.getZoomLevel());
         double[] center = descriptor
                 .worldToPixel(new double[] { home.x, home.y });
-        target.drawCircle(center[0], center[1], 0, radius, color, 1);
+        DrawableCircle circle = new DrawableCircle();
+        circle.setCoordinates(center[0], center[1]);
+        circle.radius = radius;
+        circle.basics.color = color;
+        target.drawCircle(circle);
         double labelLoc[] = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 0);
         target.drawString(null, "center point", labelLoc[0], labelLoc[1], 0.0,
