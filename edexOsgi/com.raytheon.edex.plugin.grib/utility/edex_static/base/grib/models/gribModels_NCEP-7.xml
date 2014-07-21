@@ -3183,7 +3183,7 @@
 	</model>
 
 	<model>
-		<name>AK-RTMA-HR</name>
+		<name>AK-RTMA3</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>1023</grid>
