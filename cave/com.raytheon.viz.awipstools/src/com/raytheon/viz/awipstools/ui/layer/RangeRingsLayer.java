@@ -35,6 +35,7 @@ import org.geotools.referencing.GeodeticCalculator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -67,7 +68,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * TODO Add Description
+ * Layer for displaying a radar's range rings.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -75,7 +76,7 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  *  10-21-09     #717       bsteffen    Refactor to common MovableTool model
  *  15Mar2013	15693	mgamazaychikov	Added magnification capability.
- * 
+ *  07-21-14    #3412       mapeters    Updated deprecated drawCircle call.
  * </pre>
  * 
  * @author ebabin
@@ -225,8 +226,12 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             double radius = (MAGIC_CIRCLE_RADIUS * paintProps.getZoomLevel());
             double[] centerPixel = descriptor.worldToPixel(new double[] {
                     center.x, center.y });
-            target.drawCircle(centerPixel[0], centerPixel[1], 0.0, radius,
-                    color, 1);
+            DrawableCircle circle = new DrawableCircle();
+            circle.setCoordinates(centerPixel[0], centerPixel[1]);
+            circle.radius = radius;
+            circle.basics.color = color;
+            target.drawCircle(circle);
+
             if (label.contains("C")) {
                 double labelLoc[] = target.getPointOnCircle(centerPixel[0],
                         centerPixel[1], 0.0, radius, 0);
