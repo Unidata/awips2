@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ohd Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.ohd
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.edex.util,
  com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.common.dataplugin.grid,
@@ -13,7 +13,6 @@ Import-Package: com.raytheon.edex.util,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.wmo,
  com.raytheon.uf.edex.core,
- com.raytheon.uf.edex.core.props,
  com.raytheon.uf.edex.dat.utils,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.database.dao,

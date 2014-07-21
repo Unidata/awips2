@@ -34,8 +34,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PythonScript;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * Factory class for getting pooled Python decoder instances
@@ -45,7 +44,8 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 2, 2009            njensen     Initial creation
+ * Apr 2, 2009             njensen     Initial creation
+ * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * 
  * </pre>
  * 
@@ -80,8 +80,7 @@ public class PythonDecoderFactory {
         decoderInterface = pathMgr.getFile(commonCx,
                 "python" + File.separator + "DecoderInterface.py").getPath();
         includePath = pathMgr.getFile(commonCx, "python").getPath();
-        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
-        pluginDir = env.getEnvValue("PLUGINDIR");
+        pluginDir = EDEXUtil.getEdexPlugins();
     }
 
     /**
