@@ -58,6 +58,7 @@
 	<vbSource key="AK-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AK-NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AK-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AK-RTMA3" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AKWAVE239" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AKwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="AKwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
