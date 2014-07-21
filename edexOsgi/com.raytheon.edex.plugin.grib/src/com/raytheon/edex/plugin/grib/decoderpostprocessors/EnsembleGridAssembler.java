@@ -81,7 +81,8 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * Nov 19, 2013  2478     rjpeter     Make update process update database also.
  * Dec 06, 2013  2170     rjpeter     Update to pass PluginDataObject[] to notification.
- * Apr 21, 2014 2060      njensen     Remove dependency on grid dataURI column
+ * Apr 21, 2014  2060     njensen     Remove dependency on grid dataURI column
+ * Jul 21, 2014  3373     bclement    JAXB manager api changes
  * </pre>
  * 
  * @author bphillip
@@ -124,7 +125,7 @@ public class EnsembleGridAssembler implements IDecoderPostProcessor {
 
         SingleTypeJAXBManager<CompositeModel> jaxbManager;
         try {
-            jaxbManager = new SingleTypeJAXBManager<CompositeModel>(
+            jaxbManager = new SingleTypeJAXBManager<CompositeModel>(true,
                     CompositeModel.class);
         } catch (JAXBException e) {
             statusHandler.handle(Priority.PROBLEM,
