@@ -33,6 +33,7 @@ import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -46,7 +47,6 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
 import com.raytheon.uf.common.dataplugin.ffmp.SourceBinList;
-import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarsInUseUtil;
@@ -91,7 +91,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
 import com.raytheon.uf.edex.dat.utils.DatMenuUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -137,6 +136,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Apr 24, 2014 2940       dhladky     Prevent storage of bad records.
+ * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * </pre>
  * 
  * @author dhladky
@@ -263,8 +263,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                 RadarStationDao dao = new RadarStationDao();
                 List<RadarStation> stations = null;
                 try {
-                    stations = dao.queryByWfo(PropertiesFactory.getInstance()
-                            .getEnvProperties().getEnvValue("SITENAME"));
+                    stations = dao.queryByWfo(SiteUtil.getSite());
                 } catch (DataAccessLayerException e) {
                     statusHandler
                             .handle(Priority.ERROR,
@@ -698,7 +697,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     FFMPProcessor ffmp = new FFMPProcessor(config, generator,
                             ffmpRec, template);
                     ffmpRec = ffmp.processFFMP(ffmpProduct);
-                    
+
                     if (ffmpRec != null) {
 
                         ffmpRec.constructDataURI();
@@ -1586,8 +1585,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             }
 
             DatMenuUtil dmu = new DatMenuUtil();
-            dmu.setDatSite(PropertiesFactory.getInstance().getEnvProperties()
-                    .getEnvValue("SITENAME"));
+            dmu.setDatSite(SiteUtil.getSite());
             dmu.setOverride(true);
             dmu.createMenus();
         }

@@ -43,8 +43,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.registry.RegistryException;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.core.props.EnvProperties;
-import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
 
 /**
@@ -64,6 +62,7 @@ import com.raytheon.uf.edex.site.SiteActivationMessage.Action;
  *                                     home site only if activated.
  * Dec 11, 2012  14360     ryu         No printing stack trace on activation exception
  * Mar 10, 2014  2721      randerso    Fix error when activeSites.txt contains blank lines.
+ * Jul 10, 2014  2914      garmendariz Remove EnvProperties
  * 
  * </pre>
  * 
@@ -93,8 +92,7 @@ public class SiteAwareRegistry {
         loadActiveSites();
 
         // initialize default site
-        EnvProperties env = PropertiesFactory.getInstance().getEnvProperties();
-        String defaultSite = env.getEnvValue("SITENAME");
+        String defaultSite = EDEXUtil.getEdexSite();
         if (!activeSites.contains(defaultSite)) {
             activeSites.add(defaultSite);
         }
@@ -143,8 +141,7 @@ public class SiteAwareRegistry {
     public String[] getActiveSites() {
         // make a set of the strings for each listener site
         Set<String> tmp = new LinkedHashSet<String>();
-        String mySite = PropertiesFactory.getInstance().getEnvProperties()
-                .getEnvValue("SITENAME");
+        String mySite = EDEXUtil.getEdexSite();
         for (ISiteActivationListener sa : activationListeners) {
             if (sa.getActiveSites().contains(mySite)) {
                 tmp.add(mySite);
