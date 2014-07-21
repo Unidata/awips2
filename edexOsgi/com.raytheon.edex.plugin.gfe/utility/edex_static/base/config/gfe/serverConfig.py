@@ -238,6 +238,7 @@ else:
     TdUnc =    ("TdUnc", SCALAR, "F", "Dewpoint Anl Uncertainty", 15.0, 0.0, 0, NO)
 WSpdUnc =  ("WSpdUnc", SCALAR, "kts", "WSpd Anl Uncertainty", 12.0, 0.0, 0, NO)
 WDirUnc =  ("WDirUnc", SCALAR, "deg", "WDir Anl Uncertainty", 10.0, 0.0, 0, NO)
+VisUnc  =  ("VisUnc", SCALAR, "SM", "Vsby Anl Uncertainty", 10.0, 0.0, 2, NO)
 
 # NamDNG5 parms
 QPF3 =     ("QPF3", SCALAR, "in", "3HR QPF", 3.0, 0.0, 2, YES)
@@ -1062,7 +1063,8 @@ if SID in ALASKA_SITES:
                  'AKwave10',
                  'AKwave4',
                  'GlobalWave',
-                 ('AK-RTMA','RTMA'),
+#                 ('AK-RTMA','RTMA'),
+                 ('AK-RTMA3','RTMA'),  # Only have one RTMA
                  ('AK-NamDNG5','NamDNG5'),
                  ('MOSGuide-AK', 'MOSGuide'),
                  ('HiResW-ARW-AK', 'HIRESWarw'),
@@ -1859,15 +1861,15 @@ TPCTCM_MODEL = [([HiWind], TC3)]
 # RTMA database parameter groupings
 #if SID in ALASKA_SITES: - not sure if this is right
 if SID in ALASKA_SITES or SID in ["HFO", "SJU"]:
-    RTMAPARMS = [([Temp,Td,RH,Wind],TC1),
+    RTMAPARMS = [([Temp,Td,RH,Wind,Vis],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc],TC1)]
 else:
-    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky],TC1),
+    RTMAPARMS = [([Temp,Td,RH,Wind,QPE,Sky,Vis],TC1),
              ([MinT],MinTTC), ([MaxT],MaxTTC),
              ([MinRH],MinRHTC), ([MaxRH],MaxRHTC),
-             ([TUnc,TdUnc,WSpdUnc,WDirUnc],TC1)]
+             ([TUnc,TdUnc,WSpdUnc,WDirUnc,VisUnc],TC1)]
 
 # NamDNG5 database parameter groupings
 NamDNG5PARMS = [([Temp, Td, RH, Wind, Sky, WindGust, Vis], TC3),
