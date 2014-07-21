@@ -28,6 +28,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.referencing.GeodeticCalculator;
 
+import com.raytheon.uf.viz.core.DrawableBasics;
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -77,7 +79,7 @@ import com.vividsolutions.jts.geom.LineSegment;
  *  06-09-10     #5620       bkowal      The tool will load in an editable state by
  *                                       default now.
  *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
- * 
+ *  07-21-14    #3412        mapeters    Updated deprecated drawCircle call.
  * </pre>
  * 
  * @author ebabin
@@ -161,12 +163,17 @@ public class DistanceBearingToolLayer extends
         Coordinate[] ends = { line.p0, line.p1 };
         wireframeShape.addLineSegment(ends);
         if (isEditable()) {
-            for (Coordinate vertex : ends) {
+            DrawableCircle circle0 = new DrawableCircle();
+            DrawableCircle circle1 = new DrawableCircle();
+            DrawableCircle[] circles = new DrawableCircle[] { circle0, circle1 };
+            for (int i = 0; i <= 1; i++) {
                 double[] center = descriptor.worldToPixel(new double[] {
-                        vertex.x, vertex.y });
-                target.drawCircle(center[0], center[1], 0.0, radius, color, 1);
-
+                        ends[i].x, ends[i].y });
+                circles[i].radius = radius;
+                circles[i].basics.color = color;
+                circles[i].setCoordinates(center[0], center[1]);
             }
+            target.drawCircle(circles);
         }
         String label = computeRangeAndAzimuth(line);
         // set font for  magnification capability
