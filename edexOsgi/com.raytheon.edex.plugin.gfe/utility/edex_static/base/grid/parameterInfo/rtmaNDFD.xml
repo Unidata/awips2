@@ -232,4 +232,109 @@
       <level>FHAG2</level>
     </levels>
   </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wgs</short_name>
+    <long_name>Wind Gust Speed</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>windGustSpeed</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 10</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>wgserranl</short_name>
+    <long_name>wind speed uncertainty</long_name>
+    <units>m/s</units>
+    <udunits>meter/sec</udunits>
+    <uiname>WGSerranlind</uiname>
+    <valid_range>-150.0</valid_range>
+    <valid_range>150.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>FHAG 10</levelsDesc>
+    <levels>
+      <level>FHAG10</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>vis</short_name>
+    <long_name>visibility</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>Vis</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>viserranl</short_name>
+    <long_name>visibility uncertainty</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>Viserranlind</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>perranl</short_name>
+    <long_name>pressure uncertainty</long_name>
+    <units>Pa</units>
+    <udunits>pascal</udunits>
+    <uiname>atmPerranlind</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>p</short_name>
+    <long_name>pressure</long_name>
+    <units>Pa</units>
+    <udunits>pascal</udunits>
+    <uiname>atmP</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>110000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>gh</short_name>
+    <long_name>Geopotential height</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>geoPotHt</uiname>
+    <valid_range>-2000.0</valid_range>
+    <valid_range>20000.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>1</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
 </gridParamInfo>
