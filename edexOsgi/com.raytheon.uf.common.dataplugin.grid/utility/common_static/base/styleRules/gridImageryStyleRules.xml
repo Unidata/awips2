@@ -588,7 +588,7 @@
 			<parameter>DpTerranl</parameter>
 		</paramLevelMatches>
 		<imageStyle>
-			<displayUnits>F</displayUnits>
+			<displayUnits label="F">°R</displayUnits>
 			<range scale="LINEAR">
 				<minValue>-4</minValue>
 				<maxValue>20</maxValue>
