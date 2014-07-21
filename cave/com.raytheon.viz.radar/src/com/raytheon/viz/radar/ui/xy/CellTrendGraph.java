@@ -26,6 +26,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -56,7 +57,7 @@ import com.raytheon.viz.radar.ui.xy.RadarGraphResource.GraphPosition;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009             askripsk    Initial creation
- * 
+ * 07-21-14     #3412      mapeters    Updated deprecated drawCircle call.
  * </pre>
  * 
  * @author askripsk
@@ -158,7 +159,11 @@ public class CellTrendGraph extends XYGraph {
     private void drawPoint(IGraphicsTarget target, double x, double y,
             PointType currPointType) throws VizException {
         if (currPointType.equals(PointType.CIRCLE)) {
-            target.drawCircle(x, y, 0, 3, colorCap.getColor(), 1);
+            DrawableCircle circle = new DrawableCircle();
+            circle.setCoordinates(x, y);
+            circle.radius = 3.0;
+            circle.basics.color = colorCap.getColor();
+            target.drawCircle(circle);
         } else if (currPointType.equals(PointType.X)) {
             target.drawLine(x - 3, y - 3, 0.0, x + 3, y + 3, 0.0, colorCap
                     .getColor(), 1.0f);
