@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2009            mschenke     Initial creation
+ * Jul 23, 2014 3410       bclement     location changed to floats
  * 
  * </pre>
  * 
@@ -51,8 +52,10 @@ public class PlotAlertParser extends AbstractAlertMessageParser {
             AbstractRequestableResourceData resourceData) throws VizException {
         String stationId = (String) message.decodedAlert
                 .get("location.stationId");
-        Double lat = (Double) message.decodedAlert.get("location.latitude");
-        Double lon = (Double) message.decodedAlert.get("location.longitude");
+        Double lat = ((Number) message.decodedAlert.get("location.latitude"))
+                .doubleValue();
+        Double lon = ((Number) message.decodedAlert.get("location.longitude"))
+                .doubleValue();
         DataTime dataTime = (DataTime) message.decodedAlert.get("dataTime");
         return new PlotInfo(stationId, lat, lon, dataTime,
                 message.dataURI);
