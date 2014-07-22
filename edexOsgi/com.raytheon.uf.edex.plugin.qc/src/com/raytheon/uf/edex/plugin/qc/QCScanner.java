@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.plugin.qc.dao.QCDao;
  * May 16, 2013 1869       bsteffen    Remove DataURI column from qc.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Feb 20, 2014 DR 17098   D. Friedman Filter out invalid lat/lon values.
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -208,8 +209,8 @@ public class QCScanner {
                     while (ri < records.length) {
                         QCRecord r = new QCRecord();
                         double obsTime = dObsTime.getDouble(ri);
-                        double lat = dLat.getDouble(ri);
-                        double lon = dLon.getDouble(ri);
+                        float lat = dLat.getFloat(ri);
+                        float lon = dLon.getFloat(ri);
                         if ((obsTime != vObsTimeFillValue)
                                 && ((vObsTimeMissingValue == null) || (vObsTimeMissingValue != obsTime))
                                 && Math.abs(lon) <= 180 && Math.abs(lat) <= 90) {
