@@ -91,6 +91,7 @@ import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryParser;
  * Apr 21, 2014 2906       bclement     populated wmo header in record for consistency
  * Jun 12, 2014 3229       bclement     default implementation for getTranslationFile() and createStationId()
  *                                      moved processGeneralFields() and processPrecip() from synoptic land decoder
+ * Jul 23, 2014 3410       bclement     location changed to floats
  * 
  * 
  * </pre>
@@ -534,13 +535,13 @@ public abstract class AbstractBufrSfcObsDecoder {
         } else if (baseName.equalsIgnoreCase(SfcObsPointDataTransform.LATITUDE)) {
             Double lat = (Double) getFieldValue(parser, false);
             if (lat != null) {
-                location.assignLatitude(lat);
+                location.assignLatitude(lat.floatValue());
             }
         } else if (baseName
                 .equalsIgnoreCase(SfcObsPointDataTransform.LONGITUDE)) {
             Double lon = (Double) getFieldValue(parser, false);
             if (lon != null) {
-                location.assignLongitude(lon);
+                location.assignLongitude(lon.floatValue());
             }
         } else if (baseName
                 .equalsIgnoreCase(SfcObsPointDataTransform.ELEVATION)) {
