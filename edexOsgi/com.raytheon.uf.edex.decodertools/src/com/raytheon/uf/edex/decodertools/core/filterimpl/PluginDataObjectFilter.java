@@ -57,6 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Jul 16, 2009           jkorman     Initial creation
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2014 3410      bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -255,13 +256,13 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
 
         TestObject p = new TestObject();
         p.location = new SurfaceObsLocation("1.1");
-        p.location.assignLocation(.8, .8);
+        p.location.assignLocation(.8f, .8f);
         p = (TestObject) element.filter(p);
         System.out.println((p == null) ? "passed" : "failed");
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("1.2");
-        p.location.assignLocation(.7, .7);
+        p.location.assignLocation(.7f, .7f);
         p = (TestObject) element.filter(p);
         System.out.println((p == null) ? "failed" : p);
 
@@ -271,13 +272,13 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("2.1");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
+        p.location.assignLocation(38.78f, -97.65f); // KSLN 38 47N 097 39W
         p = (TestObject) element.filter(p);
         System.out.println((p == null) ? p : "failed");
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("2.2");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
+        p.location.assignLocation(39.13f, -96.68f); // KMHK 39 08N 096 41W
         p = (TestObject) element.filter(p);
         System.out.println((p != null) ? p : "failed");
 
@@ -299,17 +300,17 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
         PluginDataObject[] pp = new PluginDataObject[3];
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSLN");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
+        p.location.assignLocation(38.78f, -97.65f); // KSLN 38 47N 097 39W
         pp[0] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KMHK");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
+        p.location.assignLocation(39.13f, -96.68f); // KMHK 39 08N 096 41W
         pp[1] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSTJ");
-        p.location.assignLocation(41, -96.00);
+        p.location.assignLocation(41f, -96.00f);
         pp[2] = p;
 
         pp = filter.filter(pp);
@@ -326,22 +327,22 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KORD");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
+        p.location.assignLocation(38.78f, -97.65f); // KSLN 38 47N 097 39W
         pp[0] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSLN");
-        p.location.assignLocation(38.78, -97.65); // KSLN 38 47N 097 39W
+        p.location.assignLocation(38.78f, -97.65f); // KSLN 38 47N 097 39W
         pp[1] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KMHK");
-        p.location.assignLocation(39.13, -96.68); // KMHK 39 08N 096 41W
+        p.location.assignLocation(39.13f, -96.68f); // KMHK 39 08N 096 41W
         pp[2] = p;
 
         p = new TestObject();
         p.location = new SurfaceObsLocation("KSTJ");
-        p.location.assignLocation(41, -96.00);
+        p.location.assignLocation(41f, -96.00f);
         pp[3] = p;
 
         filter = new PluginDataObjectFilter();
