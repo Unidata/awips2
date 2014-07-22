@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.hydrocommon.resource;
+package com.raytheon.viz.mpe.ui.rsc;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
