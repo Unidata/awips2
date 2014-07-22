@@ -21,6 +21,7 @@ package com.raytheon.viz.hydrocommon.resource;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -40,7 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2009            snaples     Initial creation
- * 
+ * Jul 22, 2014 #3422      mapeters    Updated deprecated drawFilledCircle() call.
  * </pre>
  * 
  * @author snaples
@@ -110,8 +111,12 @@ public abstract class HydroPointResource <T extends HydroPointResourceData<?>> e
                 target.drawShadedRect(paintProps.getView().getExtent(), color,
                         1.0, null);
             } else if (getStyle() == Style.CIRCLE) {
-                target.drawFilledCircle(pixels[0], pixels[1], 0.0,
-                        CIRCLE_RADIUS, color);
+                DrawableCircle circle = new DrawableCircle();
+                circle.setCoordinates(pixels[0], pixels[1]);
+                circle.radius = (double)CIRCLE_RADIUS;
+                circle.basics.color = color;
+                circle.filled = true;
+                target.drawCircle(circle);
             }
 
         }
