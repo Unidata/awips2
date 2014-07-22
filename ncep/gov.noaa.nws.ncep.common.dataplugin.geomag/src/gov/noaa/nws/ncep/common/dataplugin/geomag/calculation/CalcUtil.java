@@ -19,9 +19,10 @@ import java.util.Map;
  * <pre>
  * SOFTWARE HISTORY
  *                   
- * ate          Ticket#     Engineer   Description
+ * Date          Ticket#     Engineer   Description
  * -----------  ----------  ---------- --------------------------
  * 05/14/2013   #989        qzhou      Initial Creation
+ * 06/23/2014   R4152       qzhou      Touched up 3 functions
  * </pre>
  * 
  * @author qzhou
@@ -181,7 +182,7 @@ public class CalcUtil {
         int[] kLimit = new int[10];
         int k9Limit = getK9Limit(station);
         for (int i = 0; i < kLimit.length; i++) {
-            kLimit[i] = Math.round(k9Limit * getKConst(i) / 500);
+            kLimit[i] = Math.round(k9Limit * getKConst(i) / 500.0f);
         }
         return kLimit;
     }
@@ -219,11 +220,11 @@ public class CalcUtil {
         return kIndex;
     }
 
-    public static int getGammaFromK(String station, int kIndex) {
-        int gamma = getK9Limit(station) * getKConst(kIndex) / 500;
-
-        return gamma;
-    }
+    // public static int getGammaFromK(String station, int kIndex) {
+    // int gamma = getK9Limit(station) * getKConst(kIndex) / 500;
+    //
+    // return gamma;
+    // }
 
     // assume db time format yyyy-mm-dd hh:mm:ss
     public static Date getSPTime(Date currTime) {
@@ -414,11 +415,11 @@ public class CalcUtil {
     public static boolean isLeapYear(int year) {
         boolean isLeap;
 
-        if (year / 400 == 0)
+        if (year % 400 == 0)
             isLeap = true;
-        else if (year / 100 == 0)
+        else if (year % 100 == 0)
             isLeap = false;
-        else if (year / 4 == 0)
+        else if (year % 4 == 0)
             isLeap = true;
         else
             isLeap = false;
@@ -540,11 +541,12 @@ public class CalcUtil {
                 break; // to sorted arraySort
 
         int size = newArray.size();
-        if (size / 2 == 0)
+        if (size % 2 == 0)
             median = (newArray.get(size / 2) + newArray.get(size / 2 - 1)) / 2;
         else
             median = newArray.get((size - 1) / 2);
 
         return median;
     }
+
 }
