@@ -51,6 +51,7 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Feb 11, 2014 2763       skorolev    Made LFCR correction of input data.
  * Mar 10, 2014 2807       skorolev    Added MalformedDataException for VAA decoding.
  * May 14, 2014 2536       bclement    moved WMO Header to common
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -59,11 +60,10 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  */
 public class VAAParser implements Iterable<VAARecord> {
 
-    // TODO should use JTS coordinate
     private static class LatLon {
-        public Double lat;
+        public float lat;
 
-        public Double lon;
+        public float lon;
 
         @Override
         public String toString() {
@@ -266,12 +266,12 @@ public class VAAParser implements Iterable<VAARecord> {
         Matcher m = InternalReport.LAT_LON_P.matcher(latLon);
         if (m.find()) {
             latlon = new LatLon();
-            latlon.lat = Double.parseDouble(m.group(2));
-            latlon.lat += (Double.parseDouble(m.group(3)) / 60.0);
+            latlon.lat = Float.parseFloat(m.group(2));
+            latlon.lat += (Float.parseFloat(m.group(3)) / 60.0f);
             latlon.lat *= ("S".equals(m.group(1))) ? -1 : 1;
 
-            latlon.lon = Double.parseDouble(m.group(5));
-            latlon.lon += (Double.parseDouble(m.group(6)) / 60.0);
+            latlon.lon = Float.parseFloat(m.group(5));
+            latlon.lon += (Float.parseFloat(m.group(6)) / 60.0f);
             latlon.lon *= ("W".equals(m.group(4))) ? -1 : 1;
         }
         return latlon;
