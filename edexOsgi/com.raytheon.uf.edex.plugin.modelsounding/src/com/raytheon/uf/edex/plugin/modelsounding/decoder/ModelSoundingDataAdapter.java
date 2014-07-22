@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
  * Jul 03, 2013  2161     bkowal      Relocated the logic used to retrieve
  *                                    temporal information into its own function.
  * Dec 02, 2013  2537     bsteffen    Use SoundingSite setters instead of view.
+ * Jul 23, 2014  3410     bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -269,7 +270,7 @@ public class ModelSoundingDataAdapter {
                 if (d == BUFRDescriptor.createDescriptor(0, 6, 2)) {
                     lon = (Double) dp.getValue();
                 }
-                location.assignLocation(lat, lon);
+                location.assignLocation(lat.floatValue(), lon.floatValue());
                 dp = dataList.get(index);
                 d = dp.getReferencingDescriptor().getDescriptor();
                 if (d == BUFRDescriptor.createDescriptor(0, 10, 194)) {

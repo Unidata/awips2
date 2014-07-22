@@ -31,7 +31,6 @@ import com.raytheon.edex.plugin.bufrua.dao.BufrUADao;
 import com.raytheon.edex.plugin.bufrua.decoder.AbstractBUFRUAAdapter;
 import com.raytheon.edex.plugin.bufrua.decoder.BUFRUAAdapterFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -79,6 +78,7 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * Feb 27, 2013 1638       mschenke   Moved ObStationDao to edex pointdata plugin
  * Mar 19, 2013 1785       bgonzale    Added performance status handler and added status
  *                                     to decodeData.
+ * Jul 23, 2014 3410       bclement    removed call to obs.getDataURI()
  * </pre>
  * 
  * @author jkorman
@@ -148,17 +148,10 @@ public class BufrUADecoder extends AbstractBUFRDecoder {
                     obs.setCorIndicator(cor);
                     obs.setTraceId(traceId);
                     if ((obs = queryStationInfo(obs, traceId)) != null) {
-                        try {
-                            obs.constructDataURI();
+                        String uri = obs.getDataURI();
 
-                            String uri = obs.getDataURI();
-
-                            if (dataSet.add(uri)) {
-                                decodedData.add(obs);
-                            }
-                        } catch (PluginException e) {
-                            logger.error(traceId
-                                    + "- Unable to construct dataURI", e);
+                        if (dataSet.add(uri)) {
+                            decodedData.add(obs);
                         }
                     }
                 }
