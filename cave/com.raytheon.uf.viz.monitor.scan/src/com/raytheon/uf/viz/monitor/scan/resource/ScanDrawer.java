@@ -65,7 +65,7 @@ import com.vividsolutions.jts.geom.Point;
  * Oct 13, 2009   2307       dhladky     Initial creation
  * Apr 22, 2013   1926       njensen     Faster rendering
  * May 09, 2014   3145       mpduff      Add getter for font so it can be disposed, javadoc fix
- * 
+ * Jul 22, 2014   3422       mapeters    Updated deprecated drawArc() call.
  * </pre>
  * 
  * @author dhladky
@@ -358,49 +358,40 @@ public class ScanDrawer {
             wLeftX = center[0] - (size);
             topY = center[1] - (size);
             bottomY = center[1] + (size);
+            
+            DrawableCircle circle = new DrawableCircle();
+            circle.setCoordinates(center[0], center[1]);
+            circle.radius = size;
+            circle.basics.color = getResourceColor();
+            
             if (mesoType == 0) {
                 if (isExt) {
                     // draw a broken circle
-                    aTarget.drawArc(center[0], center[1], 0.0, size,
-                            getResourceColor(), outlineWidth * 4, 0, 360,
-                            LineStyle.DASHED, true);
-                } else {
-                    DrawableCircle circle = new DrawableCircle();
-                    circle.setCoordinates(center[0], center[1], 0.0);
-                    circle.basics.color = getResourceColor();
-                    circle.radius = size;
                     circle.lineWidth = outlineWidth * 4;
-                    circle.filled = false;
+                    circle.lineStyle = LineStyle.DASHED;
+                    aTarget.drawCircle(circle);          
+                } else {  
+                    circle.lineWidth = outlineWidth * 4;
                     aTarget.drawCircle(circle);
                 }
             } else if (mesoType == 2) {
                 if (isExt) {
                     // draw a broken circle
-                    aTarget.drawArc(center[0], center[1], 0.0, size,
-                            getResourceColor(), outlineWidth, 0, 360,
-                            LineStyle.DASHED, true);
-                } else {
-                    DrawableCircle circle = new DrawableCircle();
-                    circle.setCoordinates(center[0], center[1], 0.0);
-                    circle.basics.color = getResourceColor();
-                    circle.radius = size;
                     circle.lineWidth = outlineWidth;
-                    circle.filled = false;
+                    circle.lineStyle = LineStyle.DASHED;
+                    aTarget.drawCircle(circle);   
+                } else {
+                    circle.lineWidth = outlineWidth;
                     aTarget.drawCircle(circle);
                 }
             } else if (mesoType == 1) {
                 if (isExt) {
-                    // draw a broken circle
-                    aTarget.drawArc(center[0], center[1], 0.0, size,
-                            getResourceColor(), outlineWidth * 4, 0, 360,
-                            LineStyle.DASHED, true);
-                } else {
-                    DrawableCircle circle = new DrawableCircle();
-                    circle.setCoordinates(center[0], center[1], 0.0);
-                    circle.basics.color = getResourceColor();
-                    circle.radius = size;
+                    // draw a broken circle                  
                     circle.lineWidth = outlineWidth * 4;
-                    circle.filled = false;
+                    circle.lineStyle = LineStyle.DASHED;
+                    aTarget.drawCircle(circle);
+                } else {
+                    circle.lineWidth = outlineWidth * 4;
                     aTarget.drawCircle(circle);
                 }
                 // top spike
