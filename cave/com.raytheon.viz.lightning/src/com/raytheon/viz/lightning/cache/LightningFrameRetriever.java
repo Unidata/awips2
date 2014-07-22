@@ -58,7 +58,8 @@ import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 9, 2014  3333      bclement     moved from LightningResource
+ * Jul 09, 2014 3333       bclement     moved from LightningResource
+ * Jul 22, 2014 3214       bclement     fixed typos in populatePulseData() and updateAndGet()
  * 
  * </pre>
  * 
@@ -107,7 +108,7 @@ public class LightningFrameRetriever implements
                     newRecords.add(record);
                 }
             }
-            rval = co.getObjectAsync();
+            rval = co.getObjectSync();
             if (processed.size() > 0 && newRecords.size() > 0) {
                 // if we've already processed some records, request the
                 // new ones now and merge
@@ -384,7 +385,7 @@ public class LightningFrameRetriever implements
                         "Mismatched pulse latitude/longitude data", latRecord);
             }
             for (int i = 0; i < lats.length; ++i) {
-                bundle.getPosLatLonList()
+                bundle.getPulseLatLonList()
                         .add(new double[] { lons[i], lats[i] });
             }
         } catch (FileNotFoundException e) {
