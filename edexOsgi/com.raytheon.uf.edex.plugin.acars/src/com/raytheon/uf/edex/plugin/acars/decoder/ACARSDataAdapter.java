@@ -46,9 +46,9 @@ import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 
 /**
  * Adapter used to decode ACARS data in BUFR format.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
@@ -59,9 +59,10 @@ import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
  * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
  * Jun 12, 2014  2061     bsteffen    Generate unique stationid
  * Jul 22, 2014  3392     nabowle     ACARSRecord has Float fields instead of Double
- *
+ * Jul 23, 2014  3410     bclement    location changed to floats
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
  * @version 1.0
  */
@@ -485,8 +486,8 @@ public class ACARSDataAdapter {
 
         if ((lat != null) && (lon != null)) {
             loc = new AircraftObsLocation();
-            loc.setLatitude(lat);
-            loc.setLongitude(lon);
+            loc.setLatitude(lat.floatValue());
+            loc.setLongitude(lon.floatValue());
             loc.setLocation(lat, lon);
 
             // We can pick up the height here for some data. Have to look
@@ -538,8 +539,8 @@ public class ACARSDataAdapter {
 
         if ((lat != null) && (lon != null)) {
             loc = new AircraftObsLocation();
-            loc.setLatitude(lat);
-            loc.setLongitude(lon);
+            loc.setLatitude(lat.floatValue());
+            loc.setLongitude(lon.floatValue());
             loc.setLocation(lat, lon);
             generateStationId(loc);
         }

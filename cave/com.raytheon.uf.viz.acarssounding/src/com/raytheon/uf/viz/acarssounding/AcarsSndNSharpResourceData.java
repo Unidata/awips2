@@ -51,7 +51,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.d2d.nsharp.SoundingLayerBuilder;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Provides sounding data to nsharp from aircraft reports.
@@ -63,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2013            bsteffen     Initial creation
+ * Jul 23, 2014 3410       bclement     preparePointInfo() calls unpackResultLocation()
  * 
  * </pre>
  * 
@@ -94,9 +94,8 @@ public class AcarsSndNSharpResourceData extends D2DNSharpResourceData {
 
             for (Map<String, Object> result : response.getResults()) {
                 if (coordinate == null) {
-                    coordinate = new Coordinate();
-                    coordinate.x = (Double) result.get(LONGITUDE);
-                    coordinate.y = (Double) result.get(LATITUDE);
+                    coordinate = unpackResultLocation(result, LONGITUDE,
+                            LATITUDE);
                 }
             }
         }
