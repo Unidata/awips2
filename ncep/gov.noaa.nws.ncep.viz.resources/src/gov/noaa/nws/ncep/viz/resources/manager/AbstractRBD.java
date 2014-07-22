@@ -78,8 +78,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
-        implements INatlCntrsPaneManager, Comparable<AbstractRBD<?>> {
+public abstract class AbstractRBD<T extends AbstractRenderableDisplay> implements INatlCntrsPaneManager, Comparable<AbstractRBD<?>> {
     private static JAXBManager jaxb;
 
     @XmlElement
@@ -153,8 +152,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
         this.autoUpdate = autoUpdate;
         for (T disp : getDisplays()) {
             if (disp != null) {
-                ((INatlCntrsDescriptor) disp.getDescriptor())
-                        .setAutoUpdate(autoUpdate);
+                ((INatlCntrsDescriptor) disp.getDescriptor()).setAutoUpdate(autoUpdate);
             }
         }
     }
@@ -208,8 +206,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
 
     @Override
     public IPaneLayoutable getPane(INcPaneID pid) {
-        if (paneLayout.containsPaneId(pid)
-                && paneLayout.getPaneIndex(pid) < displays.length) {
+        if (paneLayout.containsPaneId(pid) && paneLayout.getPaneIndex(pid) < displays.length) {
 
             T pane = displays[paneLayout.getPaneIndex(pid)];
 
@@ -258,8 +255,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
         // ncEditor = null;
         setPaneLayout(paneLayout);
         try {
-            displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType(this,
-                    paneLayout);
+            displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType(this, paneLayout);
         } catch (VizException e) {
             System.out.println(e.getMessage());
         }
@@ -267,8 +263,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
 
     // protected abstract T[] createDisplays( int num );
 
-    public static AbstractRBD<?> clone(AbstractRBD<?> rbdBndl)
-            throws VizException {
+    public static AbstractRBD<?> clone(AbstractRBD<?> rbdBndl) throws VizException {
         try {
             NCTimeMatcher tm = new NCTimeMatcher(rbdBndl.getTimeMatcher());
 
@@ -290,17 +285,13 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
             NcGridGeometryAdapter geomAdapter = new NcGridGeometryAdapter();
 
             for (AbstractRenderableDisplay disp : rbdBndl.getDisplays()) {
-                GeneralGridGeometry geom = disp.getDescriptor()
-                        .getGridGeometry();
+                GeneralGridGeometry geom = disp.getDescriptor().getGridGeometry();
 
-                if (geom.getEnvelope().getCoordinateReferenceSystem().getName()
-                        .toString().startsWith("MCIDAS")) {
+                if (geom.getEnvelope().getCoordinateReferenceSystem().getName().toString().startsWith("MCIDAS")) {
 
                     GridGeometrySerialized ggs = geomAdapter.marshal(geom);
-                    ggsMap.put(((INatlCntrsRenderableDisplay) disp).getPaneId()
-                            .toString(), ggs);
-                    dispMap.put(((INatlCntrsRenderableDisplay) disp)
-                            .getPaneId().toString(), disp);
+                    ggsMap.put(((INatlCntrsRenderableDisplay) disp).getPaneId().toString(), ggs);
+                    dispMap.put(((INatlCntrsRenderableDisplay) disp).getPaneId().toString(), disp);
                     // DefaultProjectedCRS pCRS =
                     // (DefaultProjectedCRS)geom.getCoordinateReferenceSystem();
                     // String crsWkt = pCRS.toWKT();
@@ -308,25 +299,18 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
                     // ((INatlCntrsRenderableDisplay)disp).getPaneId().toString(),
                     // crsWkt );
                     // something valid as a placeholder....
-                    disp.getDescriptor().setGridGeometry(
-                            PredefinedAreaFactory
-                                    .getDefaultPredefinedAreaForDisplayType(
-                                            rbdBndl.getDisplayType())
-                                    .getGridGeometry());
+                    disp.getDescriptor().setGridGeometry(PredefinedAreaFactory.getDefaultPredefinedAreaForDisplayType(rbdBndl.getDisplayType()).getGridGeometry());
                 }
             }
 
-            getJaxbManager().marshalToXmlFile(rbdBndl,
-                    tempRbdFile.getAbsolutePath());
+            getJaxbManager().marshalToXmlFile(rbdBndl, tempRbdFile.getAbsolutePath());
 
             AbstractRBD<?> clonedRbd = getRbd(tempRbdFile);
 
             for (AbstractRenderableDisplay disp : clonedRbd.getDisplays()) {
-                String ggsKey = ((INatlCntrsRenderableDisplay) disp)
-                        .getPaneId().toString();
+                String ggsKey = ((INatlCntrsRenderableDisplay) disp).getPaneId().toString();
                 if (ggsMap.containsKey(ggsKey)) {
-                    GeneralGridGeometry geom = geomAdapter.unmarshal(ggsMap
-                            .get(ggsKey));
+                    GeneralGridGeometry geom = geomAdapter.unmarshal(ggsMap.get(ggsKey));
                     disp.getDescriptor().setGridGeometry(geom);
 
                     // another copy (should we save the original and set it
@@ -364,8 +348,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
         } catch (JAXBException e) {
             throw new VizException(e);
         } catch (VizException e) {
-            throw new VizException("Error loading rbd " + rbdBndl.rbdName
-                    + " :" + e.getMessage());
+            throw new VizException("Error loading rbd " + rbdBndl.rbdName + " :" + e.getMessage());
         } catch (IOException e) { // from createTempFile
             throw new VizException(e);
         } catch (Exception e) {
@@ -373,8 +356,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
         }
     }
 
-    public static AbstractRBD<?> createEmptyRbdForDisplayType(
-            NcDisplayType dispType, NcPaneLayout pLayout) throws VizException {
+    public static AbstractRBD<?> createEmptyRbdForDisplayType(NcDisplayType dispType, NcPaneLayout pLayout) throws VizException {
         AbstractRBD<?> rbd = null;
 
         switch (dispType) {
@@ -399,19 +381,15 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
     }
 
     private void createDisplays() throws VizException {
-        displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType(this,
-                getPaneLayout());
+        displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType(this, getPaneLayout());
     }
 
-    public static AbstractRBD<?> createRbdFromEditor(AbstractEditor ncEditor)
-            throws VizException {
+    public static AbstractRBD<?> createRbdFromEditor(AbstractEditor ncEditor) throws VizException {
         if (ncEditor == null) {
             return null;
         }
 
-        AbstractRBD<?> rbd = createEmptyRbdForDisplayType(
-                NcEditorUtil.getNcDisplayType(ncEditor),
-                (NcPaneLayout) NcEditorUtil.getPaneLayout(ncEditor));
+        AbstractRBD<?> rbd = createEmptyRbdForDisplayType(NcEditorUtil.getNcDisplayType(ncEditor), (NcPaneLayout) NcEditorUtil.getPaneLayout(ncEditor));
 
         rbd.initRbdFromEditor(ncEditor);
 
@@ -440,12 +418,10 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
         geoSyncedPanes = NcEditorUtil.arePanesGeoSynced(ncEditor);
         autoUpdate = NcEditorUtil.getAutoUpdate(ncEditor);
 
-        displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType(this,
-                NcEditorUtil.getPaneLayout(ncEditor));
+        displays = (T[]) NcDisplayMngr.createDisplaysForNcDisplayType(this, NcEditorUtil.getPaneLayout(ncEditor));
 
         for (int paneIndx = 0; paneIndx < paneLayout.getNumberOfPanes(); paneIndx++) {
-            IDisplayPane pane = NcEditorUtil.getDisplayPane(ncEditor,
-                    paneLayout.createPaneId(paneIndx));// new NcPaneID(r, c));
+            IDisplayPane pane = NcEditorUtil.getDisplayPane(ncEditor, paneLayout.createPaneId(paneIndx));// new NcPaneID(r, c));
 
             T rDispPane = (T) pane.getRenderableDisplay();
 
@@ -455,8 +431,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
             displays[paneIndx] = rDispPane;
         }
 
-        setTimeMatcher(new NCTimeMatcher((NCTimeMatcher) displays[0]
-                .getDescriptor().getTimeMatcher()));
+        setTimeMatcher(new NCTimeMatcher((NCTimeMatcher) displays[0].getDescriptor().getTimeMatcher()));
     }
 
     /**
@@ -485,13 +460,11 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
     //
     public INatlCntrsRenderableDisplay getDisplayPane(INcPaneID pid) {
         if (!paneLayout.containsPaneId(pid)) {
-            System.out.println("NcMapRBD.getDisplayPane: pane id "
-                    + pid.toString() + " is out of range.");
+            System.out.println("NcMapRBD.getDisplayPane: pane id " + pid.toString() + " is out of range.");
             return null;
         }
         //
-        return (INatlCntrsRenderableDisplay) displays[paneLayout
-                .getPaneIndex(pid)];
+        return (INatlCntrsRenderableDisplay) displays[paneLayout.getPaneIndex(pid)];
     }
 
     public abstract boolean addDisplayPane(T dispPane, NcPaneID pid);
@@ -551,8 +524,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
 
     // TODO : change/move this to be able to get user-based default RBDs.
     //
-    public static AbstractRBD<?> getDefaultRBD(NcDisplayType displayType)
-            throws VizException {
+    public static AbstractRBD<?> getDefaultRBD(NcDisplayType displayType) throws VizException {
 
         String dfltRbdName = "";
 
@@ -567,22 +539,18 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
         // one.
         case NTRANS_DISPLAY:
             dfltRbdName = null; // NcPathConstants.DFLT_NTRANS_RBD;
-            return AbstractRBD.createEmptyRbdForDisplayType(displayType,
-                    new NcPaneLayout(1, 1));
+            return AbstractRBD.createEmptyRbdForDisplayType(displayType, new NcPaneLayout(1, 1));
         case SOLAR_DISPLAY:
             dfltRbdName = null; // NcPathConstants.DFLT_SOLAR_RBD;
-            return AbstractRBD.createEmptyRbdForDisplayType(displayType,
-                    new NcPaneLayout(1, 1));
+            return AbstractRBD.createEmptyRbdForDisplayType(displayType, new NcPaneLayout(1, 1));
         default:
-            throw new VizException("Unable to find the default RBD name for "
-                    + displayType.toString());
+            throw new VizException("Unable to find the default RBD name for " + displayType.toString());
         }
 
         File rbdFile = NcPathManager.getInstance().getStaticFile(dfltRbdName);
 
         if (rbdFile == null) {
-            throw new VizException("Unable to find the default RBD file for "
-                    + displayType.toString());
+            throw new VizException("Unable to find the default RBD file for " + displayType.toString());
         }
 
         try {
@@ -596,8 +564,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
 
             return clone(dfltRbd);
         } catch (Exception ve) {
-            throw new VizException("Error getting default RBD: "
-                    + ve.getMessage());
+            throw new VizException("Error getting default RBD: " + ve.getMessage());
         }
     }
 
@@ -610,8 +577,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
         // older version)
         //
         if (rbd.displays == null || rbd.displays.length == 0) {
-            throw new VizException(
-                    "Error unmarshalling RBD: the renderable display list is null");
+            throw new VizException("Error unmarshalling RBD: the renderable display list is null");
         }
         // getInitialArea can't return null.
         // for( AbstractRenderableDisplay d : rbd.getDisplays() ) {
@@ -645,8 +611,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
      * 
      * @throws VizException
      */
-    private static AbstractRBD<?> unmarshalRBD(File fileName,
-            Map<String, String> variables) throws VizException {
+    private static AbstractRBD<?> unmarshalRBD(File fileName, Map<String, String> variables) throws VizException {
         String s = null;
         try {
             FileReader fr = new FileReader(fileName);
@@ -677,15 +642,12 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
      * 
      * @throws VizException
      */
-    private static AbstractRBD<?> unmarshalRBD(String bundleStr,
-            Map<String, String> variables) throws VizException {
+    private static AbstractRBD<?> unmarshalRBD(String bundleStr, Map<String, String> variables) throws VizException {
 
         try {
-            String substStr = VariableSubstitutionUtil.processVariables(
-                    bundleStr, variables);
+            String substStr = VariableSubstitutionUtil.processVariables(bundleStr, variables);
 
-            AbstractRBD<?> b = (AbstractRBD<?>) getJaxbManager()
-                    .unmarshalFromXml(substStr);
+            AbstractRBD<?> b = (AbstractRBD<?>) getJaxbManager().unmarshalFromXml(substStr);
 
             if (b == null) {
                 System.out.println("Unmarshalled rbd file is not a valid RBD?");
@@ -764,20 +726,16 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
      * @throws JAXBException
      *             if there are illegal JAXB annotations.
      */
-    public static synchronized JAXBManager getJaxbManager()
-            throws JAXBException {
+    public static synchronized JAXBManager getJaxbManager() throws JAXBException {
         if (jaxb == null) {
             SubClassLocator locator = new SubClassLocator();
-            Collection<Class<?>> classes = JAXBClassLocator.getJAXBClasses(
-                    locator, AbstractRBD.class);
+            Collection<Class<?>> classes = JAXBClassLocator.getJAXBClasses(locator, AbstractRBD.class);
             locator.save();
 
             Class<?>[] jaxbClasses = new Class<?>[classes.size() + 1];
             classes.toArray(jaxbClasses);
-            /*
-             * Add JaxbDummyObject at the begining so properties are loaded
-             * correctly
-             */
+            /* Add JaxbDummyObject at the begining so properties are loaded
+             * correctly */
             jaxbClasses[jaxbClasses.length - 1] = jaxbClasses[0];
             jaxbClasses[0] = JaxbDummyObject.class;
 
@@ -788,8 +746,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
 
     public NCTimeMatcher getTimeMatcher() {
         if (timeMatcher == null) {
-            timeMatcher = (NCTimeMatcher) displays[0].getDescriptor()
-                    .getTimeMatcher();
+            timeMatcher = (NCTimeMatcher) displays[0].getDescriptor().getTimeMatcher();
         }
         return timeMatcher;
     }
@@ -804,8 +761,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
             if (disp != null) {
                 disp.getDescriptor().setTimeMatcher(timeMatcher);
 
-                timeMatcher.addDescriptor((INatlCntrsDescriptor) disp
-                        .getDescriptor());
+                timeMatcher.addDescriptor((INatlCntrsDescriptor) disp.getDescriptor());
             }
         }
     }
@@ -821,12 +777,10 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
             for (int r = 0; r < rl.size(); r++) {
                 ResourcePair rp = rl.get(r);
                 if (rp.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData) {
-                    AbstractNatlCntrsRequestableResourceData rscData = (AbstractNatlCntrsRequestableResourceData) rp
-                            .getResourceData();
+                    AbstractNatlCntrsRequestableResourceData rscData = (AbstractNatlCntrsRequestableResourceData) rp.getResourceData();
                     ResourceName rscName = rscData.getResourceName();
 
-                    if (rscName.isForecastResource()
-                            && rscName.isLatestCycleTime()) {
+                    if (rscName.isForecastResource() && rscName.isLatestCycleTime()) {
 
                         rscData.getAvailableDataTimes();
 
@@ -835,9 +789,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
                         // to have to be able to handle this case.
                         //
                         if (rscName.isLatestCycleTime()) {
-                            System.out
-                                    .println("Unable to Resolve Latest cycle time for :"
-                                            + rscName);
+                            System.out.println("Unable to Resolve Latest cycle time for :" + rscName);
                         }
                     }
                 }
@@ -854,8 +806,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
 
         ResourceName domRscName = timeMatcher.getDominantResourceName();
 
-        if (domRscName != null && domRscName.isValid()
-                && timeMatcher.getDominantResource() == null) {
+        if (domRscName != null && domRscName.isValid() && timeMatcher.getDominantResource() == null) {
 
             // loop thru the displays looking for the dominant resource
             //
@@ -864,11 +815,9 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
                 for (int r = 0; r < rl.size(); r++) {
                     ResourcePair rp = rl.get(r);
                     if (rp.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData) {
-                        AbstractNatlCntrsRequestableResourceData rdata = (AbstractNatlCntrsRequestableResourceData) rp
-                                .getResourceData();
+                        AbstractNatlCntrsRequestableResourceData rdata = (AbstractNatlCntrsRequestableResourceData) rp.getResourceData();
 
-                        if (domRscName.toString().equals(
-                                rdata.getResourceName().toString())) {
+                        if (domRscName.toString().equals(rdata.getResourceName().toString())) {
 
                             timeMatcher.setDominantResourceData(rdata);
                             return;
