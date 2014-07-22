@@ -67,7 +67,8 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 7, 2014  3333      bclement     Initial creation
+ * Jul 07, 2014 3333       bclement     Initial creation
+ * Jul 22, 2014 3333       bclement     ignores strikes that aren't on map
  * 
  * </pre>
  * 
@@ -201,9 +202,10 @@ public class GridLightningResource extends
                 }
                 int gridX = (int) Math.round(dest.x);
                 int gridY = (int) Math.round(dest.y);
-                int index = (nx * gridY) + gridX;
-                if (index < data.length) {
-                    data[(nx * gridY) + gridX] += 1;
+                /* ignore strikes that aren't on the map */
+                if (gridX >= 0 && gridX < nx && gridY >= 0 && gridY < ny) {
+                    int index = (nx * gridY) + gridX;
+                    data[index] += 1;
                 }
             }
         }
