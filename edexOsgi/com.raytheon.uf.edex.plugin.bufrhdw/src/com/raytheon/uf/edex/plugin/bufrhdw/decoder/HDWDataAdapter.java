@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  *                                     types.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -220,8 +221,8 @@ public class HDWDataAdapter extends BUFRPointDataAdapter<BufrHDWObs> {
                     IDecoderConstants.VAL_MISSING);
 
             SurfaceObsLocation location = new SurfaceObsLocation();
-            location.setLatitude(lat);
-            location.setLongitude(lon);
+            location.setLatitude((float) lat);
+            location.setLongitude((float) lon);
             location.generateCoordinateStationId();
             pointData.setLocation(location);
 

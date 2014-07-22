@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Mar 03, 2008 969        jkorman     Initial implementation.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -137,7 +138,7 @@ public class QUIKScatDataAdapter extends BUFRPointDataAdapter<QUIKScatObs> {
                             IDecoderConstants.VAL_MISSING);
 
                     SurfaceObsLocation location = new SurfaceObsLocation();
-                    location.assignLocation(lat, lon);
+                    location.assignLocation((float) lat, (float) lon);
                     obsData.setLocation(location);
                     view.setFloat("latitude", (float) lat);
                     view.setFloat("longitude", (float) lon);

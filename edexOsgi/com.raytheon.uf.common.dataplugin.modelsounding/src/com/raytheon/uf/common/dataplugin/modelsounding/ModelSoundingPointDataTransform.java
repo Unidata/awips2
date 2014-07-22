@@ -62,6 +62,7 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------- -------- ----------- --------------------------
  * Apr 06, 2011           bsteffen    Initial creation
  * Dec 02, 2013  2537     bsteffen    Move to common
+ * Jul 23, 2014 3410      bclement    location changed to floats
  * 
  * 
  * </pre>
@@ -156,11 +157,11 @@ public class ModelSoundingPointDataTransform {
             // All of these things would have been in dataURI
             if (parameters.contains(LATITUDE)) {
                 site.getLocation().setLatitude(
-                        pdv.getNumber(LATITUDE).doubleValue());
+                        pdv.getNumber(LATITUDE).floatValue());
             }
             if (parameters.contains(LONGITUDE)) {
                 site.getLocation().setLongitude(
-                        pdv.getNumber(LONGITUDE).doubleValue());
+                        pdv.getNumber(LONGITUDE).floatValue());
             }
             if (parameters.contains(STATION_ID)) {
                 site.getLocation().setStationId(pdv.getString(STATION_ID));

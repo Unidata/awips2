@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * Jul 17, 2013 2112       bsteffen    Split poes data so it gets stored in
  *                                     correct file.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -168,7 +169,8 @@ public class POESSoundingDataAdapter {
                     SPIEntry s = SPI_DATA.nearest(lat, lon, MAX_DISTANCE);
                     if (s != null) {
                         SurfaceObsLocation location = new SurfaceObsLocation();
-                        location.assignLocation(lat, lon);
+                        location.assignLocation(lat.floatValue(),
+                                lon.floatValue());
                         location.setStationId(s.getId());
                         obsData.setLocation(location);
 
