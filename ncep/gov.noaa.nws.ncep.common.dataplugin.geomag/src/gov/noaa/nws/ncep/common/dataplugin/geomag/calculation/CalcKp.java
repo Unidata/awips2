@@ -17,7 +17,7 @@ import java.util.Map;
  * <pre>
  * SOFTWARE HISTORY
  *                   
- * ate          Ticket#     Engineer   Description
+ * Date          Ticket#     Engineer   Description
  * -----------  ----------  ---------- --------------------------
  * 05/14/2013   #989        qzhou      Initial Creation
  * 03/18/2014   #1123       qzhou      default k to 99999
