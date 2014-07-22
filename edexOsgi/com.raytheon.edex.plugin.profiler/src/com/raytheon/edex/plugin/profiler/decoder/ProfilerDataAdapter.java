@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * Dec 03, 2013  2537     bsteffen    Switch logger to ufstatus.
  * May 14, 2014  2536     bclement    moved WMO Header to common, removed TimeTools usage
  *                                     added breaks/default to switch
+ * Jul 23, 2014 3410      bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -212,7 +213,7 @@ public class ProfilerDataAdapter {
                 ProfilerSite site = profilers.get(wmoBSN);
                 if (site != null) {
                     location.setStationId(site.getStationId());
-                    location.assignLocation(lat, lon);
+                    location.assignLocation(lat.floatValue(), lon.floatValue());
                     location.setLocationDefined(false);
                     if (stationHeight != IDecoderConstants.VAL_MISSING) {
                         location.setElevation(stationHeight);

@@ -35,20 +35,21 @@ import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
 
 /**
  * TODO Add Description
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2009            jsanchez    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Jun 24, 2014 3235       nabowle     InternalReport patterns are now
  *                                     precompiled.
- *
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
  * @version 1.0
  */
@@ -105,8 +106,8 @@ public class TCEData extends TCGDataAdapter {
                         TropicalCycloneGuidance rpt = new TropicalCycloneGuidance();
                         SurfaceObsLocation location = new SurfaceObsLocation(
                                 stationId);
-                        location.setLongitude((double) longitude);
-                        location.setLatitude((double) latitude);
+                        location.setLongitude(longitude);
+                        location.setLatitude(latitude);
                         rpt.setWmoHeader(wmoHeader.getWmoHeader());
                         rpt.setTraceId(traceId);
                         rpt.setStormName(stormName);
