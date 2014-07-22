@@ -30,6 +30,7 @@
 #    05/21/13         #2023        dgilling       Initial Creation.
 #    01/06/14         #2537        bsteffen       Share geometry WKT.
 #    03/03/14         #2673        bsteffen       Add ability to query only ref times.
+#    07/22/14        3185          njensen        Added optional/default args to newDataRequest
 #
 
 
@@ -117,6 +118,40 @@ class ThriftClientRouter(object):
         locNamesRequest.setRequestParameters(request)
         response = self._client.sendRequest(locNamesRequest)
         return response
+    
+    def getAvailableParameters(self, request):
+        # TODO
+        raise Exception('Not implemented yet')
+    
+    def getAvailableLevels(self, request):
+        # TODO
+        raise Exception('Not implemented yet')
+    
+    def getRequiredIdentifiers(self, datatype):
+        # TODO
+        raise Exception('Not implemented yet')
+    
+    def getValidIdentifiers(self, datatype):
+        # TODO
+        raise Exception('Not implemented yet')        
 
-    def newDataRequest(self):
-        return DefaultDataRequest()
+    def newDataRequest(self, datatype, parameters=[], levels=[], locationNames = [], envelope=None, **kwargs):
+        req = DefaultDataRequest()
+        if datatype:
+            req.setDatatype(datatype)
+        if parameters:            
+            req.setParameters(*parameters)
+        if levels:        
+            req.setLevels(*levels)
+        if locationNames:
+            req.setLocationNames(*locationNames)
+        if envelope:
+            req.setEnvelope(envelope)        
+        if kwargs:
+            # any args leftover are assumed to be identifiers
+            req.identifiers = kwargs        
+        return req
+    
+    def getSupportedDatatypes(self):
+        # TODO
+        raise Exception('Not implemented yet')
