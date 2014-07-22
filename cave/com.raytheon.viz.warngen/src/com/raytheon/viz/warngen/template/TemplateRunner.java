@@ -37,40 +37,23 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-
-import org.apache.commons.lang.Validate;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.generic.ListTool;
 
-import com.raytheon.uf.common.activetable.ActiveTableRecord;
-import com.raytheon.uf.common.activetable.OperationalActiveTableRecord;
-import com.raytheon.uf.common.activetable.PracticeActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
-import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
-import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
-import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
-import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -82,11 +65,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.StormTrackData;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState;
@@ -99,6 +80,8 @@ import com.raytheon.viz.warngen.gis.ClosestPointComparator;
 import com.raytheon.viz.warngen.gis.GisUtil;
 import com.raytheon.viz.warngen.gis.PathCast;
 import com.raytheon.viz.warngen.gis.PortionsUtil;
+import com.raytheon.viz.warngen.gis.Watch;
+import com.raytheon.viz.warngen.gis.WatchUtil;
 import com.raytheon.viz.warngen.gis.Wx;
 import com.raytheon.viz.warngen.gui.BackupData;
 import com.raytheon.viz.warngen.gui.FollowupData;
@@ -111,9 +94,6 @@ import com.raytheon.viz.warngen.util.CurrentWarnings;
 import com.raytheon.viz.warngen.util.FipsUtil;
 import com.raytheon.viz.warngen.util.FollowUpUtil;
 import com.raytheon.viz.warngen.util.WarnGenMathTool;
-import com.raytheon.viz.warngen.util.WatchUtil;
-import com.raytheon.viz.warngen.util.WeatherAdvisoryWatch;
-import com.raytheon.viz.warngen.util.WeatherAdvisoryWatch.Portion;
 import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -159,6 +139,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Apr 28, 2014   3033     jsanchez    Set the site and backup site in Velocity Engine's properties
  * Mar 17, 2014   DR 16309 Qinglu Lin  Updated getWatches(), processATEntries() and determineAffectedPortions(), and 
  *                                     added determineAffectedMarinePortions().
+ * Jul 21, 2014   3419     jsanchez    Refactored WatchUtil. 
  * </pre>
  * 
  * @author njensen
@@ -171,15 +152,12 @@ public class TemplateRunner {
 
     private static final String LOGIN_NAME_KEY = "LOGNAME";
 
-    private static final UnitConverter milesToKilometer = NonSI.MILE
-            .getConverterTo(SI.KILOMETER);
-
-    private static final double KmToDegrees = 111.12;
-
     private static final Pattern BBB_PATTERN = Pattern
             .compile(".*\\sCC([A-Z])");
 
     private static Hashtable<String, DateFormat> dateFormat;
+
+    private static WatchUtil watchUtil;
 
     static {
         dateFormat = new Hashtable<String, DateFormat>();
@@ -873,11 +851,14 @@ public class TemplateRunner {
         // Store Watches
         try {
             t0 = System.currentTimeMillis();
-            WatchUtil watches = getWatches(warngenLayer, config, warnPolygon,
-                    areas, fourLetterSiteId, simulatedTime);
+            if (watchUtil == null) {
+                watchUtil = new WatchUtil(warngenLayer);
+            }
+            List<Watch> watches = watchUtil.getWatches(config, warnPolygon,
+                    simulatedTime);
             System.out.println("getWatches time: "
                     + (System.currentTimeMillis() - t0));
-            if (watches != null) {
+            if (watches != null && watches.isEmpty() == false) {
                 context.put("watches", watches);
             }
         } catch (Exception e) {
@@ -975,576 +956,6 @@ public class TemplateRunner {
                     FipsUtil.getUgcLine(areas, endTime, 0));
         }
         return rval;
-    }
-
-    /**
-     * This method populates a WatchUtil object with tornado and severe
-     * thunderstorm watches from the active table that are contained by the
-     * polygon. Furthermore, watches that have not yet expired (current time <
-     * end time) are only included.
-     * 
-     * @param config
-     *            WarnGen template configuration settings
-     *            ([template_name_site.xml])
-     * @param polygon
-     *            The Geometry surrounded by the warning polygon.
-     * @param simulatedTime
-     * @return
-     * @throws Exception
-     */
-    private static WatchUtil getWatches(WarngenLayer warngenLayer,
-            WarngenConfiguration config, Geometry polygon,
-            AffectedAreas[] affectedAreas, String fourLetterSiteId,
-            Date simulatedTime) throws Exception {
-        Validate.isTrue(config.getHatchedAreaSource()
-                .getIncludedWatchAreaBuffer() >= 0,
-                "IncludedWatchAreaBuffer can not be negative");
-
-        WatchUtil rval = null;
-        String[] includedWatches = config.getIncludedWatches();
-
-        if ((includedWatches != null) && (includedWatches.length > 0)) {
-            String phensigList = null;
-            for (String includedWatch : includedWatches) {
-                if (includedWatch.equalsIgnoreCase("torWatches")) {
-                    phensigList = phensigList == null ? "TO.A" : phensigList
-                            + ",TO.A";
-                } else if (includedWatch.equalsIgnoreCase("svrWatches")) {
-                    phensigList = phensigList == null ? "SV.A" : phensigList
-                            + ",SV.A";
-                }
-            }
-
-            if (phensigList != null) {
-                // Create start/endtime constraints
-                Date endConstraintTime = simulatedTime;
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(simulatedTime);
-                cal.add(Calendar.MINUTE, 3);
-                Date startConstraintTime = cal.getTime();
-
-                // Get record type
-                Class<? extends ActiveTableRecord> recordType = CAVEMode
-                        .getMode() == CAVEMode.OPERATIONAL ? OperationalActiveTableRecord.class
-                        : PracticeActiveTableRecord.class;
-
-                DbQueryRequest request = new DbQueryRequest();
-                request.setEntityClass(recordType);
-                request.addConstraint("startTime", new RequestConstraint(
-                        TimeUtil.formatDate(startConstraintTime),
-                        ConstraintType.LESS_THAN_EQUALS));
-                request.addConstraint(
-                        "endTime",
-                        new RequestConstraint(TimeUtil
-                                .formatDate(endConstraintTime),
-                                ConstraintType.GREATER_THAN_EQUALS));
-                /*
-                 * TODO: Currently limited to filtering out one of
-                 * ("CAN","EXP"). Could use "Act" in addition to "act", but this
-                 * should really be fixed the underlying system.
-                 * request.addConstraint("act", new RequestConstraint("CAN",
-                 * ConstraintType.NOT_EQUALS));
-                 */
-                request.addConstraint("act", new RequestConstraint("EXP",
-                        ConstraintType.NOT_EQUALS));
-                request.addConstraint("phensig", new RequestConstraint(
-                        phensigList, ConstraintType.IN));
-
-                // TODO: Talk to Jonathan about this... Do I even need officeid
-                // IN or is ugc zone good enough?
-
-                /*
-                 * Get all UGCs in the CWA now so that the watches will be
-                 * formatted with all portions of the affected state(s).
-                 * 
-                 * Filtering for valid UGCs is performed in processATEntries
-                 */
-                RequestConstraint ugcConstraint = new RequestConstraint("",
-                        ConstraintType.IN);
-                ugcConstraint.setConstraintValueList(warngenLayer
-                        .getAllUgcs());
-                request.addConstraint("ugcZone", ugcConstraint);
-
-                // These are the only fields we need for processing watches
-                request.addFields(new String[] { "issueTime", "startTime",
-                        "endTime", "ugcZone", "phensig", "vtecstr", "etn",
-                        "act" });
-
-                DbQueryResponse response = (DbQueryResponse) ThriftClient
-                        .sendRequest(request);
-
-                List<ActiveTableRecord> records = new ArrayList<ActiveTableRecord>(
-                        response.getNumResults());
-                for (Map<String, Object> result : response.getResults()) {
-                    /*
-                     * TODO: Doing this here because only "EXP" is filtered out
-                     * by the query. Remove "act" from the field list once this
-                     * is fixed.
-                     */
-                    if ("CAN".equals(result.get("act")))
-                        continue;
-                    ActiveTableRecord record = recordType.newInstance();
-                    record.setIssueTime((Calendar) result.get("issueTime"));
-                    record.setStartTime((Calendar) result.get("startTime"));
-                    record.setEndTime((Calendar) result.get("endTime"));
-                    record.setUgcZone((String) result.get("ugcZone"));
-                    record.setPhensig((String) result.get("phensig"));
-                    record.setVtecstr((String) result.get("vtecstr"));
-                    record.setEtn((String) result.get("etn"));
-                    records.add(record);
-                }
-
-                if (records.size() > 0) {
-                    Set<String> validUgcZones;
-                    try {
-                        long t0, t1;
-                        t0 = System.currentTimeMillis();
-                        Polygon watchArea = (Polygon) polygon
-                                .buffer(milesToKilometer.convert(config
-                                        .getHatchedAreaSource()
-                                        .getIncludedWatchAreaBuffer())
-                                        / KmToDegrees);
-                        t1 = System.currentTimeMillis();
-                        System.out.println("getWatches.polygonBuffer time: "
-                                + (t1 - t0));
-                        validUgcZones = warngenLayer
-                                .getUgcsForWatches(watchArea);
-                    } catch (RuntimeException e) {
-                        statusHandler
-                                .handle(Priority.ERROR,
-                                        "Error determining areas to search for watches.",
-                                        e);
-                        return rval;
-                    }
-
-                    rval = processATEntries(records, warngenLayer,
-                            validUgcZones);
-                }
-            }
-        }
-
-        return rval;
-    }
-
-    private static class WatchWork {
-        public WeatherAdvisoryWatch waw;
-
-        public boolean valid;
-
-        public ArrayList<String> ugcZone = new ArrayList<String>();
-
-        public WatchWork(WeatherAdvisoryWatch waw) {
-            this.waw = waw;
-        }
-    }
-
-    /**
-     * Create the list of objects representing active watches that will be
-     * passed to the template context.
-     * 
-     * @param activeTable
-     *            List of entries for active watches
-     * @param warngenLayer
-     * @param validUgcZones
-     * @return
-     */
-    private static WatchUtil processATEntries(
-            List<ActiveTableRecord> activeTable, WarngenLayer warngenLayer,
-            Set<String> validUgcZones) {
-        WatchUtil rval = new WatchUtil();
-        TreeMap<WeatherAdvisoryWatch, WatchWork> map = new TreeMap<WeatherAdvisoryWatch, TemplateRunner.WatchWork>();
-
-        AreaSourceConfiguration asc = null;
-        for (AreaSourceConfiguration a : warngenLayer.getConfiguration()
-                .getAreaSources()) {
-            if (a.getType() == AreaType.HATCHING) {
-                asc = a;
-                break;
-            }
-        }
-        if (asc == null) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Cannot process watches: missing HATCHING area source configuration");
-            return rval;
-        }
-        GeospatialData[] geoData = warngenLayer.getGeodataFeatures(
-                asc.getAreaSource(), warngenLayer.getLocalizedSite());
-        if ((geoData == null) || (geoData.length == 0)) {
-            statusHandler.handle(Priority.ERROR,
-                    "Cannot process watches: cannot get geospatial data");
-            return rval;
-        }
-
-        // For each watch event, get the end time and list of active zones
-        for (ActiveTableRecord ar : activeTable) {
-            /*
-             * Currently reports all zones in the watch even if a given zone is
-             * not in the warning polygon. If the logic is changed to only show
-             * the portions of the watch near our warning polygon, filter on
-             * validUgcZones here.
-             */
-            WeatherAdvisoryWatch waw = new WeatherAdvisoryWatch();
-            waw.setPhensig(ar.getPhensig());
-            try {
-                waw.setEventId(Integer.parseInt(ar.getEtn()));
-            } catch (RuntimeException e) {
-                statusHandler.handle(Priority.ERROR, String.format(
-                        "Watch %s has null end time; not included.",
-                        ar.getVtecstr()));
-                continue;
-            }
-
-            WatchWork work = map.get(waw);
-            if (work == null) {
-                waw.setEndTime(ar.getEndTime().getTime());
-                work = new WatchWork(waw);
-                map.put(waw, work);
-            }
-
-            if (validUgcZones.contains(ar.getUgcZone())) {
-                work.valid = true;
-            }
-
-            /*
-             * There are no checks here to determine whether or not the given
-             * zone is in the CWA. That should have already been done the query
-             * performed in getWatches.
-             * 
-             * There is also validation performed later in
-             * determineAffectedPortions.
-             */
-            work.ugcZone.add(ar.getUgcZone());
-        }
-
-        for (WatchWork work : map.values()) {
-            /*
-             * If none of the areas in the watch were neer our warning polygon,
-             * do not included it.
-             */
-            if (!work.valid) {
-                continue;
-            }
-            boolean isMarineZone = warngenLayer.getConfiguration().getGeospatialConfig()
-                    .getAreaSource().equalsIgnoreCase(WarngenLayer.MARINE);
-            if (!isMarineZone) {
-                if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw)) {
-                    rval.addWaw(work.waw);
-                }
-            } else {
-                if (determineAffectedMarinePortions(work.ugcZone, asc, geoData, work.waw)) {
-                    rval.addWaw(work.waw);
-                }
-            }
-        }
-
-        return rval;
-    }
-
-    /**
-     * Given the list of counties in a watch, fill out the "portions" part of
-     * the given WeatherAdvisoryWatch. Also checks if the given counties are
-     * actually in the CWA.
-     * 
-     * @param ugcs
-     * @param asc
-     * @param geoData
-     * @param waw
-     */
-    private static boolean determineAffectedPortions(List<String> ugcs,
-            AreaSourceConfiguration asc, GeospatialData[] geoData,
-            WeatherAdvisoryWatch waw) {
-
-        // Maps state abbreviation to unique fe_area values
-        HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
-
-        for (String ugc : ugcs) {
-            Map<String, String[]> parsed = FipsUtil.parseHeader(ugc, "County");
-            Entry<String, String[]> e = null;
-
-            // Either zero or more than one sates/counties would be wrong
-            if ((parsed.size() != 1)
-                    || ((e = parsed.entrySet().iterator().next()).getValue().length != 1)) {
-                statusHandler.handle(Priority.ERROR,
-                        "Invalid ugczone in active table entry: " + ugc);
-                continue;
-            }
-
-            String stateAbbrev = e.getKey();
-            String feArea = null;
-            try {
-                feArea = getFeArea(stateAbbrev, e.getValue()[0], asc, geoData);
-            } catch (RuntimeException exc) {
-                statusHandler.handle(Priority.ERROR,
-                        "Error generating included watches.", exc);
-                return false;
-            }
-            if (feArea == NOT_IN_CWA) {
-                continue;
-            }
-
-            Set<String> feAreas = map.get(stateAbbrev);
-            if (feAreas == null) {
-                feAreas = new HashSet<String>();
-                map.put(stateAbbrev, feAreas);
-            }
-            if (feArea != null) {
-                feAreas.add(feArea);
-            }
-        }
-
-        ArrayList<Portion> portions = new ArrayList<Portion>(map.size());
-        for (Entry<String, Set<String>> e : map.entrySet()) {
-            Portion portion = new Portion();
-            try {
-                portion.parentRegion = getStateName(e.getKey(), asc, geoData)
-                        .toUpperCase();
-            } catch (RuntimeException exc) {
-                statusHandler.handle(Priority.ERROR,
-                        "Error generating included watches.", exc);
-                return false;
-            }
-            portion.partOfParentRegion = Area
-                    .converFeAreaToPartList(mungeFeAreas(e.getValue()));
-            portions.add(portion);
-        }
-        waw.setPortions(portions);
-        // Set legacy values
-        if (portions.size() > 0) {
-            waw.setParentRegion(portions.get(0).parentRegion);
-            waw.setPartOfParentRegion(portions.get(0).partOfParentRegion);
-        }
-
-        return true;
-    }
-
-    /**
-     * Given the list of marine zones in a watch, fill out the "portions" part of
-     * the given WeatherAdvisoryWatch. Also checks if the given marine zones are
-     * actually in the CWA.
-     * 
-     * @param ugcs
-     * @param asc
-     * @param geoData
-     * @param waw
-     */
-    @SuppressWarnings("deprecation")
-    private static boolean determineAffectedMarinePortions(List<String> ugcs,
-            AreaSourceConfiguration asc, GeospatialData[] geoData,
-            WeatherAdvisoryWatch waw) {
-
-        // Maps state abbreviation to unique fe_area values
-        HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
-        Set<String> marinezonenameSet = new HashSet<String>();
-        for (String ugc : ugcs) {
-            for (GeospatialData gd: geoData) {
-
-                if (gd.attributes.get("ID").equals(ugc)) {
-                    marinezonenameSet.add((String)gd.attributes.get("NAME"));
-                }
-            }
-        }
-        String marinezonename = "";
-        int size = marinezonenameSet.size();
-        Iterator<String> iter = marinezonenameSet.iterator();
-        int count = 0;
-        while (iter.hasNext()) {
-            String s = iter.next();
-            marinezonename += s;
-            count += 1;
-            if (size > 1) {
-                if (size == 2 && count < 2) {
-                    marinezonename += " and ";
-                } else {
-                    if (count == size - 1) {
-                        marinezonename += ", and ";
-                    } else {
-                        if (count < size - 1) {
-                            marinezonename += ", ";
-                        }
-                    }
-                }
-            }
-        }
-
-        for (String ugc : ugcs) {
-            Map<String, String[]> parsed = FipsUtil.parseHeader(ugc, "Marine");
-            Entry<String, String[]> e = null;
-
-            // Either zero or more than one marine zone would be wrong
-            if ((parsed.size() != 1)
-                    || ((e = parsed.entrySet().iterator().next()).getValue().length != 1)) {
-                statusHandler.handle(Priority.ERROR,
-                        "Invalid ugczone in active table entry: " + ugc);
-                continue;
-            }
-
-            String stateAbbrev = e.getKey();
-            Set<String> feAreas = map.get(stateAbbrev);
-            if (feAreas == null) {
-                feAreas = new HashSet<String>();
-                map.put(stateAbbrev, feAreas);
-            }
-        }
-
-        ArrayList<Portion> portions = new ArrayList<Portion>(map.size());
-        Portion portion = new Portion();
-        portion.parentRegion = marinezonename;
-        portion.partOfParentRegion = new ArrayList<String>();
-        portion.partOfParentRegion.add("");
-        portions.add(portion);
-        waw.setPortions(portions);
-        // Set legacy values
-        if (portions.size() > 0) {
-            waw.setParentRegion(portions.get(0).parentRegion);
-            waw.setPartOfParentRegion(portions.get(0).partOfParentRegion);
-        }
-
-        return true;
-    }
-
-    // Based on AWIPS 1 SELSparagraphs.C SELSparagraphs::processWOU().
-    private static String mungeFeAreas(Set<String> feAreas) {
-        String abrev = "";
-        // If eight or more portions, don't qualify area of state
-        int m = feAreas.size();
-        if (m < 8) {
-            String partAbrev = "";
-            /*
-             * TODO: Unused variables should be removed if we are not going to
-             * improve this in A2.
-             */
-            @SuppressWarnings("unused")
-            int nw, nc, ne, wc, cc, ec, sw, sc, se, pa;
-            int eee, www, nnn, sss, ee, ww, nn, ss;
-
-            // Identify individual sub areas of this state affected
-            nw = nc = ne = wc = cc = ec = sw = sc = se = pa = 0;
-            eee = www = nnn = sss = ee = ww = nn = ss = 0;
-            for (String part : feAreas) {
-                if ("pa".equals(part)) {
-                    pa = 1;
-                    continue;
-                } else if ("nn".equals(part)) {
-                    nnn = nn = 1;
-                } else if ("ss".equals(part)) {
-                    sss = ss = 1;
-                } else if ("ee".equals(part)) {
-                    eee = ee = 1;
-                } else if ("ww".equals(part)) {
-                    www = ww = 1;
-                } else if ("nw".equals(part)) {
-                    nnn = www = nw = 1;
-                } else if ("nc".equals(part)) {
-                    nnn = nc = 1;
-                } else if ("ne".equals(part)) {
-                    nnn = eee = ne = 1;
-                } else if ("wc".equals(part)) {
-                    www = wc = 1;
-                } else if ("cc".equals(part)) {
-                    cc = 1;
-                    continue;
-                } else if ("ec".equals(part)) {
-                    eee = ec = 1;
-                } else if ("sw".equals(part)) {
-                    sss = www = sw = 1;
-                } else if ("sc".equals(part)) {
-                    sss = sc = 1;
-                } else if ("se".equals(part)) {
-                    sss = eee = se = 1;
-                }
-                partAbrev = part;
-            }
-            // decide how to describe these subareas.
-            if ((ne > 0) && (nw > 0)) {
-                nn = 1;
-            }
-            if ((se > 0) && (sw > 0)) {
-                ss = 1;
-            }
-            if ((se > 0) && (ne > 0)) {
-                ee = 1;
-            }
-            if ((sw > 0) && (nw > 0)) {
-                ww = 1;
-            }
-            if ((nnn > 0) && (sss > 0) && (eee > 0) && (www > 0)) {
-                return abrev;
-            }
-            if (((nn > 0) && (ss > 0)) || ((ee > 0) && (ww > 0))) {
-                return abrev;
-            }
-            if (nnn + sss + eee + www == 3) {
-                if (www == 0) {
-                    abrev = "e";
-                } else if (eee == 0) {
-                    abrev = "w";
-                } else if (nnn == 0) {
-                    abrev = "s";
-                } else if (sss == 0) {
-                    abrev = "n";
-                }
-                return abrev;
-            }
-            if (((nnn == sss) && (eee == www)) || (cc == m)) {
-                abrev = "c";
-                return abrev;
-            }
-            if ((pa != 0) && (cc == 0)) {
-                abrev = "pa";
-                if (--m <= 0) {
-                    return abrev;
-                }
-            }
-            if (m == 1 + cc) {
-                abrev += partAbrev + " ";
-                return abrev;
-            }
-            if (nnn != sss) {
-                abrev += nnn != 0 ? "n" : "s";
-            }
-            if (eee != www) {
-                abrev += eee != 0 ? "e" : "w";
-            }
-        }
-        return abrev;
-    }
-
-    private static String getStateName(String key, AreaSourceConfiguration asc,
-            GeospatialData[] geoData) {
-        for (GeospatialData g : geoData) {
-            if (key.equals(g.attributes.get("STATE"))) {
-                return (String) g.parent.attributes.get("NAME");
-            }
-        }
-        return null;
-    }
-
-    private static String NOT_IN_CWA = new String("NOT_IN_CWA");
-
-    /**
-     * Determines if the given UGC is in the CWA and if it is, returns the
-     * portion of the CWA.
-     * 
-     * @param stateAbbrev
-     * @param ugc
-     * @param asc
-     * @param geoData
-     * @return
-     */
-    private static String getFeArea(String stateAbbrev, String ugc,
-            AreaSourceConfiguration asc, GeospatialData[] geoData) {
-        for (GeospatialData g : geoData) {
-            if (stateAbbrev.equals(g.attributes.get("STATE"))
-                    && ((String) g.attributes.get(asc.getFipsField()))
-                            .endsWith(ugc)) {
-                return (String) g.attributes.get(asc.getFeAreaField());
-            }
-        }
-
-        // TODO: Is this the correct way to determine if the county is in the
-        // CWA?
-        return NOT_IN_CWA;
     }
 
 }
