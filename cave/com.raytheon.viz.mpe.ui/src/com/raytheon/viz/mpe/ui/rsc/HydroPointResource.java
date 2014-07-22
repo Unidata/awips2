@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.hydrocommon.resource;
+package com.raytheon.viz.mpe.ui.rsc;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -29,7 +29,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.viz.hydrocommon.resource.HydroPointResourceData.Style;
+import com.raytheon.viz.mpe.ui.rsc.HydroPointResourceData.Style;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
