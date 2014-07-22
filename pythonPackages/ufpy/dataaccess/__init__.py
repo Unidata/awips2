@@ -86,7 +86,7 @@ class IDataRequest(object):
         Sets the levels of data to request.  Not all datatypes support levels.
         
         Args:
-            levels: a list of strings of level abbreviations to request
+                levels: a list of strings of level abbreviations to request
         """
         return
     
