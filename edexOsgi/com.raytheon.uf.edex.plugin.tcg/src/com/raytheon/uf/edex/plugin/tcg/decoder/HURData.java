@@ -39,19 +39,20 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * Parses a subset of Tropical Cyclone Guidance data that contain multiple storm
  * track predictions from various models such as BAM(S/M/D) and LBAR.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2009            jsanchez    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Jun 23, 2014 3235       nabowle     Clear the coordinates map properly.
- *
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
  * @version 1.0
  */
@@ -95,8 +96,8 @@ public class HURData extends TCGDataAdapter {
                                 TropicalCycloneGuidance rpt = new TropicalCycloneGuidance();
                                 SurfaceObsLocation location = new SurfaceObsLocation(
                                         stationId);
-                                location.setLongitude(list.get(i).x);
-                                location.setLatitude(list.get(i).y);
+                                location.setLongitude((float) list.get(i).x);
+                                location.setLatitude((float) list.get(i).y);
 
                                 rpt.setWmoHeader(wmoHeader.getWmoHeader());
                                 rpt.setTraceId(traceId);

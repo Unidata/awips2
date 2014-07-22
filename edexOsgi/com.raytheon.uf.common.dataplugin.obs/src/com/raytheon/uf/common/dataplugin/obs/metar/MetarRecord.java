@@ -87,6 +87,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Feb 11, 2014  2784     rferrel     Remove override of setIdentifier.
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2014  3410     bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -1214,7 +1215,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
             return false;
         }
 
-        Double lat = location.getLatitude();
+        Float lat = location.getLatitude();
         if (lat == null) {
             if (other.location.getLatitude() != null) {
                 return false;
@@ -1224,7 +1225,7 @@ public class MetarRecord extends PersistablePluginDataObject implements
                 return false;
             }
         }
-        Double lon = location.getLongitude();
+        Float lon = location.getLongitude();
         if (lon == null) {
             if (other.location.getLongitude() != null) {
                 return false;

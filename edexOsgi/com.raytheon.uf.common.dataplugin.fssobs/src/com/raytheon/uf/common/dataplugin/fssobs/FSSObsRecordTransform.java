@@ -20,12 +20,13 @@
 package com.raytheon.uf.common.dataplugin.fssobs;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Provides a transform from PointDataContainer to FSSObsRecord.
@@ -37,6 +38,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 8, 2011            skorolev     Initial creation
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -187,8 +189,8 @@ public class FSSObsRecordTransform {
             obs.setDataURI(pdv.getString(DATA_URI));
             SurfaceObsLocation loc = new SurfaceObsLocation(
                     pdv.getString(PLATFORM_ID));
-            Double lat = pdv.getNumber(LATITUDE).doubleValue();
-            Double lon = pdv.getNumber(LONGITUDE).doubleValue();
+            float lat = pdv.getNumber(LATITUDE).floatValue();
+            float lon = pdv.getNumber(LONGITUDE).floatValue();
             loc.assignLocation(lat, lon);
             loc.setElevation(pdv.getNumber(ELEVATION).intValue());
             obs.setLocation(loc);
@@ -228,9 +230,9 @@ public class FSSObsRecordTransform {
             obs.setStnName(pdv.getString(STATION_NAME));
             obs.setTemperature(pdv.getFloat(TEMPERATURE));
             long to = pdv.getLong(TIME_OBS);
-            obs.setTimeObs(TimeTools.newCalendar(to));
+            obs.setTimeObs(TimeUtil.newGmtCalendar(new Date(to)));
             long rh = pdv.getLong(REF_HOUR);
-            obs.setRefHour(TimeTools.newCalendar(rh));
+            obs.setRefHour(TimeUtil.newGmtCalendar(new Date(rh)));
             obs.setTotCloudAmount(pdv.getNumber(CLOUD_AMOUNT_TOT).intValue());
             obs.setVisibility(pdv.getNumber(VISIBILITY).floatValue());
             obs.setHighResWaveHeight(pdv.getFloat(WAVE_HEIGHT));

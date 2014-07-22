@@ -43,6 +43,7 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
  * ------------ ----------  ----------- --------------------------
  * Oct 09, 2009 DR2814      vkorolev    Initial creation
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Jul 23, 2014 3410        bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -477,8 +478,8 @@ public class LdadmesonetPointDataTransform {
         mr.setDewpoint(pdv.getNumber(DEWPOINT).floatValue());
         SurfaceObsLocation loc = new SurfaceObsLocation(
                 pdv.getString(STATION_ID));
-        Double lat = pdv.getNumber(LATITUDE).doubleValue();
-        Double lon = pdv.getNumber(LONGITUDE).doubleValue();
+        float lat = pdv.getNumber(LATITUDE).floatValue();
+        float lon = pdv.getNumber(LONGITUDE).floatValue();
         loc.assignLocation(lat, lon);
         loc.setElevation(pdv.getNumber(ELEVATION).intValue());
         mr.setLocation(loc);
