@@ -33,6 +33,7 @@
 #    04/10/13         1871         mnash          move getLatLonCoords to JGridData and add default args
 #    05/29/13         2023         dgilling       Hook up ThriftClientRouter.
 #    03/03/14         2673         bsteffen       Add ability to query only ref times.
+#    07/22/14         3185         njensen        Added optional/default args to newDataRequest
 #    
 # 
 #
@@ -115,14 +116,85 @@ def getAvailableLocationNames(request):
     """
     return router.getAvailableLocationNames(request)
 
-def newDataRequest():
+def getAvailableParameters(request):
+    """
+    Gets the available parameters names that match the request without actually
+    requesting the data.
+    
+    Args:
+            request: the request to find matching parameter names for
+            
+    Returns:
+            a list of strings of available parameter names.
+    """
+    return router.getAvailableParameters(request)
+
+def getAvailableLevels(request):
+    """
+    Gets the available levels that match the request without actually
+    requesting the data.
+    
+    Args:
+            request: the request to find matching levels for
+            
+    Returns:
+            a list of strings of available levels.
+    """
+    return router.getAvailableLevels(request)
+
+def getRequiredIdentifiers(datatype):
+    """
+    Gets the required identifiers for this datatype.  These identifiers
+    must be set on a request for the request of this datatype to succeed.
+    
+    Args:
+            datatype: the datatype to find required identifiers for
+            
+    Returns:
+            a list of strings of required identifiers
+    """
+    return router.getRequiredIdentifiers(datatype)
+
+def getValidIdentifiers(datatype):
+    """
+    Gets the valid identifiers for this datatype.
+    
+    Args:
+            datatype: the datatype to find valid identifiers for
+            
+    Returns:
+            a list of strings of valid identifiers
+    """
+    return router.getRequiredIdentifiers(datatype)
+
+def newDataRequest(datatype=None, **kwargs):
     """"
     Creates a new instance of IDataRequest suitable for the runtime environment.
     
+    Args:
+    
+    Args:
+            datatype: the datatype to create a request for
+            parameters: a list of parameters to set on the request
+            levels: a list of levels to set on the request
+            locationNames: a list of locationNames to set on the request
+            envelope: an envelope to limit the request
+            **kwargs: any leftover kwargs will be set as identifiers
+    
     Returns:
             a new IDataRequest
+    """    
+    return router.newDataRequest(datatype, **kwargs)
+
+def getSupportedDatatypes():
     """
-    return router.newDataRequest()
+    Gets the datatypes that are supported by the framework
+    
+    Returns:
+            a list of strings of supported datatypes
+    """
+    return router.getSupportedDatatypes()
+    
 
 def changeEDEXHost(newHostName):
     """"

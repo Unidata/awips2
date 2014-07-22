@@ -33,6 +33,7 @@
 #    02/14/13        1614          bsteffen       refactor data access framework
 #                                                 to use single request.
 #    03/03/14        2673          bsteffen       Add ability to query only ref times.
+#    07/22/14        3185          njensen        Added optional/default args to newDataRequest
 #    
 # 
 #
@@ -91,6 +92,41 @@ def getGeometryData(request, times):
 def getAvailableLocationNames(request):
     return JavaDataAccessLayer.getAvailableLocationNames(request.toJavaObj())
 
-def newDataRequest():
-    return JDataRequest.JDataRequest(DefaultDataRequest())
+def getAvailableParameters(request):
+    # TODO
+    raise Exception('Not implemented yet')
+
+def getAvailableLevels(request):
+    # TODO
+    raise Exception('Not implemented yet')
+
+def getRequiredIdentifiers(datatype):
+    # TODO
+    raise Exception('Not implemented yet')
+
+def getValidIdentifiers(datatype):
+    # TODO
+    raise Exception('Not implemented yet')
+
+def newDataRequest(datatype, parameters=[], levels=[], locationNames = [], envelope=None, **kwargs):
+    req = JDataRequest.JDataRequest(DefaultDataRequest())
+    if datatype:
+        req.setDatatype(datatype)
+    if parameters:            
+        req.setParameters(*parameters)
+    if levels:        
+        req.setLevels(*levels)
+    if locationNames:
+        req.setLocationNames(*locationNames)
+    if envelope:
+        req.setEnvelope(envelope)        
+    if kwargs:
+        # any args leftover are assumed to be identifiers
+        for key in kwargs:
+            req.addIdentifier(key, kwargs[key])
+    return req
+
+def getSupportedDatatypes():
+    # TODO
+    raise Exception('Not implemented yet')
 
