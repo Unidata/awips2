@@ -248,6 +248,7 @@ public class RadarBiasTableDialog extends Dialog {
         applyBtn = new Button(applyBtnComp, SWT.PUSH);
         applyBtn.setText("Apply");
         applyBtn.setLayoutData(bd);
+        applyBtn.setEnabled(false);
         applyBtn.addSelectionListener(new SelectionAdapter() {
 
             /*
@@ -262,7 +263,6 @@ public class RadarBiasTableDialog extends Dialog {
                 applyBiasUpdate(dt);
                 MPEDisplayManager mgr = MPEDisplayManager.getCurrent();
                 mgr.setSavedData(false);
-                shell.dispose();
             }
         });
 
@@ -435,6 +435,7 @@ public class RadarBiasTableDialog extends Dialog {
                         manEdit[ei].setText("YES");
                         lbiasTxt.setBackground(getParent().getDisplay()
                                 .getSystemColor(SWT.COLOR_WHITE));
+                        biasChgs.put(radIds[ei], ei);
                         applyBtn.setEnabled(true);
                     } catch (NumberFormatException e1) {
                         lbiasTxt.setBackground(getParent().getDisplay()
@@ -471,7 +472,6 @@ public class RadarBiasTableDialog extends Dialog {
                         editbias[ai] = oldbias[ai];
                         lbTxts[ai].setText(String.format("%-1.2f", editbias[ai]));
                         biasChgs.put(radIds[ai], ai);
-                        applyBtn.setEnabled(false);
                         manEdit[ai].setText("NO");
                     }
                 }
