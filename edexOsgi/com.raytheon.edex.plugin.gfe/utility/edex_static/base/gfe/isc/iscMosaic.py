@@ -38,7 +38,6 @@ from com.raytheon.uf.common.time import TimeRange
 from com.vividsolutions.jts.geom import Coordinate
 from java.awt import Point
 
-from com.raytheon.edex.plugin.gfe.server import GridParmManager
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
 from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
 from com.raytheon.uf.common.dataplugin.gfe import GridDataHistory
@@ -62,7 +61,6 @@ from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
 from com.raytheon.uf.edex.database.cluster import ClusterLockUtils
 from com.raytheon.uf.edex.database.cluster import ClusterTask
-from java.lang import System
 
 #
 # Port of iscMosaic.py
@@ -82,10 +80,13 @@ from java.lang import System
 #    05/23/13        1759          dgilling       Remove unnecessary imports.
 #    06/05/13        2063          dgilling       Change __siteInDbGrid() to
 #                                                 call IFPWE.history() like A1.
+#    09/05/13        2307          dgilling       Fix breakage caused by #2044.
+#    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
 #    11/05/13        2517          randerso       Restructured logging so it coulde be used by WECache
 #                                                 Changed WECache to limit the number of cached grids kept in memory
 #    01/09/14        16952         randerso       Fix regression made in #2517 which caused errors with overlapping grids
 #    02/04/14        17042         ryu            Check in changes for randerso.
+#    04/11/2014      17242         David Gillingham (code checked in by zhao)
 #
 
 BATCH_DELAY = 0.0
@@ -418,14 +419,8 @@ class WECache(object):
         elif gridType == "VECTOR":
             vecGrids = grid.__numpy__
             return (vecGrids[0], vecGrids[1])
-        elif gridType == "WEATHER":
+        elif gridType == "WEATHER" or gridType =="DISCRETE":
             keys = grid.getKeys()
-            keyList = []
-            for theKey in keys:
-                keyList.append(theKey.toString())
-            return (grid.__numpy__[0], keyList)
-        elif gridType == "DISCRETE":
-            keys = grid.getKey()
             keyList = []
             for theKey in keys:
                 keyList.append(theKey.toString())
@@ -731,9 +726,6 @@ class IscMosaic:
 
                         # process incoming grids
                         for i in xrange(len(inTimes)):
-                            # update cluster lock time to avoid time out
-                            ClusterLockUtils.updateLockTime("ISC Write Lock", parmName , System.currentTimeMillis())
-
                             # Put in a delay so we don't hammer the server so hard.
                             if self.__gridDelay > 0.0:
                                 time.sleep(self.__gridDelay)
@@ -755,7 +747,7 @@ class IscMosaic:
                                             grid = self.__validateAdjustWeatherKeys(grid,
                                               self.__parmName, tr)
 
-                                    grid = self.__remap(self.__dbwe.getParmid(), grid, inGeoDict, inFillV)
+                                    grid = self.__remap(self.__dbwe, grid, inGeoDict, inFillV)
 
                                     # if rate parm, then may need to adjust the values
                                     if self.__rateParm and inTimes[i] != tr:
@@ -1232,13 +1224,12 @@ class IscMosaic:
 
         return grid.astype(numpy.float32)
 
-    def __remap(self, pid, grid, inGeoDict, inFillV):
-
-        gpi = GridParmManager.getGridParmInfo(pid).getPayload()
+    def __remap(self, we, grid, inGeoDict, inFillV):
+        gpi = we.getGpi()
 
         gridType = gpi.getGridType().toString()
 
-        gs = self.__decodeGridSlice(pid, grid, TimeRange())
+        gs = self.__decodeGridSlice(we, grid, TimeRange())
 
         pd = self.__decodeProj(inGeoDict)
         fill = inFillV
@@ -1268,9 +1259,10 @@ class IscMosaic:
             newGrid = mapper.remap(gs.getDiscreteGrid(), fill, fill)
             return (newGrid.__numpy__[0], grid[1])
 
-    def __decodeGridSlice(self, pid, value, tr, history=None):
+    def __decodeGridSlice(self, we, value, tr, history=None):
+        pid = we.getParmid()
+        gpi = we.getGpi()
 
-        gpi = GridParmManager.getGridParmInfo(pid).getPayload()
         gridType = gpi.getGridType().toString()
 
         hist = ArrayList()
