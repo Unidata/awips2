@@ -47,10 +47,13 @@ THRIFT_HOST = subprocess.check_output(
                     shell=True).strip()
 USING_NATIVE_THRIFT = False
 
-try:
+if sys.modules.has_key('JavaImporter'):
+    # intentionally do not catch if this fails to import, we want it to
+    # be obvious that something is configured wrong when running from within
+    # Java instead of allowing false confidence and fallback behavior
     import JepRouter
     router = JepRouter
-except ImportError:
+else:
     from ufpy.dataaccess import ThriftClientRouter
     router = ThriftClientRouter.ThriftClientRouter(THRIFT_HOST)
     USING_NATIVE_THRIFT = True
@@ -62,10 +65,9 @@ def getAvailableTimes(request, refTimeOnly=False):
     
     Args: 
             request: the IDataRequest to get data for
-    
-    Args: 
-            refTimeOnly: True if only unique refTimes should be returned(without
-            a forecastHr)
+            refTimeOnly: optional, use True if only unique refTimes should be
+                          returned (without a forecastHr)
+                          
     Returns:
             a list of DataTimes    
     """
@@ -165,14 +167,13 @@ def getValidIdentifiers(datatype):
     Returns:
             a list of strings of valid identifiers
     """
-    return router.getRequiredIdentifiers(datatype)
+    return router.getValidIdentifiers(datatype)
 
 def newDataRequest(datatype=None, **kwargs):
     """"
     Creates a new instance of IDataRequest suitable for the runtime environment.
-    
-    Args:
-    
+    All args are optional and exist solely for convenience.
+        
     Args:
             datatype: the datatype to create a request for
             parameters: a list of parameters to set on the request
@@ -197,10 +198,13 @@ def getSupportedDatatypes():
     
 
 def changeEDEXHost(newHostName):
-    """"
+    """
     Changes the EDEX host the Data Access Framework is communicating with. Only
-    works if using the native Python client implemenation, otherwise, this
+    works if using the native Python client implementation, otherwise, this
     method will throw a TypeError.
+    
+    Args:
+            newHostHame: the EDEX host to connect to
     """
     if USING_NATIVE_THRIFT:
         global THRIFT_HOST
