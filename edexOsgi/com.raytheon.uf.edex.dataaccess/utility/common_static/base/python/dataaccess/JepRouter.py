@@ -34,6 +34,7 @@
 #                                                 to use single request.
 #    03/03/14        2673          bsteffen       Add ability to query only ref times.
 #    07/22/14        3185          njensen        Added optional/default args to newDataRequest
+#                                                  and added new methods
 #    
 # 
 #
@@ -49,6 +50,7 @@ from com.raytheon.uf.common.python import PythonNumpyFloatArray
 import jep
 import DataTime
 import JGeometryData, JGridData, JDataRequest
+import JUtil
 
 
 def getAvailableTimes(request, refTimeOnly):
@@ -90,23 +92,27 @@ def getGeometryData(request, times):
     return data
 
 def getAvailableLocationNames(request):
-    return JavaDataAccessLayer.getAvailableLocationNames(request.toJavaObj())
+    jlocs = JavaDataAccessLayer.getAvailableLocationNames(request.toJavaObj()) 
+    return JUtil.javaObjToPyVal(jlocs)
 
 def getAvailableParameters(request):
-    # TODO
-    raise Exception('Not implemented yet')
+    jparams = JavaDataAccessLayer.getAvailableParameters(request.toJavaObj())
+    return JUtil.javaObjToPyVal(jparams)
 
 def getAvailableLevels(request):
-    # TODO
-    raise Exception('Not implemented yet')
+    jlevels = JavaDataAccessLayer.getAvailableLevels(request.toJavaObj())
+    pylevs = []
+    for jlev in jlevels:
+        pylevs.append(str(jlev))
+    return pylevs
 
 def getRequiredIdentifiers(datatype):
-    # TODO
-    raise Exception('Not implemented yet')
+    jids = JavaDataAccessLayer.getRequiredIdentifiers(datatype)
+    return JUtil.javaObjToPyVal(jids)
 
 def getValidIdentifiers(datatype):
-    # TODO
-    raise Exception('Not implemented yet')
+    jids = JavaDataAccessLayer.getValidIdentifiers(datatype)
+    return JUtil.javaObjToPyVal(jids)
 
 def newDataRequest(datatype, parameters=[], levels=[], locationNames = [], envelope=None, **kwargs):
     req = JDataRequest.JDataRequest(DefaultDataRequest())
@@ -127,6 +133,6 @@ def newDataRequest(datatype, parameters=[], levels=[], locationNames = [], envel
     return req
 
 def getSupportedDatatypes():
-    # TODO
-    raise Exception('Not implemented yet')
+    jsupported = JavaDataAccessLayer.getSupportedDatatypes()
+    return JUtil.javaObjToPyVal(jsupported)
 
