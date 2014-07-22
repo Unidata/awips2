@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                    PluginDataObject.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
+ * Jul 23, 2014  3410     bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -2102,7 +2103,7 @@ public class ManualLdadRecord extends PluginDataObject implements
      * 
      * @return The geometry latitude.
      */
-    public Double getLatitude() {
+    public Float getLatitude() {
         return location.getLatitude();
     }
 
@@ -2111,7 +2112,7 @@ public class ManualLdadRecord extends PluginDataObject implements
      * 
      * @return The geometry longitude.
      */
-    public Double getLongitude() {
+    public Float getLongitude() {
         return location.getLongitude();
     }
 

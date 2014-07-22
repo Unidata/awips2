@@ -56,6 +56,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Oct 21, 2013  2379     bsteffen    Fix a null pointer exception.
  * May 14, 2014 2536      bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410      bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -307,7 +308,7 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
                             IDecoderConstants.VAL_MISSING);
 
                     SurfaceObsLocation location = new SurfaceObsLocation();
-                    location.assignLocation(lat, lon);
+                    location.assignLocation((float) lat, (float) lon);
                     location.generateCoordinateStationId();
                     pointData.setLocation(location);
                     setViewData("surfaceTag", view, locList.get(2));
