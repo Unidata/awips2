@@ -235,6 +235,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 02/19/2014   16980       zhao        add code to ensure the Alt flag is false after the Alt kay is released
  * 09Apr2014    #3005      lvenable     Added calls to mark the tabs as not current when the tabs are changed.
  *                                      This will show the tab as updating in the header and data text controls.
+ * 07/23/2014   15645       zhao        modified checkBasicSyntaxError()
  * 
  * </pre>
  * 
@@ -2109,18 +2110,28 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         return editorComp;
     }
 
-    /**
+    /**  
+     * Check if there is an extra '=' sign in a TAF
      * 
      * @param doLogMessage
      * @return true if error found, otherwise false
      */
     private boolean checkBasicSyntaxError(boolean doLogMessage) {
 
+        boolean errorFound = false;
+
         String in = editorTafTabComp.getTextEditorControl().getText();
 
         clearSyntaxErrorLevel();
 
         st = editorTafTabComp.getTextEditorControl();
+
+        in = in.toUpperCase().replaceAll("TAF", "\n\nTAF").trim();
+        while ( in.contains("\n\n\n") ) {
+            in = in.replace("\n\n\n", "\n\n");
+        }
+
+        st.setText(in);
 
         final Map<StyleRange, String> syntaxMap = new HashMap<StyleRange, String>();
 
@@ -2153,66 +2164,36 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             }
         });
 
-        int tafIndex = in.indexOf("TAF");
-        int equalSignIndex = in.indexOf("=");
-        int lastEqualSignIndex = equalSignIndex;
-
-        if (tafIndex < 0 && equalSignIndex < 0) { // empty TAF
-            return false;
-        }
-
-        while (tafIndex > -1 || equalSignIndex > -1) {
-
-            if (tafIndex == -1 || tafIndex > equalSignIndex) {
-
-                int lineIndexOfFirstEqualSign = st
-                        .getLineAtOffset(lastEqualSignIndex);
-                int lineIndexOfSecondEqualSign = st
-                        .getLineAtOffset(equalSignIndex);
-                if (lineIndexOfFirstEqualSign == lineIndexOfSecondEqualSign) {
-                    StyleRange sr = new StyleRange(lastEqualSignIndex, 1, null,
-                            qcColors[3]);
-                    String msg = "Syntax error: there is an extra '=' sign in this line";
-                    syntaxMap.put(sr, msg);
-                    st.setStyleRange(null);
-                    st.setStyleRange(sr);
-                    if (doLogMessage) {
-                        msgStatComp.setMessageText(msg, qcColors[3].getRGB());
-                    }
-                    return true;
-                }
-
-                int startIndex = lastEqualSignIndex;
-
-                while (!in.substring(startIndex, startIndex + 1).matches(
-                        "[A-Z]")
-                        && !in.substring(startIndex, startIndex + 1).matches(
-                                "[0-9]")) {
-                    startIndex++;
-                }
-                int length = 6;
-                if ((equalSignIndex - startIndex) < 6) {
-                    length = equalSignIndex - startIndex;
-                }
-                StyleRange sr = new StyleRange(startIndex, length, null,
-                        qcColors[3]);
-                String msg = "Syntax error: There is an extra '=' sign before this point, or 'TAF' is missing at beginning of TAF";
-                syntaxMap.put(sr, msg);
-                st.setStyleRange(null);
-                st.setStyleRange(sr);
-                if (doLogMessage) {
-                    msgStatComp.setMessageText(msg, qcColors[3].getRGB());
-                }
-
-                return true;
+        String msg = "Syntax error: There is an extra '=' sign or 'TAF' is missing at beginning of TAF";
+        String[] tafs = in.split("\n\n");
+        int tafStartIndex = 0;
+        for ( String taf : tafs ) {
+            int firstEqualSignIndex = taf.indexOf('=');
+            if ( firstEqualSignIndex == -1 ) {
+                tafStartIndex += taf.length() + 2;
+                continue;
             }
-
-            tafIndex = in.indexOf("TAF", tafIndex + 1);
-            lastEqualSignIndex = equalSignIndex;
-            equalSignIndex = in.indexOf("=", equalSignIndex + 1);
+            int secondEqualSignIndex = taf.indexOf('=', firstEqualSignIndex+1);
+            if ( secondEqualSignIndex == -1 ) {
+                tafStartIndex += taf.length() + 2;
+                continue;
+            }
+            while ( secondEqualSignIndex > -1 ) {
+                int secondEqualSignIndexInEditorText = tafStartIndex + secondEqualSignIndex;
+                StyleRange sr = new StyleRange(secondEqualSignIndexInEditorText, 1, null, qcColors[3]);
+                syntaxMap.put(sr, msg);
+                st.setStyleRange(sr);
+                secondEqualSignIndex = taf.indexOf('=', secondEqualSignIndex+1);
+            }
+            errorFound = true;
+            tafStartIndex += taf.length() + 2;
         }
 
-        return false;
+        if ( doLogMessage ) {
+            msgStatComp.setMessageText(msg, qcColors[3].getRGB());
+        }
+
+        return errorFound;
     }
 
     private void syntaxCheck() {
