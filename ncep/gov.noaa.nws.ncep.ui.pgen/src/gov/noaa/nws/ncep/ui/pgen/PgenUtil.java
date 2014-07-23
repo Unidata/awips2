@@ -142,7 +142,7 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * 12/13         #1091      J. Wu         Added getLayerMergeOption()
  * 05/14         TTR 995    J. Wu         Added getContourLabelAutoPlacement().
  * 05/14         TTR998     J. Wu         Added pixelToLatlon().
- * 
+ * 07/14                    Chin Chen     In latlonToPixel(), make sure not to add null pixel to its return pixel array
  * </pre>
  * 
  * @author
@@ -834,12 +834,14 @@ public class PgenUtil {
             IMapDescriptor mapDescriptor) {
         double[] point = new double[3];
         double[][] pixels = new double[pts.length][3];
-
+        double[] pixel;
         for (int i = 0; i < pts.length; i++) {
             point[0] = pts[i].x;
             point[1] = pts[i].y;
             point[2] = 0.0;
-            pixels[i] = mapDescriptor.worldToPixel(point);
+            pixel = mapDescriptor.worldToPixel(point);
+            if (pixel != null)
+                pixels[i] = pixel;
         }
 
         return pixels;
