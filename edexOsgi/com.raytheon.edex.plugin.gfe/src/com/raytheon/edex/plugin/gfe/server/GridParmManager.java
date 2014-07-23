@@ -122,7 +122,7 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 06/24/2014   #3317      randerso    Send DBInvChangeNotification when database is created, unless it's 
  *                                     created in response to another DBInvChangeNotification so IFPServers stay in synch.
  *                                     Cleaned up commented code.
- * 
+ * 07/21/2014   #3415      randerso    Fixed d2dGridDataPurged to not purge NetCDF databases.
  * </pre>
  * 
  * @author bphillip
@@ -1558,15 +1558,18 @@ public class GridParmManager {
             }
         }
 
-        DatabaseID satDbid = D2DSatDatabase.getDbId(siteID);
-
         List<DatabaseID> deleted = new ArrayList<DatabaseID>(currentInventory);
         deleted.removeAll(newInventory);
+
+        // don't delete NetCDF and satellite databases.
+        deleted.removeAll(NetCDFDatabaseManager.getDatabaseIds(siteID));
+        deleted.remove(D2DSatDatabase.getDbId(siteID));
+
         Iterator<DatabaseID> iter = deleted.iterator();
         while (iter.hasNext()) {
             DatabaseID dbid = iter.next();
-            // remove satellite database and non-D2D databases from deletes
-            if (!dbid.getDbType().equals("D2D") || dbid.equals(satDbid)) {
+            // don't delete non-D2D databases
+            if (!dbid.getDbType().equals("D2D")) {
                 iter.remove();
             } else {
                 // remove the database
@@ -1577,9 +1580,6 @@ public class GridParmManager {
             }
         }
 
-        // if ((added.size() > 0) || (deleted.size() > 0)) {
-        // DBInvChangeNotification changed = new DBInvChangeNotification(
-        // added, deleted, siteID);
         if (deleted.size() > 0) {
             DBInvChangeNotification changed = new DBInvChangeNotification(null,
                     deleted, siteID);
