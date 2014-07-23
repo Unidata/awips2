@@ -3,7 +3,7 @@
         * SOFTWARE HISTORY
  		* Date         Ticket#     Engineer    Description
  		* __________   _______     __________  __________________________
- 		* 06/28/2011				F. J. Yen	Initial creation for OB11.5 
+ 		* 06/28/2011				F. J. Yen	Initial creation for OB11.5  
  		* 07/14/2014                B. Hebbard  Add refTime parameter 
     -->
 <pointDataDbDescription>
