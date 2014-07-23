@@ -922,7 +922,7 @@ implements     INatlCntrsResource, IStationField {
 							DataTime startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
 							DataTime endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
 							String temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
-								+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+								+ "-" + endTime.toString().substring(11, 13) +   endTime.toString().substring(14,16);
 							enabledText.add(temp);
 						}
 
@@ -1007,7 +1007,7 @@ implements     INatlCntrsResource, IStationField {
     					startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
     					endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
     					temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
-            				+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+            				+ "-" + endTime.toString().substring(11, 13) +    endTime.toString().substring(14,16);
     					
     					if (time.equalsIgnoreCase("") || !time.equalsIgnoreCase(temp)) {
     						timeList.add(temp);
@@ -1132,7 +1132,7 @@ implements     INatlCntrsResource, IStationField {
     					startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
     					endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
     					temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
-            				+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+            				+ "-" + endTime.toString().substring(11, 13) +    endTime.toString().substring(14,16);
     					
     					if (time.equalsIgnoreCase("") || !time.equalsIgnoreCase(temp)) {
     						timeList.add(temp);
