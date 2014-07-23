@@ -131,6 +131,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  11/07/2013             sgurung     Added fix for "no data for every other frame" issue (earlier fix was added to 13.5.2 on 10/24/2013)
  *  03/18/2013    1064     B. Hebbard  Added handling of matrixType request constraint, for PAFM
  *  06/24/2014    1009     kbugenhagen Reload framedata if no stations found
+ *  07/08/2014 TTR1028     B. Hebbard  Modified paintFrame() to return right away if prog disc in progress, instead of
+ *                                     allowing multiple PD/HDF5/image trains to run concurrently for the same frame
+ *                                     in case of pan/zoom continuing after PD launched.  Improves performance and
+ *                                     reduces 'trickling in' of stations after pan/zoom.  Also changed resourceAttrsModified()
+ *                                     to remove all stations' met parameter data if requeryDataAndReCreateAllStnImages true,
+ *                                     to force re-query (now that we're bypassing stations that already have data).
  * </pre>
  * 
  * @author brockwoo
@@ -995,6 +1001,13 @@ public class NcPlotResource2 extends
             return;
 
         FrameData frameData = (FrameData) fd;
+
+        if (frameData.progressiveDisclosureInProgress) {
+            Tracer.print("Progressive disclosure in progress...aborting paintFrame for "
+                    + frameData.getShortFrameTime());
+            return;
+        }
+
         Semaphore sem = new Semaphore(1);
         if (progressiveDisclosure == null) {
             progressiveDisclosure = new ProgressiveDisclosure(this, spi);// assumes
@@ -1419,6 +1432,19 @@ public class NcPlotResource2 extends
                 dataRequestor.imageCreator.setPlotModel(editedPlotModel);
                 dataRequestor.imageCreator
                         .setUpPlotPositionToPlotModelElementMapping(editedPlotModel);
+
+                // Remove all met param data from all stations in all frames.
+                // (Since we need to requery all of it anyway, this will force
+                // that to occur.
+                // TODO: factor this out to something like clearImages() ?)
+
+                for (AbstractFrameData afd : frameDataMap.values()) {
+                    // TODO sanity check type?
+                    FrameData fd = (FrameData) afd;
+                    for (Station station : fd.stationMap.values()) {
+                        station.listOfParamsToPlot.clear();
+                    }
+                }
 
                 /* To remove the obsolete strings from the diff maps */
                 synchronized (newPMEList) {

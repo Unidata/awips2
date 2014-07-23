@@ -571,7 +571,7 @@ implements     INatlCntrsResource, IStationField {
 							DataTime startTime = new DataTime( wcnData.eventTime.getValidPeriod().getStart() );
 							DataTime endTime = new DataTime( wcnData.eventTime.getValidPeriod().getEnd() );
 							String temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
-								+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+								+ "-" + endTime.toString().substring(11, 13) + endTime.toString().substring(14,16);
 							enabledText.add(temp);
 						}
 
@@ -728,7 +728,7 @@ implements     INatlCntrsResource, IStationField {
 						DataTime startTime = new DataTime( wcnData.eventTime.getValidPeriod().getStart() );
 						DataTime endTime = new DataTime( wcnData.eventTime.getValidPeriod().getEnd() );
 						String temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
-							+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+							+ "-" + endTime.toString().substring(11, 13) +   endTime.toString().substring(14,16);
 						enabledText.add(temp);
 					}
 
