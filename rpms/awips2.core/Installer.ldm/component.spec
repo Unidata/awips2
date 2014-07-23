@@ -22,6 +22,7 @@ Packager: Bryan Kowal
 AutoReq: no
 Requires: awips2-qpid-lib
 requires: awips2-python
+requires: compat-gcc-34-g77
 requires: gcc
 requires: gcc-c++
 requires: libxml2-devel

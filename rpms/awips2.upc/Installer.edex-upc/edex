@@ -184,9 +184,7 @@ edit_ldm() { # edex pg_hba.conf
 
 edit_edex() { # setup.env automatic edit
 	sed -i.setup_$YMD 's/localhost/'$HOSTNAME'/g' $EDEX_ENV_FILE
-	sed -i.setup_$YMD 's/tmp\/sbn/awips2\/data_store/g' $EDEX_ENV_FILE
 	#echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
-	echo '       DATA_ARCHIVE_ROOT set to /awips2/data_store in '$EDEX_ENV_FILE
 	echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
 }
 
@@ -250,33 +248,25 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
 
 	# EDEX env
 
-	envGrep1=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
-	envGrep2=`grep sbn $EDEX_ENV_FILE | head -1`
+	envGrep=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
 	echo -n ' Checking '$EDEX_ENV_FILE
-	#echo $envGrep2
-	if [[ -z ${envGrep2} ]] && [[ -z ${endGrep1} ]]; then
+	if [[ ! -z ${envGrep} ]]; then
 		echo ' [OK]'
 		boolFiles[1]=false
 	else 
-		echo ''
-		if [[ ! -z ${envGrep1} ]]; then
-			echo '      ** Missing '$HOSTNAME
-		fi
-		if [[ ! -z ${envGrep2} ]]; then
-			echo '      ** Missing /awips2/data_store'
-		fi
+		echo '      ** Missing '$HOSTNAME
 		continue=true
 	fi
 
 	# LDM
-	ldmGrep=`grep "EDEX_HOSTNAME" $LDMD_CONF | head -1`
+	ldmGrep=`grep EDEX_HOSTNAME $LDMD_CONF | head -1`
 	echo -n ' Checking '$LDMD_CONF
 	if [[ ! -z ${ldmGrep} ]]; then
-		echo ' [OK]'
-		boolFiles[2]=false
-	else
 		echo -e '\n      ** Missing '$HOSTNAME
 		continue=true
+	else
+		echo ' [OK]'
+		boolFiles[2]=false
 	fi
 
 	echo ''
