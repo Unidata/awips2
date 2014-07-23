@@ -86,6 +86,7 @@ import com.raytheon.uf.common.time.DataTime;
  * 06/19/12       #657      Greg Hull    removeSpinnerListeners() before setting the 
  *                                       spinner maxvalues.
  * 06/24/14       TTR1029   J. Wu        Distinguish clicks in/outside of the slider box.
+ * 07/11/14       TTR1032   J. Wu        reload data times as necessary to keep timeline current.
  * 
  * </pre>
  * 
@@ -304,7 +305,28 @@ public class TimelineControl extends Composite {
 
         timeMatcher = tm;
 
-        timeMatcher.loadTimes(false);
+        // timeMatcher.loadTimes(false);
+        /*
+         * TTR1032 - when current time passes the latest previously-loaded time
+         * for given frame interval, we need to reload times to keep timeline
+         * current.
+         */
+        boolean reload = false;
+        if (timeMatcher.isCurrentRefTime()) {
+            reload = true;
+            if (timeMatcher.getSelectableDataTimes() != null
+                    && !timeMatcher.getSelectableDataTimes().isEmpty()) {
+                long curtime = Calendar.getInstance().getTimeInMillis();
+                long pretime = timeMatcher.getSelectableDataTimes()
+                        .get(timeMatcher.getSelectableDataTimes().size() - 1)
+                        .getRefTime().getTime();
+                if (curtime < (pretime + timeMatcher.getFrameInterval() * 60 * 1000)) {
+                    reload = false;
+                }
+            }
+        }
+
+        timeMatcher.loadTimes(reload);
 
         if (timeMatcher.getDominantResourceName() != null) {
             for (int i = 0; i < dom_rsc_combo.getItemCount(); i++) {
