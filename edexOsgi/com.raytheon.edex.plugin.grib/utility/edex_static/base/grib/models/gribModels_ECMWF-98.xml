@@ -26,10 +26,10 @@
 	</model>
 
 	<model>
-		<name>ecmwfP25</name>
+		<name>ecmwf0p25</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
-		<grid>144072101</grid>
+		<grid>193</grid>
 		<process>
 			<id>141</id>
 			<id>142</id>
@@ -38,6 +38,20 @@
 			<id>145</id>
 		</process>
 	</model>
+
+       <model>
+                <name>ecmwf0p25wave</name>
+                <center>98</center>
+                <subcenter>0</subcenter>
+                <grid>ECMWF-wave-0p25deg</grid>
+                <process>
+                        <id>108</id>
+                        <id>109</id>
+                        <id>110</id>
+                        <id>111</id>
+                        <id>112</id>
+                </process>
+        </model>
 
 	<model>
 		<name>ecmwf</name>
