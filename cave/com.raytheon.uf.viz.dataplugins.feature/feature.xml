@@ -36,14 +36,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.binlightning"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
--->
+
    <plugin
          id="com.raytheon.uf.common.dataplugin.bufrascat"
          download-size="0"
@@ -71,14 +64,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.bufrquikscat"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
--->
+
    <plugin
          id="com.raytheon.uf.common.dataplugin.bufrsigwx"
          download-size="0"
@@ -113,14 +99,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.ldadmesonet"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
--->
+
    <plugin
          id="com.raytheon.uf.common.dataplugin.lsr"
          download-size="0"
@@ -147,22 +126,8 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="true"/>
-<!--
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.qc"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
          unpack="false"/>
 
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.svrwx"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
--->
    <plugin
          id="com.raytheon.uf.common.dataplugin.tcg"
          download-size="0"
