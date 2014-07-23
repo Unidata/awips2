@@ -200,6 +200,10 @@ if [ "${1}" = "-rh6" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-httpd" ]; then
+   buildRPM "awips2-httpd-pypies"
+   exit 0
+fi
 if [ "${1}" = "-postgres" ]; then
    buildRPM "awips2-postgres"
    buildRPM "awips2-database-server-configuration"

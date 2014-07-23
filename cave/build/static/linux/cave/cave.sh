@@ -129,12 +129,13 @@ if [[ -z $IGNORE_NUM_CAVES ]]; then
    lookupINI "$@"
    launcherRegex='--launcher.ini\s(.+\.ini)'
    # default to cave.ini
-   # targetIni="/awips2/cave/cave.ini"
-   targetIni="/awips2/cave/NCP.ini"
+   targetIni="/awips2/cave/cave.ini"
+   #targetIni="/awips2/cave/NCP.ini"
    if [[ $CAVE_INI_ARG =~ $launcherRegex ]]
    then
         targetIni="${BASH_REMATCH[1]}"
    fi
+   #targetIni="/awips2/cave/NCP.ini"
    # read max memory that could be used by this instance
    memOfLaunchingCave=$(readMemFromIni "$targetIni")
    # read total max memory of caves already running
