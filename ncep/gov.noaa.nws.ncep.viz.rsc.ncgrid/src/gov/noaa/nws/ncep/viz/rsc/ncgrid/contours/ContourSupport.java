@@ -606,22 +606,31 @@ public class ContourSupport {
         return env;
     }
 
-    private static void createContourLabel(IExtent extent,
-            ContourGroup contourGroup, float contourValue, double[][] valsArr,
-            IMapDescriptor descriptor) {
+    private void createContourLabel(IExtent extent, ContourGroup contourGroup,
+            float contourValue, Coordinate[] llcoords, IMapDescriptor descriptor) {
 
         double minx = extent.getMinX();
         double miny = extent.getMinY();
         double maxx = extent.getMaxX();
         double maxy = extent.getMaxY();
 
-        double[][] visiblePts = new double[valsArr.length][valsArr[0].length];
+        double[][] visiblePts = new double[llcoords.length][2];
         int actualLength = 0;
 
-        for (double[] dl : valsArr) {
-            if (dl[0] > minx && dl[0] < maxx && dl[1] > miny && dl[1] < maxy) {
-                visiblePts[actualLength][0] = dl[0];
-                visiblePts[actualLength][1] = dl[1];
+        double[] in = new double[2];
+        double[] out = new double[2];
+        for (Coordinate coord : llcoords) {
+            in[0] = coord.x;
+            in[1] = coord.y;
+            try {
+                rastPosLatLonToWorldGrid.transform(in, 0, out, 0, 1);
+            } catch (TransformException e) {
+                continue;
+            }
+            if (out[0] > minx && out[0] < maxx && out[1] > miny
+                    && out[1] < maxy) {
+                visiblePts[actualLength][0] = out[0];
+                visiblePts[actualLength][1] = out[1];
                 actualLength++;
             }
         }
@@ -1052,9 +1061,6 @@ public class ContourSupport {
 
             int n = 0;
 
-            double[][] screen = null;
-            double[][] screenx = null;
-
             for (Double cval : contourGroup.cvalues) {
                 float fval = (float) (cval * 1.0f);
                 boolean toLabel = false;
@@ -1083,22 +1089,13 @@ public class ContourSupport {
 
                 for (int i = 0; i < correctedGeom.getNumGeometries(); i++) {
                     Geometry gn = correctedGeom.getGeometryN(i);
-                    // System.out.println("GEOMETRY " + i + ":");
-                    // System.out.println(gn.toString());
                     contourGroup.negValueShape.addLineSegment(gn
                             .getCoordinates());
 
                     if (toLabel) {
                         long tl0 = System.currentTimeMillis();
-                        // prepareLabel(contourGroup, zoom, fval,
-                        // labelPoints, screen);
-                        if (screen != null)
-                            createContourLabel(extent, contourGroup, fval,
-                                    screen, descriptor);
-                        if (screenx != null) {
-                            createContourLabel(extent, contourGroup, fval,
-                                    screenx, descriptor);
-                        }
+                        createContourLabel(extent, contourGroup, fval,
+                                gn.getCoordinates(), descriptor);
                         long tl1 = System.currentTimeMillis();
                         total_labeling_time += (tl1 - tl0);
                     }
@@ -1622,6 +1619,11 @@ public class ContourSupport {
 
             try {
                 xform.transform(tmp, 0, out, 0, 1);
+                if (out[0] < -180 || out[0] > 180.) {
+                    out[0] = ((out[0] + 180) % 360) - 180;
+                }
+                if (out[0] == 0.0)
+                    out[0] = 0.001;
                 clist.add(new Coordinate(out[0], out[1]), true);
             } catch (TransformException e) {
             }
