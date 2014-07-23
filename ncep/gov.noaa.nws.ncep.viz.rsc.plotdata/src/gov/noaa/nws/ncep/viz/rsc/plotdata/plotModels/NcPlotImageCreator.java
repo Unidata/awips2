@@ -78,6 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 06/17/2014    923         S. Russell   added method getLastCharInPosition()
  * 06/17/2014    923         S. Russell   altered method setUpSymbolMappingTables()
  * 06/17/2014    923         S. Russell   altered method createRenderableData()
+ * 07/08/2014    TTR1027     B. Hebbard   Force createRenderableData to recreate wind vectors each time.
  */
 
 public class NcPlotImageCreator {
@@ -1460,7 +1461,7 @@ public class NcPlotImageCreator {
                                 /*
                                  * Remove the corresponding string that was
                                  * previously rendered at the current plot
-                                 * positionfor this station
+                                 * position for this station
                                  */
                                 if (obsoleteStation != null
                                         && obsoleteStation.stnPlotMap != null) {
@@ -1978,7 +1979,14 @@ public class NcPlotImageCreator {
                     // System.out.print(s.info.stationId + ",");
                     // }
                     // System.out.println("stnColl = " + stnColl);
-                    if (drawVectorsFirstTime) {
+
+                    // Following changed (= true) to force recreation of wind
+                    // vectors each time, and so bypass (at negligible cost)
+                    // problems in the "else" block below. (That block attempts
+                    // to create/remove vectors selectively based on changes
+                    // from previous set, but doesn't quite get it right --
+                    // dropping vectors after panning in at least some cases.
+                    if (drawVectorsFirstTime = true) { // NOT == ! See above.
 
                         sm.acquireUninterruptibly();
 
@@ -1991,6 +1999,9 @@ public class NcPlotImageCreator {
                         sm.release();
 
                     } else {
+
+                        // Note: Now dead code (see note above). Left in for
+                        // future analysis and possible reuse in refactoring.
 
                         if (hasStationDensityChanged) {
                             /*
@@ -2101,7 +2112,7 @@ public class NcPlotImageCreator {
                             }
                             sm.release();
                         }
-
+                        // End of newly-dead code. See note above.
                     }
 
                 }
