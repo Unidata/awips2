@@ -114,6 +114,10 @@
             <param name="feature"
                 value="com.raytheon.uf.edex.dataprovideragent.feature" />
         </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.remote.script.feature" />
+        </antcall>
 
 		<!-- SPECIAL CASE -->
 		<if>
