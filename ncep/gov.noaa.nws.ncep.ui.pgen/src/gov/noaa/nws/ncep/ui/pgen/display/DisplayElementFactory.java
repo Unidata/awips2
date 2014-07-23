@@ -141,6 +141,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 11/13        TTR 752     J. Wu       added methods to compute an element's range record.
  * 12/13		#1089		B. Yin		Modify watch to display county list
  * 05/14        TTR 995     J. Wu       Make contour label auto-placement an option.
+ * 07/14        ?           B. Yin      Added support for dashed-line circle for TCM 12 feet sea.
  * </pre>
  * 
  * @author sgilbert
@@ -1522,19 +1523,22 @@ public class DisplayElementFactory {
 
         ArrayList<Coordinate> trackPts = new ArrayList<Coordinate>();
 
-        // draw wave quarters
-        slist.addAll(createDisplayElements(tcm.getWaveQuarters(), paintProps));
-
         // draw wind forecast quarters and labels
         for (TcmFcst tcmFcst : tcm.getTcmFcst()) {
+
             String[] txt = new String[2];
-            Calendar fcstHr = (Calendar) tcm.getAdvisoryTime().clone();
-            fcstHr.add(Calendar.HOUR_OF_DAY, tcmFcst.getFcstHr());
+            Calendar fcstHr = tcmFcst.getEndtime();
+            if (fcstHr == null) {
+                fcstHr = (Calendar) tcm.getAdvisoryTime().clone();
+                fcstHr.add(Calendar.HOUR_OF_DAY, tcmFcst.getFcstHr());
+            }
 
             if (tcmFcst.equals(tcm.getTcmFcst().get(0))) {
-                txt[0] = tcm.getStormName() + "/"
-                        + (int) tcm.getCentralPressure() + "mb";
-                txt[1] = String.format("%1$td/%1$tH%1$tM", fcstHr);
+                txt[1] = tcm.getStormName()
+                        + "/"
+                        + (tcm.getCentralPressure() > 0 ? tcm
+                                .getCentralPressure() : "xxx") + "mb";
+                txt[0] = String.format("%1$td/%1$tH%1$tM", fcstHr);
             } else {
                 txt[0] = String.format("%1$td/%1$tH%1$tM", fcstHr);
                 txt[1] = "";
@@ -1542,6 +1546,12 @@ public class DisplayElementFactory {
 
             slist.addAll(createDisplayElements(tcmFcst, paintProps, txt));
             trackPts.add(tcmFcst.getQuarters()[0].getLocation());
+        }
+
+        // draw wave quarters
+        if (tcm.getWaveQuarters() != null) {
+            slist.addAll(createDisplayElements(tcm.getWaveQuarters(),
+                    paintProps));
         }
 
         // draw track
@@ -1581,7 +1591,7 @@ public class DisplayElementFactory {
                     TextJustification.LEFT_JUSTIFY,
                     tcmFcst.getQuarters()[0].getLocation(), 0.0,
                     /* TTR 895 TextRotation.NORTH_RELATIVE, */
-                    TextRotation.SCREEN_RELATIVE, txt, FontStyle.REGULAR,
+                    TextRotation.SCREEN_RELATIVE, txt, FontStyle.BOLD,
                     getDisplayColor(Color.YELLOW), 4, 0, false,
                     DisplayType.NORMAL, "Text", "General Text");
 
@@ -1592,8 +1602,8 @@ public class DisplayElementFactory {
     }
 
     /**
-     * Returns the TCM symbol according to the wind speed. Hurricane >= 64 knots
-     * TS >= 50 knots TD >= 32 knots Lx < 32 knots
+     * Returns the TCM symbol according to the wind speed. Hurricane >= 64
+     * knots, TS >= 34 knots, TD < 34 knots
      * 
      * @param tcmFcst
      * @return
@@ -1604,13 +1614,19 @@ public class DisplayElementFactory {
 
         int maxWind = 0;
 
-        for (ITcmWindQuarter qtr : quarters) {
-            double[] radius = qtr.getQuarters();
-            for (double r : radius) {
-                if (r > 0) {
-                    if (qtr.getWindSpeed() > maxWind)
-                        maxWind = qtr.getWindSpeed();
-                    break;
+        if (tcmFcst instanceof TcmFcst) {
+            maxWind = ((TcmFcst) tcmFcst).getWindMax();
+        }
+
+        if (maxWind == 0) {
+            for (ITcmWindQuarter qtr : quarters) {
+                double[] radius = qtr.getQuarters();
+                for (double r : radius) {
+                    if (r > 0) {
+                        if (qtr.getWindSpeed() > maxWind)
+                            maxWind = qtr.getWindSpeed();
+                        break;
+                    }
                 }
             }
         }
@@ -1621,15 +1637,15 @@ public class DisplayElementFactory {
                 ret = "HURRICANE_NH";
             else
                 ret = "HURRICANE_SH";
-        } else if (maxWind >= 50) {
+        } else if (maxWind >= 34) {
             if (lat > 0)
                 ret = "TROPICAL_STORM_NH";
             else
                 ret = "TROPICAL_STORM_SH";
-        } else if (maxWind >= 32) {
-            ret = "TROPICAL_DEPRESSION";
         } else {
-            ret = "LOW_X_FILLED";
+            ret = "TROPICAL_DEPRESSION";
+            // } else {
+            // ret = "LOW_X_FILLED";
         }
 
         return ret;
@@ -1648,13 +1664,58 @@ public class DisplayElementFactory {
             ITcmWindQuarter quatros, PaintProperties paintProps) {
         ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
 
+        Coordinate center = quatros.getLocation();
         Color color = Color.GREEN;
         switch (quatros.getWindSpeed()) {
         case 0:
             color = Color.GREEN;
-            break;
-        case 32:
-            color = Color.BLUE;
+            Arc quatro1 = new Arc(null, color, (float) 1.5, 1.0, false, false,
+                    0, null, "Circle", center,
+                    this.calculateDestinationPointMap(center, 0,
+                            quatros.getQuarters()[0]), "Arc", 1, 0, 90);
+
+            Arc quatro2 = new Arc(null, color, (float) 1.5, 1.0, false, false,
+                    0, null, "Circle", center,
+                    this.calculateDestinationPointMap(center, 0,
+                            quatros.getQuarters()[1]), "Arc", 1, 90, 180);
+            Arc quatro3 = new Arc(null, color, (float) 1.5, 1.0, false, false,
+                    0, null, "Circle", center,
+                    this.calculateDestinationPointMap(center, 0,
+                            quatros.getQuarters()[2]), "Arc", 1, 180, 270);
+            Arc quatro4 = new Arc(null, color, (float) 1.5, 1.0, false, false,
+                    0, null, "Circle", center,
+                    this.calculateDestinationPointMap(center, 0,
+                            quatros.getQuarters()[3]), "Arc", 1, 270, 360);
+            slist.addAll(createDisplayElements((IArc) quatro1, paintProps, 3));
+            slist.addAll(createDisplayElements((IArc) quatro2, paintProps, 3));
+            slist.addAll(createDisplayElements((IArc) quatro3, paintProps, 3));
+            slist.addAll(createDisplayElements((IArc) quatro4, paintProps, 3));
+
+            Line ln1 = getWindQuatroLine(getPointOnArc(quatro1, 0),
+                    getPointOnArc(quatro2, 0), color);
+            ln1.setPgenType("LINE_DASHED_4");
+
+            Line ln2 = getWindQuatroLine(getPointOnArc(quatro2, 90),
+                    getPointOnArc(quatro3, 90), color);
+            ln2.setPgenType("LINE_DASHED_4");
+
+            Line ln3 = getWindQuatroLine(getPointOnArc(quatro3, 180),
+                    getPointOnArc(quatro4, 180), color);
+            ln3.setPgenType("LINE_DASHED_4");
+
+            Line ln4 = getWindQuatroLine(getPointOnArc(quatro4, 270),
+                    getPointOnArc(quatro1, 270), color);
+            ln4.setPgenType("LINE_DASHED_4");
+
+            slist.addAll(createDisplayElements((ILine) ln1, paintProps));
+            slist.addAll(createDisplayElements((ILine) ln2, paintProps));
+            slist.addAll(createDisplayElements((ILine) ln3, paintProps));
+            slist.addAll(createDisplayElements((ILine) ln4, paintProps));
+
+            return slist;
+        case 34:
+            // make it consistent with NMAP
+            color = new Color(0, 150, 255);
             break;
         case 50:
             color = Color.YELLOW;
@@ -1664,10 +1725,10 @@ public class DisplayElementFactory {
             break;
         }
 
-        Coordinate center = quatros.getLocation();
         Arc quatro1 = new Arc(null, color, (float) 1.5, 1.0, false, false, 0,
                 null, "Circle", center, this.calculateDestinationPointMap(
                         center, 0, quatros.getQuarters()[0]), "Arc", 1, 0, 90);
+
         Arc quatro2 = new Arc(null, color, (float) 1.5, 1.0, false, false, 0,
                 null, "Circle", center, this.calculateDestinationPointMap(
                         center, 0, quatros.getQuarters()[1]), "Arc", 1, 90, 180);
@@ -1700,6 +1761,121 @@ public class DisplayElementFactory {
         slist.addAll(createDisplayElements((ILine) ln2, paintProps));
         slist.addAll(createDisplayElements((ILine) ln3, paintProps));
         slist.addAll(createDisplayElements((ILine) ln4, paintProps));
+
+        return slist;
+    }
+
+    /**
+     * Creates a list of IDisplayable Objects from an IArc object using
+     * dashed-line.
+     * 
+     * @param arc
+     *            A PGEN Drawable Element of an arc object
+     * @param paintProps
+     *            The paint properties associated with the target
+     * @param dashlength
+     *            length of dash segment in screen pixel.
+     * @return A list of IDisplayable elements
+     */
+    public ArrayList<IDisplayable> createDisplayElements(IArc arc,
+            PaintProperties paintProps, double dashlength) {
+        setScales(paintProps);
+
+        /*
+         * Create the List to be returned, and wireframe shape
+         */
+        ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
+        IWireframeShape arcpts = target
+                .createWireframeShape(false, iDescriptor);
+
+        /*
+         * Convert center and circumference point from lat/lon to pixel
+         * coordinates.
+         */
+        double[] tmp = { arc.getCenterPoint().x, arc.getCenterPoint().y, 0.0 };
+        double[] center = iDescriptor.worldToPixel(tmp);
+        double[] tmp2 = { arc.getCircumferencePoint().x,
+                arc.getCircumferencePoint().y, 0.0 };
+        double[] circum = iDescriptor.worldToPixel(tmp2);
+
+        /*
+         * calculate angle of major axis
+         */
+        double axisAngle = Math.toDegrees(Math.atan2((circum[1] - center[1]),
+                (circum[0] - center[0])));
+        double cosineAxis = Math.cos(Math.toRadians(axisAngle));
+        double sineAxis = Math.sin(Math.toRadians(axisAngle));
+
+        /*
+         * calculate half lengths of major and minor axes
+         */
+        double diff[] = { circum[0] - center[0], circum[1] - center[1] };
+        double major = Math.sqrt((diff[0] * diff[0]) + (diff[1] * diff[1]));
+        double minor = major * arc.getAxisRatio();
+
+        // calculate length of a single dash segment in degree.
+        double deltaAngle = (dashlength / (major / this.screenToExtent)) * 180;
+        int deltaA = (int) Math.round(deltaAngle);
+        if (deltaA <= 1)
+            deltaA = 2;
+
+        /*
+         * Calculate points along the arc
+         */
+        double angle = arc.getStartAngle();
+        int numpts = (int) Math.round(arc.getEndAngle() - arc.getStartAngle()
+                + 1.0);
+        double[][] path = new double[deltaA + 1][3];
+        int kk = 0;
+        boolean dash = false;
+
+        for (int j = 0; j < numpts; j++) {
+
+            if (!dash) {
+                double thisSine = Math.sin(Math.toRadians(angle));
+                double thisCosine = Math.cos(Math.toRadians(angle));
+                // Can maybe use simpler less expensive calculations for circle,
+                // if ever necessary.
+                // if ( arc.getAxisRatio() == 1.0 ) {
+                // path[j][0] = center[0] + (major * thisCosine );
+                // path[j][1] = center[1] + (minor * thisSine );
+                // }
+                // else {
+                path[kk][0] = center[0] + (major * cosineAxis * thisCosine)
+                        - (minor * sineAxis * thisSine);
+                path[kk][1] = center[1] + (major * sineAxis * thisCosine)
+                        + (minor * cosineAxis * thisSine);
+                // }
+
+                // add a line segment for dash line
+                kk++;
+                if (kk - 1 == deltaA) {
+                    arcpts.addLineSegment(path);
+                    kk = 0;
+                    dash = !dash;
+                }
+
+            } else {
+                // add a blank segement for the dash line
+                kk++;
+                if (kk >= deltaA - 2) {
+                    dash = !dash;
+                    kk = 0;
+                }
+            }
+            angle += 1.0;
+
+        }
+
+        /*
+         * Create new LineDisplayElement from wireframe shapes and add it to
+         * return list
+         */
+        arcpts.compile();
+        slist.add(new LineDisplayElement(arcpts, getDisplayColor(arc
+                .getColors()[0]), arc.getLineWidth()));
+
+        // slist.addAll(adjustContourCircleLabel(arc, paintProps, path));
 
         return slist;
     }

@@ -95,6 +95,9 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SHIP">
 <filters>Observed</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SHIP6HR">
+<filters>Observed</filters>
+</ResourceDefinitionFilter>
 <!-- PGEN Display Resources -->
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="CCFP">
 <filters>CCFP</filters>
@@ -913,7 +916,13 @@
 <filters>Forecast,Ensemble,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF_NH">
+</ResourceDefinitionFilter>
 <filters>Forecast,SBN</filters>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF0P25">
+<filters>Forecast,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP40">
 <filters>Forecast,Regional,SBN</filters>
@@ -934,6 +943,9 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS">
+<filters>Forecast,Global</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS0P5">
 <filters>Forecast,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKENS_NA">
@@ -1344,10 +1356,10 @@
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT8">
 <filters>McIdas,METEOSAT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="METEOSAT9">
+<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT9">
 <filters>Standard,McIdas,METEOSAT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="METEOSAT10">
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="METEOSAT10">
 <filters>McIdas,METEOSAT</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GINI_GOES11">
