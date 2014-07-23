@@ -131,6 +131,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 04/11/2014   #981        D.Sushon        Added fault tolerance for when some data is bad to display the good data rather than fall-through entire frame
  * 04/14/2014               S.Gilbert       Cleaned up old unused methods
  * 04/22/2014   #1129       B. Hebbard      Feed HILO point count limits to GridRelativeHiLoDisplay constructor instead of HILORelativeMinAndMaxLocator, so can apply dynamically based on current extent
+ * 06/27/2014   ?           B. Yin          Handle grid analysis (cycle time is null).
  * </pre>
  * 
  * @author mli
@@ -1735,15 +1736,16 @@ public class NcgridResource extends
 
         DataTime cycleTime = rscName.getCycleTime();
 
-        if (cycleTime == null || rscName.isLatestCycleTime()) { // latest should
-                                                                // already be
-                                                                // resolved
-                                                                // here.
+        if (rscName.isLatestCycleTime()) { // latest should
+                                           // already be
+                                           // resolved
+                                           // here.
             return;
         }
 
         List<DataTime> availableTimes = new ArrayList<DataTime>();
-        if (gridRscData.getPluginName().equalsIgnoreCase(
+       
+        if ( cycleTime != null && gridRscData.getPluginName().equalsIgnoreCase(
                 GempakGrid.gempakPluginName)) {
             try {
                 String dataLocation = null;
@@ -1848,16 +1850,22 @@ public class NcgridResource extends
             DataTime availTime = new DataTime(dt.getRefTime(), dt.getFcstTime());
             DataTime refTime = new DataTime(dt.getRefTime());
 
-            if (cycleTime.equals(refTime)) {
-                if (!dataTimes.contains(availTime)) {
-                    dataTimes.add(availTime);
-                    // reuse the same gribRec this is a bit of a hack but hey.
-                    // gribRec.setDataTime(availTime);
-                    // for( IRscDataObject dataObject : processRecord( availTime
-                    // ) ) { // gribRec ) ) {
-                    // newRscDataObjsQueue.add(dataObject);
-                    // }
+            if (cycleTime != null) {
+                if (cycleTime.equals(refTime)) {
+                    if (!dataTimes.contains(availTime)) {
+                        dataTimes.add(availTime);
+                        // reuse the same gribRec this is a bit of a hack but
+                        // hey.
+                        // gribRec.setDataTime(availTime);
+                        // for( IRscDataObject dataObject : processRecord(
+                        // availTime
+                        // ) ) { // gribRec ) ) {
+                        // newRscDataObjsQueue.add(dataObject);
+                        // }
+                    }
                 }
+            } else { // for grid analysis
+                dataTimes.add(availTime);
             }
         }
         setDataTimesForDgdriv(dataTimes);
