@@ -381,7 +381,7 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, N
 						DataTime startTime = new DataTime( warnData.eventTime.getValidPeriod().getStart() );
 						DataTime endTime = new DataTime( warnData.eventTime.getValidPeriod().getEnd() );
 						String temp = startTime.toString().substring(11, 13) +startTime.toString().substring(14, 16)
-									 + "-" + endTime.toString().substring(11, 13) +startTime.toString().substring(14, 16);
+									 + "-" + endTime.toString().substring(11, 13) +endTime.toString().substring(14, 16);
 						enabledText.add(temp);
 					}
 
