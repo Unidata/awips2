@@ -64,7 +64,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.hydrocommon.HydroConstants;
-import com.raytheon.viz.hydrocommon.resource.HydroPointResource;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
