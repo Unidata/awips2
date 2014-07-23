@@ -11,6 +11,7 @@ legendColor=RGB {255, 255, 255}
     <rscImplementation>WSTM</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>EVENT</timeMatchMethod>
     <frameSpan>30</frameSpan>
     <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
     <dfltFrameCount>25</dfltFrameCount>

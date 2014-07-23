@@ -10,6 +10,7 @@ color=RGB {155, 155, 155}
     <rscImplementation>Warn</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>EVENT</timeMatchMethod>
     <frameSpan>10</frameSpan>
     <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
     <dfltFrameCount>37</dfltFrameCount>
