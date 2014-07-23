@@ -21,6 +21,7 @@
 
 <?eclipse version="3.0"?>
 <plugin>
+<!--
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
@@ -307,7 +308,6 @@
 		          name="com.raytheon.viz.hydro.separator"
 		          visible="true">
 		    </separator>
-			<!--command commandId="com.raytheon.viz.hydro.sshp.window.openunithydrographeditor" label="Launch UnitHydrographEditor..." style="push"/-->
 		  </menu>           
       </menuContribution>
       <menuContribution
@@ -997,4 +997,5 @@
           perspectiveId="com.raytheon.viz.hydro.HydroPerspective">
     	</tearoffperspective>
  	</extension>
+ 	-->
 </plugin>

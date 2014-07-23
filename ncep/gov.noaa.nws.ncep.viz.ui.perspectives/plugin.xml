@@ -5,8 +5,11 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspective"
+            fixed="true"
+            icon="icons/barcode.png"
             id="gov.noaa.nws.ncep.viz.ui.NCPerspective"
-            name="NCP">
+            name="NCP"
+            singleton="true">
       </perspective>
    </extension>
    <extension
