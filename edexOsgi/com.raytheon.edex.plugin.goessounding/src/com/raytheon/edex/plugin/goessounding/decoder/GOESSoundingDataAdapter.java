@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -188,7 +189,8 @@ public class GOESSoundingDataAdapter {
                     SPIEntry s = SPI_DATA.nearest(lat, lon, MAX_DISTANCE);
                     if (s != null) {
                         SurfaceObsLocation location = new SurfaceObsLocation();
-                        location.assignLocation(lat, lon);
+                        location.assignLocation(lat.floatValue(),
+                                lon.floatValue());
                         location.setStationId(s.getId());
                         obsData.setLocation(location);
                     } else {
