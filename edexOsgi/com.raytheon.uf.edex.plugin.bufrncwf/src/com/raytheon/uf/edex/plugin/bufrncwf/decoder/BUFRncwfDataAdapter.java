@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 17, 2009            jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -82,21 +83,21 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
 
     private static final int FEATURES_POS = 6;
 
-    private static final int FEATURE_TIMSIG_POS = 0;
+    // private static final int FEATURE_TIMSIG_POS = 0;
 
-    private static final int FEATURE_TIMEPD_POS = 1;
+    // private static final int FEATURE_TIMEPD_POS = 1;
 
-    private static final int FEATURE_ATTSIG_POS = 2;
+    // private static final int FEATURE_ATTSIG_POS = 2;
 
-    private static final int FEATURE_DIMSIG_POS = 3;
+    // private static final int FEATURE_DIMSIG_POS = 3;
 
     private static final int FEATURE_LAT_POS = 4;
 
     private static final int FEATURE_LON_POS = 5;
 
-    private static final int BOUNDARY_ATTSIG_POS = 6;
+    // private static final int BOUNDARY_ATTSIG_POS = 6;
 
-    private static final int BOUNDARY_DIMSIG_POS = 7;
+    // private static final int BOUNDARY_DIMSIG_POS = 7;
 
     private static final int BOUNDARY_SUBLIST_POS = 8;
 
@@ -253,9 +254,11 @@ public class BUFRncwfDataAdapter extends BUFRPointDataAdapter<BUFRncwf> {
                     Coordinate centroid = ncwfReport.getDetection()
                             .getCentroidLocation();
                     SurfaceObsLocation loc = new SurfaceObsLocation();
-                    loc.assignLocation(
-                            DecoderTools.getCoordinateLatitude(centroid),
-                            DecoderTools.getCoordinateLongitude(centroid));
+                    float lat = (float) DecoderTools
+                            .getCoordinateLatitude(centroid);
+                    float lon = (float) DecoderTools
+                            .getCoordinateLongitude(centroid);
+                    loc.assignLocation(lat, lon);
                     ncwfReport.setLocation(loc);
                 }
             }
