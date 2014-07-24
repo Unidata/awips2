@@ -53,6 +53,7 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * Sep 28, 2011            mschenke     Initial creation
  * May 02, 2013 1949       bsteffen    Force ModelSounding in Vb to play nicely
  *                                     with others.
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -249,8 +250,8 @@ public class ModelSoundingCatalog extends PointDataCatalog {
         for (Entry<String, SPIEntry> entry : spipv.getSpiList().entrySet()) {
             SurfaceObsLocation loc = new SurfaceObsLocation();
             loc.setStationId(entry.getKey());
-            loc.setLatitude(entry.getValue().latlon.y);
-            loc.setLongitude(entry.getValue().latlon.x);
+            loc.setLatitude((float) entry.getValue().latlon.y);
+            loc.setLongitude((float) entry.getValue().latlon.x);
             locs.add(loc);
         }
         Collections.sort(locs, locComparator);
