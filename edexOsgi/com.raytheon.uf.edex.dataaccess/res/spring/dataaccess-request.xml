@@ -19,6 +19,46 @@
 		<constructor-arg ref="availableTimesHandler" />
 	</bean>
 	
+	<bean id="availableParametersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableParametersHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetAvailableParametersRequest" />
+        <constructor-arg ref="availableParametersHandler" />
+    </bean>
+    
+    <bean id="availableLevelsHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetAvailableLevelsHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetAvailableLevelsRequest" />
+        <constructor-arg ref="availableLevelsHandler" />
+    </bean>
+    
+    <bean id="requiredIdentifiersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetRequiredIdentifiersHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetRequiredIdentifiersRequest" />
+        <constructor-arg ref="requiredIdentifiersHandler" />
+    </bean>
+    
+    <bean id="validIdentifiersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetValidIdentifiersHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetValidIdentifiersRequest" />
+        <constructor-arg ref="validIdentifiersHandler" />
+    </bean>
+    
+    <bean id="supportedDatatypesHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetSupportedDatatypesHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.dataaccess.request.GetSupportedDatatypesRequest" />
+        <constructor-arg ref="supportedDatatypesHandler" />
+    </bean>
+	
 	<bean id="getGeometryDataHandler"
 		class="com.raytheon.uf.edex.dataaccess.handler.GetGeometryDataHandler" />
 	<bean factory-bean="handlerRegistry" factory-method="register">
