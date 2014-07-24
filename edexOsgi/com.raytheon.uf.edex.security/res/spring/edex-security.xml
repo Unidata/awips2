@@ -4,6 +4,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 	    http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
+	<bean id="encryption" class="com.raytheon.uf.common.security.encryption.AESEncryptor"/>
+
 	<bean id="securityConfiguration" class="com.raytheon.uf.edex.security.SecurityConfiguration" />
 
 	<bean id="encryptedPropertyLoader" class="com.raytheon.uf.edex.security.EncryptedProperties">
