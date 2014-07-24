@@ -23,9 +23,6 @@ import java.util.Date;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
@@ -33,6 +30,7 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
@@ -45,6 +43,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2010            skorolev     Initial creation
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -53,8 +52,6 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  */
 
 public class FSSObsDataTransform {
-
-	private Log logger = LogFactory.getLog(getClass());
 
 	private FSSObsDAO dao;
 
@@ -290,8 +287,8 @@ public class FSSObsDataTransform {
 		fssr.setReportType(pdv.getString(REPORT_TYPE));
 		SurfaceObsLocation loc = new SurfaceObsLocation();
 		loc.setStationId(pdv.getString(STATION_ID));
-		Double lat = pdv.getNumber(LATITUDE).doubleValue();
-		Double lon = pdv.getNumber(LONGITUDE).doubleValue();
+        float lat = pdv.getNumber(LATITUDE).floatValue();
+        float lon = pdv.getNumber(LONGITUDE).floatValue();
 		loc.assignLocation(lat, lon);
 		loc.setElevation(pdv.getNumber(ELEVATION).intValue());
 		fssr.setLocation(loc);
@@ -302,7 +299,7 @@ public class FSSObsDataTransform {
 		fssr.setDataTime(new DataTime(new Date(pdv.getNumber(TIME_OBS)
 				.longValue())));
 		long to = pdv.getLong(TIME_OBS);
-		fssr.setTimeObs(TimeTools.newCalendar(to));
+        fssr.setTimeObs(TimeUtil.newGmtCalendar(new Date(to)));
 		// nominalTime
 		fssr.setRefHour(TimeTools.roundToNearestHour(fssr.getTimeObs()));
 		// in mbar
@@ -458,8 +455,8 @@ public class FSSObsDataTransform {
 		FSSObsRecord fssr = new FSSObsRecord();
 		SurfaceObsLocation loc = new SurfaceObsLocation();
 		loc.setStationId(pdv.getString(STATION_ID));
-		Double lat = pdv.getNumber(LATITUDE).doubleValue();
-		Double lon = pdv.getNumber(LONGITUDE).doubleValue();
+        float lat = pdv.getNumber(LATITUDE).floatValue();
+        float lon = pdv.getNumber(LONGITUDE).floatValue();
 		loc.assignLocation(lat, lon);
 		loc.setElevation(pdv.getNumber(ELEVATION).intValue());
 		fssr.setLocation(loc);
@@ -471,7 +468,7 @@ public class FSSObsDataTransform {
 		fssr.setDataTime(new DataTime(new Date(pdv.getNumber(TIME_OBS)
 				.longValue())));
 		long to = pdv.getLong(TIME_OBS);
-		fssr.setTimeObs(TimeTools.newCalendar(to));
+        fssr.setTimeObs(TimeUtil.newGmtCalendar(new Date(to)));
 		// TODO: check nominalTime
 		fssr.setRefHour(TimeTools.roundToNearestHour(fssr.getTimeObs()));
 
@@ -555,8 +552,8 @@ public class FSSObsDataTransform {
 		fssr.setReportType(pdv.getString(REPORT_TYPE));
 		SurfaceObsLocation loc = new SurfaceObsLocation();
 		loc.setStationId(pdv.getString(STATION_ID));
-		Double lat = pdv.getNumber(LATITUDE).doubleValue();
-		Double lon = pdv.getNumber(LONGITUDE).doubleValue();
+        float lat = pdv.getNumber(LATITUDE).floatValue();
+        float lon = pdv.getNumber(LONGITUDE).floatValue();
 		loc.assignLocation(lat, lon);
 		loc.setElevation(pdv.getNumber(ELEVATION).intValue());
 		fssr.setLocation(loc);
@@ -567,7 +564,7 @@ public class FSSObsDataTransform {
 		fssr.setDataTime(new DataTime(new Date(pdv.getNumber(OBSERVATION_TIME)
 				.longValue())));
 		long to = pdv.getLong(OBSERVATION_TIME);
-		fssr.setTimeObs(TimeTools.newCalendar(to));
+        fssr.setTimeObs(TimeUtil.newGmtCalendar(new Date(to)));
 		fssr.setRefHour(TimeTools.roundToNearestHour(fssr.getTimeObs()));
 		// fssr.setCeiling(pdv.getNumber(CLOUD_BASE_HEIGHT).floatValue());
 		if (pdv.getFloat(DEWPOINT) != MISSING) {
@@ -682,7 +679,7 @@ public class FSSObsDataTransform {
 	 *            the pdc to set
 	 */
 	public void setPdc(PointDataContainer pdc) {
-		this.pdc = pdc;
+        FSSObsDataTransform.pdc = pdc;
 	}
 
 	/**
