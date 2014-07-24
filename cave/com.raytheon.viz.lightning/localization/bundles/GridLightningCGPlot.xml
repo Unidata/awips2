@@ -23,7 +23,7 @@
 		<displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
                 <resource>
-                    <loadProperties xsi:type="gridLoadProperties" loadWithoutData="true">
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
                     </loadProperties>
                     <properties isSystemResource="false"
                         isBlinking="false" isMapLayer="false" isHoverOn="false"
