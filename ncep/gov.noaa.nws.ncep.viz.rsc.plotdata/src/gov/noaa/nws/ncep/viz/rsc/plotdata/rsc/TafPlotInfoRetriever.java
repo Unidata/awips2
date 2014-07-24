@@ -24,6 +24,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
  * ------------ ---------- ----------- --------------------------
  * 11/03/2011              sgurung     Initial creation
  * 11/16/2011              sgurung     Order columns by issue_time and sequenceId desc for correct time matching
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -69,8 +70,8 @@ public class TafPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
     protected PlotInfo getPlotInfo(Object[] data) {
         PlotInfo stationInfo = new PlotInfo();
         stationInfo.dataURI = (String) data[0];
-        stationInfo.latitude = (Double) data[1];
-        stationInfo.longitude = (Double) data[2];
+        stationInfo.latitude = ((Number) data[1]).doubleValue();
+        stationInfo.longitude = ((Number) data[2]).doubleValue();
         stationInfo.stationId = (String) data[3];
         if (stationInfo.stationId == null) {
             stationInfo.stationId = "" + data[1] + "#" + data[2];

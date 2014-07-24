@@ -21,6 +21,7 @@ package com.raytheon.uf.common.dataplugin.bufrua.dao;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -33,7 +34,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Converts a PointDataContainer into a UAObs record.
@@ -48,6 +49,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
  *                                     bufrua.
  * Sep  9, 2013 2277       mschenke    Got rid of ScriptCreator references
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -109,14 +111,14 @@ public class BufrUAPointDataTransform {
 
             long vt = pdv.getNumber("validTime").longValue();
 
-            obs.setDataTime(new DataTime(TimeTools.newCalendar(vt)));
+            obs.setDataTime(new DataTime(TimeUtil.newGmtCalendar(new Date(vt))));
 
             SurfaceObsLocation location = new SurfaceObsLocation();
 
             int elev = pdv.getNumber("staElev").intValue();
             location.setElevation(elev);
-            double lat = pdv.getNumber("latitude").doubleValue();
-            double lon = pdv.getNumber("longitude").doubleValue();
+            float lat = pdv.getNumber("latitude").floatValue();
+            float lon = pdv.getNumber("longitude").floatValue();
             location.assignLocation(lat, lon);
             Number sta = pdv.getNumber("wmoStaNum");
             location.setStationId(sta.toString());

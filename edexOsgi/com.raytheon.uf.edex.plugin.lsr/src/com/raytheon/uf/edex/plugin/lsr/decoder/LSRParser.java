@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.plugin.lsr.LocalStormReportDao;
  * Jan 07, 2013 2581       njensen     Check to end of string for source, not a set length
  * Jan 13, 2013 2581       njensen     Improved error handling and logging
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -450,13 +451,13 @@ public class LSRParser {
         Matcher m = LATLON_PTRN.matcher(latlon);
         if (m.find()) {
             String ss = m.group(2);
-            Double lat = Double.parseDouble(ss.substring(0, ss.length() - 1));
+            float lat = Float.parseFloat(ss.substring(0, ss.length() - 1));
             if (ss.endsWith("S")) {
                 lat *= -1;
             }
 
             ss = m.group(4);
-            Double lon = Double.parseDouble(ss.substring(0, ss.length() - 1));
+            float lon = Float.parseFloat(ss.substring(0, ss.length() - 1));
             if (ss.endsWith("W")) {
                 lon *= -1;
             }
