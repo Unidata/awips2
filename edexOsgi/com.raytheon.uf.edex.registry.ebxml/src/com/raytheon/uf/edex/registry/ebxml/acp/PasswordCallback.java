@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.registry.ebxml.web.security.CredentialCache;
  * ------------ ---------- ----------- --------------------------
  * Aug 3, 2012            bphillip     Initial creation
  * 7/10/2014    1717       bphillip    Get user information from CredentialCache
+ * 7/24/2014    1712       bphillip    Spring injection of CredentialCache
  * 
  * </pre>
  * 
@@ -49,6 +50,9 @@ import com.raytheon.uf.edex.registry.ebxml.web.security.CredentialCache;
  * @version 1.0
  */
 public class PasswordCallback implements CallbackHandler {
+    
+    /** Cache of user credentials */
+    private CredentialCache credentialCache;
 
     /**
      * Creates a new PasswordCallback
@@ -62,9 +66,18 @@ public class PasswordCallback implements CallbackHandler {
         for (Callback call : callbacks) {
             if (call instanceof WSPasswordCallback) {
                 WSPasswordCallback cb = (WSPasswordCallback) call;
-                cb.setPassword(CredentialCache.getInstance().getUserPassword(
+                cb.setPassword(credentialCache.getUserPassword(
                         ((WSPasswordCallback) call).getIdentifier()));
             }
         }
     }
+
+    /**
+     * @param credentialCache the credentialCache to set
+     */
+    public void setCredentialCache(CredentialCache credentialCache) {
+        this.credentialCache = credentialCache;
+    }
+    
+    
 }
