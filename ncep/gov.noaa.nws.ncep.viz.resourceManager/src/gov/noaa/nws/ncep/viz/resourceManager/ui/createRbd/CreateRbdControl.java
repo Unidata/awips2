@@ -2294,6 +2294,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             } else {
                 import_rbd_combo.add(editor.getPartName());
                 import_rbd_combo.setText(editor.getPartName());
+                rbdMngr.setRbdModified(false);
                 importRBD(editor.getPartName());
             }
 
@@ -2456,7 +2457,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                     shell,
                     "Confirm",
                     null,
-                    "This RBD has been modified.\n\n"
+                    "You are about to replace the entire contents of this dialog. There is no 'undo'.\n\n"
                             + "Do you want to continue the import and clear the current RBD selections?",
                     MessageDialog.QUESTION, new String[] { "Yes", "No" }, 0);
             confirmDlg.open();
