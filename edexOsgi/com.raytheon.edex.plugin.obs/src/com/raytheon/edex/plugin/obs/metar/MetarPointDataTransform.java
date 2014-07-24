@@ -62,6 +62,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Dec 16, 2013 DR 16920   D. Friemdan Fix type of tempFromTenths access.
  * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -389,8 +390,8 @@ public class MetarPointDataTransform {
 
         SurfaceObsLocation loc = new SurfaceObsLocation(
                 pdv.getString(STATION_NAME));
-        Double lat = pdv.getNumber(LATITUDE).doubleValue();
-        Double lon = pdv.getNumber(LONGITUDE).doubleValue();
+        float lat = pdv.getNumber(LATITUDE).floatValue();
+        float lon = pdv.getNumber(LONGITUDE).floatValue();
         loc.assignLocation(lat, lon);
         loc.setElevation(pdv.getNumber(ELEVATION).intValue());
         mr.setLocation(loc);
