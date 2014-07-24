@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MPE Ui Plug-in
 Bundle-SymbolicName: com.raytheon.viz.mpe.ui;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Activator: com.raytheon.viz.mpe.ui.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -33,4 +33,4 @@ Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.colormap.prefs,
  com.raytheon.uf.common.ohd
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
