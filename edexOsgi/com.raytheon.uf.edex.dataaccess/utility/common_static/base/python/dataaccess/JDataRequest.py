@@ -102,6 +102,7 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
         env = None
         jenv = self.jobj.getEnvelope()        
         if jenv:
+            import shapely
             from com.vividsolutions.jts.geom import GeometryFactory
             env = shapely.wkt.loads(GeometryFactory().toGeometry(jenv).toText())
         return env 
