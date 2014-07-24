@@ -19,10 +19,13 @@
  */
 package com.raytheon.uf.edex.ogc.common.jaxb;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,6 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Node;
 
 import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.sun.xml.bind.api.JAXBRIContext;
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 
@@ -45,6 +49,7 @@ import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
  * Mar 30, 2011            bclement    Initial creation
  * Aug 18, 2013  #2097     dhladky     extended JAXBManager
  * Jul 15, 2014  3373      bclement    rewritten to use JAXBManager
+ * Jul 23, 2014            dhladky     restored JAXBElement unwrapping lost in re-write.
  * 
  * </pre>
  * 
@@ -141,7 +146,7 @@ public class OgcJaxbManager extends JAXBManager {
      */
     public Object unmarshal(Node node) throws JAXBException {
         JAXBContext ctx = getJaxbContext();
-        return marshStrategy.unmarshal(ctx, node);
+        return extractJaxbElement(marshStrategy.unmarshal(ctx, node));
     }
 
     /**
@@ -155,6 +160,48 @@ public class OgcJaxbManager extends JAXBManager {
             ParserConfigurationException {
         JAXBContext ctx = getJaxbContext();
         return marshStrategy.marshalToNode(ctx, obj);
+    }
+    
+    /**
+     * Override of JAXB manager, pulls Objects out of JAXBElement
+     * @param xml
+     * @return
+     * @throws JAXBException
+     */
+    public Object unmarshalFromXml(String xml) throws JAXBException {
+        return extractJaxbElement(super.unmarshalFromXml(xml));
+    }
+
+    /**
+     * Override of JAXB manager, pulls Objects out of JAXBElement
+     * @param InputStream
+     * @return
+     * @throws SerializationException
+     */
+    public Object unmarshalFromInputStream(InputStream is) throws SerializationException {
+        return extractJaxbElement(super.unmarshalFromInputStream(is));
+    }
+    
+    /**
+     * OGC override of internalUnmarshalFromXmlFile
+     * @param file
+     *            the file to unmarshal and object from.
+     * @return the object from the file
+     * @throws SerializationException
+     */
+    protected Object internalUnmarshalFromXmlFile(File file)
+            throws SerializationException {
+        return extractJaxbElement(super.internalUnmarshalFromXmlFile(file));
+    }
+    
+    /**
+     * Extracts the Object from the JAXBElement wrapper
+     */
+    private Object extractJaxbElement(Object o) {
+        if (o instanceof JAXBElement<?>) {
+            o = ((JAXBElement<?>) o).getValue();
+        }
+        return o;
     }
 
 }
