@@ -44,11 +44,11 @@ import com.raytheon.uf.edex.plugin.svrwx.SvrWxRecordDao;
 
 /**
  * SvrWx Parser
- *
- *
+ * 
+ * 
  * <pre>
- *
- *
+ * 
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -57,9 +57,10 @@ import com.raytheon.uf.edex.plugin.svrwx.SvrWxRecordDao;
  * Apr 07, 2014 2971       skorolev    Add condition to avoid malformed parts in the message.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed pluginName
  * Jun 25, 2014 3008       nabowle     Refactor for EventReport type
- *
+ * Jul 23, 2014 3410       bclement    location changed to floats
+ * 
  * </pre>
- *
+ * 
  * @author jsanchez
  * @version 1.0
  */
@@ -472,25 +473,25 @@ public class SvrWxParser {
     }
 
     /**
-     * Get the latitude as a double. Northern hemisphere is assumed.
-     *
+     * Get the latitude as a float. Northern hemisphere is assumed.
+     * 
      * @param latlon
      *            The latitude/longitude String.
-     * @return The latitude as a double.
+     * @return The latitude as a float.
      */
-    private double getLat(String latlon) {
-        return Float.parseFloat(parseLat(latlon)) / 100.0D;
+    private float getLat(String latlon) {
+        return Float.parseFloat(parseLat(latlon)) / 100.0f;
     }
 
     /**
-     * Get the longitude as a double. Western hemisphere is assumed.
-     *
+     * Get the longitude as a float. Western hemisphere is assumed.
+     * 
      * @param latlon
      *            The latitude/longitude String.
-     * @return The longitude as a double.
+     * @return The longitude as a float.
      */
-    private double getLon(String latlon) {
-        return Float.parseFloat(parseLon(latlon)) / -100.0D;
+    private float getLon(String latlon) {
+        return Float.parseFloat(parseLon(latlon)) / -100.0f;
     }
 
     /**

@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2009            jkorman     Initial creation
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -46,10 +47,10 @@ public class Airport {
     private String id;
 
     @XmlElement
-    private Double latitude;
+    private Float latitude;
 
     @XmlElement
-    private Double longitude;
+    private Float longitude;
 
     @XmlElement
     private Double elevation;
@@ -98,7 +99,7 @@ public class Airport {
     /**
      * @return the latitude
      */
-    public Double getLatitude() {
+    public Float getLatitude() {
         return latitude;
     }
 
@@ -106,14 +107,14 @@ public class Airport {
      * @param latitude
      *            the latitude to set
      */
-    public void setLatitude(Double latitude) {
+    public void setLatitude(Float latitude) {
         this.latitude = latitude;
     }
 
     /**
      * @return the longitude
      */
-    public Double getLongitude() {
+    public Float getLongitude() {
         return longitude;
     }
 
@@ -121,7 +122,7 @@ public class Airport {
      * @param longitude
      *            the longitude to set
      */
-    public void setLongitude(Double longitude) {
+    public void setLongitude(Float longitude) {
         this.longitude = longitude;
     }
 

@@ -49,7 +49,6 @@ import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.ldad.common.DecodedData;
 import com.raytheon.edex.plugin.ldad.common.LdadField;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.ldadhydro.HydroLdadRecord;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -70,6 +69,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * 10/16/13     DR 16685    M.Porricelli Add error checking for date
  *                                       format
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author vkorolev
@@ -169,12 +169,12 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                                 }
                             }
                             if (nn.equals("_lat")) {
-                                double val = Double.parseDouble(vv);
+                                float val = Float.parseFloat(vv);
                                 location.setLatitude(val);
                                 continue;
                             }
                             if (nn.equals("_lon")) {
-                                double val = Double.parseDouble(vv);
+                                float val = Float.parseFloat(vv);
                                 location.setLongitude(val);
                                 continue;
                             }
@@ -203,7 +203,6 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                            DataTime dt = new DataTime(ot);
                            record.setDataTime(dt);
                            record.setLocation(location);
-                           record.constructDataURI();
                            retVal.add(record);
                         }
                         // logger.info("-------------------------------------------------------");
@@ -219,8 +218,6 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
                 logger.error(traceId + " - SecurityException:" + e);
             } catch (IllegalArgumentException e) {
                 logger.error(traceId + " - IllegalArgumentException:" + e);
-            } catch (PluginException e) {
-                logger.error(traceId + " - PluginException:" + e);
             }
         }
         return retVal.toArray(new PluginDataObject[retVal.size()]);
@@ -242,14 +239,13 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
      * @throws Throwable
      */
 
-    @SuppressWarnings("unchecked")
     public void setProperty(String name, Object obj, String value, String vunit) {
 
         String prop = Character.toUpperCase(name.charAt(0)) + name.substring(1);
         String mname = "set" + prop;
         Object val = null;
         try {
-            Class cls = obj.getClass();
+            Class<?> cls = obj.getClass();
             Field fld = cls.getDeclaredField(name);
             Class<?> clazz = fld.getType();
             // Type filter
@@ -319,11 +315,10 @@ public class HydroDecoder<E> extends AbstractDecoder implements IBinaryDecoder {
     }
 
     // List of Fields in record
-    @SuppressWarnings("unchecked")
     public static void main(String args[]) {
         HydroLdadRecord record = new HydroLdadRecord();
         try {
-            Class cls = record.getClass();
+            Class<?> cls = record.getClass();
 
             Field fieldlist[] = cls.getDeclaredFields();
             for (Field fld : fieldlist) {
