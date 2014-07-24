@@ -6,6 +6,7 @@
 
 %define _swt_version 3.8.1.v3836b
 %define _ui_version 3.8.2.v20121018-234953
+%define _jface_version 3.8.0.v20120912-135020
 #
 # awips2-cave Spec File
 #
@@ -210,7 +211,7 @@ popd > /dev/null 2>&1
 
 pushd . > /dev/null 2>&1
 cd /awips2/cave/plugins
-# Forcefully unzip: org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar
+# Forcefully unzip: org.eclipse.swt.gtk.linux.x86_*.jar
 # : if i386
 if [ -f org.eclipse.swt.gtk.linux.x86_%{_swt_version}.jar ]; then
    mkdir org.eclipse.swt.gtk.linux.x86_%{_swt_version}
@@ -220,7 +221,7 @@ if [ -f org.eclipse.swt.gtk.linux.x86_%{_swt_version}.jar ]; then
    mv org.eclipse.swt.gtk.linux.x86_%{_swt_version} \
       org.eclipse.swt.gtk.linux.x86_%{_swt_version}.jar
 fi
-# Forcefully unzip: org.eclipse.swt.gtk.linux.x86_64_3.6.1.v3655c.jar
+# Forcefully unzip: org.eclipse.swt.gtk.linux.x86_64_*.jar
 # : if x86_64
 if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
    mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
@@ -231,7 +232,7 @@ if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
       org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 fi
 
-# Forcefully unzip: org.eclipse.ui_3.6.1.M20100826-1330.jar
+# Forcefully unzip: org.eclipse.ui_*.jar
 # : for i386 & x86_64
 if [ -f org.eclipse.ui_%{_ui_version}.jar ]; then
    mkdir org.eclipse.ui_%{_ui_version}
@@ -240,6 +241,16 @@ if [ -f org.eclipse.ui_%{_ui_version}.jar ]; then
    rm -f org.eclipse.ui_%{_ui_version}.jar
    mv org.eclipse.ui_%{_ui_version} \
       org.eclipse.ui_%{_ui_version}.jar
+fi
+
+# Forcefully unzip: org.eclipse.jface_*.jar
+if [ -f org.eclipse.jface_%{_jface_version}.jar ]; then
+   mkdir org.eclipse.jface_%{_jface_version}
+   unzip -qq org.eclipse.jface_%{_jface_version}.jar \
+      -d org.eclipse.jface_%{_jface_version}
+   rm -f org.eclipse.jface_%{_jface_version}.jar
+   mv org.eclipse.jface_%{_jface_version} \
+      org.eclipse.jface_%{_jface_version}.jar
 fi
 
 popd > /dev/null 2>&1
