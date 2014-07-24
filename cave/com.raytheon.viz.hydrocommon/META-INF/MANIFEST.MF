@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hydrocommon Plug-in
 Bundle-SymbolicName: com.raytheon.viz.hydrocommon;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
