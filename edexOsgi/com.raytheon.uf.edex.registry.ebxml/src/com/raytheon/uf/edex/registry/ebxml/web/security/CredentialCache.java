@@ -60,15 +60,13 @@ import com.raytheon.uf.edex.security.SecurityConfiguration;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/10/2014    1717        bphillip    Initial creation
+ * 7/24/2014    1712        bphillip    No longer singleton
  * </pre>
  * 
  * @author bphillip
  * @version 1
  **/
 public class CredentialCache {
-
-    /** The singleton instance */
-    private static CredentialCache instance = new CredentialCache();
 
     /** The registry REST services */
     private RegistryRESTServices restServices;
@@ -173,15 +171,6 @@ public class CredentialCache {
      */
     protected CredentialCache() {
 
-    }
-
-    /**
-     * Gets the singleton instance of the Credential cache
-     * 
-     * @return The singleton instance
-     */
-    public static CredentialCache getInstance() {
-        return instance;
     }
 
     /**
