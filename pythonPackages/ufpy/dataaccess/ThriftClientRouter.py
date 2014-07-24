@@ -30,7 +30,8 @@
 #    05/21/13         #2023        dgilling       Initial Creation.
 #    01/06/14         #2537        bsteffen       Share geometry WKT.
 #    03/03/14         #2673        bsteffen       Add ability to query only ref times.
-#    07/22/14        3185          njensen        Added optional/default args to newDataRequest
+#    07/22/14         #3185        njensen        Added optional/default args to newDataRequest
+#    07/23/14         #3185        njensen        Added new methods
 #
 
 
@@ -42,6 +43,11 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import G
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableTimesRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetGeometryDataRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetGridDataRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableParametersRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableLevelsRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetRequiredIdentifiersRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetValidIdentifiersRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetSupportedDatatypesRequest
 
 from ufpy import ThriftClient 
 from ufpy.dataaccess import PyGeometryData
@@ -120,20 +126,28 @@ class ThriftClientRouter(object):
         return response
     
     def getAvailableParameters(self, request):
-        # TODO
-        raise Exception('Not implemented yet')
+        paramReq = GetAvailableParametersRequest()
+        paramReq.setRequestParameters(request)
+        response = self._client.sendRequest(paramReq)
+        return response
     
     def getAvailableLevels(self, request):
-        # TODO
-        raise Exception('Not implemented yet')
+        levelReq = GetAvailableLevelsRequest()
+        levelReq.setRequestParameters(request)
+        response = self._client.sendRequest(levelReq)
+        return response
     
     def getRequiredIdentifiers(self, datatype):
-        # TODO
-        raise Exception('Not implemented yet')
+        idReq = GetRequiredIdentifiersRequest()
+        idReq.setDatatype(datatype)
+        response = self._client.sendRequest(idReq)
+        return response
     
     def getValidIdentifiers(self, datatype):
-        # TODO
-        raise Exception('Not implemented yet')        
+        idReq = GetValidIdentifiersRequest()
+        idReq.setDatatype(datatype)
+        response = self._client.sendRequest(idReq)
+        return response        
 
     def newDataRequest(self, datatype, parameters=[], levels=[], locationNames = [], envelope=None, **kwargs):
         req = DefaultDataRequest()
@@ -152,6 +166,6 @@ class ThriftClientRouter(object):
             req.identifiers = kwargs        
         return req
     
-    def getSupportedDatatypes(self):
-        # TODO
-        raise Exception('Not implemented yet')
+    def getSupportedDatatypes(self):                
+        response = self._client.sendRequest(GetSupportedDatatypesRequest())
+        return response
