@@ -69,6 +69,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Sep 04, 2009             vkorolev    Initial creation
  * May 15, 2013 1869        bsteffen    Remove DataURI column from ldadmesonet.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Jul 23, 2014 3410        bclement    location changed to floats
  * </pre>
  * 
  * @author vkorolev
@@ -79,8 +80,6 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
         IBinaryDecoder {
 
     private static final String BAD_PROPERTY_FMT = "NumberFormatException setting property %s.%s(%s %s)";
-
-    private final String PLUGIN_NAME;
 
     private String traceId = null;
 
@@ -93,7 +92,6 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
     public Properties configFile = new Properties();
 
     public MesonetDecoder(String pluginName) throws DecoderException {
-        PLUGIN_NAME = pluginName;
     }
 
     public void setTraceId(String id) {
@@ -211,12 +209,12 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
                                 }
                             }
                             if ("_lat".equals(nn)) {
-                                double val = Double.parseDouble(vv);
+                                float val = Float.parseFloat(vv);
                                 location.setLatitude(val);
                                 continue;
                             }
                             if ("_lon".equals(nn)) {
-                                double val = Double.parseDouble(vv);
+                                float val = Float.parseFloat(vv);
                                 location.setLongitude(val);
                                 continue;
                             }
@@ -427,7 +425,6 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
     }
 
     // List of Fields in record
-    @SuppressWarnings("unchecked")
     public static void main(String args[]) {
         MesonetLdadRecord record = new MesonetLdadRecord();
         try {
