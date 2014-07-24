@@ -30,10 +30,12 @@ import org.eclipse.jetty.util.security.Credential;
 import org.eclipse.jetty.util.security.Password;
 
 import com.raytheon.uf.common.registry.services.RegistryServiceException;
+import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * 
- * The registry login module used by the Jetty server hosting the registry services
+ * The registry login module used by the Jetty server hosting the registry
+ * services
  * 
  * <pre>
  * 
@@ -42,6 +44,7 @@ import com.raytheon.uf.common.registry.services.RegistryServiceException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/10/2014    1717        bphillip    Initial creation
+ * 7/24/2014    1712       bphillip    Spring injection of CredentialCache
  * </pre>
  * 
  * @author bphillip
@@ -49,24 +52,33 @@ import com.raytheon.uf.common.registry.services.RegistryServiceException;
  **/
 public class RegistryLoginModule extends AbstractLoginModule {
 
+    /** Cache of user credentials */
+    private CredentialCache credentialCache;
+
     /**
      * Creates a new RegistryLoginModule
      */
     public RegistryLoginModule() {
         super();
+        /*
+         * This class is instantiated via reflection by the Jetty server. Therefore
+         * direct spring injection is not possible
+         */
+        this.credentialCache = (CredentialCache) EDEXUtil
+                .getESBComponent("credentialCache");
     }
 
     @Override
-    public UserInfo getUserInfo(final String userName)  {
+    public UserInfo getUserInfo(final String userName) {
         String[] user = null;
         try {
-            user = CredentialCache.getInstance().getUser(userName);
+            user = credentialCache.getUser(userName);
         } catch (RegistryServiceException e) {
             throw new WebServiceException("User [" + userName
-                    + " Not authorized!",e);
+                    + " Not authorized!", e);
         }
-        for(String userField:user){
-            if(userField == null){
+        for (String userField : user) {
+            if (userField == null) {
                 throw new WebServiceException("User [" + userName
                         + " Not authorized!");
             }
