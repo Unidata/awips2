@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Aug 15, 2013 2258       bsteffen    Convert profiler sounding to var height
  *                                     with hodo.
  * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * 
  * </pre>
  * 
@@ -168,8 +169,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                     Object[] cols = (Object[]) row;
                     SurfaceObsLocation loc = new SurfaceObsLocation();
                     loc.setStationId(cols[0].toString());
-                    loc.setLatitude((Double) cols[1]);
-                    loc.setLongitude((Double) cols[2]);
+                    loc.setLatitude(((Number) cols[1]).floatValue());
+                    loc.setLongitude(((Number) cols[2]).floatValue());
                     locs[i++] = loc;
                 }
                 availableStations.put(sourceKey, locs);
@@ -195,8 +196,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         }
 
         SurfaceObsLocation target = new SurfaceObsLocation();
-        target.setLatitude(coordinate.y);
-        target.setLongitude(coordinate.x);
+        target.setLatitude((float) coordinate.y);
+        target.setLongitude((float) coordinate.x);
         int index = Arrays.binarySearch(availableStations, target,
                 locComparator);
         if (index < 1) {
