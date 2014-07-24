@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 05, 2013 2316       bsteffen    Unify airep and ncairep.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed PLUGIN_NAME
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author F. J. Yen
@@ -143,8 +144,8 @@ public class AirepDecoder extends AbstractDecoder {
                 record.setReportData(parser.getReportData());
                 location.setStationId(parser.getAircraftId());
                 record.setReportType(parser.getReportType());
-                location.setLatitude(parser.getLatitude());
-                location.setLongitude(parser.getLongitude());
+                location.setLatitude(parser.getLatitude().floatValue());
+                location.setLongitude(parser.getLongitude().floatValue());
                 location.setFlightLevel(parser.getFlightLevel());
                 location.setLocation(parser.getLatitude(),
                         parser.getLongitude());
