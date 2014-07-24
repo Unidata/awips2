@@ -3,9 +3,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 	
+	<bean id="registryPasswordCallback" class="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback">
+		<property name="credentialCache" ref="credentialCache"/>
+	</bean>
+	
 	<bean id="credentialCache"
-		class="com.raytheon.uf.edex.registry.ebxml.web.security.CredentialCache"
-		factory-method="getInstance">
+		class="com.raytheon.uf.edex.registry.ebxml.web.security.CredentialCache">
 		<property name="restServices" ref="registryRestClient" />
 		<property name="personDao" ref="personDao" />
 		<property name="txTemplate" ref="metadataTxTemplate" />
@@ -18,6 +21,7 @@
 		<property name="serviceConfig" ref="RegistryServiceConfig" />
 		<property name="securityConfig" ref="securityConfiguration" />
 	</bean>
+	
 	<bean id="registryWebServiceClient"
 		class="com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices">
 		<property name="securityInterceptor" ref="securityOutInterceptor" />
@@ -30,11 +34,6 @@
 
 	<bean id="webServiceInInterceptor"
 		class="com.raytheon.uf.edex.registry.ebxml.services.RegistryServiceInInterceptor" />
-		
-	<bean id="xacmlInterceptor" class="com.raytheon.uf.edex.registry.acp.xacml.XACMLInterceptor">
-		<constructor-arg ref="XACMLPolicyAdministrator"/>
-		<constructor-arg ref="XACMLPolicyDecisionPoint"/>
-	</bean>
 	
 	<bean id="authenticationInterceptor" class="org.apache.cxf.interceptor.security.JAASLoginInterceptor">
    		<property name="contextName" value="RegistryRealm"/>
@@ -52,13 +51,32 @@
 				<entry key="user" value="${edex.security.keystore.alias}" />
 				<entry key="signaturePropRefId" value="propRef"/>
 				<entry key="propRef"  value-ref="encryptedPropertyLoader"/>
-				<entry key="passwordCallbackClass"
-					value="com.raytheon.uf.edex.registry.ebxml.acp.PasswordCallback" />
+				<entry key="passwordCallbackRef">
+					<ref bean="registryPasswordCallback"/>
+				</entry>
 				<entry key="signatureParts"
 					value="{Element}{http://schemas.xmlsoap.org/soap/envelope/}Body" />
 				<entry key="signatureAlgorithm" value="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
 			</map>
 		</constructor-arg>
+	</bean>
+	
+	<bean id="registryJaxbManager" class="com.raytheon.uf.common.registry.RegistryJaxbManager">
+		<constructor-arg ref="registryNamespaceMapper"/>
+	</bean>
+	
+	<bean id="registryNamespaceMapper" class="com.raytheon.uf.common.registry.RegistryNamespaceMapper"/>
+	
+	<bean id="objectReferenceResolver" class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.ObjectReferenceResolver">
+		<property name="registryObjectDao" ref="registryObjectDao"/>
+		<property name="dynamicRefDao" ref="dynamicObjectRefDao"/>
+		<property name="queryManager" ref="queryServiceImpl"/>
+		<property name="registryRestClient" ref="registryRestClient"/>
+	</bean>
+	
+	<bean id="registryXpathProcessor" class="com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor">
+		<constructor-arg ref="registryJaxbManager"/>
+		<constructor-arg ref="registryNamespaceMapper"/>
 	</bean>
 
 	<!-- QUERY -->
