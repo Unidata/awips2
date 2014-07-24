@@ -22,15 +22,27 @@
 
 __all__ = [
             'AbstractDataAccessRequest',
+            'AbstractIdentifierRequest',
+            'GetAvailableLevelsRequest',
             'GetAvailableLocationNamesRequest',
+            'GetAvailableParametersRequest',
             'GetAvailableTimesRequest',
             'GetGeometryDataRequest',
-            'GetGridDataRequest'
+            'GetGridDataRequest',
+            'GetRequiredIdentifiersRequest',
+            'GetSupportedDatatypesRequest',
+            'GetValidIdentifiersRequest'
           ]
 
 from AbstractDataAccessRequest import AbstractDataAccessRequest
+from AbstractIdentifierRequest import AbstractIdentifierRequest
+from GetAvailableLevelsRequest import GetAvailableLevelsRequest
 from GetAvailableLocationNamesRequest import GetAvailableLocationNamesRequest
+from GetAvailableParametersRequest import GetAvailableParametersRequest
 from GetAvailableTimesRequest import GetAvailableTimesRequest
 from GetGeometryDataRequest import GetGeometryDataRequest
 from GetGridDataRequest import GetGridDataRequest
+from GetRequiredIdentifiersRequest import GetRequiredIdentifiersRequest
+from GetSupportedDatatypesRequest import GetSupportedDatatypesRequest
+from GetValidIdentifiersRequest import GetValidIdentifiersRequest
 
