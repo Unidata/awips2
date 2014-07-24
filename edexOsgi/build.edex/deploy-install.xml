@@ -109,6 +109,11 @@
 				</for>
 		    </then>
 		</if>
+        <tstamp>
+            <format property="TIMESTAMP_COMPLETE" pattern="d-MMM-yyyy h:mm:ss a"
+                locale="en,US" />
+        </tstamp>
+        <echo message="Deploy Complete: ${TIMESTAMP_COMPLETE}" />
 	</target>
 	
 	<!-- public -->
