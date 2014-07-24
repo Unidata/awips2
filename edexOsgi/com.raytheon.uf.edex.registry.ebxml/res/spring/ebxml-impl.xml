@@ -1,8 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
-	
-	<bean id="encryption" class="com.raytheon.uf.common.security.encryption.AESEncryptor"/>
 
 	<bean id="edexRegistryManagerFactory"
 		class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManagerFactory">
@@ -39,25 +37,6 @@
 		<constructor-arg ref="AuditableEventTypeDao" />
 		<constructor-arg ref="slotTypeDao"/>
 	</bean>
-	
-	<bean id="objectReferenceResolver" class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.ObjectReferenceResolver">
-		<property name="registryObjectDao" ref="registryObjectDao"/>
-		<property name="dynamicRefDao" ref="dynamicObjectRefDao"/>
-		<property name="queryManager" ref="queryServiceImpl"/>
-		<property name="registryRestClient" ref="registryRestClient"/>
-	</bean>
-	
-	<bean id="registryXpathProcessor" class="com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor">
-		<constructor-arg ref="registryJaxbManager"/>
-		<constructor-arg ref="registryNamespaceMapper"/>
-	</bean>
-	
-	<bean id="registryJaxbManager" class="com.raytheon.uf.common.registry.RegistryJaxbManager">
-		<constructor-arg ref="registryNamespaceMapper"/>
-	</bean>
-	
-	<bean id="registryNamespaceMapper" class="com.raytheon.uf.common.registry.RegistryNamespaceMapper"/>
-    
          
     <!--  Util to get the IDS of the Registry server nodes -->
     <bean id="registryIdUtil"
