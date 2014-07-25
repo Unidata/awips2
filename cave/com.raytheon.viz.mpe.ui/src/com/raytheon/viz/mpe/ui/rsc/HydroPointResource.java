@@ -22,6 +22,7 @@ package com.raytheon.viz.mpe.ui.rsc;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -42,6 +43,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2009            snaples     Initial creation
  * Jul 22, 2014 #3422      mapeters    Updated deprecated drawFilledCircle() call.
+ * Jul 24, 2014 #3429      mapeters    Updated deprecated drawLine() calls.
  * </pre>
  * 
  * @author snaples
@@ -98,15 +100,20 @@ public abstract class HydroPointResource <T extends HydroPointResourceData<?>> e
         if (pixels != null) {
             RGB color = getCapability(ColorableCapability.class).getColor();
             if (getStyle() == Style.STAR) {
-                target.drawLine(pixels[0], pixels[1] - LINE_LENGTH, 0.0,
-                        pixels[0], pixels[1] + LINE_LENGTH, 0.0, color,
-                        getLineWidth());
-                target.drawLine(pixels[0] - LINE_LENGTH, pixels[1]
-                        + LINE_LENGTH, 0.0, pixels[0] + LINE_LENGTH, pixels[1]
-                        - LINE_LENGTH, 0.0, color, getLineWidth());
-                target.drawLine(pixels[0] - LINE_LENGTH, pixels[1]
-                        - LINE_LENGTH, 0.0, pixels[0] + LINE_LENGTH, pixels[1]
-                        + LINE_LENGTH, 0.0, color, getLineWidth());
+                DrawableLine[] lines = new DrawableLine[3];
+                lines[0] = new DrawableLine();
+                lines[0].setCoordinates(pixels[0], pixels[1] - LINE_LENGTH);
+                lines[0].addPoint(pixels[0], pixels[1] + LINE_LENGTH);
+                lines[0].basics.color = color;
+                lines[1] = new DrawableLine();
+                lines[1].setCoordinates(pixels[0] - LINE_LENGTH, pixels[1] + LINE_LENGTH);
+                lines[1].addPoint(pixels[0] + LINE_LENGTH, pixels[1] - LINE_LENGTH);
+                lines[1].basics.color = color;
+                lines[2] = new DrawableLine();
+                lines[2].setCoordinates(pixels[0] - LINE_LENGTH, pixels[1] - LINE_LENGTH);
+                lines[2].addPoint(pixels[0] + LINE_LENGTH, pixels[1] + LINE_LENGTH);
+                lines[2].basics.color = color;
+                target.drawLine(lines);
             } else if (getStyle() == Style.RECTANGLE) {
                 target.drawShadedRect(paintProps.getView().getExtent(), color,
                         1.0, null);

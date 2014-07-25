@@ -29,6 +29,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.GSMBlock.GSMMessage;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
@@ -54,7 +55,8 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 13, 2010            mnash     Initial creation
- * 03/01/2013   DR 15496   zwang     Handled expanded GSM, display more status 
+ * 03/01/2013   DR 15496   zwang     Handled expanded GSM, display more status
+ * 07/24/2014   #3429      mapeters  Updated deprecated drawLine() calls.
  * 
  * </pre>
  * 
@@ -328,9 +330,14 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
             }
 
             int height = 780;
+            List<DrawableLine> lines = new ArrayList<DrawableLine>(
+                    theTemp.size() + 8);
             for (int i = 0; i < theTemp.size(); i++) {
-                target.drawLine(xOffset + 50, height, 0, 800, height - i
-                        * lineSpace, 0, color, 1);
+                DrawableLine line = new DrawableLine();
+                line.setCoordinates(xOffset + 50, height);
+                line.addPoint(800, height - i * lineSpace);
+                line.basics.color = color;
+                lines.add(line);
                 drawNexradString(
                         String.valueOf(theTemp.get(theTemp.size() - 1 - i)),
                         800, height - i * lineSpace - 10, target, color);
@@ -340,14 +347,14 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
 
             yOffset = height + lineSpace;
             // first box
-            target.drawLine(xOffset, yOffset, 0, xOffset + 200, yOffset, 0,
-                    color, 1);
-            target.drawLine(xOffset, yOffset, 0, xOffset, yOffset + boxHeight,
-                    0, color, 1);
-            target.drawLine(xOffset + 200, yOffset, 0, xOffset + 200, yOffset
-                    + boxHeight, 0, color, 1);
-            target.drawLine(xOffset, yOffset + boxHeight, 0, xOffset + 200,
-                    yOffset + boxHeight, 0, color, 1);
+            DrawableLine box1 = new DrawableLine();
+            box1.setCoordinates(xOffset, yOffset);
+            box1.addPoint(xOffset + 200, yOffset);
+            box1.addPoint(xOffset + 200, yOffset + boxHeight);
+            box1.addPoint(xOffset, yOffset + boxHeight);
+            box1.addPoint(xOffset, yOffset);
+            box1.basics.color = color;;
+            lines.add(box1);
             drawNexradString(rda_tdwr, xOffset + 85, yOffset + halfHeight,
                     target, color);
 
@@ -361,24 +368,29 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                     || (message.getRdaStatus() & RDA_STATUS_OFFLINE) != 0)
                 rdaDown = true;
             if (!rdaDown) {
-                target.drawLine(xOffset + 200, yOffset + halfHeight, 0,
-                        xOffset + 300, yOffset + halfHeight, 0, color, 1);
-                target.drawLine(xOffset + 300, yOffset + halfHeight, 0,
-                        xOffset + 280, yOffset + halfHeight - 10, 0, color, 1);
-                target.drawLine(xOffset + 300, yOffset + halfHeight, 0,
-                        xOffset + 280, yOffset + halfHeight + 10, 0, color, 1);
+                DrawableLine arrow1line = new DrawableLine();
+                arrow1line.setCoordinates(xOffset + 200, yOffset + halfHeight);
+                arrow1line.addPoint(xOffset + 300, yOffset + halfHeight);
+                arrow1line.basics.color = color;
+                DrawableLine arrow1head = new DrawableLine();
+                arrow1head.setCoordinates(xOffset + 280, yOffset + halfHeight - 10);
+                arrow1head.addPoint(xOffset + 300, yOffset + halfHeight);
+                arrow1head.addPoint(xOffset + 280, yOffset + halfHeight + 10);
+                arrow1head.basics.color = color;
+                lines.add(arrow1line);
+                lines.add(arrow1head);
             }
-
             xOffset += 300;
             // second box
-            target.drawLine(xOffset, yOffset, 0, xOffset + 200, yOffset, 0,
-                    color, 1);
-            target.drawLine(xOffset, yOffset, 0, xOffset, yOffset + boxHeight,
-                    0, color, 1);
-            target.drawLine(xOffset + 200, yOffset, 0, xOffset + 200, yOffset
-                    + boxHeight, 0, color, 1);
-            target.drawLine(xOffset, yOffset + boxHeight, 0, xOffset + 200,
-                    yOffset + boxHeight, 0, color, 1);
+            DrawableLine box2 = new DrawableLine();
+            box2.setCoordinates(xOffset, yOffset);
+            box2.addPoint(xOffset + 200, yOffset);
+            box2.addPoint(xOffset + 200, yOffset + boxHeight);
+            box2.addPoint(xOffset, yOffset + boxHeight);
+            box2.addPoint(xOffset, yOffset);
+            box2.basics.color = color;;
+            lines.add(box2);
+            
             drawNexradString(rpg_spg, xOffset + 85, yOffset + halfHeight,
                     target, color);
 
@@ -386,29 +398,37 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                     || dedicatedComms.equals("Disconnected"))
                 rpgDown = true;
             if (!rpgDown) {
-                target.drawLine(xOffset + 200, yOffset + halfHeight, 0,
-                        xOffset + 300, yOffset + halfHeight, 0, color, 1);
-                target.drawLine(xOffset + 300, yOffset + halfHeight, 0,
-                        xOffset + 280, yOffset + halfHeight - 10, 0, color, 1);
-                target.drawLine(xOffset + 300, yOffset + halfHeight, 0,
-                        xOffset + 280, yOffset + halfHeight + 10, 0, color, 1);
-
-                target.drawLine(xOffset + 200, yOffset + halfHeight, 0,
-                        xOffset + 220, yOffset + halfHeight - 10, 0, color, 1);
-                target.drawLine(xOffset + 200, yOffset + halfHeight, 0,
-                        xOffset + 220, yOffset + halfHeight + 10, 0, color, 1);
+                DrawableLine arrow2line = new DrawableLine();
+                arrow2line.setCoordinates(xOffset + 200, yOffset + halfHeight);
+                arrow2line.addPoint(xOffset + 300, yOffset + halfHeight);
+                arrow2line.basics.color = color;
+                DrawableLine arrow2head1 = new DrawableLine();
+                arrow2head1.setCoordinates(xOffset + 280, yOffset + halfHeight - 10);
+                arrow2head1.addPoint(xOffset + 300, yOffset + halfHeight);
+                arrow2head1.addPoint(xOffset + 280, yOffset + halfHeight + 10);
+                arrow2head1.basics.color = color;
+                DrawableLine arrow2head2 = new DrawableLine();
+                arrow2head2.setCoordinates(xOffset + 220, yOffset + halfHeight - 10);
+                arrow2head2.addPoint(xOffset + 200, yOffset + halfHeight);
+                arrow2head2.addPoint(xOffset + 220, yOffset + halfHeight + 10);
+                arrow2head2.basics.color = color;
+                lines.add(arrow2line);
+                lines.add(arrow2head1);
+                lines.add(arrow2head2);
             }
-
             xOffset += 300;
             // third box
-            target.drawLine(xOffset, yOffset, 0, xOffset + 200, yOffset, 0,
-                    color, 1);
-            target.drawLine(xOffset, yOffset, 0, xOffset, yOffset + boxHeight,
-                    0, color, 1);
-            target.drawLine(xOffset + 200, yOffset, 0, xOffset + 200, yOffset
-                    + boxHeight, 0, color, 1);
-            target.drawLine(xOffset, yOffset + boxHeight, 0, xOffset + 200,
-                    yOffset + boxHeight, 0, color, 1);
+            DrawableLine box3 = new DrawableLine();
+            box3.setCoordinates(xOffset, yOffset);
+            box3.addPoint(xOffset + 200, yOffset);
+            box3.addPoint(xOffset + 200, yOffset + boxHeight);
+            box3.addPoint(xOffset, yOffset + boxHeight);
+            box3.addPoint(xOffset, yOffset);
+            box3.basics.color = color;;
+            lines.add(box3);
+            
+            target.drawLine(lines.toArray(new DrawableLine[0]));
+
             drawNexradString("WFO", xOffset + 85, yOffset + 58, target, color);
         }
     }
