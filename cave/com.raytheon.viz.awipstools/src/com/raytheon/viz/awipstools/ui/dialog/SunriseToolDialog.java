@@ -77,6 +77,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 25May2010    5603        bkowal      Added additional timezones based on the timezones
  *                                      that were present in AWIPSI.
  * 11Jul2012    875         rferrel     Now uses PointsDataManager
+ * 25 Jul 2014  #3400       lvenable    Modified the shell style to remove the application modal setting.
+ * 
  * </pre>
  * 
  * @author Eric Babin
@@ -218,6 +220,10 @@ public class SunriseToolDialog extends CaveJFACEDialog {
     public SunriseToolDialog(Shell parShell, String dialogTitle)
             throws VizException {
         super(parShell);
+
+        // Remove Application Modal from the JFace shell style.
+        setShellStyle(getShellStyle() & ~SWT.APPLICATION_MODAL);
+
         parentShell = parShell;
         this.title = dialogTitle;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddzZ");
