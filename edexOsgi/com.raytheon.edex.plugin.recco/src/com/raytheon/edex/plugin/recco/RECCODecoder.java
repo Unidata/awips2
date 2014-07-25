@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Nov 25, 2008 1684       chammack    Camel Refactor
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed PLUGIN_NAME
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author jkorman
