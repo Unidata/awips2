@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * ------------ ---------- ----------- --------------------------
  * 20080103            384 jkorman     Initial Coding.
  * May 14, 2014 2536       bclement    removed TimeTools usage
+ * Jul 23, 2014 3410       bclement    location changed to floats
  * </pre>
  * 
  * @author dweeks
@@ -71,9 +72,9 @@ public class ReccoParser {
 
     private Integer quadrant = null;
 
-    private Double latitude = null;
+    private float latitude = Float.NaN;
 
-    private Double longitude = null;
+    private float longitude = Float.NaN;
 
     private Calendar observationTime = null;
 
@@ -204,7 +205,7 @@ public class ReccoParser {
             if (m.find()) {
                 dayOfWeek = DecoderTools.getInt(s, 0, 1);
                 quadrant = DecoderTools.getInt(s, 1, 2);
-                latitude = DecoderTools.getInt(s, 2, 5).doubleValue() / 10.0;
+                latitude = DecoderTools.getInt(s, 2, 5).floatValue() / 10.0f;
                 idx++;
             } else {
                 idx = -1;
@@ -221,7 +222,7 @@ public class ReccoParser {
             Pattern rptPattern = Pattern.compile(LAT_PATTERN);
             Matcher m = rptPattern.matcher(s);
             if (m.find()) {
-                longitude = DecoderTools.getInt(s, 0, 3).doubleValue() / 10.0;
+                longitude = DecoderTools.getInt(s, 0, 3).floatValue() / 10.0f;
 
                 idx++;
             } else {
@@ -478,11 +479,11 @@ public class ReccoParser {
         return location;
     }
 
-    public double getLatitude() {
+    public float getLatitude() {
         return latitude;
     }
 
-    public double getLongitude() {
+    public float getLongitude() {
         return longitude;
     }
 
