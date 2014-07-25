@@ -20,13 +20,16 @@
 
 package com.raytheon.viz.core.graphing.axis;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -47,6 +50,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 24Oct2006				Phillippe	Initial Creation      
  * Oct 2007                 njensen     Major refactor
+ * 24Jul2014    3429        mapeters    Updated deprecated drawLine() calls.
  * 
  * </pre>
  * 
@@ -119,7 +123,8 @@ public class NumberAxis extends Axis {
         // Draws the axes
         target.drawRect(new PixelExtent(graphArea), DEFAULT_AXIS_COLOR, 1.0f,
                 1.0);
-
+        
+        List<DrawableLine> lines = new ArrayList<DrawableLine>();
         if (orientation == IAxis.Orientation.VERTICAL) {
 
             double maxLabelWidth = 0.0;
@@ -154,9 +159,13 @@ public class NumberAxis extends Axis {
                             double x = graphArea.x;
                             double x2 = graphArea.x + graphArea.width;
 
-                            target.drawLine(x, y, 0.0, x2, y, 0.0,
-                                    DEFAULT_AXIS_COLOR, lineWeight,
-                                    labelLineStyle);
+                            DrawableLine line = new DrawableLine();
+                            line.setCoordinates(x, y);
+                            line.addPoint(x2, y);
+                            line.basics.color = DEFAULT_AXIS_COLOR;
+                            line.width = lineWeight;
+                            line.lineStyle = labelLineStyle;
+                            lines.add(line);
                         }
 
                         yPos = y
@@ -169,9 +178,13 @@ public class NumberAxis extends Axis {
                                             labeling.getLabel(labelVal))
                                             .getWidth();
 
-                            target.drawLine(x, y, 0.0, x2, y, 0.0,
-                                    DEFAULT_AXIS_COLOR, lineWeight,
-                                    labelLineStyle);
+                            DrawableLine line = new DrawableLine();
+                            line.setCoordinates(x, y);
+                            line.addPoint(x2, y);
+                            line.basics.color = DEFAULT_AXIS_COLOR;
+                            line.width = lineWeight;
+                            line.lineStyle = labelLineStyle;
+                            lines.add(line);
                         }
 
                         target.drawString(font, labeling.getLabel(labelVal),
@@ -221,17 +234,27 @@ public class NumberAxis extends Axis {
                     if (drawLinesAtLabels) {
                         double y = graphArea.y;
 
-                        target.drawLine(x, y, 0.0, x, yEnd, 0.0,
-                                DEFAULT_AXIS_COLOR, lineWeight, labelLineStyle);
+                        DrawableLine line = new DrawableLine();
+                        line.setCoordinates(x, y);
+                        line.addPoint(x, yEnd);
+                        line.basics.color = DEFAULT_AXIS_COLOR;
+                        line.width = lineWeight;
+                        line.lineStyle = labelLineStyle;
+                        lines.add(line);
                     }
                     if (drawTickmarksAtLabels) {
                         double y = yPos
                                 - target.getStringBounds(null,
                                         labeling.getLabel(labelVal))
                                         .getHeight();
-
-                        target.drawLine(x, y, 0.0, x, yEnd, 0.0,
-                                DEFAULT_AXIS_COLOR, lineWeight, labelLineStyle);
+                        
+                        DrawableLine line = new DrawableLine();
+                        line.setCoordinates(x, y);
+                        line.addPoint(x, yEnd);
+                        line.basics.color = DEFAULT_AXIS_COLOR;
+                        line.width = lineWeight;
+                        line.lineStyle = labelLineStyle;
+                        lines.add(line);
                     }
 
                     target.drawString(font, labeling.getLabel(labelVal), xPos,
@@ -241,7 +264,8 @@ public class NumberAxis extends Axis {
             }
 
         }
-
+        target.drawLine(lines.toArray(new DrawableLine[0]));
+        
         if (font != target.getDefaultFont()) {
             font.dispose();
         }
