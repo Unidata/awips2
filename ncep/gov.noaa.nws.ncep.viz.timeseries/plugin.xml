@@ -1,55 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=NCTools">
-           <menu
-                id="SWPC"
-                label="SWPC"
-                mnemonic="S">
-             <visibleWhen>
-                <reference
-                      definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
-                </reference>
-             </visibleWhen>
-               <!--menu
-                  id="H-alpha"
-                  label="H-alpha Images" >
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.rsc.fits.actions.loadHalphaImage"
-                     id="gov.noaa.nws.ncep.viz.rsc.fits.actions.Halpha"
-                     label="NSO/GONG"
-                     style="push"
-                     tooltip="Load NSO/GONG H-alpha Images">
-                     <parameter
-                       name="instrument"
-                       value="notSureYet">
-                     </parameter>
-                  </command>
-               </menu-->
-               <command
-                     commandId="gov.noaa.nws.ncep.viz.timeseries.actions.GeoMagPlotAction"
-                     id = "gov.noaa.nws.ncep.viz.timeseries.acttions.GeoMagPlotAction"
-                     label="Magnetometer Plots"
-                     style="push"
-                     mnemonic="u">
-               </command>
-               <!--menu
-                  id="Time Series Example"
-                  label="Time Series" >
-                  <command
-                     commandId="gov.noaa.nws.ncep.viz.timeseries.actions.loadTimeSeries"
-                     id="gov.noaa.nws.ncep.viz.timeseries.actions.TimeSeries"
-                     label="Ground Magnetometer Plot"
-                     style="push"
-                     tooltip="Load H/D component Graph">
-                  </command>
-               </menu-->
-           </menu>
-      </menuContribution>
-   </extension>
 
    <extension
          point="org.eclipse.ui.commands">
