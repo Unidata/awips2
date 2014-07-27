@@ -117,24 +117,6 @@
       </handler>
    </extension>
    <extension
-         point="org.eclipse.ui.menus">
-         <menuContribution
-            locationURI="menu:CAVE?after=browsers">
-            <separator
-                  name="com.raytheon.uf.viz.collaboration.ui.separator"
-                  visible="true">
-            </separator>
-      </menuContribution>
-      <menuContribution
-            locationURI="menu:CAVE?after=com.raytheon.uf.viz.collaboration.ui.separator">
-         <command
-                 commandId="com.raytheon.uf.viz.collaboration.collaborationBrowser"
-                 label="Collaboration"
-                 style="push">
-         </command>
-      </menuContribution>
-   </extension>
-   <extension
          point="com.raytheon.viz.ui.editorMenuAddition">
       <editorMenuAddition
             class="com.raytheon.uf.viz.collaboration.ui.actions.ShareEditorAction"
