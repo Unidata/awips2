@@ -24,7 +24,7 @@
 			<substitute key="source" value="NLDN"/>
 		</contribute>
 	</contribute>
-    <contribute xsi:type="subMenu" menuText="NLDN Grid" id="entlnGridSubmenu">
+    <contribute xsi:type="subMenu" menuText="NLDN Grid" id="nldnGridSubmenu">
         <contribute xsi:type="subinclude" fileName="menus/lightning/gridLightningMenuItems.xml">
             <substitute key="source" value="NLDN"/>
         </contribute>
@@ -34,7 +34,7 @@
 			<substitute key="source" value="GLD"/>
 		</contribute>
 	</contribute>	
-    <contribute xsi:type="subMenu" menuText="GLD Grid" id="entlnGridSubmenu">
+    <contribute xsi:type="subMenu" menuText="GLD Grid" id="GLDGridSubmenu">
         <contribute xsi:type="subinclude" fileName="menus/lightning/gridLightningMenuItems.xml">
             <substitute key="source" value="GLD"/>
         </contribute>
