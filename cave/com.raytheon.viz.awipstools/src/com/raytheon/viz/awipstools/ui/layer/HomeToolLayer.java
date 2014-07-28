@@ -40,8 +40,8 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -70,6 +70,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  15Jan2007                ebabin     Update for lat/lon put home cursor bug.
  *  10-21-09     #1049       bsteffen    Refactor to common MovableTool model
  *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
+ *  28Jul2014    3430        mapeters    Updated move function to prevent errors when
+ *                                       MB3 clicking off the map in editable mode.
  * </pre>
  * 
  * @author ebabin
@@ -263,8 +265,9 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
 
     @Override
     protected Coordinate move(Coordinate lastMouseLoc, Coordinate mouseLoc,
-            Coordinate object) {
-        return new Coordinate(mouseLoc != null ? mouseLoc : lastMouseLoc);
+            Coordinate lastHomeLoc) {
+        return (lastMouseLoc == null) ? lastHomeLoc : new Coordinate(
+                mouseLoc != null ? mouseLoc : lastMouseLoc);
     }
 
     @Override
