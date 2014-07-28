@@ -216,7 +216,7 @@ public class CreateRbdControl extends Composite {
     
     private TimelineControl timelineControl = null;
     
-    private final String ImportFromSPF = "Import RBD";
+    private final String ImportFromSPF = "Import Bundle";
 //    private final String[] StandardZoomLevels = {"1", "1.5","2","3","5","7.5","10","15","20","30"};
       
     private static Map<String, String> gempakProjMap = 
@@ -406,7 +406,7 @@ public class CreateRbdControl extends Composite {
     	import_rbd_btn = new Button( rbd_grp, SWT.PUSH );
     	import_rbd_btn.setText(ImportFromSPF);
     	FormData form_data = new FormData();
-    	form_data.width = 90;
+    	form_data.width = 120;
     	form_data.top = new FormAttachment( 0, 10 );
     	form_data.left  = new FormAttachment( 0, 10 );
     	import_rbd_btn.setLayoutData( form_data );
@@ -982,8 +982,8 @@ public class CreateRbdControl extends Composite {
    					if( rbdMngr.isRbdModified() ) {
    			    		MessageDialog confirmDlg = new MessageDialog( 
    			    				shell, "Confirm", null, 
-   			    				"This RBD has been modified.\n\n"+
-   			    				"Do you want to clear the current RBD selections?",
+   			    				"This Bundle has been modified.\n\n"+
+   			    				"Do you want to clear the current Bundle selections?",
    			    				MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
    			    		confirmDlg.open();
 
@@ -1955,7 +1955,7 @@ public class CreateRbdControl extends Composite {
 			MessageDialog confirmDlg = new MessageDialog( 
 					shell, "Confirm", null, 
 					"The will remove all resources selections\n"+
-					"from all panes in this RBD. \n\n"+
+					"from all panes in this Bundle. \n\n"+
 					"Are you sure you want to do this?",
 					MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
 			confirmDlg.open();
@@ -2083,7 +2083,7 @@ public class CreateRbdControl extends Composite {
     		rbdBndl.resolveDominantResource();
     		    
     		ResourceBndlLoader rbdLoader = null;
-    		rbdLoader = new ResourceBndlLoader("RBD Previewer");
+    		rbdLoader = new ResourceBndlLoader("Bundle Previewer");
 
     		// TODO : Allow the user to define preferences such as 
     		// whether to prompt when re-loading into an existing editor,
@@ -2180,7 +2180,7 @@ public class CreateRbdControl extends Composite {
     		}
 
     		if( editor == null ) {
-    			throw new VizException("Unable to create a display to load the RBD.");
+    			throw new VizException("Unable to create a display to load the Bundle.");
     		}
     		
 			NcDisplayMngr.bringToTop(editor);
