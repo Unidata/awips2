@@ -87,6 +87,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  06-14-10    #6360        bkowal      Ensured that the position of the tool would not
  *                                       be changed twice when the user pressed [1] and
  *                                       released [2] the right-mouse button.
+ *  07-28-14    #3430        mapeters    Updated the 'handleMouseUp' function to prevent
+ *                                       errors created when MB3 clicking off the map
+ *                                       in editable mode.
  * 
  * </pre>
  * 
@@ -132,6 +135,11 @@ public class AzimuthToolLayer extends
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (nextCoordinate != null || (mouseButton == 3 && isEditable())) {
                 currCoordinate = getResourceContainer().translateClick(x, y);
+
+                if (currCoordinate == null) {
+                    return false;
+                }
+
                 centerPixel = descriptor.worldToPixel(new double[] {
                         currCoordinate.x, currCoordinate.y });
                 nextCoordinate = null;
