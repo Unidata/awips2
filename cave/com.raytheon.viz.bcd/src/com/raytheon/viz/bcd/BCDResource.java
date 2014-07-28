@@ -40,7 +40,6 @@ import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.datastructure.WireframeCache;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -71,6 +70,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    1/10/08       562         bphillip    Modified to handle .bcx files
  *    02/11/09                  njensen     Refactored to new rsc architecture
  *    07/31/12      DR 14935    D. Friedman Handle little-endian files
+ *    Jul 28, 2014  3397        bclement    switched to non deprecated version of createWireframeShape()
+ *                                          now closes on FileInputStream instead of FileChannel in initInternal()
  * 
  * </pre>
  * 
@@ -153,7 +154,7 @@ public class BCDResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        FileChannel fc = null;
+        FileInputStream fis = null;
         try {
 
             if (this.resourceData.getFilename().endsWith("bcx")) {
@@ -167,14 +168,7 @@ public class BCDResource extends
 
                 this.gridGeometry = descriptor.getGridGeometry();
                 wireframeShape = target.createWireframeShape(true, descriptor,
-                        0.0f, true, new PixelExtent(descriptor
-                                .getGridGeometry().getGridRange().getLow(0),
-                                descriptor.getGridGeometry().getGridRange()
-                                        .getHigh(0), descriptor
-                                        .getGridGeometry().getGridRange()
-                                        .getLow(1), descriptor
-                                        .getGridGeometry().getGridRange()
-                                        .getHigh(1)));
+                        0.0f);
                 // wireframeShape = target.createWireframeShape(true,
                 // mapDescriptor);
                 File file = new File(resourceData.getFilename());
@@ -187,8 +181,8 @@ public class BCDResource extends
                     throw new VizException("Could not find bcd file",
                             new FileNotFoundException(String.valueOf(file)));
                 }
-                FileInputStream fis = new FileInputStream(file);
-                fc = fis.getChannel();
+                fis = new FileInputStream(file);
+                FileChannel fc = fis.getChannel();
 
                 ByteBuffer buffer = fc.map(MapMode.READ_ONLY, 0, file.length());
 
@@ -199,8 +193,6 @@ public class BCDResource extends
                     if (buffer.getInt(0) > Short.MAX_VALUE)
                         buffer.order(ByteOrder.LITTLE_ENDIAN);
                 }
-
-                int i = 0;
 
                 double minLat = Double.MAX_VALUE;
                 double minLon = Double.MAX_VALUE;
@@ -254,7 +246,6 @@ public class BCDResource extends
                         labels.add(new BcxLabel(label, pts[0], descriptor));
                         wireframeShape.addLabel(label, labelPixel);
                     }
-                    i++;
                 }
 
                 if (isBCX) {
@@ -285,8 +276,8 @@ public class BCDResource extends
 
         } finally {
             try {
-                if (fc != null) {
-                    fc.close();
+                if (fis != null) {
+                    fis.close();
                 }
             } catch (IOException e) {
                 // ignore
