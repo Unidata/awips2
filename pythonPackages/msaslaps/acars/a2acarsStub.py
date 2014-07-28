@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -31,9 +31,9 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    07/23/2014       3392           nanbowle     Initial modification. Replaces UEngine with DAF.
-#    
-# 
+#    07/23/2014       3392           nabowle      Initial modification. Replaces UEngine with DAF.
+#    07/28/2014       3392           nabowle      Strip tail and receiver to match original formatting.
+#
 #
 
 
@@ -60,27 +60,27 @@ def get_args():
 def main():
 # Values used to indicate no data.
     NO_DATA = [None, "None", -9999, -9999.0, "-9999", "-9999.0", ""]
-    
+
     user_args = get_args()
-    
+
     # Set the host in the DataAcessLayer if supplied
     if user_args.host:
         DataAccessLayer.changeEDEXHost(user_args.host)
-        
+
     start = user_args.start
     end = user_args.end
-    
+
     if not start or not end:
         print >> sys.stderr, "Start or End date not provided"
         return
-        
+
 
     req = DataAccessLayer.newDataRequest("acars")
     req.setParameters("tailNumber", "receiver", "pressure", "flightPhase", 
                       "rollAngleQuality", "temp", "windDirection", "windSpeed",
                       "humidity", "mixingRatio", "icing")
-    
-        
+
+
 
     beginRange = datetime.strptime( start + ":00.0", "%Y-%m-%d %H:%M:%S.%f")
     endRange = datetime.strptime( end + ":59.9", "%Y-%m-%d %H:%M:%S.%f")
@@ -96,13 +96,15 @@ def main():
        mytail = geoData.getString("tailNumber")
        if mytail in NO_DATA:
            mytail = ""
+       else:
+           mytail = mytail.strip()
 
        mytime = geoData.getDataTime()
        if mytime == None:
            continue
        #2014-07-16 00:00:00 (0) => 2014-07-16_00:00:00
        mytime = str(mytime)[0:19].replace(" ","_")
-   
+
        geo = geoData.getGeometry()
        if geo == None:
            continue
@@ -112,10 +114,12 @@ def main():
            continue
        mylat = "%.4f"%float(mylat)
        mylon = "%.4f"%float(mylon)
-       
+
        myrec = geoData.getString("receiver")
        if myrec in NO_DATA:
           myrec = ""
+       else:
+          myrec = myrec.strip()
 
        mypres = geoData.getNumber("pressure")
        if mypres in NO_DATA:
