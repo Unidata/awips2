@@ -48,6 +48,8 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
 import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.image.DataScale;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.cache.CacheObject;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -69,6 +71,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * ------------ ---------- ----------- --------------------------
  * Jul 07, 2014 3333       bclement     Initial creation
  * Jul 22, 2014 3333       bclement     ignores strikes that aren't on map
+ * Jul 28, 2014 3451       bclement     uses intended range min
  * 
  * </pre>
  * 
@@ -114,8 +117,32 @@ public class GridLightningResource extends
     @Override
     protected ColorMapParameters createColorMapParameters(GeneralGridData data)
             throws VizException {
+        /*
+         * TODO investigate if the colormap parameter factory actually needs
+         * those special cases or not
+         */
+        /*
+         * colormap parameter factory doesn't allow for data scale mins that are
+         * under 1 when you have a large max, extract the intended min from the
+         * style preferences and restore it in the colormap parameters
+         */
+        float minRange = Float.NaN;
+        if (stylePreferences != null
+                && stylePreferences instanceof ImagePreferences) {
+            DataScale dataScale = ((ImagePreferences) stylePreferences)
+                    .getDataScale();
+            if (dataScale != null) {
+                Double minValue = dataScale.getMinValue();
+                if (minValue != null) {
+                    minRange = minValue.floatValue();
+                }
+            }
+        }
         ColorMapParameters rval = super.createColorMapParameters(data);
         rval.setNoDataValue(0);
+        if (!Double.isNaN(minRange)) {
+            rval.setColorMapMin(minRange);
+        }
         return rval;
     }
 
