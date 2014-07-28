@@ -73,6 +73,9 @@ import com.vividsolutions.jts.geom.LineString;
  * Sep 03, 2013  2310     bsteffen       Move MouseHandler from ShearAction to
  *                                       ShearLayer.
  * Mar  3, 2014  2804     mschenke       Set back up clipping pane
+ * Jul 28, 2014  3430     mapeters       Updated the 'handleMouseUp' function 
+ *                                       to prevent errors when MB3 clicking off 
+ *                                       the map with tool in editable mode.
  * 
  * </pre>
  * 
@@ -641,6 +644,10 @@ public class ShearLayer extends
                         return false;
                     }
                     Coordinate c = container.translateClick(x, y);
+
+                    if (c == null) {
+                        return false;
+                    }
 
                     // move prior unmoved end point
                     Coordinate[] coords = shearLayer.getBaseline()
