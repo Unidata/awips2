@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    07/29/14        DR  2914      G. Armendariz Remove call to PropertiesFactory
+# 
+
 import os
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 from java.util import HashMap
@@ -45,8 +53,8 @@ if not d.has_key('rssdHost'):
     d['rssdHost'] = socket.gethostname()
 
 if not d.has_key('lbOutputDir'):
-    from com.raytheon.uf.edex.core import PropertiesFactory
-    arch_dir = PropertiesFactory.getInstance().getEnvProperties().getEnvValue("ARCHIVEDIR")
+    from java.lang import System
+    arch_dir = System.getProperty("data.archive.root")
     d['lbOutputDir'] = os.path.join(arch_dir, "radar", "fsi")
     
 for k, v in d.items():
