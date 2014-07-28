@@ -74,7 +74,7 @@
             <parameter>Topo</parameter>
 		</paramLevelMatches>
 		<imageStyle>
-			<displayUnits>km</displayUnits>
+			<displayUnits>ft</displayUnits>
 			<defaultColormap>Grid/gridded data</defaultColormap>
 		</imageStyle>
 	</styleRule>
