@@ -190,7 +190,7 @@ public class SaveRbdDialog extends Dialog {
         */
         
         Group spf_name_grp = new Group( shell, SWT.SHADOW_NONE );
-        spf_name_grp.setText("Available SPFs ");
+        spf_name_grp.setText("Available Groups ");
         spf_name_grp.setLayout( new FormLayout() );
         fd = new FormData(260,300);
         //fd.top = new FormAttachment( spf_group_combo, 20, SWT.BOTTOM );
@@ -218,7 +218,7 @@ public class SaveRbdDialog extends Dialog {
         spf_name_txt.setLayoutData( fd );
         
         Label spf_name_lbl = new Label( spf_name_grp, SWT.NONE);
-        spf_name_lbl.setText("SPF Name");
+        spf_name_lbl.setText("Group Name");
        	fd = new FormData();
         fd.bottom  = new FormAttachment( spf_name_txt, -3, SWT.TOP );
         fd.left  = new FormAttachment( spf_name_txt, 0, SWT.LEFT );
@@ -232,7 +232,7 @@ public class SaveRbdDialog extends Dialog {
         rbd_name_combo.setLayoutData( fd );
 
         Label rbd_name_lbl = new Label(shell, SWT.NONE);
-        rbd_name_lbl.setText("RBD Name");
+        rbd_name_lbl.setText("Bundle Name");
         fd = new FormData();
         fd.bottom  = new FormAttachment( rbd_name_combo, -3, SWT.TOP );
         fd.left  = new FormAttachment( rbd_name_combo, 0, SWT.LEFT );

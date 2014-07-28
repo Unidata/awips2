@@ -113,15 +113,15 @@ public class ManageSpfControl extends Composite {
     // These will be editable and visible when in create mode
     //
     private Composite  selSpfComp = null;
-    private Combo 	   createSpfGroupCombo = null;
+    //private Combo 	   createSpfGroupCombo = null;
     private Text   	   createSpfNameTxt = null;
 
     // if Modifying or Deleting then these will be visible
     //
-    private Combo  modifySpfGroupCombo = null;
+    //private Combo  modifySpfGroupCombo = null;
     private Combo  modifySpfNameCombo = null;
     
-    private Combo  currSpfGroupCombo = null;
+    //private Combo  currSpfGroupCombo = null;
     private Widget currSpfNameWidget = null;
 
     private Label  spfLocationLbl = null;
@@ -159,7 +159,7 @@ public class ManageSpfControl extends Composite {
         sash_form.setSashWidth(10);
         
         mngRbdsGrp = new Group( sash_form, SWT.SHADOW_NONE );
-        mngRbdsGrp.setText( "Manage RBDs" );
+        mngRbdsGrp.setText( "Manage Bundles" );
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = true;
@@ -209,7 +209,7 @@ public class ManageSpfControl extends Composite {
 		actionGroup.setLayout( new FormLayout() );
 
 		modifyActionBtn = new Button( actionGroup, SWT.RADIO );
-		modifyActionBtn.setText( " Modify SPF " );
+		modifyActionBtn.setText( " Modify Group " );
         
        	fd = new FormData();
         fd.top = new FormAttachment( 0, 15 );
@@ -218,7 +218,7 @@ public class ManageSpfControl extends Composite {
         modifyActionBtn.setLayoutData( fd );
 		
 		createActionBtn = new Button( actionGroup, SWT.RADIO );
-		createActionBtn.setText( " Create SPF " );
+		createActionBtn.setText( " Create Group " );
         
        	fd = new FormData();
         fd.top  = new FormAttachment( modifyActionBtn, 15, SWT.BOTTOM );
@@ -227,7 +227,7 @@ public class ManageSpfControl extends Composite {
         createActionBtn.setLayoutData( fd );
 		
 		deleteActionBtn = new Button( actionGroup, SWT.RADIO );
-		deleteActionBtn.setText( " Delete SPF " );
+		deleteActionBtn.setText( " Delete Group " );
         
        	fd = new FormData();
         fd.top = new FormAttachment( createActionBtn, 20, SWT.BOTTOM );
@@ -246,6 +246,7 @@ public class ManageSpfControl extends Composite {
 
         selSpfComp.setLayout( new FormLayout() );
         
+        /*
         createSpfGroupCombo = new Combo( selSpfComp, SWT.DROP_DOWN );
         fd = new FormData();
         fd.top = new FormAttachment( 0, 20 );
@@ -263,13 +264,13 @@ public class ManageSpfControl extends Composite {
         fd.bottom  = new FormAttachment( createSpfGroupCombo, -3, SWT.TOP );
         fd.left  = new FormAttachment( createSpfGroupCombo, 0, SWT.LEFT );
         spf_grp_lbl.setLayoutData( fd );
-
+        */
         
         createSpfNameTxt = new Text( selSpfComp, SWT.SINGLE | SWT.BORDER );
         fd = new FormData();
-        fd.top = new FormAttachment( createSpfGroupCombo, 35, SWT.BOTTOM );
-        fd.left  = new FormAttachment( createSpfGroupCombo, 0, SWT.LEFT );
-        fd.right  = new FormAttachment( createSpfGroupCombo, 0, SWT.RIGHT );
+        fd.top = new FormAttachment( 0, 20 );
+        fd.left  = new FormAttachment( 0, 0 );
+        fd.right  = new FormAttachment( 100, 0 );
         createSpfNameTxt.setLayoutData( fd );    	
 
         modifySpfNameCombo = new Combo( selSpfComp, SWT.READ_ONLY | SWT.DROP_DOWN );
@@ -277,7 +278,7 @@ public class ManageSpfControl extends Composite {
         
         
         Label spf_name_lbl = new Label( selSpfComp, SWT.NONE);
-        spf_name_lbl.setText("SPF Name");
+        spf_name_lbl.setText("Group Name");
        	fd = new FormData();
         fd.bottom  = new FormAttachment( createSpfNameTxt, -3, SWT.TOP );
         fd.left  = new FormAttachment( createSpfNameTxt, 0, SWT.LEFT );
@@ -329,7 +330,7 @@ public class ManageSpfControl extends Composite {
 		seldRbdsLviewer.getList().setLayoutData( fd );
 
 		Label rbd_lbl = new Label( mngRbdsGrp, SWT.NONE);
-		rbd_lbl.setText("RBDs");
+		rbd_lbl.setText("Bundles");
 		fd = new FormData();
 		fd.bottom  = new FormAttachment( seldRbdsLviewer.getList(), -3, SWT.TOP );
 		fd.left  = new FormAttachment( seldRbdsLviewer.getList(), 0, SWT.LEFT );
@@ -347,7 +348,7 @@ public class ManageSpfControl extends Composite {
 
 		
 		addRbdsBtn = new Button( mngRbdsGrp, SWT.PUSH );
-		addRbdsBtn.setText( "Add RBDs..." );
+		addRbdsBtn.setText( "Add Bundle" );
         
        	fd = new FormData(110, 30);
         fd.top = new FormAttachment( seldRbdsLviewer.getList(), 20, SWT.BOTTOM );
@@ -355,7 +356,7 @@ public class ManageSpfControl extends Composite {
         addRbdsBtn.setLayoutData( fd );
 
         renameRbdBtn = new Button( mngRbdsGrp, SWT.PUSH );
-        renameRbdBtn.setText( "Rename RBD..." );
+        renameRbdBtn.setText( "Rename Bundle" );
         
        	fd = new FormData(110, 30);
         fd.top = new FormAttachment( addRbdsBtn, 0, SWT.TOP );
@@ -364,7 +365,7 @@ public class ManageSpfControl extends Composite {
 
 
 		removeRbdsBtn = new Button( mngRbdsGrp, SWT.PUSH );
-		removeRbdsBtn.setText( "Remove RBD" );
+		removeRbdsBtn.setText( "Remove Bundle" );
         
        	fd = new FormData(110, 30);
         fd.top = new FormAttachment( addRbdsBtn, 15, SWT.BOTTOM );
@@ -406,25 +407,27 @@ public class ManageSpfControl extends Composite {
 		createActionBtn.addSelectionListener( actionBtnListener );
 
 		deleteActionBtn.addSelectionListener( actionBtnListener );
-				
+			
+		/*
 		createSpfGroupCombo.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				setSeldSpfGroup( createSpfGroupCombo.getText() );
 			}
     	});
-
+		
 		modifySpfGroupCombo.addSelectionListener( new SelectionAdapter() {		
    			public void widgetSelected(SelectionEvent e) {
    				setSeldSpfGroup( modifySpfGroupCombo.getText() );
    			}
-   		});  
+   		}); 
+   		*/ 
 		
 		createSpfNameTxt.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				seldSpfName = createSpfNameTxt.getText();
-				spfActionBtn.setEnabled( !seldSpfGroup.isEmpty() && !seldSpfName.isEmpty() );
+				spfActionBtn.setEnabled( !seldSpfName.isEmpty() );
 			}
     	});
         
@@ -440,7 +443,7 @@ public class ManageSpfControl extends Composite {
 			public void widgetSelected(SelectionEvent e) {
    				
    	    		SelectRbdsDialog selRbdsDlg = 
-   	    			new SelectRbdsDialog( shell, "Select RBDs", 
+   	    			new SelectRbdsDialog( shell, "Select Bundle", 
    	    					true, true, false );
    	    			
    	    		if( !selRbdsDlg.open() ) {
@@ -461,7 +464,7 @@ public class ManageSpfControl extends Composite {
 						seldRbdsList.add( newRbd );
 						
 					} catch (VizException e1) {
-						out.println("???Error Cloning rbd ");
+						out.println("???Error Cloning Bundle ");
 					}
    		    	}
    		    	seldRbdsLviewer.setInput( seldRbdsList );
@@ -506,7 +509,7 @@ public class ManageSpfControl extends Composite {
 	    				return rbd.getRbdName();
 	    			}
 	    		}
-	    		else  return "Error: bad RBD element";
+	    		else  return "Error: bad Bundle element";
 	    	}
         });
         
@@ -539,7 +542,7 @@ public class ManageSpfControl extends Composite {
    							MessageDialog errDlg = new MessageDialog( 
    									shell, "Error", null, 
    									"You do not have permissions to delete a "+
-   									lFile.getContext().getLocalizationLevel().toString() + " Level Rbd.",
+   									lFile.getContext().getLocalizationLevel().toString() + " Level Bundle.",
    									MessageDialog.ERROR, new String[]{"OK"}, 0);
    							errDlg.open();
    							continue;
@@ -586,14 +589,6 @@ public class ManageSpfControl extends Composite {
        		}
         });
         
-        deleteSpfGroupBtn.addSelectionListener(new SelectionAdapter() {
-       		public void widgetSelected( SelectionEvent ev ) {
-       			if( currActionBtn == deleteActionBtn ) { // sanity check
-       	    		deleteSpfGroup();
-       	    	}
-       		}
-        });
-
         saveRefTimeBtn.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
        		}
@@ -626,7 +621,7 @@ public class ManageSpfControl extends Composite {
 				    });
 				    
 				    MenuItem item3 = new MenuItem(menu, SWT.PUSH);
-				    item3.setText("Rename...");
+				    item3.setText("Rename");
 				    item3.addListener(SWT.Selection, new Listener() {
 						@Override
 						public void handleEvent(Event event) {
@@ -670,19 +665,19 @@ public class ManageSpfControl extends Composite {
     	boolean createSpfSeld = (currActionBtn == createActionBtn);
     	boolean deleteSpfSeld = (currActionBtn == deleteActionBtn);
     	
-    	currSpfGroupCombo = ( createSpfSeld ? createSpfGroupCombo : modifySpfGroupCombo );
+    	//currSpfGroupCombo = ( createSpfSeld ? createSpfGroupCombo : modifySpfGroupCombo );
     	currSpfNameWidget = ( createSpfSeld ? createSpfNameTxt : modifySpfNameCombo );
     	
-    	createSpfGroupCombo.setVisible( createSpfSeld );
+    	//createSpfGroupCombo.setVisible( createSpfSeld );
     	createSpfNameTxt.setVisible( createSpfSeld );
     	
-    	modifySpfGroupCombo.setVisible( !createSpfSeld );
+    	//modifySpfGroupCombo.setVisible( !createSpfSeld );
     	modifySpfNameCombo.setVisible( !createSpfSeld );
 
         spfActionBtn.setText( 
-            	(currActionBtn == modifyActionBtn ? "Save SPF" : 
-            		(currActionBtn == createActionBtn ? "Create SPF" : 
-            			(currActionBtn == deleteActionBtn ? "Delete SPF" : "" ))));
+            	(currActionBtn == modifyActionBtn ? "Save Group" : 
+            		(currActionBtn == createActionBtn ? "Create Group" : 
+            			(currActionBtn == deleteActionBtn ? "Delete Group" : "" ))));
 
         spfActionBtn.setVisible( true );
         spfActionBtn.setEnabled( !createSpfSeld );
@@ -700,42 +695,19 @@ public class ManageSpfControl extends Composite {
         		modifySpfNameCombo.getParent().getBackground() : createSpfNameTxt.getBackground() ));
                 
 
-        currSpfGroupCombo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
+       // currSpfGroupCombo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
 
         // if the user has pre selected a group then select it
         //
         if( createSpfSeld ) {
-        	currSpfGroupCombo.setText( "" );
+        	//currSpfGroupCombo.setText( "" );
     		seldRbdsList.clear();
     		seldRbdsLviewer.setInput( seldRbdsList );
     		seldRbdsLviewer.refresh();
 	    	rscLviewer.viewRbd( null );
 	    	rscLviewer.refresh();
-    		setSeldSpfGroup( currSpfGroupCombo.getText() );
         }
-        else if( seldSpfGroup != null && !seldSpfGroup.isEmpty() ) {
-        	int g=0;
-        	for( g=0 ; g<currSpfGroupCombo.getItemCount() ; g++ ) {
-        		if( seldSpfGroup.equals( currSpfGroupCombo.getItem(g) ) ) {
-        			currSpfGroupCombo.select(g);
-        			seldSpfGroup = ""; // force it to change
-            		setSeldSpfGroup( currSpfGroupCombo.getText() );   
-            		break;
-        		}
-        	}
-        	if( g == currSpfGroupCombo.getItemCount() ) {
-        		setSeldSpfGroup( "" );
-        	}
-        }
-        else if( currSpfGroupCombo.getItemCount() > 0 ) {
-        	currSpfGroupCombo.select(0);
-    		setSeldSpfGroup( currSpfGroupCombo.getText() );        			
-        }
-        else {
-        	currSpfGroupCombo.setEnabled( false );
-        	currSpfGroupCombo.setEnabled( false );
-        }
-        
+        setSeldSpfGroup( "default" );      
     }
     
 	private void setSeldSpfGroup(String spfGroup) {
@@ -820,7 +792,7 @@ public class ManageSpfControl extends Composite {
 			spfLocationLbl.setText( "Localization="+cntxt.getLocalizationLevel().toString()+":"+
 													cntxt.getContextName() );			
 		} catch (VizException e) {
-			System.out.println("Error getting Rbds from SPF: "+e.getMessage() );
+			System.out.println("Error getting Bundles from Group: "+e.getMessage() );
 			seldRbdsList.clear();
 		}
 
@@ -976,7 +948,7 @@ public class ManageSpfControl extends Composite {
     			MessageDialog errDlg = new MessageDialog( 
     					shell, "Error", null, 
     					"You do not have permissions to rename a "+
-    					lFile.getContext().getLocalizationLevel().toString() + " Level Rbd.",
+    					lFile.getContext().getLocalizationLevel().toString() + " Level Bundle.",
     					MessageDialog.ERROR, new String[]{"OK"}, 0);
     			errDlg.open();
     			return;
@@ -996,18 +968,18 @@ public class ManageSpfControl extends Composite {
 
     	try {
     		if( seldRbdsList.isEmpty() ) {
-    			throw new VizException( "No RBDs are selected" );
+    			throw new VizException( "No Bundles are selected" );
     		}    	
-    		else if( seldSpfGroup.isEmpty() || seldSpfName.isEmpty() ) {
-    			throw new VizException( "Select an SPF Name and Group." );
+    		else if( seldSpfName.isEmpty() ) {
+    			throw new VizException( "Select a Group Name." );
     		}
     		else { // check for duplicate names
     			for( AbstractRBD<?> rbd1 : seldRbdsList ) {
     				for( AbstractRBD<?> rbd2 : seldRbdsList ) {
     					if( rbd1 != rbd2 ) {
     						if( rbd1.getRbdName().equals( rbd2.getRbdName() ) ) {
-    							throw new VizException("There are duplicate RBD Names in the SPF\n"+
-    									"Rename one of the RBDs named "+ rbd1.getRbdName() );
+    							throw new VizException("There are duplicate Bundle Names in the Group\n"+
+    									"Rename one of the Bundles named "+ rbd1.getRbdName() );
     						}
     					}
     				}
@@ -1029,15 +1001,15 @@ public class ManageSpfControl extends Composite {
     				saveRefTimeBtn.getSelection(), false );    			
     		
     		MessageBox mb = new MessageBox( shell, SWT.OK );         								
-    		mb.setText( "SPF Saved" );
-    		mb.setMessage( "\nSPF "+ seldSpfGroup+File.separator+seldSpfName+
+    		mb.setText( "Group Saved" );
+    		mb.setMessage( "\nGroup "+ seldSpfGroup+File.separator+seldSpfName+
     						" has been saved.");
     		mb.open();
     	}
     	catch( VizException e ) {
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Error", null, 
-					"Error Saving SPF "+ seldSpfGroup+File.separator+seldSpfName+":\n\n"+
+					"Error Saving Group "+ seldSpfGroup+File.separator+seldSpfName+":\n\n"+
 							e.getMessage(),
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();
@@ -1050,8 +1022,8 @@ public class ManageSpfControl extends Composite {
 										saveRefTimeBtn.getSelection(), false );
 			
     		MessageBox mb = new MessageBox( shell, SWT.OK );         								
-    		mb.setText( "SPF Created" );
-    		mb.setMessage( "\nSPF "+ seldSpfGroup+File.separator+seldSpfName+
+    		mb.setText( "Group Created" );
+    		mb.setMessage( "\nGroup "+ seldSpfGroup+File.separator+seldSpfName+
     						" has been created.");
     		mb.open();
     		
@@ -1064,7 +1036,7 @@ public class ManageSpfControl extends Composite {
 		} catch (VizException e) {
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Error", null, 
-					"Error Creating Spf "+ seldSpfGroup+File.separator+seldSpfName+":\n\n"+
+					"Error Creating Group "+ seldSpfGroup+File.separator+seldSpfName+":\n\n"+
 							e.getMessage(),
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();
@@ -1076,8 +1048,8 @@ public class ManageSpfControl extends Composite {
 			SpfsManager.getInstance().deleteSpf( seldSpfGroup, seldSpfName );
 			
     		MessageBox mb = new MessageBox( shell, SWT.OK );         								
-    		mb.setText( "SPF Deleted" );
-    		mb.setMessage( "\nSPF "+ seldSpfGroup+File.separator+seldSpfName+
+    		mb.setText( "Group Deleted" );
+    		mb.setMessage( "\nGroup "+ seldSpfGroup+File.separator+seldSpfName+
     						" has been deleted.");
     		mb.open();
     		
@@ -1088,59 +1060,24 @@ public class ManageSpfControl extends Composite {
 		} catch (VizException e) {
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Info", null, 
-					"Error Deleting Spf "+ seldSpfName+":\n"+
+					"Error Deleting Group "+ seldSpfName+":\n"+
 					e.getMessage(),
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();
 		}
 
-		setSeldSpfGroup( seldSpfGroup );
+		setSeldSpfGroup( "default" );
     }
     
-    private void deleteSpfGroup() {
-		try {
-			SpfsManager.getInstance().deleteSpfGroup( seldSpfGroup );
-			
-			currActionBtn.setSelection( false );
-			modifyActionBtn.setSelection( true );
-			setCurrentAction( modifyActionBtn );
-
-		} catch (VizException e) {
-			MessageDialog errDlg = new MessageDialog( 
-					shell, "Info", null, 
-					"Error Deleting Spf Group "+ seldSpfGroup+":\n"+
-					e.getMessage(),
-					MessageDialog.ERROR, new String[]{"OK"}, 0);
-			errDlg.open();
-    		return;
-		}
-    }
     
     public void updateDialog() {
     	shell.setSize( initDlgSize );
     	String saveSpfGroup = seldSpfGroup;
     	String saveSpfName  = seldSpfName;
     	
-    	currSpfGroupCombo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
-
         // if the user has pre selected a group then select it
         //
-        if( saveSpfGroup != null && !saveSpfGroup.isEmpty() ) {
-        	for( int g=0 ; g<currSpfGroupCombo.getItemCount() ; g++ ) {
-        		if( saveSpfGroup.equals( currSpfGroupCombo.getItem(g) ) ) {
-        			currSpfGroupCombo.select(g);
-        			seldSpfName = saveSpfName;
-            		setSeldSpfGroup( currSpfGroupCombo.getText() );        			
-        		}
-        	}
-        }
-        else if( currSpfGroupCombo.getItemCount() > 0 ) {
-        	currSpfGroupCombo.select(0);
-    		setSeldSpfGroup( currSpfGroupCombo.getText() );        			
-        }
-        else {
-        	currSpfGroupCombo.setEnabled( false );
-        	currSpfGroupCombo.setEnabled( false );
-        }
+        setSeldSpfGroup( "default" );        			
+        
     }
 }
