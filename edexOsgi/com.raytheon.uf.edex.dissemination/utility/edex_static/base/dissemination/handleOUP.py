@@ -36,6 +36,7 @@
 #    10/12/12        DR 15418      D. Friedman   Use unique attachment file names
 #    11/20/13        DR 16777      D. Friedman   Add a test mode.
 #    12/05/16        DR 16842      D. Friedman   Do not set product ID on MhsMessage
+#    07/29/14        DR  2914      G. Armendariz Remove call to PropertiesFactory
 # 
 #
 
@@ -63,9 +64,8 @@ for line in f:
     ACTION_CODES[codeSplit[0]] = codeSplit[1]
 f.close()
 
-from com.raytheon.uf.edex.core.props import PropertiesFactory
-env = PropertiesFactory.getInstance().getEnvProperties()
-dataDir = env.getEnvValue("DEFAULTDATADIR")
+from com.raytheon.uf.edex.core import EDEXUtil
+dataDir = EDEXUtil.getEdexData();
 OUT_DIR = dataDir + 'outgoing'
 if not os.path.isdir(OUT_DIR):
     os.mkdir(OUT_DIR)
