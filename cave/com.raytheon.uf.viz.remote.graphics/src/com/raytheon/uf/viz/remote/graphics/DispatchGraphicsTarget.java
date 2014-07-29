@@ -115,6 +115,7 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingWireframeShape;
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * May 16, 2014  3163     bsteffen    Remove references to deprecated
  *                                    {@link IGraphicsTarget} methods.
+ * Jul 28, 2014  3429     mapeters    Updated deprecated drawLine() calls.
  * 
  * </pre>
  * 
@@ -1278,7 +1279,13 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     @Deprecated
     public void drawLine(double x1, double y1, double z1, double x2, double y2,
             double z2, RGB color, float width) throws VizException {
-        drawLine(x1, y1, z1, x2, y2, z2, color, width, LineStyle.DEFAULT);
+        DrawableLine line = new DrawableLine();
+        line.setCoordinates(x1, y1, z1);
+        line.addPoint(x2, y2, z2);
+        line.basics.color = color;
+        line.width = width;
+        line.lineStyle = LineStyle.DEFAULT;
+        drawLine(line);
     }
 
     /*
