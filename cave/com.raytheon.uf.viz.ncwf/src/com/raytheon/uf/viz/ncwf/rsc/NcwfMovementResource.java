@@ -33,6 +33,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintTyp
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -53,6 +54,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 16, 2009            bsteffen     Initial creation
+ * Jul 24, 2014 3429       mapeters     Updated deprecated drawLine() calls.
  * 
  * </pre>
  * 
@@ -156,9 +158,13 @@ public class NcwfMovementResource extends
             // Draw the tops string
             target.drawStrings(topStr);
             // Draw the body of the arrow
-            target.drawLine(centerPixel[0], centerPixel[1], centerPixel[2],
-                    or_centerPixel[0], or_centerPixel[1], or_centerPixel[2],
-                    color, 1.5f);
+            DrawableLine line = new DrawableLine();
+            line.setCoordinates(centerPixel[0], centerPixel[1], centerPixel[2]);
+            line.addPoint(or_centerPixel[0], or_centerPixel[1], or_centerPixel[2]);
+            line.basics.color = color;
+            line.width = 1.5f;
+            target.drawLine(line);
+
             // Draw the wind speed string
             target.drawStrings(spdStr);
 
@@ -169,12 +175,17 @@ public class NcwfMovementResource extends
             Double length, Double dir, RGB color) throws VizException {
         double[] pointPixel = target.getPointOnCircle(center[0], center[1],
                 center[2], length, dir + 210);
-        target.drawLine(pointPixel[0], pointPixel[1], pointPixel[2], center[0],
-                center[1], center[2], color, 1.5f);
+
+        DrawableLine line = new DrawableLine();
+        line = new DrawableLine();
+        line.setCoordinates(pointPixel[0], pointPixel[1], pointPixel[2]);
+        line.addPoint(center[0], center[1], center[2]);
         pointPixel = target.getPointOnCircle(center[0], center[1], center[2],
                 length, dir + 150);
-        target.drawLine(pointPixel[0], pointPixel[1], pointPixel[2], center[0],
-                center[1], center[2], color, 1.5f);
+        line.addPoint(pointPixel[0], pointPixel[1], pointPixel[2]);
+        line.basics.color = color;
+        line.width = 1.5f;
+        target.drawLine(line);
     }
 
     private void updateRecords(DataTime displayedDataTime) throws VizException {
