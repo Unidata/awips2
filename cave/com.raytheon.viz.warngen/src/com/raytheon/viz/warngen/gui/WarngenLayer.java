@@ -79,6 +79,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -212,6 +213,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/23/2014  DR 16356    Qinglu Lin  Updated initializeState() and added reset().
  * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
  * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
+ * 07/24/2014  3429        mapeters    Updated deprecated drawLine() calls.
  * </pre>
  * 
  * @author mschenke
@@ -1017,6 +1019,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             double[] in1 = new double[2];
             double[] in2 = new double[2];
 
+            List<DrawableLine> lines = new ArrayList<DrawableLine>(
+                    (c.length - 1) * 2);
             for (int i = 0; i < (c.length - 1); i++) {
                 in1[0] = c[i].x;
                 in1[1] = c[i].y;
@@ -1025,8 +1029,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
                 double[] out1 = this.descriptor.worldToPixel(in1);
                 double[] out2 = this.descriptor.worldToPixel(in2);
-                target.drawLine(out1[0], out1[1], 0.0, out2[0], out2[1], 0.0,
-                        color, LINE_WIDTH);
+
+                DrawableLine line = new DrawableLine();
+                line.setCoordinates(out1[0], out1[1]);
+                line.addPoint(out2[0], out2[1]);
+                line.basics.color = color;
+                line.width = LINE_WIDTH;
+                lines.add(line);
 
                 double delta;
 
@@ -1043,15 +1052,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 double[] triRight = new double[] { out1[0] + delta,
                         out1[1] + delta };
 
-                target.drawLine(triTop[0], triTop[1], 0.0, triLeft[0],
-                        triLeft[1], 0.0, color, LINE_WIDTH);
-                target.drawLine(triTop[0], triTop[1], 0.0, triRight[0],
-                        triRight[1], 0.0, color, LINE_WIDTH);
-                target.drawLine(triLeft[0], triLeft[1], 0.0, triRight[0],
-                        triRight[1], 0.0, color, LINE_WIDTH);
-
+                DrawableLine line2 = new DrawableLine();
+                line2.setCoordinates(triLeft[0], triLeft[1]);
+                line2.addPoint(triTop[0], triTop[1]);
+                line2.addPoint(triRight[0], triRight[1]);
+                line2.addPoint(triLeft[0], triLeft[1]);
+                line2.basics.color = color;
+                line2.width = LINE_WIDTH;
+                lines.add(line2);
             }
-
+            target.drawLine(lines.toArray(new DrawableLine[0]));
         }
     }
 

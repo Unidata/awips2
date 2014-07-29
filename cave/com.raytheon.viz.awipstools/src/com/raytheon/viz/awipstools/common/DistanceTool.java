@@ -21,6 +21,8 @@
 package com.raytheon.viz.awipstools.common;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Length;
@@ -35,6 +37,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -63,6 +66,7 @@ import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
  *    Date          Ticket#     Engineer    Description
  *    ------------  ----------  ----------- --------------------------
  *    1/10/08       562         bphillip    Initial Creation.
+ *    7/23/14       3429        mapeters    Updated deprecated drawLine() calls.
  * 
  * </pre>
  * 
@@ -170,30 +174,54 @@ public class DistanceTool extends
         DecimalFormat df = new DecimalFormat("0.###");
         IFont font = target.getDefaultFont();
 
-        target.drawLine(x0, y0 - yOff, 0.0, x0, y0 + yOff, 0.0, color, 1);
+        int max = Math.max(0, selectedIndex - 3);
+        List<DrawableLine> lines = new ArrayList<DrawableLine>(selectedIndex
+                - max + 3);
+        
+        DrawableLine line1 = new DrawableLine();
+        line1.setCoordinates(x0, y0 - yOff);
+        line1.addPoint(x0, y0 + yOff);
+        line1.basics.color = color;
+        lines.add(line1);
+        
         target.drawString(font, "0", x0, y0 - yOff, 0.0, TextStyle.NORMAL,
                 color, HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM,
                 null);
-
-        for (int i = Math.max(0, selectedIndex - 3); i < selectedIndex; i++) {
+        
+        for (int i = max; i < selectedIndex; i++) {
             double l = length * scales[i] / scales[selectedIndex];
             String s = df.format(scales[i]);
-            target.drawLine(x0 + l, y0 - yOff, 0.0, x0 + l, y0 + yOff, 0.0,
-                    color, 1);
+            
+            DrawableLine line2 = new DrawableLine();
+            line2.setCoordinates(x0 + l, y0 - yOff);
+            line2.addPoint(x0 + l, y0 + yOff);
+            line2.basics.color = color;
+            lines.add(line2);
+
             target.drawString(font, s, x0 + l, y0 - yOff, 0.0,
                     TextStyle.NORMAL, color, HorizontalAlignment.CENTER,
                     VerticalAlignment.BOTTOM, null);
         }
 
-        target.drawLine(x0 + length, y0 - yOff, 0.0, x0 + length, y0 + yOff,
-                0.0, color, 1);
+        DrawableLine line3 = new DrawableLine();
+        line3.setCoordinates(x0 + length, y0 - yOff);
+        line3.addPoint(x0 + length, y0 + yOff);
+        line3.basics.color = color;
+        lines.add(line3);
+        
         target.drawString(font,
                 df.format(scales[selectedIndex]) + displayUnit.toString(), x0
                         + length, y0 - yOff, 0.0, TextStyle.NORMAL, color,
                 HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, null);
 
-        target.drawLine(x0, y0, 0.0, x0 + length, y0, 0.0, color, 1);
-
+        DrawableLine line4 = new DrawableLine();
+        line4.setCoordinates(x0, y0);
+        line4.addPoint(x0 + length, y0);
+        line4.basics.color = color;
+        lines.add(line4);
+        
+        target.drawLine(lines.toArray(new DrawableLine[0]));
+        
         target.setupClippingPlane(screenExtent);
 
     }
