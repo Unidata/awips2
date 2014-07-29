@@ -44,6 +44,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVectorPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket.WindBarbPoint;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -83,7 +84,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 19, 2013  1804     bsteffen    Remove empty data structures from radar
  *                                    hdf5.
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
- * 
+ * Jul 23, 2014  3429     mapeters    Updated deprecated drawLine() calls.
  * </pre>
  * 
  * @author askripsk
@@ -220,22 +221,29 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
                 .getMagnification().floatValue();
 
         // Paint unlinked lines
+        DrawableLine[] lines = new DrawableLine[this.unlinkedLines.size() + this.linkedLines.size()];
+        int i = 0;
         for (UnlinkedVector currVec : this.unlinkedLines) {
-            target.drawLine((currVec.i1 + X_OFFSET_NWP) * SCALAR,
-                    (currVec.j1 + Y_OFFSET_NWP) * SCALAR, 0,
-                    (currVec.i2 + X_OFFSET_NWP) * SCALAR,
-                    (currVec.j2 + Y_OFFSET_NWP) * SCALAR, 0,
-                    getVectorColor(currVec), 1 * magnification);
+            lines[i] = new DrawableLine();
+            lines[i].setCoordinates((currVec.i1 + X_OFFSET_NWP) * SCALAR,
+                    (currVec.j1 + Y_OFFSET_NWP) * SCALAR);
+            lines[i].addPoint((currVec.i2 + X_OFFSET_NWP) * SCALAR,
+                    (currVec.j2 + Y_OFFSET_NWP) * SCALAR);
+            lines[i].basics.color = getVectorColor(currVec);
+            lines[i++].width = 1 * magnification;
         }
 
         // Paint linked lines
         for (LinkedVector currVec : this.linkedLines) {
-            target.drawLine((currVec.i1 + X_OFFSET_NWP) * SCALAR,
-                    (currVec.j1 + Y_OFFSET_NWP) * SCALAR, 0,
-                    (currVec.i2 + X_OFFSET_NWP) * SCALAR,
-                    (currVec.j2 + Y_OFFSET_NWP) * SCALAR, 0,
-                    getVectorColor(currVec), 1 * magnification);
+            lines[i] = new DrawableLine();
+            lines[i].setCoordinates((currVec.i1 + X_OFFSET_NWP) * SCALAR,
+                    (currVec.j1 + Y_OFFSET_NWP) * SCALAR);
+            lines[i].addPoint((currVec.i2 + X_OFFSET_NWP) * SCALAR,
+                    (currVec.j2 + Y_OFFSET_NWP) * SCALAR);
+            lines[i].basics.color = getVectorColor(currVec);
+            lines[i++].width = 1 * magnification;
         }
+        target.drawLine(lines);
     }
 
     private void paintPoints(IGraphicsTarget target, PaintProperties paintProps)
