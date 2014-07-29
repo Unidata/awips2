@@ -45,9 +45,11 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
-import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
+import com.raytheon.uf.common.numeric.sparse.SparseArray;
+import com.raytheon.uf.common.numeric.sparse.SparseShortArray;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
@@ -72,6 +74,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * Jul 07, 2014 3333       bclement     Initial creation
  * Jul 22, 2014 3333       bclement     ignores strikes that aren't on map
  * Jul 28, 2014 3451       bclement     uses intended range min
+ * Jul 29, 2014 3463       bclement     uses sparse data source
  * 
  * </pre>
  * 
@@ -127,18 +130,32 @@ public class GridLightningResource extends
          * style preferences and restore it in the colormap parameters
          */
         float minRange = Float.NaN;
+        ColorMapParameters rval;
         if (stylePreferences != null
                 && stylePreferences instanceof ImagePreferences) {
-            DataScale dataScale = ((ImagePreferences) stylePreferences)
-                    .getDataScale();
+            ImagePreferences imgPrefs = (ImagePreferences) stylePreferences;
+            DataScale dataScale = imgPrefs.getDataScale();
             if (dataScale != null) {
                 Double minValue = dataScale.getMinValue();
                 if (minValue != null) {
                     minRange = minValue.floatValue();
                 }
             }
+            try {
+                /*
+                 * avoid calling super since it calls DataUtilities.getMinMax()
+                 * which is slow for sparse data and not used for lightning
+                 */
+                rval = ColorMapParameterFactory.build(imgPrefs, Unit.ONE);
+            } catch (StyleException e) {
+                throw new VizException(
+"Problem building lightning colormap"
+                        + " parameters from image preferences", e);
+            }
+        } else {
+            /* call super as a fallback */
+            rval = super.createColorMapParameters(data);
         }
-        ColorMapParameters rval = super.createColorMapParameters(data);
         rval.setNoDataValue(0);
         if (!Double.isNaN(minRange)) {
             rval.setColorMapMin(minRange);
@@ -198,8 +215,7 @@ public class GridLightningResource extends
          * use shorts to save space, a grid cell is unlikely to contain over 64K
          * strikes
          */
-        short[] data = new short[nx * ny];
-
+        SparseArray<short[]> data = new SparseShortArray(nx, ny);
         LightningFrame frame = getFrame(time, pdos);
 
         List<Iterator<double[]>> iterators = new ArrayList<>(4);
@@ -231,15 +247,12 @@ public class GridLightningResource extends
                 int gridY = (int) Math.round(dest.y);
                 /* ignore strikes that aren't on the map */
                 if (gridX >= 0 && gridX < nx && gridY >= 0 && gridY < ny) {
-                    int index = (nx * gridY) + gridX;
-                    data[index] += 1;
+                    data.add(gridX, gridY, 1);
                 }
             }
         }
-
-        ShortBufferWrapper source = new ShortBufferWrapper(data, nx, ny);
         GeneralGridData gridData = GeneralGridData.createScalarData(
-                imageGeometry, UnsignedFilter.apply(source), Unit.ONE);
+                imageGeometry, data, Unit.ONE);
         return Arrays.asList(gridData);
     }
 
