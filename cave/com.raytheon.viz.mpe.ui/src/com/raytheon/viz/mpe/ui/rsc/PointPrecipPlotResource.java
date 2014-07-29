@@ -48,6 +48,7 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -88,7 +89,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * ------------	----------	-----------	--------------------------
  * Nov 24, 2008	 1748		snaples 	Initial creation
  * Mar  3, 2014  2804       mschenke    Set back up clipping pane
- * 
+ * Jul 24, 2014  3429       mapeters    Updated deprecated drawLine() calls.
  * </pre>
  * 
  * @author snaples
@@ -765,7 +766,7 @@ public class PointPrecipPlotResource extends
         }
     }
 
-    private void drawQCLegend() {
+    private void drawQCLegend() throws VizException {
         // TODO this screen location code is borrowed from MPELegendResource...
         // should it be put into a shared class, possibly a paint
         // properties method?
@@ -784,26 +785,25 @@ public class PointPrecipPlotResource extends
         RGB color = null;
         String label = "";
         int[] funct = DailyQcUtils.funct;
+        DrawableLine[] lines = new DrawableLine[typename.length];
         for (int i = 0; i < typename.length; i++) {
-
-            try {
-                color = RGBColors.getRGBColor(color_map_a[funct[i]]);
-                target.drawLine(x1, y1 + i * textSpace, 0.0, x1
-                        + (2.5 * padding), y1 + i * textSpace, 0.0, color, 35);
-                label = typename[i];
-                color = RGBColors.getRGBColor(color_map_n[15]);
-                double xLoc = x1 + (4 * padding);
-                double yLoc = y1 + (i + .45) * textSpace;
-                string.setText(label, color);
-                string.setCoordinates(xLoc, yLoc);
-                string.horizontalAlignment = HorizontalAlignment.LEFT;
-                string.verticallAlignment = VerticalAlignment.BOTTOM;
-                target.drawStrings(string);
-            } catch (VizException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            color = RGBColors.getRGBColor(color_map_a[funct[i]]);
+            lines[i] = new DrawableLine();
+            lines[i].setCoordinates(x1, y1 + i * textSpace);
+            lines[i].addPoint(x1 + (2.5 * padding), y1 + i * textSpace);
+            lines[i].basics.color = color;
+            lines[i].width = 35;
+            label = typename[i];
+            color = RGBColors.getRGBColor(color_map_n[15]);
+            double xLoc = x1 + (4 * padding);
+            double yLoc = y1 + (i + .45) * textSpace;
+            string.setText(label, color);
+            string.setCoordinates(xLoc, yLoc);
+            string.horizontalAlignment = HorizontalAlignment.LEFT;
+            string.verticallAlignment = VerticalAlignment.BOTTOM;
+            target.drawStrings(string);
         }
+        target.drawLine(lines);
 
     }
 

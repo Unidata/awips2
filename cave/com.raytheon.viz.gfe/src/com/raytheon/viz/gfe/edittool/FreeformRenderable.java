@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -44,6 +45,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 04/10/2008              chammack    Initial Creation.
  * 04/14/2009   #2058      rjpeter     Ensured nulls couldn't be added to polyLineVis.
+ * 07/23/2014   #3429      mapeters    Updated deprecated drawLine() call.
  * </pre>
  * 
  * @author chammack
@@ -107,16 +109,21 @@ public class FreeformRenderable implements IRenderable {
         if (descriptor != null) {
             double[] last = null;
             double[] nextCoord = new double[2];
+            List<DrawableLine> lines = new ArrayList<DrawableLine>();
             for (Coordinate coord : polyLineVis) {
                 nextCoord[0] = coord.x;
                 nextCoord[1] = coord.y;
                 double[] out = descriptor.worldToPixel(nextCoord);
                 if ((last != null) && (out != null)) {
-                    target.drawLine(last[0], last[1], 0.0, out[0], out[1], 0.0,
-                            drawingColor, 1.0f);
+                    DrawableLine line = new DrawableLine();
+                    line.setCoordinates(last[0], last[1]);
+                    line.addPoint(out[0], out[1]);
+                    line.basics.color = drawingColor;
+                    lines.add(line);
                 }
                 last = out;
             }
+            target.drawLine(lines.toArray(new DrawableLine[0]));
         }
     }
 
