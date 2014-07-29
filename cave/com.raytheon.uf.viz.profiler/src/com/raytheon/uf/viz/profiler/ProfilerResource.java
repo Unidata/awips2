@@ -37,9 +37,12 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
+import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -75,7 +78,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * AWIPS2 DR Work
  * 08/10/2012         1035 jkorman     Changed number of 'staffs' from 12 to 13 and changed time
  *                                     display to match AWIPS I.
- * 08/13/2012         1046 jkorman     Changed to load colorMap file.                                     
+ * 08/13/2012         1046 jkorman     Changed to load colorMap file.  
+ * 07/25/2014         3429 mapeters    Updated deprecated drawLine() calls.
  * </pre>
  * 
  * @author dhladky
@@ -447,55 +451,67 @@ public class ProfilerResource extends
     public void drawXAxis(PaintProperties paintProps, Double magnification)
             throws VizException {
         // left edge of graph
-        target.drawLine(
-                ProfilerUtils.profilerRectangle.x,
-                (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height),
-                0.0, ProfilerUtils.profilerRectangle.x,
-                ProfilerUtils.profilerRectangle.y, 0.0,
-                ProfilerUtils.GRAPH_COLOR, ProfilerUtils.GRAPH_LINE_WIDTH,
-                IGraphicsTarget.LineStyle.SOLID);
+        DrawableLine[] lines = new DrawableLine[2];
+        lines[0] = new DrawableLine();
+        lines[0].setCoordinates(ProfilerUtils.profilerRectangle.x,
+                (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height));
+        lines[0].addPoint(ProfilerUtils.profilerRectangle.x,
+                ProfilerUtils.profilerRectangle.y);
+        lines[0].basics.color = ProfilerUtils.GRAPH_COLOR;
+        lines[0].width = ProfilerUtils.GRAPH_LINE_WIDTH;
 
+        DrawableString[] parameters = null;
         if (paintProps.getDataTime() != null) {
-            DrawableString parameters = new DrawableString("",
-                    ProfilerUtils.GRAPH_COLOR);
-            parameters.textStyle = TextStyle.BLANKED;
-            parameters.font = font;
-            parameters.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
-            parameters.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
-            parameters.basics.y = ProfilerUtils.profilerRectangle.y
+            parameters = new DrawableString[NUM_PROFILE_STAFFS];
+
+            VerticalAlignment verticalAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+            double y = ProfilerUtils.profilerRectangle.y
                     + ProfilerUtils.profilerRectangle.height
                     + ProfilerUtils.LABEL_OFFSET;
-            parameters.magnification = magnification;
-
-            double maxY = paintProps.getView().getExtent().getMaxY();
-            Rectangle2D rect = target.getStringsBounds(parameters);
-            if (parameters.basics.y + (rect.getHeight() / 2) > maxY) {
-                parameters.basics.y = maxY;
-                parameters.verticallAlignment = IGraphicsTarget.VerticalAlignment.BOTTOM;
-            }
 
             Calendar c = paintProps.getDataTime().getValidTime();
             for (int i = 0; i < NUM_PROFILE_STAFFS; i++) {
 
-//                String d = String.format("%1$tH:%1$tM", c);
+                parameters[i] = new DrawableString("",
+                        ProfilerUtils.GRAPH_COLOR);
+                parameters[i].textStyle = TextStyle.BLANKED;
+                parameters[i].font = font;
+                parameters[i].horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
+                parameters[i].verticallAlignment = verticalAlignment;
+                parameters[i].basics.y = y;
+                parameters[i].magnification = magnification;
+
+                if (i == 0) {
+                    double maxY = paintProps.getView().getExtent().getMaxY();
+                    Rectangle2D rect = target.getStringsBounds(parameters[i]);
+                    if (y + (rect.getHeight() / 2) > maxY) {
+                        y = maxY;
+                        verticalAlignment = IGraphicsTarget.VerticalAlignment.BOTTOM;
+                    }
+                }
+
+                // String d = String.format("%1$tH:%1$tM", c);
                 String d = String.format("%1$tH", c);
-                parameters.setText(d, ProfilerUtils.GRAPH_COLOR);
-                parameters.basics.x = ProfilerUtils.profilerRectangle.x
+                parameters[i].setText(d, ProfilerUtils.GRAPH_COLOR);
+                parameters[i].basics.x = ProfilerUtils.profilerRectangle.x
                         + (i * incX) + (incX / 2);
-                target.drawStrings(parameters);
+
                 c.add(Calendar.HOUR, -1);
             }
         }
 
         // draw right edge
-        target.drawLine(
-                (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
-                (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height),
-                0.0,
-                (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
-                ProfilerUtils.profilerRectangle.y, 0.0,
-                ProfilerUtils.GRAPH_COLOR, ProfilerUtils.GRAPH_LINE_WIDTH,
-                IGraphicsTarget.LineStyle.SOLID);
+        lines[1] = new DrawableLine();
+        lines[1].setCoordinates((ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
+                (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height));
+        lines[1].addPoint((ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
+                ProfilerUtils.profilerRectangle.y);
+        lines[1].basics.color = ProfilerUtils.GRAPH_COLOR;
+        lines[1].width = ProfilerUtils.GRAPH_LINE_WIDTH;
+        target.drawLine(lines);
+        if (parameters != null) {
+            target.drawStrings(parameters);
+        }
     }
 
     /**
@@ -504,60 +520,78 @@ public class ProfilerResource extends
      */
     public void drawYAxis(PaintProperties paintProps, Double magnification)
             throws VizException {
-        DrawableString parameters = new DrawableString("18km",
+        ArrayList<DrawableString> parameters = new ArrayList<DrawableString>();
+        DrawableString string1 = new DrawableString("18km",
                 ProfilerUtils.GRAPH_COLOR);
-        parameters.textStyle = TextStyle.BLANKED;
-        parameters.font = font;
-        parameters.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.RIGHT;
-        parameters.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
-        parameters.basics.x = ProfilerUtils.profilerRectangle.x
+        string1.textStyle = TextStyle.BLANKED;
+        string1.font = font;
+        string1.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.RIGHT;
+        string1.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+        string1.basics.x = ProfilerUtils.profilerRectangle.x
                 - ProfilerUtils.LABEL_OFFSET;
-        parameters.basics.y = ProfilerUtils.profilerRectangle.y;
+        string1.basics.y = ProfilerUtils.profilerRectangle.y;
 
         double minX = paintProps.getView().getExtent().getMinX();
         double maxX = paintProps.getView().getExtent().getMaxX();
 
         // top of graph
-        target.drawLine(ProfilerUtils.profilerRectangle.x,
-                ProfilerUtils.profilerRectangle.y, 0.0,
-                ProfilerUtils.profilerRectangle.x
-                        + ProfilerUtils.profilerRectangle.width,
-                ProfilerUtils.profilerRectangle.y, 0.0,
-                ProfilerUtils.GRAPH_COLOR, ProfilerUtils.GRAPH_LINE_WIDTH,
-                IGraphicsTarget.LineStyle.SOLID);
+        List<DrawableLine> lines = new ArrayList<DrawableLine>();
+        DrawableLine top = new DrawableLine();
+        top.setCoordinates(ProfilerUtils.profilerRectangle.x,
+                ProfilerUtils.profilerRectangle.y);
+        top.addPoint(ProfilerUtils.profilerRectangle.x
+                + ProfilerUtils.profilerRectangle.width,
+                ProfilerUtils.profilerRectangle.y);
+        top.basics.color = ProfilerUtils.GRAPH_COLOR;
+        top.width = ProfilerUtils.GRAPH_LINE_WIDTH;
+        lines.add(top);
 
-        Rectangle2D rect = target.getStringsBounds(parameters);
+        Rectangle2D rect = target.getStringsBounds(string1);
 
-        if (parameters.basics.x - rect.getWidth() < minX) {
-            parameters.basics.x = minX;
-            parameters.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.LEFT;
+        if (string1.basics.x - rect.getWidth() < minX) {
+            string1.basics.x = minX;
+            string1.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.LEFT;
         }
-        target.drawStrings(parameters);
+
+        parameters.add(string1);
+
+        double x = string1.basics.x;
+        HorizontalAlignment horizontalAlignment = string1.horizontalAlignment;
 
         // loop for heights in meters
+        boolean changed = false;
         for (int i = 0; i < ProfilerUtils.HEIGHTS; i += 2) {
             // draw Y labels
-            parameters.setText(
+            DrawableString string = new DrawableString(
                     ProfilerUtils.decimalFormat.format(new Double(i)) + " km",
                     ProfilerUtils.GRAPH_COLOR);
-            parameters.basics.y = calcY(i * 1000);
-            rect = target.getStringsBounds(parameters);
-            if (parameters.basics.x - rect.getWidth() < minX) {
-                parameters.basics.x = minX;
-                parameters.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.LEFT;
+            string.textStyle = TextStyle.BLANKED;
+            string.font = font;
+            string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+            string.basics.y = calcY(i * 1000);
+            rect = target.getStringsBounds(string);
+
+            // Once changed once, these variables stay the same
+            if (!changed && x - rect.getWidth() < minX) {
+                x = minX;
+                horizontalAlignment = IGraphicsTarget.HorizontalAlignment.LEFT;
+                changed = true;
             }
 
-            target.drawLine(
-                    ProfilerUtils.profilerRectangle.x,
-                    calcY(i * 1000),
-                    0.0,
-                    (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
-                    calcY(i * 1000), 0.0, ProfilerUtils.GRAPH_COLOR,
-                    ProfilerUtils.GRAPH_LINE_WIDTH,
-                    IGraphicsTarget.LineStyle.SOLID);
-            // draw after line so it draws on top
-            target.drawStrings(parameters);
+            string.basics.x = x;
+            string.horizontalAlignment = horizontalAlignment;
 
+            parameters.add(string);
+
+            DrawableLine yLabel = new DrawableLine();
+            yLabel.setCoordinates(ProfilerUtils.profilerRectangle.x,
+                    calcY(i * 1000));
+            yLabel.addPoint(
+                    (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
+                    calcY(i * 1000));
+            yLabel.basics.color = ProfilerUtils.GRAPH_COLOR;
+            yLabel.width = ProfilerUtils.GRAPH_LINE_WIDTH;
+            lines.add(yLabel);
         }
         double stationElevation = 0;
         if (!getResourceData().records.isEmpty()) {
@@ -565,46 +599,66 @@ public class ProfilerResource extends
                     .getElevation();
         }
         // Draw the surface line.
-        target.drawLine(
-                ProfilerUtils.profilerRectangle.x,
-                calcY(stationElevation),
-                0.0,
+        DrawableLine surface = new DrawableLine();
+        surface.setCoordinates(ProfilerUtils.profilerRectangle.x,
+                calcY(stationElevation));
+        surface.addPoint(
                 (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
-                calcY(stationElevation), 0.0, ProfilerUtils.GRAPH_COLOR,
-                ProfilerUtils.GRAPH_LINE_WIDTH, IGraphicsTarget.LineStyle.SOLID);
+                calcY(stationElevation));
+        surface.basics.color = ProfilerUtils.GRAPH_COLOR;
+        surface.width = ProfilerUtils.GRAPH_LINE_WIDTH;
+        lines.add(surface);
 
-        // loop for pressure levels and labels
-        parameters.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.LEFT;
-        parameters.basics.x = ProfilerUtils.profilerRectangle.x
+        x = ProfilerUtils.profilerRectangle.x
                 + ProfilerUtils.profilerRectangle.width
                 + ProfilerUtils.LABEL_OFFSET;
+        horizontalAlignment = IGraphicsTarget.HorizontalAlignment.LEFT;
 
+        // loop for pressure levels and labels
+        changed = false;
         for (int i = 0; i < ProfilerUtils.PRESSURES.length; i++) {
             double height = WxMath.pressureToHeight(ProfilerUtils.PRESSURES[i]);
             if (height <= MAX_Y) {
-                parameters.setText(
+                DrawableString string = new DrawableString(
                         ProfilerUtils.decimalFormat.format(new Double(
                                 ProfilerUtils.PRESSURES[i])) + " mb",
                         ProfilerUtils.GRAPH_COLOR);
-                parameters.basics.y = calcY(height);
-                rect = target.getStringsBounds(parameters);
-                if (parameters.basics.x + rect.getWidth() > maxX) {
-                    parameters.basics.x = maxX;
-                    parameters.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.RIGHT;
+                string.textStyle = TextStyle.BLANKED;
+                string.font = font;
+                string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
+                string.basics.y = calcY(height);
+                rect = target.getStringsBounds(string);
+
+                // Once changed once, these variables stay the same
+                if (!changed && x + rect.getWidth() > maxX) {
+                    x = maxX;
+                    horizontalAlignment = IGraphicsTarget.HorizontalAlignment.RIGHT;
+                    changed = true;
                 }
-                target.drawStrings(parameters);
+
+                string.basics.x = x;
+                string.horizontalAlignment = horizontalAlignment;
+
+                parameters.add(string);
             }
         }
 
         // bottom of graph
-        target.drawLine(
+        DrawableLine bottom = new DrawableLine();
+        bottom.setCoordinates(
                 ProfilerUtils.profilerRectangle.x,
-                (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height),
-                0.0,
+                (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height));
+        bottom.addPoint(
                 (ProfilerUtils.profilerRectangle.x + ProfilerUtils.profilerRectangle.width),
-                (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height),
-                0.0, ProfilerUtils.GRAPH_COLOR, ProfilerUtils.GRAPH_LINE_WIDTH,
-                IGraphicsTarget.LineStyle.SOLID);
+                (ProfilerUtils.profilerRectangle.y + ProfilerUtils.profilerRectangle.height));
+        bottom.basics.color = ProfilerUtils.GRAPH_COLOR;
+        bottom.width = ProfilerUtils.GRAPH_LINE_WIDTH;
+        lines.add(bottom);
+        
+        target.drawLine(lines.toArray(new DrawableLine[0]));
+
+        // draw strings after lines so they draw on top
+        target.drawStrings(parameters);
     }
 
     /**
