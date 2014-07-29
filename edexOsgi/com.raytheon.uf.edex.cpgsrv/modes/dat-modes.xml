@@ -37,6 +37,8 @@
 	</mode>
 	<!-- Runs separate now, not just high mem -->
 	<mode name="ingestDat">
+        <!-- utility-common needed for localization notifications -->
+        <include>utility-common.xml</include>
 	    <include>nwsauth-request.xml</include>
 		<include>time-common.xml</include>
 		<include>ffmp-ingest.xml</include>
