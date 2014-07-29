@@ -322,8 +322,9 @@ public class GridTimeSeriesAdapter extends
                     dataPoint = new XYData(time, value);
                 }
             }
-
-            data.add(dataPoint);
+            if (dataPoint != null){
+                data.add(dataPoint);
+            }
         }
 
         XYDataList list = new XYDataList();
