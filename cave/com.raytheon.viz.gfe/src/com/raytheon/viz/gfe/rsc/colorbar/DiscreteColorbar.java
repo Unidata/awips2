@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -97,6 +98,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     on discrete color bar when no grid exists
  * Feb 12, 2013     15719  jdynina     Fixed out of bounds error in calcGridColorTable  
  * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
+ * Jul 23, 2014     #3429  mapeters    Updated deprecated drawLine() calls
  * 
  * </pre>
  * 
@@ -529,11 +531,14 @@ public class DiscreteColorbar implements IColorBarDisplay,
         dstring.horizontalAlignment = HorizontalAlignment.CENTER;
         dstring.verticallAlignment = VerticalAlignment.MIDDLE;
 
+        DrawableLine[] lines = new DrawableLine[colorTable.size()];
         i = 0;
         for (ColorEntry colorEntry : colorTable) {
             double ikeywidth = i * keywidth;
-            target.drawLine(minX + ikeywidth, minY, 0.0, minX + ikeywidth,
-                    maxY, 0.0, seColorBarTickColor, 1.0f);
+            lines[i] = new DrawableLine();
+            lines[i].setCoordinates(minX + ikeywidth, minY);
+            lines[i].addPoint(minX + ikeywidth, maxY);
+            lines[i].basics.color = seColorBarTickColor;
 
             String keyName = colorEntry.getValue().toString();
             labelLoc = (float) (minX + ikeywidth) + ((float) keywidth / 2);
@@ -556,6 +561,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
             }
             i++;
         }
+        target.drawLine(lines);
     }
 
     /**
