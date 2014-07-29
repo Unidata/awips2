@@ -37,6 +37,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -71,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     calcGridLabels().
  * 11/05/2012     #14566   jzeng       Paint the sample points with the order of grids 
  * 							           in calcGridLabels ()
+ * 07/24/2014     #3429    mapeters    Updated deprecated drawLine() calls.
  * </pre>
  * 
  * @author chammack
@@ -205,12 +207,19 @@ public class SamplePainter {
             if (showDataValues) {
                 double tickMarkExtent = ratio * 3;
 
-                target.drawLine(screenloc[0] - tickMarkExtent, screenloc[1],
-                        0.0, screenloc[0] + tickMarkExtent, screenloc[1], 0.0,
-                        llPlusColor, 2.0f);
-                target.drawLine(screenloc[0], screenloc[1] - tickMarkExtent,
-                        0.0, screenloc[0], screenloc[1] + tickMarkExtent, 0.0,
-                        llPlusColor, 2.0f);
+                DrawableLine[] lines = new DrawableLine[2];
+                lines[0] = new DrawableLine();
+                lines[0].setCoordinates(screenloc[0] - tickMarkExtent, screenloc[1]);
+                lines[0].addPoint(screenloc[0] + tickMarkExtent, screenloc[1]);
+                lines[0].basics.color = llPlusColor;
+                lines[0].width = 2.0f;
+                lines[1] = new DrawableLine();
+                lines[1].setCoordinates(screenloc[0], screenloc[1] - tickMarkExtent);
+                lines[1].addPoint(screenloc[0], screenloc[1] + tickMarkExtent);
+                lines[1].basics.color = llPlusColor;
+                lines[1].width = 2.0f;
+                
+                target.drawLine(lines);
 
             }
 
