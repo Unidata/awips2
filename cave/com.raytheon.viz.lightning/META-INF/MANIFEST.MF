@@ -16,4 +16,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.numeric.buffer,
  com.raytheon.uf.common.numeric.filter,
  com.raytheon.uf.common.numeric.source,
+ com.raytheon.uf.common.numeric.sparse,
  com.raytheon.uf.viz.productbrowser
