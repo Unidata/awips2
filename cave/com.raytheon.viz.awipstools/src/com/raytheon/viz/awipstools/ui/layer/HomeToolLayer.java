@@ -34,6 +34,7 @@ import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -70,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  15Jan2007                ebabin     Update for lat/lon put home cursor bug.
  *  10-21-09     #1049       bsteffen    Refactor to common MovableTool model
  *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
+ *  23Jul2014    3429        mapeters    Updated deprecated drawLine() calls.
  *  28Jul2014    3430        mapeters    Updated move function to prevent errors when
  *                                       MB3 clicking off the map in editable mode.
  * </pre>
@@ -159,10 +161,18 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
                 radius, 45);
         double[] p2 = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 225);
-        target.drawLine(p1[0], p1[1], 0, p2[0], p2[1], 0, color, 1.0f);
+        DrawableLine[] lines = new DrawableLine[2];
+        lines[0] = new DrawableLine();
+        lines[0].setCoordinates(p1[0], p1[1]);
+        lines[0].addPoint(p2[0], p2[1]);
+        lines[0].basics.color = color;
         p1 = target.getPointOnCircle(center[0], center[1], 0.0, radius, 135);
         p2 = target.getPointOnCircle(center[0], center[1], 0.0, radius, 315);
-        target.drawLine(p1[0], p1[1], 0, p2[0], p2[1], 0, color, 1.0f);
+        lines[1] = new DrawableLine();
+        lines[1].setCoordinates(p1[0], p1[1]);
+        lines[1].addPoint(p2[0], p2[1]);
+        lines[1].basics.color = color;
+        target.drawLine(lines);
         double labelLoc[] = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 0);
         DrawableString dString = new DrawableString("Home", color);
