@@ -19,14 +19,12 @@
  **/
 package com.raytheon.viz.core.graphing;
 
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
+ * @Deprecated TODO
  * Implements a world coordinate to graphics viewport transform.
  * 
  * <pre>
@@ -35,16 +33,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06 Nov 2006             jkorman     Initial Coding
+ * 24 Jul 2014             mapeters    Removed unused methods/fields/imports 
+ *                                     and marked as deprecated.
+ * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
+@Deprecated
 public class WGraphics {
-
-    private double cursorX = 0;
-
-    private double cursorY = 0;
 
     private double worldXmin = -1;
 
@@ -95,9 +93,6 @@ public class WGraphics {
     private double viewYmax;
 
     // private IGraphicsTarget graphicsContext;
-
-    /** Default text color */
-    private RGB textColor = new RGB(255, 255, 255);
 
     /**
      * Create a World coordinates graph
@@ -211,77 +206,19 @@ public class WGraphics {
         return dataPoint;
     }
 
-    /**
-     * Move the drawing cursor to point x1, y1.
-     * 
-     * @param x1
-     *            The world x value.
-     * @param y1
-     *            The world y value.
-     */
-    public void moveTo(double x, double y) {
-        cursorX = mapX(x);
-        cursorY = mapY(y);
-    } // moveTo()
-
-    /**
-     * Draw to point x1, y1 using a specified color.
-     * 
-     * @param x1
-     *            The world x value.
-     * @param y1
-     *            The world y value.
-     * @param color
-     *            The drawing color.
-     */
-    public void drawTo(IGraphicsTarget target, double x, double y, RGB color) {
-        this.drawTo(target, x, y, color, LineStyle.SOLID);
-    } // drawTo()
-
-    public void drawTo(IGraphicsTarget target, double x, double y, RGB color,
-            LineStyle lineStyle) {
-        try {
-            double mx = mapX(x);
-            double my = mapY(y);
-            target.drawLine(cursorX, cursorY, 0.0, mx, my, 0.0, color, 1,
-                    lineStyle);
-            cursorX = mx;
-            cursorY = my;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    } // drawTo()
-
     public double getViewXmin() {
         return viewXmin;
-    }
-
-    public void setViewXmin(double viewX1) {
-        this.viewXmin = viewX1;
     }
 
     public double getViewYmin() {
         return viewYmin;
     }
 
-    public void setViewYmin(double viewY1) {
-        this.viewYmin = viewY1;
-    }
-
     public double getViewXmax() {
         return viewXmax;
     }
 
-    public void setViewXmax(double viewX2) {
-        this.viewXmax = viewX2;
-    }
-
     public double getViewYmax() {
         return viewYmax;
-    }
-
-    public void setViewYmax(double viewY2) {
-        this.viewYmax = viewY2;
     }
 }
