@@ -40,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -106,6 +107,7 @@ import com.vividsolutions.jts.geom.LineString;
  *  06-03-14    3191       njensen     Fix postData to not retrieve
  *  06-17-2014  DR17409 mgamazaychikov Fix futurePoints calculation in generateNewTrackInfo()
  *                                     and generateExistingTrackInfo()
+ *  07-24-2014  3429       mapeters    Updated deprecated drawLine() calls.
  * 
  * </pre>
  * 
@@ -454,7 +456,7 @@ public class StormTrackDisplay implements IRenderable {
      * @param editable
      *            if the line is editable
      * @throws VizException
-     */
+     */   
     private void paintLine(IGraphicsTarget target, Coordinate[] coords,
             RGB color, float lineWidth, boolean editable, double circleSize, LineStyle style)
             throws VizException {
@@ -463,7 +465,11 @@ public class StormTrackDisplay implements IRenderable {
         circle.radius = circleSize;
         circle.filled = true;
 
-        Coordinate lastCoord = null;
+        DrawableLine line = new DrawableLine();
+        line.basics.color = color;
+        line.width = lineWidth;
+        line.lineStyle = style;
+        double[] p1;
         for (int i = 0; i < coords.length; ++i) {
             Coordinate currCoord = coords[i];
             if (currCoord != null) {
@@ -471,25 +477,18 @@ public class StormTrackDisplay implements IRenderable {
                 if (editable) {
                     paintPoint(target, currCoord, color, circleSize);
                 } else {
-                    double[] p1 = descriptor.worldToPixel(new double[] {
+                    p1 = descriptor.worldToPixel(new double[] {
                             currCoord.x, currCoord.y });
                     circle.setCoordinates(p1[0], p1[1]);
                     target.drawCircle(circle);
                 }
 
-                // paint line if lastCoord not null
-                if (lastCoord != null) {
-                    double[] p1 = descriptor.worldToPixel(new double[] {
-                            currCoord.x, currCoord.y });
-                    double[] p2 = descriptor.worldToPixel(new double[] {
-                            lastCoord.x, lastCoord.y });
-
-                    target.drawLine(p1[0], p1[1], 0.0, p2[0], p2[1], 0.0,
-                            color, lineWidth, style);
-                }
+                p1 = descriptor.worldToPixel(new double[] {
+                        currCoord.x, currCoord.y });
+                line.addPoint(p1[0], p1[1]);
             }
-            lastCoord = currCoord;
         }
+        target.drawLine(line);
     }
 
     /**
