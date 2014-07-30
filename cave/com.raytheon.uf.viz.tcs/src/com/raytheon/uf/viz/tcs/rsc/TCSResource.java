@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
@@ -43,11 +44,11 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintTyp
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -77,6 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 22, 2010            jsanchez     Initial creation
+ * Jul 29, 2014 #3465      mapeters     Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -205,9 +207,12 @@ public class TCSResource extends
         double[] loc = calcNameLocation(latitudes[0].floatValue(),
                 longitudes[0].floatValue(), latitudes[size - 1].floatValue(),
                 longitudes[size - 1].floatValue());
-        target.drawString(font, name, loc[0], loc[1], 0.0, TextStyle.NORMAL,
-                color, HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE,
-                null);
+        DrawableString string = new DrawableString(name, color);
+        string.font = font;
+        string.setCoordinates(loc[0], loc[1]);
+        string.horizontalAlignment = HorizontalAlignment.CENTER;
+        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        target.drawStrings(string);
     }
 
     private void displayOneStorm(IGraphicsTarget target,
@@ -220,48 +225,75 @@ public class TCSResource extends
                 latitude });
         scale *= getCapability(MagnificationCapability.class)
                 .getMagnification();
+
         // Plotting a text string "Dissipated" if there is no forecast
         // data available.
         if (displayTime.equals("Dissipated")) {
-            target.drawString(font, DISSIPATED, loc[0], loc[1], 0.0,
-                    TextStyle.NORMAL, color, HorizontalAlignment.CENTER,
-                    VerticalAlignment.MIDDLE, null);
-            target.drawString(font, name, loc[0], loc[1] + (7 * scale), 0.0,
-                    TextStyle.NORMAL, color, HorizontalAlignment.CENTER,
-                    VerticalAlignment.MIDDLE, null);
+            DrawableString[] strings = new DrawableString[2];
+            strings[0] = new DrawableString(DISSIPATED, color);
+            strings[0].font = font;
+            strings[0].setCoordinates(loc[0], loc[1]);
+            strings[0].horizontalAlignment = HorizontalAlignment.CENTER;
+            strings[0].verticallAlignment = VerticalAlignment.MIDDLE;
+
+            strings[1] = new DrawableString(name, color);
+            strings[1].font = font;
+            strings[1].setCoordinates(loc[0], loc[1] + (7 * scale));
+            strings[1].horizontalAlignment = HorizontalAlignment.CENTER;
+            strings[1].verticallAlignment = VerticalAlignment.MIDDLE;
+
+            target.drawStrings(strings);
             return;
         }
 
-        // Display control, display all storms or huricanes with the press,
+        // Display control, display all storms or hurricanes with the press,
         // time, wind speed of its center.
 
         // Plotting storm symbol
         drawStormSymbol(target, paintProps, loc, windSpeed, isTropical, scale);
 
+        List<DrawableString> strings = new ArrayList<DrawableString>(4);
         // Plotting time
-        target.drawString(font, displayTime, loc[0] + (2 * scale), loc[1], 0.0,
-                TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                VerticalAlignment.MIDDLE, null);
+        DrawableString string1 = new DrawableString(displayTime, color);
+        string1.font = font;
+        string1.setCoordinates(loc[0] + (2 * scale), loc[1]);
+        string1.verticallAlignment = VerticalAlignment.MIDDLE;
+        strings.add(string1);
 
         // Plotting wind speed
-        target.drawString(font, formatter.format(windSpeed), loc[0]
-                - (1.5 * scale), loc[1], 0.0, TextStyle.NORMAL, color,
-                HorizontalAlignment.RIGHT, VerticalAlignment.MIDDLE, null);
+        DrawableString string2 = new DrawableString(
+                formatter.format(windSpeed), color);
+        string2.font = font;
+        string2.setCoordinates(loc[0] - (1.5 * scale), loc[1]);
+        string2.horizontalAlignment = HorizontalAlignment.RIGHT;
+        string2.verticallAlignment = VerticalAlignment.MIDDLE;
+        strings.add(string2);
 
         // Plotting pressure
         if (pressure != 0) {
-            target.drawString(font, formatter.format(pressure), loc[0], loc[1]
-                    + (2 * scale), 0.0, TextStyle.NORMAL, color,
-                    HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE, null);
+            DrawableString string3 = new DrawableString(
+                    formatter.format(pressure), color);
+            string3.font = font;
+            string3.setCoordinates(loc[0], loc[1] + (2 * scale));
+            string3.horizontalAlignment = HorizontalAlignment.CENTER;
+            string3.verticallAlignment = VerticalAlignment.MIDDLE;
+            strings.add(string3);
         }
 
         // // -------------Draw the wind radius.---------------
-        if (!drawRadius)
+        if (!drawRadius) {
+            target.drawStrings(strings);
             return;
+        }
         // Plotting name
-        target.drawString(font, name, loc[0], loc[1] + (7 * scale), 0.0,
-                TextStyle.NORMAL, color, HorizontalAlignment.CENTER,
-                VerticalAlignment.MIDDLE, null);
+        DrawableString string4 = new DrawableString(name, color);
+        string4.font = font;
+        string4.setCoordinates(loc[0], loc[1] + (7 * scale));
+        string4.horizontalAlignment = HorizontalAlignment.CENTER;
+        string4.verticallAlignment = VerticalAlignment.MIDDLE;
+        strings.add(string4);
+
+        target.drawStrings(strings);
 
         if (paintProps.getZoomLevel() * descriptor.getMapWidth() / 1000 < ZOOM_LEVEL) {
             drawLegends(target, paintProps, scale);
@@ -407,18 +439,28 @@ public class TCSResource extends
         double y = correctedExtent.getMinY();
 
         target.clearClippingPlane();
-        target.drawString(font, LEGEND_12_FT, x, y + (scale * 2), 0.0,
-                TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                VerticalAlignment.MIDDLE, null);
-        target.drawString(font, LEGEND_34_KT, x, y + (scale * 4), 0.0,
-                TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                VerticalAlignment.MIDDLE, null);
-        target.drawString(font, LEGEND_50_KT, x, y + (scale * 6), 0.0,
-                TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                VerticalAlignment.MIDDLE, null);
-        target.drawString(font, LEGEND_64_KT, x, y + (scale * 8), 0.0,
-                TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                VerticalAlignment.MIDDLE, null);
+        DrawableString[] strings = new DrawableString[4];
+        strings[0] = new DrawableString(LEGEND_12_FT, color);
+        strings[0].font = font;
+        strings[0].setCoordinates(x, y + (scale * 2));
+        strings[0].verticallAlignment = VerticalAlignment.MIDDLE;
+
+        strings[1] = new DrawableString(LEGEND_34_KT, color);
+        strings[1].font = font;
+        strings[1].setCoordinates(x, y + (scale * 4));
+        strings[1].verticallAlignment = VerticalAlignment.MIDDLE;
+
+        strings[2] = new DrawableString(LEGEND_50_KT, color);
+        strings[2].font = font;
+        strings[2].setCoordinates(x, y + (scale * 6));
+        strings[2].verticallAlignment = VerticalAlignment.MIDDLE;
+
+        strings[3] = new DrawableString(LEGEND_64_KT, color);
+        strings[3].font = font;
+        strings[3].setCoordinates(x, y + (scale * 8));
+        strings[3].verticallAlignment = VerticalAlignment.MIDDLE;
+
+        target.drawStrings(strings);
         target.setupClippingPlane(paintProps.getView().getExtent());
 
     }
