@@ -13,7 +13,6 @@
   <parameter name="ISSUETIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
   <parameter name="OBSTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
   <parameter name="SYNOPTIME" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
-  <parameter name="DATAURI" numDims="1" type="STRING" size="128"/> 
   <parameter name="DATATYPE" numDims="1" type="STRING" size="8"/> 
   <parameter name="CORR" numDims="1" type="STRING" size="8"/>
   <parameter name="WMOHEADER" numDims="1" type="STRING" size="32" />
