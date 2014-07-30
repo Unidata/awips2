@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.plugin.svrwx.SvrWxRecordDao;
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed pluginName
  * Jun 25, 2014 3008       nabowle     Refactor for EventReport type
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jul 30, 2014 3410       bclement    lat, lon and data uri moved to database point data desc
  * 
  * </pre>
  * 
@@ -198,10 +199,7 @@ public class SvrWxParser {
                 // Populate the point data.
                 PointDataView view = pdc.append();
 
-                view.setFloat("latitude", (float) report.getLatitude());
-                view.setFloat("longitude", (float) report.getLongitude());
                 view.setString("wmoHeader", report.getWmoHeader());
-                view.setString("dataURI", report.getDataURI());
                 view.setString("eventKey", report.getEventKey());
                 view.setString("details", report.getDetails());
                 view.setString("greenTime", report.getGreenTime());
