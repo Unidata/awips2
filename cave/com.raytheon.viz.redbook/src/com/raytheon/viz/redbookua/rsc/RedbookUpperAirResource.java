@@ -48,12 +48,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
@@ -88,6 +86,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 24, 2013 2203       njensen     Synchronized init and dispose of frames
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
+ * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -518,11 +517,15 @@ public class RedbookUpperAirResource extends
 
             if (dumpTime != null && dumpTime.length() > 0) {
                 target.clearClippingPlane();
-                target.drawString(font, "Dump time: " + dumpTime, pe.getMinX()
-                        + 2 * xRatio, pe.getMaxY() - 2 * yRatio, 0,
-                        TextStyle.NORMAL,
-                        getCapability(ColorableCapability.class).getColor(),
-                        HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM, 0.0);
+
+                DrawableString string = new DrawableString("Dump time: "
+                        + dumpTime, getCapability(ColorableCapability.class)
+                        .getColor());
+                string.font = font;
+                string.setCoordinates(pe.getMinX() + 2 * xRatio, pe.getMaxY()
+                        - 2 * yRatio);
+                target.drawStrings(string);
+
                 target.setupClippingPlane(new PixelExtent(getDescriptor()
                         .getGridGeometry().getGridRange()));
             }
