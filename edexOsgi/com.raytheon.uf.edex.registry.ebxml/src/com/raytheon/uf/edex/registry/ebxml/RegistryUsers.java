@@ -1,4 +1,23 @@
 package com.raytheon.uf.edex.registry.ebxml;
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 
 import java.util.List;
 
@@ -36,6 +55,23 @@ import com.raytheon.uf.edex.registry.ebxml.dao.PersonDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RoleDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.security.SecurityConfiguration;
+
+/**
+ * 
+ * Registry User Utilitiy class
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 7/28/2014    3474        dhladky     Fixed bad ownership settings.
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
+ */
 
 @Path("/registryUsers/")
 @Service
@@ -98,7 +134,7 @@ public class RegistryUsers {
         user.setObjectType(RegistryObjectTypes.PERSON);
         user.setName(new InternationalStringType("User " + userName));
         user.setDescription(new InternationalStringType("User" + userName));
-        user.setOwner(RegistryUtil.DEFAULT_OWNER);
+        user.setOwner(RegistryUtil.registryUser);
         addUser(userName, pwd, role);
         return "Successfully added user " + userName + " to registry";
 
@@ -171,13 +207,13 @@ public class RegistryUsers {
         user.setObjectType(RegistryObjectTypes.PERSON);
         user.setName(new InternationalStringType("Registry User " + id));
         user.setDescription(new InternationalStringType("Registry User " + id));
-        user.setOwner(RegistryUtil.DEFAULT_OWNER);
+        user.setOwner(RegistryUtil.registryUser);
 
         AssociationType association = new AssociationType();
         association.setId(id + "_" + role + "_Association");
         association.setLid(association.getId());
         association.setObjectType(RegistryObjectTypes.ASSOCIATION);
-        association.setOwner(RegistryUtil.DEFAULT_OWNER);
+        association.setOwner(RegistryUtil.registryUser);
         association.setName(new InternationalStringType(role
                 + " role assocation for user " + id));
         association.setDescription(new InternationalStringType(role

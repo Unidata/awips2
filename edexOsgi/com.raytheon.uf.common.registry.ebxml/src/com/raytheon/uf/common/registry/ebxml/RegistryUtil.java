@@ -54,6 +54,7 @@ import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.StringSlotConverter;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
+import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.ReflectionException;
 import com.raytheon.uf.common.util.ReflectionUtil;
@@ -84,6 +85,8 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * 6/5/2014     1712       bphillip    Registry now communicates over https
  * June 25, 2014 3273      dhladky     Remove all DD environment variables from setup.env
  * 7/10/2014    1717       bphillip    Changed default user
+ * Jul 28, 2014 3474        dhladky    Fixed bad default user settings.
+ * 
  * 
  * </pre>
  * 
@@ -101,10 +104,10 @@ public final class RegistryUtil {
     public static final String registryObjectClassName = "registryObjectClassName";
     
     public static final String registryObjectDefaultVersion = "1.0";
+        
+    public static final String defaultUser = "NCF";
     
-    public static final String registryUser = "Registry";
-    
-    public static final String defaultUser = RegistryObjectType.SYSTEM_USER;
+    public static final String DEFAULT_OWNER = "System";
 
     static {
         if (System.getProperty("ebxml.registry.host") != null
@@ -121,7 +124,7 @@ public final class RegistryUtil {
     /**
      * The default internal owner is the local registry ID
      */
-    public static final String DEFAULT_OWNER = defaultUser;
+    public static final String registryUser = ClusterIdUtil.getId();
 
     // A private mapping of attribute types to slot types, used when storing an
     // object to the registry to map QueryableAttributes to SlotConverters.
@@ -381,7 +384,7 @@ public final class RegistryUtil {
                         registryObject, RegistryObjectOwner.class);
                 registryObject.setOwner(objectOwner);
                 if (objectOwner == null) {
-                    registryObject.setOwner(DEFAULT_OWNER);
+                    registryObject.setOwner(registryUser);
                 }
 
                 registryObject.setName(getInternationalString(ReflectionUtil
