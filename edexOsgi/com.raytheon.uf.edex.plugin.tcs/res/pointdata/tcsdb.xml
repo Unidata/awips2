@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pointDataDbDescription>
+  <parameter name="dataURI" queryName="dataURI" type="STRING" />
+</pointDataDbDescription>
