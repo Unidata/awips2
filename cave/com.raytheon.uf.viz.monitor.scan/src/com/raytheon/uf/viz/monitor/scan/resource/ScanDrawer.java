@@ -67,6 +67,7 @@ import com.vividsolutions.jts.geom.Point;
  * May 09, 2014   3145       mpduff      Add getter for font so it can be disposed, javadoc fix
  * Jul 22, 2014   3422       mapeters    Updated deprecated drawArc() call.
  * Jul 23, 2014   3429       mapeters    Updated deprecated drawLine() call.
+ * Jul 29, 2014   3465       mapeters    Updated deprecated drawString() calls.
  * </pre>
  * 
  * @author dhladky
@@ -574,15 +575,16 @@ public class ScanDrawer {
         int mapWidth = this.descriptor.getMapWidth() / 1000;
         double km = zoomLevel * mapWidth;
 
+        DrawableString string = new DrawableString(label, getColor());
+        string.font = font;
+        string.addTextStyle(TextStyle.DROP_SHADOW);
+        string.horizontalAlignment = HorizontalAlignment.RIGHT;
         if (km < 50) {
-            aTarget.drawString(font, label, center[0] - 1, center[1] - 1, 0,
-                    TextStyle.DROP_SHADOW, getColor(),
-                    HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, 0.0);
+            string.setCoordinates(center[0] - 1, center[1] - 1);
         } else {
-            aTarget.drawString(font, label, wLeftX, topY, 0,
-                    TextStyle.DROP_SHADOW, getColor(),
-                    HorizontalAlignment.RIGHT, VerticalAlignment.BOTTOM, 0.0);
+            string.setCoordinates(wLeftX, topY);
         }
+        aTarget.drawStrings(string);
     }
 
     /**
@@ -597,10 +599,13 @@ public class ScanDrawer {
      */
     public void drawArrowLabel(double x, double y, String label)
             throws VizException {
-
-        aTarget.drawString(font, label, x, y, 0, TextStyle.DROP_SHADOW,
-                getColor(), HorizontalAlignment.CENTER,
-                VerticalAlignment.MIDDLE, 0.0);
+        DrawableString string = new DrawableString(label, getColor());
+        string.font = font;
+        string.setCoordinates(x, y);
+        string.addTextStyle(TextStyle.DROP_SHADOW);
+        string.horizontalAlignment = HorizontalAlignment.CENTER;
+        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        aTarget.drawStrings(string);
     }
 
     /**
