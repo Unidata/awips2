@@ -63,6 +63,7 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
@@ -102,7 +103,6 @@ import com.raytheon.viz.warngen.gis.Wx;
 import com.raytheon.viz.warngen.gui.BackupData;
 import com.raytheon.viz.warngen.gui.FollowupData;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
-import com.raytheon.viz.warngen.gui.WarngenLayer.GeospatialDataAccessor;
 import com.raytheon.viz.warngen.gui.WarngenUIState;
 import com.raytheon.viz.warngen.text.WarningTextHandler;
 import com.raytheon.viz.warngen.text.WarningTextHandlerFactory;
@@ -159,8 +159,6 @@ import com.vividsolutions.jts.io.WKTReader;
  * Apr 28, 2014   3033     jsanchez    Set the site and backup site in Velocity Engine's properties
  * Mar 17, 2014   DR 16309 Qinglu Lin  Updated getWatches(), processATEntries() and determineAffectedPortions(), and 
  *                                     added determineAffectedMarinePortions().
- * Jul 17, 2014 DR15627 mgamazaychikov Fix setting asc and geoData in processATEntries, update getStateName,
- *                                     determineAffectedPortions and determineAffectedMarinePortions.
  * </pre>
  * 
  * @author njensen
@@ -1155,14 +1153,14 @@ public class TemplateRunner {
             Set<String> validUgcZones) {
         WatchUtil rval = new WatchUtil();
         TreeMap<WeatherAdvisoryWatch, WatchWork> map = new TreeMap<WeatherAdvisoryWatch, TemplateRunner.WatchWork>();
-        GeospatialData[] geoData = null;
+
         AreaSourceConfiguration asc = null;
-        try {
-            GeospatialDataAccessor gda = warngenLayer.getGeospatialDataAcessor();
-            geoData = gda.getFeatures();
-            asc = gda.getAreaConfig();
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),e);
+        for (AreaSourceConfiguration a : warngenLayer.getConfiguration()
+                .getAreaSources()) {
+            if (a.getType() == AreaType.HATCHING) {
+                asc = a;
+                break;
+            }
         }
         if (asc == null) {
             statusHandler
@@ -1170,6 +1168,8 @@ public class TemplateRunner {
                             "Cannot process watches: missing HATCHING area source configuration");
             return rval;
         }
+        GeospatialData[] geoData = warngenLayer.getGeodataFeatures(
+                asc.getAreaSource(), warngenLayer.getLocalizedSite());
         if ((geoData == null) || (geoData.length == 0)) {
             statusHandler.handle(Priority.ERROR,
                     "Cannot process watches: cannot get geospatial data");
@@ -1232,7 +1232,7 @@ public class TemplateRunner {
                     rval.addWaw(work.waw);
                 }
             } else {
-                if (determineAffectedMarinePortions(work.ugcZone, geoData, work.waw)) {
+                if (determineAffectedMarinePortions(work.ugcZone, asc, geoData, work.waw)) {
                     rval.addWaw(work.waw);
                 }
             }
@@ -1297,7 +1297,7 @@ public class TemplateRunner {
         for (Entry<String, Set<String>> e : map.entrySet()) {
             Portion portion = new Portion();
             try {
-                portion.parentRegion = getStateName(e.getKey(), geoData)
+                portion.parentRegion = getStateName(e.getKey(), asc, geoData)
                         .toUpperCase();
             } catch (RuntimeException exc) {
                 statusHandler.handle(Priority.ERROR,
@@ -1330,7 +1330,8 @@ public class TemplateRunner {
      */
     @SuppressWarnings("deprecation")
     private static boolean determineAffectedMarinePortions(List<String> ugcs,
-            GeospatialData[] geoData, WeatherAdvisoryWatch waw) {
+            AreaSourceConfiguration asc, GeospatialData[] geoData,
+            WeatherAdvisoryWatch waw) {
 
         // Maps state abbreviation to unique fe_area values
         HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
@@ -1509,7 +1510,7 @@ public class TemplateRunner {
         return abrev;
     }
 
-    private static String getStateName(String key,
+    private static String getStateName(String key, AreaSourceConfiguration asc,
             GeospatialData[] geoData) {
         for (GeospatialData g : geoData) {
             if (key.equals(g.attributes.get("STATE"))) {

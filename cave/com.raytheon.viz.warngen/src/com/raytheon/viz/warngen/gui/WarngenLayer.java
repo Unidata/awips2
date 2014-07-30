@@ -212,7 +212,6 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/01/2014  DR 17450    D. Friedman Use list of templates from backup site.
  * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
- * 07/28/2014  DR15627  mgamazaychikov Change access qualifiers for some fields, methods for GeospatialDataList and GeospatialDataAccessor classes, create setAccessorAreaSourceConfiguration method.
  * </pre>
  * 
  * @author mschenke
@@ -247,22 +246,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         GeneralGridGeometry localGridGeometry;
     }
 
-    public static class GeospatialDataAccessor {
-        public GeospatialDataList geoData;
+    private static class GeospatialDataAccessor {
+        GeospatialDataList geoData;
 
-        public AreaSourceConfiguration areaConfig;
-
-        public GeospatialDataList getGeoData() {
-            return geoData;
-        }
-
-        public AreaSourceConfiguration getAreaConfig() {
-            return areaConfig;
-        }
-
-        public GeospatialData[] getFeatures() {
-            return Arrays.copyOf(geoData.features, geoData.features.length);
-        }
+        AreaSourceConfiguration areaConfig;
 
         public GeospatialDataAccessor(GeospatialDataList geoData,
                 AreaSourceConfiguration areaConfig) {
@@ -1563,7 +1550,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return ugcs;
     }
 
-    public GeospatialDataAccessor getGeospatialDataAcessor()
+    private GeospatialDataAccessor getGeospatialDataAcessor()
             throws Exception {
         GeospatialDataList gdl = searchGeospatialDataAccessor();
         if (gdl == null) {
@@ -1584,34 +1571,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         // TODO: There should be some way to get the "county" configuration by
         // name
         // independent of a template
-        AreaSourceConfiguration areaConfig = getAccessorAreaSourceConfiguration();
+        AreaSourceConfiguration areaConfig = new AreaSourceConfiguration();
+        areaConfig.setFipsField("FIPS");
+
         return new GeospatialDataAccessor(gdl, areaConfig);
-    }
-
-    private static String ASC_MARINE = "MarineZones";
-    private static String ASC_COUNTY = "County";
-
-    /**
-     * Returns the AreaSourceConfiguration for either county or marine zones based product
-     *
-     * @return
-     * @throws Exception
-     */
-    private AreaSourceConfiguration getAccessorAreaSourceConfiguration() throws Exception {
-        boolean isMarineZone = configuration.getGeospatialConfig()
-                .getAreaSource().equalsIgnoreCase(MARINE);
-        WarngenConfiguration ascConfig = WarngenConfiguration.loadConfig(
-                "watchAreaSourceConfiguration", getLocalizedSite(), null);
-        AreaSourceConfiguration[] areaConfigs = ascConfig.getAreaSources();
-        for (AreaSourceConfiguration af:areaConfigs){
-            if (!isMarineZone && af.getAreaSource().equalsIgnoreCase(ASC_COUNTY)) {;
-                return af;
-            }
-            else if (isMarineZone && af.getAreaSource().equalsIgnoreCase(ASC_MARINE) ) {
-                return af;
-            }
-        }
-        return new AreaSourceConfiguration();
     }
 
     private GeospatialDataList searchGeospatialDataAccessor() {
