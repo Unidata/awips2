@@ -19,19 +19,21 @@
  **/
 package com.raytheon.viz.hydro.colorbar;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.LabelEntry;
 import com.raytheon.uf.viz.core.DrawableColorMap;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -66,6 +68,7 @@ import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
  *                                     parameters, disable colormap interpolation
  *                                     by default.
  * Mar  3, 2014 2804       mschenke    Set back up clipping pane
+ * Jul 30, 2014 3465       mapeters    Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -218,18 +221,21 @@ public class HydroColorBarResource extends
             offset = (int) (cmapRsc.getColorMapParameters().getLabels().get(1)
                     .getLocation()
                     * width / 2);
+            List<DrawableString> strings = new ArrayList<DrawableString>();
             for (LabelEntry entry : cmapRsc.getColorMapParameters().getLabels()) {
                 if (entry.getText().length() > 10) {
                     break;
                 } else {
-                    String s = entry.getText();
-                    target.drawString(null, s,
-                            xMin + offset + width * entry.getLocation(), y1,
-                            0.0, TextStyle.NORMAL, new RGB(255, 255, 255),
-                            HorizontalAlignment.CENTER, VerticalAlignment.TOP,
-                            0.0);
+                    DrawableString string = new DrawableString(entry.getText(),
+                            new RGB(255, 255, 255));
+                    string.setCoordinates(
+                            xMin + offset + width * entry.getLocation(), y1);
+                    string.horizontalAlignment = HorizontalAlignment.CENTER;
+                    string.verticallAlignment = VerticalAlignment.TOP;
+                    strings.add(string);
                 }
             }
+            target.drawStrings(strings);
 
             /* Draw the color ramp */
             y1 += textSpace;
@@ -243,10 +249,11 @@ public class HydroColorBarResource extends
 
         /* Draw the informative text below the color bar */
         y1 += cmapHeight;
-        String info = getDataInfo();
-        target.drawString(null, info, xMin + padding, y1, 0.0,
-                TextStyle.NORMAL, new RGB(250, 250, 0),
-                HorizontalAlignment.LEFT, VerticalAlignment.TOP, 0.0);
+        DrawableString string = new DrawableString(getDataInfo(), new RGB(250,
+                250, 0));
+        string.setCoordinates(xMin + padding, y1);
+        string.verticallAlignment = VerticalAlignment.TOP;
+        target.drawStrings(string);
 
         return yMax - legendHeight;
     }
