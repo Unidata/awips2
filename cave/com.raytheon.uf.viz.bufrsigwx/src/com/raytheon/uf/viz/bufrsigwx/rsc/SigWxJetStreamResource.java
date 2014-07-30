@@ -30,9 +30,9 @@ import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.bufrsigwx.common.SigWxCommon;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -52,6 +52,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  *  09/24/2009             jsanchez    Initial creation.
  * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
+ * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() and 
+ *                                     drawStrings() calls.
  * 
  * 
  * </pre>
@@ -327,7 +329,6 @@ public class SigWxJetStreamResource extends SigWxResource {
         double speed = data.getJetSpeed();
         double baseHgt = data.getBaseHeight();
         double topHgt = data.getTopHeight();
-
         if (flightLevel != SigWxCommon.MISSING) {
             flightLevel = meterToHft.convert(flightLevel);
             String flightLevelStr = SigWxCommon.format(flightLevel, format);
@@ -348,22 +349,32 @@ public class SigWxJetStreamResource extends SigWxResource {
                     tmpX -= width / 2;
                     halignLevel = HorizontalAlignment.CENTER;
                 }
-                target.drawStrings(font, new String[] { flightLevelStr,
-                        depthStr }, tmpX, locationPixel[1], 0.0,
-                        TextStyle.NORMAL, new RGB[] { color, color },
-                        halignLevel, valignLevel);
+                DrawableString string = new DrawableString(new String[] {
+                        flightLevelStr, depthStr }, color);
+                string.font = font;
+                string.setCoordinates(tmpX, locationPixel[1]);
+                string.horizontalAlignment = halignLevel;
+                string.verticallAlignment = valignLevel;
+                target.drawStrings(string);
             } else {
-                target.drawString(font, flightLevelStr, locationPixel[0],
-                        locationPixel[1], 0.0, TextStyle.NORMAL, color,
-                        halignLevel, valignLevel, null);
+                DrawableString string = new DrawableString(flightLevelStr,
+                        color);
+                string.font = font;
+                string.setCoordinates(locationPixel[0], locationPixel[1]);
+                string.horizontalAlignment = halignLevel;
+                string.verticallAlignment = valignLevel;
+                target.drawStrings(string);
             }
         }
         if (speed != SigWxCommon.MISSING) {
             speed = mpsToKnots.convert(speed);
             String speedStr = SigWxCommon.format(speed, format);
-            target.drawString(font, speedStr, locationPixel[0],
-                    locationPixel[1], 0.0, TextStyle.NORMAL, color,
-                    halignSpeed, valignSpeed, null);
+            DrawableString string = new DrawableString(speedStr, color);
+            string.font = font;
+            string.setCoordinates(locationPixel[0], locationPixel[1]);
+            string.horizontalAlignment = halignSpeed;
+            string.verticallAlignment = valignSpeed;
+            target.drawStrings(string);
         }
     }
 

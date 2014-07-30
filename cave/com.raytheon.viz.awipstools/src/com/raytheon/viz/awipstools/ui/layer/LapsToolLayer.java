@@ -27,11 +27,10 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -56,6 +55,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  *                         bsteffen    Intial creation.
  * 07-21-14     #3412      mapeters    Updated deprecated drawCircle call.
+ * 07-29-14     #3465      mapeters    Updated deprecated drawString() calls.
  * </pre>
  * 
  * @author bsteffen
@@ -173,8 +173,9 @@ public class LapsToolLayer extends AbstractMovableToolLayer<Coordinate>
         target.drawCircle(circle);
         double labelLoc[] = target.getPointOnCircle(center[0], center[1], 0.0,
                 radius, 0);
-        target.drawString(null, "center point", labelLoc[0], labelLoc[1], 0.0,
-                TextStyle.NORMAL, color, HorizontalAlignment.LEFT, null);
+        DrawableString string = new DrawableString("center point", color);
+        string.setCoordinates(labelLoc[0], labelLoc[1]);
+        target.drawStrings(string);
     }
 
     @Override

@@ -30,6 +30,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -37,6 +38,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.vadriver.VA_Advanced;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IView;
@@ -72,6 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    07/31/12      DR 14935    D. Friedman Handle little-endian files
  *    Jul 28, 2014  3397        bclement    switched to non deprecated version of createWireframeShape()
  *                                          now closes on FileInputStream instead of FileChannel in initInternal()
+ *    Jul 29, 2014  3465        mapeters    Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -329,24 +332,22 @@ public class BCDResource extends
 
             IView view = paintProps.getView();
 
+            List<DrawableString> strings = new ArrayList<DrawableString>();
             for (BcxLabel p : labels) {
                 if (p.pixel == null) {
                     continue;
                 }
 
                 if (view.isVisible(p.pixel) && p.distance >= minSepDist) {
-
-                    target.drawString(
-                            font,
-                            p.label,
-                            p.pixel[0],
-                            p.pixel[1],
-                            0.0,
-                            IGraphicsTarget.TextStyle.NORMAL,
-                            getCapability(ColorableCapability.class).getColor(),
-                            HorizontalAlignment.CENTER, null);
+                    DrawableString string = new DrawableString(p.label,
+                            getCapability(ColorableCapability.class).getColor());
+                    string.font = font;
+                    string.setCoordinates(p.pixel[0], p.pixel[1]);
+                    string.horizontalAlignment = HorizontalAlignment.CENTER;
+                    strings.add(string);
                 }
             }
+            target.drawStrings(strings);
         }
 
         if (ready && getCapability(OutlineCapability.class).isOutlineOn()) {

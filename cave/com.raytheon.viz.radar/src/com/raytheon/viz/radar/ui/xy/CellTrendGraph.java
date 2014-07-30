@@ -29,11 +29,10 @@ import org.eclipse.swt.graphics.Rectangle;
 import com.raytheon.uf.viz.core.AbstractDrawableObject;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableLine;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -61,7 +60,7 @@ import com.raytheon.viz.radar.ui.xy.RadarGraphResource.GraphPosition;
  * Apr 8, 2009             askripsk    Initial creation
  * 07-21-14     #3412      mapeters    Updated deprecated drawCircle call.
  * 07-24-14     #3429      mapeters    Updated deprecated drawLine() calls.
- * 
+ * 07-29-14     #3465      mapeters    Updated deprecated drawString() calls.
  * </pre>
  * 
  * @author askripsk
@@ -235,6 +234,7 @@ public class CellTrendGraph extends XYGraph {
 
         List<DrawableCircle> circles = new ArrayList<DrawableCircle>();
         List<DrawableLine> lines = new ArrayList<DrawableLine>();
+        DrawableString[] strings = new DrawableString[dataSeriesLabels.size()];
         // Write legend from left to right and top to bottom
         for (int i = 0; i < dataSeriesLabels.size(); i++) {
             // Point type
@@ -257,14 +257,15 @@ public class CellTrendGraph extends XYGraph {
             lines.add(line);
 
             // Label Text
-            target.drawString(null, dataSeriesLabels.get(i),
-                    labelx[i] + offset, labely[i], 0.0, TextStyle.NORMAL,
-                    colorCap.getColor(), HorizontalAlignment.LEFT,
-                    VerticalAlignment.MIDDLE, 0.0);
+            strings[i] = new DrawableString(dataSeriesLabels.get(i),
+                    colorCap.getColor());
+            strings[i].setCoordinates(labelx[i] + offset, labely[i]);
+            strings[i].verticallAlignment = VerticalAlignment.MIDDLE;
         }
         
         target.drawLine(lines.toArray(new DrawableLine[0]));
         target.drawCircle(circles.toArray(new DrawableCircle[0]));
+        target.drawStrings(strings);
     }
 
     private void createAxes() {
