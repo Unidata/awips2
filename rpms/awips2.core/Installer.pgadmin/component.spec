@@ -1,5 +1,5 @@
 %define _build_arch %(uname -i)
-%define _pgadmin3_version 1.16.1
+%define _pgadmin3_version 1.18.1
 %define _pgadmin3_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 #
