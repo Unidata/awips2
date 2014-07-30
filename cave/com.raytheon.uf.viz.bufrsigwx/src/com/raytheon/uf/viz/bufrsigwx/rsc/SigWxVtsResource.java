@@ -22,9 +22,8 @@ package com.raytheon.uf.viz.bufrsigwx.rsc;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -46,6 +45,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Sep 28, 2009 3099       bsteffen    Initial creation
  * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
+ * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -117,8 +117,11 @@ public class SigWxVtsResource extends SigWxResource {
         } else {
             text = "???  " + featureName;
         }
-        target.drawString(font, text, loc[0], loc[1], 0.0, TextStyle.NORMAL,
-                color, HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE, null);
+        DrawableString string = new DrawableString(text, color);
+        string.font = font;
+        string.setCoordinates(loc[0], loc[1]);
+        string.verticallAlignment = VerticalAlignment.MIDDLE;
+        target.drawStrings(string);
     }
 
     @Override
