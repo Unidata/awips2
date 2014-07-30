@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -47,7 +47,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2009 3099       bsteffen     Initial creation
- * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
+ * Sep 28, 2009 3099       bsteffen     Updated to conform with common SigWxResource
+ * Jul 29, 2014 3465       mapeters     Updated deprecated drawStrings() calls.
  * 
  * </pre>
  * 
@@ -149,9 +150,12 @@ public class SigWxCloudsResource extends SigWxPolygonResource {
             x = textLoc[0] + (symDim[0] + textDim[0] / 2 + PADDING * 3)
                     * scale[0];
         }
-        RGB[] colors = { color, color, color, color, color };
-        target.drawStrings(font, getTextLines(pdv), x, y, 0, TextStyle.NORMAL,
-                colors, HorizontalAlignment.CENTER, VerticalAlignment.TOP);
+        DrawableString string = new DrawableString(getTextLines(pdv), color);
+        string.font = font;
+        string.setCoordinates(x, y);
+        string.horizontalAlignment = HorizontalAlignment.CENTER;
+        string.verticallAlignment = VerticalAlignment.TOP;
+        target.drawStrings(string);
     }
 
     private String[] getTextLines(PointDataView pdv) {
