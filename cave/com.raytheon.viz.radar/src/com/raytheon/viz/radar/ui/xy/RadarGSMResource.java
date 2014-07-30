@@ -30,6 +30,7 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.GSMBlock.GSMMessage;
 import com.raytheon.uf.viz.core.DrawableLine;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
@@ -57,6 +58,7 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * May 13, 2010            mnash     Initial creation
  * 03/01/2013   DR 15496   zwang     Handled expanded GSM, display more status
  * 07/24/2014   #3429      mapeters  Updated deprecated drawLine() calls.
+ * 07/29/2014   #3465      mapeters  Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -131,9 +133,14 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                 rpg_spg = "SPG";
                 rda_tdwr = "TDWR";
             }
-            target.drawString(null, title, 400, yOffset, 0, TextStyle.BOXED,
-                    color, HorizontalAlignment.CENTER, VerticalAlignment.TOP,
-                    0.0d);
+
+            DrawableString string = new DrawableString(title, color);
+            string.setCoordinates(400, yOffset);
+            string.addTextStyle(TextStyle.BOXED);
+            string.horizontalAlignment = HorizontalAlignment.CENTER;
+            string.verticallAlignment = VerticalAlignment.TOP;
+            target.drawStrings(string);
+
             yOffset += 40;
             switch (message.getMode()) {
             case 0:
@@ -444,8 +451,10 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
      */
     public static void drawNexradString(String text, int xOffset, int yOffset,
             IGraphicsTarget target, RGB color) throws VizException {
-        target.drawString((IFont) Font.getFont("serif"), text, xOffset,
-                yOffset, 0, TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                VerticalAlignment.TOP, (Double) 0.0d);
+        DrawableString string = new DrawableString(text, color);
+        string.font = (IFont) Font.getFont("serif");
+        string.setCoordinates(xOffset, yOffset);
+        string.verticallAlignment = VerticalAlignment.TOP;
+        target.drawStrings(string);
     }
 }
