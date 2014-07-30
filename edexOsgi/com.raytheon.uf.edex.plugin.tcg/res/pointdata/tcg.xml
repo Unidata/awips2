@@ -23,10 +23,7 @@
 -->
 <pointDataDescription>
   <parameter name="validTime" numDims="1" type="LONG" />
-  <parameter name="latitude" numDims="1" type="FLOAT" unit="degree_N" />
-  <parameter name="longitude" numDims="1" type="FLOAT" unit="degree_E" />
   <parameter name="wmoHeader" numDims="1" type="STRING" />
-  <parameter name="dataURI" numDims="1" type="STRING" />
   
   <parameter name="stormType" numDims="1" type="STRING" />
   <parameter name="stormName" numDims="1" type="STRING" />
