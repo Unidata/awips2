@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.plugin.lsr.LocalStormReportDao;
  * Jan 13, 2013 2581       njensen     Improved error handling and logging
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Jul 30, 2014 3410       bclement    lat, lon and data uri moved to database point data desc
  * 
  * </pre>
  * 
@@ -240,8 +241,6 @@ public class LSRParser {
                 PointDataView view = pdc.append();
                 view.setLong("timeObs", report.getDataTime()
                         .getRefTimeAsCalendar().getTimeInMillis());
-                view.setFloat("latitude", (float) report.getLatitude());
-                view.setFloat("longitude", (float) report.getLongitude());
                 view.setString("wmoHeader", report.getWmoHeader());
 
                 view.setInt("eventType", report.getEventType().getValue());
@@ -255,8 +254,6 @@ public class LSRParser {
                 view.setString("source", report.getSource());
                 view.setInt("injuries", report.getInjuries());
                 view.setInt("fatalities", report.getFatalities());
-
-                view.setString("dataURI", report.getDataURI());
 
                 report.setPointDataView(view);
             }
