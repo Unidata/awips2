@@ -36,10 +36,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -72,6 +71,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------- -------- ----------- --------------------------
  * Nov 23, 2009  3268     jsanchez    Initial creation
  * Jun 06, 2014  2061     bsteffen    Remove unneccessary imports
+ * Jul 29, 2014  3465     mapeters    Updated deprecated drawString() calls.
  * 
  * </pre>
  * 
@@ -294,9 +294,11 @@ public class VAAResource extends
                 loc[0] += 12 * scale[0];
 
                 target.drawRaster(image, imageExtent, paintProps);
-                target.drawString(font, volcanoName, loc[0] + 30, loc[1], 0.0,
-                        TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                        VerticalAlignment.MIDDLE, null);
+                DrawableString string = new DrawableString(volcanoName, color);
+                string.font = font;
+                string.setCoordinates(loc[0] + 30, loc[1]);
+                string.verticallAlignment = VerticalAlignment.MIDDLE;
+                target.drawStrings(string);
             }
 
             for (VAASubPart subPart : record.getSubParts()) {
@@ -316,9 +318,11 @@ public class VAAResource extends
             double y = correctedExtent.getMaxY()
                     - (inset * paintProps.getZoomLevel());
             String message = "Volcano " + volcanoName + " is off-screen";
-            target.drawString(font, message, x, y, 0.0, TextStyle.NORMAL,
-                    color, HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE,
-                    null);
+            DrawableString string = new DrawableString(message, color);
+            string.font = font;
+            string.setCoordinates(x, y);
+            string.verticallAlignment = VerticalAlignment.MIDDLE;
+            target.drawStrings(string);
         }
         target.setupClippingPlane(paintProps.getView().getExtent());
 
