@@ -38,11 +38,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableLine;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
-import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -67,7 +66,7 @@ import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
  *    ------------  ----------  ----------- --------------------------
  *    1/10/08       562         bphillip    Initial Creation.
  *    7/23/14       3429        mapeters    Updated deprecated drawLine() calls.
- * 
+ *    7/29/14       3465        mapeters    Updated deprecated drawString() calls.
  * </pre>
  * 
  * @author bphillip
@@ -184,9 +183,14 @@ public class DistanceTool extends
         line1.basics.color = color;
         lines.add(line1);
         
-        target.drawString(font, "0", x0, y0 - yOff, 0.0, TextStyle.NORMAL,
-                color, HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM,
-                null);
+        List<DrawableString> strings = new ArrayList<DrawableString>(
+                selectedIndex - max + 2);
+
+        DrawableString string1 = new DrawableString("0", color);
+        string1.font = font;
+        string1.setCoordinates(x0, y0 - yOff);
+        string1.horizontalAlignment = HorizontalAlignment.CENTER;
+        strings.add(string1);
         
         for (int i = max; i < selectedIndex; i++) {
             double l = length * scales[i] / scales[selectedIndex];
@@ -198,9 +202,11 @@ public class DistanceTool extends
             line2.basics.color = color;
             lines.add(line2);
 
-            target.drawString(font, s, x0 + l, y0 - yOff, 0.0,
-                    TextStyle.NORMAL, color, HorizontalAlignment.CENTER,
-                    VerticalAlignment.BOTTOM, null);
+            DrawableString string2 = new DrawableString(s, color);
+            string2.font = font;
+            string2.setCoordinates(x0 + l, y0 - yOff);
+            string2.horizontalAlignment = HorizontalAlignment.CENTER;
+            strings.add(string2);
         }
 
         DrawableLine line3 = new DrawableLine();
@@ -209,10 +215,13 @@ public class DistanceTool extends
         line3.basics.color = color;
         lines.add(line3);
         
-        target.drawString(font,
-                df.format(scales[selectedIndex]) + displayUnit.toString(), x0
-                        + length, y0 - yOff, 0.0, TextStyle.NORMAL, color,
-                HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM, null);
+        DrawableString string3 = new DrawableString(
+                df.format(scales[selectedIndex])
+                + displayUnit.toString(), color);
+        string3.font = font;
+        string3.setCoordinates(x0 + length, y0 - yOff);
+        string3.horizontalAlignment = HorizontalAlignment.CENTER;
+        strings.add(string3);
 
         DrawableLine line4 = new DrawableLine();
         line4.setCoordinates(x0, y0);
@@ -221,9 +230,9 @@ public class DistanceTool extends
         lines.add(line4);
         
         target.drawLine(lines.toArray(new DrawableLine[0]));
+        target.drawStrings(strings);
         
         target.setupClippingPlane(screenExtent);
-
     }
 
     @Override
