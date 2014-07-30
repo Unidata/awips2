@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
  *                                      handles time zones.
  * May 14, 2014 2536       bclement     moved WMO Header to common, removed constructDataURI() call
  * Jun 24, 2014 3235       nabowle      Switch to slf4j.
+ * Jul 30, 2014 3410       bclement     lat, lon and data uri moved to database point data desc
  * 
  * </pre>
  * 
@@ -185,10 +186,7 @@ public abstract class TCGDataAdapter {
                 PointDataView view = pdc.append();
                 view.setLong("validTime", report.getDataTime().getValidTime()
                         .getTimeInMillis());
-                view.setFloat("latitude", (float) report.getLatitude());
-                view.setFloat("longitude", (float) report.getLongitude());
                 view.setString("wmoHeader", report.getWmoHeader());
-                view.setString("dataURI", report.getDataURI());
 
                 view.setString("stormType", report.getType().toString());
                 view.setString("stormName", report.getStormName());
