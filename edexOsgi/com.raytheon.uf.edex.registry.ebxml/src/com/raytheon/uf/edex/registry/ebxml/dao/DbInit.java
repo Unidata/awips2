@@ -94,6 +94,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * Dec 04, 2013 2584        dhladky     Version based EbxmlJaxbManager
  * 7/10/2014    1717        bphillip    Removed xacml policy admin object
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
+ * Jul 28, 2014 3474        dhladky     Fixed bad ownership settings.
  * </pre>
  * 
  * @author bphillip
@@ -289,7 +290,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
 
             // If no owner is assigned, assign the defaul owner
             if (regObj.getOwner() == null) {
-                regObj.setOwner(RegistryUtil.DEFAULT_OWNER);
+                regObj.setOwner(RegistryUtil.defaultUser);
             }
 
             /*
