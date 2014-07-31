@@ -189,33 +189,35 @@ ${drainage.name}##
 ########END MACRO
 
 #macro(inserttorwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($torWatches = ${watches.getTorWatches()})
-#set($torWatchAlso = "")
-#set($torWatchFirst = 1)
-#foreach(${watch} in ${torWatches})
-#if($torWatchFirst)
-#set($torWatchFirst = 0)
-#else
- ##
+#set($tornadoWatches = [])
+#foreach(${watch} in ${watches})
+#if(${watch.getPhenSig()} == 'TO.A')
+#set($success = $tornadoWatches.add($watch))
+#set($endTime = ${watch.endTime})
+#if(!$latestEndTime || ${endTime.after($latestEndTime)})
+#set($latestEndTime = ${endTime})
 #end
-A TORNADO WATCH ${torWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${localtimezone})}##
+#end
+#end
+#if(!${list.isEmpty($tornadoWatches)})
+
+A TORNADO WATCH REMAINS IN EFFECT UNTIL ${dateUtil.format(${latestEndTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
+${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
  FOR ##
-#set($numPortions = ${list.size(${watch.getPortions()})})
+#set($numPortions = ${list.size(${tornadoWatches})})
 #set($count = 0)
-#foreach(${portion} in ${watch.getPortions()})
+#foreach(${watch} in ${tornadoWatches})
 #set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false true)${portion.parentRegion}##
+#areaFormat(${watch.partOfState} true false true)${watch.state}##
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
 ...##
 #end
 #end
-#set($torWatchAlso = "ALSO ")
 . ##
 #end
 
@@ -223,33 +225,35 @@ ${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${local
 ########END MACRO
 
 #macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($svrWatches = ${watches.getSvrWatches()})
-#set($svrWatchAlso = "")
-#set($svrWatchFirst = 1)
-#foreach(${watch} in ${svrWatches})
-#if($svrWatchFirst)
-#set($svrWatchFirst = 0)
-#else
- ##
+#set($severeWatches = [])
+#foreach(${watch} in ${watches})
+#if(${watch.getPhenSig()} == 'SV.A')
+#set($success = $severeWatches.add($watch))
+#set($endTime = ${watch.endTime})
+#if(!$latestEndTime || ${endTime.after($latestEndTime)})
+#set($latestEndTime = ${endTime})
 #end
-A SEVERE THUNDERSTORM WATCH ${svrWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${watches.getLatestSvrTime()},${timeFormat.plain}, 15, ${localtimezone})}##
+#end
+#end
+#if(!${list.isEmpty($severeWatches)})
+
+A SEVERE THUNDERSTORM WATCH REMAINS IN EFFECT UNTIL ${dateUtil.format(${latestEndTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
+${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
  FOR ##
-#set($numPortions = ${list.size(${watch.getPortions()})})
+#set($numPortions = ${list.size(${severeWatches})})
 #set($count = 0)
-#foreach(${portion} in ${watch.getPortions()})
+#foreach(${watch} in ${severeWatches})
 #set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false true)${portion.parentRegion}##
+#areaFormat(${watch.partOfState} true false true)${watch.state}##
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
 ...##
 #end
 #end
-#set($svrWatchAlso = "ALSO ")
 . ##
 #end
 
@@ -368,18 +372,6 @@ SOUTH##
 #if(${list.contains($directionSet, "WEST")})
 #set($output = "${output}WEST")
 #end
-#if(${list.contains($directionSet, "NE")})
-#set($output = "${output}NORTHEAST")
-#end 
-#if(${list.contains($directionSet, "NW")})
-#set($output = "${output}NORTHWEST")
-#end 
-#if(${list.contains($directionSet, "SE")})
-#set($output = "${output}SOUTHEAST")
-#end 
-#if(${list.contains($directionSet, "SW")})
-#set($output = "${output}SOUTHWEST")
-#end 
 #if(${useCentral} && ${list.contains($directionSet, "CENTRAL")}) 
 #if(${list.contains($directionSet, "NORTH")} || ${list.contains($directionSet, "SOUTH")} || ${list.contains($directionSet, "EAST")} || ${list.contains($directionSet, "WEST")})
 #set($output = "${output} ")
