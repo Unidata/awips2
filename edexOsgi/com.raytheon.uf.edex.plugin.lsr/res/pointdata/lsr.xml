@@ -23,10 +23,7 @@
 -->
 <pointDataDescription>
   <parameter name="timeObs" numDims="1" type="LONG" />
-  <parameter name="latitude" numDims="1" type="FLOAT" unit="degree_N" />
-  <parameter name="longitude" numDims="1" type="FLOAT" unit="degree_E" />
   <parameter name="wmoHeader" numDims="1" type="STRING" />
-  <parameter name="dataURI" numDims="1" type="STRING" />
   <parameter name="eventType" numDims="1" type="INT" />
   <parameter name="eventUnit" numDims="1" type="STRING" />
   <parameter name="magnitude" numDims="1" type="FLOAT" />
