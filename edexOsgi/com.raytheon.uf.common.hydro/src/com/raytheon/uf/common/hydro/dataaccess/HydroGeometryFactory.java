@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                    single request.
  * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
  * Jul 14, 2014  3184     njensen     Overrode getAvailableLevels()
+ * Jul 30, 2014  3184     njensen     Added optional identifiers
  * 
  * </pre>
  * 
@@ -77,7 +78,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
     private static final String IHFS_DATABASE = "ihfs";
 
     public HydroGeometryFactory() {
-        super(IHFS_DATABASE, REQUIRED);
+        super(IHFS_DATABASE, REQUIRED, new String[] { COL_NAME_OPTION });
     }
 
     /*
@@ -152,8 +153,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * com.raytheon.uf.common.time.BinOffset)
      */
     @Override
-    protected String assembleGetTimes(IDataRequest request,
-            BinOffset binOffset) {
+    protected String assembleGetTimes(IDataRequest request, BinOffset binOffset) {
         return null;
     }
 
@@ -166,8 +166,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * com.raytheon.uf.common.time.DataTime[])
      */
     @Override
-    protected String assembleGetData(IDataRequest request,
-            DataTime... times) {
+    protected String assembleGetData(IDataRequest request, DataTime... times) {
         return HydroQueryAssembler.assembleGetData(request, times);
     }
 
@@ -180,8 +179,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * com.raytheon.uf.common.time.TimeRange)
      */
     @Override
-    protected String assembleGetData(IDataRequest request,
-            TimeRange timeRange) {
+    protected String assembleGetData(IDataRequest request, TimeRange timeRange) {
         return HydroQueryAssembler.assembleGetData(request, timeRange);
     }
 
@@ -203,4 +201,5 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
         throw new IncompatibleRequestException(request.getDatatype()
                 + " data does not support the concept of levels");
     }
+
 }

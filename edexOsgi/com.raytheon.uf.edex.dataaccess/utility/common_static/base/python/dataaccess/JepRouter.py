@@ -35,6 +35,7 @@
 #    03/03/14        2673          bsteffen       Add ability to query only ref times.
 #    07/22/14        3185          njensen        Added optional/default args to newDataRequest
 #                                                  and added new methods
+#    07/30/14        3185          njensen        Renamed valid identifiers to optional
 #    
 # 
 #
@@ -110,8 +111,8 @@ def getRequiredIdentifiers(datatype):
     jids = JavaDataAccessLayer.getRequiredIdentifiers(datatype)
     return JUtil.javaObjToPyVal(jids)
 
-def getValidIdentifiers(datatype):
-    jids = JavaDataAccessLayer.getValidIdentifiers(datatype)
+def getOptionalIdentifiers(datatype):
+    jids = JavaDataAccessLayer.getOptionalIdentifiers(datatype)
     return JUtil.javaObjToPyVal(jids)
 
 def newDataRequest(datatype, parameters=[], levels=[], locationNames = [], envelope=None, **kwargs):
