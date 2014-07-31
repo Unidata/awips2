@@ -21,6 +21,7 @@ package com.raytheon.viz.warngen.gis;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.vividsolutions.jts.geom.Geometry;
@@ -77,6 +79,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Apr 29, 2014  3033       jsanchez    Updated method to retrieve files in localization.
  *    May 16, 2014 DR 17365    D. Friedman Reduce precision of warning area to avoid topology errors.
  *    Jun 30, 2014 DR 17447    Qinglu lin  Updated findAffectedAreas().
+ *    Jul 22, 23014 3419       jsanchez    Cleaned up converFeAreaToPartList.
  * </pre>
  * 
  * @author chammack
@@ -91,6 +94,10 @@ public class Area {
      * direction is included
      */
     public static final double DEFAULT_PORTION_TOLERANCE = 0.60;
+
+    private static final List<String> SPECIAL_CASE_FE_AREAS = Arrays
+            .asList(new String[] { "PA", "MI", "PD", "UP", "BB", "ER", "EU",
+                    "SR", "NR", "WU", "DS" });
 
     private PortionsUtil portionsUtil;
 
@@ -259,8 +266,10 @@ public class Area {
 
                 area.points = pointList.toArray(new String[pointList.size()]);
             }
-            String countyName = (String)regionFeature.attributes.get("COUNTYNAME");
-            if (uniqueFips.contains(area.fips) == false || !uniqueCountyname.contains(countyName)) {
+            String countyName = (String) regionFeature.attributes
+                    .get("COUNTYNAME");
+            if (uniqueFips.contains(area.fips) == false
+                    || !uniqueCountyname.contains(countyName)) {
                 uniqueFips.add(area.fips);
                 if (countyName != null) {
                     uniqueCountyname.add(countyName);
@@ -300,7 +309,8 @@ public class Area {
         Map<String, Object> areasMap = new HashMap<String, Object>();
 
         try {
-            Geometry precisionReducedArea = PolygonUtil.reducePrecision(warnArea);
+            Geometry precisionReducedArea = PolygonUtil
+                    .reducePrecision(warnArea);
             if (precisionReducedArea.isValid()) {
                 warnArea = precisionReducedArea;
             }
@@ -338,66 +348,41 @@ public class Area {
 
     public static List<String> converFeAreaToPartList(String feArea) {
         final List<String> partList = new ArrayList<String>();
-        if (feArea == null) {
-            // Marine warnings
-            partList.add("");
-        } else {
-            if (feArea.equals("pa"))
-                partList.add("PA");
-            else if (feArea.equals("mi"))
-                partList.add("MI");
-            else if (feArea.equals("pd"))
-                partList.add("PD");
-            else if (feArea.equals("up"))
-                partList.add("UP");
-            else if (feArea.equals("bb"))
-                partList.add("BB");
-            else if (feArea.equals("er"))
-                partList.add("ER");
-            else if (feArea.equals("eu"))
-                partList.add("EU");
-            else if (feArea.equals("sr"))
-                partList.add("SR");
-            else if (feArea.equals("nr"))
-                partList.add("NR");
-            else if (feArea.equals("wu"))
-                partList.add("WU");
-            else if (feArea.equals("ds"))
-                partList.add("DS");
-            else if (feArea.equals("ne"))
-                partList.add("NE");
-            else if (feArea.equals("nw"))
-                partList.add("NW");
-            else if (feArea.equals("se"))
-                partList.add("SE");
-            else if (feArea.equals("sw"))
-                partList.add("SW");
-            else {
+        if (feArea != null) {
+            feArea = feArea.toUpperCase();
+            if (SPECIAL_CASE_FE_AREAS.contains(feArea)) {
+                partList.add(feArea);
+            } else {
                 for (int i = 0; i < feArea.length(); i++) {
                     char c = feArea.charAt(i);
+                    Direction direction = null;
                     switch (c) {
-                    case 'c':
-                        partList.add("CENTRAL");
+
+                    case 'C':
+                        direction = Direction.CENTRAL;
                         break;
-                    case 'w':
-                        partList.add("WEST");
+                    case 'W':
+                        direction = Direction.WEST;
                         break;
-                    case 'n':
-                        partList.add("NORTH");
+                    case 'N':
+                        direction = Direction.NORTH;
                         break;
-                    case 'e':
-                        partList.add("EAST");
+                    case 'E':
+                        direction = Direction.EAST;
                         break;
-                    case 's':
-                        partList.add("SOUTH");
+                    case 'S':
+                        direction = Direction.SOUTH;
                         break;
                     default:
                         break;
+                    }
+
+                    if (direction != null) {
+                        partList.add(direction.toString());
                     }
                 }
             }
         }
         return partList;
     }
-
 }
