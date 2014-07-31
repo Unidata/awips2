@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-# Convert gefs' directories  to the new GEFS' directories
+# DR3318 Convert gefs' directories  to the new GEFS' directories must run on dx2.
 
 import h5py
 import os
 import sys
-
-PSQL='/awips2/psql/bin/psql'
 
 GRID_DIR= os.sep + 'awips2' + os.sep + 'edex' + os.sep + 'data' + os.sep + 'hdf5' + os.sep + 'grid'
 OLD_DIR= os.path.join(GRID_DIR, 'gefs')
@@ -70,12 +68,7 @@ if os.path.isdir(NEW_DIR) :
 else:
     print "WARNING: %s directory not found" % (NEW_DIR)
 
-print 'INFO: Update database'
-
-cmd = '%s -U awips -d metadata -c "update grid_info set datasetid=%s where datasetid=%s"' % (PSQL, "'GEFS'", "'gefs'")
-if os.system(cmd) :
-    print 'ERROR Unable to update database'
-    exit(1)
-    
 print 'INFO: Updated GEFS successfully.'
+
+print 'INFO: Has dbupdate.sh been run on dx1?'
 
