@@ -32,6 +32,7 @@
 #    03/03/14         #2673        bsteffen       Add ability to query only ref times.
 #    07/22/14         #3185        njensen        Added optional/default args to newDataRequest
 #    07/23/14         #3185        njensen        Added new methods
+#    07/30/14         #3185        njensen        Renamed valid identifiers to optional
 #
 
 
@@ -46,7 +47,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import G
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableParametersRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableLevelsRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetRequiredIdentifiersRequest
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetValidIdentifiersRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetOptionalIdentifiersRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetSupportedDatatypesRequest
 
 from ufpy import ThriftClient 
@@ -143,8 +144,8 @@ class ThriftClientRouter(object):
         response = self._client.sendRequest(idReq)
         return response
     
-    def getValidIdentifiers(self, datatype):
-        idReq = GetValidIdentifiersRequest()
+    def getOptionalIdentifiers(self, datatype):
+        idReq = GetOptionalIdentifiersRequest()
         idReq.setDatatype(datatype)
         response = self._client.sendRequest(idReq)
         return response        
