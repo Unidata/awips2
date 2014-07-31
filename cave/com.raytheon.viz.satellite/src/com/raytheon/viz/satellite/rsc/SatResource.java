@@ -253,7 +253,7 @@ public class SatResource extends
                 initializeFirstFrame((SatelliteRecord) pdo);
             } catch (VizException e) {
                 throw new IllegalStateException(
-                        "Unable to initialize the satellite resource");
+                        "Unable to initialize the satellite resource", e);
             }
             initialized = true;
         }
