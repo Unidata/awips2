@@ -64,6 +64,7 @@ import com.raytheon.uf.common.util.mapping.Mapper;
  * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
  *                                    single request.
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
+ * Jul 30, 2014  3184     njensen     Ranemd valid identifiers to optional
  * 
  * 
  * </pre>
@@ -82,7 +83,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
             GridConstants.ENSEMBLE_ID, NAMESPACE };
 
     @Override
-    public String[] getValidIdentifiers() {
+    public String[] getOptionalIdentifiers() {
         return VALID_IDENTIFIERS;
     }
 
@@ -275,6 +276,5 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     public String[] getAvailableLocationNames(IDataRequest request) {
         return getAvailableLocationNames(request, GridConstants.DATASET_ID);
     }
-
 
 }
