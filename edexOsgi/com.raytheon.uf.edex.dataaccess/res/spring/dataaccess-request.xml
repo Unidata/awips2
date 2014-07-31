@@ -43,12 +43,12 @@
         <constructor-arg ref="requiredIdentifiersHandler" />
     </bean>
     
-    <bean id="validIdentifiersHandler"
-        class="com.raytheon.uf.edex.dataaccess.handler.GetValidIdentifiersHandler" />
+    <bean id="optionalIdentifiersHandler"
+        class="com.raytheon.uf.edex.dataaccess.handler.GetOptionalIdentifiersHandler" />
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg
-            value="com.raytheon.uf.common.dataaccess.request.GetValidIdentifiersRequest" />
-        <constructor-arg ref="validIdentifiersHandler" />
+            value="com.raytheon.uf.common.dataaccess.request.GetOptionalIdentifiersRequest" />
+        <constructor-arg ref="optionalIdentifiersHandler" />
     </bean>
     
     <bean id="supportedDatatypesHandler"
