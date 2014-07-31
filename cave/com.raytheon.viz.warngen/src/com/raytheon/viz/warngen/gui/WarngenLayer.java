@@ -210,6 +210,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
  * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
  * 07/01/2014  DR 17450    D. Friedman Use list of templates from backup site.
+ * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
+ *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
  * </pre>
  * 
  * @author mschenke
@@ -221,6 +223,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             .getHandler(WarngenLayer.class);
 
     String uniqueFip = null;
+
+    Map<String, Double> geomArea = new HashMap<String, Double>();
+    Map<String, Point> geomCentroid = new HashMap<String, Point>();
 
     private static class GeospatialDataList {
 
@@ -1087,6 +1092,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 DrawableString string = new DrawableString(text, textColor);
                 string.magnification = magnification;
                 string.setCoordinates(out[0], out[1]);
+                string.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
+                string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
                 strings.add(string);
             }
         }
@@ -1169,6 +1176,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }// end synchronize
         customMaps.loadCustomMaps(Arrays.asList(config.getMaps()));
+
+        createAreaAndCentroidMaps();
 
         this.configuration = config;
         System.out.println("Total time to init warngen config = "
@@ -3169,66 +3178,127 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 toKeep.toArray(new Geometry[0]));
     }
 
+    private void createAreaAndCentroidMaps() {
+        String gid;
+        geomArea.clear();
+        geomCentroid.clear();
+        for (GeospatialData f : geoData.features) {
+            Geometry geom = f.getGeometry();
+            gid = ((CountyUserData)geom.getUserData()).gid;
+            geomArea.put(gid, geom.getArea());
+            geomCentroid.put(gid, geom.getCentroid());
+        }
+    }
+
     /**
      * Populate the W strings with the included counties
      */
     private void populateStrings() {
         state.strings.clear();
+        Geometry warningArea = state.getWarningArea();
         Set<String> prefixes = new HashSet<String>(Arrays.asList(GeometryUtil
-                .getGID(state.getWarningArea())));
+                .getGID(warningArea)));
 
         prefixes = removeDuplicateGid(prefixes);
 
-        for (GeospatialData f : geoData.features) {
-            Geometry geom = f.geometry;
-            Geometry geom2 = null;
-            Geometry warningAreaN = null;
-            Coordinate populatePt = null;
-            Geometry populatePtGeom;
-            boolean contained = false, closeTo = false;
-            double shift = 1.E-8, distance, minDistance = 10.0;
-            int loop, maxLoop = 10;
-            Geometry warningArea = state.getWarningArea();
-            String prefix = GeometryUtil.getPrefix(geom.getUserData());
-            if (prefixes.contains(prefix)) {
-                loop = 0;
-                warningAreaN = findLargestGeometry(GeometryUtil.intersection(geom, warningArea));
-                do {
-                    if (!warningAreaN.isEmpty()) {
-                        populatePt = GisUtil.d2dCoordinate(warningAreaN.getCentroid()
-                                .getCoordinate());
-                        for (GeospatialData f2 : geoData.features) {
-                            geom2 = f2.getGeometry();
-                            if (!GeometryUtil.getPrefix(geom2.getUserData()).equals(prefix)) {
-                                contained = false;
-                                closeTo = false;
-                                populatePtGeom = PolygonUtil.createPolygonByPoints(populatePt,
-                                        new Coordinate(populatePt.x + shift, populatePt.y + shift));
-                                if (GeometryUtil.contains(geom2, populatePtGeom)) {
-                                    // populatePt is in another county/zone.
-                                    warningAreaN = findLargestQuadrant(warningAreaN, geom);
-                                    contained = true;
-                                    break;
-                                } else {
-                                    distance = populatePtGeom.distance(geom2);
-                                    if (distance < minDistance) {
-                                        // populatePt is very close to the boundary of another county/zone.
-                                        warningAreaN = findLargestQuadrant(warningAreaN, geom);
-                                        closeTo = true;
-                                        break;
-                                    }
-                                }
-                            }
+        Set<Integer> indexes = new HashSet<Integer>();
+        String prefixM, prefixN;
+        double areaM, areaN, maxArea = -1.0;
+        int geomIndex = -1;
+        int geomNum = warningArea.getNumGeometries();
+        // Find an unique index for each county in warningArea. If there is more than one index 
+        // for one county, find the one with max area.
+        Geometry warningAreaM = null, warningAreaN = null;
+        for (int i = 0; i < geomNum; i++) {
+            warningAreaM = warningArea.getGeometryN(i);
+            prefixM = GeometryUtil.getPrefix(warningAreaM.getUserData());
+            if (!prefixes.contains(prefixM)) {
+                continue;
+            }
+            areaM = warningAreaM.getArea();
+            geomIndex = i;
+            while (i + 1 < geomNum) {
+                warningAreaN = warningArea.getGeometryN(i + 1);
+                prefixN = GeometryUtil.getPrefix(warningAreaN.getUserData());
+                if (prefixN.equals(prefixM)) {
+                    areaN = warningAreaN.getArea();
+                    if (areaN > areaM) {
+                        if (areaN > maxArea) {
+                            maxArea = areaN;
+                            geomIndex = i + 1;
                         }
                     } else {
-                        // use the existing populatePt
-                        break;
+                        if (areaM > maxArea) {
+                            maxArea = areaM;
+                        }
                     }
-                    loop += 1;
-                } while ((contained || closeTo) && loop <= maxLoop);
-                state.strings.put(populatePt, "W");
+                } else {
+                    break;
+                }
+                i = i + 1;
             }
+            indexes.add(geomIndex);
         }
+
+        Map<String, Coordinate> populatePtMap = new HashMap<String, Coordinate>();
+        GeometryFactory gf = new GeometryFactory();
+        Geometry geomN = null, populatePtGeom = null;
+        Coordinate populatePt = new Coordinate();
+        Point centroid = null;
+        int loop, maxLoop = 10;
+        double threshold = 0.1, weight = 0.5, shift = 1.E-8, minArea = 1.0E-2, area;
+        Iterator<Integer> iter = indexes.iterator();
+        while (iter.hasNext()) {
+            warningAreaM = warningArea.getGeometryN(iter.next().intValue());
+            prefixM = GeometryUtil.getPrefix(warningAreaM.getUserData());
+            area = warningAreaM.getArea();
+            if (area < minArea || area / geomArea.get(prefixM) < threshold) {
+                // Hatched area inside a county is small, move W toward to default centroid
+                centroid  = movePopulatePt(gf, warningAreaM, geomCentroid.get(prefixM), weight);
+                populatePt = new Coordinate(centroid.getX(), centroid.getY());
+                populatePtGeom = PolygonUtil.createPolygonByPoints(gf, populatePt, shift);
+            } else {
+                // Use the controid of the hatched area in a county
+                centroid = warningAreaM.getCentroid();
+                populatePt = new Coordinate(centroid.getX(), centroid.getY());
+                populatePtGeom = PolygonUtil.createPolygonByPoints(gf, populatePt, shift);
+            }
+            for (GeospatialData gd : geoData.features) {
+                geomN = gd.getGeometry();
+                CountyUserData cud = (CountyUserData)geomN.getUserData();
+                prefixN = cud.gid;
+                if (prefixN.length() > 0 && prefixM.length() > 0 &&
+                        !prefixN.equals(prefixM)) {
+                    if (GeometryUtil.contains(geomN, populatePtGeom)) {
+                        // W is inside a county. Use default centroid of a county (not that of its hatched area) 
+                        centroid = geomCentroid.get(prefixM);
+                        populatePt = new Coordinate(centroid.getX(), centroid.getY());
+                        populatePtGeom = PolygonUtil.createPolygonByPoints(gf, populatePt, shift);
+                    }
+                    loop = 1;
+                    while (GeometryUtil.contains(geomN, populatePtGeom) && loop < maxLoop) {
+                        // W is still inside a county, move W to the largest quadrant
+                        warningAreaM =  findLargestQuadrant(gf, warningAreaM);
+                        centroid = warningAreaM.getCentroid();
+                        populatePt = new Coordinate(centroid.getX(), centroid.getY());
+                        populatePtGeom = PolygonUtil.createPolygonByPoints(gf, populatePt, shift);
+                        loop += 1;
+                    }
+                }
+            }
+            populatePtMap.put(prefixM, populatePt);
+        }
+        for (String key: populatePtMap.keySet()) {
+            state.strings.put(populatePtMap.get(key), "W");
+        }
+    }
+
+    private Point movePopulatePt(GeometryFactory gf, Geometry geom, Point point, double weight) {
+        Point centroid = geom.getCentroid();
+        Coordinate coord = new Coordinate();
+        coord.x = centroid.getX() * weight + point.getX() * (1.0 - weight);
+        coord.y = centroid.getY() * weight + point.getY() * (1.0 - weight);
+        return gf.createPoint(new Coordinate(coord.x, coord.y));
     }
 
     public boolean featureProduct(Coordinate c) {
@@ -3504,21 +3574,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
      *     A Geometry or a GeometryCollection.
      * @return Geometry
      */
-    private Geometry findLargestGeometry(Geometry g) {
-        int size = g.getNumGeometries();
-        if (size == 1)
-            return g;
-        double area, maxArea = -1.0;
-        int index = 0;
-        for (int i = 0; i < size; i++) {
-            area = g.getGeometryN(i).getArea();
-            if (area > maxArea) {
-                maxArea = area;
-                index = i;
-            }
-        }
-        return g.getGeometryN(index);
-    }
 
     /** 
      * Split the hatched area into four quadrants, and return the largest one.
@@ -3529,10 +3584,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
      *     The geometry of a county/zone.
      * @return Geometry
      *     The geometey of largest quadrant among the four, which are the result of 
-     *     splitting of hatchedArea.
+     *     splitting of a county's hatched area.
      */
-    private Geometry findLargestQuadrant(Geometry hatchedArea, Geometry geom) {
-        Geometry envelope = hatchedArea.getEnvelope();
+    private Geometry findLargestQuadrant(GeometryFactory gf, Geometry geom) {
+        Geometry envelope = geom.getEnvelope();
         Coordinate centroidCoord = GisUtil.d2dCoordinate(envelope.getCentroid()
                 .getCoordinate());
         Coordinate[] envCoords = envelope.getCoordinates();
@@ -3542,19 +3597,23 @@ public class WarngenLayer extends AbstractStormTrackResource {
         double largestArea = -1.0, area = -1.0;
         int index = -1;
         for (int i = 0; i < size; i++) {
-            quadrants[i] = PolygonUtil.createPolygonByPoints(envCoords[i], centroidCoord);
-            intersections[i] = GeometryUtil.intersection(quadrants[i], hatchedArea);
-            area = intersections[i].getArea();
-            if (area > largestArea) {
-                largestArea = area;
-                index = i;
+            quadrants[i] = PolygonUtil.createPolygonByPoints(gf, envCoords[i], centroidCoord);
+            try {
+                intersections[i] = GeometryUtil.intersection(quadrants[i], geom);
+                area = intersections[i].getArea();
+                if (area > largestArea) {
+                    largestArea = area;
+                    index = i;
+                }
+            } catch (Exception e) {
+                ;
             }
         }
-        if (intersections[index].isValid())
+        if (null != intersections[index] && intersections[index].isValid())
             return intersections[index];
         else {
-            // "intersections[" + index + "] is invalid"
-            return hatchedArea;
+            return geom;
         }
     }
+
 }
