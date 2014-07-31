@@ -88,6 +88,7 @@ import com.vividsolutions.jts.precision.SimpleGeometryPrecisionReducer;
  * 05/16/2014  DR 17365   D. Friedman  Prevent some Coordinate reuse. Add reducePrecision.
  * 06/27/2014  DR 17443   D. Friedman  Fix some odd cases in which parts of a polygon not covering a
  *                                     hatched area would be retained after redrawing.
+ * 07/22/2014  DR 17475   Qinglu Lin   Updated createPolygonByPoints() and created second createPolygonByPoints().
  * </pre>
  * 
  * @author mschenke
@@ -1718,11 +1719,11 @@ public class PolygonUtil {
         }
         return slope;
     }
-    
+
     /**
      * Create a polygon whose two diagonal coordinates are a and b.
      **/
-    static public Geometry createPolygonByPoints(Coordinate a, Coordinate b) {
+    static public Geometry createPolygonByPoints(GeometryFactory gf, Coordinate a, Coordinate b) {
         double maxX, minX, maxY, minY;
         maxX = Math.max(a.x, b.x);
         minX = Math.min(a.x, b.x);
@@ -1734,10 +1735,14 @@ public class PolygonUtil {
         coord[2] = new Coordinate(maxX, maxY);
         coord[3] = new Coordinate(minX, maxY);
         coord[4] = new Coordinate(coord[0]);
-        GeometryFactory gf = new GeometryFactory();
         LinearRing lr = gf.createLinearRing(coord);
         return gf.createPolygon(lr, null);
-    }    
+    }
+
+    static public Geometry createPolygonByPoints(GeometryFactory gf, Coordinate a, double shift) {
+        Coordinate b = new Coordinate(a.x + shift, a.y + shift);
+        return createPolygonByPoints(gf, a, b);
+    }
 
     /** Creates a copy of a Geometry with reduced precision to reduce the chance of topology errors when used
      * in intersection operations.
