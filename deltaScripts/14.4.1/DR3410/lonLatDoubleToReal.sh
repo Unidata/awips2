@@ -30,3 +30,10 @@ do
 done
 
 echo $msg
+
+echo "Reformatting dataURIs that used double precision locations..."
+
+JAVA="/awips2/java/bin/java"
+
+${JAVA} -jar reformat_obslocation_datauri.jar 
+
