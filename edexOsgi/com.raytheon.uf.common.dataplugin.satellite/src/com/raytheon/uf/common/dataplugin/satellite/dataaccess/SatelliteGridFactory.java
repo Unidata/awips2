@@ -56,6 +56,7 @@ import com.raytheon.uf.common.numeric.source.DataSource;
  * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
  *                                    single request.
  * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
+ * Jul 30, 2014  3184     njensen     Renamed valid identifiers to optional
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
 
     private static final String FIELD_SECTOR_ID = "sectorID";
 
-    private static final String[] VALID_IDENTIFIERS = { "source",
+    private static final String[] OPTIONAL_IDENTIFIERS = { "source",
             "creatingEntity", FIELD_SECTOR_ID, FIELD_PYHSICAL_ELEMENT };
 
     public SatelliteGridFactory() {
@@ -77,10 +78,11 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
     }
 
     @Override
-    public String[] getValidIdentifiers() {
-        return VALID_IDENTIFIERS;
+    public String[] getOptionalIdentifiers() {
+        return OPTIONAL_IDENTIFIERS;
     }
 
+    @Override
     protected DefaultGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
             DataSource dataSource) {
@@ -125,6 +127,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
      * multiple factories will be building a base constraint map using the same
      * technique
      */
+    @Override
     protected Map<String, RequestConstraint> buildConstraintsFromRequest(
             IDataRequest request) {
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
