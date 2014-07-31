@@ -194,7 +194,6 @@ public class NumberAxis extends Axis {
                                 labeling.getLabel(labelVal), color);
                         string.font = font;
                         string.setCoordinates(xPos, yPos);
-                        string.rotation = 360.0;
                         strings.add(string);
                     }
                 }
