@@ -71,7 +71,7 @@ if not os.path.isdir(OUT_DIR):
     os.mkdir(OUT_DIR)
 INGEST_DIR = dataDir + 'manual'
 INGEST_ROUTE = 'handleoupFilePush'
-SITE_ID = env.getEnvValue('SITENAME')
+SITE_ID = EDEXUtil.getEdexSite()
 
 def process(oup, afosID, resp, ackMgr = None, test = False):
     _Logger.info("handleOUP.py received " + str(oup.getFilename()))
