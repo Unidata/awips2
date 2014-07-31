@@ -62,6 +62,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep  6, 2012 13365      rferrel     Accumulate and Display fix.
  * Sep 25, 2012 1196       lvenable    Dialog refactor for AlarmDisplayWindow.Added DO_NOT_BLOCK.
  * Nov 20, 2013 2488       randerso    Changed to use DejaVu font
+ * Jul 24, 2014 3423       randerso    Added setLoading() to indicate waiting on product
+ *                                     retrieval. Removed prods from constructor.
  * 
  * </pre>
  * 
@@ -100,19 +102,13 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
 
     /**
      * @param parentShell
-     * @param prodList
      * @param accum_state
      */
-    protected AlarmDisplayWindow(Shell parentShell,
-            java.util.List<StdTextProduct> prodList,
-            ACCUMULATE_STATE accum_state) {
+    protected AlarmDisplayWindow(Shell parentShell, ACCUMULATE_STATE accum_state) {
         super(parentShell, SWT.RESIZE, CAVE.PERSPECTIVE_INDEPENDENT
                 | CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         setText("Alarm Display Window");
-        prods = prodList;
-        if (prods == null) {
-            prods = new ArrayList<StdTextProduct>();
-        }
+        prods = new ArrayList<StdTextProduct>(0);
         this.accum_state = accum_state;
     }
 
@@ -263,6 +259,11 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
     public void setProds(java.util.List<StdTextProduct> prodList) {
         prods = prodList;
         populateText();
+    }
+
+    public void setLoading() {
+        actualText = text.getText();
+        text.setText("Loading...");
     }
 
     public void addText(String msg) {
