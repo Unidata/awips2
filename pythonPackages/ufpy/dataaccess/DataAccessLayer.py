@@ -34,6 +34,7 @@
 #    05/29/13         2023         dgilling       Hook up ThriftClientRouter.
 #    03/03/14         2673         bsteffen       Add ability to query only ref times.
 #    07/22/14         3185         njensen        Added optional/default args to newDataRequest
+#    07/30/14         3185         njensen        Renamed valid identifiers to optional
 #    
 # 
 #
@@ -157,17 +158,17 @@ def getRequiredIdentifiers(datatype):
     """
     return router.getRequiredIdentifiers(datatype)
 
-def getValidIdentifiers(datatype):
+def getOptionalIdentifiers(datatype):
     """
-    Gets the valid identifiers for this datatype.
+    Gets the optional identifiers for this datatype.
     
     Args:
-            datatype: the datatype to find valid identifiers for
+            datatype: the datatype to find optional identifiers for
             
     Returns:
-            a list of strings of valid identifiers
+            a list of strings of optional identifiers
     """
-    return router.getValidIdentifiers(datatype)
+    return router.getOptionalIdentifiers(datatype)
 
 def newDataRequest(datatype=None, **kwargs):
     """"
