@@ -16,6 +16,7 @@
  * 											remove xml serialization as well * 
  * 10/2011                  S. Gurung       Added changes related to getting stid/lat/lon/elev 
  * 										    from database instead of snstns.xml file
+ * Jul 30, 2014 3410        bclement        dataURI no longer stored in hdf5
  * 
  * </pre>
  * 
@@ -25,6 +26,12 @@
  */
 
 package gov.noaa.nws.ncep.common.dataplugin.ncuair.dao;
+
+import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairLiftedIndex;
+import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairMaxWind;
+import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairObsLevels;
+import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairRecord;
+import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairTropopause;
 
 import java.io.File;
 import java.util.HashMap;
@@ -36,12 +43,6 @@ import com.raytheon.uf.common.pointdata.Dimension;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
-
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairLiftedIndex;
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairMaxWind;
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairObsLevels;
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairTropopause;
-import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairRecord;
 
 public class NcUairToPointData {
 	private static final String RAW_DATA = "RAWDATA";
@@ -257,7 +258,6 @@ public class NcUairToPointData {
         	pdv.setLong(SYNOPTIC_TIME, record.getSynopticTime().getTime().getTime());
         if(record.getIssueTime()!=null)
         	pdv.setLong(ISSUE_TIME, record.getIssueTime().getTime().getTime());
-    	pdv.setString(DATAURI, record.getDataURI());
     	pdv.setString(DATA_TYPE, record.getDataType());
         pdv.setString(REPORT_TYPE, record.getReportType());
         pdv.setString(WMO_HEADER, record.getWmoHeader());
