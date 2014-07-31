@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     data request locationNames list is empty.
  * Jun 24, 2014 3170       mnash       Get the accumulated time if multiple times are requested
  * Jul 14, 2014 3184       njensen     Overrode getAvailableLevels()
+ * Jul 30, 2014 3184       njensen     Overrode required and optional identifiers
  * 
  * </pre>
  * 
@@ -362,5 +363,15 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
     public Level[] getAvailableLevels(IDataRequest request) {
         throw new IncompatibleRequestException(request.getDatatype()
                 + " data does not support the concept of levels");
+    }
+
+    @Override
+    public String[] getRequiredIdentifiers() {
+        return new String[] { SITE_KEY, WFO, HUC };
+    }
+
+    @Override
+    public String[] getOptionalIdentifiers() {
+        return new String[] { DATA_KEY };
     }
 }
