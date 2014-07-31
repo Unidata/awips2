@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
  *                                    single request.
  * Feb 04, 2014  2672     bsteffen    Enable requesting icaos within envelope.
+ * Jul 30, 2014  3184     njensen     Overrode optional identifiers
  * 
  * 
  * </pre>
@@ -164,7 +165,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
      *            a record.
      * @return A unique location name
      */
-    protected String generateLocationName(RadarRecord radarRecord){
+    protected String generateLocationName(RadarRecord radarRecord) {
         StringBuilder locationName = new StringBuilder(32);
         locationName.append(radarRecord.getIcao());
         locationName.append("_");
@@ -414,6 +415,11 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
         return getAvailableLocationNames(request, ICAO);
+    }
+
+    @Override
+    public String[] getOptionalIdentifiers() {
+        return new String[] { ICAO };
     }
 
     /**
