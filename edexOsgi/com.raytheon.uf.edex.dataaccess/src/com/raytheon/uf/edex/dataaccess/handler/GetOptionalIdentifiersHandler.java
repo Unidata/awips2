@@ -20,11 +20,11 @@
 package com.raytheon.uf.edex.dataaccess.handler;
 
 import com.raytheon.uf.common.dataaccess.DataAccessLayer;
-import com.raytheon.uf.common.dataaccess.request.GetValidIdentifiersRequest;
+import com.raytheon.uf.common.dataaccess.request.GetOptionalIdentifiersRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * Request handler for <code>GetValidIdentifiersRequest</code>.
+ * Request handler for <code>GetOptionalIdentifiersRequest</code>.
  * 
  * <pre>
  * 
@@ -33,6 +33,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 23, 2014 3185       njensen     Initial creation
+ * Jul 30, 2014 3185       njensen     Renamed valid to optional
  * 
  * </pre>
  * 
@@ -40,13 +41,13 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class GetValidIdentifiersHandler implements
-        IRequestHandler<GetValidIdentifiersRequest> {
+public class GetOptionalIdentifiersHandler implements
+        IRequestHandler<GetOptionalIdentifiersRequest> {
 
     @Override
-    public String[] handleRequest(GetValidIdentifiersRequest request)
+    public String[] handleRequest(GetOptionalIdentifiersRequest request)
             throws Exception {
-        return DataAccessLayer.getValidIdentifiers(request.getDatatype());
+        return DataAccessLayer.getOptionalIdentifiers(request.getDatatype());
     }
 
 }
