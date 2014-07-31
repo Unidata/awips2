@@ -155,6 +155,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Oct 29, 2013 DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the polygon the be used.
  *  Apr 28, 2014    3033     jsanchez    Re-initialized the Velocity Engine when switching back up sites.
  *  Jul 01, 2014 DR 17450    D. Friedman Use list of templates from backup site.
+ *  Jul 21, 2014 3419        jsanchez    Created a hidden button to make recreating polygons easier.
  * </pre>
  * 
  * @author chammack
@@ -164,6 +165,12 @@ public class WarngenDialog extends CaveSWTDialog implements
         IWarningsArrivedListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarngenDialog.class);
+
+    /*
+     * This flag allows a hidden button to appear to help recreating warning
+     * polygons that had issues in the feed.
+     */
+    private boolean debug = false;
 
     private static final int BULLET_WIDTH = 390;
 
@@ -557,7 +564,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         GridData gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         if (updateListCbo == null) {
             gd.horizontalIndent = 30;
-            updateListCbo = new Combo(productType, SWT.READ_ONLY | SWT.DROP_DOWN);
+            updateListCbo = new Combo(productType, SWT.READ_ONLY
+                    | SWT.DROP_DOWN);
             updateListCbo.setLayoutData(gd);
             recreateUpdates();
 
@@ -629,7 +637,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         });
 
         Composite redrawFrom = new Composite(redrawBox, SWT.NONE);
-        redrawFrom.setLayout(new GridLayout(3, false));
+        int columns = debug ? 4 : 3;
+        redrawFrom.setLayout(new GridLayout(columns, false));
         redrawFrom.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false,
                 true));
 
@@ -664,9 +673,30 @@ public class WarngenDialog extends CaveSWTDialog implements
         damBreakThreatArea.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                damBreakThreatAreaPressed();
+                DamInfoBullet damBullet = bulletListManager
+                        .getSelectedDamInfoBullet();
+                if (damBullet != null) {
+                    damBreakThreatAreaPressed(damBullet.getCoords(), true);
+                }
             }
         });
+
+        if (debug) {
+            Button drawPolygonButton = new Button(redrawFrom, SWT.PUSH);
+            drawPolygonButton.setText("?");
+            drawPolygonButton.setEnabled(true);
+            drawPolygonButton.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    /*
+                     * Copy/paste the LAT...LON line from the text product to
+                     * quickly recreate the polygon.
+                     */
+                    String latLon = "LAT...LON 4282 7174 4256 7129 4248 7159 4280 7198";
+                    damBreakThreatAreaPressed(latLon, false);
+                }
+            });
+        }
     }
 
     private void createBackupTrackEditGroups(Composite mainComposite) {
@@ -1208,7 +1238,11 @@ public class WarngenDialog extends CaveSWTDialog implements
             setInstructions();
         } else if (bulletListManager.isDamNameSeletcted()
                 && bulletListManager.isDamCauseSelected()) {
-            damBreakThreatAreaPressed();
+            DamInfoBullet damBullet = bulletListManager
+                    .getSelectedDamInfoBullet();
+            if (damBullet != null) {
+                damBreakThreatAreaPressed(damBullet.getCoords(), true);
+            }
             if (damBreakInstruct != null) {
                 return false;
             }
@@ -1345,7 +1379,7 @@ public class WarngenDialog extends CaveSWTDialog implements
             createMainProductButtons(productType);
             createOtherProductsList(productType);
 
-            //  Don't let errors prevent the new controls from being displayed!
+            // Don't let errors prevent the new controls from being displayed!
             try {
                 changeTemplate(getDefaultTemplate());
                 resetPressed();
@@ -1440,55 +1474,50 @@ public class WarngenDialog extends CaveSWTDialog implements
     }
 
     /**
-     * This method is responsible for drawing a pre-defined drainage basin on
-     * the WarnGen layer. The method is called when a drainage basin is selected
-     * in the WarnGen Dialog Bullet List and the Dam Break Threat Area button is
-     * pressed. Dam info geometries are defined in the Database so a Spatial
-     * Query is performed to retrieve the data.
+     * Responsible for drawing a pre-defined warning polygon (coords) on the
+     * WarnGen layer.
      * 
+     * @param coords
+     *            pre-defined warning polygon coordinates in LAT...LON form.
+     * @param lockPolygon
+     *            indicates if the polygon should be locked or not.
      */
-    private void damBreakThreatAreaPressed() {
+    private void damBreakThreatAreaPressed(String coords, boolean lockPolygon) {
         damBreakInstruct = "Either no dam selected, no dam info bullets in .xml file, or no\n"
                 + "dam break primary cause selected.";
-        DamInfoBullet damBullet = bulletListManager.getSelectedDamInfoBullet();
-        if (damBullet != null) {
 
-            if ((damBullet.getCoords() == null)
-                    || (damBullet.getCoords().length() == 0)) {
-                damBreakInstruct = "LAT...LON can not be found in 'coords' parameter";
-            } else {
-                ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
-                Pattern coordinatePtrn = Pattern
-                        .compile("LAT...LON+(\\s\\d{3,4}\\s\\d{3,5}){1,}");
-                Pattern latLonPtrn = Pattern
-                        .compile("\\s(\\d{3,4})\\s(\\d{3,5})");
+        if ((coords == null) || (coords.length() == 0)) {
+            damBreakInstruct = "LAT...LON can not be found in 'coords' parameter";
+        } else {
+            ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
+            Pattern coordinatePtrn = Pattern
+                    .compile("LAT...LON+(\\s\\d{3,4}\\s\\d{3,5}){1,}");
+            Pattern latLonPtrn = Pattern.compile("\\s(\\d{3,4})\\s(\\d{3,5})");
 
-                Matcher m = coordinatePtrn.matcher(damBullet.getCoords());
-                if (m.find()) {
-                    m = latLonPtrn.matcher(damBullet.getCoords());
-                    while (m.find()) {
-                        coordinates.add(new Coordinate((-1 * Double
-                                .parseDouble(m.group(2))) / 100, Double
-                                .parseDouble(m.group(1)) / 100));
-                    }
-
-                    if (coordinates.size() < 3) {
-                        damBreakInstruct = "Lat/Lon pair for dam break threat area is less than three";
-                    } else {
-                        coordinates.add(coordinates.get(0));
-                        PolygonUtil.truncate(coordinates, 2);
-                        warngenLayer.createDamThreatArea(coordinates
-                                .toArray(new Coordinate[coordinates.size()]));
-                        setPolygonLocked(true);
-                        warngenLayer.issueRefresh();
-                        damBreakInstruct = null;
-                    }
-                } else {
-                    damBreakInstruct = "The 'coords' parameter maybe be misformatted or the\n"
-                            + "La/Lon for dam break threat area is not in pairs.";
+            Matcher m = coordinatePtrn.matcher(coords);
+            if (m.find()) {
+                m = latLonPtrn.matcher(coords);
+                while (m.find()) {
+                    coordinates.add(new Coordinate((-1 * Double.parseDouble(m
+                            .group(2))) / 100,
+                            Double.parseDouble(m.group(1)) / 100));
                 }
-            }
 
+                if (coordinates.size() < 3) {
+                    damBreakInstruct = "Lat/Lon pair for dam break threat area is less than three";
+                } else {
+                    coordinates.add(coordinates.get(0));
+                    PolygonUtil.truncate(coordinates, 2);
+                    warngenLayer.createDamThreatArea(coordinates
+                            .toArray(new Coordinate[coordinates.size()]));
+                    setPolygonLocked(lockPolygon);
+                    warngenLayer.issueRefresh();
+                    damBreakInstruct = null;
+                }
+            } else {
+                damBreakInstruct = "The 'coords' parameter maybe be misformatted or the\n"
+                        + "La/Lon for dam break threat area is not in pairs.";
+            }
         }
         if (damBreakInstruct != null) {
             setInstructions();
@@ -1517,11 +1546,11 @@ public class WarngenDialog extends CaveSWTDialog implements
         return result;
     }
 
-    /** Called by controls that can change the current template.  Do not
-     * do anything if the request template is already selected.  This
-     * check is necessary to prevent certain state being reset if
-     * a followup has been selected as this is not handled by
-     * changeTemplate() (DR 14515.)
+    /**
+     * Called by controls that can change the current template. Do not do
+     * anything if the request template is already selected. This check is
+     * necessary to prevent certain state being reset if a followup has been
+     * selected as this is not handled by changeTemplate() (DR 14515.)
      */
     private void uiChangeTemplate(String templateName) {
         if (templateName.equals(warngenLayer.getTemplateName())) {
