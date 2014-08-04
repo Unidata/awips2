@@ -26,12 +26,12 @@ import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -68,6 +68,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009            snaples     Initial creation
+ * Aug 1, 2014  3471      mapeters    Updated deprecated createShadedShape() calls.
  * 
  * </pre>
  * 
@@ -204,7 +205,8 @@ public class PlotMeanAreaFreezeResource extends
         jtsGeometryFactory = new GeometryFactory();
         outlineShape = target.createWireframeShape(false, descriptor, 0.0f);
 
-        shadedShape = target.createShadedShape(false, descriptor, true);
+        shadedShape = target.createShadedShape(false,
+                descriptor.getGridGeometry(), true);
 
         JTSCompiler jtsCompiler = new JTSCompiler(shadedShape, outlineShape,
                 descriptor);
