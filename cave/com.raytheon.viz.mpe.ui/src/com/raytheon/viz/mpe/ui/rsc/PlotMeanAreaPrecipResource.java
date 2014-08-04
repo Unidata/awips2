@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009            snaples     Initial creation
  * May 2, 2013  15970     snaples     Updated setColor to use the correct color.
+ * Aug 1, 2014  3471      mapeters    Updated deprecated createShadedShape() calls.
  * 
  * </pre>
  * 
@@ -223,7 +224,8 @@ public class PlotMeanAreaPrecipResource extends
         jtsGeometryFactory = new GeometryFactory();
         outlineShape = target.createWireframeShape(false, descriptor, 0.0f);
 
-        shadedShape = target.createShadedShape(false, descriptor, true);
+        shadedShape = target.createShadedShape(false,
+                descriptor.getGridGeometry(), true);
 
         JTSCompiler jtsCompiler = new JTSCompiler(shadedShape, outlineShape,
                 descriptor);
