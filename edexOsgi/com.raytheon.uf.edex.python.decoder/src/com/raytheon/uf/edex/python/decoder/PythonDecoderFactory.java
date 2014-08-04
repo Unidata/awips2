@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.python.decoder;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 import jep.JepException;
@@ -46,6 +47,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * ------------ ---------- ----------- --------------------------
  * Apr 2, 2009             njensen     Initial creation
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
+ * Aug 04, 2014 3427       bclement    decoder interface now takes full path to jar
  * 
  * </pre>
  * 
@@ -88,13 +90,15 @@ public class PythonDecoderFactory {
      * python module. Synchronized as zipimport has race condition that only
      * allows one interpreter to load a given jar file at a time.
      * 
-     * @param pluginName
+     * @param pluginFQN
+     * @param moduleName
      * @return
      * @throws Exception
      */
     public static synchronized PythonScript makePythonDecoder(String pluginFQN,
             String moduleName) throws Exception {
         PythonScript py = null;
+        String jarpath = Paths.get(pluginDir, pluginFQN + ".jar").toString();
         int retryCount = 0;
         // we try multiple times cause once in a blue moon we get an error on
         // zlib that is an extremely rare fluke
@@ -104,13 +108,12 @@ public class PythonDecoderFactory {
                 py = new PythonScript(decoderInterface, includePath,
                         PythonDecoder.class.getClassLoader());
                 HashMap<String, Object> argMap = new HashMap<String, Object>();
-                argMap.put("pluginDir", pluginDir);
-                argMap.put("pluginFQN", pluginFQN);
+                argMap.put("jarpath", jarpath);
                 argMap.put("moduleName", moduleName);
                 py.execute("loadModule", argMap);
             } catch (JepException e) {
-                logger.error(
-                        "Error instantiating python decoder " + moduleName, e);
+                logger.error("Error instantiating python decoder " + moduleName
+                        + " from jar " + jarpath, e);
                 if (py != null) {
                     py.dispose();
                     py = null;
