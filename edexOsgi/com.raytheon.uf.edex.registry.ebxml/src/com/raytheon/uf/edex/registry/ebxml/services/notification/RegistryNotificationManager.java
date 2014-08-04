@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 12/9/2013    2613        bphillip    Changed start time boundary of get auditable events to be the last run time of the subscription
  * 01/21/2014   2613        bphillip    Changed start time boundary again and also a few minor cleanup items
  * 2/13/2014    2769        bphillip    Optimized sendNotifications method
+ * 7/28/2014    3474        dhladky     Fixed bad ownership settings.
  * </pre>
  * 
  * @author bphillip
@@ -400,7 +401,7 @@ public class RegistryNotificationManager {
                         + subscriptionId + "]"));
         notification.setObjectType(RegistryObjectTypes.NOTIFICATION);
         notification.setStatus(StatusTypes.APPROVED);
-        notification.setOwner(RegistryUtil.DEFAULT_OWNER);
+        notification.setOwner(RegistryUtil.registryUser);
         notification.setSubscription(subscriptionId);
         notification.setEvent(eventsOfInterest);
         return notification;
