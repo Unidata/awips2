@@ -26,7 +26,10 @@
                     <loadProperties>
                         <capabilities>
                             <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" />
+                            <capability xsi:type="pointCapability" pointStyle="NONE" />
+                            <capability xsi:type="labelableCapability" labelField="id" />
+                            <capability xsi:type="magnificationCapability" magnification="1.0" />
+                            <capability xsi:type="densityCapability" density="1.0" />
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
@@ -37,7 +40,23 @@
                                 <capabilities>
                                     <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
                                     <capability xsi:type="labelableCapability" labelField="name" />
-                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+                            </properties>
+                            <resourceData xsi:type="lpiResourceData">
+                                <filename>cities.lpi</filename>
+                                <mapName>Cities</mapName>
+                            </resourceData>
+                        </resource>
+                        <mapName>Cities</mapName>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
+                                    <capability xsi:type="labelableCapability" labelField="name" />
                                         outlineWidth="1" />
                                 </capabilities>
                                 <resourceType>PLAN_VIEW</resourceType>
@@ -51,27 +70,10 @@
                                 <mapName>Cities</mapName>
                             </resourceData>
                         </resource>
-                        <resource>
-                            <loadProperties>
-                                <capabilities>
-                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
-                                    <capability xsi:type="labelableCapability" labelField="name" />
-                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1" />
-                                </capabilities>
-                                <resourceType>PLAN_VIEW</resourceType>
-                            </loadProperties>
-                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
-                            </properties>
-                            <resourceData xsi:type="lpiResourceData">
-                                <filename>cities.lpi</filename>
-                                <mapName>Cities</mapName>
-                            </resourceData>
-                        </resource>
-                        <mapName>Cities</mapName>
                     </resourceData>
                 </resource>
             </descriptor>
         </displays>
     </displayList>
 </bundle>
+
