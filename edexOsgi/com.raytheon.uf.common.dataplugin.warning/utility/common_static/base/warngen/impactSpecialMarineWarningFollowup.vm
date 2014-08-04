@@ -397,10 +397,10 @@ ${canwarning}
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
@@ -571,10 +571,10 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
@@ -679,10 +679,10 @@ THE ${eventType} !** WEAKENED / MOVED OUT OF THE WARNED AREA **! AND NO LONGER $
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #if(${productClass}=="T")
@@ -880,10 +880,10 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #elseif(${CORCAN} == "true")
@@ -952,10 +952,10 @@ THE ${eventType} !** WEAKENED / MOVED OUT OF THE WARNED AREA **! AND NO LONGER $
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #if(${productClass}=="T")
@@ -1142,10 +1142,10 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
@@ -1219,10 +1219,10 @@ ${expwarning}
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
