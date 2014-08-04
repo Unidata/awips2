@@ -230,11 +230,11 @@ LOCATIONS CAN EXPECT !** EXPECTED SNOW **! INCHES OF SNOW.
 #############
 ## WATCHES ##
 #############
-#if(${list.contains(${includedWatches}, "torWatches")} && ${list.contains(${bullets}, "includeTorWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")} && ${list.contains(${bullets}, "includeTorWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 
 #end
-#if(${list.contains(${includedWatches}, "svrWatches")} && ${list.contains(${bullets}, "includeSvrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")} && ${list.contains(${bullets}, "includeSvrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 
 #end
