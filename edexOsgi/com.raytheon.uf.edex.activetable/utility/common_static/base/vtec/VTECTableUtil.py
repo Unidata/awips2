@@ -17,7 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-# Utility classes for the VTEC active table
+# Utility classes for the VTEC util table
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06/17/13        #3296         randerso       Moved active table backup and purging 
+#                                                 to a separate thread in java.
 
 import copy
 import cPickle
@@ -384,3 +391,14 @@ class VTECTableUtil:
         
         return JUtil.javaObjToPyVal(javaDictFormat)
         
+def backupActiveTable(activeTable, activeTableMode, filePath, siteId):
+    import ActiveTableRecord
+    pyActive = []
+    szActive = activeTable.size()
+    for i in range(szActive):
+        pyActive.append(ActiveTableRecord.ActiveTableRecord(activeTable.get(i)))
+
+    # create a dummy name to simplify the file access code in VTECTableUtil
+    util = VTECTableUtil(os.path.join(filePath, activeTableMode + ".tbl"))
+    oldActiveTable = util._convertTableToPurePython(pyActive, siteId)
+    util.saveOldActiveTable(oldActiveTable)
