@@ -57,11 +57,11 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
  
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include torWatches and/or svrWatches, 
+ 	included with the warning product include TO.A and/or SV.A, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
-  <includedWatch>torWatches</includedWatch>
-  <includedWatch>svrWatches</includedWatch>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
  </includedWatches>
  
  <!-- durations: the list of possible durations of the svs -->
