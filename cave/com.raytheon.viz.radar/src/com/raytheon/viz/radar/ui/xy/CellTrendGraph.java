@@ -110,22 +110,24 @@ public class CellTrendGraph extends XYGraph {
                  * Paint the data series
                  */
                 target.setupClippingPlane(this.worldExtent);
-                double previousScreenX = 0.0;
-                double previousScreenY = 0.0;
 
                 // Paint each series in the xyData
-                boolean first;
                 int i = 0;
 
                 LineStyle currLineStyle;
                 PointType currPointType;
                 List<DrawableCircle> circles = new ArrayList<DrawableCircle>();
                 List<DrawableLine> lines = new ArrayList<DrawableLine>();
+
                 for (XYDataList currSeries : dataSeries) {
                     currLineStyle = dataSeriesLineTypes.get(i);
                     currPointType = dataSeriesPointTypes.get(i++);
                     
-                    first = true;
+                    DrawableLine line = new DrawableLine();
+                    line.basics.color = colorCap.getColor();
+                    line.width = outlineCap.getOutlineWidth();
+                    line.lineStyle = currLineStyle;
+
                     for (XYData currPoint : currSeries.getData()) {
                         double x = ((Number) currPoint.getX()).doubleValue();
                         double y = ((Number) currPoint.getY()).doubleValue();
@@ -137,7 +139,7 @@ public class CellTrendGraph extends XYGraph {
                         double screenX = domainAxis.valueToCoordinate(x);
                         double screenY = rangeAxis.valueToCoordinate(y);
 
-                        AbstractDrawableObject object = drawPoint(target,
+                        AbstractDrawableObject object = createPoint(target,
                                 screenX, screenY, currPointType);
                         // Add the point to its corresponding list
                         if (object instanceof DrawableCircle) {
@@ -146,19 +148,10 @@ public class CellTrendGraph extends XYGraph {
                             lines.add((DrawableLine) object);
                         }
 
-                        if (first) {
-                            first = false;
-                        } else {
-                            DrawableLine line = new DrawableLine();
-                            line.setCoordinates(screenX, screenY);
-                            line.addPoint(previousScreenX, previousScreenY);
-                            line.basics.color = colorCap.getColor();
-                            line.width = outlineCap.getOutlineWidth();
-                            line.lineStyle = currLineStyle;
-                            lines.add(line);
-                        }
-                        previousScreenX = screenX;
-                        previousScreenY = screenY;
+                        line.addPoint(screenX, screenY);
+                    }
+                    if (line.points.size() > 0) {
+                        lines.add(line);
                     }
                 }
                 target.drawLine(lines.toArray(new DrawableLine[0]));
@@ -169,7 +162,8 @@ public class CellTrendGraph extends XYGraph {
         }
     }
     
-    private AbstractDrawableObject drawPoint(IGraphicsTarget target, double x, double y,
+    private AbstractDrawableObject createPoint(IGraphicsTarget target,
+            double x, double y,
             PointType currPointType) throws VizException {
         if (currPointType.equals(PointType.CIRCLE)) {
             DrawableCircle circle = new DrawableCircle();
@@ -239,7 +233,7 @@ public class CellTrendGraph extends XYGraph {
         for (int i = 0; i < dataSeriesLabels.size(); i++) {
             // Point type
             PointType pt = dataSeriesPointTypes.get(i);
-            AbstractDrawableObject object = drawPoint(target, labelx[i],
+            AbstractDrawableObject object = createPoint(target, labelx[i],
                     labely[i], pt);
             //Add the point to its corresponding list
             if (object instanceof DrawableCircle) {
