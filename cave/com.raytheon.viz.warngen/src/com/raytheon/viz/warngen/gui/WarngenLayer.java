@@ -214,6 +214,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/28,2014  3033        jsanchez    Properly handled back up configuration (*.xml) files. Set backupSite to null when backup site is not selected.
  * 05/16/2014  DR 17365    D. Friedman Check if moved vertex results in polygon valid in both lat/lon and local coordinates.
  * 07/24/2014  3429        mapeters    Updated deprecated drawLine() calls.
+ * 08/01/2014  3471        mapeters    Updated deprecated createShadedShape() calls.
  * </pre>
  * 
  * @author mschenke
@@ -910,8 +911,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         });
         manager = new WarngenUIManager(this);
         coveredAreaFrame = target.createWireframeShape(true, this.descriptor);
-        shadedCoveredArea = target.createShadedShape(true, this.descriptor,
-                true);
+        shadedCoveredArea = target.createShadedShape(true,
+                this.descriptor.getGridGeometry(), true);
     }
 
     /**
