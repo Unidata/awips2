@@ -61,6 +61,7 @@ import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
  *    Date          Ticket#     Engineer    Description
  *    ------------  ----------  ----------- --------------------------
  *    1/10/08       562         bphillip    Initial Creation.
+ *    8/04/14       3489        mapeters    Updated deprecated getStringBounds() calls.
  * 
  * </pre>
  * 
@@ -147,7 +148,9 @@ public class SPIResource extends
         double screenToWorldRatio = paintProps.getCanvasBounds().width
                 / paintProps.getView().getExtent().getWidth();
 
-        Rectangle2D charSize = target.getStringBounds(font, "N");
+        DrawableString n = new DrawableString("N");
+        n.font = font;
+        Rectangle2D charSize = target.getStringsBounds(n);
         double charWidth = charSize.getWidth();
         double charHeight = charSize.getHeight();
 
@@ -157,7 +160,6 @@ public class SPIResource extends
         double minSepDist = (displayHintSize * (metersPerPixel / 1000.0))
                 / getCapability(DensityCapability.class).getDensity();
 
-        RGB color = getCapability(ColorableCapability.class).getColor();
         double offsetX = charWidth / 2.0 / screenToWorldRatio;
         double offsetY = charHeight / screenToWorldRatio;
         HorizontalAlignment align = HorizontalAlignment.LEFT;
@@ -181,6 +183,7 @@ public class SPIResource extends
         SPIEntry entry = null;
         List<DrawableString> strings = new ArrayList<DrawableString>();
         List<double[]> points = new ArrayList<double[]>();
+        RGB color = getCapability(ColorableCapability.class).getColor();
         for (Iterator<String> iterator = entries.keySet().iterator(); iterator
                 .hasNext();) {
             key = iterator.next();
