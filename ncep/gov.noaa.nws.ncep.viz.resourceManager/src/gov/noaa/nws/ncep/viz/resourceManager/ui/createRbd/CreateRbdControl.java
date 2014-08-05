@@ -10,6 +10,7 @@ import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.resourceManager.timeline.GraphTimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl.IDominantResourceChangedListener;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionControl.IResourceSelectedListener;
@@ -139,7 +140,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 10/22/2013     #1043      Greg Hull   setSelectedResource() if rsc sel dlg is already up.
  * 11/25/2013     #1079      Greg Hull   adjust size/font of area toolbar based on the text
  * 05/07/2014   TTR991       D. Sushon   if a different NCP editor is selected, the CreateRDB tab should now adjust.
- * 
+ * 05/29/2014     #1131      qzhou       Added NcDisplayType
+ *                                       Modified creating new timelineControl in const and updateGUI
  * </pre>
  * 
  * @author ghull
@@ -259,6 +261,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
     private final String ImportFromSPF = "From SPF...";
 
+    private Group timeline_grp;
+
     // private final String[] StandardZoomLevels = {"1",
     // "1.5","2","3","5","7.5","10","15","20","30"};
 
@@ -305,7 +309,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
         createRBDGroup();
 
-        Group timeline_grp = new Group(sash_form, SWT.SHADOW_NONE);
+        timeline_grp = new Group(sash_form, SWT.SHADOW_NONE);
         timeline_grp.setText("Select Timeline");
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
@@ -316,13 +320,21 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
         timeline_grp.setLayout(new GridLayout());
 
-        timelineControl = new TimelineControl(timeline_grp);
+        if (mngr.getRbdType().equals(NcDisplayType.GRAPH_DISPLAY)) {
+            timelineControl = (GraphTimelineControl) new GraphTimelineControl(
+                    timeline_grp);
+        } else {
+            timelineControl = new TimelineControl(timeline_grp);
+        }
 
         timelineControl
                 .addDominantResourceChangedListener(new IDominantResourceChangedListener() {
                     @Override
                     public void dominantResourceChanged(
                             AbstractNatlCntrsRequestableResourceData newDomRsc) {
+                        // System.out.println("**createRbd "
+                        // + rbdMngr.isAutoUpdate() + " "
+                        // + newDomRsc.isAutoUpdateable());
                         if (newDomRsc == null) {
                             auto_update_btn.setSelection(rbdMngr.isAutoUpdate());
                             auto_update_btn.setEnabled(false);
@@ -482,7 +494,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         disp_type_combo.setItems(new String[] {
                 NcDisplayType.NMAP_DISPLAY.getName(),
                 NcDisplayType.NTRANS_DISPLAY.getName(),
-                NcDisplayType.SOLAR_DISPLAY.getName() });
+                NcDisplayType.SOLAR_DISPLAY.getName(),
+                NcDisplayType.GRAPH_DISPLAY.getName() });
 
         disp_type_lbl = new Label(rbd_grp, SWT.None);
         disp_type_lbl.setText("RBD Type");
@@ -784,7 +797,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         edit_span_btn.setLayoutData(form_data);
         edit_span_btn.setEnabled(false);
 
-        // seld_rscs_grp.pack(true);
+        seld_rscs_grp.pack(true);
 
         return seld_rscs_grp;
     }
@@ -1106,7 +1119,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                     // if replacing existing resources, get the selected
                     // resources
                     // (For now just replace the 1st if more than one selected.)
-                    //
+
                     if (replace) {
                         StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer
                                 .getSelection();
@@ -1876,7 +1889,42 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
         selectPane(rbdMngr.getSelectedPaneId());
 
-        timelineControl.clearTimeline();
+        // timelineControl.clearTimeline();
+
+        // create new timelineControl if is Graph
+        timelineControl.dispose();
+
+        if (rbdMngr.getRbdType().equals(NcDisplayType.GRAPH_DISPLAY))
+
+            timelineControl = (GraphTimelineControl) new GraphTimelineControl(
+                    timeline_grp);
+        else
+            timelineControl = new TimelineControl(timeline_grp);
+
+        timelineControl
+                .addDominantResourceChangedListener(new IDominantResourceChangedListener() {
+                    @Override
+                    public void dominantResourceChanged(
+                            AbstractNatlCntrsRequestableResourceData newDomRsc) {
+                        // System.out.println("**createRbd2 "
+                        // + rbdMngr.isAutoUpdate() + " "
+                        // + newDomRsc.isAutoUpdateable());
+                        if (newDomRsc == null) {
+                            auto_update_btn.setSelection(rbdMngr.isAutoUpdate());
+                            auto_update_btn.setEnabled(false);
+                        } else if (newDomRsc.isAutoUpdateable()) {
+                            auto_update_btn.setEnabled(true);
+                            // auto_update_btn.setSelection(
+                            // rbdMngr.isAutoUpdate() );top_comp
+                            auto_update_btn.setSelection(true);
+                        } else {
+                            auto_update_btn.setSelection(false);
+                            auto_update_btn.setEnabled(false);
+                        }
+                    }
+                });
+
+        // timelineControl.setTimeMatcher(new NCTimeMatcher());
 
         INcPaneLayout paneLayout = rbdMngr.getPaneLayout();
 
@@ -1906,6 +1954,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             auto_update_btn.setSelection(false);
             auto_update_btn.setEnabled(false);
         }
+
+        shell.pack();
     }
 
     // TODO : we could have the pane buttons indicate whether

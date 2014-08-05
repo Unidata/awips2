@@ -83,7 +83,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 04/10/2013      #958    qzhou       Added autoupdate for solar in isAutoUpdateable
  * 07/15/2013      #1011   ghull       add MATCH_ALL_DATA timeMatchMethod for PgenResource
  * 06/16/2014      TTR1026 jwu         sort data time for local radar in getAvailableDataTimes()
- * 
+ * 05/15/2014      #1131   qzhou       Added GraphRscCategory.  Added dfltGraphRange
  * </pre>
  * 
  * *
@@ -144,6 +144,12 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends
     protected int dfltNumFrames;
 
     @XmlElement
+    protected int dfltGraphRange;
+
+    @XmlElement
+    protected int dfltHourSnap;
+
+    @XmlElement
     protected int dfltTimeRange; // in hours
 
     @XmlElement
@@ -186,6 +192,8 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends
         timeMatchMethod = TimeMatchMethod.CLOSEST_BEFORE_OR_AFTER;
         timelineGenMethod = TimelineGenMethod.USE_DATA_TIMES;
         frameSpan = 60;
+        dfltGraphRange = 12; // ? quan
+        dfltHourSnap = 3;
         legendColor = new RGB(255, 255, 255);
         rscExtPointMngr = ResourceExtPointMngr.getInstance();
     }
@@ -206,9 +214,11 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends
     //
     public boolean isAutoUpdateable() {
         ResourceCategory rscCat = getResourceName().getRscCategory();
+
         if (rscCat != null && rscCat == ResourceCategory.SatelliteRscCategory
                 || rscCat == ResourceCategory.RadarRscCategory
-                || rscCat == ResourceCategory.SpaceRscCategory) {
+                || rscCat == ResourceCategory.SpaceRscCategory
+                || rscCat == ResourceCategory.GraphRscCategory) {
             return true;
         }
         return false;
@@ -269,6 +279,22 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends
 
     public void setDfltNumFrames(int dfltNumFrames) {
         this.dfltNumFrames = dfltNumFrames;
+    }
+
+    public int getDfltGraphRange() {
+        return dfltGraphRange;
+    }
+
+    public void setDfltGraphRange(int dfltGraphRange) {
+        this.dfltGraphRange = dfltGraphRange;
+    }
+
+    public int getDfltHourSnap() {
+        return dfltHourSnap;
+    }
+
+    public void setDfltHourSnap(int dfltHourSnap) {
+        this.dfltHourSnap = dfltHourSnap;
     }
 
     public int getDfltTimeRange() {
