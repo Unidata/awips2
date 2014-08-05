@@ -28,5 +28,4 @@ Import-Package: com.raytheon.uf.common.python,
  com.raytheon.uf.viz.python.swt.widgets,
  org.apache.log4j
 Bundle-ActivationPolicy: lazy
-Eclipse-BuddyPolicy: registered
 Eclipse-RegisterBuddy: ch.qos.logback
