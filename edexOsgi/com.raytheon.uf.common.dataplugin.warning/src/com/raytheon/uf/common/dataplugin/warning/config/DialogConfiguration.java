@@ -43,6 +43,7 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
  * --/--/----                          Initial creation
  * 10/22/2013   2361       njensen     Use JAXBManager for XML
  * Apr 28, 2014 3033       jsanchez    Refactored file retrieval.
+ * Jul 02, 2014 DR 17450   D. Friedman Support using list of templates from backup site.
  * </pre>
  * 
  * @author jsanchez
@@ -89,6 +90,18 @@ public class DialogConfiguration {
         String xml = WarnFileUtil.convertFileContentsToString(CONFIG_FILE,
                 localSite, null);
         return (DialogConfiguration) jaxb.unmarshalFromXml(xml);
+    }
+
+    public static DialogConfiguration loadDialogConfigNoUser(String site)
+            throws FileNotFoundException, IOException, JAXBException {
+        String xml = WarnFileUtil.convertFileContentsToStringNoUser(
+                CONFIG_FILE, site);
+        return (DialogConfiguration) jaxb.unmarshalFromXml(xml);
+    }
+
+    public static boolean isSiteDialogConfigExtant(String backupSite) {
+        return WarnFileUtil.isLocalizationFileExtantAtSiteLevel(CONFIG_FILE,
+                backupSite);
     }
 
     public String getWarngenOfficeShort() {
