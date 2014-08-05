@@ -471,7 +471,7 @@ TORRENTIAL RAINFALL IS ALSO OCCURRING WITH THIS STORM...AND MAY LEAD TO FLASH FL
 ## WATCHES ##
 #############
 
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 
 #end
