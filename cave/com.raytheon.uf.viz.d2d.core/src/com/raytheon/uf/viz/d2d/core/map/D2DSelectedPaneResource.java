@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2010            mschenke     Initial creation
+ * Aug 04, 2014 3489       mapeters     Updated deprecated getStringBounds() calls.
  * 
  * </pre>
  * 
@@ -63,19 +64,19 @@ public class D2DSelectedPaneResource extends
 
     protected static final int LEFT_OFFSET = 6;
 
-    protected static final int BOTTOM_OFFEST = 4;
+    protected static final int BOTTOM_OFFSET = 4;
 
-    protected static final RGB Lcolor = new RGB(255, 255, 0);
+    protected static final RGB L_COLOR = new RGB(255, 255, 0);
 
-    protected static final RGB Icolor = new RGB(0, 255, 0);
+    protected static final RGB I_COLOR = new RGB(0, 255, 0);
 
-    protected static final RGB PlusColor = new RGB(111, 225, 249);
+    protected static final RGB PLUS_COLOR = new RGB(111, 225, 249);
 
-    private DrawableString L;
+    private DrawableString stringL;
 
-    private DrawableString I;
+    private DrawableString stringI;
 
-    private DrawableString Plus;
+    private DrawableString plus;
 
     protected IFont font;
 
@@ -129,37 +130,39 @@ public class D2DSelectedPaneResource extends
                 double ratioY = extent.getHeight()
                         / paintProps.getCanvasBounds().height;
 
-                L.basics.x = I.basics.x = Plus.basics.x = paintProps.getView()
+                stringL.basics.x = stringI.basics.x = plus.basics.x = paintProps
+                        .getView()
                         .getExtent().getMinX()
                         + (LEFT_OFFSET * ratioX);
-                L.basics.y = I.basics.y = Plus.basics.y = paintProps.getView()
+                stringL.basics.y = stringI.basics.y = plus.basics.y = paintProps
+                        .getView()
                         .getExtent().getMaxY()
-                        - (BOTTOM_OFFEST * ratioY);
+                        - (BOTTOM_OFFSET * ratioY);
 
                 if (editor.getNumberofPanes() > 1
                         && editor.isSelectedPane(IMultiPaneEditor.LOAD_ACTION,
                                 myPane)) {
                     target.clearClippingPlane();
-                    target.drawStrings(L);
+                    target.drawStrings(stringL);
                     if (editor.isSelectedPane(IMultiPaneEditor.IMAGE_ACTION,
                             myPane)) {
-                        I.basics.y -= (target.getStringBounds(font, "L")
-                                .getHeight() + BOTTOM_OFFEST)
+                        stringI.basics.y -= (target.getStringsBounds(stringL)
+                                .getHeight() + BOTTOM_OFFSET)
                                 * extent.getHeight()
                                 / paintProps.getCanvasBounds().height;
-                        target.drawStrings(I);
+                        target.drawStrings(stringI);
                     }
                     target.setupClippingPlane(extent);
                 } else if (editor.getNumberofPanes() > 1
                         && editor.displayedPaneCount() == 1) {
                     target.clearClippingPlane();
-                    target.drawStrings(Plus);
+                    target.drawStrings(plus);
                     target.setupClippingPlane(extent);
                 } else if (editor.getNumberofPanes() > 1
                         && editor.isSelectedPane(IMultiPaneEditor.IMAGE_ACTION,
                                 myPane)) {
                     target.clearClippingPlane();
-                    target.drawStrings(I);
+                    target.drawStrings(stringI);
                     target.setupClippingPlane(extent);
                 }
             }
@@ -178,12 +181,14 @@ public class D2DSelectedPaneResource extends
         font = target.initializeFont(Font.MONOSPACED, 24,
                 new Style[] { Style.BOLD });
 
-        L = new DrawableString("L", Lcolor);
-        I = new DrawableString("I", Icolor);
-        Plus = new DrawableString("+", PlusColor);
+        stringL = new DrawableString("L", L_COLOR);
+        stringI = new DrawableString("I", I_COLOR);
+        plus = new DrawableString("+", PLUS_COLOR);
 
-        L.font = I.font = Plus.font = font;
-        L.textStyle = I.textStyle = Plus.textStyle = TextStyle.DROP_SHADOW;
+        stringL.font = stringI.font = plus.font = font;
+        stringL.addTextStyle(TextStyle.DROP_SHADOW);
+        stringI.addTextStyle(TextStyle.DROP_SHADOW);
+        plus.addTextStyle(TextStyle.DROP_SHADOW);
     }
 
     @Override
