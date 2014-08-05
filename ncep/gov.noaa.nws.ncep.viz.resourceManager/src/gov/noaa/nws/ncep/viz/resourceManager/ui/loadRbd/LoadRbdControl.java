@@ -3,10 +3,13 @@ package gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd;
 //import gov.noaa.nws.ncep.viz.common.EditorManager;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
+import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.resourceManager.timeline.GraphTimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.CreateRbdControl;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
+import gov.noaa.nws.ncep.viz.resources.manager.GraphRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
@@ -162,6 +165,8 @@ public class LoadRbdControl extends Composite {
 
     private EditRbdDialog editRbdDlg = null;
 
+    private Group timeline_grp;
+
     public LoadRbdControl(Composite parent) throws VizException {
         super(parent, SWT.NONE);
         shell = parent.getShell();
@@ -315,7 +320,7 @@ public class LoadRbdControl extends Composite {
         fd.left = new FormAttachment(auto_update_btn, 0, SWT.LEFT);
         geo_sync_panes.setLayoutData(fd);
 
-        Group timeline_grp = new Group(sash_form, SWT.SHADOW_NONE);
+        timeline_grp = new Group(sash_form, SWT.SHADOW_NONE);
         timeline_grp.setText("Select Timeline");
         fd = new FormData();
         fd.top = new FormAttachment(0, 5);
@@ -326,7 +331,15 @@ public class LoadRbdControl extends Composite {
 
         timeline_grp.setLayout(new GridLayout());
 
-        timelineControl = new TimelineControl(timeline_grp);
+        if (!seldRbdsList.isEmpty()
+                && seldRbdsList.get(0).getDisplayType()
+                        .equals(NcDisplayType.GRAPH_DISPLAY)) { // .getRbdName().equals("Graph"))
+                                                                // {
+            timelineControl = new GraphTimelineControl(timeline_grp);
+            System.out.println("HERE");
+        } else {
+            timelineControl = new TimelineControl(timeline_grp);// quan
+        }
 
         sash_form.setWeights(new int[] { 3, 2 });
 
@@ -690,14 +703,102 @@ public class LoadRbdControl extends Composite {
         seldRbdsList.clear();
         AbstractRBD<?> rbdSel = null;
 
+        // INcPaneLayout paneLayout = rbdMngr.getPaneLayout();
+        //
+        // // set the list of available resources for the timeline
+        // for (int paneIndx = 0; paneIndx < paneLayout.getNumberOfPanes();
+        // paneIndx++) {
+        // for (ResourceSelection rscSel : rbdMngr
+        // .getRscsForPane((NcPaneID) paneLayout
+        // .createPaneId(paneIndx))) {
+        //
+        // if (rscSel.getResourceData() instanceof
+        // AbstractNatlCntrsRequestableResourceData) {
+        // timelineControl
+        // .addAvailDomResource((AbstractNatlCntrsRequestableResourceData)
+        // rscSel
+        // .getResourceData());
+        // }
+        // }
+        // }
+
         while (sel_iter.hasNext()) {
             rbdSel = (AbstractRBD<?>) sel_iter.next();
-            // if( rbdSel.getTimeMatcher().getDominantResource() == null ) {
+            // if (rbdSel.getTimeMatcher().getDominantResource() == null) {
             // System.out.println("Dominant Resource is null?");
+            // } else {
+            // rbdSel.getTimeMatcher().loadTimes(true);
             // }
-            // else {
-            // rbdSel.getTimeMatcher().loadTimes();
-            // }
+
+            // timelineControl.dispose();
+            if (rbdSel instanceof GraphRBD) {
+                updateGUI(rbdSel);
+                // rbdSel.getDisplayType().equals(NcDisplayType.GRAPH_DISPLAY))
+                // {//
+                // timelineControl = (GraphTimelineControl) new
+                // GraphTimelineControl(
+                // timeline_grp);
+                //
+                // timelineControl
+                // .addDominantResourceChangedListener(new
+                // IDominantResourceChangedListener() {
+                // @Override
+                // public void dominantResourceChanged(
+                // AbstractNatlCntrsRequestableResourceData newDomRsc) {
+                // if (newDomRsc == null) {
+                // // auto_update_btn.setSelection(rbdMngr.isAutoUpdate());
+                // auto_update_btn.setEnabled(false);
+                // } else if (newDomRsc.isAutoUpdateable()) {
+                // auto_update_btn.setEnabled(true);
+                // // auto_update_btn.setSelection(
+                // // rbdMngr.isAutoUpdate() );
+                // auto_update_btn.setSelection(true);
+                // } else {
+                // auto_update_btn.setSelection(false);
+                // auto_update_btn.setEnabled(false);
+                // }
+                // }
+                // });
+                //
+                // // set the list of available resources for the timeline
+                // // INcPaneLayout paneLayout = rbdSel.getPaneLayout();
+                // //
+                // // for (int paneIndx = 0; paneIndx <
+                // paneLayout.getNumberOfPanes();
+                // // paneIndx++) {
+                // // for (ResourceSelection rscSel : rbdMngr
+                // // .getRscsForPane((NcPaneID) paneLayout
+                // // .createPaneId(paneIndx))) {
+                // //
+                // // if (rbdSel.getrscSel.getResourceData() instanceof
+                // // AbstractNatlCntrsRequestableResourceData) {
+                // // timelineControl
+                // //
+                // .addAvailDomResource((AbstractNatlCntrsRequestableResourceData)
+                // // rscSel
+                // // .getResourceData());
+                // // }
+                // // }
+                // // }
+                //
+                // NCTimeMatcher timeMatcher = rbdSel.getTimeMatcher();
+                // // ArrayList<DataTime> list = new ArrayList<DataTime>();
+                // // DataTime time = timeMatcher.getRefTime();
+                // // System.out.println("***time " + time);
+                // // Calendar cal = (Calendar) time.getValidTime();
+                // // for (int i = 0; i < 720; i++) {
+                // // cal.add(Calendar.MINUTE, -1);
+                // // list.add(new DataTime((Calendar) cal.clone()));
+                // // }
+                // // timeMatcher.setFrameTimes(list);
+                //
+                // timelineControl.setTimeMatcher(timeMatcher);
+                // timelineControl.addAvailDomResource(timeMatcher
+                // .getDominantResource());
+
+            } else {
+                timelineControl = new TimelineControl(timeline_grp);
+            }
 
             rbdSel.initTimeline();
             seldRbdsList.add(rbdSel);
@@ -997,5 +1098,42 @@ public class LoadRbdControl extends Composite {
         }
 
         editRbdDlg = null;
+    }
+
+    public void updateGUI(final AbstractRBD<?> rbdSel) {
+        if (rbdSel instanceof GraphRBD) {
+            timelineControl.dispose();
+            // shell.pack();
+            timelineControl = (GraphTimelineControl) new GraphTimelineControl(
+                    timeline_grp);
+
+            // timelineControl
+            // .addDominantResourceChangedListener(new
+            // IDominantResourceChangedListener() {
+            // @Override
+            // public void dominantResourceChanged(
+            // AbstractNatlCntrsRequestableResourceData newDomRsc) {
+            // if (newDomRsc == null) {
+            // auto_update_btn.setSelection(rbdSel
+            // .isAutoUpdate());
+            // auto_update_btn.setEnabled(false);
+            // } else if (newDomRsc.isAutoUpdateable()) {
+            // auto_update_btn.setEnabled(true);
+            // // auto_update_btn.setSelection(
+            // // rbdMngr.isAutoUpdate() );top_comp
+            // auto_update_btn.setSelection(true);
+            // } else {
+            // auto_update_btn.setSelection(false);
+            // auto_update_btn.setEnabled(false);
+            // }
+            // }
+            // });
+            //
+            // timelineControl.setTimeMatcher(rbdSel.getTimeMatcher());
+            // timelineControl.addAvailDomResource(rbdSel.getTimeMatcher()
+            // .getDominantResource());
+            // shell.pack();
+        }
+
     }
 }
