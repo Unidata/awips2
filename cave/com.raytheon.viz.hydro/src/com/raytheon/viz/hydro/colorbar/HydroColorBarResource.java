@@ -69,7 +69,7 @@ import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
  *                                     by default.
  * Mar  3, 2014 2804       mschenke    Set back up clipping pane
  * Jul 30, 2014 3465       mapeters    Updated deprecated drawString() calls.
- * 
+ * Aug 04, 2014 3489       mapeters    Updated deprecated getStringBounds() calls.
  * </pre>
  * 
  * @author mpduff
@@ -153,7 +153,8 @@ public class HydroColorBarResource extends
 
         scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
 
-        textHeight = target.getStringBounds(null, "0").getHeight() * scale;
+        DrawableString string = new DrawableString("0");
+        textHeight = target.getStringsBounds(string).getHeight() * scale;
 
         padding = 3 * scale;
         textSpace = textHeight + padding;
