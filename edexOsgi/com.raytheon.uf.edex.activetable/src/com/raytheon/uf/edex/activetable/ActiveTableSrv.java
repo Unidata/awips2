@@ -19,17 +19,18 @@
  **/
 package com.raytheon.uf.edex.activetable;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Service for the VTEC active table. Determines if the VTEC product corresponds
@@ -43,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Mar 17, 2009            njensen     Initial creation
  * Jul 14, 2009   #2950    njensen     Multiple site support
  * Dec 21, 2009   #4055    njensen     No site filtering
+ * Jun 17, 2014    3296    randerso    Added performance logging
  * 
  * </pre>
  * 
@@ -54,16 +56,30 @@ public class ActiveTableSrv {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ActiveTableSrv.class);
 
-    private static Map<Long, ActiveTable> activeTableMap = new HashMap<Long, ActiveTable>();
+    private static ThreadLocal<ActiveTable> threadLocalActiveTable = new ThreadLocal<ActiveTable>() {
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.ThreadLocal#initialValue()
+         */
+        @Override
+        protected ActiveTable initialValue() {
+            return new ActiveTable();
+        }
+
+    };
+
+    /**
+     * Merge VTEC info from new warning records into the active table
+     * 
+     * @param records
+     */
     public void vtecArrived(List<AbstractWarningRecord> records) {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         try {
-            long threadId = Thread.currentThread().getId();
-            ActiveTable activeTable = activeTableMap.get(threadId);
-            if (activeTable == null) {
-                activeTable = new ActiveTable();
-                activeTableMap.put(threadId, activeTable);
-            }
+            ActiveTable activeTable = threadLocalActiveTable.get();
             if (records != null && records.size() > 0) {
                 activeTable.merge(ActiveTableRecord.transformFromWarnings(
                         records, ActiveTableMode.OPERATIONAL));
@@ -72,8 +88,18 @@ public class ActiveTableSrv {
             statusHandler.handle(Priority.PROBLEM,
                     "Error merging active table", t);
         }
+        timer.stop();
+        PerformanceStatus.getHandler("ActiveTable").logDuration(
+                "Total time to process " + records.size() + " records",
+                timer.getElapsedTime());
     }
 
+    /**
+     * Merge new warning records into the practice active table
+     * 
+     * @param records
+     * @param headers
+     */
     public void practiceVtecArrived(List<AbstractWarningRecord> records,
             Headers headers) {
         Integer offsetSeconds = null;
@@ -84,12 +110,7 @@ public class ActiveTableSrv {
             offsetSeconds = Integer.valueOf(0);
         }
         if (records != null && records.size() > 0) {
-            long threadId = Thread.currentThread().getId();
-            ActiveTable activeTable = activeTableMap.get(threadId);
-            if (activeTable == null) {
-                activeTable = new ActiveTable();
-                activeTableMap.put(threadId, activeTable);
-            }
+            ActiveTable activeTable = threadLocalActiveTable.get();
             try {
                 activeTable.merge(ActiveTableRecord.transformFromWarnings(
                         records, ActiveTableMode.PRACTICE), offsetSeconds
