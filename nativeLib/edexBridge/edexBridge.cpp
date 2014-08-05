@@ -7,6 +7,8 @@
  *      Author: bkowal    
  *  Updated on: May 06, 2014 (Issue #3102: Updated to call cleanup if connect failed.  Limit number of messages to be sent to QPID on a single send call)
  *      Author: rjpeter
+ *  Updated on: Aug 05, 2014 (Omaha #3458: Added logging of error when issue occurs on send)
+ *      Author: rjpeter
  */
 
 #include <qpid/messaging/Connection.h>
@@ -116,6 +118,7 @@ public:
 			}
 		} catch (const std::exception& error) {
 			// Error occurred during communication.  Clean up the connection and return the number of messages processed.
+			uerror(error.what());
 			cleanup();
 
 		}
