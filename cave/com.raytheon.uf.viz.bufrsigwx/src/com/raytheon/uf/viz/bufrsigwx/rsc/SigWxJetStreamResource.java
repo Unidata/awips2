@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
  * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() and 
  *                                     drawStrings() calls.
+ * Aug 04, 2014 3489       mapeters    Updated deprecated getStringBounds() calls.
  * 
  * 
  * </pre>
@@ -339,8 +340,9 @@ public class SigWxJetStreamResource extends SigWxResource {
                         + SigWxCommon.format(topHgt, format);
 
                 double tmpX = locationPixel[0];
-                double width = target.getStringBounds(font, depthStr)
-                        .getWidth()
+                DrawableString depth = new DrawableString(depthStr);
+                depth.font = font;
+                double width = target.getStringsBounds(depth).getWidth()
                         * getScale(paintProps)[1];
                 if (halignLevel == HorizontalAlignment.LEFT) {
                     tmpX += width / 2;
