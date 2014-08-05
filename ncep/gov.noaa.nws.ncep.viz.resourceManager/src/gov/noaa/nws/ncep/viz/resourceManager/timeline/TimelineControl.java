@@ -85,6 +85,7 @@ import com.raytheon.uf.common.time.DataTime;
  * 02/11/11       #408      Greg Hull    combined with Timeline class (now TimelineControl)
  * 06/19/12       #657      Greg Hull    removeSpinnerListeners() before setting the 
  *                                       spinner maxvalues.
+ * 04/30/2014     #1131     qzhou        Add construct for Graph to create graph widgets.
  * 06/24/14       TTR1029   J. Wu        Distinguish clicks in/outside of the slider box.
  * 07/11/14       TTR1032   J. Wu        reload data times as necessary to keep timeline current.
  * 
@@ -121,20 +122,20 @@ public class TimelineControl extends Composite {
 
     private final String manualTimelineStr = "                       Manual Timeline              ";
 
-    private HashMap<String, ArrayList<AbstractNatlCntrsRequestableResourceData>> availDomResourcesMap = null;
+    protected HashMap<String, ArrayList<AbstractNatlCntrsRequestableResourceData>> availDomResourcesMap = null;
 
-    private AbstractNatlCntrsRequestableResourceData domRscData = null;
+    protected AbstractNatlCntrsRequestableResourceData domRscData = null;
 
-    private Combo dom_rsc_combo = null;
+    protected Combo dom_rsc_combo = null;
 
-    private NCTimeMatcher timeMatcher = null;
+    protected NCTimeMatcher timeMatcher = null;
 
     public interface IDominantResourceChangedListener {
         public void dominantResourceChanged(
                 AbstractNatlCntrsRequestableResourceData newDomRsc);
     }
 
-    private Set<IDominantResourceChangedListener> dominantResourceChangedListeners = new HashSet<IDominantResourceChangedListener>();
+    protected Set<IDominantResourceChangedListener> dominantResourceChangedListeners = new HashSet<IDominantResourceChangedListener>();
 
     // public enum TimeLineBehavior { PREPEND, APPEND };
     private enum MODE {
@@ -205,7 +206,7 @@ public class TimelineControl extends Composite {
 
     private int sliderMin, sliderMax;
 
-    private TimelineData timeData;
+    protected TimelineData timeData;
 
     private Map<Rectangle, Calendar> availableTimes;
 
@@ -221,8 +222,14 @@ public class TimelineControl extends Composite {
 
     private Shell shell;
 
+    public TimelineControl(Composite parent, String rbdName) {
+        super(parent, SWT.NONE);
+        // this.rbdName = rbdName;
+    }
+
     public TimelineControl(Composite parent) {
         super(parent, SWT.NONE);
+
         shell = parent.getShell();
 
         timeMatcher = new NCTimeMatcher();
@@ -347,6 +354,7 @@ public class TimelineControl extends Composite {
         }
 
         return true;
+
     }
 
     public NCTimeMatcher getTimeMatcher() {
@@ -616,7 +624,6 @@ public class TimelineControl extends Composite {
     //
     private void updateTimeline() {
 
-        //
         if (timeMatcher.getFrameTimes().isEmpty()) {
             if (timeMatcher.getDominantResource() == null) {
                 setTimelineState("No Dominant Resource Selected", true);
