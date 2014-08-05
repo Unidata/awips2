@@ -47,7 +47,7 @@
     <parameter>zAGL</parameter>
   </paramLevelMatches>
   <contourStyle>
-    <displayUnits>dam</displayUnits>
+    <displayUnits>ft</displayUnits>
     <contourLabeling labelSpacing="4" labelFormat="#">
       <increment>50</increment>
     </contourLabeling>
