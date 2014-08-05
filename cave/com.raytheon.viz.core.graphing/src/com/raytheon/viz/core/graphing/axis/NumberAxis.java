@@ -53,6 +53,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 2007                 njensen     Major refactor
  * 24Jul2014    3429        mapeters    Updated deprecated drawLine() calls.
  * 29Jul2014    3465        mapeters    Updated deprecated drawString() calls.
+ * 04Aug2014    3489        mapeters    Updated deprecated getStringBounds() calls.
  * 
  * </pre>
  * 
@@ -138,11 +139,10 @@ public class NumberAxis extends Axis {
                 double xPos = 0;
                 double yPos = 0;
 
-                for (double labelVal : keys) {
-                    double width = target.getStringBounds(font,
-                            labeling.getLabel(labelVal)).getWidth();
-                    maxLabelWidth = Math.max(width, maxLabelWidth);
-                }
+                DrawableString yLabels = new DrawableString(labeling
+                        .getLabels().values().toArray(new String[0]));
+                yLabels.font = font;
+                maxLabelWidth = target.getStringsBounds(yLabels).getWidth();
 
                 maxLabelWidth *= paintProps.getView().getExtent().getWidth()
                         / paintProps.getCanvasBounds().width;
@@ -176,9 +176,11 @@ public class NumberAxis extends Axis {
 
                         if (drawTickmarksAtLabels) {
                             double x = graphArea.x;
+                            DrawableString string = new DrawableString(
+                                    labeling.getLabel(labelVal));
+                            string.font = font;
                             double x2 = xPos
-                                    + target.getStringBounds(font,
-                                            labeling.getLabel(labelVal))
+                                    + target.getStringsBounds(string)
                                             .getWidth();
 
                             DrawableLine line = new DrawableLine();
@@ -251,10 +253,10 @@ public class NumberAxis extends Axis {
                         lines.add(line);
                     }
                     if (drawTickmarksAtLabels) {
+                        DrawableString string = new DrawableString(
+                                labeling.getLabel(labelVal));
                         double y = yPos
-                                - target.getStringBounds(null,
-                                        labeling.getLabel(labelVal))
-                                        .getHeight();
+                                - target.getStringsBounds(string).getHeight();
                         
                         DrawableLine line = new DrawableLine();
                         line.setCoordinates(x, y);
