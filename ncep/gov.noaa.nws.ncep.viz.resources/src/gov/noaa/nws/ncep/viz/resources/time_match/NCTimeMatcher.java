@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -56,6 +57,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 02/12/13       972      Greg Hull    changed to work with INatlCntrsDescriptor
  * 04/24/13		  689	   Xiaochuan	Loop length in slctFrames that is set based on default
  * 										or size of selectableDataTimes.
+ * 05/14/14       1131     Quan Zhou    Added graphRange and hourSnap.  MouModified generateTimeline
  * 07/11/14       TTR1032  J. Wu        No timeline needed if no data times available.
  * 
  * </pre>
@@ -77,6 +79,12 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     protected int numFrames;
 
     @XmlAttribute
+    protected int graphRange;
+
+    @XmlAttribute
+    protected int hourSnap;
+
+    @XmlAttribute
     protected int skipValue;
 
     @XmlAttribute
@@ -94,7 +102,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     // all the times in the db based on the dominant resource
     private List<DataTime> allAvailDataTimes;
 
-    // all the times in the db based on the dominant resource
+    // all the times in the time line based on the dominant resource
     private List<DataTime> selectableDataTimes;
 
     // the frame times that will be used for the RBD
@@ -105,6 +113,10 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     protected String dfltFrameTimesStr;
 
     private final int dfltNumFrames = 0;
+
+    private final int dfltGraphRange = 0;
+
+    private final int dfltHourSnap = 0;
 
     private final int dfltSkipFrames = 0;
 
@@ -126,6 +138,8 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         selectableDataTimes = new ArrayList<DataTime>();
         frameTimes = new ArrayList<DataTime>();
         numFrames = dfltNumFrames;
+        graphRange = dfltGraphRange;
+        hourSnap = dfltHourSnap;
         skipValue = dfltSkipFrames;
         timeRange = 0; // set from dominant resource
         frameInterval = -1;
@@ -144,6 +158,8 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         frameTimes = new ArrayList<DataTime>(tm.frameTimes);
         timesLoaded = tm.timesLoaded;
         numFrames = tm.numFrames;
+        graphRange = tm.graphRange;
+        hourSnap = tm.hourSnap;
         skipValue = tm.skipValue;
         timeRange = tm.timeRange;
         refTime = (tm.refTime == null ? null : new DataTime(
@@ -193,6 +209,22 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         this.numFrames = numFrames;
     }
 
+    public int getHourSnap() {
+        return hourSnap;
+    }
+
+    public void setHourSnap(int hourSnap) {
+        this.hourSnap = hourSnap;
+    }
+
+    public int getGraphRange() {
+        return graphRange;
+    }
+
+    public void setGraphRange(int graphRange) {
+        this.graphRange = graphRange;
+    }
+
     public int getSkipValue() {
         return skipValue;
     }
@@ -223,15 +255,21 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
     public void setFrameTimes(ArrayList<DataTime> ft) {
         frameTimes = ft;
+
         // do we always want to set numFrames here?
-        numFrames = frameTimes.size();
+        if (!this.getDominantResourceName().getRscCategory().getCategoryName()
+                .equals("TIMESERIES"))
+            numFrames = frameTimes.size();
+         else
+            numFrames = this.getGraphRange() * 60;
     }
 
     public List<DataTime> getSelectableDataTimes() {
         return selectableDataTimes;
     }
 
-    public void setSelectableDataTimes(ArrayList<DataTime> selDataTimes) {
+        
+ void setSelectableDataTimes(ArrayList<DataTime> selDataTimes) {
         this.selectableDataTimes = selDataTimes;
     }
 
@@ -292,6 +330,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             frameTimes.clear();
             selectableDataTimes.clear();
             numFrames = 0;
+            graphRange = 0;
             frameInterval = -1;
             timeRange = 0;
             isForecast = false;
@@ -300,7 +339,8 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         }
 
         numFrames = dominantRscData.getDfltNumFrames();
-
+        graphRange = dominantRscData.getDfltGraphRange();
+        hourSnap = dominantRscData.getDfltHourSnap();
         timeRange = dominantRscData.getDfltTimeRange();
 
         skipValue = 0; // no default but reset to 0
@@ -337,8 +377,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     }
 
     // if refTime is null, then either use the most recent data as the refTime
-    // or the cycle
-    // time for forecast data.
+    // or the cycle time for forecast data.
     public boolean generateTimeline() {
         frameTimes.clear();
         selectableDataTimes.clear();
@@ -356,6 +395,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         // refTime is marshalled out to the bundle file and may be null
         // or 'latest' or a time set by the user.
         long refTimeMillisecs = 0;
+        Calendar refTimeCal = null;
 
         // if (isForecast) {
         // check cycleTime instead of isForecast since some resources may
@@ -369,12 +409,13 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
         } else if (isCurrentRefTime()) {
             refTimeMillisecs = Calendar.getInstance().getTimeInMillis();
+            refTimeCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         } else if (isLatestRefTime()) {
             refTimeMillisecs = 0;
         } else {
+            refTimeCal = refTime.getRefTimeAsCalendar();
             refTimeMillisecs = refTime.getRefTime().getTime();
         }
-
         /*
          * Always check all available times. If none of the available data times
          * falls within the specified time range, then no time line should be
@@ -403,12 +444,15 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         // if we need to get the cycle time for a forecast resource, then
         // we will need to query the times of the dominant resource.
         if (refTimeMillisecs == 0 || frameInterval == -1) {
-            // allAvailDataTimes = dominantRscData.getAvailableDataTimes();
+            // allAvailDataTimes = dominantRscData.getAvailableDataTimes(); //??
 
             if (allAvailDataTimes == null) { // no data
                 allAvailDataTimes = new ArrayList<DataTime>(); //
                 return false;
             }
+
+            // added sort
+            GraphTimelineUtil.sortAvailableData(allAvailDataTimes);
 
             // if refTime is not given (ie Latest) then get it from the data
             if (refTimeMillisecs == 0) {
@@ -419,13 +463,22 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                     // this
                     // save the sentinel value and get latest when the rbd is
                     // loaded?
-                    //
+
                     refTime = allAvailDataTimes.get((isForecast ? 0
                             : allAvailDataTimes.size() - 1));
+                    refTimeCal = refTime.getRefTimeAsCalendar();
                     refTimeMillisecs = refTime.getRefTime().getTime();
                 } else {
                     return false;
                 }
+            }
+
+            // extend refTime to the snap point
+            if (this.getDominantResourceName().getRscCategory()
+                    .getCategoryName().equals("TIMESERIES")
+                    && this.getHourSnap() != 0) {
+                refTimeMillisecs = GraphTimelineUtil.snapTimeToNext(refTimeCal,
+                        this.getHourSnap()).getTimeInMillis();
             }
 
             // if generating times from the data then get only those times in
@@ -502,6 +555,14 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         } else {
             int skipCount = 0;
             // set the initial frameTimes from the skip value and numFrames
+            GraphTimelineUtil.sortAvailableData(selectableDataTimes);
+
+            /*
+             * For graph display, numFrames = 1
+             */
+            if (this.getDominantResourceName().getRscCategory()
+                    .getCategoryName().equals("TIMESERIES"))
+                numFrames = 1;
 
             for (skipCount = 0; skipCount < selectableDataTimes.size(); skipCount++) {
                 if (skipCount % (skipValue + 1) == 0) {
@@ -552,6 +613,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         if (frameInterval == -1) {
             if (!frameTimes.contains(newFrameTime)) {
                 newFrameTimes.add(newFrameTime);
+                //System.out.println("**newFrameTime " + newFrameTime);
             }
         } else if (frameInterval != 0) { // if MANUAL or FRAME_TIMES
             // TODO : we could add forecast updates but right now it doesn't
