@@ -21,6 +21,12 @@
             id=   "gov.noaa.nws.ncep.viz.ui.display.NTransDisplay"
             name="NTRANS Display">
       </editor>
+      <editor
+            class="gov.noaa.nws.ncep.viz.ui.display.NatlCntrsEditor"
+            default="true"
+            id=   "gov.noaa.nws.ncep.viz.ui.display.GraphDisplay"
+            name="GRAPH Display">
+      </editor>
    </extension>
    
    <extension
@@ -48,6 +54,11 @@
       		name="NcNonMapDescriptor"
             class="gov.noaa.nws.ncep.viz.ui.display.NCNonMapDescriptor"
             editor="gov.noaa.nws.ncep.viz.ui.display.NTransDisplay">
+      </descriptor>
+      <descriptor
+      		name="NCTimeSeriesDescriptor"
+            class="gov.noaa.nws.ncep.viz.ui.display.NCTimeSeriesDescriptor"
+            editor="gov.noaa.nws.ncep.viz.ui.display.GraphDisplay">
       </descriptor>
    </extension>
    

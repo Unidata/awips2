@@ -16,12 +16,18 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  com.raytheon.uf.common.style;bundle-version="1.0.0",
  com.raytheon.viz.core.graphing;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174"
+ com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.xy.timeseries,
+ com.raytheon.uf.viz.xy;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.ui.display
 Import-Package: com.raytheon.uf.common.topo,
  com.raytheon.uf.viz.core.rsc.legend,
+ com.raytheon.uf.viz.xy.timeseries.graph,
+ gov.noaa.nws.ncep.common.dataplugin.geomag.table,
+ gov.noaa.nws.ncep.common.dataplugin.geomag.util,
  gov.noaa.nws.ncep.gempak.parameters.colorbar,
  javax.measure.unit,
  javax.vecmath
+
