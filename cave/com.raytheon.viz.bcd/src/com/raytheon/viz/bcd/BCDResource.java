@@ -32,6 +32,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -75,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    Jul 28, 2014  3397        bclement    switched to non deprecated version of createWireframeShape()
  *                                          now closes on FileInputStream instead of FileChannel in initInternal()
  *    Jul 29, 2014  3465        mapeters    Updated deprecated drawString() calls.
+ *    Aug 04, 2014  3489        mapeters    Updated deprecated getStringBounds() calls.
  * 
  * </pre>
  * 
@@ -319,7 +321,10 @@ public class BCDResource extends
                 font = target.initializeFont(target.getDefaultFont()
                         .getFontName(), (float) (10 * magnification), null);
             }
-            Rectangle2D charSize = target.getStringBounds(font, "N");
+            
+            DrawableString stringN = new DrawableString("N");
+            stringN.font = font;
+            Rectangle2D charSize = target.getStringsBounds(stringN);
             double charWidth = charSize.getWidth();
 
             double minSepDist = metersPerPixel / 1000.0 / density * charWidth;
@@ -333,14 +338,14 @@ public class BCDResource extends
             IView view = paintProps.getView();
 
             List<DrawableString> strings = new ArrayList<DrawableString>();
+            RGB color = getCapability(ColorableCapability.class).getColor();
             for (BcxLabel p : labels) {
                 if (p.pixel == null) {
                     continue;
                 }
 
                 if (view.isVisible(p.pixel) && p.distance >= minSepDist) {
-                    DrawableString string = new DrawableString(p.label,
-                            getCapability(ColorableCapability.class).getColor());
+                    DrawableString string = new DrawableString(p.label, color);
                     string.font = font;
                     string.setCoordinates(p.pixel[0], p.pixel[1]);
                     string.horizontalAlignment = HorizontalAlignment.CENTER;
