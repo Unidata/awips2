@@ -57,6 +57,7 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * Oct 14, 2013  2473     bsteffen    Remove lookup of deprecated grib files.
  * Apr 25, 2014  2874     bsteffen    Add processType
  * Jul 02, 2014  3230     rferrel     Recursively get model files in initModelList.
+ * Jul 30, 2014  3455     bsteffen    Allow model matching with no grid defined.
  * 
  * 
  * </pre>
@@ -149,6 +150,9 @@ public class GribModelLookup {
                     return model;
                 }
             }
+        } else {
+            String key = toKey(center, subcenter, null, process, processType);
+            return models.get(key);
         }
         return null;
     }
