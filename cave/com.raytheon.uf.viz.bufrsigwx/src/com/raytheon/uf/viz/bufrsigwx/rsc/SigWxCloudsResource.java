@@ -49,6 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 25, 2009 3099       bsteffen     Initial creation
  * Sep 28, 2009 3099       bsteffen     Updated to conform with common SigWxResource
  * Jul 29, 2014 3465       mapeters     Updated deprecated drawStrings() calls.
+ * Aug 04, 2014 3489       mapeters     Updated deprecated getStringBounds() calls.
  * 
  * </pre>
  * 
@@ -236,15 +237,12 @@ public class SigWxCloudsResource extends SigWxPolygonResource {
 
     private double[] getTextDimensions(IGraphicsTarget target, PointDataView pdv) {
         // Calculate the height and Width of the text box
-        double textWidth = 0;
-        double textHeight = 0;
-        for (String line : getTextLines(pdv)) {
-            Rectangle2D rect = target.getStringBounds(font, line);
-            if (rect.getWidth() > textWidth) {
-                textWidth = rect.getWidth();
-            }
-            textHeight += rect.getHeight() + 1;
-        }
+        String[] textLines = getTextLines(pdv);
+        DrawableString lines = new DrawableString(textLines);
+        lines.font = font;
+        Rectangle2D rect = target.getStringsBounds(lines);
+        double textWidth = rect.getWidth();
+        double textHeight = rect.getHeight() + textLines.length;
         return new double[] { textWidth, textHeight };
     }
 
