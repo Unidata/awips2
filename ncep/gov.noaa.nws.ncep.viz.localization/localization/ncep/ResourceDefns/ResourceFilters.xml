@@ -1446,4 +1446,7 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SOLARFLUX">
 <filters>Forecast,SWPC</filters>
 </ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="GEOMAG">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
 </ResourceDefinitionFilters>
