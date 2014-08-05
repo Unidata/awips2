@@ -193,16 +193,12 @@ ${drainage.name}##
 #foreach(${watch} in ${watches})
 #if(${watch.getPhenSig()} == 'TO.A')
 #set($success = $tornadoWatches.add($watch))
-#set($endTime = ${watch.endTime})
-#if(!$latestEndTime || ${endTime.after($latestEndTime)})
-#set($latestEndTime = ${endTime})
 #end
 #end
-#end
-#if(!${list.isEmpty($tornadoWatches)})
-
-A TORNADO WATCH REMAINS IN EFFECT UNTIL ${dateUtil.format(${latestEndTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
+#set($torWatchAlso = "")
+#foreach(${tornadoWatch} in ${tornadoWatches})
+A TORNADO WATCH ${torWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${tornadoWatch.endTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
+${dateUtil.period(${tornadoWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
@@ -218,9 +214,11 @@ ${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
 ...##
 #end
 #end
+#set($torWatchAlso = "ALSO ")
 . ##
 #end
-
+  
+  
 #end
 ########END MACRO
 
@@ -229,16 +227,12 @@ ${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #foreach(${watch} in ${watches})
 #if(${watch.getPhenSig()} == 'SV.A')
 #set($success = $severeWatches.add($watch))
-#set($endTime = ${watch.endTime})
-#if(!$latestEndTime || ${endTime.after($latestEndTime)})
-#set($latestEndTime = ${endTime})
 #end
 #end
-#end
-#if(!${list.isEmpty($severeWatches)})
-
-A SEVERE THUNDERSTORM WATCH REMAINS IN EFFECT UNTIL ${dateUtil.format(${latestEndTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
+#set($svrWatchAlso = "")
+#foreach(${svrWatch} in ${severeWatches})
+A SEVERE THUNDERSTORM WATCH ${svrWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${svrWatch.endTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
+${dateUtil.period(${svrWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
@@ -254,11 +248,13 @@ ${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
 ...##
 #end
 #end
+#set($svrWatchAlso = "ALSO ")
 . ##
 #end
-
+  
+  
 #end
-########END MACRO
+########END 
 
 #macro(printcoords $coordinates $list)
 #set($count = 0)
