@@ -19,6 +19,16 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="MSL Press (2)"
+        key="msl-P2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="6hr MSLP Change"
+        key="dP6hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="3hr MSLP Change"
+        key="dP3hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="1hr MSLP Change"
+        key="dP1hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="MSLP Grad Mag"
+        key="PGrdM" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="MSLP Grad Vec"
+        key="PGrd1" indentText="false" />
 </menuTemplate>
