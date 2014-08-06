@@ -19,6 +19,12 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="3-hr Max Temp (12HR - 96HR)"
+        key="MxT3hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="3-hr Min Temp (12HR - 96HR)"
+        key="MnT3hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="6-hr Max Temp (108HR - 240HR)"
+        key="MxT6hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="6-hr Min Temp (108HR - 240HR)"
+        key="MnT6hr" indentText="false" />
 </menuTemplate>
