@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # This script will update any saved displays which use older skewT displays to
 # use Nsharp.
 #
