@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.activetable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,9 +56,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -222,9 +223,9 @@ public class ActiveTable {
             ActiveTableMode mode, String phensigList, String act, String etn,
             String[] wfos) {
 
-        if (wfos == null || !Arrays.asList(wfos).contains("all")) {
+        if ((wfos == null) || !Arrays.asList(wfos).contains("all")) {
 
-            if (wfos == null || wfos.length == 0) {
+            if ((wfos == null) || (wfos.length == 0)) {
                 // default to WFOs from VTECPartners
 
                 Set<String> wfoSet = getDecoderSites(siteId);
@@ -263,10 +264,10 @@ public class ActiveTable {
             List<String> wfoList = (List<String>) vtecPartners
                     .getattr("VTEC_DECODER_SITES");
             wfoSet.addAll(wfoList);
-            String spcSite = (String) vtecPartners.getattr("VTEC_SPC_SITE");
-            wfoSet.add(spcSite);
-            String tpcSite = (String) vtecPartners.getattr("VTEC_TPC_SITE");
-            wfoSet.add(tpcSite);
+            Collection<String> spcSite = vtecPartners.getSpcSites();
+            wfoSet.addAll(spcSite);
+            Collection<String> tpcSite = vtecPartners.getTpcSites();
+            wfoSet.addAll(tpcSite);
         }
         return wfoSet;
     }
@@ -354,14 +355,14 @@ public class ActiveTable {
             PythonScript python = threadLocalPythonScript.get();
             try {
                 result = (MergeResult) python.execute("mergeFromJava", args);
-                } catch (JepException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error updating active table", e);
-                }
-        } catch (Exception e) {
+            } catch (JepException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Error initializing active table python", e);
+                        "Error updating active table", e);
             }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error initializing active table python", e);
+        }
 
         return result;
     }
@@ -421,11 +422,11 @@ public class ActiveTable {
                 query.addQueryParam("etn", etn, "in");
             }
 
-            if (requestValidTimes && currentTime != null) {
+            if (requestValidTimes && (currentTime != null)) {
                 // Current Time
                 query.addQueryParam("endTime", currentTime, "greater_than");
             }
-            if (latestEtn && currentTime != null) {
+            if (latestEtn && (currentTime != null)) {
                 Calendar yearStart = Calendar.getInstance();
                 yearStart.set(currentTime.get(Calendar.YEAR), Calendar.JANUARY,
                         0, 0, 0);
