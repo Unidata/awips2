@@ -34,6 +34,8 @@ import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -66,6 +68,8 @@ import com.raytheon.uf.viz.spellchecker.jobs.EnhancedSpellCheckJob;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2014 3453       rblum     Initial creation
+ * Aug 06, 2014 3453       rblum     Refreshing all viewers on enable/
+ *                                   disable of spell checking.
  * 
  * </pre>
  * 
@@ -82,6 +86,8 @@ public class SpellCheckTextViewer extends TextViewer implements
 
     private volatile boolean checkingSpelling = false;
 
+    private static List<SpellCheckTextViewer> textViewers = new ArrayList<SpellCheckTextViewer>();
+
     private Map<Range<Integer>, SpellingProblem> ranges;
 
     /**
@@ -94,11 +100,12 @@ public class SpellCheckTextViewer extends TextViewer implements
         ranges = new HashMap<Range<Integer>, SpellingProblem>();
         store = EditorsUI.getPreferenceStore();
         setDocument(new Document());
+        textViewers.add(this);
         ITextListener listener = new ITextListener() {
             @Override
             public void textChanged(TextEvent event) {
                 if (checkingSpelling == false) {
-                    scheduleSpellJob(false);
+                    scheduleSpellJob(true);
                 }
             }
         };
@@ -126,7 +133,7 @@ public class SpellCheckTextViewer extends TextViewer implements
                                 store.setValue(
                                         SpellingService.PREFERENCE_SPELLING_ENABLED,
                                         true);
-                                scheduleSpellJob(true);
+                                refreshAllTextViewers(true);
                             }
                         });
                     } else if (problem != null) {
@@ -147,6 +154,15 @@ public class SpellCheckTextViewer extends TextViewer implements
                         }
                     });
                     menu.setVisible(true);
+                }
+            }
+        });
+        getTextWidget().addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (textViewers.contains(SpellCheckTextViewer.this)) {
+                    textViewers.remove(SpellCheckTextViewer.this);
                 }
             }
         });
@@ -229,12 +245,38 @@ public class SpellCheckTextViewer extends TextViewer implements
             public void widgetSelected(SelectionEvent e) {
                 ICompletionProposal prop = (ICompletionProposal) item.getData();
                 prop.apply(getDocument());
-                refresh();
                 scheduleSpellJob(true);
+                refreshAllTextViewers(false);
             }
         });
     }
 
+    /**
+     * Cycles through all the SpellCheckTextViewers and issues a refresh or
+     * schedules a EnhancedSpellCheckJob for each one.
+     * 
+     * @param issueSpellCheck
+     *            Determines to schedule a spell check or to refresh.
+     */
+    private void refreshAllTextViewers(boolean issueSpellCheck) {
+        for (SpellCheckTextViewer viewer : textViewers) {
+            if (viewer.getDocument() != null) {
+                if (issueSpellCheck) {
+                    viewer.scheduleSpellJob(true);
+                } else {
+                    viewer.refresh();
+                }
+            }
+        }
+    }
+
+    /**
+     * Schedules a EnhancedSpellCheckJob for the SpellCheckTextViewer if spell
+     * checking is enabled.
+     * 
+     * @param entireDocument
+     *            Spell check the entire document or the current line.
+     */
     private void scheduleSpellJob(boolean entireDocument) {
         if (store.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED)) {
             EnhancedSpellCheckJob job = new EnhancedSpellCheckJob(
@@ -254,6 +296,7 @@ public class SpellCheckTextViewer extends TextViewer implements
             job.setCollector(SpellCheckTextViewer.this);
             checkingSpelling = true;
             job.schedule();
+            refresh();
         }
     }
 }
