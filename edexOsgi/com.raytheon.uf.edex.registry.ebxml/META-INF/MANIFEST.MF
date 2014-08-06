@@ -22,7 +22,7 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  com.raytheon.uf.edex.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
- org.apache.ws.security;bundle-version="1.0.0",
+ org.apache.ws.security;bundle-version="1.6.14",
  com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.common.registry.ebxml,
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
