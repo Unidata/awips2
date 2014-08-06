@@ -19,6 +19,20 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="Tornado Prob"
+        key="PTOR" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Hail Prob" key="HAILPROB"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Wind Prob" key="WINDPROB"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sig Tornado Prob"
+        key="SIGTRNDPROB" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sig Hail Prob"
+        key="SIGHAILPROB" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sig Wind Prob"
+        key="SIGWINDPROB" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Total Svr Prob"
+        key="PRSVR" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Total Sig Svr Prob"
+        key="PRSIGSV" indentText="false" />
 </menuTemplate>
