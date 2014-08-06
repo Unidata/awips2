@@ -89,6 +89,7 @@ TOPO_TO_COPY=\
    'staticTopo.h5' \
    'usTopo.dat.gz' \
    'worldTopo.dat.gz' \
+   'gmted2010.h5' \
 )
 # !!!!! WARNING - THIS WILL TAKE A LONG TIME !!!!!
 
