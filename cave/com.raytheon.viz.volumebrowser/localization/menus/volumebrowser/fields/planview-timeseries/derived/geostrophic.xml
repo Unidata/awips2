@@ -19,6 +19,20 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="Geo Wind Speed"
+        key="geoWM" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Geo Vort" key="geoVort"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Ageo Wind" key="ageoW"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Ageo Wind Speed"
+        key="ageoWM" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Thermal Wind"
+        key="tWind" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Th Wind Vort Adv"
+        key="PIVA" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Geo Equiv Pot Vort"
+        key="EPVg" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sat Geo Equiv Pot Vort"
+        key="MpV" indentText="false" />
 </menuTemplate>

@@ -19,6 +19,17 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="subinclude" fileName="menus/volumebrowser/fields/timeheight-varvshgt/basic.xml" />
+    <contribute xsi:type="menuItem" menuText="Comp Into" key="Into"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Comp Along"
+        key="Along" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Sect Norm Wind"
+        key="SNW" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Geo Momentum"
+        key="uFX" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Vert Circ" key="vertCirc"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Ageo Vert Circ"
+        key="ageoVC" indentText="true" />
 </menuTemplate>
