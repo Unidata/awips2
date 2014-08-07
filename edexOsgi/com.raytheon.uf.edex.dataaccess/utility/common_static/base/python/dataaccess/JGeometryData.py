@@ -27,15 +27,15 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/10/12                      njensen       Initial Creation.
-#    06/03/13         #2023        dgilling      Remove "unit" support from
-#                                                __getitem__ as it only threw errors.
+#    12/10/12                      njensen        Initial Creation.
+#    06/03/13         #2023        dgilling       Remove "unit" support from
+#                                                 __getitem__ as it only threw errors.
+#    08/06/14          3185        njensen        Only import shapely when necessary
 #
 #
 
 from ufpy.dataaccess import IGeometryData
 import JData
-import shapely.wkt
 
 class JGeometryData(IGeometryData, JData.JData):
     
@@ -61,6 +61,7 @@ class JGeometryData(IGeometryData, JData.JData):
                 return self.getNumber(key)
 
     def getGeometry(self):
+        import shapely.wkt
         return shapely.wkt.loads(self.jobj.getGeometry().toText())
     
     def getParameters(self):        
