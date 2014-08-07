@@ -19,6 +19,12 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="3-hr Total Precip"
+        key="TP3mean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="6-hr Total Precip"
+        key="TP6mean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="12-hr Total Precip"
+        key="TP12mean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="24-hr Total Precip"
+        key="TP24mean" indentText="false" />
 </menuTemplate>

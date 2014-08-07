@@ -19,6 +19,18 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="Pot Temp Adv"
+        key="PoTA" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Temp Gradient"
+        key="TGrd" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Temp Grad Mag"
+        key="TGrdM" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Eq Pot Temp Adv"
+        key="EPTA" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Eq Pot Temp Conv"
+        key="EPTC" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Eq Pot Temp Grad"
+        key="EPTGrd" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Eq Pot Temp Grad Mag"
+        key="EPTGrdM" indentText="false" />
 </menuTemplate>
