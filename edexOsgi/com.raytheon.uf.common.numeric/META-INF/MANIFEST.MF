@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Numeric
+Bundle-SymbolicName: com.raytheon.uf.common.numeric
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.numeric
