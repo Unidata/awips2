@@ -19,6 +19,20 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="Max Temp" key="MxT12hr"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Min Temp" key="MnT12hr"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="POP 6hr" key="POP6hr"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="POP 12hr" key="POP12hr"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Tstorm Prob 3hr"
+        key="ThP3hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Tstorm Prob 6hr"
+        key="ThP6hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Tstorm Prob 12hr"
+        key="ThP12hr" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="24hr Snowfall"
+        key="TOTSN" indentText="false" />
 </menuTemplate>
