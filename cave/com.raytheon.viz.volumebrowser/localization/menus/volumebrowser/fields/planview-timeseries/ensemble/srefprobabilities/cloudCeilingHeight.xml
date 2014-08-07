@@ -19,6 +19,10 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="Ceiling Hgt &lt; 500 ft"
+        key="Cigc1" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Ceiling Hgt &lt; 1000 ft"
+        key="Cigc2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Ceiling Hgt &lt; 3000 ft"
+        key="Cigc3" indentText="false" />
 </menuTemplate>
