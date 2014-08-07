@@ -19,6 +19,10 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="Thom 5" key="Thom5"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Thom 5a" key="Thom5a"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Thom 6" key="Thom6"
+        indentText="false" />
 </menuTemplate>
