@@ -19,6 +19,6 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="Prob temp &lt; 0"
+        key="Tc1" indentText="false" />
 </menuTemplate>
