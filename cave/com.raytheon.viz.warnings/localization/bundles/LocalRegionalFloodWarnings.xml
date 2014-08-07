@@ -27,7 +27,7 @@
 								<constraint constraintValue="FFW,FLW,FLY,FFS,FLS" constraintType="IN" />
 							</mapping>
 							<mapping key="phensig">
-								<constraint constraintValue="FF.W,FA.W,FA.Y" constraintType="IN" />
+								<constraint constraintValue="FF.W,FA.W,FA.Y,FL.Y" constraintType="IN" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />
@@ -61,7 +61,7 @@
 								<constraint constraintValue="FFW,FFS" constraintType="IN" />
 							</mapping>
 							<mapping key="phensig">
-								<constraint constraintValue="FF.W" constraintType="EQUALS" />
+								<constraint constraintValue="FF.W,FL.Y" constraintType="IN" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />
@@ -95,7 +95,7 @@
 								<constraint constraintValue="FLW,FLS" constraintType="IN" />
 							</mapping>
 							<mapping key="phensig">
-								<constraint constraintValue="FA.W" constraintType="EQUALS" />
+								<constraint constraintValue="FA.W,FL.Y" constraintType="IN" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />
@@ -129,7 +129,7 @@
 								<constraint constraintValue="FLY,FLS" constraintType="IN" />
 							</mapping>
 							<mapping key="phensig">
-								<constraint constraintValue="FA.Y" constraintType="EQUALS" />
+								<constraint constraintValue="FA.Y,FL.Y" constraintType="IN" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />
