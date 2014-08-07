@@ -21,14 +21,8 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels;
 
 import gov.noaa.nws.ncep.edex.common.metparameters.AbstractMetParameter;
-//import gov.noaa.nws.ncep.edex.common.metparameters.PressureLevel;
-//import gov.noaa.nws.ncep.edex.common.metparameters.RelativeHumidity;
-//import gov.noaa.nws.ncep.edex.common.metparameters.StationElevation;
-//import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
 import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
-//import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
 import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory;
-//import gov.noaa.nws.ncep.edex.common.metparameters.StationName;
 import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.NotDerivableException;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationElevation;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
@@ -37,8 +31,6 @@ import gov.noaa.nws.ncep.edex.common.metparameters.StationLongitude;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationNumber;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube.QueryStatus;
-//import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
-//import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer.DataType;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer2;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery2;
@@ -66,9 +58,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
@@ -85,6 +77,15 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.PointDataRequest;
+//import gov.noaa.nws.ncep.edex.common.metparameters.PressureLevel;
+//import gov.noaa.nws.ncep.edex.common.metparameters.RelativeHumidity;
+//import gov.noaa.nws.ncep.edex.common.metparameters.StationElevation;
+//import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
+//import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
+//import gov.noaa.nws.ncep.edex.common.metparameters.StationName;
+//import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+//import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer.DataType;
+
 /**
  * A Eclipse Job thread that will listen for new stations on a queue and request
  * the data to create the plots.
@@ -118,6 +119,7 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * 04/02/2012   #615       sgurung     Modified code to support conditional filtering: added conditionalFilterMap, 
  * 									   applyConditionalFilters(), and modified constructor to take ConditionalFilter
  * 12/19/2012   #947       ghull       check for empty conditional filter before applying
+ * Aug 07, 2014 3478       bclement    removed PointDataDescription.Type.Double
  * 
  * </pre>
  * 
@@ -632,9 +634,9 @@ public class PlotModelGenerator2 extends Job {
                     		metPrm.setMissingDataSentinel( 
                     				pDesc.getFillValue().floatValue() );
                     		break;
-                    	case DOUBLE :
-                    		metPrm.setMissingDataSentinel( 
-                    				pDesc.getFillValue() );
+                            case LONG:
+                                metPrm.setMissingDataSentinel(pDesc
+                                        .getFillValue().longValue());
                     		break;
                     	case INT :
                     		metPrm.setMissingDataSentinel( 

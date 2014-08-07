@@ -42,9 +42,9 @@ import java.util.concurrent.Semaphore;
 
 import javax.measure.unit.NonSI;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
@@ -69,6 +69,7 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * 02/26/2014    1061        B. Hebbard   Don't block on JobPool cancel, so CAVE doesn't freeze if resource unloaded during long retrieval
  * 04/01/2014    1040        B. Hebbard   In requestUpperAirData, (1) clear displayStationPlotBoolList for each new station, (2) call cond filter check with newInstance vs. metPrm
  * 04/08/2014    1127        B. Hebbard   In requestSurfaceData, exclude only those obs returned from HDF5 that don't match desired time; fix dataTime association; removed redundant dataTimes from constraint
+ * Aug 07, 2014  3478        bclement     removed PointDataDescription.Type.Double
  */
 
 public class NcPlotModelHdf5DataRequestor {
@@ -1555,9 +1556,9 @@ public class NcPlotModelHdf5DataRequestor {
                                         metPrm.setMissingDataSentinel(pDesc
                                                 .getFillValue().floatValue());
                                         break;
-                                    case DOUBLE:
+                                    case LONG:
                                         metPrm.setMissingDataSentinel(pDesc
-                                                .getFillValue());
+                                                .getFillValue().longValue());
                                         break;
                                     case INT:
                                         metPrm.setMissingDataSentinel(pDesc
