@@ -66,6 +66,7 @@ import com.raytheon.viz.aviation.xml.MonitorCfg;
  * 11AUG2012    14570      zhao         Added 'cat' to alert_key_map
  * 02Jan2013    15606      gzhang		Remove GridData widthHint so button/label size change with GUI
  * May 15, 2014 3002       bgonzale     Moved common taf code to com.raytheon.uf.common.dataplugin.taf.
+ * Aug 07, 2014 3502       bclement     changes to StringUtil.split()
  * 
  * </pre>
  * 
@@ -152,7 +153,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
         this.alertMap = alertMap;
         this.tempoMap = tempoMap;//20120711
         this.alertTimeMap = alertTimeMap;// DR 14570
-        monitorItems = StringUtil.split(cfg.getMonitorItems(), ",");
+        monitorItems = StringUtil.split(cfg.getMonitorItems(), ',');
         initMonitorLabels(cfg.getMonitorLabels());
 
         Composite controlComposite = createControlComposite();
@@ -185,7 +186,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
 
         if (monitorLabelsStr != null) {
             // This trims entries of leading & trailing whitespaces.
-            String[] tmpLabels = StringUtil.split(monitorLabelsStr, ",");
+            String[] tmpLabels = StringUtil.split(monitorLabelsStr, ',');
 
             /*
              * Find the smallest array size between the tmpLabels (parsed
