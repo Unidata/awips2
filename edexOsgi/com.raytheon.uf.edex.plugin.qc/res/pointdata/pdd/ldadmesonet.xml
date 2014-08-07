@@ -21,7 +21,7 @@
 <pointDataDescription>
 	<parameter name="test1" numDims="2" type="STRING" size="156" />
 	<parameter name="test3" numDims="2" type="STRING" size="156" />
-	<parameter name="reportTime" numDims="1" type="DOUBLE"
+	<parameter name="reportTime" numDims="1" type="FLOAT"
 		unit="seconds since 1-1-1970" fillValue="3.40282346e+38" />
 	<parameter name="test5" numDims="2" type="STRING" size="156" />
 	<parameter name="test4" numDims="2" type="STRING" size="156" />
@@ -36,7 +36,7 @@
 		fillValue="-2147483647.0" />
 	<parameter name="skyLayerBase" numDims="2" type="FLOAT"
 		unit="m" fillValue="3.40282346639e+38" />
-	<parameter name="windGustChangeTime" numDims="1" type="DOUBLE"
+	<parameter name="windGustChangeTime" numDims="1" type="FLOAT"
 		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
 	<parameter name="windSpeedICR" numDims="1" type="INT" />
 	<parameter name="precipAccum" numDims="1" type="FLOAT" unit="mm"
@@ -49,10 +49,10 @@
 	<parameter name="staticIds" numDims="2" type="STRING" size="85" />
 	<parameter name="latitude" numDims="1" type="FLOAT" unit="degree_N"
 		fillValue="3.40282346639e+38" />
-	<parameter name="windSpeedChangeTime" numDims="1" type="DOUBLE"
+	<parameter name="windSpeedChangeTime" numDims="1" type="FLOAT"
 		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
 	<parameter name="precipAccumICA" numDims="1" type="INT" />
-	<parameter name="windDirChangeTime" numDims="1" type="DOUBLE"
+	<parameter name="windDirChangeTime" numDims="1" type="FLOAT"
 		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
 	<parameter name="solarRadiation" numDims="1" type="FLOAT"
 		unit="W/m²" fillValue="3.40282346639e+38" />
@@ -108,11 +108,11 @@
 	<parameter name="lowLevelCloudType" numDims="1" type="INT"
 		fillValue="-32767.0" />
 	<parameter name="stationPressureQCA" numDims="1" type="INT" />
-	<parameter name="receivedTime" numDims="1" type="DOUBLE"
+	<parameter name="receivedTime" numDims="1" type="FLOAT"
 		unit="seconds since 1-1-1970" fillValue="3.40282346e+38" />
 	<parameter name="stationPressureQCD" numDims="2" type="FLOAT"
 		unit="Pa" fillValue="3.40282346639e+38" />
-	<parameter name="solarRadChangeTime" numDims="1" type="DOUBLE"
+	<parameter name="solarRadChangeTime" numDims="1" type="FLOAT"
 		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
 	<parameter name="visibilityQCA" numDims="1" type="INT" />
 	<parameter name="visibilityQCD" numDims="2" type="FLOAT"
@@ -128,7 +128,7 @@
 	<parameter name="dewpointDD" numDims="1" type="STRING" size="1" />
 	<parameter name="dewpoint" numDims="1" type="FLOAT" unit="K"
 		fillValue="3.40282346639e+38" />
-	<parameter name="timeSinceLastPcp" numDims="1" type="DOUBLE"
+	<parameter name="timeSinceLastPcp" numDims="1" type="FLOAT"
 		unit="s" fillValue="3.40282346e+38" />
 	<parameter name="precipRateDD" numDims="1" type="STRING"
 		size="1" />
@@ -203,7 +203,7 @@
 	<parameter name="seaLevelPressureQCR" numDims="1" type="INT" />
 	<parameter name="visibility" numDims="1" type="FLOAT" unit="m"
 		fillValue="3.40282346639e+38" />
-	<parameter name="stationPressChangeTime" numDims="1" type="DOUBLE"
+	<parameter name="stationPressChangeTime" numDims="1" type="FLOAT"
 		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
 	<parameter name="stationType" numDims="2" type="STRING" size="37" />
 	<parameter name="cloudBaseHeight" numDims="1" type="INT"
@@ -220,7 +220,7 @@
 	<parameter name="longitude" numDims="1" type="FLOAT" unit="degree_E"
 		fillValue="3.40282346639e+38" />
 	<parameter name="handbook5Id" numDims="2" type="STRING" size="19" />
-	<parameter name="observationTime" numDims="1" type="DOUBLE"
+	<parameter name="observationTime" numDims="1" type="FLOAT"
 		unit="seconds since 1-1-1970" fillValue="3.40282346e+38" />
 	<parameter name="windGust" numDims="1" type="FLOAT" unit="m/s"
 		fillValue="3.40282346639e+38" />
@@ -254,7 +254,7 @@
 	<parameter name="windDirQCR" numDims="1" type="INT" />
 	<parameter name="highLevelCloudType" numDims="1" type="INT"
 		fillValue="-32767.0" />
-	<parameter name="tempChangeTime" numDims="1" type="DOUBLE"
+	<parameter name="tempChangeTime" numDims="1" type="FLOAT"
 		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
 	<parameter name="visibilityDD" numDims="1" type="STRING"
 		size="1" />
@@ -277,7 +277,7 @@
 	<parameter name="test9" numDims="2" type="STRING" size="156" />
 	<parameter name="windDir" numDims="1" type="FLOAT" unit="degree"
 		fillValue="3.40282346639e+38" />
-	<parameter name="rhChangeTime" numDims="1" type="DOUBLE"
+	<parameter name="rhChangeTime" numDims="1" type="FLOAT"
 		unit="seconds since 1970-1-1 00:00:00.0" fillValue="3.40282346e+38" />
 	<parameter name="windSpeed" numDims="1" type="FLOAT" unit="m/s"
 		fillValue="3.40282346639e+38" />
