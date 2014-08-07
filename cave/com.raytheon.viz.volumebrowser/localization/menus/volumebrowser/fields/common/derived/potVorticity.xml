@@ -19,6 +19,14 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="Equiv Pot Vort"
+        key="pVeq" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sat Equiv Pot Vort"
+        key="EPVs" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Geo Equiv Pot Vort"
+        key="EPVg" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Sat Geo Equiv Pot Vort"
+        key="MpV" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Pot Vort Adv"
+        key="PTvA" indentText="false" />
 </menuTemplate>
