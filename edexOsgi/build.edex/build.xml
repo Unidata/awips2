@@ -158,8 +158,43 @@
             </sequential>
         </for>
 
+    <antcall target="wa-cleanup" />
 	<antcall target="clean" />
     </target>
+	
+	<target name="wa-cleanup" description="Removes references to WA-specific features that should not be built as an RPM.">
+           <for param="wa.feature.list.file">
+               <fileset dir="${basedir}" includes="*-wa-build.properties" />
+               <sequential>
+                   <var name="wa.features.ignore" unset="true" />
+                   <property file="@{wa.feature.list.file}" />
+                   <for list="${wa.features.ignore}" param="wa.feature">
+                       <sequential>
+                       	
+                    	<propertyregex property="edex.component"
+                    		override="true"
+                    		input="@{wa.feature}"
+                    		regexp="\."
+                    		replace="-" />
+                        <propertyregex property="edex.component"
+                        	override="true"
+                        	input="${edex.component}"
+                        	regexp="com-raytheon-uf-(.+)-feature"
+                        	select="\1" />
+                       	
+                		<if>
+                			<available file="${basedir}/edex/dist/${edex.component}.zip" />
+                			<then>
+                				<!-- Remove the feature zip file. -->
+                				<delete file="${basedir}/edex/dist/${edex.component}.zip" 
+                					failonerror="true" />
+                			</then>
+                		</if>                           
+                       </sequential>
+                   </for>
+               </sequential>
+           </for>           
+	</target>
 
     <target name="main" depends="clean, main-build, wa-build" />
 
