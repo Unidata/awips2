@@ -19,6 +19,20 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude"
-        fileName="menus/volumebrowser/fields/sounding.xml" />
+    <contribute xsi:type="menuItem" menuText="QPF &gt; 0.01 in"
+        key="tp24c1" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="QPF &gt; 0.05 in"
+        key="tp24c2" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="QPF &gt; 0.10 in"
+        key="tp24c3" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="QPF &gt; 0.25 in"
+        key="tp24c4" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="QPF &gt; 0.50 in"
+        key="tp24c5" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="QPF &gt; 1.00 in"
+        key="tp24c6" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="QPF &gt; 1.25 in"
+        key="tp24c7" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="QPF &gt; 2.00 in"
+        key="tp24c8" indentText="false" />
 </menuTemplate>
