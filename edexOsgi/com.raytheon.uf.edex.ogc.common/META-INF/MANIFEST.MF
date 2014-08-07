@@ -41,7 +41,8 @@ Export-Package: com.raytheon.uf.edex.ogc.common,
  com.raytheon.uf.edex.ogc.common.stats,
  com.raytheon.uf.edex.ogc.common.time,
  com.raytheon.uf.edex.ogc.common.util
-Import-Package: com.raytheon.uf.common.localization,
+Import-Package: com.raytheon.uf.common.convert,
+ com.raytheon.uf.common.localization,
  javax.servlet,
  javax.servlet.http,
  org.apache.cxf.helpers

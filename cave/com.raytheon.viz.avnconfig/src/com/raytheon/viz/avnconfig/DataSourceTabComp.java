@@ -69,6 +69,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  * 29 OCT 2010  7262       rferrel     Realigned columns for wider method
  *                                     names.
  * 09 NOV 2011  8865       rferrel     Fixed selection of Edit Buttons.
+ * Aug 07, 2014 3502       bclement    changes to StringUtil.split()
  * 
  * </pre>
  * 
@@ -233,7 +234,7 @@ public class DataSourceTabComp extends Composite implements
                 .getStaticFile("aviation/config/gui/SyntaxMonitorCfg.xml");
         syntaxMonCfg = JAXB.unmarshal(path, SyntaxMonitorCfg.class);
         String colors = syntaxMonCfg.getMonitorColors();
-        severityColors = StringUtil.split(colors, ",");
+        severityColors = StringUtil.split(colors, ',');
         if (severityColors.length < 3) {
             throw new ConfigurationException(
                     String.format(
