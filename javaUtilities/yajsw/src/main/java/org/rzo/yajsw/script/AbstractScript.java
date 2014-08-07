@@ -81,36 +81,29 @@ public abstract class AbstractScript implements Script
 
 	synchronized public void executeWithTimeout(final String line)
 	{
-		Object result = null;
-		_timerTimeout = TIMER.newTimeout(new TimerTask()
-		{
+        /**
+         * Changed by rjpeter  Aug 07, 2014.
+         */
+        _future = EXECUTOR.submit(new Callable<Object>() {
+            @Override
+            public Object call() {
+                return execute(line);
+            }
+        });
 
-			public void run(Timeout arg0) throws Exception
-			{
-				log("script takes too long -> interrupt");
-				try
-				{
-				interrupt();
-				}
-				catch (Throwable e)
-				{
-					
-				}
-			}
-			
-		}
-		, _timeout, TimeUnit.MILLISECONDS);
-		_future = EXECUTOR.submit(new Callable<Object>()
-				{
-					public Object call()
-					{
-						Object result = execute(line);
-						if (_timerTimeout != null)
-							_timerTimeout.cancel();
-						_timerTimeout = null;
-						return result;
-					}
-				});
+        // wait for script to finish
+        try {
+            _future.get(_timeout, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            log("script " + _name + " took too long -> interrupt");
+            try {
+                interrupt();
+            } catch (Throwable e1) {
+
+            }
+        } catch (Exception e) {
+
+        }
 	}
 
 	/*
