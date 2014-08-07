@@ -661,18 +661,19 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                         try {
                             // Allow the caseCopy to clean its resources.
                             caseCopy.finishCase();
-                        } catch (CaseCreateException ex) {
+                        } catch (Exception ex) {
                             // Ignore
                         }
                         caseCopy = null;
                     }
-                timer.stop();
-                if (statusHandler.isPriorityEnabled(Priority.INFO)) {
-                    String message = String.format("Case %s took %s.",
-                            caseDir.getName(),
-                            TimeUtil.prettyDuration(timer.getElapsedTime()));
-                    statusHandler.handle(Priority.INFO, message);
-                }
+                    timer.stop();
+                    if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                        String message = String
+                                .format("Case %s took %s.", caseDir.getName(),
+                                        TimeUtil.prettyDuration(timer
+                                                .getElapsedTime()));
+                        statusHandler.handle(Priority.INFO, message);
+                    }
                 }
 
                 // Release current lock.
@@ -1356,6 +1357,17 @@ public class GenerateCaseDlg extends CaveSWTDialog {
             zipStream.flush();
             fileStream.flush();
 
+            /*
+             * Most likely over estimates the size since it is unknown how well
+             * file will compress.
+             */
+            long size = tarFile.length() + file.length();
+            if (size >= splitSize) {
+                closeStreams();
+                openStreams();
+                addParentDir(file);
+            }
+        }
     }
 
     /** Task to update the lock plugin's last execute time. */
