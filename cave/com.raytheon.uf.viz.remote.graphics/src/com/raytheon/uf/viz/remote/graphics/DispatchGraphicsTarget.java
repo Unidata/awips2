@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -59,7 +58,6 @@ import com.raytheon.uf.viz.core.data.IDataPreparer;
 import com.raytheon.uf.viz.core.data.IImageDataPreparer;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.data.resp.NumericImageData;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.FontType;
@@ -116,6 +114,9 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingWireframeShape;
  * May 16, 2014  3163     bsteffen    Remove references to deprecated
  *                                    {@link IGraphicsTarget} methods.
  * Jul 28, 2014  3429     mapeters    Updated deprecated drawLine() calls.
+ * Aug 07, 2014  3492     mapeters    Updated deprecated createWireframeShape() calls
+ *                                    and removed unused setUseBuiltinColorbar(), 
+ *                                    drawFilledCircle(), and buildColorMap() methods.
  * 
  * </pre>
  * 
@@ -802,8 +803,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             boolean spatialChopFlag, IExtent extent) {
         // Create original
         IWireframeShape targetShape = wrappedObject.createWireframeShape(
-                mutable, descriptor, simplificationLevel, spatialChopFlag,
-                extent);
+                mutable, descriptor, simplificationLevel);
         // Create wrapped
         DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
                 targetShape, getDispatcher(), descriptor.getGridGeometry());
@@ -853,7 +853,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             boolean spatialChopFlag, IExtent extent) {
         // Create original
         IWireframeShape targetShape = wrappedObject.createWireframeShape(
-                mutable, geom, simplificationLevel, spatialChopFlag, extent);
+                mutable, geom, simplificationLevel);
         // Create wrapped
         DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
                 targetShape, getDispatcher(), geom);
@@ -1025,16 +1025,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void setBackgroundColor(RGB backgroundColor) {
         this.backgroundColor = backgroundColor;
         wrappedObject.setBackgroundColor(backgroundColor);
-    }
-
-    /**
-     * @deprecated: This method has no effect. IGraphicsTargets are not
-     *              responsible to drawing a colorbar. Use method drawColorRamp
-     *              to draw a color ramp
-     */
-    @Deprecated
-    public void setUseBuiltinColorbar(boolean isColorbarDisplayed) {
-
     }
 
     /**
@@ -1233,28 +1223,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         circle.basics.color = color;
         circle.radius = new Double(radius);
         drawCircle(circle);
-    }
-
-    /**
-     * @deprecated Use {@link #drawCircle(DrawableCircle...)}
-     */
-    @Deprecated
-    public void drawFilledCircle(double x, double y, double z, double radius,
-            RGB color) throws VizException {
-        DrawableCircle circle = new DrawableCircle();
-        circle.setCoordinates(x, y, z);
-        circle.basics.color = color;
-        circle.radius = new Double(radius);
-        circle.filled = true;
-        drawCircle(circle);
-    }
-
-    /**
-     * @deprecated Use {@link ColorMapLoader#loadColorMap(String)}
-     */
-    @Deprecated
-    public IColorMap buildColorMap(String name) throws VizException {
-        return ColorMapLoader.loadColorMap(name);
     }
 
     /**
