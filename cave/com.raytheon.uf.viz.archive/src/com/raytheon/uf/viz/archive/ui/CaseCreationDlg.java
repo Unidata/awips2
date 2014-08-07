@@ -187,6 +187,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         this.type = Type.Case;
         this.setSelect = false;
         this.type = Type.Case;
+        this.defaultCaseDir = defaultCaseDir;
         this.ccManager = new CaseCreationManager();
     }
 
