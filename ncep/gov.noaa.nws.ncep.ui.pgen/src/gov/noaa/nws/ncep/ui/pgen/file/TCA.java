@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
+import com.raytheon.uf.common.geospatial.adapter.CoordAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
