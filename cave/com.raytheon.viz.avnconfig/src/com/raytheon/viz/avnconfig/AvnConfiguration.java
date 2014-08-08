@@ -60,6 +60,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  *                                     commas in the text.
  * Sep 27, 2011 10958      rferrel     Added checks for required fields in
  *                                     configuration files.
+ * Aug 07, 2014 3502       bclement     changes to StringUtil.split()
  * 
  * </pre>
  * 
@@ -360,7 +361,7 @@ public class AvnConfiguration {
             }
 
             String[] activeRules = StringUtil.split(
-                    config.getString("rules.active"), ",");
+                    config.getString("rules.active"), ',');
 
             for (String activeRule : activeRules) {
                 String key = "rule_" + activeRule;
@@ -473,7 +474,7 @@ public class AvnConfiguration {
 
                     if (arg.equalsIgnoreCase("wx")) {
                         String[] argValues = StringUtil.split(
-                                config.getString(argKey), ",");
+                                config.getString(argKey), ',');
 
                         StringBuffer argBuffer = new StringBuffer();
                         for (int j = 0; j < argValues.length; j++) {
