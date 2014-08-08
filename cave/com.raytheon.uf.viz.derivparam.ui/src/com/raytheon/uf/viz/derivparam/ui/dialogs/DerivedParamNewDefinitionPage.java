@@ -47,10 +47,10 @@ import com.raytheon.uf.common.derivparam.library.DerivParamField;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.library.IDerivParamField;
 import com.raytheon.uf.common.serialization.JAXBManager;
-import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.units.UnitAdapter;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTWizardPage;
 

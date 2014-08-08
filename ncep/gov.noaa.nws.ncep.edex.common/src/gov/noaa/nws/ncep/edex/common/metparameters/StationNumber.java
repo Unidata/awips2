@@ -5,7 +5,7 @@ package gov.noaa.nws.ncep.edex.common.metparameters;
 
 import javax.measure.quantity.Dimensionless;
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
+import com.raytheon.uf.common.units.UnitAdapter;
 
 /**
  * @author archana
