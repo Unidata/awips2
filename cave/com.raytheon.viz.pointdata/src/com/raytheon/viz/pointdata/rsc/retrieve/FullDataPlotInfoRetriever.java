@@ -15,8 +15,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -40,6 +40,7 @@ import com.raytheon.viz.pointdata.PlotInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 12, 2011            bsteffen     Initial creation
+ * Aug 08, 2014 3477       bclement     changed plot info locations to floats
  * 
  * </pre>
  * 
@@ -121,8 +122,8 @@ public class FullDataPlotInfoRetriever extends AbstractPlotInfoRetriever {
                     if (stationId != null) {
                         info.stationId = pdv.getString(stationId);
                     }
-                    info.latitude = pdv.getNumber(latitude).doubleValue();
-                    info.longitude = pdv.getNumber(longitude).doubleValue();
+                    info.latitude = pdv.getNumber(latitude).floatValue();
+                    info.longitude = pdv.getNumber(longitude).floatValue();
                     info.dataURI = pdv.getString("dataURI");
                     Date vTime = new Date(pdv.getLong(validTime));
                     if (fcstTime != null) {
