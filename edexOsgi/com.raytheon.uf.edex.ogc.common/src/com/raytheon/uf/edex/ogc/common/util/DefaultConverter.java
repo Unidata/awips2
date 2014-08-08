@@ -11,7 +11,8 @@ package com.raytheon.uf.edex.ogc.common.util;
 
 import java.lang.reflect.Field;
 
-import com.raytheon.uf.common.util.ConvertUtil;
+import com.raytheon.uf.common.convert.ConvertUtil;
+
 
 /**
  * Converter that uses convertUtil
