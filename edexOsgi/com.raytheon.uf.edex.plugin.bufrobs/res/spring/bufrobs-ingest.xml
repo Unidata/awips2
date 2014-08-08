@@ -6,7 +6,7 @@
 
     <bean id="bufrFileSeparator" class="com.raytheon.uf.common.nc.bufr.BufrFileSeparator" />
 
-    <bean id="bufrobsSynopticLandDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.synoptic.SynopticLandBufrDecoder">
+    <bean id="bufrobsSynopticLandDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.synoptic.SynopticLandBufrDecoder" depends-on="sfcObsRegistered">
         <constructor-arg ref="sfcobsPluginName" />
     </bean>
     
