@@ -51,6 +51,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * Oct 09, 2009            bsteffen    Initial creation
  * May 14, 2013 1869       bsteffen    Get plots working without dataURI
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Aug 08, 2014 3477       bclement    changed plot info locations to floats
  * 
  * </pre>
  * 
@@ -88,8 +89,8 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
     @Override
     protected PlotInfo getPlotInfo(Object[] data) {
         PlotInfo stationInfo = new PlotInfo();
-        stationInfo.latitude = ((Number) data[0]).doubleValue();
-        stationInfo.longitude = ((Number) data[1]).doubleValue();
+        stationInfo.latitude = ((Number) data[0]).floatValue();
+        stationInfo.longitude = ((Number) data[1]).floatValue();
         stationInfo.stationId = (String) data[2];
         if (stationInfo.stationId == null) {
             stationInfo.stationId = "" + stationInfo.latitude + "#"
