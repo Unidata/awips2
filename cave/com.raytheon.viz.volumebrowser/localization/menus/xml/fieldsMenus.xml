@@ -464,6 +464,16 @@
 				key="VGP"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="Conv Precip"
 				key="CP"  indentText="true" />
+			<contribute xsi:type="menuItem" menuText="Max Updraft VV"
+				key="MXUVV"  indentText="true" />
+			<contribute xsi:type="menuItem" menuText="Max Downdraft VV"
+				key="MXDVV"  indentText="true" />
+			<contribute xsi:type="menuItem" menuText="Max Updraft Helicity"
+				key="MAXUPHL"  indentText="true" />
+			<contribute xsi:type="menuItem" menuText="Most Unstable BL Parcel Level"
+				key="PLPL"  indentText="true" />
+			<contribute xsi:type="menuItem" menuText="Max Lightning Threat"
+				key="LTNG"  indentText="true" />
 		</contribute>
 
 		<contribute xsi:type="toolbarSubMenu" menuText="Marine">
@@ -495,6 +505,30 @@
 				 indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Ice growth rate"
 				key="ICEG"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Salinity"
+				key="SALTY"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Sea Surface Height"
+				key="SSHG"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Water Temperature"
+				key="TEMPWTR"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Current Vectors"
+				key="OGRD"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Current Speed"
+				key="SPC"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Current Direction"
+				key="DIRC"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Sea Level Deviation"
+				key="DEVMSL"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Barometric Velocity Vectors"
+				key="BARO"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Barometric Velocity"
+				key="SPBARO"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Tidal Height"
+				key="ELEV"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="ET Storm Surge"
+				key="ETSRG"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Combined ET Surge and Tide Hgt"
+				key="ETCWL"  indentText="false" />
 		</contribute>
 
 		<contribute xsi:type="toolbarSubMenu" menuText="GFSLAMP Station">
@@ -1334,6 +1368,14 @@
 			key="REFD"  indentText="true" />
 		<contribute xsi:type="menuItem" menuText="Derived Composite"
 			key="REFC"  indentText="true" />
+		<contribute xsi:type="menuItem" menuText="CAPPI"
+			key="REFD"  indentText="true" />
+		<contribute xsi:type="menuItem" menuText="MAX 1hr CAPPI"
+			key="MXREF"  indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Derived VIL"
+			key="VILIQ"  indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Derived Echo Top"
+			key="RETOP"  indentText="true" />
 	</contribute>
 
 	<!-- 
