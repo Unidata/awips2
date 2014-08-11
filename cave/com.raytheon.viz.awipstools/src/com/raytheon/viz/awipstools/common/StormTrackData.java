@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
+import com.raytheon.uf.common.geospatial.adapter.CoordAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
