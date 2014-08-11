@@ -59,8 +59,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.tools.AbstractMovableToolLayer;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.viz.awipstools.common.ToolsUiUtil;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackDisplay;
-import com.raytheon.viz.awipstools.common.stormtrack.StormTrackUIManager;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.input.InputAdapter;
@@ -90,6 +90,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  07-28-14    #3430        mapeters    Updated the 'handleMouseUp' function to prevent
  *                                       errors created when MB3 clicking off the map
  *                                       in editable mode.
+ *  08-11-14    #3472        mapeters    Added Mode enum and isInsideCenter() function and
+ *                                       updated functions in 'mouseHandler' to prevent
+ *                                       errors when MB1 dragging tool off screen and to
+ *                                       only change cursor to hand in editable mode.
  * 
  * </pre>
  * 
@@ -127,60 +131,97 @@ public class AzimuthToolLayer extends
     private DrawableString[] labels = new DrawableString[RANGES.length
             + ANGLES.length];
 
+    /**
+     * Associated navigation modes:
+     * <UL>
+     * <LI>MOVE - Move the Az/Ran tool
+     * <LI>PAN - Allow other tools, such as pan, to have control
+     */
+    private static enum Mode {
+        MOVE, PAN
+    };
+
     private IInputHandler mouseHandler = new InputAdapter() {
 
         private Shell lastShell = null;
 
+        /** The mode of the mouse. By default, pan */
+        private Mode mode = Mode.PAN;
+
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
-            if (nextCoordinate != null || (mouseButton == 3 && isEditable())) {
-                currCoordinate = getResourceContainer().translateClick(x, y);
-
-                if (currCoordinate == null) {
+            if (mouseButton == 3 && isEditable()) {
+                IDisplayPaneContainer container = getResourceContainer();
+                if (container == null) {
                     return false;
                 }
 
+                Coordinate c2 = container.translateClick(x, y);
+
+                if (c2 == null) {
+                    return false;
+                }
+
+                currCoordinate = c2;
                 centerPixel = descriptor.worldToPixel(new double[] {
                         currCoordinate.x, currCoordinate.y });
                 nextCoordinate = null;
 
-                if (lastShell != null) {
-                    lastShell.setCursor(lastShell.getDisplay().getSystemCursor(
-                            SWT.CURSOR_ARROW));
-                    lastShell = null;
-                }
-
                 recreate = true;
                 issueRefresh();
                 return true;
+            } else if (this.mode == Mode.PAN) {
+                return false;
+            } else if (this.mode == Mode.MOVE) {
+                recreate = true;
+                issueRefresh();
             }
-            return false;
+
+            // Default back to pan operation
+            mode = Mode.PAN;
+            return true;
         }
 
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
-            if (isEditable() && mouseButton == 1 && lastShell != null) {
-                nextCoordinate = new Coordinate(x, y);
+
+            if (isEditable() && mouseButton == 1 && isInsideCenter(x, y)) {
+                this.mode = Mode.MOVE;
                 return true;
             }
+            issueRefresh();
             return false;
         }
 
         @Override
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-            if (nextCoordinate != null) {
-                nextCoordinate = getResourceContainer().translateClick(x, y);
-                issueRefresh();
-                return true;
+            if (mouseButton != 1 || this.mode == Mode.PAN) {
+                return false;
             }
-            return false;
+
+            if (this.mode == Mode.MOVE) {
+                IDisplayPaneContainer container = getResourceContainer();
+                if (container == null) {
+                    return false;
+                }
+                Coordinate c2 = container.translateClick(x, y);
+
+                if (c2 == null) {
+                    return true;
+                }
+
+                currCoordinate = c2;
+                centerPixel = descriptor.worldToPixel(new double[] {
+                        currCoordinate.x, currCoordinate.y });
+
+                issueRefresh();
+            }
+            return true;
         }
 
         @Override
         public boolean handleMouseMove(int x, int y) {
-            if (StormTrackUIManager.getCoordinateIndex(getResourceContainer(),
-                    new Coordinate[] { currCoordinate }, new Coordinate(x, y),
-                    7.0) >= 0) {
+            if (isInsideCenter(x, y) && isEditable()) {
                 IWorkbenchWindow window = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow();
                 lastShell = window.getShell();
@@ -193,7 +234,6 @@ public class AzimuthToolLayer extends
             }
             return false;
         }
-
     };
 
     public AzimuthToolLayer(GenericToolsResourceData<AzimuthToolLayer> data,
@@ -213,6 +253,25 @@ public class AzimuthToolLayer extends
      */
     public String getName() {
         return AZIMUTH_LOCATION;
+    }
+
+    /**
+     * Return if the given mouse position is within the tool's center.
+     * 
+     * @param refX
+     *            x location in screen pixels
+     * @param refY
+     *            y location in screen pixels
+     * @return boolean true if within center, false otherwise
+     */
+    public boolean isInsideCenter(int x, int y) {
+        IDisplayPaneContainer container = getResourceContainer();
+        if (container == null) {
+            return false;
+        }
+        int idx = ToolsUiUtil.closeToCoordinate(container,
+                new Coordinate[] { currCoordinate }, x, y, 7.0);
+        return idx >= 0;
     }
 
     /*
