@@ -39,9 +39,11 @@
 #    02/20/2014          #2824     randerso       Added log message when local override files are not found
 #    03/11/2014          #2897     dgilling       Add new MHWM databases to default configuration.
 #    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
-#    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
-#    05/09/2014      3148          randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
+#    04/17/2014          #2934     dgilling       Remove alias for TPCSurgeProb D2D database.
+#    05/09/2014          #3148     randerso       Add tpHPCndfd to D2DAccumulativeElements for HPCERP
 #
+#    05/29/2014          #3224     randerso       Added "SPC":8 to D2DDBVERSIONS 
+#    07/09/2014          #3146     randerso       Removed unused import
 ########################################################################
 
 #----------------------------------------------------------------------------
@@ -312,6 +314,9 @@ Hazards = ("Hazards", DISCRETE, "wwa", "Hazards", YES, HazardKeys, 4)
 # use in calculations) Either form may be used.
 ExtraWEPrecision = []
 
+# Parms for ESTOFS
+AstroTide = ("AstroTide", SCALAR, "ft", "Astro Tide", 20.0, -8.0, 1, NO)
+StormSurge = ("StormSurge", SCALAR, "ft", "Storm Surge", 30.0, -5.0, 1, NO)
 
 #---------------------------------------------------------------------------
 #
@@ -966,6 +971,7 @@ Official    = ('Official',     GRID,   '', YES, YES, 1, 24)
 ISC         = ('ISC',          GRID,   '', YES, NO,  1, 12)
 LAPS        = ('LAPS',         GRID,   '', YES, NO,  1, 30)
 SAT         = ('SAT',          GRID,   '', YES, NO,  1, 12)
+ESTOFS      = ('ESTOFS',       GRID,   '', NO,  NO,  2, 0)
 HPCGuide    = ('HPCGuide',     GRID,   '', NO,  NO,  2, 0)
 NAM12       = ('NAM12',        GRID,   '', NO,  NO,  2, 0)
 NAM40       = ('NAM40',        GRID,   '', NO,  NO,  2, 0)
@@ -988,6 +994,7 @@ GlobalWave  = ('GlobalWave',   GRID,   '', NO,  NO,  2, 0)
 GLWM        = ('GLWM',         GRID,   '', NO,  NO,  2, 0)##########DCS3499
 HIRESWarw   = ('HIRESWarw',    GRID,   '', NO,  NO,  2, 0)##########DCS3501
 HIRESWnmm   = ('HIRESWnmm',    GRID,   '', NO,  NO,  2, 0)
+HRRR        = ("HRRR",         GRID,   '', NO,  NO,  3, 0)
 #### SPC         = ('SPC',          GRID,   '', NO,  NO,  2, 0)###DR20634
 WCwave10    = ('WCwave10',     GRID,   '', NO,  NO,  2, 0)
 WCwave4     = ('WCwave4',      GRID,   '', NO,  NO,  2, 0)
@@ -1029,6 +1036,7 @@ D2DDBVERSIONS = {
       "TPCStormSurge": 1,
       "CRMTopo": 1,
       "NED": 1,
+      "SPC": 8,
       }
 
 #---------------------------------------------------------------------------
@@ -1116,6 +1124,7 @@ elif SID == "SJU":
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  'RTOFS-Atlantic',
+                 ('estofsPR', 'ESTOFS'),
                  'NAHwave15',
                  'NAHwave10',
                  'NAHwave4',
@@ -1139,6 +1148,7 @@ elif SID in CONUS_EAST_SITES:
     D2DMODELS = [('GFS212', 'GFS40'),
                  ('AVN211', 'GFS80'),
                  ('ETA', 'NAM80'),
+                 ('HRRR', 'HRRR'),
                  ('NGM', 'NGM80'),
                  ('MRF', 'gfsLR'),
                  ('RUC130', 'RUC13'),
@@ -1181,6 +1191,7 @@ elif SID in CONUS_EAST_SITES:
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
                  ('ENPWAVE253', 'ENPwave'),
+                 ('estofsUS', 'ESTOFS'),
                  'NAHwave15',
                  'NAHwave10',
                  'NAHwave4',
@@ -1439,6 +1450,7 @@ elif SID == "SJU":
 #        "EPwave10" : ["EPwEave10"],
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
+        "ESTOFS" : ["ESTOFS"],
         }
 
 # Guam OCONUS
@@ -1471,6 +1483,7 @@ else:
         "RTMA": ['RTMA'],
         "NamDNG5" : ["NamDNG5"],
         "SREF" : ["SREF"],
+        "HRRR" : ['HRRR'],
 #########DCS3501
         "GLWM" : ["GLWM"],
         "HIRESWarw" : ["HIRESWarw"],
@@ -1483,6 +1496,7 @@ else:
 #        "WNAwave10" : ["WNAwave10"],
 #        "WNAwave4" : ["WNAwave4"],
 #        "ENPwave": ["ENPwave"],
+        "ESTOFS" : ["ESTOFS"],
         }
 
 #initialization skip certain model runs
@@ -1506,6 +1520,7 @@ D2DAccumulativeElements= {
     "GFS80": ["tp", "cp"],
     "GFS75": ["tp", "cp"],
     "GFS190": ["tp", "cp"],
+    "HRRR": ["tp1hr", "crain", "csnow", "cfrzr", "cicep"],
     "NAM95": ["tp", "cp"],
     "NAM80": ["tp", "cp"],
     "NAM40": ["tp", "cp"],
@@ -1623,7 +1638,7 @@ localRTMAParms = []
 localNamDNG5Parms = []
 localSREFParms = []
 localTPCProbParms = []
-localISCExtraParms = []
+localHRRRParms = localESTOFSParms = localISCExtraParms = []
 
 myOfficeType = SITES[GFESUITE_SITEID][5]
 
@@ -1636,6 +1651,7 @@ if not BASELINE and siteImport('localConfig'):
     else:
         myOfficeType = SITES[GFESUITE_SITEID]  #probably from localConfig
 
+    localESTOFSParms = getattr(localConfig, 'parmsESTOFS', localESTOFSParms)
     localParms = getattr(localConfig, 'parms', localParms)
     localNAM12Parms = getattr(localConfig, 'parmsNAM12', localNAM12Parms)
     localOPCWavEParms = getattr(localConfig, 'parmsOPCWavE', localOPCWavEParms)
@@ -1660,6 +1676,7 @@ if not BASELINE and siteImport('localConfig'):
     localGLWMParms = getattr(localConfig, 'parmsGLWM', localGLWMParms)        #########DCS3499
     localHIRESWarwParms = getattr(localConfig, 'parmsHIRESWarw', localHIRESWarwParms)   ########DCS3501
     localHIRESWnmmParms = getattr(localConfig, 'parmsHIRESWnmm', localHIRESWnmmParms)
+    localHRRRParms = getattr(localConfig, 'parmsHRRR', localHRRRParms)
 #DR20634    localSPCParms = getattr(localConfig, 'parmsSPC', localSPCParms)
     localWNAWAVEParms = getattr(localConfig, 'parmsWNAWAVE', localWNAWAVEParms)
     localAKWAVEParms = getattr(localConfig, 'parmsAKWAVE', localAKWAVEParms)
@@ -1721,6 +1738,10 @@ STD1_MODEL = [([Temp, Td, RH, Wind, Wind20ft, Sky, FzLevel, SnowLevel], TC1),
              ([MaxT], MaxTTC), ([MinT], MinTTC),
              ([Wetflag], FireWx1300TC)]
 
+ESTOFSPARMS = [([StormSurge, AstroTide], TC1)]
+
+HRRRPARMS = [([Temp, Td, RH, Wind, WindGust, Sky, QPF], TC1)]
+
 # 3 hourly
 STD3_MODEL = [([Temp, Td, RH, Wind, Wind20ft, Sky, FzLevel, SnowLevel], TC3),
              ([Haines, MixHgt, FreeWind, TransWind], TC3),
@@ -1730,6 +1751,7 @@ STD3_MODEL = [([Temp, Td, RH, Wind, Wind20ft, Sky, FzLevel, SnowLevel], TC3),
              ([MinRH], MinRHTC), ([MaxRH], MaxRHTC),
              ([MaxT], MaxTTC), ([MinT], MinTTC),
              ([Wetflag], FireWx1300TC)]
+
 
 ######DCS3501
 # 3 hourly-HIRESW
@@ -1897,10 +1919,12 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (AKwave10, WAVEPARMS + localAKwave10Parms),
              (AKwave4, WAVEPARMS + localAKwave4Parms),
              (EPwave10, WAVEPARMS + localEPwave10Parms),
+             (ESTOFS, ESTOFSPARMS + localESTOFSParms),
              (GlobalWave, WAVEPARMS + localGlobalWaveParms),
              (GLWM, GLWMPARMS + localGLWMParms),            #####DCS3499
              (HIRESWarw, STD3_MODEL + localHIRESWarwParms), #####DCS3501
              (HIRESWnmm, STD3_MODEL + localHIRESWnmmParms),
+             (HRRR, HRRRPARMS + localHRRRParms),
 #DR20634             (SPC, SPCPARMS + localSPCParms),
              (WCwave10, WAVEPARMS + localWCwave10Parms),
              (WCwave4, WAVEPARMS + localWCwave4Parms),
@@ -1962,7 +1986,7 @@ DATABASES.append((ISC, ISCPARMS))
 #----------------------------------------------------------------------------
 # Server settings     DO NOT CHANGE THESE DEFINITIONS
 #----------------------------------------------------------------------------
-from com.raytheon.edex.plugin.gfe.config import IFPServerConfig, SimpleServerConfig
+from com.raytheon.edex.plugin.gfe.config import SimpleServerConfig
 IFPConfigServer = SimpleServerConfig()
 #IFPConfigServer.allowedNodes             = []
 IFPConfigServer.allowTopoBelowZero       = 1
