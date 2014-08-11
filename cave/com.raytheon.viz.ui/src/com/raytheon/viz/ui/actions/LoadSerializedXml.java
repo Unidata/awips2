@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Mar 21, 2013  1638     mschenke    Added method to load procedure to window
  * Oct 22, 2013  2491     bsteffen    Switch serialization to
  *                                    ProcedureXmlManager
+ * Aug 11, 2014  3480     bclement    added info logging to execute()
  * 
  * </pre>
  * 
@@ -94,6 +95,8 @@ public class LoadSerializedXml extends AbstractHandler {
 
         String fileName = fd.getFilterPath() + File.separator
                 + fd.getFileName();
+
+        statusHandler.info("Loading display file: " + fileName);
 
         Object obj = deserialize(new File(fileName));
         try {
