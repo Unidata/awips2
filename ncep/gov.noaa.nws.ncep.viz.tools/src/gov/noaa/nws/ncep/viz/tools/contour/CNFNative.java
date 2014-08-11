@@ -214,7 +214,7 @@ public class CNFNative {
         // System.out.println("CONTOUR INFO for " + cval + ": " + numCntrs[0]
         // + "    :   " + Arrays.toString(numPoints));
 
-        // Use total number of pints instead of maximum number (BY).
+        // Use total number of pints instead of maximum total number (BY).
         int totalPts = 0;
         for (int j = 0; j < numPoints.length; j++) {
             totalPts += numPoints[j];
