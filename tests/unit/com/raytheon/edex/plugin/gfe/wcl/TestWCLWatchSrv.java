@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.gfe.wcl;
+package com.raytheon.edex.plugin.gfe.watch;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -37,11 +39,12 @@ import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-// TODO fix?
-@Ignore
+import com.raytheon.edex.plugin.gfe.watch.WCLWatchSrv;
+import com.raytheon.edex.plugin.gfe.watch.WatchProductUtil;
+import com.raytheon.edex.plugin.gfe.watch.WclInfo;
+
 public class TestWCLWatchSrv {
 
     private WclInfo wclInfoA;
@@ -78,11 +81,11 @@ public class TestWCLWatchSrv {
         wfosExpected.add("OAX");
         wfosExpected.add("MFL");
         wfosExpected.add("ICT");
-        Set<String> wfos = wclWatchSrv.attnWFOs(linesA);
+        Collection<String> wfos = WatchProductUtil.findAttnWFOs(linesA);
         assertEquals("LinesA", wfosExpected, wfos);
 
         wfosExpected.clear();
-        wfos = wclWatchSrv.attnWFOs(linesB);
+        wfos = WatchProductUtil.findAttnWFOs(linesB);
         assertEquals("LinesB", wfosExpected, wfos);
     }
 
@@ -98,7 +101,7 @@ public class TestWCLWatchSrv {
             }
 
             @Override
-            protected File getWclDir() {
+            protected File getWclDir(String siteID) {
                 String home = System.getenv("HOME");
                 File fakeDir = new File(home);
                 return fakeDir;
@@ -128,7 +131,7 @@ public class TestWCLWatchSrv {
         // localization.
         wclWatchSrv = new WCLWatchSrv() {
             @Override
-            protected File getWclDir() {
+            protected File getWclDir(String siteID) {
                 String home = System.getenv("HOME");
                 return new File(home);
             }
@@ -138,7 +141,8 @@ public class TestWCLWatchSrv {
             PrintWriter pw = new PrintWriter(temp);
             pw.println("Testing");
             pw.close();
-            wclWatchSrv.makePermanent(temp, completePIL);
+            Collection<String> dummy = Collections.emptySet();
+            wclWatchSrv.makePermanent(temp, completePIL, dummy);
             assertTrue("expetedFile exists", expectedFile.exists());
             assertTrue("expectedFile isFile", expectedFile.isFile());
             assertFalse("temp exists", temp.exists());

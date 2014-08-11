@@ -18,20 +18,9 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<lambertConformalGridCoverage>
-    <name>2145137701</name>
-    <description>Extratropical Storm and Tide Operation Forecast System</description>
-    <la1>20.19</la1>
-    <lo1>-121.55</lo1>
-    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>2145</nx>
-    <ny>1377</ny>
-    <dx>1.25</dx>
-    <dy>1.25</dy>
-    <spacingUnit>km</spacingUnit>
-    <minorAxis>6371200.0</minorAxis>
-    <majorAxis>6371200.0</majorAxis>
-    <lov>20.0</lov>
-    <latin1>19.544</latin1>
-    <latin2>-63.88</latin2>
-</lambertConformalGridCoverage>
+<DerivedParameter abbreviation="MXDVV" name="Max Downdraft Vertical Velocity" unit="m/s" >
+    <Method name="Alias">
+      <Field abbreviation="MAXDVV1hr"/>
+    </Method>
+</DerivedParameter>
+

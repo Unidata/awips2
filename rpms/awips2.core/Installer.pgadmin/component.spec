@@ -24,12 +24,12 @@ BuildRequires: awips2-postgresql = 9.2.3-1.el6
 BuildRequires: postgresql = 8.4.13-1.el6_3
 BuildRequires: postgresql-devel = 8.4.13-1.el6_3
 BuildRequires: postgresql-libs = 8.4.13-1.el6_3
-BuildRequires: wxGTK = 2.8.12-1.el6.rf
-BuildRequires: wxGTK-devel = 2.8.12-1.el6.rf
+BuildRequires: wxGTK >= 2.8.12-1
+BuildRequires: wxGTK-devel >= 2.8.12-1
 
 provides: awips2-pgadmin3
 requires: awips2-psql = 9.2.3-1
-requires: wxGTK = 2.8.12-1.el6.rf
+requires: wxGTK >= 2.8.12-1
 
 %description
 AWIPS II pgadmin3 Distribution - A custom compilation of the pgadmin3 client compatible with
