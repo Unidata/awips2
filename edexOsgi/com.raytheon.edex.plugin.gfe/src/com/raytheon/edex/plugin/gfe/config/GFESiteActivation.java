@@ -19,6 +19,8 @@
  **/
 package com.raytheon.edex.plugin.gfe.config;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -73,7 +75,9 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  * May 02, 2013  #1969    randerso     Moved updateDbs method into IFPGridDatabase
  * Jun 13, 2013  #2044    randerso     Refactored to use IFPServer
  * Oct 16, 2013  #2475    dgilling     Better error handling for IRT activation.
- * Mar 21, 2014  2726     rjpeter      Updated wait for running loop.
+ * Mar 21, 2014  #2726    rjpeter      Updated wait for running loop.
+ * Jul 09, 2014  #3146    randerso     Eliminated redundant evaluation of serverConfig
+ *                                     Sent activation failure message to alertViz
  * </pre>
  * 
  * @author njensen
@@ -231,13 +235,6 @@ public class GFESiteActivation implements ISiteActivationListener {
         }
 
         try {
-
-            IFPServerConfig config = IFPServerConfigManager
-                    .initializeConfig(siteID);
-            if (config == null) {
-                throw new GfeConfigurationException(
-                        "Error validating configuration for " + siteID);
-            }
             internalActivateSite(siteID);
         } catch (GfeMissingConfigurationException e) {
             sendActivationFailedNotification(siteID);
@@ -247,7 +244,15 @@ public class GFESiteActivation implements ISiteActivationListener {
             throw e;
         } catch (Exception e) {
             sendActivationFailedNotification(siteID);
-            statusHandler.error(siteID + " Error activating site " + siteID, e);
+            String message = "Error activating IFPServer for site " + siteID
+                    + ".  GFE will be unavailable for this site!";
+            statusHandler.error(message, e);
+
+            StringWriter stackTrace = new StringWriter();
+            e.printStackTrace(new PrintWriter(stackTrace));
+            EDEXUtil.sendMessageAlertViz(Priority.ERROR,
+                    "com.raytheon.edex.plugin.gfe", "GFE", "GFE", message,
+                    stackTrace.toString(), null);
             throw e;
         }
         sendActivationCompleteNotification(siteID);
