@@ -49,6 +49,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2009            njensen     Initial creation
+ * Jun  3, 2014 16289      zhao        Use "end time" instead of "start time" for CCFP report
  * 
  * </pre>
  * 
@@ -119,7 +120,7 @@ public class CcfpData {
                     CcfpRecord area = findMostRelevantArea(c, list);
                     List<String> reports = siteReportMap.get(site);
                     if (area != null) {
-                        String report = mkCCFPReport(site, dt, area);
+                        String report = mkCCFPReport(site, area.getDataTime().getValidPeriod().getEnd(), area);
                         reports.add(report);
                     }
                     siteReportMap.put(site, reports);
