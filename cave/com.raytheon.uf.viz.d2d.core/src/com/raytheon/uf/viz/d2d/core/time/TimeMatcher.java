@@ -53,6 +53,7 @@ import com.raytheon.uf.common.time.DataTimeComparator;
  *                                     cease a null pointer exception.
  * May  5, 2014 DR 17201   D. Friedman Make same-radar time matching work more like A1.
  * Aug 08, 2013 2245       bsteffen    Make all DataTime comparisons consistent.
+ * Jul 18, 2014 ASM #15049 D. Friedman Fix LAPS problem introduced by DR 17201
  * 
  * </pre>
  * 
@@ -657,7 +658,6 @@ public class TimeMatcher {
 
         if (fspatial) {
             frameFcsts = dataFcsts;
-            dtf = dt;
         } else if (dtf > dt) {
             dt = dtf;
         }
