@@ -10,46 +10,6 @@
 
 <gribModelSet>
 	<!-- SUBCENTER 0 -->
-	<model>
-		<name>estofsHW</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>321225001</grid>
-		<process>
-			<id>14</id>
-		</process>
-	</model>
-
-	<model>
-		<name>estofsAK</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>825553001</grid>
-		<process>
-			<id>14</id>
-		</process>
-	</model>
-
-	<model>
-		<name>estofsPR</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>339227001</grid>
-		<process>
-			<id>1</id>
-			<id>14</id>
-		</process>
-	</model>
-
-	<model>
-		<name>estofsUS</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>2145137701</grid>
-		<process>
-			<id>1</id>
-		</process>
-	</model>
 
 	<model>
 		<name>GFSLAMP</name>
@@ -58,6 +18,15 @@
 		<grid>888</grid>
 		<process>
 			<id>999</id>
+		</process>
+	</model>
+
+	<model>
+		<name>HRRR</name>
+ 		<center>7</center>
+		<subcenter>0</subcenter>
+		<process>
+			<id>83</id>
 		</process>
 	</model>
 
@@ -2903,20 +2872,31 @@
 	</model>
 
 	<model>
-		<name>estofsUS</name>
+		<name>estofsPR</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
-		<grid>1971</grid>
+		<grid>339227001</grid>
+		<process>
+			<id>1</id>
+			<id>14</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>estofsHW</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>321225001</grid>
 		<process>
 			<id>14</id>
 		</process>
 	</model>
 
 	<model>
-		<name>estofsPR</name>
+		<name>estofsAK</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
-		<grid>339227-95</grid>
+		<grid>825553001</grid>
 		<process>
 			<id>14</id>
 		</process>
@@ -2949,7 +2929,6 @@
 		<name>HPCGuide</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
-		<grid>197</grid>
 		<process>
 			<id>183</id>
 		</process>

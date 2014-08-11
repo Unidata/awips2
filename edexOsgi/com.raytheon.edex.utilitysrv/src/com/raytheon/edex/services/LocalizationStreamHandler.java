@@ -23,8 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.edex.utility.ProtectedFiles;
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2010            mschenke     Initial creation
+ * Jul 14, 2014 3372       njensen      fileMap is ConcurrentHashMap for thread safety
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class LocalizationStreamHandler
         }
     }
 
-    private Map<StreamPair, File> fileMap = new HashMap<StreamPair, File>();
+    private Map<StreamPair, File> fileMap = new ConcurrentHashMap<StreamPair, File>();
 
     /*
      * (non-Javadoc)

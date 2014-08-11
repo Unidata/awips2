@@ -30,6 +30,8 @@
 #    ------------    ----------    -----------    --------------------------
 #    08/09/2013          #1571     randerso       Changed projections to use the Java             
 #                                                 ProjectionType enumeration
+#    07/09/2014          #3146     randerso       Added check for duplicate smartInit
+#                                  rferrel        Corrected log to alertviz.
 #
 ########################################################################
 import types
@@ -438,7 +440,7 @@ def otherParse(serverhost, mhsid, port,
           "not an int: " + `vtecRequestTime`
     if type(port) != int:
         raise TypeError, "GFESUITE_PORT not an int: " + `port`
-    initmodules = dictCheck(initmodules, list, str, "INITMODULES")
+    javainitmodules = dictCheck(initmodules, list, str, "INITMODULES")
     accumElem = dictCheck(accumElem, list, str, "D2DAccumulativeElements")
     initskips = dictCheck(initskips, list, int, "INITSKIPS")
     d2ddbver = dictCheck(d2ddbver, int, None, "D2DDBVERSIONS")
@@ -507,9 +509,41 @@ def otherParse(serverhost, mhsid, port,
         raise TypeError, "TRANSMIT_SCRIPT not None or str: " + `transmitScript`
     elif transmitScript is None:
         transmitScript = ""
+        
+    # build model to init mapping
+    modelToInit = {}
+    for module in initmodules:
+        for model in initmodules[module]:
+            if modelToInit.has_key(model):
+                modelToInit[model].append(module)
+            else:
+                modelToInit[model] = [module]
+        
+    # check for duplicate init modules
+    for model in modelToInit:
+        modules = modelToInit[model]
+        if len(modules) > 1:
+            message = "Multiple smartInit modules " + str(modules) + \
+            " are enabled for D2D model: " + model + ". " + str(modules[1:]) + \
+            " will be disabled. Please edit your localConfig.py file and disable all but one."
+
+            # log error message to edex log
+            import LogStream
+            LogStream.logProblem(message);
+            
+            # log error to alertViz
+            from com.raytheon.uf.edex.core import EDEXUtil 
+            from com.raytheon.uf.common.status import UFStatus_Priority as Priority
+            EDEXUtil.sendMessageAlertViz(Priority.ERROR,
+                    "com.raytheon.edex.plugin.gfe", "GFE", "GFE", message,
+                    message, None)
+
+            # remove duplicate
+            for module in modules[1:]:
+                javainitmodules.remove(module)
 
     return serverhost, mhsid, \
-      port, initmodules, accumElem, \
+      port, javainitmodules, accumElem, \
       initskips, d2ddbver, logfilepurge, prddir, home,\
       extraWEPrecision, vtecRequestTime, \
       autoConfigureNotifyTextProd, \
