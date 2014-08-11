@@ -12,6 +12,7 @@
  * -------		------- 	-------- 	-----------
  * 04/26/2011	229			Chin Chen	Initial coding
  * 07/16/2014   TTR828      Chin Chen   swapped wind direction and wind speed lines at edit dialog
+ * 08/06/2014   TTR828      Chin Chen   Set "add new level" as default selection
  *
  * </pre>
  * 
@@ -31,6 +32,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -63,14 +65,18 @@ public class NsharpEditDataDialog extends Dialog {
 
     private String tempStr = "", dewStr = "", wspStr = "", wdirStr = "";
 
-    private org.eclipse.swt.graphics.Color lightGrey = new org.eclipse.swt.graphics.Color(
+    private org.eclipse.swt.graphics.Color colorLightGrey = new org.eclipse.swt.graphics.Color(
             Display.getDefault(), 211, 211, 211);
+
+    private Color colorBlue = new Color(Display.getDefault(), 135, 206, 235);
+
+    private Button useSelectedBtn, addNewLevelBtn;
 
     private enum EditType {
         SELECTED_LEVEL, NEW_LEVEL
     }
 
-    private EditType currentEditType;
+    private EditType currentEditType = EditType.NEW_LEVEL;
 
     private int selIndex = -1;
 
@@ -98,6 +104,23 @@ public class NsharpEditDataDialog extends Dialog {
 
         return thisDialog;
 
+    }
+
+    private void handleSelection() {
+        if (currentEditType == EditType.SELECTED_LEVEL) {
+            NcSoundingLayer selLevelSounding = curSoundingLayerList
+                    .get(selIndex);
+            curTempText.setText("" + selLevelSounding.getTemperature());
+            curDewText.setText("" + selLevelSounding.getDewpoint());
+            curWSpText.setText("" + selLevelSounding.getWindSpeed());
+            curWDirText.setText("" + selLevelSounding.getWindDirection());
+            curPressText.setText("" + selLevelSounding.getPressure());
+            newTempText.setText("" + selLevelSounding.getTemperature());
+            newDewText.setText("" + selLevelSounding.getDewpoint());
+            newWSpText.setText("" + selLevelSounding.getWindSpeed());
+            newWDirText.setText("" + selLevelSounding.getWindDirection());
+            newPressText.setText("" + selLevelSounding.getPressure());
+        }
     }
 
     private void createDialogContents(Composite parent) {
@@ -132,41 +155,31 @@ public class NsharpEditDataDialog extends Dialog {
         pressureList.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event e) {
                 selIndex = pressureList.getSelectionIndex();
+                handleSelection();
             }
         });
         Group buttonGp = new Group(topGp, SWT.SHADOW_OUT);
         buttonGp.setLayout(new GridLayout(1, false));
         buttonGp.setText("Edit Option:");
-        Button useSelectedBtn = new Button(buttonGp, SWT.PUSH);
+        useSelectedBtn = new Button(buttonGp, SWT.PUSH);
         useSelectedBtn.setText(" Edit Selected Level ");
         useSelectedBtn.setEnabled(true);
         useSelectedBtn.addListener(SWT.MouseUp, new Listener() {
             public void handleEvent(Event event) {
                 currentEditType = EditType.SELECTED_LEVEL;
-                if (selIndex != -1) {
-                    NcSoundingLayer selLevelSounding = curSoundingLayerList
-                            .get(selIndex);
-                    curTempText.setText("" + selLevelSounding.getTemperature());
-                    curDewText.setText("" + selLevelSounding.getDewpoint());
-                    curWSpText.setText("" + selLevelSounding.getWindSpeed());
-                    curWDirText.setText(""
-                            + selLevelSounding.getWindDirection());
-                    curPressText.setText("" + selLevelSounding.getPressure());
-                    newTempText.setText("" + selLevelSounding.getTemperature());
-                    newDewText.setText("" + selLevelSounding.getDewpoint());
-                    newWSpText.setText("" + selLevelSounding.getWindSpeed());
-                    newWDirText.setText(""
-                            + selLevelSounding.getWindDirection());
-                    newPressText.setText("" + selLevelSounding.getPressure());
-                }
+                useSelectedBtn.setBackground(colorBlue);
+                addNewLevelBtn.setBackground(colorLightGrey);
+                handleSelection();
             }
         });
-        Button addNewLevelBtn = new Button(buttonGp, SWT.PUSH);
+        addNewLevelBtn = new Button(buttonGp, SWT.PUSH);
         addNewLevelBtn.setText("    Add New Level    ");
         addNewLevelBtn.setEnabled(true);
         addNewLevelBtn.addListener(SWT.MouseUp, new Listener() {
             public void handleEvent(Event event) {
                 currentEditType = EditType.NEW_LEVEL;
+                useSelectedBtn.setBackground(colorLightGrey);
+                addNewLevelBtn.setBackground(colorBlue);
                 curTempText.setText(" N/A ");
                 curDewText.setText(" N/A ");
                 curWSpText.setText(" N/A ");
@@ -233,7 +246,7 @@ public class NsharpEditDataDialog extends Dialog {
 
         curPressText = new Text(top_form, SWT.SINGLE | SWT.BORDER
                 | SWT.READ_ONLY);
-        curPressText.setBackground(lightGrey);
+        curPressText.setBackground(colorLightGrey);
         fd = new FormData(100, 20);
         fd.top = new FormAttachment(curlbl, 5, SWT.BOTTOM);
         fd.left = new FormAttachment(curlbl, 0, SWT.LEFT);
@@ -258,7 +271,7 @@ public class NsharpEditDataDialog extends Dialog {
         curTempText = new Text(top_form, SWT.SINGLE | SWT.BORDER
                 | SWT.READ_ONLY);
         curTempText.setText(tempStr);
-        curTempText.setBackground(lightGrey);
+        curTempText.setBackground(colorLightGrey);
         fd = new FormData(100, 20);
         fd.top = new FormAttachment(curPressText, 5, SWT.BOTTOM);
         fd.left = new FormAttachment(curPressText, 0, SWT.LEFT);
@@ -282,7 +295,7 @@ public class NsharpEditDataDialog extends Dialog {
 
         curDewText = new Text(top_form, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
         curDewText.setText(dewStr);
-        curDewText.setBackground(lightGrey);
+        curDewText.setBackground(colorLightGrey);
         fd = new FormData(100, 20);
         fd.top = new FormAttachment(curTempText, 5, SWT.BOTTOM);
         fd.left = new FormAttachment(curTempText, 0, SWT.LEFT);
@@ -307,7 +320,7 @@ public class NsharpEditDataDialog extends Dialog {
         curWDirText = new Text(top_form, SWT.SINGLE | SWT.BORDER
                 | SWT.READ_ONLY);
         curWDirText.setText(wdirStr);
-        curWDirText.setBackground(lightGrey);
+        curWDirText.setBackground(colorLightGrey);
         fd = new FormData(100, 20);
         fd.top = new FormAttachment(curDewText, 5, SWT.BOTTOM);
         fd.left = new FormAttachment(curDewText, 0, SWT.LEFT);
@@ -331,7 +344,7 @@ public class NsharpEditDataDialog extends Dialog {
 
         curWSpText = new Text(top_form, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
         curWSpText.setText(wspStr);
-        curWSpText.setBackground(lightGrey);
+        curWSpText.setBackground(colorLightGrey);
         fd = new FormData(100, 20);
         fd.top = new FormAttachment(curWDirText, 5, SWT.BOTTOM);
         fd.left = new FormAttachment(curWDirText, 0, SWT.LEFT);
@@ -352,6 +365,21 @@ public class NsharpEditDataDialog extends Dialog {
         fd2.left = new FormAttachment(curWSpText, 10, SWT.RIGHT);
         newWSpText.setLayoutData(fd2);
         newWSpText.addListener(SWT.Verify, positiveNumberListeener);
+
+        // default
+        currentEditType = EditType.NEW_LEVEL;
+        useSelectedBtn.setBackground(colorLightGrey);
+        addNewLevelBtn.setBackground(colorBlue);
+        curTempText.setText(" N/A ");
+        curDewText.setText(" N/A ");
+        curWSpText.setText(" N/A ");
+        curWDirText.setText(" N/A ");
+        curPressText.setText(" N/A ");
+        newTempText.setText("");
+        newDewText.setText("");
+        newWSpText.setText("");
+        newWDirText.setText("");
+        newPressText.setText("");
 
     }
 

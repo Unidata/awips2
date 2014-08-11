@@ -132,6 +132,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 04/14/2014               S.Gilbert       Cleaned up old unused methods
  * 04/22/2014   #1129       B. Hebbard      Feed HILO point count limits to GridRelativeHiLoDisplay constructor instead of HILORelativeMinAndMaxLocator, so can apply dynamically based on current extent
  * 06/27/2014   ?           B. Yin          Handle grid analysis (cycle time is null).
+ * 08/01/2014   ?           B. Yin          Handle display type D (directional arrow).
  * </pre>
  * 
  * @author mli
@@ -1524,7 +1525,8 @@ public class NcgridResource extends
                         }
                     }
 
-                    if (type.contains("B") || type.contains("A")) {
+                    if (type.contains("B") || type.contains("A")
+                            || type.contains("D")) {
 
                         GriddedVectorDisplay griddedVectorDisplay = vectorDisplay[i];
 
@@ -1744,9 +1746,10 @@ public class NcgridResource extends
         }
 
         List<DataTime> availableTimes = new ArrayList<DataTime>();
-       
-        if ( cycleTime != null && gridRscData.getPluginName().equalsIgnoreCase(
-                GempakGrid.gempakPluginName)) {
+
+        if (cycleTime != null
+                && gridRscData.getPluginName().equalsIgnoreCase(
+                        GempakGrid.gempakPluginName)) {
             try {
                 String dataLocation = null;
                 try {
@@ -2037,7 +2040,7 @@ public class NcgridResource extends
             /*
              * Draw wind barb or wind arrow
              */
-            if (type.contains("B") || type.contains("A")) {
+            if (type.contains("B") || type.contains("A") || type.contains("D")) {
 
                 GriddedVectorDisplay griddedVectorDisplay = currFrame.vectorDisplay[i];
                 if (griddedVectorDisplay != null) {
@@ -2191,6 +2194,12 @@ public class NcgridResource extends
                 if (displayType == DisplayType.ARROW) {
                     aDgdriv.setArrowVector(true);
                 } else {
+                    aDgdriv.setArrowVector(false);
+                }
+
+                // for directional arrow
+                if (cattr.getType().equalsIgnoreCase("D")) {
+                    aDgdriv.setScalar(true);
                     aDgdriv.setArrowVector(false);
                 }
 
