@@ -211,6 +211,7 @@
 	<alias base="MCDC">CLDM</alias>
 	<alias base="MIXR">MIXR</alias>
 	<alias base="MMSP">MMSL</alias>
+        <alias base="MN2T66hr">TKMN06</alias>
 	<alias base="MnT">TMNK</alias>
 	<alias base="MnT1hr">TMNK01</alias>
 	<alias base="MnT3hr">TMNK03</alias>
@@ -220,6 +221,7 @@
 	<alias base="MnT18hr">TMNK18</alias>
 	<alias base="MnT24hr">TMNK24</alias>
 	<alias base="MnT48hr">TMNK48</alias>
+        <alias base="MX2T66hr">TKMX06</alias>
 	<alias base="MxT">TMXK</alias>
 	<alias base="MxT1hr">TMXK01</alias>
 	<alias base="MxT3hr">TMXK03</alias>
@@ -303,6 +305,7 @@
 	<alias base="TCC18hr">TCLD18</alias>
 	<alias base="TCC24hr">TCLD24</alias>
 	<alias base="TCC48hr">TCLD48</alias>
+        <alias base="TCWAT">TCWTR</alias>
 	<alias base="ThP">TSTM</alias>
 	<alias base="TOZNE">TOZO</alias>
 	<alias base="TP">APCP</alias>
