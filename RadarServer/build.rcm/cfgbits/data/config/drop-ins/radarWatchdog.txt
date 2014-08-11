@@ -1,0 +1,30 @@
+# radarWatchdog.txt
+#
+# Controls how long to wait for products specified on the RPS list before
+# sounding an alarm.  There are two sections: One defines VCP durations
+# and one that lists products to monitor.
+#
+# VCP duration format: <VCP number>|<duration in seconds>
+#
+# Product format: <product mnemonic>
+#
+# <product mnemonic> is a mnemonic found in radarInfo.txt.
+#
+#
+# If a product is listed, but is not actually in the current RPS list,
+# it will not be monitored.
+[VCP]
+ 11 | 300
+211 | 300
+ 12 | 270
+212 | 270
+ 21 | 360
+121 | 360
+221 | 360
+ 31 | 600
+ 32 | 600
+ 80 | 360
+ 90 | 360
+[Products]
+V
+Z

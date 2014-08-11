@@ -260,6 +260,7 @@ public class RadarBiasTableDialog extends Dialog {
         applyBtn = new Button(applyBtnComp, SWT.PUSH);
         applyBtn.setText("Apply");
         applyBtn.setLayoutData(bd);
+        applyBtn.setEnabled(false);
         applyBtn.addSelectionListener(new SelectionAdapter() {
 
             /*
@@ -274,7 +275,6 @@ public class RadarBiasTableDialog extends Dialog {
                 applyBiasUpdate(dt);
                 MPEDisplayManager mgr = MPEDisplayManager.getCurrent();
                 mgr.setSavedData(false);
-                shell.dispose();
             }
         });
 
@@ -560,7 +560,6 @@ public class RadarBiasTableDialog extends Dialog {
             			editedSPBiasValue[ai] = oldSPBiasValue[ai];
             			spBiasValueTextArray[ai].setText(String.format("%-1.2f", editedSPBiasValue[ai]));
             			spBiasChangeMap.put(radIds[ai], ai);
-            			applyBtn.setEnabled(false);
             			spManEditButtonArray[ai].setText("NO");
             			}
             		}
