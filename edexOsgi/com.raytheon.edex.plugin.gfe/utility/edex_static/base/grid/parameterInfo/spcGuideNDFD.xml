@@ -209,4 +209,19 @@
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <short_name>srcono</short_name>
+    <long_name>Convective Outlook</long_name>
+    <units>1</units>
+    <udunits>category</udunits>
+    <uiname>srcono</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-99999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
 </gridParamInfo>
