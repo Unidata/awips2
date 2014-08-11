@@ -24,4 +24,7 @@
     	<Field abbreviation="P"/>
     	<ConstantField value="-2"/>
     </Method>
+    <Method name="Alias">
+    	<Field abbreviation="GVV1hr"/>
+    </Method>
 </DerivedParameter>

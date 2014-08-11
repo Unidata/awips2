@@ -54,6 +54,7 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Op;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
+import com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockStatus;
@@ -185,6 +186,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 02, 2013 #1774      randerso    Fixed a possible deadlock issue.
  * Aug 27, 2013 #2302      randerso    Fix simultaneous save issue
  * Oct 31, 2013 #2508      randerso    Change to use DiscreteGridSlice.getKeys()
+ * Jun 30, 2014 #3332      randerso    Kept local reference to lock table to avoid 
+ *                                     race conditions with asynchronous updates
  * 
  * </pre>
  * 
@@ -619,21 +622,19 @@ public abstract class Parm implements Comparable<Parm> {
             return new TimeRange();
         }
 
-        if (!isMutable()) {
-            return getInventorySpan();
-        }
+        TimeRange tr = getInventorySpan();
 
-        TimeRange tr = new TimeRange();
-        if (lockTable != null) {
-            if (lockTable.getLocks().size() > 0) {
-                tr = lockTable.getLocks().get(0).getTimeRange();
-            }
-            for (int i = 1; i < lockTable.getLocks().size(); i++) {
-                tr = tr.combineWith(lockTable.getLocks().get(i).getTimeRange());
+        if (isMutable()) {
+            LockTable lt = this.lockTable;
+            if (lt != null) {
+                List<Lock> locks = lt.getLocks();
+                for (Lock lock : locks) {
+                    tr = tr.combineWith(lock.getTimeRange());
+                }
             }
         }
 
-        return tr.combineWith(getInventorySpan());
+        return tr;
     }
 
     /**

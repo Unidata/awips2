@@ -30,6 +30,7 @@ except:
 import numpy
 import JUtil
 
+from java.lang import System
 from java.util import ArrayList
 from java.util import LinkedHashMap
 from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DFloat
@@ -88,6 +89,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    02/04/14        17042         ryu            Check in changes for randerso.
 #    04/03/2014      2737          randerso       Allow iscMosaic to blankOtherPeriods even when no grids received
 #    04/11/2014      17242         David Gillingham (code checked in by zhao)
+#    07/22/2014      17484         randerso       Update cluster lock time to prevent time out
 #
 
 BATCH_DELAY = 0.0
@@ -727,6 +729,9 @@ class IscMosaic:
 
                         # process incoming grids
                         for i in xrange(len(inTimes)):
+                            # update cluster lock time to avoid time out
+                            ClusterLockUtils.updateLockTime("ISC Write Lock", parmName ,System.currentTimeMillis())
+                            
                             # Put in a delay so we don't hammer the server so hard.
                             if self.__gridDelay > 0.0:
                                 time.sleep(self.__gridDelay)

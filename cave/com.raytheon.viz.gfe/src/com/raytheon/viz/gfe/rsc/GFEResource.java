@@ -170,6 +170,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *                                    paint using the time in paintProps and
  *                                    remove dead code in paintInternal
  * Apr 03, 2014  2737     randerso    Uncommented out listers for iscParm inventory changed
+ * May 20, 2014  15814    zhao        Make image display for model Parm not affected by ISC mode
  * 
  * </pre>
  * 
@@ -519,6 +520,8 @@ public class GFEResource extends
                 .getValidPeriod());
 
         boolean iscParm = this.parm.isIscParm();
+        boolean modelParm = isModelParm();
+        
         if ((gd.length == 0) && !dataManager.getParmManager().iscMode()) {
             return;
         }
@@ -605,7 +608,7 @@ public class GFEResource extends
                 VectorGridSlice vectorSlice = (VectorGridSlice) gs;
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                if (dataManager.getParmManager().iscMode() || iscParm) {
+                if ( (dataManager.getParmManager().iscMode() || iscParm) && !modelParm ) {
                     vectorSlice = new VectorGridSlice();
                     mask = dataManager.getIscDataAccess().getCompositeGrid(
                             new GridID(this.parm, this.curTime.getRefTime()),
@@ -692,7 +695,7 @@ public class GFEResource extends
                 ScalarGridSlice scalarSlice = (ScalarGridSlice) gs;
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                if (dataManager.getParmManager().iscMode() || iscParm) {
+                if ( (dataManager.getParmManager().iscMode() || iscParm) && !modelParm ) {
                     scalarSlice = new ScalarGridSlice();
                     mask = dataManager.getIscDataAccess().getCompositeGrid(
                             new GridID(this.parm, this.curTime.getRefTime()),
@@ -736,7 +739,7 @@ public class GFEResource extends
 
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                if (dataManager.getParmManager().iscMode() || iscParm) {
+                if ( (dataManager.getParmManager().iscMode() || iscParm) && !modelParm ) {
                     slice = new DiscreteGridSlice();
                     GridID gid = new GridID(parm, this.curTime.getRefTime());
                     mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
@@ -813,7 +816,7 @@ public class GFEResource extends
 
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                if (dataManager.getParmManager().iscMode() || iscParm) {
+                if ( (dataManager.getParmManager().iscMode() || iscParm) && !modelParm ) {
                     slice = new WeatherGridSlice();
                     GridID gid = new GridID(parm, this.curTime.getRefTime());
                     mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
@@ -1592,4 +1595,14 @@ public class GFEResource extends
         }
     }
 
+    private boolean isModelParm() {
+        String parmId = parm.getParmID().toString();
+        if ( parmId.contains("__Fcst_") || 
+                parmId.contains("__ISC_") || 
+                parmId.contains("__Official_") || 
+                parmId.contains("__Restore_")) {
+            return false;
+        }
+        return true;
+    }
 }
