@@ -72,8 +72,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  </phensigs>
  
  <includedWatches>
-  <includedWatch>torWatches</includedWatch>
-  <includedWatch>svrWatches</includedWatch>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
  </includedWatches>
  
  <enableRestart>false</enableRestart>

@@ -49,6 +49,9 @@
         <ConstantField value="-1e35"/>
         <ConstantField value="-1"/>
     </Method>
+    <Method models="HRRR" name="Alias" levels="Skin" >
+        <Field level="Surface" abbreviation="T"/>
+    </Method>
     <Method models="SREF212" name="Alias">
         <Field abbreviation="Tmean"/>
     </Method>
