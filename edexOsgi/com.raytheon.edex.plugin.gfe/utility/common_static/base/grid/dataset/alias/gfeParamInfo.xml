@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <aliasList caseSensitive="true" namespace="gfeParamInfo">
+    <alias base="estofsUS">ESTOFS</alias>
+    <alias base="estofsPR">ESTOFS</alias>
     <alias base="GLERL">glerl</alias>
     <alias base="MPE-Local">localMPE</alias>
     <alias base="MPE-Mosaic">mosaicMPE</alias>
     <alias base="HPE">localHPE</alias>
+    <alias base="HRRR">HRRR</alias>
     <alias base="BHPE">localBHPE</alias>
     <alias base="RFCqpf">qpf218</alias>
     <alias base="nogaps">nogaps</alias>

@@ -83,7 +83,7 @@ def componentsFrom(u,v):
 def magDirRadiansFrom(mag, dir):
     u = sin(dir) * mag
     v = cos(dir) * mag
-    return componentFrom(u,v)
+    return componentsFrom(u,v)
 
 def magDirDegreesFrom(mag, dir):
     return magDirRadiansFrom(mag, radians(dir))
