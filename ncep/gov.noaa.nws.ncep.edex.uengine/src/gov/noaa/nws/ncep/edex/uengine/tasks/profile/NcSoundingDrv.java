@@ -29,6 +29,7 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
  * 03/28/2012               Chin Chen   modify Grid data sounding query algorithms for better performance
  * 06/25/2014               Chin Chen    support dropsonde
+ * 07/23/2014               Chin Chen    Support PW
  * </pre>
  *  Python Script example to query multiple locations at one request:
  *  The following 3 query examples, returns same results.
@@ -110,6 +111,7 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.ObsSndType;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.PfcSndType;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile.SndQueryKeyType;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingStnInfoCollection;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingTools;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -144,6 +146,8 @@ public class NcSoundingDrv {
     private String stid, level, dataType, sndType, queryType, tableName;
 
     private int merge;
+
+    private int pwRequired = 0; // Support PW, 1=required, 0=Not required
 
     private boolean useNcSoundingLayer2 = false;
 
@@ -393,6 +397,10 @@ public class NcSoundingDrv {
         // merge. Set merge
         // to false accordingly.
         this.merge = merge;
+    }
+
+    public void setPwRequired(int pwRequired) {
+        this.pwRequired = pwRequired;
     }
 
     public long getRefTime() {
@@ -1189,7 +1197,21 @@ public class NcSoundingDrv {
                                     ttdd, ppaa, ppbb, ppcc, ppdd, trop_a,
                                     trop_c, wmax_a, wmax_c,
                                     pf.getStationElevation());
-
+                            // Support PW
+                            // System.out.println("1st merge call: lat/lon="
+                            // + pf.getStationLatitude());
+                            // for (int i = 0; i < sls.size(); i++) {
+                            // NcSoundingLayer2 ncLay = sls.get(i);
+                            // System.out.println(" temp="
+                            // + ncLay.getTemperature() + " dewp="
+                            // + ncLay.getDewpoint() + " press="
+                            // + ncLay.getPressure() + " height="
+                            // + ncLay.getGeoHeight() + " windSp="
+                            // + ncLay.getWindSpeed() + " windDir="
+                            // + ncLay.getWindDirection() + " omega="
+                            // + ncLay.getOmega());
+                            // }
+                            // end Support PW
                             if (level.toUpperCase().equalsIgnoreCase("MAN")) {
                                 pf.setSoundingLyLst2(sls);
                                 // System.out.println("sls set to the sounding profile");
@@ -1213,6 +1235,33 @@ public class NcSoundingDrv {
                                     // + level);
                                 }
                             }
+                            // Support PW
+                            if (pwRequired == 1) {
+                                List<NcSoundingLayer2> sls2 = new ArrayList<NcSoundingLayer2>();
+                                sls2 = ms.mergeUairSounding("-1", ttaa, ttbb,
+                                        ttcc, ttdd, ppaa, ppbb, ppcc, ppdd,
+                                        trop_a, trop_c, wmax_a, wmax_c,
+                                        pf.getStationElevation());
+                                pf.setPw(NcSoundingTools.precip_water2(sls2));
+
+                                // System.out.println("2nd merge call: lat/lon="
+                                // + pf.getStationLatitude());
+                                // for (int i = 0; i < sls2.size(); i++) {
+                                // NcSoundingLayer2 ncLay = sls2.get(i);
+                                // System.out.println(" temp="
+                                // + ncLay.getTemperature() + " dewp="
+                                // + ncLay.getDewpoint() + " press="
+                                // + ncLay.getPressure() + " height="
+                                // + ncLay.getGeoHeight() + " windSp="
+                                // + ncLay.getWindSpeed()
+                                // + " windDir="
+                                // + ncLay.getWindDirection()
+                                // + " omega=" + ncLay.getOmega());
+                                // }
+                            } else {
+                                pf.setPw(-1);
+                            }
+                            // End Support PW
                         }
                     }
                     if (pf != null && pf.getSoundingLyLst2().size() > 0) {
@@ -1356,28 +1405,36 @@ public class NcSoundingDrv {
             // + (t02 - t01));
         }
         cube.setSoundingProfileList(soundingProfileList);
-        /*
-         * for(int i =0; i < cube.getSoundingProfileList().size();i++){
-         * System.out.println("lat/lon="+
-         * cube.getSoundingProfileList().get(i).getStationLatitude
-         * ()+"/"+cube.getSoundingProfileList().get(i).getStationLongitude()+
-         * " temp="
-         * +cube.getSoundingProfileList().get(i).getSoundingLyLst2().get(
-         * 0).getTemperature
-         * ()+" dewp="+cube.getSoundingProfileList().get(i).getSoundingLyLst2
-         * ().get(0).getDewpoint()+" press="+
-         * cube.getSoundingProfileList().get(i
-         * ).getSoundingLyLst2().get(0).getPressure() +
-         * " height="+cube.getSoundingProfileList
-         * ().get(i).getSoundingLyLst2().get(0).getGeoHeight()+
-         * " windSp="+cube.getSoundingProfileList
-         * ().get(i).getSoundingLyLst2().get
-         * (0).getWindSpeed()+" windDir="+cube.getSoundingProfileList
-         * ().get(i).getSoundingLyLst2().get(0).getWindDirection()+
-         * " omega="+cube
-         * .getSoundingProfileList().get(i).getSoundingLyLst2().get
-         * (0).getOmega()); }
-         */
+
+        // for (int i = 0; i < cube.getSoundingProfileList().size(); i++) {
+        // System.out.println("lat/lon="
+        // + cube.getSoundingProfileList().get(i).getStationLatitude()
+        // + "/"
+        // + cube.getSoundingProfileList().get(i)
+        // .getStationLongitude()
+        // + " temp="
+        // + cube.getSoundingProfileList().get(i).getSoundingLyLst2()
+        // .get(0).getTemperature()
+        // + " dewp="
+        // + cube.getSoundingProfileList().get(i).getSoundingLyLst2()
+        // .get(0).getDewpoint()
+        // + " press="
+        // + cube.getSoundingProfileList().get(i).getSoundingLyLst2()
+        // .get(0).getPressure()
+        // + " height="
+        // + cube.getSoundingProfileList().get(i).getSoundingLyLst2()
+        // .get(0).getGeoHeight()
+        // + " windSp="
+        // + cube.getSoundingProfileList().get(i).getSoundingLyLst2()
+        // .get(0).getWindSpeed()
+        // + " windDir="
+        // + cube.getSoundingProfileList().get(i).getSoundingLyLst2()
+        // .get(0).getWindDirection()
+        // + " omega="
+        // + cube.getSoundingProfileList().get(i).getSoundingLyLst2()
+        // .get(0).getOmega());
+        // }
+
         returnedObject = cube;
         // long t02 = System.currentTimeMillis();
         // System.out.println("getSoundingData2Generic query took "+(t02-t01)+" ms in total");
@@ -1984,6 +2041,10 @@ public class NcSoundingDrv {
                         sls = ms.mergeUairSounding(level, ttaa, ttbb, ttcc,
                                 ttdd, ppaa, ppbb, ppcc, ppdd, trop_a, trop_c,
                                 wmax_a, wmax_c, pf.getStationElevation());
+                        // PW Support test
+                        float pw = NcSoundingTools.precip_water(sls);
+                        pf.setPw(pw);
+                        // end PW Support test
                         // System.out.println("NCUAIR Number of Layers after merge:"+sls.size()
                         // + " level="+level +
                         // " ms.isNumber(level)="+ms.isNumber(level));
