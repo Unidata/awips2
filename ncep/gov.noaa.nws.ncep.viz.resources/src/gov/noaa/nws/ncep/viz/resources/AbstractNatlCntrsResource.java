@@ -703,7 +703,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
         // update the timeline and process the data in the cache.
         //
 
-        // timeMatcher.updateTimeline(newFrameTimesList);
+        timeMatcher.updateTimeline(newFrameTimesList);
 
         if (!newFrameTimesList.isEmpty() && getDescriptor().isAutoUpdate()) {
 
