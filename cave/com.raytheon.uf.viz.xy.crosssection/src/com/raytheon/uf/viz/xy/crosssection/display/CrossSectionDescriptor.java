@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
+import com.raytheon.uf.common.geospatial.adapter.GeometryAdapter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
