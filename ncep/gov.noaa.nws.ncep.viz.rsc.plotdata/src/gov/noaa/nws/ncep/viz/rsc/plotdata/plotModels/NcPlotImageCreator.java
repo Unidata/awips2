@@ -42,8 +42,8 @@ import javax.measure.unit.UnitFormat;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.units.UnitAdapter;
 import com.raytheon.uf.viz.core.DrawableBasics;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
