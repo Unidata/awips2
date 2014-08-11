@@ -13,8 +13,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.raytheon.uf.common.geospatial.adapter.CoordAdapter;
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
