@@ -624,12 +624,12 @@ TORRENTIAL RAINFALL IS OCCURRING WITH THIS STORM...AND MAY LEAD TO FLASH FLOODIN
 ## WATCHES ##
 #############
 
-#if(${list.contains(${includedWatches}, "torWatches")})
+#if(${list.contains(${includedWatches}, "TO.A")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 
 #end
 #* NO NEED TO INCLUDE SVR T-STM WATCHES IN A SVR WARNING!!!!
-#if(${list.contains(${includedWatches}, "svrWatches")})
+#if(${list.contains(${includedWatches}, "SV.A")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #
 #end

@@ -49,11 +49,11 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
 
  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include torWatches and/or svrWatches, 
+ 	included with the warning product include TO.A and/or SV.A, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
-  <includedWatch>torWatches</includedWatch>
-  <includedWatch>svrWatches</includedWatch>
+  <includedWatch>TO.A</includedWatch>
+  <includedWatch>SV.A</includedWatch>
  </includedWatches>
  
  <!-- durations: the list of possible durations of the warning -->
@@ -116,7 +116,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
-  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/> 
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
@@ -172,7 +173,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
-  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeTorWatches" bulletText="Include Tornado Watches" bulletDefault="true" parseString=""/>
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletDefault="true" parseString=""/>
   <bullet bulletText="******** WINTER WX CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="advisoryCTA" bulletText="Advisory may be required" bulletGroup="toggle3" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="advisoryEffectCTA" bulletText="Advisory in effect" bulletGroup="toggle3" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>

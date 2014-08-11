@@ -21,6 +21,7 @@
 package com.raytheon.uf.common.dataplugin.warning.portions;
 
 import java.awt.geom.Point2D;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -29,6 +30,7 @@ import java.util.List;
 
 import org.geotools.referencing.GeodeticCalculator;
 
+import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -54,6 +56,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *    May  1, 2013  1963       jsanchez    Refactored calculatePortion to match A1. Do not allow 'Central' to be included if East and West is included.
  *    Jun  3, 2013  2029       jsanchez    Updated A1 special case for calculating a central portion. Allowed East Central and West Central.
  *    Dec  4, 2013  2604       jsanchez    Moved out of viz.warngen.
+ *    Jun 17, 2014 DR 17390    Qinglu Lin  Update calculateLocationPortion(). Use centroid in maps county table for geomCentroid 
+ *                                         for county based products.
  * </pre>
  * 
  * @author chammack
@@ -345,13 +349,22 @@ public class GisUtil {
      * @return
      */
     public static EnumSet<Direction> calculateLocationPortion(
-            Geometry locationGeom, Geometry reference, boolean useExtreme) {
+            Geometry locationGeom, Geometry reference, boolean useExtreme, boolean notUseShapefileCentroid) {
         for (int i = 0; i < locationGeom.getNumGeometries(); i++) {
             Geometry geom = locationGeom.getGeometryN(i);
             if (geom.intersects(reference)) {
 
-                Coordinate geomCentroid = geom.getEnvelope().getCentroid()
-                        .getCoordinate();
+                Coordinate geomCentroid = null;
+                if (notUseShapefileCentroid) {
+                    geomCentroid = geom.getEnvelope().getCentroid()
+                            .getCoordinate();
+                } else {
+                    geomCentroid = new Coordinate();
+                    geomCentroid.x = ((BigDecimal)((CountyUserData)geom.getUserData()).
+                            entry.attributes.get("LON")).doubleValue();
+                    geomCentroid.y = ((BigDecimal)((CountyUserData)geom.getUserData()).
+                            entry.attributes.get("LAT")).doubleValue();
+                }
                 Coordinate refCentroid = reference.getCentroid()
                         .getCoordinate();
 
