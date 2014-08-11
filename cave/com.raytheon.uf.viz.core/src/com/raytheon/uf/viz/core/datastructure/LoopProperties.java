@@ -38,6 +38,7 @@ import org.eclipse.ui.commands.ICommandService;
  * ------------- -------- ----------- --------------------------
  * Aug 30, 2007           randerso    Initial Creation.
  * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
+ * Jun 23, 2014  3307     njensen     Fix xml serialization of looping field
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ public class LoopProperties {
 
     public enum LoopMode {
         Forward, Backward, Cycle
-    };
+    }
 
     /** frame time increment in ms */
     public static final int FRAME_STEP = 100;
@@ -144,12 +145,8 @@ public class LoopProperties {
         this.mode = mode;
     }
 
-    public boolean isLooping() {
-        return isLooping;
-    }
-
     @XmlElement
-    public boolean getLooping() {
+    public boolean isLooping() {
         return isLooping;
     }
 
