@@ -24,6 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -36,8 +37,6 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -57,7 +56,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -68,11 +67,9 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
-import com.raytheon.viz.mpe.ui.dialogs.EditFreezeStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.QcFreezeOptionsDialog;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Ztn;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -88,6 +85,9 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Jul  8, 2009	 2589		snaples 	Initial creation
  * Mar  3, 2014  2804       mschenke    Set back up clipping pane
  * Jul 24, 2014  3429       mapeters    Updated deprecated drawLine() calls.
+ * Aug 11, 2014  3504       mapeters    Replaced deprecated IODataPreparer
+ *                                      instances with IRenderedImageCallback.
+ *                                      and removed unused modifyStation() method.
  * </pre>
  * 
  * @author snaples
@@ -101,58 +101,26 @@ public class PointFreezePlotResource extends
 
     private static STRtree strTree = null;
 
-    private static IGraphicsTarget target;
-
-    private PaintProperties paintProps;
-
     private static Coordinate selectedCoordinate;
 
     private MPEFontFactory fontFactory;
 
-    private IFont font = null;
-
     private final DecimalFormat df = new DecimalFormat();
-
-    private RGB color = new RGB(255, 255, 255);
 
     private double scaleWidthValue = 0.0;
 
     private double scaleHeightValue = 0.0;
 
-    private Station gageData = null;
-
-    private static int imageWidth = 10;
-
-    private static int imageHeight = 10;
-
-    static String dqc_nodata_color = "black";
-
-    static final String[] color_map_a = { "Cyan1", "Salmon", "Orange1",
+    private static final String[] color_map_a = { "Cyan1", "Salmon", "Orange1",
             "Yellow1", "Magenta1", "Green1", "Green4", "Gray74", "White",
             "Cyan1" };
 
-    static final String[] color_map_n = { "Grey10", "Grey", "Blue",
+    private static final String[] color_map_n = { "Grey10", "Grey", "Blue",
             "Aquamarine", "LightGreen", "DarkGreen", "Violet", "Purple",
             "Blue", "Blue", "Yellow1", "Yellow", "Yellow2", "VioletRed", "Red",
             "White" };
 
-    static final String[] typename = { "Verified", "Screened",
-            "Time Distributed", "Manual", "Questionable", "Partial",
-            "Estimated", "Bad", "Missing" };
-
-    Zdata zdata[];
-
-    ArrayList<Station> station;
-
-    Hashtable<String, Ztn> zdataMap;
-
-    ColorMapParameters parameters;
-
-    int pcpn_day = 0;
-
-    private final DailyQcUtils dc = new DailyQcUtils();
-
-    static int prevPcpnDay;
+    private Hashtable<String, Ztn> zdataMap;
 
     /**
      * Constructor.
@@ -169,10 +137,6 @@ public class PointFreezePlotResource extends
     public PointFreezePlotResource(PointFreezeResourceData resourceData,
             LoadProperties props) {
         super(resourceData, props);
-        pcpn_day = DailyQcUtils.pcpn_day;
-        station = DailyQcUtils.freezing_stations;
-        prevPcpnDay = 0;
-
         df.setMaximumFractionDigits(2);
         df.setMaximumIntegerDigits(4);
     }
@@ -194,7 +158,8 @@ public class PointFreezePlotResource extends
         dataMap = new Hashtable<String, Station>();
         zdataMap = new Hashtable<String, Ztn>();
         strTree = new STRtree();
-        gageData = dc.new Station();
+        Station gageData = new DailyQcUtils().new Station();
+        ArrayList<Station> station = DailyQcUtils.freezing_stations;
 
         if (!station.isEmpty()) {
             int i = 0;
@@ -212,7 +177,7 @@ public class PointFreezePlotResource extends
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
                 zdataMap.put(kv.toString(),
-                        DailyQcUtils.zdata[pcpn_day].zstn[i]);
+                        DailyQcUtils.zdata[DailyQcUtils.pcpn_day].zstn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -227,7 +192,6 @@ public class PointFreezePlotResource extends
                 strTree.insert(env, data);
                 i++;
             }
-            prevPcpnDay = DailyQcUtils.pcpn_day;
         }
     }
 
@@ -287,7 +251,9 @@ public class PointFreezePlotResource extends
      * @param gageData
      * @throws VizException
      */
-    private void drawPlotInfo(Coordinate c, String key, Station station)
+    private void drawPlotInfo(Coordinate c, String key, Station station,
+            IGraphicsTarget target, PaintProperties paintProps, RGB color,
+            IFont font)
             throws VizException {
 
         if (MPEDisplayManager.getCurrent().isZflag() == true
@@ -342,8 +308,15 @@ public class PointFreezePlotResource extends
                     && DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] == 0) {
                 return;
             }
-            IImage image = target.initializeRaster(new IODataPreparer(
-                    drawMPECircle(color), "gage", 0), null);
+
+            final RGB circleColor = color;
+            IImage image = target
+                    .initializeRaster(new IRenderedImageCallback() {
+                        @Override
+                        public RenderedImage getImage() throws VizException {
+                            return drawMPECircle(circleColor);
+                        }
+                    });
 
             target.drawRaster(image, getPixelCoverage(c), paintProps);
 
@@ -433,7 +406,7 @@ public class PointFreezePlotResource extends
     private void setScaleWidth(PaintProperties props) {
         double screenToWorldWidthRatio = props.getCanvasBounds().width
                 / props.getView().getExtent().getWidth();
-        scaleWidthValue = (imageWidth / 2.0) / screenToWorldWidthRatio;
+        scaleWidthValue = (IMAGE_WIDTH / 2.0) / screenToWorldWidthRatio;
     }
 
     /**
@@ -463,7 +436,7 @@ public class PointFreezePlotResource extends
     private void setScaleHeight(PaintProperties props) {
         double screenToWorldHeightRatio = props.getCanvasBounds().height
                 / props.getView().getExtent().getHeight();
-        scaleHeightValue = (imageHeight / 2.0) / screenToWorldHeightRatio;
+        scaleHeightValue = (IMAGE_HEIGHT / 2.0) / screenToWorldHeightRatio;
     }
 
     /**
@@ -478,11 +451,9 @@ public class PointFreezePlotResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        PointFreezePlotResource.target = target;
-        this.paintProps = paintProps;
         MPEDisplayManager displayMgr = getResourceData().getMPEDisplayManager();
         // Fonts are shared and cached, get from factory
-        font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
+        IFont font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
         if (DailyQcUtils.points_flag == 1 && displayMgr.isZflag() == true) {
             Iterator<String> iter = dataMap.keySet().iterator();
@@ -502,7 +473,9 @@ public class PointFreezePlotResource extends
                         setScaleWidth(paintProps);
                         setScaleHeight(paintProps);
 
-                        drawPlotInfo(c, key, dataMap.get(key));
+                        RGB color = new RGB(255, 255, 255);
+                        drawPlotInfo(c, key, dataMap.get(key), target,
+                                paintProps, color, font);
 
                         if (getSelectedCoordinate() != null) {
                             Envelope env = new Envelope(getSelectedCoordinate());
@@ -528,19 +501,21 @@ public class PointFreezePlotResource extends
                 }
             }
             target.clearClippingPlane();
-            drawQCLegend();
+            drawQCLegend(target, paintProps, font);
             target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 
-    private void drawQCLegend() throws VizException {
+    private void drawQCLegend(IGraphicsTarget target,
+            PaintProperties paintProps, IFont font)
+            throws VizException {
         // TODO this screen location code is borrowed from MPELegendResource...
         // should it be put into a shared class, possibly a paint
         // properties method?
 
         IExtent screenExtent = paintProps.getView().getExtent();
         double scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
-        DrawableString string = new DrawableString("0", color);
+        DrawableString string = new DrawableString("0");
         string.font = font;
         double textHeight = target.getStringsBounds(string).getHeight() * scale;
         double padding = 3.2 * scale;
@@ -631,41 +606,6 @@ public class PointFreezePlotResource extends
     }
 
     /**
-     * Modify station called when single mouse click on gage
-     * 
-     * @param rcoord
-     * 
-     */
-    public static Map<String, Object> modifyStation(ReferencedCoordinate rcoord)
-            throws VizException {
-        Coordinate coord = new Coordinate();
-        try {
-            coord = rcoord.asLatLon();
-        } catch (TransformException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (FactoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        Envelope env = new Envelope(coord);
-        List<?> elements = strTree.query(env);
-        Iterator<?> iter = elements.iterator();
-
-        /* Take the first one in the list */
-        if (iter.hasNext()) {
-            setSelectedCoordinate(coord);
-            target.setNeedsRefresh(true);
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            EditFreezeStationsDialog epd = new EditFreezeStationsDialog(shell,
-                    new ReferencedCoordinate(coord));
-            epd.open();
-        }
-        return null;
-    }
-
-    /**
      * Interrogate method called when user clicks on a location
      * 
      * @param coord
@@ -711,7 +651,7 @@ public class PointFreezePlotResource extends
         dmPref.getEntries().get(1).setLabel("");
 
         ColorMapCapability cmc = getCapability(ColorMapCapability.class);
-        parameters = cmc.getColorMapParameters();
+        ColorMapParameters parameters = cmc.getColorMapParameters();
         if (parameters == null) {
             parameters = new ColorMapParameters();
             cmc.setColorMapParameters(parameters);
@@ -760,7 +700,7 @@ public class PointFreezePlotResource extends
      */
     private static BufferedImage drawMPECircle(RGB color) {
         // make circle in center
-        BufferedImage image = new BufferedImage(imageWidth, imageHeight,
+        BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
                 BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) image.getGraphics();
 
@@ -774,7 +714,7 @@ public class PointFreezePlotResource extends
                 RenderingHints.VALUE_ANTIALIAS_ON);
         // always red
         g.setColor(convertR(color));
-        g.fillOval(0, 0, imageWidth / 2, imageHeight / 2);
+        g.fillOval(0, 0, IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2);
 
         return image;
     }
