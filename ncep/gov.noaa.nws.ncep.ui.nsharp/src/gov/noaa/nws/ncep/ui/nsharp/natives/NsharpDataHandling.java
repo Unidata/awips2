@@ -691,9 +691,11 @@ public class NsharpDataHandling {
              * if (layer.getWindDirection() < 0 ){ removingItemList.add(i); }
              * else if (layer.getWindSpeed() < 0 ){ removingItemList.add(i); }
              * else
-             */if (layer.getGeoHeight() < -50) {
-                removingItemList.add(i);
-            } else if (layer.getPressure() < 0) {
+             */
+            /*
+             * PW Support test if (layer.getGeoHeight() < -50) {
+             * removingItemList.add(i); } else
+             */if (layer.getPressure() < 0) {
                 removingItemList.add(i);
             } else if (layer.getTemperature() < layer.getDewpoint()) {
                 removingItemList.add(i);
@@ -1119,10 +1121,13 @@ public class NsharpDataHandling {
         boolean found75 = false, found50 = false;
         for (int i = 0; i < soundingLys.size(); i++) {
             NcSoundingLayer layer = soundingLys.get(i);
-            if (layer.getGeoHeight() == NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA
-                    || layer.getGeoHeight() < gndElv) {
-                removingItemList.add(i);
-            } else if (layer.getPressure() < 100 && layer.getPressure() != 50f
+            // PW Support
+            // if (layer.getGeoHeight() ==
+            // NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA
+            // || layer.getGeoHeight() < gndElv) {
+            // removingItemList.add(i);
+            // } else
+            if (layer.getPressure() < 100 && layer.getPressure() != 50f
                     && layer.getPressure() != 75f) {
                 removingItemList.add(i);
             }
@@ -1138,6 +1143,10 @@ public class NsharpDataHandling {
             soundingLys.remove(removingItemList.get(i).intValue());
         }
 
+        // FIRE bug
+        // sort layers based on pressure, height, wind and list them from
+        // highest pressure
+        Collections.sort(soundingLys, reversePressureComparator());
         /*
          * Chin's NOTE: native nsharp extend sounding data to add 50 and 75 mb
          * layers. It uses 150mb layer's temp, dew, wind dir and wind speed. and
