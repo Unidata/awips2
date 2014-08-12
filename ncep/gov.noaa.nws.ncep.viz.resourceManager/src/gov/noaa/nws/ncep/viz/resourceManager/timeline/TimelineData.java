@@ -20,6 +20,18 @@ import java.util.TreeMap;
  * to a Boolean value indicating whether that time is "selected" from the
  * overall list.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ?            ?           S. Gilbert  Initial creation
+ * 07/2014      TTR1034+    J. Wu       Added "startTime" & "endTime" to
+ *                                      force range for timeline regardless 
+ *                                      of data availability.
+ * 
+ * </pre>
+ * 
  * @author sgilbert
  * 
  */
@@ -27,17 +39,57 @@ public class TimelineData {
 
     private TreeMap<Calendar, Boolean> times;
 
+    private Calendar startTime;
+
+    private Calendar endTime;
+
     /**
      * Initializes all available time to non-selected status
      * 
      * @param timeList
      *            list of available data times
      */
-    TimelineData(List<Calendar> timeList) {
+    public TimelineData(List<Calendar> timeList) {
 
         times = new TreeMap<Calendar, Boolean>();
         for (Calendar cal : timeList) {
             times.put(cal, false);
+        }
+
+        if (timeList != null && !timeList.isEmpty()) {
+            setStartTime(timeList.get(0));
+            setEndTime(timeList.get(timeList.size() - 1));
+        }
+
+    }
+
+    /**
+     * Initializes all available time to non-selected status
+     * 
+     * @param timeList
+     *            list of available data times
+     */
+    TimelineData(List<Calendar> timeList, Calendar ftime, Calendar etime) {
+
+        times = new TreeMap<Calendar, Boolean>();
+        for (Calendar cal : timeList) {
+            times.put(cal, false);
+        }
+
+        if (ftime != null) {
+            setStartTime(ftime);
+        } else {
+            if (timeList != null && !timeList.isEmpty()) {
+                setStartTime(timeList.get(0));
+            }
+        }
+
+        if (etime != null) {
+            setEndTime(etime);
+        } else {
+            if (timeList != null && !timeList.isEmpty()) {
+                setEndTime(timeList.get(timeList.size() - 1));
+            }
         }
 
     }
@@ -106,8 +158,10 @@ public class TimelineData {
      * @return
      */
     public int getTotalMinutes() {
-        Calendar first = getFirstTime();
-        Calendar last = getLastTime();
+        // Calendar first = getFirstTime();
+        // Calendar last = getLastTime();
+        Calendar first = getStartTime();
+        Calendar last = getEndTime();
         long timeLength = last.getTimeInMillis() - first.getTimeInMillis();
         return (int) (timeLength / 60000);
     }
@@ -119,8 +173,10 @@ public class TimelineData {
      * @return
      */
     public long getTotalMillis() {
-        Calendar first = getFirstTime();
-        Calendar last = getLastTime();
+        // Calendar first = getFirstTime();
+        // Calendar last = getLastTime();
+        Calendar first = getStartTime();
+        Calendar last = getEndTime();
         return last.getTimeInMillis() - first.getTimeInMillis();
     }
 
@@ -420,6 +476,36 @@ public class TimelineData {
         for (Calendar cal : times.keySet()) {
             deselect(cal);
         }
+    }
+
+    /**
+     * @return the startTime
+     */
+    public Calendar getStartTime() {
+        return startTime;
+    }
+
+    /**
+     * @param startTime
+     *            the startTime to set
+     */
+    public void setStartTime(Calendar startTime) {
+        this.startTime = startTime;
+    }
+
+    /**
+     * @return the endTime
+     */
+    public Calendar getEndTime() {
+        return endTime;
+    }
+
+    /**
+     * @param endTime
+     *            the endTime to set
+     */
+    public void setEndTime(Calendar endTime) {
+        this.endTime = endTime;
     }
 
 }
