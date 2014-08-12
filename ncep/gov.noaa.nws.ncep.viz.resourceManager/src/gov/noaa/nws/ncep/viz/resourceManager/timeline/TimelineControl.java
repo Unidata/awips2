@@ -16,6 +16,7 @@ import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -302,9 +303,9 @@ public class TimelineControl extends Composite {
     // set the timeMatcher and update the widgets for it.
     //
     public boolean setTimeMatcher(NCTimeMatcher tm) {
+
         // this can happen if the user brings up the RBD Manager (usually with
-        // the spacebar)
-        // before there is an editor with a timeline
+        // the spacebar) before there is an editor with a timeline
         if (tm == null) {
             timeMatcher = new NCTimeMatcher();
             return false;
@@ -312,28 +313,14 @@ public class TimelineControl extends Composite {
 
         timeMatcher = tm;
 
-        // timeMatcher.loadTimes(false);
         /*
-         * TTR1032 - when current time passes the latest previously-loaded time
-         * for given frame interval, we need to reload times to keep timeline
-         * current.
+         * loadTimes will adjust time line with "false" - it updates available
+         * times from DB but keeps selected frame times intact. If "true" is
+         * used, the time line will be completely rebuilt - available times are
+         * updated, the selected frames times are cleared and then re-built with
+         * "numFrames" and "skip" factor.
          */
-        boolean reload = false;
-        if (timeMatcher.isCurrentRefTime()) {
-            reload = true;
-            if (timeMatcher.getSelectableDataTimes() != null
-                    && !timeMatcher.getSelectableDataTimes().isEmpty()) {
-                long curtime = Calendar.getInstance().getTimeInMillis();
-                long pretime = timeMatcher.getSelectableDataTimes()
-                        .get(timeMatcher.getSelectableDataTimes().size() - 1)
-                        .getRefTime().getTime();
-                if (curtime < (pretime + timeMatcher.getFrameInterval() * 60 * 1000)) {
-                    reload = false;
-                }
-            }
-        }
-
-        timeMatcher.loadTimes(reload);
+        timeMatcher.loadTimes(false);
 
         if (timeMatcher.getDominantResourceName() != null) {
             for (int i = 0; i < dom_rsc_combo.getItemCount(); i++) {
@@ -398,19 +385,14 @@ public class TimelineControl extends Composite {
             }
 
             // TODO : There is a small hole in the design here in the case where
-            // Manual Timeline is selected for the event type resources and
-            // there are
-            // more than one event resource available. The dominant will be the
-            // first
-            // in the list. But the since the user will need to manually select
-            // a frame
-            // interval the only real problem is that the latest data will
-            // reference
-            // this resource. If the user needed the latest data of the second
-            // or other
-            // event resource then they wouldn't be able to unless they removed
-            // the
-            // resources and re-selected in a new order.
+            // Manual Timeline is selected for the EVENT type resources and
+            // there are more than one EVENT resource available. The dominant
+            // will be the first in the list. But the since the user will need
+            // to manually select a frame interval the only real problem is that
+            // the latest data will reference this resource. If the user needed
+            // the latest data of the second or other EVENT resource then they
+            // wouldn't be able to unless they removed the resources and
+            // re-selected in a new order.
             //
             domRscData = seldRscsList.get(0);
             return domRscData;
@@ -639,21 +621,18 @@ public class TimelineControl extends Composite {
             }
 
             timeData = new TimelineData(new ArrayList<Calendar>());
-        } else {
-            // setTimeline( toCalendar( timeMatcher.getSelectableDataTimes() ),
-            // timeMatcher.getNumFrames(), timeMatcher.getSkipValue(),
-            // timeMatcher.getFrameInterval(), timeMatcher.getTimeRange() );
 
-            // private void setTimeline( List<Calendar> availTimes,
-            // List<Calendar> seldTimes,
-            // int numFrames, int skipFrames, int frameInt, int tRange ) { //,
-            // TimeLineBehavior behav ) {
+            // No data but could update widgets from default resource
+            // definition. This is necessary when the user switches DOM.
+            updateTimelineWidgets(timeMatcher);
+
+        } else {
+
             List<Calendar> availTimes = toCalendar(timeMatcher
                     .getSelectableDataTimes());
 
             // this shouldn't happen. If there are no times then the caller
-            // should set the
-            // state based on the reason there are no times.
+            // should set the state based on the reason there are no times.
             if (availTimes == null || availTimes.isEmpty()) {
                 setTimelineState("Timeline Disabled", true);
                 availTimes = new ArrayList<Calendar>();
@@ -665,6 +644,35 @@ public class TimelineControl extends Composite {
             }
 
             timeData = new TimelineData(availTimes);
+
+            /*
+             * TTR 1034+: Force the timeline to start from a given time and
+             * extend backward to with a time range, regardless of the actual
+             * data availability - only for obs. For forecast data, always use
+             * actually data time (cycle time).
+             */
+            if (!timeMatcher.isForecast()) {
+                long refTimeMillisecs;
+                if (timeMatcher.isCurrentRefTime()) {
+                    refTimeMillisecs = Calendar.getInstance().getTimeInMillis();
+                } else {
+                    refTimeMillisecs = timeMatcher.getRefTime().getValidTime()
+                            .getTimeInMillis();
+                }
+
+                long timeRangeMillisecs = ((long) timeMatcher.getTimeRange()) * 60 * 60 * 1000;
+
+                DataTime endRefTime = timeMatcher
+                        .getNormalizedTime(new DataTime(new Date(
+                                refTimeMillisecs)));
+                DataTime startRefTime = timeMatcher
+                        .getNormalizedTime(new DataTime(new Date(
+                                refTimeMillisecs - timeRangeMillisecs)));
+
+                timeData.setStartTime(startRefTime.getValidTime());
+                timeData.setEndTime(endRefTime.getValidTime());
+            }
+            // End of TTR1034+ change.
 
             removeSpinnerListeners();
 
@@ -679,23 +687,8 @@ public class TimelineControl extends Composite {
                 timeData.select(seldTime);
             }
 
-            // if this is a forecast dominant resource, the reference time
-            // is not needed since the cycle time is the reference time.
-            refTimeCombo.setVisible(!timeMatcher.isForecast());
-            refTimeLbl.setVisible(!timeMatcher.isForecast());
-
-            setNumberofFrames(timeMatcher.getNumFrames());
-
-            setSkipValue(timeMatcher.getSkipValue());
-
-            setFrameInterval(timeMatcher.getFrameInterval());
-
-            setTimeRangeHrs(timeMatcher.getTimeRange());
-
-            addSpinnerListeners();
-
-            resetSlider();
-            canvas.redraw();
+            // update widgets from default resource definition.
+            updateTimelineWidgets(timeMatcher);
         }
     }
 
@@ -1360,8 +1353,10 @@ public class TimelineControl extends Composite {
         dayLocation = new ArrayList<Integer>();
         int lineLength = end.x - beg.x;
 
-        Calendar first = timeData.getFirstTime();
-        Calendar last = timeData.getLastTime();
+        // Calendar first = timeData.getFirstTime();
+        // Calendar last = timeData.getLastTime();
+        Calendar first = timeData.getStartTime();
+        Calendar last = timeData.getEndTime();
         long timeLength = timeData.getTotalMillis();
 
         Calendar cal = (Calendar) first.clone();
@@ -1493,8 +1488,10 @@ public class TimelineControl extends Composite {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Calendar first = timeData.getFirstTime();
-        Calendar last = timeData.getLastTime();
+        // Calendar first = timeData.getFirstTime();
+        // Calendar last = timeData.getLastTime();
+        Calendar first = timeData.getStartTime();
+        Calendar last = timeData.getEndTime();
 
         int textHeight = gc.getFontMetrics().getHeight();
         int width = gc.getCharWidth('0');
@@ -1586,9 +1583,11 @@ public class TimelineControl extends Composite {
 
         int lineLength = end.x - beg.x;
 
-        Calendar first = timeData.getFirstTime();
+        // Calendar first = timeData.getFirstTime();
+        Calendar first = timeData.getStartTime();
 
         long timeLength = timeData.getTotalMillis();
+
         for (Calendar curr : timeData.getTimes()) {
             double dist = (double) (curr.getTimeInMillis() - first
                     .getTimeInMillis()) / (double) timeLength;
@@ -1880,6 +1879,34 @@ public class TimelineControl extends Composite {
         } else {
             return true;
         }
+    }
+
+    /*
+     * Re-draws timeline-related widgets based on a given NCTimeMatcher.
+     */
+    private void updateTimelineWidgets(NCTimeMatcher tm) {
+
+        if (tm.getDominantResource() != null && tm.isForecast()) {
+            refTimeCombo.setVisible(false);
+
+            refTimeLbl.setVisible(false);
+        } else {
+            refTimeCombo.setVisible(true);
+            refTimeLbl.setVisible(true);
+        }
+
+        setNumberofFrames(tm.getNumFrames());
+
+        setSkipValue(tm.getSkipValue());
+
+        setFrameInterval(tm.getFrameInterval());
+
+        setTimeRangeHrs(tm.getTimeRange());
+
+        addSpinnerListeners();
+
+        resetSlider();
+        canvas.redraw();
     }
 
 }
