@@ -24,6 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -36,8 +37,6 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -57,7 +56,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -69,7 +68,6 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
-import com.raytheon.viz.mpe.ui.dialogs.EditPrecipStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.QcPrecipOptionsDialog;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
@@ -90,6 +88,9 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Nov 24, 2008	 1748		snaples 	Initial creation
  * Mar  3, 2014  2804       mschenke    Set back up clipping pane
  * Jul 24, 2014  3429       mapeters    Updated deprecated drawLine() calls.
+ * Aug 11, 2014  3504       mapeters    Replaced deprecated IODataPreparer
+ *                                      instances with IRenderedImageCallback
+ *                                      and removed unused modifyStation() method.
  * </pre>
  * 
  * @author snaples
@@ -103,21 +104,13 @@ public class PointPrecipPlotResource extends
 
     private static STRtree strTree = null;
 
-    private static IGraphicsTarget target;
-
-    private PaintProperties paintProps;
-
     private static Coordinate selectedCoordinate;
 
     private MPEFontFactory fontFactory;
 
-    private IFont font = null;
-
     private final DecimalFormat df = new DecimalFormat();
 
     private final RGB gageColor = new RGB(255, 255, 255);
-
-    private RGB color = new RGB(255, 255, 255);
 
     private double scaleWidthValue = 0.0;
 
@@ -125,36 +118,18 @@ public class PointPrecipPlotResource extends
 
     private Station gageData = null;
 
-    private static int imageWidth = 10;
+    private static final String[] color_map_a = { "Aquamarine", "OrangeRed",
+            "Orange", "Yellow", "VioletRed", "SpringGreen4", "Green3", "Grey",
+            "White" };
 
-    private static int imageHeight = 10;
+    private static final String[] color_map_n = { "Grey", "Grey", "Blue",
+            "Aquamarine", "LightGreen", "DarkGreen", "Violet", "Purple",
+            "Blue", "Blue", "Yellow", "Yellow", "Yellow2", "VioletRed", "Red",
+            "White" };
 
-    static String dqc_nodata_color = "black";
+    private int time_pos = 0;
 
-    static final String[] color_map_a = { "Aquamarine", "OrangeRed", "Orange",
-            "Yellow", "VioletRed", "SpringGreen4", "Green3", "Grey", "White" };
-
-    static final String[] color_map_n = { "Grey", "Grey", "Blue", "Aquamarine",
-            "LightGreen", "DarkGreen", "Violet", "Purple", "Blue", "Blue",
-            "Yellow", "Yellow", "Yellow2", "VioletRed", "Red", "White" };
-
-    static final String[] typename = { "Verified", "Screened",
-            "Time Distributed", "Manual", "Questionable", "Partial",
-            "Estimated", "Bad", "Missing" };
-
-    int time_pos = 0;
-
-    Pdata pdata[];
-
-    ArrayList<Station> station;
-
-    Hashtable<String, Stn> pdataMap;
-
-    ColorMapParameters parameters;
-
-    private final DailyQcUtils dc = new DailyQcUtils();
-
-    static int prevPcpnDay;
+    private Hashtable<String, Stn> pdataMap;
 
     /**
      * Constructor.
@@ -171,10 +146,6 @@ public class PointPrecipPlotResource extends
     public PointPrecipPlotResource(PointPrecipResourceData resourceData,
             LoadProperties props) {
         super(resourceData, props);
-        pdata = DailyQcUtils.pdata;
-        station = DailyQcUtils.precip_stations;
-        prevPcpnDay = 0;
-
         df.setMaximumFractionDigits(2);
         df.setMaximumIntegerDigits(4);
     }
@@ -196,10 +167,11 @@ public class PointPrecipPlotResource extends
         dataMap = new Hashtable<String, Station>();
         pdataMap = new Hashtable<String, Stn>();
         strTree = new STRtree();
-        gageData = dc.new Station();
-
+        gageData = new DailyQcUtils().new Station();
+        ArrayList<Station> station = DailyQcUtils.precip_stations;
         if (!station.isEmpty()) {
             int i = 0;
+            Pdata[] pdata = DailyQcUtils.pdata;
             for (ListIterator<Station> it = station.listIterator(); it
                     .hasNext();) {
                 gageData = it.next();
@@ -228,7 +200,6 @@ public class PointPrecipPlotResource extends
                 strTree.insert(env, data);
                 i++;
             }
-            prevPcpnDay = DailyQcUtils.pcpn_day;
         }
         // target.setNeedsRefresh(true);
     }
@@ -289,7 +260,9 @@ public class PointPrecipPlotResource extends
      * @param gageData
      * @throws VizException
      */
-    private void drawPlotInfo(Coordinate c, String key, Station station)
+    private void drawPlotInfo(Coordinate c, String key, Station station,
+            IGraphicsTarget target, PaintProperties paintProps, RGB color,
+            IFont font)
             throws VizException {
 
         if (MPEDisplayManager.getCurrent().isQpf() == true
@@ -408,8 +381,14 @@ public class PointPrecipPlotResource extends
                 return;
             }
 
-            IImage image = target.initializeRaster(new IODataPreparer(
-                    drawMPECircle(color), "gage", 0), null);
+            final RGB circleColor = color;
+            IImage image = target
+                    .initializeRaster(new IRenderedImageCallback() {
+                        @Override
+                        public RenderedImage getImage() throws VizException {
+                            return drawMPECircle(circleColor);
+                        }
+                    });
 
             Coordinate idCoor = new Coordinate(centerpixels[0]
                     + this.getScaleWidth() / 3, centerpixels[1]
@@ -605,9 +584,14 @@ public class PointPrecipPlotResource extends
                 target.drawStrings(dstr);
 
                 // draw the ID
-
-                image = target.initializeRaster(new IODataPreparer(
-                        drawMPECircle(color), "gage", 0), null);
+                final BufferedImage gage2 = drawMPECircle(color);
+                IImage image2 = target
+                        .initializeRaster(new IRenderedImageCallback() {
+                            @Override
+                            public RenderedImage getImage() throws VizException {
+                                return gage2;
+                            }
+                        });
 
                 idCoor = new Coordinate(centerpixels[0] + this.getScaleWidth()
                         / 3, centerpixels[1] - this.getScaleHeight());
@@ -616,7 +600,7 @@ public class PointPrecipPlotResource extends
                 dstr.setText(gageData.hb5, gageColor);
                 dstr.horizontalAlignment = HorizontalAlignment.LEFT;
                 target.drawStrings(dstr);
-                target.drawRaster(image, getPixelCoverage(c), paintProps);
+                target.drawRaster(image2, getPixelCoverage(c), paintProps);
             }
         } else {
             return;
@@ -666,7 +650,7 @@ public class PointPrecipPlotResource extends
     private void setScaleWidth(PaintProperties props) {
         double screenToWorldWidthRatio = props.getCanvasBounds().width
                 / props.getView().getExtent().getWidth();
-        scaleWidthValue = (imageWidth / 2.0) / screenToWorldWidthRatio;
+        scaleWidthValue = (IMAGE_WIDTH / 2.0) / screenToWorldWidthRatio;
     }
 
     /**
@@ -696,7 +680,7 @@ public class PointPrecipPlotResource extends
     private void setScaleHeight(PaintProperties props) {
         double screenToWorldHeightRatio = props.getCanvasBounds().height
                 / props.getView().getExtent().getHeight();
-        scaleHeightValue = (imageHeight / 2.0) / screenToWorldHeightRatio;
+        scaleHeightValue = (IMAGE_HEIGHT / 2.0) / screenToWorldHeightRatio;
     }
 
     /**
@@ -711,11 +695,9 @@ public class PointPrecipPlotResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        PointPrecipPlotResource.target = target;
-        this.paintProps = paintProps;
         MPEDisplayManager displayMgr = getResourceData().getMPEDisplayManager();
         // Fonts are shared and cached, no need to init or dispose
-        font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
+        IFont font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
         if (DailyQcUtils.points_flag == 1 && displayMgr.isQpf() == true) {
             Iterator<String> iter = dataMap.keySet().iterator();
@@ -735,7 +717,9 @@ public class PointPrecipPlotResource extends
                         setScaleWidth(paintProps);
                         setScaleHeight(paintProps);
 
-                        drawPlotInfo(c, key, dataMap.get(key));
+                        RGB color = new RGB(255, 255, 255);
+                        drawPlotInfo(c, key, dataMap.get(key), target,
+                                paintProps, color, font);
 
                         if (getSelectedCoordinate() != null) {
                             Envelope env = new Envelope(getSelectedCoordinate());
@@ -761,19 +745,21 @@ public class PointPrecipPlotResource extends
                 }
             }
             target.clearClippingPlane();
-            drawQCLegend();
+            drawQCLegend(target, paintProps, font);
             target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 
-    private void drawQCLegend() throws VizException {
+    private void drawQCLegend(IGraphicsTarget target,
+            PaintProperties paintProps, IFont font)
+            throws VizException {
         // TODO this screen location code is borrowed from MPELegendResource...
         // should it be put into a shared class, possibly a paint
         // properties method?
 
         IExtent screenExtent = paintProps.getView().getExtent();
         double scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
-        DrawableString string = new DrawableString("0", color);
+        DrawableString string = new DrawableString("0");
         string.font = font;
         double textHeight = target.getStringsBounds(string).getHeight() * scale;
         double padding = 3.2 * scale;
@@ -859,41 +845,6 @@ public class PointPrecipPlotResource extends
     }
 
     /**
-     * Modify station called when single mouse click on gage
-     * 
-     * @param rcoord
-     * 
-     */
-    public static Map<String, Object> modifyStation(ReferencedCoordinate rcoord)
-            throws VizException {
-        Coordinate coord = new Coordinate();
-        try {
-            coord = rcoord.asLatLon();
-        } catch (TransformException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (FactoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        Envelope env = new Envelope(coord);
-        List<?> elements = strTree.query(env);
-        Iterator<?> iter = elements.iterator();
-
-        /* Take the first one in the list */
-        if (iter.hasNext()) {
-            setSelectedCoordinate(coord);
-            target.setNeedsRefresh(true);
-            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getShell();
-            EditPrecipStationsDialog epd = new EditPrecipStationsDialog(shell,
-                    new ReferencedCoordinate(coord));
-            epd.open();
-        }
-        return null;
-    }
-
-    /**
      * Interrogate method called when user clicks on a location
      * 
      * @param coord
@@ -939,7 +890,7 @@ public class PointPrecipPlotResource extends
         dmPref.getEntries().get(1).setLabel("");
 
         ColorMapCapability cmc = getCapability(ColorMapCapability.class);
-        parameters = cmc.getColorMapParameters();
+        ColorMapParameters parameters = cmc.getColorMapParameters();
         if (parameters == null) {
             parameters = new ColorMapParameters();
             cmc.setColorMapParameters(parameters);
@@ -988,7 +939,7 @@ public class PointPrecipPlotResource extends
      */
     private static BufferedImage drawMPECircle(RGB color) {
         // make circle in center
-        BufferedImage image = new BufferedImage(imageWidth, imageHeight,
+        BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
                 BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) image.getGraphics();
 
@@ -1002,7 +953,7 @@ public class PointPrecipPlotResource extends
                 RenderingHints.VALUE_ANTIALIAS_ON);
         // always red
         g.setColor(convertR(color));
-        g.fillOval(0, 0, imageWidth / 2, imageHeight / 2);
+        g.fillOval(0, 0, IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2);
 
         return image;
     }
