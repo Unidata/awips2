@@ -20,14 +20,13 @@
 package com.raytheon.viz.core.graphing.xy;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.core.graphing.Activator;
 import com.raytheon.viz.pointdata.PointIconFactory;
 
 /**
@@ -38,6 +37,8 @@ import com.raytheon.viz.pointdata.PointIconFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 16, 2007            njensen     Initial creation
+ * Aug 11, 2014 #3504      mapeters    Replaced deprecated IODataPreparer
+ *                                     instances with IRenderedImageCallback.
  * 
  * </pre>
  * 
@@ -66,14 +67,17 @@ public class XYIconImageData extends XYImageData {
         try {
             PointIconFactory iconFactory = new PointIconFactory(color,
                     XYWindImageData.IMAGE_SIZE);
-            BufferedImage iconImage = iconFactory.getIcon(iconValue);
-            image = target.initializeRaster(new IODataPreparer(iconImage,
-                    "icon", 0), null);
+            final BufferedImage iconImage = iconFactory.getIcon(iconValue);
+            image = target.initializeRaster(new IRenderedImageCallback() {
+                @Override
+                public RenderedImage getImage() throws VizException {
+                    return iconImage;
+                }
+            });
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error generating icon: " + e.getLocalizedMessage(), e);
         }
-
     }
 
     /*
