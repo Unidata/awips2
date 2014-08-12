@@ -20,6 +20,7 @@
 package com.raytheon.viz.redbookua.rsc;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +56,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -87,6 +88,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
  * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() calls.
+ * Aug 11, 2014 3504       mapeters    Replaced deprecated IODataPreparer
+ *                                     instances with IRenderedImageCallback.
  * 
  * </pre>
  * 
@@ -403,13 +406,19 @@ public class RedbookUpperAirResource extends
                                 .getFloat(RedbookUpperAirDecoder.P_LONGITUDE);
                         PlotData pd = new PlotData();
                         pd.addData(pdv);
-                        BufferedImage bImage = pmf.getStationPlot(pd, lat, lon);
+                        final BufferedImage bImage = pmf.getStationPlot(pd,
+                                lat, lon);
                         IImage image = null;
-                        if (bImage != null)
-                            image = target.initializeRaster(new IODataPreparer(
-                                    bImage, "rbua"/*
-                                                   * UUID.randomUUID().toString()
-                                                   */, 0), null);
+                        if (bImage != null) {
+                            image = target
+                                    .initializeRaster(new IRenderedImageCallback() {
+                                        @Override
+                                        public RenderedImage getImage()
+                                                throws VizException {
+                                            return bImage;
+                                        }
+                                    });
+                        }
                         images[i] = image;
                     }
                 }
