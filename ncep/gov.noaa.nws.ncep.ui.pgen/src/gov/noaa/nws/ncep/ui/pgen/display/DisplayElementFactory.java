@@ -142,6 +142,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 12/13		#1089		B. Yin		Modify watch to display county list
  * 05/14        TTR 995     J. Wu       Make contour label auto-placement an option.
  * 07/14        ?           B. Yin      Added support for dashed-line circle for TCM 12 feet sea.
+ * 08/14		?			B. Yin		Fixed world wrap for TCM track and zero circle issues.
  * </pre>
  * 
  * @author sgilbert
@@ -1559,7 +1560,7 @@ public class DisplayElementFactory {
             Line trackLn = new Line(null,
                     new Color[] { new Color(0, 255, 255) }, 1.5f, .8, false,
                     false, trackPts, 0, null, "Lines", "LINE_DASHED_6");
-            slist.addAll(createDisplayElements(trackLn, paintProps));
+            slist.addAll(createDisplayElements(trackLn, paintProps, true));
         }
 
         return slist;
@@ -1667,7 +1668,7 @@ public class DisplayElementFactory {
         Coordinate center = quatros.getLocation();
         Color color = Color.GREEN;
         switch (quatros.getWindSpeed()) {
-        case 0:
+        case 0: // 12 feet wave
             color = Color.GREEN;
             Arc quatro1 = new Arc(null, color, (float) 1.5, 1.0, false, false,
                     0, null, "Circle", center,
@@ -1812,6 +1813,10 @@ public class DisplayElementFactory {
         double diff[] = { circum[0] - center[0], circum[1] - center[1] };
         double major = Math.sqrt((diff[0] * diff[0]) + (diff[1] * diff[1]));
         double minor = major * arc.getAxisRatio();
+
+        if (major / this.screenToExtent < 0.000001) { // ignore circles with major = 0
+            return slist;
+        }
 
         // calculate length of a single dash segment in degree.
         double deltaAngle = (dashlength / (major / this.screenToExtent)) * 180;
