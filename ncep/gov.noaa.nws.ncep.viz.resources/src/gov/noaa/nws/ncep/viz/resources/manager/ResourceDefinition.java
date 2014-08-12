@@ -87,6 +87,7 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  *  05/15/2014    #1131       Quan Zhou   Added resource category GraphRscCategory. Added dfltGraphRange, dfltHourSnap
  *  06/2014                   B. Hebbard  Force getInventoryEnabled() to return false except for GRID & ENSEMBLE
  *                                        resources, and make all internal read accesses via getter
+ *  07/2014       TTR1034+    J. Wu       Always query data time from DB, not from cache.
  * </pre>
  * 
  * @author ghull
@@ -1491,19 +1492,11 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
         //
         DataTime latestTime = null;
 
+        // TTR1034 - the latest time should comes from DB - so we comment this
+        // out.
         if (availTimesCache.containsKey(resourceConstraints)) {
-            latestTime = availTimesCache.get(resourceConstraints)
-                    .getLatestTime();
-
-            // if( latestTime != null ) {
-            // if( latestTime.isNull() ) {
-            // out.println("Returning NO_DATA for "+rscName.toString() );
-            // }
-            // else {
-            // out.println("returning latestTime "+latestTime.toString()
-            // +" for "+rscName.toString()+" from cache.");
-            // }
-            // }
+            // latestTime = availTimesCache.get(resourceConstraints)
+            // .getLatestTime();
         }
 
         // if not found then force a query to be made to get the
@@ -1525,15 +1518,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
             if (availTimesCache.containsKey(resourceConstraints)) {
                 latestTime = availTimesCache.get(resourceConstraints)
                         .getLatestTime();
-
-                // if( latestTime == null ) {
-                // out.println("latestTime still null even after times query??? :  "+rscName.toString()
-                // );
-                // }
-                // else {
-                // out.println("querying latestTime "+latestTime.toString()
-                // +" for "+rscName.toString()+" from cache.");
-                // }
 
                 // if the query took a long time, then go ahead and add this to
                 // the URI Catalog.
@@ -1578,9 +1562,11 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
 
         List<DataTime> availTimes = cachedTimesEntry.getAvailableTimes();
 
-        if (availTimes != null) {
-            return availTimes;
-        }
+        // TTR1034 - should update from DB for latest time - so comment this
+        // out.
+        // if (availTimes != null) {
+        // return availTimes;
+        // }
 
         // (Do not remove the entry in the cache since this may be being
         // refreshed with the latestTimes from the URICatalog.
@@ -1636,7 +1622,6 @@ public class ResourceDefinition implements ISerializableObject, IAlertObserver,
             Arrays.sort(dataTimeArr);
 
             List<DataTime> availTimesList = Arrays.asList(dataTimeArr);
-
             availTimesCache.get(resourceConstraints).setAvailableTimes(
                     availTimesList);
 
