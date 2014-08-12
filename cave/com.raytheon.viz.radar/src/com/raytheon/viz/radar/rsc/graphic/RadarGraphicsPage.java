@@ -20,11 +20,11 @@
 package com.raytheon.viz.radar.rsc.graphic;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -66,10 +66,9 @@ import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -105,7 +104,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Jun 24, 2013  16162    zwang       Remove "wind behind"
  * Nov 20, 2013  2488     randerso    Removed use of VeraMono font file
  * Jun 04, 2014  3232     bsteffen    Cleanup.
- * 
+ * Aug 11, 2014  3504     mapeters    Replaced deprecated IODataPreparer
+ *                                    instances with IRenderedImageCallback.
  * 
  * </pre>
  * 
@@ -921,11 +921,16 @@ public class RadarGraphicsPage implements IRenderable {
             }
 
             barb.setWind(pU, pV, false);
-            BufferedImage imgBuf = barb.getWindImage(false, DisplayType.ARROW,
+            final BufferedImage imgBuf = barb.getWindImage(false,
+                    DisplayType.ARROW,
                     0.2);
-            IImage img = this.target.initializeRaster(new IODataPreparer(
-                    imgBuf, UUID.randomUUID().toString(), 0), null);
-            poWind.image = img;
+            poWind.image = target
+                    .initializeRaster(new IRenderedImageCallback() {
+                @Override
+                public RenderedImage getImage() throws VizException {
+                    return imgBuf;
+                }
+            });
 
             ReferencedCoordinate rc = referencedGfmCoord(wX, wY);
             try {

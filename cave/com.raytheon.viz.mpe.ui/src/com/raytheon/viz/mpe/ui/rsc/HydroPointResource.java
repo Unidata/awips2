@@ -59,6 +59,14 @@ public abstract class HydroPointResource <T extends HydroPointResourceData<?>> e
 
     private static final RGB DEFAULT_COLOR = new RGB(0, 255, 0);
 
+    protected static final int IMAGE_WIDTH = 10;
+
+    protected static final int IMAGE_HEIGHT = 10;
+
+    protected static final String[] typename = { "Verified", "Screened",
+            "Time Distributed", "Manual", "Questionable", "Partial",
+            "Estimated", "Bad", "Missing" };
+
 	public HydroPointResource(T resourceData,
 			LoadProperties loadProperties) {
 		super(resourceData, loadProperties);
@@ -66,7 +74,6 @@ public abstract class HydroPointResource <T extends HydroPointResourceData<?>> e
 			this.getCapability(ColorableCapability.class).setColor(
 					DEFAULT_COLOR);
 		}
-
 	}
 
 	/*
