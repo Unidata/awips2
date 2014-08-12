@@ -703,7 +703,9 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
         // update the timeline and process the data in the cache.
         //
 
-        timeMatcher.updateTimeline(newFrameTimesList);
+        // Don;t think this should be here. It causes continuous refresh
+        // in some resources
+        // timeMatcher.updateTimeline(newFrameTimesList);
 
         if (!newFrameTimesList.isEmpty() && getDescriptor().isAutoUpdate()) {
 
