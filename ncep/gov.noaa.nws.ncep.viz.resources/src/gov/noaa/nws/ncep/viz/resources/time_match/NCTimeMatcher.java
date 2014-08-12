@@ -3,6 +3,7 @@ package gov.noaa.nws.ncep.viz.resources.time_match;
 import gov.noaa.nws.ncep.viz.common.SelectableFrameTimeMatcher;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
@@ -25,6 +26,7 @@ import org.apache.commons.lang.Validate;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -59,6 +61,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 										or size of selectableDataTimes.
  * 05/14/14       1131     Quan Zhou    Added graphRange and hourSnap.  MouModified generateTimeline
  * 07/11/14       TTR1032  J. Wu        No timeline needed if no data times available.
+ * 07/28/14       TTR1034+ J. Wu        Build timeline only from available datatimes..
  * 
  * </pre>
  * 
@@ -257,10 +260,11 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         frameTimes = ft;
 
         // do we always want to set numFrames here?
-        if (!this.getDominantResourceName().getRscCategory().getCategoryName()
-                .equals("TIMESERIES"))
+        if (this.getDominantResourceName() != null
+                && !this.getDominantResourceName().getRscCategory()
+                        .getCategoryName().equals("TIMESERIES"))
             numFrames = frameTimes.size();
-         else
+        else
             numFrames = this.getGraphRange() * 60;
     }
 
@@ -268,8 +272,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         return selectableDataTimes;
     }
 
-        
- void setSelectableDataTimes(ArrayList<DataTime> selDataTimes) {
+    void setSelectableDataTimes(ArrayList<DataTime> selDataTimes) {
         this.selectableDataTimes = selDataTimes;
     }
 
@@ -379,8 +382,11 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     // if refTime is null, then either use the most recent data as the refTime
     // or the cycle time for forecast data.
     public boolean generateTimeline() {
+
         frameTimes.clear();
         selectableDataTimes.clear();
+
+        List<DataTime> selDataTimes = new ArrayList<DataTime>();
 
         if (dominantRscData == null) {
             return false;
@@ -416,15 +422,11 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             refTimeCal = refTime.getRefTimeAsCalendar();
             refTimeMillisecs = refTime.getRefTime().getTime();
         }
+
         /*
          * Always check all available times. If none of the available data times
          * falls within the specified time range, then no time line should be
          * created.
-         * 
-         * J. Wu - To do? - When the time line ticks are built from frame time
-         * (frameInterval > 0) and the time line is "Current", and only some
-         * frame times are in "allAvailableTimes", how should we build the time
-         * line?
          */
         allAvailDataTimes = dominantRscData.getAvailableDataTimes();
 
@@ -439,11 +441,11 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             }
         }
 
-        // if refTime is Latest or
-        // if using the data to generate the timeline, or
-        // if we need to get the cycle time for a forecast resource, then
-        // we will need to query the times of the dominant resource.
+        // if refTime is Latest or if using the data to generate the timeline,
+        // or if we need to get the cycle time for a forecast resource, then we
+        // will need to query the times of the dominant resource.
         if (refTimeMillisecs == 0 || frameInterval == -1) {
+
             // allAvailDataTimes = dominantRscData.getAvailableDataTimes(); //??
 
             if (allAvailDataTimes == null) { // no data
@@ -508,10 +510,13 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             long frameTimeMillisecs = refTimeMillisecs;
 
             if (isForecast) {
+
                 while (frameTimeMillisecs <= refTimeMillisecs
                         + timeRangeMillisecs) {
                     DataTime time = new DataTime(new Date(frameTimeMillisecs));
-                    selectableDataTimes.add(time);
+
+                    // selectableDataTimes.add(time);
+                    selDataTimes.add(time);
 
                     frameTimeMillisecs += frameIntervalMillisecs;
                 }
@@ -523,12 +528,31 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                     DataTime normRefTime = getNormalizedTime(new DataTime(
                             new Date(frameTimeMillisecs)));
 
-                    selectableDataTimes.add(0, normRefTime); // new DataTime(
+                    selDataTimes.add(0, normRefTime);
+                    // selectableDataTimes.add(0, normRefTime);
 
                     frameTimeMillisecs -= frameIntervalMillisecs;
                 }
             }
         }
+
+        /*
+         * TTR1034+ -Now check which frame ACTUALLY have data --- Originally,
+         * all FrameTime are added as select-able without check.
+         * 
+         * Note that for EVENT type resources, all frames will still be added
+         * select-able as before.
+         */
+        if (selDataTimes.size() > 0) {
+            for (DataTime dt : selDataTimes) {
+                FrameDataContainer fdc = new FrameDataContainer(dt,
+                        frameInterval, dominantRscData);
+                if (fdc.isDataTimeInFrame(allAvailDataTimes)) {
+                    selectableDataTimes.add(dt);
+                }
+            }
+        }
+        //
 
         SelectableFrameTimeMatcher frmTimeMatcher = null;
 
@@ -586,6 +610,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                 }
             }
         }
+
         // if the list is empty don't set numFrames.
         if (frameTimes.size() > 0) { // numFrames > frameTimes.size() ) {
             numFrames = frameTimes.size();
@@ -595,11 +620,9 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     }
 
     // This is called by the dominant resource when updated data arrives. It
-    // will determine
-    // if one or more frames times are needed for the new data.
+    // will determine if one or more frames times are needed for the new data.
     // note that these times are not actually added to the timeline until the
-    // auto-update
-    // occurs.
+    // auto-update occurs.
     public ArrayList<DataTime> determineNewFrameTimes(DataTime newDataTime) {
         // in somecases the dataTime from the data can have a level set which
         // can mess up the equals() method.
@@ -613,7 +636,6 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         if (frameInterval == -1) {
             if (!frameTimes.contains(newFrameTime)) {
                 newFrameTimes.add(newFrameTime);
-                //System.out.println("**newFrameTime " + newFrameTime);
             }
         } else if (frameInterval != 0) { // if MANUAL or FRAME_TIMES
             // TODO : we could add forecast updates but right now it doesn't
@@ -704,7 +726,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     }
 
     //
-    protected DataTime getNormalizedTime(DataTime time) {
+    public DataTime getNormalizedTime(DataTime time) {
         if (frameInterval <= 0) {
             // just returning time here was causing problems when toString is
             // called
@@ -719,19 +741,24 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         return new DataTime(new Date(millis));
     }
 
+    /*
+     * TTR 1034+: added adjustTimeline() to adjust time line with "false" - it
+     * updates available times from DB but keeps selected frame times intact. If
+     * "true" is used, the time line will be completely rebuilt - available
+     * times are updated, the selected frames times are cleared and then
+     * re-built with "numFrames" and "skip" factor.
+     */
     public boolean loadTimes(boolean reloadTimes) {
 
-        if (!timesLoaded || reloadTimes) {
-
-            if (dominantRscData == null) {
-                if (dominantResourceName != null) {
-
-                }
-            }
-
+        if (!timesLoaded) {
             generateTimeline();
-
             timesLoaded = true;
+        } else {
+            if (reloadTimes) {
+                generateTimeline();
+            } else {
+                adjustTimeline();
+            }
         }
 
         return timesLoaded;
@@ -781,8 +808,6 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                             ((INatlCntrsResourceData) resource
                                     .getResourceData()).getResourceName())) {
                 // TODO : User should not be removing the Dominant Resource
-                // System.out
-                // .println("Warning : removing the Dominant Resource for this RBD");
             }
 
             dominantRscData = null;
@@ -810,4 +835,475 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             throws VizException {
         return frameTimes.toArray(new DataTime[0]);
     }
+
+    /*
+     * TTR1034+ - A private class modeled from the inner class
+     * AbstractNatlCntrsResource.AbstractFrameData to help check if a given
+     * DataTime matches a given FrameTime, based on the TimeMatchMethod.
+     */
+    private class FrameDataContainer {
+
+        protected DataTime frameTime;
+
+        protected boolean populated;
+
+        protected DataTime startTime; // valid times without a forecast hour
+
+        protected DataTime endTime;
+
+        protected long startTimeMillis;
+
+        protected long endTimeMillis;
+
+        AbstractNatlCntrsRequestableResourceData resourceData;
+
+        // set the frame start and end time based on:
+        // - frame time (from dominant resource),
+        // - the frameInterval for this resource (may be different than the
+        // frame interval used to generate the timeline) and
+        // - the timeMatchMethod.
+        public FrameDataContainer(DataTime ftime, int frameInterval,
+                AbstractNatlCntrsRequestableResourceData resourceData) {
+
+            this.resourceData = resourceData;
+
+            // if there is a validPeriod or levels, ignore them and just use the
+            // valid time.
+            this.frameTime = new DataTime(ftime.getRefTime(),
+                    ftime.getFcstTime());
+            this.populated = false;
+            long frameMillis = frameTime.getValidTime().getTimeInMillis();
+
+            switch (resourceData.getTimeMatchMethod()) {
+
+            case EXACT: {
+                startTime = new DataTime(frameTime.getValidTime());
+                endTime = new DataTime(frameTime.getValidTime());
+            }
+
+            // Note : Currently this is implemented the same as Exact. (ie the
+            // frame time must be between the start/end time of an event.) A
+            // more general algorithm could be implemented to use the frame span
+            // and test whether any part of the event overlaps with any part of
+            // the frame span. But currently,for Event resources,the frame span
+            // is taken as the default frame interval for a manual timeline and
+            // so this would need to be addressed first.)
+            case EVENT: {
+                startTime = new DataTime(frameTime.getValidTime());
+                endTime = new DataTime(frameTime.getValidTime());
+            }
+            case CLOSEST_BEFORE_OR_AFTER: {
+                startTime = new DataTime(new Date(frameMillis - frameInterval
+                        * 1000 * 60 / 2));
+                endTime = new DataTime(new Date(frameMillis + frameInterval
+                        * 1000 * 60 / 2 - 1000));
+                break;
+            }
+            case CLOSEST_BEFORE_OR_EQUAL: {
+                startTime = new DataTime(new Date(frameMillis - frameInterval
+                        * 1000 * 60));
+                endTime = new DataTime(frameTime.getValidTime());
+                break;
+            }
+            case CLOSEST_AFTER_OR_EQUAL: {
+                startTime = new DataTime(frameTime.getValidTime());
+                endTime = new DataTime(new Date(frameMillis + frameInterval
+                        * 1000 * 60 - 1000));
+                break;
+            }
+            case BEFORE_OR_EQUAL: {
+                startTime = new DataTime(new Date(0));
+                endTime = new DataTime(frameTime.getValidTime());
+                break;
+            }
+            // This could be implemented by setting the frame span to infinite.
+            case MATCH_ALL_DATA: {
+                startTime = new DataTime(new Date(0));
+                endTime = new DataTime(new Date(Long.MAX_VALUE));
+            }
+            }
+
+            startTimeMillis = startTime.getValidTime().getTimeInMillis();
+            endTimeMillis = endTime.getValidTime().getTimeInMillis();
+        }
+
+        // return -1 if the data doesn't match. if the return value is 0 or
+        // positive then this is the number of seconds from the perfect match.
+        public long timeMatch(DataTime dataTime) {
+
+            long dataTimeMillis = dataTime.getValidTime().getTimeInMillis();
+            TimeRange dataTimeRange = dataTime.getValidPeriod();
+
+            switch (resourceData.getTimeMatchMethod()) {
+
+            case MATCH_ALL_DATA: // everything is a perfect match (E.g PGEN)
+                return 0;
+
+            case EXACT: {
+                // case EVENT: {
+                long frameTimeMillis = frameTime.getValidTime()
+                        .getTimeInMillis();
+
+                if (dataTimeRange.isValid()) {
+                    if (dataTimeRange.getStart().getTime() <= frameTimeMillis
+                            && frameTimeMillis <= dataTimeRange.getEnd()
+                                    .getTime()) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+                } else {
+                    return (frameTimeMillis == dataTimeMillis ? 0 : -1);
+                }
+            }
+
+            /*
+             * For "EVENT", which is mainly used for MISC data, we cannot do a
+             * time-match here since the data actually has a valid time and we
+             * do not have that info here. SO we return 0 to match the behavior
+             * in NMAP2. - J. Wu, 08/2014.
+             */
+            case EVENT: {
+                return 0;
+            }
+
+            // mainly (only?) for lightning. Might be able to remove this
+            // timeMatchMethod if lighting resource is modified?
+            case BEFORE_OR_EQUAL: {
+                return (dataTimeMillis > endTimeMillis ? -1
+                        : (endTimeMillis - dataTimeMillis) / 1000);
+            }
+
+            case CLOSEST_BEFORE_OR_AFTER:
+            case CLOSEST_BEFORE_OR_EQUAL:
+            case CLOSEST_AFTER_OR_EQUAL: {
+                // This should be an invalid case. if this is an event type
+                // resource then it should be an EXACT time match. Still, for
+                // now leave this logic in here.
+                if (dataTimeRange.isValid()) {
+                    System.out
+                            .println("Timematching a dataTime with a valid interval with a non-EXACT\n "
+                                    + "TimeMatchMethod.");
+                    return -1;
+                }
+
+                // return -1 if this is not a match (since the start/end times
+                // are based on the timeMatchMethod, we can just check that the
+                // datatime is not within the start/end)
+                if (startTimeMillis >= dataTimeMillis
+                        || dataTimeMillis > endTimeMillis) {
+                    return -1;
+                } else if (resourceData.getTimeMatchMethod() == TimeMatchMethod.CLOSEST_BEFORE_OR_EQUAL) {
+                    return (endTimeMillis - dataTimeMillis) / 1000;
+                } else if (resourceData.getTimeMatchMethod() == TimeMatchMethod.CLOSEST_AFTER_OR_EQUAL) {
+                    return (dataTimeMillis - startTimeMillis) / 1000;
+                } else if (resourceData.getTimeMatchMethod() == TimeMatchMethod.CLOSEST_BEFORE_OR_AFTER) {
+                    return Math.abs(frameTime.getValidTime().getTime()
+                            .getTime()
+                            - dataTimeMillis) / 1000;
+                }
+            }
+
+            }
+            return -1;
+        }
+
+        // Check if a DataTime is within a Frame.
+        final public boolean isDataTimeInFrame(DataTime dataTime) {
+            return (dataTime == null ? false : timeMatch(dataTime) >= 0);
+        }
+
+        // Check if there is at least one DataTime is within a Frame.
+        final public boolean isDataTimeInFrame(List<DataTime> dataTimes) {
+            boolean matched = false;
+            if (dataTimes == null || dataTimes.isEmpty()) {
+                matched = false;
+            } else {
+                for (DataTime dt : dataTimes) {
+                    if (timeMatch(dt) >= 0) {
+                        matched = true;
+                        break;
+                    }
+                }
+            }
+
+            return matched;
+        }
+    }
+
+    /*
+     * From generateTimeline() - The difference is that even the data times are
+     * refreshed as well, but the frameTimes will remain unchanged and only
+     * updated when ALL previous-selected frame times are gone.
+     */
+    public boolean adjustTimeline() {
+
+        selectableDataTimes.clear();
+
+        List<DataTime> selDataTimes = new ArrayList<DataTime>();
+
+        if (dominantRscData == null) {
+            return false;
+        } else if (frameInterval == 0) {
+            return false;
+        }
+
+        long frameIntervalMillisecs = ((long) frameInterval) * 60 * 1000;
+        long timeRangeMillisecs = ((long) timeRange) * 60 * 60 * 1000;
+
+        // determine the reference time to use.
+        // refTime is marshalled out to the bundle file and may be null
+        // or 'latest' or a time set by the user.
+        long refTimeMillisecs = 0;
+        Calendar refTimeCal = null;
+
+        // if (isForecast) {
+        // check cycleTime instead of isForecast since some resources may
+        // be forecast w/o a cycletime
+        if (dominantResourceName.getCycleTime() != null) {
+            if (!dominantResourceName.isLatestCycleTime()) {
+                DataTime cyclTime = dominantResourceName.getCycleTime();
+                refTimeMillisecs = (cyclTime == null ? 0 : cyclTime
+                        .getRefTime().getTime());
+            }
+
+        } else if (isCurrentRefTime()) {
+            refTimeMillisecs = Calendar.getInstance().getTimeInMillis();
+            refTimeCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        } else if (isLatestRefTime()) {
+            refTimeMillisecs = 0;
+        } else {
+            refTimeCal = refTime.getRefTimeAsCalendar();
+            refTimeMillisecs = refTime.getRefTime().getTime();
+        }
+
+        /*
+         * Always check all available times. If none of the available data times
+         * falls within the specified time range, then no time line should be
+         * created.
+         * 
+         * Note: for auto-update-able data such as SAT, looks like there is a
+         * delay for getAvailableDataTimes() to pick up the new data frames -
+         * needs some investigation........ 08/12/2014 ....
+         */
+        allAvailDataTimes = dominantRscData.getAvailableDataTimes();
+
+        List<DataTime> availTimes = allAvailDataTimes;
+        if (availTimes == null || availTimes.isEmpty()) {
+            return false;
+        } else {
+            long latestTime = availTimes.get(availTimes.size() - 1)
+                    .getRefTime().getTime();
+            if (latestTime < (refTimeMillisecs - timeRangeMillisecs)) {
+                return false;
+            }
+        }
+
+        // if refTime is Latest or if using the data to generate the timeline,
+        // or if we need to get the cycle time for a forecast resource, then we
+        // will need to query the times of the dominant resource.
+        if (refTimeMillisecs == 0 || frameInterval == -1) {
+
+            // allAvailDataTimes = dominantRscData.getAvailableDataTimes(); //??
+
+            if (allAvailDataTimes == null) { // no data
+                allAvailDataTimes = new ArrayList<DataTime>(); //
+                return false;
+            }
+
+            // added sort
+            GraphTimelineUtil.sortAvailableData(allAvailDataTimes);
+
+            // if refTime is not given (ie Latest) then get it from the data
+            if (refTimeMillisecs == 0) {
+                if (!allAvailDataTimes.isEmpty()) {
+
+                    // TODO : setting the refTime here will cause this time
+                    // to be saved to the rbd. Is this what we want or should
+                    // this
+                    // save the sentinel value and get latest when the rbd is
+                    // loaded?
+
+                    refTime = allAvailDataTimes.get((isForecast ? 0
+                            : allAvailDataTimes.size() - 1));
+                    refTimeCal = refTime.getRefTimeAsCalendar();
+                    refTimeMillisecs = refTime.getRefTime().getTime();
+                } else {
+                    return false;
+                }
+            }
+
+            // extend refTime to the snap point
+            if (this.getDominantResourceName().getRscCategory()
+                    .getCategoryName().equals("TIMESERIES")
+                    && this.getHourSnap() != 0) {
+                refTimeMillisecs = GraphTimelineUtil.snapTimeToNext(refTimeCal,
+                        this.getHourSnap()).getTimeInMillis();
+            }
+
+            // if generating times from the data then get only those times in
+            // the selected range.
+            if (frameInterval == -1) {
+
+                long oldestTimeMs = (isForecast ? refTimeMillisecs
+                        : refTimeMillisecs - timeRangeMillisecs - 1);
+
+                long latestTimeMs = (isForecast ? refTimeMillisecs
+                        + timeRangeMillisecs + 1 : refTimeMillisecs);
+
+                for (DataTime time : allAvailDataTimes) {
+                    long timeMS = time.getValidTime().getTimeInMillis();
+                    if (timeMS >= oldestTimeMs && timeMS <= latestTimeMs) {
+                        selectableDataTimes.add(time);
+                    }
+                }
+            }
+        }
+
+        // if a frameInterval is set then use it to create a list of times
+        // within the defined range.
+        //
+        if (frameInterval > 0) {
+
+            long frameTimeMillisecs = refTimeMillisecs;
+
+            if (isForecast) {
+
+                while (frameTimeMillisecs <= refTimeMillisecs
+                        + timeRangeMillisecs) {
+                    DataTime time = new DataTime(new Date(frameTimeMillisecs));
+
+                    // selectableDataTimes.add(time);
+                    selDataTimes.add(time);
+
+                    frameTimeMillisecs += frameIntervalMillisecs;
+                }
+            } else {
+
+                while (frameTimeMillisecs >= refTimeMillisecs
+                        - timeRangeMillisecs) {
+
+                    DataTime normRefTime = getNormalizedTime(new DataTime(
+                            new Date(frameTimeMillisecs)));
+
+                    selDataTimes.add(0, normRefTime);
+                    // selectableDataTimes.add(0, normRefTime);
+
+                    frameTimeMillisecs -= frameIntervalMillisecs;
+                }
+            }
+        }
+
+        /*
+         * TTR1034+ -Now check which frame ACTUALLY have data --- Originally,
+         * all FrameTime are added as select-able without check.
+         * 
+         * Note that for EVENT type resources, all frames will still be added
+         * select-able as before.
+         */
+        if (selDataTimes.size() > 0) {
+            for (DataTime dt : selDataTimes) {
+                FrameDataContainer fdc = new FrameDataContainer(dt,
+                        frameInterval, dominantRscData);
+                if (fdc.isDataTimeInFrame(allAvailDataTimes)) {
+                    selectableDataTimes.add(dt);
+                }
+            }
+        }
+
+        /*
+         * Add a check here to see if existing frameTimes are still in the
+         * selectableDataTimes - e.g, CAVE keeps running and the user comes back
+         * in a few days later to open the data selection window?
+         */
+        List<DataTime> ftimes = new ArrayList<DataTime>();
+        for (DataTime fdt : frameTimes) {
+            long frameTimeMillisecs = fdt.getValidTime().getTimeInMillis();
+            for (DataTime dt : selectableDataTimes) {
+                long selTimeMillisecs = dt.getValidTime().getTimeInMillis();
+                if (frameTimeMillisecs == selTimeMillisecs) {
+                    ftimes.add(fdt);
+                    break;
+                }
+            }
+        }
+
+        frameTimes.clear();
+        frameTimes.addAll(ftimes);
+
+        /*
+         * If previously-selected frames are gone, then re-select.
+         */
+        if (frameTimes.isEmpty()) {
+
+            SelectableFrameTimeMatcher frmTimeMatcher = null;
+
+            // if there is a GDATTIM then use this to compute the frameList from
+            // the
+            // list of available times in the DB
+            if (dfltFrameTimesStr != null) {
+                try {
+                    frmTimeMatcher = new SelectableFrameTimeMatcher(
+                            dfltFrameTimesStr);
+
+                    for (DataTime dt : allAvailDataTimes) {
+                        if (frmTimeMatcher.matchTime(dt)) {
+                            frameTimes.add(dt);
+                        }
+                    }
+
+                } catch (VizException e) {
+                    // sanity check since this should already be validated
+                    System.out.println("bad GDATTIM string:"
+                            + dfltFrameTimesStr);
+                    frmTimeMatcher = null;
+                    return false;
+                }
+
+            } else {
+                int skipCount = 0;
+                // set the initial frameTimes from the skip value and numFrames
+                GraphTimelineUtil.sortAvailableData(selectableDataTimes);
+
+                /*
+                 * For graph display, numFrames = 1
+                 */
+                if (this.getDominantResourceName().getRscCategory()
+                        .getCategoryName().equals("TIMESERIES"))
+                    numFrames = 1;
+
+                for (skipCount = 0; skipCount < selectableDataTimes.size(); skipCount++) {
+                    if (skipCount % (skipValue + 1) == 0) {
+
+                        DataTime selectableTime = (isForecast ? selectableDataTimes
+                                .get(skipCount)
+                                : selectableDataTimes.get(selectableDataTimes
+                                        .size() - skipCount - 1));
+
+                        if (frmTimeMatcher == null
+                                || frmTimeMatcher.matchTime(selectableTime)) {
+
+                            if (isForecast) {
+                                frameTimes.add(selectableTime);
+                            } else {
+                                frameTimes.add(0, selectableTime);
+                            }
+                        }
+                    }
+                    if (frameTimes.size() == numFrames) {
+                        break;
+                    }
+                }
+            }
+
+        }
+
+        // if the list is empty don't set numFrames.
+        if (frameTimes.size() > 0) {
+            numFrames = frameTimes.size();
+        }
+
+        return true;
+    }
+
 }
