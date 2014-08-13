@@ -33,7 +33,7 @@
   <contourStyle>
     <displayUnits>ft</displayUnits>
     <contourLabeling labelSpacing="4" labelFormat="#">
-      <increment>50</increment>
+      <increment>1000</increment>
     </contourLabeling>
   </contourStyle>
 </styleRule>

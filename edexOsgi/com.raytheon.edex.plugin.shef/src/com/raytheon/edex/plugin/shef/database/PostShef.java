@@ -125,6 +125,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 06/26/2014   3321       mpduff      Fix ingestSwitchMap checks
  * 07/10/2014   3370       mpduff      Fix update/insert issue for riverstatus
  * 07/14/2014              mpduff      Fix data range checks
+ * 08/05/2014   15671      snaples     Fixed check for posting when not found in ingestfilter and token is set for load_shef_ingest
  * </pre>
  * 
  * @author mduff
@@ -2147,7 +2148,6 @@ public class PostShef {
                 ingestSwitchMap.put(key, ingestSwitch);
             }
 
-            matchFound = ingestSwitchMap.containsKey(key);
             ingestSwitch = ingestSwitchMap.get(key);
 
             /*
