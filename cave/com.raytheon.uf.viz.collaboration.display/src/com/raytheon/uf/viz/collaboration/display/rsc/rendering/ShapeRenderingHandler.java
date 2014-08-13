@@ -82,13 +82,8 @@ public class ShapeRenderingHandler extends CollaborationRenderingHandler {
         IGraphicsTarget target = getGraphicsTarget();
         int shapeId = event.getObjectId();
         IWireframeShape shape = null;
-        if (event.getSimplificationLevel() != null) {
-            shape = target.createWireframeShape(event.isMutable(),
-                    event.getGridGeometry(), event.getSimplificationLevel());
-        } else {
-            shape = target.createWireframeShape(event.isMutable(),
-                    event.getGridGeometry());
-        }
+        shape = target.createWireframeShape(event.isMutable(),
+                event.getGridGeometry());
         dataManager.putRenderableObject(shapeId, shape);
     }
 
