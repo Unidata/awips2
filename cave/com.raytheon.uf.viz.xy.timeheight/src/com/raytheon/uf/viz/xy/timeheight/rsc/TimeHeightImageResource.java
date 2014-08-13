@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.xy.timeheight.rsc;
 
-import java.awt.Rectangle;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 import org.geotools.geometry.DirectPosition2D;
@@ -27,6 +27,8 @@ import org.geotools.geometry.Envelope2D;
 
 import com.raytheon.uf.common.colormap.ColorMapException;
 import com.raytheon.uf.common.colormap.ColorMapLoader;
+import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
@@ -44,9 +46,10 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.data.prep.CMDataPreparerManager;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -70,6 +73,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
  *                                    plugin.
  * Jun 30, 2014  3165     njensen     Use ColorMapLoader to get ColorMap
+ * Aug 13, 2014  3505     mapeters    Replaced deprecated CMDataPreparerManager
+ *                                    reference in initializeRaster() call.
  * 
  * </pre>
  * 
@@ -175,7 +180,7 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
             }
             getCapability(ColorMapCapability.class).setColorMapParameters(
                     colorMapParams);
-            int[] dims = new int[] { geometry.getGridRange().getSpan(0),
+            final int[] dims = new int[] { geometry.getGridRange().getSpan(0),
                     geometry.getGridRange().getSpan(1) };
 
             float[] sliceData = interpolatedData;
@@ -186,10 +191,16 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
                         secondaryResource.interpolatedData);
             }
 
-            image = target.initializeRaster(CMDataPreparerManager
-                    .getDataPreparer(sliceData,
-                            new Rectangle(dims[0], dims[1]), null),
-                    colorMapParams);
+            final FloatBuffer data = FloatBuffer.wrap(sliceData);
+            this.image = target.getExtension(IColormappedImageExtension.class)
+                    .initializeRaster(new IColorMapDataRetrievalCallback() {
+                        @Override
+                        public ColorMapData getColorMapData()
+                                throws VizException {
+                            return new ColorMapData(data, dims,
+                                    ColorMapDataType.FLOAT);
+                        }
+                    }, colorMapParams);
 
             ImagingCapability cap = getCapability(ImagingCapability.class);
             image.setBrightness(cap.getBrightness());
