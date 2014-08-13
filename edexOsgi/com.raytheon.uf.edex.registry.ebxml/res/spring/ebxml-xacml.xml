@@ -757,7 +757,9 @@
 	<bean id="VariableReferenceExpression"
 		class="com.raytheon.uf.edex.registry.acp.xacml.engine.expression.impl.VariableReferenceExpression" />
 	<bean id="AttributeDesignatorExpression"
-		class="com.raytheon.uf.edex.registry.acp.xacml.engine.expression.impl.AttributeDesignatorExpression" />
+		class="com.raytheon.uf.edex.registry.acp.xacml.engine.expression.impl.AttributeDesignatorExpression" >
+			<property name="xacmlContextHandler" ref="XACMLContextHandler" />
+		</bean>
 
 	<!-- End of Classes for XACML Expressions -->
 
