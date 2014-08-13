@@ -31,6 +31,7 @@
 #    Feb 14, 2013    1614          bsteffen       Refactor data access framework
 #                                                 to use single request.
 #    Jul 22, 2014    3185          njensen        Fix getters to return python objs
+#    Aug 13, 2014    3185          njensen        Fix setEnvelope() typo
 #    
 # 
 #
@@ -71,7 +72,7 @@ class JDataRequest(IDataRequest, JUtil.JavaWrapperClass):
         from com.vividsolutions.jts.geom import Envelope        
         bounds = env.bounds        
         jenv = Envelope(bounds[0], bounds[2], bounds[1], bounds[3])
-        self.jobj.setEnvelope(bounds)
+        self.jobj.setEnvelope(jenv)
 
     def setLocationNames(self, *args):
         from java.lang import String as JavaString
