@@ -49,8 +49,9 @@ else
 fi
 
 ${PSQLBINDIR}/psql -d postgres -U $PGUSER -q -p $PGPORT -f ${DATABASEDIR}/createMapsDb.sql
-${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -f ${POSTGIS_CONTRIB}/postgis.sql
-${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -f ${POSTGIS_CONTRIB}/spatial_ref_sys.sql
+${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -c "CREATE EXTENSION postgis;"
+${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -c "CREATE EXTENSION postgis_topology;"
+${PSQLBINDIR}/psql -d maps -U $PGUSER -q -p $PGPORT -f ${POSTGIS_CONTRIB}/legacy.sql
 if [ -f ${DATABASEDIR}/maps.db ] ; then
     ${PSQLBINDIR}/psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "DROP TABLE IF EXISTS mapdata.map_version"
     ${PGBINDIR}/pg_restore -d maps -U $PGUSER -p $PGPORT -n mapdata ${DATABASEDIR}/maps.db
