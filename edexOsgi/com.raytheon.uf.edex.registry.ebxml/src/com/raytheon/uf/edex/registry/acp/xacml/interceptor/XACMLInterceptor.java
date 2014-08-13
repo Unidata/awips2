@@ -21,7 +21,6 @@ package com.raytheon.uf.edex.registry.acp.xacml.interceptor;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -56,10 +55,10 @@ import org.opensaml.xacml.ctx.ResponseType;
 import org.opensaml.xacml.ctx.ResultType;
 import org.opensaml.xacml.policy.ObligationType;
 import org.opensaml.xacml.policy.ObligationsType;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyAdministrator;
 import com.raytheon.uf.edex.registry.acp.xacml.XACMLPolicyDecisionPoint;
 import com.raytheon.uf.edex.registry.acp.xacml.engine.obligation.XACMLObligationEvaluator;
@@ -90,6 +89,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * @author bphillip
  * @version 1
  */
+@Transactional
 public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
 
     /** The logger */
@@ -117,6 +117,10 @@ public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
      */
     private RegistryXACMLRequestBuilder requestBuilder;
 
+    public XACMLInterceptor() {
+        super(Phase.PRE_INVOKE);
+    }
+
     /**
      * Constructs a new XACMLInterceptor
      * 
@@ -129,7 +133,7 @@ public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
      */
     public XACMLInterceptor(XACMLPolicyAdministrator xacmlPolicyAdmin,
             XACMLPolicyDecisionPoint pdp, RegistryObjectDao registryObjectDao) {
-        super(Phase.POST_INVOKE);
+        super(Phase.PRE_INVOKE);
         OpenSAMLUtil.initSamlEngine();
         this.xacmlPolicyAdmin = xacmlPolicyAdmin;
         this.pdp = pdp;
@@ -190,7 +194,9 @@ public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
                     return;
                 }
             } catch (Exception e) {
-                statusHandler.error("An error occurred during XACML authorization. Defaulting to Unauthorized", e);
+                statusHandler
+                        .error("An error occurred during XACML authorization. Defaulting to Unauthorized",
+                                e);
                 throw new AccessDeniedException("Unauthorized");
             }
         } else {
@@ -237,31 +243,6 @@ public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     /**
-     * Gets the resources from the message and retrieves them from the registry
-     * database if possible
-     * 
-     * @param message
-     *            The message to get the resources from
-     * @param isSoapCall
-     *            True if this is a SOAP call
-     * @return The list of registry object resources referenced by the message
-     * @throws EbxmlRegistryException
-     *             If errors occur while querying for the objects from the
-     *             registry database
-     */
-    private List<RegistryObjectType> getResources(Message message,
-            boolean isSoapCall) throws EbxmlRegistryException {
-        List<RegistryObjectType> registryObjects = Collections.emptyList();
-
-        List<String> ids = getResourceIds(message, isSoapCall);
-        if (!CollectionUtil.isNullOrEmpty(ids)) {
-            registryObjects = registryObjectDao.getById(ids);
-        }
-
-        return registryObjects;
-    }
-
-    /**
      * Extracts the ids of the resources from the message
      * 
      * @param message
@@ -272,8 +253,9 @@ public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
      * @throws EbxmlRegistryException
      *             If an invalid message is submitted
      */
-    private List<String> getResourceIds(Message message, boolean isSoapCall)
-            throws EbxmlRegistryException {
+    private List<RegistryObjectType> getResources(Message message,
+            boolean isSoapCall) throws EbxmlRegistryException {
+        List<RegistryObjectType> registryObjects = new ArrayList<RegistryObjectType>();
         List<String> ids = new ArrayList<String>();
         ObjectRefListType refList = null;
         RegistryObjectListType objList = null;
@@ -327,12 +309,13 @@ public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
                 }
             }
             if (objList != null) {
-                for (RegistryObjectType regObj : objList.getRegistryObject()) {
-                    ids.add(regObj.getId());
-                }
+                registryObjects.addAll(objList.getRegistryObject());
+            }
+            if (!ids.isEmpty()) {
+                registryObjects.addAll(registryObjectDao.getById(ids));
             }
         }
-        return ids;
+        return registryObjects;
     }
 
     /**
