@@ -77,6 +77,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                          now closes on FileInputStream instead of FileChannel in initInternal()
  *    Jul 29, 2014  3465        mapeters    Updated deprecated drawString() calls.
  *    Aug 04, 2014  3489        mapeters    Updated deprecated getStringBounds() calls.
+ *    Aug 13, 2014  3492        mapeters    Updated deprecated createWireframeShape() calls.
  * 
  * </pre>
  * 
@@ -172,8 +173,7 @@ public class BCDResource extends
             if (wireframeShape == null) {
 
                 this.gridGeometry = descriptor.getGridGeometry();
-                wireframeShape = target.createWireframeShape(true, descriptor,
-                        0.0f);
+                wireframeShape = target.createWireframeShape(true, descriptor);
                 // wireframeShape = target.createWireframeShape(true,
                 // mapDescriptor);
                 File file = new File(resourceData.getFilename());
