@@ -70,9 +70,10 @@ import com.vividsolutions.jts.geom.Polygon;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            snaples     Initial creation
- * May 2, 2013  15970     snaples     Updated setColor to use the correct color.
- * Aug 1, 2014  3471      mapeters    Updated deprecated createShadedShape() calls.
+ * Apr 08, 2009            snaples     Initial creation
+ * May 02, 2013 15970      snaples     Updated setColor to use the correct color.
+ * Aug 01, 2014 3471       mapeters    Updated deprecated createShadedShape() calls.
+ * Aug 13, 2014 3492       mapeters    Updated deprecated createWireframeShape() calls.
  * 
  * </pre>
  * 
@@ -222,7 +223,7 @@ public class PlotMeanAreaPrecipResource extends
                 .getRenderableDisplay().getDescriptor();
 
         jtsGeometryFactory = new GeometryFactory();
-        outlineShape = target.createWireframeShape(false, descriptor, 0.0f);
+        outlineShape = target.createWireframeShape(false, descriptor);
 
         shadedShape = target.createShadedShape(false,
                 descriptor.getGridGeometry(), true);

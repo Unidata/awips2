@@ -193,6 +193,7 @@ import com.vividsolutions.jts.geom.Point;
  * May 05, 2014 3026        mpduff      Display Hpe bias source.
  * May 19, 2014  DR 16096   gzhang      Make getBasin() protected for FFMPDataGenerator.
  * 06/24/2016               mnash       Make FFMPResource implement Interrogatable
+ * Aug 13, 2014 3492        mapeters    Updated deprecated createWireframeShape() calls.
  * </pre>
  * 
  * @author dhladky
@@ -2803,7 +2804,7 @@ public class FFMPResource extends
 
                 // create the frames/shaded shapes here
                 localWireframeShape = req.target.createWireframeShape(false,
-                        descriptor, 0.0f);
+                        descriptor);
                 localShadedShape = req.target.createShadedShape(false,
                         descriptor.getGridGeometry(), true);
 
@@ -2870,8 +2871,7 @@ public class FFMPResource extends
             // create the frames/shaded shapes here
             try {
                 // read in geometries
-                basinShape = req.target.createWireframeShape(false, descriptor,
-                        0.0f);
+                basinShape = req.target.createWireframeShape(false, descriptor);
                 JTSCompiler jtsCompiler3 = new JTSCompiler(null, basinShape,
                         descriptor, PointStyle.CROSS);
                 RGB color = getCapability(ColorableCapability.class).getColor();
