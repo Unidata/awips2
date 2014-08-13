@@ -162,16 +162,10 @@ do
 done
 
 # purge the existing data directory
-if [ -d ${AWIPS2_DATA_DIRECTORY} ]; then
-	rm -rf ${AWIPS2_DATA_DIRECTORY}
-	if [ $? -ne 0 ]; then
-		exit 1
-	fi 
-fi
-mkdir ${AWIPS2_DATA_DIRECTORY}
+rm -rf ${AWIPS2_DATA_DIRECTORY}/*
 if [ $? -ne 0 ]; then
-   exit 1
-fi
+	exit 1
+fi 
 
 init_db
 
