@@ -56,7 +56,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                         wldougher   Initial creation.
- * Aug 1, 2014  3471       mapeters    Updated deprecated createShadedShape() calls.
+ * Aug 01, 2014 3471       mapeters    Updated deprecated createShadedShape() calls.
+ * Aug 13, 2014 3492       mapeters    Updated deprecated createWireframeShape() calls.
  * 
  * </pre>
  * 
@@ -189,9 +190,9 @@ public class ShapeBuilderJob extends Job {
             response.background = request.target.createShadedShape(false,
                     descriptor.getGridGeometry(), true);
             response.outline = request.target.createWireframeShape(false,
-                    descriptor, 0.0f);
+                    descriptor);
             response.cwaOutline = request.target.createWireframeShape(false,
-                    descriptor, 0.0f);
+                    descriptor);
             JTSCompiler compiler = new JTSCompiler(response.background,
                     response.outline, descriptor, PointStyle.CROSS);
             JTSCompiler cwaCompiler = new JTSCompiler(null,
