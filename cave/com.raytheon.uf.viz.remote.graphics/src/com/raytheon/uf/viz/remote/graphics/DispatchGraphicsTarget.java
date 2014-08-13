@@ -754,7 +754,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             IDescriptor descriptor, float simplificationLevel) {
         // Create original
         IWireframeShape targetShape = wrappedObject.createWireframeShape(
-                mutable, descriptor, simplificationLevel);
+                mutable, descriptor);
         // Create wrapped
         DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
                 targetShape, getDispatcher(), descriptor.getGridGeometry());
@@ -776,7 +776,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             GeneralGridGeometry geom, float simplificationLevel) {
         // Create original
         IWireframeShape targetShape = wrappedObject.createWireframeShape(
-                mutable, geom, simplificationLevel);
+                mutable, geom);
         // Create wrapped
         DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
                 targetShape, getDispatcher(), geom);
@@ -803,7 +803,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             boolean spatialChopFlag, IExtent extent) {
         // Create original
         IWireframeShape targetShape = wrappedObject.createWireframeShape(
-                mutable, descriptor, simplificationLevel);
+                mutable, descriptor);
         // Create wrapped
         DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
                 targetShape, getDispatcher(), descriptor.getGridGeometry());
@@ -853,7 +853,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             boolean spatialChopFlag, IExtent extent) {
         // Create original
         IWireframeShape targetShape = wrappedObject.createWireframeShape(
-                mutable, geom, simplificationLevel);
+                mutable, geom);
         // Create wrapped
         DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
                 targetShape, getDispatcher(), geom);
@@ -871,9 +871,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
                 .createEvent(CreateWireframeShapeEvent.class, shape);
         event.setGridGeometry(geom);
         event.setMutable(mutable);
-        event.setIExtent(extent);
-        event.setSimplificationLevel(simplificationLevel);
-        event.setSpatialChopFlag(spatialChopFlag);
         dispatch(event);
     }
 
