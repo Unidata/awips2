@@ -1,5 +1,5 @@
 %define _build_arch %(uname -i)
-%define _postgresql_version 9.2.4
+%define _postgresql_version 9.3.5
 %define _postgres_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 #
 # AWIPS II PostgreSQL Spec File
@@ -8,7 +8,7 @@
 Name: awips2-postgresql
 Summary: AWIPS II PostgreSQL Distribution
 Version: %{_postgresql_version}
-Release: 2.el6
+Release: 1.el6
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}
@@ -149,13 +149,13 @@ fi
 
 SRC_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.postgres/SOURCES"
 PROJ_SRC="proj-4.8.0.zip"
-POSTGIS_SRC="postgis-2.0.2.tar.gz"
+POSTGIS_SRC="postgis-2.0.6.tar.gz"
 GEOS_SRC="geos-3.3.7.tar.bz2"
 GDAL_SRC="gdal192.zip"
 
 # The directory that the src will be in after the tars are unzipped.
 PROJ_SRC_DIR="proj-4.8.0"
-POSTGIS_SRC_DIR="postgis-2.0.2"
+POSTGIS_SRC_DIR="postgis-2.0.6"
 GEOS_SRC_DIR="geos-3.3.7"
 GDAL_SRC_DIR="gdal-1.9.2"
 
