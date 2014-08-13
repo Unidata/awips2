@@ -104,6 +104,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Jul 31, 2013     #2239  randerso    Fixed scaling of maps that cross the date line
  * Jan 07, 2014     #2662  randerso    Fixed limitZones (subDomainUGCs) support
  * Feb 18, 2014     #2819  randerso    Removed unnecessary clones of geometries
+ * Aug 13, 2014     #3492  mapeters    Updated deprecated createWireframeShape() calls.
  * 
  * </pre>
  * 
@@ -322,7 +323,7 @@ public class ZoneSelectorResource extends DbMapResource {
                     }
 
                     IWireframeShape newOutlineShape = req.target
-                            .createWireframeShape(false, req.descriptor, 0.0f);
+                            .createWireframeShape(false, req.descriptor);
                     newOutlineShape.allocate(numPoints);
 
                     JTSCompiler outlineCompiler = new JTSCompiler(null,
@@ -354,8 +355,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
                     if (wfoGeoms.size() > 0) {
                         IWireframeShape newWfoShape = req.target
-                                .createWireframeShape(false, req.descriptor,
-                                        0.0f);
+                                .createWireframeShape(false, req.descriptor);
                         newWfoShape.allocate(wfoPoints);
 
                         JTSCompiler wfoCompiler = new JTSCompiler(null,

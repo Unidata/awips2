@@ -67,8 +67,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            snaples     Initial creation
- * Aug 1, 2014  3471      mapeters    Updated deprecated createShadedShape() calls.
+ * Apr 08, 2009            snaples     Initial creation
+ * Aug 01, 2014 3471       mapeters    Updated deprecated createShadedShape() calls.
+ * Aug 13, 2014 3492       mapeters    Updated deprecated createWireframeShape() calls.
  * 
  * </pre>
  * 
@@ -203,7 +204,7 @@ public class PlotMeanAreaFreezeResource extends
         IMapDescriptor descriptor = (IMapDescriptor) displayMgr
                 .getRenderableDisplay().getDescriptor();
         jtsGeometryFactory = new GeometryFactory();
-        outlineShape = target.createWireframeShape(false, descriptor, 0.0f);
+        outlineShape = target.createWireframeShape(false, descriptor);
 
         shadedShape = target.createShadedShape(false,
                 descriptor.getGridGeometry(), true);
