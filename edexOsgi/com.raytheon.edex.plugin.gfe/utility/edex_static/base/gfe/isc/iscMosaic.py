@@ -89,6 +89,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    02/04/14        17042         ryu            Check in changes for randerso.
 #    04/11/2014      17242         David Gillingham (code checked in by zhao)
 #    07/22/2014      17484         randerso       Update cluster lock time to prevent time out
+#    08/07/2014      3517          randerso       Improved memory utilization and error handling when unzipping input file.
 #
 
 BATCH_DELAY = 0.0
@@ -538,25 +539,39 @@ class IscMosaic:
 
         gzipFile = None
         unzippedFile = None
+        gzipped = True
         try:
             import gzip
             gzipFile = gzip.open(filename, 'rb')
             unzippedFile = open(filename + ".unzipped", 'w')
-            unzippedFile.write(gzipFile.read())
+            while True:
+                buffer = gzipFile.read(65536)
+                if len(buffer) == 0:
+                    break
+                unzippedFile.write(buffer)
+        except IOError as e:
+            if e.message == "Not a gzipped file":
+                gzipped = False
+            else:
+                raise
+        else:
+            # no errors, close and rename the file
             unzippedFile.close()
             gzipFile.close()
             os.rename(unzippedFile.name, gzipFile.filename)
-        except:
-            # Not gzipped
+            gzipFile = unzippedFile = None
+        finally:
+            # close the files in case of error
             if gzipFile is not None:
                 gzipFile.close()
             if unzippedFile is not None:
                 unzippedFile.close()
-                os.remove(unzippedFile.name)
+                if not gzipped:
+                    os.remove(unzippedFile.name)
 
         a = os.times()
-        cpu = a[0] + a[1]
-        stop1 = a[4]
+        cpugz = a[0] + a[1]
+        stopgz = a[4]
 
         file = NetCDF.NetCDFFile(filename, "r")
 
@@ -656,15 +671,15 @@ class IscMosaic:
             SendNotifications.send(notification)
 
         a = os.times()
-        cpugz = a[0] + a[1]
+        cpu = a[0] + a[1]
         stop = a[4]
         logger.info("Elapsed/CPU time: "
           "%-.2f / %-.2f decompress, "
           "%-.2f / %-.2f processing, "
           "%-.2f / %-.2f total",
-          stop1 - start, cpu - cpu0,
-          stop - stop1, cpugz - cpu,
-          stop - start, cpugz - cpu0)
+          stopgz - start, cpugz - cpu0,
+          stop - stopgz, cpu - cpugz,
+          stop - start, cpu - cpu0)
 
 
     def __processParm(self, parmName, vars, history, filename):
