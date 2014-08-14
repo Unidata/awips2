@@ -6,7 +6,6 @@ Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization,
  org.geotools;bundle-version="2.5.2",

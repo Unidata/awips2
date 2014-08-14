@@ -4,7 +4,6 @@ Bundle-Name: Gisdatastore
 Bundle-SymbolicName: com.raytheon.uf.viz.gisdatastore;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.gisdatastore.Activator
-Eclipse-RegisterBuddy: com.raytheon.viz.core
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

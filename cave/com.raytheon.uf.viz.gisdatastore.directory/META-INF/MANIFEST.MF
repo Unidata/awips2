@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.raytheon.uf.viz.gisdatastore.directory;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.gisdatastore.directory.Activator
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.viz.core
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.geotools,
