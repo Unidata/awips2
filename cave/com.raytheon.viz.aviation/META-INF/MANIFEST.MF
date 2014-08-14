@@ -29,7 +29,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.datacube,
  com.raytheon.uf.common.dataplugin.taf
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.viz.aviation,
  com.raytheon.viz.aviation.activator,
  com.raytheon.viz.aviation.climatology,
@@ -40,7 +39,7 @@ Export-Package: com.raytheon.viz.aviation,
  com.raytheon.viz.aviation.resource,
  com.raytheon.viz.aviation.utility,
  com.raytheon.viz.aviation.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.dataplugin.acarssounding,
  com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.dataplugin.gfe.point,
