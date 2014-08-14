@@ -5,8 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.viz.radarapps.fsi;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.radarapps.fsi.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
-Eclipse-BuddyPolicy: ext, global
+Eclipse-BuddyPolicy: global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core;bundle-version="1.11.17",
@@ -17,5 +16,5 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.radar;bundle-version="1.11.17",
  com.raytheon.viz.awipstools;bundle-version="1.11.17",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
