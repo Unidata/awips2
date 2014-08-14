@@ -73,6 +73,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/05/2012     #14566   jzeng       Paint the sample points with the order of grids 
  * 							           in calcGridLabels ()
  * 07/24/2014     #3429    mapeters    Updated deprecated drawLine() calls.
+ * 08/14/2014     #3523    mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * </pre>
  * 
  * @author chammack
@@ -235,13 +237,13 @@ public class SamplePainter {
                     labels.toArray(new String[labels.size()]),
                     colors.toArray(new RGB[colors.size()]));
             ds.font = font;
-            ds.textStyle = (this.showShadows ? TextStyle.DROP_SHADOW
-                    : TextStyle.NORMAL);
+            if (this.showShadows) {
+                ds.addTextStyle(TextStyle.DROP_SHADOW, this.shadowColor);
+            }
             ds.horizontalAlignment = HorizontalAlignment.CENTER;
             ds.verticallAlignment = VerticalAlignment.BOTTOM;
             ds.basics.x = screenloc[0] + this.xOffset * ratio;
             ds.basics.y = screenloc[1] + (this.yOffset + OFFSET) * ratio;
-            ds.shadowColor = this.shadowColor;
 
             target.drawStrings(ds);
         } catch (VizException e) {

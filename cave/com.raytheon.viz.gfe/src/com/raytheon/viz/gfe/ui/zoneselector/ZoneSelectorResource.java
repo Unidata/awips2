@@ -105,6 +105,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * Jan 07, 2014     #2662  randerso    Fixed limitZones (subDomainUGCs) support
  * Feb 18, 2014     #2819  randerso    Removed unnecessary clones of geometries
  * Aug 13, 2014     #3492  mapeters    Updated deprecated createWireframeShape() calls.
+ * Aug 14, 2014     #3523  mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * 
  * </pre>
  * 
@@ -824,8 +826,7 @@ public class ZoneSelectorResource extends DbMapResource {
                         ds.font = font;
                         ds.horizontalAlignment = HorizontalAlignment.CENTER;
                         ds.verticallAlignment = VerticalAlignment.MIDDLE;
-                        ds.textStyle = TextStyle.DROP_SHADOW;
-                        ds.shadowColor = RGBColors.getRGBColor("black");
+                        ds.addTextStyle(TextStyle.DROP_SHADOW);
                         strings.add(ds);
 
                         alreadyDrawn.add(new LabelTuple(x, y, group, zone));

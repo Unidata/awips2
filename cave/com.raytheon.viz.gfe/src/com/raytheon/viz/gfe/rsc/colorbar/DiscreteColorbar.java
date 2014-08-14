@@ -99,6 +99,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 12, 2013     15719  jdynina     Fixed out of bounds error in calcGridColorTable  
  * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
  * Jul 23, 2014     #3429  mapeters    Updated deprecated drawLine() calls
+ * Aug 14, 2014     #3523  mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * 
  * </pre>
  * 
@@ -511,27 +513,20 @@ public class DiscreteColorbar implements IColorBarDisplay,
             }
 
             dstring.setCoordinates(pickupLabelDrawPoint / xScaleFactor, center);
-            dstring.textStyle = TextStyle.BOXED;
             dstring.horizontalAlignment = pickupValueAlignment;
             dstring.verticallAlignment = VerticalAlignment.MIDDLE;
-
-            // draw once for the box
-            target.drawStrings(dstring);
-            // and again for shadowed text in the box
-            dstring.shadowColor = seColorBarBgWxPickupColor;
-            dstring.textStyle = TextStyle.DROP_SHADOW;
+            dstring.addTextStyle(TextStyle.BLANKED);
+            dstring.addTextStyle(TextStyle.BOXED);
+            dstring.addTextStyle(TextStyle.DROP_SHADOW,
+                    seColorBarBgWxPickupColor);
             target.drawStrings(dstring);
         } else {
             pickupLabelMinX = Double.NEGATIVE_INFINITY;
             pickupLabelMaxX = Double.NEGATIVE_INFINITY;
         }
 
-        DrawableString dstring = new DrawableString("", seColorBarTextColor);
-        dstring.textStyle = TextStyle.NORMAL;
-        dstring.horizontalAlignment = HorizontalAlignment.CENTER;
-        dstring.verticallAlignment = VerticalAlignment.MIDDLE;
-
         DrawableLine[] lines = new DrawableLine[colorTable.size()];
+        List<DrawableString> strings = new ArrayList<DrawableString>();
         i = 0;
         for (ColorEntry colorEntry : colorTable) {
             double ikeywidth = i * keywidth;
@@ -553,15 +548,19 @@ public class DiscreteColorbar implements IColorBarDisplay,
                             target, colorbarResource.getColorbarWxLabelFont(),
                             keyName, (int) Math.floor(keywidth * xScaleFactor),
                             true);
-                    dstring.setText(truncatedLabel, seColorBarTextColor);
+                    DrawableString dstring = new DrawableString(truncatedLabel,
+                            seColorBarTextColor);
                     dstring.setCoordinates(labelLoc, center);
                     dstring.font = colorbarResource.getColorbarWxLabelFont();
-                    target.drawStrings(dstring);
+                    dstring.horizontalAlignment = HorizontalAlignment.CENTER;
+                    dstring.verticallAlignment = VerticalAlignment.MIDDLE;
+                    strings.add(dstring);
                 }
             }
             i++;
         }
         target.drawLine(lines);
+        target.drawStrings(strings);
     }
 
     /**

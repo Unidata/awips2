@@ -78,6 +78,8 @@ import com.vividsolutions.jts.geom.LineString;
  *                                       to prevent errors when MB3 clicking off 
  *                                       the map or MB1 dragging off the map with 
  *                                       tool in editable mode.
+ * Aug 14, 2014  3523     mapeters       Updated deprecated {@link DrawableString#textStyle} 
+ *                                       assignments.
  * 
  * </pre>
  * 
@@ -250,7 +252,6 @@ public class ShearLayer extends
         ds.basics.x = c2[0];
         ds.basics.y = c2[1];
         ds.font = null;
-        ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
         ds.horizontalAlignment = HorizontalAlignment.LEFT;
         // set the magnification
         ds.magnification = this.getCapability(MagnificationCapability.class)
@@ -383,7 +384,6 @@ public class ShearLayer extends
         ds.basics.x = x1;
         ds.basics.y = y1;
         ds.font = null;
-        ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
         ds.horizontalAlignment = HorizontalAlignment.LEFT;
         // set the magnification
         ds.magnification = this.getCapability(MagnificationCapability.class)
