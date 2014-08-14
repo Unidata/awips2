@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Collaboration Display
 Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.display;singleton:=true
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.collaboration.display.Activator
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
 Require-Bundle: org.eclipse.core.runtime,
@@ -32,5 +32,6 @@ Export-Package: com.raytheon.uf.viz.collaboration.display,
  com.raytheon.uf.viz.collaboration.display.rsc,
  com.raytheon.uf.viz.collaboration.display.rsc.event,
  com.raytheon.uf.viz.collaboration.display.rsc.rendering,
- com.raytheon.uf.viz.collaboration.display.rsc.telestrator
+ com.raytheon.uf.viz.collaboration.display.rsc.telestrator,
+ com.raytheon.uf.viz.collaboration.display.storage
 Import-Package: org.eclipse.swt.widgets
