@@ -39,7 +39,6 @@ import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -74,6 +73,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  23Jul2014    3429        mapeters    Updated deprecated drawLine() calls.
  *  28Jul2014    3430        mapeters    Updated move function to prevent errors when
  *                                       MB3 clicking off the map in editable mode.
+ *  14Aug2014    3523        mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                       assignments.
  * </pre>
  * 
  * @author ebabin
@@ -179,7 +180,6 @@ public class HomeToolLayer extends AbstractMovableToolLayer<Coordinate>
         dString.basics.x = labelLoc[0];
         dString.basics.y = labelLoc[1];
         dString.basics.z = 0.0;
-        dString.textStyle = TextStyle.NORMAL;
         dString.horizontalAlignment = HorizontalAlignment.LEFT;
         dString.font = labelFont;
         target.drawStrings(dString);
