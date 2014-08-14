@@ -4,9 +4,8 @@ Bundle-Name: Model Sounding Data Plugin
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.modelsounding
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.geospatial,
