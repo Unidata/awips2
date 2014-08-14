@@ -97,6 +97,8 @@ import com.vividsolutions.jts.io.WKBReader;
  *                         wldougher     Initial creation
  * Jul 11, 2011 9928       rferrel       moveGroup now takes list of groups.
  * Jun 24, 2013 2134       randerso      Fixed NullPointerException in fitToCWA.
+ * Aug 14, 2014 3523       mapeters      Updated deprecated {@link DrawableString#textStyle} 
+ *                                       assignments.
  * 
  * </pre>
  * 
@@ -2044,10 +2046,9 @@ public class ZoneDbResource extends
             if (tables.contains(data.tableName)) {
                 refCoordList = labelMap.get(data.zone);
                 if (refCoordList != null) {
-                    paintLabelSet(" " + data.zone, labelFont,
-                            IGraphicsTarget.TextStyle.NORMAL, color, horiz,
-                            vert, refCoordList, mapGeometry, "" + data.zone,
-                            alreadyDrawn);
+                    paintLabelSet(" " + data.zone, labelFont, null, color,
+                            horiz, vert, refCoordList, mapGeometry, ""
+                                    + data.zone, alreadyDrawn);
                 }
             }
         }
@@ -2135,7 +2136,7 @@ public class ZoneDbResource extends
         Coordinate coord;
         DrawableString ds = new DrawableString("", color);
         ds.font = font;
-        ds.textStyle = TextStyle.DROP_SHADOW;
+        ds.addTextStyle(TextStyle.DROP_SHADOW);
         ds.horizontalAlignment = horiz;
         ds.verticallAlignment = vert;
         refcLoop: for (ReferencedCoordinate refCoord : refCoordList) {
