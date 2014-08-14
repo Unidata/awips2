@@ -122,6 +122,8 @@ import com.vividsolutions.jts.geom.Point;
  * Mar 25, 2014      #2664 randerso     Added support for non-WGS84 shape files
  * Apr 14, 2014      #2664 randerso     Fix NullPointerException when no .prj file present
  * Apr 21, 2014      #2998 randerso     Stored types of attributes to be used in the AttributeViewer
+ * Aug 14, 2014      #3523 mapeters     Updated deprecated {@link DrawableString#textStyle} 
+ *                                      assignments.
  * 
  * </pre>
  * 
@@ -964,8 +966,8 @@ public class DataStoreResource extends
             DrawableString ds = new DrawableString("Drag to select", new RGB(0,
                     0, 0));
             ds.setCoordinates(dragPromptCoord.x, dragPromptCoord.y);
-            ds.textStyle = TextStyle.BOXED;
-            ds.boxColor = new RGB(255, 255, 255);
+            ds.addTextStyle(TextStyle.BLANKED);
+            ds.addTextStyle(TextStyle.BOXED, new RGB(255, 255, 255));
             ds.horizontalAlignment = HorizontalAlignment.LEFT;
             ds.verticallAlignment = VerticalAlignment.BOTTOM;
             aTarget.drawStrings(ds);
