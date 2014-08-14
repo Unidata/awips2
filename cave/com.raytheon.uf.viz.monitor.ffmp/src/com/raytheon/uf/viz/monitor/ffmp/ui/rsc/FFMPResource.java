@@ -194,6 +194,8 @@ import com.vividsolutions.jts.geom.Point;
  * May 19, 2014  DR 16096   gzhang      Make getBasin() protected for FFMPDataGenerator.
  * 06/24/2016               mnash       Make FFMPResource implement Interrogatable
  * Aug 13, 2014 3492        mapeters    Updated deprecated createWireframeShape() calls.
+ * Aug 14, 2014 3523        mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                      assignments.
  * </pre>
  * 
  * @author dhladky
@@ -1232,7 +1234,7 @@ public class FFMPResource extends
                 basinLocatorString.font = xfont;
                 basinLocatorString.horizontalAlignment = HorizontalAlignment.CENTER;
                 basinLocatorString.verticallAlignment = VerticalAlignment.MIDDLE;
-                basinLocatorString.textStyle = TextStyle.BLANKED;
+                basinLocatorString.addTextStyle(TextStyle.BLANKED);
             }
         });
 

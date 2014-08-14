@@ -80,6 +80,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     display to match AWIPS I.
  * 08/13/2012         1046 jkorman     Changed to load colorMap file.  
  * 07/25/2014         3429 mapeters    Updated deprecated drawLine() calls.
+ * 08/14/2014         3523 mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * </pre>
  * 
  * @author dhladky
@@ -474,7 +476,7 @@ public class ProfilerResource extends
 
                 parameters[i] = new DrawableString("",
                         ProfilerUtils.GRAPH_COLOR);
-                parameters[i].textStyle = TextStyle.BLANKED;
+                parameters[i].addTextStyle(TextStyle.BLANKED);
                 parameters[i].font = font;
                 parameters[i].horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
                 parameters[i].verticallAlignment = verticalAlignment;
@@ -523,7 +525,7 @@ public class ProfilerResource extends
         ArrayList<DrawableString> parameters = new ArrayList<DrawableString>();
         DrawableString string1 = new DrawableString("18km",
                 ProfilerUtils.GRAPH_COLOR);
-        string1.textStyle = TextStyle.BLANKED;
+        string1.addTextStyle(TextStyle.BLANKED);
         string1.font = font;
         string1.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.RIGHT;
         string1.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
@@ -565,7 +567,7 @@ public class ProfilerResource extends
             DrawableString string = new DrawableString(
                     ProfilerUtils.decimalFormat.format(new Double(i)) + " km",
                     ProfilerUtils.GRAPH_COLOR);
-            string.textStyle = TextStyle.BLANKED;
+            string.addTextStyle(TextStyle.BLANKED);
             string.font = font;
             string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
             string.basics.y = calcY(i * 1000);
@@ -623,7 +625,7 @@ public class ProfilerResource extends
                         ProfilerUtils.decimalFormat.format(new Double(
                                 ProfilerUtils.PRESSURES[i])) + " mb",
                         ProfilerUtils.GRAPH_COLOR);
-                string.textStyle = TextStyle.BLANKED;
+                string.addTextStyle(TextStyle.BLANKED);
                 string.font = font;
                 string.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
                 string.basics.y = calcY(height);
