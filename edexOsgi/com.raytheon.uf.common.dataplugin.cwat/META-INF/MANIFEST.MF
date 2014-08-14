@@ -4,7 +4,6 @@ Bundle-Name: Cwat Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.cwat
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.monitor;bundle-version="1.11.5",

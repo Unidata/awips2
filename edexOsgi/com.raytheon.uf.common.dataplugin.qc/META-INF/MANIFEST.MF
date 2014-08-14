@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.qc
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.17",
  javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1161",
