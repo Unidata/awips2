@@ -4,7 +4,6 @@ Bundle-Name: QPF common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.qpf
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.qpf
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
