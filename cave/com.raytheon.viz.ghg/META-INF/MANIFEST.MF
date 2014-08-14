@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin.gfe,
  com.raytheon.uf.common.dataplugin.gfe.db.objects,
