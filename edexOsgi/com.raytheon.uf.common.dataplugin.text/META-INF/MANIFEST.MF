@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.text
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: com.raytheon.uf.common.serialization,
  org.hibernate,
  com.raytheon.uf.common.localization;bundle-version="1.12.1174"
