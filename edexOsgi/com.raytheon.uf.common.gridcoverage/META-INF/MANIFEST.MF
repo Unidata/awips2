@@ -2,11 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Grid Coverage
 Bundle-SymbolicName: com.raytheon.uf.common.gridcoverage
-Bundle-Version: 1.13.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.common.gridcoverage,
  com.raytheon.uf.common.gridcoverage.convert,
  com.raytheon.uf.common.gridcoverage.exception,

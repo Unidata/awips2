@@ -6,7 +6,7 @@ Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.awipstools.Activator
 Bundle-Vendor: Raytheon
 Eclipse-BuddyPolicy: registered
-Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.viz.core, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core.rsc
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.viz.core.rsc
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.apache.commons.lang,
