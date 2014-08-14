@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.raytheon.uf.common.parameter
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Import-Package: com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataquery.requests,

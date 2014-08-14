@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.raytheon.viz.core.graphing;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.core.graphing.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.geotools,
