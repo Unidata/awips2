@@ -100,6 +100,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                     for the text to the left of the point.
  * 15Mar2013	15693	mgamazaychikov Added magnification capability.
  *  Apr 12 2013 DR 16032   D. Friedman Make it work in multiple panes.
+ *  Aug 14 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * </pre>
  * 
  * @author mschenke
@@ -402,7 +404,6 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         DrawableString ds = new DrawableString(leadState.text, color);
         ds.basics.x = labelLoc[0];
         ds.basics.y = labelLoc[1];
-        ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
         ds.horizontalAlignment = alignment;
         ds.font = null;
         ds.magnification = getCapability(MagnificationCapability.class)

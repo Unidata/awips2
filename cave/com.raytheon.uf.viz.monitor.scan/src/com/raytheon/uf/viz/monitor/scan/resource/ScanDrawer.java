@@ -68,6 +68,8 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 22, 2014   3422       mapeters    Updated deprecated drawArc() call.
  * Jul 23, 2014   3429       mapeters    Updated deprecated drawLine() call.
  * Jul 29, 2014   3465       mapeters    Updated deprecated drawString() calls.
+ * Aug 14, 2014   3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                       assignments.
  * </pre>
  * 
  * @author dhladky
@@ -436,7 +438,7 @@ public class ScanDrawer {
             ds.horizontalAlignment = HorizontalAlignment.RIGHT;
             ds.verticallAlignment = VerticalAlignment.BOTTOM;
             ds.font = font;
-            ds.textStyle = TextStyle.DROP_SHADOW;
+            ds.addTextStyle(TextStyle.DROP_SHADOW);
 
             if (km < 50) {
                 ds.setCoordinates(center[0] - 1, center[1] - 1);
