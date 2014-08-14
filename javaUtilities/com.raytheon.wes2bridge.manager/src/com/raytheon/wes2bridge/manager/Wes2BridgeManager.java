@@ -28,6 +28,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,7 +40,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -46,7 +47,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.raytheon.wes2bridge.manager.IQpidConfigurationXML;
-import com.raytheon.wes2bridge.common.configuration.Wes2BridgeConfiguration;
+import com.raytheon.wes2bridge.common.configuration.Wes2BridgeCase;
+import com.raytheon.wes2bridge.configuration.jaxb.Wes2BridgeJaxbManager;
 
 /**
  * This java-based utility is used to update a wes2bridge environment. This
@@ -68,6 +70,9 @@ import com.raytheon.wes2bridge.common.configuration.Wes2BridgeConfiguration;
  * Dec 11, 2013 2182       bkowal      Update the postgresql port in
  *                                     postgresql.conf instead of the
  *                                     postgresql startup scripts
+ * Aug 14, 2014 3521       bkowal      Updated to use Wes2BridgeCase. Eliminated
+ *                                     configuration that is no longer used and
+ *                                     updated EDEX re-configuration.
  * 
  * </pre>
  * 
@@ -92,7 +97,7 @@ public class Wes2BridgeManager {
 
     private static final String DEFAULT_HDF5_DIRECTORY = "/edex/data/hdf5";
 
-    private Wes2BridgeConfiguration configuration = null;
+    private Wes2BridgeCase wes2BridgeCase;
 
     private String wes2BridgeScripts = null;
 
@@ -151,11 +156,12 @@ public class Wes2BridgeManager {
         System.exit(EXIT_SUCCESS);
     }
 
-    public void init(String arg1) throws ConfigurationException {
-        configuration = new Wes2BridgeConfiguration(arg1);
-        configuration.init();
+    public void init(String arg1) throws JAXBException {
+        this.wes2BridgeCase = Wes2BridgeJaxbManager.toWes2BridgeCase(new File(
+                arg1));
+
         this.wes2BridgeScripts = WES2BRIDGE_DIRECTORY + "/"
-                + configuration.getTestCaseName() + "/" + "edex-environment";
+                + this.wes2BridgeCase.getName() + "/" + "edex-environment";
     }
 
     /*
@@ -164,7 +170,7 @@ public class Wes2BridgeManager {
     public void reconfigureEdex() throws FileNotFoundException, IOException {
         final String srcEdexDirectory = AWIPSII + "/" + "edex";
         final String edexDirectory = WES2BRIDGE_DIRECTORY + "/"
-                + this.configuration.getTestCaseName() + "/" + "edex";
+                + this.wes2BridgeCase.getName() + "/" + "edex";
 
         this.updateEdexSetup(srcEdexDirectory, edexDirectory);
         this.updateEdexWrapper(srcEdexDirectory, edexDirectory);
@@ -197,22 +203,22 @@ public class Wes2BridgeManager {
                 Matcher matcher = pattern7.matcher(line);
 
                 if (line.startsWith(line1)) {
-                    line = line1 + this.configuration.getDataArchiveRoot();
+                    line = line1 + this.wes2BridgeCase.getDataArchiveRoot();
                 } else if (line.startsWith(line2)) {
-                    line = line2 + this.configuration.getDatabasePort();
+                    line = line2 + this.wes2BridgeCase.getDatabasePort();
                 } else if (line.startsWith(line3)) {
                     line = line3 + "localhost:"
-                            + this.configuration.getJmsPort();
+                            + this.wes2BridgeCase.getJmsPort();
                 } else if (line.startsWith(line4)) {
-                    line = line4 + this.configuration.getEdexHttpPort();
+                    line = line4 + this.wes2BridgeCase.getEdexHttpPort();
                 } else if (line.startsWith(line5)) {
                     line = line5 + "tcp://localhost:"
-                            + this.configuration.getJmsPort();
+                            + this.wes2BridgeCase.getJmsPort();
                 } else if (line.startsWith(line6)) {
                     line = line6 + edexDirectory + "/data/share";
                 } else if (matcher.matches()) {
                     line = matcher.group(GROUP_INDEX_ONE)
-                            + this.configuration.getHttpdPypiesPort();
+                            + this.wes2BridgeCase.getHttpdPypiesPort();
                 }
 
                 bw.write(line + "\n");
@@ -236,67 +242,53 @@ public class Wes2BridgeManager {
             bw = this.getBufferedWriter(wrapper_conf);
 
             /*
-             * We want to replace at least one of the jmx jvm arguments with the
-             * wes2bridge.instance argument.
+             * Add a new wes2bridge.instance JVM argument so that it will be
+             * possible to determine which edex instance belongs to which test
+             * case.
              */
-            boolean wes2BridgeInstanceAdded = false;
 
-            /*
-             * Disable JMX Remote and add a new wes2bridge.instance JVM argument
-             * so that it will be possible to determine which edex instance
-             * belongs to which test case.
-             */
-            /*
-             * This may apply to multiple jvm arguments including: 1)
-             * -Dcom.sun.management.jmxremote.port 2)
-             * -Dcom.sun.management.jmxremote.authenticate 3)
-             * -Dcom.sun.management.jmxremote.ssl
-             */
-            final String line1 = "-Dcom.sun.management.jmxremote";
-            /* Set the web port; used by uengine spring. */
-            final String line2 = "-Dweb.port";
-            /* Set the confidential port; used by uengine spring. */
-            final String line3 = "-Dconfidential.port";
+            int javaAdditionalMax = 0;
+
+            final String line1 = "wrapper.jvm.parameter.order.2=-Daw.site.identifier";
+
+            final String javaAdditionalPatternRegex = "wrapper\\.java\\.additional\\.([0-9]+)=.+";
+            final Pattern javaAdditionalPattern = Pattern
+                    .compile(javaAdditionalPatternRegex);
 
             String line = StringUtils.EMPTY;
             while ((line = br.readLine()) != null) {
-                if (line.contains(line1)) {
-                    line = this.getJVMArgumentName(line);
-                    if (wes2BridgeInstanceAdded == false) {
-                        line += "-Dwes2bridge.instance="
-                                + this.configuration.getTestCaseName();
-                        wes2BridgeInstanceAdded = true;
+                Matcher matcher = javaAdditionalPattern.matcher(line);
+                if (matcher.matches()) {
+                    /* Guaranteed to be numeric based on the regex */
+                    int javaAdditional = Integer.parseInt(matcher.group(1));
+                    if (javaAdditional > javaAdditionalMax) {
+                        javaAdditionalMax = javaAdditional;
                     }
-                } else if (line.contains(line2)) {
-                    line = this.getJVMArgumentName(line);
-                    line += line2 + "=" + this.configuration.getWebPort();
-                } else if (line.contains(line3)) {
-                    line = this.getJVMArgumentName(line);
-                    line += line3 + "="
-                            + this.configuration.getConfidentialPort();
+                }
+
+                if (line.equals(line1)) {
+                    bw.write(line + "\n");
+                    /*
+                     * Ensure that the wes2bridge test name will be third in the
+                     * list of jvm arguments.
+                     */
+                    line = "wrapper.jvm.parameter.order.3=-Dwes2bridge.instance";
                 }
 
                 bw.write(line + "\n");
             }
+
+            /*
+             * add the additional JVM argument.
+             */
+            ++javaAdditionalMax;
+            String jvmArg = "wrapper.java.additional." + javaAdditionalMax
+                    + "=-Dwes2bridge.instance=" + this.wes2BridgeCase.getName();
+            bw.write(jvmArg);
         } finally {
             br.close();
             bw.close();
         }
-    }
-
-    private String getJVMArgumentName(String jvmArgument) {
-        if (jvmArgument == null) {
-            System.out.println("ERROR: Invalid wrapper.conf file.");
-            System.exit(EXIT_FAILURE);
-        }
-
-        String[] splitJVMArg = jvmArgument.split("=");
-        if (splitJVMArg.length <= 0) {
-            System.out.println("ERROR: Invalid wrapper.conf file.");
-            System.exit(EXIT_FAILURE);
-        }
-
-        return splitJVMArg[0] + "=";
     }
 
     private void updateEdexCamel(String edexDirectory)
@@ -311,21 +303,25 @@ public class Wes2BridgeManager {
             br = this.getBufferedReader(srcedex_camel);
             bw = this.getBufferedWriter(edex_camel);
 
-            final String line1 = "EDEX_INSTALL=";
+            final String line1 = "export EDEX_INSTALL=";
             final String line2 = "export DATA_ARCHIVE_ROOT=";
             final String line3 = "CAMELPROCESS=`ps -ef | grep \"aw.site.identifier\"|grep -c \"edex.run.mode=${1} \" `";
+            final String line4 = "_camel_pid=`pgrep -f \"java.*-Dedex.run.mode=${1} \"`";
 
             String line = StringUtils.EMPTY;
             while ((line = br.readLine()) != null) {
                 if (line.trim().startsWith(line1)) {
                     line = line1 + edexDirectory;
                 } else if (line.trim().startsWith(line2)) {
-                    line = line2 + this.configuration.getDataArchiveRoot();
+                    line = line2 + this.wes2BridgeCase.getDataArchiveRoot();
                 } else if (line.trim().startsWith(line3)) {
                     line = "CAMELPROCESS=`ps -ef | "
                             + "grep \"wes2bridge.instance="
-                            + this.configuration.getTestCaseName() + "\" | "
+                            + this.wes2BridgeCase.getName() + "\" | "
                             + "grep -c \"edex.run.mode=${1} \" `";
+                } else if (line.trim().startsWith(line4)) {
+                    line = "_camel_pid=`pgrep -f \"java.*-Dedex.run.mode=${1} -Daw.site.identifier=.+ -Dwes2bridge.instance="
+                            + this.wes2BridgeCase.getName() + " \"`";
                 }
 
                 bw.write(line + "\n");
@@ -339,7 +335,7 @@ public class Wes2BridgeManager {
     public void reconfigurePostgreSQL() throws FileNotFoundException,
             IOException {
         final String postgresqlRootDirectory = WES2BRIDGE_DIRECTORY
-                + File.separator + this.configuration.getTestCaseName();
+                + File.separator + this.wes2BridgeCase.getName();
         final String srcDataDirectory = AWIPSII + File.separator + "data";
 
         this.updateEdexPostgres(postgresqlRootDirectory);
@@ -380,8 +376,8 @@ public class Wes2BridgeManager {
         final String srcPostgresqlConf = srcDataDirectory + File.separator
                 + postgresqlConf;
         final String destPostgresqlConf = WES2BRIDGE_DIRECTORY + File.separator
-                + this.configuration.getTestCaseName() + File.separator
-                + "data" + File.separator + postgresqlConf;
+                + this.wes2BridgeCase.getName() + File.separator + "data"
+                + File.separator + postgresqlConf;
 
         final String regex1 = "^(port = )([0-9]+)(.+)";
         final Pattern pattern1 = Pattern.compile(regex1);
@@ -399,7 +395,7 @@ public class Wes2BridgeManager {
                 Matcher matcher = pattern1.matcher(line);
                 if (matcher.matches()) {
                     stringBuilder.append(matcher.group(1));
-                    stringBuilder.append(this.configuration.getDatabasePort());
+                    stringBuilder.append(this.wes2BridgeCase.getDatabasePort());
                     stringBuilder.append(matcher.group(3));
 
                     line = stringBuilder.toString();
@@ -418,7 +414,7 @@ public class Wes2BridgeManager {
             TransformerFactoryConfigurationError, TransformerException {
         final String srcQpidDirectory = AWIPSII + "/" + "qpid";
         final String qpidDirectory = WES2BRIDGE_DIRECTORY + "/"
-                + this.configuration.getTestCaseName() + "/" + "qpid";
+                + this.wes2BridgeCase.getName() + "/" + "qpid";
 
         this.updateQpidConfigXML(srcQpidDirectory, qpidDirectory);
         this.updateQPIDD(qpidDirectory);
@@ -457,17 +453,17 @@ public class Wes2BridgeManager {
         // Get the connector port node.
         portNode = this.getChildNodeByName(connectorNode,
                 IQpidConfigurationXML.XML_PORT);
-        portNode.setTextContent(Integer.toString(this.configuration
+        portNode.setTextContent(Integer.toString(this.wes2BridgeCase
                 .getJmsPort()));
         // Get the jmxport registryServer node
         portNode = this.getChildNodeByName(jmxPortNode,
                 IQpidConfigurationXML.XML_REGISTRY_SERVER);
-        portNode.setTextContent(Integer.toString(this.configuration
+        portNode.setTextContent(Integer.toString(this.wes2BridgeCase
                 .getQpidJmxPort()));
         // Get the http port node.
         portNode = this.getChildNodeByName(httpPortNode,
                 IQpidConfigurationXML.XML_PORT);
-        portNode.setTextContent(Integer.toString(this.configuration
+        portNode.setTextContent(Integer.toString(this.wes2BridgeCase
                 .getQpidHttpPort()));
 
         /*
@@ -529,13 +525,12 @@ public class Wes2BridgeManager {
     public void reconfigurePypies() throws FileNotFoundException, IOException {
         final String srcPypiesDirectory = AWIPSII + File.separator + "pypies";
         final String pypiesDirectory = WES2BRIDGE_DIRECTORY + File.separator
-                + this.configuration.getTestCaseName() + File.separator
-                + "pypies";
+                + this.wes2BridgeCase.getName() + File.separator + "pypies";
 
         final String srcHttpdPypiesDirectory = AWIPSII + File.separator
                 + "httpd_pypies";
         final String httpdPypiesDirectory = WES2BRIDGE_DIRECTORY
-                + File.separator + this.configuration.getTestCaseName()
+                + File.separator + this.wes2BridgeCase.getName()
                 + File.separator + "httpd_pypies";
 
         this.updatePypiesCfg(srcPypiesDirectory, pypiesDirectory);
@@ -553,7 +548,7 @@ public class Wes2BridgeManager {
 
         // use the default location for the hdf5 root
         final String hdf5DirectoryLocation = WES2BRIDGE_DIRECTORY
-                + File.separator + this.configuration.getTestCaseName()
+                + File.separator + this.wes2BridgeCase.getName()
                 + DEFAULT_HDF5_DIRECTORY;
         final String logFileDirectoryLocation = pypiesDirectory
                 + File.separator + "logs";
@@ -585,7 +580,7 @@ public class Wes2BridgeManager {
                     line += logFileDirectoryLocation;
                 } else if (matcher3.matches()) {
                     line = matcher3.group(GROUP_INDEX_ONE);
-                    line += this.configuration.getPypiesLoggingPort();
+                    line += this.wes2BridgeCase.getPypiesLoggingPort();
                 }
 
                 bw.write(line + "\n");
@@ -625,7 +620,7 @@ public class Wes2BridgeManager {
                 Matcher matcher2 = pattern2.matcher(line);
                 if (matcher1.matches()) {
                     line = matcher1.group(GROUP_INDEX_ONE);
-                    line += this.configuration.getHttpdPypiesPort();
+                    line += this.wes2BridgeCase.getHttpdPypiesPort();
                 } else if (matcher2.matches()) {
                     line = matcher2.group(GROUP_INDEX_ONE);
                     line += serverRoot;
@@ -671,7 +666,7 @@ public class Wes2BridgeManager {
                     line += httpdPypiesDirectory;
                 } else if (matcher2.matches()) {
                     line = matcher2.group(GROUP_INDEX_ONE);
-                    line += this.configuration.getTestCaseName();
+                    line += this.wes2BridgeCase.getName();
                     line += matcher2.group(GROUP_INDEX_TWO);
                 } else if (matcher3.matches()) {
                     line = matcher3.group(GROUP_INDEX_ONE) + pypiesDirectory
