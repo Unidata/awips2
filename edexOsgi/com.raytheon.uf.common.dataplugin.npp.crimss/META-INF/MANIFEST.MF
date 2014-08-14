@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Crimss
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.npp.crimss
 Bundle-Version: 1.14.0.qualifier
-Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.npp.crimss
