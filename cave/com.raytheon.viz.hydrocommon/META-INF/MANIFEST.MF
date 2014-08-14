@@ -4,7 +4,6 @@ Bundle-Name: Hydrocommon Plug-in
 Bundle-SymbolicName: com.raytheon.viz.hydrocommon;singleton:=true
 Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.core,
