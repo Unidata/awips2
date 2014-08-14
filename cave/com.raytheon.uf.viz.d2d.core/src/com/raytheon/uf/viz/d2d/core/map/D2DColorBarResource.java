@@ -62,6 +62,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 5, 2010            mschenke     Initial creation
+ * Aug 14, 2014 3523      mapeters     Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
  * 
  * </pre>
  * 
@@ -503,7 +505,7 @@ public class D2DColorBarResource extends
                 drawable.setCoordinates(xPos, yPos, zPos);
                 drawable.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
                 drawable.verticallAlignment = IGraphicsTarget.VerticalAlignment.MIDDLE;
-                drawable.textStyle = TextStyle.BLANKED;
+                drawable.addTextStyle(TextStyle.BLANKED);
                 drawable.basics.alpha = paintProps.getAlpha();
 
                 Rectangle2D rect = target.getStringsBounds(drawable);
