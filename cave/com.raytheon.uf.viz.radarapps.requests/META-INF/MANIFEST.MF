@@ -18,7 +18,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.ui;bundle-version="1.11.11"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: com.raytheon.viz.core
 Export-Package: com.raytheon.uf.viz.radarapps.alertreq,
  com.raytheon.uf.viz.radarapps.otr,
  com.raytheon.uf.viz.radarapps.rmr
