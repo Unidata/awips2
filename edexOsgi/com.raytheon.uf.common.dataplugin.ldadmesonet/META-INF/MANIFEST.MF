@@ -2,19 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ldadmesonet Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.ldadmesonet
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata;bundle-version="1.11.16",
- com.raytheon.uf.edex.pointdata;bundle-version="1.11.16",
- javax.persistence,
- javax.measure,
- com.raytheon.uf.common.dataplugin
-Import-Package: com.raytheon.uf.common.status,
- com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.decodertools.time,
- com.vividsolutions.jts.geom,
- org.apache.commons.logging
-Export-Package: com.raytheon.uf.common.dataplugin.ldadmesonet,
- com.raytheon.uf.common.dataplugin.ldadmesonet.dao
+Import-Package: com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.serialization.annotations,
+ com.vividsolutions.jts.geom
+Export-Package: com.raytheon.uf.common.dataplugin.ldadmesonet
+Require-Bundle: javax.persistence,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata

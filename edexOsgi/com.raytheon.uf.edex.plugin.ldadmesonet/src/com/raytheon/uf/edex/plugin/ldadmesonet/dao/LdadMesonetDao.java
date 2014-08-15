@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.ldadmesonet.dao;
+package com.raytheon.uf.edex.plugin.ldadmesonet.dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * 9/04/09                  vkorolev    Initial creation
  * 10/09/09		DR2814		vkorolev	Refactor to Point Data Model
  * Feb 27, 2013 1638        mschenke    Moved ObStationDao to edex pointdata plugin
+ * Aug 15, 2014 3530        bclement    moved from common to edex
  * 
  * </pre>
  * 

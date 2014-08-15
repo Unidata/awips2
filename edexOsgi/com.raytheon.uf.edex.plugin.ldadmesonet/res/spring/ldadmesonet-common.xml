@@ -8,7 +8,7 @@
 	<bean id="mesonetProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" value="ldadmesonet" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.ldadmesonet" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.ldadmesonet.dao.LdadMesonetDao" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.ldadmesonet.dao.LdadMesonetDao" />
 		<property name="record"	value="com.raytheon.uf.common.dataplugin.ldadmesonet.MesonetLdadRecord" />
 	</bean>
 	
