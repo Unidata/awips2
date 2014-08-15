@@ -86,6 +86,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 14, 2011 8244       bkowal      enabled magnification capability to
  *                                     adjust magnification of x-axis.
  * Jun 18, 2014 3242       njensen     Replaced deprecated calls
+ * Aug 15, 2014 3535       njensen     Bigger inset map point
  * 
  * 
  * </pre>
@@ -311,7 +312,7 @@ public abstract class AbstractTimeHeightResource extends
                 point.x, point.y });
         target.drawPoint(pixels[0], pixels[1], 0.0,
                 getCapability(ColorableCapability.class).getColor(),
-                PointStyle.STAR);
+                PointStyle.STAR, 1.5f);
     }
 
     public String getUnitString() {
