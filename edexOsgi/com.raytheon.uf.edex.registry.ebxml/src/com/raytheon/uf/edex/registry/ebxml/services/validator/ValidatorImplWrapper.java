@@ -30,7 +30,7 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 
 /**
  * 
