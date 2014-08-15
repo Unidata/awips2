@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.ldadmesonet;
+package com.raytheon.uf.edex.plugin.ldadmesonet;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,11 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.ldadmesonet.dao.LdadMesonetDao;
+import com.raytheon.uf.common.dataplugin.ldadmesonet.MesonetLdadRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.edex.plugin.ldadmesonet.dao.LdadMesonetDao;
 
 /**
  * Transform LDAD MESONET records into Point Data Model.
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
  * Oct 09, 2009 DR2814      vkorolev    Initial creation
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Jul 23, 2014 3410        bclement    location changed to floats
+ * Aug 15, 2014 3530        bclement    moved from common to edex
  * 
  * </pre>
  * 

@@ -28,13 +28,9 @@ import java.util.Map;
 
 import jep.JepException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.qc.QCRecord;
-import com.raytheon.uf.common.dataplugin.qc.internal.QCPaths;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
@@ -42,8 +38,11 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.python.thread.PythonScriptManager;
 import com.raytheon.uf.common.python.thread.PythonScriptManager.ScriptRequest;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
+import com.raytheon.uf.edex.plugin.qc.internal.QCPaths;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
@@ -55,6 +54,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12/04/2009   3408       bphillip   Initial creation
+ * Aug 15, 2014 3530       bclement   removed commons logging
  * 
  * </pre>
  * 
@@ -68,7 +68,8 @@ public class QCDao extends PointDataPluginDao<QCRecord> {
 
 	private static PythonScriptManager psm;
 
-	private transient Log logger = LogFactory.getLog(getClass());
+    private static final transient IUFStatusHandler logger = UFStatus
+            .getHandler(QCDao.class);
 
 	static {
 		pdds = QCPaths.getPointDataDescriptions();
