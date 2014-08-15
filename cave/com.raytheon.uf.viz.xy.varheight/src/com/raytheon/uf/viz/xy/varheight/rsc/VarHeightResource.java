@@ -83,6 +83,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 23, 2013 2363       bsteffen     Add more vector configuration options.
  * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * Jun 18, 2014 3242       njensen      Replaced deprecated calls
+ * Aug 15, 2014 3535       njensen      Bigger inset map point
  * 
  * </pre>
  * 
@@ -442,7 +443,7 @@ public class VarHeightResource extends
                 point.x, point.y });
         target.drawPoint(pixels[0], pixels[1], 0.0,
                 getCapability(ColorableCapability.class).getColor(),
-                PointStyle.STAR);
+                PointStyle.STAR, 1.5f);
     }
 
     public void addRecord(PluginDataObject pdo) {
