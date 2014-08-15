@@ -24,7 +24,7 @@ import javax.xml.ws.WebFault;
 
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 
 /**

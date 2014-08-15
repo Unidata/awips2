@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.registry;
+package com.raytheon.uf.common.registry.schemas.ebxml.util;
 
 /**
  * 
