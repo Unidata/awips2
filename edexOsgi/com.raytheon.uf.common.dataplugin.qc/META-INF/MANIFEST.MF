@@ -2,16 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Qc Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.qc
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.17",
- javax.persistence;bundle-version="1.0.0",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1161",
- com.raytheon.uf.edex.pointdata;bundle-version="1.12.1161",
- com.raytheon.uf.common.python;bundle-version="1.12.1161",
- org.jep;bundle-version="1.0.0",
- com.raytheon.uf.common.localization;bundle-version="1.12.1161"
-Export-Package: com.raytheon.uf.common.dataplugin.qc,
- com.raytheon.uf.common.dataplugin.qc.internal
-Import-Package: com.raytheon.uf.common.status
+Require-Bundle: com.raytheon.uf.common.dataplugin
+Export-Package: com.raytheon.uf.common.dataplugin.qc
+Import-Package: com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.status,
+ javax.persistence
