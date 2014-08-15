@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.uf.common.dataplugin.qc.internal;
+package com.raytheon.uf.edex.plugin.qc.internal;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,6 +47,19 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * This class should only be used by the QC plug-ins.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???          ???         ???         Initial creation
+ * Aug 15, 2014 3530        bclement    moved from common to edex
+ * 
+ * </pre>
+ * 
+ * @version 1.0
  */
 public class QCPaths {
     private static final transient IUFStatusHandler statusHandler = UFStatus
