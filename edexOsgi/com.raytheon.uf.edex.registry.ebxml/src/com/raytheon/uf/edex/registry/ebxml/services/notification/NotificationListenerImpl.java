@@ -55,13 +55,13 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeletionScope;
 import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
