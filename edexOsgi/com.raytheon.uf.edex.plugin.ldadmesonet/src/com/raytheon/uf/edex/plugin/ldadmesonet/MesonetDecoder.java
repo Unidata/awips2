@@ -45,8 +45,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
-import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.ldad.common.DecodedData;
 import com.raytheon.edex.plugin.ldad.common.LdadField;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -55,6 +53,8 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
@@ -70,14 +70,17 @@ import com.raytheon.uf.common.time.DataTime;
  * May 15, 2013 1869        bsteffen    Remove DataURI column from ldadmesonet.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Jul 23, 2014 3410        bclement    location changed to floats
+ * Aug 15, 2014 3530        bclement    no longer extends AbstractDecoder
  * </pre>
  * 
  * @author vkorolev
  * @version 1
  */
 
-public class MesonetDecoder<E> extends AbstractDecoder implements
-        IBinaryDecoder {
+public class MesonetDecoder<E> {
+
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(MesonetDecoder.class);
 
     private static final String BAD_PROPERTY_FMT = "NumberFormatException setting property %s.%s(%s %s)";
 
@@ -103,17 +106,11 @@ public class MesonetDecoder<E> extends AbstractDecoder implements
 
     private String timeZone = null;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.IBinaryDecoder#decode(byte[])
+    /**
+     * @param data
+     * @return
+     * @throws DecoderException
      */
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.IBinaryDecoder#decode(byte[])
-     */
-    @Override
     public PluginDataObject[] decode(byte[] data) throws DecoderException {
         List<PluginDataObject> retVal = new ArrayList<PluginDataObject>();
         if (data != null) {
