@@ -166,7 +166,7 @@ public class LoadRbdControl extends Composite {
         super(parent, SWT.NONE );
         shell = parent.getShell();
 
-    	rbdLoader = new ResourceBndlLoader("SPF Loader");
+    	rbdLoader = new ResourceBndlLoader("Bundle Group Loader");
 
         seldRbdsList = new ArrayList<AbstractRBD<?>>();
         availRbdsList = new ArrayList<AbstractRBD<?>>();
@@ -423,7 +423,7 @@ public class LoadRbdControl extends Composite {
 	    				return rbd.getRbdName();
 	    			}
 	    		}
-	    		else  return "Error: bad RBD element";
+	    		else  return "Error: bad Bundle element";
 	    	}
         });
         
@@ -569,7 +569,7 @@ public class LoadRbdControl extends Composite {
 			    	
 			    	for( AbstractRenderableDisplay rendDisp : panes ) {
 			    		if( !(rendDisp instanceof INatlCntrsRenderableDisplay) ) {
-			    			System.out.println("Sanity check: we have a non-natlCntrs display in the RBD");
+			    			System.out.println("Sanity check: we have a non-natlCntrs display in the Bundle");
 			    		}
 			    		else {			    			
 			    			String area = ((INatlCntrsRenderableDisplay)rendDisp).getInitialArea().getProviderName();
@@ -580,7 +580,7 @@ public class LoadRbdControl extends Composite {
 			    			if( !geoSyncArea.equals( area ) ) {
 			    	        	MessageBox mb = new MessageBox( shell, SWT.OK);
 			    	        	mb.setText("Info");
-			    	        	mb.setMessage("The panes in the RBD have different Predefined Areas,\n"+
+			    	        	mb.setMessage("The panes in the Biundle have different Predefined Areas,\n"+
 			    	        	  			  "but you may change the area after loading.");
 			    	        	mb.open();
 			    	        	break;
@@ -762,8 +762,8 @@ public class LoadRbdControl extends Composite {
     	// sanity check. this shouldn't happen.
         if( seldRbdsList.size() == 0 ) {
         	MessageBox mb = new MessageBox( shell, SWT.OK);
-        	mb.setText("No SPFs are Selected.");
-        	mb.setMessage("No SPFs are Selected.");
+        	mb.setText("No Bundle Groups are Selected.");
+        	mb.setMessage("No Bundle Groups are Selected.");
         	mb.open();
             return false;
     	}
@@ -790,7 +790,7 @@ public class LoadRbdControl extends Composite {
 				AbstractRenderableDisplay panes[] = rbdBndl.getDisplays();
 
 				if( panes == null || panes.length == 0 ) {
-					throw new VizException( "No Panes are defined for this RBD???.");
+					throw new VizException( "No Panes are defined for this Bundle???.");
 				}
 
 				Integer paneCount = panes.length;
@@ -833,8 +833,8 @@ public class LoadRbdControl extends Composite {
 					MessageDialog confirmDlg = new MessageDialog( 
 							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
 							"Reload?", null, 
-							"A Display already exists for RBD  "+ rbdName + ".\n\n"+
-							"Do you want to re-load this RBD in to Display '"+
+							"A Display already exists for Bundle  "+ rbdName + ".\n\n"+
+							"Do you want to re-load this Bundle in to Display '"+
 							NcEditorUtil.getDisplayName(newEditor)+"', or create a new Display?",
 							MessageDialog.QUESTION, new String[]{"Reload", "New Display"}, 0);
 					confirmDlg.open();
@@ -869,8 +869,8 @@ public class LoadRbdControl extends Composite {
 				
     		} catch (VizException e) {
             	MessageBox mb = new MessageBox( shell, SWT.OK);
-            	mb.setText("Error Loading RBD "+ rbdName );
-            	mb.setMessage("Error Loading RBD "+ rbdName+ ".\n\n"+e.getMessage() );
+            	mb.setText("Error Loading Bundle "+ rbdName );
+            	mb.setMessage("Error Loading Bundle "+ rbdName+ ".\n\n"+e.getMessage() );
             	mb.open();
 			}
 		}
@@ -930,7 +930,7 @@ public class LoadRbdControl extends Composite {
     	} catch (VizException e1) {
     		MessageDialog errDlg = new MessageDialog( 
     				shell, "Error", null, 
-    				"Error Editing RBD",
+    				"Error Editing Bundle",
     				MessageDialog.ERROR, new String[]{"Ok"}, 0);
     		errDlg.open();
     	}

@@ -97,7 +97,7 @@ public class SaveBundleAction extends AbstractHandler {
 			VizApp.runSync(new Runnable() {
 				public void run() {
 					String msg = null;
-					msg = new String("bundle "+ rbd_name_txt + " saved to "+ savedSpfName +".");
+					msg = new String("Bundle "+ rbd_name_txt + " saved to Group "+ savedSpfName +".");
 					MessageBox mb = new MessageBox( shell, SWT.OK );         								
 					mb.setText( "Bundle Saved" );
 					mb.setMessage( msg );
