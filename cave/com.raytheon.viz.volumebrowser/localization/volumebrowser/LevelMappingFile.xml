@@ -1346,7 +1346,6 @@
 	<Level displayName="Surface" key="1HYB">
 		<DatabaseLevel levelName="HYB" levelOneValue="1" />
 	</Level>
-	</Level>
 	<Level displayName="80 m" key="80m" group="S">
 		<DatabaseLevel levelName="FHAG" levelOneValue="80.0"
 			unit="m" />
@@ -1362,4 +1361,5 @@
 	<Level displayName="2-5km AGL" key="2-5kmAgl" group="C">
 		<DatabaseLevel levelName="FHAG" levelOneValue="2000"
 			levelTwoValue="5000.0" unit="m" />
+	</Level>
 </LevelMappings>
