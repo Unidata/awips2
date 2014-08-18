@@ -25,15 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-
 import com.raytheon.edex.uengine.exception.MicroEngineException;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.RunProcess;
 import com.raytheon.uf.edex.core.EDEXUtil;
@@ -56,6 +53,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  *                                     Added logic to utilize the trigger.
  * Sep 19, 2011 10955      rferrel     Use RunProcess
  * 05/25/2012   DR 15015   D. Friedman Use helper script to launch triggers.
+ * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
  * </pre>
  * 
  * @author mfegan
@@ -133,10 +131,15 @@ public class LdadMicroEngine extends AMicroEngine {
      */
     private String retrieveTextProduct(String prodID) throws Exception {
         Message message = createProductRequestMessage(prodID);
-        String xml = SerializationUtil.marshalToXml(message);
         Object response = EDEXUtil.getMessageProducer().sendSync(TEXT_DB_QUEUE,
-                xml);
-        return extractProductFromResponse(response.toString());
+                message);
+        if (response instanceof Message) {
+            return extractProductFromResponse((Message) response);
+        } else {
+            throw new MicroEngineException(
+                    "Unexpected return type from textdb service: "
+                            + response.getClass());
+        }
     }
 
     /**
@@ -166,10 +169,10 @@ public class LdadMicroEngine extends AMicroEngine {
         Message message = new Message();
         Header header = new Header();
         List<Property> properties = new ArrayList<Property>();
-        properties.add(new Property("VIEW", AsciiToHex("text")));
-        properties.add(new Property("OP", AsciiToHex("GET")));
-        properties.add(new Property("SUBOP", AsciiToHex("PROD")));
-        properties.add(new Property("AFOSCMD", AsciiToHex(prodID)));
+        properties.add(new Property("VIEW", "text"));
+        properties.add(new Property("OP", "GET"));
+        properties.add(new Property("SUBOP", "PROD"));
+        properties.add(new Property("AFOSCMD", prodID));
         header.setProperties(properties.toArray(new Property[] {}));
         message.setHeader(header);
         return message;
@@ -195,15 +198,13 @@ public class LdadMicroEngine extends AMicroEngine {
      * @throws Exception
      *             if an error occurs
      */
-    private String extractProductFromResponse(String response) throws Exception {
+    private String extractProductFromResponse(Message reply) throws Exception {
         StringBuffer retVal = new StringBuffer();
-        Message reply = (Message) SerializationUtil.unmarshalFromXml(response);
         Header header = reply.getHeader();
         if (header != null && header.getProperties() != null) {
             for (Property property : header.getProperties()) {
                 if (property.getName().equalsIgnoreCase("stdout")) {
-                    String value = hexToAscii(property.getValue());
-                    retVal.append(value).append("\n");
+                    retVal.append(property.getValue()).append("\n");
                 }
             }
         }
@@ -249,34 +250,6 @@ public class LdadMicroEngine extends AMicroEngine {
         // DR#10955
         RunProcess.getRunProcess()
                 .exec(script, strEnv.toArray(new String[] {}));
-    }
-
-    /**
-     * Converts an ASCII string to a binary representation. This conversion is
-     * required as Text Database Server expects all Header Property values to be
-     * HEX encoded.
-     * 
-     * @param string
-     *            the string to convert
-     * @return the converted string
-     */
-    private String AsciiToHex(String string) {
-        return new HexBinaryAdapter().marshal(string.getBytes());
-    }
-
-    /**
-     * Converts a HEX encoded string to plain ASCII. This conversion is required
-     * as Text Database Server expects all Header Property values to be HEX
-     * encoded.
-     * 
-     * @param hexString
-     *            the HEX encoded string
-     * 
-     * @return the plain text string
-     */
-    private String hexToAscii(String hexString) {
-        byte[] b = new HexBinaryAdapter().unmarshal(hexString);
-        return new String(b);
     }
     
     /**
