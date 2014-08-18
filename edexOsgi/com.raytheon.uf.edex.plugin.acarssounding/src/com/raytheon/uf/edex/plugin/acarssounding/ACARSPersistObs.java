@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
-import com.raytheon.uf.common.dataplugin.acarssounding.tools.AirportsBean;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
+import com.raytheon.uf.edex.plugin.acarssounding.tools.AirportsBean;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
 
 /**
