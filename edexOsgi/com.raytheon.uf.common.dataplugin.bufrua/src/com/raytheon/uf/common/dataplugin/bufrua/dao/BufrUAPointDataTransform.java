@@ -24,15 +24,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.dataplugin.bufrua.LayerTools;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObsLevel;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -50,6 +49,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                     bufrua.
  * Sep  9, 2013 2277       mschenke    Got rid of ScriptCreator references
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Aug 18, 2014 3530       bclement    switched from commons.logging to ufstatus
  * 
  * </pre>
  * 
@@ -60,8 +60,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 public class BufrUAPointDataTransform {
 
     /** The logger */
-    private static Log logger = LogFactory
-            .getLog(BufrUAPointDataTransform.class);
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(BufrUAPointDataTransform.class);
 
     public static final String[] HDR_PARAMS = new String[] { "wmoStaNum",
             "staName", "validTime", "relTime", "staElev", "latitude",
