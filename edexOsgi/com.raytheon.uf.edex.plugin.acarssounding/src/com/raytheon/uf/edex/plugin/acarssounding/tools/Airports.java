@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.acarssounding.tools;
+package com.raytheon.uf.edex.plugin.acarssounding.tools;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2009            jkorman     Initial creation
  * Oct 22, 2013 2361       njensen     Use JAXBManager for XML
+ * Aug 18, 2014 3530       bclement    moved from common to edex
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 @XmlAccessorType(XmlAccessType.NONE)
 public class Airports {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     // Average earth radius, fine for what we are doing.
     private static final double E_RADIUS = 6371.2213;
