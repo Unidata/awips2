@@ -83,6 +83,7 @@ TOPO_TO_COPY=\
    'modelStaticTopo.h5' \
    'pacTopo.dat.gz' \
    'srtm30.h5'\
+   'defaultTopo.h5'\
    'staticTopo.h5' \
    'usTopo.dat.gz' \
    'worldTopo.dat.gz' \
