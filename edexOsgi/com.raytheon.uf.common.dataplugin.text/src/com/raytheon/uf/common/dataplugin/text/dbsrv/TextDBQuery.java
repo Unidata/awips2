@@ -34,11 +34,12 @@ import com.raytheon.uf.common.message.Property;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 3, 2008            jkorman     Initial creation
+ * Nov 3, 2008             jkorman     Initial creation
  * 28May2010               cjeanbap    Added operational functionality.
  * 02Aug2010    2187       cjeanbap    Update variable/method signature to be consistent.
- * 29Jan2013    1496      rferrel     Added methods clearProductIds and clone.
- * May 15, 2014 2536      bclement    moved from uf.edex.textdbsrv
+ * 29Jan2013    1496       rferrel     Added methods clearProductIds and clone.
+ * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
+ * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
  * 
  * </pre>
  * 
@@ -431,7 +432,7 @@ public class TextDBQuery {
         for (Property property : properties) {
             String s = property.getValue();
             if (s != null) {
-                property.setValue(PropConverter.asciiToHex(s));
+                property.setValue(s);
             }
         }
         Property[] p = new Property[properties.size()];
@@ -453,7 +454,7 @@ public class TextDBQuery {
                     for (Property p : properties) {
                         String s = p.getValue();
                         if (s != null) {
-                            p.setValue(PropConverter.hexToAscii(s));
+                            p.setValue(s);
                         }
                     }
                 }
