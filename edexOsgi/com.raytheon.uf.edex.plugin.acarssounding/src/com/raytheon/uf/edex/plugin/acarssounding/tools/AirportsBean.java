@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.acarssounding.tools;
+package com.raytheon.uf.edex.plugin.acarssounding.tools;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 23, 2010            jkorman     Initial creation
+ * Aug 18, 2014 3530       bclement    moved from common to edex
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 
 public class AirportsBean {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private static final String PATH_EXT = "stations";
 
