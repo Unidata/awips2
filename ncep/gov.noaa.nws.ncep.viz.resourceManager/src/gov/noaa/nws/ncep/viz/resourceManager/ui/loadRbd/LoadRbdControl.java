@@ -580,7 +580,7 @@ public class LoadRbdControl extends Composite {
 			    			if( !geoSyncArea.equals( area ) ) {
 			    	        	MessageBox mb = new MessageBox( shell, SWT.OK);
 			    	        	mb.setText("Info");
-			    	        	mb.setMessage("The panes in the Biundle have different Predefined Areas,\n"+
+			    	        	mb.setMessage("The panes in the Bundle have different Predefined Areas,\n"+
 			    	        	  			  "but you may change the area after loading.");
 			    	        	mb.open();
 			    	        	break;
