@@ -62,10 +62,6 @@
   	</bean>
     
     <!-- textdb -->
-     <bean id="textDbSrvWrapper" class = "com.raytheon.uf.edex.plugin.text.dbsrv.TextDBSrvWrapper">
-        <property name="textdbSrv" ref="textdbsrv"/>
-        <property name="byteLimitInMB" value="${textdbsrv.byteLimitInMB}"/>
-    </bean>
 
     <bean id="executeAfosCmdHandler" class="com.raytheon.uf.edex.plugin.text.handler.ExecuteAfosCmdHandler" />
     <bean factory-bean="handlerRegistry" factory-method="register">
@@ -98,6 +94,15 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest"/>
         <constructor-arg ref="remoteRetrievalHandler"/>
     </bean>
+    
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBRequest"/>
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBRequestHandler">
+                <constructor-arg ref="textdbsrv" />
+            </bean>
+        </constructor-arg>
+    </bean>
 
     <bean id="remoteRetrievalManager" class="com.raytheon.uf.edex.plugin.text.handler.RemoteRetrievalManager">
         <!--  <property name="remoteRetrievalExternalURI" value="direct-vm:remoteRetrievalExternalRoute" />  -->
@@ -129,17 +134,9 @@
         <proxy id="textdbRemoteRetrievalTarget"
             serviceInterface="com.raytheon.uf.edex.plugin.text.handler.RemoteRetrievalManager$IRRDelegate"
             serviceUrl="direct-vm:remoteRetrievalExternalRoute" />
-
-        <endpoint id="textdbsrvXml_from"
-            uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/textdbsrv?disableStreamCache=true" />
             
         <endpoint id="subscriptionHTTP_from"
             uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/subscribe?disableStreamCache=true" />
-
-        <route id="textdbsrvXml">
-            <from uri="ref:textdbsrvXml_from" />
-            <bean ref="textDbSrvWrapper" method="executeTextDBMessage" />
-        </route>
         
         <route id="remoteRetrievalExternal">
             <from uri="direct-vm:remoteRetrievalExternalRoute" />
