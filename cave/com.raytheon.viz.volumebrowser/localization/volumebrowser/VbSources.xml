@@ -11,6 +11,7 @@
 	<vbSource key="GFS201" category="Volume" />
 	<vbSource key="GFS212" category="Volume" />
 	<vbSource key="GFS213" category="Volume" />
+	<vbSource key="GFS-NH" category="Volume" />
 	<vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES"/>
 	<vbSource key="HiResW-ARW-East" category="Volume" />
 	<vbSource key="HiResW-ARW-West" category="Volume" />

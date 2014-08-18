@@ -2296,7 +2296,7 @@ public class CreateRbdControl extends Composite {
     	if( seldDisplayName.equals( ImportFromSPF ) ) {
 
     		SelectRbdsDialog impDlg = 
-    			new SelectRbdsDialog( shell, "Import RBD", 
+    			new SelectRbdsDialog( shell, "Import Bundle", 
     					false, false, false );
 
     		if( !impDlg.open() ) {
@@ -2326,7 +2326,7 @@ public class CreateRbdControl extends Composite {
 			} catch (VizException e) {
 				MessageDialog errDlg = new MessageDialog( 
 						shell, "Error", null, 
-						"Error Importing Rbd from Display, "+seldDisplayName.toString()+".\n"+e.getMessage(),
+						"Error Importing Bundle from Display, "+seldDisplayName.toString()+".\n"+e.getMessage(),
 						MessageDialog.ERROR, new String[]{"OK"}, 0);
 				errDlg.open();
 				return;
@@ -2341,8 +2341,8 @@ public class CreateRbdControl extends Composite {
     	if( rbdMngr.isRbdModified() ) { //confirm ) {
     		MessageDialog confirmDlg = new MessageDialog( 
     				shell, "Confirm", null, 
-    				"This RBD has been modified.\n\n"+
-    				"Do you want to coninue the import and clear the current RBD selections?",
+    				"This Bundle has been modified.\n\n"+
+    				"Do you want to coninue the import and clear the current Bundle selections?",
     				MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
     		confirmDlg.open();
 
@@ -2361,7 +2361,7 @@ public class CreateRbdControl extends Composite {
     		
 			MessageDialog errDlg = new MessageDialog( 
 					shell, "Error", null, 
-					"Error Importing RBD:"+impRbd.getRbdName()+"\n\n"+e.getMessage(),
+					"Error Importing Bundle: "+impRbd.getRbdName()+"\n\n"+e.getMessage(),
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();
     	}
@@ -2509,11 +2509,11 @@ public class CreateRbdControl extends Composite {
     		VizApp.runSync(new Runnable() {
     			public void run() {
     				String msg = null;
-    				msg = new String("RBD "+
-    						rbd_name_txt + " saved to SPF "+
+    				msg = new String("Bundle "+
+    						rbd_name_txt + " saved to Group "+
     						savedSpfGroup + File.separator+ savedSpfName+".");
     				MessageBox mb = new MessageBox( shell, SWT.OK );         								
-    				mb.setText( "RBD Saved" );
+    				mb.setText( "Bundle Saved" );
     				mb.setMessage( msg );
     				mb.open();
 

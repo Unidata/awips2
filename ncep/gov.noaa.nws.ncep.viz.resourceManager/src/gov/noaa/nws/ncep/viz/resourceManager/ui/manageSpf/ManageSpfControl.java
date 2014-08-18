@@ -301,7 +301,7 @@ public class ManageSpfControl extends Composite {
         // this will become visible (on top of the Delete SPF button) 
         // only when deleteSpf is selected and when there are no spfs to delete.
         deleteSpfGroupBtn = new Button( selSpfComp, SWT.PUSH );        
-        deleteSpfGroupBtn.setText( " Delete SPF Group " );
+        deleteSpfGroupBtn.setText( " Delete Bundle Group " );
        	fd = new FormData(140, 30);
         fd.top = new FormAttachment( spfActionBtn, 0, SWT.TOP );
         fd.left  = new FormAttachment( spfActionBtn, -20, SWT.LEFT );
