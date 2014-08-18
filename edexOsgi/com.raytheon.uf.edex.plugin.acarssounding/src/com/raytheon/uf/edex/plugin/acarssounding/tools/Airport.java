@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.acarssounding.tools;
+package com.raytheon.uf.edex.plugin.acarssounding.tools;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlElement;
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2009            jkorman     Initial creation
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Aug 18, 2014 3530       bclement    moved from common to edex
  * 
  * </pre>
  * 
