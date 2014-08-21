@@ -19,22 +19,12 @@
  **/
 package com.raytheon.uf.common.dataplugin.warning.gis;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * Collection of GeospatialTime representing a set of generated geospatial data
- * for warngen configurations
+ * A request for geospatial time set data for desired site.
  * 
  * <pre>
  * 
@@ -42,41 +32,23 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 15, 2011            rjpeter     Initial creation
- * Aug 21, 2014 3353       rferrel     Allow serialization.
+ * Aug 19, 2014            rferrel     Initial creation
  * 
  * </pre>
  * 
- * @author rjpeter
+ * @author rferrel
  * @version 1.0
  */
-
-@XmlAccessorType(XmlAccessType.NONE)
-@XmlRootElement(name = "geoTimeSet")
 @DynamicSerialize
-public class GeospatialTimeSet implements IServerRequest {
-    @XmlElement(name = "geoTime")
+public class GenerateGeospatialTimeSetRequest implements IServerRequest {
     @DynamicSerializeElement
-    private List<GeospatialTime> data;
+    private String site;
 
-    public List<GeospatialTime> getData() {
-        return data;
+    public String getSite() {
+        return site;
     }
 
-    public void setData(List<GeospatialTime> data) {
-        this.data = data;
-    }
-
-    public Map<GeospatialMetadata, GeospatialTime> getDataAsMap() {
-        Map<GeospatialMetadata, GeospatialTime> rval = null;
-        if (data != null) {
-            int size = (int) (data.size() * 1.25) + 1;
-            rval = new HashMap<GeospatialMetadata, GeospatialTime>(size);
-            for (GeospatialTime time : data) {
-                rval.put(time.getMetaData(), time);
-            }
-        }
-
-        return rval;
+    public void setSite(String site) {
+        this.site = site;
     }
 }
