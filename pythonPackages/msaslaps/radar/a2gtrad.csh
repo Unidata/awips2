@@ -1,4 +1,24 @@
 #!/bin/csh
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
 #
 # A script wrapper that is meant to get data for a single radar product
 # from the A-II database.  The result is output to stdout as ASCII.
@@ -51,7 +71,17 @@
 #  submitted to the UEngine instead of cleaning it up.  The path to the
 #  finalized python is /tmp/a2gtradNNNNN.py where NNNNN is a unix process id.
 # 
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    08/07/2014      3393          nabowle        Initial modification. Passes parameters straight to
+#                                                 non-uengine script instead of sed. Remove use of gtasUtil
+#                                                 if not using the uengine stub.
+#    
+# 
 #
+
 set rmpy = yes
 set fff = ""
 set encoding = 2
@@ -151,55 +181,77 @@ set mmm = $2
 shift
 shift
 set ddd = `echo $mmm | sed -f $mctrans | cut '-d|' -f2 `
-#
-#  Get program that can do math with ascii time string, then use this to
-#  properly encode range of times for which we look for data.
-#
-if ( -x ./gtasUtil ) then
-    set gtasUtil = ./gtasUtil
-else if ( -x $mydir/gtasUtil ) then
-    set gtasUtil = $mydir/gtasUtil
-else if ( -x $fxa_home/src/dm/point/gtasUtil ) then
-    set gtasUtil = $fxa_home/src/dm/point/gtasUtil
-else if ( -x $FXA_HOME/bin/gtasUtil ) then
-    set gtasUtil = $FXA_HOME/bin/gtasUtil
-else
-    bash -c "echo could not find gtasUtil executable 1>&2"
-    exit
-endif
+
 set eee = `echo $1 | grep -v '.*-'`
 if ( "$eee" != "" ) shift
 set slop = `echo $3 | grep '[0-9]'`
 if ( "$slop" == "" ) set slop = 60
-set aaa = `$gtasUtil = $1 $2 -$slop`
-set bbb = `$gtasUtil = $1 $2 $slop`
-#
-#  Modify the text of special tags in stub to create finalized script.
-#
-set specpy = /tmp/a2gtrad${$}.py
-rm -rf $specpy >& /dev/null
-touch $specpy
-chmod 775 $specpy
-if ( "$eee" == "" ) then
-  cat $stubpy | sed "s/KKKK/$rrr/g" | sed "s/MMMM/$mmm/g" | \
-      sed "s/AAAAA/$aaa/g" | sed "s/BBBBB/$bbb/g" | sed "s/FFF/$fff/g" | \
-      sed "s/DDDDD/$ddd/g" | sed 's/^.*EEEE.*$//g'  | \
-      sed "s/XXXXX/$encoding/g" >> $specpy
-else
-  cat $stubpy | sed "s/KKKK/$rrr/g" | sed "s/MMMM/$mmm/g" | \
-      sed "s/AAAAA/$aaa/g" | sed "s/BBBBB/$bbb/g" | sed "s/FFF/$fff/g" | \
-      sed "s/DDDDD/$ddd/g" | sed "s/EEEE/$eee/g"  | \
-      sed "s/XXXXX/$encoding/g" >> $specpy
-endif
-#
-#  Submit the temporary python script stripping xml stuff, then remove it
-#
+
 if ( "$method" == "daf" ) then
-     /awips2/python/bin/python $specpy
+     set datetime = $1' '$2
+     set opts = ""
+
+     if ( "$eee" != "" ) then
+         set opts = "$opts --angle $eee"
+     endif
+
+     if ( "$fff" == "x" ) then
+         set opts = "$opts --extended"
+     endif
+     if ( "$encoding" == "1" ) then
+         set opts = "$opts --hex"
+     else if ( "$encoding" == "0" ) then
+         set opts = "$opts --int"
+     endif 
+
+     /awips2/python/bin/python $stubpy --radar $rrr --code $mmm --datetime="${datetime}" --slop $slop --description="${ddd}" $opts
 else
+    #
+    #  Get program that can do math with ascii time string, then use this to
+    #  properly encode range of times for which we look for data.
+    #
+    if ( -x ./gtasUtil ) then
+        set gtasUtil = ./gtasUtil
+    else if ( -x $mydir/gtasUtil ) then
+        set gtasUtil = $mydir/gtasUtil
+    else if ( -x $fxa_home/src/dm/point/gtasUtil ) then
+        set gtasUtil = $fxa_home/src/dm/point/gtasUtil
+    else if ( -x $FXA_HOME/bin/gtasUtil ) then
+        set gtasUtil = $FXA_HOME/bin/gtasUtil
+    else
+        bash -c "echo could not find gtasUtil executable 1>&2"
+        exit
+    endif
+
+    set aaa = `$gtasUtil = $1 $2 -$slop`
+    set bbb = `$gtasUtil = $1 $2 $slop`
+    #
+    #  Modify the text of special tags in stub to create finalized script.
+    #
+    set specpy = /tmp/a2gtrad${$}.py
+    rm -rf $specpy >& /dev/null
+    touch $specpy
+    chmod 775 $specpy
+    if ( "$eee" == "" ) then
+      cat $stubpy | sed "s/KKKK/$rrr/g" | sed "s/MMMM/$mmm/g" | \
+          sed "s/AAAAA/$aaa/g" | sed "s/BBBBB/$bbb/g" | sed "s/FFF/$fff/g" | \
+          sed "s/DDDDD/$ddd/g" | sed 's/^.*EEEE.*$//g'  | \
+          sed "s/XXXXX/$encoding/g" >> $specpy
+    else
+      cat $stubpy | sed "s/KKKK/$rrr/g" | sed "s/MMMM/$mmm/g" | \
+          sed "s/AAAAA/$aaa/g" | sed "s/BBBBB/$bbb/g" | sed "s/FFF/$fff/g" | \
+          sed "s/DDDDD/$ddd/g" | sed "s/EEEE/$eee/g"  | \
+          sed "s/XXXXX/$encoding/g" >> $specpy
+    endif
+    #
+    #  Submit the temporary python script stripping xml stuff, then remove it
+    #
+
     cd $UE_BIN_PATH
     ( uengine -r python < $specpy ) | grep -v '<' | sed 's/&gt;/>/g' | \
        sed 's/&lt;/</g' | grep -v Response
+
+    if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null
 endif
-if ( "$rmpy" == "yes" ) rm -rf $specpy >& /dev/null
+
 #
