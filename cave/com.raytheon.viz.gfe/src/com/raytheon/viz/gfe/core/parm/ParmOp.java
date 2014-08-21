@@ -55,6 +55,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEException;
@@ -87,6 +88,7 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * 10/15/2013   #2445      randerso    Removed expansion of publish time to span of 
  *                                     overlapping grids since this is now done on 
  *                                     the server side
+ * 08/20/2014   #1664      randerso    Fixed invalid thread access
  * 
  * </pre>
  * 
@@ -602,12 +604,16 @@ public class ParmOp {
             parm.getParmState().setCombineMode(editMode);
         }
 
-        // WeatherCombineModeChangedMsg::send(_msgHand, editMode);
-        ICommandService service = (ICommandService) PlatformUI.getWorkbench()
-                .getService(ICommandService.class);
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                ICommandService service = (ICommandService) PlatformUI
+                        .getWorkbench().getService(ICommandService.class);
 
-        service.refreshElements("com.raytheon.viz.gfe.actions.setCombineMode",
-                null);
+                service.refreshElements(
+                        "com.raytheon.viz.gfe.actions.setCombineMode", null);
+            }
+        });
 
         return;
     }
