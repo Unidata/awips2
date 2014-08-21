@@ -108,6 +108,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Mar 19, 2014  2726      rjpeter     Made singleton instance.
  * Apr 29, 2014  3033      jsanchez    Properly handled site and back up site files.
  * Jul 15, 2014  3352      rferrel     Better logging and threading added.
+ * Aug 21, 2014  3353      rferrel     Added getGeospatialTimeset and cluster locking of METADATA_FILE.
  * </pre>
  * 
  * @author rjpeter
@@ -156,6 +157,44 @@ public class GeospatialDataGenerator {
         public void run() {
             long currentTime = System.currentTimeMillis();
             ClusterLockUtils.updateLockTime(CLUSTER_NAME, details, currentTime);
+        }
+    }
+
+    /**
+     * Common format for cluster tasks details entry.
+     * 
+     * @param site
+     * @param fileName
+     * @return details
+     */
+    private static String getDetails(String site, String fileName) {
+        return String.format("%s%s%s", site, File.separator, fileName);
+    }
+
+    /**
+     * Lock cluster task for the site's metadata file and obtain the file's
+     * geospatial time set.
+     * 
+     * @param site
+     * @return geospatialTimeSet
+     */
+    public static GeospatialTimeSet getGeospatialTimeset(String site) {
+        String metadataDetails = getDetails(site,
+                GeospatialFactory.METADATA_FILE
+                        .substring(GeospatialFactory.METADATA_FILE
+                                .lastIndexOf(File.separator) + 1));
+
+        ClusterTask ct = null;
+        try {
+            do {
+                ct = ClusterLockUtils.lock(CLUSTER_NAME, metadataDetails,
+                        TIME_OUT, true);
+            } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
+            return GeospatialFactory.getGeospatialTimeSet(site);
+        } finally {
+            if (ct != null) {
+                ClusterLockUtils.unlock(ct, false);
+            }
         }
     }
 
@@ -300,7 +339,7 @@ public class GeospatialDataGenerator {
 
     private String getClusterDetails(String site, GeospatialMetadata metaData) {
         String fileName = generateGeoDataFilename(metaData);
-        return String.format("%s%s%s", site, File.separator, fileName);
+        return getDetails(site, fileName);
     }
 
     public GeospatialDataSet generateGeoSpatialList(String site,
@@ -341,7 +380,8 @@ public class GeospatialDataGenerator {
             // NOTE: changes to curTimeMap are not persisted back to the
             // GeospatialTimeSet
             Map<GeospatialMetadata, GeospatialTime> lastRunTimeMap = GeospatialFactory
-                    .loadLastRunGeoTimeSet(site);
+                    .loadLastRunGeoTimeSet(getGeospatialTimeset(site));
+
             GeospatialTime lastRunTime = lastRunTimeMap.get(metaData);
             boolean generate = true;
             if (curTime.equals(lastRunTime)) {
@@ -764,32 +804,63 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
+    /**
+     * Save data in the desired file and update the meta data file. Assumes
+     * already have a cluster lock for the data file. A cluster lock is obtained
+     * on the metadata file prior to updating it.
+     * 
+     * @param site
+     * @param times
+     * @param curTime
+     * @param geoData
+     * @throws SerializationException
+     * @throws LocalizationException
+     * @throws JAXBException
+     */
     private void persistGeoData(String site,
             Map<GeospatialMetadata, GeospatialTime> times,
             GeospatialTime curTime, GeospatialDataSet geoData)
             throws SerializationException, LocalizationException, JAXBException {
+
         String fileName = generateGeoDataFilename(curTime.getMetaData());
+        String metadataDetails = getDetails(site,
+                GeospatialFactory.METADATA_FILE
+                        .substring(GeospatialFactory.METADATA_FILE
+                                .lastIndexOf(File.separator) + 1));
 
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext context = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
-        context.setContextName(site);
+        ClusterTask ct = null;
+        try {
+            do {
+                ct = ClusterLockUtils.lock(CLUSTER_NAME, metadataDetails,
+                        TIME_OUT, true);
+            } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
 
-        byte[] data = SerializationUtil.transformToThrift(geoData);
-        LocalizationFile lf = pathMgr.getLocalizationFile(context,
-                GeospatialFactory.GEO_DIR + fileName);
-        lf.write(data);
+            IPathManager pathMgr = PathManagerFactory.getPathManager();
+            LocalizationContext context = pathMgr.getContext(
+                    LocalizationType.COMMON_STATIC,
+                    LocalizationLevel.CONFIGURED);
+            context.setContextName(site);
 
-        curTime.setFileName(fileName);
-        times.put(curTime.getMetaData(), curTime);
+            byte[] data = SerializationUtil.transformToThrift(geoData);
+            LocalizationFile lf = pathMgr.getLocalizationFile(context,
+                    GeospatialFactory.GEO_DIR + fileName);
+            lf.write(data);
 
-        GeospatialTimeSet set = new GeospatialTimeSet();
-        set.setData(new ArrayList<GeospatialTime>(times.values()));
-        String xml = jaxb.marshalToXml(set);
+            curTime.setFileName(fileName);
+            times.put(curTime.getMetaData(), curTime);
 
-        lf = pathMgr.getLocalizationFile(context,
-                GeospatialFactory.METADATA_FILE);
-        lf.write(xml.getBytes());
+            GeospatialTimeSet set = new GeospatialTimeSet();
+            set.setData(new ArrayList<GeospatialTime>(times.values()));
+            String xml = jaxb.marshalToXml(set);
+
+            lf = pathMgr.getLocalizationFile(context,
+                    GeospatialFactory.METADATA_FILE);
+            lf.write(xml.getBytes());
+        } finally {
+            if (ct != null) {
+                ClusterLockUtils.unlock(ct, false);
+            }
+        }
     }
 
     private void deleteGeomFiles(String site, GeospatialTime time) {
