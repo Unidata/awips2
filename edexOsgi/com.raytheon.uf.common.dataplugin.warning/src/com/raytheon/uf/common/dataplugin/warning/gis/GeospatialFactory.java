@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Jan  9, 2013   15600    Qinglu Lin  Execute "timezones = myTimeZones;" even if timezones != null.
  * Oct 22, 2013   2361     njensen     Use JAXBManager for XML
  * Jun 17, 2014  DR 17390  Qinglu Lin  Updated getMetaDataMap() for lonField and latField.
+ * Aug 21, 2014   3353     rferrel     Generating Geo Spatial data set no longer on the UI thread.
  * 
  * </pre>
  * 
@@ -85,12 +86,25 @@ public class GeospatialFactory {
     private static SingleTypeJAXBManager<GeospatialTimeSet> jaxb = SingleTypeJAXBManager
             .createWithoutException(GeospatialTimeSet.class);
 
-    public static GeospatialData[] getGeoSpatialList(String site,
-            GeospatialMetadata metaData) throws SpatialException {
-        Map<GeospatialMetadata, GeospatialTime> lastRunTimeMap = loadLastRunGeoTimeSet(site);
+    /**
+     * Get existing geospatial data set or null if it does not exist.
+     * 
+     * @param site
+     * @param metaData
+     * @return dataSet
+     * @throws Exception
+     */
+    public static GeospatialDataSet getGeoSpatialDataSet(String site,
+            GeospatialMetadata metaData) throws Exception {
+        GenerateGeospatialTimeSetRequest request = new GenerateGeospatialTimeSetRequest();
+        request.setSite(site);
+        GeospatialTimeSet timeset = null;
+
+        timeset = (GeospatialTimeSet) RequestRouter.route(request);
+
+        Map<GeospatialMetadata, GeospatialTime> lastRunTimeMap = loadLastRunGeoTimeSet(timeset);
         GeospatialTime lastRunTime = lastRunTimeMap.get(metaData);
         GeospatialDataSet dataSet = null;
-        boolean generate = true;
         if (lastRunTime != null) {
             System.out.println("Loading areas from disk");
             // load from disk
@@ -103,22 +117,43 @@ public class GeospatialFactory {
                 statusHandler.handle(Priority.WARN,
                         "Failed to load area geometry files from disk", e);
             }
-
-            generate = dataSet == null;
         }
+        return dataSet;
+    }
 
-        if (generate) {
-            // send request to server
-            GenerateGeospatialDataRequest request = new GenerateGeospatialDataRequest();
-            request.setMetaData(metaData);
-            request.setSite(site);
-            try {
-                dataSet = (GeospatialDataSet) RequestRouter.route(request);
-            } catch (Exception e) {
-                throw new SpatialException(
-                        "Server failed to generate area geometry files.", e);
-            }
+    /**
+     * Force creation of the desired geospatial data set.
+     * 
+     * @param site
+     * @param metaData
+     * @return dataSet
+     * @throws SpatialException
+     */
+    public static GeospatialDataSet generateGeospatialDataSet(String site,
+            GeospatialMetadata metaData) throws SpatialException {
+        // send request to server
+        GenerateGeospatialDataRequest request = new GenerateGeospatialDataRequest();
+        request.setMetaData(metaData);
+        request.setSite(site);
+        GeospatialDataSet dataSet;
+        try {
+            dataSet = (GeospatialDataSet) RequestRouter.route(request);
+        } catch (Exception e) {
+            throw new SpatialException(
+                    "Server failed to generate area geometry files.", e);
         }
+        return dataSet;
+    }
+
+    /**
+     * Convert the geospatial data set into array of geospatial data.
+     * 
+     * @param dataSet
+     * @param metaData
+     * @return areas
+     */
+    public static GeospatialData[] getGeoSpatialList(GeospatialDataSet dataSet,
+            GeospatialMetadata metaData) {
 
         GeospatialData[] areas = dataSet.getAreas();
         GeospatialData[] parentAreas = dataSet.getParentAreas();
@@ -163,13 +198,27 @@ public class GeospatialFactory {
     }
 
     /**
+     * Convert the set's data into a map. When no data return empty map.
      * 
-     * @param site
-     * @return
+     * @param timeSet
+     * @return geospatialTimeMap
      */
     public static Map<GeospatialMetadata, GeospatialTime> loadLastRunGeoTimeSet(
-            String site) {
-        Map<GeospatialMetadata, GeospatialTime> rval = null;
+            GeospatialTimeSet timeSet) {
+        Map<GeospatialMetadata, GeospatialTime> rval = timeSet.getDataAsMap();
+        if (rval == null) {
+            rval = new HashMap<GeospatialMetadata, GeospatialTime>();
+        }
+        return rval;
+    }
+
+    /**
+     * Unmarshal the GeospatialTimeset in the site's metadata file.
+     * 
+     * @param site
+     * @return geospatialTimeset
+     */
+    public static GeospatialTimeSet getGeospatialTimeSet(String site) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
@@ -179,26 +228,13 @@ public class GeospatialFactory {
                 METADATA_FILE);
         if (lf.exists()) {
             try {
-                rval = jaxb.unmarshalFromXmlFile(lf.getFile()).getDataAsMap();
+                return jaxb.unmarshalFromXmlFile(lf.getFile());
             } catch (Exception e) {
-                statusHandler
-                        .handle(Priority.WARN,
-                                "Error occurred deserializing geometry metadata.  Deleting metadata and recreating.",
-                                e);
-
-                try {
-                    lf.delete();
-                } catch (Exception e1) {
-                    statusHandler.handle(Priority.WARN,
-                            "Error occurred deleting geometry metadata.", e1);
-                }
-                rval = new HashMap<GeospatialMetadata, GeospatialTime>();
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
-        } else {
-            rval = new HashMap<GeospatialMetadata, GeospatialTime>();
         }
-
-        return rval;
+        return new GeospatialTimeSet();
     }
 
     public static Map<String, GeospatialMetadata> getMetaDataMap(
