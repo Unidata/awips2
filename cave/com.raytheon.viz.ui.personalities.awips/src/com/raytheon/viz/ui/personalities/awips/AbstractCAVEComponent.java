@@ -99,6 +99,7 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  *                                    startup
  * Dec 10, 2013  2602     bsteffen    Start loading ProcedureXmlManager in
  *                                    startComponent.
+ * Aug 22, 2014  3500     bclement    moved ProcedureXMLManager initialization to postStartupActions()
  * 
  * </pre>
  * 
@@ -259,7 +260,7 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
                 startInternal(componentName);
             }
 
-            ProcedureXmlManager.inititializeAsync();
+            postStartupActions();
 
             if (workbenchAdvisor != null) {
                 returnCode = PlatformUI.createAndRunWorkbench(display,
@@ -301,6 +302,14 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             return IApplication.EXIT_RESTART;
         }
         return IApplication.EXIT_OK;
+    }
+
+    /**
+     * perform any additional initialization after the component has been
+     * started
+     */
+    protected void postStartupActions() {
+        ProcedureXmlManager.inititializeAsync();
     }
 
     /**
