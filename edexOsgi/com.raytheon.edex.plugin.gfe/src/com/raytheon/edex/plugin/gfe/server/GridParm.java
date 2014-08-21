@@ -75,7 +75,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 04/23/13     #1949      rjpeter     Removed excess validation on retrieval, added 
  *                                     inventory for a given time range.
  * 06/13/13     #2044      randerso    Refactored to use non-singleton LockManager
- * 07/01/2014   #3149      randerso    Removed unit conversion (unused) 
+ * 07/01/2014   #3149      randerso    Removed unit conversion (unused)
  * </pre>
  * 
  * @author bphillip
@@ -111,7 +111,7 @@ public class GridParm {
      * Creates a new empty GridParm
      */
     public GridParm() {
-
+        this.id = new ParmID();
     }
 
     /**
