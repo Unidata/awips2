@@ -14,6 +14,12 @@
   		<constructor-arg value="com.raytheon.uf.common.dataplugin.radar.request.GetRadarDataTreeRequest"/>
   		<constructor-arg ref="getRadarDataTreeHandler"/>
   	</bean>
+    
+    <bean id="getRadarDataRecordHandler" class="com.raytheon.edex.plugin.radar.handler.GetRadarDataRecordHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.radar.request.GetRadarDataRecordRequest"/>
+        <constructor-arg ref="getRadarDataRecordHandler"/>
+    </bean>
   	
   	<bean id="radarMenuUtil" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil" />
   	<bean id="radarMenus" factory-bean="menuCreationRegistry" factory-method="register">
