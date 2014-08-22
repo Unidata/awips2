@@ -30,28 +30,6 @@ import org.osgi.framework.Bundle;
  * Utility class to get the BundleRepository object associated with a Bundle, to
  * potentially synchronize against that object.
  * 
- * Specifically if a call to BundleWiring.getClassLoader() is invoked on a
- * thread other than main/UI thread, then there is a possible deadlock if the
- * application shuts down while the BundleWiring.getClassLoader() call is still
- * going. The BundleRepository of the Framework is the primary resource that is
- * in contention in this deadlock scenario, due to the BundleRepository being
- * used as a synchronization lock both deep in bundleWiring.getClassloader() and
- * in Framework shutdown code. The other resource used as a synchronization lock
- * and causing the deadlock is the BundleLoader associated with the bundle.
- * 
- * Therefore to avoid this deadlock, if you are going to call
- * BundleWiring.getClassLoader() you should attempt to get the BundleRepository
- * and synchronize against it. This will ensure the call to getClassLoader() can
- * finish and then release synchronization locks of both the BundleRepository
- * and BundleLoader.
- * 
- * If we fail to get the BundleRepository due to access restrictions, then you
- * should proceed onwards anyway because the odds of the application shutting
- * down at the same time as the call to BundleWiring.getClassLoader() is still
- * running is low. Even if that occurs, the odds are further reduced that the
- * two threads will synchronize against the BundleRepository at the same time
- * and deadlock.
- * 
  * 
  * <pre>
  * 
@@ -60,13 +38,14 @@ import org.osgi.framework.Bundle;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 17, 2014            njensen     Initial creation
+ * Aug 13, 2014 3500       bclement    moved documentation over to BundleSynchronizer
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
+ * @see BundleSynchronizer
  */
-
 public class BundleRepositoryGetter {
 
     private BundleRepositoryGetter() {
