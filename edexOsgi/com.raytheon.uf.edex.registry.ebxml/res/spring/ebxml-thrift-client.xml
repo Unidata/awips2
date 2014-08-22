@@ -2,18 +2,36 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
   
-  <bean id="handlerRegistry" class="com.raytheon.uf.edex.auth.HandlerRegistry" factory-method="getInstance"/>
+  <bean id="handlerRegistry" class="com.raytheon.uf.edex.requestsrv.HandlerRegistry" factory-method="getInstance"/>
   
-  <bean id="serializeServer" class="com.raytheon.uf.edex.auth.RemoteRequestServer" factory-method="getInstance">
-		<property name="registry" ref="handlerRegistry"/>
-	</bean>
-
-	<bean id="routeWrapper" class="com.raytheon.uf.edex.registry.ebxml.RegistryRemoteRequestWrapper">
-		<property name="server" ref="serializeServer"/>
-        <property name="byteLimitInMB" value="${thriftService.byteLimitInMB}" />
-	</bean>    
-
+  <!-- TODO: Need better way of using plugin spring files, copy pasted from request-service spring XML files for WEB context -->
     <bean id="binaryHttpBinding" class="com.raytheon.uf.edex.esb.camel.http.BinaryHttpBinding"/>
+    
+    <bean id="serializingStreamExecutor" class="com.raytheon.uf.edex.requestsrv.serialization.SerializingStreamExecutor"
+          factory-method="getInstance"/>
+
+	<bean id="thriftStreamSerializer" class="com.raytheon.uf.edex.requestsrv.serialization.thrift.ThriftStreamSerializer"/>
+
+	<bean factory-bean="serializingStreamExecutor" factory-method="registerMultiple">
+		<constructor-arg ref="thriftStreamSerializer" />
+		<constructor-arg>
+			<list>
+				<value>thrift</value>
+				<value>application/thrift</value>
+			</list>
+		</constructor-arg>
+	</bean>
+    
+    <bean id="limitingStreamExecutor" class="com.raytheon.uf.edex.requestsrv.serialization.ByteLimitingStreamExecutor">
+    	<constructor-arg ref="serializingStreamExecutor"/>
+    	<constructor-arg value="${edex.requestsrv.byteLimitInMB}"/>
+    	<property name="limitOutput" value="false"/>
+    </bean>
+            
+	<bean id="httpServiceExecutor" class="com.raytheon.uf.edex.requestsrv.http.HttpRequestServiceExecutor">
+		<!-- TODO: We are streaming to the HttpServletResponse directly in http service route, don't believe we need limiting anymore -->
+		<constructor-arg ref="limitingStreamExecutor"/>
+	</bean>
 
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.registry.IRegistryRequest"/>
