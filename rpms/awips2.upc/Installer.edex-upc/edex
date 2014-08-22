@@ -307,32 +307,6 @@ edex_start() { # start all edex services
 	su -c "service httpd-pypies start"
 	su -c "service qpidd start"
 	su -c "service edex_camel start"
-	echo "**************************************************"
-	echo "* Waiting for EDEX ESB to become operational     *"
-	echo "*  - This may take a few minutes                 *"
-	echo "*  - Do not start CAVE until this is complete    *"
-	echo "**************************************************"
-	echo -n "..."
-	prog=0
-	num=`tail -100 ${LOG_PATH}edex-ingest-${YMD}.log | grep "EDEX ESB is now operational" | wc -l`
-	while [ $num -lt 1 ]
-	do
-		sleep 3
-		num=`tail -100 ${LOG_PATH}edex-ingest-${YMD}.log | grep "EDEX ESB is now operational" | wc -l`
-		if [[ $prog -eq 46 ]]; then
-			prog=0
-		else
-			echo -n "."
-		fi
-		let prog++
-		if [[ $num -gt 0 ]]; then
-			echo ""
-			echo "**************************************************"
-			echo "* EDEX ESB is now operational		       *"
-			echo "* You may now start alertviz and CAVE            *"
-			echo "**************************************************"
-		fi
-	done
 }
 
 edex_stop() { # stop all edex services
