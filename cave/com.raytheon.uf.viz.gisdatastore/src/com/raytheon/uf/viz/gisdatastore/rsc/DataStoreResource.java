@@ -21,11 +21,15 @@ package com.raytheon.uf.viz.gisdatastore.rsc;
 
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.eclipse.core.runtime.ListenerList;
@@ -33,9 +37,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.data.DataStore;
 import org.geotools.data.Query;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -45,7 +46,6 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -59,7 +59,6 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -82,8 +81,10 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.maps.jobs.AbstractMapQueryJob;
+import com.raytheon.uf.viz.core.maps.jobs.AbstractMapRequest;
+import com.raytheon.uf.viz.core.maps.jobs.AbstractMapResult;
+import com.raytheon.uf.viz.core.maps.rsc.AbstractMapResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
@@ -95,13 +96,15 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 import com.raytheon.uf.viz.gisdatastore.Activator;
 import com.raytheon.uf.viz.gisdatastore.ui.PreferenceConverter;
+import com.raytheon.viz.core.rsc.jts.JTSCompiler;
+import com.raytheon.viz.core.rsc.jts.JTSCompiler.JTSGeometryData;
+import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 
 /**
@@ -113,17 +116,18 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 31, 2012      #1326 randerso     Initial creation
- * Feb 22, 2013      #1641 randerso     Moved ID_ATTRIBUTE_NAME to package scope
- * Jul 24, 2013      #1907 randerso     Fixed sampling when cropped
- * Jul 24, 2013      #1908 randerso     Update attributes when cropped
- * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
- * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
- * Mar 25, 2014      #2664 randerso     Added support for non-WGS84 shape files
- * Apr 14, 2014      #2664 randerso     Fix NullPointerException when no .prj file present
- * Apr 21, 2014      #2998 randerso     Stored types of attributes to be used in the AttributeViewer
- * Aug 14, 2014      #3523 mapeters     Updated deprecated {@link DrawableString#textStyle} 
- *                                      assignments.
+ * Oct 31, 2012      #1326 randerso    Initial creation
+ * Feb 22, 2013      #1641 randerso    Moved ID_ATTRIBUTE_NAME to package scope
+ * Jul 24, 2013      #1907 randerso    Fixed sampling when cropped
+ * Jul 24, 2013      #1908 randerso    Update attributes when cropped
+ * Feb 18, 2014      #2819 randerso    Removed unnecessary clones of geometries
+ * Mar 11, 2014      #2718 randerso    Changes for GeoTools 10.5
+ * Mar 25, 2014      #2664 randerso    Added support for non-WGS84 shape files
+ * Apr 14, 2014      #2664 randerso    Fix NullPointerException when no .prj file present
+ * Apr 21, 2014      #2998 randerso    Stored types of attributes to be used in the AttributeViewer
+ * Aug 14, 2014      #3523 mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ *                                     assignments.
+ * Aug 21, 2014      #3459 randerso    Restructured Map resource class hierarchy
  * 
  * </pre>
  * 
@@ -132,8 +136,8 @@ import com.vividsolutions.jts.geom.Point;
  */
 
 public class DataStoreResource extends
-        AbstractVizResource<DataStoreResourceData, MapDescriptor> implements
-        IPropertyChangeListener, IResourceDataChanged {
+        AbstractMapResource<DataStoreResourceData, MapDescriptor> implements
+        IPropertyChangeListener {
     private static final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GIS:");
 
@@ -222,6 +226,375 @@ public class DataStoreResource extends
         public double[] getLocation() {
             return location;
         }
+    }
+
+    private class MapQueryJob extends AbstractMapQueryJob<Request, Result> {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.viz.core.maps.jobs.AbstractMapQueryJob#getNewResult
+         * (com.raytheon.uf.viz.core.maps.jobs.AbstractMapRequest)
+         */
+        @Override
+        protected Result getNewResult(Request req) {
+            return new Result(req);
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.viz.core.maps.jobs.AbstractMapQueryJob#processRequest
+         * (com.raytheon.uf.viz.core.maps.jobs.AbstractMapRequest,
+         * com.raytheon.uf.viz.core.maps.jobs.AbstractMapResult)
+         */
+        @Override
+        protected void processRequest(Request req, Result result)
+                throws Exception {
+            if (checkCanceled(result)) {
+                return;
+            }
+
+            List<String> fields = new ArrayList<String>();
+            fields.add(req.geomField);
+            if ((req.labelField != null)
+                    && !fields.contains(req.labelField)
+                    && !req.labelField
+                            .equals(DataStoreResource.ID_ATTRIBUTE_NAME)) {
+                fields.add(req.labelField);
+            }
+            if ((req.shadingField != null)
+                    && !fields.contains(req.shadingField)
+                    && !req.shadingField
+                            .equals(DataStoreResource.ID_ATTRIBUTE_NAME)) {
+                fields.add(req.shadingField);
+            }
+
+            IWireframeShape newOutlineShape = req.getTarget()
+                    .createWireframeShape(false,
+                            req.getResource().getDescriptor());
+
+            IWireframeShape newHighlightShape = req.getTarget()
+                    .createWireframeShape(false,
+                            req.getResource().getDescriptor());
+
+            List<LabelNode> newLabels = new ArrayList<LabelNode>();
+
+            IShadedShape newShadedShape = null;
+            if (req.isProduct || (req.shadingField != null)) {
+                newShadedShape = req.getTarget().createShadedShape(false,
+                        req.getResource().getDescriptor().getGridGeometry(),
+                        true);
+            }
+
+            SimpleFeatureType schema = req.getResource().getSchema();
+
+            JTSCompiler jtsCompiler = new JTSCompiler(newShadedShape,
+                    newOutlineShape, req.getResource().getDescriptor());
+            JTSGeometryData geomData = jtsCompiler.createGeometryData();
+            geomData.setWorldWrapCorrect(true);
+            geomData.setPointStyle(PointStyle.CROSS);
+
+            JTSCompiler highlightCompiler = new JTSCompiler(null,
+                    newHighlightShape, req.getResource().getDescriptor());
+
+            String shapeField = schema.getGeometryDescriptor().getLocalName();
+
+            Query query = new Query();
+
+            String typeName = req.getResource().getTypeName();
+            query.setTypeName(typeName);
+            query.setPropertyNames(fields);
+
+            if (req.getBoundingGeom() != null) {
+                FilterFactory2 ff = CommonFactoryFinder
+                        .getFilterFactory2(GeoTools.getDefaultHints());
+
+                List<Geometry> geomList = new ArrayList<Geometry>();
+                flattenGeometry(req.getBoundingGeom(), geomList);
+
+                List<Filter> filterList = new ArrayList<Filter>(geomList.size());
+                for (Geometry g : geomList) {
+                    Filter filter = ff.intersects(ff.property(shapeField),
+                            ff.literal(g));
+                    filterList.add(filter);
+                }
+                query.setFilter(ff.or(filterList));
+            }
+
+            SimpleFeatureSource featureSource = req.getResource()
+                    .getDataStore().getFeatureSource(typeName);
+
+            SimpleFeatureCollection featureCollection = featureSource
+                    .getFeatures(query);
+            SimpleFeatureIterator featureIterator = featureCollection
+                    .features();
+
+            if (req.getResource().displayAttributes == null) {
+                req.getResource().displayAttributes = new HashMap<String, DataStoreResource.DisplayAttributes>(
+                        (int) Math.ceil(featureCollection.size() / 0.75f),
+                        0.75f);
+            }
+
+            // TODO: do we need to implement the GeometryCache/gidMap
+            // stuff like in DbMapResource?
+
+            List<Geometry> resultingGeoms = new ArrayList<Geometry>();
+            List<Geometry> highlightGeoms = new ArrayList<Geometry>();
+            int numPoints = 0;
+            while (featureIterator.hasNext()) {
+                if (checkCanceled(result)) {
+                    return;
+                }
+
+                SimpleFeature f = featureIterator.next();
+                String id = f.getID();
+                DisplayAttributes da = req.getResource().getDisplayAttributes(
+                        id);
+                if (!da.isVisible()) {
+                    continue;
+                }
+
+                Geometry g = JTS.transform((Geometry) f
+                        .getAttribute(req.geomField), req.getResource()
+                        .getIncomingToLatLon());
+                if (da.isHighlighted()) {
+                    highlightGeoms.add(g);
+                }
+
+                if (req.highlightsOnly) {
+                    continue;
+                }
+
+                Object labelAttr = null;
+                Object shadingAttr = null;
+                for (String name : fields) {
+                    if (name.equals(req.labelField)) {
+                        labelAttr = f.getAttribute(name);
+                    }
+                    if (name.equals(req.shadingField)) {
+                        shadingAttr = f.getAttribute(name);
+                    }
+                }
+
+                if (DataStoreResource.ID_ATTRIBUTE_NAME.equals(req.labelField)) {
+                    labelAttr = id;
+                }
+
+                if (DataStoreResource.ID_ATTRIBUTE_NAME
+                        .equals(req.shadingField)) {
+                    shadingAttr = id;
+                }
+
+                if ((labelAttr != null) && (g != null)) {
+                    String label;
+                    if (labelAttr instanceof BigDecimal) {
+                        label = Double.toString(((Number) labelAttr)
+                                .doubleValue());
+                    } else {
+                        label = labelAttr.toString();
+                    }
+                    int numGeometries = g.getNumGeometries();
+                    List<Geometry> gList = new ArrayList<Geometry>(
+                            numGeometries);
+                    for (int polyNum = 0; polyNum < numGeometries; polyNum++) {
+                        Geometry poly = g.getGeometryN(polyNum);
+                        gList.add(poly);
+                    }
+                    // Sort polygons in g so biggest comes first.
+                    Collections.sort(gList, new Comparator<Geometry>() {
+                        @Override
+                        public int compare(Geometry g1, Geometry g2) {
+                            return (int) Math.signum(g2.getEnvelope().getArea()
+                                    - g1.getEnvelope().getArea());
+                        }
+                    });
+
+                    for (Geometry poly : gList) {
+                        Point point = poly.getInteriorPoint();
+                        if (point.getCoordinate() != null) {
+                            double[] location = req
+                                    .getResource()
+                                    .getDescriptor()
+                                    .worldToPixel(
+                                            new double[] {
+                                                    point.getCoordinate().x,
+                                                    point.getCoordinate().y });
+
+                            DrawableString ds = new DrawableString(label, null);
+                            ds.font = req.getResource().font;
+                            Rectangle2D rect = req.getTarget()
+                                    .getStringsBounds(ds);
+
+                            LabelNode node = new LabelNode(label, location,
+                                    rect);
+                            newLabels.add(node);
+                        }
+                    }
+                }
+
+                if (g != null) {
+                    numPoints += g.getNumPoints();
+                    resultingGeoms.add(g);
+                    if (req.shadingField != null) {
+                        g.setUserData(shadingAttr);
+                    }
+                }
+            }
+
+            newOutlineShape.allocate(numPoints);
+            RGB outlineColor = req.getResource()
+                    .getCapability(ColorableCapability.class).getColor();
+            for (Geometry g : resultingGeoms) {
+                if (checkCanceled(result)) {
+                    return;
+                }
+
+                RGB color = null;
+                Object shadedField = g.getUserData();
+                if (shadedField != null) {
+                    color = req.getColor(shadedField);
+                } else {
+                    color = outlineColor;
+                }
+                geomData.setGeometryColor(color);
+
+                try {
+                    jtsCompiler.handle(g, geomData);
+                } catch (VizException e) {
+                    Activator.statusHandler.handle(Priority.PROBLEM,
+                            "Error reprojecting map outline", e);
+                }
+            }
+
+            newOutlineShape.compile();
+
+            if (req.isProduct || (req.shadingField != null)) {
+                newShadedShape.compile();
+            }
+
+            for (Geometry g : highlightGeoms) {
+                if (checkCanceled(result)) {
+                    return;
+                }
+
+                try {
+                    highlightCompiler.handle(g, geomData);
+                } catch (VizException e) {
+                    Activator.statusHandler.handle(Priority.PROBLEM,
+                            "Error reprojecting map outline", e);
+                }
+            }
+
+            // uncomment to see boungingGeom as highlight for debug purposes
+            // highlightCompiler.handle(req.boundingGeom, true);
+
+            newHighlightShape.compile();
+
+            result.outlineShape = newOutlineShape;
+            result.labels = newLabels;
+            result.shadedShape = newShadedShape;
+            result.colorMap = req.colorMap;
+            result.highlightShape = newHighlightShape;
+            result.highlightsOnly = req.highlightsOnly;
+        }
+
+    }
+
+    public class Request extends AbstractMapRequest<DataStoreResource> {
+
+        Random rand = new Random(System.currentTimeMillis());
+
+        String geomField;
+
+        String labelField;
+
+        String shadingField;
+
+        Map<Object, RGB> colorMap;
+
+        boolean isProduct;
+
+        boolean highlightsOnly;
+
+        Request(IGraphicsTarget target, DataStoreResource rsc,
+                Geometry boundingGeom, String geomField, String labelField,
+                String shadingField, Map<Object, RGB> colorMap,
+                boolean isProduct, boolean highlightsOnly) {
+            super(target, rsc, boundingGeom);
+            this.geomField = geomField;
+            this.labelField = labelField;
+            this.shadingField = shadingField;
+            this.colorMap = colorMap;
+            this.isProduct = isProduct;
+            this.highlightsOnly = highlightsOnly;
+        }
+
+        RGB getColor(Object key) {
+            if (colorMap == null) {
+                colorMap = new HashMap<Object, RGB>();
+            }
+            RGB color = colorMap.get(key);
+            if (color == null) {
+                color = new RGB(rand.nextInt(206) + 50, rand.nextInt(206) + 50,
+                        rand.nextInt(206) + 50);
+                colorMap.put(key, color);
+            }
+
+            return color;
+        }
+    }
+
+    public class Result extends AbstractMapResult {
+        public IWireframeShape outlineShape;
+
+        public List<LabelNode> labels;
+
+        public IShadedShape shadedShape;
+
+        public Map<Object, RGB> colorMap;
+
+        public IWireframeShape highlightShape;
+
+        public boolean highlightsOnly;
+
+        /**
+         * @param request
+         */
+        public Result(Request request) {
+            super(request);
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.core.maps.jobs.AbstractMapResult#dispose()
+         */
+        @Override
+        public void dispose() {
+            if (outlineShape != null) {
+                outlineShape.dispose();
+                outlineShape = null;
+            }
+
+            if (shadedShape != null) {
+                shadedShape.dispose();
+                shadedShape = null;
+            }
+
+            if (highlightShape != null) {
+                highlightShape.dispose();
+                highlightShape = null;
+            }
+
+            if (labels != null) {
+                labels.clear();
+                labels = null;
+            }
+        }
+
     }
 
     static class DisplayAttributes {
@@ -484,7 +857,7 @@ public class DataStoreResource extends
 
     protected String lastShadingField;
 
-    private ReloadJob reloadJob;
+    private MapQueryJob queryJob;
 
     protected String geometryType;
 
@@ -512,8 +885,6 @@ public class DataStoreResource extends
 
     private Coordinate dragPromptCoord;
 
-    private WorldWrapCorrector worldWrapCorrector;
-
     private String sampleAttribute;
 
     private Geometry boundingGeom;
@@ -528,7 +899,7 @@ public class DataStoreResource extends
     public DataStoreResource(DataStoreResourceData data,
             LoadProperties loadProperties) throws IOException {
         super(data, loadProperties);
-        reloadJob = new ReloadJob();
+        queryJob = new MapQueryJob();
 
         this.dataStore = data.getDataStore();
         this.typeName = data.getTypeName();
@@ -540,21 +911,13 @@ public class DataStoreResource extends
         GeneralEnvelope env = new GeneralEnvelope(MapUtil.LATLON_PROJECTION);
         env.setEnvelope(-180.0, -90.0, 180.0, 90.0);
 
-        GridGeometry2D latLonGridGeometry = new GridGeometry2D(
-                new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] { 360,
-                        180 }, false), env);
-        this.worldWrapCorrector = new WorldWrapCorrector(latLonGridGeometry);
         resourceData.addChangeListener(this);
         mouseHandler = new MouseHandler();
     }
 
     @Override
     protected void disposeInternal() {
-
-        if (font != null) {
-            font.dispose();
-            font = null;
-        }
+        queryJob.stop();
 
         if (outlineShape != null) {
             outlineShape.dispose();
@@ -573,10 +936,8 @@ public class DataStoreResource extends
             getResourceContainer().unregisterMouseHandler(mouseHandler);
         }
 
-        lastExtent = null;
-
         this.resourceData.disposeDataStore();
-        this.reloadJob.cancel();
+        super.disposeInternal();
     }
 
     @Override
@@ -668,14 +1029,16 @@ public class DataStoreResource extends
 
         IExtent worldExtent = getDescriptor().getRenderableDisplay().getView()
                 .getExtent();
-        Rectangle screenBounds = getResourceContainer().getActiveDisplayPane()
-                .getBounds();
-        double worldToScreenRatio = worldExtent.getWidth() / screenBounds.width;
+        int screenWidth = getResourceContainer().getActiveDisplayPane()
+                .getBounds().width;
+        double worldToScreenRatio = worldExtent.getWidth() / screenWidth;
+        int displayWidth = (descriptor.getMapWidth());
+        double kmPerPixel = (displayWidth / screenWidth) / 1000.0;
 
         List<Geometry> geomList = new ArrayList<Geometry>();
         PixelExtent extent = clipToProjExtent(projExtent);
         Geometry boundingGeom = JTS.transform(
-                buildBoundingGeometry(extent, worldToScreenRatio),
+                buildBoundingGeometry(extent, worldToScreenRatio, kmPerPixel),
                 latLonToIncoming);
         flattenGeometry(boundingGeom, geomList);
 
@@ -744,106 +1107,6 @@ public class DataStoreResource extends
         }
     }
 
-    private Geometry buildBoundingGeometry(PixelExtent extent,
-            double worldToScreenRatio) {
-
-        double[] northPole = getDescriptor().worldToPixel(
-                new double[] { 0, 90 });
-        double[] southPole = getDescriptor().worldToPixel(
-                new double[] { 0, -90 });
-
-        double[] p = null;
-        if ((northPole != null) && extent.contains(northPole)) {
-            p = northPole;
-        } else if ((southPole != null) && extent.contains(southPole)) {
-            p = southPole;
-        }
-
-        double delta = 1 / worldToScreenRatio;
-
-        Geometry g;
-        if (p == null) {
-            g = geometryFromExtent(extent, worldToScreenRatio);
-        } else {
-            // if pole in the extent split the extent into four quadrants with
-            // corners at the pole
-            PixelExtent[] quadrant = new PixelExtent[4];
-            quadrant[0] = new PixelExtent(extent.getMinX(), p[0] - delta,
-                    extent.getMinY(), p[1] - delta);
-            quadrant[1] = new PixelExtent(p[0] + delta, extent.getMaxX(),
-                    extent.getMinY(), p[1] - delta);
-            quadrant[2] = new PixelExtent(p[0] + delta, extent.getMaxX(), p[1]
-                    + delta, extent.getMaxY());
-            quadrant[3] = new PixelExtent(extent.getMinX(), p[0] - delta, p[1]
-                    + delta, extent.getMaxY());
-
-            List<Geometry> geometries = new ArrayList<Geometry>(4);
-            for (PixelExtent ext : quadrant) {
-                if ((ext.getWidth() > 0) && (ext.getHeight() > 0)) {
-                    geometries.add(geometryFromExtent(ext, worldToScreenRatio));
-                }
-            }
-
-            GeometryFactory gf = new GeometryFactory();
-            g = gf.createGeometryCollection(geometries
-                    .toArray(new Geometry[geometries.size()]));
-        }
-
-        MathTransform gridToCrs = getDescriptor().getGridGeometry()
-                .getGridToCRS();
-        DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
-        try {
-            MathTransform crsToLatLon = MapUtil
-                    .getTransformToLatLon(getDescriptor().getCRS());
-            MathTransform gridToLatLon = dmtf.createConcatenatedTransform(
-                    gridToCrs, crsToLatLon);
-            g = JTS.transform(g, gridToLatLon);
-
-            // correct for world wrap
-            g = this.worldWrapCorrector.correct(g);
-
-            return g;
-        } catch (Exception e) {
-            Activator.statusHandler.handle(Priority.PROBLEM,
-                    "Error computing bounding geometry", e);
-        }
-        return null;
-    }
-
-    private Geometry geometryFromExtent(PixelExtent extent,
-            double worldToScreenRatio) {
-        int nx = (int) Math.ceil(extent.getWidth() / worldToScreenRatio);
-        int ny = (int) Math.ceil(extent.getHeight() / worldToScreenRatio);
-
-        double dx = extent.getWidth() / nx;
-        double dy = extent.getHeight() / ny;
-
-        Coordinate[] coordinates = new Coordinate[(2 * (nx + ny)) + 1];
-        int i = 0;
-        for (int x = 0; x < nx; x++) {
-            coordinates[i++] = new Coordinate((x * dx) + extent.getMinX(),
-                    extent.getMinY());
-        }
-        for (int y = 0; y < ny; y++) {
-            coordinates[i++] = new Coordinate(extent.getMaxX(), (y * dy)
-                    + extent.getMinY());
-        }
-        for (int x = nx; x > 0; x--) {
-            coordinates[i++] = new Coordinate((x * dx) + extent.getMinX(),
-                    extent.getMaxY());
-        }
-        for (int y = ny; y > 0; y--) {
-            coordinates[i++] = new Coordinate(extent.getMinX(), (y * dy)
-                    + extent.getMinY());
-        }
-        coordinates[i++] = coordinates[0];
-
-        GeometryFactory gf = new GeometryFactory();
-        LinearRing shell = gf.createLinearRing(coordinates);
-        Geometry g = gf.createPolygon(shell, null);
-        return g;
-    }
-
     @Override
     protected void paintInternal(IGraphicsTarget aTarget,
             PaintProperties paintProps) throws VizException {
@@ -865,8 +1128,13 @@ public class DataStoreResource extends
             }
         }
 
+        int screenWidth = paintProps.getCanvasBounds().width;
         double worldToScreenRatio = paintProps.getView().getExtent().getWidth()
-                / paintProps.getCanvasBounds().width;
+                / screenWidth;
+
+        int displayWidth = (int) (descriptor.getMapWidth() * paintProps
+                .getZoomLevel());
+        double kmPerPixel = (displayWidth / screenWidth) / 1000.0;
 
         String labelField = getCapability(LabelableCapability.class)
                 .getLabelField();
@@ -896,7 +1164,8 @@ public class DataStoreResource extends
                 try {
                     boundingGeom = JTS.transform(
                             buildBoundingGeometry(expandedExtent,
-                                    worldToScreenRatio), latLonToIncoming);
+                                    worldToScreenRatio, kmPerPixel),
+                            latLonToIncoming);
                 } catch (Exception e) {
                     throw new VizException(e.getLocalizedMessage(), e);
                 }
@@ -906,9 +1175,9 @@ public class DataStoreResource extends
 
                 boolean highlightsOnly = updateHighlights && !updateLabels
                         && !updateShading && !updateExtent;
-                reloadJob.request(aTarget, this, boundingGeom, geomField,
-                        labelField, shadingField, colorMap, isProduct,
-                        highlightsOnly);
+                queryJob.queueRequest(new Request(aTarget, this, boundingGeom,
+                        geomField, labelField, shadingField, colorMap,
+                        isProduct, highlightsOnly));
                 lastExtent = expandedExtent;
                 lastLabelField = labelField;
                 lastShadingField = shadingField;
@@ -916,7 +1185,7 @@ public class DataStoreResource extends
             }
         }
 
-        ReloadJob.Result result = reloadJob.getLatestResult();
+        Result result = queryJob.getLatestResult();
         if (result != null) {
             handleResult(result);
         }
@@ -966,7 +1235,7 @@ public class DataStoreResource extends
             DrawableString ds = new DrawableString("Drag to select", new RGB(0,
                     0, 0));
             ds.setCoordinates(dragPromptCoord.x, dragPromptCoord.y);
-            ds.addTextStyle(TextStyle.BLANKED);
+            ds.addTextStyle(TextStyle.BLANKED, new RGB(255, 255, 255));
             ds.addTextStyle(TextStyle.BOXED, new RGB(255, 255, 255));
             ds.horizontalAlignment = HorizontalAlignment.LEFT;
             ds.verticallAlignment = VerticalAlignment.BOTTOM;
@@ -974,11 +1243,11 @@ public class DataStoreResource extends
         }
     }
 
-    private void handleResult(ReloadJob.Result result) throws VizException {
-        if (result.failed) {
+    private void handleResult(Result result) throws VizException {
+        if (result.isFailed()) {
             lastExtent = null; // force to re-query when re-enabled
             throw new VizException("Error processing map query request: ",
-                    result.cause);
+                    result.getCause());
         }
         if (!result.highlightsOnly) {
             if (outlineShape != null) {
@@ -1168,6 +1437,7 @@ public class DataStoreResource extends
      * @param screenExtent
      * @return
      */
+    @Override
     protected PixelExtent getExpandedExtent(PixelExtent screenExtent) {
         PixelExtent expandedExtent = screenExtent.clone();
         expandedExtent.getEnvelope().expandBy(
@@ -1177,6 +1447,7 @@ public class DataStoreResource extends
         return clipToProjExtent(expandedExtent);
     }
 
+    @Override
     protected PixelExtent clipToProjExtent(PixelExtent extent) {
         Envelope e = extent.getEnvelope()
                 .intersection(projExtent.getEnvelope());
@@ -1362,17 +1633,19 @@ public class DataStoreResource extends
 
                 IExtent worldExtent = getDescriptor().getRenderableDisplay()
                         .getView().getExtent();
-                Rectangle screenBounds = getResourceContainer()
-                        .getActiveDisplayPane().getBounds();
+                int screenWidth = getResourceContainer().getActiveDisplayPane()
+                        .getBounds().width;
                 double worldToScreenRatio = worldExtent.getWidth()
-                        / screenBounds.width;
+                        / screenWidth;
+                int displayWidth = (descriptor.getMapWidth());
+                double kmPerPixel = (displayWidth / screenWidth) / 1000.0;
 
                 double delta = CLICK_TOLERANCE * worldToScreenRatio;
                 PixelExtent bboxExtent = new PixelExtent(pix.x - delta, pix.x
                         + delta, pix.y + delta, pix.y - delta);
                 Geometry clickBox = JTS.transform(
-                        buildBoundingGeometry(bboxExtent, worldToScreenRatio),
-                        latLonToIncoming);
+                        buildBoundingGeometry(bboxExtent, worldToScreenRatio,
+                                kmPerPixel), latLonToIncoming);
                 List<Geometry> clickGeomList = new ArrayList<Geometry>();
                 flattenGeometry(clickBox, clickGeomList);
                 List<Filter> clickFilterList = new ArrayList<Filter>(
