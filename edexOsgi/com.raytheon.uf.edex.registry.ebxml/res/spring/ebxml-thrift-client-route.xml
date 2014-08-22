@@ -3,17 +3,22 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <camelContext id="server-camel"
-        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+    <camelContext id="ebxml-request-service-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
 
-        <endpoint id="ebxmlThriftService_from"
-            uri="jetty:http://0.0.0.0:${ebxml.thrift.service.port}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+		<endpoint id="webServiceEndpoint"
+			uri="jetty:http://0.0.0.0:${ebxml.thrift.service.port}${edex.requestsrv.http.path}?${edex.requestsrv.http.properties}" />
 
-        <route id="ebxmlThriftService">
-            <from uri="ref:ebxmlThriftService_from" />
-            <bean ref="routeWrapper" method="executeThrift" />
-        </route>
-
-    </camelContext>
+		<route id="webServiceRoute" streamCache="false">
+			<from uri="webServiceEndpoint" />
+			<setBody>
+				<simple>
+					bodyAs(javax.servlet.http.HttpServletRequest)
+				</simple>
+			</setBody>
+			<bean ref="httpServiceExecutor" method="execute(${body}, ${in.header.CamelHttpServletResponse})"/>
+		</route>
+	</camelContext>
 
 </beans>
