@@ -634,9 +634,6 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-40km">
 <filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="CMC">
-<filters>CONUS</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="GEFS">
 <filters>Ensemble,Global</filters>
 </ResourceDefinitionFilter>
@@ -648,9 +645,6 @@
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-NMM-West">
 <filters>Mesoscale</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NamDNG5">
-<filters>Alaska,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RAP-40km">
 <filters>CONUS,CONDUIT</filters>
@@ -667,32 +661,17 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAM-40km">
 <filters>CONUS,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-RTMA">
-<filters>Analysis,Alaska,NGRID</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NamDNG5">
 <filters>CONUS,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS">
 <filters>Global,CONDUIT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NAM">
-<filters>Alaska,CONDUIT</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="AK-NAM-11km">
-<filters>Alaska,NGRID</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFS-NH">
 <filters>NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WRF-ARW-West">
 <filters>Mesoscale</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOC-WW3">
-<filters>Ocean,FNMOC</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="FNMOC-FAROP">
-<filters>Ocean,FNMOC</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAVGEM">
 <filters>Global,Ocean,FNMOC</filters>
@@ -718,17 +697,11 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GFSLAMPTstorm">
 <filters>NGRID</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="LAMP-2p5km">
-<filters>NGRID</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA-2p5km">
 <filters>Analysis,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA">
 <filters>Analysis,NGRID</filters>
-</ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="false" rscDefnName="Hawaii-RTMA">
-<filters>Analysis,Hawaii,NGRID</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NIDS">
 <filters>Radar</filters>
