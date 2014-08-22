@@ -40,7 +40,7 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.maps.rsc.AbstractMapResource;
+import com.raytheon.uf.viz.core.maps.rsc.StyledMapResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -62,6 +62,7 @@ import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
  *    ------------  ----------  ----------- --------------------------
  *    1/10/08       562         bphillip    Initial Creation.
  *    8/04/14       3489        mapeters    Updated deprecated getStringBounds() calls.
+ *    08/21/2014   #3459        randerso    Restructured Map resource class hierarchy
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
  * 
  */
 public class SPIResource extends
-        AbstractMapResource<SPIResourceData, MapDescriptor> implements
+        StyledMapResource<SPIResourceData, MapDescriptor> implements
         IResourceDataChanged {
 
     /** The line color */
@@ -111,7 +112,7 @@ public class SPIResource extends
             file = PathManagerFactory.getPathManager().getStaticFile(
                     resourceData.getFilename());
         }
-        if (file == null || file.exists() == false) {
+        if ((file == null) || (file.exists() == false)) {
             throw new VizException("Could not find spi file",
                     new FileNotFoundException(resourceData.getFilename()));
         }
@@ -189,7 +190,7 @@ public class SPIResource extends
             key = iterator.next();
             entry = entries.get(key);
 
-            if (entry.pixel != null
+            if ((entry.pixel != null)
                     && paintProps.getView().isVisible(entry.pixel)
                     && (entry.distance >= minSepDist)) {
                 points.add(entry.pixel);
