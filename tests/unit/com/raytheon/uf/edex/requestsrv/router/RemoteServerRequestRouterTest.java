@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.auth;
+package com.raytheon.uf.edex.requestsrv.router;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,7 +28,7 @@ import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivilegedRequest;
+import com.raytheon.uf.edex.requestsrv.request.ServerPrivilegedRequestHandler.ServerPrivilegedRequest;
 
 /**
  * Test {@link RemoteServerRequestRouter}.
@@ -47,7 +47,7 @@ import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivil
  * @version 1.0
  */
 public class RemoteServerRequestRouterTest {
-    
+
     private static final BandwidthRequest PRIVILEGED_REQUEST = new BandwidthRequest();
 
     private static final GetServersRequest UNPRIVILEGED_REQUEST = new GetServersRequest();
