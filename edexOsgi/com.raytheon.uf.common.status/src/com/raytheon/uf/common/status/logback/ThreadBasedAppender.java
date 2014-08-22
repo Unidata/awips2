@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import ch.qos.logback.core.spi.AppenderAttachable;
 
 /**
@@ -44,7 +44,7 @@ import ch.qos.logback.core.spi.AppenderAttachable;
  * ------------ ---------- ----------- --------------------------
  * Aug 25, 2010            rjpeter     Initial creation
  * Jun 24, 2013 2142       njensen     Changes for logback compatibility
- * 
+ * Aug 22, 2014 3534       rjpeter     Extend UnsynchronizedAppenderBase.
  * </pre>
  * 
  * @author rjpeter
@@ -52,7 +52,7 @@ import ch.qos.logback.core.spi.AppenderAttachable;
  */
 
 public class ThreadBasedAppender<E extends ILoggingEvent> extends
-        AppenderBase<E> implements AppenderAttachable<E> {
+        UnsynchronizedAppenderBase<E> implements AppenderAttachable<E> {
     private Map<String, Appender<E>> appenderMap = new HashMap<String, Appender<E>>();
 
     private Map<String, List<Pattern>> threadPatterns = new HashMap<String, List<Pattern>>();
