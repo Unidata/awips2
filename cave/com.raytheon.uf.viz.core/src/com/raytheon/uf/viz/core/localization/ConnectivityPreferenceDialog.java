@@ -69,6 +69,7 @@ import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
  * Feb 04, 2014 2704       njensen     Shifted some private fields/methods to protected,
  *                                      Added status and details, better site validation
  * Feb 17, 2014 2704       njensen     Changed some alertviz fields to protected
+ * Aug 19, 2014			   mjames/UCAR Name changes
  * 
  * </pre>
  * 
@@ -280,7 +281,7 @@ public class ConnectivityPreferenceDialog extends Dialog {
         // Create localization text
 
         localizationLabel = new Label(textBoxComp, SWT.RIGHT);
-        localizationLabel.setText("Localization Server:");
+        localizationLabel.setText("EDEX Server:");
         GridData gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         gd.widthHint = 150;
         localizationLabel.setLayoutData(gd);
