@@ -104,6 +104,7 @@ import com.vividsolutions.jts.geom.LineString;
  *  06-03-14    3191       njensen     Fix postData to not retrieve
  *  06-17-2014  DR17409 mgamazaychikov Fix futurePoints calculation in generateNewTrackInfo()
  *                                     and generateExistingTrackInfo()
+ *  08-21-2014  DR 17500   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
  * 
  * </pre>
  * 
@@ -690,11 +691,12 @@ public class StormTrackDisplay implements IRenderable {
             return;
         }
 
-        if (state.geomChanged) {
+        DataTime frameTime = paintProps.getDataTime();
+        if (frameTime != null && state.geomChanged) {
             if (cachedTrack != null) {
                 cachedTrack.dispose();
             }
-            generateTrackInfo(state, paintProps);
+            generateTrackInfo(state, paintProps, frameTime);
             if (state.mode == Mode.TRACK) {
                 createTrack(target, paintProps);
             }
@@ -714,7 +716,7 @@ public class StormTrackDisplay implements IRenderable {
      * @param currentState
      */
     private void generateTrackInfo(StormTrackState currentState,
-            PaintProperties paintProps) throws VizException {
+            PaintProperties paintProps, DataTime frameTime) throws VizException {
         int frameCount = trackUtil.getFrameCount(paintProps.getFramesInfo());
         int currFrame = trackUtil.getCurrentFrame(paintProps.getFramesInfo());
         try {
@@ -727,7 +729,6 @@ public class StormTrackDisplay implements IRenderable {
                         && currentState.timePoints.length != frameCount) {
                     // need to set theAnchorPoint and theAnchorIndex here
                     // because timePoints get erased before we get to updateAnchorPoint
-                    DataTime frameTime = paintProps.getDataTime();
                     for (int j=0;j<currentState.timePoints.length;j++){
                         if (frameTime.equals(currentState.timePoints[j].time)) {
                             theAnchorPoint = currentState.timePoints[j].coord;
@@ -774,7 +775,7 @@ public class StormTrackDisplay implements IRenderable {
                 generateNewTrackInfo(currentState, currFrame, paintProps);
                 currentDisplayedTimes = trackUtil.getDataTimes(paintProps
                         .getFramesInfo());
-                generateTrackInfo(currentState, paintProps);
+                generateTrackInfo(currentState, paintProps, frameTime);
             } else {
 
                 if (currentState.pointMoved) {
