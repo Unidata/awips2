@@ -10,6 +10,7 @@
 
 <gribModelSet>
 	<!-- SUBCENTER 0 -->
+	<model>
 		<name>GFSLAMP</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
