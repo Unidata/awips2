@@ -325,12 +325,6 @@
 		<versionsToKeep>1</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<!-- Purge rule for the AK-NAM12 (ETA242) model -->
-	<rule>
-		<keyValue>AK-NAM-11km</keyValue>
-		<versionsToKeep>1</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
 	<!-- Purge rule for the HPCqpf (HPCqpf) model -->
 	<rule>
 		<keyValue>HPCqpf</keyValue>
@@ -502,10 +496,10 @@
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
 	<rule>
-		<keyValue>RTMA-2p5km</KeyValue>
+		<keyValue>RTMA-2p5km</keyValue>
 		<versionsToKeep>24</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule
+	</rule>
 	<rule>
 		<keyValue>AK-RTMA</keyValue>
 		<versionsToKeep>24</versionsToKeep>
@@ -552,11 +546,7 @@
 		<versionsToKeep>2</versionsToKeep>
 		<modTimeToWait>00-00:15:00</modTimeToWait>
 	</rule>
-	<rule>
-		<keyValue>AK-NamDNG5</keyValue>
-		<versionsToKeep>2</versionsToKeep>
-		<modTimeToWait>00-00:15:00</modTimeToWait>
-	</rule>
+
 	<!-- Purge rule for the TPCSurgeProb (TPCSurgeProb) model -->
 	<rule>
 		<keyValue>TPCSurgeProb</keyValue>
