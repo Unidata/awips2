@@ -3,6 +3,10 @@
 		determine where the various destination directories are
 		without ant-contrib
 	-->
+	
+	<!-- the location of javaUtilities -->
+	<dirname property="jutilities.dir" file="${basedir}" />
+	
 	<!-- the EDEX destination -->
 	<available file="${basedir}/../build.edex"
 		property="edex.destination"
@@ -71,6 +75,14 @@
 			<fileset dir="${gradle.libs.directory}">
 				<include name="core/**" />
 				<exclude name="**/ReadMe.txt" />
+			</fileset>
+		</copy>
+		<!-- copy scripts -->
+		<mkdir dir="${edex.bin.directory}/yajsw/scripts" />
+		<copy todir="${edex.bin.directory}/yajsw/scripts"
+		failonerror="true" verbose="true" overwrite="true">
+			<fileset dir="${jutilities.dir}/yajsw-scripts">
+				<include name="*.sh" />
 			</fileset>
 		</copy>
 		<!-- deploy to QPID -->
