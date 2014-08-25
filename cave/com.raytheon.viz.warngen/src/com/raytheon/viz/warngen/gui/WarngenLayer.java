@@ -212,6 +212,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/01/2014  DR 17450    D. Friedman Use list of templates from backup site.
  * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
+ * 08/20/2014  ASM #16703  D. Friedman Make geo feature types for watches explicit
  * </pre>
  * 
  * @author mschenke
@@ -1509,50 +1510,42 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return null;
     }
 
+    public enum GeoFeatureType {
+        COUNTY("county", "FIPS"), MARINE("marinezones", "ID");
+        final private String tableName;
+        final private String fipsField;
+        private GeoFeatureType(String tableName, String fipsField) {
+            this.tableName = tableName;
+            this.fipsField = fipsField;
+        }
+    }
+
     /**
      * Returns a set of UGCs for each area in the CWA that intersects the given
      * polygon.
      */
-    public Set<String> getUgcsForWatches(Polygon polygon)
+    public Set<String> getUgcsForWatches(Polygon polygon, GeoFeatureType type)
             throws Exception {
-        GeospatialDataAccessor gda = getGeospatialDataAcessor();
-        boolean isMarineZone = configuration.getGeospatialConfig()
-                .getAreaSource().equalsIgnoreCase(MARINE);
-        if (!isMarineZone) {
-            Set<String> ugcs = new HashSet<String>();
-            for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
-                ugcs.add(FipsUtil.getUgcFromFips(fips));
-            }
-            return ugcs;
-        } else {
-            Set<String> ids = new HashSet<String>();
-            Geometry g = gda.buildArea(polygon);
-            ids = getAllFipsInArea(g);
-            return ids;
-        }
+        Set<String> ugcs = new HashSet<String>();
+        GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
+        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon)))
+            ugcs.add(FipsUtil.getUgcFromFips(fips));
+        return ugcs;
     }
 
-    public Set<String> getAllUgcs() throws Exception {
-        GeospatialDataAccessor gda;
+    public Set<String> getAllUgcs(GeoFeatureType type) throws Exception {
+        // TODO: zig
+        GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
         Set<String> ugcs = new HashSet<String>();
-        gda = getGeospatialDataAcessor();
-        boolean isMarineZone = configuration.getGeospatialConfig()
-                .getAreaSource().equalsIgnoreCase(MARINE);
-        if (!isMarineZone) {
-            for (GeospatialData r : gda.geoData.features) {
-                ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
-            }
-        } else {
-            for (GeospatialData r : gda.geoData.features) {
-                ugcs.add(getFips(r));
-            }
+        for (GeospatialData r : gda.geoData.features) {
+            ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
         }
         return ugcs;
     }
 
-    private GeospatialDataAccessor getGeospatialDataAcessor()
+    private GeospatialDataAccessor getGeospatialDataAcessor(GeoFeatureType type)
             throws Exception {
-        GeospatialDataList gdl = searchGeospatialDataAccessor();
+        GeospatialDataList gdl = searchGeospatialDataAccessor(type);
         if (gdl == null) {
             // Cause county geospatial data to be loaded
             /*
@@ -1562,36 +1555,33 @@ public class WarngenLayer extends AbstractStormTrackResource {
              * the filename. What happens in the future if the base file gets
              * changed again? A ticket should be opened for this to be resolved.
              */
-            WarngenConfiguration torConfig = WarngenConfiguration.loadConfig(
-                    "tornadoWarning", getLocalizedSite(), null);
-            loadGeodataForConfiguration(torConfig);
-            gdl = searchGeospatialDataAccessor();
+            String templateName;
+            if (type == GeoFeatureType.COUNTY)
+                templateName = "tornadoWarning";
+            else if (type == GeoFeatureType.MARINE)
+                templateName = "specialMarineWarning";
+            else
+                throw new IllegalArgumentException("Unsupported geo feature type " + type);
+            WarngenConfiguration config = WarngenConfiguration.loadConfig(
+                    templateName, getLocalizedSite(), null);
+            loadGeodataForConfiguration(config);
+            gdl = searchGeospatialDataAccessor(type);
         }
 
-        // TODO: There should be some way to get the "county" configuration by
-        // name
-        // independent of a template
+        // TODO: FIPS field should not be hardcoded.
         AreaSourceConfiguration areaConfig = new AreaSourceConfiguration();
-        areaConfig.setFipsField("FIPS");
+        areaConfig.setFipsField(type.fipsField);
 
         return new GeospatialDataAccessor(gdl, areaConfig);
     }
 
-    private GeospatialDataList searchGeospatialDataAccessor() {
+    private GeospatialDataList searchGeospatialDataAccessor(GeoFeatureType type) {
         synchronized (siteMap) {
             for (Map.Entry<String, GeospatialDataList> entry : siteMap
                     .entrySet()) {
                 String[] keyParts = entry.getKey().split("\\.");
-                boolean isMarineZone = configuration.getGeospatialConfig()
-                        .getAreaSource().equalsIgnoreCase(MARINE);
-                String mapdataTable = null;
-                if (!isMarineZone) {
-                    mapdataTable = "county";
-                } else {
-                    mapdataTable = "marinezones";
-                }
                 if (keyParts.length == 2
-                        && mapdataTable.equalsIgnoreCase(keyParts[0])
+                        && type.tableName.equalsIgnoreCase(keyParts[0])
                         && getLocalizedSite().equals(keyParts[1])) {
                     return entry.getValue();
                 }
