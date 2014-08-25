@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.d2d.ui.time.formatter.TimeFormatter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2009            jelkins/bgonzale     Initial creation
+ * Aug 20, 2014 3506       mapeters             Corrected misspelling.
  * 
  * </pre>
  * 
@@ -124,7 +125,7 @@ public class ForecastAndResolutionDialog extends AbstractTimeMatchingDialog {
             Label tResolutionLabel = new Label(composite, SWT.NONE);
             tResolutionLabel.setText("Time Resolution:");
         } else {
-            super.getShell().setText("Select Forcast Time");
+            super.getShell().setText("Select Forecast Time");
         }
 
         createForecastWidget(composite);
