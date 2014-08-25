@@ -39,6 +39,7 @@ import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pypies.PyPiesDataStoreFactory;
 import com.raytheon.uf.common.pypies.PypiesProperties;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -53,6 +54,7 @@ import com.raytheon.uf.viz.application.component.IStandaloneComponent;
 import com.raytheon.uf.viz.core.ProgramArguments;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserver;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
@@ -99,6 +101,7 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  *                                    startup
  * Dec 10, 2013  2602     bsteffen    Start loading ProcedureXmlManager in
  *                                    startComponent.
+ * Aug 26, 2014  3356     njensen     Explicitly set localization adapter
  * 
  * </pre>
  * 
@@ -414,6 +417,7 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
     }
 
     protected void initializeLocalization(boolean nonui) throws Exception {
+        PathManagerFactory.setAdapter(new CAVELocalizationAdapter());
         new LocalizationInitializer(!nonui,
                 !LocalizationManager.internalAlertServer).run();
     }
