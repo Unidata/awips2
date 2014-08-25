@@ -27,11 +27,13 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/11/09                      njensen       Initial Creation.
+#    08/21/14        3500          bclement      fixed loadPreferences except block
 #    
 # 
 #
 
 import types
+import LogStream
 from java.util import HashMap, ArrayList
 from java.lang import String, Float, Integer, Boolean
 
@@ -48,8 +50,7 @@ def loadPreferences(config):
         Activator.getDefault().setPreferenceStore(prefs)
         return prefs
     except Exception, e:
-        LogStream.logProblem("Unknown or improper config file: ",
-          configFile, " for user: ", userName)
+        LogStream.logProblem("Unknown or improper config file: ", config)
         raise Exception, e
         
 
