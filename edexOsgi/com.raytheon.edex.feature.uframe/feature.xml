@@ -121,9 +121,6 @@
          version="0.0.0"/>
    
    <includes
-           id="com.raytheon.uf.edex.ohd.feature"
-                    version="0.0.0"/>
-   <includes
          id="com.raytheon.uf.edex.npp.feature"
          version="0.0.0"/>
 
