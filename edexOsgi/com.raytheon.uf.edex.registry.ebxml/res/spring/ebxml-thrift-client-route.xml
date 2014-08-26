@@ -8,7 +8,7 @@
 		errorHandlerRef="errorHandler">
 
 		<endpoint id="webServiceEndpoint"
-			uri="jetty:http://0.0.0.0:${ebxml.thrift.service.port}${edex.requestsrv.http.path}?${edex.requestsrv.http.properties}" />
+			uri="jetty:http://0.0.0.0:${ebxml.thrift.service.port}${HTTP_SERVER_PATH}?${edex.requestsrv.http.properties}" />
 
 		<route id="webServiceRoute" streamCache="false">
 			<from uri="webServiceEndpoint" />
