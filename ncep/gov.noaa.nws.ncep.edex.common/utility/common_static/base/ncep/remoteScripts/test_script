@@ -1,0 +1,32 @@
+#!/bin/sh
+
+usage(){
+    cat <<EOF
+      This script is used to test the remote script execution in CAVE/NCP. 
+      It sleeps certain number of seconds. The return code is zero if the 
+      script runs successfully.
+     
+
+      Usage: test_script numberSeconds 
+       -<numberSeconds>: number of seconds to sleep.
+       --help                  print out usage
+
+EOF
+    exit
+}
+
+if [ $# -lt 1 ];  then
+     usage
+fi
+
+if [ "$1" == "--help" ]; then
+    usage
+else
+    sleep $1
+    if [ "$?" == 0 ]; then
+       echo Sleeping...$1 seconds...Done!
+       exit 0
+    else
+       exit -1
+    fi
+fi
