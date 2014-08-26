@@ -1650,7 +1650,7 @@
 	</model>
 
 	<model>
-		<name>gfs</name>
+		<name>GFS229</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>229</grid>
