@@ -32,9 +32,9 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
+import com.raytheon.uf.edex.auth.authorization.IAuthorizer;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
-import com.raytheon.uf.edex.auth.roles.IRoleStorage;
 
 /**
  * Abstract class for the remote script handlers. Performs authorization and
@@ -150,15 +150,16 @@ public abstract class AbstractRemoteScriptHandler extends
      * @return authorizationResponse
      * @throws AuthorizationException
      */
+    @Override
     public AuthorizationResponse authorized(IUser user,
             RemoteScriptRequest request) throws AuthorizationException {
         AuthManager manager = AuthManagerFactory.getInstance().getManager();
-        IRoleStorage roleStorage = manager.getRoleStorage();
+        IAuthorizer auth = manager.getAuthorizer();
 
-        String roleId = getRoleId();
+        String role = getRoleId();
 
-        boolean authorized = roleStorage.isAuthorized(roleId, user.uniqueId()
-                .toString(), APPLICATION);
+        boolean authorized = auth.isAuthorized(role,
+                user.uniqueId().toString(), APPLICATION);
 
         if (authorized) {
             return new AuthorizationResponse(authorized);
