@@ -60,13 +60,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2010            rjpeter     Initial creation
+ * Aug 26, 2014 3503       bclement    removed warning
  * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
-
 public class LocationCache {
     private static final String TASK_NAME = "CWAT Location Gen";
 
@@ -193,8 +193,8 @@ public class LocationCache {
 
             try {
                 long start = System.currentTimeMillis();
-                rval = (LocationBinList) SerializationUtil
-                        .transformFromThrift(FileUtil.file2bytes(file));
+                rval = SerializationUtil.transformFromThrift(
+                        LocationBinList.class, FileUtil.file2bytes(file));
                 long end = System.currentTimeMillis();
                 rval.setLastModifiyTime(file.lastModified());
                 handler.handle(Priority.INFO, "Read CWAT location file ["
