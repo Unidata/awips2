@@ -95,6 +95,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
  *    Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
  *    Jun 6, 2014  DR 17367    D. Friedman Fix cache object usage.
+ *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
  * 
  * </pre>
  * 
@@ -378,7 +379,13 @@ public class LightningResource extends
         
         if (magnification == 0.0) magnification=(float) 0.01;
         
-        IExtent extent = paintProps.getView().getExtent();
+        /*
+         * we only want strikes that are visible so we have to filter any
+         * strikes that aren't in both the clipping pane and the view
+         */
+        IExtent viewExtent = paintProps.getView().getExtent();
+        IExtent clipExtent = paintProps.getClippingPane();
+        IExtent extent = viewExtent.intersection(clipExtent);
 
         CacheObject<LightningFrameMetadata, LightningFrame> cacheObject = cacheObjectMap
                 .get(this.lastPaintedTime);
