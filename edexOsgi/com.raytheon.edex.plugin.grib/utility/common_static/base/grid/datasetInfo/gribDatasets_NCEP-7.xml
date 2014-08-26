@@ -61,6 +61,11 @@
         <dt>6</dt>
     </info>
     <info>
+        <title>GFS1degGbl</title>
+        <datasetId>GFS229</datasetId>
+        <dt>3</dt>
+    </info>
+    <info>
         <title>gfsLR</title>
         <datasetId>mrfNH</datasetId>
         <dt>12</dt>
