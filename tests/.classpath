@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.plugin.gfe"/>
 	<classpathentry excluding="*HILOTest.java*|com/raytheon/viz/gfe/core/parm/TestParm.java|com/raytheon/viz/gfe/core/parm/TestParmManager.java|com/raytheon/viz/gfe/ui/runtimeui/TestHazardUtils.java|gov/noaa/nws/ncep/gempak/parameters/colorbar/CLRBARTest.java|gov/noaa/nws/ncep/gempak/parameters/line/LineDataStringParserTest.java" kind="src" path="unit"/>
 	<classpathentry kind="src" path="deploy"/>
 	<classpathentry kind="src" path="resources"/>
@@ -12,16 +13,11 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.util"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.comm"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.http"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datadelivery.registry"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.viz.datadelivery"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.serialization"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.registry.schemas.ebxml"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.harvester"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.localization"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.common"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.log4j"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.bandwidth"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.retrieval"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.lang"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.geotools"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin"/>
@@ -30,7 +26,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.springframework"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.serialization.comm"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/edu.uci.ics.crawler4j"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datadelivery.retrieval"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/net.dods"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.google.guava"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.time"/>
@@ -52,22 +47,17 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.io"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datastorage"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.event"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datadelivery.event"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.event"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javax.measure"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javax.vecmath"/>
 	<classpathentry exported="true" kind="lib" path="lib/h2-1.3.171.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.gridcoverage"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.service"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.viz.ui"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datadelivery.bandwidth"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.registry.event"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datadelivery.request"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.stats"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.stats"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.viz.plugin.nwsauth"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.plugin.nwsauth"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datadelivery.service"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.units"/>
 	<classpathentry exported="true" kind="src" path="/com.raytheon.uf.viz.stats"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.dom4j"/>
@@ -87,14 +77,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/javax.servlet_2.5.0.v200910301333.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.harvester"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.archive"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.bandwidth.ncf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.thrift"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.gfe"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.gfe"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.python"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.message"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ffg"/>
@@ -148,7 +135,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.wxmath"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jface_3.8.0.v20120912-135020.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.configuration"/>
-	<classpathentry kind="src" path="/com.raytheon.uf.edex.datadelivery.retrieval.wfs"/>
 	<classpathentry kind="lib" path="lib/javax.servlet.source_2.5.0.v200910301333.jar"/>
 	<classpathentry kind="lib" path="lib/javax.servlet.jsp-2.1.0.v201105211820.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-http-7.6.14.v20131031.jar"/>
@@ -165,5 +151,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.registry.schemas.iso19115"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.requestsrv"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.convert"/>
+	<classpathentry kind="src" path="/com.raytheon.edex.plugin.shef"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.edex.plugin.taf"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
