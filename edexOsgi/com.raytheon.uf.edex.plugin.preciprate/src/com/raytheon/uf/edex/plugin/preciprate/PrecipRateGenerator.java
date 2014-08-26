@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.plugin.preciprate.common.PrecipRateConfig;
  * Jan 25, 2010 3796        D. Hladky   Initial release
  * Feb 25, 2013 1660        D. Hladky   Fixed SCAN configuration bug.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Aug 26, 2014 3503        bclement    removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -171,7 +172,6 @@ public class PrecipRateGenerator extends CompositeProductGenerator implements
                 precipRateRec.setCoefficent(pr.getDhrMap().get(
                         DHRValues.ZRPOWERCOEFF));
 
-                precipRateRec.constructDataURI();
                 this.setPluginDataObjects(new PrecipRateRecord[] { precipRateRec });
 
                 statusHandler.handle(Priority.INFO, precipRateRec.getIcao()
