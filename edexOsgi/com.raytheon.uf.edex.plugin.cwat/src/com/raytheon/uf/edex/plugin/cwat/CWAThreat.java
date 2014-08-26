@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 01/06/2009   2037       dhladky    Initial Creation.
+ * Aug 26, 2014 3503       bclement   removed unused variable in getSevereWxThreadProb()
  * 
  * </pre>
  * 
@@ -839,7 +840,6 @@ public class CWAThreat {
     private short getSevereWxThreatProb(Coordinate gridPt) {
 
         float maxvil = 0.0f;
-        float isvg10 = 0.0f;
         float isvg20 = 0.0f;
         float svrWxProb = 0.0f;
         int lower = 3;
@@ -877,8 +877,6 @@ public class CWAThreat {
                 }
                 if (vil[(ii * ScanUtils.SCAN_GRID_DIM) + jj] > 20)
                     isvg20++;
-                if (vil[(ii * ScanUtils.SCAN_GRID_DIM) + jj] > 10)
-                    isvg10++;
             }
         }
 
