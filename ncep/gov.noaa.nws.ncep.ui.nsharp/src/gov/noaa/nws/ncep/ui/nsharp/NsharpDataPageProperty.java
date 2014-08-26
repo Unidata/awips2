@@ -1,4 +1,5 @@
 package gov.noaa.nws.ncep.ui.nsharp;
+
 /**
  * 
  * gov.noaa.nws.ncep.ui.nsharp.NsharpDataPageProperty
@@ -24,128 +25,153 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+
 @XmlRootElement(name = "NsharpDataPageProperty")
 @XmlAccessorType(XmlAccessType.NONE)
-public class NsharpDataPageProperty implements ISerializableObject{
-	@XmlAttribute
-	private int summary1Page=NsharpConstants.PAGE_SUMMARY1;
- 
-	@XmlAttribute
-	private int summary2Page=NsharpConstants.PAGE_SUMMARY2;
+public class NsharpDataPageProperty implements ISerializableObject {
+    @XmlAttribute
+    private int summary1Page = NsharpConstants.PAGE_SUMMARY1;
 
-	@XmlAttribute
-	private int parcelDataPage=NsharpConstants.PAGE_PARCEL_DATA;
-	
-	@XmlAttribute
-	private int thermodynamicDataPage=NsharpConstants.PAGE_THERMODYNAMIC_DATA;
-	
-	@XmlAttribute
-	private int opcDataPage=NsharpConstants.PAGE_OPC_DATA;
-	
-	@XmlAttribute
-	private int mixingHeightPage=NsharpConstants.PAGE_MIXING_HEIGHT;
-	
-	@XmlAttribute
-	private int stormRelativePage=NsharpConstants.PAGE_STORM_RELATIVE;
-	
-	@XmlAttribute
-	private int meanWindPage=NsharpConstants.PAGE_MEAN_WIND;
-	
-	@XmlAttribute
-	private int convectiveInitiationPage=NsharpConstants.PAGE_CONVECTIVE_INITIATION;
-	
-	@XmlAttribute
-	private int severePotentialPage=NsharpConstants.PAGE_SEVERE_POTENTIAL;
+    @XmlAttribute
+    private int summary2Page = NsharpConstants.PAGE_SUMMARY2;
 
-	@XmlAttribute
-	private int numberPagePerDisplay = 1;
-	
-	public int getSummary1Page() {
-		return summary1Page;
-	}
+    @XmlAttribute
+    private int parcelDataPage = NsharpConstants.PAGE_PARCEL_DATA;
 
-	public void setSummary1Page(int summary1Page) {
-		this.summary1Page = summary1Page;
-	}
+    @XmlAttribute
+    private int thermodynamicDataPage = NsharpConstants.PAGE_THERMODYNAMIC_DATA;
 
-	public int getSummary2Page() {
-		return summary2Page;
-	}
+    @XmlAttribute
+    private int opcDataPage = NsharpConstants.PAGE_OPC_DATA;
 
-	public void setSummary2Page(int summary2Page) {
-		this.summary2Page = summary2Page;
-	}
+    @XmlAttribute
+    private int mixingHeightPage = NsharpConstants.PAGE_MIXING_HEIGHT;
 
-	public int getParcelDataPage() {
-		return parcelDataPage;
-	}
+    @XmlAttribute
+    private int stormRelativePage = NsharpConstants.PAGE_STORM_RELATIVE;
 
-	public void setParcelDataPage(int parcelDataPage) {
-		this.parcelDataPage = parcelDataPage;
-	}
+    @XmlAttribute
+    private int meanWindPage = NsharpConstants.PAGE_MEAN_WIND;
 
-	public int getThermodynamicDataPage() {
-		return thermodynamicDataPage;
-	}
+    @XmlAttribute
+    private int convectiveInitiationPage = NsharpConstants.PAGE_CONVECTIVE_INITIATION;
 
-	public void setThermodynamicDataPage(int thermodynamicDataPage) {
-		this.thermodynamicDataPage = thermodynamicDataPage;
-	}
+    @XmlAttribute
+    private int severePotentialPage = NsharpConstants.PAGE_SEVERE_POTENTIAL;
 
-	public int getOpcDataPage() {
-		return opcDataPage;
-	}
+    // d2dlite
+    @XmlAttribute
+    private int d2dLitePage = NsharpConstants.PAGE_D2DLITE;
 
-	public void setOpcDataPage(int opcDataPage) {
-		this.opcDataPage = opcDataPage;
-	}
+    // d2dlite
+    @XmlAttribute
+    private int futurePage = NsharpConstants.PAGE_FUTURE;
 
-	public int getMixingHeightPage() {
-		return mixingHeightPage;
-	}
+    @XmlAttribute
+    private int numberPagePerDisplay = 1;
 
-	public void setMixingHeightPage(int mixingHeightPage) {
-		this.mixingHeightPage = mixingHeightPage;
-	}
+    public int getSummary1Page() {
+        return summary1Page;
+    }
 
-	public int getStormRelativePage() {
-		return stormRelativePage;
-	}
+    public void setSummary1Page(int summary1Page) {
+        this.summary1Page = summary1Page;
+    }
 
-	public void setStormRelativePage(int stormRelativePage) {
-		this.stormRelativePage = stormRelativePage;
-	}
+    public int getSummary2Page() {
+        return summary2Page;
+    }
 
-	public int getMeanWindPage() {
-		return meanWindPage;
-	}
+    public void setSummary2Page(int summary2Page) {
+        this.summary2Page = summary2Page;
+    }
 
-	public void setMeanWindPage(int meanWindPage) {
-		this.meanWindPage = meanWindPage;
-	}
+    public int getParcelDataPage() {
+        return parcelDataPage;
+    }
 
-	public int getConvectiveInitiationPage() {
-		return convectiveInitiationPage;
-	}
+    public void setParcelDataPage(int parcelDataPage) {
+        this.parcelDataPage = parcelDataPage;
+    }
 
-	public void setConvectiveInitiationPage(int convectiveInitiationPage) {
-		this.convectiveInitiationPage = convectiveInitiationPage;
-	}
+    public int getThermodynamicDataPage() {
+        return thermodynamicDataPage;
+    }
 
-	public int getSeverePotentialPage() {
-		return severePotentialPage;
-	}
+    public void setThermodynamicDataPage(int thermodynamicDataPage) {
+        this.thermodynamicDataPage = thermodynamicDataPage;
+    }
 
-	public void setSeverePotentialPage(int severePotentialPage) {
-		this.severePotentialPage = severePotentialPage;
-	}
+    public int getOpcDataPage() {
+        return opcDataPage;
+    }
 
-	public int getNumberPagePerDisplay() {
-		return numberPagePerDisplay;
-	}
+    public void setOpcDataPage(int opcDataPage) {
+        this.opcDataPage = opcDataPage;
+    }
 
-	public void setNumberPagePerDisplay(int numberPagePerDisplay) {
-		this.numberPagePerDisplay = numberPagePerDisplay;
-	}
-	
+    public int getMixingHeightPage() {
+        return mixingHeightPage;
+    }
+
+    public void setMixingHeightPage(int mixingHeightPage) {
+        this.mixingHeightPage = mixingHeightPage;
+    }
+
+    public int getStormRelativePage() {
+        return stormRelativePage;
+    }
+
+    public void setStormRelativePage(int stormRelativePage) {
+        this.stormRelativePage = stormRelativePage;
+    }
+
+    public int getMeanWindPage() {
+        return meanWindPage;
+    }
+
+    public void setMeanWindPage(int meanWindPage) {
+        this.meanWindPage = meanWindPage;
+    }
+
+    public int getConvectiveInitiationPage() {
+        return convectiveInitiationPage;
+    }
+
+    public void setConvectiveInitiationPage(int convectiveInitiationPage) {
+        this.convectiveInitiationPage = convectiveInitiationPage;
+    }
+
+    public int getSeverePotentialPage() {
+        return severePotentialPage;
+    }
+
+    public void setSeverePotentialPage(int severePotentialPage) {
+        this.severePotentialPage = severePotentialPage;
+    }
+
+    public int getNumberPagePerDisplay() {
+        return numberPagePerDisplay;
+    }
+
+    public void setNumberPagePerDisplay(int numberPagePerDisplay) {
+        this.numberPagePerDisplay = numberPagePerDisplay;
+    }
+
+    // d2dlite
+    public int getD2dLitePage() {
+        return d2dLitePage;
+    }
+
+    public void setD2dLitePage(int d2dLitePage) {
+        this.d2dLitePage = d2dLitePage;
+    }
+
+    public int getFuturePage() {
+        return futurePage;
+    }
+
+    public void setFuturePage(int futurePage) {
+        this.futurePage = futurePage;
+    }
 }
