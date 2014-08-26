@@ -1,4 +1,5 @@
 package gov.noaa.nws.ncep.ui.nsharp;
+
 /**
  * 
  * gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty
@@ -33,330 +34,342 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
+
 @XmlRootElement(name = "NsharpGraphProperty")
 @XmlAccessorType(XmlAccessType.NONE)
-public class NsharpGraphProperty implements ISerializableObject{
-	@XmlAttribute
-	private boolean temp=true;
-	
-	@XmlAttribute
-	private boolean dewp=true;
-	
-	@XmlAttribute
-	private boolean parcelTv=true;
-	
-	@XmlAttribute
-	private boolean parcel=true;
-	
-	@XmlAttribute
-	private boolean dcape=true;
-	
-	@XmlAttribute
-	private boolean VTemp=true;
-	
-	@XmlAttribute
-	private boolean wetBulb=true;
-	
-	@XmlAttribute
-	private boolean mixratio=false;
-	
-	@XmlAttribute
-	private boolean dryAdiabat=true;
-	
-	@XmlAttribute
-	private boolean moistAdiabat=false;
-	
-	@XmlAttribute
-	private boolean effLayer=true;
-	
-	@XmlAttribute
-	private boolean cloud=false;
-	
-	@XmlAttribute
-	private boolean hodo=true;
-	
-	@XmlAttribute
-	private boolean meanWind=true;
-	
-	@XmlAttribute
-	private boolean smv3075=false;
-	
-	@XmlAttribute
-	private boolean smv1585=false;
-	
-	@XmlAttribute
-	private boolean smvBunkersR=true;
-	
-	@XmlAttribute
-	private boolean smvBunkersL=true;
-	
-	@XmlAttribute
-	private boolean omega=true;
-	
-	@XmlAttribute
-	private boolean corfidiV=false;
-	
-	@XmlAttribute
-	private boolean windBarb=true;
-	
-	@XmlAttribute
-	private int windBarbDistance=NsharpConstants.WINDBARB_DISTANCE_DEFAULT;
-	
-	@XmlAttribute
-	private int tempOffset=0;
-	
-	@XmlAttribute
-	private String paneConfigurationName= NsharpConstants.PANE_DEF_CFG_1_STR;
-	
-	@XmlAttribute
-	private List<String> gribModelTypeList = new ArrayList<String>();  
-	
-	@XmlAttribute
-    private float windBarbLineWidth=NsharpConstants.WINDBARB_WIDTH;
-	
-	@XmlAttribute
-    private float windBarbSize=NsharpConstants.WINDBARB_SIZE;
-	
-	@XmlElement
+public class NsharpGraphProperty implements ISerializableObject {
+    @XmlAttribute
+    private boolean temp = true;
+
+    @XmlAttribute
+    private boolean dewp = true;
+
+    @XmlAttribute
+    private boolean parcelTv = true;
+
+    @XmlAttribute
+    private boolean parcel = true;
+
+    @XmlAttribute
+    private boolean dcape = true;
+
+    @XmlAttribute
+    private boolean VTemp = true;
+
+    @XmlAttribute
+    private boolean wetBulb = true;
+
+    @XmlAttribute
+    private boolean mixratio = false;
+
+    @XmlAttribute
+    private boolean dryAdiabat = true;
+
+    @XmlAttribute
+    private boolean moistAdiabat = false;
+
+    @XmlAttribute
+    private boolean effLayer = true;
+
+    @XmlAttribute
+    private boolean cloud = false;
+
+    @XmlAttribute
+    private boolean hodo = true;
+
+    @XmlAttribute
+    private boolean meanWind = true;
+
+    @XmlAttribute
+    private boolean smv3075 = false;
+
+    @XmlAttribute
+    private boolean smv1585 = false;
+
+    @XmlAttribute
+    private boolean smvBunkersR = true;
+
+    @XmlAttribute
+    private boolean smvBunkersL = true;
+
+    @XmlAttribute
+    private boolean omega = true;
+
+    @XmlAttribute
+    private boolean corfidiV = false;
+
+    @XmlAttribute
+    private boolean windBarb = true;
+
+    @XmlAttribute
+    private int windBarbDistance = NsharpConstants.WINDBARB_DISTANCE_DEFAULT;
+
+    @XmlAttribute
+    private int tempOffset = 0;
+
+    @XmlAttribute
+    private String paneConfigurationName = NsharpConstants.PANE_DEF_CFG_1_STR;
+
+    @XmlAttribute
+    private List<String> gribModelTypeList = new ArrayList<String>();
+
+    @XmlAttribute
+    private float windBarbLineWidth = NsharpConstants.WINDBARB_WIDTH;
+
+    @XmlAttribute
+    private float windBarbSize = NsharpConstants.WINDBARB_SIZE;
+
+    @XmlElement
     @XmlJavaTypeAdapter(RGBColorAdapter.class)
-    private RGB windBarbColor= NsharpConstants.color_yellow;
-	
-	@XmlAttribute
-    private boolean showFilteredWindInCircle=false;
-	
-	public boolean isTemp() {
-		return temp;
-	}
+    private RGB windBarbColor = NsharpConstants.color_yellow;
 
-	public void setTemp(boolean temp) {
-		this.temp = temp;
-	}
+    @XmlAttribute
+    private boolean showFilteredWindInCircle = false;
 
-	public boolean isDewp() {
-		return dewp;
-	}
+    @XmlAttribute
+    private int sndCompRadius = 0; // FixMark:nearByStnCompSnd
 
-	public void setDewp(boolean dewp) {
-		this.dewp = dewp;
-	}
+    public boolean isTemp() {
+        return temp;
+    }
 
-	
-	public boolean isParcelTv() {
-		return parcelTv;
-	}
+    public void setTemp(boolean temp) {
+        this.temp = temp;
+    }
 
-	public void setParcelTv(boolean parcelTv) {
-		this.parcelTv = parcelTv;
-	}
+    public boolean isDewp() {
+        return dewp;
+    }
 
-	public boolean isParcel() {
-		return parcel;
-	}
+    public void setDewp(boolean dewp) {
+        this.dewp = dewp;
+    }
 
-	public void setParcel(boolean parcel) {
-		this.parcel = parcel;
-	}
+    public boolean isParcelTv() {
+        return parcelTv;
+    }
 
-	public boolean isDcape() {
-		return dcape;
-	}
+    public void setParcelTv(boolean parcelTv) {
+        this.parcelTv = parcelTv;
+    }
 
-	public void setDcape(boolean dcape) {
-		this.dcape = dcape;
-	}
+    public boolean isParcel() {
+        return parcel;
+    }
 
-	public boolean isVTemp() {
-		return VTemp;
-	}
+    public void setParcel(boolean parcel) {
+        this.parcel = parcel;
+    }
 
-	public void setVTemp(boolean vTemp) {
-		VTemp = vTemp;
-	}
+    public boolean isDcape() {
+        return dcape;
+    }
 
-	public boolean isWetBulb() {
-		return wetBulb;
-	}
+    public void setDcape(boolean dcape) {
+        this.dcape = dcape;
+    }
 
-	public void setWetBulb(boolean wetBulb) {
-		this.wetBulb = wetBulb;
-	}
+    public boolean isVTemp() {
+        return VTemp;
+    }
 
-	public boolean isMixratio() {
-		return mixratio;
-	}
+    public void setVTemp(boolean vTemp) {
+        VTemp = vTemp;
+    }
 
-	public void setMixratio(boolean mixratio) {
-		this.mixratio = mixratio;
-	}
+    public boolean isWetBulb() {
+        return wetBulb;
+    }
 
-	public boolean isDryAdiabat() {
-		return dryAdiabat;
-	}
+    public void setWetBulb(boolean wetBulb) {
+        this.wetBulb = wetBulb;
+    }
 
-	public void setDryAdiabat(boolean dryAdiabat) {
-		this.dryAdiabat = dryAdiabat;
-	}
+    public boolean isMixratio() {
+        return mixratio;
+    }
 
-	public boolean isMoistAdiabat() {
-		return moistAdiabat;
-	}
+    public void setMixratio(boolean mixratio) {
+        this.mixratio = mixratio;
+    }
 
-	public void setMoistAdiabat(boolean moistAdiabat) {
-		this.moistAdiabat = moistAdiabat;
-	}
+    public boolean isDryAdiabat() {
+        return dryAdiabat;
+    }
 
-	public boolean isEffLayer() {
-		return effLayer;
-	}
+    public void setDryAdiabat(boolean dryAdiabat) {
+        this.dryAdiabat = dryAdiabat;
+    }
 
-	public void setEffLayer(boolean effLayer) {
-		this.effLayer = effLayer;
-	}
+    public boolean isMoistAdiabat() {
+        return moistAdiabat;
+    }
 
-	public boolean isCloud() {
-		return cloud;
-	}
+    public void setMoistAdiabat(boolean moistAdiabat) {
+        this.moistAdiabat = moistAdiabat;
+    }
 
-	public void setCloud(boolean cloud) {
-		this.cloud = cloud;
-	}
+    public boolean isEffLayer() {
+        return effLayer;
+    }
 
-	public boolean isHodo() {
-		return hodo;
-	}
+    public void setEffLayer(boolean effLayer) {
+        this.effLayer = effLayer;
+    }
 
-	public void setHodo(boolean hodo) {
-		this.hodo = hodo;
-	}
+    public boolean isCloud() {
+        return cloud;
+    }
 
-	public boolean isMeanWind() {
-		return meanWind;
-	}
+    public void setCloud(boolean cloud) {
+        this.cloud = cloud;
+    }
 
-	public void setMeanWind(boolean meanWind) {
-		this.meanWind = meanWind;
-	}
+    public boolean isHodo() {
+        return hodo;
+    }
 
-	public boolean isSmv3075() {
-		return smv3075;
-	}
+    public void setHodo(boolean hodo) {
+        this.hodo = hodo;
+    }
 
-	public void setSmv3075(boolean smv3075) {
-		this.smv3075 = smv3075;
-	}
+    public boolean isMeanWind() {
+        return meanWind;
+    }
 
-	public boolean isSmv1585() {
-		return smv1585;
-	}
+    public void setMeanWind(boolean meanWind) {
+        this.meanWind = meanWind;
+    }
 
-	public void setSmv1585(boolean smv1585) {
-		this.smv1585 = smv1585;
-	}
+    public boolean isSmv3075() {
+        return smv3075;
+    }
 
-	public boolean isSmvBunkersR() {
-		return smvBunkersR;
-	}
+    public void setSmv3075(boolean smv3075) {
+        this.smv3075 = smv3075;
+    }
 
-	public void setSmvBunkersR(boolean smvBunkersR) {
-		this.smvBunkersR = smvBunkersR;
-	}
+    public boolean isSmv1585() {
+        return smv1585;
+    }
 
-	public boolean isSmvBunkersL() {
-		return smvBunkersL;
-	}
+    public void setSmv1585(boolean smv1585) {
+        this.smv1585 = smv1585;
+    }
 
-	public void setSmvBunkersL(boolean smvBunkersL) {
-		this.smvBunkersL = smvBunkersL;
-	}
+    public boolean isSmvBunkersR() {
+        return smvBunkersR;
+    }
 
-	public boolean isOmega() {
-		return omega;
-	}
+    public void setSmvBunkersR(boolean smvBunkersR) {
+        this.smvBunkersR = smvBunkersR;
+    }
 
-	public void setOmega(boolean omega) {
-		this.omega = omega;
-	}
+    public boolean isSmvBunkersL() {
+        return smvBunkersL;
+    }
 
+    public void setSmvBunkersL(boolean smvBunkersL) {
+        this.smvBunkersL = smvBunkersL;
+    }
 
-	public boolean isCorfidiV() {
-		return corfidiV;
-	}
+    public boolean isOmega() {
+        return omega;
+    }
 
-	public void setCorfidiV(boolean corfidiV) {
-		this.corfidiV = corfidiV;
-	}
+    public void setOmega(boolean omega) {
+        this.omega = omega;
+    }
 
-	public boolean isWindBarb() {
-		return windBarb;
-	}
+    public boolean isCorfidiV() {
+        return corfidiV;
+    }
 
-	public void setWindBarb(boolean windBarb) {
-		this.windBarb = windBarb;
-	}
+    public void setCorfidiV(boolean corfidiV) {
+        this.corfidiV = corfidiV;
+    }
 
-	public int getWindBarbDistance() {
-		return windBarbDistance;
-	}
+    public boolean isWindBarb() {
+        return windBarb;
+    }
 
-	public void setWindBarbDistance(int windBarbDistance) {
-		this.windBarbDistance = windBarbDistance;
-	}
+    public void setWindBarb(boolean windBarb) {
+        this.windBarb = windBarb;
+    }
 
-	public int getTempOffset() {
-		return tempOffset;
-	}
+    public int getWindBarbDistance() {
+        return windBarbDistance;
+    }
 
-	public void setTempOffset(int tempOffset) {
-		this.tempOffset = tempOffset;
-	}
+    public void setWindBarbDistance(int windBarbDistance) {
+        this.windBarbDistance = windBarbDistance;
+    }
 
-	public String getPaneConfigurationName() {
-		return paneConfigurationName;
-	}
+    public int getTempOffset() {
+        return tempOffset;
+    }
 
-	public void setPaneConfigurationName(String paneConfigurationName) {
-		this.paneConfigurationName = paneConfigurationName;
-	}
+    public void setTempOffset(int tempOffset) {
+        this.tempOffset = tempOffset;
+    }
 
-	public List<String> getGribModelTypeList() {
-		return gribModelTypeList;
-	}
+    // FixMark:nearByStnCompSnd
+    public int getSndCompRadius() {
+        return sndCompRadius;
+    }
 
-	public void setGribModelTypeList(List<String> gribModelTypeList) {
-		this.gribModelTypeList = gribModelTypeList;
-	}
+    public void setSndCompRadius(int sndCompRadius) {
+        this.sndCompRadius = sndCompRadius;
+    }
 
-	public float getWindBarbLineWidth() {
-		return windBarbLineWidth;
-	}
+    // end FixMark:nearByStnCompSnd
 
-	public void setWindBarbLineWidth(float windBarbLineWidth) {
-		this.windBarbLineWidth = windBarbLineWidth;
-	}
+    public String getPaneConfigurationName() {
+        return paneConfigurationName;
+    }
 
-	public float getWindBarbSize() {
-		return windBarbSize;
-	}
+    public void setPaneConfigurationName(String paneConfigurationName) {
+        this.paneConfigurationName = paneConfigurationName;
+    }
 
-	public void setWindBarbSize(float windBarbSize) {
-		this.windBarbSize = windBarbSize;
-	}
+    public List<String> getGribModelTypeList() {
+        return gribModelTypeList;
+    }
 
-	public RGB getWindBarbColor() {
-		return windBarbColor;
-	}
+    public void setGribModelTypeList(List<String> gribModelTypeList) {
+        this.gribModelTypeList = gribModelTypeList;
+    }
 
-	public void setWindBarbColor(RGB windBarbColor) {
-		this.windBarbColor = windBarbColor;
-	}
+    public float getWindBarbLineWidth() {
+        return windBarbLineWidth;
+    }
 
-	public boolean isShowFilteredWindInCircle() {
-		return showFilteredWindInCircle;
-	}
+    public void setWindBarbLineWidth(float windBarbLineWidth) {
+        this.windBarbLineWidth = windBarbLineWidth;
+    }
 
-	public void setShowFilteredWindInCircle(boolean showFilteredWindInCircle) {
-		this.showFilteredWindInCircle = showFilteredWindInCircle;
-	}
+    public float getWindBarbSize() {
+        return windBarbSize;
+    }
 
-	
+    public void setWindBarbSize(float windBarbSize) {
+        this.windBarbSize = windBarbSize;
+    }
+
+    public RGB getWindBarbColor() {
+        return windBarbColor;
+    }
+
+    public void setWindBarbColor(RGB windBarbColor) {
+        this.windBarbColor = windBarbColor;
+    }
+
+    public boolean isShowFilteredWindInCircle() {
+        return showFilteredWindInCircle;
+    }
+
+    public void setShowFilteredWindInCircle(boolean showFilteredWindInCircle) {
+        this.showFilteredWindInCircle = showFilteredWindInCircle;
+    }
+
 }
