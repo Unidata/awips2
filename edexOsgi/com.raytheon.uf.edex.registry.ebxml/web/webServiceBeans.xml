@@ -27,6 +27,7 @@
 	<import resource="file:///${edex.home}/conf/spring/edex-db.xml" />
 	<import resource="classpath:res/spring/edex-security.xml" />
 	<import resource="classpath:res/spring/eventbus-common.xml" />
+	<import resource="classpath:res/spring/request-service-common.xml" />
 	<import resource="classpath:res/spring/ebxml.xml" />
 	<import resource="classpath:res/spring/ebxml-validator-plugins.xml" />
 	<import resource="classpath:res/spring/ebxml-querytypes.xml" />
