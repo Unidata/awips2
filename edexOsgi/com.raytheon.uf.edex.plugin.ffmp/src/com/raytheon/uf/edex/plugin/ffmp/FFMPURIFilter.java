@@ -50,6 +50,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  * 06/21/2009   2521       dhladky    Initial Creation.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
+ * Aug 26, 2014 3503       bclement    removed serial version id
  * 
  * </pre>
  * 
@@ -58,11 +59,6 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  */
 
 public class FFMPURIFilter extends URIFilter {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 3389517248482079383L;
 
     /** an ICAO you may wish to use in matching */
     protected String[] icao = null;
