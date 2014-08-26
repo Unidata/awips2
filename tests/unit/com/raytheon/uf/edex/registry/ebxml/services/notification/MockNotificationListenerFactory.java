@@ -26,7 +26,7 @@ import java.util.Map;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 
-import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
+import com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.listeners.WebServiceNotificationListener;
 
 /**
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.notification.listeners.WebSe
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 17, 2013 1672       djohnson     Initial creation
+ * Aug 26, 2014 3365       ccody        Separate Data Delivery tests out of AWIPS 2 baseline.
  * 
  * </pre>
  * 
