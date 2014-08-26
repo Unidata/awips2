@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
-
+import com.raytheon.uf.common.convert.ConvertUtil;
 /**
  * Tests for convert utils
  * 
