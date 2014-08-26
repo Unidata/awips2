@@ -21,9 +21,9 @@ Require-Bundle: com.raytheon.uf.common.monitor;bundle-version="1.0.0",
  com.raytheon.uf.edex.database
 Import-Package: com.raytheon.edex.urifilter,
  com.raytheon.uf.common.dataplugin.grid,
+ com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.plugin.scan.common,
  org.apache.commons.logging
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.qpf,
  com.raytheon.uf.edex.plugin.qpf.common
