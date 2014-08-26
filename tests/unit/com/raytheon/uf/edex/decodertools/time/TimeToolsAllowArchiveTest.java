@@ -31,7 +31,9 @@ import org.junit.Test;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.decodertools.time.TimeTools.ICheckAllowArchive;
+/* 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+ * REMOVED import com.raytheon.uf.edex.decodertools.time.TimeTools.ICheckAllowArchive;
+ */
 
 /**
  * Test {@link TimeTools}.
@@ -43,6 +45,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools.ICheckAllowArchive;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2013 1636       rferrel     Initial creation
+ * Aug 26, 2014 3365       ccody       Separate Data Delivery tests out of AWIPS 2 baseline.
+ *                                     Required class (ICheckAllowArchive) no longer exists
+ *                                     Test functionality that is no longer supported (i.e. will not compile)
+ *                                     has been "deactivated" (commented out).
  * 
  * </pre>
  * 
@@ -54,6 +60,9 @@ public class TimeToolsAllowArchiveTest {
 
     @BeforeClass
     public static void classSetup() {
+        /* 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+         * REMOVED BEGIN
+         *
         TimeTools.checkAllowArchive = new ICheckAllowArchive() {
 
             @Override
@@ -61,6 +70,9 @@ public class TimeToolsAllowArchiveTest {
                 return true;
             }
         };
+         * 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+         * REMOVED END 
+         */
         ITimeService service = new ITimeService() {
             @Override
             public Calendar getCalendar() {
@@ -91,17 +103,29 @@ public class TimeToolsAllowArchiveTest {
         Headers header = new Headers();
         header.put(DecoderTools.INGEST_FILE_NAME, data[1]);
 
-        Calendar c = TimeTools.findDataTime(data[2], header);
+        /* 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+         * REMOVED BEGIN
+         *
         sdf.setTimeZone(c.getTimeZone());
 
         String cs = sdf.format(c.getTime());
         return expected.equals(cs);
+         * 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+         * REMOVED END 
+         */
+        return false;
     }
 
+    /* 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+     * REMOVED BEGIN
+     *
     @Test
     public void test() {
         assertTrue(TimeTools.allowArchive());
     }
+     * 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+     * REMOVED END 
+     */
 
     @Test
     public void test001() {
