@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.auth.req;
+package com.raytheon.uf.edex.requestsrv.request;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -35,9 +35,8 @@ import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
-import com.raytheon.uf.edex.auth.HandlerRegistry;
-import com.raytheon.uf.edex.auth.RemoteRequestServer;
-import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivilegedRequest;
+import com.raytheon.uf.edex.requestsrv.HandlerRegistry;
+import com.raytheon.uf.edex.requestsrv.request.ServerPrivilegedRequestHandler.ServerPrivilegedRequest;
 
 /**
  * Test {@link ServerPrivilegedRequestHandler}.
@@ -69,8 +68,6 @@ public class ServerPrivilegedRequestHandlerTest {
 
     @Before
     public void setUp() {
-        RemoteRequestServer.getInstance().setRegistry(registry);
-
         when(
                 registry.getRequestHandler(BandwidthRequest.class
                         .getCanonicalName())).thenReturn(bandwidthHandler);
