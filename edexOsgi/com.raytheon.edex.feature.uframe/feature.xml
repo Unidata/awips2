@@ -132,4 +132,8 @@
          id="com.raytheon.uf.edex.registry.feature"
          version="0.0.0"/>
 
+   <includes
+         id="com.raytheon.uf.edex.remote.script.feature"
+         version="0.0.0"/>
+
 </feature>
