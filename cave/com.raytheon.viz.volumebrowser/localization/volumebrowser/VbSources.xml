@@ -16,11 +16,16 @@
 	<vbSource key="DGEX185" category="Volume" />
 	<vbSource key="ECMWF-HiRes" category="Volume" />
 	<vbSource key="ECMF-NorthernHemisphere" category="Volume" />
+    <vbSource key="GFS229" category="Volume" />
+    <!-- Old version being replaced by GFS229
 	<vbSource key="AVN203" category="Volume" />
+    -->
 	<vbSource key="GFS201" category="Volume" />
 	<vbSource key="GFS212" category="Volume" />
+    <!--Old version being replaced by GFS229
 	<vbSource key="AVN225" category="Volume" />
 	<vbSource key="GFS213" category="Volume" />
+    -->
 	<vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES"/>
 	<vbSource key="AVN-NorthernHemisphere" category="Volume" />
 	<vbSource key="HiResW-ARW-AK" category="Volume" />
@@ -34,7 +39,9 @@
 	<vbSource key="HiResW-NMM-SJU" category="Volume" />
 	<vbSource key="HiResW-NMM-West" category="Volume" />
 	<vbSource key="HRRR" category="Volume" />
+    <!-- Old version being replaced by GFS229
 	<vbSource key="MRF204" category="Volume" />
+    -->
 	<vbSource key="LAMPQPF" category="Volume" />
 	<vbSource key="LAPS" category="Volume" />
 	<vbSource key="ETA218" category="Volume" />
@@ -49,7 +56,9 @@
 	<vbSource key="RUC130" category="Volume" />
 	<vbSource key="RUC236" category="Volume" />
 	<vbSource key="GFS161" category="Volume" />
+    <!-- Old version being replaced by GFS229
 	<vbSource key="MRF205" category="Volume" />
+    -->
 	<vbSource key="SREF212" category="Volume" views="PLANVIEW TIMESERIES"/>
 	<vbSource key="UKMET-NorthernHemisphere" category="Volume" />
 	<vbSource key="radar" name="Radar" category="Volume" />
