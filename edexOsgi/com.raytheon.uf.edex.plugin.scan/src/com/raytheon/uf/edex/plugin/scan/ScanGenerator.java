@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.dat.utils.ScanDataCache;
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * May 12, 2014 3133        njensen     Remove unused field
  * Jul 10, 2014 2914        garmendariz Remove EnvProperties
+ * Aug 26, 2014 3503        bclement    removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -210,7 +211,6 @@ public class ScanGenerator extends CompositeProductGenerator implements
                     scanRec.setTableData(tables.get(table));
                     scanRec.setVolScanTime(tables.get(table).getVolScanTime());
 
-                    scanRec.constructDataURI();
                     scanRecords[i] = scanRec;
                     i++;
                 }
