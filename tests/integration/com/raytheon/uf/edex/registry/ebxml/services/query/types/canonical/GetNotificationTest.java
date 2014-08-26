@@ -46,17 +46,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
 import com.raytheon.uf.common.registry.constants.NotificationOptionTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlNamespaces;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.plugins.GetNotification;
 import com.raytheon.uf.edex.registry.ebxml.services.query.types.QueryTest;
+import com.raytheon.uf.edex.registry.ebxml.services.soap.RegistrySOAPServices;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 10/8/2013    1682        bphillip    Initial implementation
+ * Aug 26, 2014 3365        ccody       Separate Data Delivery tests out of AWIPS 2 baseline.
  * </pre>
  * 
  * @author bphillip
