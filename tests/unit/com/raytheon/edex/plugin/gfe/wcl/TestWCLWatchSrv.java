@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.gfe.watch;
+package com.raytheon.edex.plugin.gfe.wcl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -44,6 +44,27 @@ import org.junit.Test;
 import com.raytheon.edex.plugin.gfe.watch.WCLWatchSrv;
 import com.raytheon.edex.plugin.gfe.watch.WatchProductUtil;
 import com.raytheon.edex.plugin.gfe.watch.WclInfo;
+
+/**
+ * WCLWatchSrv test
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Aug 26, 2014 3365       ccody       Separate Data Delivery tests out of AWIPS 2 baseline.
+ *                                     WCLWatchSrv API Has changed since this test was created.
+ *                                     Test functionality that is no longer supported by the API (i.e. will not compile)
+ *                                     has been "deactivated" (commented out).
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 
 public class TestWCLWatchSrv {
 
@@ -136,12 +157,16 @@ public class TestWCLWatchSrv {
                 return new File(home);
             }
         };
+        /* 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED BEGIN
+         *
         try {
             temp = File.createTempFile("xxx", null, null);
             PrintWriter pw = new PrintWriter(temp);
             pw.println("Testing");
             pw.close();
             Collection<String> dummy = Collections.emptySet();
+            
             wclWatchSrv.makePermanent(temp, completePIL, dummy);
             assertTrue("expetedFile exists", expectedFile.exists());
             assertTrue("expectedFile isFile", expectedFile.isFile());
@@ -155,10 +180,16 @@ public class TestWCLWatchSrv {
                 expectedFile.delete();
             }
         }
+         * 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED END 
+         */
     }
 
     @Test
     public void testCreateTempWclFile() throws Exception {
+        /* 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED BEGIN
+         *
         File wclFile = wclWatchSrv
                 .createTempWclFile("captain=\"Rafe\"\nfirst_officer='Buttercup'\n");
         assertNotNull("wclFile", wclFile);
@@ -172,6 +203,9 @@ public class TestWCLWatchSrv {
         } finally {
             wclFile.delete();
         }
+         * 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED END 
+         */
     }
 
     @Test
@@ -183,6 +217,10 @@ public class TestWCLWatchSrv {
         Date expireTime = new Date(12345678999L);
         Date issueTime = new Date(35791113001L);
         String watchType = "SV.A";
+        
+        /* 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED BEGIN
+         *
         String result = wclWatchSrv.makeWclStr(finalUGCList, expireTime,
                 issueTime, watchType);
         String expectedResult = "watchtype = \"SV.A\"\n"
@@ -214,16 +252,25 @@ public class TestWCLWatchSrv {
         expectedResult = "watchtype = \"SV.A\"\n" + "finalUGCList = []\n"
                 + "expTime =12345678\n" + "issueTime =35791113\n";
         assertEquals("result-empty UGC list", expectedResult, result);
+         * 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED END 
+         */
     }
 
     @Test
     public void testGetWatchType() {
+        /* 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED BEGIN
+         *
         String watchType;
         watchType = wclWatchSrv.getWatchType(wclInfoA);
         assertEquals("watch A type", "TO.A", watchType);
 
         watchType = wclWatchSrv.getWatchType(wclInfoB);
         assertEquals("watch B type", "SV.A", watchType);
+         * 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED END 
+         */
     }
 
     @Test
@@ -236,6 +283,9 @@ public class TestWCLWatchSrv {
                 return new Date();
             }
         };
+        /* 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED BEGIN
+         *
         result = wclWatchSrv.getExpireTime(wclInfoA);
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.set(Calendar.DAY_OF_MONTH, 2);
@@ -248,11 +298,17 @@ public class TestWCLWatchSrv {
 
         result = wclWatchSrv.getExpireTime(wclInfoB);
         assertNull("getExpireTime B", result);
+         * 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED END 
+         */
     }
 
     @Test
     public void testGetUGCs() {
         List<String> UGCs;
+        /* 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED BEGIN
+         *
         UGCs = wclWatchSrv.getUGCs(wclInfoA);
         List<String> expectedUGCs = new ArrayList<String>();
         expectedUGCs.add("NEB002");
@@ -267,5 +323,8 @@ public class TestWCLWatchSrv {
         UGCs = wclWatchSrv.getUGCs(wclInfoB);
         expectedUGCs.clear();
         assertEquals("UGCs B", expectedUGCs, UGCs);
+         * 08-26-2014 Issue 3365 WclWatchSrv API has changed.
+         * REMOVED END 
+         */
     }
 }
