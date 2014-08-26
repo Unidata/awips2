@@ -25,6 +25,8 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionType;
@@ -199,15 +201,23 @@ public class ProjectionDataTest {
             for (Coordinate[] coords : testCase.testInOut) {
                 Coordinate gridCoord = coords[0];
                 Coordinate expected = coords[1];
-                Coordinate latLon = testCase.proj.gridCoordinateToLatLon(
-                        gridCoord, orientation);
-                System.out.println(gridCoord + "  " + latLon);
-                Assert.assertTrue("expected: " + expected.x + ", got: "
-                        + latLon.x,
-                        withinTolerance(latLon.x, expected.x, TOLERANCE));
-                Assert.assertTrue("expected: " + expected.y + ", got: "
-                        + latLon.y,
-                        withinTolerance(latLon.y, expected.y, TOLERANCE));
+                try {
+                    Coordinate latLon = testCase.proj.gridCoordinateToLatLon(
+                            gridCoord);
+                    System.out.println(gridCoord + "  " + latLon);
+                    Assert.assertTrue("expected: " + expected.x + ", got: "
+                            + latLon.x,
+                            withinTolerance(latLon.x, expected.x, TOLERANCE));
+                    Assert.assertTrue("expected: " + expected.y + ", got: "
+                            + latLon.y,
+                            withinTolerance(latLon.y, expected.y, TOLERANCE));
+                } 
+                catch(TransformException te) {
+                    te.printStackTrace();
+                }
+                catch(FactoryException fe) {
+                    fe.printStackTrace();
+                }
             }
         }
     }
