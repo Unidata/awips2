@@ -30,6 +30,26 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager.Serializ
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+/**
+ * TestWsIdAdapter test
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Nov 13, 2013            bclement    Initial creation
+ * Aug 26, 2014 3365       ccody       Separate Data Delivery tests out of AWIPS 2 baseline.
+ *                                     DynamicSerializationManager API Has changed since this test was created.
+ *                                     Test functionality that is no longer supported by the API (i.e. will not compile)
+ *                                     has been "deactivated" (commented out).
+ * 
+ * </pre>
+ * 
+ * @author bclement
+ * @version 1.0
+ */
 public class TestWsIdAdapter {
     private Random rnd = new Random();
 
@@ -74,8 +94,14 @@ public class TestWsIdAdapter {
         DynamicSerializationManager dmgr = DynamicSerializationManager
                 .getManager(SerializationType.Thrift);
 
+        /* 08-26-2014 Issue 3365 DynamicSerializationManager API has changed.
+         * REMOVED BEGIN
+         *
         DynamicSerializationManager.inspect(inTest.getClass());
         DynamicSerializationManager.inspect(wsId.getClass());
+         * 08-26-2014 Issue 3365 DynamicSerializationManager API has changed.
+         * REMOVED END 
+         */
         byte[] bdata = null;
         try {
             bdata = dmgr.serialize(inTest);
