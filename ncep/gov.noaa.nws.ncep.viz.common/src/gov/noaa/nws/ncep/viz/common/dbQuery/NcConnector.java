@@ -87,7 +87,7 @@ public class NcConnector {
                 Body.class, ResponseMessageGeneric.class, QueryResult.class,
                 QueryResultRow.class, ResponseMessageError.class };
         for (Class<?> c : toLoad) {
-            DynamicSerializationManager.inspect(c);
+            DynamicSerializationManager.getSerializationMetadata(c);
         }
     }
 
