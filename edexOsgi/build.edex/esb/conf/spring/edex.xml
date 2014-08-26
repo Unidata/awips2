@@ -301,7 +301,7 @@
    </bean>
 
     <!-- Holds the registry of request routers by server key -->
-    <bean id="handlerRegistry" class="com.raytheon.uf.edex.auth.HandlerRegistry"
+    <bean id="handlerRegistry" class="com.raytheon.uf.edex.requestsrv.HandlerRegistry"
         factory-method="getInstance" />
 
     <bean id="requestRouterRegistry"
@@ -310,20 +310,20 @@
 
     <!-- Server Request routers -->
     <bean id="serverPrivilegedRequestHandler"
-        class="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler">
+        class="com.raytheon.uf.edex.requestsrv.request.ServerPrivilegedRequestHandler">
         <constructor-arg ref="handlerRegistry" />
     </bean>
-
+    
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg
-            value="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivilegedRequest" />
+            value="com.raytheon.uf.edex.requestsrv.request.ServerPrivilegedRequestHandler.ServerPrivilegedRequest" />
         <constructor-arg ref="serverPrivilegedRequestHandler" />
     </bean>
 
     <util:constant id="requestServerKey"
         static-field="com.raytheon.uf.common.auth.RequestConstants.REQUEST_SERVER" />
 
-    <bean id="requestServiceRouter" class="com.raytheon.uf.edex.auth.ServerRequestRouter">
+    <bean id="requestServiceRouter" class="com.raytheon.uf.edex.requestsrv.router.ServerRequestRouter">
         <!-- This bean will cause all RequestRouter.route(request) calls 
             to be processed internally to EDEX -->
     </bean>
