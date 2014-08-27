@@ -31,7 +31,7 @@ import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.registry.RegistryConstants;
 import com.raytheon.uf.common.util.DeployTestProperties;
 import com.raytheon.uf.common.util.registry.RegistryException;
-import com.raytheon.uf.edex.auth.RemoteServerRequestRouter;
+import com.raytheon.uf.edex.requestsrv.router.RemoteServerRequestRouter;
 
 /**
  * Test {@link RequestRouter}.
