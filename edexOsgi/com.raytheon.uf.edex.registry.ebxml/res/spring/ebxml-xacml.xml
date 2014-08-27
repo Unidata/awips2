@@ -3,6 +3,14 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
 	<bean id="xacmlInterceptor" class="com.raytheon.uf.edex.registry.acp.xacml.interceptor.XACMLInterceptor">
+		<constructor-arg value="pre-invoke"/>
+		<constructor-arg ref="XACMLPolicyAdministrator"/>
+		<constructor-arg ref="XACMLPolicyDecisionPoint"/>
+		<constructor-arg ref="registryObjectDao"/>
+	</bean>
+	
+	<bean id="xacmlQueryInterceptor" class="com.raytheon.uf.edex.registry.acp.xacml.interceptor.XACMLInterceptor">
+		<constructor-arg value="post-invoke"/>
 		<constructor-arg ref="XACMLPolicyAdministrator"/>
 		<constructor-arg ref="XACMLPolicyDecisionPoint"/>
 		<constructor-arg ref="registryObjectDao"/>
