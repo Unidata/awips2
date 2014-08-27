@@ -91,16 +91,12 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.archive"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.shef"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.bandwidth.ncf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.thrift"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.gfe"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.gfe"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.python"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.message"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.shef"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ffg"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ffg"/>
@@ -162,10 +158,12 @@
 	<classpathentry kind="lib" path="lib/jetty-util-7.6.14.v20131031.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-security-7.6.14.v20131031.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.taf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.redbook"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.plugin.hpe"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.plugin.hpe"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.wmo"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.jms"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.registry.schemas.iso19115"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.requestsrv"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
