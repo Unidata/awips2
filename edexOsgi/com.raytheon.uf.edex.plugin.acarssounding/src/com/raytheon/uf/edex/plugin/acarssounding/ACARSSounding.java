@@ -24,32 +24,29 @@ import static com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingConst
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
-import com.raytheon.uf.edex.plugin.acarssounding.dao.ACARSSoundingDao;
-import com.raytheon.uf.common.dataplugin.acarssounding.tools.AirportsBean;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.plugin.acars.dao.ACARSDao;
+import com.raytheon.uf.edex.plugin.acarssounding.dao.ACARSSoundingDao;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSAircraftInfo;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
+import com.raytheon.uf.edex.plugin.acarssounding.tools.AirportsBean;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.IntermediateData;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
 
@@ -62,6 +59,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2009       1939 jkorman     Initial creation
+ * Aug 18, 2014 3530       bclement    removed TimeTools usage
  * 
  * </pre>
  * 
@@ -203,11 +201,12 @@ public class ACARSSounding {
                 if ((uris.size() >= ACARSSoundingTools.MIN_OBS_FOR_SOUNDING)) {
                     String s = uris.get(0);
                     Long startTime = Long.parseLong(s.substring(0,20).trim());
-                    Calendar start = TimeTools.newCalendar(startTime);
+                    Calendar start = TimeUtil
+                            .newGmtCalendar(new Date(startTime));
                     
                     s = uris.get(uris.size() - 1);
                     Long stopTime = Long.parseLong(s.substring(0,20).trim());
-                    Calendar end = TimeTools.newCalendar(stopTime);
+                    Calendar end = TimeUtil.newGmtCalendar(new Date(stopTime));
 
                     List<ACARSRecord> obs = acarsDAO.getReports(
                             acftInfo.getTailNumber(), start, end);
@@ -236,7 +235,7 @@ public class ACARSSounding {
         String msg = "attempting " + acftInfo.getTailNumber() + " ";
         String tailNumber = acftInfo.getTailNumber();
 
-        Calendar c = TimeTools.newCalendar(acftInfo.getStartTime());
+        Calendar c = TimeUtil.newGmtCalendar(new Date(acftInfo.getStartTime()));
         msg += String.format(ACARSSoundingTools.STD_TM_FMT,c);
 
         c.setTimeInMillis(acftInfo.getStopTime());

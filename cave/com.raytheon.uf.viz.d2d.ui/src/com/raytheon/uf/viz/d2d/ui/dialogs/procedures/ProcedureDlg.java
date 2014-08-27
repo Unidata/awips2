@@ -102,6 +102,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jan 16, 2013  DR 15367  D. Friedman Enable save button for Up/Down changes. 
  * Feb 25, 2013 1640       bsteffen    Dispose old display in BundleLoader
  * Jun 7, 2013  2074       mnash       Remove resource if doesn't instantiate correctly
+ * Aug 11, 2014 3480       bclement    added info logging when procedure is loaded
  * </pre>
  * 
  * @author unknown
@@ -863,6 +864,7 @@ public class ProcedureDlg extends CaveSWTDialog {
     }
 
     private void load(final Bundle b) {
+        statusHandler.info("Loading bundle: " + b.getName());
         String editorName = null;
         if (b.getDisplays().length > 0) {
             editorName = DescriptorMap.getEditorId(b.getDisplays()[0]
