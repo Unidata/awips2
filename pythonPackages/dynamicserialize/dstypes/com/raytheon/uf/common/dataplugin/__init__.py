@@ -25,7 +25,8 @@ __all__ = [
             'grib',
             'grid',
             'level',
-            'message'
+            'message',
+            'radar'
           ]
 
 
