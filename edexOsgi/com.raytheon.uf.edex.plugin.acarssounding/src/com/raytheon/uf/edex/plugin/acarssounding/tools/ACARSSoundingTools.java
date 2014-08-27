@@ -8,21 +8,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingLayer;
-import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
- * 
+ * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -30,13 +29,15 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Feb 24, 2014 DR15038    M.Porricelli Modified 'accept' to
  *                                      not discard sounding data
  *                                      based on altitude here
+ * Aug 18, 2014 3530       bclement     removed TimeTools usage and dead code
+ * </pre>
  */
 
 public final class ACARSSoundingTools {
 
     // 30 minute offset to apply to observation time.
     public static final String TIMEOFFSET = Long
-            .toString(TimeTools.MILLIS_HOUR / 2L);
+            .toString(TimeUtil.MILLIS_PER_HOUR / 2L);
 
     public static final String FMT = "%s%2$tY%2$tm%2$td%2$tH";
 
@@ -188,7 +189,7 @@ public final class ACARSSoundingTools {
      * @return
      */
     public static final String getFileName() {
-        return String.format(FMT, DATAFILE, TimeTools.getSystemCalendar());
+        return String.format(FMT, DATAFILE, TimeUtil.newGmtCalendar());
     }
 
     /**
@@ -317,7 +318,8 @@ public final class ACARSSoundingTools {
                         if (!dups.contains(uri)) {
                             dups.add(uri);
                             ACARSRecord r = new ACARSRecord(uri);
-                            r.setTimeObs(TimeTools.newCalendar(obsTime));
+                            r.setTimeObs(TimeUtil.newGmtCalendar(new Date(
+                                    obsTime)));
                             obs.add(r);
                         }
                     }
@@ -464,8 +466,8 @@ public final class ACARSSoundingTools {
      * @return
      */
     public static final long getCutoffTime(int cutOffHours) {
-        long cTime = TimeTools.getSystemCalendar().getTimeInMillis();
-        cTime -= (TimeTools.MILLIS_HOUR * cutOffHours);
+        long cTime = TimeUtil.newGmtCalendar().getTimeInMillis();
+        cTime -= (TimeUtil.MILLIS_PER_HOUR * cutOffHours);
 
         return cTime;
     }
@@ -511,45 +513,6 @@ public final class ACARSSoundingTools {
                 result = true;
             }
         }
-        return result;
-    }
-
-    private static boolean test_betweenTimes() {
-        boolean result = true;
-        
-        long t = System.currentTimeMillis();
-        
-        Calendar cA = TimeTools.newCalendar(t - 1);
-        Calendar cB = TimeTools.newCalendar(t);
-        Calendar cC = TimeTools.newCalendar(t + 1);
-
-        result &= betweenTimes(cA,cB,cC);
-
-        cA = TimeTools.newCalendar(t);
-        cB = TimeTools.newCalendar(t - 1);
-        cC = TimeTools.newCalendar(t + 1);
-        result &= !betweenTimes(cA,cB,cC);
-        
-        cA = TimeTools.newCalendar(t-1);
-        cB = TimeTools.newCalendar(t + 1);
-        cC = TimeTools.newCalendar(t);
-        result &= !betweenTimes(cA,cB,cC);
-
-        return result;
-    }
-    
-    private static boolean test_betweenFlightLevel() {
-        boolean result = true;
-
-        Integer [] fA = { 2000, 3000,  2500,  3000,  2500,  2000, };
-        Integer [] fB = { 2500, 2500,  2000,  2000,  3000,  3000, };
-        Integer [] fC = { 3000, 2000,  3000,  2500,  2000,  2500, };
-        boolean [] rs = { true, true, false, false, false, false, };
-        
-        for(int i = 0;i < fA.length;i++) {
-            result &= (betweenFlightLevel(fA[i],fB[i],fC[i]) == rs[i]);
-        }
-        
         return result;
     }
     

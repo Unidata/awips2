@@ -90,10 +90,6 @@
 			<param name="feature"
 				value="com.raytheon.uf.edex.ost.feature" />
 		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.ohd.feature" />
-		</antcall>
         <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.npp.feature" />
@@ -121,6 +117,10 @@
         <antcall target="build">
             <param name="feature"
                 value="com.raytheon.uf.edex.dataprovideragent.feature" />
+        </antcall>
+        <antcall target="build">
+            <param name="feature"
+                value="com.raytheon.uf.edex.remote.script.feature" />
         </antcall>
 
 		<!-- SPECIAL CASE -->
