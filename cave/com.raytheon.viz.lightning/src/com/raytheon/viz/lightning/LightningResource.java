@@ -90,6 +90,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  *    Jul 07, 2014  3333       bclement    removed lightSource field
  *    Jul 10, 2014  3333       bclement    moved cache object inner classes to own package
  *                                          moved name formatting to static method
+ *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
  * 
  * </pre>
  * 
@@ -282,7 +283,13 @@ public class LightningResource extends
         
         if (magnification == 0.0) magnification=(float) 0.01;
         
-        IExtent extent = paintProps.getView().getExtent();
+        /*
+         * we only want strikes that are visible so we have to filter any
+         * strikes that aren't in both the clipping pane and the view
+         */
+        IExtent viewExtent = paintProps.getView().getExtent();
+        IExtent clipExtent = paintProps.getClippingPane();
+        IExtent extent = viewExtent.intersection(clipExtent);
 
         CacheObject<LightningFrameMetadata, LightningFrame> cacheObject = cacheObjectMap
                 .get(this.lastPaintedTime);
