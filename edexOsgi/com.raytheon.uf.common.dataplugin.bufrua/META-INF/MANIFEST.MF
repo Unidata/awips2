@@ -10,11 +10,8 @@ Export-Package: com.raytheon.uf.common.dataplugin.bufrua,
 Require-Bundle: com.raytheon.uf.common.sounding;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
- com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
  javax.persistence,
  org.hibernate;bundle-version="1.0.0",
- javax.measure,
  com.raytheon.uf.common.dataaccess;bundle-version="1.14.0"
-Import-Package: org.apache.commons.logging
+Import-Package: com.raytheon.uf.common.status
