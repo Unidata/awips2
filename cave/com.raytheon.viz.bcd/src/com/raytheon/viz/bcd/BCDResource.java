@@ -51,7 +51,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.maps.rsc.AbstractMapResource;
+import com.raytheon.uf.viz.core.maps.rsc.StyledMapResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -78,6 +78,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    Jul 29, 2014  3465        mapeters    Updated deprecated drawString() calls.
  *    Aug 04, 2014  3489        mapeters    Updated deprecated getStringBounds() calls.
  *    Aug 13, 2014  3492        mapeters    Updated deprecated createWireframeShape() calls.
+ *    Aug 21, 2014 #3459        randerso    Restructured Map resource class hierarchy
  * 
  * </pre>
  * 
@@ -85,7 +86,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 public class BCDResource extends
-        AbstractMapResource<BCDResourceData, MapDescriptor> implements
+        StyledMapResource<BCDResourceData, MapDescriptor> implements
         IResourceDataChanged {
 
     /** The wireframe object */
@@ -182,7 +183,7 @@ public class BCDResource extends
                             FileUtil.join(VizApp.getMapsDir(),
                                     resourceData.getFilename()));
                 }
-                if (file == null || file.exists() == false) {
+                if ((file == null) || (file.exists() == false)) {
                     throw new VizException("Could not find bcd file",
                             new FileNotFoundException(String.valueOf(file)));
                 }
@@ -195,8 +196,9 @@ public class BCDResource extends
                 if (buffer.remaining() >= 4) {
                     // Whether BCX or not, first value is an int.
                     // Note: Different from A1 which tests >31 or >500
-                    if (buffer.getInt(0) > Short.MAX_VALUE)
+                    if (buffer.getInt(0) > Short.MAX_VALUE) {
                         buffer.order(ByteOrder.LITTLE_ENDIAN);
+                    }
                 }
 
                 double minLat = Double.MAX_VALUE;
@@ -321,13 +323,13 @@ public class BCDResource extends
                 font = target.initializeFont(target.getDefaultFont()
                         .getFontName(), (float) (10 * magnification), null);
             }
-            
+
             DrawableString stringN = new DrawableString("N");
             stringN.font = font;
             Rectangle2D charSize = target.getStringsBounds(stringN);
             double charWidth = charSize.getWidth();
 
-            double minSepDist = metersPerPixel / 1000.0 / density * charWidth;
+            double minSepDist = (metersPerPixel / 1000.0 / density) * charWidth;
 
             if (maxLen <= 5) {
                 minSepDist *= maxLen;
@@ -344,7 +346,7 @@ public class BCDResource extends
                     continue;
                 }
 
-                if (view.isVisible(p.pixel) && p.distance >= minSepDist) {
+                if (view.isVisible(p.pixel) && (p.distance >= minSepDist)) {
                     DrawableString string = new DrawableString(p.label, color);
                     string.font = font;
                     string.setCoordinates(p.pixel[0], p.pixel[1]);
