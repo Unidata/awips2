@@ -34,8 +34,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -47,7 +45,7 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.maps.rsc.AbstractMapResource;
+import com.raytheon.uf.viz.core.maps.rsc.StyledMapResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -69,6 +67,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Spe 17, 2007           randerso    Initial Creation.
  * May 16, 2014  3163     bsteffen    Remove WORD_WRAP TextStyle and handle
  *                                    wrapping locally.
+ * Aug 21, 2014 #3459     randerso    Restructured Map resource class hierarchy
  * 
  * </pre>
  * 
@@ -76,10 +75,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  */
 public class LPIResource extends
-        AbstractMapResource<LPIResourceData, IMapDescriptor> implements
+        StyledMapResource<LPIResourceData, IMapDescriptor> implements
         IResourceDataChanged {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(LPIResource.class);
 
     /** Whether the resource is ready to be drawn */
     private boolean ready = false;
@@ -146,7 +143,7 @@ public class LPIResource extends
                 file = PathManagerFactory.getPathManager().getStaticFile(
                         filename);
             }
-            if (file == null || file.exists() == false) {
+            if ((file == null) || (file.exists() == false)) {
                 throw new VizException("Could not find lpi file",
                         new FileNotFoundException(filename));
             }
@@ -281,8 +278,7 @@ public class LPIResource extends
                     if (isLabeled && (magnification > 0.0)) {
                         String label = p.label;
                         label = label.replaceAll("([^\n]{3}\\S*)\\s+", "$1\n");
-                        DrawableString string = new DrawableString(label,
-                                color);
+                        DrawableString string = new DrawableString(label, color);
                         string.font = font;
                         string.setCoordinates(p.pixel[0] + offsetX, p.pixel[1]
                                 + offsetY);
