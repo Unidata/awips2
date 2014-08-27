@@ -133,7 +133,26 @@ public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
      */
     public XACMLInterceptor(XACMLPolicyAdministrator xacmlPolicyAdmin,
             XACMLPolicyDecisionPoint pdp, RegistryObjectDao registryObjectDao) {
-        super(Phase.PRE_INVOKE);
+        this(Phase.PRE_INVOKE, xacmlPolicyAdmin, pdp, registryObjectDao);
+    }
+
+    /**
+     * Constructs a new XACMLInterceptor
+     * 
+     * @param phase
+     *            The phase in the CXF Interceptor chain that this interceptor
+     *            gets executed
+     * @param xacmlPolicyAdmin
+     *            The policy admin
+     * @param pdp
+     *            The policy decision point
+     * @param registryObjectDao
+     *            The registry object data access object
+     */
+    public XACMLInterceptor(String phase,
+            XACMLPolicyAdministrator xacmlPolicyAdmin,
+            XACMLPolicyDecisionPoint pdp, RegistryObjectDao registryObjectDao) {
+        super(phase);
         OpenSAMLUtil.initSamlEngine();
         this.xacmlPolicyAdmin = xacmlPolicyAdmin;
         this.pdp = pdp;
@@ -283,11 +302,13 @@ public class XACMLInterceptor extends AbstractPhaseInterceptor<Message> {
             } else if (request instanceof FilterObjectsRequest) {
                 objList = ((FilterObjectsRequest) request).getOriginalObjects();
             } else if (request instanceof QueryRequest) {
-                QueryResponse queryResponse = (QueryResponse) ((SoapMessage) message
-                        .getExchange().getOutMessage()).getContent(List.class)
-                        .get(0);
-                refList = queryResponse.getObjectRefList();
-                objList = queryResponse.getRegistryObjectList();
+                if (message.getExchange().getOutMessage() != null) {
+                    QueryResponse queryResponse = (QueryResponse) ((SoapMessage) message
+                            .getExchange().getOutMessage()).getContent(
+                            List.class).get(0);
+                    refList = queryResponse.getObjectRefList();
+                    objList = queryResponse.getRegistryObjectList();
+                }
             } else if (request instanceof RemoveObjectsRequest) {
                 refList = ((RemoveObjectsRequest) request).getObjectRefList();
             } else if (request instanceof SubmitObjectsRequest) {
