@@ -49,8 +49,6 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -107,6 +105,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Aug 13, 2014     #3492  mapeters    Updated deprecated createWireframeShape() calls.
  * Aug 14, 2014     #3523  mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
+ * Aug 21, 2014     #3459  randerso    Restructured Map resource class hierarchy
  * 
  * </pre>
  * 
@@ -115,8 +114,6 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 public class ZoneSelectorResource extends DbMapResource {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ZoneSelectorResource.class);
 
     private static final RGB NO_ZONE_COLOR;
     static {
@@ -266,7 +263,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                 // zoneName = "";
                             }
 
-                            if (limitZones != null
+                            if ((limitZones != null)
                                     && !limitZones.contains(zoneName)) {
                                 continue;
                             }
@@ -1089,7 +1086,7 @@ public class ZoneSelectorResource extends DbMapResource {
                     String zoneName = (String) mappedResult.getRowColumnValue(
                             i, "editarea");
 
-                    if (this.limitZones != null
+                    if ((this.limitZones != null)
                             && !this.limitZones.contains(zoneName)) {
                         continue;
                     }
