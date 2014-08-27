@@ -53,7 +53,7 @@
         <constructor-arg ref="discreteDefinitionHandler"/>
     </bean>
     <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler">
-        <property name="byteLimitInMB" value="${thriftService.byteLimitInMB}" />
+        <property name="byteLimitInMB" value="${edex.requestsrv.byteLimitInMB}" />
     </bean>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetGridDataRequest"/>

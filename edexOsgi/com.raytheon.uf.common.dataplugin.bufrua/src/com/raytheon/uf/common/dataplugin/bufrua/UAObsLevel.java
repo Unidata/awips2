@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * 20071127            382 jkorman     Initial Coding.
  * 20080630           1215 jkorman     Implemented Serializable.
+ * Aug 18, 2014 3530       bclement    removed ISerialableObject
  * </pre>
  * 
  * @author jkorman
@@ -49,7 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class UAObsLevel implements Serializable, ISerializableObject {
+public class UAObsLevel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
