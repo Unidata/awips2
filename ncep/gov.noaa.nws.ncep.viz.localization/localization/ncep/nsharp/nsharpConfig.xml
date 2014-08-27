@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <NsharpConfigStore xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-    <graphProperty paneConfigurationName="Default Configuration 1" tempOffset="0" windBarbDistance="400" windBarb="true" corfidiV="false" omega="true" smvBunkersL="true" smvBunkersR="true" smv1585="false" smv3075="false" meanWind="true" hodo="true" cloud="false" effLayer="true" moistAdiabat="false" dryAdiabat="true" mixratio="true" wetBulb="true" vTemp="true" parcelAscent="true" parcel="true" dewp="true" temp="true"/>
+    <graphProperty paneConfigurationName="D2D Skewt Standard Screen Configuration" tempOffset="0" windBarbDistance="400" windBarb="true" corfidiV="false" omega="true" smvBunkersL="true" smvBunkersR="true" smv1585="false" smv3075="false" meanWind="true" hodo="true" cloud="false" effLayer="true" moistAdiabat="false" dryAdiabat="true" mixratio="true" wetBulb="true" vTemp="true" parcelAscent="true" parcel="true" dewp="true" temp="true" windBarbLineWidth="2.0" windBarbSize="2.5" showFilteredWindInCircle="false" sndCompRadius="0"/>
     <linePropertyMap>
         <Line lineName="Compare 6">
             <lineProperty lineWidth="2" lineStyle="SOLID">
@@ -128,5 +128,5 @@
             </lineProperty>
         </Line>
     </linePropertyMap>
-    <dataPageProperty severePotentialPage="10" convectiveInitiationPage="9" meanWindPage="8" stormRelativePage="7" mixingHeightPage="6" opcDataPage="5" thermodynamicDataPage="4" parcelDataPage="3" summary2Page="2" summary1Page="1"/>
+    <dataPageProperty severePotentialPage="10" convectiveInitiationPage="9" meanWindPage="8" stormRelativePage="7" mixingHeightPage="6" opcDataPage="5" thermodynamicDataPage="4" parcelDataPage="3" summary2Page="2" summary1Page="1" d2DLitePage="11" futurePage="12" numberPagePerDisplay="2"/>
 </NsharpConfigStore>
