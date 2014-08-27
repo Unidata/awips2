@@ -299,6 +299,11 @@
    <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="setGeotoolsLogFactory">
         <constructor-arg value="org.geotools.util.logging.Log4JLoggerFactory" />
    </bean>
+      
+   <bean id="spatialQueryFactory" class="com.raytheon.uf.common.geospatial.SpatialQueryFactory"
+        factory-method="setImplementation">
+        <constructor-arg value="com.raytheon.edex.common.SpatialDbQuery"/>    
+   </bean>
 
     <!-- Holds the registry of request routers by server key -->
     <bean id="handlerRegistry" class="com.raytheon.uf.edex.requestsrv.HandlerRegistry"
