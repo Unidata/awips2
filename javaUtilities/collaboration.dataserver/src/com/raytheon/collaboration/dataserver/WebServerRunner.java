@@ -24,7 +24,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.eclipse.jetty.server.DispatcherType;
+import javax.servlet.DispatcherType;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
