@@ -6,6 +6,11 @@
 
    <bean id="fogGenerator" class="com.raytheon.uf.edex.plugin.fog.FogGenerator"/>
        
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="fog-camel" />
+        <constructor-arg ref="fogGenerator" />
+    </bean>
+       
     <bean factory-bean="cpgSrvDispatcher" factory-method="register">
 		<constructor-arg ref="fogGenerator"/>
 	</bean>
