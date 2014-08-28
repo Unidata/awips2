@@ -184,8 +184,8 @@ public class InitPrecipClimo {
                         precip_stations.set(index, nstation);
                         nstation = null;
                     }
-                    ++index;
                 }
+                ++index;
             }
 
             in.close();
