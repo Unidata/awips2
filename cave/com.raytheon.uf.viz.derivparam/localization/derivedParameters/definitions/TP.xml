@@ -35,7 +35,7 @@
     <Method name="Alias">
         <Field abbreviation="PAcc"/>
     </Method>
-    <Method name="Alias" models="RUC130">
+    <Method name="Alias" models="RUC130 HRRR">
         <Field abbreviation="TP1hr"/>
     </Method>
     <Method name="Add">
