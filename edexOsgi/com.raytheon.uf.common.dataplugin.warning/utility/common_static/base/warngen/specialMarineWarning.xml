@@ -61,6 +61,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <includedWatch>SV.A</includedWatch>
  </includedWatches>
  
+ <!-- Include references to marine zones for watches.  See marineZoneWording.xml. -->
+ <includeMarineAreasInWatches>true</includeMarineAreasInWatches>
+ 
  <!-- durations: the list of possible durations of the warning -->
  <defaultDuration>30</defaultDuration>
  <durations>
