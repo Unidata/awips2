@@ -50,6 +50,7 @@ import com.raytheon.uf.edex.plugin.cwat.common.CWATConfig;
  * ------------ ---------- ----------- --------------------------
  * Feb 25, 2013 1660       D. Hladky Fixed configuration bug in scan.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Aug 26, 2014 3503       bclement    removed constructDataURI() call
  * 
  * </pre>
  * 
@@ -164,8 +165,6 @@ public class CWATGenerator extends CompositeProductGenerator implements
             cwaRec.setDataArray(cwa.getCWAThreat());
             cwaRec.setThreats(cwa.getThreatConditions());
             cwaRec.setMaxScti(cwa.getMaxSCTI());
-
-            cwaRec.constructDataURI();
 
             this.setPluginDataObjects(new CWATRecord[] { cwaRec });
 
