@@ -11,7 +11,8 @@
 #####    Evan Bookbinder    05-05-2013 handleClosesPoints and 3rd bullet changes (OVER & now) 
 #####    Evan Bookbinder    09-20-2013 Fixed rural area otherPoints in pathcast section, added rural phrase
 #####         Qinglu Lin    03-17-2014 DR 16309. Updated inserttorwatches and insertsvrwatches. 
-#####         Qinglu Lin    05-21-2014 DR 16309. Updated inserttorwatches and insertsvrwatches by changing 'FOR##' to 'FOR ##'. 
+#####         Qinglu Lin    05-21-2014 DR 16309. Updated inserttorwatches and insertsvrwatches by changing 'FOR##' to 'FOR ##'.
+#####         D. Friedman   08-28-2014 ASM #15658.  Add marine watch wording.
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -218,7 +219,11 @@ ${dateUtil.period(${tornadoWatch.endTime},${timeFormat.plain}, 15, ${localtimezo
 #set($count = 0)
 #foreach(${watch} in ${tornadoWatches})
 #set($count = $count + 1)
+#if(!${watch.marineAreas})
 #areaFormat(${watch.partOfState} true false true)${watch.state}##
+#else
+#formatMarineAreas(${watch.marineAreas})
+#end
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
@@ -263,7 +268,11 @@ ${dateUtil.period(${svrWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})
 #set($count = 0)
 #foreach(${watch} in ${severeWatches})
 #set($count = $count + 1)
+#if(!${watch.marineAreas})
 #areaFormat(${watch.partOfState} true false true)${watch.state}##
+#else
+#formatMarineAreas(${watch.marineAreas})
+#end
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
@@ -277,6 +286,25 @@ ${dateUtil.period(${svrWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})
 
 #end
 ########END
+
+#macro(formatMarineAreas $marineAreas)
+#set($macount = 0)
+#set($numMarineAreas = ${list.size(${marineAreas})})
+#foreach(${marineArea} in ${marineAreas})
+#set($macount = $macount + 1)
+#if(${marineArea}=="THE ADJACENT COASTAL WATERS" && $macount > 1)
+OTHER ADJACENT COASTAL WATERS##
+#else
+${marineArea}##
+#end
+#if($macount == $numMarineAreas - 1)
+ AND ##
+#elseif($macount < $numMarineAreas)
+...##
+#end
+#end
+#end
+########END MACRO
 
 #macro(printcoords $coordinates $list)
 #set($count = 0)
