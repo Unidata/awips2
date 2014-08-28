@@ -59,6 +59,7 @@ import conf.TDBConfig as config
 #    12/07/10        7656          cjeanbap       Retrieve environment variable.
 #    04/07/11        8686          cjeanbap       Fixed $ACTION has -i associated
 #    05/12/14       16954          kshrestha      Added Multiple flag functionality for textdb
+#    08/15/14        2926          bclement       Fixed hasSubOperations()
 ##############################################################################
 class TextDB:
 
@@ -470,27 +471,21 @@ class TextDB:
         sm.execute()        
 
     # Determine if command line has sub operations
+    # Returns true if any flags in self.commands[CL.DEFAULT_KEY]
+    # are in config.mayJoin
     #
-    # raise:
-    #    propagates any exception received 
     def __hasSubOperations(self):
-        for key in self.commands.keys():            
+        for key in self.commands.keys():
             if key is CL.DEFAULT_KEY:
-               subJoins = self.commands.get(key)            
-               length = len(self.commands.get(key))
+               flags = self.commands.get(key)
                #specifically looking for config.flags of subJoins
-               if length <= 6:
-                   for pos in range(0, length, 2):
-                       value = config.flags.get(subJoins[pos])[0]
-                       try:
-                           config.mayJoin.index(value)
-                       except:
-                           raise CL.ArgError("Invalid command count - JOIN command includes invalid option(s)")
+               for flag in flags:
+                   configFlag = config.flags.get(flag)
+                   # some flags aren't in configs.flags
+                   if configFlag and configFlag[0] in config.mayJoin:
                        return True
-               else:
-                   return False
-            else:
-                return False                
+        return False
+
     # Correct the sub operational command line .
     #
     #
