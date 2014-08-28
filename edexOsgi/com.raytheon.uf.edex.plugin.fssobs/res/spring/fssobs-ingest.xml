@@ -9,6 +9,11 @@
 
     <bean id="fssObsGenerator" class="com.raytheon.uf.edex.plugin.fssobs.FSSObsGenerator"/>
 
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="fssobs-camel" />
+        <constructor-arg ref="fssObsGenerator" />
+    </bean>
+
     <bean factory-bean="cpgSrvDispatcher" factory-method="register">
 		<constructor-arg ref="fssObsGenerator"/>
 	</bean>
