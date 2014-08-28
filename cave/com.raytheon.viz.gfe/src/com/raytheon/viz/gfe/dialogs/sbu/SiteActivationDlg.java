@@ -40,6 +40,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.requests.ActivateSiteRequest;
 import com.raytheon.uf.common.site.requests.DeactivateSiteRequest;
@@ -51,9 +54,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -69,6 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ---------- ----------- --------------------------
  * Aug 5, 2011            randerso     Initial creation
  * Oct 26, 2012 1287       rferrel     Code clean up for non-blocking dialog.
+ * Aug 28, 2014 3563      randerso     Move to the new common INotificationObserer code
  * 
  * </pre>
  * 
@@ -78,6 +79,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 public class SiteActivationDlg extends CaveJFACEDialog implements
         INotificationObserver {
+    private static final String SITE_ACTIVATION_TOPIC = "edex.alerts.siteActivate";
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SiteActivationDlg.class);
 
@@ -114,8 +117,8 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
         newShell.addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                NotificationManagerJob.removeObserver(
-                        "edex.alerts.siteActivate", SiteActivationDlg.this);
+                NotificationManagerJob.removeObserver(SITE_ACTIVATION_TOPIC,
+                        SiteActivationDlg.this);
             }
         });
     }
@@ -210,8 +213,7 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
         logRoll.setLayoutData(layoutData);
 
         if (CheckPermissions.getAuthorization()) {
-            NotificationManagerJob
-                    .addObserver("edex.alerts.siteActivate", this);
+            NotificationManagerJob.addObserver(SITE_ACTIVATION_TOPIC, this);
             updateActiveSites();
 
         } else {
