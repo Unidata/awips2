@@ -2209,7 +2209,7 @@
 	</styleRule>
 	<!--
 		* NBE, cCin
-		J/kg | 1 | 0 | 1  | 450  | |,x | 29 | 0 | 100
+		J/kg | 1 | 0 | -1000  | -1  | |,x | 29 | 0 | 100
 	-->
 	<styleRule>
 		<paramLevelMatches>
@@ -2220,8 +2220,8 @@
 			<!-- filterLow="true" -->
 			<displayUnits>J/kg</displayUnits>
 			<range scale="LINEAR">
-				<minValue>1</minValue>
-				<maxValue>450</maxValue>
+				<minValue>-1000</minValue>
+				<maxValue>-1</maxValue>
 			</range>
 			<defaultColormap>Grid/gridded data</defaultColormap>
 			<colorbarLabeling>
