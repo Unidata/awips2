@@ -58,7 +58,6 @@ import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
-import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.status.VizStatusHandlerFactory;
 import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
@@ -100,6 +99,7 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  * Dec 10, 2013  2602     bsteffen    Start loading ProcedureXmlManager in
  *                                    startComponent.
  * Aug 22, 2014  3500     bclement    moved ProcedureXMLManager initialization to postStartupActions()
+ * Aug 29, 2014  3500     bclement    moved ProcedureXMLManager initialization to CAVE subclass
  * 
  * </pre>
  * 
@@ -309,7 +309,6 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
      * started
      */
     protected void postStartupActions() {
-        ProcedureXmlManager.inititializeAsync();
     }
 
     /**
