@@ -29,6 +29,7 @@ import org.eclipse.ui.actions.CompoundContributionItem;
 
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.msgs.ISCSendStatusChangedMsg;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.dialogs.isc.ISCRequestReplyDlg;
@@ -46,6 +47,9 @@ import com.raytheon.viz.gfe.dialogs.isc.SendISCDialog;
  * Jun 20, 2011            bphillip     Initial creation
  * Oct 25, 2012 1287       rferrel     Changes for non-blocking SendISCDialog
  *                                      and ISCRequestReplyDlg.
+ * Aug 29, 2014 3527       mapeters     Check for current DataManager instance to not 
+ *                                      be null before requesting ISC, updated deprecated
+ *                                      {@link DataManager#getCurrentInstance()} calls.
  * 
  * </pre>
  * 
@@ -72,7 +76,8 @@ public class ISCMenuEnabler extends CompoundContributionItem {
                         Shell shell = PlatformUI.getWorkbench()
                                 .getActiveWorkbenchWindow().getShell();
 
-                        DataManager dm = DataManager.getCurrentInstance();
+                        DataManager dm = DataManagerUIFactory
+                                .getCurrentInstance();
                         if (dm == null) {
                             return;
                         }
@@ -89,16 +94,16 @@ public class ISCMenuEnabler extends CompoundContributionItem {
 
                     @Override
                     public boolean isEnabled() {
-                        if (DataManager.getCurrentInstance() == null) {
+                        DataManager dm = DataManagerUIFactory
+                                .getCurrentInstance();
+                        if (dm == null) {
                             return false;
                         } else {
-                            return (!DataManager.getCurrentInstance()
-                                    .sendIscOnSave() || !DataManager
-                                    .getCurrentInstance().sendIscOnPublish())
+                            return (!dm.sendIscOnSave() || !dm
+                                    .sendIscOnPublish())
                                     && CAVEMode.getMode().equals(
                                             CAVEMode.OPERATIONAL)
-                                    && DataManager.getCurrentInstance()
-                                            .requestISC();
+                                    && dm.requestISC();
                         }
                     }
                 });
@@ -107,13 +112,14 @@ public class ISCMenuEnabler extends CompoundContributionItem {
                 new Action("ISC Request/Reply") {
                     @Override
                     public boolean isEnabled() {
-                        if (DataManager.getCurrentInstance() == null) {
+                        DataManager dm = DataManagerUIFactory
+                                .getCurrentInstance();
+                        if (dm == null) {
                             return false;
                         } else {
                             return CAVEMode.getMode().equals(
                                     CAVEMode.OPERATIONAL)
-                                    && DataManager.getCurrentInstance()
-                                            .requestISC();
+                                    && dm.requestISC();
                         }
                     }
 
@@ -142,7 +148,8 @@ public class ISCMenuEnabler extends CompoundContributionItem {
                     }
 
                     public void run() {
-                        DataManager dm = DataManager.getCurrentInstance();
+                        DataManager dm = DataManagerUIFactory
+                                .getCurrentInstance();
                         if (dm != null) {
                             boolean newState = !Message.inquireLastMessage(
                                     ISCSendStatusChangedMsg.class).isEnabled();
@@ -151,9 +158,11 @@ public class ISCMenuEnabler extends CompoundContributionItem {
                     }
 
                     private boolean getIscEnabled() {
-                        return CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
-                                && DataManager.getCurrentInstance()
-                                        .requestISC();
+                        DataManager dm = DataManagerUIFactory
+                                .getCurrentInstance();
+                        return (dm != null) ? CAVEMode.getMode().equals(
+                                CAVEMode.OPERATIONAL)
+                                && dm.requestISC() : false;
                     }
 
                     public boolean isChecked() {
