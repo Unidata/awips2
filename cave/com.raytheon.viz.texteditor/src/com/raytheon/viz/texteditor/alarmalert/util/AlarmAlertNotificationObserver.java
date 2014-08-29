@@ -20,11 +20,11 @@
 package com.raytheon.viz.texteditor.alarmalert.util;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.core.mode.CAVEMode;
 
@@ -79,9 +79,9 @@ public class AlarmAlertNotificationObserver implements INotificationObserver {
     /*
      * (non-Javadoc)
      * 
-     * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {

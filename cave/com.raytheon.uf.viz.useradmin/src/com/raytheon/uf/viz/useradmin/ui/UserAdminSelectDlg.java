@@ -42,12 +42,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.plugin.nwsauth.xml.PermissionXML;
 import com.raytheon.uf.common.plugin.nwsauth.xml.RoleXML;
 import com.raytheon.uf.common.useradmin.request.UserAdminConstants;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.plugin.nwsauth.NwsRoleDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
