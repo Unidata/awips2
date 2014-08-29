@@ -125,6 +125,9 @@ import com.raytheon.uf.common.dissemination.OUPRequest;
 import com.raytheon.uf.common.dissemination.OUPResponse;
 import com.raytheon.uf.common.dissemination.OUPTestRequest;
 import com.raytheon.uf.common.dissemination.OfficialUserProduct;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -142,9 +145,6 @@ import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.status.StatusConstants;
@@ -7421,14 +7421,14 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /*
      * (non-Javadoc)
      * 
-     * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[]) This is the
-     * callback method called by the NotificationManagerJob when observations
-     * are received. It parses the notifications and triggers a load of a
-     * product that matches the currently loaded product. Short circuits are
-     * provided for cases when the dialog is either not displaying a product or
-     * is in edit mode.
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[]) This is
+     * the callback method called by the NotificationManagerJob when
+     * observations are received. It parses the notifications and triggers a
+     * load of a product that matches the currently loaded product. Short
+     * circuits are provided for cases when the dialog is either not displaying
+     * a product or is in edit mode.
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
