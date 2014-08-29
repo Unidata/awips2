@@ -19,9 +19,16 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <!-- 
-        Don't override this file, it exists only to support legacy overrides. 
-        Please override menus/volumebrowser/planes/planViewTime-timeSeries.xml instead. 
-    -->
-    <contribute xsi:type="subinclude" fileName="menus/volumebrowser/planes/planViewTime-timeSeries.xml" />
+
+    <!-- Lon Menu Item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Lon">
+        <contribute xsi:type="menuItem" menuText="All Lon"
+            key="LONS" />
+    </contribute>
+
+    <!-- Lat Menu Item -->
+    <contribute xsi:type="toolBarItem" toolItemName="Lat">
+        <contribute xsi:type="menuItem" menuText="All Lat"
+            key="LATS" />
+    </contribute>
 </menuTemplate>
