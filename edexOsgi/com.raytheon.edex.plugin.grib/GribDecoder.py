@@ -131,6 +131,8 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 #                                    grib files.
 # Feb 11, 2014  2765     bsteffen    Better handling of probability parameters.
 # Apr 28, 2014  3084     bsteffen    Use full grid for looking up parameter aliases.
+# Aug 15, 2014  15699    MPorricelli Import GridUtil and update reference 
+#                                    to GRID_FILL_VALUE 
 #
 class GribDecoder():
 
