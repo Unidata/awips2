@@ -343,13 +343,13 @@ runJmap() {
    fi
 
    local cmd="/awips2/java/bin/jmap -dump:format=b,file=${dumpPath}"
-   echo "${t1}: Running command: $cmd $options $pid >> $log 2>&1 &" >> $processFile
-   $cmd $options $pid >> $log 2>&1 &
+   echo "${t1}: Running command: $cmd $options $pid >> $log 2>&1" >> $processFile
+   $cmd $options $pid >> $log 2>&1
 
    if [[ "$?" != "0" && $FORCE != "y" ]]; then
       t1=`date "+%Y%m%d %H:%M:%S"`
       echo "${t1}: jmap for $pid failed to connect, rerunning with -F" >> $processFile
-      $cmd $options -F $pid >> $log 2>&1 &
+      $cmd $options -F $pid >> $log 2>&1
    fi
 }
 
