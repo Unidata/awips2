@@ -22,7 +22,6 @@ package com.raytheon.viz.textworkstation;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -41,10 +40,10 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.TextWorkstationConstants;
