@@ -27,9 +27,15 @@ import gov.noaa.nws.ost.edex.plugin.binlightning.EncryptedBinLightningCipher;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import javax.crypto.BadPaddingException;
@@ -48,6 +54,8 @@ import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
@@ -90,6 +98,7 @@ import com.raytheon.uf.edex.decodertools.core.IBinDataSource;
  * Jun 09, 2014 3226       bclement    moved data array decrypt prep to EncryptedBinLightingCipher
  * Jun 10, 2014 3226       bclement    added filter support
  * Jun 19, 2014 3226       bclement    added validator callback
+ * Aug 04, 2014 3488       bclement    added checkBinRange(), rebin() and finalizeRecords()
  * 
  * </pre>
  * 
@@ -105,6 +114,9 @@ public class BinLightningDecoder extends AbstractDecoder {
 
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(BinLightningDecoder.class);
+
+    private static final boolean REBIN_INVALID_DATA = Boolean
+            .getBoolean("rebin.invalid.binlightning");
 
     public static final String BINLIGHTNING_KEYSTORE_PREFIX = "binlightning";
 
@@ -152,7 +164,7 @@ public class BinLightningDecoder extends AbstractDecoder {
     public PluginDataObject[] decode(byte[] data, Headers headers) throws DecoderException {
 
         //String traceId = null;
-        PluginDataObject[] reports = new PluginDataObject[0];
+        PluginDataObject[] rval = new PluginDataObject[0];
 
         if (data != null) {
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
@@ -196,12 +208,12 @@ public class BinLightningDecoder extends AbstractDecoder {
                  * data
                  */
                 
-                List<LightningStrikePoint> strikes = decodeBinLightningData(
+                Collection<LightningStrikePoint> strikes = decodeBinLightningData(
                         data, pdata, traceId, wmoHdr, baseTime.getTime());
 
                 if (strikes == null) { // keep-alive record, log and return
                 	logger.info(traceId + " - found keep-alive record. ignore for now.");
-                	return reports;
+                    return rval;
                 }
 
                 /*
@@ -216,27 +228,128 @@ public class BinLightningDecoder extends AbstractDecoder {
                     return new PluginDataObject[0];
                 }
 
-                Calendar c = TimeUtil.newCalendar(baseTime);
-                if (c == null) {
-                    throw new DecoderException(traceId +  " - Error decoding times");
-                }
-                //report.setInsertTime(c); // OB13.4 source code does not have this line anymore, WZ 05/03/2013
-
-                Calendar cStart = report.getStartTime();
-                if (cStart.getTimeInMillis() > (c.getTimeInMillis() + TEN_MINUTES)) {
-                    synchronized (SDF) {
-                        logger.info("Discarding future data for " + traceId
-                                + " at " + SDF.format(cStart.getTime()));
-                    }
-                } else {
-                    report.setTraceId(traceId);
-                    reports = new PluginDataObject[] { report };
-                }
+                Collection<BinLightningRecord> records = checkBinRange(report,
+                        strikes);
+                rval = finalizeRecords(records, baseTime);
             }
         } else {
         	logger.error("No WMOHeader found in data");
         }
-        return reports;
+        return rval;
+    }
+
+    /**
+     * Perform final actions on each record and populate a PDO array with them.
+     * Any invalid records will be omitted from the return array.
+     * 
+     * @param records
+     * @param baseTime
+     * @return
+     * @throws DecoderException
+     */
+    private PluginDataObject[] finalizeRecords(
+            Collection<BinLightningRecord> records, Calendar baseTime)
+            throws DecoderException {
+        Calendar c = TimeUtil.newCalendar(baseTime);
+        if (c == null) {
+            throw new DecoderException(traceId + " - Error decoding times");
+        }
+        ArrayList<BinLightningRecord> rval = new ArrayList<BinLightningRecord>(
+                records.size());
+        for (BinLightningRecord record : records) {
+            Calendar cStart = record.getStartTime();
+            if (cStart.getTimeInMillis() > (c.getTimeInMillis() + TEN_MINUTES)) {
+                synchronized (SDF) {
+                    logger.info("Discarding future data for " + traceId
+                            + " at " + SDF.format(cStart.getTime()));
+                }
+            } else {
+                Calendar cStop = record.getStopTime();
+
+                TimeRange range = new TimeRange(cStart.getTimeInMillis(),
+                        cStop.getTimeInMillis());
+
+                DataTime dataTime = new DataTime(cStart, range);
+                record.setDataTime(dataTime);
+
+                if (record != null) {
+                    record.setTraceId(traceId);
+                    rval.add(record);
+                }
+            }
+        }
+        return rval.toArray(new PluginDataObject[rval.size()]);
+    }
+
+    /**
+     * Ensure that the record has a valid bin range. If it does, it will be the
+     * only record in the return value. Otherwise, {@link #REBIN_INVALID_DATA}
+     * is used to determine if no records should be returned or the strikes
+     * should be split into valid bin ranges uses {@link #rebin(Collection)}
+     * 
+     * @param record
+     * @param strikes
+     * @return
+     */
+    private Collection<BinLightningRecord> checkBinRange(
+            BinLightningRecord record, Collection<LightningStrikePoint> strikes) {
+        Collection<BinLightningRecord> rval = Collections.emptyList();
+        Calendar cStart = record.getStartTime();
+        Calendar cStop = record.getStopTime();
+        long binRange = cStop.getTimeInMillis() - cStart.getTimeInMillis();
+        if (binRange > TimeUtil.MILLIS_PER_DAY) {
+            if (REBIN_INVALID_DATA) {
+                rval = rebin(strikes);
+            } else {
+                String rangeStart;
+                String rangeEnd;
+                synchronized (SDF) {
+                    rangeStart = SDF.format(cStart.getTime());
+                    rangeEnd = SDF.format(cStop.getTime());
+                }
+                logger.error("Discarding data with invalid bin range of "
+                        + rangeStart + " to " + rangeEnd);
+            }
+        } else {
+            rval = Arrays.asList(record);
+        }
+        return rval;
+    }
+
+    /**
+     * Split the strikes into 1 day bins and create a new record for each bin
+     * 
+     * @param strikes
+     * @return
+     */
+    private Collection<BinLightningRecord> rebin(
+            Collection<LightningStrikePoint> strikes) {
+        Map<Long, Collection<LightningStrikePoint>> binMap = new HashMap<Long, Collection<LightningStrikePoint>>(
+                1);
+        for (LightningStrikePoint strike : strikes) {
+            Calendar c = TimeUtil.newCalendar(strike.getTime());
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            long key = c.getTimeInMillis();
+            Collection<LightningStrikePoint> bin = binMap.get(key);
+            if (bin == null) {
+                bin = new ArrayList<LightningStrikePoint>(strikes.size());
+                binMap.put(key, bin);
+            }
+            bin.add(strike);
+        }
+        Collection<BinLightningRecord> rval = new ArrayList<BinLightningRecord>(
+                binMap.size());
+        for (Entry<Long, Collection<LightningStrikePoint>> e : binMap
+                .entrySet()) {
+            Collection<LightningStrikePoint> bin = e.getValue();
+            BinLightningRecord record = new BinLightningRecord(bin);
+            rval.add(record);
+        }
+
+        return rval;
     }
 
     /**
