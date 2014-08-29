@@ -90,6 +90,7 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  *    Jul 07, 2014  3333       bclement    removed lightSource field
  *    Jul 10, 2014  3333       bclement    moved cache object inner classes to own package
  *                                          moved name formatting to static method
+ *    Aug 04, 2014  3488       bclement    added sanity check for record bin range
  *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
  * 
  * </pre>
@@ -100,6 +101,8 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
 public class LightningResource extends
         AbstractVizResource<LightningResourceData, IMapDescriptor> implements
         IResourceDataChanged {
+
+    private static final long MAX_RECORD_BIN_MILLIS = TimeUtil.MILLIS_PER_DAY;
 
     private Map<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>> cacheObjectMap;
 
@@ -465,6 +468,13 @@ public class LightningResource extends
         Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
 
         for (BinLightningRecord obj : objs) {
+                long duration = obj.getDataTime().getValidPeriod()
+                        .getDuration();
+                if (duration > MAX_RECORD_BIN_MILLIS) {
+                    statusHandler.error("Record bin time larger than maximum "
+                            + "supported period. Skipping record: " + obj);
+                    continue;
+                }
             DataTime time = new DataTime(obj.getStartTime());
             DataTime end = new DataTime(obj.getStopTime());
             time = this.getResourceData().getBinOffset()
