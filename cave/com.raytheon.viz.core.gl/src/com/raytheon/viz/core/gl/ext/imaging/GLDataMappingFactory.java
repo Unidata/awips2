@@ -45,6 +45,7 @@ import com.raytheon.viz.core.gl.images.GLCMTextureData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2013 2492       mschenke    Initial creation
+ * Aug 29, 2014 3543       bsteffen    Fixes for NaN unit conversions
  * 
  * </pre>
  * 
@@ -239,7 +240,12 @@ public class GLDataMappingFactory {
                 dataMapping[0] = dataMin;
                 dataMapping[dataMapping.length - 1] = dataMax;
 
-                numMappings = 2;
+                if (!Double.isNaN(dataMin)) {
+                    numMappings += 1;
+                }
+                if (!Double.isNaN(dataMax)) {
+                    numMappings += 1;
+                }
                 if (colorMapToData.isLinear() == false) {
                     // Populate the dataMapping/colorMapping arrays
                     double increment = (colorMapMax - colorMapMin)
@@ -261,7 +267,7 @@ public class GLDataMappingFactory {
                         // occur in floats in GLSL so no need for the extra
                         // precision
                         float nextDelta = (float) ((nextValue - currEndValue) / (i - currEndIndex));
-                        if (nextDelta == currDelta) {
+                        if (nextDelta == currDelta || Float.isNaN(nextDelta)) {
                             // Remove linear entries
                             dataMapping[currEndIndex] = colorMapping[currEndIndex] = Double.NaN;
                             currEndValue = nextValue;
@@ -297,12 +303,12 @@ public class GLDataMappingFactory {
                     this.colorMapping = new GLBufferCMTextureData(
                             new GLBufferColorMapData(new ColorMapData(
                                     FloatBuffer.wrap(condensedColorMapping),
-                                    new int[] { numMappings }),
+                                    new int[] { numMappingValues }),
                                     new GLFloatDataFormat()));
                     this.dataMapping = new GLBufferCMTextureData(
                             new GLBufferColorMapData(new ColorMapData(
                                     FloatBuffer.wrap(condensedDataMapping),
-                                    new int[] { numMappings }),
+                                    new int[] { numMappingValues }),
                                     new GLFloatDataFormat()));
                 }
             }
