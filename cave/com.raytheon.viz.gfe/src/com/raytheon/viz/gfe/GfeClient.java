@@ -63,6 +63,8 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  *                                      python path causing python to look in user's
  *                                      current default directory for modules.
  * Aug 22, 2014  3500      bclement     override postStartupActions()
+ * Aug 29, 2014  3500      bclement     removed override of postStartupActions() 
+ *                                      since ProcedureXMLManager startup was moved to the CAVE subclass
  * 
  * </pre>
  * 
@@ -196,18 +198,6 @@ public class GfeClient extends AbstractCAVEComponent {
     private Collection<String> getIgnoredParameters() {
         return new HashSet<String>(Arrays.asList("-site", "-server", "-mode",
                 "-time"));
-    }
-
- 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent#postStartupActions()
-     */
-    @Override
-    protected void postStartupActions() {
-        /*
-         * GFE client does not require the default post startup actions (ie
-         * ProcedureXMLManager being initialized)
-         */
     }
 
 }
