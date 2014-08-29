@@ -21,13 +21,13 @@ package com.raytheon.viz.gfe.dialogs.sbu.jobs;
 
 import java.util.Date;
 
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.site.notify.ClusterActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.requests.DeactivateSiteRequest;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
@@ -99,9 +99,9 @@ public class SvcbuDeactivateSiteJob extends ServiceBackupJob implements
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @see com.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
