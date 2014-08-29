@@ -35,7 +35,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
@@ -314,7 +313,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                 Point point = poly.getInteriorPoint();
                                 if (point.getCoordinate() != null) {
                                     LabelNode node = new LabelNode(zoneName,
-                                            point, req.target);
+                                            point, req.target, req.rsc.font);
                                     newLabels.add(node);
                                 }
                             }
@@ -698,21 +697,14 @@ public class ZoneSelectorResource extends DbMapResource {
             PaintProperties paintProps) throws VizException {
         this.target = aTarget;
 
+        if (font == null) {
+            font = GFEFonts.getFont(aTarget, 2);
+        }
+
         PixelExtent screenExtent = (PixelExtent) paintProps.getView()
                 .getExtent();
 
-        // compute an estimate of degrees per pixel
-        double yc = screenExtent.getCenter()[1];
-        double x1 = screenExtent.getMinX();
-        double x2 = screenExtent.getMaxX();
-        double[] c1 = descriptor.pixelToWorld(new double[] { x1, yc });
-        double[] c2 = descriptor.pixelToWorld(new double[] { x2, yc });
-        Rectangle canvasBounds = paintProps.getCanvasBounds();
-        int screenWidth = canvasBounds.width;
-        double dppX = Math.abs(c2[0] - c1[0]) / screenWidth;
-        // System.out.println("c1:" + Arrays.toString(c1) + "  c2:"
-        // + Arrays.toString(c2) + "  dpp:" + dppX);
-        double simpLev = getSimpLev(dppX);
+        double simpLev = getSimpLev(paintProps);
 
         if ((simpLev < lastSimpLev)
                 || (lastExtent == null)
@@ -779,9 +771,6 @@ public class ZoneSelectorResource extends DbMapResource {
         }
 
         if ((labels != null) && (this.labelZones || this.labelZoneGroups)) {
-            if (font == null) {
-                font = GFEFonts.getFont(aTarget, 2);
-            }
             double worldToScreenRatio = paintProps.getView().getExtent()
                     .getWidth()
                     / paintProps.getCanvasBounds().width;
