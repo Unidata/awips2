@@ -30,9 +30,7 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import com.raytheon.edex.transform.shef.MetarToShefTransformer;
-/* 08-26-2014 Issue 3365 IDecoderGettable class no longer exists.
- * REMOVED import com.raytheon.uf.common.dataplugin.IDecoderGettable;
- */
+// REMOVED IDecoderGettable was removed under Issue 2537 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
 /**
@@ -83,16 +81,13 @@ public class TestMetarToShefTransformer {
     @Test
     public void testMetarToShefInteratorB() {
         PluginDataObject p = new PluginDataObject() {
-        /* 08-26-2014 Issue 3365 IDecoderGettable class no longer exists.
-         * REMOVED BEGIN
-         *
+            /* REMOVED IDecoderGettable was removed under Issue 2537 BEGIN
             @Override
             public IDecoderGettable getDecoderGettable() {
                 return null;
             }
-         * 08-26-2014 Issue 3365 IDecoderGettable class no longer exists.
-         * REMOVED END 
-         */
+            REMOVED IDecoderGettable was removed under Issue 2537 END */
+
             /*
              * (non-Javadoc)
              * 
