@@ -20,8 +20,8 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	
-	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SPCWatchPlot.xml" 
-             menuText="SPC Watches" id="spcWatches">
+    <contribute xsi:type="bundleItem" file="bundles/ncepHydro/ConvectiveWatchPlot.xml"
+             menuText="Convective Watches" id="convectiveWatches">
     </contribute>
  	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/SvrWxPlot.xml" 
                menuText="Svr Wx Plot" id="spcWxPlot">
