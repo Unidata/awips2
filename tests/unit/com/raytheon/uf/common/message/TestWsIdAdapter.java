@@ -21,11 +21,12 @@ package com.raytheon.uf.common.message;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Random;
+//import java.util.Random;
 
 import org.junit.Assert;
 
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationMetadata;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -51,7 +52,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 public class TestWsIdAdapter {
-    private Random rnd = new Random();
+    //private Random rnd = new Random();
 
     @DynamicSerialize
     public static class Test {
@@ -94,14 +95,10 @@ public class TestWsIdAdapter {
         DynamicSerializationManager dmgr = DynamicSerializationManager
                 .getManager(SerializationType.Thrift);
 
-        /* 08-26-2014 Issue 3365 DynamicSerializationManager API has changed.
-         * REMOVED BEGIN
-         *
-        DynamicSerializationManager.inspect(inTest.getClass());
-        DynamicSerializationManager.inspect(wsId.getClass());
-         * 08-26-2014 Issue 3365 DynamicSerializationManager API has changed.
-         * REMOVED END 
-         */
+        SerializationMetadata sm1 = DynamicSerializationManager.getSerializationMetadata(inTest.getClass());
+        //REMOVED DynamicSerializationManager.inspect(inTest.getClass());
+        SerializationMetadata sm2 = DynamicSerializationManager.getSerializationMetadata(wsId.getClass());
+        //REMOVED DynamicSerializationManager.inspect(wsId.getClass());
         byte[] bdata = null;
         try {
             bdata = dmgr.serialize(inTest);
