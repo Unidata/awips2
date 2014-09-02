@@ -30,6 +30,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                      not discard sounding data
  *                                      based on altitude here
  * Aug 18, 2014 3530       bclement     removed TimeTools usage and dead code
+ * Sep 02, 2014 3549       njensen      Improve error message
+ * 
  * </pre>
  */
 
@@ -275,8 +277,9 @@ public final class ACARSSoundingTools {
                         try {
                             writer.close();
                         } catch (IOException ioe) {
-                            logger.error("Error closing "
-                                    + tailNumberFile.getName());
+                            logger.error(
+                                    "Error closing " + tailNumberFile.getName(),
+                                    ioe);
                         }
                     }
                 }
