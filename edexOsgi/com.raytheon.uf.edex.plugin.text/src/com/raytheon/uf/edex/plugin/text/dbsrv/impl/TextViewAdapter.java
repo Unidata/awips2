@@ -35,7 +35,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBSrvCommandTags;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.TextViewGetTags;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.TextViewTags;
@@ -74,6 +73,7 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  * 27Apr2012     564       jkorman     Added sort to ALL times retrieval.
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv, added marshalToStream()
  * Jul 15, 2014 3373       bclement    jaxb manager api changes
+ * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
  * 
  * </pre>
  * 
@@ -82,6 +82,7 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  */
 
 public class TextViewAdapter implements ICommandExecutor {
+
     // This is the default textdb formatted time.
     // Oct 31 08 10:13:15 GMT
     private static final String DEFAULT_TIME_FORMAT = "%1$tb %1$td %1$ty %1$tT GMT";
@@ -130,7 +131,7 @@ public class TextViewAdapter implements ICommandExecutor {
         Header sHeader = cmdMessage.getHeader();
 
         // Get the operation code
-        String op = PropConverter.getProperty(sHeader, TextViewTags.OP.name());
+        String op = sHeader.getProperty(TextViewTags.OP.name());
 
         TextDBSrvCommandTags opTag = TextDBSrvCommandTags.valueOf(op);
 
@@ -147,18 +148,17 @@ public class TextViewAdapter implements ICommandExecutor {
                 break;
             }
             case DELETE: {
-                Property[] props = new Property[] { new Property("STDERR",
-                        PropConverter.asciiToHex("ERROR:Command tag = ["
-                                + opTag.name()
-                                + "] not implemented")), };
+                Property[] props = new Property[] { new Property(
+                        CommandExecutor.STDERR,
+                        "ERROR:Command tag = [" + opTag.name()
+                                + "] not implemented"), };
                 sHeader.setProperties(props);
                 break;
             }
             default: {
-                Property[] props = new Property[] { new Property("STDERR",
-                        PropConverter
-                                .asciiToHex("ERROR:Invalid command tag = ["
-                                        + op + "]")), };
+                Property[] props = new Property[] { new Property(
+                        CommandExecutor.STDERR,
+                        "ERROR:Invalid command tag = [" + op + "]"), };
                 sHeader.setProperties(props);
                 break;
             }
@@ -183,12 +183,9 @@ public class TextViewAdapter implements ICommandExecutor {
      * @return the updated message header
      */
     private Header processPutRequest(Header msgHeader) {
-        String prodId = PropConverter.getProperty(msgHeader,
-                TextViewTags.PRODID.name());
-        String product = PropConverter.getProperty(msgHeader,
-                TextViewTags.PRODUCT.name());
-        String strMode = PropConverter.getProperty(msgHeader,
-                TextViewTags.OPERATIONAL.name());
+        String prodId = msgHeader.getProperty(TextViewTags.PRODID.name());
+        String product = msgHeader.getProperty(TextViewTags.PRODUCT.name());
+        String strMode = msgHeader.getProperty(TextViewTags.OPERATIONAL.name());
 
         boolean operationalMode = isOperationalMode(strMode);
         long insertTime = textDB.writeProduct(prodId, product, operationalMode,
@@ -201,14 +198,14 @@ public class TextViewAdapter implements ICommandExecutor {
             Date d = new Date();
             d.setTime(insertTime);
             AlarmAlertUtil.sendProductAlarmAlert(prodId, d, operationalMode);
-            Property[] props = new Property[] { new Property("STDERR",
-                    PropConverter.asciiToHex("NORMAL:Saved " + prodId)), };
+            Property[] props = new Property[] { new Property(
+                    CommandExecutor.STDERR,
+                    "NORMAL:Saved " + prodId), };
             msgHeader.setProperties(props);
         } else {
-            Property[] props = new Property[] { new Property("STDERR",
-                    PropConverter
-                            .asciiToHex("NORMAL:Not Saved; duplicate product "
-                                    + prodId)), };
+            Property[] props = new Property[] { new Property(
+                    CommandExecutor.STDERR,
+                    "NORMAL:Not Saved; duplicate product " + prodId), };
             msgHeader.setProperties(props);
         }
 
@@ -222,31 +219,28 @@ public class TextViewAdapter implements ICommandExecutor {
      */
     private Header processGetRequest(Header msgHeader) {
 
-        String op = PropConverter.getProperty(msgHeader,
-                TextViewTags.SUBOP.name());
+        String op = msgHeader.getProperty(TextViewTags.SUBOP.name());
 
         TextViewGetTags subOp = TextViewGetTags.valueOf(op);
-        boolean operationalMode = isOperationalMode(PropConverter.getProperty(
-                msgHeader,
-                TextViewTags.OPERATIONAL.name()));
+        boolean operationalMode = isOperationalMode(msgHeader
+                .getProperty(TextViewTags.OPERATIONAL.name()));
 
         if (subOp != null) {
             if (TextViewGetTags.LATEST.equals(subOp)) {
 
                 List<Long> times = new ArrayList<Long>();
 
-                String fmtType = PropConverter.getProperty(msgHeader,
-                        TextViewTags.FORMAT.name());
-                String timeFmt = PropConverter.getProperty(msgHeader,
-                        TextViewTags.CLIENTFMT.name());
+                String fmtType = msgHeader.getProperty(TextViewTags.FORMAT
+                        .name());
+                String timeFmt = msgHeader.getProperty(TextViewTags.CLIENTFMT
+                        .name());
 
                 // get the latest time for one or more products.
                 Property[] msgProps = msgHeader.getProperties();
                 for (Property p : msgProps) {
 
                     if (TextViewTags.PRODID.name().equals(p.getName())) {
-                        times.add(textDB.getLatestTime(
-                                PropConverter.hexToAscii(p.getValue()),
+                        times.add(textDB.getLatestTime(p.getValue(),
                                 operationalMode));
                     }
                 } // for
@@ -254,18 +248,17 @@ public class TextViewAdapter implements ICommandExecutor {
                 int pIndex = 0;
                 for (Long t : times) {
                     String s = formatTime(t, fmtType, timeFmt);
-                    msgProps[pIndex++] = new Property("STDOUT",
-                            PropConverter.asciiToHex(s));
+                    msgProps[pIndex++] = new Property(CommandExecutor.STDOUT, s);
                 }
                 msgHeader.setProperties(msgProps);
             } else if (TextViewGetTags.ALL.equals(subOp)) {
                 // get all times for a product
-                String productId = PropConverter.getProperty(msgHeader,
-                        TextViewTags.PRODID.name());
-                String fmtType = PropConverter.getProperty(msgHeader,
-                        TextViewTags.FORMAT.name());
-                String timeFmt = PropConverter.getProperty(msgHeader,
-                        TextViewTags.CLIENTFMT.name());
+                String productId = msgHeader.getProperty(TextViewTags.PRODID
+                        .name());
+                String fmtType = msgHeader.getProperty(TextViewTags.FORMAT
+                        .name());
+                String timeFmt = msgHeader.getProperty(TextViewTags.CLIENTFMT
+                        .name());
 
                 List<Long> times = textDB.getAllTimes(productId,
                         operationalMode);
@@ -276,21 +269,20 @@ public class TextViewAdapter implements ICommandExecutor {
                 int pIndex = 0;
                 for (Long t : times) {
                     String s = formatTime(t, fmtType, timeFmt);
-                    msgProps[pIndex++] = new Property("STDOUT",
-                            PropConverter.asciiToHex(s));
+                    msgProps[pIndex++] = new Property(CommandExecutor.STDOUT, s);
                 }
                 msgHeader.setProperties(msgProps);
             } else if (TextViewGetTags.INFO.equals(subOp)
                     || TextViewGetTags.PROD.equals(subOp)
                     || TextViewGetTags.PRODXML.equals(subOp)) {
-                String siteCCCNNNXX = PropConverter.getProperty(msgHeader,
-                        TextViewTags.SITE.name());
+                String siteCCCNNNXX = msgHeader.getProperty(TextViewTags.SITE
+                        .name());
                 if (siteCCCNNNXX == null) {
                     boolean infoFlag = TextViewGetTags.INFO.equals(subOp);
                     boolean xmlFlag = TextViewGetTags.PRODXML.equals(subOp);
 
-                    String afosCmd = PropConverter.getProperty(msgHeader,
-                            TextViewTags.AFOSCMD.name());
+                    String afosCmd = msgHeader.getProperty(TextViewTags.AFOSCMD
+                            .name());
 
                     logger.info("AFOS Command = " + afosCmd);
 
@@ -302,8 +294,7 @@ public class TextViewAdapter implements ICommandExecutor {
                     if (infoFlag) {
                         String ss = "********** Product Count = "
                                 + prods.size();
-                        prodList.add(new Property("STDOUT", PropConverter
-                                .asciiToHex(ss)));
+                        prodList.add(new Property(CommandExecutor.STDOUT, ss));
                     }
 
                     try {
@@ -311,21 +302,20 @@ public class TextViewAdapter implements ICommandExecutor {
                             if (xmlFlag) {
                                 ByteArrayOutputStream strm = new ByteArrayOutputStream();
                                 marshalToStream(prod, strm);
-                                prodList.add(new Property("STDOUT",
-                                        PropConverter.asciiToHex(strm
-                                                .toString())));
+                                prodList.add(new Property(
+                                        CommandExecutor.STDOUT, strm.toString()));
                             } else {
                                 String s = prod.getProduct();
                                 if (s != null) {
                                     if (infoFlag) {
                                         String ss = "********** Product Size = "
                                                 + s.length();
-                                        prodList.add(new Property("STDOUT",
-                                                PropConverter.asciiToHex(ss)));
+                                        prodList.add(new Property(
+                                                CommandExecutor.STDOUT, ss));
                                     }
 
-                                    prodList.add(new Property("STDOUT",
-                                            PropConverter.asciiToHex(s)));
+                                    prodList.add(new Property(
+                                            CommandExecutor.STDOUT, s));
                                 }
                             }
                         }
@@ -342,11 +332,11 @@ public class TextViewAdapter implements ICommandExecutor {
 
                     Property[] props = new Property[1];
                     if (cccNNNXXX != null) {
-                        props[0] = new Property("STDOUT",
-                                PropConverter.asciiToHex(cccNNNXXX));
+                        props[0] = new Property(CommandExecutor.STDOUT,
+                                cccNNNXXX);
                     } else {
-                        props[0] = new Property("STDERR",
-                                PropConverter.asciiToHex(UNKNOWN_SITE));
+                        props[0] = new Property(CommandExecutor.STDERR,
+                                UNKNOWN_SITE);
                     }
 
                     msgHeader.setProperties(props);
@@ -356,20 +346,17 @@ public class TextViewAdapter implements ICommandExecutor {
                 boolean xmlFlag = TextViewGetTags.JOINXML.equals(subOp);
 
                 // get all times for a product
-                String wmoId = PropConverter.getProperty(msgHeader,
-                        TextViewTags.WMOID.name());
-                String site = PropConverter.getProperty(msgHeader,
-                        TextViewTags.SITE.name());
-                String abbrId = PropConverter.getProperty(msgHeader,
-                        TextViewTags.NNNXXX.name());
-                String lastHrs = PropConverter.getProperty(msgHeader,
-                        TextViewTags.HOUR.name());
-                String hdrTime = PropConverter.getProperty(msgHeader,
-                        TextViewTags.HDRTIME.name());
-                String bbbId = PropConverter.getProperty(msgHeader,
-                        TextViewTags.BBB.name());
-                String fullDataReadProp = PropConverter.getProperty(msgHeader,
-                        TextViewTags.FULLREAD.name());
+                String wmoId = msgHeader.getProperty(TextViewTags.WMOID.name());
+                String site = msgHeader.getProperty(TextViewTags.SITE.name());
+                String abbrId = msgHeader.getProperty(TextViewTags.NNNXXX
+                        .name());
+                String lastHrs = msgHeader
+                        .getProperty(TextViewTags.HOUR.name());
+                String hdrTime = msgHeader.getProperty(TextViewTags.HDRTIME
+                        .name());
+                String bbbId = msgHeader.getProperty(TextViewTags.BBB.name());
+                String fullDataReadProp = msgHeader
+                        .getProperty(TextViewTags.FULLREAD.name());
                 boolean fullDataRead = false;
 
                 if (fullDataReadProp != null && fullDataReadProp.length() > 0) {
@@ -387,9 +374,8 @@ public class TextViewAdapter implements ICommandExecutor {
                 // if not xml or last hours request, add the number of returned
                 // items
                 if (!xmlFlag && (lastHrs == null || lastHrs.length() == 0)) {
-                    prodList.add(new Property("STDOUT", PropConverter
-                            .asciiToHex(""
-                            + prods.size())));
+                    prodList.add(new Property(CommandExecutor.STDOUT, ""
+                            + prods.size()));
                 }
 
                 StringBuilder header = new StringBuilder();
@@ -400,9 +386,8 @@ public class TextViewAdapter implements ICommandExecutor {
                         if (xmlFlag) {
                             ByteArrayOutputStream strm = new ByteArrayOutputStream();
                             marshalToStream(prod, strm);
-                            prodList.add(new Property("STDOUT", PropConverter
-                                    .asciiToHex(strm
-                                    .toString())));
+                            prodList.add(new Property(CommandExecutor.STDOUT,
+                                    strm.toString()));
                         } else {
                             String cccId = prod.getCccid();
                             String nnnId = prod.getNnnid();
@@ -427,8 +412,9 @@ public class TextViewAdapter implements ICommandExecutor {
                             header.append(cccId);
                             header.append(nnnId);
                             header.append(xxxId);
-                            prodList.add(new Property("STDOUT", PropConverter
-                                    .asciiToHex(header.toString())));
+                            prodList.add(new Property(CommandExecutor.STDOUT,
+                                    header
+                                    .toString()));
                         }
                     }
                 } catch (SerializationException e) {
