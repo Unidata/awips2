@@ -21,14 +21,15 @@ package com.raytheon.uf.edex.core.modes;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+
 import org.junit.Test;
 
 import com.raytheon.uf.edex.core.modes.EdexMode;
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.core.modes.EdexMode;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 20, 2012 1187       djohnson     Initial creation
+ * Sep 04, 2014 3365       ccody        Changes for removing Data_Delivery dependencies
  * 
  * </pre>
  * 
@@ -56,32 +58,29 @@ public class EdexModeTest {
     @Test
     public void testExcludedPatternByIncludedModeIsExcluded() {
         
-        /* EdexMode(List<String> includeList, List<String> excludeList,
-                ArrayList<String> arrayList) */
+        List<String> includeList = Arrays.asList(".*include.*");
+        List<String> excludeList =  Arrays.asList(".*exclude.*");
+        List<String> emptyList = new ArrayList<String>();
+        EdexMode includedMode = new EdexMode(
+                                        includeList,
+                                        excludeList,
+                                        emptyList);
+      /*  (List<String> includeList, List<String> excludeList,
+                List<String> includedModes) */
+        List<String> someotherList = Arrays.asList(".*someother.*");
+        List<String> includedModeList =  new ArrayList<String>();
+        includedModeList.add(includedMode.getName());
+        Arrays.asList(".*exclude.*");
         
-        List<String> includeList = new ArrayList<String>();
-        includeList.add(".*include.*");
-        List<String> excludeList = new ArrayList<String>();
-        excludeList.add(".*exclude.*");
-        ArrayList<String> emptyList = new ArrayList<String>();
-        
-        EdexMode includedMode = new EdexMode(includeList,
-                                        excludeList, emptyList);
-
-        List<String> someotherList = new ArrayList<String>();
-        someotherList.add(".*someother.*");
-        List<String> excludeEmptyList = new ArrayList<String>();
-        ArrayList<String> modeList = new ArrayList<String>();
-        //TODO HERE THIS WILL NOT WORK modeList.add(includedMode);
-        EdexMode mode = new EdexMode(someotherList, excludeEmptyList,
-                modeList);
-        
+        EdexMode mode = new EdexMode(someotherList,
+                emptyList, includedModeList);
         Map<String, EdexMode> allModes = new HashMap<String, EdexMode>();
         try {
             mode.init(allModes);
         }
-        catch(Exception ex) {
-            ex.printStackTrace();
+        catch(ModesException me) {
+            me.printStackTrace();
+            fail();
         }
 
         File file = new File("./res/spring/exclude.xml");
@@ -90,24 +89,29 @@ public class EdexModeTest {
 
     @Test
     public void testIncludedPatternByIncludedModeCanBeExcluded() {
-       /* EdexMode includedMode = new EdexMode(Arrays.asList(".*include.*"),
-                Collections.<String> emptyList(),
-                Collections.<EdexMode> emptyList());*/
-        List<String> includeList = new ArrayList<String>();
-        includeList.add(".*include.*");
-        List<String> excludeList = new ArrayList<String>();
-        ArrayList<String> emptyList = new ArrayList<String>();
-        
-        EdexMode includedMode = new EdexMode(includeList,
-                                        excludeList, emptyList);
-        
-/* TODO HERE REINSTATE
-        EdexMode mode = new EdexMode(Collections.<String> emptyList(),
-                Arrays.asList(".*include.*"), Arrays.asList(includedMode));
-        mode.init();
+        List<String> includeList = Arrays.asList(".*include.*");
+        List<String> emptyList = new ArrayList<String>();
 
+        EdexMode includedMode = new EdexMode(includeList,
+                emptyList,
+                emptyList);
+
+        List<String> includedModeList =  new ArrayList<String>();
+        includedModeList.add(includedMode.getName());
+        
+        EdexMode mode = new EdexMode(emptyList,
+                includeList, includedModeList);
+        
+        
+        Map<String, EdexMode> allModes = new HashMap<String, EdexMode>();
+        try {
+            mode.init(allModes);
+        }
+        catch(ModesException me) {
+            me.printStackTrace();
+            fail();
+        }
         File file = new File("./res/spring/include.xml");
         assertFalse(mode.accept(file, file.getAbsolutePath()));
-        */
     }
 }
