@@ -17,6 +17,14 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Sep 01, 2014    3572          randerso       Fix getTopo       
+#
+########################################################################
 import DatabaseID, AbsTime, JUtil
 
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID as JavaDatabaseID
@@ -116,4 +124,4 @@ class DBSSClient:
         return self._dataMgr.getOpMode().name()
 
     def getTopo(self):
-        return self._tmgr.getCompositeTopo().getScalarGrid().__numpy__[0]
+        return self._tmgr.getCompositeTopo().__numpy__[0]
