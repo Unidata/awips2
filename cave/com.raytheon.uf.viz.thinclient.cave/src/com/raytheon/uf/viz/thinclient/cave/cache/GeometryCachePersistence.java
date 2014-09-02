@@ -21,9 +21,9 @@ package com.raytheon.uf.viz.thinclient.cave.cache;
 
 import java.io.File;
 
+import com.raytheon.uf.viz.core.spatial.GeometryCache;
 import com.raytheon.uf.viz.thinclient.cache.AbstractCachePersistance;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
-import com.raytheon.viz.core.spatial.GeometryCache;
 
 /**
  * Thin client geometry cache manager, listens for preference changes to
