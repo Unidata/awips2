@@ -230,14 +230,14 @@ public final class ACARSSoundingTools {
             }
         } catch (IOException ioe) {
             logger.error("Error reading data for tailnumber "
-                    + tailNumberFile.getName());
+                            + tailNumberFile.getName(), ioe);
         } finally {
             if (bf != null) {
                 try {
                     bf.close();
                 } catch (IOException ioe) {
                     logger.error("Error closing tailnumber file "
-                            + tailNumberFile.getName());
+                            + tailNumberFile.getName(), ioe);
                 }
             }
         }
@@ -271,7 +271,8 @@ public final class ACARSSoundingTools {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Error processing " + tailNumberFile.getName());
+                    logger.error(
+                            "Error processing " + tailNumberFile.getName(), e);
                 } finally {
                     if (writer != null) {
                         try {
@@ -329,13 +330,14 @@ public final class ACARSSoundingTools {
                 }
                 // All done reading
             } catch (IOException ioe) {
-                logger.error("Error reading " + tailNumberFile.getName());
+                logger.error("Error reading " + tailNumberFile.getName(), ioe);
             } finally {
                 if (bf != null) {
                     try {
                         bf.close();
                     } catch (IOException ioe) {
-                        logger.error("Error attempting to close file " + tailNumberFile.getName());
+                        logger.error("Error attempting to close file "
+                                + tailNumberFile.getName(), ioe);
                     }
                 }
             }
