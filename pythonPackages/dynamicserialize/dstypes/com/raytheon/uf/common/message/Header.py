@@ -18,30 +18,26 @@
 # further licensing information.
 ##
 
-__all__ = [
-            'Body',
-            'Header',
-            'Message',
-            'Property',
-            'WsId'
-          ]
+# File auto-generated against equivalent DynamicSerialize Java class
 
-#
-# Package definition for com.raytheon.uf.common.message
-#  
-#    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    09/16/10                      dgilling       Initial Creation.
-#    08/19/14        2926          bclement       added Message files
-# 
-#
-
-
-from Body import Body
-from Header import Header
-from Message import Message
 from Property import Property
-from WsId import WsId
+
+class Header(object):
+
+    def __init__(self, properties=None, multimap=None):
+        if properties is None:
+            self.properties = []
+        else:
+            self.properties = properties
+
+        if multimap is not None:
+            for k, l in multimap.iteritems():
+                for v in l:
+                    self.properties.append(Property(k, v))
+
+    def getProperties(self):
+        return self.properties
+
+    def setProperties(self, properties):
+        self.properties = properties
+
