@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jul 17, 2014 3419       jsanchez     Initial creation
  * Aug 20, 2014 ASM #16703 D. Friedman  Ensure watches have a state attribute.
  * Aug 28, 2014 ASM #15658 D. Friedman  Add marine zones.
+ * Aug 29, 2014 ASM #15551 Qinglu Lin   Sorting watches by ETN in processRecords().
  * 
  * </pre>
  * 
@@ -409,6 +410,8 @@ public class WatchUtil {
             watches.add(watch);
         }
 
+        // keep the code for their use in the future
+        /*
         // Sorts the watches based on state name.
         Collections.sort(watches, new Comparator<Watch>() {
 
@@ -424,6 +427,25 @@ public class WatchUtil {
                     return -1;
                 else
                     return state1.compareTo(state2);
+            }
+        });
+        */
+
+        // Sorts the watches based on ETN.
+        Collections.sort(watches, new Comparator<Watch>() {
+
+            @Override
+            public int compare(Watch watch1, Watch watch2) {
+                String etn1 = watch1.getEtn();
+                String etn2 = watch2.getEtn();
+                if (etn1 == etn2)
+                    return 0;
+                else if (etn1 == null)
+                    return 1;
+                else if (etn2 == null)
+                    return -1;
+                else
+                    return etn1.compareTo(etn2);
             }
         });
 
