@@ -67,9 +67,9 @@
 		<productDependent format='MN: %dkt' index='3' />
 		<productDependent format='MX: %dkt' index='4' />
 		<blank />
-		<sails />
 		<srmSource />
 		<srmMovement />
+		<sails />
 	</upperText>
 	
 	<!-- Base Spectrum Width -->
