@@ -47,7 +47,6 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeMode;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator.FrameChangeOperation;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
@@ -55,7 +54,6 @@ import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
-import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource;
 import com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource.LegendMode;
@@ -68,7 +66,6 @@ import com.raytheon.viz.ui.color.IBackgroundColorChangedListener;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
-import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.input.PanHandler;
 import com.raytheon.viz.ui.panes.PaneManager;
@@ -95,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Aug  9, 2013   DR 16427     D. Friedman Swap additional input handlers.
  *      Oct 10, 2013    #2104       mschenke    Switched to use MapScalesManager
  *      Jul 15, 2014     2954       njensen     Updated init() for MapScalesManager change
+ *      Aug 25, 2014     3467       mapeters    Removed changing of editability from swapPanes().
  * 
  * </pre>
  * 
@@ -111,8 +109,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
     private PaneManager paneManager;
 
     private LoopProperties loopProperties;
-
-    private AbstractVizResource<?, ?> editableResource = null;
 
     private Bundle bundleToLoad = null;
 
@@ -368,21 +364,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                 if (dPane.isVisible() == false) {
                     editorHiddenDisplays.add(dPane.getRenderableDisplay());
                 }
-
-                if (editableResource == null) {
-                    for (ResourcePair rp : dPane.getDescriptor()
-                            .getResourceList()) {
-                        AbstractVizResource<?, ?> rsc = rp.getResource();
-                        if (rsc != null
-                                && rsc.hasCapability(EditableCapability.class)) {
-                            if (rsc.getCapability(EditableCapability.class)
-                                    .isEditable()) {
-                                editableResource = rsc;
-                                break;
-                            }
-                        }
-                    }
-                }
             }
 
             IRenderableDisplay[] myRenderables = paneManager
@@ -572,16 +553,6 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
                         theEditor.registerMouseHandler(handler,
                                 priority);
                     }
-                }
-
-                // Set up editableness
-                if (editableResource != null) {
-                    EditableManager.makeEditable(editableResource, false);
-                }
-
-                this.editableResource = editableResource;
-                if (this.editableResource != null) {
-                    EditableManager.makeEditable(this.editableResource, true);
                 }
 
                 theEditor.getBackgroundColor().setColor(BGColorMode.EDITOR,
