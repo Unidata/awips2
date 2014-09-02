@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBSrvCommandTags;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
@@ -41,6 +40,7 @@ import com.raytheon.uf.common.message.Property;
  * ------------ ---------- ----------- --------------------------
  * Oct 7, 2008        1538 jkorman     Initial creation
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv, removed unused logger
+ * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
  * 
  * </pre>
  * 
@@ -49,6 +49,10 @@ import com.raytheon.uf.common.message.Property;
  */
 
 public class CommandExecutor implements ICommandExecutor {
+
+    protected static final String STDERR = "STDERR";
+
+    protected static final String STDOUT = "STDOUT";
 
     private static final TextDBSrvCommandTags VIEW_CMD = TextDBSrvCommandTags.VIEW;
 
@@ -96,7 +100,7 @@ public class CommandExecutor implements ICommandExecutor {
         if (message != null) {
             Header header = message.getHeader();
             if (header != null) {
-                cmdView = PropConverter.getProperty(header, VIEW_CMD.name());
+                cmdView = header.getProperty(VIEW_CMD.name());
             }
         }
         return cmdView;
@@ -135,8 +139,7 @@ public class CommandExecutor implements ICommandExecutor {
     public static final Message createErrorMessage(String error) {
         Message msg = new Message();
         Header h = new Header();
-        h.setProperties(new Property[] { new Property("STDERR", PropConverter
-                .asciiToHex(error)), });
+        h.setProperties(new Property[] { new Property(STDERR, error), });
 
         msg.setHeader(h);
 
