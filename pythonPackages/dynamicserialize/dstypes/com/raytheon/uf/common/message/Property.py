@@ -18,30 +18,23 @@
 # further licensing information.
 ##
 
-__all__ = [
-            'Body',
-            'Header',
-            'Message',
-            'Property',
-            'WsId'
-          ]
+# File auto-generated against equivalent DynamicSerialize Java class
 
-#
-# Package definition for com.raytheon.uf.common.message
-#  
-#    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    09/16/10                      dgilling       Initial Creation.
-#    08/19/14        2926          bclement       added Message files
-# 
-#
+class Property(object):
 
+    def __init__(self, name=None, value=None):
+        self.name = name
+        self.value = value
 
-from Body import Body
-from Header import Header
-from Message import Message
-from Property import Property
-from WsId import WsId
+    def getName(self):
+        return self.name
+
+    def setName(self, name):
+        self.name = name
+
+    def getValue(self):
+        return self.value
+
+    def setValue(self, value):
+        self.value = value
+
