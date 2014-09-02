@@ -14,7 +14,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.comm"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.http"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.serialization"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.registry.schemas.ebxml"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.harvester"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.localization"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.common"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.log4j"/>
@@ -151,9 +151,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.registry.schemas.iso19115"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.requestsrv"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.convert"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.registry.schemas.ebxml"/>
 	<classpathentry kind="src" path="/com.raytheon.edex.plugin.shef"/>
-	<classpathentry kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.common.convert"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.edex.plugin.taf"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
