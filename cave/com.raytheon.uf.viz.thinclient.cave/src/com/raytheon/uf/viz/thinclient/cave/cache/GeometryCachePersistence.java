@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            mschenke     Initial creation
+ * Sep 04, 2014 3365       ccody        Changes for removing Data_Delivery dependencies
  * 
  * </pre>
  * 
