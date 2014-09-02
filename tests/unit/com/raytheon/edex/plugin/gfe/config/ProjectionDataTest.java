@@ -24,7 +24,7 @@ import java.awt.Point;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.opengis.metadata.spatial.PixelOrientation;
+//import org.opengis.metadata.spatial.PixelOrientation;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -193,7 +193,7 @@ public class ProjectionDataTest {
      */
     @Test
     public void testGridCoordinateToLatLon() {
-        PixelOrientation orientation = PixelOrientation.CENTER;
+        //PixelOrientation orientation = PixelOrientation.CENTER;
 
         for (TestCase testCase : testCases) {
             System.out
@@ -211,12 +211,12 @@ public class ProjectionDataTest {
                     Assert.assertTrue("expected: " + expected.y + ", got: "
                             + latLon.y,
                             withinTolerance(latLon.y, expected.y, TOLERANCE));
-                } 
-                catch(TransformException te) {
-                    te.printStackTrace();
                 }
                 catch(FactoryException fe) {
-                    fe.printStackTrace();
+                    Assert.fail("Test failed : " + fe.getMessage());
+                }
+                catch(TransformException te) {
+                    Assert.fail("Test failed : " + te.getMessage());
                 }
             }
         }
