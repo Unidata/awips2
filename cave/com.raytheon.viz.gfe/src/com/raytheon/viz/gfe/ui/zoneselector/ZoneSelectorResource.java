@@ -105,6 +105,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Aug 14, 2014     #3523  mapeters    Updated deprecated {@link DrawableString#textStyle} 
  *                                     assignments.
  * Aug 21, 2014     #3459  randerso    Restructured Map resource class hierarchy
+ * Sep 04, 2014     #3365  ccody       Changes for removing Data_Delivery dependencies
  * 
  * </pre>
  * 
@@ -705,7 +706,6 @@ public class ZoneSelectorResource extends DbMapResource {
                 .getExtent();
 
         double simpLev = getSimpLev(paintProps);
-
         if ((simpLev < lastSimpLev)
                 || (lastExtent == null)
                 || !lastExtent.getEnvelope().contains(
