@@ -6,7 +6,6 @@ Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14",
  com.raytheon.viz.radar;bundle-version="1.14",
  com.raytheon.uf.viz.remote.graphics;bundle-version="1.14",
