@@ -19,17 +19,14 @@
         further_licensing_information.
     -->
 <requestPatterns xmlns:ns2="group">
-    <regex>^S(HV|HXX|S[^X]).*</regex>
-    <regex>^S[IMN]W[^KZ].*</regex>
-    <regex>^SIV[A-FJX].*</regex>
     <regex>^SMUS.*</regex>
     <regex>^SMCN.*</regex>
     <regex>^SMMX.*</regex>
-    <regex>^SMV[A-FJX].*</regex>
-    <regex>^SNV[A-FXZ].*</regex>
+    <regex>^SMV[DCE].*</regex>
+    <regex>^SIV[DCE].*</regex>
+    <regex>^SNV[DCE].*</regex>
     <regex>^SSV[DCE].*</regex>
     <regex>^SSVX.*</regex>
-    <regex>^SXUS2[0123].*</regex>
+    <regex>^SXUS2[0123] KWNB.*</regex>
     <regex>^VHVD2[89] KWNB.*</regex>
-    <regex>^Y[HO]XX84.*</regex>
 </requestPatterns>
