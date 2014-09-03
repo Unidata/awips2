@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.SerializationMode;
  * Dec 16, 2013 2562       bclement     Initial creation
  * Feb 12, 2014 2793       bclement     improved error handling
  * Feb 27, 2013 2756       bclement     extends BaseProvider
+ * Jun 12, 2013 2903       bclement     added support for jaxb xml in base64
  * 
  * </pre>
  * 
@@ -168,13 +169,30 @@ public class SessionPayloadProvider extends BaseProvider<SessionPayload>
      */
     private static Object unmarshalJaxb(XmlPullParser parser)
             throws XmlPullParserException, IOException, CollaborationException {
-        int tag = parser.next();
-        if (tag != XmlPullParser.START_TAG) {
-            throw new CollaborationException(
-                    "Encountered JAXB payload without XML as data");
-        }
         CollaborationXmlManager manager = CollaborationXmlManager.getInstance();
-        return manager.unmarshalFromXPP(parser);
+        int tag = parser.next();
+        Object rval;
+        if (tag == XmlPullParser.TEXT) {
+            /*
+             * default behavior is to wrap XML in base64 to avoid problems with
+             * openfire handling complex XML leading to disconnect
+             */
+            byte[] xmlBytes = Base64.decode(parser.getText());
+            String xml = new String(xmlBytes, SessionPayload.XML_ENCODING);
+            try {
+                rval = manager.unmarshalFromXml(xml);
+            } catch (JAXBException e) {
+                throw new CollaborationException(
+                        "Unable to parse base64 encoded XML payload: " + xml, e);
+            }
+        } else if (tag == XmlPullParser.START_TAG) {
+            /* JAXB payload is more XML, attempt to unmarshal it */
+            rval = manager.unmarshalFromXPP(parser);
+        } else {
+            throw new CollaborationException(
+                    "Unexpected parser state after JAXB tag: " + tag);
+        }
+        return rval;
     }
 
     /**

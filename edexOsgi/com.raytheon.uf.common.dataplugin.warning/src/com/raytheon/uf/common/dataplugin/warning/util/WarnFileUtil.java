@@ -25,12 +25,18 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2014 3033       jsanchez    Searches the backup site directory before the localized site directory.
+ * Jul 02, 2014 DR 17450   D. Friedman Support using list of templates from backup site.
  * </pre>
  * 
  * @author jsanchez
  * @version 1.0
  */
 public class WarnFileUtil {
+    public static LocalizationFile findFileInLocalizationIncludingBackupSite(String filename,
+            String issuingSiteID, String backupSiteID) throws FileNotFoundException {
+        return findFileInLocalizationIncludingBackupSite(filename, issuingSiteID, backupSiteID, true);
+    }
+
     /**
      * Returns the appropriate file in localization. If a backupSiteID is not
      * null and a corresponding file does exist in the backup site directory,
@@ -49,7 +55,7 @@ public class WarnFileUtil {
      * @throws FileNotFoundException
      */
     public static LocalizationFile findFileInLocalizationIncludingBackupSite(String filename,
-            String issuingSiteID, String backupSiteID)
+            String issuingSiteID, String backupSiteID, boolean allowUser)
             throws FileNotFoundException {
 
         IPathManager pm = PathManagerFactory.getPathManager();
@@ -71,6 +77,9 @@ public class WarnFileUtil {
         LocalizationContext[] searchContext = pm
                 .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
         for (LocalizationContext ctx : searchContext) {
+            if (!allowUser && ctx.getLocalizationLevel() == LocalizationLevel.USER)
+                continue;
+
             if ((ctx.getLocalizationLevel() == LocalizationLevel.SITE || ctx
                     .getLocalizationLevel() == LocalizationLevel.CONFIGURED)
                     && issuingSiteID != null) {
@@ -90,6 +99,18 @@ public class WarnFileUtil {
         return fileToUse;
     }
 
+    public static boolean isLocalizationFileExtantAtSiteLevel(String filename, String siteID) {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        String fileToRetrieve = WarningConstants.WARNGEN_DIR
+                + IPathManager.SEPARATOR + filename;
+        LocalizationContext backupSiteCtx = pm.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        backupSiteCtx.setContextName(siteID);
+        LocalizationFile backupFile = pm.getLocalizationFile(backupSiteCtx,
+                fileToRetrieve);
+        return backupFile != null && backupFile.exists();
+    }
+
     /**
      * Locates the appropriate file in the localization hierarchy including the
      * backupSite directory (if provided) and converts the content of the file
@@ -105,10 +126,20 @@ public class WarnFileUtil {
     public static String convertFileContentsToString(String filename,
             String localizedSite, String backupSite)
             throws FileNotFoundException, IOException {
-        StringBuffer sb = new StringBuffer();
-        BufferedReader input = null;
         File file = findFileInLocalizationIncludingBackupSite(filename, localizedSite, backupSite)
                 .getFile();
+        return convertFileContentsToString(file);
+    }
+
+    public static String convertFileContentsToStringNoUser(String filename,
+            String site) throws FileNotFoundException {
+        File file = findFileInLocalizationIncludingBackupSite(filename, site, null, false).getFile();
+        return convertFileContentsToString(file);
+    }
+
+    private static String convertFileContentsToString(File file) {
+        StringBuffer sb = new StringBuffer();
+        BufferedReader input = null;
         try {
             input = new BufferedReader(new FileReader(file));
 
