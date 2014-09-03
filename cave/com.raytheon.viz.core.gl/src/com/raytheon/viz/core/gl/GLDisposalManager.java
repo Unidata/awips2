@@ -21,8 +21,8 @@ package com.raytheon.viz.core.gl;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -41,6 +41,8 @@ import javax.media.opengl.GL;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 17, 2012            bsteffen     Initial creation
+ * Aug 13, 2014 3510       bclement     changed autoDisposers to map, 
+ *                                       remove auto if dispose called with disposer
  * 
  * </pre>
  * 
@@ -51,7 +53,7 @@ public class GLDisposalManager {
 
     private static ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
 
-    private static List<GLAutoDisposer> autoDisposers = new LinkedList<GLAutoDisposer>();
+    private static Map<GLDisposer, GLAutoDisposer> autoDisposers = new IdentityHashMap<GLDisposer, GLAutoDisposer>();
 
     private static Queue<GLDisposer> disposeQueue = new LinkedBlockingQueue<GLDisposer>();
 
@@ -65,6 +67,7 @@ public class GLDisposalManager {
      */
     private static void dispose(GLDisposer disposer) {
         disposeQueue.add(disposer);
+        autoDisposers.remove(disposer);
     }
 
     /**
@@ -73,7 +76,8 @@ public class GLDisposalManager {
      * the disposer must have no references to object. Object should be the only
      * thing using these GL resources, this will not work for anything which
      * might be shared by multiple objects. This will also result in the dispose
-     * method of the disposer being called more than once so it should clear any
+     * method of the disposer being called more than once so it should be
+     * idempotent.
      * 
      * @param disposer
      *            - a disposer that will be called when object is garbage
@@ -82,7 +86,7 @@ public class GLDisposalManager {
      *            - an object which uses a gl resource.
      */
     public static void autoDispose(GLDisposer disposer, Object object) {
-        autoDisposers.add(new GLAutoDisposer(object, disposer));
+        autoDisposers.put(disposer, new GLAutoDisposer(object, disposer));
     }
 
     /**
@@ -99,7 +103,7 @@ public class GLDisposalManager {
         }
         GLAutoDisposer autoDisposer = (GLAutoDisposer) refQueue.poll();
         while (autoDisposer != null) {
-            autoDisposers.remove(autoDisposer);
+            autoDisposers.remove(autoDisposer.disposer);
             autoDisposer.disposer.dispose();
             autoDisposer = (GLAutoDisposer) refQueue.poll();
         }

@@ -11,6 +11,7 @@
 #####    Evan Bookbinder    05-05-2013 handleClosesPoints and 3rd bullet changes (OVER & now) 
 #####    Evan Bookbinder    09-20-2013 Fixed rural area otherPoints in pathcast section, added rural phrase
 #####         Qinglu Lin    03-17-2014 DR 16309. Updated inserttorwatches and insertsvrwatches. 
+#####         Qinglu Lin    05-21-2014 DR 16309. Updated inserttorwatches and insertsvrwatches by changing 'FOR##' to 'FOR ##'. 
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -188,26 +189,36 @@ ${drainage.name}##
 ########END MACRO
 
 #macro(inserttorwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($torWatches = ${watches.getTorWatches()})
-#set($torWatchAlso = "")
-#set($torWatchFirst = 1)
-#foreach(${watch} in ${torWatches})
-#if($torWatchFirst)
-#set($torWatchFirst = 0)
+#set($keys = [])
+#set($mymap = {})
+#foreach(${watch} in ${watches})
+#if(${watch.getPhenSig()} == 'TO.A')
+#set($key = ${watch.action} + ${watch.etn} + ${watch.startTime} + ${watch.endTime})
+#if (${list.contains(${keys}, $key)})
+#set($value = ${mymap.get($key)})
 #else
- ##
+#set($value = [])
+#set($success = $keys.add($key))
 #end
-A TORNADO WATCH ${torWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${localtimezone})}##
+#set($success = $value.add($watch))
+#set($success = ${mymap.put($key,$value)})
+#end
+#end
+#set($torWatchAlso = "")
+#foreach(${key} in ${keys})
+#set($tornadoWatches = ${mymap.get($key)})
+#set($tornadoWatch = ${tornadoWatches.get(0)})
+A TORNADO WATCH ${torWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${tornadoWatch.endTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
+${dateUtil.period(${tornadoWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
  FOR ##
-#set($numPortions = ${list.size(${watch.getPortions()})})
+#set($numPortions = ${list.size(${tornadoWatches})})
 #set($count = 0)
-#foreach(${portion} in ${watch.getPortions()})
+#foreach(${watch} in ${tornadoWatches})
 #set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false true)${portion.parentRegion}##
+#areaFormat(${watch.partOfState} true false true)${watch.state}##
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
@@ -217,31 +228,42 @@ ${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${local
 #set($torWatchAlso = "ALSO ")
 . ##
 #end
-
+  
+  
 #end
 ########END MACRO
 
 #macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($svrWatches = ${watches.getSvrWatches()})
-#set($svrWatchAlso = "")
-#set($svrWatchFirst = 1)
-#foreach(${watch} in ${svrWatches})
-#if($svrWatchFirst)
-#set($svrWatchFirst = 0)
+#set($keys = [])
+#set($mymap = {})
+#foreach(${watch} in ${watches})
+#if(${watch.getPhenSig()} == 'SV.A')
+#set($key = ${watch.action} + ${watch.etn} + ${watch.startTime} + ${watch.endTime})
+#if (${list.contains(${keys}, $key)})
+#set($value = ${mymap.get($key)})
 #else
- ##
+#set($value = [])
+#set($success = $keys.add($key))
 #end
-A SEVERE THUNDERSTORM WATCH ${svrWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${watches.getLatestSvrTime()},${timeFormat.plain}, 15, ${localtimezone})}##
+#set($success = $value.add($watch))
+#set($success = ${mymap.put($key,$value)})
+#end
+#end
+#set($svrWatchAlso = "")
+#foreach(${key} in ${keys})
+#set($severeWatches = ${mymap.get($key)})
+#set($svrWatch = ${severeWatches.get(0)})
+A SEVERE THUNDERSTORM WATCH ${svrWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${svrWatch.endTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
+${dateUtil.period(${svrWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
  FOR ##
-#set($numPortions = ${list.size(${watch.getPortions()})})
+#set($numPortions = ${list.size(${severeWatches})})
 #set($count = 0)
-#foreach(${portion} in ${watch.getPortions()})
+#foreach(${watch} in ${severeWatches})
 #set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false true)${portion.parentRegion}##
+#areaFormat(${watch.partOfState} true false true)${watch.state}##
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
@@ -252,8 +274,9 @@ ${dateUtil.period(${watches.getLatestSvrTime()},${timeFormat.plain}, 15, ${local
 . ##
 #end
 
+
 #end
-########END MACRO
+########END
 
 #macro(printcoords $coordinates $list)
 #set($count = 0)
@@ -367,18 +390,6 @@ SOUTH##
 #if(${list.contains($directionSet, "WEST")})
 #set($output = "${output}WEST")
 #end
-#if(${list.contains($directionSet, "NE")})
-#set($output = "${output}NORTHEAST")
-#end 
-#if(${list.contains($directionSet, "NW")})
-#set($output = "${output}NORTHWEST")
-#end 
-#if(${list.contains($directionSet, "SE")})
-#set($output = "${output}SOUTHEAST")
-#end 
-#if(${list.contains($directionSet, "SW")})
-#set($output = "${output}SOUTHWEST")
-#end 
 #if(${useCentral} && ${list.contains($directionSet, "CENTRAL")}) 
 #if(${list.contains($directionSet, "NORTH")} || ${list.contains($directionSet, "SOUTH")} || ${list.contains($directionSet, "EAST")} || ${list.contains($directionSet, "WEST")})
 #set($output = "${output} ")
