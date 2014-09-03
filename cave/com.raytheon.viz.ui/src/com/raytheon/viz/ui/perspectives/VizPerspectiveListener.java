@@ -41,6 +41,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 
 /**
@@ -55,6 +57,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * ------------ ---------- ----------- --------------------------
  * Apr 21, 2010            mschenke    Initial creation
  * Mar 21, 2013       1638 mschenke    Added method to get managed perspectives
+ * Aug 11, 2014 3480       bclement    added log message in perspectiveOpened()
  * 
  * </pre>
  * 
@@ -63,6 +66,9 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  */
 
 public class VizPerspectiveListener implements IPerspectiveListener4 {
+
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(VizPerspectiveListener.class);
 
     private static final String PERSPECTIVE_MANAGER_EXTENSION = "com.raytheon.viz.ui.perspectiveManager";
 
@@ -257,6 +263,7 @@ public class VizPerspectiveListener implements IPerspectiveListener4 {
     @Override
     public void perspectiveOpened(IWorkbenchPage page,
             IPerspectiveDescriptor perspective) {
+        log.info("Opened perspective: " + perspective.getId());
     }
 
     @Override
