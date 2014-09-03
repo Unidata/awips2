@@ -4,8 +4,7 @@ Bundle-Name: Collaboration Point data
 Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.pointdata;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.core.runtime,
- com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.viz.collaboration.display;bundle-version="1.0.0",
  com.raytheon.uf.viz.remote.graphics;bundle-version="1.0.0",
  com.raytheon.viz.pointdata;bundle-version="1.12.1174",
