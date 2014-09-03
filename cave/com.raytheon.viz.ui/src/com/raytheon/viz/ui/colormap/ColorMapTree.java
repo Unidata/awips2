@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.drawables;
+package com.raytheon.viz.ui.colormap;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -33,6 +33,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationNotificationObserver;
+import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 
 /**
  * ColorMapTree represents the directory structure of colormaps directory. The
@@ -46,6 +47,8 @@ import com.raytheon.uf.common.localization.LocalizationNotificationObserver;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Sep 18, 2013  2421     bsteffen    Initial creation
+ * Sep 11, 2014  3516     rferrel     file updates now inform the factory.
+ *                                      getName() no longer returns a null.
  * 
  * </pre>
  * 
@@ -110,7 +113,11 @@ public class ColorMapTree {
         } else {
             int start = path.lastIndexOf(IPathManager.SEPARATOR);
             if (start <= 0) {
-                return context.getContextName();
+                String name = context.getContextName();
+                if (name == null) {
+                    name = context.getLocalizationLevel().name();
+                }
+                return name;
             }
             return path.substring(start + 1);
         }
@@ -181,15 +188,22 @@ public class ColorMapTree {
     }
 
     /**
-     * Optimize the internal structure so future {@link #isEmpty()} calls are
-     * fast. isEmpty() is a slow operations on trees with many empty subtrees,
-     * so this can be called in the background to enable faster calls to isEmpty
-     * when it is needed. In cases where isEmpty does not need extra data or is
-     * already optimized this call should complete very quickly.
+     * Recursively optimize the internal structure so future {@link #isEmpty()}
+     * calls are fast. isEmpty() is a slow operations on trees with many empty
+     * subtrees, so this can be called in the background to enable faster calls
+     * to isEmpty when it is needed. In cases where isEmpty does not need extra
+     * data or is already optimized this call should complete very quickly.
+     * Intended for use on non-UI thread.
      */
     public void optimizeIsEmpty() {
-        /* isEmpty caches data in the subtrees so nothing else is needed. */
         isEmpty();
+
+        /*
+         * isEmpty() may not check all sub trees. Force check of all sub trees.
+         */
+        for (ColorMapTree subTree : getSubTrees()) {
+            subTree.optimizeIsEmpty();
+        }
     }
 
     /**
@@ -258,10 +272,9 @@ public class ColorMapTree {
                         .removeGlobalFileChangeObserver(this);
             } else {
                 tree.handleUpdate(message);
+                tree.optimizeIsEmpty();
+                ColorMapTreeFactory.getInstance().refresh();
             }
-
         }
-
     }
-
 }
