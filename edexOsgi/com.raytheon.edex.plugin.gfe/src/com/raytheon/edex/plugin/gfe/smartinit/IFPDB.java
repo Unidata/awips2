@@ -41,6 +41,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
  * ------------	----------	-----------	--------------------------
  * May 7, 2008				njensen	    Initial creation
  * Jun 13, 2013     #2044   randerso    Refactored to use IFPServer
+ * Jul 28, 2014   RM 15655  ryu         Negate raising exception for empty db in constructor
  * 
  * </pre>
  * 
@@ -88,7 +89,6 @@ public class IFPDB {
             }
         } else {
             this.keys = Collections.emptyList();
-            throw new GfeException(sr.message());
         }
     }
 
