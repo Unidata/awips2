@@ -213,9 +213,11 @@ public class StoreActivityDialog extends CaveJFACEDialog {
 
         Label nameLabel = new Label(g1, SWT.NONE);
         nameLabel.setText("Activity Name*:");
+        nameLabel.setEnabled(false);
 
         nameText = new Text(g1, SWT.NONE);
         nameText.setLayoutData(gdata);
+        nameText.setEditable(false);
         nameText.setToolTipText("Alias for this activity, just like your first name while activity "
                 + "type/subtype is the last name. Leave it as is");
 

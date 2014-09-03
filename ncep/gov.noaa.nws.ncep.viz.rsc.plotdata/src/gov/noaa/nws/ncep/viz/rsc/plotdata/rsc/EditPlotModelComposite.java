@@ -1022,7 +1022,7 @@ public class EditPlotModelComposite extends Composite {
         textStyleCombo.setItems(textStyleOptions);
         textStyleCombo.select(0); // to be replaced by init
 
-        String[] strArray = plotParamDefns.getAllParameterNames(false, false);
+        String[] strArray = plotParamDefns.getAllParameterNames(false, true);
 
         //TTR 923 remove "P03X" from the menu ( the dummy XML it comes from in
         // plotParameters_obs.xml is needed to make the code run without a 

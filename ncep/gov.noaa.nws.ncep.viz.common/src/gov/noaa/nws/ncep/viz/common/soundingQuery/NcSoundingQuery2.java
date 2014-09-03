@@ -32,6 +32,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/21/2012              Chin Chen    Modified several areas for performance improvement
  * 06/25/2014              Chin Chen    support dropsonde
  * 07/23/2014              Chin Chen    Support PW
+ * 08/27/2014              Chin Chen    fixed bug happened when query with empty stanid array
  * </pre>
  * 
  * @author ghull
@@ -384,11 +385,12 @@ public class NcSoundingQuery2 {
                 Coordinate latlon = latLonCoords.get(i);
 
                 if (i == latLonCoords.size() - 1) {
-                    latLonStr = latLonStr + latlon.y + "," + latlon.x + "]";
+                    latLonStr = latLonStr + latlon.y + "," + latlon.x;
                 } else {
                     latLonStr = latLonStr + latlon.y + "," + latlon.x + ",";
                 }
             }
+            latLonStr = latLonStr + "]";
             // System.out.println("1query stn siz=" + latLonCoords.size());
 
             query.append("return sndRq.getSoundingData2ByLatLonArray("
@@ -399,11 +401,12 @@ public class NcSoundingQuery2 {
             for (int i = 0; i < stationIds.size(); i++) {
 
                 if (i == stationIds.size() - 1) {
-                    stnStr = stnStr + "'" + stationIds.get(i) + "'" + "]";
+                    stnStr = stnStr + "'" + stationIds.get(i) + "'";
                 } else {
                     stnStr = stnStr + "'" + stationIds.get(i) + "'" + ",";
                 }
             }
+            stnStr = stnStr + "]";
             // System.out.println("2query stn siz="+stationIds.size());
             query.append("return sndRq.getSoundingData2ByStnIdArray(" + stnStr
                     + ")");
