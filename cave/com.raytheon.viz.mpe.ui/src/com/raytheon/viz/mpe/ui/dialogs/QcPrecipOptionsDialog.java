@@ -67,6 +67,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
  * Mar 7, 2013  15657      lbousaidi   fixed DQC slider and added listener to the Keys
  *                                     when pressed.
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
+ * Aug 26, 2014 14578      snaples     Changed the way we get the date, to use new ending hydro date field.
  * </pre>
  * 
  * @author snaples
@@ -207,8 +208,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         Shell parent = this.getParent();
         Display display = parent.getDisplay();
         MPEDisplayManager displayMgr = MPEDisplayManager.getCurrent();
-        Date prevDate = displayMgr.getCurrentEditDate();
-        Date currDate = ChooseDataPeriodDialog.prevDate;
+        Date prevDate = ChooseDataPeriodDialog.getCurrentHydroEditDate();
+        Date currDate = ChooseDataPeriodDialog.prevHydDate;
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
         DisplayFieldData df = displayMgr.getDisplayFieldType();
