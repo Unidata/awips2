@@ -36,6 +36,7 @@ import javax.ws.rs.PathParam;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 2/27/2014    2769        bphillip    Initial Creation
+ * 8/27/2014    3560        bphillip    Added updateRegistryEvents method
  * </pre>
  * 
  * @author bphillip
@@ -105,5 +106,10 @@ public interface IRegistryFederationManager {
     @Path("synchronizeWithRegistry/{registryId}")
     public void synchronizeWithRegistry(
             @PathParam("registryId") String registryId) throws Exception;
+    
+    @GET
+    @Path("updateRegistryEvents/{registryId}/{time}")
+    public void updateRegistryEvents(
+    		@PathParam("registryId") String registryId, @PathParam("time") String time);
 
 }
