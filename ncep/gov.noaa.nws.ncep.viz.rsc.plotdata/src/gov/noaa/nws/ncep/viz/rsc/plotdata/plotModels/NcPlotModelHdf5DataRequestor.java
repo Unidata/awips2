@@ -4,6 +4,7 @@ import gov.noaa.nws.ncep.edex.common.metparameters.AbstractMetParameter;
 import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
 import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory;
 import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.NotDerivableException;
+import gov.noaa.nws.ncep.edex.common.metparameters.PrecipitableWaterForEntireSounding;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLatitude;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLongitude;
@@ -41,6 +42,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
 import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -941,9 +943,9 @@ public class NcPlotModelHdf5DataRequestor {
                 endTime = (endTime > stnTime ? stnTime : endTime);
                 String stnId = new String(currentStation.info.stationId);
                 if (stationHasAllParametersItNeeds(currentStation, parameters)) {
-                    Tracer.print("Skipping data request for station "
+                    Tracer.print("Station "
                             + currentStation.info.stationId
-                            + " because it already has all met params it needs");
+                            + " has all met params it needs; skipping data request");
                 } else {
                     stnIdLst.add(stnId);
                 }
@@ -953,40 +955,57 @@ public class NcPlotModelHdf5DataRequestor {
                 }
             }
         }
-        Tracer.print("Requesting UPPER AIR data for " + stnIdLst.size()
-                + " out of " + listOfStationsRequestingForData.size()
-                + " stations");
+
         NcSoundingQuery2 sndingQuery;
-        try {
-            sndingQuery = new NcSoundingQuery2(plugin, true, levelStr);
-        } catch (Exception e1) {
-            System.out.println("Error creating NcSoundingQuery2: "
-                    + e1.getMessage());
-            return null;
-        }
+        NcSoundingCube sndingCube = null;
 
-        sndingQuery.setStationIdConstraints(stnIdLst);
-        sndingQuery.setRangeTimeList(rangeTimeLst);
-        sndingQuery.setRefTimeConstraint(refTime);
-        sndingQuery.setTimeRangeConstraint(new TimeRange(beginTime, endTime));
-
-        // for modelsounding data we need to set the name of the model (ie the
-        // reportType)
-        if (plugin.equals("modelsounding")) {
-            if (!constraintMap.containsKey("reportType")) {
-                System.out
-                        .println("Error creating NcSoundingQuery2: missing modelName (reportType) for modelsounding plugin");
+        if (stnIdLst.isEmpty()) {
+            // No stations, no query
+            Tracer.print("SKIPPING request for UPPER AIR data because "
+                    + stnIdLst.size() + " (zero) out of "
+                    + listOfStationsRequestingForData.size()
+                    + " stations need it");
+        } else {
+            // Set up the query
+            Tracer.print("Requesting UPPER AIR data for " + stnIdLst.size()
+                    + " out of " + listOfStationsRequestingForData.size()
+                    + " stations");
+            try {
+                final boolean merge = true;
+                sndingQuery = new NcSoundingQuery2(plugin, merge, levelStr);
+            } catch (Exception e1) {
+                System.out.println("Error creating NcSoundingQuery2: "
+                        + e1.getMessage());
                 return null;
             }
-            sndingQuery.setModelName(constraintMap.get("reportType")
-                    .getConstraintValue());
-        }
 
-        long t004 = System.nanoTime();
-        NcSoundingCube sndingCube = sndingQuery.query();
-        long t005 = System.nanoTime();
-        Tracer.print("requestUpperAirData()-->sndingQuery.query() took "
-                + (t005 - t004) / 1000000 + " ms");
+            sndingQuery.setStationIdConstraints(stnIdLst);
+            sndingQuery.setRangeTimeList(rangeTimeLst);
+            sndingQuery.setRefTimeConstraint(refTime);
+            sndingQuery
+                    .setTimeRangeConstraint(new TimeRange(beginTime, endTime));
+            sndingQuery
+                    .setPwRequired(isPrecipitableWaterForEntireSoundingRequired());
+
+            // for modelsounding data we need to set the name of the model
+            // (ie the reportType)
+            if (plugin.equals("modelsounding")) {
+                if (!constraintMap.containsKey("reportType")) {
+                    System.out
+                            .println("Error creating NcSoundingQuery2: missing modelName (reportType) for modelsounding plugin");
+                    return null;
+                }
+                sndingQuery.setModelName(constraintMap.get("reportType")
+                        .getConstraintValue());
+            }
+
+            // Make the query
+            long t004 = System.nanoTime();
+            sndingCube = sndingQuery.query();
+            long t005 = System.nanoTime();
+            Tracer.print("requestUpperAirData()-->sndingQuery.query() took "
+                    + (t005 - t004) / 1000000 + " ms");
+        }
 
         //
         // TODO -- This shouldn't be necessary, given Amount.getUnit() should
@@ -1134,6 +1153,11 @@ public class NcPlotModelHdf5DataRequestor {
                                 } else {
                                     newInstance.setValueToMissing();
                                 }
+                            } else if (newInstance.getMetParamName().equals(
+                                    PrecipitableWaterForEntireSounding.class
+                                            .getSimpleName())) {
+                                newInstance.setValue(new Amount(sndingProfile
+                                        .getPw(), SI.MILLIMETER));
                             } else {
                                 // System.out.println("Sanity check: " +
                                 // metPrm.getMetParamName() +
@@ -1281,6 +1305,12 @@ public class NcPlotModelHdf5DataRequestor {
         Tracer.print("< Exit");
 
         return (mapOfStnidsWithStns.values());
+    }
+
+    private Boolean isPrecipitableWaterForEntireSoundingRequired() {
+        return paramsToPlot
+                .containsKey(PrecipitableWaterForEntireSounding.class
+                        .getSimpleName());
     }
 
     private boolean stationHasAllParametersItNeeds(Station station,
