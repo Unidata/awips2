@@ -61,7 +61,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- * Dialog to get inputs for Graph-to-Grid prameters.
+ * Dialog to get inputs for Graph-to-Grid parameters.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -74,6 +74,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 08/13		TTR778		J. Wu		Load libg2g when this dialog is created.
  * 12/13        1090        J. Wu       Allow either table or element applied to g2g.
  * 05/14        TTR989      J. Wu       Find current contour via contour parameters.
+ * 08/14        ?           J. Wu       build gdoutf & cycle from contours' time.
  * 
  * </pre>
  * 
@@ -141,7 +142,7 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
 
     private AttrDlg cntAttrDlg = null;
 
-    private boolean applyTableInfoToOutput = true;
+    private boolean applyTableInfoToOutput = false;
 
     private Button infoOptBtn = null;
 
@@ -254,9 +255,13 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
                 String newPrd = ((Combo) e.widget).getText();
                 if (!newPrd.equals(currentPrd)) {
                     currentPrd = newPrd;
-                    applyTableInfoToOutput = true;
+                    // applyTableInfoToOutput = true;
                     if (advancedGrp != null && infoOptBtn != null) {
-                        infoOptBtn.setText("Apply Elem Info");
+                        if (applyTableInfoToOutput) {
+                            infoOptBtn.setText("Apply Elem Info");
+                        } else {
+                            infoOptBtn.setText("Apply Table Info");
+                        }
                     }
                     currentProductParams = retrievePrdMap(currentPrd);
                     currentProductParams.putAll(generateParameters());
@@ -583,15 +588,24 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
 
         Calendar cntTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
+        // Use the time in current contour, if available.
+        Contours curCnt = getCurrentContours();
+        if (curCnt != null && curCnt.getTime1() != null) {
+            cntTime.setTimeInMillis(curCnt.getTime1().getTimeInMillis());
+        }
+
         cntTime.add(Calendar.HOUR_OF_DAY, interval);
 
         String[] cycleTimes = new String[ncycles];
 
         String cycle = "";
 
-        int year = cntTime.get(Calendar.YEAR);
+        // int year = cntTime.get(Calendar.YEAR);
 
         for (int ii = 0; ii < ncycles; ii++) {
+
+            int year = cntTime.get(Calendar.YEAR);
+
             cycle += year - year / 100 * 100;
 
             if (cntTime.get(Calendar.MONTH) + 1 < 10) {
@@ -960,9 +974,15 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
             gfunc = gparm;
         }
 
-        gdoutf = new String(gparm.toLowerCase() + "_"
-                + dlg.getTime1().get(Calendar.YEAR) + gdt.substring(2, 6)
-                + gdt.substring(7, 9) + fcstCombo.getText() + ".grd");
+        // GDOUTF template: PPPP_YYYYMMDDHHfFFF.grd
+        /*
+         * gdoutf = new String(gparm.toLowerCase() + "_" +
+         * dlg.getTime1().get(Calendar.YEAR) + gdt.substring(2, 6) +
+         * gdt.substring(7, 9) + fcstCombo.getText() + ".grd");
+         */
+
+        gdoutf = formatGdoutf(curPrdMapFromTable.get("GDOUTF"), dlg.getTime1(),
+                gparm, fcstCombo.getText());
 
         prm.put("GPARM", gparm);
         prm.put("GLEVEL", level);
@@ -1100,6 +1120,29 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
         }
 
         return cints;
+    }
+
+    /*
+     * Formats "gdoutf" based on the template, e.g., "PPPP_YYYYMMDDHHfFFF.grd"
+     * 
+     * @return the formatted gdoutf
+     */
+    private String formatGdoutf(String tmp, Calendar date, String param,
+            String fcsthr) {
+
+        // Default GDOUTF template: PPPP_YYYYMMDDHHfFFF.grd
+        String goutf = null;
+        if (tmp == null) {
+            goutf = "PPPP_YYYYMMDDHHfFFF.grd";
+        } else {
+            goutf = new String(tmp);
+        }
+
+        goutf = goutf.replaceAll("PPPP", param.toLowerCase());
+        goutf = goutf.replaceAll("FFF", fcsthr.substring(1));
+        goutf = PgenUtil.replaceWithDate(goutf, date);
+
+        return goutf;
     }
 
 }
