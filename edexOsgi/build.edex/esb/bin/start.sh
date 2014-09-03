@@ -72,6 +72,7 @@ export SHLIB_PATH=$PROJECT/sharedlib
 ### End AWIPS 1 support ###
 
 export HOSTNAME=`hostname`
+export SHORT_HOSTNAME=`hostname -s`
 
 # set Python & Java into the path
 export PATH=$awips_home/bin:${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:$PATH
