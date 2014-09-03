@@ -28,6 +28,9 @@
 #    06/11/13        #2083         randerso       Log active table changes, save backups
 #    03/06/14        #2883         randerso       Pass siteId into mergeFromJava
 #    03/25/14        #2884         randerso       Added xxxid to VTECChange
+#    06/17/13        #3296         randerso       Moved active table backup and purging 
+#                                                 to a separate thread in java.
+#                                                 Added performance logging
 #
 
 import time
@@ -39,6 +42,10 @@ from java.util import ArrayList
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext_LocalizationType as LocalizationType
 from com.raytheon.uf.common.localization import LocalizationContext_LocalizationLevel as LocalizationLevel
+
+from com.raytheon.uf.common.time.util import TimeUtil
+from com.raytheon.uf.common.status import PerformanceStatus
+perfStat = PerformanceStatus.getHandler("ActiveTable")
 
 class ActiveTable(VTECTableUtil.VTECTableUtil):
     
@@ -60,6 +67,8 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
         changedFlag = False
 
         #delete "obsolete" records from the old table.
+        timer = TimeUtil.getTimer()
+        timer.start()
         vts = VTECTableSqueeze.VTECTableSqueeze(self._time+offsetSecs)
         activeTable, tossRecords = vts.squeeze(activeTable)
         for r in tossRecords:
@@ -67,9 +76,13 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
         del vts
         if len(tossRecords):
             changedFlag = True
+        timer.stop();
+        perfStat.logDuration("updateActiveTable squeeze", timer.getElapsedTime());
 
         #expand out any 000 UGC codes, such as FLC000, to indicate all
         #zones.
+        timer.reset()
+        timer.start()
         newRecExpanded = []
         compare1 = ['phen', 'sig', 'officeid', 'etn', 'pil']
         for newR in newRecords:
@@ -85,11 +98,15 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
             else:
                 newRecExpanded.append(newR)
         newRecords = newRecExpanded
+        timer.stop();
+        perfStat.logDuration("updateActiveTable expand", timer.getElapsedTime());
 
         # match new records with old records, with issue time is different
         # years and event times overlap. Want to reassign ongoing events
         # from last year's issueTime to be 12/31/2359z, rather than the
         # real issuetime (which is this year's).        
+        timer.reset()
+        timer.start()
         compare = ['phen', 'sig', 'officeid', 'pil', 'etn']
         for newR in newRecords:
             cyear = time.gmtime(newR['issueTime'])[0]  #current year issuance time
@@ -106,9 +123,13 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                             "\nNewRec: ", self.printEntry(newR),
                             "OldRec: ", self.printEntry(oldR))
                           newR['issueTime'] = lastYearIssueTime
+        timer.stop();
+        perfStat.logDuration("updateActiveTable match", timer.getElapsedTime());
 
 
         # split records out by issuance year for processing
+        timer.reset()
+        timer.start()
         newRecDict = {}   #key is issuance year
         oldRecDict = {}
         years = []
@@ -126,8 +147,12 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
             oldRecDict[issueYear] = records
             if issueYear not in years:
                 years.append(issueYear)
+        timer.stop();
+        perfStat.logDuration("updateActiveTable split", timer.getElapsedTime());
     
         # process each year
+        timer.reset()
+        timer.start()
         compare = ['id', 'phen', 'sig', 'officeid', 'pil']
 
         for year in years:
@@ -166,8 +191,12 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                     oldR['state'] = "Replaced"
                     changedFlag = True
                 updatedTable.append(oldR)
+        timer.stop();
+        perfStat.logDuration("updateActiveTable process", timer.getElapsedTime());
 
         #always add in the new records (except for ROU)
+        timer.reset()
+        timer.start()
         compare = ['id', 'phen', 'sig', 'officeid', 'pil', 'etn']
         for year in newRecDict.keys():
             newRecords = newRecDict[year]
@@ -199,8 +228,12 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                         rec = (newR['officeid'], newR['pil'], newR['phensig'], newR['xxxid'])
                         if rec not in changes:
                             changes.append(rec)
+        timer.stop();
+        perfStat.logDuration("updateActiveTable add", timer.getElapsedTime());
 
         #filter out any captured text and overviewText if not in the categories
+        timer.reset()
+        timer.start()
         cats = self._getTextCaptureCategories()
         if cats is not None:
             for rec in updatedTable:
@@ -210,6 +243,8 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                     if rec.has_key('overviewText'):
                         del rec['overviewText']
 
+        timer.stop();
+        perfStat.logDuration("updateActiveTable filter", timer.getElapsedTime());
         return updatedTable, tossRecords, changes, changedFlag
 
     # time overlaps, if tr1 overlaps tr2 (adjacent is not an overlap)
@@ -250,35 +285,35 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
         return outTable, purgedRecords, changes, changedFlag
 
 def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
+    perfStat.log("mergeFromJava called for site: %s, activeTable: %d , newRecords: %d" %
+                 (siteId, activeTable.size(), newRecords.size()))
+    timer = TimeUtil.getTimer()
+    timer.start()
     pyActive = []
     szActive = activeTable.size()
     for i in range(szActive):
         pyActive.append(ActiveTableRecord.ActiveTableRecord(activeTable.get(i)))
     
-    decoderSites = VTECPartners.VTEC_DECODER_SITES
-    decoderSites.append(VTECPartners.get4ID(siteId))
-    decoderSites.append(VTECPartners.VTEC_SPC_SITE)
-    decoderSites.append(VTECPartners.VTEC_TPC_SITE)
-    
-    backup = False
     pyNew = []
     szNew = newRecords.size()
     for i in range(szNew):
         rec = ActiveTableRecord.ActiveTableRecord(newRecords.get(i))
-        if rec['officeid'] in decoderSites:
-            backup = True
         pyNew.append(rec)
     
     active = ActiveTable(mode)
     
-    if backup:
-        oldActiveTable = active._convertTableToPurePython(pyActive, siteId)
-        active.saveOldActiveTable(oldActiveTable)
-        pTime = getattr(VTECPartners, "VTEC_BACKUP_TABLE_PURGE_TIME",168)
-        active.purgeOldSavedTables(pTime)
+    logger.info("Updating " + mode + " Active Table: new records\n" +
+       active.printActiveTable(pyNew, combine=1))
+
+    timer.stop()
+    perfStat.logDuration("mergeFromJava preprocess", timer.getElapsedTime());
     
     updatedTable, purgeRecords, changes, changedFlag = active.activeTableMerge(pyActive, pyNew, offsetSecs)
+    perfStat.log("mergeFromJava activeTableMerge returned updateTable: %d, purgeRecords: %d, changes: %d" %
+                 (len(updatedTable), len(purgeRecords), len(changes)))
     
+    timer.reset()
+    timer.start()
     logger.info("Updated " + mode + " Active Table: purged\n" +
        active.printActiveTable(purgeRecords, combine=1))
 
@@ -298,15 +333,15 @@ def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
     logger.info("Updated " + mode + " Active Table: decoded\n" +
        active.printActiveTable(decoded, combine=1))
 
-    updatedList = ArrayList()
+    updatedList = ArrayList(len(updatedTable))
     for x in updatedTable:
         updatedList.add(x.javaRecord())
     
-    purgedList = ArrayList()
+    purgedList = ArrayList(len(purgeRecords))
     for x in purgeRecords:
         purgedList.add(x.javaRecord())
     
-    changeList = ArrayList()
+    changeList = ArrayList(len(changes))
     if (changedFlag):
         from com.raytheon.uf.common.activetable import VTECChange
         for c in changes:
@@ -314,4 +349,6 @@ def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
 
     from com.raytheon.uf.common.activetable import MergeResult
     result = MergeResult(updatedList, purgedList, changeList)
+    timer.stop()
+    perfStat.logDuration("mergeFromJava postprocess", timer.getElapsedTime());
     return result
