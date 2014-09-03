@@ -33,6 +33,7 @@ import java.util.List;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 16, 2014 3419       jsanchez     Initial creation
+ * Aug 28, 2014 ASM #15658 D. Friedman  Add marine zone list.
  * 
  * </pre>
  * 
@@ -57,6 +58,8 @@ public class Watch {
     private String state;
 
     private List<String> partOfState;
+
+    private List<String> marineAreas;
 
     public Watch(String state, String action, String phenSig, String etn,
             Date startTime, Date endTime) {
@@ -130,6 +133,14 @@ public class Watch {
 
     public void setEtn(String etn) {
         this.etn = etn;
+    }
+
+    public List<String> getMarineAreas() {
+        return marineAreas;
+    }
+
+    public void setMarineAreas(List<String> marineAreas) {
+        this.marineAreas = marineAreas;
     }
 
     @Override
