@@ -103,6 +103,10 @@ import com.vividsolutions.jts.geom.LineString;
  *  04-07-2014  DR 17232   D. Friedman Make sure pivot indexes are valid.
  *  04-24-2014  DR 16356   Qinglu Lin  Updated generateTrackInfo(), generateNewTrackInfo(),
  *                                     and createTrack().
+ *  06-03-14    3191       njensen     Fix postData to not retrieve
+ *  06-17-2014  DR17409 mgamazaychikov Fix futurePoints calculation in generateNewTrackInfo()
+ *                                     and generateExistingTrackInfo()
+ *  08-21-2014  DR 15700   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
  * 
  * </pre>
  * 
@@ -690,9 +694,6 @@ public class StormTrackDisplay implements IRenderable {
         }
 
         if (state.geomChanged) {
-            if (cachedTrack != null) {
-                cachedTrack.dispose();
-            }
             if (StormTrackState.trackType.equals("lineOfStorms") && state.justSwitchedToLOS) {
                 GeodeticCalculator gc = new GeodeticCalculator();
                 Coordinate[] coords = state.dragMeGeom.getCoordinates();
@@ -701,9 +702,16 @@ public class StormTrackDisplay implements IRenderable {
                         coords[coords.length - 1].y);
                 state.angle = adjustAngle(gc.getAzimuth() - 90);
             }
-            generateTrackInfo(state, paintProps);
-            if (state.mode == Mode.TRACK) {
-                createTrack(target, paintProps);
+            DataTime frameTime = paintProps.getDataTime();
+            if (frameTime != null) {
+                if (cachedTrack != null) {
+                    cachedTrack.dispose();
+                }
+                generateTrackInfo(state, paintProps, frameTime);
+                if (state.mode == Mode.TRACK) {
+                    createTrack(target, paintProps);
+                }
+                state.geomChanged = false;
             }
             state.geomChanged = false;
         }
@@ -724,7 +732,7 @@ public class StormTrackDisplay implements IRenderable {
      * @param currentState
      */
     private void generateTrackInfo(StormTrackState currentState,
-            PaintProperties paintProps) throws VizException {
+            PaintProperties paintProps, DataTime frameTime) throws VizException {
         int frameCount = trackUtil.getFrameCount(paintProps.getFramesInfo());
         int currFrame = trackUtil.getCurrentFrame(paintProps.getFramesInfo());
         try {
@@ -737,7 +745,6 @@ public class StormTrackDisplay implements IRenderable {
                         && currentState.timePoints.length != frameCount) {
                     // need to set theAnchorPoint and theAnchorIndex here
                     // because timePoints get erased before we get to updateAnchorPoint
-                    DataTime frameTime = paintProps.getDataTime();
                     for (int j=0;j<currentState.timePoints.length;j++){
                         if (frameTime.equals(currentState.timePoints[j].time)) {
                             theAnchorPoint = currentState.timePoints[j].coord;
@@ -784,7 +791,7 @@ public class StormTrackDisplay implements IRenderable {
                 generateNewTrackInfo(currentState, currFrame, paintProps);
                 currentDisplayedTimes = trackUtil.getDataTimes(paintProps
                         .getFramesInfo());
-                generateTrackInfo(currentState, paintProps);
+                generateTrackInfo(currentState, paintProps, frameTime);
             } else {
 
                 if (currentState.pointMoved) {
@@ -938,7 +945,7 @@ public class StormTrackDisplay implements IRenderable {
         // time, the arrow of the pathcast is drawn behind the last frame
         if (state.duration >= 0) {
             for (int i = 1; i < futurePoints.length - (remainder == 0 ? 0 : 1); ++i) {
-                timeInMillis += minIntervalInSeconds * 1000;
+                timeInMillis += interval * 60 * 1000;
                 DataTime time = new DataTime(new Date(timeInMillis));
 
                 double distance = speed
@@ -1095,7 +1102,7 @@ public class StormTrackDisplay implements IRenderable {
         // time, the arrow of the pathcast is drawn behind the last frame
         if (state.duration >= 0) {
             for (int i = 1; i < futurePoints.length - (remainder == 0 ? 0 : 1); ++i) {
-                timeInMillis += minIntervalInSeconds * 1000;
+                timeInMillis += interval * 60 * 1000;
                 DataTime time = new DataTime(new Date(timeInMillis));
 
                 double distance = speed
@@ -1437,7 +1444,7 @@ public class StormTrackDisplay implements IRenderable {
     }
 
     private void postData(StormTrackState state) {
-        StormTrackData data = dataManager.getStormTrackData();
+        StormTrackData data = new StormTrackData();
         Coordinate[] coords = new Coordinate[state.timePoints.length];
         for (int i = 0; i < coords.length; ++i) {
             coords[i] = new Coordinate(state.timePoints[i].coord);
