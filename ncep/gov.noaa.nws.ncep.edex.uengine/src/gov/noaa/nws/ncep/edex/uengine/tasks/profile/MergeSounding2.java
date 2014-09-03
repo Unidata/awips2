@@ -56,6 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 8/2012					T. Lee/NCEP	Removed missing wind interpolation 
  * 8/2012					T. Lee/NCEP	Fixed max wind merging; May fix NSHARP EL calculation
  * 5/2014                   T. Lee/NCEP Fixed wind interpolation
+ * 08/26/2014               Chin Chen  index out of bound bug
  * </pre>
  * 
  * @author T. Lee
@@ -2260,9 +2261,9 @@ public class MergeSounding2 implements ISerializableObject {
 
         int sndataSize = sndata.size();
         if (sndata == null
+                || sndataSize <= 1
                 || (sndata.get(0).getPressure() != null && (!sndata.get(0)
-                        .getPressure().hasValidValue())) || man.size() < 1
-                || sndataSize <= 1) {
+                        .getPressure().hasValidValue())) || man.size() < 1) {
             return sndata;
         }
 
