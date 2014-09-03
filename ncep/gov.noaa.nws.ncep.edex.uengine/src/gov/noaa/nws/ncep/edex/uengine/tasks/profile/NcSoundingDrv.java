@@ -30,6 +30,7 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * 03/28/2012               Chin Chen   modify Grid data sounding query algorithms for better performance
  * 06/25/2014               Chin Chen    support dropsonde
  * 07/23/2014               Chin Chen    Support PW
+ * 08/26/2014               Chin Chen  index out of bound bug
  * </pre>
  *  Python Script example to query multiple locations at one request:
  *  The following 3 query examples, returns same results.
@@ -1216,7 +1217,7 @@ public class NcSoundingDrv {
                                 pf.setSoundingLyLst2(sls);
                                 // System.out.println("sls set to the sounding profile");
                             } else if (ms.isNumber(level) >= 0) {
-                                if (sls.size() == 1) {
+                                if (sls != null && sls.size() == 1) {
                                     // System.out.println("NcUair get one layer using level = "+
                                     // level);
                                     pf.setSoundingLyLst2(sls);
@@ -1226,7 +1227,8 @@ public class NcSoundingDrv {
                                     // level);
                                 }
                             } else {
-                                if (sls.isEmpty() || sls.size() <= 1) {
+                                if (sls != null
+                                        && (sls.isEmpty() || sls.size() <= 1)) {
                                     pf = null;
                                     // System.out.println("not MAN level &  sls is empty or 1");
                                 } else {
@@ -1242,7 +1244,11 @@ public class NcSoundingDrv {
                                         ttcc, ttdd, ppaa, ppbb, ppcc, ppdd,
                                         trop_a, trop_c, wmax_a, wmax_c,
                                         pf.getStationElevation());
-                                pf.setPw(NcSoundingTools.precip_water2(sls2));
+                                if (sls2 != null && sls2.size() > 0)
+                                    pf.setPw(NcSoundingTools
+                                            .precip_water2(sls2));
+                                else
+                                    pf.setPw(-1);
 
                                 // System.out.println("2nd merge call: lat/lon="
                                 // + pf.getStationLatitude());
@@ -2042,8 +2048,8 @@ public class NcSoundingDrv {
                                 ttdd, ppaa, ppbb, ppcc, ppdd, trop_a, trop_c,
                                 wmax_a, wmax_c, pf.getStationElevation());
                         // PW Support test
-                        float pw = NcSoundingTools.precip_water(sls);
-                        pf.setPw(pw);
+                        // float pw = NcSoundingTools.precip_water(sls);
+                        // pf.setPw(pw);
                         // end PW Support test
                         // System.out.println("NCUAIR Number of Layers after merge:"+sls.size()
                         // + " level="+level +
