@@ -50,6 +50,39 @@
            <displayUnits>ft</displayUnits>
        </imageStyle>
     </styleRule>
+
+<!-- HRRR -->
+<styleRule>
+  <paramLevelMatches>
+    <parameter>MaxWHRRR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <displayUnits>kts</displayUnits>
+    <defaultColormap>Grid/gridded data</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+    <creatingEntity>HRRR</creatingEntity>
+    <parameter>CPOFP</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <interpolate>false</interpolate>
+    <displayUnits>%</displayUnits>
+    <range scale="LINEAR">
+      <minValue>-50</minValue>
+      <maxValue>100</maxValue>
+    </range>
+    <defaultColormap>Grid/gridded data</defaultColormap>
+    <dataMapping>
+      <entry pixelValue="-50.0" operator="=" label="" />
+      <entry pixelValue="0" operator="&gt;" displayValue='0.0' />
+      <entry pixelValue="25" operator="&gt;" displayValue='25.0' />
+      <entry pixelValue="50" operator="&gt;" displayValue='50.0' />
+      <entry pixelValue="75" operator="&gt;" displayValue='75.0' />
+    </dataMapping>
+  </imageStyle>
+</styleRule>
 	<!--
 		* GH, GHxSM, Topo, zAGL
 		km  | 0.001 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
@@ -4472,6 +4505,7 @@
 			<creatingEntity>HiResW-ARW-AK</creatingEntity>
 			<creatingEntity>HiResW-ARW-PR</creatingEntity>
 			<creatingEntity>HiResW-ARW-SJU</creatingEntity>
+                        <creatingEntity>HRRR</creatingEntity>
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits label="g/kg/12hr">((g/kg)/(h*12))*-0.001</displayUnits>
@@ -4846,6 +4880,7 @@
             <creatingEntity>HiResW-ARW-AK</creatingEntity>
             <creatingEntity>HiResW-ARW-PR</creatingEntity>
             <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+            <creatingEntity>HRRR</creatingEntity>
         </paramLevelMatches>
         <imageStyle>
             <displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
@@ -4871,6 +4906,7 @@
             <creatingEntity>HiResW-ARW-AK</creatingEntity>
             <creatingEntity>HiResW-ARW-PR</creatingEntity>
             <creatingEntity>HiResW-ARW-SJU</creatingEntity>
+            <creatingEntity>HRRR</creatingEntity>
             <parameter>AV</parameter>
             <parameter>Tdef</parameter>
             <parameter>geoVort</parameter>
