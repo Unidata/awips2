@@ -80,6 +80,8 @@ public class NcSoundingTools {
     public static float precip_water2(List<NcSoundingLayer2> sndlayers) {
         float pw = 0;
         float d1, p1, d2, p2, tot, w1, w2, wbar;
+        if (sndlayers == null || sndlayers.size() <= 0)
+            return 0;
         // ----- Start with interpolated bottom layer -----
         // find surface layer or first layer with valid dewpoint
         int sfcIndex = 0;
