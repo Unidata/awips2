@@ -35,7 +35,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -52,7 +51,6 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
-import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -96,7 +94,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *      Mar 21, 2013       1638     mschenke    Changed map scales not tied to d2d
  *      Aug  9, 2013   DR 16427     D. Friedman Swap additional input handlers.
  *      Oct 10, 2013    #2104       mschenke    Switched to use MapScalesManager
- *      
+ *      Jul 15, 2014     2954       njensen     Updated init() for MapScalesManager change
+ * 
  * </pre>
  * 
  * @author chammack
@@ -141,18 +140,8 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
         String myId = site.getId() + UiUtil.SECONDARY_ID_SEPARATOR
                 + site.getSecondaryId();
 
-        for (ManagedMapScale scale : MapScalesManager.getInstance()
-                .getScalesForPart(myId)) {
-            try {
-                Bundle b = scale.getScaleBundle();
-                b.setView(myId);
-                bundleToLoad = b;
-            } catch (SerializationException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error deserializing bundle for scale: " + scale, e);
-            }
-            break;
-        }
+        bundleToLoad = MapScalesManager.getInstance().getScaleBundleForPart(
+                myId);
     }
 
     @Override
@@ -284,6 +273,7 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
      * 
      * @see com.raytheon.viz.core.IDisplayPaneContainer#getActiveDisplayPane()
      */
+    @Override
     public IDisplayPane getActiveDisplayPane() {
         return paneManager.getActiveDisplayPane();
     }
@@ -774,15 +764,18 @@ public class SideView extends ViewPart implements IMultiPaneEditor,
             ISelectedPanesChangedListener listener) {
     }
 
+    @Override
     public void registerMouseHandler(IInputHandler handler,
             InputPriority priority) {
         paneManager.registerMouseHandler(handler, priority);
     }
 
+    @Override
     public void registerMouseHandler(IInputHandler handler) {
         paneManager.registerMouseHandler(handler);
     }
 
+    @Override
     public void unregisterMouseHandler(IInputHandler handler) {
         paneManager.unregisterMouseHandler(handler);
     }
