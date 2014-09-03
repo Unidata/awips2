@@ -17,6 +17,7 @@
 void cavesars(float *, float *, float * , float *, float *, float *, float *, float *, float *, int *, float *, float *, float *, float *, char *[15], float *[15], char *[80],int *);
 void cavespnsharp(float *, float *, float * , float *, float *, float *, int *, float *, float *, char *[15], float *[15], char *[80],
 float *, float *, float *,int *);
+void sars(float *, float *, float * , float *, float *, float *, float *, float *, float *, int *, float *, float *, float *, float *, char *[15], float *[15], char *[80]);
 
 /*
  * In Cave: parameters are defined dynamically in  "populateSndgDataStatic()" in this file. Its index are defined
@@ -1386,7 +1387,7 @@ void draw_Clouds( struct  cloudInfoStr *cloudStr )
 						epsub=s2;
 						/* Now work downward till you get moistening with height */
 						/* Do this until you reach lowest level of this condition */
-						;
+
 						while(i>1 && ! basefound) {
 							i--;
 							s1=i-1;
@@ -1449,7 +1450,7 @@ void getWinterInfo( WinterInfoStr * winterInfo )
  * by John Hart  NSSFC KCMO
  * Chin: Rewrite code to get all computed parameters/string for
  * CAVE.
- * All original BigNsharp plotting are removed.
+ * All original BigNsharp plotting code are removed.
  *************************************************************/
 {
 	float ix1, ix2;
@@ -1919,6 +1920,31 @@ void getSarsInfo(SarsInfoStr * sarsInfo)
 		srh3 = helicity(p_bot, p_top, st_dir, st_spd, &ix2, &ix3);
 		srh1 = helicity(p_bot, p_top, st_dir, st_spd, &ix2, &ix3);
 	}
+	//testing
+	//strcpy(sars_filename, "                                                                                ");
+	//strcpy(sars_filename, "/export/cdbsrv/cchen/Desktop/bigsharp9-original/nlist.txt");
+	//sars(&mumixr, &mucp, &t500, &lr75, &shr6, &shr9, &shr3, &ship, &srh3, &nsndgs, &matches, &p1, &avsize, &matches2, sndglist, &haillist, &sars_filename);
+
+	/* printf("Beginning SARS\n");
+	        printf("mumixr = %f\n", mumixr);
+	        printf("mucape = %f\n", pcl.bplus);
+	        printf("500mb T= %f\n", t500);
+	        printf("7-5LR  = %f\n", lr75);
+	        printf("6km Shr= %f\n", (shr6));
+	        printf("9km Shr= %f\n", (shr9));
+	        printf("3km Shr= %f\n", (shr3));
+	        printf("SHIP   = %f\n", ship);
+	        printf("3km SRH= %f\n", srh3);
+	        mumixr = 19.864223;
+	        mucp = 3418.802246;
+	        t500 = -7.900000;
+	        lr75  = 6.390109;
+	        shr6 = 8.360152;
+	        shr9 = 2.715063;
+	        shr3 = 5.331263;
+	        ship   = 0.231839;
+	        srh3 = 39.898941;*/
+	//end testing
 
 	cavesars(&mumixr, &mucp, &t500, &lr75, &shr6, &shr9, &shr3, &ship, &srh3, &nsndgs, &matches, &p1, &avsize, &matches2, sndglist, &haillist, &sars_filename,&totalsndgs);
 	// hail match strings...on right side of graphs
@@ -1960,20 +1986,18 @@ void getSarsInfo(SarsInfoStr * sarsInfo)
 
 	//----- Plot Hail SARS Result -----
 	p2 = 100.0 - p1;
+	strcpy(st1, "No Matches");
+	sarsInfo->hailStrColor[10]=(31);
+	sarsInfo->hailStrColor[11]=(31);
 	if (matches>0){
 		sarsInfo->hailStrColor[10]=(31);
 		sarsInfo->hailStrColor[11]=(31);
 		strcpy(st1, "Non-sig Hail");
 	}
-	else if (p1>=50){
+	if (p1>=50){
 		sarsInfo->hailStrColor[10]= 12;
 		sarsInfo->hailStrColor[11]=12;
 		strcpy(st1, "**SIG HAIL!**");
-	}
-	else {
-		strcpy(st1, "No Matches");
-		sarsInfo->hailStrColor[10]=(31);
-		sarsInfo->hailStrColor[11]=(31);
 	}
 	if ((p1>=50) || (p1<50 && matches>0))
 	{
@@ -1984,6 +2008,7 @@ void getSarsInfo(SarsInfoStr * sarsInfo)
 	}
 
 	sprintf( sarsInfo->hailStr[11], "SARS:  %s  (%.0f%s SIG)", st1, p1, "%");
+
 
 	//Supercell match plot on left side of graph
 	//fromhere....
