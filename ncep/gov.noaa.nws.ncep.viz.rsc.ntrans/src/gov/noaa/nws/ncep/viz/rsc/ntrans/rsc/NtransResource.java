@@ -1,7 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.ntrans.rsc;
 
 import gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransRecord;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -65,6 +64,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *                                      (instead of waiting for ANCR.paintInternal() to do it) so
  *                                      long CGM retrieval and parsing is done by the InitJob, and thus
  *                                      (1) user sees "Initializing..." and (2) GUI doesn't lock up
+ * 29 Aug 2014              B. Hebbard  Remove time string and "/" separator from legend
  * 
  * 
  * </pre>
@@ -302,7 +302,8 @@ public class NtransResource extends
             legendStr = " "
                     + ntransResourceData.getMetadataMap().get("metafileName")
                             .getConstraintValue()
-                    + " / "
+                    + "  "
+                    // + " / "
                     + ntransResourceData.getMetadataMap().get("productName")
                             .getConstraintValue();
         }
@@ -513,7 +514,7 @@ public class NtransResource extends
                 || fd.pictureInfo.cgm == null) {
             return legendStr + "-No Data";
         }
-        return legendStr + " "
-                + NmapCommon.getTimeStringFromDataTime(fd.getFrameTime(), "/");
+        return legendStr; // + " "
+        // + NmapCommon.getTimeStringFromDataTime(fd.getFrameTime(), "/");
     }
 }
