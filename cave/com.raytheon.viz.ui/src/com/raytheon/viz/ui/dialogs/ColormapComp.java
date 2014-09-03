@@ -26,11 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -44,19 +42,20 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
-import com.raytheon.uf.viz.core.drawables.ColorMapTree;
-import com.raytheon.uf.viz.core.drawables.ColorMapTreeFactory;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.viz.ui.colormap.ColorMapTree;
+import com.raytheon.viz.ui.colormap.ColorMapTreeFactory;
+import com.raytheon.viz.ui.colormap.ILevelMapsCallback;
+import com.raytheon.viz.ui.colormap.IRefreshColorMapTreeListener;
 
 /**
  * Cascading control for colormaps
@@ -68,6 +67,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
  * ------------- -------- ----------- --------------------------
  * Jul 26, 2010           mschenke    Initial creation
  * Sep 18, 2013  2421     bsteffen    Use ColorMapTree for asyncronous loading.
+ * Aug 28, 2014  3616     rferrel     Display ColorMapTree status while creating off
+ *                                      the UI thread; and added refresh item.
  * 
  * </pre>
  * 
@@ -136,7 +137,7 @@ public class ColormapComp {
         this.cap = cap;
     }
 
-    public void refreshItems() {
+    public void initItems() {
         if (cmapPopupMenu != null) {
             cmapPopupMenu.dispose();
         }
@@ -151,8 +152,12 @@ public class ColormapComp {
         }
 
         cmapPopupMenu.setVisible(false);
-        cmapPopupMenu.addMenuListener(new MenuPopulator(cmapPopupMenu,
-                ColorMapTreeFactory.getBaseTree()));
+        cmapPopupMenu.addMenuListener(new MenuPopulator(cmapPopupMenu, null));
+    }
+
+    public void initializeComponents(Shell shell) {
+        this.shell = shell;
+        initializeComponents();
     }
 
     /**
@@ -165,6 +170,31 @@ public class ColormapComp {
             gd.widthHint = 250;
             cmapButton.setLayoutData(gd);
 
+            /**
+             * Add listeners and when needed set up removal.
+             */
+            final IRefreshColorMapTreeListener riListener = new IRefreshColorMapTreeListener() {
+
+                @Override
+                public void refreshColorMapTree() {
+                    if (!cmapButton.isDisposed()) {
+                        initItems();
+                    }
+                }
+            };
+
+            shell.addDisposeListener(new DisposeListener() {
+
+                @Override
+                public void widgetDisposed(DisposeEvent e) {
+                    ColorMapTreeFactory.getInstance()
+                            .removeRefreshItemsListener(riListener);
+                }
+            });
+
+            ColorMapTreeFactory.getInstance().addRefreshItemsListener(
+                    riListener);
+
             cmapButton.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -175,7 +205,7 @@ public class ColormapComp {
                 }
             });
         }
-        refreshItems();
+        initItems();
     }
 
     public Menu getMenu() {
@@ -212,17 +242,15 @@ public class ColormapComp {
      * is also an eclipse Job that will automatically try to prefetch some
      * information from the tree for faster population.
      */
-    private class MenuPopulator extends Job implements MenuListener {
+    private class MenuPopulator implements MenuListener {
 
         private final Menu menu;
 
-        private final ColorMapTree tree;
+        private ColorMapTree tree;
 
         public MenuPopulator(Menu menu, ColorMapTree tree) {
-            super("Loading Color Maps");
             this.menu = menu;
             this.tree = tree;
-            schedule();
         }
 
         @Override
@@ -230,29 +258,24 @@ public class ColormapComp {
             /* Do Nothing */
         }
 
-        /**
-         * Get all the subTrees that will be displayed and call
-         * optimizeIsEmpty(). isEmpty() is usually the slowest operation in
-         * menuShown because it can go recursive. optimizeIsEmpty ensures that
-         * future calls(from menuShown) are as fast as possible.
-         */
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            for (ColorMapTree subTree : tree.getSubTrees()) {
-                subTree.optimizeIsEmpty();
-            }
-            for (ColorMapTree subTree : getLevelTrees()) {
-                subTree.optimizeIsEmpty();
-            }
-            return Status.OK_STATUS;
-        }
-
-        /**
+        /*
          * Fill the menu with items from the tree. Always create menus at the
-         * top even if there are other items
+         * top even if there are empty trees.
          */
         @Override
         public void menuShown(MenuEvent e) {
+
+            /*
+             * When null assume base tree is needed. This allows any dialog
+             * display to come up without the delay of creating the base tree.
+             */
+            if (tree == null) {
+                shell.setCursor(shell.getDisplay().getSystemCursor(
+                        SWT.CURSOR_WAIT));
+                tree = ColorMapTreeFactory.getInstance().getBaseTree();
+                shell.setCursor(null);
+            }
+
             int index = 0;
             List<ColorMapTree> subTrees = tree.getSubTrees();
             Collections.sort(subTrees, new Comparator<ColorMapTree>() {
@@ -282,12 +305,91 @@ public class ColormapComp {
                 addFile(file, index++);
             }
 
-            for (ColorMapTree subTree : getLevelTrees()) {
-                if (!subTree.isEmpty()) {
-                    addSubTree(subTree, index++);
+            if (menu == cmapPopupMenu) {
+                new MenuItem(menu, SWT.SEPARATOR, index++);
+                final int startLevelIndex = index;
+
+                /*
+                 * Place holders for levels in order to display properly in the
+                 * color bar popup menu.
+                 */
+                for (LocalizationLevel level : ColorMapTreeFactory
+                        .getInstance().getTreesLevelLocalization()) {
+                    MenuItem mi = new MenuItem(menu, SWT.NONE, index++);
+                    mi.setText(level.name());
+                }
+
+                ColorMapTreeFactory.getInstance().updateLevelMapsCallack(
+                        new ILevelMapsCallback() {
+                            @Override
+                            public void treeCreated(
+                                    final LocalizationLevel level,
+                                    final ColorMapTree tree) {
+                                /*
+                                 * VizApp.runAsync does not update the menu item
+                                 * correctly when parent is a menu instead of a
+                                 * button.
+                                 */
+                                VizApp.runSync(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        updateMenu(startLevelIndex, level, tree);
+                                    }
+                                });
+                            }
+                        });
+            } else {
+                for (ColorMapTree subTree : getLevelTrees()) {
+                    if (!subTree.isEmpty()) {
+                        addSubTree(subTree, index++);
+                    }
                 }
             }
             menu.removeMenuListener(this);
+        }
+
+        /**
+         * Update/Add menu item for a level entry with the associated tree.
+         * Assume running on the UI thread.
+         * 
+         * @param startLevelIndex
+         * @param level
+         * @param tree
+         *            - When null generate unknown place holder
+         */
+        private void updateMenu(int startLevelIndex, LocalizationLevel level,
+                ColorMapTree tree) {
+            if (menu.isDisposed()) {
+                return;
+            }
+            int index = startLevelIndex;
+            MenuItem mi = null;
+            String name = level.name();
+            while (index < menu.getItemCount()) {
+                mi = menu.getItem(index);
+                if (mi.getText().startsWith(name)) {
+                    break;
+                }
+                ++index;
+            }
+            if (index == menu.getItemCount()) {
+                mi = new MenuItem(menu, SWT.NONE);
+            }
+
+            if (tree == null) {
+                mi.setText(name + " ???");
+            } else if (tree.isEmpty()) {
+                mi.setText(name + " ---");
+                Menu miMenu = mi.getMenu();
+                if (miMenu != null) {
+                    miMenu.dispose();
+                    mi.setMenu(null);
+                }
+            } else {
+                mi.dispose();
+                addSubTree(tree, index);
+            }
         }
 
         /**
@@ -299,15 +401,11 @@ public class ColormapComp {
         private List<ColorMapTree> getLevelTrees() {
             if (menu == cmapPopupMenu) {
                 List<ColorMapTree> trees = new ArrayList<ColorMapTree>();
-                IPathManager pm = PathManagerFactory.getPathManager();
-                LocalizationLevel[] levels = pm.getAvailableLevels();
+                ColorMapTreeFactory cmtf = ColorMapTreeFactory.getInstance();
+                LocalizationLevel[] levels = cmtf.getTreesLevelLocalization();
                 for (LocalizationLevel level : levels) {
-                    if (level != LocalizationLevel.BASE) {
-                        ColorMapTree tree = ColorMapTreeFactory
-                                .getTreeForLevel(level);
-                        trees.add(tree);
-
-                    }
+                    ColorMapTree tree = cmtf.getTreeForLevel(level);
+                    trees.add(tree);
                 }
                 return trees;
             } else {
@@ -319,6 +417,7 @@ public class ColormapComp {
             MenuItem item = new MenuItem(menu, SWT.CASCADE, index);
             item.setText(tree.getName());
             Menu subMenu = new Menu(shell, SWT.DROP_DOWN);
+            subMenu.setData(tree.getName());
             item.setMenu(subMenu);
             subMenu.addMenuListener(new MenuPopulator(subMenu, tree));
         }
