@@ -348,7 +348,7 @@ public class NsharpConstants {
 
     // horizontal height line that will be drawn.
     public static final int[] HEIGHT_LEVEL_METERS = {/* 16000, */15000, 12000,
-            9000, 6000, 3000, 2000 };
+            9000, 6000, 3000, 1000 };
 
     public static final int[] HEIGHT_LEVEL_FEET = { 50000, 45000, 40000, 35000,
             30000, 25000, 20000, 15000, 10000, 5000, 2500 };

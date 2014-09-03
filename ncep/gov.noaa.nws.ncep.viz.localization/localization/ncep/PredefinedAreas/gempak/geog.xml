@@ -11,7 +11,9 @@
 
      Important Note: all entries here will be loaded at CAVE startup so it may take longer for CAVE to start
      up if too many entries are included here. For a faster startup, make sure only the items listed in 
-     AreaMenus.xml as "GEMPAK" sub-menu entries are activated here (uncommented).     
+     AreaMenus.xml as "GEMPAK" sub-menu entries are activated here (uncommented).  
+     
+     US and SPCUS should be activated for Graph-to-Grid. 
 -->
 
 <!--
@@ -1238,7 +1240,7 @@
           <upper_right_lon>-15.00</upper_right_lon>
           <map_projection_string> MER</map_projection_string>
      </geographical_data>
-
+-->
      <geographical_data>
           <geog_code>US</geog_code>
           <geog_area_name>UNITED STATES     </geog_area_name>
@@ -1262,7 +1264,7 @@
           <upper_right_lon>-63.90</upper_right_lon>
           <map_projection_string> STR/90;-97;0</map_projection_string>
      </geographical_data>
-
+<!-- 
      <geographical_data>
           <geog_code>AFUS</geog_code>
           <geog_area_name>AFOS US           </geog_area_name>
