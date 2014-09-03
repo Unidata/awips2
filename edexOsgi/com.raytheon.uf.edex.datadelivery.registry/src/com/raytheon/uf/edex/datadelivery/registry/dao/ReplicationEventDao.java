@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.registry.federation.ReplicationEvent;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 2/19/2014    2769       bphillip    Initial Creation
+ * 8/27/2014    3560       bphillip    Added query by event time method   
  * </pre>
  * 
  * @author bphillip
@@ -45,7 +46,12 @@ import com.raytheon.uf.edex.datadelivery.registry.federation.ReplicationEvent;
 public class ReplicationEventDao extends
         SessionManagedDao<Long, ReplicationEvent> {
 
-    private static final String GET_REPLICATION_EVENT_QUERY = "from ReplicationEvent event where (event.source is null or event.source != '%s') and (event.replicatedTo is null or event.replicatedTo not like '%%%s%%') order by event.eventTime asc";
+    private static final String GET_REPLICATION_EVENT_QUERY = "from ReplicationEvent event " +
+    		"where (event.source is null or event.source != :source) " +
+    		"and (event.replicatedTo is null or event.replicatedTo not like :registry) " +
+    		"order by event.eventTime asc";
+    
+    private static final String GET_EVENTS_BY_TIME = "from ReplicationEvent event where event.eventTime < :eventTime";
 
     @Override
     protected Class<ReplicationEvent> getEntityClass() {
@@ -54,7 +60,11 @@ public class ReplicationEventDao extends
 
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public List<ReplicationEvent> getReplicationEvents(String remoteRegistry, int batchSize) {
-        return this.executeHQLQuery(String.format(GET_REPLICATION_EVENT_QUERY,
-                remoteRegistry, remoteRegistry),batchSize);
+        return this.executeHQLQuery(GET_REPLICATION_EVENT_QUERY,batchSize,
+                "source", remoteRegistry, "registry", "%"+remoteRegistry+"%");
+    }
+    
+    public List<ReplicationEvent> getEventsBeforeTime(String time){
+    	return this.executeHQLQuery(GET_EVENTS_BY_TIME, "eventTime", time);
     }
 }
