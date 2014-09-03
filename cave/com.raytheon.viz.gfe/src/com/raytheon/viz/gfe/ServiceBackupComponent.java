@@ -35,6 +35,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Oct 26, 2012 1287       rferrel     Change to force blocking of ServiceBackupDlg.
  * Mar 21, 2013 1447       dgilling    Fix dialog construction so this dialog
  *                                     is created as a top-level shell.
+ * Jun 11, 2014 DR-17401    lshi                              
  * 
  * </pre>
  * 
@@ -54,8 +55,11 @@ public class ServiceBackupComponent extends AbstractCAVEComponent {
     @Override
     protected void startInternal(String componentName) throws Exception {
         ServiceBackupDlg svcBuDlg = new ServiceBackupDlg(null);
-        svcBuDlg.setBlockOnOpen(true);
-        svcBuDlg.open();
+        if (!svcBuDlg.isTerminated())
+        {
+        	svcBuDlg.setBlockOnOpen(true);
+        	svcBuDlg.open();
+        }
     }
 
     /*

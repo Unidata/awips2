@@ -84,6 +84,7 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -95,7 +96,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 04/21/2008	387        M. Duff     Initial Version.
+ * 04/21/2008   387        M. Duff     Initial Version.
  * 06/02/2008   1166       M. Duff     Added checks for null data objects.
  * 22Jul2008    1277       MW Fegan    Use CoreDao in checkIngest().
  * 10/16/2008   1548       jelkins     Integrated ParameterCode Types and misc fixes
@@ -120,6 +121,12 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 04/24/2014   16904      lbousaidi   gross check should be applied to adjusted value.  
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  *                                     Updated with more performance fixes.
+ * 05/28/2014   3222       mpduff      Fix posting time to be processed time so db doesn't show all post times the same
+ * 06/02/2014              mpduff      Fix for caching of range checks.
+ * 06/26/2014   3321       mpduff      Fix ingestSwitchMap checks
+ * 07/10/2014   3370       mpduff      Fix update/insert issue for riverstatus
+ * 07/14/2014              mpduff      Fix data range checks
+ * 08/05/2014   15671      snaples     Fixed check for posting when not found in ingestfilter and token is set for load_shef_ingest
  * </pre>
  * 
  * @author mduff
@@ -225,7 +232,7 @@ public class PostShef {
     private Map<String, ShefAdjustFactor> adjustmentMap = new HashMap<String, ShefAdjustFactor>();
 
     /** Map of location identifier to IngestSwitch */
-    private Map<String, IngestSwitch> ingestSwitchMap = new HashMap<String, IngestSwitch>();
+    private Map<IngestfilterId, IngestSwitch> ingestSwitchMap = new HashMap<IngestfilterId, IngestSwitch>();
 
     // AppsDefaults tokens
     private String undefStation;
@@ -271,9 +278,6 @@ public class PostShef {
     /** Basis time TimeStamp */
     private java.sql.Timestamp basisTimeAnsi = new Timestamp(basisBeginTime);
 
-    /** River status update flag. update if true */
-    private boolean riverStatusUpdateFlag = true;
-
     /** river status update query value */
     private boolean riverStatusUpdateValueFlag;
 
@@ -291,6 +295,12 @@ public class PostShef {
 
     /** Forecast query results */
     private Object[] queryForecastResults;
+
+    /** Cache of data limits and loc data limits */
+    private Map<String, ShefRangeData> dataRangeMap = new HashMap<String, ShefRangeData>();
+
+    /** Valid date range flag */
+    private boolean validDateRange = false;
 
     /**
      * 
@@ -459,6 +469,8 @@ public class PostShef {
                     return;
                 }
 
+                postDate.setTime(getToNearestSecond(TimeUtil
+                        .currentTimeMillis()));
                 boolean same_lid_product = false;
 
                 String dataValue = data.getStringValue();
@@ -477,6 +489,7 @@ public class PostShef {
                     data.setCreationDate("1970-01-01 00:00:00");
                 }
 
+                locId = data.getLocationId();
                 String key = locId + prodId + data.getObservationTime();
                 if (idLocations.containsKey(key)) {
                     postLocData = idLocations.get(key);
@@ -490,7 +503,7 @@ public class PostShef {
                 if (dataLog) {
                     log.info(LOG_SEP);
                     log.info("Posting process started for LID [" + locId
-                            + "] PEDTSEP [" + data.getPeTsE() + "] value ["
+                            + "] PEDTSEP [" + data.getPeDTsE() + "] value ["
                             + dataValue + "]");
                 }
 
@@ -611,7 +624,7 @@ public class PostShef {
                 if (Location.LOC_LOCATION.equals(postLocData)
                         || (Location.LOC_GEOAREA.equals(postLocData))) {
                     if (!DataType.CONTINGENCY.equals(dataType)) {
-                        ingestSwitch = checkIngest(locId, data, ingestSwitch);
+                        ingestSwitch = checkIngest(locId, data);
                     }
                     if (ShefConstants.IngestSwitch.POST_PE_OFF
                             .equals(ingestSwitch)) {
@@ -730,7 +743,7 @@ public class PostShef {
                  * shefrec structure
                  */
                 if (!dataValue.equals(ShefConstants.SHEF_MISSING)) {
-                      adjustRawValue(locId, data);
+                    adjustRawValue(locId, data);
                 }
 
             dataValue = data.getStringValue();
@@ -1068,11 +1081,12 @@ public class PostShef {
         // Reset .E cache vars
         tsList.clear();
         useLatest = MISSING;
-        riverStatusUpdateFlag = true;
         qualityCheckFlag = true;
         useTs = null;
         basisTimeValues = null;
         previousQueryForecast = null;
+        dataRangeMap.clear();
+        validDateRange = false;
     }
 
     /**
@@ -1397,15 +1411,7 @@ public class PostShef {
         if ((shefList != null) && (shefList.size() > 0)) {
             ShefData maxShefDataValue = findMaxFcst(shefList);
 
-            if (shefRecord.getShefType() == ShefType.E) {
-                if (riverStatusUpdateFlag) {
-                    riverStatusUpdateFlag = false;
-
-                    riverStatusUpdateValueFlag = updateRiverStatus(lid, pe, ts);
-                }
-            } else {
-                riverStatusUpdateValueFlag = updateRiverStatus(lid, pe, ts);
-            }
+            riverStatusUpdateValueFlag = updateRiverStatus(lid, pe, ts);
             postTables.postRiverStatus(shefRecord, maxShefDataValue,
                     riverStatusUpdateValueFlag);
         } else {
@@ -2074,8 +2080,7 @@ public class PostShef {
      *            ingest switch setting
      * @return
      */
-    private IngestSwitch checkIngest(String locId, ShefData data,
-            ShefConstants.IngestSwitch ingestSwitch) {
+    private IngestSwitch checkIngest(String locId, ShefData data) {
         StringBuilder errorMsg = new StringBuilder();
         boolean matchFound = false;
         int hNum = 0;
@@ -2102,12 +2107,15 @@ public class PostShef {
         String sql = null;
         Object[] oa = null;
 
+        IngestfilterId key = data.getIngestFilterKey();// .getPeDTsE();
+
+        // Default to off
+        ShefConstants.IngestSwitch ingestSwitch = IngestSwitch.POST_PE_OFF;
+
         try {
-            if (!ingestSwitchMap.containsKey(locId)) {
-                errorMsg.append("Error getting connection to IHFS Database");
+            if (!ingestSwitchMap.containsKey(key)) {
                 sql = "select lid, pe, dur, ts, extremum, ts_rank, ingest, ofs_input, stg2_input from IngestFilter where lid = '"
                         + locId + "'";
-                errorMsg.setLength(0);
                 errorMsg.append("Error requesting IngestFilter data:  " + sql);
                 oa = dao.executeSQLQuery(sql);
                 if (oa.length > 0) {
@@ -2140,11 +2148,10 @@ public class PostShef {
                     }
                 }
 
-                ingestSwitchMap.put(locId, ingestSwitch);
+                ingestSwitchMap.put(key, ingestSwitch);
             }
 
-            matchFound = ingestSwitchMap.containsKey(locId);
-            ingestSwitch = ingestSwitchMap.get(locId);
+            ingestSwitch = ingestSwitchMap.get(key);
 
             /*
              * if there is no ingest record for this entry, then check if the
@@ -2392,7 +2399,7 @@ public class PostShef {
         if (!matchFound) {
             log.warn(locId + " - " + data.getPhysicalElement() + "("
                     + data.getDuration() + ")" + data.getTypeSource()
-                    + data.getExtremum() + " ingest " + "filter not defined");
+                    + data.getExtremum() + " ingest filter not defined");
             stats.incrementWarningMessages();
             ingestSwitch = ShefConstants.IngestSwitch.POST_PE_OFF;
         }
@@ -2538,6 +2545,8 @@ public class PostShef {
      */
     private void postProductLink(String locId, String productId, Date obsTime) {
         PersistableDataObject link = null;
+
+        postDate.setTime(getToNearestSecond(TimeUtil.currentTimeMillis()));
         try {
             /* Get a Data Access Object */
             link = new Productlink(new ProductlinkId(locId, productId, obsTime,
@@ -2575,14 +2584,6 @@ public class PostShef {
         long qualityCode = ShefConstants.DEFAULT_QC_VALUE;
         String monthdaystart = null;
         String monthdayend = null;
-        double grossRangeMin = missing;
-        double grossRangeMax = missing;
-        double reasonRangeMin = missing;
-        double reasonRangeMax = missing;
-        double alertUpperLimit = missing;
-        double alarmUpperLimit = missing;
-        double alertLowerLimit = missing;
-        double alarmLowerLimit = missing;
 
         alertAlarm = ShefConstants.NO_ALERTALARM;
 
@@ -2601,28 +2602,12 @@ public class PostShef {
             return ShefConstants.QC_MANUAL_FAILED;
         }
 
-        boolean locRangeFound = false;
-        boolean defRangeFound = false;
-        boolean validDateRange = false;
-
-        boolean executeQuery = true;
-        if (!qualityCheckFlag) {
-            // If qualityCheckFlag is false the the query has already been
-            // executed
-            executeQuery = false;
-        }
-
-        if (shefRecord.getShefType() == ShefType.E) {
-            // if qualityCheckFlag is true then don't need to query
-            if (qualityCheckFlag) {
-                qualityCheckFlag = false;
-            }
-        }
-
         StringBuilder locLimitSql = new StringBuilder();
         StringBuilder defLimitSql = new StringBuilder();
+        String key = lid + data.getPhysicalElement().getCode()
+                + data.getDurationValue();
         try {
-            if (executeQuery) {
+            if (!dataRangeMap.containsKey(key)) {
                 String sqlStart = "select monthdaystart, monthdayend, gross_range_min, gross_range_max, reason_range_min, "
                         + "reason_range_max, roc_max, alert_upper_limit, alert_roc_limit, alarm_upper_limit, "
                         + "alarm_roc_limit, alert_lower_limit, alarm_lower_limit, alert_diff_limit, "
@@ -2638,6 +2623,7 @@ public class PostShef {
                 Object[] oa = dao.executeSQLQuery(locLimitSql.toString());
 
                 if (oa.length == 0) {
+                    dataRangeMap.put(key, null);
                     // default range
                     defLimitSql = new StringBuilder(sqlStart);
                     defLimitSql.append("datalimits where pe = '")
@@ -2646,7 +2632,13 @@ public class PostShef {
                             .append(data.getDurationValue());
 
                     oa = dao.executeSQLQuery(defLimitSql.toString());
+                    key = data.getPhysicalElement().getCode()
+                            + data.getDurationValue();
+                    if (oa.length == 0) {
+                        dataRangeMap.put(key, null);
+                    }
                 }
+
                 for (int i = 0; i < oa.length; i++) {
                     Object[] oa2 = (Object[]) oa[i];
 
@@ -2663,49 +2655,65 @@ public class PostShef {
                          * if a range is found, then check the value and set the
                          * flag
                          */
-                        grossRangeMin = ShefUtil.getDouble(oa2[2], missing);
-                        grossRangeMax = ShefUtil.getDouble(oa2[3], missing);
-                        reasonRangeMin = ShefUtil.getDouble(oa2[4], missing);
-                        reasonRangeMax = ShefUtil.getDouble(oa2[5], missing);
-                        alertUpperLimit = ShefUtil.getDouble(oa2[7], missing);
-                        alertLowerLimit = ShefUtil.getDouble(oa2[11], missing);
-                        alarmLowerLimit = ShefUtil.getDouble(oa2[12], missing);
-                        alarmUpperLimit = ShefUtil.getDouble(oa2[9], missing);
-                        defRangeFound = true;
+                        ShefRangeData rangeData = new ShefRangeData();
+                        rangeData.setGrossRangeMin(ShefUtil.getDouble(oa2[2],
+                                missing));
+                        rangeData.setGrossRangeMax(ShefUtil.getDouble(oa2[3],
+                                missing));
+                        rangeData.setReasonRangeMin(ShefUtil.getDouble(oa2[4],
+                                missing));
+                        rangeData.setReasonRangeMax(ShefUtil.getDouble(oa2[5],
+                                missing));
+                        rangeData.setAlarmLowerLimit(ShefUtil.getDouble(
+                                oa2[12], missing));
+                        rangeData.setAlarmUpperLimit(ShefUtil.getDouble(oa2[9],
+                                missing));
+                        rangeData.setAlertLowerLimit(ShefUtil.getDouble(
+                                oa2[11], missing));
+                        rangeData.setAlertUpperLimit(ShefUtil.getDouble(oa2[7],
+                                missing));
+                        this.dataRangeMap.put(key, rangeData);
                         break;
                     }
                 }
             }
 
-            if (locRangeFound || defRangeFound) {
+            ShefRangeData rangeData = dataRangeMap.get(key);
+            if (rangeData != null) {
                 /*
                  * if a range is found, then check the value and set the flag
                  */
-                if (((grossRangeMin != missing) && (dValue < grossRangeMin))
-                        || ((grossRangeMax != missing) && (dValue > grossRangeMax))) {
+                if (((rangeData.getGrossRangeMin() != missing) && (dValue < rangeData
+                        .getGrossRangeMin()))
+                        || ((rangeData.getGrossRangeMax() != missing) && (dValue > rangeData
+                                .getGrossRangeMax()))) {
                     qualityCode = ShefQC.setQcCode(
                             (int) ShefConstants.QC_GROSSRANGE_FAILED,
                             qualityCode);
 
                     if (dataLog) {
                         log.info(lid + " failed gross range check: " + dValue
-                                + " out of range " + grossRangeMin + " - "
-                                + grossRangeMax);
+                                + " out of range "
+                                + rangeData.getGrossRangeMin() + " - "
+                                + rangeData.getGrossRangeMax());
                     }
 
                     /*
                      * don't do anything if it fails the gross range check
                      */
                 } else {
-                    if (((reasonRangeMin != missing) && (dValue < reasonRangeMin))
-                            || ((reasonRangeMax != missing) && (dValue > reasonRangeMax))) {
+                    if (((rangeData.getReasonRangeMin() != missing) && (dValue < rangeData
+                            .getReasonRangeMin()))
+                            || ((rangeData.getReasonRangeMax() != missing) && (dValue > rangeData
+                                    .getReasonRangeMax()))) {
                         qualityCode = ShefQC.setQcCode(
                                 (int) ShefConstants.QC_REASONRANGE_FAILED,
                                 qualityCode);
                         if (dataLog) {
                             log.info(lid + " failed reasonable range check: "
                                     + dValue + " out of range "
-                                    + reasonRangeMin + " - " + reasonRangeMax);
+                                    + rangeData.getReasonRangeMin() + " - "
+                                    + rangeData.getReasonRangeMax());
                         }
                     }
 
@@ -2715,17 +2723,17 @@ public class PostShef {
                      * table.
                      */
                     if (shefAlertAlarm) {
-                        if ((alarmUpperLimit != missing)
-                                && (dValue >= alarmUpperLimit)) {
+                        if ((rangeData.getAlarmUpperLimit() != missing)
+                                && (dValue >= rangeData.getAlarmUpperLimit())) {
                             alertAlarm = ShefConstants.ALARM_UPPER_DETECTED;
-                        } else if ((alertUpperLimit != missing)
-                                && (dValue >= alertUpperLimit)) {
+                        } else if ((rangeData.getAlertUpperLimit() != missing)
+                                && (dValue >= rangeData.getAlertUpperLimit())) {
                             alertAlarm = ShefConstants.ALERT_UPPER_DETECTED;
-                        } else if ((alarmLowerLimit != missing)
-                                && (dValue <= alarmLowerLimit)) {
+                        } else if ((rangeData.getAlarmLowerLimit() != missing)
+                                && (dValue <= rangeData.getAlarmLowerLimit())) {
                             alertAlarm = ShefConstants.ALARM_LOWER_DETECTED;
-                        } else if ((alertLowerLimit != missing)
-                                && (dValue <= alertLowerLimit)) {
+                        } else if ((rangeData.getAlertLowerLimit() != missing)
+                                && (dValue <= rangeData.getAlertLowerLimit())) {
                             alertAlarm = ShefConstants.ALERT_LOWER_DETECTED;
                         }
 
@@ -2916,6 +2924,7 @@ public class PostShef {
             ShefData data, String locId, String tableName, String dataValue,
             String qualifier, long qualityCode) {
         PersistableDataObject dataObj = null;
+        postDate.setTime(getToNearestSecond(TimeUtil.currentTimeMillis()));
 
         if (ShefConstants.COMMENT_VALUE.equalsIgnoreCase(tableName)) {
             Commentvalue comment = new Commentvalue(new CommentvalueId());
@@ -3162,6 +3171,19 @@ public class PostShef {
         }
 
         return dataObj;
+    }
+
+    /**
+     * Convert the provided millisecond value to the nearest second.
+     * 
+     * @param time
+     *            time in milliseconds
+     * 
+     * @return milliseconds rounded to the nearest second.
+     */
+    private long getToNearestSecond(long time) {
+        // Force time to nearest second.
+        return time - (time % 1000);
     }
 
     public void close() {
