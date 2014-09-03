@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -94,6 +95,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *                                         fields when magnification set to 0
  *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
  *    Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
+ *    Jun 6, 2014  DR 17367    D. Friedman Fix cache object usage.
+ *    Aug 04, 2014  3488       bclement    added sanity check for record bin range
+ *    Aug 19, 2014  3542       bclement    fixed strike count clipping issue
  * 
  * </pre>
  * 
@@ -106,6 +110,8 @@ public class LightningResource extends
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LightningResource.class);
+
+    private static final long MAX_RECORD_BIN_MILLIS = TimeUtil.MILLIS_PER_DAY;
 
     private static class LightningFrame {
 
@@ -377,7 +383,13 @@ public class LightningResource extends
         
         if (magnification == 0.0) magnification=(float) 0.01;
         
-        IExtent extent = paintProps.getView().getExtent();
+        /*
+         * we only want strikes that are visible so we have to filter any
+         * strikes that aren't in both the clipping pane and the view
+         */
+        IExtent viewExtent = paintProps.getView().getExtent();
+        IExtent clipExtent = paintProps.getClippingPane();
+        IExtent extent = viewExtent.intersection(clipExtent);
 
         CacheObject<LightningFrameMetadata, LightningFrame> cacheObject = cacheObjectMap
                 .get(this.lastPaintedTime);
@@ -480,6 +492,24 @@ public class LightningResource extends
      */
     @Override
     public void remove(DataTime dataTime) {
+        /*
+         * Workaround for time matching which does not know about records at the
+         * end of a time period that may contain data for the next period. If we
+         * are asked to remove the latest data time and there is only one record
+         * we know about, return without removing the time.
+         */
+        if (dataTimes.indexOf(dataTime) == dataTimes.size() - 1) {
+            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap.get(dataTime);
+            if (co != null) {
+                LightningFrameMetadata metadata = co.getMetadata();
+                synchronized (metadata) {
+                    if (metadata.newRecords.size() + metadata.processed.size() < 2) {
+                        return;
+                    }
+                }
+            }
+        }
+
         dataTimes.remove(dataTime);
         cacheObjectMap.remove(dataTime);
     }
@@ -489,6 +519,13 @@ public class LightningResource extends
 
         for (BinLightningRecord obj : objs) {
         	if (obj.getSource().equals(this.lightSource) || this.lightSource.isEmpty()) {
+                long duration = obj.getDataTime().getValidPeriod()
+                        .getDuration();
+                if (duration > MAX_RECORD_BIN_MILLIS) {
+                    statusHandler.error("Record bin time larger than maximum "
+                            + "supported period. Skipping record: " + obj);
+                    continue;
+                }
         		DataTime time = new DataTime(obj.getStartTime());
         		DataTime end = new DataTime(obj.getStopTime());
         		time = this.getResourceData().getBinOffset()
@@ -523,20 +560,20 @@ public class LightningResource extends
 
             List<BinLightningRecord> records = entry.getValue();
 
-            CacheObject<LightningFrameMetadata, LightningFrame> co = cacheObjectMap
-                    .get(dt);
             LightningFrameMetadata frame;
-            if (co == null) {
-                // New frame
-                frame = new LightningFrameMetadata(dt,
-                        resourceData.getBinOffset(), this.lightSource);
-                co = CacheObject.newCacheObject(frame, resourceBuilder);
-                cacheObjectMap.put(dt, co);
-                dataTimes.add(dt);
-            } else {
-                // Frame exists
-                frame = co.getMetadata();
+            CacheObject<LightningFrameMetadata, LightningFrame> co;
+            synchronized (cacheObjectMap) {
+                co = cacheObjectMap.get(dt);
+                if (co == null) {
+                    // New frame
+                    LightningFrameMetadata key = new LightningFrameMetadata(dt,
+                            resourceData.getBinOffset(), this.lightSource);
+                    co = CacheObject.newCacheObject(key, resourceBuilder);
+                    cacheObjectMap.put(dt, co);
+                    dataTimes.add(dt);
+                }
             }
+            frame = co.getMetadata();
 
             synchronized (frame) {
                 // Add as new records

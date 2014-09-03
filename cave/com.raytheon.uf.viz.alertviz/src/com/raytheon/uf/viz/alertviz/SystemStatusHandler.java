@@ -39,7 +39,10 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
 
 /**
  * Implements status handling by converting status messages into StatusMessages
- * and sending them to alertviz
+ * and sending them to alertviz.
+ * 
+ * Also logs to a file so the error can be traced to the specific process id and
+ * as a safety net in case alertviz cannot be reached.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -47,6 +50,7 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
  * ------------ ---------- ----------- --------------------------
  * Sep 09, 2008 1433       chammack    Initial creation
  * Aug 26, 2013 2142       njensen     Changed to use SLF4J
+ * Jul 02, 2014 3337       njensen     Disabled logback packaging data
  * </pre>
  * 
  * @author chammack
@@ -61,6 +65,34 @@ public class SystemStatusHandler extends AbstractStatusHandler {
     private static final String WORKSTATION = "WORKSTATION";
 
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
+
+    static {
+        /*
+         * Disables the packaging data feature of logback (ie how the
+         * stacktraces list the jar the class is in). Due to the viz dependency
+         * tree, in some scenarios the determination of the packaging data can
+         * spend an inordinate amount of time in the OSGi classloader trying to
+         * find classes. If the viz dependency tree is cleaned up (ie
+         * modularized, unnecessary imports removed, register buddies reduced)
+         * then this may be able to be re-enabled without a performance hit.
+         * 
+         * Unfortunately there is no way to do this other than casting to a
+         * logback Logger, see http://jira.qos.ch/browse/LOGBACK-730 and
+         * http://jira.qos.ch/browse/LOGBACK-899
+         */
+        try {
+            ((ch.qos.logback.classic.Logger) logger).getLoggerContext()
+                    .setPackagingDataEnabled(false);
+        } catch (Throwable t) {
+            /*
+             * given that this static block is for initializing the logger
+             * correctly, if that went wrong let's not even try to "log" it,
+             * just use stderr
+             */
+            System.err.println("Error disabling logback packaging data");
+            t.printStackTrace();
+        }
+    }
 
     /*
      * (non-Javadoc)
