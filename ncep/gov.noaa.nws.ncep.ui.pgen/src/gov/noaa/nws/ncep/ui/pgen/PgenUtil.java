@@ -143,6 +143,7 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * 05/14         TTR 995    J. Wu         Added getContourLabelAutoPlacement().
  * 05/14         TTR998     J. Wu         Added pixelToLatlon().
  * 07/14                    Chin Chen     In latlonToPixel(), make sure not to add null pixel to its return pixel array
+ * 08/14          TTR962      J. Wu       Add replaceWithDate to format output file with DD, MM, YYYY, HH.
  * </pre>
  * 
  * @author
@@ -1638,6 +1639,42 @@ public class PgenUtil {
         dstr.append(cal.get(Calendar.YEAR));
 
         return dstr.toString();
+    }
+
+    /**
+     * Replace "DD" in the string with DAY_OF_MONTH in the calendar, replace
+     * "MM" in the string with MONTH in the calendar, replace "YYYY" in the
+     * string with YEAR in the calendar, replace "HH" in the string with
+     * HOUR_OF_DAY in the calendar.
+     */
+    public static String replaceWithDate(String in, Calendar cal) {
+
+        if (in != null) {
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            if (day < 10) {
+                in = in.replaceAll("DD", "0" + day);
+            } else {
+                in = in.replaceAll("DD", "" + day);
+            }
+
+            int mon = cal.get(Calendar.MONTH) + 1;
+            if (mon < 10) {
+                in = in.replaceAll("MM", "0" + mon);
+            } else {
+                in = in.replaceAll("MM", "" + mon);
+            }
+
+            in = in.replaceAll("YYYY", "" + cal.get(Calendar.YEAR));
+
+            int hour = cal.get(Calendar.HOUR_OF_DAY);
+            if (hour < 10) {
+                in = in.replaceAll("HH", "0" + hour);
+            } else {
+                in = in.replaceAll("HH", "" + hour);
+            }
+        }
+
+        return in;
     }
 
     /**
