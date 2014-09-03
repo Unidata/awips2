@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *                                    Feature Following Zoom Tool at this time.
  * Jul 18, 2013  2189     mschenke    Added ability to specify font type
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
+ * Jun 17, 2014  2903     bclement    added PIPE to PointStyle
  * 
  * </pre>
  * 
@@ -187,7 +188,7 @@ public interface IGraphicsTarget extends IImagingExtension {
     }
 
     public static enum PointStyle {
-        NONE, POINT, CROSS, X, STAR, CIRCLE, DISC, BOX, SQUARE, DASH
+        NONE, POINT, CROSS, X, STAR, CIRCLE, DISC, BOX, SQUARE, DASH, PIPE
     }
 
     /** Defines the raster mode */
