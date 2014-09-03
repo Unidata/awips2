@@ -41,6 +41,7 @@
 # Sep 12, 2013  2249     rferrel        When incoming file from warngen adjust
 #                                       start time from file's timestamp.
 # Oct 03, 2013  2402     bsteffen       Make PythonDecoder more extendable.
+# Jun 10, 2014  3268     dgilling       Update location of WclInfo class.
 
 # </pre>
 #
@@ -174,7 +175,7 @@ class StdWarningDecoder():
         if self._productPil[0:3] == "WCL":
             endpoint = "WCLWatch"
             # build a Java object for the warning
-            from com.raytheon.edex.plugin.gfe.wcl import WclInfo
+            from com.raytheon.edex.plugin.gfe.watch import WclInfo
             import JUtil
             lines = JUtil.pyValToJavaObj(self._lines)
             warning = WclInfo(long(self._issueTime * 1000),
