@@ -4,8 +4,7 @@ Bundle-Name: Collaboration UI Plugin
 Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.ui;singleton:=true
 Bundle-Version: 1.14.0
 Bundle-Activator: com.raytheon.uf.viz.collaboration.ui.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.viz.collaboration.ui
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
