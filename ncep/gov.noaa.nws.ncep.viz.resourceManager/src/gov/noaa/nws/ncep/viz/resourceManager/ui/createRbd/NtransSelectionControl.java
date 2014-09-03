@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -53,6 +55,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 07/23/2014                B. Hebbard  Fork off NTRANS-specific code from ResourceSelectionControl
+ * 08/26/2014                B. Hebbard  Adjust metafile column comparator to put latest data at top
  * 
  * </pre>
  * 
@@ -692,7 +695,42 @@ public class NtransSelectionControl extends ResourceSelectionControl {
         metafileLViewer.setComparator(new ViewerComparator() {
             @Override
             public int compare(Viewer viewer, Object e1, Object e2) {
-                return super.compare(viewer, e1, e2);
+                // Ordering of the metafile name column is a bit more
+                // complicated than the other columns, because we want to
+                // present files in reverse chronological order so the most
+                // recent data appear at the top. But among files representing
+                // the same date+time, we want to revert to standard
+                // lexicographical ordering.
+                if (!(e1 instanceof String && e2 instanceof String)) {
+                    return super.compare(viewer, e1, e2);
+                } else {
+                    // This pattern covers known date-time orderings in metafile
+                    // names (modified _ to - as already done by decoder)
+                    final Pattern p = Pattern
+                            .compile("((\\d\\d){3,4})-?(\\d\\d)?");
+                    Matcher m1 = p.matcher((String) e1);
+                    Matcher m2 = p.matcher((String) e2);
+                    String datetime1 = "";
+                    String datetime2 = "";
+                    // Must handle multiple matches -- if found,
+                    // take the longest match
+                    while (m1.find()) {
+                        if (m1.group(0).length() >= datetime1.length()) {
+                            datetime1 = m1.group(0);
+                        }
+                    }
+                    while (m2.find()) {
+                        if (m2.group(0).length() >= datetime2.length()) {
+                            datetime2 = m2.group(0);
+                        }
+                    }
+                    if (datetime1.equals(datetime2)) {
+                        return super.compare(viewer, e1, e2);
+                    } else {
+                        return -1 // latest date/time first
+                                * super.compare(viewer, datetime1, datetime2);
+                    }
+                }
             }
         });
 
