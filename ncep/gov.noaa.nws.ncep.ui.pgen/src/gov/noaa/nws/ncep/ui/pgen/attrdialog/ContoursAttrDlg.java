@@ -115,6 +115,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      should now be fixed.
  * 05/14        TTR1008     J. Wu       Set default contour parameters through settings_tbl.xml.
  * 05/14        TTR990      J. Wu       Set default attributes for different contour labels.
+ * 08/14        ?           J. Wu       "Edit" line color should go to contoursAttrSettings to take effect..
  * 
  * </pre>
  * 
@@ -2277,6 +2278,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours,
                             (Coordinate) null, null);
 
             lineTemplate.setClosed(isClosedLine());
+
+            // Need to set to contoursAttrSettings to be effective.
+            contoursAttrSettings.put(getContourLineType(), lineTemplate);
 
             if (ContoursAttrDlg.this.drawContourLine()) {
                 setButtonColor(activeQuickLineBtn, defaultButtonColor,

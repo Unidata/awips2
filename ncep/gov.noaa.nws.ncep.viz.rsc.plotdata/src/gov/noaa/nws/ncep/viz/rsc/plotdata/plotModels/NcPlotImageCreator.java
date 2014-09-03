@@ -249,7 +249,7 @@ public class NcPlotImageCreator {
 
     IFont prevFont;
 
-    public static enum Position {
+    public static enum Position { // TODO: Explain each?
         TC, UL, UC, UR, ML, MC, MR, LL, LC, LR, BC, SC, WD, INVALID
 
     }
@@ -504,6 +504,15 @@ public class NcPlotImageCreator {
         if (plotModelElementsList != null && !plotModelElementsList.isEmpty()) {
             synchronized (plotModelElementsList) {
                 for (PlotModelElement pme : plotModelElementsList) {
+
+                    // Redmine 4230
+                    // NcPlotImageCreator will not process BRBK unless it has
+                    // the abstract ( not on the grid of plot model buttons )
+                    // position "WD"
+                    if (pme.getParamName().equalsIgnoreCase("BRBK")) {
+                        pme.setPosition("WD");
+                    }
+
                     Position position = getPositionFromPlotModelElementPosition(pme
                             .getPosition());
                     plotModelPositionMap.put(position, pme);
@@ -1237,6 +1246,9 @@ public class NcPlotImageCreator {
             double height = r2.getHeight();
             Rectangle textBounds = new Rectangle(0, 0, (int) width,
                     (int) height);
+
+            Tracer.print("textBounds initialized to " + textBounds);
+
             Set<String> setOfKeysfOfStationsNotDisclosed = new HashSet<String>();
 
             PixelExtent lastViewExtent = (PixelExtent) lastView.getExtent();
@@ -1639,6 +1651,11 @@ public class NcPlotImageCreator {
                                         textBounds = new Rectangle(0, 0,
                                                 (int) rr.getWidth(),
                                                 (int) rr.getHeight());
+
+                                        Tracer.print("textBounds updated in TEXT draw for station "
+                                                + station.info.stationId
+                                                + " to " + textBounds);
+
                                         double[] pixLoc = getUpdatedCoordinates(
                                                 textBounds,
                                                 station.pixelLocation.x,
@@ -2272,6 +2289,25 @@ public class NcPlotImageCreator {
                                         double[] tempPixLoc = mapDescriptor
                                                 .worldToPixel(worldLoc);
 
+                                        // Recompute original textBounds, since
+                                        // it
+                                        // may have been clobbered by individual
+                                        // text element computations above
+                                        Rectangle2D xr = aTarget
+                                                .getStringsBounds(new DrawableString(
+                                                        "M", defaultColor));
+                                        double xwidth = xr.getWidth();
+
+                                        // Re-initialize textBounds as first
+                                        // done in method;
+                                        // may have been changed since.
+                                        Rectangle2D xr2 = aTarget
+                                                .getStringsBounds(new DrawableString(
+                                                        "'y", defaultColor));
+                                        double xheight = r2.getHeight();
+                                        textBounds = new Rectangle(0, 0,
+                                                (int) width, (int) height);
+
                                         // TTR 922-923 Add a horizontal offset
                                         // to the PTSY symbol so it doesn't
                                         // overwrite the P03C number
@@ -2706,6 +2742,8 @@ public class NcPlotImageCreator {
         if (!symbol_name.startsWith("PRESSURE_TENDENCY_")) {
             return xPos;
         }
+
+        Tracer.print("PTSY adjust with textBounds " + textBounds);
 
         // Extract the number "00 - 08" from the end
         String PTSYvaluestr = symbol_name.substring(18, symbol_name.length());

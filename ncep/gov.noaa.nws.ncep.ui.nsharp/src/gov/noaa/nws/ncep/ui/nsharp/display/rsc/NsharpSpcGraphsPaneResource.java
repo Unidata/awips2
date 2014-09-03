@@ -13,6 +13,8 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * 07/10/2012	229			Chin Chen	Initial coding + EBS 
  * 10/01/2012               Chin Chen   Add STP Stats
  * 05/23/2014               Chin Chen   update SHIP, STP Stats based on bigsharp version 2013Jun12
+ * 08/18/2014               Chin Chen   implemented SARS, FIRE, HAIL, WINTER SPC graphs based on 
+ *                                      bigsharp version 2013Jun12
  *
  * </pre>
  * 
@@ -123,7 +125,13 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             { white, cyan, cyan, cyan, cyan, cyan, cyan, cyan, cyan },
             { white, cyan, cyan, cyan, cyan, cyan, cyan, cyan, cyan } };
 
+    private NsharpNative.NsharpLibrary.HailInfoStr hailInfo = new NsharpNative.NsharpLibrary.HailInfoStr();
+
+    private NsharpNative.NsharpLibrary.SarsInfoStr sarsInfo = new NsharpNative.NsharpLibrary.SarsInfoStr();
+
     private NsharpNative.NsharpLibrary.FireInfoStr fireInfo = new NsharpNative.NsharpLibrary.FireInfoStr();
+
+    private NsharpNative.NsharpLibrary.WinterInfoStr winterInfo = new NsharpNative.NsharpLibrary.WinterInfoStr();
 
     public NsharpSpcGraphsPaneResource(AbstractResourceData resourceData,
             LoadProperties loadProperties, NsharpAbstractPaneDescriptor desc) {
@@ -157,6 +165,348 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             xstart = spcRightXOrig + 0.5 * charWidth;
             xend = spcRightXOrig + spcFrameWidth;
         }
+    }
+
+    /*
+     * This function is based on show_sars() in xwvid3.c of BigNsharp
+     */
+    private void plotSars(int side) throws VizException {
+        List<DrawableLine> lineList = new ArrayList<DrawableLine>();
+        List<DrawableString> strList = new ArrayList<DrawableString>();
+        this.font11.setSmoothing(false);
+        this.font11.setScaleFont(false);
+        this.font12.setSmoothing(false);
+        this.font12.setScaleFont(false);
+        this.font10.setSmoothing(false);
+        setXyStartingPosition(side);
+        DrawableString titleStr = new DrawableString(
+                "SARS - Sounding Analog Retrieval System",
+                NsharpConstants.color_white);
+        titleStr.font = font12;
+        titleStr.horizontalAlignment = HorizontalAlignment.CENTER;
+        titleStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.5 * spcFrameWidth;
+        ypos = ystart + 0.3 * charHeight;
+        titleStr.setCoordinates(xpos, ypos);
+        strList.add(titleStr);
+
+        DrawableLine line1 = new DrawableLine();
+        line1.lineStyle = LineStyle.SOLID;
+        line1.basics.color = NsharpConstants.color_white;
+        line1.width = 1;
+        ypos = ypos + 2 * charHeight;
+        line1.setCoordinates(xstart, ypos);
+        line1.addPoint(xend, ypos);
+        lineList.add(line1);
+
+        DrawableLine line2 = new DrawableLine();
+        line2.lineStyle = LineStyle.SOLID;
+        line2.basics.color = NsharpConstants.color_white;
+        line2.width = 1;
+        xpos = xstart + 0.5 * spcFrameWidth;
+        line2.setCoordinates(xpos, ypos);
+        line2.addPoint(xpos, ypos + spcHeight);
+        lineList.add(line2);
+
+        DrawableString supercellTitleStr = new DrawableString("SUPERCELL",
+                NsharpConstants.color_white);
+        supercellTitleStr.font = font11;
+        supercellTitleStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        supercellTitleStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.15 * spcFrameWidth;
+        ypos = ypos + 0.5 * charHeight;
+        supercellTitleStr.setCoordinates(xpos, ypos);
+        strList.add(supercellTitleStr);
+
+        DrawableString hailTitleStr = new DrawableString("SGFNT HAIL",
+                NsharpConstants.color_white);
+        hailTitleStr.font = font11;
+        hailTitleStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        hailTitleStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.65 * spcFrameWidth;
+        hailTitleStr.setCoordinates(xpos, ypos);
+        strList.add(hailTitleStr);
+
+        DrawableLine line3 = new DrawableLine();
+        line3.lineStyle = LineStyle.SOLID;
+        line3.basics.color = NsharpConstants.color_white;
+        line3.width = 1;
+        ypos = ypos + 2 * charHeight;
+        line3.setCoordinates(xstart, ypos);
+        line3.addPoint(xend, ypos);
+        lineList.add(line3);
+
+        // int numHailstr = sarsInfo.getNumHailstr();
+        // int numSupstr = sarsInfo.getNumsupcellstr();
+        // since numHailstr and numSupstr should be 10, based on design,
+        // we do both together.
+
+        for (int i = 0; i < NsharpNative.NsharpLibrary.SarsInfoStr.SARS_STRING_LINES; i++) {
+            ypos = ypos + charHeight;
+            String supStr = new String(
+                    sarsInfo.getSupcellStr(),
+                    (i * NsharpNative.NsharpLibrary.SarsInfoStr.SARS_STRING_LEN),
+                    NsharpNative.NsharpLibrary.SarsInfoStr.SARS_STRING_LEN);
+            // System.out.println("supercell str #"+ (i+1)+ " "+ supStr);
+            int nulCharIndex = supStr.indexOf('\0');
+            if (nulCharIndex > 0
+                    && nulCharIndex < NsharpNative.NsharpLibrary.SarsInfoStr.SARS_STRING_LEN) {
+                supStr = supStr.substring(0, nulCharIndex);// get rid of tailing
+                                                           // null char(s), as
+                                                           // DrawableString
+                                                           // will print them
+                                                           // out
+                RGB strColor = NsharpConstants.gempakColorToRGB.get(sarsInfo
+                        .getSupcellStrColor()[i]);
+                DrawableString supercellMatchStr = new DrawableString(supStr,
+                        strColor);
+                supercellMatchStr.font = font10;
+                supercellMatchStr.horizontalAlignment = HorizontalAlignment.LEFT;
+                supercellMatchStr.verticallAlignment = VerticalAlignment.TOP;
+                xpos = xstart;
+                supercellMatchStr.setCoordinates(xpos, ypos);
+                strList.add(supercellMatchStr);
+            }
+            String hailStr = new String(
+                    sarsInfo.getHailStr(),
+                    (i * NsharpNative.NsharpLibrary.SarsInfoStr.SARS_STRING_LEN),
+                    NsharpNative.NsharpLibrary.SarsInfoStr.SARS_STRING_LEN);
+            nulCharIndex = hailStr.indexOf('\0');
+            // make sure this line is valid
+            if (nulCharIndex > 0
+                    && nulCharIndex < NsharpNative.NsharpLibrary.SarsInfoStr.SARS_STRING_LEN) {
+                hailStr = hailStr.substring(0, nulCharIndex);// get rid of
+                                                             // tailing null
+                                                             // char(s), as
+                                                             // DrawableString
+                                                             // will print them
+                                                             // out
+                // System.out.println("java hail str #"+ (i+1)+ " "+ hailStr);
+                RGB strColor = NsharpConstants.gempakColorToRGB.get(sarsInfo
+                        .getHailStrColor()[i]);
+                DrawableString hailMatchStr = new DrawableString(hailStr,
+                        strColor);
+                hailMatchStr.font = font10;
+                hailMatchStr.horizontalAlignment = HorizontalAlignment.LEFT;
+                hailMatchStr.verticallAlignment = VerticalAlignment.TOP;
+                xpos = xstart + 0.51 * spcFrameWidth;
+                hailMatchStr.setCoordinates(xpos, ypos);
+                strList.add(hailMatchStr);
+
+            }
+            // else
+            // System.out.println("java hail str #"+ (i+1)+ " "+ hailStr);
+
+        }
+        /*
+         * ypos = spcYEnd - 4 * charHeight; for(int i=0; i < 2; i++){ String
+         * supStr = new String(sarsInfo.getTorStr(), (i*60), 60);
+         * //System.out.println("tor str #"+ (1+ i)+ " "+ supStr); RGB strColor
+         * = NsharpConstants.gempakColorToRGB.get(sarsInfo.getTorStrColor());
+         * supStr = supStr.substring(0, supStr.indexOf('\0'));// get rid of
+         * tailing null char(s), as DrawableString will print them out
+         * DrawableString supercellMatchStr = new DrawableString(supStr,
+         * strColor); supercellMatchStr.font = font10;
+         * supercellMatchStr.horizontalAlignment = HorizontalAlignment.LEFT;
+         * supercellMatchStr.verticallAlignment = VerticalAlignment.TOP; xpos =
+         * xstart ; ypos = ypos + charHeight;
+         * supercellMatchStr.setCoordinates(xpos, ypos);
+         * strList.add(supercellMatchStr);
+         * 
+         * String sighailStr = new String(sarsInfo.getSighailStr(), (i*60), 60);
+         * //System.out.println("sighail str #"+ (1+ i)+ " "+ sighailStr); RGB
+         * strColor1 =
+         * NsharpConstants.gempakColorToRGB.get(sarsInfo.getSighailStrColor());
+         * sighailStr = sighailStr.substring(0, sighailStr.indexOf('\0'));// get
+         * rid of tailing null char(s), as DrawableString will print them out
+         * DrawableString sighailMatchStr = new DrawableString(sighailStr,
+         * strColor1); sighailMatchStr.font = font10;
+         * sighailMatchStr.horizontalAlignment = HorizontalAlignment.LEFT;
+         * sighailMatchStr.verticallAlignment = VerticalAlignment.TOP; xpos =
+         * xstart + 0.51 *spcFrameWidth; sighailMatchStr.setCoordinates(xpos,
+         * ypos); strList.add(sighailMatchStr); }
+         */
+
+        target.drawStrings(strList.toArray(new DrawableString[strList.size()]));
+        target.drawLine(lineList.toArray(new DrawableLine[lineList.size()]));
+    }
+
+    /*
+     * This function is based on this function is derived from show_skewtpage1()
+     * plus show_hail_new() of xwvid3.c of BigNsharp.
+     */
+    private void plotHail(int side) throws VizException {
+        // nsharpNative.setSarsSupcellFileName();
+        // NsharpNative.NsharpLibrary.HailInfoStr hailInfo = new
+        // NsharpNative.NsharpLibrary.HailInfoStr();
+        // nsharpNative.nsharpLib.getHailInfo(hailInfo);
+        List<DrawableLine> lineList = new ArrayList<DrawableLine>();
+        List<DrawableString> strList = new ArrayList<DrawableString>();
+        this.font11.setSmoothing(false);
+        this.font11.setScaleFont(false);
+        this.font12.setSmoothing(false);
+        this.font12.setScaleFont(false);
+        this.font10.setSmoothing(false);
+        this.font10.setScaleFont(false);
+        setXyStartingPosition(side);
+        // title string is hard coded
+        DrawableString titleStr = new DrawableString(
+                "* * * HAILCAST HAIL MODEL - 4/21/10 * * *",
+                NsharpConstants.color_yellow);
+        titleStr.font = font10;
+        titleStr.horizontalAlignment = HorizontalAlignment.CENTER;
+        titleStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.5 * spcFrameWidth;
+        ypos = ystart + 0.3 * charHeight;
+        titleStr.setCoordinates(xpos, ypos);
+        strList.add(titleStr);
+        int numLineHailStr;
+        if (hailInfo.getMatches() <= 0) {
+            numLineHailStr = NsharpNative.NsharpLibrary.HailInfoStr.HAIL_STRING_LINES_NO_MATCH;
+        } else {
+            numLineHailStr = NsharpNative.NsharpLibrary.HailInfoStr.HAIL_STRING_LINES;
+        }
+        for (int i = 0; i < numLineHailStr; i++) {
+            ypos = ypos + 1.4 * charHeight;
+            String hailStr = new String(
+                    hailInfo.getHaillStr(),
+                    (i * NsharpNative.NsharpLibrary.HailInfoStr.HAIL_STRING_LEN),
+                    NsharpNative.NsharpLibrary.HailInfoStr.HAIL_STRING_LEN);
+            RGB strColor = NsharpConstants.gempakColorToRGB.get(hailInfo
+                    .getHailStrColor()[i]);
+            DrawableString hailDrawStr = new DrawableString(hailStr.trim(),
+                    strColor);
+            hailDrawStr.font = font10;
+            hailDrawStr.horizontalAlignment = HorizontalAlignment.LEFT;
+            hailDrawStr.verticallAlignment = VerticalAlignment.TOP;
+            xpos = xstart;
+            if (i == 4) {
+                DrawableLine line1 = new DrawableLine(); // draw line
+                line1.lineStyle = LineStyle.SOLID;
+                line1.basics.color = NsharpConstants.color_white;
+                line1.width = 1;
+                line1.setCoordinates(xstart, ypos);
+                line1.addPoint(xend, ypos);
+                lineList.add(line1);
+                hailDrawStr.font = font12; // string line 5 has bigger font
+                if (hailInfo.getMember() == 0) {
+                    // in this case, string line 6 is empty line
+                    hailDrawStr.horizontalAlignment = HorizontalAlignment.CENTER;
+                    xpos = xstart + 0.5 * spcFrameWidth;
+                } else {
+                    xpos = xstart + 0.1 * spcFrameWidth;
+                }
+            }
+            if (i == 5) {
+                ypos = ypos - 1.4 * charHeight; // string line 6 has same y
+                                                // position as line 5
+                hailDrawStr.font = font12; // string line 6 has bigger font
+                if (hailInfo.getMember() > 0) {
+                    xpos = xend - 0.1 * spcFrameWidth;
+                    hailDrawStr.horizontalAlignment = HorizontalAlignment.RIGHT;
+                }
+            }
+            if (i == 6) {
+                // add a line
+                DrawableLine line1 = new DrawableLine();
+                line1.lineStyle = LineStyle.SOLID;
+                line1.basics.color = NsharpConstants.color_white;
+                line1.width = 1;
+                ypos = ypos + 0.5 * charHeight;
+                line1.setCoordinates(xstart, ypos);
+                line1.addPoint(xend, ypos);
+                lineList.add(line1);
+
+                // sarsHailStr is hard coded
+                ypos = ypos + 0.3 * charHeight;
+                DrawableString sarsHailStr = new DrawableString(
+                        "* * * SARS HAIL SIZE * * *",
+                        NsharpConstants.color_yellow);
+                sarsHailStr.font = font10;
+                sarsHailStr.horizontalAlignment = HorizontalAlignment.CENTER;
+                sarsHailStr.verticallAlignment = VerticalAlignment.TOP;
+                xpos = xstart + 0.5 * spcFrameWidth;
+                sarsHailStr.setCoordinates(xpos, ypos);
+                strList.add(sarsHailStr);
+
+                // string line 7, with bigger font
+                ypos = ypos + charHeight;
+                hailDrawStr.font = font12;
+                hailDrawStr.horizontalAlignment = HorizontalAlignment.CENTER;
+                if (hailInfo.getMatches() <= 0) {
+                    // no match,line 8 is not needed, add a line
+                    DrawableLine line2 = new DrawableLine();
+                    line2.lineStyle = LineStyle.SOLID;
+                    line2.basics.color = NsharpConstants.color_white;
+                    line2.width = 1;
+                    line2.setCoordinates(xstart, ypos + 1.5 * charHeight);
+                    line2.addPoint(xend, ypos + 1.5 * charHeight);
+                    lineList.add(line2);
+                } else {
+                    // need continue for string line 8
+                    ypos = ypos + 0.2 * charHeight;
+                }
+            }
+            if (i == 7 && hailInfo.getMatches() > 0) { // has match, need line 8
+                hailDrawStr.horizontalAlignment = HorizontalAlignment.CENTER;
+                xpos = xstart + 0.5 * spcFrameWidth;
+                // add aline
+                DrawableLine line2 = new DrawableLine();
+                line2.lineStyle = LineStyle.SOLID;
+                line2.basics.color = NsharpConstants.color_white;
+                line2.width = 1;
+                line2.setCoordinates(xstart, ypos + 1.5 * charHeight);
+                line2.addPoint(xend, ypos + 1.5 * charHeight);
+                lineList.add(line2);
+
+            }
+            hailDrawStr.setCoordinates(xpos, ypos);
+            strList.add(hailDrawStr);
+        }
+        if (hailInfo.getMatches() > 0) {
+            DrawableString sarsOutputStr = new DrawableString(
+                    "SARS output ranges for reported sizes (white)",
+                    NsharpConstants.color_white);
+            sarsOutputStr.font = font10;
+            sarsOutputStr.horizontalAlignment = HorizontalAlignment.CENTER;
+            sarsOutputStr.verticallAlignment = VerticalAlignment.TOP;
+            xpos = xstart + 0.5 * spcFrameWidth;
+            ypos = ypos + 2 * charHeight;
+            sarsOutputStr.setCoordinates(xpos, ypos);
+            strList.add(sarsOutputStr);
+            double tokenLen = spcFrameWidth / hailSize[0].length;
+
+            String reportHailStr = new String(hailInfo.getReportHailStr());
+            reportHailStr = reportHailStr.trim();
+            double boxYStart = ypos + 1.4 * charHeight;
+            double boxXStart = 0;
+            for (int row = 0; row < hailSize.length; ++row) {
+                ypos = ypos + 1.4 * charHeight;
+                for (int column = 0; column < hailSize[row].length; ++column) {
+                    DrawableString hailSizeStr = new DrawableString(
+                            hailSize[row][column], hailSizeColor[row][column]);
+                    hailSizeStr.horizontalAlignment = HorizontalAlignment.LEFT;
+                    hailSizeStr.verticallAlignment = VerticalAlignment.TOP;
+                    xpos = xstart + column * tokenLen;
+                    hailSizeStr.setCoordinates(xpos, ypos);
+                    if (row == 0 && hailSize[row][column].equals(reportHailStr)) {
+                        hailSizeStr.font = font12;
+                        boxXStart = xpos - charWidth;
+                    } else
+                        hailSizeStr.font = font10;
+                    strList.add(hailSizeStr);
+                }
+            }
+            if (boxXStart > 0) {
+                PixelExtent pixExt1 = new PixelExtent(boxXStart, boxXStart + 8
+                        * charWidth, boxYStart, ypos + 1.4 * charHeight);
+                target.drawRect(pixExt1, NsharpConstants.color_cyan_md, 1.0f,
+                        1.0f);
+
+            }
+        }
+        target.drawStrings(strList.toArray(new DrawableString[strList.size()]));
+        target.drawLine(lineList.toArray(new DrawableLine[lineList.size()]));
     }
 
     /*
@@ -306,6 +656,281 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
         ypos = ypos + charHeight;
         fosbergStr.setCoordinates(xstart + 0.27 * spcFrameWidth, ypos);
         strList.add(fosbergStr);
+        target.drawStrings(strList.toArray(new DrawableString[strList.size()]));
+        target.drawLine(lineList.toArray(new DrawableLine[lineList.size()]));
+    }
+
+    /*
+     * This function is based on show_winter_new() in xwvid3.c of BigNsharp
+     */
+    private void plotWinter(int side) throws VizException {
+        String temp1 = new String(winterInfo.getTempProfile1());
+        String temp2 = new String(winterInfo.getTempProfile2());
+        String temp3 = new String(winterInfo.getTempProfile3());
+        String wetbulb1 = new String(winterInfo.getWetbulbProfile1());
+        String wetbulb2 = new String(winterInfo.getWetbulbProfile2());
+        String wetbulb3 = new String(winterInfo.getWetbulbProfile3());
+        String bestGuess1 = new String(winterInfo.getBestGuess1());
+        String bestGuess2 = new String(winterInfo.getBestGuess2());
+        String initPhase = new String(winterInfo.getInitPhase());
+        String meanLayerMixRat = new String(winterInfo.getMeanLayerMixRat());
+        String meanLayerOmega = new String(winterInfo.getMeanLayerOmega());
+        String meanLayerPw = new String(winterInfo.getMeanLayerPw());
+        String meanLayerRh = new String(winterInfo.getMeanLayerRh());
+        String layerDepth = new String(winterInfo.getLayerDepth());
+        String oprh = new String(winterInfo.getOprh());
+        // System.out.println("oprh=" +oprh);
+        // System.out.println("temp2=" +temp2);
+        List<DrawableLine> lineList = new ArrayList<DrawableLine>();
+        List<DrawableString> strList = new ArrayList<DrawableString>();
+        this.font11.setSmoothing(false);
+        this.font11.setScaleFont(false);
+        this.font12.setSmoothing(false);
+        this.font12.setScaleFont(false);
+        this.font10.setSmoothing(false);
+        setXyStartingPosition(side);
+        DrawableString titleStr = new DrawableString(
+                " * * * DENDRITIC GROWTH ZONE (-12 to -17C) * * *",
+                NsharpConstants.color_yellow);
+        titleStr.font = font11;
+        titleStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        titleStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.1 * spcFrameWidth;
+        ypos = ystart;
+        titleStr.setCoordinates(xpos, ypos);
+        strList.add(titleStr);
+        RGB oprhColor;
+        if (winterInfo.getMopw() < -.1f)
+            oprhColor = NsharpConstants.color_red; // setcolor(13);
+        else
+            oprhColor = NsharpConstants.color_white;// setcolor(31);
+
+        DrawableString oprhStr = new DrawableString(oprh.trim(), oprhColor);
+        oprhStr.font = font10;
+        oprhStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        oprhStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * spcFrameWidth;
+        ypos = ypos + 1.5 * charHeight;
+        ;
+        oprhStr.setCoordinates(xpos, ypos);
+        strList.add(oprhStr);
+
+        DrawableString layerDepthStr = new DrawableString(layerDepth.trim(),
+                NsharpConstants.color_white);
+        layerDepthStr.font = font10;
+        layerDepthStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        layerDepthStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 1.5 * charHeight;
+
+        layerDepthStr.setCoordinates(xpos, ypos);
+        strList.add(layerDepthStr);
+
+        DrawableString meanLayerRhStr = new DrawableString(meanLayerRh.trim(),
+                NsharpConstants.color_white);
+        meanLayerRhStr.font = font10;
+        meanLayerRhStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        meanLayerRhStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 1.5 * charHeight;
+        ;
+        meanLayerRhStr.setCoordinates(xpos, ypos);
+        strList.add(meanLayerRhStr);
+
+        DrawableLine line = new DrawableLine();
+        line.lineStyle = LineStyle.SOLID;
+        line.basics.color = NsharpConstants.color_white;
+        line.width = 1;
+        xpos = xstart + 0.5 * spcFrameWidth;
+        line.setCoordinates(xpos, ypos);
+        line.addPoint(xpos, ypos + 3 * charHeight);
+        lineList.add(line);
+
+        DrawableString meanLayerMixRatStr = new DrawableString(
+                meanLayerMixRat.trim(), NsharpConstants.color_white);
+        meanLayerMixRatStr.font = font10;
+        meanLayerMixRatStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        meanLayerMixRatStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.5 * charWidth + 0.5 * spcFrameWidth;
+        meanLayerMixRatStr.setCoordinates(xpos, ypos);
+        strList.add(meanLayerMixRatStr);
+
+        DrawableString meanLayerPwStr = new DrawableString(meanLayerPw.trim(),
+                NsharpConstants.color_white);
+        meanLayerPwStr.font = font10;
+        meanLayerPwStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        meanLayerPwStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 1.5 * charHeight;
+
+        meanLayerPwStr.setCoordinates(xpos, ypos);
+        strList.add(meanLayerPwStr);
+
+        DrawableString meanLayerOmegaStr = new DrawableString(
+                meanLayerOmega.trim(), NsharpConstants.color_white);
+        meanLayerOmegaStr.font = font10;
+        meanLayerOmegaStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        meanLayerOmegaStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.5 * charWidth + 0.5 * spcFrameWidth;
+        meanLayerOmegaStr.setCoordinates(xpos, ypos);
+        strList.add(meanLayerOmegaStr);
+
+        DrawableLine line1 = new DrawableLine();
+        line1.lineStyle = LineStyle.SOLID;
+        line1.basics.color = NsharpConstants.color_white;
+        line1.width = 1;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 1.5 * charHeight;
+        line1.setCoordinates(xpos, ypos);
+        line1.addPoint(xend - charWidth, ypos);
+        lineList.add(line1);
+
+        DrawableString initPhaseStr = new DrawableString(initPhase.trim(),
+                NsharpConstants.color_white);
+        initPhaseStr.font = font10;
+        initPhaseStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        initPhaseStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 0.5 * charHeight;
+        initPhaseStr.setCoordinates(xpos, ypos);
+        strList.add(initPhaseStr);
+
+        DrawableLine line2 = new DrawableLine();
+        line2.lineStyle = LineStyle.SOLID;
+        line2.basics.color = NsharpConstants.color_white;
+        line2.width = 1;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 1.5 * charHeight;
+        line2.setCoordinates(xpos, ypos);
+        line2.addPoint(xend - charWidth, ypos);
+        lineList.add(line2);
+
+        DrawableLine line3 = new DrawableLine();
+        line3.lineStyle = LineStyle.SOLID;
+        line3.basics.color = NsharpConstants.color_white;
+        line3.width = 1;
+        xpos = xstart + 0.5 * spcFrameWidth;
+        line3.setCoordinates(xpos, ypos);
+        double line3End = ypos + 6.5 * charHeight;
+        line3.addPoint(xpos, line3End);
+        lineList.add(line3);
+
+        DrawableString tempProfileTitleStr = new DrawableString(
+                "TEMPERATURE PROFILE", NsharpConstants.color_white);
+        tempProfileTitleStr.font = font10;
+        tempProfileTitleStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        tempProfileTitleStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 0.5 * charHeight;
+        tempProfileTitleStr.setCoordinates(xpos, ypos);
+        strList.add(tempProfileTitleStr);
+
+        DrawableString wetbulbTitleStr = new DrawableString("WETBULB PROFILE",
+                NsharpConstants.color_white);
+        wetbulbTitleStr.font = font10;
+        wetbulbTitleStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        wetbulbTitleStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.5 * charWidth + 0.5 * spcFrameWidth;
+        wetbulbTitleStr.setCoordinates(xpos, ypos);
+        strList.add(wetbulbTitleStr);
+
+        DrawableString temp1Str = new DrawableString(temp1.trim(),
+                NsharpConstants.color_white);
+        temp1Str.font = font10;
+        temp1Str.horizontalAlignment = HorizontalAlignment.LEFT;
+        temp1Str.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 1.5 * charHeight;
+        temp1Str.setCoordinates(xpos, ypos);
+        strList.add(temp1Str);
+
+        DrawableString wetbulb1Str = new DrawableString(wetbulb1.trim(),
+                NsharpConstants.color_white);
+        wetbulb1Str.font = font10;
+        wetbulb1Str.horizontalAlignment = HorizontalAlignment.LEFT;
+        wetbulb1Str.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.5 * charWidth + 0.5 * spcFrameWidth;
+        wetbulb1Str.setCoordinates(xpos, ypos);
+        strList.add(wetbulb1Str);
+
+        DrawableString temp2Str = new DrawableString(temp2.trim(),
+                NsharpConstants.color_white);
+        temp2Str.font = font10;
+        temp2Str.horizontalAlignment = HorizontalAlignment.LEFT;
+        temp2Str.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 1.5 * charHeight;
+        temp2Str.setCoordinates(xpos, ypos);
+        strList.add(temp2Str);
+
+        DrawableString wetbulb2Str = new DrawableString(wetbulb2.trim(),
+                NsharpConstants.color_white);
+        wetbulb2Str.font = font10;
+        wetbulb2Str.horizontalAlignment = HorizontalAlignment.LEFT;
+        wetbulb2Str.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.5 * charWidth + 0.5 * spcFrameWidth;
+        wetbulb2Str.setCoordinates(xpos, ypos);
+        strList.add(wetbulb2Str);
+
+        DrawableString temp3Str = new DrawableString(temp3.trim(),
+                NsharpConstants.color_white);
+        temp3Str.font = font10;
+        temp3Str.horizontalAlignment = HorizontalAlignment.LEFT;
+        temp3Str.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.3 * charWidth;
+        ypos = ypos + 1.5 * charHeight;
+        temp3Str.setCoordinates(xpos, ypos);
+        strList.add(temp3Str);
+
+        DrawableString wetbulb3Str = new DrawableString(wetbulb3.trim(),
+                NsharpConstants.color_white);
+        wetbulb3Str.font = font10;
+        wetbulb3Str.horizontalAlignment = HorizontalAlignment.LEFT;
+        wetbulb3Str.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.5 * charWidth + 0.5 * spcFrameWidth;
+        wetbulb3Str.setCoordinates(xpos, ypos);
+        strList.add(wetbulb3Str);
+
+        DrawableLine line4 = new DrawableLine();
+        line4.lineStyle = LineStyle.SOLID;
+        line4.basics.color = NsharpConstants.color_white;
+        line4.width = 1;
+        xpos = xstart + 0.3 * charWidth;
+        line4.setCoordinates(xpos, line3End);
+        line4.addPoint(xend - charWidth, line3End);
+        lineList.add(line4);
+
+        DrawableString bestGuessTitleStr = new DrawableString(
+                "* * * BEST GUESS PRECIP TYPE * * *",
+                NsharpConstants.color_white);
+        bestGuessTitleStr.font = font10;
+        bestGuessTitleStr.horizontalAlignment = HorizontalAlignment.LEFT;
+        bestGuessTitleStr.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.25 * spcFrameWidth;
+        ypos = ypos + 2 * charHeight;
+        bestGuessTitleStr.setCoordinates(xpos, ypos);
+        strList.add(bestGuessTitleStr);
+
+        DrawableString bestGuess1Str = new DrawableString(bestGuess1.trim(),
+                NsharpConstants.color_white);
+        bestGuess1Str.font = font12;
+        bestGuess1Str.horizontalAlignment = HorizontalAlignment.LEFT;
+        bestGuess1Str.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.45 * spcFrameWidth;
+        ypos = ypos + 1.5 * charHeight;
+        bestGuess1Str.setCoordinates(xpos, ypos);
+        strList.add(bestGuess1Str);
+
+        DrawableString bestGuess2Str = new DrawableString(bestGuess2.trim(),
+                NsharpConstants.color_white);
+        bestGuess2Str.font = font10;
+        bestGuess2Str.horizontalAlignment = HorizontalAlignment.LEFT;
+        bestGuess2Str.verticallAlignment = VerticalAlignment.TOP;
+        xpos = xstart + 0.25 * spcFrameWidth;
+        ypos = ypos + 1.5 * charHeight;
+        bestGuess2Str.setCoordinates(xpos, ypos);
+        strList.add(bestGuess2Str);
+
         target.drawStrings(strList.toArray(new DrawableString[strList.size()]));
         target.drawLine(lineList.toArray(new DrawableLine[lineList.size()]));
     }
@@ -1361,13 +1986,13 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             plotFire(left);
             break;
         case WINTER:
-            underDevelopment(0);// plotWinter(left);
+            plotWinter(left);
             break;
         case HAIL:
-            underDevelopment(0);// plotHail(left);
+            plotHail(left);
             break;
         case SARS:
-            underDevelopment(0);// plotSars(left);
+            plotSars(left);
             break;
         }
         // target.clearClippingPlane();
@@ -1388,13 +2013,13 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
             plotFire(right);
             break;
         case WINTER:
-            underDevelopment(1);// plotWinter(right);
+            plotWinter(right);
             break;
         case HAIL:
-            underDevelopment(1);// plotHail(right);//
+            plotHail(right);
             break;
         case SARS:
-            underDevelopment(1);// plotSars(right);
+            plotSars(right);
             break;
         }
         // target.clearClippingPlane();
@@ -1456,11 +2081,21 @@ public class NsharpSpcGraphsPaneResource extends NsharpAbstractPaneResource {
     }
 
     public void getSpcGraphsInfo() {
-
+        if (leftGraph == NsharpConstants.SPCGraph.WINTER
+                || rightGraph == NsharpConstants.SPCGraph.WINTER) {
+            nsharpNative.nsharpLib.getWinterInfo(winterInfo);
+        }
         if (leftGraph == NsharpConstants.SPCGraph.FIRE
                 || rightGraph == NsharpConstants.SPCGraph.FIRE) {
             nsharpNative.nsharpLib.getFireInfo(fireInfo);
         }
-
+        if (leftGraph == NsharpConstants.SPCGraph.HAIL
+                || rightGraph == NsharpConstants.SPCGraph.HAIL) {
+            nsharpNative.nsharpLib.getHailInfo(hailInfo);
+        }
+        if (leftGraph == NsharpConstants.SPCGraph.SARS
+                || rightGraph == NsharpConstants.SPCGraph.SARS) {
+            nsharpNative.nsharpLib.getSarsInfo(sarsInfo);
+        }
     }
 }

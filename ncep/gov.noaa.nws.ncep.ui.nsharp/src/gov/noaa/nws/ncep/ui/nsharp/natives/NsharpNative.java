@@ -359,6 +359,160 @@ public class NsharpNative {
 
         }
 
+        public static class SarsInfoStr extends Structure {
+            public static int SARS_STRING_LEN = 40;
+
+            public static int SARS_STRING_LINES = 12;
+
+            // / max=10
+            public int numHailstr;
+
+            // / C type : char[10][60]
+            public byte[] hailStr = new byte[SARS_STRING_LINES
+                    * SARS_STRING_LEN];
+
+            // / C type : int[10]
+            public int[] hailStrColor = new int[(SARS_STRING_LINES)];
+
+            // / C type : char[2][60]
+            // public byte[] sighailStr = new byte[2 * 60];
+            // public int sighailStrColor;
+            // / max=10
+            public int numsupcellstr;
+
+            // / C type : char[10][60]
+            public byte[] supcellStr = new byte[SARS_STRING_LINES
+                    * SARS_STRING_LEN];
+
+            // / C type : int[10]
+            public int[] supcellStrColor = new int[(SARS_STRING_LINES)];
+
+            // / C type : char[2][60]
+            // public byte[] torStr = new byte[2 * 60];
+            // public int torStrColor;
+            public SarsInfoStr() {
+                super();
+            }
+
+            protected ByReference newByReference() {
+                return new ByReference();
+            }
+
+            protected ByValue newByValue() {
+                return new ByValue();
+            }
+
+            protected SarsInfoStr newInstance() {
+                return new SarsInfoStr();
+            }
+
+            public static class ByReference extends SarsInfoStr implements
+                    Structure.ByReference {
+
+            }
+
+            public static class ByValue extends SarsInfoStr implements
+                    Structure.ByValue {
+
+            }
+
+            public int getNumHailstr() {
+                return numHailstr;
+            }
+
+            public byte[] getHailStr() {
+                return hailStr;
+            }
+
+            public int[] getHailStrColor() {
+                return hailStrColor;
+            }
+
+            /*
+             * public byte[] getSighailStr() { return sighailStr; } public int
+             * getSighailStrColor() { return sighailStrColor; }
+             */
+            public int getNumsupcellstr() {
+                return numsupcellstr;
+            }
+
+            public byte[] getSupcellStr() {
+                return supcellStr;
+            }
+
+            public int[] getSupcellStrColor() {
+                return supcellStrColor;
+            }
+            /*
+             * public byte[] getTorStr() { return torStr; } public int
+             * getTorStrColor() { return torStrColor; }
+             */
+
+        }
+
+        public static class HailInfoStr extends Structure {
+            public static int HAIL_STRING_LEN = 80;
+
+            public static int HAIL_STRING_LINES = 8;
+
+            public static int HAIL_STRING_LINES_NO_MATCH = 7;
+
+            public byte[] reportHailStr = new byte[10];
+
+            public int matches; // 0 means "no match"
+
+            public int member; // 0 means "No Convecting members"
+
+            public byte[] haillStr = new byte[HAIL_STRING_LINES
+                    * HAIL_STRING_LEN];
+
+            public int[] hailStrColor = new int[(HAIL_STRING_LINES)];
+
+            public HailInfoStr() {
+                super();
+                // TODO Auto-generated constructor stub
+            }
+
+            public static class ByReference extends HailInfoStr implements
+                    Structure.ByReference {
+
+            }
+
+            public static class ByValue extends HailInfoStr implements
+                    Structure.ByValue {
+
+            }
+
+            protected ByReference newByReference() {
+                return new ByReference();
+            }
+
+            protected ByValue newByValue() {
+                return new ByValue();
+            }
+
+            public int getMatches() {
+                return matches;
+            }
+
+            public byte[] getHaillStr() {
+                return haillStr;
+            }
+
+            public byte[] getReportHailStr() {
+                return reportHailStr;
+            }
+
+            public int getMember() {
+                return member;
+            }
+
+            public int[] getHailStrColor() {
+                return hailStrColor;
+            }
+
+        }
+
         public static class FireInfoStr extends Structure {
             public int sfcRhColor = 31;
 
@@ -459,6 +613,132 @@ public class NsharpNative {
 
             public byte[] getFosberg() {
                 return fosberg;
+            }
+
+        }
+
+        public static class WinterInfoStr extends Structure {
+            public float mopw;
+
+            /*
+             * public float htop; public float hbot; public float mrh; public
+             * float mq; public float mo; public float pw; public float pLevel;
+             */
+            public byte[] oprh = new byte[(60)];
+
+            public byte[] layerDepth = new byte[(60)];
+
+            public byte[] meanLayerRh = new byte[(60)];
+
+            public byte[] meanLayerMixRat = new byte[(60)];
+
+            public byte[] meanLayerPw = new byte[(60)];
+
+            public byte[] meanLayerOmega = new byte[(60)];
+
+            public byte[] initPhase = new byte[(100)];
+
+            public byte[] tempProfile1 = new byte[(60)];
+
+            public byte[] tempProfile2 = new byte[(60)];
+
+            public byte[] tempProfile3 = new byte[(60)];
+
+            public byte[] wetbulbProfile1 = new byte[(60)];
+
+            public byte[] wetbulbProfile2 = new byte[(60)];
+
+            public byte[] wetbulbProfile3 = new byte[(60)];
+
+            public byte[] bestGuess1 = new byte[(60)];
+
+            public byte[] bestGuess2 = new byte[(60)];
+
+            public WinterInfoStr() {
+                super();
+                // TODO Auto-generated constructor stub
+            }
+
+            public static class ByReference extends WinterInfoStr implements
+                    Structure.ByReference {
+
+            }
+
+            public static class ByValue extends WinterInfoStr implements
+                    Structure.ByValue {
+
+            }
+
+            protected ByReference newByReference() {
+                return new ByReference();
+            }
+
+            protected ByValue newByValue() {
+                return new ByValue();
+            }
+
+            public float getMopw() {
+                return mopw;
+            }
+
+            public byte[] getOprh() {
+                return oprh;
+            }
+
+            public byte[] getLayerDepth() {
+                return layerDepth;
+            }
+
+            public byte[] getMeanLayerRh() {
+                return meanLayerRh;
+            }
+
+            public byte[] getMeanLayerMixRat() {
+                return meanLayerMixRat;
+            }
+
+            public byte[] getMeanLayerPw() {
+                return meanLayerPw;
+            }
+
+            public byte[] getMeanLayerOmega() {
+                return meanLayerOmega;
+            }
+
+            public byte[] getInitPhase() {
+                return initPhase;
+            }
+
+            public byte[] getTempProfile1() {
+                return tempProfile1;
+            }
+
+            public byte[] getTempProfile2() {
+                return tempProfile2;
+            }
+
+            public byte[] getTempProfile3() {
+                return tempProfile3;
+            }
+
+            public byte[] getWetbulbProfile1() {
+                return wetbulbProfile1;
+            }
+
+            public byte[] getWetbulbProfile2() {
+                return wetbulbProfile2;
+            }
+
+            public byte[] getWetbulbProfile3() {
+                return wetbulbProfile3;
+            }
+
+            public byte[] getBestGuess1() {
+                return bestGuess1;
+            }
+
+            public byte[] getBestGuess2() {
+                return bestGuess2;
             }
 
         }
@@ -662,7 +942,13 @@ public class NsharpNative {
 
         void draw_Clouds(NsharpLibrary.CloudInfoStr cloudInfo);
 
+        void getWinterInfo(NsharpLibrary.WinterInfoStr winterInfo);
+
         void getFireInfo(NsharpLibrary.FireInfoStr fireInfo);
+
+        void getHailInfo(NsharpLibrary.HailInfoStr hailInfo);
+
+        void getSarsInfo(NsharpLibrary.SarsInfoStr sarsInfo);
 
         // float cave_bulk_rich ( float lplpres, float bplus,FloatByReference
         // brnshear );
