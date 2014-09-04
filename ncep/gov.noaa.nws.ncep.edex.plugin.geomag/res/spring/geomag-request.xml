@@ -1,0 +1,64 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="trig1minCalc" class="gov.noaa.nws.ncep.edex.plugin.geomag.TrigKCalculation" />
+	
+    <camelContext id="geomag-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		
+		<endpoint id="geomagFileEndpoint" uri="file:${edex.home}/data/sbn/geomag?noop=true&amp;idempotent=false" />
+
+		<route id="geomagFileConsumerRoute">
+			<from ref="geomagFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>geomag</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.GeoMag" />
+		</route>
+		
+		<route id="geomagCalcRoute">
+	        <from uri="jms-generic:topic:edex.alerts"/>
+	        <doTry>
+		          <pipeline>
+		          	<bean ref="serializationUtil" method="transformFromThrift" />
+		            <bean ref="trig1minCalc" method="trig1min"/>
+		          </pipeline>
+		          <doCatch>
+		             <exception>java.lang.Throwable</exception>
+		             <to uri="log:geomag?level=ERROR"/> 
+		          </doCatch>
+	        </doTry>
+	    </route> 
+	   
+	</camelContext>
+	
+	<bean id="RetrieveHrAvgHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.RetrieveHrAvgRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveHrAvgRequest" />
+        <constructor-arg ref="RetrieveHrAvgHandler" />
+    </bean>
+    
+    <bean id="RetrieveK1minHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.RetrieveK1minRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveK1minRequest" />
+        <constructor-arg ref="RetrieveK1minHandler" />
+    </bean>
+    
+    <bean id="RetrieveSingleK1minHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.RetrieveSingleK1minRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveSingleK1minRequest" />
+        <constructor-arg ref="RetrieveSingleK1minHandler" />
+    </bean>
+</beans>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resourceDefnName>GEOMAG</resourceDefnName>
+    <inventoryEnabled>false</inventoryEnabled> 
+    <resourceCategory>TIMESERIES</resourceCategory>
+    <resourceParameters>
+pluginName=geomag
+reportType=GEOMAG
+    </resourceParameters>
+    <rscImplementation>GeoMag</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator>stationCode</rscTypeGenerator>
+    <timeMatchMethod>EXACT</timeMatchMethod>
+    <dfltGraphRange>12</dfltGraphRange>
+    <dfltHourSnap>3</dfltHourSnap>
+    <frameSpan>1</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>1</dfltFrameCount>
+    <dfltTimeRange>24</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

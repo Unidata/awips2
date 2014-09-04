@@ -249,7 +249,7 @@ public final class ProgressiveDisclosure {
     }
 
     public synchronized boolean checkAndUpdateProgDisclosureProperties() {
-        Tracer.print("> Entry");
+        Tracer.printX("> Entry");
         boolean update = updateNextPaint;
 
         final IDisplayPane activePane = NcDisplayMngr
@@ -261,7 +261,7 @@ public final class ProgressiveDisclosure {
         VizApp.runSync(new Runnable() {
             @Override
             public void run() {
-                Tracer.print("> Entry");
+                Tracer.printX("> Entry");
                 if (activePane != null) {
                     canvasBounds = activePane.getBounds();
 
@@ -341,7 +341,7 @@ public final class ProgressiveDisclosure {
         // if(canvasBounds.height != progDiscTask.canvasWidth)
 
         updateNextPaint = false;
-        Tracer.print("< Exit");
+        Tracer.printX("< Exit");
         return update;
     }
 

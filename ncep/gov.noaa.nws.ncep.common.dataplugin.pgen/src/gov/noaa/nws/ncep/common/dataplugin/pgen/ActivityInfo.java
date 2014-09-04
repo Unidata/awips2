@@ -17,6 +17,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2013            sgilbert     Initial creation
+ * Jan 25, 2014            jwu          Set default in accordance with those in "Product"
  * 
  * </pre>
  * 
@@ -27,31 +28,31 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
 public class ActivityInfo implements IServerRequest {
 
     @DynamicSerializeElement
-    private String activityName = "defaultName";
+    private String activityName = "Default";
 
     @DynamicSerializeElement
-    private String activityType = "defaultType";
+    private String activityType = "Default";
 
     @DynamicSerializeElement
-    private String activitySubtype = "defaultSubtype";
+    private String activitySubtype = "";
 
     @DynamicSerializeElement
-    private String activityLabel = "defaultLabel";
+    private String activityLabel = "Default";
 
     @DynamicSerializeElement
-    private String site = "site1";
+    private String site = "";
 
     @DynamicSerializeElement
-    private String desk = "desk1";
+    private String desk = "";
 
     @DynamicSerializeElement
-    private String forecaster = "person1";
+    private String forecaster = "";
 
     @DynamicSerializeElement
     private Calendar refTime = Calendar.getInstance();
 
     @DynamicSerializeElement
-    private String mode = "Unknown";
+    private String mode = "OPERATIONAL";
 
     @DynamicSerializeElement
     private String status = "Unknown";
