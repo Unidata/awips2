@@ -11,6 +11,7 @@ class ProductRetriever:
     def __init__(self,dataURI,label):
          self.dataURI = dataURI
          self.label = label
+         self.fullpath = False
          self.outdir = os.getcwd()
          self.host = os.getenv("DEFAULT_HOST", "localhost")
          self.port = os.getenv("DEFAULT_PORT", "9581")
@@ -18,6 +19,9 @@ class ProductRetriever:
 
     def setOutputDir(self, outdir):
          self.outdir = outdir
+    
+    def setFullpath(self, fullpath):
+         self.fullpath = fullpath
 
     def _writeout(self,filename,bytes):
         outname = self.outdir + str(os.sep) + filename
@@ -39,12 +43,18 @@ class ProductRetriever:
                      filename = self.label + ".xml"
              else:
                  filename = item.getName()
-
-             print "Extracting... " + filename
+             
+             if ( self.fullpath ):
+                 path = self.dataURI
+                 fname = path.replace("/", ".") + "$" + filename
+                 filename = fname.lstrip().strip(".").replace("..", ".")
+         
+         
              if isinstance(item, StringDataRecord):
                  self._writeout(filename,item.getStringData()[0])
              elif isinstance(item, ByteDataRecord):
                  self._writeout(filename,item.getByteData())
+             print "Extracted... " + filename
 
          return resp
              
