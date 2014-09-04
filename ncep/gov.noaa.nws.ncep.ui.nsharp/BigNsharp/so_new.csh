@@ -14,11 +14,12 @@
 # 5. Deploy the SL and add the path, e.g., AWIPS2/lib, to LD_LIBRARY_PATH 
 #    (in ~/.alias)
 #
-
+echo $NAWIPS
 $RM *.o glibnsharp.so Sndglib/*.o
 
 # CHIN was::set myLinkflags = "-L$AWIPS2/tools/lib -shared -Wl,-soname,libbignsharp.so -o libbignsharp.so"
-set myLinkflags = "-L$AWIPS2/tools/lib -L/usr1/cchen/awips2/tools/lib -shared -Wl,-soname,libbignsharp.so -o libbignsharp.so"
+#set myLinkflags = "-L$AWIPS2/tools/lib -L/usr1/cchen/awips2/tools/lib -shared -Wl,-soname,libbignsharp.so -o libbignsharp.so"
+set myLinkflags = "-L$AWIPS2/tools/lib -L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/ -shared -Wl,-soname,libbignsharp.so -o libbignsharp.so"
 set myLinktail = "-lg2c -lc $XLIBS -lz -lm"
 
 #
@@ -74,7 +75,7 @@ echo " "
 if ( $check == "libbignsharp.so") then
 	echo "****** Shared library is created ******\n "
 	echo " "
-	cp libbignsharp.so $DEV_BASE/workspace/gov.noaa.nws.ncep.ui.nsharp.linux32
+	cp libbignsharp.so $DEV_BASE/workspace/gov.noaa.nws.ncep.ui.nsharp.linux64
 else
 	echo "****** Houston, we got problems ******\n "
 endif

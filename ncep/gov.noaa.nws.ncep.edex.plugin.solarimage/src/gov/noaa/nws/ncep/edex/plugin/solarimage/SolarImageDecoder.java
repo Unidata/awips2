@@ -30,6 +30,7 @@ import com.raytheon.uf.common.time.DataTime;
  *                                         default "NA". Add "Site" for Halpha.
  * Jan 28, 2013 865        qzhou           Changed float to double for intTime.
  * Aug 30, 2013 2298       rjpeter         Make getPluginName abstract
+ * Mar 18, 2014            qzhou           Modified getObservationTime(BasicHDU).
  * </pre>
  * 
  * @author qzhou, sgurung
@@ -98,7 +99,6 @@ public class SolarImageDecoder extends AbstractDecoder {
             }
 
         } catch (FitsException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
             logger.error(e);
             // return new PluginDataObject[0];
         }
@@ -193,11 +193,15 @@ public class SolarImageDecoder extends AbstractDecoder {
             }
         }
 
-        if ((dateObs != null) && (dateObs.length() <= 10)) { // LASCO
-                                                             // dateObs=Date
-                                                             // +Time
+        // LASCO dateObs = Date + Time
+        if ((dateObs != null) && (dateObs.length() <= 10)) {
             SimpleDateFormat sdfAlt = new SimpleDateFormat(DATE_TIME_FORMAT_ALT);
-            dateObs = dateObs + "T" + hdu.getTrimmedString("TIME-OBS");
+
+            String time = hdu.getTrimmedString("TIME-OBS"); // 12:00:00.000
+            if (time.length() == 8) // 12:00:00
+                time = time + ".000";
+
+            dateObs = dateObs + "T" + time;
             return sdfAlt.parse(dateObs);
 
         }

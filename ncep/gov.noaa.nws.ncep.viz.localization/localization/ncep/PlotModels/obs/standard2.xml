@@ -36,7 +36,7 @@
         <Position>MR</Position>
         <Color red="205" green="133" blue="0"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="14" paramName="P03C">
+    <PlotModelElement symbolSize="1" textStyle="Bold" textFont="Courier" textSize="14" paramName="PTND">
         <Position>LC</Position>
         <Color red="238" green="238" blue="0"/>
     </PlotModelElement>

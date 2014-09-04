@@ -2,203 +2,218 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 
 public class ContourAttributes {
 
-	private String glevel;
-	
-	private String gvcord;
-	
-	private String skip;
-	
-	private String filter; 
-		
-	private String scale;
-	
-	private String gdpfun;
-	
-	private String type;
-	
-	private String cint;
-	
-	private String line;
-	
-	private String fint;
-	
-	private String fline;
-	
-	private String hilo;
-	
-	private String hlsym;
-	
-	private String wind;
-	
-	private String marker;
-	
-	private String clrbar;
-	
-	private String text;
+    private String glevel;
 
-	public String getGlevel() {
-		return glevel;
-	}
+    private String gvcord;
 
-	public void setGlevel(String glevel) {
-		this.glevel = glevel;
-	}
+    private String skip;
 
-	public String getGvcord() {
-		return gvcord;
-	}
+    private String filter;
 
-	public void setGvcord(String gvcord) {
-		this.gvcord = gvcord;
-	}
+    private String scale;
 
-	public String getSkip() {
-		return skip;
-	}
+    private String gdpfun;
 
-	public void setSkip(String skip) {
-		this.skip = skip;
-	}
+    private String type;
 
-	public String getFilter() {
-		return filter;
-	}
+    private String cint;
 
-	public void setFilter(String filter) {
-		this.filter = filter;
-	}
+    private String line;
 
-	public String getScale() {
-		return scale;
-	}
+    private String fint;
 
-	public void setScale(String scale) {
-		this.scale = scale;
-	}
+    private String fline;
 
-	public String getGdpfun() {
-		return gdpfun;
-	}
+    private String hilo;
 
-	public void setGdpfun(String gdpfun) {
-		this.gdpfun = gdpfun;
-	}
+    private String hlsym;
 
-	public String getType() {
-		return type;
-	}
+    private String wind;
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    private String marker;
 
-	public String getCint() {
-		return cint;
-	}
+    private String clrbar;
 
-	public void setCint(String cint) {
-		this.cint = cint;
-	}
+    private String text;
 
-	public String getLine() {
-		return line;
-	}
+    private String colors;
 
-	public void setLine(String line) {
-		this.line = line;
-	}
+    public String getGlevel() {
+        return glevel;
+    }
 
-	public String getFint() {
-		return fint;
-	}
+    public void setGlevel(String glevel) {
+        this.glevel = glevel;
+    }
 
-	public void setFint(String fint) {
-		this.fint = fint;
-	}
+    public String getGvcord() {
+        return gvcord;
+    }
 
-	public String getFline() {
-		return fline;
-	}
+    public void setGvcord(String gvcord) {
+        this.gvcord = gvcord;
+    }
 
-	public void setFline(String fline) {
-		this.fline = fline;
-	}
+    public String getSkip() {
+        return skip;
+    }
 
-	public String getHilo() {
-		return hilo;
-	}
+    public void setSkip(String skip) {
+        this.skip = skip;
+    }
 
-	public void setHilo(String hilo) {
-		this.hilo = hilo;
-	}
+    public String getFilter() {
+        return filter;
+    }
 
-	public String getHlsym() {
-		return hlsym;
-	}
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
 
-	public void setHlsym(String hlsym) {
-		this.hlsym = hlsym;
-	}
+    public String getScale() {
+        return scale;
+    }
 
-	public String getWind() {
-		return wind;
-	}
+    public void setScale(String scale) {
+        this.scale = scale;
+    }
 
-	public void setWind(String wind) {
-		this.wind = wind;
-	}
+    public String getGdpfun() {
+        return gdpfun;
+    }
 
-	public String getMarker() {
-		return marker;
-	}
+    public void setGdpfun(String gdpfun) {
+        this.gdpfun = gdpfun;
+    }
 
-	public void setMarker(String marker) {
-		this.marker = marker;
-	}
-    
-	/**
-	 * @return the clrbar
-	 */
-	public final String getClrbar() {
-		return clrbar;
-	}
+    public String getType() {
+        return type;
+    }
 
-	/**
-	 * @param clrbar the clrbar to set
-	 */
-	public final void setClrbar(String clrbar) {
-		this.clrbar = clrbar;
-	}
-	
-	public String getText() {
-		return text;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+    public String getCint() {
+        return cint;
+    }
 
-	public boolean isMatch ( ContourAttributes attr) {
-		boolean match = false;
-		if ( this.glevel.trim().equalsIgnoreCase(attr.getGlevel())&&
-			 this.gvcord.trim().equalsIgnoreCase(attr.getGvcord()) &&
-			 this.skip.trim().equalsIgnoreCase(attr.getSkip()) &&
-			 this.filter.trim().equalsIgnoreCase(attr.getFilter()) &&
-			 this.scale.trim().equalsIgnoreCase(attr.getScale()) &&
-			 this.gdpfun.trim().equalsIgnoreCase(attr.getGdpfun()) &&
-			 this.type.trim().equalsIgnoreCase(attr.getType())&&
-			 this.cint.trim().equalsIgnoreCase(attr.getCint()) &&
-			 this.line.trim().equalsIgnoreCase(attr.getLine()) &&
-			 this.fint.trim().equalsIgnoreCase(attr.getFint()) &&
-			 this.fline.trim().equalsIgnoreCase(attr.getFline()) &&
-			 this.hilo.trim().equalsIgnoreCase(attr.getHilo()) &&
-			 this.hlsym.trim().equalsIgnoreCase(attr.getHlsym()) &&
-			 this.wind.trim().equalsIgnoreCase(attr.getWind()) &&
-			 this.marker.trim().equalsIgnoreCase(attr.getMarker()) &&
-			 this.clrbar.trim().equalsIgnoreCase(attr.getClrbar()) &&
-			 this.text.trim().equalsIgnoreCase(attr.getText())) {
-			match = true;
-		}
-		return match;
-	}
+    public void setCint(String cint) {
+        this.cint = cint;
+    }
+
+    public String getLine() {
+        return line;
+    }
+
+    public void setLine(String line) {
+        this.line = line;
+    }
+
+    public String getFint() {
+        return fint;
+    }
+
+    public void setFint(String fint) {
+        this.fint = fint;
+    }
+
+    public String getFline() {
+        return fline;
+    }
+
+    public void setFline(String fline) {
+        this.fline = fline;
+    }
+
+    public String getHilo() {
+        return hilo;
+    }
+
+    public void setHilo(String hilo) {
+        this.hilo = hilo;
+    }
+
+    public String getHlsym() {
+        return hlsym;
+    }
+
+    public void setHlsym(String hlsym) {
+        this.hlsym = hlsym;
+    }
+
+    public String getWind() {
+        return wind;
+    }
+
+    public void setWind(String wind) {
+        this.wind = wind;
+    }
+
+    public String getMarker() {
+        return marker;
+    }
+
+    public void setMarker(String marker) {
+        this.marker = marker;
+    }
+
+    /**
+     * @return the clrbar
+     */
+    public final String getClrbar() {
+        return clrbar;
+    }
+
+    /**
+     * @param clrbar
+     *            the clrbar to set
+     */
+    public final void setClrbar(String clrbar) {
+        this.clrbar = clrbar;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    /**
+     * @param colors
+     */
+    public String getColors() {
+        return colors;
+    }
+
+    public void setColors(String colors) {
+        this.colors = colors;
+    }
+
+    public boolean isMatch(ContourAttributes attr) {
+        boolean match = false;
+        if (this.glevel.trim().equalsIgnoreCase(attr.getGlevel())
+                && this.gvcord.trim().equalsIgnoreCase(attr.getGvcord())
+                && this.skip.trim().equalsIgnoreCase(attr.getSkip())
+                && this.filter.trim().equalsIgnoreCase(attr.getFilter())
+                && this.scale.trim().equalsIgnoreCase(attr.getScale())
+                && this.gdpfun.trim().equalsIgnoreCase(attr.getGdpfun())
+                && this.type.trim().equalsIgnoreCase(attr.getType())
+                && this.cint.trim().equalsIgnoreCase(attr.getCint())
+                && this.line.trim().equalsIgnoreCase(attr.getLine())
+                && this.fint.trim().equalsIgnoreCase(attr.getFint())
+                && this.fline.trim().equalsIgnoreCase(attr.getFline())
+                && this.hilo.trim().equalsIgnoreCase(attr.getHilo())
+                && this.hlsym.trim().equalsIgnoreCase(attr.getHlsym())
+                && this.wind.trim().equalsIgnoreCase(attr.getWind())
+                && this.marker.trim().equalsIgnoreCase(attr.getMarker())
+                && this.clrbar.trim().equalsIgnoreCase(attr.getClrbar())
+                && this.text.trim().equalsIgnoreCase(attr.getText())
+                && this.colors.trim().equalsIgnoreCase(attr.getColors())) {
+            match = true;
+        }
+        return match;
+    }
 }
