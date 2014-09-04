@@ -146,9 +146,10 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         lineWidth = 1;
         String windAttr = attrs.getWind();
         if (windAttr != null && !windAttr.isEmpty()) {
-            if (windAttr.contains("bk")) {
-                windAttr = windAttr.replace("bk", "");
-            }
+
+            // TTR 880, remove all chars except 0-9,.,/
+            windAttr = windAttr.replaceAll("[^0-9./]", "");
+
             String[] attr = windAttr.trim().split("/");
             colorIndex = Integer.parseInt(attr[0].trim());
             if (attr.length >= 2 && !attr[1].trim().isEmpty()) {

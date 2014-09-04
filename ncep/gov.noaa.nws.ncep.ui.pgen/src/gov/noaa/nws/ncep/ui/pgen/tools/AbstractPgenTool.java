@@ -32,6 +32,7 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
  * 										resetMouseHandler, and setWorkingComponent
  * 12/13        TTR899      J. Wu       Set delObjFlag to false when any Pgen Action 
  *                                      button is clicked
+ * 04/2014      TTR900      pswamy      R-click cannot return to SELECT from Rotate and DEL_OBJ
  * 
  * </pre>
  * 
@@ -46,7 +47,7 @@ public abstract class AbstractPgenTool extends AbstractModalTool {
 
     private static boolean delObjFlag;
 
-    private IInputHandler inputHandler = null;
+    protected IInputHandler inputHandler = null;
 
     /**
      * A handler to the current drawing layer.

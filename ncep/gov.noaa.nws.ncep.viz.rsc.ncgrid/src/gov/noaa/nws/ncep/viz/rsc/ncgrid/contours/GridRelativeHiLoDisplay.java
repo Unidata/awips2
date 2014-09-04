@@ -20,10 +20,12 @@ import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -40,7 +42,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 24, 2010 363        X. Guo     	Initial creation
- * Aut 17, 2012 655        B. Hebbard   Added paintProps as parameter to IDisplayable draw (2)
+ * Aug 17, 2012 655        B. Hebbard   Added paintProps as parameter to IDisplayable draw (2)
+ * Apr 22, 2014 1129       B. Hebbard   Handle maxHi/maxLo here (instead of HILORelativeMinAndMaxLocator) to make extent-sensitive
  * 
  * </pre>
  * 
@@ -58,6 +61,12 @@ public class GridRelativeHiLoDisplay implements IRenderable {
 
     private HILORelativeMinAndMaxLocator hiloLocator;
 
+    // Maximum number of highs to display
+    private int maxHi;
+
+    // Maximum number of lows to display
+    private int maxLo;
+
     private TextStringParser textMarkerString;
 
     private TextStringParser textValueString;
@@ -66,7 +75,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
 
     private SymbolLocationSet gridPointLoSymbolSet = null;
 
-    // Hi/L symbol overtical/horizontal offset parameters
+    // Hi/Lo symbol vertical/horizontal offset parameters
     private double symbolHiHight = 0.0;
 
     private double symbolLoHight = 0.0;
@@ -74,24 +83,26 @@ public class GridRelativeHiLoDisplay implements IRenderable {
     private int charPix = 4;
 
     private double vertRatio;
-    
+
     private double xOffset = 0;
 
     Rectangle2D charSize;
 
     public GridRelativeHiLoDisplay(HILOBuilder hiloBuild,
-            HILORelativeMinAndMaxLocator hiloLocator,
+            HILORelativeMinAndMaxLocator hiloLocator, int maxHi, int maxLo,
             TextStringParser markerStr, TextStringParser valueStr,
             IMapDescriptor descriptor, ISpatialObject gridLocation) {
         this.descriptor = descriptor;
         this.gridGeometryOfGrid = MapUtil.getGridGeometry(gridLocation);
         this.hiloBuild = hiloBuild;
         this.hiloLocator = hiloLocator;
+        this.maxHi = maxHi;
+        this.maxLo = maxLo;
         this.textMarkerString = markerStr;
         this.textValueString = valueStr;
-    	if (ContourSupport.getCentralMeridian(descriptor) == 0.0){
-    		xOffset = 360.;
-    	}
+        if (ContourSupport.getCentralMeridian(descriptor) == 0.0) {
+            xOffset = 360.;
+        }
         initHiLoSymbolSet();
         // display ();
     }
@@ -137,7 +148,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
         }
 
         if (hiloBuild.getSymbolHiPlotValue()) {
-            plotGridHiValue(target);
+            plotGridHiValue(target, paintProps);
         }
     }
 
@@ -161,7 +172,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
         }
 
         if (hiloBuild.getSymbolLoPlotValue()) {
-            plotGridLoValue(target);
+            plotGridLoValue(target, paintProps);
         }
     }
 
@@ -182,8 +193,10 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                     new IFont.Style[] { IFont.Style.BOLD });
             charSize = target.getStringBounds(font, "N");
             symbolHiHight = charSize.getHeight() * charPix;
+            PixelExtent correctedExtent = getCorrectedExtent(paintProps);
 
-            for (int i = 0; i < tmp1.length; i++) {
+            int pointsPlotted = 0;
+            for (int i = 0; i < tmp1.length && pointsPlotted < maxHi; i++) {
 
                 ReferencedCoordinate c = new ReferencedCoordinate(
                         new Coordinate((double) tmp1[i] - 1,
@@ -191,13 +204,17 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                         Type.GRID_CENTER);
                 try {
                     double[] d = this.descriptor.worldToPixel(new double[] {
-                            (double) c.asLatLon().x > 180 ?  c.asLatLon().x  - xOffset:  c.asLatLon().x, 
+                            (double) c.asLatLon().x > 180 ? c.asLatLon().x
+                                    - xOffset : c.asLatLon().x,
                             (double) c.asLatLon().y });
 
-                    target.drawString(font, text, d[0], d[1], 0.0,
-                            TextStyle.NORMAL, hiloBuild.getColorHi(),
-                            HorizontalAlignment.CENTER,
-                            VerticalAlignment.MIDDLE, 0.0);
+                    if (correctedExtent.contains(d[0], d[1])) {
+                        target.drawString(font, text, d[0], d[1], 0.0,
+                                TextStyle.NORMAL, hiloBuild.getColorHi(),
+                                HorizontalAlignment.CENTER,
+                                VerticalAlignment.MIDDLE, 0.0);
+                        pointsPlotted++;
+                    }
                 } catch (TransformException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -226,23 +243,29 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                     new IFont.Style[] { IFont.Style.BOLD });
             charSize = target.getStringBounds(font, "N");
             symbolLoHight = charSize.getHeight() * charPix;
+            PixelExtent correctedExtent = getCorrectedExtent(paintProps);
 
-            for (int i = 0; i < tmp1.length; i++) {
+            int pointsPlotted = 0;
+            for (int i = 0; i < tmp1.length && pointsPlotted < maxLo; i++) {
 
                 ReferencedCoordinate c = new ReferencedCoordinate(
                         new Coordinate((double) tmp1[i] - 1,
                                 (double) tmp2[i] - 1), this.gridGeometryOfGrid,
                         Type.GRID_CENTER);
                 try {
-                	
+
                     double[] d = this.descriptor.worldToPixel(new double[] {
-                            (double) c.asLatLon().x > 180 ?  c.asLatLon().x - xOffset:  c.asLatLon().x, 
-                            		(double) c.asLatLon().y });
-           //         System.out.println("Low longitude: " + c.asLatLon().x );
-                    target.drawString(font, text, d[0], d[1], 0.0,
-                            TextStyle.NORMAL, hiloBuild.getColorLo(),
-                            HorizontalAlignment.CENTER,
-                            VerticalAlignment.MIDDLE, 0.0);
+                            (double) c.asLatLon().x > 180 ? c.asLatLon().x
+                                    - xOffset : c.asLatLon().x,
+                            (double) c.asLatLon().y });
+                    // System.out.println("Low longitude: " + c.asLatLon().x );
+                    if (correctedExtent.contains(d[0], d[1])) {
+                        target.drawString(font, text, d[0], d[1], 0.0,
+                                TextStyle.NORMAL, hiloBuild.getColorLo(),
+                                HorizontalAlignment.CENTER,
+                                VerticalAlignment.MIDDLE, 0.0);
+                        pointsPlotted++;
+                    }
                 } catch (TransformException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -256,8 +279,11 @@ public class GridRelativeHiLoDisplay implements IRenderable {
 
     /**
      * Plot High grid values
+     * 
+     * @param paintProps
      */
-    private void plotGridHiValue(IGraphicsTarget target) throws VizException {
+    private void plotGridHiValue(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
         float[] tmp1 = hiloLocator.getMaxColPositions();
 
         if (tmp1.length > 0) {
@@ -273,7 +299,10 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                 // offY += charSize.getHeight()*charPix;
                 offY = charSize.getHeight() * vertRatio;
             }
-            for (int i = 0; i < tmp1.length; i++) {
+            PixelExtent correctedExtent = getCorrectedExtent(paintProps);
+
+            int pointsPlotted = 0;
+            for (int i = 0; i < tmp1.length && pointsPlotted < maxHi; i++) {
 
                 String text = convertFloat2String(tmp3[i],
                         hiloBuild.getSymbolHiNumOfDecPls());
@@ -283,13 +312,16 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                         Type.GRID_CENTER);
                 try {
                     double[] d = this.descriptor.worldToPixel(new double[] {
-                            (double) c.asLatLon().x > 180 ?  c.asLatLon().x - xOffset:  c.asLatLon().x, 
+                            (double) c.asLatLon().x > 180 ? c.asLatLon().x
+                                    - xOffset : c.asLatLon().x,
                             (double) c.asLatLon().y });
-
-                    target.drawString(font, text, d[0], d[1] + offY, 0.0,
-                            TextStyle.NORMAL, hiloBuild.getColorHi(),
-                            HorizontalAlignment.CENTER,
-                            VerticalAlignment.MIDDLE, 0.0);
+                    if (correctedExtent.contains(d[0], d[1])) {
+                        target.drawString(font, text, d[0], d[1] + offY, 0.0,
+                                TextStyle.NORMAL, hiloBuild.getColorHi(),
+                                HorizontalAlignment.CENTER,
+                                VerticalAlignment.MIDDLE, 0.0);
+                        pointsPlotted++;
+                    }
                 } catch (TransformException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -303,8 +335,11 @@ public class GridRelativeHiLoDisplay implements IRenderable {
 
     /**
      * Plot Low grid values
+     * 
+     * @param paintProps
      */
-    private void plotGridLoValue(IGraphicsTarget target) throws VizException {
+    private void plotGridLoValue(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
         float[] tmp1 = hiloLocator.getMinColPositions();
 
         if (tmp1.length > 0) {
@@ -320,7 +355,10 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                 charSize = target.getStringBounds(font, "N");
                 offY = charSize.getHeight() * vertRatio;
             }
-            for (int i = 0; i < tmp1.length; i++) {
+
+            PixelExtent correctedExtent = getCorrectedExtent(paintProps);
+            int pointsPlotted = 0;
+            for (int i = 0; i < tmp1.length && pointsPlotted < maxLo; i++) {
 
                 String text = convertFloat2String(tmp3[i],
                         hiloBuild.getSymbolLoNumOfDecPls());
@@ -330,13 +368,16 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                         Type.GRID_CENTER);
                 try {
                     double[] d = this.descriptor.worldToPixel(new double[] {
-                            (double) c.asLatLon().x > 180 ?  c.asLatLon().x - xOffset:  c.asLatLon().x, 
+                            (double) c.asLatLon().x > 180 ? c.asLatLon().x
+                                    - xOffset : c.asLatLon().x,
                             (double) c.asLatLon().y });
-
-                    target.drawString(font, text, d[0], d[1] + offY, 0.0,
-                            TextStyle.NORMAL, hiloBuild.getColorLo(),
-                            HorizontalAlignment.CENTER,
-                            VerticalAlignment.MIDDLE, 0.0);
+                    if (correctedExtent.contains(d[0], d[1])) {
+                        target.drawString(font, text, d[0], d[1] + offY, 0.0,
+                                TextStyle.NORMAL, hiloBuild.getColorLo(),
+                                HorizontalAlignment.CENTER,
+                                VerticalAlignment.MIDDLE, 0.0);
+                        pointsPlotted++;
+                    }
                 } catch (TransformException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -346,6 +387,26 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                 }
             }
         }
+    }
+
+    private PixelExtent getCorrectedExtent(PaintProperties paintProps) {
+
+        // Get view extent, for clipping purposes
+
+        IExtent extent = paintProps.getView().getExtent();
+
+        double extentMaxX = (extent.getMaxX() < 0 ? 0 : extent.getMaxX());
+        double extentMinX = (extent.getMinX() < 0 ? 0 : extent.getMinX());
+        double extentMaxY = (extent.getMaxY() < 0 ? 0 : extent.getMaxY());
+        double extentMinY = (extent.getMinY() < 0 ? 0 : extent.getMinY());
+        extentMaxX = (extentMaxX > 19999 ? 19999 : extentMaxX);
+        extentMinX = (extentMinX > 19999 ? 19999 : extentMinX);
+        extentMaxY = (extentMaxY > 9999 ? 9999 : extentMaxY);
+        extentMinY = (extentMinY > 9999 ? 9999 : extentMinY);
+
+        PixelExtent correctedExtent = new PixelExtent(extentMinX, extentMaxX,
+                extentMinY, extentMaxY);
+        return correctedExtent;
     }
 
     /**
@@ -539,6 +600,8 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                 + ((hiloBuild.getSymbolHiPlotValue()) ? "T" : "F"));
         System.out.println("            precision\t\t"
                 + hiloBuild.getSymbolHiNumOfDecPls());
+        System.out.println(" Limit number of visible maxima to display:"
+                + maxHi);
         float[] tmp = hiloLocator.getMaxColPositions();
         if (tmp.length > 0) {
             System.out.println(" Number of maxima found:" + tmp.length);
@@ -581,6 +644,8 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                 + ((hiloBuild.getSymbolLoPlotValue()) ? "T" : "F"));
         System.out.println("            precision\t\t"
                 + hiloBuild.getSymbolLoNumOfDecPls());
+        System.out.println(" Limit number of visible minima to display:"
+                + maxLo);
         tmp = hiloLocator.getMinColPositions();
         if (tmp.length > 0) {
             System.out.println(" Number of minima found:" + tmp.length);
@@ -628,10 +693,10 @@ public class GridRelativeHiLoDisplay implements IRenderable {
                 .println("==================================================");
     }
 
-	public void setDescriptor(IMapDescriptor descriptor) {
-		this.descriptor = descriptor;
-    	if (ContourSupport.getCentralMeridian(descriptor) == 0.0){
-    		xOffset = 360.;
-    	}
-	}
+    public void setDescriptor(IMapDescriptor descriptor) {
+        this.descriptor = descriptor;
+        if (ContourSupport.getCentralMeridian(descriptor) == 0.0) {
+            xOffset = 360.;
+        }
+    }
 }
