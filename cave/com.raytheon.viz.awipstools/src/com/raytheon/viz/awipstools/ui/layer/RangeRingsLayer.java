@@ -80,6 +80,7 @@ import com.vividsolutions.jts.geom.Point;
  *  15Mar2013	15693	mgamazaychikov	Added magnification capability.
  *  07-21-14    #3412       mapeters    Updated deprecated drawCircle call.
  *  07-29-14    #3465       mapeters    Updated deprecated drawString() calls.
+ *  08-13-14    #3467       mapeters    ringDialog notifies this of changes.
  * </pre>
  * 
  * @author ebabin
@@ -118,6 +119,9 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             GenericToolsResourceData<RangeRingsLayer> resourceData,
             LoadProperties loadProperties) throws VizException {
         super(resourceData, loadProperties);
+        if (ringDialog != null) {
+            ringDialog.addChangeListenerToResourceData(this);
+        }
         getCapabilities().addCapability(new OutlineCapability());
         // add magnification capability
         getCapabilities().addCapability(new MagnificationCapability());
@@ -136,6 +140,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, false);
         super.disposeInternal();
         resourceData.removeChangeListener(this);
+        ringDialog.removeChangeListenerFromResourceData(this);
     }
 
     @Override
@@ -154,7 +159,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         setObjects(dataManager.getRangeRings());
     }
 
-    public void displayDialog() throws VizException {
+    public void displayDialog() {
 
         VizApp.runAsync(new Runnable() {
 
@@ -164,19 +169,17 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
                     Shell shell = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow().getShell();
                     if (ringDialog == null || ringDialog.getReturnCode() != 0) {
-
                         ringDialog = new RangeRingDialog(shell, resourceData);
-
                         ringDialog.setBlockOnOpen(false);
                         ringDialog.open();
                     } else {
-                        ringDialog.open();
                         resourceData.addChangeListener(ringDialog);
+                        ringDialog.open();
                     }
 
                 } catch (VizException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
             }
 
@@ -281,12 +284,7 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
         if (object instanceof EditableCapability) {
             EditableCapability cap = (EditableCapability) object;
             if (cap.isEditable()) {
-                try {
-                    displayDialog();
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
+                displayDialog();
             }
         } else if (object instanceof Boolean) {
             if ((Boolean) object) {
