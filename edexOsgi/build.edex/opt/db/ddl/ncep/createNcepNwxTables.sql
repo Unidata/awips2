@@ -195,6 +195,15 @@ producttablename varchar(30) NOT NULL,
 producttype varchar(20) NOT NULL
 );
 
+-- create nwx.adminmessages table
+DROP TABLE IF EXISTS nwx.adminmessages CASCADE;
+CREATE TABLE nwx.adminmessages(
+id SERIAL PRIMARY KEY,
+productname varchar(60) NOT  NULL,
+producttablename varchar(30) NOT NULL,
+producttype varchar(20) NOT NULL
+);
+
 -------------------------------------------------
 -- create nwx bulletin tables
 -- ---------------------------------------------
@@ -344,6 +353,20 @@ id  SERIAL PRIMARY KEY,
 -- create nwx.clm table
 DROP TABLE IF EXISTS nwx.clm CASCADE;
 CREATE TABLE nwx.clm(
+id  SERIAL PRIMARY KEY,
+        productid varchar(6)      NOT NULL,
+        stnid    varchar(8)        NOT NULL,
+        stnname varchar(32)        NOT NULL,
+        state varchar(2) NOT NULL,
+        country varchar(2) NOT NULL,
+        latitude  double precision NOT NULL,
+        longitude double precision NOT NULL,
+        elevation int NOT NULL
+);
+
+-- create nwx.cmcam table
+DROP TABLE IF EXISTS nwx.cmcam CASCADE;
+CREATE TABLE nwx.cmcam(
 id  SERIAL PRIMARY KEY,
         productid varchar(6)      NOT NULL,
         stnid    varchar(8)        NOT NULL,
@@ -1016,6 +1039,48 @@ id  SERIAL PRIMARY KEY,
         elevation int NOT NULL
 );
 
+-- create nwx.ncfam table
+DROP TABLE IF EXISTS nwx.ncfam CASCADE;
+CREATE TABLE nwx.ncfam(
+id  SERIAL PRIMARY KEY,
+        productid varchar(6)      NOT NULL,
+        stnid    varchar(8)        NOT NULL,
+        stnname varchar(32)        NOT NULL,
+        state varchar(2) NOT NULL,
+        country varchar(2) NOT NULL,
+        latitude  double precision NOT NULL,
+        longitude double precision NOT NULL,
+        elevation int NOT NULL
+);
+
+-- create nwx.nesdisam table
+DROP TABLE IF EXISTS nwx.nesdisam CASCADE;
+CREATE TABLE nwx.nesdisam(
+id  SERIAL PRIMARY KEY,
+        productid varchar(6)      NOT NULL,
+        stnid    varchar(8)        NOT NULL,
+        stnname varchar(32)        NOT NULL,
+        state varchar(2) NOT NULL,
+        country varchar(2) NOT NULL,
+        latitude  double precision NOT NULL,
+        longitude double precision NOT NULL,
+        elevation int NOT NULL
+);
+
+-- create nwx.nesdispam table
+DROP TABLE IF EXISTS nwx.nesdispam CASCADE;
+CREATE TABLE nwx.nesdispam(
+id  SERIAL PRIMARY KEY,
+        productid varchar(6)      NOT NULL,
+        stnid    varchar(8)        NOT NULL,
+        stnname varchar(32)        NOT NULL,
+        state varchar(2) NOT NULL,
+        country varchar(2) NOT NULL,
+        latitude  double precision NOT NULL,
+        longitude double precision NOT NULL,
+        elevation int NOT NULL
+);
+
 -- create nwx.ngmgd table
 DROP TABLE IF EXISTS nwx.ngmgd CASCADE;
 CREATE TABLE nwx.ngmgd(
@@ -1047,6 +1112,20 @@ id  SERIAL PRIMARY KEY,
 -- create nwx.now table
 DROP TABLE IF EXISTS nwx.now CASCADE;
 CREATE TABLE nwx.now(
+id  SERIAL PRIMARY KEY,
+        productid varchar(6)      NOT NULL,
+        stnid    varchar(8)        NOT NULL,
+        stnname varchar(32)        NOT NULL,
+        state varchar(2) NOT NULL,
+        country varchar(2) NOT NULL,
+        latitude  double precision NOT NULL,
+        longitude double precision NOT NULL,
+        elevation int NOT NULL
+);
+
+-- create nwx.snwstgam table
+DROP TABLE IF EXISTS nwx.nwstgam CASCADE;
+CREATE TABLE nwx.nwstgam(
 id  SERIAL PRIMARY KEY,
         productid varchar(6)      NOT NULL,
         stnid    varchar(8)        NOT NULL,
@@ -1400,9 +1479,37 @@ id  SERIAL PRIMARY KEY,
         elevation int NOT NULL
 );
 
--- create nwx.sdm table
-DROP TABLE IF EXISTS nwx.sdm CASCADE;
-CREATE TABLE nwx.sdm(
+-- create nwx.sdmam table
+DROP TABLE IF EXISTS nwx.sdmam CASCADE;
+CREATE TABLE nwx.sdmam(
+id  SERIAL PRIMARY KEY,
+        productid varchar(6)      NOT NULL,
+        stnid    varchar(8)        NOT NULL,
+        stnname varchar(32)        NOT NULL,
+        state varchar(2) NOT NULL,
+        country varchar(2) NOT NULL,
+        latitude  double precision NOT NULL,
+        longitude double precision NOT NULL,
+        elevation int NOT NULL
+);
+
+-- create nwx.sdmim table
+DROP TABLE IF EXISTS nwx.sdmim CASCADE;
+CREATE TABLE nwx.sdmim(
+id  SERIAL PRIMARY KEY,
+        productid varchar(6)      NOT NULL,
+        stnid    varchar(8)        NOT NULL,
+        stnname varchar(32)        NOT NULL,
+        state varchar(2) NOT NULL,
+        country varchar(2) NOT NULL,
+        latitude  double precision NOT NULL,
+        longitude double precision NOT NULL,
+        elevation int NOT NULL
+);
+
+-- create nwx.sdmdhm table
+DROP TABLE IF EXISTS nwx.sdmdhm CASCADE;
+CREATE TABLE nwx.sdmdhm(
 id  SERIAL PRIMARY KEY,
         productid varchar(6)      NOT NULL,
         stnid    varchar(8)        NOT NULL,

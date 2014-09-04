@@ -23,6 +23,7 @@ import nom.tam.util.BufferedDataInputStream;
  * 01/07/2014    1046       qzhou       Fixed imagefunction rotation problem. Added constructor for cylindrical.
  *                                      Fixed imageToWorld and worldToImage reverse problem.
  *                                      Added WorldToImageSamp method for sampling
+ * 03/19/2014               qzhou       Fixed some Lasco image located at left bottom corner
  * </pre>
  * 
  * @author q.zhou
@@ -95,11 +96,15 @@ public class WCSConverter {
 
         for (int n = 0; n < dim; n++) {
             String ij = Integer.toString(n + 1);
-            crpix[n] = header.getDoubleValue("CRPIX" + ij, 0.0); // if null, 0.0
+            crpix[n] = header.getDoubleValue("CRPIX" + ij, 0.0);
             cdelt[n] = header.getDoubleValue("CDELT" + ij, 1.0);
             crval[n] = header.getDoubleValue("CRVAL" + ij, 0.0);
             crota[n] = header.getDoubleValue("CROTA" + ij, 0.0);
             naxis[n] = header.getDoubleValue("NAXIS" + ij, 0.0);
+
+            if (Math.abs(naxis[n] - crpix[n]) / naxis[n] < 0.2)
+                crpix[n] = naxis[n] / 2;
+
         }
 
         for (int m = 0; m < dim; m++) {

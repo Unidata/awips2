@@ -266,8 +266,8 @@ void posneg_wetbulb(float start, float *pos, float *neg, float *top, float *bot)
 	         }
 	         tote += lyre;
  
-	         printf("%4.0f - %4.0f E=%6.0f TOT=%6.0f Top=%6.0f Bot=%6.0f\n",
-	         pe1, pe2, lyre, tote, ptop, pbot);
+	        // printf("%4.0f - %4.0f E=%6.0f TOT=%6.0f Top=%6.0f Bot=%6.0f\n",
+	       //  pe1, pe2, lyre, tote, ptop, pbot);
 	      }
 
               pelast = pe1;
@@ -283,12 +283,12 @@ void posneg_wetbulb(float start, float *pos, float *neg, float *top, float *bot)
 		*neg = totn;
 		*top = ptop;
 		*bot = pbot;
-		printf("Tot= %.0f J/kg   Pos= %.0f J/kg   Neg= %.0f J/kg\n",
-	        tote, totp, totn);
-		printf("Top= %.0f        Bot= %.0f\n", ptop, pbot);
+		//printf("Tot= %.0f J/kg   Pos= %.0f J/kg   Neg= %.0f J/kg\n",
+	     //   tote, totp, totn);
+		//printf("Top= %.0f        Bot= %.0f\n", ptop, pbot);
 	}
 	else {
-		printf("Warm/Cold Layers not found.\n" );
+		//printf("Warm/Cold Layers not found.\n" );
 		*pos = 0;
 		*neg = 0;
 		*top = 0;
@@ -404,8 +404,8 @@ void posneg_temperature(float start, float *pos, float *neg, float *top,
 
 	        tote += lyre;
  
-                printf("%4.0f - %4.0f E=%6.0f TOT=%6.0f Top=%6.0f Bot=%6.0f\n", 
-	          pe1, pe2, lyre, tote, ptop, pbot);
+               // printf("%4.0f - %4.0f E=%6.0f TOT=%6.0f Top=%6.0f Bot=%6.0f\n",
+	          //pe1, pe2, lyre, tote, ptop, pbot);
 	      }
 
               pelast = pe1;
@@ -421,12 +421,12 @@ void posneg_temperature(float start, float *pos, float *neg, float *top,
 	  *neg = totn;
 	  *top = ptop;
 	  *bot = pbot;
-	  printf("Tot= %.0f J/kg   Pos= %.0f J/kg   Neg= %.0f J/kg\n",
-            tote, totp, totn);
-	  printf("Top= %.0f        Bot= %.0f\n", ptop, pbot);
+	 // printf("Tot= %.0f J/kg   Pos= %.0f J/kg   Neg= %.0f J/kg\n",
+       //     tote, totp, totn);
+	  //printf("Top= %.0f        Bot= %.0f\n", ptop, pbot);
 	}
 	else {
-	  printf ("Warm/Cold Layers not found.\n" );
+	  //printf ("Warm/Cold Layers not found.\n" );
 	  *pos = 0;
 	  *neg = 0;
 	  *top = 0;
