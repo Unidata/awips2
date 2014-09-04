@@ -1,0 +1,26 @@
+!
+! Log:
+! J. Carr/HPC         10/97   	New file
+! T. Lee/NCWCP		   4/14		Changed pmsl to mmsl
+!
+GLEVEL = 30:0!30:0!30:0!0   !30:0
+GVCORD = pdly!pdly!pdly!none!pdly
+SKIP   = 0/1
+SCALE  = 0
+GDPFUN = tmpf!tmpf!tmpf!sm5s(mmsl) ! kntv(wnd)
+TYPE   = c/f !c   !c   !c           ! b
+CINT   = 4/-99/32!4/36/80!4/84  !4
+LINE   = 27/1/2  !2/1/1  !16/1/3!19//3
+FINT   = 20;32;0!
+FLINE  = 29;30;24;0!
+HILO   = 0!0!0!20/H#;L#/1020-1070;900-1012
+HLSYM  = 0!0!0!1.5;1.5//22;22/3;3/hw
+WIND   = 9/0.7/2/112
+TITLE  = 1/-1/~ ? MMSL PRESSURE, BL TEMPERATURE (0-30MB AGL), WIND (KTS)!0
+TEXT   = 1/22/2/hw
+COLORS = 2
+MARKER = 2
+GRDLBL = 5
+FILTER = yes
+IJSKIP =
+
