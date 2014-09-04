@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-//import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -22,14 +21,17 @@ import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+//import javax.persistence.UniqueConstraint;
+
 /**
- * Record implementation for geomag avg. 
+ * Record implementation for geomag avg.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer           Description
  * ------------ ---------- ----------------   --------------------------
  * 08/14/2013   T989       qzhou              Initial creation.
+ * 03/03/2014              qzhou              modified get/set
  * </pre>
  * 
  * @author qzhou
@@ -44,26 +46,26 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class GeoMagAvg extends PersistableDataObject<Object> {
 
-
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	public static final String ID_GEN = "idgen";
-	
-	/** The id */
+    private static final long serialVersionUID = 1L;
+
+    public static final String ID_GEN = "idgen";
+
+    /** The id */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
     private Integer id;
-	
-	/**
+
+    /**
      * station code
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private String stationCode;
-	
+
     /**
      * time tag
      */
@@ -71,7 +73,7 @@ public class GeoMagAvg extends PersistableDataObject<Object> {
     @XmlAttribute
     @DynamicSerializeElement
     private Date avgTime;
-	
+
     /**
      * insert time tag
      */
@@ -79,54 +81,53 @@ public class GeoMagAvg extends PersistableDataObject<Object> {
     @XmlAttribute
     @DynamicSerializeElement
     private Date insertTime;
-	
+
     /**
      * H data Hour Average
      */
-	@Column(length=16)
-	@XmlAttribute
+    @Column
+    @XmlAttribute
     @DynamicSerializeElement
-	private float hHrAvg;
-   
-	/**
+    private float hHrAvg;
+
+    /**
      * D data Hour Average
      */
-	@Column(length=16)
-	@XmlAttribute
+    @Column
+    @XmlAttribute
     @DynamicSerializeElement
     private float dHrAvg;
-	
-	
-	public GeoMagAvg() {
-		
-	}
-	
-	public void generateId() {
+
+    public GeoMagAvg() {
+
+    }
+
+    public void generateId() {
         this.id = hashCode();
     }
-	
-	/**
+
+    /**
      * @return the hHrAvg
      */
-    public float getHHrAvg() {
+    public float gethHrAvg() {
         return hHrAvg;
     }
 
-    public void setHHrAvg(float hHrAvg) {
+    public void sethHrAvg(float hHrAvg) {
         this.hHrAvg = hHrAvg;
     }
-    
+
     /**
      * @return the dHrAvg
      */
-    public float getDHrAvg() {
+    public float getdHrAvg() {
         return dHrAvg;
     }
 
-    public void setDHrAvg(float dHrAvg) {
+    public void setdHrAvg(float dHrAvg) {
         this.dHrAvg = dHrAvg;
     }
-    
+
     /**
      * @return The id
      */
@@ -138,7 +139,7 @@ public class GeoMagAvg extends PersistableDataObject<Object> {
         this.id = id;
     }
 
-	/**
+    /**
      * @return the timeTag
      */
     public Date getAvgTime() {
@@ -148,9 +149,9 @@ public class GeoMagAvg extends PersistableDataObject<Object> {
     public void setAvgTime(Date avgTime) {
         this.avgTime = avgTime;
     }
-    
+
     /**
-     * @return the timeTag
+     * @return the insert time
      */
     public Date getInsertTime() {
         return insertTime;
@@ -159,7 +160,7 @@ public class GeoMagAvg extends PersistableDataObject<Object> {
     public void setInsertTime(Date insertTime) {
         this.insertTime = insertTime;
     }
-    
+
     /**
      * @return the stationCode
      */
