@@ -126,6 +126,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 07/10/2014   3370       mpduff      Fix update/insert issue for riverstatus
  * 07/14/2014              mpduff      Fix data range checks
  * 08/05/2014   15671      snaples     Fixed check for posting when not found in ingestfilter and token is set for load_shef_ingest
+ * 09/03/2014              mpduff      Fixed river status table updates.
  * </pre>
  * 
  * @author mduff
@@ -1054,24 +1055,24 @@ public class PostShef {
                                 + "] to commentValue table");
                     }
                 }
-
-                /*
-                 * if we just received some forecast height or discharge data,
-                 * then update the riverstatus table for those reports
-                 */
-                if ((DataType.FORECAST.equals(dataType))
-                        && loadMaxFcst
-                        && (data.getPhysicalElement().getCode().startsWith("H") || data
-                                .getPhysicalElement().getCode().startsWith("Q"))) {
-                    postRiverStatus(data, locId);
-                    if (!same_lid_product) {
-                        log.info("Update RiverStatus for: " + locId + " " + pe);
-                    }
-                }
             } // for
 
             postTables.executeBatchUpdates();
-        } catch (Exception e) {
+            
+			if (!dataValues.isEmpty()) {
+				ShefData data = dataValues.get(0);
+				DataType dataType = ParameterCode.DataType.getDataType(
+						data.getTypeSource(), procObs);
+				if ((DataType.FORECAST.equals(dataType))
+						&& loadMaxFcst
+						&& (data.getPhysicalElement().getCode().startsWith("H") || data
+								.getPhysicalElement().getCode().startsWith("Q"))) {
+					postRiverStatus(data, locId);
+					log.info("Update RiverStatus for: " + locId + " "
+							+ data.getPhysicalElement().getCode());
+				}
+			}
+		} catch (Exception e) {
             log.error("An error occurred posting shef data.", e);
         }
 
@@ -1675,7 +1676,8 @@ public class PostShef {
     private void convertDur(short dur, ShefData data) {
         String value = null;
         String durationCode = null;
-        value = DURATION_MAP.get(dur);
+        Integer durInt = new Integer(dur);
+        value = DURATION_MAP.get(durInt);
         if (value == null) {
             // Anything not in the DURATION_MAP is
             // probably a variable duration.
