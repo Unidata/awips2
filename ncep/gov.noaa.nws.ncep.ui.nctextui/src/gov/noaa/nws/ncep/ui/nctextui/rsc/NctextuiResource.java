@@ -15,6 +15,7 @@
  *                                     a NCMapEditor object as one of the arguments
  *                                     Removed the call to setNcEditor()                                       
  * 08/17/2012    T655       B. Hebbard Added paintProps as parameter to IDisplayable draw (2)
+ * 07/10/2014               Chin Chen  added NcText new Admin Message Group
  */
 package gov.noaa.nws.ncep.ui.nctextui.rsc;
 
@@ -63,7 +64,7 @@ public class NctextuiResource extends
 
     private static NctextuiResource nctextuiResource = null;
 
-	/** The set of symbols with similar attributes across many locations */
+    /** The set of symbols with similar attributes across many locations */
     private SymbolLocationSet symbolSet = null;
 
     private SymbolLocationSet pickedSymbolSet = null;
@@ -71,55 +72,55 @@ public class NctextuiResource extends
     private static NatlCntrsEditor mapEditor = null;
 
     // private static int mapEditorNum=0;
-    private static  NctextuiMouseHandler mouseHandler;
-    
+    private static NctextuiMouseHandler mouseHandler;
+
     /*
      * public static NCMapEditor getOrCreateMapEditor() { if(mapEditor== null)
      * createMapEditor(); return mapEditor; }
      */
     public static NatlCntrsEditor getMapEditor() {
-    	
-		return mapEditor;
-	}
-   
+
+        return mapEditor;
+    }
+
     private List<NctextStationInfo> points = new ArrayList<NctextStationInfo>();
 
     private List<NctextStationInfo> pickedStnPt = new ArrayList<NctextStationInfo>();
-    
-	public List<NctextStationInfo> getPickedStnPt() {
-		return pickedStnPt;
-	}
 
-	public void setPickedStnPt(List<NctextStationInfo> pickedStnPt) {
-		if (pickedStnPt == null)
-			this.pickedStnPt.clear();
-		else
-			this.pickedStnPt = pickedStnPt;
-	}
+    public List<NctextStationInfo> getPickedStnPt() {
+        return pickedStnPt;
+    }
 
-	public List<NctextStationInfo> getPoints() {
-		return points;
-	}
+    public void setPickedStnPt(List<NctextStationInfo> pickedStnPt) {
+        if (pickedStnPt == null)
+            this.pickedStnPt.clear();
+        else
+            this.pickedStnPt = pickedStnPt;
+    }
 
-	public void setPoints(List<NctextStationInfo> points) {
-		if (points == null)
-			this.points.clear();
-		else
-			this.points = points;
-	}
-	
+    public List<NctextStationInfo> getPoints() {
+        return points;
+    }
+
+    public void setPoints(List<NctextStationInfo> points) {
+        if (points == null)
+            this.points.clear();
+        else
+            this.points = points;
+    }
+
     private static void createMapEditor() {
-		// create an editor MapEditor
+        // create an editor MapEditor
         if (mapEditor != null)
-			return;
-		
-		try {
-			
-			// TODO: what if the active editor is not a Map Editor ?
-			// should we find one, create one or prompt
-			//
-			AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
-			
+            return;
+
+        try {
+
+            // TODO: what if the active editor is not a Map Editor ?
+            // should we find one, create one or prompt
+            //
+            AbstractEditor ed = NcDisplayMngr.getActiveNatlCntrsEditor();
+
             if (NcEditorUtil.getNcDisplayType(ed) == NcDisplayType.NMAP_DISPLAY) {
                 mapEditor = (NatlCntrsEditor) ed;
             } else {
@@ -127,33 +128,33 @@ public class NctextuiResource extends
                         .createNatlCntrsEditor(NcDisplayType.NMAP_DISPLAY,
                                 "Select NCTEXT Data");
 
-	// get this to set the editor to 'NCTEXT'
-				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("NCTEXT");
+                // get this to set the editor to 'NCTEXT'
+                ResourceBndlLoader rbdLoader = new ResourceBndlLoader("NCTEXT");
                 rbdLoader.addDefaultRBD(NcDisplayType.NMAP_DISPLAY, mapEditor);
                 VizApp.runSync(rbdLoader);
-			}
+            }
             // register mouse handler
-			mouseHandler = getMouseHandler();
+            mouseHandler = getMouseHandler();
             mapEditor.registerMouseHandler((IInputHandler) mouseHandler);
             // System.out.println("NctextuiPaletteWindow create editor "+
             // mapEditor.toString());
         } catch (Exception ve) {
             System.out.println("Could not load initial editor: "
                     + ve.getMessage());
-			ve.printStackTrace();
-		}
-	}
+            ve.printStackTrace();
+        }
+    }
 
-	public static NctextuiResource getNctextuiResource() {
+    public static NctextuiResource getNctextuiResource() {
         if (nctextuiResource == null) {
             if (mapEditor == null)
-				createMapEditor();
+                createMapEditor();
             // nctextuiResource = createNewResource(mapEditor);
             if (mapEditor != null) {
                 IMapDescriptor desc = (IMapDescriptor) mapEditor
                         .getActiveDisplayPane().getRenderableDisplay()
                         .getDescriptor();
-    			try {	                
+                try {
                     if (nctextuiResourceData == null)
                         nctextuiResourceData = new NctextuiResourceData();
                     nctextuiResource = nctextuiResourceData.construct(
@@ -161,35 +162,35 @@ public class NctextuiResource extends
                     desc.getResourceList().add(nctextuiResource);
                     nctextuiResource.init(mapEditor.getActiveDisplayPane()
                             .getTarget());
-    	            
-    			} catch (Exception e) {
-    				e.printStackTrace();           
-    			}
-			}
-		}
-		return nctextuiResource;
-	}
-    
-	/**
-	 * Default constructor
-	 */
-	protected NctextuiResource(NctextuiResourceData resourceData,
-			LoadProperties loadProperties) {
-		super(resourceData, loadProperties);
-        getCapability(EditableCapability.class).setEditable(true);
-	}
 
-	/**
-	 * Called when resource is disposed
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return nctextuiResource;
+    }
+
+    /**
+     * Default constructor
+     */
+    protected NctextuiResource(NctextuiResourceData resourceData,
+            LoadProperties loadProperties) {
+        super(resourceData, loadProperties);
+        getCapability(EditableCapability.class).setEditable(true);
+    }
+
+    /**
+     * Called when resource is disposed
      * 
-	 * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-	 */
-	@Override
-	public void disposeInternal() {
+     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
+     */
+    @Override
+    public void disposeInternal() {
         // System.out.println("NctextuiResource:disposeInternal");
         if (mapEditor != null) {
             mapEditor.unregisterMouseHandler(mouseHandler);
-			mouseHandler = null;
+            mouseHandler = null;
             // close editor
             // if((PlatformUI.getWorkbench()!=
             // null)&&(PlatformUI.getWorkbench().getActiveWorkbenchWindow()!=
@@ -201,36 +202,36 @@ public class NctextuiResource extends
             // PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeEditor(mapEditor,
             // false);
             // }
-        	mapEditor = null;
+            mapEditor = null;
             // mapEditorNum=0;
         }
         closeTextView();
-		nctextuiResource = null;
+        nctextuiResource = null;
         nctextuiResourceData = null;
-	}
-	
+    }
+
     public static void registerMouseHandler() {
-		mouseHandler = getMouseHandler();
+        mouseHandler = getMouseHandler();
         if (mapEditor != null && mouseHandler != null)
             mapEditor.registerMouseHandler((IInputHandler) mouseHandler);
-	}
+    }
 
     public static void unregisterMouseHandler() {
-		mouseHandler = getMouseHandler();
+        mouseHandler = getMouseHandler();
         if (mapEditor != null && mouseHandler != null)
             mapEditor.unregisterMouseHandler((IInputHandler) mouseHandler);
-	}
+    }
 
-	@Override
-	public void propertiesChanged(ResourceProperties updatedProps) {
+    @Override
+    public void propertiesChanged(ResourceProperties updatedProps) {
         // System.out.println("NctextuiResource:propertiesChanged");
         if (updatedProps.isVisible()) {
             reopenTextView();
         } else {
             hideTextView();
-         }
+        }
     }
-    
+
     private void hideTextView() {
         IWorkbenchPage wpage = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();
@@ -239,10 +240,10 @@ public class NctextuiResource extends
         if (wpage.isPartVisible(vpart)) {
             NctextuiPaletteWindow paletteWin = NctextuiPaletteWindow
                     .getAccess();
-        	paletteWin.setEditorVisible(false);
-        	wpage.hideView(vpart);
+            paletteWin.setEditorVisible(false);
+            wpage.hideView(vpart);
         }
-	}
+    }
 
     private void closeTextView() {
         // System.out.println("NctextuiResource:closeTextView");
@@ -253,12 +254,12 @@ public class NctextuiResource extends
         IWorkbenchPage wpage = win.getActivePage();
         if (wpage != null) {
             IViewPart vpart = wpage.findView("gov.noaa.nws.ncep.ui.NCTEXTUI");
-			wpage.hideView(vpart);
-		}
-        
+            wpage.hideView(vpart);
+        }
+
         NcDisplayMngr.setPanningMode();
-	}
-    
+    }
+
     private void reopenTextView() {
         // System.out.println("NctextuiResource:reopenTextView");
         IWorkbenchPage wpage = PlatformUI.getWorkbench()
@@ -268,54 +269,54 @@ public class NctextuiResource extends
         if (!wpage.isPartVisible(vpart)) {
             NctextuiPaletteWindow paletteWin = NctextuiPaletteWindow
                     .getAccess();
-        	paletteWin.setEditorVisible(true);
-        	try {
+            paletteWin.setEditorVisible(true);
+            try {
                 vpart = wpage.showView("gov.noaa.nws.ncep.ui.NCTEXTUI");
-        	} catch (Exception e) {
-        		e.printStackTrace();
-        	}
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-	}
-	
+    }
+
     /*
      * (non-Javadoc)
      * 
      * @see
      * com.raytheon.viz.core.rsc.IVizResource#getCoordinateReferenceSystem()
-	 */
-	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+     */
+    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
 
-		if (descriptor == null)
-			return null;
+        if (descriptor == null)
+            return null;
 
-		return descriptor.getCRS();
+        return descriptor.getCRS();
 
-	}
+    }
 
     /*
      * (non-Javadoc)
      * 
-	 * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-	 */
-	@Override
-	public String getName() {
+     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
+     */
+    @Override
+    public String getName() {
 
-		return "NCText";
+        return "NCText";
 
-	}
+    }
 
     /*
      * (non-Javadoc)
      * 
      * @see com.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
      * IGraphicsTarget)
-	 */
-	@Override
-	public void initInternal(IGraphicsTarget target) throws VizException {
+     */
+    @Override
+    public void initInternal(IGraphicsTarget target) throws VizException {
         // System.out.println("NctextuiResource:initInternal");
         EditableManager.makeEditable(this,
                 getCapability(EditableCapability.class).isEditable());
-	}
+    }
 
     /*
      * (non-Javadoc)
@@ -323,38 +324,38 @@ public class NctextuiResource extends
      * @see
      * com.raytheon.viz.core.rsc.IVizResource#isApplicable(com.raytheon.viz.
      * core.PixelExtent)
-	 */
-	public boolean isApplicable(PixelExtent extent) {
+     */
+    public boolean isApplicable(PixelExtent extent) {
 
-		return true;
+        return true;
 
-	}
-	
+    }
+
     private void generateSymbolForDrawing() {
-		String type;
+        String type;
         float lineWidth = resourceData.getMarkerWidth();
         Boolean clear = false;
         ;
-		String category = new String("Marker");
+        String category = new String("Marker");
         double sizeScale = resourceData.getMarkerSize();
         // NctextuiPaletteWindow nctextuiPaletteWindow =
         // NctextuiPaletteWindow.getAccess();
-		if (points.isEmpty() == true) {
-			symbolSet = null;
+        if (points.isEmpty() == true) {
+            symbolSet = null;
         } else {
             // SymbolLocationSet constructor requires a positive-length array of
             // Coordinate
-			Coordinate[] locations = new Coordinate[points.size()];
-			
+            Coordinate[] locations = new Coordinate[points.size()];
+
             // System.out.println( "generateSymbolSet: size ="+ points.size());
-			int i = 0;
-			for (NctextStationInfo p : points) {
-				double lon, lat;
-				lon = p.getLongitude();
-				lat = p.getLatitude();
+            int i = 0;
+            for (NctextStationInfo p : points) {
+                double lon, lat;
+                lon = p.getLongitude();
+                lat = p.getLatitude();
                 locations[i++] = new Coordinate(lon, lat);
-				
-			}
+
+            }
 
             Color[] colors = new Color[] { new Color(
                     resourceData.getColor().red, resourceData.getColor().green,
@@ -363,37 +364,37 @@ public class NctextuiResource extends
             // System.out.println( "generateSymbolSet done size ="+ i);
             symbolSet = new SymbolLocationSet(null, colors, lineWidth,
                     sizeScale, clear, locations, category, type);
-		
-		}
-		if (pickedStnPt.isEmpty() == true) {
-			pickedSymbolSet = null;
+
+        }
+        if (pickedStnPt.isEmpty() == true) {
+            pickedSymbolSet = null;
         } else {
             // SymbolLocationSet constructor requires a positive-length array of
             // Coordinate
-			Coordinate[] locations = new Coordinate[pickedStnPt.size()];
-			
+            Coordinate[] locations = new Coordinate[pickedStnPt.size()];
+
             // System.out.println( "generatePickedSymbolSet: size ="+
             // pickedStnPt.size());
-			int i = 0;
-			for (NctextStationInfo p : pickedStnPt) {
-				double lon, lat;
-				lon = p.getLongitude();
-				lat = p.getLatitude();
+            int i = 0;
+            for (NctextStationInfo p : pickedStnPt) {
+                double lon, lat;
+                lon = p.getLongitude();
+                lat = p.getLatitude();
                 locations[i++] = new Coordinate(lon, lat);
-			}
+            }
 
             Color[] colors = new Color[] { new Color(
                     resourceData.getPkStncolor().red,
                     resourceData.getPkStncolor().green,
                     resourceData.getPkStncolor().blue) };
             type = resourceData.getPkStnmarkerType().toString();
-		
+
             pickedSymbolSet = new SymbolLocationSet(null, colors, lineWidth,
                     sizeScale, clear, locations, category, type);
-		
-		}
-		
-	}
+
+        }
+
+    }
 
     /*
      * (non-Javadoc)
@@ -401,53 +402,53 @@ public class NctextuiResource extends
      * @see
      * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
      * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-	 */
-	@Override
-	public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
-	throws VizException {
+     */
+    @Override
+    public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
+            throws VizException {
         // System.out.println("paintInternal called!");
-		IFont font = target.initializeFont("Monospace",
+        IFont font = target.initializeFont("Monospace",
                 (float) (12 * resourceData.getMarkerTextSize()
                         .getSoftwareSize()), null);
 
-		generateSymbolForDrawing();
-		
+        generateSymbolForDrawing();
+
         if (symbolSet != null) {
-			
+
             DisplayElementFactory df = new DisplayElementFactory(target,
                     this.descriptor);
             ArrayList<IDisplayable> elements = df.createDisplayElements(
                     symbolSet, paintProps);
             for (IDisplayable each : elements) {
-				try {
-					each.draw(target, paintProps);
-					each.dispose();
+                try {
+                    each.draw(target, paintProps);
+                    each.dispose();
                 } catch (Exception e) {
-		        	
-                    // e.printStackTrace();
+
+                    e.printStackTrace();
                     // System.out.println("paintInternal caught draw exception!");
-				}
-			}
-		}
+                }
+            }
+        }
         if (pickedSymbolSet != null) {
-			
+
             DisplayElementFactory df = new DisplayElementFactory(target,
                     this.descriptor);
             ArrayList<IDisplayable> elements = df.createDisplayElements(
                     pickedSymbolSet, paintProps);
             for (IDisplayable each : elements) {
-				try {
-					each.draw(target, paintProps);
-					each.dispose();
+                try {
+                    each.draw(target, paintProps);
+                    each.dispose();
                 } catch (Exception e) {
-		        	
+
                     // e.printStackTrace();
                     // System.out.println("paintInternal caught draw exception on pickedSymbolSet!");
-				}
-			}
-		}
-		font.dispose();
-	}
+                }
+            }
+        }
+        font.dispose();
+    }
 
     /*
      * (non-Javadoc)
@@ -455,12 +456,12 @@ public class NctextuiResource extends
      * @see
      * com.raytheon.viz.core.rsc.capabilities.IProjectableResource#isProjectable
      * (org.opengis.referencing.crs.CoordinateReferenceSystem)
-	 */
-	public boolean isProjectable(CoordinateReferenceSystem mapData) {
+     */
+    public boolean isProjectable(CoordinateReferenceSystem mapData) {
 
-		return true;
+        return true;
 
-	}
+    }
 
     /*
      * (non-Javadoc)
@@ -468,22 +469,22 @@ public class NctextuiResource extends
      * @see
      * com.raytheon.viz.core.rsc.capabilities.IProjectableResource#project(org
      * .opengis.referencing.crs.CoordinateReferenceSystem)
-	 */
-	@Override
-	public void project(CoordinateReferenceSystem mapData) throws VizException {
+     */
+    @Override
+    public void project(CoordinateReferenceSystem mapData) throws VizException {
         // System.out.println("NctextuiResource: project ");
-	}
+    }
 
-	private static  NctextuiMouseHandler getMouseHandler() {	
-	    
+    private static NctextuiMouseHandler getMouseHandler() {
+
         if (mouseHandler == null) {
-        	
-        	mouseHandler = new NctextuiMouseHandler();
-        	
+
+            mouseHandler = new NctextuiMouseHandler();
+
         }
 
         return mouseHandler;
-        
+
     }
 
     /**
