@@ -29,6 +29,35 @@
 							value="${repository.directories},${git.directory}${file.separator}@{repo.directory}" />
 					</sequential>
 				</for>
+				<property name="tab" value="    "/>
+	            <echo level="info" message=" "/>
+	                <echo level="info" message="Deploy checks the following directories for source:"/>
+	                <echo level="info" message=" "/>
+	                <for list="${repository.directories}" param="repository.directory">
+	                    <sequential>
+	                        <echo level="info" message="${tab}@{repository.directory}" />
+	                        <if>
+	                            <not>
+	                                <available file="@{repository.directory}" type="dir" />
+	                            </not>
+	                            <then>
+	                                <echo level="error" message="${tab}@{repository.directory} does not exist!"/>
+	                                <property name="missingDir"
+	                                  value="true" />
+	                            </then>
+	                        </if>
+	                    </sequential>
+	                </for>
+	                <if>
+	                    <isset property="missingDir" />
+	                    <then>
+	                        <echo level="error" message=" "/>
+	                        <echo level="error" message="Edit core.repositories=${core.repositories} in common.properties, rename source directories or create a symlink!"/>
+	                        <echo level="error" message=" "/>
+	                        <fail message="Unable to locate source directories."/>
+	                    </then>
+	                </if>
+	                <echo level="info" message=" "/>
 			</then>
 			<else>
 				<!-- all of the projects are in the workspace or one single directory -->
