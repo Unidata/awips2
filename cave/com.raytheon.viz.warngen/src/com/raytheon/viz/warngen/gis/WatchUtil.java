@@ -76,7 +76,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jul 17, 2014 3419       jsanchez     Initial creation
  * Aug 20, 2014 ASM #16703 D. Friedman  Ensure watches have a state attribute.
  * Aug 28, 2014 ASM #15658 D. Friedman  Add marine zones.
- * Aug 29, 2014 ASM #15551 Qinglu Lin   Sorting watches by ETN in processRecords().
+ * Aug 29, 2014 ASM #15551 Qinglu Lin   Sort watches by ETN and filter out ActiveTableRecord
+ *                                      with act of CAN and EXP in processRecords().
  * 
  * </pre>
  * 
@@ -360,6 +361,9 @@ public class WatchUtil {
         Map<Watch, List<String>> map = new HashMap<Watch, List<String>>();
         // For each watch event, get the end time and list of active zones
         for (ActiveTableRecord ar : activeTableRecords) {
+            if (ar.getAct().equals("CAN") || ar.getAct().equals("EXP")) {
+                continue;
+            }
             /*
              * Currently reports all zones in the watch even if a given zone is
              * not in the warning polygon. If the logic is changed to only show
