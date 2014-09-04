@@ -85,6 +85,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  07-02-2013   #2145      rferrel    populatePointsMenuButton no longer modifies movableRings.
  *                                      Indicate selected movable ring and only delete selected ring.
  *                                      Verify listeners for radius, latitude and longitude fields.
+ *  08-20-12     #3467      mapeters   Added addChangeListenerToResourceData  and 
+ *                                     removeChangeListenerFromResourceData functions.
  * 
  * </pre>
  * 
@@ -1040,5 +1042,14 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                 populatePointsMenuButton();
             }
         });
+    }
+
+    public void addChangeListenerToResourceData(IResourceDataChanged resource) {
+        this.resourceData.addChangeListener(resource);
+    }
+
+    public void removeChangeListenerFromResourceData(
+            IResourceDataChanged resource) {
+        this.resourceData.removeChangeListener(resource);
     }
 }
