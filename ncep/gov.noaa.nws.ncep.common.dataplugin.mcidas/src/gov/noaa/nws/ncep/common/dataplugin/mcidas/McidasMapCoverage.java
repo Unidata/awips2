@@ -16,6 +16,7 @@
  * 05/2010		144			L. Lin		Migration to TO11DR11.
  * 11/2013      1066        G. Hull     call constructCRSfromWKT
  * Nov 14, 2013 2393        bclement    added getGridGeometry()
+ * 03/2014		TTR957		B. Yin		Modified getGridGeometry() to handle native navigation
  * </pre>
  */
 
@@ -71,6 +72,9 @@ public class McidasMapCoverage extends PersistableDataObject implements
         ISpatialObject {
 
     private static final long serialVersionUID = 1;
+
+    // projection id for native satellite navigation
+    public static final int GVAR = 7585;
 
     @Id
     private int pid;
@@ -371,14 +375,33 @@ public class McidasMapCoverage extends PersistableDataObject implements
     public GridGeometry2D getGridGeometry()
             throws MismatchedDimensionException, FactoryException,
             TransformException {
-        int nx = getNx();
-        int ny = getNy();
-        if (Double.isNaN(this.minX) || Double.isNaN(this.minY)) {
-            findMins();
+
+        GridEnvelope gridRange;
+        Envelope crsRange;
+        if (projection == McidasMapCoverage.GVAR) { // for native projection
+            minX = getUpperLeftElement();
+            int maxX = getUpperLeftElement() + (getNx() * getElementRes());
+            minY = getUpperLeftLine() + (getNy() * getLineRes());
+            minY = -minY;
+            int maxY = -1 * getUpperLeftLine();
+
+            gridRange = new GridEnvelope2D(0, 0, nx, ny);
+            crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(minX,
+                    minY, maxX, maxY));
         }
-        GridEnvelope gridRange = new GridEnvelope2D(0, 0, nx, ny);
-        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
-                minX, minY, nx * getDx(), ny * getDy()));
+
+        else {
+            int nx = getNx();
+            int ny = getNy();
+            if (Double.isNaN(this.minX) || Double.isNaN(this.minY)) {
+                findMins();
+            }
+
+            gridRange = new GridEnvelope2D(0, 0, nx, ny);
+            crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(minX,
+                    minY, nx * getDx(), ny * getDy()));
+        }
+
         return new GridGeometry2D(gridRange, crsRange);
     }
 

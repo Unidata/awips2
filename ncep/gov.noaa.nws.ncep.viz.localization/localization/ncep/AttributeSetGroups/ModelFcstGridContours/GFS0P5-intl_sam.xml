@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>GFS0P5</resource>
+    <attrSetGroupName>intl_sam</attrSetGroupName>
+    <attrSetNames>bl_2-meter_temp_c,bl_dwpt_c,svrwx_intl</attrSetNames>
+</AttributeSetGroup>

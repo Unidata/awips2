@@ -140,6 +140,9 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 										this class
  * 11/13        TTR 752     J. Wu       added methods to compute an element's range record.
  * 12/13		#1089		B. Yin		Modify watch to display county list
+ * 05/14        TTR 995     J. Wu       Make contour label auto-placement an option.
+ * 07/14        ?           B. Yin      Added support for dashed-line circle for TCM 12 feet sea.
+ * 08/14		?			B. Yin		Fixed world wrap for TCM track and zero circle issues.
  * </pre>
  * 
  * @author sgilbert
@@ -336,10 +339,6 @@ public class DisplayElementFactory {
                     list.addAll(createDisplayElementsForLines(de, smoothpts,
                             paintProps));
 
-                    // Draw labels for contour lines.
-                    // list.addAll( adjustContourLineLabels( elem, paintProps,
-                    // smoothpts ) );
-
                 }
 
                 return list;
@@ -382,7 +381,6 @@ public class DisplayElementFactory {
         LinePatternManager lpl = LinePatternManager.getInstance();
         try {
             pattern = lpl.getLinePattern(de.getPatternName());
-            // System.out.println("&&&pattern "+pattern.getMaxExtent());
         } catch (LinePatternException lpe) {
             /*
              * could not find desired line pattern. Used solid line as default.
@@ -623,187 +621,210 @@ public class DisplayElementFactory {
         /*
          * Draw labels for contour lines.
          */
-        list.addAll(adjustContourLineLabels(elem, paintProps, smoothpts));
+        // ???list.addAll(adjustContourLineLabels(elem, paintProps, smoothpts));
 
         return list;
     }
 
-	/**
-	 * Creates a list of IDisplayable Objects from an IWatchBox object
-	 * @param de A PGEN Drawable Element of a WatchBox object
-	 * @param paintProps The paint properties associated with the target
-	 * @return A list of IDisplayable elements
-	 */
-	public ArrayList<IDisplayable> createDisplayElements(IWatchBox watchBox, PaintProperties paintProps) {
+    /**
+     * Creates a list of IDisplayable Objects from an IWatchBox object
+     * 
+     * @param de
+     *            A PGEN Drawable Element of a WatchBox object
+     * @param paintProps
+     *            The paint properties associated with the target
+     * @return A list of IDisplayable elements
+     */
+    public ArrayList<IDisplayable> createDisplayElements(IWatchBox watchBox,
+            PaintProperties paintProps) {
 
-	    /*
+        /*
          * Create the List to be returned
          */
         ArrayList<IDisplayable> dlist = new ArrayList<IDisplayable>();
-	    
+
         List<SPCCounty> counties = watchBox.getOriginalCountyList();
-        if ( counties == null || counties.isEmpty()){  //if the watch is not issued yet, the original county list is not set. 
-        	counties = watchBox.getCountyList();
+        if (counties == null || counties.isEmpty()) { // if the watch is not
+                                                      // issued yet, the
+                                                      // original county list is
+                                                      // not set.
+            counties = watchBox.getCountyList();
         }
-        
-        if ( counties != null && !counties.isEmpty()){
-        	if ( watchBox.getFillFlag() ){
-        		
-        		Geometry cntyUnion = null;;  
-        		Color[] colors = null;
-        		
-        		Collection<Geometry> gCollection = new ArrayList<Geometry>();
 
-        		//draw county border
-        		for ( SPCCounty cnty : counties ){
-	    			Geometry countyGeo = cnty.getShape();
-	    			
-	    			colors = watchBox.getColors();
-	    			colors[1] = watchBox.getFillColor();
-	    			
-	    			for ( int ii = 0; ii < countyGeo.getNumGeometries(); ii ++ ){
-	    				Polygon poly = (Polygon)countyGeo.getGeometryN(ii);
-	    				List<Coordinate> pts = new ArrayList<Coordinate>(Arrays.asList(poly.getCoordinates()));
+        if (counties != null && !counties.isEmpty()) {
+            if (watchBox.getFillFlag()) {
 
-	    				Line cntyBorder = new Line(null, colors,.5f,.5,true,
-	    						false, pts, 0,
-	    						FillPattern.FILL_PATTERN_6,"Lines","LINE_SOLID");
-	    				ArrayList<IDisplayable> cntyLine = createDisplayElements(cntyBorder,paintProps);
-	    				dlist.addAll(cntyLine);
-	    			}
-	    			
-	    			if ( countyGeo != null ){
-	    				gCollection.add(countyGeo.buffer(.02));
-	    			}
-        		}
+                Geometry cntyUnion = null;
+                ;
+                Color[] colors = null;
 
+                Collection<Geometry> gCollection = new ArrayList<Geometry>();
 
-        		//Merge counties together and fill the whole area
-        		GeometryFactory gf = new GeometryFactory();
+                // draw county border
+                for (SPCCounty cnty : counties) {
+                    Geometry countyGeo = cnty.getShape();
 
-        		if ( gCollection.size() > 1 ){
-        			GeometryCollection geometryCollection =
-        				(GeometryCollection) gf.buildGeometry( gCollection );
+                    colors = watchBox.getColors();
+                    colors[1] = watchBox.getFillColor();
 
-        			cntyUnion = geometryCollection.union();
-        		}
-        		else cntyUnion = gf.buildGeometry( gCollection );
+                    for (int ii = 0; ii < countyGeo.getNumGeometries(); ii++) {
+                        Polygon poly = (Polygon) countyGeo.getGeometryN(ii);
+                        List<Coordinate> pts = new ArrayList<Coordinate>(
+                                Arrays.asList(poly.getCoordinates()));
 
-        		IShadedShape theShadedShape = target.createShadedShape(false, iDescriptor, true);
+                        Line cntyBorder = new Line(null, colors, .5f, .5, true,
+                                false, pts, 0, FillPattern.FILL_PATTERN_6,
+                                "Lines", "LINE_SOLID");
+                        ArrayList<IDisplayable> cntyLine = createDisplayElements(
+                                cntyBorder, paintProps);
+                        dlist.addAll(cntyLine);
+                    }
 
-        //		IWireframeShape theWireframeShape = target.createWireframeShape(false, mapDescriptor);
+                    if (countyGeo != null) {
+                        gCollection.add(countyGeo.buffer(.02));
+                    }
+                }
 
-        		JTSCompiler compiler = new JTSCompiler( theShadedShape,
-        					null, iDescriptor, PointStyle.CROSS);
+                // Merge counties together and fill the whole area
+                GeometryFactory gf = new GeometryFactory();
 
-        		try {
-					compiler.handle((Geometry) cntyUnion.clone(), 
-							new RGB(colors[1].getRed(), colors[1].getGreen(), colors[1].getBlue()));
-					
-					if ( elem.getFillPattern() != FillPattern.TRANSPARENCY &&
-							elem.getFillPattern() != FillPattern.SOLID ) {
-						FillPatternList fpl = new FillPatternList();
-						byte[] fpattern = fpl.getFillPattern(elem.getFillPattern());
-						theShadedShape.setFillPattern(fpattern);
-					}
-					theShadedShape.compile();
+                if (gCollection.size() > 1) {
+                    GeometryCollection geometryCollection = (GeometryCollection) gf
+                            .buildGeometry(gCollection);
 
-					// theWireframeShape.compile();
-					//dlist.add(new LineDisplayElement(theWireframeShape, colors[1], .5f));
-					dlist.add( new FillDisplayElement(theShadedShape, 1f ));
-					
-				} catch (VizException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-        	}
-        	else {
-        		for ( SPCCounty cnty : counties ){
+                    cntyUnion = geometryCollection.union();
+                } else
+                    cntyUnion = gf.buildGeometry(gCollection);
 
-        			Symbol cSymbol = new Symbol(null, watchBox.getColors(), 
-        					watchBox.getWatchSymbolWidth(), watchBox.getWatchSymbolSize(), false,
-        					cnty.getCentriod(),	"Marker", watchBox.getWatchSymbolType());
-        			ArrayList<IDisplayable> cList = createDisplayElements(cSymbol,paintProps);
-        			dlist.addAll(cList);
-        		}
-        	}
+                IShadedShape theShadedShape = target.createShadedShape(false,
+                        iDescriptor, true);
+
+                // IWireframeShape theWireframeShape =
+                // target.createWireframeShape(false, mapDescriptor);
+
+                JTSCompiler compiler = new JTSCompiler(theShadedShape, null,
+                        iDescriptor, PointStyle.CROSS);
+
+                try {
+                    compiler.handle((Geometry) cntyUnion.clone(),
+                            new RGB(colors[1].getRed(), colors[1].getGreen(),
+                                    colors[1].getBlue()));
+
+                    if (elem.getFillPattern() != FillPattern.TRANSPARENCY
+                            && elem.getFillPattern() != FillPattern.SOLID) {
+                        FillPatternList fpl = new FillPatternList();
+                        byte[] fpattern = fpl.getFillPattern(elem
+                                .getFillPattern());
+                        theShadedShape.setFillPattern(fpattern);
+                    }
+                    theShadedShape.compile();
+
+                    // theWireframeShape.compile();
+                    // dlist.add(new LineDisplayElement(theWireframeShape,
+                    // colors[1], .5f));
+                    dlist.add(new FillDisplayElement(theShadedShape, 1f));
+
+                } catch (VizException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else {
+                for (SPCCounty cnty : counties) {
+
+                    Symbol cSymbol = new Symbol(null, watchBox.getColors(),
+                            watchBox.getWatchSymbolWidth(),
+                            watchBox.getWatchSymbolSize(), false,
+                            cnty.getCentriod(), "Marker",
+                            watchBox.getWatchSymbolType());
+                    ArrayList<IDisplayable> cList = createDisplayElements(
+                            cSymbol, paintProps);
+                    dlist.addAll(cList);
+                }
+            }
         }
-        
-        //if already issued, draw the list of active counties with OCTAGON symbols.
-        if (watchBox.getIssueFlag() != 0  ){
-        	List<SPCCounty> activeCounties = watchBox.getCountyList();
-        	if ( activeCounties != null && !activeCounties.isEmpty()){
-        		for ( SPCCounty cnty : activeCounties ){
 
-        			Symbol cSymbol = new Symbol(null, IWatchBox.WATCH_LIST_COLOR, 
-        					3, 2, false,
-        					cnty.getCentriod(),	"Marker", "OCTAGON");
-        			ArrayList<IDisplayable> cList = createDisplayElements(cSymbol,paintProps);
-        			dlist.addAll(cList);
-        		}
-        	}
+        // if already issued, draw the list of active counties with OCTAGON
+        // symbols.
+        if (watchBox.getIssueFlag() != 0) {
+            List<SPCCounty> activeCounties = watchBox.getCountyList();
+            if (activeCounties != null && !activeCounties.isEmpty()) {
+                for (SPCCounty cnty : activeCounties) {
+
+                    Symbol cSymbol = new Symbol(null,
+                            IWatchBox.WATCH_LIST_COLOR, 3, 2, false,
+                            cnty.getCentriod(), "Marker", "OCTAGON");
+                    ArrayList<IDisplayable> cList = createDisplayElements(
+                            cSymbol, paintProps);
+                    dlist.addAll(cList);
+                }
+            }
         }
-        
+
         Coordinate[] points = watchBox.getLinePoints();
         ArrayList<Coordinate> ptsList = new ArrayList<Coordinate>();
-        
-        for ( int ii = 0; ii < points.length; ii++ ){
-        	ptsList.add(points[ii]);
+
+        for (int ii = 0; ii < points.length; ii++) {
+            ptsList.add(points[ii]);
         }
-        
-        //get displayElements for the watch box.
-        Line box = new Line(null, watchBox.getColors(),3.0f,3.0,true,
-	              		false, ptsList,
-	              		0,FillPattern.SOLID,"Lines","LINE_SOLID");
-        ArrayList<IDisplayable> dBox = createDisplayElements(box,paintProps);
+
+        // get displayElements for the watch box.
+        Line box = new Line(null, watchBox.getColors(), 3.0f, 3.0, true, false,
+                ptsList, 0, FillPattern.SOLID, "Lines", "LINE_SOLID");
+        ArrayList<IDisplayable> dBox = createDisplayElements(box, paintProps);
         dlist.addAll(dBox);
 
-        //get displayElements for the center line in the watch box
+        // get displayElements for the center line in the watch box
         ptsList.clear();
         ptsList.add(points[0]);
-        ptsList.add(new Coordinate((points[0].x+points[4].x)/2,
-        		(points[0].y+points[4].y)/2));
+        ptsList.add(new Coordinate((points[0].x + points[4].x) / 2,
+                (points[0].y + points[4].y) / 2));
         ptsList.add(points[4]);
-        
-        Line centerLine = new Line(null, watchBox.getColors(),3.0f,3.0,false,
-          		false, ptsList, 0,FillPattern.SOLID,"Lines","LINE_SOLID");
-        
-        ArrayList<IDisplayable> dLine = createDisplayElements(centerLine,paintProps);
-        dlist.addAll(dLine);
-        
-        Station[] anchors = watchBox.getAnchors();
-        Symbol anchor1 = new Symbol(null, watchBox.getColors(), 1.5f, 0.7, false,
-        						new Coordinate(anchors[0].getLongitude(),anchors[0].getLatitude()),
-        						"Marker", "DIAMOND");
-        
-        ArrayList<IDisplayable> aList1 = createDisplayElements(anchor1,paintProps);
-        dlist.addAll(aList1);
-        
-        Symbol anchor2 = new Symbol(null, watchBox.getColors(), 1.5f, 0.7, false,
-				new Coordinate(anchors[1].getLongitude(),anchors[1].getLatitude()),
-				"Marker", "DIAMOND");
 
-        ArrayList<IDisplayable> aList2 = createDisplayElements(anchor2,paintProps);
-        dlist.addAll(aList2); 
-        
-        //Add watch number if the watch is issued
-        if ( watchBox.getIssueFlag() != 0 ){
-        	
-        	String[] wtext = { String.valueOf(watchBox.getWatchNumber())}; 
-        	Text wNumber= new Text(null, "Courier", 18f,
-        			TextJustification.CENTER, new Coordinate(watchBox.getLinePoints()[7].x -.05,
-        			watchBox.getLinePoints()[7].y - .1), 0., TextRotation.SCREEN_RELATIVE, 
-        			wtext, FontStyle.REGULAR, watchBox.getColors()[0],
-        			0, 0, true, DisplayType.NORMAL, "Text", "Text" );
-        	ArrayList<IDisplayable> tList = createDisplayElements((IText)wNumber,paintProps);
-        
-           dlist.addAll(tList); 
+        Line centerLine = new Line(null, watchBox.getColors(), 3.0f, 3.0,
+                false, false, ptsList, 0, FillPattern.SOLID, "Lines",
+                "LINE_SOLID");
+
+        ArrayList<IDisplayable> dLine = createDisplayElements(centerLine,
+                paintProps);
+        dlist.addAll(dLine);
+
+        Station[] anchors = watchBox.getAnchors();
+        Symbol anchor1 = new Symbol(null, watchBox.getColors(), 1.5f, 0.7,
+                false, new Coordinate(anchors[0].getLongitude(),
+                        anchors[0].getLatitude()), "Marker", "DIAMOND");
+
+        ArrayList<IDisplayable> aList1 = createDisplayElements(anchor1,
+                paintProps);
+        dlist.addAll(aList1);
+
+        Symbol anchor2 = new Symbol(null, watchBox.getColors(), 1.5f, 0.7,
+                false, new Coordinate(anchors[1].getLongitude(),
+                        anchors[1].getLatitude()), "Marker", "DIAMOND");
+
+        ArrayList<IDisplayable> aList2 = createDisplayElements(anchor2,
+                paintProps);
+        dlist.addAll(aList2);
+
+        // Add watch number if the watch is issued
+        if (watchBox.getIssueFlag() != 0) {
+
+            String[] wtext = { String.valueOf(watchBox.getWatchNumber()) };
+            Text wNumber = new Text(null, "Courier", 18f,
+                    TextJustification.CENTER, new Coordinate(
+                            watchBox.getLinePoints()[7].x - .05,
+                            watchBox.getLinePoints()[7].y - .1), 0.,
+                    TextRotation.SCREEN_RELATIVE, wtext, FontStyle.REGULAR,
+                    watchBox.getColors()[0], 0, 0, true, DisplayType.NORMAL,
+                    "Text", "Text");
+            ArrayList<IDisplayable> tList = createDisplayElements(
+                    (IText) wNumber, paintProps);
+
+            dlist.addAll(tList);
         }
-        
+
         return dlist;
 
-	}
-	
+    }
 
     /**
      * Method to add ALL symbols of the same color into a single wire-frame.
@@ -1319,7 +1340,9 @@ public class DisplayElementFactory {
                     || tparent instanceof ContourCircle) {
                 return slist;
             } else if (tparent instanceof ContourMinmax) {
-                if (((Text) txt).getAuto() != null && ((Text) txt).getAuto()) {
+                boolean forceAuto = PgenUtil.getContourLabelAutoPlacement();
+                if (((Text) txt).getAuto() != null && ((Text) txt).getAuto()
+                        || forceAuto) {
                     Coordinate loc = ((ISinglePoint) ((ContourMinmax) tparent)
                             .getSymbol()).getLocation();
                     double[] pixel = iDescriptor.worldToPixel(new double[] {
@@ -1333,6 +1356,11 @@ public class DisplayElementFactory {
                             pixel[0], pixel[1], 0.0 });
                     ((Text) txt).setLocationOnly(new Coordinate(nloc[0],
                             nloc[1]));
+                    // Only adjust once if auto-place flag in preference is
+                    // false.
+                    if (!forceAuto) {
+                        ((Text) txt).setAuto(false);
+                    }
                 }
             }
         }
@@ -1496,19 +1524,22 @@ public class DisplayElementFactory {
 
         ArrayList<Coordinate> trackPts = new ArrayList<Coordinate>();
 
-        // draw wave quarters
-        slist.addAll(createDisplayElements(tcm.getWaveQuarters(), paintProps));
-
         // draw wind forecast quarters and labels
         for (TcmFcst tcmFcst : tcm.getTcmFcst()) {
+
             String[] txt = new String[2];
-            Calendar fcstHr = (Calendar) tcm.getAdvisoryTime().clone();
-            fcstHr.add(Calendar.HOUR_OF_DAY, tcmFcst.getFcstHr());
+            Calendar fcstHr = tcmFcst.getEndtime();
+            if (fcstHr == null) {
+                fcstHr = (Calendar) tcm.getAdvisoryTime().clone();
+                fcstHr.add(Calendar.HOUR_OF_DAY, tcmFcst.getFcstHr());
+            }
 
             if (tcmFcst.equals(tcm.getTcmFcst().get(0))) {
-                txt[0] = tcm.getStormName() + "/"
-                        + (int) tcm.getCentralPressure() + "mb";
-                txt[1] = String.format("%1$td/%1$tH%1$tM", fcstHr);
+                txt[1] = tcm.getStormName()
+                        + "/"
+                        + (tcm.getCentralPressure() > 0 ? tcm
+                                .getCentralPressure() : "xxx") + "mb";
+                txt[0] = String.format("%1$td/%1$tH%1$tM", fcstHr);
             } else {
                 txt[0] = String.format("%1$td/%1$tH%1$tM", fcstHr);
                 txt[1] = "";
@@ -1518,12 +1549,18 @@ public class DisplayElementFactory {
             trackPts.add(tcmFcst.getQuarters()[0].getLocation());
         }
 
+        // draw wave quarters
+        if (tcm.getWaveQuarters() != null) {
+            slist.addAll(createDisplayElements(tcm.getWaveQuarters(),
+                    paintProps));
+        }
+
         // draw track
         if (trackPts.size() >= 2) {
             Line trackLn = new Line(null,
                     new Color[] { new Color(0, 255, 255) }, 1.5f, .8, false,
                     false, trackPts, 0, null, "Lines", "LINE_DASHED_6");
-            slist.addAll(createDisplayElements(trackLn, paintProps));
+            slist.addAll(createDisplayElements(trackLn, paintProps, true));
         }
 
         return slist;
@@ -1554,7 +1591,8 @@ public class DisplayElementFactory {
             Text label = new Text(null, "Courier", 14.0f,
                     TextJustification.LEFT_JUSTIFY,
                     tcmFcst.getQuarters()[0].getLocation(), 0.0,
-                    TextRotation.NORTH_RELATIVE, txt, FontStyle.REGULAR,
+                    /* TTR 895 TextRotation.NORTH_RELATIVE, */
+                    TextRotation.SCREEN_RELATIVE, txt, FontStyle.BOLD,
                     getDisplayColor(Color.YELLOW), 4, 0, false,
                     DisplayType.NORMAL, "Text", "General Text");
 
@@ -1565,8 +1603,8 @@ public class DisplayElementFactory {
     }
 
     /**
-     * Returns the TCM symbol according to the wind speed. Hurricane >= 64 knots
-     * TS >= 50 knots TD >= 32 knots Lx < 32 knots
+     * Returns the TCM symbol according to the wind speed. Hurricane >= 64
+     * knots, TS >= 34 knots, TD < 34 knots
      * 
      * @param tcmFcst
      * @return
@@ -1577,13 +1615,19 @@ public class DisplayElementFactory {
 
         int maxWind = 0;
 
-        for (ITcmWindQuarter qtr : quarters) {
-            double[] radius = qtr.getQuarters();
-            for (double r : radius) {
-                if (r > 0) {
-                    if (qtr.getWindSpeed() > maxWind)
-                        maxWind = qtr.getWindSpeed();
-                    break;
+        if (tcmFcst instanceof TcmFcst) {
+            maxWind = ((TcmFcst) tcmFcst).getWindMax();
+        }
+
+        if (maxWind == 0) {
+            for (ITcmWindQuarter qtr : quarters) {
+                double[] radius = qtr.getQuarters();
+                for (double r : radius) {
+                    if (r > 0) {
+                        if (qtr.getWindSpeed() > maxWind)
+                            maxWind = qtr.getWindSpeed();
+                        break;
+                    }
                 }
             }
         }
@@ -1594,15 +1638,15 @@ public class DisplayElementFactory {
                 ret = "HURRICANE_NH";
             else
                 ret = "HURRICANE_SH";
-        } else if (maxWind >= 50) {
+        } else if (maxWind >= 34) {
             if (lat > 0)
                 ret = "TROPICAL_STORM_NH";
             else
                 ret = "TROPICAL_STORM_SH";
-        } else if (maxWind >= 32) {
-            ret = "TROPICAL_DEPRESSION";
         } else {
-            ret = "LOW_X_FILLED";
+            ret = "TROPICAL_DEPRESSION";
+            // } else {
+            // ret = "LOW_X_FILLED";
         }
 
         return ret;
@@ -1621,13 +1665,58 @@ public class DisplayElementFactory {
             ITcmWindQuarter quatros, PaintProperties paintProps) {
         ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
 
+        Coordinate center = quatros.getLocation();
         Color color = Color.GREEN;
         switch (quatros.getWindSpeed()) {
-        case 0:
+        case 0: // 12 feet wave
             color = Color.GREEN;
-            break;
-        case 32:
-            color = Color.BLUE;
+            Arc quatro1 = new Arc(null, color, (float) 1.5, 1.0, false, false,
+                    0, null, "Circle", center,
+                    this.calculateDestinationPointMap(center, 0,
+                            quatros.getQuarters()[0]), "Arc", 1, 0, 90);
+
+            Arc quatro2 = new Arc(null, color, (float) 1.5, 1.0, false, false,
+                    0, null, "Circle", center,
+                    this.calculateDestinationPointMap(center, 0,
+                            quatros.getQuarters()[1]), "Arc", 1, 90, 180);
+            Arc quatro3 = new Arc(null, color, (float) 1.5, 1.0, false, false,
+                    0, null, "Circle", center,
+                    this.calculateDestinationPointMap(center, 0,
+                            quatros.getQuarters()[2]), "Arc", 1, 180, 270);
+            Arc quatro4 = new Arc(null, color, (float) 1.5, 1.0, false, false,
+                    0, null, "Circle", center,
+                    this.calculateDestinationPointMap(center, 0,
+                            quatros.getQuarters()[3]), "Arc", 1, 270, 360);
+            slist.addAll(createDisplayElements((IArc) quatro1, paintProps, 3));
+            slist.addAll(createDisplayElements((IArc) quatro2, paintProps, 3));
+            slist.addAll(createDisplayElements((IArc) quatro3, paintProps, 3));
+            slist.addAll(createDisplayElements((IArc) quatro4, paintProps, 3));
+
+            Line ln1 = getWindQuatroLine(getPointOnArc(quatro1, 0),
+                    getPointOnArc(quatro2, 0), color);
+            ln1.setPgenType("LINE_DASHED_4");
+
+            Line ln2 = getWindQuatroLine(getPointOnArc(quatro2, 90),
+                    getPointOnArc(quatro3, 90), color);
+            ln2.setPgenType("LINE_DASHED_4");
+
+            Line ln3 = getWindQuatroLine(getPointOnArc(quatro3, 180),
+                    getPointOnArc(quatro4, 180), color);
+            ln3.setPgenType("LINE_DASHED_4");
+
+            Line ln4 = getWindQuatroLine(getPointOnArc(quatro4, 270),
+                    getPointOnArc(quatro1, 270), color);
+            ln4.setPgenType("LINE_DASHED_4");
+
+            slist.addAll(createDisplayElements((ILine) ln1, paintProps));
+            slist.addAll(createDisplayElements((ILine) ln2, paintProps));
+            slist.addAll(createDisplayElements((ILine) ln3, paintProps));
+            slist.addAll(createDisplayElements((ILine) ln4, paintProps));
+
+            return slist;
+        case 34:
+            // make it consistent with NMAP
+            color = new Color(0, 150, 255);
             break;
         case 50:
             color = Color.YELLOW;
@@ -1637,10 +1726,10 @@ public class DisplayElementFactory {
             break;
         }
 
-        Coordinate center = quatros.getLocation();
         Arc quatro1 = new Arc(null, color, (float) 1.5, 1.0, false, false, 0,
                 null, "Circle", center, this.calculateDestinationPointMap(
                         center, 0, quatros.getQuarters()[0]), "Arc", 1, 0, 90);
+
         Arc quatro2 = new Arc(null, color, (float) 1.5, 1.0, false, false, 0,
                 null, "Circle", center, this.calculateDestinationPointMap(
                         center, 0, quatros.getQuarters()[1]), "Arc", 1, 90, 180);
@@ -1673,6 +1762,125 @@ public class DisplayElementFactory {
         slist.addAll(createDisplayElements((ILine) ln2, paintProps));
         slist.addAll(createDisplayElements((ILine) ln3, paintProps));
         slist.addAll(createDisplayElements((ILine) ln4, paintProps));
+
+        return slist;
+    }
+
+    /**
+     * Creates a list of IDisplayable Objects from an IArc object using
+     * dashed-line.
+     * 
+     * @param arc
+     *            A PGEN Drawable Element of an arc object
+     * @param paintProps
+     *            The paint properties associated with the target
+     * @param dashlength
+     *            length of dash segment in screen pixel.
+     * @return A list of IDisplayable elements
+     */
+    public ArrayList<IDisplayable> createDisplayElements(IArc arc,
+            PaintProperties paintProps, double dashlength) {
+        setScales(paintProps);
+
+        /*
+         * Create the List to be returned, and wireframe shape
+         */
+        ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
+        IWireframeShape arcpts = target
+                .createWireframeShape(false, iDescriptor);
+
+        /*
+         * Convert center and circumference point from lat/lon to pixel
+         * coordinates.
+         */
+        double[] tmp = { arc.getCenterPoint().x, arc.getCenterPoint().y, 0.0 };
+        double[] center = iDescriptor.worldToPixel(tmp);
+        double[] tmp2 = { arc.getCircumferencePoint().x,
+                arc.getCircumferencePoint().y, 0.0 };
+        double[] circum = iDescriptor.worldToPixel(tmp2);
+
+        /*
+         * calculate angle of major axis
+         */
+        double axisAngle = Math.toDegrees(Math.atan2((circum[1] - center[1]),
+                (circum[0] - center[0])));
+        double cosineAxis = Math.cos(Math.toRadians(axisAngle));
+        double sineAxis = Math.sin(Math.toRadians(axisAngle));
+
+        /*
+         * calculate half lengths of major and minor axes
+         */
+        double diff[] = { circum[0] - center[0], circum[1] - center[1] };
+        double major = Math.sqrt((diff[0] * diff[0]) + (diff[1] * diff[1]));
+        double minor = major * arc.getAxisRatio();
+
+        if (major / this.screenToExtent < 0.000001) { // ignore circles with major = 0
+            return slist;
+        }
+
+        // calculate length of a single dash segment in degree.
+        double deltaAngle = (dashlength / (major / this.screenToExtent)) * 180;
+        int deltaA = (int) Math.round(deltaAngle);
+        if (deltaA <= 1)
+            deltaA = 2;
+
+        /*
+         * Calculate points along the arc
+         */
+        double angle = arc.getStartAngle();
+        int numpts = (int) Math.round(arc.getEndAngle() - arc.getStartAngle()
+                + 1.0);
+        double[][] path = new double[deltaA + 1][3];
+        int kk = 0;
+        boolean dash = false;
+
+        for (int j = 0; j < numpts; j++) {
+
+            if (!dash) {
+                double thisSine = Math.sin(Math.toRadians(angle));
+                double thisCosine = Math.cos(Math.toRadians(angle));
+                // Can maybe use simpler less expensive calculations for circle,
+                // if ever necessary.
+                // if ( arc.getAxisRatio() == 1.0 ) {
+                // path[j][0] = center[0] + (major * thisCosine );
+                // path[j][1] = center[1] + (minor * thisSine );
+                // }
+                // else {
+                path[kk][0] = center[0] + (major * cosineAxis * thisCosine)
+                        - (minor * sineAxis * thisSine);
+                path[kk][1] = center[1] + (major * sineAxis * thisCosine)
+                        + (minor * cosineAxis * thisSine);
+                // }
+
+                // add a line segment for dash line
+                kk++;
+                if (kk - 1 == deltaA) {
+                    arcpts.addLineSegment(path);
+                    kk = 0;
+                    dash = !dash;
+                }
+
+            } else {
+                // add a blank segement for the dash line
+                kk++;
+                if (kk >= deltaA - 2) {
+                    dash = !dash;
+                    kk = 0;
+                }
+            }
+            angle += 1.0;
+
+        }
+
+        /*
+         * Create new LineDisplayElement from wireframe shapes and add it to
+         * return list
+         */
+        arcpts.compile();
+        slist.add(new LineDisplayElement(arcpts, getDisplayColor(arc
+                .getColors()[0]), arc.getLineWidth()));
+
+        // slist.addAll(adjustContourCircleLabel(arc, paintProps, path));
 
         return slist;
     }
@@ -3069,7 +3277,6 @@ public class DisplayElementFactory {
          */
         double psize = pattern.getLength() * sfactor;
         double numPatterns = Math.floor(totalDist / psize);
-        // System.out.println("NUM_OF_PATTERN_ITERATIONS="+numPatterns+":"+psize);
 
         /*
          * Calculate the amount to increase or decrease the pattern length so
@@ -5129,6 +5336,8 @@ public class DisplayElementFactory {
 
             boolean lineClosed = cline.getLine().isClosedLine();
 
+            boolean forceAuto = PgenUtil.getContourLabelAutoPlacement();
+
             /*
              * Find the visible part of the line.
              */
@@ -5304,13 +5513,17 @@ public class DisplayElementFactory {
                 loc[1] = txtPositions.get(kk).y;
 
                 tps = iDescriptor.pixelToWorld(loc);
-                if (txt.getAuto() != null && txt.getAuto()) {
+                if (txt.getAuto() != null && txt.getAuto() || forceAuto) {
                     txt.setLocationOnly(new Coordinate(tps[0], tps[1]));
                 }
 
                 txt.setParent(null);
                 dlist.addAll(createDisplayElements((IText) txt, paintProps));
                 txt.setParent(cline);
+
+                if (!forceAuto) {
+                    txt.setAuto(false);
+                }
             }
 
         }
@@ -5332,7 +5545,9 @@ public class DisplayElementFactory {
 
             Text labelText = ((ContourCircle) parent).getLabel();
 
-            if (labelText.getAuto() != null && labelText.getAuto()) {
+            boolean forceAuto = PgenUtil.getContourLabelAutoPlacement();
+
+            if (labelText.getAuto() != null && labelText.getAuto() || forceAuto) {
                 /*
                  * Find the visible part of the circle.
                  */
@@ -5385,6 +5600,10 @@ public class DisplayElementFactory {
             dlist.addAll(createDisplayElements((IText) labelText, paintProps));
             labelText.setParent(parent);
 
+            if (!forceAuto) {
+                labelText.setAuto(false);
+            }
+
         }
 
         return dlist;
@@ -5431,8 +5650,7 @@ public class DisplayElementFactory {
                         spdCoors.get(0),
                         gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType.ARROW,
                         10, vDir, 1.0, false, "Vector", "Arrow");
-                // System.out.println("generate a text for " + spd + " at: "
-                // + getCcfpTxtPts(v).x + "," + getCcfpTxtPts(v).y);
+
                 Text spdTxt = new Text(null, "Courier",
                         14.0f,
                         TextJustification.CENTER,// .LEFT_JUSTIFY,
@@ -5558,13 +5776,10 @@ public class DisplayElementFactory {
      */
     public PgenRangeRecord findTextBoxRange(IText txt,
             PaintProperties paintProps) {
-        // System.out.println("findTextBoxRange for IText .... enter ");
 
         setScales(paintProps);
 
         double[] tmp = { txt.getPosition().x, txt.getPosition().y, 0.0 };
-        // System.out.println("findTextBoxRange for IText .... "
-        // + txt.getPosition().x + "," + txt.getPosition().y);
         double[] loc = iDescriptor.worldToPixel(tmp);
 
         double horizRatio = paintProps.getView().getExtent().getWidth()
@@ -5577,7 +5792,6 @@ public class DisplayElementFactory {
          */
         IFont font = initializeFont(txt.getFontName(), txt.getFontSize(),
                 txt.getStyle());
-        // System.out.println("findTextBoxRange for IText .... 1 ");
 
         /*
          * apply X offset in half-characters
@@ -5614,14 +5828,12 @@ public class DisplayElementFactory {
             ((Text) txt).setXOffset(0);
             ((Text) txt).setYOffset(0);
         }
-        // System.out.println("findTextBoxRange for IText .... 2 ");
 
         /*
          * Get text color
          */
         Color clr = getDisplayColor(txt.getTextColor());
         RGB textColor = new RGB(clr.getRed(), clr.getGreen(), clr.getBlue());
-        // System.out.println("findTextBoxRange for IText .... 2.5 ");
 
         /*
          * Get angle rotation for text. If rotation is "North" relative,
@@ -5630,7 +5842,6 @@ public class DisplayElementFactory {
         double rotation = txt.getRotation();
         if (txt.getRotationRelativity() == TextRotation.NORTH_RELATIVE)
             rotation += northOffsetAngle(txt.getPosition());
-        // System.out.println("findTextBoxRange for IText .... 3 ");
 
         /*
          * create drawableString and calculate its bounds
@@ -5642,13 +5853,10 @@ public class DisplayElementFactory {
         dstring.horizontalAlignment = HorizontalAlignment.CENTER;
         dstring.verticallAlignment = VerticalAlignment.MIDDLE;
         dstring.rotation = rotation;
-        // System.out.println("findTextBoxRange for IText .... 3.1 ");
 
         Rectangle2D bounds = target.getStringsBounds(dstring);
-        // System.out.println("findTextBoxRange for IText .... 3.1.1 ");
         double xOffset = (bounds.getWidth() + 1) * horizRatio / 2;
         double yOffset = (bounds.getHeight() + 1) * vertRatio / 2;
-        // System.out.println("findTextBoxRange for IText .... 3.2 ");
 
         /*
          * Set proper alignment
@@ -5675,7 +5883,6 @@ public class DisplayElementFactory {
                 break;
             }
         }
-        // System.out.println("findTextBoxRange for IText .... 4 ");
 
         dstring.horizontalAlignment = align;
 
@@ -5687,7 +5894,6 @@ public class DisplayElementFactory {
 
         IExtent box = new PixelExtent(dstring.basics.x - left, dstring.basics.x
                 + right, dstring.basics.y - yOffset, dstring.basics.y + yOffset);
-        // System.out.println("findTextBoxRange for IText .... 5 ");
 
         List<Coordinate> rngBox = new ArrayList<Coordinate>();
         rngBox.add(new Coordinate(box.getMinX() - PgenRangeRecord.RANGE_OFFSET,
@@ -5701,8 +5907,6 @@ public class DisplayElementFactory {
 
         List<Coordinate> textPos = new ArrayList<Coordinate>();
         textPos.add(new Coordinate(loc[0], loc[1]));
-
-        // System.out.println("findTextBoxRange for IText .... return ");
 
         return new PgenRangeRecord(rngBox, textPos, false);
     }

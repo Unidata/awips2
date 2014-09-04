@@ -313,7 +313,7 @@
 		<label name="SLGT"/>
 		<label name="MDT"/>
 		<label name="HIGH"/>
-		<label name="5 INCH"/>
+		<label name="5_INCH"/>
 	</otlktype>
 		
 	<otlktype name="ENH00" prefix="enh00">
