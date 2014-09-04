@@ -133,6 +133,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/13		#1049		B. Yin		Handle outlook type defined in layer.
  * 12/13		TTR904		B. Yin		Added back the water zone string for Watch county list
  * 11/13        #1065       J. Wu       Added Kink lines.
+ * 05/14        TTR995      J. Wu       Set Text's 'auto" flag to false.
  * 
  * </pre>
  * 
@@ -367,10 +368,11 @@ public class ProductConverter {
                     text.setHide(fText.isHide());
                 }
 
-                if (fText.isAuto() != null) {
-                    text.setAuto(fText.isAuto());
-                }
-
+                /*
+                 * if (fText.isAuto() != null) { //
+                 * text.setAuto(fText.isAuto()); text.setAuto(false); }
+                 */
+                text.setAuto(false);
                 des.add(text);
             }
 

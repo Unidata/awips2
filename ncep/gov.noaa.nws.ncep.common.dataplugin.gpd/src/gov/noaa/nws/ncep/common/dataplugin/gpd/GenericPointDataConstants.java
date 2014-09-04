@@ -1,4 +1,8 @@
 /**
+ * This code has unlimited rights, and is provided "as is" by the National Centers 
+ * for Environmental Prediction, without warranty of any kind, either expressed or implied, 
+ * including but not limited to the implied warranties of merchantability and/or fitness 
+ * for a particular purpose.
  * 
  * 
  * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
@@ -30,7 +34,10 @@ public class GenericPointDataConstants {
     // db filed defined in GenericPointDataRecord
     public static final String DB_PROD_NAME= "productInfo.name";
     public static final String DB_MASTER_LEVEL_NAME= "productInfo.masterLevel.name";
-    public static final String DB_REFTIME_NAME= "dataTime.refTime";
+    public static final String DB_REF_TIME= "dataTime.refTime";
+    public static final String DB_FORECAST_TIME= "dataTime.fcstTime";
+    public static final String DB_RANGESTART_TIME= "dataTime.validPeriod.start";
+    public static final String DB_UTILITY_FLAGS= "dataTime.utilityFlags";
     public static final String DB_PRODUCT_VERSION = "productVersion";
     public static final String DB_STN_CATALOGTYPE = "location.catalogType";
     public static final String DB_SLAT = "slat";

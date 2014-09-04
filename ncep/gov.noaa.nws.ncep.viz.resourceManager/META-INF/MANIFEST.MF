@@ -27,4 +27,5 @@ Export-Package: gov.noaa.nws.ncep.viz.resourceManager,
  gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd,
  gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd,
  gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources
-Import-Package: gov.noaa.nws.ncep.viz.rsc.pgen
+Import-Package: gov.noaa.nws.ncep.viz.resourceManager.timeline,
+ gov.noaa.nws.ncep.viz.rsc.pgen
