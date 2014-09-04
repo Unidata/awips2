@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <resource>GEOMAG</resource>
+    <attrSetGroupName>MAGWORM</attrSetGroupName>
+    <attrSetNames>H_Magworm,D_Magworm,HQdc_Magworm,DQdc_Magworm</attrSetNames>
+</AttributeSetGroup>

@@ -32,8 +32,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -57,6 +55,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 										the same type.
  * 03/13		#927		B. Yin		Added right mouse click context menu
  * 08/13		TTR778		J. Wu		Move loading libg2g to GraphToGridParamDialog.
+ * 04/14        #1117       J. Wu       Set focus to label/use line color for label.
+ * 05/14        TTR1008     J. Wu       Remove confirmation dialog when adding to an existing contour.
  * 
  * </pre>
  * 
@@ -85,7 +85,7 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
     private Contours elem = null;
 
     private Contours lastElem = null;
-    
+
     private ExecutionEvent lastEvent = null;
 
     private int undo = -1;
@@ -107,9 +107,8 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
     protected void activateTool() {
 
         super.activateTool();
-//        LibraryLoader.load("g2g");
+        // LibraryLoader.load("g2g");
 
-      
         /*
          * if the ExecutionEvent's trigger has been set, it should be something
          * from a Contours to start with. Load it's attributes to the Contours
@@ -117,29 +116,35 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
          */
         Object de = event.getTrigger();
 
-        // The same tool could be activated again (for instance, click on PGEN palette and then click in the editor).
-        // However the trigger of the event may not be the current contour if the contour is modified.
-        if ( event != lastEvent ) {
+        // The same tool could be activated again (for instance, click on PGEN
+        // palette and then click in the editor).
+        // However the trigger of the event may not be the current contour if
+        // the contour is modified.
+        if (event != lastEvent) {
             if (de instanceof Contours) {
                 elem = (Contours) de;
-                //addContourLine = true;
+                // addContourLine = true;
                 this.setPgenSelectHandler();
-            	PgenSession.getInstance().getPgenPalette().setActiveIcon("Select");
+                PgenSession.getInstance().getPgenPalette()
+                        .setActiveIcon("Select");
             } else {
                 elem = null;
             }
-        	lastEvent = event;
+            lastEvent = event;
         }
-        
+
         if (attrDlg instanceof ContoursAttrDlg) {
-           // ((ContoursAttrDlg) attrDlg).disableActionButtons();
-            ((ContoursAttrDlg)attrDlg).setDrawingTool( this );
-            if ( de != null ){
-            	((ContoursAttrDlg)attrDlg).setSelectMode();
+            // ((ContoursAttrDlg) attrDlg).disableActionButtons();
+            ((ContoursAttrDlg) attrDlg).setDrawingTool(this);
+            if (de != null) {
+                ((ContoursAttrDlg) attrDlg).setSelectMode();
+            } else {
+                ((ContoursAttrDlg) attrDlg)
+                        .setDrawingStatus(ContoursAttrDlg.ContourDrawingStatus.DRAW_LINE);
             }
-            else {
-            	((ContoursAttrDlg)attrDlg).setDrawingStatus(ContoursAttrDlg.ContourDrawingStatus.DRAW_LINE);
-            }
+
+            ((ContoursAttrDlg) attrDlg).setLabelFocus();
+
         }
 
         return;
@@ -180,7 +185,12 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
 
             // Check if mouse is in geographic extent
             Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null || shiftDown ) return false;
+            if (loc == null || shiftDown)
+                return false;
+
+            if (attrDlg != null) {
+                ((ContoursAttrDlg) attrDlg).setLabelFocus();
+            }
 
             // Drawing Min/Max symbol
             if (attrDlg != null && ((ContoursAttrDlg) attrDlg).drawSymbol()) {
@@ -191,7 +201,8 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
 
                     points.clear();
                     if (attrDlg != null) {
-                        ((ContoursAttrDlg) attrDlg).setDrawingStatus( ContourDrawingStatus.SELECT );
+                        ((ContoursAttrDlg) attrDlg)
+                                .setDrawingStatus(ContourDrawingStatus.SELECT);
                     }
                     drawingLayer.removeGhostLine();
 
@@ -225,7 +236,8 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
 
                     points.clear();
                     if (attrDlg != null) {
-                        ((ContoursAttrDlg) attrDlg).setDrawingStatus(ContoursAttrDlg.ContourDrawingStatus.SELECT);
+                        ((ContoursAttrDlg) attrDlg)
+                                .setDrawingStatus(ContoursAttrDlg.ContourDrawingStatus.SELECT);
                     }
                     drawingLayer.removeGhostLine();
 
@@ -249,11 +261,11 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
                 return true;
             } else if (button == 3) {
                 if (points.size() == 0) {
-                	((ContoursAttrDlg) attrDlg).setDrawingStatus(ContoursAttrDlg.ContourDrawingStatus.SELECT);
-                }
-                else {
-                	setDrawingMode();
-                	drawContours();
+                    ((ContoursAttrDlg) attrDlg)
+                            .setDrawingStatus(ContoursAttrDlg.ContourDrawingStatus.SELECT);
+                } else {
+                    setDrawingMode();
+                    drawContours();
                 }
                 return true;
             } else if (button == 2) {
@@ -272,12 +284,19 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
          */
         @Override
         public boolean handleMouseMove(int x, int y) {
-        	if (  !isResourceEditable() || shiftDown ) return false;
+            if (!isResourceEditable() || shiftDown) {
+                return false;
+            }
 
             // Check if mouse is in geographic extent
             Coordinate loc = mapEditor.translateClick(x, y);
-            if (loc == null)
+            if (loc == null) {
                 return false;
+            }
+
+            if (attrDlg != null) {
+                ((ContoursAttrDlg) attrDlg).setLabelFocus();
+            }
 
             // Draw a ghost contour min/max
             if (attrDlg != null && ((ContoursAttrDlg) attrDlg).drawSymbol()) {
@@ -307,6 +326,9 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
                     lbl.setText(oldText);
                     lbl.setHide(hide);
                     lbl.setAuto(auto);
+                    if (((ContoursAttrDlg) attrDlg).isUseMainColor()) {
+                        lbl.setColors(mmTemp.getColors());
+                    }
                 }
 
                 drawingLayer.setGhostLine(ghost);
@@ -345,6 +367,9 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
                         lbl.setText(oldText);
                         lbl.setHide(hide);
                         lbl.setAuto(auto);
+                        if (((ContoursAttrDlg) attrDlg).isUseMainColor()) {
+                            lbl.setColors(circleTemp.getColors());
+                        }
                     }
 
                     drawingLayer.setGhostLine(ghost);
@@ -394,6 +419,9 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
                         lbl.setText(oldText);
                         lbl.setHide(hide);
                         lbl.setAuto(auto);
+                        if (((ContoursAttrDlg) attrDlg).isUseMainColor()) {
+                            lbl.setColors(lineTemp.getColors());
+                        }
                     }
                 }
 
@@ -419,8 +447,11 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
 
         @Override
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-        	if (  !isResourceEditable() || shiftDown ) return false;
-        	else return true;
+            if (!isResourceEditable() || shiftDown) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         /*
@@ -464,6 +495,9 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
                         lbl.setText(oldText);
                         lbl.setHide(hide);
                         lbl.setAuto(auto);
+                        if (((ContoursAttrDlg) attrDlg).isUseMainColor()) {
+                            lbl.setColors(lineTemp.getColors());
+                        }
                     }
                 }
 
@@ -552,6 +586,9 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
                     lbl.setText(oldText);
                     lbl.setHide(hide);
                     lbl.setAuto(auto);
+                    if (((ContoursAttrDlg) attrDlg).isUseMainColor()) {
+                        lbl.setColors(mmTemp.getColors());
+                    }
                 }
 
                 // Check if we need to add to existing contours or create a new
@@ -674,6 +711,9 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
                     lbl.setText(oldText);
                     lbl.setHide(hide);
                     lbl.setAuto(auto);
+                    if (((ContoursAttrDlg) attrDlg).isUseMainColor()) {
+                        lbl.setColors(circleTemp.getColors());
+                    }
                 }
 
                 // Check if we need to add to existing contours or create a new
@@ -732,20 +772,13 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
 
         /*
          * Loop through current layer and see if there is an same type of
+         * Contours. If yes, add to the existing contours. If not, draw a new
          * Contours.
-         * 
-         * If yes, show a warning message and ask for confirmation either add to
-         * the existing contours or draw a new Cnntours.
          */
         private Contours checkExistingContours() {
 
             Contours existingContours = elem;
 
-            // Loop through current layer and see if there is an same type of
-            // Contours.
-            // If yes, show a warning message and ask for confirmation either
-            // add to the
-            // existing contours or draw a new Contours.
             if (existingContours == null) {
 
                 Iterator<AbstractDrawableComponent> it = drawingLayer
@@ -755,31 +788,12 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
                     if (adc instanceof Contours && !(adc instanceof Outlook)) {
                         Contours thisContour = (Contours) adc;
                         ContoursAttrDlg thisDlg = (ContoursAttrDlg) attrDlg;
-                        if (thisContour.getParm().equals(thisDlg.getParm())
-                                && thisContour.getLevel().equals(
-                                        thisDlg.getLevel())) {
+
+                        if (thisContour.getKey().equals(
+                                Contours.getKey(thisDlg))) {
                             existingContours = (Contours) adc;
                             break;
                         }
-                    }
-                }
-
-                if (existingContours != null) {
-                    MessageDialog msgDlg = new MessageDialog(PlatformUI
-                            .getWorkbench().getActiveWorkbenchWindow()
-                            .getShell(), "Warning!", null, "There is another ["
-                            + existingContours.getParm() + ","
-                            + existingContours.getLevel()
-                            + "] Contours element in this layer.\n"
-                            + "Do you want to add to it or create a new one?",
-                            MessageDialog.INFORMATION,
-                            new String[] { "Add to Existing One",
-                                    "Create a New One" }, 0);
-                    msgDlg.open();
-
-                    // start a new Contours.
-                    if (msgDlg.getReturnCode() != MessageDialog.OK) {
-                        existingContours = null;
                     }
                 }
             }
@@ -809,65 +823,67 @@ public class PgenContoursTool extends AbstractPgenDrawingTool implements
         redo = redoSize;
 
     }
-    
+
     /**
      * Gets the current working contour.
+     * 
      * @return
      */
-    public Contours getCurrentContour(){
-    	return elem;
+    public Contours getCurrentContour() {
+        return elem;
     }
 
     /**
      * Sets the current working contour
+     * 
      * @param con
      */
-    public void setCurrentContour( Contours con){
-    	attrDlg.setDrawableElement(con);
-    	elem = con;
+    public void setCurrentContour(Contours con) {
+        attrDlg.setDrawableElement(con);
+        elem = con;
     }
-    
+
     /**
      * Sets the selecting handler.
      */
-	public void setPgenSelectHandler( ){
+    public void setPgenSelectHandler() {
 
-		setHandler(new PgenSelectHandler(this, mapEditor, drawingLayer,attrDlg ));
-	}
-	
-	/**
-	 * Sets the contour mouse handler.
-	 */
-	public void setPgenContoursHandler( ){
+        setHandler(new PgenSelectHandler(this, mapEditor, drawingLayer, attrDlg));
+    }
 
-		setHandler(new PgenContoursHandler());
-		
-	}
-	
-	/**
-	 * Clears selected elements.
-	 */
-	public void clearSelected(){
-		drawingLayer.removeSelected();
-		mapEditor.refresh();
-	}
-	
-	/**
-	 * Gets the default mouse handler.
-	 */
-	@Override
-	protected IInputHandler getDefaultMouseHandler(){
-		return new PgenSelectHandler(this, mapEditor, drawingLayer,attrDlg );
-	}
-	
-	/**
-	 * Sets current working component
-	 */
-	@Override
-	protected void setWorkingComponent( AbstractDrawableComponent adc ){
-		if ( adc instanceof Contours ){
-			setCurrentContour( (Contours) adc );
-			((ContoursAttrDlg) attrDlg).setCurrentContours(elem);
-		}
-	}
+    /**
+     * Sets the contour mouse handler.
+     */
+    public void setPgenContoursHandler() {
+
+        setHandler(new PgenContoursHandler());
+
+    }
+
+    /**
+     * Clears selected elements.
+     */
+    public void clearSelected() {
+        drawingLayer.removeSelected();
+        mapEditor.refresh();
+    }
+
+    /**
+     * Gets the default mouse handler.
+     */
+    @Override
+    protected IInputHandler getDefaultMouseHandler() {
+        return new PgenSelectHandler(this, mapEditor, drawingLayer, attrDlg);
+    }
+
+    /**
+     * Sets current working component
+     */
+    @Override
+    protected void setWorkingComponent(AbstractDrawableComponent adc) {
+        if (adc instanceof Contours) {
+            setCurrentContour((Contours) adc);
+            ((ContoursAttrDlg) attrDlg).setCurrentContours(elem);
+        }
+    }
 }

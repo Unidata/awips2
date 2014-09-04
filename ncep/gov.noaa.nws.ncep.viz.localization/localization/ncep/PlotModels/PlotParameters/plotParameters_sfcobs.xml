@@ -164,21 +164,21 @@
 	<!-- PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" plotMode="table" dbParamName="presWeather" symbolFont="WxSymbolFont" transform="rotate(0,0,0)" plotLookupTable="wx_symbol_trans.txt"/> -->	
     <!-- <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" dbParamName="presWeather" plotMode="table" symbolFont="WxSymbolFont" arrayIndex="0" plotLookupTable="wx_symbol_trans.txt"/> -->
     
-    <PlotParameterDefn  plotParamName="P01M" metParamName="Precip01Hr"  plotMode="text" dbParamName="precip1Hour" plotUnit="mm" />
+    <PlotParameterDefn  plotParamName="P01M" metParamName="Precip01Hr"  plotMode="text" dbParamName="precip1Hour" plotUnit="mm" plotFormat="%.2f" />
     <!-- precip3Hour is not defined in the current decoder
     <PlotParameterDefn  plotParamName="P03M" metParamName="Precip03Hr"  plotMode="text" dbParamName="precip3Hour" plotUnit="mm" />
     <PlotParameterDefn  plotParamName="P03I" metParamName="Precip03Hr"  plotMode="text" dbParamName="precip3Hour" plotUnit="in" />
      -->    
-    <PlotParameterDefn  plotParamName="P06M" metParamName="Precip06Hr"  plotMode="text" dbParamName="precip6Hour" plotUnit="mm" />
-    <PlotParameterDefn  plotParamName="P12M" metParamName="Precip12Hr"  plotMode="text" dbParamName="precip12Hour" plotUnit="mm" />
-    <PlotParameterDefn  plotParamName="P18M" metParamName="Precip18Hr"  plotMode="text" dbParamName="precip18Hour" plotUnit="mm" />
-    <PlotParameterDefn  plotParamName="P24M" metParamName="Precip24Hr"  plotMode="text" dbParamName="precip24Hour" plotUnit="mm" />
+    <PlotParameterDefn  plotParamName="P06M" metParamName="Precip06Hr"  plotMode="text" dbParamName="precip6Hour" plotUnit="mm" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="P12M" metParamName="Precip12Hr"  plotMode="text" dbParamName="precip12Hour" plotUnit="mm" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="P18M" metParamName="Precip18Hr"  plotMode="text" dbParamName="precip18Hour" plotUnit="mm" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="P24M" metParamName="Precip24Hr"  plotMode="text" dbParamName="precip24Hour" plotUnit="mm" plotFormat="%.2f" />
     
-    <PlotParameterDefn  plotParamName="P01I" metParamName="Precip01Hr"  plotMode="text" dbParamName="precip1Hour" plotUnit="in" />
-    <PlotParameterDefn  plotParamName="P06I" metParamName="Precip06Hr"  plotMode="text" dbParamName="precip6Hour" plotUnit="in" />
-    <PlotParameterDefn  plotParamName="P12I" metParamName="Precip12Hr"  plotMode="text" dbParamName="precip12Hour" plotUnit="in" />
-    <PlotParameterDefn  plotParamName="P18I" metParamName="Precip18Hr"  plotMode="text" dbParamName="precip18Hour" plotUnit="in" />
-    <PlotParameterDefn  plotParamName="P24I" metParamName="Precip24Hr"  plotMode="text" dbParamName="precip24Hour" plotUnit="in" />    
+    <PlotParameterDefn  plotParamName="P01I" metParamName="Precip01Hr"  plotMode="text" dbParamName="precip1Hour" plotUnit="in" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="P06I" metParamName="Precip06Hr"  plotMode="text" dbParamName="precip6Hour" plotUnit="in" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="P12I" metParamName="Precip12Hr"  plotMode="text" dbParamName="precip12Hour" plotUnit="in" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="P18I" metParamName="Precip18Hr"  plotMode="text" dbParamName="precip18Hour" plotUnit="in" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="P24I" metParamName="Precip24Hr"  plotMode="text" dbParamName="precip24Hour" plotUnit="in" plotFormat="%.2f" />    
     
     <!-- MARINE -->
    

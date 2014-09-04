@@ -1,30 +1,81 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-  	<bean id="ncgribFilenameProcessor" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgribFileNameProcessor" />
-
-	<camelContext id="ncgrib-file-endpoint" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
-		
-		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
-		
-	 	<route id="gribFileConsumerRoute">
-	 		<from ref="gribFileEndpoint" />
-	 			<bean ref="fileToString" />
-	 			<bean ref="ncgribFilenameProcessor" />
-	 			<setHeader headerName="pluginName">
-	 				<constant>grid</constant> 
-				</setHeader>
-				<to uri="jms-durable:queue:Ingest.GribSplit" />
-		</route>
-
-	</camelContext>
+    <bean id="ncgribFilenameProcessor" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgribFileNameProcessor"/>
 	
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
-		<constructor-arg ref="ncgrib-file-endpoint" />
-  	</bean>
+	<bean id="ncgribGridPointLock" class="com.raytheon.edex.plugin.grib.GribGridPointLock">
+		<constructor-arg value="${ncgrib-decode.count.gridpoints}"/>
+		<constructor-arg value="${ncgrib-decode.count.threads}"/>
+	</bean>
+	
+    <camelContext id="ncgrib-file-endpoint" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+
+        <endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false"/>
+
+        <route id="gribFileConsumerRoute">
+            <from ref="gribFileEndpoint"/>
+            <bean ref="fileToString"/>
+            <bean ref="ncgribFilenameProcessor"/>
+            <setHeader headerName="pluginName">
+                <constant>grid</constant>
+            </setHeader>
+            <to uri="jms-durable:queue:Ingest.ncGrib"/>
+        </route>
+    </camelContext>
+
+    <camelContext id="ncgrib-qpid-endpoint" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+
+        <endpoint id="ncgribJmsEndpoint" uri="jms-durable:queue:Ingest.ncGrib?concurrentConsumers=${ncgrib-decode.count.threads}"/>
+
+        <route id="ncgribFileNameConsumerRoute">
+            <from ref="ncgribJmsEndpoint"/>
+            <doTry>
+                <pipeline>
+                    <bean ref="ncgribFilenameProcessor"/>
+                    <setHeader headerName="pluginName">
+                        <constant>grid</constant> 
+                    </setHeader>
+                    <bean ref="stringToFile"/>
+                    <split streaming="true">
+                        <method bean="gribSplitter" method="split"/>
+                        <doTry>
+                            <pipeline>
+                                <bean ref="ncgribGridPointLock" method="reserve"/>
+                                <bean ref="gribDecoder"/>
+                                <bean ref="gribPostProcessor" method="process"/>
+                                <to uri="direct-vm:persistIndexAlert"/>
+                            </pipeline>
+                            <doCatch>
+                                <exception>java.lang.Throwable</exception>
+                                <to uri="log:ncgrib?level=ERROR"/>
+                            </doCatch>
+                            <doFinally>
+                                <bean ref="ncgribGridPointLock" method="release"/>
+                            </doFinally>
+                        </doTry>
+                    </split>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:ncgrib?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <bean id="ncgribDecodeCamelRegistered" factory-bean="contextManager"
+        factory-method="register" depends-on="persistCamelRegistered">
+        <constructor-arg ref="ncgrib-qpid-endpoint"/>
+    </bean>
+
+    <bean factory-bean="clusteredCamelContextMgr"
+        factory-method="register">
+        <constructor-arg ref="ncgrib-file-endpoint"/>
+    </bean>
 </beans>
