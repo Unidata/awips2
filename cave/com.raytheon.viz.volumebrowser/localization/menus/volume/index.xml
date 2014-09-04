@@ -35,7 +35,7 @@
     <include installTo="menu:volume?before=VolumeBundles" 
              fileName="menus/volume/ModelFamilies.xml">
     </include>
-    <include subMenu="4-PanelFamilies" installTo="menu:volume?before=ComparisonFamilies" 
+    <include subMenu="4-Panel Families" installTo="menu:volume?before=ComparisonFamilies" 
              fileName="menus/volume/baseFourPanelFamilies.xml">
     </include>
     <include installTo="menu:volume?after=ComparisonFamilies" 
