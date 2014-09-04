@@ -41,6 +41,7 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
@@ -115,6 +116,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                       satellite projections in the McidasFileBasedTileSet
  *  05/20/2013      862      ghull       implement IAreaProviderCapable
  *  Nov 14, 2013    2393     bclement    changed how numLevels is calculated for mcidas
+ *  03/12/2014      920      pswamy      Implemented changes to fix GINI VIS image display problems.
  * </pre>
  * 
  * @author chammack
@@ -193,11 +195,16 @@ public abstract class AbstractSatelliteResource extends
                     .getPDO();
 
             if (!(satRec instanceof ISpatialEnabled)) {
-                System.out
-                        .println("AbstractSatelliteResource.updateFrameData: PDO "
-                                + satRec.getClass().toString()
-                                + " doesn't implement ISpatialEnabled");
-                return false;
+                if (satRec instanceof SatelliteRecord) {
+                    gridGeom = baseGeom = ((SatelliteRecord) satRec)
+                            .getGridGeometry();
+                } else {
+                    System.out
+                            .println("AbstractSatelliteResource.updateFrameData: PDO "
+                                    + satRec.getClass().toString()
+                                    + " doesn't implement ISpatialEnabled");
+                    return false;
+                }
             } else {
                 if (baseCoverage == null) {
                     baseCoverage = ((ISpatialEnabled) satRec)
@@ -207,6 +214,8 @@ public abstract class AbstractSatelliteResource extends
                     frameCoverage = ((ISpatialEnabled) satRec)
                             .getSpatialObject();
                 }
+                gridGeom = baseGeom = MapUtil
+                        .getGridGeometry(getSpatialObject());
             }
 
             synchronized (this) {
@@ -234,8 +243,6 @@ public abstract class AbstractSatelliteResource extends
                             /*
                              * for remapped projections such as MER, LCC, STR
                              */
-                            gridGeom = baseGeom = MapUtil
-                                    .getGridGeometry(getSpatialObject());
                             tileSet = baseTile = new McidasFileBasedTileSet(
                                     satRec, "Data", numLevels, 256, gridGeom,
                                     AbstractSatelliteResource.this,
@@ -431,6 +438,8 @@ public abstract class AbstractSatelliteResource extends
             } else {
                 dataUnit = new GenericPixel();
             }
+        } else if (this instanceof GiniSatResource) {
+            dataUnit = null;
         } else
             dataUnit = new GenericPixel();
 
@@ -507,8 +516,15 @@ public abstract class AbstractSatelliteResource extends
 
         } else {
             numLevels = 1;
-            int newSzX = ((ISpatialEnabled) record).getSpatialObject().getNx();
-            int newSzY = ((ISpatialEnabled) record).getSpatialObject().getNy();
+            int newSzX = 0;
+            int newSzY = 0;
+            if (record instanceof ISpatialEnabled) {
+                newSzX = ((ISpatialEnabled) record).getSpatialObject().getNx();
+                newSzY = ((ISpatialEnabled) record).getSpatialObject().getNy();
+            } else if (record instanceof SatelliteRecord) {
+                newSzX = ((SatelliteRecord) record).getCoverage().getNx();
+                newSzY = ((SatelliteRecord) record).getCoverage().getNy();
+            }
 
             while ((newSzX > 512 && newSzY > 512)) {
                 newSzX /= 2;

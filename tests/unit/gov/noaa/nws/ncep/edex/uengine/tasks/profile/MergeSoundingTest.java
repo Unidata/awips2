@@ -1,42 +1,42 @@
 package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
 
 //import edu.emory.mathcs.backport.java.util.Collections;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class MergeSoundingTest {
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    @After
+    public void tearDown() throws Exception {
+    }
 
-	@Test
-	public void testMergeObservedSounding() {
-		/* Case I: Good report with a string of five characters*/
-		MergeSounding ms = new MergeSounding();
+    @Test
+    public void testMergeObservedSounding() {
+        /* Case I: Good report with a string of five characters */
+        MergeSounding ms = new MergeSounding();
 
-        List<NcSoundingLayer> sls =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> ttaa =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> ttbb =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> ttcc =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> ttdd =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> ppaa =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> ppbb =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> ppcc =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> ppdd =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> trop_a =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> wmax_a =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> trop_c =  new ArrayList<NcSoundingLayer>();
-        List<NcSoundingLayer> wmax_c =  new ArrayList<NcSoundingLayer>(); 
+        List<NcSoundingLayer> sls = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> ttaa = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> ttbb = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> ttcc = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> ttdd = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> ppaa = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> ppbb = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> ppcc = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> ppdd = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> trop_a = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> wmax_a = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> trop_c = new ArrayList<NcSoundingLayer>();
+        List<NcSoundingLayer> wmax_c = new ArrayList<NcSoundingLayer>();
 
         NcSoundingLayer ta;
         ta = new NcSoundingLayer();
@@ -46,26 +46,7 @@ public class MergeSoundingTest {
         ta.setWindDirection(285.f);
         ta.setWindSpeed(58.0f);
         ta.setGeoHeight(11830.f);
-        ttaa.add(ta); 
-
-
-        ta = new NcSoundingLayer();
-        ta.setPressure(1000.f);
-        ta.setTemperature(-9999.f);
-        ta.setDewpoint(-9999.f);
-        ta.setWindDirection(-9999.f);
-        ta.setWindSpeed(-9999.f);
-        ta.setGeoHeight(71.f);
-        ttaa.add(ta); 
-
-        ta = new NcSoundingLayer();
-        ta.setPressure(997.f);
-        ta.setTemperature(17.6f);
-        ta.setDewpoint(9.6f);
-        ta.setWindDirection(0.f);
-        ta.setWindSpeed(3.00f);
-        ta.setGeoHeight(95.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(700.f);
@@ -74,7 +55,7 @@ public class MergeSoundingTest {
         ta.setWindDirection(295.f);
         ta.setWindSpeed(37.0f);
         ta.setGeoHeight(3013.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(500.f);
@@ -83,7 +64,16 @@ public class MergeSoundingTest {
         ta.setWindDirection(290.f);
         ta.setWindSpeed(52.0f);
         ta.setGeoHeight(5620.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
+
+        ta = new NcSoundingLayer();
+        ta.setPressure(1000.f);
+        ta.setTemperature(-9999.f);
+        ta.setDewpoint(-9999.f);
+        ta.setWindDirection(-9999.f);
+        ta.setWindSpeed(-9999.f);
+        ta.setGeoHeight(71.f);
+        ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(150.f);
@@ -91,17 +81,26 @@ public class MergeSoundingTest {
         ta.setDewpoint(-69.5f);
         ta.setWindDirection(275.f);
         ta.setWindSpeed(52.0f);
-        ta.setGeoHeight(13670.f);        
-        ttaa.add(ta); 
+        ta.setGeoHeight(13670.f);
+        ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(925.f);
-        ta.setTemperature(12.f);
-        ta.setDewpoint(7.f);
-        ta.setWindDirection(290.f);
-        ta.setWindSpeed(12.0f);
+        ta.setTemperature(-9999.f);
+        ta.setDewpoint(-9999.f);
+        ta.setWindDirection(-9999.f);
+        ta.setWindSpeed(-9999.f);
         ta.setGeoHeight(731.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
+
+        // ta = new NcSoundingLayer();
+        // ta.setPressure(997.f);
+        // ta.setTemperature(17.6f);
+        // ta.setDewpoint(9.6f);
+        // ta.setWindDirection(0.f);
+        // ta.setWindSpeed(3.00f);
+        // ta.setGeoHeight(95.f);
+        // ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(850.f);
@@ -110,7 +109,7 @@ public class MergeSoundingTest {
         ta.setWindDirection(255.f);
         ta.setWindSpeed(27.0f);
         ta.setGeoHeight(1435.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(100.f);
@@ -119,7 +118,7 @@ public class MergeSoundingTest {
         ta.setWindDirection(270.f);
         ta.setWindSpeed(27.0f);
         ta.setGeoHeight(16240.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(250.f);
@@ -128,7 +127,7 @@ public class MergeSoundingTest {
         ta.setWindDirection(270.f);
         ta.setWindSpeed(84.0f);
         ta.setGeoHeight(10420.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(400.f);
@@ -137,7 +136,16 @@ public class MergeSoundingTest {
         ta.setWindDirection(280.f);
         ta.setWindSpeed(61.0f);
         ta.setGeoHeight(7250.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
+
+        ta = new NcSoundingLayer();
+        ta.setPressure(920.f);
+        ta.setTemperature(17.6f);
+        ta.setDewpoint(9.6f);
+        ta.setWindDirection(0.f);
+        ta.setWindSpeed(3.0f);
+        ta.setGeoHeight(-9999.f);
+        ttaa.add(ta);
 
         ta = new NcSoundingLayer();
         ta.setPressure(300.f);
@@ -146,34 +154,54 @@ public class MergeSoundingTest {
         ta.setWindDirection(275.f);
         ta.setWindSpeed(68.0f);
         ta.setGeoHeight(9230.f);
-        ttaa.add(ta); 
+        ttaa.add(ta);
 
-        NcSoundingLayer trop = new NcSoundingLayer();       
-        trop.setPressure(223.f);
-        trop.setTemperature(-59.5f);
-        trop.setDewpoint(-67.5f);
-        trop.setWindDirection(275.f);
-        trop.setWindSpeed(75.0f);
-        trop.setGeoHeight(-9999.f);
-        trop_a.add(trop); 
+        NcSoundingLayer tropa;
+        tropa = new NcSoundingLayer();
+        tropa.setPressure(223.f);
+        tropa.setTemperature(-59.5f);
+        tropa.setDewpoint(-67.5f);
+        tropa.setWindDirection(275.f);
+        tropa.setWindSpeed(75.0f);
+        tropa.setGeoHeight(-9999.f);
+        trop_a.add(tropa);
 
-        NcSoundingLayer wmaxa = new NcSoundingLayer();       
+        tropa = new NcSoundingLayer();
+        tropa.setPressure(123.f);
+        tropa.setTemperature(-60.5f);
+        tropa.setDewpoint(-69.5f);
+        tropa.setWindDirection(275.f);
+        tropa.setWindSpeed(80.0f);
+        tropa.setGeoHeight(-9999.f);
+        trop_a.add(tropa);
+
+        NcSoundingLayer tropc;
+        tropc = new NcSoundingLayer();
+        tropc.setPressure(63.f);
+        tropc.setTemperature(-60.5f);
+        tropc.setDewpoint(-69.5f);
+        tropc.setWindDirection(275.f);
+        tropc.setWindSpeed(80.0f);
+        tropc.setGeoHeight(-9999.f);
+        trop_c.add(tropc);
+
+        NcSoundingLayer wmaxa = new NcSoundingLayer();
         wmaxa.setPressure(252.f);
         wmaxa.setTemperature(-9999.f);
         wmaxa.setDewpoint(-9999.f);
         wmaxa.setWindDirection(270.f);
         wmaxa.setWindSpeed(84.0f);
         wmaxa.setGeoHeight(-9999.f);
-        wmax_a.add(wmaxa); 
+        wmax_a.add(wmaxa);
 
-        NcSoundingLayer wmaxc = new NcSoundingLayer();       
-        wmaxc.setPressure(7.8f);
+        NcSoundingLayer wmaxc = new NcSoundingLayer();
+        wmaxc.setPressure(5.8f);
         wmaxc.setTemperature(-9999.f);
         wmaxc.setDewpoint(-9999.f);
         wmaxc.setWindDirection(270.f);
         wmaxc.setWindSpeed(67.f);
         wmaxc.setGeoHeight(-9999.f);
-        wmax_c.add(wmaxc); 
+        wmax_c.add(wmaxc);
 
         NcSoundingLayer tb;
         tb = new NcSoundingLayer();
@@ -183,7 +211,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(769.f);
@@ -192,7 +220,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(170.f);
@@ -201,7 +229,16 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
+
+        tb = new NcSoundingLayer();
+        tb.setPressure(920.f);
+        tb.setTemperature(17.6f);
+        tb.setDewpoint(9.6f);
+        tb.setWindDirection(-9999.f);
+        tb.setWindSpeed(-9999.f);
+        tb.setGeoHeight(-9999.f);
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(150.f);
@@ -210,16 +247,25 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
+
+        // tb = new NcSoundingLayer();
+        // tb.setPressure(922.f);
+        // tb.setTemperature(11.8f);
+        // tb.setDewpoint(6.8f);
+        // tb.setWindDirection(-9999.f);
+        // tb.setWindSpeed(-9999.f);
+        // tb.setGeoHeight(-9999.f);
+        // ttbb.add(tb);
 
         tb = new NcSoundingLayer();
-        tb.setPressure(922.f);
-        tb.setTemperature(11.8f);
-        tb.setDewpoint(6.8f);
+        tb.setPressure(-9999.f);
+        tb.setTemperature(17.6f);
+        tb.setDewpoint(9.6f);
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(215.f);
@@ -227,8 +273,8 @@ public class MergeSoundingTest {
         tb.setDewpoint(-65.1f);
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
-        tb.setGeoHeight(-9999.f);       
-        ttbb.add(tb); 
+        tb.setGeoHeight(-9999.f);
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(106.f);
@@ -237,7 +283,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(244.f);
@@ -246,7 +292,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(521.f);
@@ -255,7 +301,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(805.f);
@@ -264,7 +310,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(194.f);
@@ -273,7 +319,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(109.f);
@@ -282,7 +328,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(189.f);
@@ -291,7 +337,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(436.f);
@@ -300,7 +346,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(198.f);
@@ -309,16 +355,16 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
-        tb = new NcSoundingLayer();
-        tb.setPressure(965.f);
-        tb.setTemperature(15.f);
-        tb.setDewpoint(7.f);
-        tb.setWindDirection(-9999.f);
-        tb.setWindSpeed(-9999.f);
-        tb.setGeoHeight(-9999.f);       
-        ttbb.add(tb); 
+        // tb = new NcSoundingLayer();
+        // tb.setPressure(965.f);
+        // tb.setTemperature(15.f);
+        // tb.setDewpoint(7.f);
+        // tb.setWindDirection(-9999.f);
+        // tb.setWindSpeed(-9999.f);
+        // tb.setGeoHeight(-9999.f);
+        // ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(772.f);
@@ -327,7 +373,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(559.f);
@@ -336,7 +382,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(507.f);
@@ -345,7 +391,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(134.f);
@@ -354,7 +400,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(541.f);
@@ -363,7 +409,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(524.f);
@@ -381,7 +427,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(809.f);
@@ -390,7 +436,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(545.f);
@@ -399,7 +445,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(126.f);
@@ -408,7 +454,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(569.f);
@@ -417,7 +463,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(787.f);
@@ -426,7 +472,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(803.f);
@@ -435,7 +481,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(308.f);
@@ -444,7 +490,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(468.f);
@@ -453,7 +499,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(699.f);
@@ -471,7 +517,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(223.f);
@@ -480,7 +526,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(138.f);
@@ -489,7 +535,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(221.f);
@@ -498,7 +544,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(885.f);
@@ -507,7 +553,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(806.f);
@@ -516,7 +562,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(662.f);
@@ -525,16 +571,16 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
-        tb = new NcSoundingLayer();
-        tb.setPressure(986.f);
-        tb.setTemperature(16.2f);
-        tb.setDewpoint(8.200001f);
-        tb.setWindDirection(-9999.f);
-        tb.setWindSpeed(-9999.f);
-        tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        // tb = new NcSoundingLayer();
+        // tb.setPressure(986.f);
+        // tb.setTemperature(16.2f);
+        // tb.setDewpoint(8.200001f);
+        // tb.setWindDirection(-9999.f);
+        // tb.setWindSpeed(-9999.f);
+        // tb.setGeoHeight(-9999.f);
+        // ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(601.f);
@@ -543,8 +589,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
-
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(204.f);
@@ -562,7 +607,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(551.f);
@@ -571,7 +616,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(537.f);
@@ -580,7 +625,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(212.f);
@@ -589,7 +634,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(202.f);
@@ -598,7 +643,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(391.f);
@@ -607,7 +652,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(560.f);
@@ -616,7 +661,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(142.f);
@@ -625,7 +670,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(234.f);
@@ -634,10 +679,10 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb);        
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
-        tb.setPressure(120.f);     
+        tb.setPressure(120.f);
         tb.setTemperature(-57.1f);
         tb.setDewpoint(-73.1f);
         tb.setWindDirection(-9999.f);
@@ -652,7 +697,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(484.f);
@@ -661,7 +706,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(558.f);
@@ -670,7 +715,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(627.f);
@@ -679,16 +724,16 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
-        tb = new NcSoundingLayer();
-        tb.setPressure(997.f);
-        tb.setTemperature(17.6f);
-        tb.setDewpoint(9.6f);
-        tb.setWindDirection(-9999.f);
-        tb.setWindSpeed(-9999.f);
-        tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        // tb = new NcSoundingLayer();
+        // tb.setPressure(997.f);
+        // tb.setTemperature(17.6f);
+        // tb.setDewpoint(9.6f);
+        // tb.setWindDirection(-9999.f);
+        // tb.setWindSpeed(-9999.f);
+        // tb.setGeoHeight(-9999.f);
+        // ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(585.f);
@@ -697,7 +742,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(130.f);
@@ -706,7 +751,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(459.f);
@@ -715,7 +760,7 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         tb = new NcSoundingLayer();
         tb.setPressure(115.f);
@@ -724,16 +769,16 @@ public class MergeSoundingTest {
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
-        
-        tb = new NcSoundingLayer(); 
+        ttbb.add(tb);
+
+        tb = new NcSoundingLayer();
         tb.setPressure(513.f);
-        tb.setTemperature(-15.9f);     
-        tb.setDewpoint(-29.9f);     
+        tb.setTemperature(-15.9f);
+        tb.setDewpoint(-29.9f);
         tb.setWindDirection(-9999.f);
         tb.setWindSpeed(-9999.f);
         tb.setGeoHeight(-9999.f);
-        ttbb.add(tb); 
+        ttbb.add(tb);
 
         NcSoundingLayer pb = new NcSoundingLayer();
         pb.setWindDirection(280.f);
@@ -760,7 +805,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
         pb.setDewpoint(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(250.f);
@@ -769,7 +814,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
         pb.setDewpoint(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(285.f);
@@ -778,7 +823,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
         pb.setDewpoint(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(250.f);
@@ -787,7 +832,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
         pb.setDewpoint(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(275.f);
@@ -796,7 +841,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
         pb.setDewpoint(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(295.f);
@@ -805,7 +850,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
         pb.setDewpoint(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(280.f);
@@ -814,7 +859,7 @@ public class MergeSoundingTest {
         pb.setGeoHeight(1829.f);
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(285.f);
@@ -823,7 +868,7 @@ public class MergeSoundingTest {
         pb.setGeoHeight(4877.f);
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(305.f);
@@ -832,7 +877,7 @@ public class MergeSoundingTest {
         pb.setGeoHeight(305.f);
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(305.f);
@@ -850,7 +895,7 @@ public class MergeSoundingTest {
         pb.setGeoHeight(6096.0f);
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(285.f);
@@ -859,7 +904,7 @@ public class MergeSoundingTest {
         pb.setGeoHeight(14326.f);
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(295.f);
@@ -868,7 +913,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setDewpoint(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(280.f);
@@ -877,7 +922,7 @@ public class MergeSoundingTest {
         pb.setGeoHeight(15240.0f);
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setDewpoint(-9999.f);
@@ -886,7 +931,7 @@ public class MergeSoundingTest {
         pb.setGeoHeight(3658.f);
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(290.f);
@@ -895,7 +940,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
         pb.setDewpoint(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(285.f);
@@ -904,16 +949,16 @@ public class MergeSoundingTest {
         pb.setGeoHeight(4572.0f);
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
-        pb.setWindDirection(0.f);   
-        pb.setWindSpeed(3.00f);   
-        pb.setGeoHeight(0.f);   
-        pb.setTemperature(-9999.f);   
-        pb.setPressure(-9999.f);   
-        pb.setDewpoint(-9999.f);   
-        ppbb.add(pb); 
+        pb.setWindDirection(0.f);
+        pb.setWindSpeed(3.00f);
+        pb.setGeoHeight(0.f);
+        pb.setTemperature(-9999.f);
+        pb.setPressure(-9999.f);
+        pb.setDewpoint(-9999.f);
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(285.f);
@@ -922,7 +967,7 @@ public class MergeSoundingTest {
         pb.setDewpoint(-9999.f);
         pb.setGeoHeight(2134.f);
         pb.setPressure(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(280.f);
@@ -940,7 +985,7 @@ public class MergeSoundingTest {
         pb.setTemperature(-9999.f);
         pb.setGeoHeight(4267.f);
         pb.setPressure(-9999.f);
-        ppbb.add(pb); 
+        ppbb.add(pb);
 
         pb = new NcSoundingLayer();
         pb.setWindDirection(265.f);
@@ -949,7 +994,7 @@ public class MergeSoundingTest {
         pb.setPressure(-9999.f);
         pb.setTemperature(-9999.f);
         pb.setDewpoint(-9999.f);
-        ppbb.add(pb);     
+        ppbb.add(pb);
 
         NcSoundingLayer tc = new NcSoundingLayer();
         tc.setPressure(7.f);
@@ -958,6 +1003,24 @@ public class MergeSoundingTest {
         tc.setWindDirection(265.f);
         tc.setWindSpeed(60.f);
         tc.setGeoHeight(33260.f);
+        ttcc.add(tc);
+
+        tc = new NcSoundingLayer();
+        tc.setPressure(20.f);
+        tc.setTemperature(-53.1f);
+        tc.setDewpoint(-85.1f);
+        tc.setWindSpeed(22.0f);
+        tc.setWindDirection(245.f);
+        tc.setGeoHeight(26470.0f);
+        ttcc.add(tc);
+
+        tc = new NcSoundingLayer();
+        tc.setPressure(30.f);
+        tc.setTemperature(-55.1f);
+        tc.setDewpoint(-81.1f);
+        tc.setWindDirection(310.0f);
+        tc.setWindSpeed(11.00f);
+        tc.setGeoHeight(23860.0f);
         ttcc.add(tc);
 
         tc = new NcSoundingLayer();
@@ -970,31 +1033,13 @@ public class MergeSoundingTest {
         ttcc.add(tc);
 
         tc = new NcSoundingLayer();
-        tc.setPressure(20.f);
-        tc.setTemperature(-53.1f);
-        tc.setDewpoint(-85.1f);
-        tc.setWindSpeed(22.0f);
-        tc.setWindDirection(245.f);
-        tc.setGeoHeight(26470.0f);
-        ttcc.add(tc); 
-
-        tc = new NcSoundingLayer();
-        tc.setPressure(30.f);
-        tc.setTemperature(-55.1f);
-        tc.setDewpoint(-81.1f);
-        tc.setWindDirection(310.0f);
-        tc.setWindSpeed(11.00f);
-        tc.setGeoHeight(23860.0f);
-        ttcc.add(tc); 
-
-        tc = new NcSoundingLayer();
         tc.setPressure(70.f);
         tc.setTemperature(-56.9f);
         tc.setDewpoint(-75.9f);
         tc.setWindDirection(270.0f);
         tc.setWindSpeed(11.0f);
         tc.setGeoHeight(18500.0f);
-        ttcc.add(tc); 
+        ttcc.add(tc);
 
         tc = new NcSoundingLayer();
         tc.setPressure(50.f);
@@ -1003,13 +1048,13 @@ public class MergeSoundingTest {
         tc.setWindDirection(275.0f);
         tc.setWindSpeed(9.00f);
         tc.setGeoHeight(20620.0f);
-        ttcc.add(tc); 
+        ttcc.add(tc);
 
         NcSoundingLayer td = new NcSoundingLayer();
         td.setPressure(44.4f);
         td.setTemperature(-58.1f);
         td.setDewpoint(-79.1f);
-        td.setWindDirection(-9999.f);   
+        td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
         ttdd.add(td);
@@ -1030,7 +1075,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(7.3f);
@@ -1039,7 +1084,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(8.4f);
@@ -1048,7 +1093,7 @@ public class MergeSoundingTest {
         td.setDewpoint(-9999.f);
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(54.9f);
@@ -1057,7 +1102,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(50.1f);
@@ -1066,7 +1111,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(71.4f);
@@ -1075,7 +1120,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(36.7f);
@@ -1084,7 +1129,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(10.4f);
@@ -1093,8 +1138,8 @@ public class MergeSoundingTest {
         td.setDewpoint(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
-        
+        ttdd.add(td);
+
         td = new NcSoundingLayer();
         td.setPressure(64.0f);
         td.setWindDirection(-9999.f);
@@ -1102,7 +1147,7 @@ public class MergeSoundingTest {
         td.setDewpoint(-78.1f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(70.2f);
@@ -1120,7 +1165,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(77.3f);
@@ -1129,7 +1174,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(84.7f);
@@ -1138,7 +1183,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(33.4f);
@@ -1147,7 +1192,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(82.8f);
@@ -1156,7 +1201,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(8.f);
@@ -1165,7 +1210,7 @@ public class MergeSoundingTest {
         td.setWindSpeed(-9999.f);
         td.setWindDirection(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(8.9f);
@@ -1174,7 +1219,7 @@ public class MergeSoundingTest {
         td.setWindSpeed(-9999.f);
         td.setWindDirection(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(90.4f);
@@ -1183,7 +1228,7 @@ public class MergeSoundingTest {
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
         td.setWindDirection(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(29.8f);
@@ -1192,7 +1237,7 @@ public class MergeSoundingTest {
         td.setDewpoint(-81.1f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(12.8f);
@@ -1210,9 +1255,9 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
-        td = new NcSoundingLayer();     
+        td = new NcSoundingLayer();
         td.setPressure(6.8f);
         td.setTemperature(-50.7f);
         td.setDewpoint(-9999.f);
@@ -1220,7 +1265,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td);     
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(27.8f);
@@ -1229,7 +1274,7 @@ public class MergeSoundingTest {
         td.setWindDirection(-9999.f);
         td.setWindSpeed(-9999.f);
         td.setGeoHeight(-9999.f);
-        ttdd.add(td); 
+        ttdd.add(td);
 
         td = new NcSoundingLayer();
         td.setPressure(15.1f);
@@ -1241,7 +1286,7 @@ public class MergeSoundingTest {
         ttdd.add(td);
 
         NcSoundingLayer pd = new NcSoundingLayer();
-        pd.setWindDirection(300.0f);   
+        pd.setWindDirection(300.0f);
         pd.setWindSpeed(12.00f);
         pd.setGeoHeight(24993.6f);
         pd.setPressure(-9999.f);
@@ -1265,7 +1310,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(335.0f);
@@ -1274,7 +1319,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(280.0f);
@@ -1283,7 +1328,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(280.0f);
@@ -1292,7 +1337,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd);   
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(280.0f);
@@ -1301,7 +1346,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(260.0f);
@@ -1310,7 +1355,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(285.0f);
@@ -1319,7 +1364,7 @@ public class MergeSoundingTest {
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
         pd.setPressure(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(265.0f);
@@ -1328,7 +1373,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(290.0f);
@@ -1337,8 +1382,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
-
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(210.0f);
@@ -1356,7 +1400,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(295.0f);
@@ -1365,7 +1409,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(250.0f);
@@ -1374,7 +1418,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(0.0f);
@@ -1383,7 +1427,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(305.f);
@@ -1392,7 +1436,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(280.0f);
@@ -1401,7 +1445,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setDewpoint(-9999.f);
         pd.setTemperature(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(255.0f);
@@ -1410,16 +1454,16 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setDewpoint(-9999.f);
         pd.setTemperature(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindSpeed(37.0f);
         pd.setWindDirection(240.f);
         pd.setGeoHeight(27127.f);
-        pd.setPressure(-9999.f);   
-        pd.setTemperature(-9999.f);   
-        pd.setDewpoint(-9999.f);   
-        ppdd.add(pd); 
+        pd.setPressure(-9999.f);
+        pd.setTemperature(-9999.f);
+        pd.setDewpoint(-9999.f);
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(325.0f);
@@ -1428,7 +1472,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(275.0f);
@@ -1446,7 +1490,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(255.0f);
@@ -1455,7 +1499,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd);     
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(270.0f);
@@ -1464,7 +1508,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(285.0f);
@@ -1473,16 +1517,16 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(280.0f);
         pd.setWindSpeed(30.0f);
         pd.setGeoHeight(17374.f);
-        pd.setPressure(-9999.f);   
+        pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd);    
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(270.0f);
@@ -1491,7 +1535,7 @@ public class MergeSoundingTest {
         pd.setPressure(-9999.f);
         pd.setDewpoint(-9999.f);
         pd.setTemperature(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(265.0f);
@@ -1500,123 +1544,99 @@ public class MergeSoundingTest {
         pd.setGeoHeight(31090.0f);
         pd.setTemperature(-9999.f);
         pd.setPressure(-9999.f);
-        ppdd.add(pd); 
+        ppdd.add(pd);
 
         pd = new NcSoundingLayer();
         pd.setWindDirection(270.f);
         pd.setWindSpeed(67.f);
         pd.setGeoHeight(32614.0f);
-        pd.setPressure(-9999.f);  
-        pd.setDewpoint(-9999.f);   
-        pd.setTemperature(-9999.f);   
-        ppdd.add(pd); 
+        pd.setPressure(-9999.f);
+        pd.setDewpoint(-9999.f);
+        pd.setTemperature(-9999.f);
+        ppdd.add(pd);
 
-        pd = new NcSoundingLayer();     
+        pd = new NcSoundingLayer();
         pd.setWindDirection(260.0f);
         pd.setWindSpeed(60.0f);
         pd.setGeoHeight(33223.0f);
-        pd.setPressure(-9999.f);  
+        pd.setPressure(-9999.f);
         pd.setTemperature(-9999.f);
         pd.setDewpoint(-9999.f);
-        ppdd.add(pd);  
+        ppdd.add(pd);
+
+        NcSoundingLayer pa;
+        pa = new NcSoundingLayer();
+
+        pa.setPressure(700.f);
+        pa.setTemperature(-9999.f);
+        pa.setDewpoint(-9999.f);
+        pa.setWindDirection(230.f);
+        pa.setWindSpeed(30.0f);
+        pa.setGeoHeight(-9999.f);
+        ppaa.add(pa);
+
+        pa = new NcSoundingLayer();
+        pa.setPressure(300.f);
+        pa.setWindDirection(250.f);
+        pa.setWindSpeed(50.0f);
+        pa.setTemperature(-9999.f);
+        pa.setDewpoint(-9999.f);
+        pa.setGeoHeight(-9999.f);
+        ppaa.add(pa);
+
+        pa = new NcSoundingLayer();
+        pa.setPressure(850.f);
+        pa.setTemperature(-9999.f);
+        pa.setDewpoint(-9999.f);
+        pa.setGeoHeight(-9999.f);
+        pa.setWindDirection(220.f);
+        pa.setWindSpeed(20.0f);
+        ppaa.add(pa);
+
+        pa = new NcSoundingLayer();
+        pa.setPressure(500.f);
+        pa.setTemperature(-9999.f);
+        pa.setDewpoint(-9999.f);
+        pa.setWindDirection(240.f);
+        pa.setWindSpeed(40.0f);
+        pa.setGeoHeight(-9999.f);
+        ppaa.add(pa);
+
+        NcSoundingLayer pc;
+        pc = new NcSoundingLayer();
+
+        pc.setPressure(30.f);
+        pc.setTemperature(-9999.f);
+        pc.setDewpoint(-9999.f);
+        pc.setWindDirection(230.f);
+        pc.setWindSpeed(30.0f);
+        pc.setGeoHeight(-9999.f);
+        ppcc.add(pc);
+
+        pc = new NcSoundingLayer();
+        pc.setPressure(70.f);
+        pc.setTemperature(-9999.f);
+        pc.setDewpoint(-9999.f);
+        pc.setWindDirection(270.f);
+        pc.setWindSpeed(70.0f);
+        pc.setGeoHeight(-9999.f);
+        ppcc.add(pc);
+
+        pc = new NcSoundingLayer();
+        pc.setPressure(50.f);
+        pc.setTemperature(-9999.f);
+        pc.setDewpoint(-9999.f);
+        pc.setWindDirection(250.f);
+        pc.setWindSpeed(50.0f);
+        pc.setGeoHeight(-9999.f);
+        ppcc.add(pc);
 
         // Sorting the data
-        Collections.sort(ttaa, new MergeSounding.reverseSortByPressure());
-        Collections.sort(ttbb, new MergeSounding.reverseSortByPressure());
-        Collections.sort(ttcc, new MergeSounding.reverseSortByPressure());        
-        Collections.sort(ttdd, new MergeSounding.reverseSortByPressure());
-        if ( ms.checkWindData(ppbb)) {
-        	Collections.sort(ppbb, new MergeSounding.sortByHeight());
-        	Collections.sort(ppdd, new MergeSounding.sortByHeight());
-        } else {
-        	Collections.sort(ppbb, new MergeSounding.reverseSortByPressure());
-        	Collections.sort(ppdd, new MergeSounding.reverseSortByPressure());
-        }
- 
-        // Remove underground mandatory data
-        List<NcSoundingLayer>man = ms.removeUnderGround(ttaa);
+        sls = ms.mergeUairSounding("", ttaa, ttbb, ttcc, ttdd, ppaa, ppbb,
+                ppcc, ppdd, trop_a, trop_c, wmax_a, wmax_c, 770.f);
 
-        // Find the surface data
-        float elevation = 95.f;
-        sls.add(0, ms.getSurfaceData(man, ttbb, ppbb, elevation));
+        ms.printOut(sls);
 
-        // Merge mandatory data (TTAA, TTCC)
-        ms.mergeMandatory(ttaa,ttcc,sls);
-
-        // Merge mandatory winds (PPAA, PPCC)
-        ppaa= null;
-        ppcc= null;
-        if ( ppaa != null && ppcc !=null ) {
-        	ms.mergeMandatoryWinds (ppaa, ppcc, sls);
-        }
-
-        // Merge tropopause
-        ms.mergeTropSigTemp (trop_a, trop_c, sls);
-
-        // Merge Significant temperature and dew point (TTBB)
-        ms.mergeTropSigTemp (ttbb, ttdd, sls);
-
-        // Construct height for TTBB and tropopause
-        ms.constructTtbbHeight(sls);	
-
-        // Merge significant winds and max winds on pressure surfaces (PPBB) 
-        // and construct the height.
-        if (!ms.checkWindData(ppbb)) {
-        	ms.mergeSigMaxWindOnPressure(ppbb,ppdd,sls);
-        }
-        ms.mergeSigMaxWindOnPressure(wmax_a,wmax_c,sls);
-        ms.constructPpbbHeight(sls);
-        
-        // Merge significant winds on height surfaces and construct the pressures
-        if (ms.checkWindData(ppbb)) {
-        	ms.mergeSigWindOnHeight(ppbb,ppdd,sls);
-        	ms.constructPpbbPressure(sls);					
-        }
-
-        // Interpolate missing temperature, dew point and winds
-        ms.constructMissing(1, sls);
-        ms.constructMissing(2, sls);
-        ms.constructMissing(3, sls);
-
-        // Add below-ground mandatory levels 
-        sls = ms.addUnderGround(ttaa, sls);
-
-        // Print the output as the same format as SNLIST for comparison
-        System.out.println ( "      PRES     TMPC     DWPC     " +
-        "DRCT     SPED     HGHT");
-		
-        if ( sls != null ) {
-        	for (int kk=0; kk < sls.size(); kk++  ) {
-        		System.out.println ( " "
-        				+ String.format("%9.2f",sls.get(kk).getPressure()) 
-        				+ String.format("%9.2f", sls.get(kk).getTemperature())
-        				+ String.format("%9.2f", sls.get(kk).getDewpoint()) 
-        				+ String.format("%9.2f", sls.get(kk).getWindDirection()) 
-        				+ String.format("%9.2f", sls.get(kk).getWindSpeed())
-        				+ String.format("%9.2f", sls.get(kk).getGeoHeight())); 
-
-
-        	}	
-        }
-        else {
-        	System.out.println ( " Not found");
-        }
-//		float rmult = (float) ((15544.8 - 15240.) / (15245.68 - 15240.));
-//		System.out.println(119.11*(Math.pow(119.00/119.11,rmult)));
-
-        // Get single level data
-
-        List<NcSoundingLayer> singLevel = ms.getSingLevel (500.f, sls);
-        System.out.println ("\n "
-				+ String.format("%9.2f",singLevel.get(0).getPressure()) 
-				+ String.format("%9.2f", singLevel.get(0).getTemperature())
-				+ String.format("%9.2f", singLevel.get(0).getDewpoint()) 
-				+ String.format("%9.2f", singLevel.get(0).getWindDirection()) 
-				+ String.format("%9.2f", singLevel.get(0).getWindSpeed()) 
-				+ String.format("%9.2f", singLevel.get(0).getGeoHeight())); 
- //   	System.out.println ( " last !!! " + Integer.valueOf("900".trim()).floatValue());
-
-	}
-	
+    }
 
 }
