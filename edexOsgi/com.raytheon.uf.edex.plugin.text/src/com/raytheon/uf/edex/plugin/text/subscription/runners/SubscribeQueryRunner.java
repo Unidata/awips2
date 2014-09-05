@@ -75,6 +75,7 @@ import com.raytheon.uf.edex.plugin.text.subscription.util.TriggerMatcher;
  * ------------ ---------- ----------- --------------------------
  * 14Nov2008    1709       MW Fegan    Initial creation.
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
+ * Sep 05, 2014 2926       bclement    added getDirectResults() to avoid marshaling
  * 
  * </pre>
  * 
@@ -83,7 +84,11 @@ import com.raytheon.uf.edex.plugin.text.subscription.util.TriggerMatcher;
  */
 
 public class SubscribeQueryRunner extends ASubscribeRunner {
+
+    private List<SubscriptionRecord> results;
+
     private String trigger = null;
+
     /**
      * Constructor.
      */
@@ -118,10 +123,10 @@ public class SubscribeQueryRunner extends ASubscribeRunner {
         } else {
             retVal = dao.getSubscriptions();
         }
-        retVal = filterRecords(retVal);
-        this.results = packageSubscriptions(retVal);
+        results = filterRecords(retVal);
         return false;
     }
+
     /**
      * Filters the list of records received, limiting to those that match
      * the trigger condition.
@@ -139,6 +144,7 @@ public class SubscribeQueryRunner extends ASubscribeRunner {
         }
         return retVal;
     }
+
     /**
      * Packages the subscriptions for return to the client. Each record
      * is bundled within the value of a {@link Property} object with a
@@ -165,6 +171,7 @@ public class SubscribeQueryRunner extends ASubscribeRunner {
         }
         return retVal;
     }
+
     /**
      * Modifies the list of {@link Property} objects by removing the <em>trigger</em>
      * property and adding a <em>active</em> property with a value of <em>TRUE</em>.
@@ -184,5 +191,21 @@ public class SubscribeQueryRunner extends ASubscribeRunner {
         }
         retVal.add(new Property("active","TRUE"));
         return retVal;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.plugin.text.subscription.runners.ASubscribeRunner
+     * #getResults()
+     */
+    @Override
+    public List<Property> getResults() {
+        return packageSubscriptions(results);
+    }
+
+    public List<SubscriptionRecord> getDirectResults(){
+        return results;
     }
 }
