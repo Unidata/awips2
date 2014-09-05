@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.plugin.text.dbsrv;
+package com.raytheon.uf.common.dataplugin.text.dbsrv;
 
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 18, 2014 2926       bclement     Initial creation
+ * Sep 05, 2014 2926       bclement     moved to common
  * 
  * </pre>
  * 
