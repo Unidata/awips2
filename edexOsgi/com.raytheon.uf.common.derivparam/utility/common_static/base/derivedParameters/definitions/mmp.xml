@@ -82,7 +82,7 @@
         <Field level="150MB" abbreviation="MMP"/>
     </Method>
     <Method levels="250MB" name="Divide">
-        <ConstantField value="1.0"/>
+        <ConstantField value="100.0"/>
         <Field level="200MB" abbreviation="MMP"/>
     </Method>
     <Method levels="Layer" name="Test">
