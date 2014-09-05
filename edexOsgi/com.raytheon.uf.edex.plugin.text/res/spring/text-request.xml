@@ -96,7 +96,7 @@
     </bean>
     
     <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBRequest"/>
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBRequest"/>
         <constructor-arg>
             <bean class="com.raytheon.uf.edex.plugin.text.dbsrv.TextDBRequestHandler">
                 <constructor-arg ref="textdbsrv" />
