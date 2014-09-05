@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,13 +38,10 @@ import com.raytheon.uf.common.dataplugin.text.db.SubscriptionRecord;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.ReflectionUtil;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.plugin.text.subscription.runners.ISubscribeRunner;
-import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeRunner;
-import com.raytheon.uf.edex.plugin.text.subscription.util.Tools;
+import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeQueryRunner;
 
 /**
  * Main class of the EDEX Script Runner.
@@ -73,6 +68,7 @@ import com.raytheon.uf.edex.plugin.text.subscription.util.Tools;
  *                                     argument to the engine.
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
+ * Sep 05, 2014 2926       bclement    get query results directly, removed decodeResponse()
  * 
  * </pre>
  * 
@@ -112,8 +108,7 @@ public class ScriptRunner {
         List<String> triggers = decodeTrigger(event);
         for (String trigger : triggers) {
             Message query = prepareQueryMessage(trigger);
-            List<Property> reply = querySubscriptions(query);
-            List<SubscriptionRecord> subscriptions = decodeResponse(reply);
+            List<SubscriptionRecord> subscriptions = querySubscriptions(query);
             for (SubscriptionRecord record : subscriptions) {
                 if (record.getTrigger().indexOf(" ") > 0) {
                     trigger = record.getTrigger();
@@ -314,58 +309,22 @@ public class ScriptRunner {
     }
 
     /**
-     * Extracts the subscription records from the message.
-     * 
-     * @param properties
-     *            list of properties containing the query results
-     * 
-     * @return list of subscription records containing scripts to run
-     */
-    private List<SubscriptionRecord> decodeResponse(List<Property> properties) {
-        List<SubscriptionRecord> retVal = new ArrayList<SubscriptionRecord>();
-        for (Property property : properties) {
-            if ("subscription".equalsIgnoreCase(property.getName())) {
-                try {
-                    Object obj = SerializationUtil.unmarshalFromXml(property
-                            .getValue());
-                    if (obj instanceof SubscriptionRecord) {
-                        SubscriptionRecord rec = (SubscriptionRecord) obj;
-                        if (rec.getScript() != null) {
-                            rec.setScript(Tools.hexToAscii(rec.getScript()));
-                        }
-                        retVal.add((SubscriptionRecord) obj);
-                    } else {
-                        logger.warn("Unable to extract SubscriptionRecord from Message");
-                    }
-                } catch (JAXBException e) {
-                    logger.warn(
-                            "Unable to extract SubscriptionRecord from Message",
-                            e);
-                }
-            }
-        }
-        return retVal;
-    }
-
-    /**
      * Performs a query of the database to determine if there are any
      * subscriptions that match the trigger criteria.
      * 
      * @param message
      *            message containing the desired query information
      * 
-     * @return property list containing the results of the query
+     * @return subscription record list containing the results of the query
      * 
      * @throws EdexException
      *             if an error occurs
      */
-    private List<Property> querySubscriptions(Message message)
+    private List<SubscriptionRecord> querySubscriptions(Message message)
             throws EdexException {
-        ISubscribeRunner runner = SubscribeRunner
-                .getInstance(SUBSCRIBE_OPERATION);
-        runner.initialize(message);
+        SubscribeQueryRunner runner = new SubscribeQueryRunner(message);
         runner.execute();
-        return runner.getResults();
+        return runner.getDirectResults();
     }
 
     /**
