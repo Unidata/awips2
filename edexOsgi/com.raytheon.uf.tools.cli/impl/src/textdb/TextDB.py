@@ -31,7 +31,7 @@ import collections
 
 from ufpy import ThriftClient
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import Message, Header, Property
-from dynamicserialize.dstypes.com.raytheon.uf.edex.plugin.text.dbsrv import TextDBRequest
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.text.dbsrv import TextDBRequest
 
 ##############################################################################
 # General exception to be raised when errors occur when processing messages
@@ -86,6 +86,7 @@ def appendIfNotPresent(multimap, key, value):
 #    05/12/14       16954          kshrestha      Added Multiple flag functionality for textdb
 #    08/15/14        2926          bclement       Fixed hasSubOperations()
 #    08/22/14        2926          bclement       Switched to ThriftClient
+#    09/05/14        2926          bclement       Moved TextDBRequest to common
 ##############################################################################
 class TextDB:
 

@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.text.dbsrv;
 
+import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
