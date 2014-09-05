@@ -43,9 +43,6 @@
 // 5km CONUS MOSGuide precip probability
 TP0.254mm_T170L42A-NCEP-MDL_1073x689_21600-0 POP6hr
 TP0.254mm_T170L42A-NCEP-MDL_1073x689_43200-0 POP12hr
-// Added for DCS_266 HRRR, removes F00 precip from any model if it arrives
-TP_0-0 PWS64
-WEASD_0-0 PWS64
 // 5km CONUS MOSGuide cumulative precip
 // these are unnessecary since A2 always appends duration 
 TP_T170L42A-NCEP-MDL_1073x689_21600-0 TP6hr
