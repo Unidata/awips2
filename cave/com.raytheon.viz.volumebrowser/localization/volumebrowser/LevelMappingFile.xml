@@ -1206,6 +1206,7 @@
 	</Level>
 	<Level displayName="FrzLvl" key="FrzLvl" group="S">
 		<DatabaseLevel levelName="FRZ" levelOneValue="0" />
+		<DatabaseLevel levelName="TEMP" levelOneValue="0" unit="C" />
 	</Level>
 	<Level displayName="HghstTropFrz" key="Htfl" group="S">
 		<DatabaseLevel levelName="HTFL" levelOneValue="0" />
