@@ -49,7 +49,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 6/27/06                  lvenable    Initial Creation.
  * 04/07/2010   4671        mpduff      Have the map update upon closure of the dialog.
  * 07/02/2013   2088        rferrel     Changes for non-blocking ColorScaleMgrDlg.
- * 
+ * 9/4/2014    14448        cgobs       Make HydroView redisplay after save of color settings in ColorScaleMgr
  * </pre>
  * 
  * @author lvenable
@@ -97,6 +97,25 @@ public class ColorScaleMgrAction extends AbstractHandler {
                     }
                 }
             });
+            
+            colorScaleDlg.setSaveCallback(new ColorScaleMgrDlg.ISaveCallback() {
+
+                public void execute() {
+
+                    HydroDisplayManager displayManager = HydroDisplayManager
+                            .getInstance();
+
+                    boolean dataChanged = true;
+                    displayManager.setColorChanged(dataChanged);
+
+                    // redraw the main display
+                    displayManager.setDataChanged(dataChanged);
+                    StationDisplay sd = StationDisplay.getInstance();
+                    sd.redraw();
+
+                }
+            });
+
             colorScaleDlg.open();
         } else {
             colorScaleDlg.bringToTop();
