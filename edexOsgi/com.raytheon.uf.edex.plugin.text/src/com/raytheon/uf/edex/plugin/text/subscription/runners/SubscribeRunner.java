@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.plugin.text.subscription.util.SubscribeAction;
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
  *                                      removed duplicate SubscribeAction enum
  * Aug 22, 2014 2926       bclement    improved error handling for unknown operation
+ * Sep 05, 2014 2926       bclement    removed Class.forName() call
  * 
  * </pre>
  * 
@@ -134,14 +135,12 @@ public class SubscribeRunner {
                     "Unable to initialize ISubscriberunner instance; unable to find action for operation ["
                             + oper + "]");
         }
-        String className = action.getRunner();
-        if (className == null) {
+        Class<? extends ISubscribeRunner> aClass = action.getRunner();
+        if (aClass == null) {
             throw new EdexException("Unable to initialize ISubscribeRunner instance; invalid operation [" + oper + "] specified - unable to continue");
         }
         
-        Class<?> aClass = null;
         try {
-            aClass = Class.forName(className);
             retVal = (ISubscribeRunner)aClass.newInstance();
             if (message != null) {
                 retVal.initialize(message);
