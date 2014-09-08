@@ -103,6 +103,13 @@
             </bean>
         </constructor-arg>
     </bean>
+    
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.dataplugin.text.request.SubscriptionRequest"/>
+        <constructor-arg>
+            <bean class="com.raytheon.uf.edex.plugin.text.subscription.services.SubscriptionRequestHandler" />
+        </constructor-arg>
+    </bean>
 
     <bean id="remoteRetrievalManager" class="com.raytheon.uf.edex.plugin.text.handler.RemoteRetrievalManager">
         <!--  <property name="remoteRetrievalExternalURI" value="direct-vm:remoteRetrievalExternalRoute" />  -->
@@ -127,16 +134,11 @@
         <property name="destinationResolver" ref="qpidNoDurableResolver"/>
     </bean>
 
-    <bean id="subscription" class="com.raytheon.uf.edex.plugin.text.subscription.services.SubscribeManager"/>
-
     <camelContext id="textdbsrv-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <proxy id="textdbRemoteRetrievalTarget"
             serviceInterface="com.raytheon.uf.edex.plugin.text.handler.RemoteRetrievalManager$IRRDelegate"
             serviceUrl="direct-vm:remoteRetrievalExternalRoute" />
-            
-        <endpoint id="subscriptionHTTP_from"
-            uri="jetty:http://0.0.0.0:${HTTP_PORT}/services/subscribe?disableStreamCache=true" />
         
         <route id="remoteRetrievalExternal">
             <from uri="direct-vm:remoteRetrievalExternalRoute" />
@@ -147,11 +149,5 @@
             <bean ref="serializationUtil" method="transformFromThrift" />
         </route>
 
-        <!-- SubscriptionSrv routes -->
-        <route id="subscriptionHTTP">
-            <from uri="ref:subscriptionHTTP_from" />
-            <bean ref="subscription" method="processRequest"/>
-            <bean ref="serializationUtil" method="marshalToXml" />
-        </route>
     </camelContext>
 </beans>
