@@ -30,6 +30,8 @@
 			 indentText="true" />
 		<contribute xsi:type="menuItem" menuText="Pressure" key="P"
 			 indentText="true" />
+		<contribute xsi:type="menuItem" menuText="Pres Anl Uncertainty"
+			key="Perranl" indentText="true" />
 		<contribute xsi:type="menuItem" menuText="MSL Press" key="msl-P"
 			 indentText="true" />
 		<contribute xsi:type="menuItem" menuText="MSL Press (2)"
@@ -316,6 +318,8 @@
 				 indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Visibility" key="Vis"
 				 indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Vsby Anl Uncertainty"
+				 key="Viserranl" indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Altimeter" key="MSLSA"
 				 indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Fire Danger"
