@@ -6,6 +6,7 @@
                                        Changed TP_XXX to tpXXX for RFC total precip
   Jul 03, 2013    #2044    randerso    Removed mappings from tpXXX to tp_XXX for RFCQPF
   Mar 31, 2014    #2934    dgilling    Updated params for pSurge2.0/PHISH data.
+  Jul 03, 2014  DR 14068   mfoster     Added parameters for 3km AK-RTMA
  -->
 <aliasList caseSensitive="true" namespace="gfeParamName">
     <alias base="AV">av</alias>
@@ -23,6 +24,7 @@
     <alias base="DIRSW">dirsw</alias>
     <alias base="DpD">dpd</alias>
     <alias base="DpT">dpt</alias>
+    <alias base="DpTerranl">dpterranl</alias>    
     <alias base="ELEV">ELEV</alias>
     <alias base="EMSP">emsp</alias>
     <alias base="EPT">ept</alias>
@@ -48,6 +50,7 @@
     <alias base="PMSL">pmsl</alias>
     <alias base="PoT">pot</alias>
     <alias base="P">p</alias>
+    <alias base="Perranl">perranl</alias>
     <alias base="PR">pr</alias>
     <alias base="PRSVR">prsvr</alias>
     <alias base="PRSIGSV">prsigsv</alias>
@@ -77,19 +80,24 @@
     <alias base="TP6hr">tp6hr</alias>
     <alias base="TP">tp</alias>
     <alias base="T">t</alias>
+    <alias base="Terranl">terranl</alias>
     <alias base="USTM">ustm</alias>
     <alias base="uW">uw</alias>
     <alias base="VAPP">vapp</alias>
     <alias base="Vis">vis</alias>
+    <alias base="Viserranl">viserranl</alias>
     <alias base="VPT">vpt</alias>
     <alias base="VSTM">vstm</alias>
     <alias base="vW">vw</alias>
     <alias base="WD">wd</alias>
+    <alias base="WDerranl">wderranl</alias>
     <alias base="WEASD">weasd</alias>
     <alias base="WGH">wgh</alias>
     <alias base="WGS">wgs</alias>
     <alias base="WINDPROB">windprob</alias>
+    <alias base="WGSerranl">wgserranl</alias>
     <alias base="WS">ws</alias>
+    <alias base="WSerranl">wserranl</alias>
     <alias base="WVDIR">wvdir</alias>
     <alias base="WVHGT">wvhgt</alias>
     <alias base="WVPER">wvper</alias>
