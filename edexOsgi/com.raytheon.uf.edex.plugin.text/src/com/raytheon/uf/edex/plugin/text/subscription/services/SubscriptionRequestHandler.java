@@ -22,21 +22,18 @@ package com.raytheon.uf.edex.plugin.text.subscription.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.raytheon.uf.common.dataplugin.text.request.SubscriptionRequest;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.plugin.text.subscription.runners.ISubscribeRunner;
 import com.raytheon.uf.edex.plugin.text.subscription.runners.SubscribeRunner;
-import com.raytheon.uf.edex.plugin.text.subscription.util.Tools;
 
 /**
- * The main class of the Subscription Manager. Receives and processes
- * subscription requests from a client. Returns a response based on the result
- * of processing the request.
+ * Thrift handler for text subscription requests
  * 
  * <pre>
  * 
@@ -44,45 +41,43 @@ import com.raytheon.uf.edex.plugin.text.subscription.util.Tools;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 15Dec2008    1709       MW Fegan    Initial Creation. Replaces SubscribeSrv.
- * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
+ * Sep 5, 2014  2926      bclement     Initial creation, replaced SubscribeManager
  * 
  * </pre>
  * 
- * @author mfegan
+ * @author bclement
  * @version 1.0
  */
+public class SubscriptionRequestHandler implements
+        IRequestHandler<SubscriptionRequest> {
 
-public class SubscribeManager {
-    private transient Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(SubscriptionRequestHandler.class);
+
     /**
-     * Constructor.
+     * 
      */
-    public SubscribeManager() {
-        super();
+    public SubscriptionRequestHandler() {
     }
-    /**
-     * Processes the subscription request.
-     * 
-     * @param requestXML XML containing the request
-     * 
-     * @return the response to the request
+
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest(com.raytheon.uf.common.serialization.comm.IServerRequest)
      */
-    public Message processRequest(String requestXML) {
+    @Override
+    public Object handleRequest(SubscriptionRequest request) throws Exception {
         String msg = "";
-        logger.debug("Processing request: " + requestXML);
         List<Property> results = null;
         try {
-            Message xml = parseMessage(requestXML);
-            String oper = xml.getHeader().getProperty("operation");
+            Message requestMsg = request.getMessage();
+            String oper = requestMsg.getHeader().getProperty("operation");
             ISubscribeRunner runner = SubscribeRunner.getInstance(oper);
             if (null == runner) {
                 msg = "Unable to get subscription runner for " + oper;
                 logger.warn(msg);
                 results = new ArrayList<Property>();
-                results.add(new Property("STDERR",msg));
+                results.add(new Property("STDERR", msg));
             } else {
-                runner.initialize(xml);
+                runner.initialize(requestMsg);
                 runner.execute();
                 results = runner.getResults();
             }
@@ -90,44 +85,28 @@ public class SubscribeManager {
             msg = "Unable to process message. " + e.toString();
             logger.error(msg, e);
             results = new ArrayList<Property>();
-            results.add(new Property("STDERR",msg));
+            results.add(new Property("STDERR", msg));
         }
         Message xmlMsg = createMessage(results);
         return xmlMsg;
     }
+
     /**
      * Creates a Message object containing the results of the the execution.
      * 
-     * @param result the result to convert to a message
+     * @param result
+     *            the result to convert to a message
      * 
      * @return message object containing the result
      */
     private final Message createMessage(List<Property> result) {
         Message msg = new Message();
         Header h = new Header();
-        h.setProperties(result.toArray(new Property[] {} ));
-  
+        h.setProperties(result.toArray(new Property[] {}));
+
         msg.setHeader(h);
 
         return msg;
-    }
-    /**
-     * 
-     * @param message
-     * @return
-     * @throws Exception
-     */
-    private final Message parseMessage(String message) throws Exception {
-        Object m = SerializationUtil.unmarshalFromXml(message);
-        if (m instanceof Message) {
-            for (Property property : ((Message) m).getHeader().getProperties()) {
-                if (!"script".equalsIgnoreCase(property.getName())) {
-                    property.setValue(Tools.hexToAscii(property.getValue()));
-                }
-            }
-            return (Message)m;
-        }
-        return null;
     }
 
 }
