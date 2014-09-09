@@ -109,6 +109,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * 06/21/2013       14983   ryu         Added method for synchronous evaluation of query.
  * 08/06/2013         1561  njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * 09/30/2013         2361  njensen     Use JAXBManager for XML
+ * 09/08/2104        #3592  randerso    Changed to use new pm listStaticFiles()
  * 
  * </pre>
  * 
@@ -231,9 +232,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         // load the complete list of edit areas
         List<ReferenceID> refIDs = new ArrayList<ReferenceID>();
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext[] ctx = pm
-                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
-        LocalizationFile[] contents = pm.listFiles(ctx, EDIT_AREAS_DIR,
+        LocalizationFile[] contents = pm.listStaticFiles(
+                LocalizationType.COMMON_STATIC, EDIT_AREAS_DIR,
                 new String[] { ".xml" }, false, true);
         if (contents != null) {
             for (LocalizationFile lf : contents) {
@@ -245,7 +245,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
 
         // load the edit area group lists
-        LocalizationFile[] groupFiles = pm.listFiles(ctx, EDIT_AREA_GROUPS_DIR,
+        LocalizationFile[] groupFiles = pm.listStaticFiles(
+                LocalizationType.COMMON_STATIC, EDIT_AREA_GROUPS_DIR,
                 new String[] { ".txt" }, false, true);
         if (groupFiles != null) {
             for (LocalizationFile lf : groupFiles) {
@@ -779,8 +780,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         if (lf != null) {
             try {
-                refData = ReferenceData.getJAXBManager()
-                        .unmarshalFromXmlFile(lf.getFile().getPath());
+                refData = ReferenceData.getJAXBManager().unmarshalFromXmlFile(
+                        lf.getFile().getPath());
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error reading xml file "
@@ -921,7 +922,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         LocalizationFile lf = pm.getLocalizationFile(ctx,
                 FileUtil.join(EDIT_AREAS_DIR, refID.getName() + ".xml"));
 
-        if (lf != null
+        if ((lf != null)
                 && (!withVerification || AccessMgr.verifyDelete(lf.getName(),
                         LocalizationType.COMMON_STATIC, false))) {
             try {
@@ -1124,7 +1125,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         if (pointyTaper) {
             for (i = ll.x; i <= ur.x; i++) {
                 for (j = ll.y; j <= ur.y; j++) {
-                    grid.set(i, j, grid.get(i, j) * taperFactor / maxDist);
+                    grid.set(i, j, (grid.get(i, j) * taperFactor) / maxDist);
                 }
             }
         }
@@ -1192,7 +1193,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
                     int y = j;
                     while ((x >= 0) && (y >= 0) && (x < dim.x) && (y < dim.y)
                             && bitGrid.getAsBoolean(x, y)) {
-                        vdist = vdist + Math.sqrt(v.x * v.x + v.y * v.y);
+                        vdist = vdist + Math.sqrt((v.x * v.x) + (v.y * v.y));
                         x = x + v.x;
                         y = y + v.y;
                     }
@@ -1200,11 +1201,12 @@ public class ReferenceSetManager implements IReferenceSetManager,
                     y = j;
                     while ((x >= 0) && (y >= 0) && (x < dim.x) && (y < dim.y)
                             && bitGrid.getAsBoolean(x, y)) {
-                        avdist = avdist + Math.sqrt(av.x * av.x + av.y * av.y);
+                        avdist = avdist
+                                + Math.sqrt((av.x * av.x) + (av.y * av.y));
                         x = x + av.x;
                         y = y + av.y;
                     }
-                    if (vdist + avdist == 0) {
+                    if ((vdist + avdist) == 0) {
                         grid.set(i, j, 0.0f);
                     } else {
                         grid.set(i, j, (float) (vdist / (vdist + avdist)));
@@ -1352,7 +1354,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     /**
      * @param ref
-     * @param mode2
+     * @param mode
      */
     private void setRefSet(ReferenceData ref, RefSetMode mode) {
         mode = determineMode(mode);
@@ -1383,7 +1385,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
     }
 
     /**
-     * @param mode2
+     * @param mode
      * @return
      */
     private RefSetMode determineMode(RefSetMode mode) {
@@ -1666,7 +1668,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
             LocalizationFile lf = PathManagerFactory.getPathManager()
                     .getStaticLocalizationFile(filePath);
 
-            if (lf != null && lf.exists()) {
+            if ((lf != null) && lf.exists()) {
                 changes.add(refId);
             } else {
                 deletions.add(refId);
@@ -1718,7 +1720,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 .getFileName());
 
         // if it exists, load it
-        if (lf != null && lf.exists()) {
+        if ((lf != null) && lf.exists()) {
             loadGroup(lf);
         }
         checkGroupConsistency();
@@ -1824,7 +1826,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         Date spedTime = dataManager.getSpatialDisplayManager()
                 .getSpatialEditorTime();
-        if (spedTime != null && msg.getTimeRange().contains(spedTime)) {
+        if ((spedTime != null) && msg.getTimeRange().contains(spedTime)) {
             evaluateActiveRefSet(listener);
         }
     }
