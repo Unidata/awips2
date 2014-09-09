@@ -49,6 +49,7 @@ import org.reflections.util.ConfigurationBuilder;
  * Jan 22, 2014  2062     bsteffen    Handle bundles with no wiring.
  * Apr 16, 2014  3018     njensen     Synchronize against BundleRepository
  * Aug 13, 2014  3500     bclement    uses BundleSynchronizer
+ * Aug 22, 2014  3500     bclement    removed sync on OSGi internals
  * 
  * </pre>
  * 
@@ -61,17 +62,11 @@ public class BundleReflections {
     private final Reflections reflections;
 
     public BundleReflections(Bundle bundle, Scanner scanner) throws IOException {
-        final ConfigurationBuilder cb = new ConfigurationBuilder();
-        final BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+        ConfigurationBuilder cb = new ConfigurationBuilder();
+        BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
 
         if (bundleWiring != null) {
-            BundleSynchronizer.runSynchedWithBundle(new Runnable() {
-                @Override
-                public void run() {
-                    cb.addClassLoader(bundleWiring.getClassLoader());
-                    
-                }
-            }, bundle);
+            cb.addClassLoader(bundleWiring.getClassLoader());
 
             cb.addUrls(FileLocator.getBundleFile(bundle).toURI().toURL());
             cb.setScanners(scanner);
