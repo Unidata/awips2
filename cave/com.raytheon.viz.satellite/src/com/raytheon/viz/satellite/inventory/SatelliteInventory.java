@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -69,6 +68,7 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * ------------- -------- ----------- --------------------------
  * Apr 09, 2014  2947     bsteffen    Initial creation
  * May 06, 2014  3117     bsteffen    Update for new data.
+ * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -106,11 +106,7 @@ public class SatelliteInventory extends AbstractInventory implements
     @Override
     public synchronized void initTree(Map<String, DerivParamDesc> derParLibrary)
             throws DataCubeException {
-        try {
-            level = LevelFactory.getInstance().getLevel("EA", 0.0);
-        } catch (CommunicationException e) {
-            throw new DataCubeException(e);
-        }
+        level = LevelFactory.getInstance().getLevel("EA", 0.0);
         coverages = new SatelliteCoverageCache();
         super.initTree(derParLibrary);
     }
@@ -251,7 +247,8 @@ public class SatelliteInventory extends AbstractInventory implements
                 try {
                     initTree(derParLibrary);
                 } catch (DataCubeException e) {
-                    statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
                 return;
             }
