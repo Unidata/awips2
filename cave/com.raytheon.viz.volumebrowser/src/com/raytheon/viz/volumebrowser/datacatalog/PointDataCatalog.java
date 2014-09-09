@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -80,6 +79,7 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     with hodo.
  * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -400,15 +400,10 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
      */
     @Override
     protected Collection<? extends Level> get3DLevels() {
-        try {
-            return LevelMappingFactory
-                    .getInstance(
-                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                    .getLevelMappingForKey("Station").getLevels();
-        } catch (CommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return Collections.emptyList();
-        }
+        return LevelMappingFactory
+                .getInstance(
+                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                .getLevelMappingForKey("Station").getLevels();
     }
 
     @Override
@@ -441,12 +436,10 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             AbstractRequestableResourceData resourceData = super
                     .getResourceData(catalogEntry, resourceType);
             // TODO this should be configurable, and shared with PLAN_VIEW
-            if (sourceText
-                    .equals("RaobOA")) {
+            if (sourceText.equals("RaobOA")) {
                 BinOffset binOffset = new BinOffset(3600, 3600);
                 resourceData.setBinOffset(binOffset);
-            } else if (sourceText
-                    .equals("MetarOA")) {
+            } else if (sourceText.equals("MetarOA")) {
                 BinOffset binOffset = new BinOffset(1800, 1800);
                 resourceData.setBinOffset(binOffset);
             }
@@ -559,7 +552,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         ViewMenu viewSelection = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection();
         if (viewSelection == ViewMenu.PLANVIEW) {
-            ;//
+            // no-op
         } else if (viewSelection == ViewMenu.TIMESERIES) {
             String name = VolumeBrowserAction.getVolumeBrowserDlg()
                     .getDialogSettings().getPointsSelection().getName();
