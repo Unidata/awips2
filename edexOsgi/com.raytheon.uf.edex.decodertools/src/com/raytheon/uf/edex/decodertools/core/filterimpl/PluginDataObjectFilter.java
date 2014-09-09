@@ -57,6 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Jul 23, 2014 3410      bclement    location changed to floats
  * Aug 28, 2014  3548     mapeters    Replaced use of SerializationUtil
  *                                    with SingleTypeJAXBManager
+ * Sep 09, 2014  3548     mapeters    Improved constructor's error messages.
  * 
  * </pre>
  * 
@@ -94,7 +95,6 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                     filterDir = manager.getFile(context, FILTERS_DIR);
                     if (filterDir.exists()) {
                         File srcFile = new File(filterDir, filterConfigFile);
-
                         SingleTypeJAXBManager<PluginDataObjectFilter> jaxb = new SingleTypeJAXBManager<PluginDataObjectFilter>(
                                 PluginDataObjectFilter.class);
                         PluginDataObjectFilter filter = jaxb
@@ -116,7 +116,7 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                 // Could not create PathManager
             }
         } catch (Exception e) {
-            logger.error("Error creating filter.", e);
+            logger.error("Error creating filter from " + filterConfigFile, e);
             createDummyFilter();
         }
         logger.info("Filter name = " + getFilterName());
