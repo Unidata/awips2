@@ -54,8 +54,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.Pair;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.warngen.gis.MarineWordingConfiguration.MarineWordingEntry;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.gui.WarngenLayer.GeoFeatureType;
 import com.vividsolutions.jts.geom.Geometry;
@@ -72,6 +75,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * ------------ ---------- ----------- --------------------------
  * Jul 17, 2014 3419       jsanchez     Initial creation
  * Aug 20, 2014 ASM #16703 D. Friedman  Ensure watches have a state attribute.
+ * Aug 28, 2014 ASM #15658 D. Friedman  Add marine zones.
+ * Aug 29, 2014 ASM #15551 Qinglu Lin   Sort watches by ETN and filter out ActiveTableRecord
+ *                                      with act of CAN and EXP in processRecords().
  * 
  * </pre>
  * 
@@ -106,9 +112,15 @@ public class WatchUtil {
 
     private static final String COUNTY_FE_AREA_FIELD = "FE_AREA";
 
+    private static final Object MARINE_ZONE_UGC_FIELD = "ID";
+
+    private static final Object MARINE_ZONE_NAME_FIELD = "NAME";
+
     private static final String STATE_FIELD = "STATE";
 
     private static final String COUNTY_TABLE = "County";
+
+    private static final String MARINE_ZONE_TABLE = "MarineZones";
 
     private static final String PARENT_NAME_FIELD = "NAME";
 
@@ -118,7 +130,11 @@ public class WatchUtil {
 
     private GeospatialData[] countyGeoData;
 
+    private GeospatialData[] marineGeoData;
+
     private WarngenLayer warngenLayer;
+
+    private MarineWordingConfiguration marineWordingConfig;
 
     public WatchUtil(WarngenLayer warngenLayer) throws InstantiationException {
         countyGeoData = warngenLayer.getGeodataFeatures(COUNTY_TABLE,
@@ -155,6 +171,17 @@ public class WatchUtil {
         Validate.isTrue(watchAreaBuffer >= 0,
                 "'includedWatchAreaBuffer' can not be negative in .xml file");
 
+        if (config.isIncludeMarineAreasInWatches()) {
+            marineGeoData = warngenLayer.getGeodataFeatures(MARINE_ZONE_TABLE,
+                    warngenLayer.getLocalizedSite());
+            if (marineGeoData == null) {
+                throw new VizException("Cannot get geospatial data for "
+                        + MARINE_ZONE_TABLE + "-based watches");
+            }
+
+            marineWordingConfig = MarineWordingConfiguration.load(warngenLayer);
+        }
+
         String[] includedWatches = config.getIncludedWatches();
 
         if ((includedWatches != null) && (includedWatches.length > 0)) {
@@ -174,10 +201,16 @@ public class WatchUtil {
                 entityClass = PracticeActiveTableRecord.class;
             }
 
+            HashSet<String> allUgcs = new HashSet<String>(
+                    warngenLayer.getAllUgcs(GeoFeatureType.COUNTY));
+            Set<String> marineUgcs = null;
+            if (config.isIncludeMarineAreasInWatches()) {
+                marineUgcs = warngenLayer.getAllUgcs(GeoFeatureType.MARINE);
+                allUgcs.addAll(marineUgcs);
+            }
+
             DbQueryRequest request = buildRequest(simulatedTime,
-                    phenSigConstraint.toString(),
-                    warngenLayer.getAllUgcs(GeoFeatureType.COUNTY),
-                    entityClass);
+                    phenSigConstraint.toString(), allUgcs, entityClass);
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
 
@@ -192,9 +225,14 @@ public class WatchUtil {
                                     / KmToDegrees);
                     System.out.println("create watch area buffer time: "
                             + (System.currentTimeMillis() - t0));
-                    Set<String> validUgcZones = warngenLayer
-                            .getUgcsForWatches(watchArea, GeoFeatureType.COUNTY);
-                    watches = processRecords(records, validUgcZones);
+                    HashSet<String> validUgcZones = new HashSet<String>(
+                            warngenLayer.getUgcsForWatches(watchArea,
+                                    GeoFeatureType.COUNTY));
+                    if (config.isIncludeMarineAreasInWatches()) {
+                        validUgcZones.addAll(warngenLayer.getUgcsForWatches(
+                                watchArea, GeoFeatureType.MARINE));
+                    }
+                    watches = processRecords(records, validUgcZones, marineUgcs);
                 } catch (RuntimeException e) {
                     statusHandler
                             .handle(Priority.ERROR,
@@ -302,12 +340,13 @@ public class WatchUtil {
      * 
      * @param activeTableRecords
      * @param validUgcZones
+     * @param marineUgcs
      * 
      * @return
      */
     private List<Watch> processRecords(
             List<ActiveTableRecord> activeTableRecords,
-            Set<String> validUgcZones) {
+            Set<String> validUgcZones, Set<String> marineUgcs) {
         List<Watch> watches = new ArrayList<Watch>();
 
         /*
@@ -322,6 +361,9 @@ public class WatchUtil {
         Map<Watch, List<String>> map = new HashMap<Watch, List<String>>();
         // For each watch event, get the end time and list of active zones
         for (ActiveTableRecord ar : activeTableRecords) {
+            if (ar.getAct().equals("CAN") || ar.getAct().equals("EXP")) {
+                continue;
+            }
             /*
              * Currently reports all zones in the watch even if a given zone is
              * not in the warning polygon. If the logic is changed to only show
@@ -329,14 +371,16 @@ public class WatchUtil {
              * validUgcZones here.
              */
             String ugcZone = ar.getUgcZone();
-            String state = getStateName(ugcZone.substring(0, 2));
+            String state = null;
 
-            /*
-             * Temporary fix for SS DR #16703. Remove when marine watch wording
-             * is fixed.
-             */
-            if (state == null)
-                continue;
+            if (marineUgcs != null && marineUgcs.contains(ugcZone)) {
+                // Just leave state == null
+            } else {
+                state = getStateName(ugcZone.substring(0, 2));
+                if (state == null) {
+                    continue;
+                }
+            }
 
             String action = ar.getAct();
             String phenSig = ar.getPhensig();
@@ -360,12 +404,18 @@ public class WatchUtil {
         for (Entry<Watch, List<String>> entry : map.entrySet()) {
             Watch watch = entry.getKey();
             watch.setAreas(entry.getValue());
-            List<String> partOfState = new ArrayList<String>(
-                    determineAffectedPortions(watch.getAreas()));
-            watch.setPartOfState(partOfState);
+            if (watch.getState() != null) {
+                List<String> partOfState = new ArrayList<String>(
+                        determineAffectedPortions(watch.getAreas()));
+                watch.setPartOfState(partOfState);
+            } else {
+                watch.setMarineAreas(determineMarineAreas(watch.getAreas()));
+            }
             watches.add(watch);
         }
 
+        // keep the code for their use in the future
+        /*
         // Sorts the watches based on state name.
         Collections.sort(watches, new Comparator<Watch>() {
 
@@ -381,6 +431,25 @@ public class WatchUtil {
                     return -1;
                 else
                     return state1.compareTo(state2);
+            }
+        });
+        */
+
+        // Sorts the watches based on ETN.
+        Collections.sort(watches, new Comparator<Watch>() {
+
+            @Override
+            public int compare(Watch watch1, Watch watch2) {
+                String etn1 = watch1.getEtn();
+                String etn2 = watch2.getEtn();
+                if (etn1 == etn2)
+                    return 0;
+                else if (etn1 == null)
+                    return 1;
+                else if (etn2 == null)
+                    return -1;
+                else
+                    return etn1.compareTo(etn2);
             }
         });
 
@@ -410,6 +479,40 @@ public class WatchUtil {
         Set<String> affectedPortions = new HashSet(
                 Area.converFeAreaToPartList(mungeFeAreas(feAreas)));
         return affectedPortions;
+    }
+
+    private List<String> determineMarineAreas(List<String> areas) {
+        HashSet<Pair<Integer, String>> groupedAreas = new HashSet<Pair<Integer,String>>();
+        for (String area : areas) {
+            int entryIndex = 0;
+            for (MarineWordingEntry entry : marineWordingConfig.getEntries()) {
+                if (entry.getUgcPattern().matcher(area).matches()) {
+                    String replacement = entry.getReplacementText();
+                    if (replacement != null) {
+                        if (replacement.length() > 0) {
+                            groupedAreas.add(new Pair<Integer, String>(
+                                    entryIndex, entry.getReplacementText()));
+                        }
+                    } else {
+                        groupedAreas.add(new Pair<Integer, String>(entryIndex,
+                                getMarineZoneName(area)));
+                    }
+                }
+                entryIndex++;
+            }
+        }
+        ArrayList<Pair<Integer, String>> sorted = new ArrayList<Pair<Integer,String>>(groupedAreas);
+        Collections.sort(sorted, new Comparator<Pair<Integer, String>>() {
+            public int compare(Pair<Integer, String> o1, Pair<Integer, String> o2) {
+                int r = o1.getFirst().compareTo(o2.getFirst());
+                return r != 0 ? r : o1.getSecond().compareTo(o2.getSecond());
+            };
+        });
+        ArrayList<String> result = new ArrayList<String>(sorted.size());
+        for (Pair<Integer, String> value : sorted) {
+            result.add(value.getSecond());
+        }
+        return result;
     }
 
     /**
@@ -443,6 +546,16 @@ public class WatchUtil {
             }
         }
 
+        return null;
+    }
+
+    private String getMarineZoneName(String ugc) {
+        for (GeospatialData g : marineGeoData) {
+            if (((String) g.attributes.get(MARINE_ZONE_UGC_FIELD))
+                    .endsWith(ugc)) {
+                return (String) g.attributes.get(MARINE_ZONE_NAME_FIELD);
+            }
+        }
         return null;
     }
 
