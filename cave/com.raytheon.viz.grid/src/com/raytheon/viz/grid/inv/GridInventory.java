@@ -33,16 +33,6 @@ import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Set;
 
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
-import com.raytheon.uf.common.inventory.tree.CubeLevel;
-import com.raytheon.uf.common.inventory.tree.DataTree;
-import com.raytheon.uf.common.inventory.tree.LevelNode;
-import com.raytheon.uf.common.inventory.tree.ParameterNode;
-import com.raytheon.uf.common.inventory.tree.SourceNode;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
@@ -64,6 +54,15 @@ import com.raytheon.uf.common.derivparam.library.DerivParamMethod.MethodType;
 import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
 import com.raytheon.uf.common.derivparam.tree.StaticDataLevelNode;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode.Dependency;
+import com.raytheon.uf.common.inventory.tree.CubeLevel;
+import com.raytheon.uf.common.inventory.tree.DataTree;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
+import com.raytheon.uf.common.inventory.tree.ParameterNode;
+import com.raytheon.uf.common.inventory.tree.SourceNode;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -95,6 +94,7 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  *                                     parameters.
  * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
  *                                     parameters to common
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -256,15 +256,7 @@ public class GridInventory extends AbstractInventory implements
                 return null;
             }
             if (nodes.get(0) instanceof AbstractDerivedDataNode) {
-                try {
-                    updater.addNode((AbstractDerivedDataNode) nodes.get(0));
-                } catch (VizException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Error occured in Grid Inventory: Grid Update may be broken",
-                                    e);
-                    return null;
-                }
+                updater.addNode((AbstractDerivedDataNode) nodes.get(0));
             }
             return nodes.get(0);
         } catch (InterruptedException e) {
@@ -275,6 +267,7 @@ public class GridInventory extends AbstractInventory implements
         return null;
     }
 
+    @Override
     protected DataTree createBaseTree() throws DataCubeException {
         DataTree newTree = getTreeFromEdex();
         if (newTree == null) {
@@ -349,8 +342,8 @@ public class GridInventory extends AbstractInventory implements
                 // This should query all times for this model.
                 DataTime[] timesArray;
                 try {
-                    timesArray = CatalogQuery.performTimeQuery(newQuery,
-                            false, null);
+                    timesArray = CatalogQuery.performTimeQuery(newQuery, false,
+                            null);
                 } catch (VizException e) {
                     throw new DataCubeException(e);
                 }
@@ -476,18 +469,11 @@ public class GridInventory extends AbstractInventory implements
                 List<AbstractRequestableNode> nodes = walkTree(null,
                         sourcesToProcess, paramsToProcess, levelsToProcess,
                         true, true, null);
-                try {
 
-                    for (AbstractRequestableNode node : nodes) {
-                        if (node instanceof AbstractDerivedDataNode) {
-                            updater.addNode((AbstractDerivedDataNode) node);
-                        }
+                for (AbstractRequestableNode node : nodes) {
+                    if (node instanceof AbstractDerivedDataNode) {
+                        updater.addNode((AbstractDerivedDataNode) node);
                     }
-                } catch (VizException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Error occured in Grid Inventory: Grid Update may be broken",
-                                    e);
                 }
                 return nodes;
             } catch (InterruptedException e) {
@@ -694,8 +680,7 @@ public class GridInventory extends AbstractInventory implements
 
     @Override
     protected LevelNode getCubeNode(SourceNode sNode, DerivParamField field,
-            Deque<StackEntry> stack, Set<StackEntry> nodata)
-            throws CommunicationException {
+            Deque<StackEntry> stack, Set<StackEntry> nodata) {
         StackEntry se = new StackEntry(sNode.getValue(), field.getParam(),
                 Long.MIN_VALUE);
         if (stack.contains(se)) {
@@ -748,6 +733,7 @@ public class GridInventory extends AbstractInventory implements
         return null;
     }
 
+    @Override
     protected Object resolvePluginStaticData(SourceNode sNode,
             DerivParamField field, Level level) {
         String fieldParamAbbrev = field.getParam();
@@ -766,6 +752,7 @@ public class GridInventory extends AbstractInventory implements
         return null;
     }
 
+    @Override
     protected AbstractDerivedDataNode createDerivedNode(DerivParamDesc desc,
             DerivParamMethod method, Level level, List<Object> fields,
             SourceNode source) {
