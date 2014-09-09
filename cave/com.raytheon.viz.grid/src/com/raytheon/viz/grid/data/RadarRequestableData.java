@@ -26,8 +26,6 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -40,10 +38,8 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.parameter.Parameter;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.grid.util.RadarAdapter;
 import com.raytheon.viz.grid.util.SliceUtil;
@@ -59,6 +55,7 @@ import com.raytheon.viz.grid.util.SliceUtil;
  * ------------ ---------- ----------- --------------------------
  * Mar 18, 2010 4473       rjpeter     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -67,8 +64,6 @@ import com.raytheon.viz.grid.util.SliceUtil;
  */
 
 public class RadarRequestableData extends GridRequestableData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RadarRequestableData.class);
 
     private final RadarRecord radarSource;
 
@@ -89,13 +84,9 @@ public class RadarRequestableData extends GridRequestableData {
         this.source = "radar";
         this.dataTime = source.getDataTime();
         this.space = RadarAdapter.getInstance().getCoverage();
-        try {
-            this.level = LevelFactory.getInstance().getLevel("TILT",
-                    source.getPrimaryElevationAngle());
-        } catch (CommunicationException e1) {
-            statusHandler
-                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
-        }
+        this.level = LevelFactory.getInstance().getLevel("TILT",
+                source.getPrimaryElevationAngle());
+
         this.parameter = parameterAbbrev;
         this.parameterName = "";
         this.unit = unit;
@@ -109,7 +100,6 @@ public class RadarRequestableData extends GridRequestableData {
                     this.parameterName, unit);
             record.setParameter(parameter);
             record.setDataTime(source.getDataTime());
-            record.constructDataURI();
             setGridSource(record);
         } catch (Exception e) {
             throw new VizException(e);
