@@ -36,7 +36,6 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2D;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
-import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBoolean;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
@@ -75,6 +74,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ----------  ----------- --------------------------
  * 07/14/09      1995       bphillip    Initial release
  * 10/31/2013    2508       randerso    Change to use DiscreteGridSlice.getKeys()
+ * 09/01/2014    3572       randerso    Removed ourSiteMap as it was unused and the only 
+ *                                      thing that used Grid2DBoolean
  * 
  * </pre>
  * 
@@ -89,10 +90,6 @@ public class ISCDataAccess implements IISCDataAccess {
     private final DataManager dataMgr;
 
     private Map<String, Grid2D<String>> siteGridMap;
-
-    // private Map<String, List<String>> siteIdentifiers;
-
-    private Grid2DBoolean ourSiteMap;
 
     /**
      * Constructs a new ISCDataAccess object
@@ -205,21 +202,6 @@ public class ISCDataAccess implements IISCDataAccess {
         } else {
             return empty;
         }
-    }
-
-    @Override
-    public boolean inOurSite(Point loc, GridID gid) {
-        // must be our office type to be inOurSite
-        if (!dataMgr.getOfficeType().equals(gid.getParm().getOfficeType())) {
-            return false;
-        }
-
-        if (this.ourSiteMap.isValid(loc.x, loc.y)) {
-            return this.ourSiteMap.get(loc.x, loc.y);
-        } else {
-            return false;
-        }
-
     }
 
     @Override
@@ -511,7 +493,7 @@ public class ISCDataAccess implements IISCDataAccess {
                     "getCompositeGrid called on non-discrete parm");
 
             slice.setDiscreteGrid(new Grid2DByte());
-            slice.setKey(new DiscreteKey[0]);
+            slice.setKeys(new DiscreteKey[0]);
             return new Grid2DBit();
         }
 
@@ -519,7 +501,7 @@ public class ISCDataAccess implements IISCDataAccess {
         Grid2DBit ourSiteMask = null;
         if (primary == null) {
             slice.setDiscreteGrid(new Grid2DByte(nx, ny));
-            slice.setKey(new DiscreteKey[0]);
+            slice.setKeys(new DiscreteKey[0]);
             primary = new DiscreteGridData(gid.getParm(), slice);
             ourSiteMask = new Grid2DBit(nx, ny);
         } else {
@@ -536,7 +518,7 @@ public class ISCDataAccess implements IISCDataAccess {
             keys[i] = new DiscreteKey(primary.getDiscreteSlice().getKeys()[i]);
         }
 
-        slice.setKey(keys);
+        slice.setKeys(keys);
         keys = null; // don't use this copy any more
 
         // isc grid
@@ -580,7 +562,7 @@ public class ISCDataAccess implements IISCDataAccess {
             newKeyList[key.getValue().intValue()] = key.getKey();
         }
 
-        slice.setKey(newKeyList);
+        slice.setKeys(newKeyList);
         return siteMask.or(ourSiteMask);
     }
 
@@ -589,10 +571,6 @@ public class ISCDataAccess implements IISCDataAccess {
      */
     protected void createSiteMask() {
         GridLocation gloc = dataMgr.getParmManager().compositeGridLocation();
-
-        // reinitialize data to empty
-        ourSiteMap = new Grid2DBoolean(gloc.gridSize().x, gloc.gridSize().y);
-        // siteIdentifiers = new HashMap<String, List<String>>();
 
         siteGridMap = new HashMap<String, Grid2D<String>>();
 
@@ -624,7 +602,6 @@ public class ISCDataAccess implements IISCDataAccess {
             // point.
             Grid2D<String> sites = new Grid2D<String>(gloc.gridSize().x,
                     gloc.gridSize().y);
-            // List<String> siteIdentifiers = new ArrayList<String>();
 
             for (String iscea : iscEAs) {
 
@@ -642,7 +619,6 @@ public class ISCDataAccess implements IISCDataAccess {
                 Grid2DBit bits = refDat.getGrid();
 
                 if (bits.isAnyBitsSet()) {
-                    // siteIdentifiers.add(iscea);
 
                     for (int y = 0; y < bits.getYdim(); y++) {
                         for (int x = 0; x < bits.getXdim(); x++) {
@@ -652,22 +628,9 @@ public class ISCDataAccess implements IISCDataAccess {
                         }
                     }
                 }
-
-                // special mapping for our site map
-                if (iscea.equals(dataMgr.getSiteID())) {
-                    for (int y = 0; y < bits.getYdim(); y++) {
-                        for (int x = 0; x < bits.getXdim(); x++) {
-                            if (bits.get(x, y) > 0) {
-                                ourSiteMap.set(x, y, true);
-                            }
-                        }
-                    }
-                }
-
             }
 
             // store result in maps
-            // this.siteIdentifiers.put(officeType, siteIdentifiers);
             this.siteGridMap.put(officeType, sites);
         }
     }
