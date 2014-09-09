@@ -49,6 +49,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Jul 24, 2012            dgilling    Initial creation
  * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * Sep 30, 2013       2361 njensen     Use JAXBManager for XML
+ * Sep 08, 2104       3592 randerso    Changed to use new pm listStaticFiles()
  * 
  * </pre>
  * 
@@ -81,9 +82,9 @@ public class ReferenceMgr {
     public ServerResponse<List<ReferenceID>> getInventory() {
         List<ReferenceID> refIDs = new ArrayList<ReferenceID>();
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile[] contents = pm.listFiles(
-                pm.getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
-                EDIT_AREAS_DIR, new String[] { ".xml" }, false, true);
+        LocalizationFile[] contents = pm.listStaticFiles(
+                LocalizationType.COMMON_STATIC, EDIT_AREAS_DIR,
+                new String[] { ".xml" }, false, true);
         if (contents != null) {
             for (LocalizationFile lf : contents) {
                 String s = LocalizationUtil.extractName(lf.getName());
@@ -116,7 +117,8 @@ public class ReferenceMgr {
         // process each ReferenceID requested
         for (ReferenceID id : ids) {
             String path = FileUtil.join(EDIT_AREAS_DIR, id.getName() + ".xml");
-            LocalizationFile lf = pathMgr.getStaticLocalizationFile(path);
+            LocalizationFile lf = pathMgr.getStaticLocalizationFile(
+                    LocalizationType.COMMON_STATIC, path);
 
             // does it exist?
             if (lf == null) {
@@ -129,8 +131,8 @@ public class ReferenceMgr {
             // open and read the file
             ReferenceData refData = null;
             try {
-                refData = ReferenceData.getJAXBManager()
-                        .unmarshalFromXmlFile(lf.getFile().getPath());
+                refData = ReferenceData.getJAXBManager().unmarshalFromXmlFile(
+                        lf.getFile().getPath());
             } catch (Exception e) {
                 sr.addMessage("Unable to read reference data [" + id + "]");
                 data = Collections.emptyList();
