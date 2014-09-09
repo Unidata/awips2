@@ -36,6 +36,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Aug 06, 2013 2097       dhladky     WFS 2.0 compliance upgrade and switched to POST
  * Nov 20, 2013 2554       dhladky     Added GZIP capability to WFS requests.
  * Jan 13, 2014 2697       dhladky     Added util to strip unique Id field from URL.
+ * Aub 20, 2014 3564       dhladky     Allow for un-authenicated HTTPS
  * 
  * </pre>
  * 
@@ -80,6 +81,7 @@ public class WfsConnectionUtil {
             ProviderCredentials creds = ProviderCredentialsUtil
                     .retrieveCredentials(providerName);
             Connection localConnection = creds.getConnection();
+            http.setHttpsConfiguration(new WfsHttpsConfiguration(uri));
 
             if (localConnection != null
                     && localConnection.getProviderKey() != null) {
@@ -91,7 +93,6 @@ public class WfsConnectionUtil {
                 String password = localConnection.getUnencryptedPassword();
 
                 http.setHandler(new WfsCredentialsHandler(userName, password));
-                http.setHttpsConfiguration(new WfsHttpsConfiguration(uri));
                 http.setCredentials(uri.getHost(), uri.getPort(), providerName,
                         userName, password);
             }
