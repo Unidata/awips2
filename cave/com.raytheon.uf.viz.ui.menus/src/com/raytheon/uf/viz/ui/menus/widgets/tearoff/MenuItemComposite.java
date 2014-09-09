@@ -68,6 +68,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Apr 10, 2013 DR 15185   D. Friedman Preserve tear-offs over perspective switches.
  * Feb 26, 2014    2842    mpduff    Utilize the command listener.
  * Apr 10, 2014    2241    mnash     Fix in practice mode, fixed the new month, Jev
+ * Jev 26, 2014  2842      mpduff    Utilize the command listener.
+ * Aug 21, 2014  15664     snaples   Updated dispose method to fix issue when closing perspecitive with tear offs open.
  * 
  * </pre>
  * 
@@ -563,26 +565,26 @@ public class MenuItemComposite extends Composite {
             highlightedArrow.dispose();
         }
 
-        if (item != null) {
-            if (updateListener != null && !item.isDisposed()) {
+        if (item != null && !item.isDisposed()) {
+            if (updateListener != null) {
                 item.removeListener(SWT.Modify, updateListener);
             }
 
-            if (radioListener != null && !item.isDisposed()) {
+            if (radioListener != null) {
                 item.removeSelectionListener(radioListener);
             }
-        }
 
-        if (item.getData() instanceof CommandContributionItem) {
-            ICommandService service = (ICommandService) PlatformUI
-                    .getWorkbench().getService(ICommandService.class);
-            Command c = service.getCommand(((CommandContributionItem) item
-                    .getData()).getCommand().getId());
-            c.removeCommandListener(commandListener);
+            if (item.getData() instanceof CommandContributionItem) {
+                ICommandService service = (ICommandService) PlatformUI
+                        .getWorkbench().getService(ICommandService.class);
+                Command c = service.getCommand(((CommandContributionItem) item
+                        .getData()).getCommand().getId());
+                c.removeCommandListener(commandListener);
+            }
         }
-
         super.dispose();
     }
+
 
     public void setSelection(boolean selection) {
         if (firstItem instanceof Button) {
