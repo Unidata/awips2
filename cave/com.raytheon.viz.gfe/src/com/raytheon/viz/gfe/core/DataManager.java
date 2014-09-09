@@ -100,6 +100,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 09/05/2013    2307      dgilling    Use better PythonScript constructor.
  * 09/16/2013    2033      dgilling    Remove unused IToolController.
  * 12/09/2013    2367      dgilling    Instantiate ProcedureJobPool here.
+ * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
  * 
  * </pre>
  * 
@@ -290,6 +291,7 @@ public class DataManager {
      * {@link DataManagerFactory#dispose(Object)}
      */
     void dispose() {
+        sampleSetManager.dispose();
         selectTimeRangeManager.dispose();
         refManager.dispose();
         parmManager.dispose();
