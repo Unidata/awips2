@@ -19,7 +19,7 @@
 		factory-method="getInstance" />
 		
 	<bean id="gribTableLookup" class="com.raytheon.edex.util.grib.GribTableLookup"
-		factory-method="getInstance" depends-on="gridRegistered" />
+		factory-method="getInstance" depends-on="gridRegistered, queryDataRegistered" />
   	
     <bean id="gribModelLookup"
 		class="com.raytheon.edex.plugin.grib.util.GribModelLookup"
