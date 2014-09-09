@@ -21,10 +21,6 @@ package com.raytheon.viz.grid.data;
 
 import javax.measure.unit.SI;
 
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridData;
@@ -33,9 +29,9 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
@@ -48,6 +44,7 @@ import com.raytheon.viz.grid.util.SliceUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 15, 2010            rjpeter     Initial creation
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -56,8 +53,6 @@ import com.raytheon.viz.grid.util.SliceUtil;
  */
 
 public class StaticGridRequestableData extends AbstractRequestableData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(StaticGridRequestableData.class);
 
     private StaticGridDataType dataType;
 
@@ -74,11 +69,7 @@ public class StaticGridRequestableData extends AbstractRequestableData {
         } else {
             this.unit = SI.METER;
         }
-        try {
-            this.level = LevelFactory.getInstance().getLevel("SFC", 0.0);
-        } catch (CommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
+        this.level = LevelFactory.getInstance().getLevel("SFC", 0.0);
     }
 
     /*

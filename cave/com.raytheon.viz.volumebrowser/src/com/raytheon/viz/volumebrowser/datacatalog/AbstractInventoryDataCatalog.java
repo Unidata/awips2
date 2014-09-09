@@ -35,7 +35,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
@@ -64,6 +63,7 @@ import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
  * Jul 25, 2013 2112       bsteffen    Fix volume browser sounding errors.
  * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
  *                                     parameters to common
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -152,7 +152,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                     inventory.checkLevels(fSourcesToProcess, fParamsToProcess,
                             null, levelQueue);
                 } catch (InterruptedException e) {
-                    ;
+                    // no-op
                 }
                 return Status.OK_STATUS;
             }
@@ -176,27 +176,21 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             String levelStr = levelQueue.poll();
             while (levelStr != null) {
                 // Convert levels into planes.
-                try {
-                    Level level = LevelFactory.getInstance().getLevel(levelStr);
+                Level level = LevelFactory.getInstance().getLevel(levelStr);
 
-                    if (levels3D.contains(level)) {
-                        for (String plane : get3DPlanes(sourcesToProcess)) {
-                            request.addAvailablePlane(plane);
-                        }
+                if (levels3D.contains(level)) {
+                    for (String plane : get3DPlanes(sourcesToProcess)) {
+                        request.addAvailablePlane(plane);
                     }
-                    request.addAvailablePlane("spatial-"
-                            + level.getMasterLevel().getName());
-                    LevelMapping lm = LevelMappingFactory
-                            .getInstance(
-                                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                            .getLevelMappingForLevel(level);
+                }
+                request.addAvailablePlane("spatial-"
+                        + level.getMasterLevel().getName());
+                LevelMapping lm = LevelMappingFactory.getInstance(
+                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                        .getLevelMappingForLevel(level);
 
-                    if (lm != null) {
-                        request.addAvailablePlane(lm.getKey());
-                    }
-                } catch (CommunicationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+                if (lm != null) {
+                    request.addAvailablePlane(lm.getKey());
                 }
                 levelStr = levelQueue.poll();
 
@@ -211,7 +205,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                ;
+                // no-op
             }
         }
     }
@@ -247,9 +241,10 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
         if (inventory != null) {
             try {
                 inventory.checkSources(null, null, null, returnQueue);
-        } catch (InterruptedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
+            } catch (InterruptedException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
         List<String> result = new ArrayList<String>(returnQueue);
         result.retainAll(MenuItemManager.getInstance()
@@ -288,23 +283,12 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             for (String plane : selectedPlanes) {
                 Collection<Level> levels = Collections.emptyList();
                 if (plane.startsWith("spatial-")) {
-                    try {
-                        levels = LevelUtilities
-                                .getOrderedSetOfStandardLevels(plane.replace(
-                                        "spatial-", ""));
-                    } catch (CommunicationException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                    }
+                    levels = LevelUtilities.getOrderedSetOfStandardLevels(plane
+                            .replace("spatial-", ""));
                 } else {
                     LevelMapping lm = lmf.getLevelMappingForKey(plane);
                     if (lm != null) {
-                        try {
-                            levels = lm.getLevels();
-                        } catch (CommunicationException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
-                        }
+                        levels = lm.getLevels();
                     }
                 }
                 for (Level l : levels) {
