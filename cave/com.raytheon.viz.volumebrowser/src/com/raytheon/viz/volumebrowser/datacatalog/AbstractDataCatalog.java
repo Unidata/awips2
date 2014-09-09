@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
@@ -84,6 +83,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      graph plugin
  * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
  *                                     parameters to common
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -359,24 +359,14 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
         Collection<Level> levels = Collections.emptyList();
         if (planesKey.startsWith("spatial-")) {
-            try {
-                levels = LevelUtilities.getOrderedSetOfStandardLevels(planesKey
-                        .replace("spatial-", ""));
-            } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
+            levels = LevelUtilities.getOrderedSetOfStandardLevels(planesKey
+                    .replace("spatial-", ""));
         } else {
-            try {
-                LevelMappingFactory lmf = LevelMappingFactory
-                        .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
-                LevelMapping lm = lmf.getLevelMappingForKey(planesKey);
-                if (lm != null) {
-                    levels = lm.getLevels();
-                }
-            } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+            LevelMappingFactory lmf = LevelMappingFactory
+                    .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
+            LevelMapping lm = lmf.getLevelMappingForKey(planesKey);
+            if (lm != null) {
+                levels = lm.getLevels();
             }
         }
         ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
