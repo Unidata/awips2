@@ -7,19 +7,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.inventory.TimeAndSpace;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.parameter.Parameter;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.viz.alerts.IAlertObserver;
@@ -41,6 +36,7 @@ import com.raytheon.viz.grid.util.RadarProductCodeMapping;
  * Sep 20, 2012            bsteffen    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Feb 21, 2014 DR 16744   D. Friedman Support thin client updates
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -48,8 +44,6 @@ import com.raytheon.viz.grid.util.RadarProductCodeMapping;
  * @version 1.0
  */
 public class RadarUpdater implements IAlertObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RadarUpdater.class);
 
     protected static final int CACHE_SIZE = 100;
 
@@ -151,10 +145,12 @@ public class RadarUpdater implements IAlertObserver {
 
     @Override
     public void alertArrived(Collection<AlertMessage> alertMessages) {
-        ProductAlertObserver.processDataURIAlerts(convertRadarAlertsToGridDatauris(alertMessages));
+        ProductAlertObserver
+                .processDataURIAlerts(convertRadarAlertsToGridDatauris(alertMessages));
     }
 
-    public Set<String> convertRadarAlertsToGridDatauris(Collection<AlertMessage> alertMessages) {
+    public Set<String> convertRadarAlertsToGridDatauris(
+            Collection<AlertMessage> alertMessages) {
         RadarStation configuredRadar = RadarAdapter.getInstance()
                 .getConfiguredRadar();
         if (configuredRadar == null) {
@@ -191,14 +187,8 @@ public class RadarUpdater implements IAlertObserver {
             }
             Double elevationAngle = (Double) obj;
             cache.remove(new CacheKey(productCode, elevationAngle));
-            Level level = null;
-            try {
-                level = LevelFactory.getInstance().getLevel(
-                        RadarAdapter.CUBE_MASTER_LEVEL_NAME, elevationAngle);
-            } catch (CommunicationException e1) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e1.getLocalizedMessage(), e1);
-            }
+            Level level = LevelFactory.getInstance().getLevel(
+                    RadarAdapter.CUBE_MASTER_LEVEL_NAME, elevationAngle);
             GridRecord fakeRec = new GridRecord();
 
             fakeRec.setDataTime(time);
@@ -206,13 +196,8 @@ public class RadarUpdater implements IAlertObserver {
             Parameter param = new Parameter(paramAbbrev);
             fakeRec.setParameter(param);
             fakeRec.setLevel(level);
-            try {
-                fakeRec.constructDataURI();
-                datauris.add(fakeRec.getDataURI());
-            } catch (PluginException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to generate updates for derived product", e);
-            }
+
+            datauris.add(fakeRec.getDataURI());
         }
         return datauris;
     }
