@@ -5,6 +5,7 @@ function usage()
 {
    echo "Usage: $0 OPTION [-nobinlightning]"
    echo "   -delta    perform a build of only the rpms that are likely to change."
+   echo "   -local    build localization rpms."
    echo "   -full     perform a full build of all the rpms."
    echo "   -ade      build all rpms that are packaged in the ade."
    echo "   -viz      only build the Viz rpms (CAVE & AlertViz)."

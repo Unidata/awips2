@@ -121,7 +121,33 @@ function buildEDEX()
 
    return 0
 }
+function buildCAVEsingle()
+{
+   cd ${WORKSPACE}/rpms/awips2.cave/deploy.builder
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the cave rpms."
+      return 1
+   fi
 
+   # Determine the build architecture.
+   export CAVE_BUILD_ARCH=`uname -i`
+   if [ "${CAVE_BUILD_ARCH}" = "i386" ]; then
+      export CAVE_BUILD_ARCH="x86"
+   fi
+
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to determine the architecture."
+      return 1
+   fi
+   /bin/bash single.sh
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the cave rpms."
+      return 1
+   fi
+
+   return 0
+
+}
 function buildCAVE()
 {
    cd ${WORKSPACE}/rpms/awips2.cave/deploy.builder
