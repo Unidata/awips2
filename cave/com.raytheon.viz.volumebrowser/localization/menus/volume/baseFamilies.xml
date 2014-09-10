@@ -97,8 +97,8 @@
 		<substitute key="frameCount" value="9"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-                menuText="NAVGEM" id="NAVGEM" useReferenceTime="true">
-                <substitute key="modelName" value="NAVGEM"/>
+                menuText="CMC GEM Regional" id="CMC" useReferenceTime="true">
+                <substitute key="modelName" value="CMC"/>
 	        <substitute key="TP" value="TP1hr"/>
 	        <substitute key="frameCount" value="12"/>
 	</contribute>

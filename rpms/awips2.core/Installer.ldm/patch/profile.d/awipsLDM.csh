@@ -5,7 +5,7 @@ else
 endif
 
 if $?PATH then
-   setenv PATH /usr/local/ldm/bin:$PATH
+   setenv PATH ${PATH}:/usr/local/ldm/bin:/usr/local/ldm/decoders:/usr/local/ldm/util
 else
-   setenv PATH /usr/local/ldm/bin
+   setenv PATH ${PATH}:/usr/local/ldm/bin:/usr/local/ldm/decoders:/usr/local/ldm/util
 endif
