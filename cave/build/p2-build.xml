@@ -2,7 +2,7 @@
 
 	<!-- TODO: Verify These Properties References An Actual Directory. -->
 	<property name="eclipse.dir" 
-		value="/awips2/eclipse" />
+		value="/opt/uframe-eclipse" />
 	<property name="build.version"
 		value="1.0.0" />
 	<property name="build.os"
@@ -10,7 +10,7 @@
 	<property name="build.ws"
 		value="gtk" />
 	<property name="build.arch"
-		value="x86_64" />
+		value="x86" />
 	<property name="workspace.dir" value="${basedir}/../" />
 	
 	<property name="pde.build.script"
@@ -207,7 +207,15 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
+				value="com.raytheon.viz.warngen.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
 				value="com.raytheon.viz.grib.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				value="com.raytheon.viz.gfe.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
@@ -309,10 +317,6 @@
              <param name="feature"
                   value="com.raytheon.uf.viz.gisdatastore.feature" />
         </antcall>
-		<antcall target="p2.build.repo">
-		     <param name="feature"
-			  value="com.raytheon.viz.dataaccess.feature" />
-		</antcall>
 		<antcall target="p2.build.repo">
 		     <param name="feature"
 			  value="com.raytheon.uf.viz.d2d.ui.awips.feature" />
