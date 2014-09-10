@@ -89,11 +89,11 @@ cp -v ${dir}/buildEnvironment.sh .
 #
 # PRIMARY GROUPS confirmed to work for Unidata 14.2.1
 #/bin/bash build.sh -edex > ${dir}/build-EDEX-${timestamp}.log
-#/bin/bash build.sh -full > ${dir}/build-${timestamp}.log
+/bin/bash build.sh -full > ${dir}/build-FULL-${timestamp}.log
 #/bin/bash build.sh -viz > ${dir}/build-VIZ-${timestamp}.log
 #/bin/bash build.sh -upc > ${dir}/build-UPC-${timestamp}.log
 #/bin/bash build.sh -ldm > ${dir}/build-LDM-${timestamp}.log
-/bin/bash build.sh -httpd > ${dir}/build-LDM-${timestamp}.log
+#/bin/bash build.sh -httpd > ${dir}/build-LDM-${timestamp}.log
 
 
 
@@ -115,13 +115,13 @@ popd > /dev/null 2>&1
 
 export rpm_end_dir="${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
 
-mkdir -p /awips2/jenkins/build/rpms/${rpm_end_dir}
+#mkdir -p /awips2/jenkins/build/rpms/${rpm_end_dir}
 
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/x86_64/)" ]; then
-    mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/${rpm_end_dir}/x86_64/
+    mv ${AWIPSII_TOP_DIR}/RPMS/x86_64/* /awips2/jenkins/build/rpms/awips2/x86_64/
 fi
 if [ "$(ls -A ${AWIPSII_TOP_DIR}/RPMS/noarch/)" ]; then
-   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/${rpm_end_dir}/noarch/
+   mv ${AWIPSII_TOP_DIR}/RPMS/noarch/* /awips2/jenkins/build/rpms/awips2/noarch/
 fi
 
 END_TIME=`date "+%s"`

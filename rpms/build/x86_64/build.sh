@@ -257,6 +257,9 @@ if [ "${1}" = "-delta" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-local" ]; then
+   buildLocalizationRPMs
+fi
 if [ "${1}" = "-full" ]; then
 # ALL FROM HERE CONFIRMED to build at Unidata on 64bit fc12 after mucking with /usr/lib64 sym links
 # and installing a few packages and editing some spec files...
@@ -280,36 +283,36 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-tools"
    buildRPM "awips2-common-base"
-   buildCAVE
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
+#   buildCAVE
+#   if [ $? -ne 0 ]; then
+#      exit 1
+#   fi
    buildRPM "awips2-alertviz"
-   buildEDEX
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   buildQPID
-   buildRPM "awips2-python-jimporter"
-   buildRPM "awips2-python-ufpy"
-   buildRPM "awips2-python-cherrypy"
-   buildRPM "awips2-python-dynamicserialize"
-   buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-matplotlib"
-   buildRPM "awips2-python-nose"
-   buildRPM "awips2-python-numpy"
-   buildRPM "awips2-python-pil"
-   buildRPM "awips2-python-pmw"
-   buildRPM "awips2-python-pupynere"
-   buildRPM "awips2-python-qpid"
-   buildRPM "awips2-python-scientific"
-   buildRPM "awips2-python-scipy"
-   buildRPM "awips2-python-tables"
-   buildRPM "awips2-python-thrift"
-   buildRPM "awips2-python-tpg"
-   buildRPM "awips2-python-werkzeug"
-   buildRPM "awips2-python-pygtk"
-   buildRPM "awips2-python-pycairo"
+#   buildEDEX
+#   if [ $? -ne 0 ]; then
+#      exit 1
+#   fi
+#   buildQPID
+#   buildRPM "awips2-python-jimporter"
+#   buildRPM "awips2-python-ufpy"
+#   buildRPM "awips2-python-cherrypy"
+#   buildRPM "awips2-python-dynamicserialize"
+#   buildRPM "awips2-python-h5py"
+#   buildRPM "awips2-python-matplotlib"
+#   buildRPM "awips2-python-nose"
+#   buildRPM "awips2-python-numpy"
+#   buildRPM "awips2-python-pil"
+#   buildRPM "awips2-python-pmw"
+#   buildRPM "awips2-python-pupynere"
+#   buildRPM "awips2-python-qpid"
+#   buildRPM "awips2-python-scientific"
+#   buildRPM "awips2-python-scipy"
+#   buildRPM "awips2-python-tables"
+#   buildRPM "awips2-python-thrift"
+#   buildRPM "awips2-python-tpg"
+#   buildRPM "awips2-python-werkzeug"
+#   buildRPM "awips2-python-pygtk"
+#   buildRPM "awips2-python-pycairo"
    buildRPM "awips2-cli"
    buildRPM "awips2-data.hdf5-gfe.climo"
    buildRPM "awips2-gfesuite-client"
@@ -346,8 +349,7 @@ if [ "${1}" = "-full" ]; then
 #
 # pgadmin3 requires jasperlib from /awips2/python/lib
 #
-   buildRPM "awips2-pgadmin3"
-   buildRPM "awips2-ldm"
+#   buildRPM "awips2-pgadmin3"
    exit 0
 fi
 
@@ -432,26 +434,30 @@ if [ "${1}" = "-ade" ]; then
    exit 0
 fi
 
+if [ "${1}" = "-cave" ]; then
+   buildCAVEsingle
+fi
 
 if [ "${1}" = "-viz" ]; then
-   #buildRPM "awips2"
-   #buildRPM "awips2-common-base"
-   #buildRPM "awips2-python-dynamicserialize"
-   #buildRPM "awips2-gfesuite-client"
-   #buildRPM "awips2-gfesuite-server"
-   #buildRPM "awips2-cli"
+   buildRPM "awips2"
+   buildRPM "awips2-common-base"
+   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-cli"
    buildCAVE
    if [ $? -ne 0 ]; then
       exit 1
    fi
-   #buildRPM "awips2-alertviz"
+   buildRPM "awips2-alertviz"
    exit 0
 fi
 
 if [ "${1}" = "-edex" ]; then
    ##buildRPM "awips2-common-base"
-   #buildRPM "awips2"
+   buildRPM "awips2"
    buildEDEX
+   buildRPM "awips2-data.hdf5-topo"
    if [ $? -ne 0 ]; then
       exit 1
    fi
