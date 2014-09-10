@@ -5,7 +5,7 @@
 Name: awips2-edex-upc
 Summary: AWIPS II UPC EDEX Tools
 Version: 14.2.1
-Release: 1
+Release: 2
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A
