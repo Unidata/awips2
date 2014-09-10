@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.gfe.dialogs.sbu.SiteActivationDlg;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 
 /**
  * Display Activate Site dialog standalone and blocked.
@@ -43,7 +43,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class ActivateSiteComponent extends AbstractCAVEComponent {
+public class ActivateSiteComponent extends AbstractAWIPSComponent {
 
     /*
      * (non-Javadoc)
