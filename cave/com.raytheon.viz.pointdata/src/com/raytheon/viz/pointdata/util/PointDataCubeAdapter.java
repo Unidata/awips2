@@ -25,10 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -36,6 +32,9 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -61,6 +60,7 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * ------------ ---------- ----------- --------------------------
  * Jun 1, 2009             brockwoo    Initial creation
  * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * </pre>
  * 
  * @author brockwoo
@@ -78,7 +78,7 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
             "goessounding", "bufrascat", "poessounding", "profiler", "bufrua",
             "ldadmesonet", "ldadhydro", "qc", "fssobs", "bufrmosAVN",
             "bufrmosETA", "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP",
-            "bufrmosMRF", "bufrmosNGM", "airep", "pirep", "nctaf"};
+            "bufrmosMRF", "bufrmosNGM", "airep", "pirep", "nctaf" };
 
     protected AbstractPointDataInventory inventory;
 
@@ -131,14 +131,11 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         }
 
         List<Level> levels;
-        try {
-            levels = LevelMappingFactory
-                    .getInstance(
-                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                    .getLevelMappingForKey(levelKey).getLevels();
-        } catch (CommunicationException e) {
-            throw new DataCubeException(e);
-        }
+        levels = LevelMappingFactory
+                .getInstance(
+                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                .getLevelMappingForKey(levelKey).getLevels();
+
         List<AbstractRequestableNode> nodes;
         try {
             nodes = inventory.getNodes(source, Arrays.asList(parameters),
