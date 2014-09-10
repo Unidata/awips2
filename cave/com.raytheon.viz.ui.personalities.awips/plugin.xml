@@ -20,6 +20,20 @@
     -->
 <?eclipse version="3.3"?>
 <plugin>
+<extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:file.new">  
+  		    <command
+                 commandId="com.raytheon.viz.textworkstation.opentextworkstation"
+                 label="Text Workstation"
+                 style="push">
+            </command>
+            <menu id="file.new.Aviation" label="Aviation">
+            </menu>
+      </menuContribution>
+      </extension>
+
    <extension
          point="org.eclipse.ui.commands">
       <category

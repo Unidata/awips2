@@ -125,11 +125,11 @@
    <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
          version="0.0.0"/>
-
+   <!--
    <includes
          id="com.raytheon.uf.viz.dat.feature"
          version="0.0.0"/>
-
+   -->
    <includes
          id="com.raytheon.uf.viz.ncep.perspective.feature"
          version="0.0.0"/>
@@ -153,11 +153,11 @@
    <includes
          id="com.raytheon.uf.viz.useradmin.feature"
          version="0.0.0"/>
-
+   <!--
    <includes
          id="com.raytheon.uf.viz.collaboration.feature"
          version="0.0.0"/>
-
+   -->
    <includes
          id="com.raytheon.uf.viz.kml.export.feature"
          version="0.0.0"/>
