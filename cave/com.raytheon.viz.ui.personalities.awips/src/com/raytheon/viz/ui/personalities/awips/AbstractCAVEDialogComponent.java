@@ -43,7 +43,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * @version 1.0
  */
 
-public abstract class AbstractCAVEDialogComponent extends AbstractCAVEComponent {
+public abstract class AbstractCAVEDialogComponent extends AbstractAWIPSComponent {
     protected void blockUntilClosed(CaveSWTDialogBase dlg) {
         while (!dlg.isDisposed()) {
             if (!Display.getCurrent().readAndDispatch()) {
