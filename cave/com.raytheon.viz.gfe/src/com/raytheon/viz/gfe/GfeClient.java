@@ -41,7 +41,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 
 /**
  * GFE Client application component
@@ -69,7 +69,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class GfeClient extends AbstractCAVEComponent {
+public class GfeClient extends AbstractAWIPSComponent {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeClient.class);
 

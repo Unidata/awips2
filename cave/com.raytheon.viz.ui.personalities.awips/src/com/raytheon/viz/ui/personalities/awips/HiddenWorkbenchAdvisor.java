@@ -49,12 +49,12 @@ public class HiddenWorkbenchAdvisor extends WorkbenchAdvisor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(HiddenWorkbenchAdvisor.class);
 
-    private AbstractCAVEComponent component;
+    private AbstractAWIPSComponent component;
 
     private String componentName;
 
     public HiddenWorkbenchAdvisor(String componentName,
-            AbstractCAVEComponent component) {
+            AbstractAWIPSComponent component) {
         this.component = component;
     }
 

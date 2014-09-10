@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.Platform;
 
 import com.raytheon.viz.mpe.util.AutoDailyQC;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 
 /**
  * TODO Add Description
@@ -43,7 +43,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class StartAutoDQC extends AbstractCAVEComponent {
+public class StartAutoDQC extends AbstractAWIPSComponent {
 
     /*
      * (non-Javadoc)
