@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
@@ -38,9 +37,6 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
@@ -58,6 +54,7 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * ------------- -------- ----------- --------------------------
  * Sep 18, 2013  2391     mpduff      Initial creation
  * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
+ * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -68,9 +65,6 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
 public class PlotModels {
     /** The only instance */
     private static final PlotModels instance = new PlotModels();
-
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PlotModels.class);
 
     /** Constant */
     private final String PLOTLOCATION = "plotModels";
@@ -195,19 +189,14 @@ public class PlotModels {
         List<String> validLevels = new ArrayList<String>();
         if (possibleLevels != null) {
             for (String levelid : possibleLevels) {
-                try {
-                    Level level = LevelFactory.getInstance().getLevel(
-                            Long.parseLong(levelid));
-                    validLevels
-                            .add(LevelMappingFactory
-                                    .getInstance(
-                                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                                    .getLevelMappingForLevel(level)
-                                    .getDisplayName());
-                } catch (CommunicationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
+                Level level = LevelFactory.getInstance().getLevel(
+                        Long.parseLong(levelid));
+                validLevels
+                        .add(LevelMappingFactory
+                                .getInstance(
+                                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                                .getLevelMappingForLevel(level)
+                                .getDisplayName());
             }
         }
         return validLevels.toArray(new String[0]);
