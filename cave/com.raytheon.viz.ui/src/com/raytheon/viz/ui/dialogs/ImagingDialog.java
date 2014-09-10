@@ -91,6 +91,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  *                                    ColorMapCapability is not present.
  * Apr 08, 2014  2905     bsteffen    Add option to interpolate colors.
  * Apr 16, 2014  3037     lvenable    Add dispose check in runAsync call.
+ * Sep 10, 2014  3604     bsteffen    Check for colormap before setting interpolation state.
  * 
  * </pre>
  * 
@@ -771,26 +772,28 @@ public class ImagingDialog extends CaveSWTDialog implements
             if (topResource.hasCapability(ColorMapCapability.class)) {
                 final ColorMapCapability cmcap = topResource
                         .getCapability(ColorMapCapability.class);
+                ColorMapParameters cmparms = cmcap.getColorMapParameters();
                 String currentCMap = "Not Selected";
-                if (cmcap.getColorMapParameters() != null
-                        && cmcap.getColorMapParameters().getColorMap() != null) {
-                    currentCMap = cmcap.getColorMapParameters().getColorMap()
-                            .getName();
+                if (cmparms != null && cmparms.getColorMap() != null) {
+                    currentCMap = cmparms.getColorMap().getName();
                     if (currentCMap == null) {
                         currentCMap = "";
                     }
                 }
                 topColormapComp.setCap(cmcap);
-                topColormapComp.setParams(cmcap.getColorMapParameters());
+                topColormapComp.setParams(cmparms);
                 if (currentCMap.isEmpty()) {
                     currentCMap = UNSAVED_CMAP_DISPLAY_NAME;
                 }
                 topColormapComp.getCMapButton().setText(currentCMap);
 
                 topColorMapButton.setText("Edit " + topResourceName);
+
                 interpolateColorsCheckbox.setEnabled(true);
-                interpolateColorsCheckbox.setSelection(cmcap
-                        .getColorMapParameters().isInterpolate());
+                if (cmparms != null) {
+                    interpolateColorsCheckbox.setSelection(cmparms
+                            .isInterpolate());
+                }
             } else {
                 topColorMapButton.setText(topResourceName
                         + " is not color mapped.");
