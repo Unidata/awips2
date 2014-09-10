@@ -21,7 +21,6 @@
 
 <?eclipse version="3.2"?>
 <plugin>
-<!--
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
@@ -100,5 +99,4 @@
           recursive="true">
        </path>
     </extension>
-    -->
 </plugin>
