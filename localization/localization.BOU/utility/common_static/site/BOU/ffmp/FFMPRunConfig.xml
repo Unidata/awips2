@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<FFMPRunConfig xmlns:ns2="group">
+    <runner>
+        <rfc>KKRF</rfc>
+        <rfc>KSLR</rfc>
+        <rfc>KTUA</rfc>
+        <product name="DHR" key="kftg"/>
+        <product name="DHR" key="kcvs"/>
+        <product name="DHR" key="kpux"/>
+        <product name="DHRMOSAIC" key="hpe"/>
+        <product name="BDHRMOSAIC" key="bhpe"/>
+        <domain primary="true" cwa="ftg"/>
+        <domain primary="false" cwa="CVS"/>
+        <domain primary="false" cwa="PUX"/>
+    </runner>
+</FFMPRunConfig>

@@ -22,11 +22,11 @@
 	<mapScale displayName="N. Hemisphere" fileName="NHemisphere.xml">
 		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView1"/>
 	</mapScale>
-	<mapScale displayName="North American" fileName="NorthAmerican.xml">
+	<mapScale displayName="CONUS" fileName="CONUS.xml">
 		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView2"/>
 	</mapScale>
-	<mapScale displayName="CONUS" fileName="CONUS.xml">
-		<partId view="false" id="com.raytheon.viz.ui.glmap.GLMapEditor"/>
+	<mapScale displayName="North American" fileName="NorthAmerican.xml">
+		<partId view="false" id="com.raytheon.viz.ui.glmap.GLMapEditor"/>		
 	</mapScale>
 	<mapScale displayName="Regional" fileName="Regional.xml">
 		<partId id="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView3"/>

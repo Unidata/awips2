@@ -20,7 +20,7 @@
     -->
 <bundle>
     <displayList>
-        <displays xsi:type="d2DMapRenderableDisplay" scale="Regional" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-98.98895999999998 41.407326000000005 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xsi:type="d2DMapRenderableDisplay" scale="Regional" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-105.243515 40.035022 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="false">

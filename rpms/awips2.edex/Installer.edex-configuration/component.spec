@@ -92,7 +92,7 @@ if [ -f "${SETUP_ENV_NEW}" ]; then
    source ${SETUP_ENV}
    
    # update when a variable is added to or removed from setup.env.
-   updateSetupEnv "${AW_SITE_IDENTIFIER}" "AW_SITE_IDENTIFIER" "OAX"
+   updateSetupEnv "${AW_SITE_IDENTIFIER}" "AW_SITE_IDENTIFIER" "BOU"
    updateSetupEnv "${DC_DB_NAME}" "DC_DB_NAME" "dc_ob7oax"
    updateSetupEnv "${FXA_DB_NAME}" "FXA_DB_NAME" "fxatext"
    updateSetupEnv "${HM_DB_NAME}" "HM_DB_NAME" "hmdb"
