@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
@@ -38,7 +37,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 20, 2012            bsteffen     Initial creation
+ * Sep 20, 2012            bsteffen    Initial creation
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -143,18 +143,13 @@ public class GridNameGenerator extends AbstractNameGenerator {
     }
 
     private String lookupPlane(Level level) {
-        try {
-            LevelMapping mapping = LevelMappingFactory.getInstance(
-                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                    .getLevelMappingForLevel(level);
-            if (mapping == null) {
-                return level.getMasterLevel().getName();
-            }
-            return mapping.getDisplayName();
-        } catch (CommunicationException e) {
+        LevelMapping mapping = LevelMappingFactory.getInstance(
+                LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                .getLevelMappingForLevel(level);
+        if (mapping == null) {
             return level.getMasterLevel().getName();
-
         }
+        return mapping.getDisplayName();
     }
 
     public void setPlaneLabelString(String planeLabelString) {
