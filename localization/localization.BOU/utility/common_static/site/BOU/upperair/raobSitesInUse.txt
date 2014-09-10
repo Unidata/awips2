@@ -1,0 +1,31 @@
+# DO NOT EDIT LINES BEGINNING WITH '#'
+# FULLY DEFINES ALL SITES USED FOR THE LOCALIZED UPPER AIR MENU IN CAVE
+# Format is as follows :
+# icao city name, state
+# KXXX SiteID Anywhere, US
+
+# UPPER_AIR menu
+KDNR 72469 Denver, CO
+
+# LOCAL_UPPER_AIR submenu
+KLBF 72562 North Platte, NE
+KDDC 72451 Dodge City, KS
+KAMA 72363 Amarillo, TX
+KABQ 72365 Albuquerque, NM
+KGJT 72476 Grand Junction, CO
+KFGZ 72376 Flagstaff, AZ
+KSLC 72572 Salt Lake City, UT
+KRIW 72672 Riverton, WY
+KUNR 72662 Rapid City, SD
+KOUN 72357 Norman, OK
+KFWD 72249 Ft Worth, TX
+KMAF 72265 Midland, TX
+KSHV 72248 Shreveport, LA
+KLZK 72340 Little Rock, AR
+KSGF 72440 Springfield, MO
+KGGW 72768 Glasgow, MT
+KABR 72659 Aberdeen, SD
+KBIS 72764 Bismark, ND
+KMPX 72649 Minneapolis, MN
+KOAX 72558 Omaha, NE
+KTOP 72456 Topeka, KS

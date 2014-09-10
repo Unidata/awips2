@@ -8,7 +8,7 @@
 #AWIPS_MODIFICATION_BLOCK_BEGIN
 
 # ******   Update This Line as Needed 
-export AW_SITE_IDENTIFIER=OAX
+export AW_SITE_IDENTIFIER=BOU
 
 # locate EDEX_HOME
 if [ "${EDEX_HOME}" = "" ]; then
