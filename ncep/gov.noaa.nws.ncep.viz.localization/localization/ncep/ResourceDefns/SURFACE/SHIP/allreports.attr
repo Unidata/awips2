@@ -1,0 +1,5 @@
+! Parameters and Attributes for the SHIP Resource, with "allreports" option
+plotModel=@PlotModels/sfcobs/ship_standard.xml
+plotDensity=12
+conditionalFilter=
+reportType=1003,1004,1005,1006,1007
