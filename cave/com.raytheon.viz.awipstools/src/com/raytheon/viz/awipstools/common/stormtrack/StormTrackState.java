@@ -49,6 +49,7 @@ import com.vividsolutions.jts.geom.Point;
  * 06-24-2013   DR 16317   D. Friedman Handle "motionless" track.
  * 04-24-2014   DR 16356   Qinglu Lin  Added newWarnGen, oneStormAngle, justSwitchedToLOS, 
  *                                     justSwitchedToOS, and trackType.
+ * 06-24-2014   DR 17436   Qinglu Lin  Assigned "unknown" to trackType. 
  * 
  * </pre>
  * 
@@ -208,7 +209,7 @@ public class StormTrackState {
 
     public boolean justSwitchedToOS = false;
 
-    public static String trackType = null;
+    public static String trackType = "unknown";
 
     /** Compute the coordinate of the storm center at the time defined by dataTime via interpolation. */
     public boolean compuateCurrentStormCenter(Coordinate coord, DataTime dateTime) {
