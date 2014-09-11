@@ -18,6 +18,7 @@ package gov.noaa.nws.ncep.viz.common.ui;
  * Nov 3,2010    324         X. Guo       Initial Creation
  * Dec 6,2010                X. Guo       Change clean up function
  * Apr22,2014    1129        B. Hebbard   Move maxHi/maxLo from here to GridRelativeHiLoDisplay so can handle relative to current extent
+ * Jul25,2014    ?           B. Yin       Fixed array out of bound issue in clusterLocator().
  * 
  * </pre>
  * 
@@ -328,7 +329,9 @@ public class HILORelativeMinAndMaxLocator {
                 chkClusterExist(icntpt, keep, idofcl);
                 if (numOfClusters > 1) {
                     int idextr = findCenterOfCluster(idofcl);
-                    keep[idextr - 1] = true;
+                    if (idextr != 0) {
+                        keep[idextr - 1] = true;
+                    }
                 } else {
                     keep[icntpt - 1] = true;
                 }

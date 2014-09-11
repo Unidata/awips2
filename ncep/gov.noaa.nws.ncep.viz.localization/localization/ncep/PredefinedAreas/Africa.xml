@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<predefinedArea areaName="Africa" mapCenter="38.00 3.0 0.0">
- <zoomLevel>.22</zoomLevel>
+<predefinedArea areaName="Africa" mapCenter="18.00 3.0 0.0">
+ <zoomLevel>.36</zoomLevel>
  <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="2.0E7" envelopeMinX="-2.0E7" rangeY="0 9999" rangeX="0 15384">
                     <CRS>PROJCS["Mercator_1SP",
   GEOGCS["WGS84",
@@ -14,7 +14,7 @@
   PARAMETER["semi_major", 6371200.0],
   PARAMETER["semi_minor", 6371200.0],
   PARAMETER["latitude_of_origin", 0.0],
-  PARAMETER["central_meridian", -180.0],
+  PARAMETER["central_meridian", 0.0],
   PARAMETER["scale_factor", 1.0],
   PARAMETER["false_easting", 0.0],
   PARAMETER["false_northing", 0.0],

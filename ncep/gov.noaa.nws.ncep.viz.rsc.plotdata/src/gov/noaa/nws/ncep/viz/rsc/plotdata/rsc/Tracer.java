@@ -29,6 +29,7 @@ package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2013            bhebbard     Initial creation
+ * Jul 07, 2014            bhebbard     Assorted updates
  *
  * </pre>
  *
@@ -45,14 +46,17 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 
 import com.raytheon.uf.common.time.DataTime;
 
 public class Tracer {
 
+    // ACTIVATE HERE ------------------v
     private static boolean enabled = false;
 
     // save it static to have it available on every call
@@ -65,7 +69,7 @@ public class Tracer {
 
     Calendar cal = Calendar.getInstance();
 
-    String logFileName = "/export/cdbsrv/bhebbard/pointdatadisplay/"
+    String logFileName = "" // optional custom directory
             + dateFormat.format(cal.getTime());
 
     private static PrintWriter writer = null;
@@ -145,34 +149,35 @@ public class Tracer {
         // NcPlotResource2.FrameData.getShortFrameTime(), somehow
         @SuppressWarnings("deprecation")
         Date frameDate = dt.getRefTime();
+        int date = frameDate.getDate();
+        int hours = frameDate.getHours();
+        hours += 4; // TODO use actual current local time offset from UTC
+        if (hours > 23) {
+            date += 1; // TODO: eom condition
+            hours -= 24;
+        }
+        int minutes = frameDate.getMinutes();
         DecimalFormat df = new DecimalFormat("00");
-        String returnString = Integer.toString(frameDate.getDate()) + "/"
-                + df.format(frameDate.getHours() + 4) // TODOhorror!!
-                + df.format(frameDate.getMinutes());
+        String returnString = Integer.toString(date) + "/" + df.format(hours)
+                + df.format(minutes);
         if (dt.getFcstTime() != 0) {
             returnString += "(" + dt.getFcstTime() + ")";
         }
         return returnString;
     }
 
-    public static boolean sanityCheckStationSet(
-            Collection<Station> stationsWithData) {
-        for (Station s : stationsWithData) {
-            if (s.info.stationId.equals("KJFK")) {
-                String timeString = Tracer.shortTimeString(s.info.dataTime);
-                if (s.listOfParamsToPlot == null)
-                    print("KJFK in frame " + timeString
-                            + " has NULL listOfParamsToPlot");
-                else if (s.listOfParamsToPlot.isEmpty()) {
-                    print("KJFK in frame " + timeString
-                            + " has EMPTY listOf ParamsToPlot !!!");
-                    return false;
-                } else {
-                    print("KJFK in frame " + timeString
-                            + " has FULL listOf ParamsToPlot!");
-                }
+    public static String printableStationList(Collection<Station> stations) {
+        String returnString = "";
+        for (Station s : stations) {
+            if (s != null && s.info != null) {
+                returnString += s.info.stationId + " ";
             }
         }
-        return true;
+        return returnString;
+    }
+
+    public static String printableStationList(Station[] stations) {
+        return printableStationList(new HashSet<Station>(
+                Arrays.asList(stations)));
     }
 }
