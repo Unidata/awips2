@@ -12,6 +12,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * -------		------- 	-------- 	-----------
  * 04/23/2012	229			Chin Chen	Initial coding
  * 04/23/2014               Chin Chen   Add d2d lite page  
+ * 08/11/2014               Chin Chen   fix typo
  *
  * </pre>
  * 
@@ -3688,14 +3689,14 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource {
             nsharpNative.nsharpLib.sr_wind(blyr, tlyr, wdir.getValue(),
                     wspd.getValue(), fvalue, fvalue1, fvalue2, fvalue3);
             if (nsharpNative.nsharpLib.qc(fvalue3.getValue()) == 1) {
-                textStr = NsharpNativeConstants.SEVERE_LOWSRWEL_LINE;
+                textStr = NsharpNativeConstants.SEVERE_UPPERSRWEL_LINE;
                 textStr = String.format(textStr, fvalue3.getValue());
             } else {
-                textStr = NsharpNativeConstants.SEVERE_LOWSRWEL_MISSING;
+                textStr = NsharpNativeConstants.SEVERE_UPPERSRWEL_MISSING;
             }
 
         } else {
-            textStr = NsharpNativeConstants.SEVERE_LOWSRWEL_MISSING;
+            textStr = NsharpNativeConstants.SEVERE_UPPERSRWEL_MISSING;
         }
         splitedStr = textStr.split("_", -1);
         for (int i = 0; i < splitedStr.length; i++) {

@@ -34,7 +34,8 @@ import com.raytheon.uf.common.util.StringUtil;
  * <pre>
  * SOFTWARE HISTORY
  * Date       	Ticket#		Engineer	Description
- * 06/23/10		283		   F. J. Yen	Initial creation
+ * 06/23/10		283		    F. J. Yen	Initial creation
+ * 6/2014                   T. Lee      Batch processing to improve performance
  * 
  * </pre>
  * 
@@ -60,9 +61,18 @@ public class AtcfSeparator extends AbstractRecordSeparator {
 
     private Iterator<String> iterator = null;
 
+    /** Number of records in batch processing */
+    private static int MAX_RECORD = 100;
+
     public static AtcfSeparator separate(byte[] data, Headers headers) {
         AtcfSeparator atcfSeparator = new AtcfSeparator();
         atcfSeparator.setData(data, headers);
+        return atcfSeparator;
+    }
+
+    public static AtcfSeparator batchSeparate(byte[] data, Headers headers) {
+        AtcfSeparator atcfSeparator = new AtcfSeparator();
+        atcfSeparator.setBatchData(data, headers);
         return atcfSeparator;
     }
 
@@ -82,6 +92,11 @@ public class AtcfSeparator extends AbstractRecordSeparator {
     @Override
     public void setData(byte[] data, Headers headers) {
         doSeparate(new String(data));
+        iterator = records.iterator();
+    }
+
+    public void setBatchData(byte[] data, Headers headers) {
+        doBatchSeparate(data);
         iterator = records.iterator();
     }
 
@@ -124,25 +139,40 @@ public class AtcfSeparator extends AbstractRecordSeparator {
         try {
             pattern = Pattern.compile(BULLETINSEPARATOR);
             matcher = pattern.matcher(message);
-
             while (matcher.find()) {
                 if (!records.contains(matcher.group())) {
                     records.add(matcher.group());
                 }
             }
-            /*
-             * Append the raw data files to the records
-             */
-            for (int i = 0; i < records.size(); i++) {
-                if (i < records.size() - 1) {
-                    records.set(i, message.substring(
-                            message.indexOf(records.get(i)),
-                            message.indexOf(records.get(i + 1))));
+        } catch (Exception e) {
+            e.printStackTrace();
+            theLogger.warn("====in separate: No valid ATCF records found.");
+        }
+        return;
+    }
+
+    private void doBatchSeparate(byte[] message) {
+        try {
+            pattern = Pattern.compile(BULLETINSEPARATOR);
+            matcher = pattern.matcher(new String(message));
+            Integer counter;
+            String dataStream;
+            counter = 0;
+            dataStream = "";
+            Integer nfile = 0;
+            while (matcher.find()) {
+                if (counter <= MAX_RECORD) {
+                    dataStream += matcher.group();
+                    counter++;
                 } else {
-                    records.set(i,
-                            message.substring(message.indexOf(records.get(i))));
+                    dataStream += matcher.group();
+                    records.add(dataStream);
+                    counter = 0;
+                    dataStream = "";
+                    nfile++;
                 }
             }
+            records.add(dataStream);
         } catch (Exception e) {
             e.printStackTrace();
             theLogger.warn("====in separate: No valid ATCF records found.");
