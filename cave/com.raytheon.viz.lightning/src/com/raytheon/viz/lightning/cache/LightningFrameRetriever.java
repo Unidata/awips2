@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -60,6 +61,7 @@ import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
  * ------------ ---------- ----------- --------------------------
  * Jul 09, 2014 3333       bclement     moved from LightningResource
  * Jul 22, 2014 3214       bclement     fixed typos in populatePulseData() and updateAndGet()
+ * Sep 11, 2014 3608       bclement     index records by group and dataset name for better error handling
  * 
  * </pre>
  * 
@@ -216,24 +218,40 @@ public class LightningFrameRetriever implements
                 long tDS1 = System.currentTimeMillis();
                 dsTime += (tDS1 - tDS0);
                 // Throw in a map for easy accessibility
-                Map<String, List<IDataRecord>> recordMap = createRecordMap(records);
+                Map<String, Map<String, IDataRecord>> groupedRecords = createRecordMap(records);
 
-                List<IDataRecord> times = recordMap
-                        .get(LightningConstants.TIME_DATASET);
-                List<IDataRecord> intensities = recordMap
-                        .get(LightningConstants.INTENSITY_DATASET);
-                List<IDataRecord> lats = recordMap
-                        .get(LightningConstants.LAT_DATASET);
-                List<IDataRecord> lons = recordMap
-                        .get(LightningConstants.LON_DATASET);
-                List<IDataRecord> types = recordMap
-                        .get(LightningConstants.STRIKE_TYPE_DATASET);
-                List<IDataRecord> pulseIndexes = recordMap
-                        .get(LightningConstants.PULSE_INDEX_DATASET);
+                for (Entry<String, Map<String, IDataRecord>> entry : groupedRecords
+                        .entrySet()) {
+                    Map<String, IDataRecord> recordMap = entry.getValue();
 
-                int k = 0;
-                for (IDataRecord timeRec : times) {
-                    if (hasPulseData(pulseIndexes, k)) {
+                    IDataRecord timeRec = recordMap
+                            .get(LightningConstants.TIME_DATASET);
+                    IDataRecord intensities = recordMap
+                            .get(LightningConstants.INTENSITY_DATASET);
+                    IDataRecord lats = recordMap
+                            .get(LightningConstants.LAT_DATASET);
+                    IDataRecord lons = recordMap
+                            .get(LightningConstants.LON_DATASET);
+                    IDataRecord types = recordMap
+                            .get(LightningConstants.STRIKE_TYPE_DATASET);
+                    IDataRecord pulseIndexes = recordMap
+                            .get(LightningConstants.PULSE_INDEX_DATASET);
+
+                    if (timeRec == null || intensities == null || lats == null
+                            || lons == null || types == null
+                            || pulseIndexes == null) {
+                        List<String> missing = getMissingDatasets(recordMap);
+                        statusHandler.error("Group '" + entry.getKey()
+                                + "' missing dataset(s): " + missing);
+                        continue;
+                    }
+                    if (!allSameLength(timeRec, intensities, lats, lons, types,
+                            pulseIndexes)) {
+                        statusHandler.error("Group '" + entry.getKey()
+                                + "' has mismatched dataset lengths");
+                        continue;
+                    }
+                    if (hasPulseData(pulseIndexes)) {
                         populatePulseData(frame, bundle, timeRec.getGroup(), ds);
                     }
                     LongDataRecord time = (LongDataRecord) timeRec;
@@ -243,14 +261,13 @@ public class LightningFrameRetriever implements
 
                     long[] timeData = time.getLongData();
 
-                    int[] intensityData = ((IntegerDataRecord) intensities
-                            .get(k)).getIntData();
-                    float[] latitudeData = ((FloatDataRecord) lats.get(k))
+                    int[] intensityData = ((IntegerDataRecord) intensities)
+                            .getIntData();
+                    float[] latitudeData = ((FloatDataRecord) lats)
                             .getFloatData();
-                    float[] longitudeData = ((FloatDataRecord) lons.get(k))
+                    float[] longitudeData = ((FloatDataRecord) lons)
                             .getFloatData();
-                    byte[] typeData = ((ByteDataRecord) types.get(k))
-                            .getByteData();
+                    byte[] typeData = ((ByteDataRecord) types).getByteData();
 
                     for (int i = 0; i < numRecords; i++) {
 
@@ -282,7 +299,6 @@ public class LightningFrameRetriever implements
                         }
 
                     }
-                    k++;
                 }
             } catch (StorageException e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -301,23 +317,69 @@ public class LightningFrameRetriever implements
     }
 
     /**
-     * Unpack records into map keyed by record name
+     * @param records
+     * @return true if all the records are the same length
+     */
+    private static boolean allSameLength(IDataRecord... records) {
+        if (records.length == 0) {
+            return true;
+        }
+        boolean rval = true;
+        long size = records[0].getSizes()[0];
+        for (IDataRecord rec : records) {
+            if (rec.getSizes()[0] != size) {
+                rval = false;
+                break;
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * @param recordMap
+     * @return list of lightning datasets that are not in map
+     */
+    private static List<String> getMissingDatasets(
+            Map<String, IDataRecord> recordMap) {
+        String[] datasets = { LightningConstants.TIME_DATASET,
+                LightningConstants.INTENSITY_DATASET,
+                LightningConstants.LAT_DATASET, LightningConstants.LON_DATASET,
+                LightningConstants.STRIKE_TYPE_DATASET,
+                LightningConstants.PULSE_INDEX_DATASET };
+        List<String> rval = new ArrayList<>(datasets.length);
+        for (String ds : datasets) {
+            if (!recordMap.containsKey(ds)) {
+                rval.add(ds);
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * Index records first by datastore group then by dataset name
      * 
      * @param records
      * @return
      */
-    public static Map<String, List<IDataRecord>> createRecordMap(
+    public static Map<String, Map<String, IDataRecord>> createRecordMap(
             IDataRecord[] records) {
-        Map<String, List<IDataRecord>> recordMap = new HashMap<String, List<IDataRecord>>();
+        Map<String, Map<String, IDataRecord>> rval = new HashMap<String, Map<String, IDataRecord>>();
         for (IDataRecord rec : records) {
-            List<IDataRecord> recordList = recordMap.get(rec.getName());
-            if (recordList == null) {
-                recordList = new ArrayList<IDataRecord>();
-                recordMap.put(rec.getName(), recordList);
+            String group = rec.getGroup();
+            String name = rec.getName();
+            Map<String, IDataRecord> datasets = rval.get(group);
+            if (datasets == null) {
+                datasets = new HashMap<>();
+                rval.put(group, datasets);
             }
-            recordList.add(rec);
+            IDataRecord prevEntry = datasets.put(name, rec);
+            if (prevEntry != null) {
+                /* this should never happen */
+                statusHandler.warn("Group '" + group
+                        + "' hash multiple datasets with name " + name);
+            }
         }
-        return recordMap;
+        return rval;
     }
 
     /**
@@ -339,19 +401,14 @@ public class LightningFrameRetriever implements
     }
 
     /**
-     * @param pulseIndexes
-     * @param recordIndex
-     * @return true if any data record in list has a valid pulse index
+     * @param record
+     * @return true if data record has a valid pulse index
      */
-    private static boolean hasPulseData(List<IDataRecord> pulseIndexes,
-            int recordIndex) {
-        if (pulseIndexes != null) {
-            IDataRecord record = pulseIndexes.get(recordIndex);
-            int[] indexData = ((IntegerDataRecord) record).getIntData();
-            for (int i = 0; i < indexData.length; ++i) {
-                if (indexData[i] >= 0) {
-                    return true;
-                }
+    private static boolean hasPulseData(IDataRecord record) {
+        int[] indexData = ((IntegerDataRecord) record).getIntData();
+        for (int i = 0; i < indexData.length; ++i) {
+            if (indexData[i] >= 0) {
+                return true;
             }
         }
         return false;
