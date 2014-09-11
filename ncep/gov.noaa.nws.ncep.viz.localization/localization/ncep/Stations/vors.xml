@@ -3771,13 +3771,13 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>PDX</stid>
+          <stid>BTG</stid>
           <stnnum>000208</stnnum>
-          <stnname>PORTLAND</stnname>
-          <state>OR</state>
+          <stnname>BATTLE_GROUND</stnname>
+          <state>WA</state>
           <country>US</country>
-          <latitude>45.58</latitude>
-          <longitude>-122.60</longitude>
+          <latitude>45.75</latitude>
+          <longitude>-122.59</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>

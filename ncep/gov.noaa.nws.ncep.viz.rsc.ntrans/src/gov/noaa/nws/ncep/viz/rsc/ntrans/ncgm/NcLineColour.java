@@ -24,7 +24,6 @@ public class NcLineColour extends LineColour implements INcCommand {
     public NcLineColour(int ec, int eid, int l, DataInput in)
             throws IOException {
         super(ec, eid, l, in);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
