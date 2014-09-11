@@ -12,10 +12,11 @@ import java.util.Map;
  * <pre>
  * SOFTWARE HISTORY
  *                   
- * ate          Ticket#     Engineer   Description
+ * Date          Ticket#     Engineer   Description
  * -----------  ----------  ---------- --------------------------
  * 05/14/2013   #989        qzhou      Initial Creation
  * 03/18/2014   #1123       qzhou      Add getHQdcOrDQdc
+ * 06/23/2014   R4152       qzhou      Touched up functions that do not affect the results
  * </pre>
  * 
  * @author qzhou
@@ -162,27 +163,27 @@ public class CalcEach3hr {
 
         for (int j = 0; j < DAYS; j++) {
             double sum = 0;
-            int missing = 0;
+            int count = 0;
 
-            int endOfArray = simpHrAvgH.length;
-            int endTime = (endOfArray > j * HOURS + HOURS) ? j * HOURS + HOURS
-                    : endOfArray;
+            for (int i = 0; i < 23; i++) {
+                int ii = j * HOURS + i;
 
-            for (int i = j * HOURS; i < endTime - 1; i++) {
-
-                if (simpHrAvgH[i] != MISSING_VAL
-                        && simpHrAvgD[i] != MISSING_VAL
-                        && simpHrAvgH[i + 1] != MISSING_VAL
-                        && simpHrAvgD[i + 1] != MISSING_VAL) {
-                    sum += Math.sqrt(Math.pow(
-                            (simpHrAvgH[i + 1] - simpHrAvgH[i]), 2)
-                            + Math.pow((simpHrAvgD[i + 1] - simpHrAvgD[i]), 2));
-                } else
-                    missing++;
+                if (simpHrAvgH[ii] != MISSING_VAL
+                        && simpHrAvgD[ii] != MISSING_VAL
+                        && simpHrAvgH[ii + 1] != MISSING_VAL
+                        && simpHrAvgD[ii + 1] != MISSING_VAL) {
+                    sum += Math
+                            .sqrt(Math.pow(
+                                    (simpHrAvgH[ii + 1] - simpHrAvgH[ii]), 2)
+                                    + Math.pow(
+                                            (simpHrAvgD[ii + 1] - simpHrAvgD[ii]),
+                                            2));
+                    count++;
+                }
             }
 
-            if (missing <= 12) // not 12 or more missing
-                dB[j] = (float) sum / (HOURS - 1 - missing);
+            if (count >= 12) // not 12 or more missing
+                dB[j] = (float) sum / count;
             else
                 dB[j] = MISSING_VAL;
 
@@ -281,7 +282,7 @@ public class CalcEach3hr {
                 if (dB[jk] < 1)
                     wk = 1;
                 else
-                    wk = 1 / (dB[jk] * dB[jk]);
+                    wk = 1.0f / (dB[jk] * dB[jk]);
 
                 if (smallHrAvg[ind] != MISSING_VAL) {
                     sumAvg += wk * smallHrAvg[ind];
