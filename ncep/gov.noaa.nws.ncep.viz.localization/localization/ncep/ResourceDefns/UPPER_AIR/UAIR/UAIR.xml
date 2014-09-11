@@ -13,7 +13,7 @@ legendColor=RGB {0, 255, 0}
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
-    <frameSpan>720</frameSpan>
+    <frameSpan>180</frameSpan>
     <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
     <dfltFrameCount>4</dfltFrameCount>
     <dfltTimeRange>48</dfltTimeRange>

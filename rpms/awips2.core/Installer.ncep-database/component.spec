@@ -294,6 +294,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/database/sqlScripts/share/sql
 %dir /awips2/database/sqlScripts/share/sql/ncep
 %attr(777,root,root) /awips2/database/sqlScripts/share/sql/ncep/ncep_sql_install.log
+%attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/addNcepNwxAdminMessageGpTable.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/createNcepConfigTables.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/createNcepDb.sh
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/createNcepDb.sql
@@ -336,6 +337,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNcStnsCountyclust.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNexrad.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNgmmos.sql
+%attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNwxAdminMessagesBulletinTables.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNwxAviationforecastsBulletinTables.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNwxCPCProductsBulletinTables.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadNwxFlashFloodBulletinTables.sql
