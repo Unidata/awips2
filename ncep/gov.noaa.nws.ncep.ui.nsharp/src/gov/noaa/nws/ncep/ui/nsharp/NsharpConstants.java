@@ -225,9 +225,9 @@ public class NsharpConstants {
 
     public static RGB color_green = new RGB(0, 255, 0);// green
 
-    public static RGB color_darkgreen = new RGB(0x2f, 0x4f, 0x2f);// green
+    public static RGB color_darkgreen = new RGB(0, 153, 0);// green
 
-    public static RGB color_mdgreen = new RGB(0x34, 0x80, 0x17);// green
+    public static RGB color_mdgreen = new RGB(0, 204, 0);// green
 
     public static RGB color_coral = new RGB(0xf0, 0x80, 0x80);
 
@@ -310,6 +310,7 @@ public class NsharpConstants {
          */
         private static final long serialVersionUID = 1L;
         {
+            put(0, NsharpConstants.color_white);
             put(1, NsharpConstants.color_vanilla);
             put(2, NsharpConstants.color_red);
             put(3, NsharpConstants.color_green);
@@ -347,7 +348,7 @@ public class NsharpConstants {
 
     // horizontal height line that will be drawn.
     public static final int[] HEIGHT_LEVEL_METERS = {/* 16000, */15000, 12000,
-            9000, 6000, 3000, 2000 };
+            9000, 6000, 3000, 1000 };
 
     public static final int[] HEIGHT_LEVEL_FEET = { 50000, 45000, 40000, 35000,
             30000, 25000, 20000, 15000, 10000, 5000, 2500 };

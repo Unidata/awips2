@@ -64,6 +64,19 @@ HPC Heat Index,nwx.hpcheatindex
 CPC Products,nwx.cpcproducts
 Volcano Products,nwx.volcanoproducts
 Fire Weather Products,nwx.fireweatherproducts
+Admin Messages,nwx.adminmessages
+\.
+
+--load nwx.adminmessages table
+copy nwx.adminmessages (productname,producttablename,producttype) FROM stdin with delimiter as ',' ;
+SDM Administrative Messages,nwx.sdmam,sdm
+SDM International Messages,nwx.sdmim,intl
+SDM DHS Hazards Messages,nwx.sdmdhm
+CMC Administrative Messages,nwx.cmcam
+NWSTG Administrative Messages,nwx.nwstgam
+NCF Administrative Messages,nwx.ncfam
+NESDIS Product Anomaly Messages,nwx.nesdispam
+NESDIS Administrative Messages,nwx.nesdisam
 \.
 
 --load nwx.observeddataproducts table
@@ -135,8 +148,6 @@ Hawaii Discussion,nwx.pmdhi,PMDHI
 Alaska Discussion,nwx.pmdak,PMDAK
 S Amer Discussion,nwx.pmdsa,PMDSA
 Caribbean Discussion,nwx.pmdca,PMDCA
-SDM Messages,nwx.sdm,sdm
-International Messages,nwx.intl,intl
 Storm Summaries,nwx.stations,storm
 Model Diag Discussion,nwx.pmdhmd,PMDHMD
 Selected Cities,nwx.scs,SCS

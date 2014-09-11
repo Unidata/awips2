@@ -1,0 +1,5 @@
+! Parameters and Attributes for the default SHIP Resource, with "ships_only" option
+plotModel=@PlotModels/sfcobs/ship_standard.xml
+plotDensity=12
+conditionalFilter=
+reportType=1003
