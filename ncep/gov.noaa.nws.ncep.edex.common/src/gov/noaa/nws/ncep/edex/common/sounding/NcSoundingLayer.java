@@ -154,6 +154,7 @@ public class NcSoundingLayer implements ISerializableObject, Cloneable {
     }
 
     /**
+     * 
      * @param pressure
      * @param geoHeight
      * @param temperature
@@ -164,8 +165,7 @@ public class NcSoundingLayer implements ISerializableObject, Cloneable {
      * @param windV
      * @param omega
      * @param specHumidity
-     * @param dewDepression
-     * @param dataType
+     * @param dpd
      */
     public NcSoundingLayer(float pressure, float geoHeight, float temperature,
             float dewpoint, float windSpeed, float windDirection, float windU,
@@ -184,6 +184,25 @@ public class NcSoundingLayer implements ISerializableObject, Cloneable {
         this.specHumidity = specHumidity;
         this.relativeHumidity = relativeHumidity;
         this.dpd = dpd;
+
+    }
+
+    public NcSoundingLayer(float pressure, float geoHeight, float temperature,
+            float dewpoint, float windSpeed, float windDirection, float windU,
+            float windV, float omega, float specHumidity, float relativeHumidity) {
+        super();
+        this.pressure = pressure;
+        this.geoHeight = geoHeight;
+        this.temperature = temperature;
+        this.dewpoint = dewpoint;
+        this.windSpeed = windSpeed;
+        this.windDirection = windDirection;
+        this.windU = windU;
+        this.windV = windV;
+        this.omega = omega;
+        this.specHumidity = specHumidity;
+        this.relativeHumidity = relativeHumidity;
+        this.dpd = MISSING;
 
     }
 
@@ -244,6 +263,24 @@ public class NcSoundingLayer implements ISerializableObject, Cloneable {
             this.temperature = MISSING;
         else
             this.temperature = temperature;
+    }
+
+    /**
+     * @return the dpd
+     */
+    public float getDpd() {
+        return dpd;
+    }
+
+    /**
+     * @param dpd
+     *            the dpd to set
+     */
+    public void setDpd(float dpd) {
+        if (dpd == LEGACY_MISSING)
+            this.dpd = MISSING;
+        else
+            this.dpd = dpd;
     }
 
     /**
@@ -368,14 +405,6 @@ public class NcSoundingLayer implements ISerializableObject, Cloneable {
         this.relativeHumidity = relativeHumidity;
     }
 
-    public float getDpd() {
-        return dpd;
-    }
-
-    public void setDpd(float dpd) {
-        this.dpd = dpd;
-    }
-
     private void computeUV() {
         if (windSpeed > MISSING && windDirection > MISSING) {
             Coordinate uv = uvComp(windSpeed, windDirection);
@@ -460,6 +489,7 @@ public class NcSoundingLayer implements ISerializableObject, Cloneable {
 
     @Override
     public String toString() {
+
         return "Pressure=" + getPressure() + "mb:Z=" + getGeoHeight() + "m:T="
                 + getTemperature() + "\u00B0C:Td=" + getDewpoint()
                 + "\u00B0C:WS=" + getWindSpeed() + "m/s:WD="

@@ -603,12 +603,12 @@ implements     INatlCntrsResource, IStationField  {
 						DataTime startTime = new DataTime( svrlData.eventTime.getValidPeriod().getStart() );
 						DataTime endTime = new DataTime( svrlData.eventTime.getValidPeriod().getEnd() );
 						String temp = startTime.toString().substring(11, 13) + startTime.toString().substring(14,16)
-							+ "-" + endTime.toString().substring(11, 13) + startTime.toString().substring(14,16);
+							+ "-" + endTime.toString().substring(11, 13) +   endTime.toString().substring(14,16);
 						enabledText.add(temp);
 					}
 					
-					for (int j=enabledText.size(); j<2; j++)
-						enabledText.add("");
+					for (int j=enabledText.size(); j<2; j++){
+						enabledText.add("");}
 					
 					text = enabledText.toArray(text);
 					
@@ -757,10 +757,11 @@ implements     INatlCntrsResource, IStationField  {
     					}
     				}
     				
-    				if(gw.size() == 0) 
-						continue;
-    				else
+    				if(gw.size() == 0) {
+						continue;}
+    				else{
 keyResultMap.put(sd.datauri, new Result(getEachWrdoShape(gw),null,null,null));//TODO: other key
+                                  }
     				
     			}   			
     			
@@ -798,10 +799,10 @@ String key = wData.datauri;//.getKey(); //TODO other key?
 	  	CountyResultJob.Result result = crjob.keyResultMap.get(key);
 	  
 	  	
-	  	if (result != null) 	  		
-	  		outlineShape = result.outlineShape; 	  	  
-	  	else 	  		
-	  		return;
+	  	if (result != null) {	  		
+	  		outlineShape = result.outlineShape;} 	  	  
+	  	else {	  		
+	  		return;}
 	  	
 		
 	  	if (outlineShape != null && outlineShape.isDrawable()){
