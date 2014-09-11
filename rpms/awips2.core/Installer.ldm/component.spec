@@ -212,11 +212,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-su ldm -lc "cd ${_current_dir}; /bin/bash my-install" > my-install.log 2>&1
-if [ $? -ne 0 ]; then
-   echo "FATAL: my-install has failed!"
-   exit 1
-fi
 popd > /dev/null 2>&1
 pushd . > /dev/null 2>&1
 cd ${_ldm_root_dir}/src
