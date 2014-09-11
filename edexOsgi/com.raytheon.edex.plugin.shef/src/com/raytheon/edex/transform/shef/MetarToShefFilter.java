@@ -49,6 +49,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractFilterElement;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.AbstractObsFilter;
 import com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter;
+import com.raytheon.uf.edex.decodertools.core.filterimpl.RadiusFilterElement;
+import com.raytheon.uf.edex.decodertools.core.filterimpl.RectFilterElement;
+import com.raytheon.uf.edex.decodertools.core.filterimpl.StationIdFilterElement;
+import com.raytheon.uf.edex.decodertools.core.filterimpl.WMOHeaderFilterElement;
 
 /**
  * Use information in metarToShefFilter.xml, MetarToShefFilter filters out the
@@ -116,7 +120,11 @@ public class MetarToShefFilter {
                         stream.close();
                         JAXBManager jaxb = new JAXBManager(
                                 PluginDataObjectFilter.class,
-                                MetarToShefFilter.class);
+                                MetarToShefFilter.class,
+                                RadiusFilterElement.class,
+                                RectFilterElement.class,
+                                StationIdFilterElement.class,
+                                WMOHeaderFilterElement.class);
                         Object obj = jaxb.unmarshalFromXml(new String(data));
                         if (obj instanceof PluginDataObjectFilter) {
                             logger.info("Found " + filterConfigFile
