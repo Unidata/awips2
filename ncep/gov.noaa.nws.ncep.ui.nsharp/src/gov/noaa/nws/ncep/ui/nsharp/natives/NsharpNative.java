@@ -26,16 +26,18 @@ package gov.noaa.nws.ncep.ui.nsharp.natives;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
-//Chin-T import com.raytheon.uf.common.sounding.SoundingLayer;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.Structure;
 import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 import com.sun.jna.ptr.FloatByReference;
+
+//Chin-T import com.raytheon.uf.common.sounding.SoundingLayer;
 
 public class NsharpNative {
     public static int SNDG_SFC = 0;
@@ -61,9 +63,10 @@ public class NsharpNative {
         nsharpLib = (NsharpLibrary) Native.loadLibrary("bignsharp",
                 NsharpLibrary.class);
         nsharpLib.initStaticGlobalsMem();
+        setSarsSupcellFileName();
     }
 
-    public void setSarsSupcellFileName() {
+    private void setSarsSupcellFileName() {
         NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
         String sarsFilePath = configMgr
                 .getBigNsharpFlPath(NcPathConstants.NSHARP_NLIST_FILE);
@@ -252,6 +255,8 @@ public class NsharpNative {
             public float cape6km;
 
             public float wm10c;
+
+            public float wm20c;
 
             public float wm30c;
 
@@ -473,6 +478,75 @@ public class NsharpNative {
                 return Arrays.asList(new String[] { "numHailstr", "hailStr",
                         "hailStrColor", "numsupcellstr", "supcellStr",
                         "supcellStrColor" });
+            }
+
+        }
+
+        public static class HailInfoStr extends Structure {
+            public static int HAIL_STRING_LEN = 80;
+
+            public static int HAIL_STRING_LINES = 8;
+
+            public static int HAIL_STRING_LINES_NO_MATCH = 7;
+
+            public byte[] reportHailStr = new byte[10];
+
+            public int matches; // 0 means "no match"
+
+            public int member; // 0 means "No Convecting members"
+
+            public byte[] haillStr = new byte[HAIL_STRING_LINES
+                    * HAIL_STRING_LEN];
+
+            public int[] hailStrColor = new int[(HAIL_STRING_LINES)];
+
+            public HailInfoStr() {
+                super();
+                // TODO Auto-generated constructor stub
+            }
+
+            public static class ByReference extends HailInfoStr implements
+                    Structure.ByReference {
+
+            }
+
+            public static class ByValue extends HailInfoStr implements
+                    Structure.ByValue {
+
+            }
+
+            protected ByReference newByReference() {
+                return new ByReference();
+            }
+
+            protected ByValue newByValue() {
+                return new ByValue();
+            }
+
+            public int getMatches() {
+                return matches;
+            }
+
+            public byte[] getHaillStr() {
+                return haillStr;
+            }
+
+            public byte[] getReportHailStr() {
+                return reportHailStr;
+            }
+
+            public int getMember() {
+                return member;
+            }
+
+            public int[] getHailStrColor() {
+                return hailStrColor;
+            }
+
+            @Override
+            protected List getFieldOrder() {
+                return Arrays.asList(new String[] { "reportHailStr", "matches",
+                        "member", "haillStr", "hailStrColor" });
             }
 
         }
@@ -940,6 +1014,8 @@ public class NsharpNative {
         void getWinterInfo(NsharpLibrary.WinterInfoStr winterInfo);
 
         void getFireInfo(NsharpLibrary.FireInfoStr fireInfo);
+
+        void getHailInfo(NsharpLibrary.HailInfoStr hailInfo);
 
         void getSarsInfo(NsharpLibrary.SarsInfoStr sarsInfo);
 
