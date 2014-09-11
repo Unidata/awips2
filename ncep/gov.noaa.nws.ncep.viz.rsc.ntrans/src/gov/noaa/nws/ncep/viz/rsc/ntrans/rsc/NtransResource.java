@@ -1,7 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.ntrans.rsc;
 
 import gov.noaa.nws.ncep.common.dataplugin.ntrans.NtransRecord;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -61,6 +60,11 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 30 Apr 2013   838        B. Hebbard  IOC version (for OB13.4.1)
  * 30 May 2013   838        B. Hebbard  Update for compatibility with changes by RTS in OB13.3.1
  *                                      [ DataStoreFactory.getDataStore(...) parameter ]
+ * 29 Jul 2014   R4279      B. Hebbard  (TTR 1046) Add call to processNewRscDataList() in initResource()
+ *                                      (instead of waiting for ANCR.paintInternal() to do it) so
+ *                                      long CGM retrieval and parsing is done by the InitJob, and thus
+ *                                      (1) user sees "Initializing..." and (2) GUI doesn't lock up
+ * 29 Aug 2014              B. Hebbard  Remove time string and "/" separator from legend
  * 
  * 
  * </pre>
@@ -298,7 +302,8 @@ public class NtransResource extends
             legendStr = " "
                     + ntransResourceData.getMetadataMap().get("metafileName")
                             .getConstraintValue()
-                    + " / "
+                    + "  "
+                    // + " / "
                     + ntransResourceData.getMetadataMap().get("productName")
                             .getConstraintValue();
         }
@@ -350,12 +355,22 @@ public class NtransResource extends
             }
         }
 
-        //
+        // TODO -- why is this here? Still needed?
         setAllFramesAsPopulated();
 
         logger.info("Metadata records for " + this.newRscDataObjsQueue.size()
                 + " images retrieved from DB in "
                 + (System.currentTimeMillis() - t0) + " ms");
+
+        // following is done in ANCR.paintInternal too, but want to get it done
+        // on the init thread since it's time-consuming and (1) we want to show
+        // the "Initializing..." pacifier message, and (2) not lock up the GUI
+        // thread during loading
+        if (!newRscDataObjsQueue.isEmpty()
+        // || (!newFrameTimesList.isEmpty() && getDescriptor().isAutoUpdate())
+        ) {
+            processNewRscDataList();
+        }
     }
 
     public void paintFrame(AbstractFrameData frameData, IGraphicsTarget target,
@@ -434,8 +449,6 @@ public class NtransResource extends
                     // TODO assert
                 } else {
                     wireframeForThisKey.compile();
-                    // TODO to be correct, should be lineWidth in effect at
-                    // individual wireframe paints
                     target.drawWireframeShape(wireframeForThisKey, key.color,
                             (float) key.width);
                     wireframeForThisKey.dispose();
@@ -501,7 +514,7 @@ public class NtransResource extends
                 || fd.pictureInfo.cgm == null) {
             return legendStr + "-No Data";
         }
-        return legendStr + " "
-                + NmapCommon.getTimeStringFromDataTime(fd.getFrameTime(), "/");
+        return legendStr; // + " "
+        // + NmapCommon.getTimeStringFromDataTime(fd.getFrameTime(), "/");
     }
 }

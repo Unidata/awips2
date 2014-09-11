@@ -32,6 +32,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2014/02/12   #1123       qzhou       Moved from edex to here
+ * 2014/06/27   #1136       qzhou       Change hour avg to 0-current time
  * 
  * </pre>
  * 
@@ -63,10 +64,11 @@ public class DatabaseUtil {
                 QueryParam.QueryOperand.LESSTHANEQUALS);
         Calendar cal = Calendar.getInstance();
         cal.setTime(time);
-        cal.add(Calendar.HOUR_OF_DAY, -1);
+        cal.set(Calendar.MINUTE, 0);
+        // cal.add(Calendar.HOUR_OF_DAY, -1);
 
         query.addQueryParam("dataTime.refTime", cal.getTime(),
-                QueryParam.QueryOperand.GREATERTHAN);
+                QueryParam.QueryOperand.GREATERTHANEQUALS);
         query.addQueryParam("stationCode", station);
 
         List<?> resultsList = null;
