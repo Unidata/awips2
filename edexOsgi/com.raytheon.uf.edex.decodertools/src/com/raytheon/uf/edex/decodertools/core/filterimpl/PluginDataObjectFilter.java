@@ -40,7 +40,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -55,9 +55,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Jul 23, 2014 3410      bclement    location changed to floats
- * Aug 28, 2014  3548     mapeters    Replaced use of SerializationUtil
- *                                    with SingleTypeJAXBManager
  * Sep 09, 2014  3548     mapeters    Improved constructor's error messages.
+ * Sep 11, 2014  3548     mapeters    Replaced use of SerializationUtil
+ *                                    with JAXBManager.
  * 
  * </pre>
  * 
@@ -95,10 +95,15 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                     filterDir = manager.getFile(context, FILTERS_DIR);
                     if (filterDir.exists()) {
                         File srcFile = new File(filterDir, filterConfigFile);
-                        SingleTypeJAXBManager<PluginDataObjectFilter> jaxb = new SingleTypeJAXBManager<PluginDataObjectFilter>(
-                                PluginDataObjectFilter.class);
+                        JAXBManager jaxb = new JAXBManager(
+                                PluginDataObjectFilter.class,
+                                RadiusFilterElement.class,
+                                RectFilterElement.class,
+                                StationIdFilterElement.class,
+                                WMOHeaderFilterElement.class);
                         PluginDataObjectFilter filter = jaxb
-                                .unmarshalFromXmlFile(srcFile);
+                                .unmarshalFromXmlFile(
+                                        PluginDataObjectFilter.class, srcFile);
 
                         setFilterElements(filter.getFilterElements());
                         setFilterName(filter.getFilterName());
