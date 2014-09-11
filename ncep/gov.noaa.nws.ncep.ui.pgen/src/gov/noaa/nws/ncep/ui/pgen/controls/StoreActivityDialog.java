@@ -49,6 +49,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------	----------	-----------	-----------------------------------
  * 03/13		#977		S. Gilbert	Initial creation
  * 01/14        #1105       J. Wu       Pre-fill for each activity info.
+ * 05/14        TTR 963     J. Wu       Change activity Info to Activity Label.
  * 
  * </pre>
  * 
@@ -212,9 +213,11 @@ public class StoreActivityDialog extends CaveJFACEDialog {
 
         Label nameLabel = new Label(g1, SWT.NONE);
         nameLabel.setText("Activity Name*:");
+        nameLabel.setEnabled(false);
 
         nameText = new Text(g1, SWT.NONE);
         nameText.setLayoutData(gdata);
+        nameText.setEditable(false);
         nameText.setToolTipText("Alias for this activity, just like your first name while activity "
                 + "type/subtype is the last name. Leave it as is");
 
@@ -440,7 +443,7 @@ public class StoreActivityDialog extends CaveJFACEDialog {
                             .getShell(),
                     "Need More Information",
                     null,
-                    "Activity Info field is required.\nPlease enter an appropriate string and then try saving!",
+                    "Activity Label field is required.\nPlease enter an appropriate string and then try saving!",
                     MessageDialog.WARNING, new String[] { "OK" }, 0);
 
             confirmDlg.open();
