@@ -34,11 +34,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.python.PythonLocalizationPathBuilder;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.viz.texteditor.HTTPQueryTransport;
 import com.raytheon.viz.texteditor.command.ICommand;
 
 /**
@@ -51,16 +48,13 @@ import com.raytheon.viz.texteditor.command.ICommand;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------  --------------------------
  * 8/11/2009    2191        rjpeter     Initial creation.
+ * 9/09/2014    3580        mapeters    Removed getTextDbsrvTransport().
  * </pre>
  * 
  * @author rjpeter
  */
 public class TextEditorUtil {
     public static final String TEXTEDITOR_PYTHON_DIR = "textws/python";
-
-    private static final String HTTP_SERVER_ADDRESS_PROPERTY = "httpServerAddress";
-
-    private static final String TEXT_DB_SERVICE_NAME = "textdbsrv";
 
     private static String pythonIncludeDir;
 
@@ -175,11 +169,6 @@ public class TextEditorUtil {
             pythonIncludeDir = builder.getPathString();
         }
         return pythonIncludeDir;
-    }
-
-    public static IQueryTransport getTextDbsrvTransport() {
-        return new HTTPQueryTransport(LocalizationManager.getInstance()
-                .getLocalizationServer(), TEXT_DB_SERVICE_NAME);
     }
 
     public static void userInformation(Shell shell, String information) {
