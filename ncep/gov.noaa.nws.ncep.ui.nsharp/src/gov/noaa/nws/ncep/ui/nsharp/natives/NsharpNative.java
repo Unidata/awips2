@@ -305,8 +305,9 @@ public class NsharpNative {
                 return Arrays.asList(new String[] { "lplpres", "lpltemp",
                         "lpldwpt", "blayer", "tlayer", "entrain", "lclpres",
                         "lfcpres", "elpres", "mplpres", "bplus", "bminus",
-                        "bfzl", "cape3km", "cape6km", "wm10c", "wm30c", "li5",
-                        "li3", "brn", "limax", "limaxpres", "cap", "cappres" });
+                        "bfzl", "cape3km", "cape6km", "wm10c", "wm20c",
+                        "wm30c", "li5", "li3", "brn", "limax", "limaxpres",
+                        "cap", "cappres" });
             }
         }
 
