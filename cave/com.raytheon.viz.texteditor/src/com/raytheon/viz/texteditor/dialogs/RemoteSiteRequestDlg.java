@@ -58,7 +58,6 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.msgs.IWmoIdSelectionCallback;
-import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
@@ -74,6 +73,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 9/13/07      368         lvenable    Initial creation.
  * 10/11/2007   482         grichard    Reformatted file.
  * 09/20/2012   1196        rferrel     Changing dialogs being called to not block.
+ * 09/09/2014   3580        mapeters    Removed IQueryTransport usage (no longer exists).
  * 
  * </pre>
  * 
@@ -347,7 +347,7 @@ public class RemoteSiteRequestDlg extends CaveSWTDialog implements
         List<StdTextProduct> latest = null;
         try {
             latest = CommandFactory.getAfosCommand(req.getAfosID())
-                    .executeCommand(TextEditorUtil.getTextDbsrvTransport());
+                    .executeCommand();
         } catch (CommandFailedException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error retrieving metatdata", e);
