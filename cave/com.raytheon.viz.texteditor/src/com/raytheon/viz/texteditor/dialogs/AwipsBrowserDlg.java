@@ -22,9 +22,9 @@ package com.raytheon.viz.texteditor.dialogs;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -43,8 +43,6 @@ import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.texteditor.Activator;
 import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.ICommand;
@@ -65,6 +63,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------ ----------  ----------- --------------------------
  * 08/04/2009   2191        rjpeter     Initial implementation.
  * 04/14/2010   4734        mhuang      Corrected StdTextProduct import 
+ * 09/11/2014   3580        mapeters    Removed IQueryTransport usage (no longer exists).
  * </pre>
  * 
  * @author rjpeter
@@ -266,7 +265,7 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
 
                 try {
                     java.util.List<StdTextProduct> prodList = command
-                            .executeCommand(callbackClient.getQueryTransport());
+                            .executeCommand();
 
                     if (prodList != null && prodList.size() > 0) {
                         StdTextProduct prod = prodList.get(0);
@@ -483,7 +482,7 @@ public class AwipsBrowserDlg extends CaveJFACEDialog {
                     ICommand command = CommandFactory.getAwipsCommand(awipsId,
                             fields[0], fields[1], "000000", null);
                     java.util.List<StdTextProduct> prods = command
-                            .executeCommand(callbackClient.getQueryTransport());
+                            .executeCommand();
 
                     // Add the ddhhmm for the selected ttaaii cccc
                     updateProductInventory(prods);
