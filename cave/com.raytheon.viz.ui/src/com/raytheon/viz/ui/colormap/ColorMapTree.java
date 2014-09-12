@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
  * Sep 18, 2013  2421     bsteffen    Initial creation
  * Sep 11, 2014  3516     rferrel     file updates now inform the factory.
  *                                      getName() no longer returns a null.
+ *                                      FileChangeListener now only gets colormaps changes.
  * 
  * </pre>
  * 
@@ -97,8 +98,11 @@ public class ColorMapTree {
         this.pathManager = pathManager;
         this.level = level;
         this.context = null;
-        LocalizationNotificationObserver.getInstance()
-                .addGlobalFileChangeObserver(new FileChangeListener(this));
+
+        LocalizationFile dir = pathManager.getLocalizationFile(
+                pathManager.getContext(LocalizationType.COMMON_STATIC, level),
+                path);
+        dir.addFileUpdatedObserver(new FileChangeListener(this));
     }
 
     /**
@@ -227,7 +231,7 @@ public class ColorMapTree {
                                 path));
                     }
                 }
-            } else if (context.equals(context)) {
+            } else if (context.equals(this.context)) {
                 synchronized (filesLock) {
                     files = null;
                 }
