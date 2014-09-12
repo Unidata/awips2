@@ -22,7 +22,6 @@ package com.raytheon.viz.texteditor.command;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.dataplugin.text.request.ExecuteWmoCmdRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -43,6 +42,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Apr 14, 2010 4734       mhuang      Corrected StdTextProduct import 
  *                                      dependency
  * 21May2010    2187        cjeanbap   Add operational mode functionality.
+ * Sep 09, 2014 3580       mapeters    Removed IQueryTransport usage 
+ *                                     (no longer exists).
  * </pre>
  * 
  * @author rjpeter
@@ -128,13 +129,11 @@ public class WMOCommand implements ICommand {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public List<StdTextProduct> executeCommand(IQueryTransport transport)
+    public List<StdTextProduct> executeCommand()
             throws CommandFailedException {
         // TODO verify both fields blank not allowed
         if (wmoId == null && site == null) {
             throw new CommandFailedException("WMO Id not set");
-        } else if (transport == null) {
-            throw new CommandFailedException("Command transport method not set");
         }
 
         ExecuteWmoCmdRequest req = new ExecuteWmoCmdRequest();
