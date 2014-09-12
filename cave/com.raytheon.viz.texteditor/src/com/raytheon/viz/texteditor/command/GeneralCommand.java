@@ -19,24 +19,22 @@
  **/
 package com.raytheon.viz.texteditor.command;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
+import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
+import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBQuery;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.texteditor.TextDBQuery;
 
 /**
  * Pairs a command and its associated type.
@@ -50,6 +48,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Apr 14, 2010 4734       mhuang      Corrected StdTextProduct import 
  *                                      dependency
  * 21May2010    2187        cjeanbap   Add operational mode functionality.
+ * 11Sep2014    3580        mapeters   Replaced SerializationUtil usage with JAXBManager, 
+ *                                     removed IQueryTransport usage (no longer exists).
  * </pre>
  * 
  * @author rjpeter
@@ -57,6 +57,9 @@ import com.raytheon.viz.core.mode.CAVEMode;
  */
 public class GeneralCommand implements ICommand {
     private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(GeneralCommand.class);
+
+    private static volatile JAXBManager jaxb;
+
     /**
      * 
      */
@@ -107,6 +110,14 @@ public class GeneralCommand implements ICommand {
         this.fullRead = fullRead;
     }
 
+    private static JAXBManager getJaxbManager() throws JAXBException {
+        if (jaxb == null) {
+            jaxb = new JAXBManager(true, OperationalStdTextProduct.class,
+                    PracticeStdTextProduct.class);
+        }
+        return jaxb;
+    }
+
     /**
      * 
      */
@@ -137,11 +148,11 @@ public class GeneralCommand implements ICommand {
      * 
      */
     @Override
-    public List<StdTextProduct> executeCommand(IQueryTransport transport)
+    public List<StdTextProduct> executeCommand()
             throws CommandFailedException {
         // TODO verify at least 1 field not blank
 
-        TextDBQuery dbQuery = new TextDBQuery(transport);
+        TextDBQuery dbQuery = new TextDBQuery();
         dbQuery.setQueryViewName("text");
         dbQuery.setQueryOpName("GET");
         dbQuery.setQuerySubObName("JOINXML");
@@ -184,13 +195,10 @@ public class GeneralCommand implements ICommand {
         // TODO Add Error Handling. STDERR??
         if (properties != null) {
             try {
-                JAXBContext context = SerializationUtil.getJaxbContext();
-                Unmarshaller unmarshaller = context.createUnmarshaller();
                 for (Property p : properties) {
                     if ("STDOUT".equals(p.getName())) {
-                        StringReader reader = new StringReader(p.getValue());
-                        StdTextProduct prod = (StdTextProduct) unmarshaller
-                                .unmarshal(reader);
+                        StdTextProduct prod = (StdTextProduct) getJaxbManager()
+                                .unmarshalFromXml(p.getValue());
                         response.add(prod);
                     }
                 }

@@ -21,7 +21,6 @@
 package com.raytheon.viz.texteditor.msgs;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 
 /**
  * The IWmoBrowserCallback interface specifies methods that return a selected
@@ -36,6 +35,8 @@ import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
  * 08/3/2009    2191        rjpeter     Initial creation.
  * 04/14/2010   4734        mhuang      Corrected StdTextProduct import 
  *                                       dependency
+ * 09/11/2014   3580        mapeters    Removed getQueryTransport().
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -43,7 +44,6 @@ import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
  */
 
 public interface IWmoBrowserCallback {
-    public IQueryTransport getQueryTransport();
 
     public void setDisplayedProduct(StdTextProduct product);
 
