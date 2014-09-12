@@ -17,14 +17,20 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.dataplugin.text.dbsrv;
+package com.raytheon.viz.texteditor;
 
 
 import java.util.ArrayList;
 
+import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBRequest;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * Query for text products based on desired desired criteria.
@@ -40,6 +46,8 @@ import com.raytheon.uf.common.message.Property;
  * 29Jan2013    1496       rferrel     Added methods clearProductIds and clone.
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
  * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
+ * Sep 09, 2014 3580       mapeters    Removed IQueryTransport usage (no longer exists), 
+ *                                     moved from uf.common.dataplugin.text.dbsrv.
  * 
  * </pre>
  * 
@@ -49,7 +57,8 @@ import com.raytheon.uf.common.message.Property;
 
 public class TextDBQuery {
 
-    private final IQueryTransport queryTransport;
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TextDBQuery.class);
 
     private String queryViewName = null;
 
@@ -87,8 +96,7 @@ public class TextDBQuery {
     /**
      * 
      */
-    public TextDBQuery(IQueryTransport transport) {
-        queryTransport = transport;
+    public TextDBQuery() {
     }
 
     /*
@@ -97,7 +105,7 @@ public class TextDBQuery {
      * @see java.lang.Object#clone()
      */
     public TextDBQuery clone() {
-        TextDBQuery tdq = new TextDBQuery(queryTransport);
+        TextDBQuery tdq = new TextDBQuery();
         tdq.queryViewName = this.queryViewName;
         tdq.queryOpName = this.queryOpName;
         tdq.querySubObName = this.querySubObName;
@@ -445,22 +453,29 @@ public class TextDBQuery {
      * @return
      */
     public Message executeQuery() {
-        Message message = queryTransport.executeQuery(assembleQueryMessage());
-        if (message != null) {
-            Header hdr = message.getHeader();
-            if (hdr != null) {
-                Property[] properties = hdr.getProperties();
-                if (properties != null) {
-                    for (Property p : properties) {
-                        String s = p.getValue();
-                        if (s != null) {
-                            p.setValue(s);
-                        }
+        Message assembledMessage = assembleQueryMessage();
+        Message message = null;
+        try {
+            message = (Message) ThriftClient.sendRequest(new TextDBRequest(
+                    assembledMessage));
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        if (message == null) {
+            message = assembledMessage;
+        }
+        Header hdr = message.getHeader();
+        if (hdr != null) {
+            Property[] properties = hdr.getProperties();
+            if (properties != null) {
+                for (Property p : properties) {
+                    String s = p.getValue();
+                    if (s != null) {
+                        p.setValue(s);
                     }
                 }
             }
         }
         return message;
     }
-
 }
