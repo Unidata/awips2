@@ -30,12 +30,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.texteditor.util.TextEditorUtil;
 
 /**
  * Job to perform queries for text products.
@@ -48,6 +46,8 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013            rferrel     Initial creation
  * Aug 23, 2013 DR 16514   D. Friedman Fix accum/cancel logic.
+ * Sep 09, 2014 3580       mapeters    Removed IQueryTransport usage 
+ *                                     (no longer exists).
  * 
  * </pre>
  * 
@@ -71,18 +71,12 @@ public class ProductQueryJob extends Job {
      */
     private final Set<Request> expected;
 
-    /**
-     * Transport to use for the queries.
-     */
-    private final IQueryTransport queryTransport;
-
     public ProductQueryJob(IProductQueryCallback callback) {
         super("Product Query");
         setSystem(true);
         this.callback = callback;
         requests = new ArrayList<Request>();
         expected = new HashSet<Request>();
-        queryTransport = TextEditorUtil.getTextDbsrvTransport();
     }
 
     /**
@@ -136,7 +130,7 @@ public class ProductQueryJob extends Job {
             try {
                 try {
                     prodList = request.getCommand().
-                            executeCommand(queryTransport);
+executeCommand();
                 } catch (CommandFailedException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);

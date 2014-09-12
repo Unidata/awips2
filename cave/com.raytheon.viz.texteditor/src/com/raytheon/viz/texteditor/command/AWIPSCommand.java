@@ -22,7 +22,6 @@ package com.raytheon.viz.texteditor.command;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.dataplugin.text.request.ExecuteAwipsCmdRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -44,6 +43,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
  *                                      dependency
  * 21May2010    2187       cjeanbap    Add operational mode functionality.
  * 05Jun2011    9740       cjeanbap    Fixed invalid character, Form Feed.
+ * 09Sep2014    3580       mapeters    Removed IQueryTransport usage 
+ *                                     (no longer exists).
  * </pre>
  * 
  * @author rjpeter
@@ -130,13 +131,11 @@ public class AWIPSCommand implements ICommand {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public List<StdTextProduct> executeCommand(IQueryTransport transport)
+    public List<StdTextProduct> executeCommand()
             throws CommandFailedException {
         // TODO verify both fields blank not allowed
         if (awipsid == null) {
             throw new CommandFailedException("Awips Id not set");
-        } else if (transport == null) {
-            throw new CommandFailedException("Command transport method not set");
         }
 
         ExecuteAwipsCmdRequest req = new ExecuteAwipsCmdRequest();
