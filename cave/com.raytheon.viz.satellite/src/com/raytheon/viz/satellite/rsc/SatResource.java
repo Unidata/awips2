@@ -101,6 +101,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  Apr 09, 2014  2947      bsteffen    Improve flexibility of sat derived
  *                                      parameters, implement ImageProvider
  *  May 06, 2014            njensen     Improve error message
+ *  Aug 21, 2014  DR 17313  jgerth      Set no data value if no data mapping
  * 
  * </pre>
  * 
@@ -354,7 +355,8 @@ public class SatResource extends
         if (persisted != null) {
             colorMapParameters.applyPersistedParameters(persisted);
         }
-        colorMapParameters.setNoDataValue(0);
+        if (colorMapParameters.getDataMapping() == null)
+        	colorMapParameters.setNoDataValue(0);
 
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
@@ -423,7 +425,7 @@ public class SatResource extends
         if (dataMapping != null) {
             // if the pixel value matches the data mapping entry use that
             // label instead
-            String label = dataMapping.getLabelValueForDataValue(measuredValue);
+        	String label = dataMapping.getSampleOrLabelValueForDataValue(measuredValue);
             if (label != null) {
                 return label;
             }
