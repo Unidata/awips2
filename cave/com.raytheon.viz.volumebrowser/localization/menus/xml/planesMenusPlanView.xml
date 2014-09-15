@@ -315,6 +315,7 @@
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="90agl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="120agl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="150agl"  indentText="false"/>
+	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="400agl"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Mept"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="WetBulb0"  indentText="false"/>
     	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudBase"  indentText="false"/>
