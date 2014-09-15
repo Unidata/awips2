@@ -20,12 +20,10 @@
 
 package com.raytheon.viz.gfe.core;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
-import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.core.msgs.ISampleSetChangedListener;
 import com.raytheon.viz.gfe.edittool.GridID;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -39,15 +37,33 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * Jun 30, 2008				chammack	Initial creation
  * Apr 09, 2009  1288       rjpeter     Added add/remove method for sample set listener
- * Sep 09, 2014  3592       randerso    Added dispose method, removed networkNotification method
+ * Sep 09, 2014  3592       randerso    Added dispose method, 
+ *                                      removed getInventoryAsList and networkNotification,
+ *                                      improved JavaDoc
  * </pre>
  * 
  * @author chammack
  * @version 1.0
  */
 public interface ISampleSetManager {
+    /**
+     * Sample Set Load Mode
+     */
     public static enum SampleSetLoadMode {
-        ADD, REMOVE, REPLACE
+        /**
+         * Add sample set to existing sample points
+         */
+        ADD,
+
+        /**
+         * Remove sample set from existing sample points
+         */
+        REMOVE,
+
+        /**
+         * Replase existing sample points with sample set
+         */
+        REPLACE
     }
 
     public static final float DEFAULT_THRESHOLD = 0.0f;
@@ -64,8 +80,7 @@ public interface ISampleSetManager {
      * @param setName
      * @return the locations
      */
-    public List<Coordinate> sampleSetLocations(final String setName)
-            throws GFEException;
+    public List<Coordinate> sampleSetLocations(final String setName);
 
     /**
      * Loads the named sample set and mixes it with the active sample set in a
@@ -81,7 +96,7 @@ public interface ISampleSetManager {
      * @param loadMode
      */
     public void loadSampleSet(final SampleId sampleId,
-            SampleSetLoadMode loadMode) throws GFEException;
+            SampleSetLoadMode loadMode);
 
     /**
      * Clears all anchored samples.
@@ -210,13 +225,6 @@ public interface ISampleSetManager {
      * @return the inventory
      */
     public SampleId[] getInventory();
-
-    /**
-     * Return the inventory as a list
-     * 
-     * @return the inventory
-     */
-    public ArrayList<SampleId> getInventoryAsList();
 
     /**
      * @return the inventory
