@@ -62,6 +62,9 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  *                                      which was adding an empty string into the 
  *                                      python path causing python to look in user's
  *                                      current default directory for modules.
+ * Aug 22, 2014  3500      bclement     override postStartupActions()
+ * Aug 29, 2014  3500      bclement     removed override of postStartupActions() 
+ *                                      since ProcedureXMLManager startup was moved to the CAVE subclass
  * 
  * </pre>
  * 
@@ -196,4 +199,5 @@ public class GfeClient extends AbstractCAVEComponent {
         return new HashSet<String>(Arrays.asList("-site", "-server", "-mode",
                 "-time"));
     }
+
 }
