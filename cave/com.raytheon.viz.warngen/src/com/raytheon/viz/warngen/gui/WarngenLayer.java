@@ -46,7 +46,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
@@ -225,6 +224,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
  * 08/20/2014  3353        rferrel     Generating Geo Spatial data set no longer on the UI thread.
  * 08/20/2014  ASM #16703  D. Friedman Make geo feature types for watches explicit
+ * 09/15/2014  3353        rferrel     No longer have null parent shell for the GenerateGeoDataSetDialog.
  * </pre>
  * 
  * @author mschenke
@@ -1253,9 +1253,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         if (dataSet != null) {
                             updateGeoData(gData, dataSet, gmd, currKey, tq0);
                         } else {
+                            // This makes sure dialog exists and is open
+                            createDialog();
                             GenerateGeoDataSetDialog genDialog = new GenerateGeoDataSetDialog(
-                                    Display.getCurrent().getActiveShell(),
-                                    site, gmd);
+                                    dialog.getShell(), site, gmd);
 
                             // Assume this is a blocking dialog.
                             genDialog.open();
