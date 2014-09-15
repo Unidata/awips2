@@ -86,6 +86,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 09/19/2013   16515      w. Kwock    Fix the excessive digits in rawpp,lake,height...tables
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  *                                     More performance fixes.
+ * 09/03/2014              mpduff      postRiverStatus() writes directly, not via batch
  * 
  * </pre>
  * 
@@ -122,10 +123,6 @@ public class PostTables {
     private ConnectionProvider cp;
 
     private Map<String, CallableStatement> statementMap = new HashMap<String, CallableStatement>();
-
-    private PreparedStatement riverStatusUpdateStatement = null;
-
-    private PreparedStatement riverStatusInsertStatement = null;
 
     static {
         gagePPSetup();
@@ -1222,10 +1219,11 @@ public class PostTables {
         String ts = null;
         float probability = -9999;
         int status = -1;
-
+        PreparedStatement ps = null;
+        
         try {
             conn = getConnection();
-            PreparedStatement ps = getRiverStatusPreparedStatement(updateFlag);
+            ps = getRiverStatusPreparedStatement(updateFlag);
             lid = shefDataValue.getLocationId();
             ps.setString(1, lid);
 
@@ -1258,7 +1256,6 @@ public class PostTables {
             timeStamp2 = new java.sql.Timestamp(basisDate.getTime());
             ps.setTimestamp(8, timeStamp2);
 
-            // ps.setFloat(9, Float.parseFloat(shefDataValue.getStringValue()));
             ps.setDouble(9, shefDataValue.getValue().floatValue());
 
             if (updateFlag) {
@@ -1266,7 +1263,8 @@ public class PostTables {
                 ps.setString(11, pe);
                 ps.setString(12, ts);
             }
-            ps.addBatch();
+            ps.execute();
+            conn.commit();
         } catch (Exception e) {
             if (updateFlag) {
                 log.error(String.format(
@@ -1276,26 +1274,32 @@ public class PostTables {
                         "Error inserting into RiverStatus with [%s]", record),
                         e);
             }
-        }
+		} finally {
+			if (ps != null) {
+				try {
+					ps.close();
+				} catch (SQLException e) {
+					log.error(
+							"Error closing prepared statement for RiverStatus",
+							e);
+				}
+			}
+		}
 
         return status;
     }
 
     private PreparedStatement getRiverStatusPreparedStatement(boolean updateFlag)
             throws SQLException {
-        if (updateFlag) {
-            if (riverStatusUpdateStatement == null) {
-                riverStatusUpdateStatement = conn
-                        .prepareCall(RIVER_STATUS_UPDATE_STATEMENT);
-            }
-            return riverStatusUpdateStatement;
-        } else {
-            if (riverStatusInsertStatement == null) {
-                riverStatusInsertStatement = conn
-                        .prepareCall(RIVER_STATUS_INSERT_STATEMENT);
-            }
-            return riverStatusInsertStatement;
-        }
+		if (updateFlag) {
+			PreparedStatement riverStatusUpdateStatement = conn
+					.prepareCall(RIVER_STATUS_UPDATE_STATEMENT);
+			return riverStatusUpdateStatement;
+		} else {
+			PreparedStatement riverStatusInsertStatement = conn
+					.prepareCall(RIVER_STATUS_INSERT_STATEMENT);
+			return riverStatusInsertStatement;
+		}
     }
 
     private Connection getConnection() {
@@ -1314,26 +1318,6 @@ public class PostTables {
      * Close the connections and statements
      */
     public void close() {
-        if (riverStatusInsertStatement != null) {
-            try {
-                riverStatusInsertStatement.close();
-            } catch (SQLException e) {
-                log.error(
-                        "Error closing river status insert prepared statement",
-                        e);
-            }
-        }
-
-        if (riverStatusUpdateStatement != null) {
-            try {
-                riverStatusUpdateStatement.close();
-            } catch (SQLException e) {
-                log.error(
-                        "Error closing river status update prepared statement",
-                        e);
-            }
-        }
-
         for (String functionName : statementMap.keySet()) {
             CallableStatement cs = statementMap.get(functionName);
             try {
@@ -1356,28 +1340,6 @@ public class PostTables {
      * 
      */
     public void executeBatchUpdates() {
-        try {
-            if (riverStatusUpdateStatement != null) {
-                riverStatusUpdateStatement.execute();
-                conn.commit();
-                riverStatusUpdateStatement.close();
-                riverStatusUpdateStatement = null;
-            }
-        } catch (SQLException e) {
-            log.error("An error occurred storing river status updates", e);
-        }
-
-        try {
-            if (riverStatusInsertStatement != null) {
-                riverStatusInsertStatement.execute();
-                conn.commit();
-                riverStatusInsertStatement.close();
-                riverStatusInsertStatement = null;
-            }
-        } catch (SQLException e) {
-            log.error("An error occurred inserting river status values", e);
-        }
-
         for (String key : statementMap.keySet()) {
             CallableStatement cs = statementMap.get(key);
             try {
