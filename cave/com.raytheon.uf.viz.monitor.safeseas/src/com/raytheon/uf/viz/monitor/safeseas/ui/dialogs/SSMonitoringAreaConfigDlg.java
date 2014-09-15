@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor.safeseas.ui.dialogs;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager;
@@ -27,9 +28,11 @@ import com.raytheon.uf.common.monitor.config.FSSObsMonitorConfigurationManager.M
 import com.raytheon.uf.common.monitor.data.CommonConfig;
 import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey;
+import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
 import com.raytheon.uf.viz.monitor.safeseas.threshold.SSThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * SAFESEAS area configuration dialog.
@@ -44,7 +47,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
  * Apr 28, 2014 3086       skorolev    Updated getConfigManager.
- * Sep 15, 2014 2757       skorolev    Removed extra dialog.
+ * Sep 04, 2014 3220       skorolev    Added fireConfigUpdateEvent method. Updated handler.
  * 
  * </pre>
  * 
@@ -54,8 +57,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
 
-    /** Configuration manager for SAFESEAS monitor. */
-    private FSSObsMonitorConfigurationManager ssConfigMgr;
+    private SSDispMonThreshDlg ssMonitorDlg;
 
     /**
      * Constructor
@@ -65,6 +67,7 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     public SSMonitoringAreaConfigDlg(Shell parent, String title) {
         super(parent, title, AppName.SAFESEAS);
+        SafeSeasMonitor.getInstance();
     }
 
     /*
@@ -84,26 +87,53 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                 // Save the config xml file
                 getValues();
                 resetStatus();
-                ssConfigMgr.saveConfigXml();
-                /**
-                 * DR#11279: re-initialize threshold manager and the monitor
-                 * using new monitor area configuration
-                 */
+                configMgr.saveConfigXml();
                 SSThresholdMgr.reInitialize();
-                SafeSeasMonitor.reInitialize();
-                if ((!ssConfigMgr.getAddedZones().isEmpty())
-                        || (!ssConfigMgr.getAddedStations().isEmpty())) {
+                fireConfigUpdateEvent();
+
+                if ((!configMgr.getAddedZones().isEmpty())
+                        || (!configMgr.getAddedStations().isEmpty())) {
                     if (editDialog() == SWT.YES) {
-                        SSDispMonThreshDlg ssMonitorDlg = new SSDispMonThreshDlg(
-                                shell, CommonConfig.AppName.SAFESEAS,
+                        ssMonitorDlg = new SSDispMonThreshDlg(shell,
+                                CommonConfig.AppName.SAFESEAS,
                                 DataUsageKey.MONITOR);
+                        ssMonitorDlg.setCloseCallback(new ICloseCallback() {
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                // Clean added zones and stations. Close dialog.
+                                configMgr.getAddedZones().clear();
+                                configMgr.getAddedStations().clear();
+                                setReturnValue(true);
+                                close();
+                            }
+                        });
                         ssMonitorDlg.open();
                     }
-                    ssConfigMgr.getAddedZones().clear();
-                    ssConfigMgr.getAddedStations().clear();
+                    // Clean added zones and stations.
+                    configMgr.getAddedZones().clear();
+                    configMgr.getAddedStations().clear();
                 }
             }
-        } 
+        }
+        if (ssMonitorDlg == null || ssMonitorDlg.isDisposed()) {
+            setReturnValue(true);
+            close();
+        }
+    }
+
+    /**
+     * Fire Table reload event
+     */
+    private void fireConfigUpdateEvent() {
+        final IMonitorConfigurationEvent me = new IMonitorConfigurationEvent(
+                configMgr);
+        shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                SafeSeasMonitor.getInstance().configUpdate(me);
+            }
+        });
     }
 
     /*
@@ -114,11 +144,10 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      * ()
      */
     public FSSObsMonitorConfigurationManager getInstance() {
-        if (ssConfigMgr == null) {
-            ssConfigMgr = new FSSObsMonitorConfigurationManager(currentSite,
-                    MonName.ss.name());
+        if (configMgr == null) {
+            configMgr = new FSSObsMonitorConfigurationManager(MonName.ss.name());
         }
-        return (FSSObsMonitorConfigurationManager) ssConfigMgr;
+        return (FSSObsMonitorConfigurationManager) configMgr;
     }
 
     /*
@@ -129,6 +158,7 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     @Override
     protected void disposed() {
-        ssConfigMgr = null;
+        configMgr = null;
     }
+
 }
