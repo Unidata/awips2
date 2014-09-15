@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonDispThreshDlg;
  * ------------ ---------- ----------- --------------------------
  * Dec 19 2009  3963       dhladky    Initial creation.
  * Dec  6 2012  #1351      skorolev   Changes for non-blocking dialogs.
+ * Sep 19, 2014 3220       skorolev   Added check on dispose.
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ public class FogThresholdAlertVisConfigAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (fogMonitorDlg == null) {
+        if (fogMonitorDlg == null || fogMonitorDlg.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             fogMonitorDlg = new FogMonDispThreshDlg(shell,

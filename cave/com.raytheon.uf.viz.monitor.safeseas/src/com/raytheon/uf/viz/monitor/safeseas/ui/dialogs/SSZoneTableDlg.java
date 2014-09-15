@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * Nov 10, 2012 1297       skorolev     Added initiateProdArray
  * Dec 7,  2012 #1351      skorolev     Changes for non-blocking dialogs.
  * Apr 28, 2014 3086       skorolev     Updated getConfigMgr method.
+ * Sep 04, 2014  3220      skorolev     Removed "site". Added check on dispose.
  * 
  * </pre>
  * 
@@ -127,7 +128,7 @@ public class SSZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected void configThreshAction() {
-        if (ssThreshDlg == null) {
+        if (ssThreshDlg == null || ssThreshDlg.isDisposed()) {
             ssThreshDlg = new SSDispMonThreshDlg(getParent().getShell(),
                     CommonConfig.AppName.SAFESEAS, DataUsageKey.DISPLAY);
         }
@@ -327,9 +328,8 @@ public class SSZoneTableDlg extends ZoneTableDlg {
      */
     @Override
     protected FSSObsMonitorConfigurationManager getMonitorAreaConfigInstance() {
-        if (configMgr == null) {
-            configMgr = new FSSObsMonitorConfigurationManager(site,
-                    MonName.ss.name());
+        if (configMgr == null || configMgr.isPopulated()) {
+            configMgr = new FSSObsMonitorConfigurationManager(MonName.ss.name());
         }
         return configMgr;
     }
