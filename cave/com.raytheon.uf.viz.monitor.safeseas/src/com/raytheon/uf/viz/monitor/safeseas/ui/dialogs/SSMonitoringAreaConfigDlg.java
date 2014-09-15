@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
  * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
+ * Sep 15, 2014 2757       skorolev    Removed extra dialog.
  * 
  * </pre>
  * 
@@ -103,16 +104,7 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     configManager.getAddedStations().clear();
                 }
             }
-        } else {
-            String message3 = "No changes made.\nDo you want to exit?";
-            int yesno = showMessage(shell,
-                    SWT.ICON_QUESTION | SWT.YES | SWT.NO, "Exit", message3);
-            if (yesno == SWT.NO) {
-                return;
-            }
-            setReturnValue(true);
-            close();
-        }
+        } 
     }
 
     /*
