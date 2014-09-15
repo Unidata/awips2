@@ -217,6 +217,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
  * 08/20/2014  ASM #16703  D. Friedman Make geo feature types for watches explicit
+ * 09/14/2014  ASM #641    dhuffman    To facilitate Area.java need to filter the differences between Areas and Zones,
+ *                                     refactored filterCheck and added a new siginature version of filterArea.
  * </pre>
  * 
  * @author mschenke
@@ -2112,17 +2114,28 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     private boolean filterCheck(Geometry areaToConsider, Geometry wholeArea,
             double areaInMetersSq) {
+
+        return filterCheck(
+                areaToConsider,
+                wholeArea,
+                areaInMetersSq,
+                getConfiguration().getHatchedAreaSource().getInclusionPercent(),
+                getConfiguration().getHatchedAreaSource().getInclusionArea(),
+                getConfiguration().getHatchedAreaSource().getInclusionAndOr());
+    }
+
+    private boolean filterCheck(Geometry areaToConsider, Geometry wholeArea,
+            double areaInMetersSq, double inclusionPercent,
+            double inclusionArea, String inclusionAndOr) {
         double ratio = areaToConsider.getArea() / wholeArea.getArea();
         double ratioInPercent = ratio * 100.;
         double areaInKmSqOfIntersection = meterSqToKmSq.convert(areaInMetersSq
                 * ratio);
 
-        boolean percentOk = ratioInPercent >= getConfiguration()
-                .getHatchedAreaSource().getInclusionPercent();
-        boolean areaOk = areaInKmSqOfIntersection > getConfiguration()
-                .getHatchedAreaSource().getInclusionArea();
-        return getConfiguration().getHatchedAreaSource().getInclusionAndOr()
-                .equalsIgnoreCase("AND") ? percentOk && areaOk : percentOk
+        boolean percentOk = ratioInPercent >= inclusionPercent;
+        boolean areaOk = areaInKmSqOfIntersection > inclusionArea;
+
+        return inclusionAndOr.matches("AND") ? percentOk && areaOk : percentOk
                 || areaOk;
     }
 
@@ -2144,6 +2157,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         double areaOfGeom = (Double) feature.attributes.get(AREA);
 
         return filterCheck(featureAreaToConsider, geom, areaOfGeom);
+    }
+
+    public boolean filterArea(GeospatialData feature,
+            Geometry featureAreaToConsider, AreaSourceConfiguration asc) {
+        double areaOfGeom = (Double) feature.attributes.get(AREA);
+        return filterCheck(featureAreaToConsider, feature.geometry, areaOfGeom,
+                asc.getInclusionPercent(), asc.getInclusionArea(),
+                asc.getInclusionAndOr());
     }
 
     private boolean filterAreaSecondChance(GeospatialData feature,
