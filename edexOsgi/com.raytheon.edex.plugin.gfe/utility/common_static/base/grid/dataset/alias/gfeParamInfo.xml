@@ -139,6 +139,7 @@
     <alias base="RTMA">rtmaNDFD</alias>
     <alias base="RTMA-Mosaic">rtmaNDFD</alias>
     <alias base="AK-RTMA">aKrtmaNDFD</alias>
+    <alias base="AK-RTMA3">aKrtmaNDFD</alias>
     <alias base="HI-RTMA">HIrtmaNDFD</alias>
     <alias base="PR-RTMA">PRrtmaNDFD</alias>
     <alias base="Guam-RTMA">rtmaNDFD</alias>

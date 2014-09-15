@@ -38,7 +38,6 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint;
-import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint.RadarProductType;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
@@ -70,6 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2009            chammack     Initial creation
  * 03/04/2013   DCS51      zwang        Handle GFM product
+ * Sep 03, 2014  3574      njensen      Properly dispose objects
  * 
  * </pre>
  * 
@@ -79,11 +79,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class RadarGraphicsDisplay implements IRenderable {
 
-    private Map<Integer, RadarGraphicsPage> pageMap;
+    private final Map<Integer, RadarGraphicsPage> pageMap;
 
-    private ArrayList<RadarGraphicsPage> symbologyPages;
+    private final ArrayList<RadarGraphicsPage> symbologyPages;
 
-    private Map<RadarDataKey, RadarDataPoint> symbologyData;
+    private final Map<RadarDataKey, RadarDataPoint> symbologyData;
 
     private int currentPage;
 
@@ -108,9 +108,9 @@ public class RadarGraphicsDisplay implements IRenderable {
         this.currentPage = 0;
 
         // Only retrieve if this record has not been retrieved.
-        if ((radarRecord.getSymbologyData() == null || radarRecord
+        if (((radarRecord.getSymbologyData() == null) || radarRecord
                 .getSymbologyData().isEmpty())
-                && radarRecord.getGraphicBlock() == null) {
+                && (radarRecord.getGraphicBlock() == null)) {
             File loc = HDF5Util.findHDF5Location(radarRecord);
 
             IDataStore dataStore = DataStoreFactory.getDataStore(loc);
@@ -135,9 +135,10 @@ public class RadarGraphicsDisplay implements IRenderable {
                 new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] { 4096,
                         4096 }, false), generalEnvelope);
         IWireframeShape ws = target.createWireframeShape(true, mapDescriptor);
-        
+
         // Used for GFM forecast positions
-        IWireframeShape gfmWs = target.createWireframeShape(true, mapDescriptor);
+        IWireframeShape gfmWs = target
+                .createWireframeShape(true, mapDescriptor);
 
         symbologyData = radarRecord.getSymbologyData();
         if (symbologyData != null) {
@@ -162,8 +163,8 @@ public class RadarGraphicsDisplay implements IRenderable {
                 // logic in createSymbologyImages()
                 rgp.addImages(currStorm, CoordinateSystem.LOCAL);
 
-                //Handle DMD table data
-                if (radarRecord.getProductCode() == 149) {	
+                // Handle DMD table data
+                if (radarRecord.getProductCode() == 149) {
                     // Handle the tabular display data in the Generic Packet
                     String data = GraphicDataUtil.getDMDGraphicDataValue(
                             tableModifier, radarRecord,
@@ -175,7 +176,7 @@ public class RadarGraphicsDisplay implements IRenderable {
                         addTableRow(tableData, featureData);
                         processTableData = true;
                     }
-                    
+
                 }
             }
 
@@ -211,7 +212,7 @@ public class RadarGraphicsDisplay implements IRenderable {
             }
             // handle GFM product
             else {
-            	this.currentPage = pageNum;
+                this.currentPage = pageNum;
 
                 RadarGraphicsPage gab = this.pageMap.get(pageNum);
                 if (gab == null) {
@@ -223,7 +224,7 @@ public class RadarGraphicsDisplay implements IRenderable {
 
             this.currentPage = 0;
         }
-        
+
         // Graphic block is organized into pages for display. The data for each
         // page is contained in packets.
         GraphicBlock gb = radarRecord.getGraphicBlock();
@@ -249,7 +250,8 @@ public class RadarGraphicsDisplay implements IRenderable {
             }
 
         }
-        if ((symbologyData == null || symbologyData.isEmpty()) && gb == null) {
+        if (((symbologyData == null) || symbologyData.isEmpty())
+                && (gb == null)) {
             String nullLegend = null;
             switch (radarRecord.getProductCode()) {
             case 139:
@@ -295,7 +297,7 @@ public class RadarGraphicsDisplay implements IRenderable {
 
             String[] values = sortValues.trim().split("\\s+");
 
-            if (values.length > 0 && values[0].length() > 1) {
+            if ((values.length > 0) && (values[0].length() > 1)) {
                 try {
                     strengthRank = Integer.parseInt(values[0].substring(1,
                             values[0].length()));
@@ -340,11 +342,15 @@ public class RadarGraphicsDisplay implements IRenderable {
     }
 
     public void setMagnification(double magnification) {
-        for (RadarGraphicsPage page : symbologyPages) {
-            page.setMagnification(magnification);
+        synchronized (symbologyPages) {
+            for (RadarGraphicsPage page : symbologyPages) {
+                page.setMagnification(magnification);
+            }
         }
-        for (RadarGraphicsPage page : pageMap.values()) {
-            page.setMagnification(magnification);
+        synchronized (pageMap) {
+            for (RadarGraphicsPage page : pageMap.values()) {
+                page.setMagnification(magnification);
+            }
         }
     }
 
@@ -358,32 +364,49 @@ public class RadarGraphicsDisplay implements IRenderable {
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-        if (currentPage < 0 || currentPage >= this.pageMap.size()) {
-            return;
-        }
-
-        RadarGraphicsPage page = pageMap.get(currentPage);
-        if (page == null) {
-            return;
-        }
-        page.paint(target, paintProps);
-
-        for (RadarGraphicsPage currPage : symbologyPages) {
-            if (currPage == null) {
+        synchronized (pageMap) {
+            if ((currentPage < 0) || (currentPage >= this.pageMap.size())) {
                 return;
             }
 
-            currPage.paint(target, paintProps);
+            RadarGraphicsPage page = pageMap.get(currentPage);
+            if (page == null) {
+                return;
+            }
+
+            page.paint(target, paintProps);
+        }
+
+        synchronized (symbologyPages) {
+            for (RadarGraphicsPage currPage : symbologyPages) {
+                if (currPage == null) {
+                    return;
+                }
+
+                currPage.paint(target, paintProps);
+            }
         }
     }
 
     public int getNumPages() {
-        return this.pageMap.size() > 0 ? this.pageMap.size() : 1;
+        synchronized (pageMap) {
+            return this.pageMap.size() > 0 ? this.pageMap.size() : 1;
+        }
     }
 
     public void dispose() {
-        for (RadarGraphicsPage page : pageMap.values()) {
-            page.dispose();
+        synchronized (pageMap) {
+            for (RadarGraphicsPage page : pageMap.values()) {
+                page.dispose();
+            }
+            pageMap.clear();
+        }
+
+        synchronized (symbologyPages) {
+            for (RadarGraphicsPage page : symbologyPages) {
+                page.dispose();
+            }
+            symbologyPages.clear();
         }
     }
 
