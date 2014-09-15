@@ -54,7 +54,8 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 13, 2010            mnash     Initial creation
- * 03/01/2013   DR 15496   zwang     Handled expanded GSM, display more status 
+ * 03/01/2013   DR 15496   zwang     Handled expanded GSM, display more status
+ * 07/16/2014   DR 17214   zwang     Handled B15 GSM change about super res flag
  * 
  * </pre>
  * 
@@ -282,49 +283,75 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
             }
 
             // Plot elevations
-            double[] elevations = message.getElevation().clone();
+            double[] elev = message.getElevation().clone();
             char[] charArray = Integer.toBinaryString(
                     message.getSuperResolutionCuts()).toCharArray();
             
-            elevations = Arrays.copyOf(elevations, message.getNumCuts());
-            Arrays.sort(elevations);
+            // Find the index of the SAILS elevation
+            int sailsIndex = -1;
+            for (int i = 1; i < elev.length; i++) {
+                if (elev[i] == elev[0]) {
+                    sailsIndex = i;
+                    break;
+                }
+            }
+
+            //Ignore the super res flag for SAILS
+            if (sailsIndex != -1 && sailsIndex < charArray.length) {
+                charArray[charArray.length - sailsIndex - 1] = '0';
+            }
+
+            // Remove elevation 0 and duplicate elevations
+            Arrays.sort(elev);
+            int j = 0;
+            int k = 1;
+            while (k < elev.length){
+                if (elev[j] == 0) {
+                    elev[j] = elev[k];
+                    k++;
+                }
+                else if (elev[k] == elev[j]) {
+                    k++;
+                }
+                else {
+                    j++;
+                    elev[j] = elev[k];
+                    k++;
+                }
+            }
+
+            double[] elevations = Arrays.copyOf(elev,  j+1);
+
             for (int left = 0, right = elevations.length - 1; left < right; left++, right--) {
                 double tmp = elevations[left];
                 elevations[left] = elevations[right];
                 elevations[right] = tmp;
             }
 
-            int count = 0;
-            for (int i = 0; i < elevations.length; i++) {
-                if (elevations[i] == 0) {
-                    count++;
-                }
-            }
-
+            // Handle the super res flag
             boolean[] superResElev = new boolean[elevations.length];
+            // Initiate all flags to non super res
+            for (int i = 0; i < elevations.length; i++) {
+                superResElev[i] = false;
+            }
+            
+            // Ignore the flag for SAILS
             for (int i = 0; i < charArray.length; i++) {
-                if (charArray[i] == '1') {
-                    superResElev[i] = true;
-                } else {
-                    superResElev[i] = false;
-                }
+                if (charArray[charArray.length - i - 1] == '1') {
+                    superResElev[elevations.length - i - 1] = true;
+                } 
             }
 
             List<String> theTemp = new ArrayList<String>();
             for (int i = 0; i < elevations.length; i++) {
-                if (elevations[i] != 0) {
-                    String s = "";
-                    if (superResElev[elevations.length - i - count - 1] == true) {
-                        s = "S";
-                    } else {
-                        s = "";
-                    }
-                    theTemp.add(Double.toString(elevations[i] / 10) + "     "
-                            + s);
+                
+                String s = "";
+                if (superResElev[i] == true) {
+                    s = "S";
                 } else {
-                    theTemp.add(Double.toString(elevations[i] / 10));
-                    break;
+                    s = "";
                 }
+                theTemp.add(Double.toString(elevations[i] / 10) + "     " + s);
             }
 
             int height = 780;
