@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 14, 2011            mnash     Initial creation
  * Jan 09, 2013 1442       rferrel     Add Simulated Time Change Listener.
  * Apr 10, 2013 DR 15185   D. Friedman Preserve tear-offs over perspective switches.
+ * Aug 21, 2014 15664      snaples   Updated dispose method to fix issue when closing perspecitive with tear offs open.
  * 
  * </pre>
  * 
@@ -215,7 +216,9 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         }
 
         shell.removeListener(SWT.Show, swtListener);
-        menu.removeListener(SWT.Show, swtListener);
+        if (!menu.isDisposed()) {
+            menu.removeListener(SWT.Show, swtListener);
+        }
         super.disposed();
     }
 
