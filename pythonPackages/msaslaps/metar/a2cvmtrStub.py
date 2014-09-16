@@ -1,3 +1,36 @@
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
+# Gets all available Laps metar data in the A-II database over a specified range
+# of times within a specifed area.  The data is output to stdout as ASCII.
+# Each line is one time/station combination. The individual data items are comma
+# delimited.
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    09/15/2014      3593          nabowle        Initial modification. Fix index issues on 2D parameters.
+#
+#
+
 # pointDataQuery.stationName_lat_lon.py
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 import PointDataQuery
@@ -68,8 +101,8 @@ if len(tobs) == 0 :
    msg = "couldn't get data"
    return ResponseMessageGeneric(msg)
 
-msg = "\n"
-i = i6 = 0
+msg = "\n\n"
+i = i5 = i6 = 0
 while i < len(tobs) :
     msg += sName[i] + ","
     msg += str(tobs[i]/1000) + ","
@@ -82,10 +115,10 @@ while i < len(tobs) :
         msg += str(ista[i]) + ","
     msg += atype[i] + " ,"
     msg += repTyp[i] + " ,"
-    msg += wx[i] + " ,"
+    msg += wx[i5] + " ,"
     msg += "%.3f"%vis[i] + ","
 
-    i6 += 6;
+    
     msg += cvr[i6];
     kk = 5
     while kk > 0 and cvr[i6+kk] == "" :
@@ -123,6 +156,8 @@ while i < len(tobs) :
     msg += "%.2f"%pr6[i] + ","
     msg += "%.2f"%pr24[i] + "\n"
     i += 1
+    i5 += 5
+    i6 += 6;
 
 return ResponseMessageGeneric(msg)
 
