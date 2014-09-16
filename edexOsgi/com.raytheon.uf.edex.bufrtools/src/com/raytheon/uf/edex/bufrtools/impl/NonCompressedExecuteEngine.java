@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.edex.bufrtools.impl;
 
-import static com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes.RepSubList;
-import static com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes.SubSetList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +38,7 @@ import com.raytheon.uf.edex.bufrtools.io.BUFRBitInputStream;
 import com.raytheon.uf.edex.bufrtools.packets.BUFRNumericPacket;
 import com.raytheon.uf.edex.bufrtools.packets.BUFROperatorPacket;
 import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 
 /**
@@ -55,7 +53,7 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
  * 20080214            862 jkorman     BUFRMOS implementation changes.
  * 07/2009      55          T. Lee      Added number of bits to skip for Table C
  * 04/21/2010   208         F. J. Yen   Updated arguments for execute in processTableB
- * 9/16/2014    #3628      mapeters    Moved from uf.edex.decodertools plugin.
+ * 9/16/2014    #3628      mapeters    Moved from uf.edex.decodertools plugin, replaced static imports.
  * 
  * </pre>
  * 
@@ -137,7 +135,8 @@ public class NonCompressedExecuteEngine extends ExecuteEngine {
                 }
             }
             BUFRSublistPacket p = new BUFRSublistPacket(packetData,
-                    SubSetList.getPacketType(), new BUFRSublistDescriptor(
+                    DataPacketTypes.SubSetList.getPacketType(),
+                    new BUFRSublistDescriptor(
                             BUFRSublistDescriptor.SUBSET_LIST_DESC, i));
             data.addPacket(p);
         }
@@ -254,7 +253,9 @@ public class NonCompressedExecuteEngine extends ExecuteEngine {
                     if (delayedCount == 0) {
                         // Insert an empty sublist for the missing data.
                         List<IBUFRDataPacket> d = new ArrayList<IBUFRDataPacket>();
-                        packets.add(new BUFRSublistPacket(d, RepSubList.getPacketType(), descriptor));
+                        packets.add(new BUFRSublistPacket(d,
+                                DataPacketTypes.RepSubList.getPacketType(),
+                                descriptor));
                         break;
                     }
                     processReplication(packets, subList, delayedCount);
@@ -310,7 +311,8 @@ public class NonCompressedExecuteEngine extends ExecuteEngine {
 
         EngineData tdata = engine.descriptorExecutor(bitStream);
         BUFRSublistPacket p = new BUFRSublistPacket(tdata.getPacketData(),
-                RepSubList.getPacketType(), new BUFRSublistDescriptor(
+                DataPacketTypes.RepSubList.getPacketType(),
+                new BUFRSublistDescriptor(
                         BUFRSublistDescriptor.REP_SUBLIST_DESC, 0));
         packets.add(p);
     }
