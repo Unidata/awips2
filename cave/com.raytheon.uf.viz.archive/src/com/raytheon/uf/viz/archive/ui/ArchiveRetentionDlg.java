@@ -58,6 +58,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Oct 07, 2013 #2438      rferrel      Properly save and load retention times.
  * Apr 14, 2014 #3023      rferrel      Code clean up.
  * Apr 24, 2014 #3045      rferrel      Implement loadedAllDsipalyData.
+ * May 28, 2014 #3171      rferrel      Change retention labels.
+ * Aug 26, 2014 #3553      rferrel      No longer need to override loadedAllDisplayData.
  * 
  * </pre>
  * 
@@ -415,10 +417,5 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
         super.preOpened();
         archiveComboSelection();
         categoryComboSelection();
-    }
-
-    @Override
-    public void loadedAllDisplayData() {
-        // nothing to update.
     }
 }
