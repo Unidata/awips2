@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.core.Activator;
  * Feb 03, 2013  2764     bsteffen    Use OSGi API to get dependencies.
  * Apr 17, 2014  3018     njensen     Synchronize against BundleRepository
  * Aug 13, 2014  3500     bclement    uses BundleSynchronizer
+ * Aug 22, 2014  3500     bclement    removed sync on OSGi internals
  * 
  * </pre>
  * 
@@ -265,20 +266,12 @@ public class SubClassLocator implements ISubClassLocator {
      */
     private Set<Class<?>> loadClassesFromCache(Bundle bundle,
             Collection<String> classNames) {
-        final BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+        BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
         if (bundleWiring == null) {
             return Collections.emptySet();
         }
 
-        final ClassLoader[] loaderHolder = new ClassLoader[1];
-        BundleSynchronizer.runSynchedWithBundle(new Runnable() {
-            @Override
-            public void run() {
-                loaderHolder[0] = bundleWiring.getClassLoader();
-            }
-        }, bundle);
-
-        ClassLoader loader = loaderHolder[0];
+        ClassLoader loader = bundleWiring.getClassLoader();
         if (loader == null) {
             return Collections.emptySet();
         }
