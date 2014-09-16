@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.edex.bufrtools.impl;
 
-import static com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes.RepSubList;
-import static com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes.SubSetList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +37,7 @@ import com.raytheon.uf.edex.bufrtools.exceptions.BUFRDecoderException;
 import com.raytheon.uf.edex.bufrtools.io.BUFRBitInputStream;
 import com.raytheon.uf.edex.bufrtools.packets.BUFROperatorPacket;
 import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
 import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 
 /**
@@ -54,7 +52,7 @@ import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
  * 20080214            862 jkorman     BUFRMOS implementation changes.
  * 07/2009              55 T. Lee      Added number of bits to skip for Table C
  * 04/2010             208 F. J. Yen   Updated arguments for execute in processTableB
- * 9/16/2014    #3628      mapeters    Moved from uf.edex.decodertools plugin.
+ * 9/16/2014    #3628      mapeters    Moved from uf.edex.decodertools plugin, replaced static imports.
  * 
  * </pre>
  * 
@@ -138,7 +136,8 @@ public class CompressedExecuteEngine extends ExecuteEngine {
         } // for()
         // package all of the data into a SubListPacket
         BUFRSublistPacket p = new BUFRSublistPacket(packetData,
-                SubSetList.getPacketType(), new BUFRSublistDescriptor(
+                DataPacketTypes.SubSetList.getPacketType(),
+                new BUFRSublistDescriptor(
                         BUFRSublistDescriptor.SUBSET_LIST_DESC, 0));
         data.addPacket(p);
 
@@ -288,7 +287,8 @@ public class CompressedExecuteEngine extends ExecuteEngine {
                 sList.add(t.get(0));
             }
         }
-        BUFRSublistPacket p = new BUFRSublistPacket(sList, RepSubList.getPacketType(),
+        BUFRSublistPacket p = new BUFRSublistPacket(sList,
+                DataPacketTypes.RepSubList.getPacketType(),
                 new BUFRSublistDescriptor(
                         BUFRSublistDescriptor.REP_SUBLIST_DESC, 0));
         packets.add(p);
