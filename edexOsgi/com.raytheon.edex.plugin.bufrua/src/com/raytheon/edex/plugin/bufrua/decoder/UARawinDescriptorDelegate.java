@@ -19,9 +19,9 @@
  **/
 package com.raytheon.edex.plugin.bufrua.decoder;
 
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.DescriptorFactory;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
+import com.raytheon.uf.edex.bufrtools.descriptors.DescriptorFactory;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
 
 
 /**
