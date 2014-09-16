@@ -221,7 +221,11 @@ public class SelectTimeRangeManager implements ISelectTimeRangeManager,
                     message.getContext(), message.getFileName());
             range = loadTimeRange(lf);
             if (range != null) {
-                this.rangeMap.put(range.getName(), range);
+                SelectTimeRange existing = this.rangeMap.get(range.getName());
+                if ((existing == null)
+                        || (existing.getLevel().compareTo(range.getLevel()) <= 0)) {
+                    this.rangeMap.put(range.getName(), range);
+                }
             }
             break;
 
