@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.modelsounding.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
+import static com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes.RepSubList;
 
 import java.io.File;
 import java.util.Calendar;
@@ -42,10 +42,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.plugin.modelsounding.SoundingModelTemporalData;
 import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
