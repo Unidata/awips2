@@ -19,7 +19,7 @@
  **/
 package com.raytheon.edex.plugin.bufrua.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
+import static com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes.RepSubList;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,8 +33,8 @@ import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.pointdata.Dimension;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
