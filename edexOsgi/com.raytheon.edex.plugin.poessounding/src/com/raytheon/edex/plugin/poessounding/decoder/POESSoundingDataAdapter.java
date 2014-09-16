@@ -44,8 +44,8 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 /**
