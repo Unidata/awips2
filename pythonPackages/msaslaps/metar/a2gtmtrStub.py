@@ -1,3 +1,36 @@
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
+# Gets all available metar data in the A-II database over a specified range of
+# times within a specifed area.  The data is output to stdout as ASCII.
+# Each line is one time/station combination. The individual data items are comma
+# delimited.
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    09/15/2014      3593          nabowle        Initial modification. Fix losing first record.
+#
+#
+
 # pointDataQuery.stationName_lat_lon.py
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 import PointDataQuery
@@ -46,7 +79,7 @@ if len(tobs) == 0 :
    msg = "couldn't get data"
    return ResponseMessageGeneric(msg)
 
-msg = "\n"
+msg = "\n\n"
 i = 0
 while i < len(tobs) :
     msg += sName[i] + ","
