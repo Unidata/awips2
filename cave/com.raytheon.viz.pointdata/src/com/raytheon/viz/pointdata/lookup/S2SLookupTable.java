@@ -1,10 +1,27 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
 package com.raytheon.viz.pointdata.lookup;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -61,6 +78,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 21, 2011            ekladstrup     Initial creation
+ * Sep 16, 2014 2707       bclement     removed warnings, split respects quotes
  * 
  * </pre>
  * 
@@ -136,22 +154,19 @@ public class S2SLookupTable implements IAbstractLookupTable {
     public S2SLookupTable(File table) {
         lookupList = new LinkedList<S2SPair>();
         tablePath = table.getAbsolutePath();
-        try {
-            BufferedReader input = new BufferedReader(new FileReader(table));
+        try (BufferedReader input = new BufferedReader(new FileReader(table))) {
             String line = null;
             int lineNumber = 0;
             while ((line = input.readLine()) != null) {
                 lineNumber++;
                 if (!line.isEmpty() && !line.equals("s2s")
                         && !line.startsWith("//") && !line.startsWith("#")) {
-                    String[] columns = LookupUtils.splitString(line);
+                    String[] columns = LookupUtils.splitGroupedString(line);
                     handleLine(columns, lineNumber, line);
                 }
             }
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
-        } catch (IOException e) {
-            statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            statusHandler.error("Unable to parse SVG table: " + table, e);
         }
     }
 
