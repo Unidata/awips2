@@ -553,7 +553,7 @@ public class ScriptEditorDialog extends CaveSWTDialog implements IScriptEditor {
         item.addSelectionListener(listener);
 
         item = new MenuItem(subMenu, SWT.PUSH);
-        item.setText("Line\tF7");
+        item.setText("Line\tF8");
         item.setAccelerator(SWT.F8);
         item.setData(EditMenuSelection.DEL_LINE);
         item.addSelectionListener(listener);
