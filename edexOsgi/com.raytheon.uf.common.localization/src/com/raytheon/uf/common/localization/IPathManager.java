@@ -41,6 +41,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/12/2008              chammack    Initial Creation.
+ * Sep 08, 2014 3592       randerso    Added single type listStaticFiles, 
+ *                                     getStaticLocalizationFile, and getStaticFile APIs 
+ *                                     Improved JavaDoc for all listStaticFiles, 
+ *                                     getStaticLocalizationFile, and getStaticFile APIs.
  * 
  * </pre>
  * 
@@ -49,13 +53,16 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
  */
 public interface IPathManager {
 
+    /**
+     * Directory separator used by Localization
+     */
     public static final String SEPARATOR = "/";
 
     /**
      * 
-     * Checks the localization hierarchy for a static file
-     * 
-     * First searches user, then site and finally base to find the file.
+     * Finds the specified file in any applicable LocalizationType. Note: If the
+     * same file exists in multiple localization levels, only the lowest level
+     * version of the file will be returned.
      * 
      * Returns null if file is not found.
      * 
@@ -63,13 +70,30 @@ public interface IPathManager {
      *            the name of the file to search for
      * @return a pointer to the location on the filesystem
      */
-    public abstract File getStaticFile(String name);
+    public File getStaticFile(String name);
 
     /**
      * 
-     * Checks the localization hierarchy for a static file
+     * Finds the specified file in the specified LocalizationType. Note: If the
+     * same file exists in multiple localization levels, only the lowest level
+     * version of the file will be returned.
      * 
-     * First searches user, then site and finally base to find the file.
+     * Returns null if file is not found.
+     * 
+     * @param type
+     *            LocalizationType of file to be found
+     * 
+     * @param name
+     *            the name of the file to search for
+     * @return a pointer to the location on the filesystem
+     */
+    public File getStaticFile(LocalizationType type, String name);
+
+    /**
+     * 
+     * Finds the specified file in any applicable LocalizationType. Note: If the
+     * same file exists in multiple localization levels, only the lowest level
+     * version of the file will be returned.
      * 
      * Returns null if file is not found.
      * 
@@ -77,7 +101,25 @@ public interface IPathManager {
      *            the name of the file to search for
      * @return the file and the context it was found in
      */
-    public abstract LocalizationFile getStaticLocalizationFile(String name);
+    public LocalizationFile getStaticLocalizationFile(String name);
+
+    /**
+     * 
+     * Finds the specified file in the specified LocalizationType. Note: If the
+     * same file exists in multiple localization levels, only the lowest level
+     * version of the file will be returned.
+     * 
+     * Returns null if file is not found.
+     * 
+     * @param type
+     *            LocalizationType of file to be found
+     * 
+     * @param name
+     *            the name of the file to search for
+     * @return the file and the context it was found in
+     */
+    public LocalizationFile getStaticLocalizationFile(LocalizationType type,
+            String name);
 
     /**
      * 
@@ -89,7 +131,7 @@ public interface IPathManager {
      *            the filename to search
      * @return an absolute pointer on the filesystem to the file
      */
-    public abstract File getFile(LocalizationContext context, String name);
+    public File getFile(LocalizationContext context, String name);
 
     /**
      * 
@@ -101,8 +143,8 @@ public interface IPathManager {
      *            the filename to search
      * @return an absolute pointer on the filesystem to the file
      */
-    public abstract LocalizationFile getLocalizationFile(
-            LocalizationContext context, String name);
+    public LocalizationFile getLocalizationFile(LocalizationContext context,
+            String name);
 
     /**
      * Returns a map containing a LocalizationFile for each LocalizationLevel
@@ -114,11 +156,13 @@ public interface IPathManager {
      *            the localization file name
      * @return map of LocalizationLevel to LocalizationFile
      */
-    public abstract Map<LocalizationLevel, LocalizationFile> getTieredLocalizationFile(
+    public Map<LocalizationLevel, LocalizationFile> getTieredLocalizationFile(
             LocalizationType type, String name);
 
     /**
-     * Lists files in the directory
+     * Lists all files in the localization hierarchy for the specified directory
+     * Note: If the same file exists in multiple localization levels, all
+     * versions of the file will be returned in the array.
      * 
      * @param context
      *            the localization context to use
@@ -134,12 +178,14 @@ public interface IPathManager {
      *            directories
      * @return the files on the filesystem in the directory
      */
-    public abstract LocalizationFile[] listFiles(LocalizationContext context,
+    public LocalizationFile[] listFiles(LocalizationContext context,
             String name, String[] extensions, boolean recursive,
             boolean filesOnly);
 
     /**
-     * Lists files in the directory
+     * Lists all files in the localization hierarchy for the specified directory
+     * Note: If the same file exists in multiple localization levels, all
+     * versions of the file will be returned in the array.
      * 
      * @param contexts
      *            the localization contexts to search
@@ -156,9 +202,9 @@ public interface IPathManager {
      * @return the files on the filesystem in the directory or null in case of
      *         error
      */
-    public abstract LocalizationFile[] listFiles(
-            LocalizationContext[] contexts, String name, String[] extensions,
-            boolean recursive, boolean filesOnly);
+    public LocalizationFile[] listFiles(LocalizationContext[] contexts,
+            String name, String[] extensions, boolean recursive,
+            boolean filesOnly);
 
     /**
      * Lists all files in all localization contexts in a particular directory.
@@ -177,8 +223,32 @@ public interface IPathManager {
      *            directories
      * @return a list of files
      */
-    public abstract LocalizationFile[] listStaticFiles(String name,
-            String[] extensions, boolean recursive, boolean filesOnly);
+    public LocalizationFile[] listStaticFiles(String name, String[] extensions,
+            boolean recursive, boolean filesOnly);
+
+    /**
+     * Lists all files in the specified LocalizationType in a particular
+     * directory. Note: If the same file exists in multiple localization levels,
+     * only the lowest level version of the file will be returned in the array.
+     * 
+     * @param type
+     *            the localization type to use
+     * 
+     * @param name
+     *            the directory to look in
+     * @param extensions
+     *            a list of file extensions to look for, or null if no filter
+     * @param recursive
+     *            true for recursive directory listing, false for a single level
+     *            listing
+     * @param filesOnly
+     *            true if only files are listed, false to list both files and
+     *            directories
+     * @return a list of files
+     */
+    public LocalizationFile[] listStaticFiles(LocalizationType type,
+            String name, String[] extensions, boolean recursive,
+            boolean filesOnly);
 
     /**
      * Returns a localization context for the given type and level for the
@@ -188,7 +258,7 @@ public interface IPathManager {
      * @param level
      * @return the localization context
      */
-    public abstract LocalizationContext getContext(LocalizationType type,
+    public LocalizationContext getContext(LocalizationType type,
             LocalizationLevel level);
 
     /**
@@ -198,8 +268,8 @@ public interface IPathManager {
      * @param siteId
      * @return the site localization context
      */
-    public abstract LocalizationContext getContextForSite(
-            LocalizationType type, String siteId);
+    public LocalizationContext getContextForSite(LocalizationType type,
+            String siteId);
 
     /**
      * Return the localization contexts that should be searched given a
@@ -209,16 +279,16 @@ public interface IPathManager {
      *            the type
      * @return the localization contexts
      */
-    public abstract LocalizationContext[] getLocalSearchHierarchy(
+    public LocalizationContext[] getLocalSearchHierarchy(
             LocalizationContext.LocalizationType type);
 
     /**
      * Get the available context strings for the given level
      * 
      * @param level
-     * @return
+     * @return the available contexts
      */
-    public abstract String[] getContextList(LocalizationLevel level);
+    public String[] getContextList(LocalizationLevel level);
 
     /**
      * Returns the available levels to be used, sorted from lowest search level
@@ -226,5 +296,5 @@ public interface IPathManager {
      * 
      * @return Available sorted levels
      */
-    public abstract LocalizationLevel[] getAvailableLevels();
+    public LocalizationLevel[] getAvailableLevels();
 }
