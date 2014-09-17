@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.core.msgs.ISampleSetChangedListener;
 import com.raytheon.viz.gfe.edittool.GridID;
@@ -39,7 +38,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jun 30, 2008				chammack	Initial creation
- * Apr 9, 2009  1288        rjpeter     Added add/remove method for sample set listener
+ * Apr 09, 2009  1288       rjpeter     Added add/remove method for sample set listener
+ * Sep 09, 2014  3592       randerso    Added dispose method, removed networkNotification method
  * </pre>
  * 
  * @author chammack
@@ -51,6 +51,11 @@ public interface ISampleSetManager {
     }
 
     public static final float DEFAULT_THRESHOLD = 0.0f;
+
+    /**
+     * Dispose the SampleSetManager
+     */
+    public void dispose();
 
     /**
      * Returns the set of sample points for the named sample set. If the sample
@@ -195,15 +200,6 @@ public interface ISampleSetManager {
      * @return true if successful
      */
     public boolean deleteSampleSet(final SampleId sampleId);
-
-    /**
-     * Input network sample notification from NetworkMgr indicating that the
-     * sample set inventory has changed or the contents of a sample set has
-     * changed.
-     */
-    public void networkNotification(final SampleId[] anInventory,
-            final SampleId[] additions, final SampleId[] deletions,
-            final SampleId[] changes) throws VizException;
 
     /**
      * @return the loadedSet
