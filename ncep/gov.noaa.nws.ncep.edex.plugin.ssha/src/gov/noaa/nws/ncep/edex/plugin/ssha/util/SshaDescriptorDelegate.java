@@ -22,9 +22,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.DescriptorFactory;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactoryDelegate;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.IDescriptorFactorySelector;
+import com.raytheon.uf.edex.bufrtools.descriptors.DescriptorFactory;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactoryDelegate;
+import com.raytheon.uf.edex.bufrtools.descriptors.IDescriptorFactorySelector;
 
 public class SshaDescriptorDelegate implements IDescriptorFactoryDelegate {
 
