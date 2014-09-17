@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channe
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2012            mschenke     Initial creation
+ * Aug 22, 2014 DR 17313  jgerth       Support for load properties
  * 
  * </pre>
  * 
@@ -94,16 +95,19 @@ public class TrueColorResourceGroupData extends AbstractResourceData implements
                 }
             };
             for (ChannelResource resource : channelResources) {
-                addResource(resource.getResourceData());
+                addResource(resource.getResourceData(), resource.getLoadProperties());
             }
         }
         return resourceList;
     }
 
-    private void addResource(AbstractResourceData resourceData) {
+    private void addResource(AbstractResourceData resourceData, LoadProperties loadProp) {
         ResourcePair rp = new ResourcePair();
         rp.setResourceData(resourceData);
-        rp.setLoadProperties(new LoadProperties());
+        if (loadProp == null)
+        	rp.setLoadProperties(new LoadProperties());
+        else
+        	rp.setLoadProperties(loadProp);
         rp.setProperties(new ResourceProperties());
         resourceList.add(rp);
     }
