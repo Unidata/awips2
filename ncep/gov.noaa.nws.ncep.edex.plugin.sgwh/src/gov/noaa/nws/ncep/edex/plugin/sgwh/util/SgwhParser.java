@@ -16,7 +16,7 @@
 
 package gov.noaa.nws.ncep.edex.plugin.sgwh.util;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
+import static com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes.RepSubList;
 import gov.noaa.nws.ncep.common.dataplugin.sgwh.SgwhRecord;
 import gov.noaa.nws.ncep.edex.plugin.sgwh.decoder.SgwhSeparator;
 
@@ -25,10 +25,10 @@ import java.util.List;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 public class SgwhParser {

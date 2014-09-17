@@ -23,11 +23,15 @@ import types
 
 import lib.CommandLine as CL
 import lib.InputOutput as IO
-import lib.CommHandler as CH
 import lib.Message as MSG
 import lib.Util as util
 
 import conf.SMConfig as config
+import collections
+
+from ufpy import ThriftClient
+from dynamicserialize.dstypes.com.raytheon.uf.common.message import Message, Header, Property
+from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.text.request import SubscriptionRequest
 ##############################################################################
 # Class providing a command line interface to the EDEX Subscription Service
 # (SubscribeSrv) end-point. The package design, is to allow this class to run
@@ -267,16 +271,13 @@ class SubscriptionManager:
     #    1: indicates the execution was unsuccessful
     def __processRequest(self):
         msg = self.__createMessage()
-        service = config.endpoint.get('subscribe')   
-        connection=str(os.getenv("DEFAULT_HOST", "localhost") + ":" + os.getenv("DEFAULT_PORT", "9581"))
-        ch = CH.CommHandler(connection, service)
-        ch.process(msg)
-        
-        if not ch.isGoodStatus():
-            util.reportHTTPResponse(ch.formatResponse())
-        
-        retVal = self.__processResponse(ch.getContents())
-        
+        host = os.getenv("DEFAULT_HOST", "localhost")
+        port = os.getenv("DEFAULT_PORT", "9581")
+        tClient = ThriftClient.ThriftClient(host, port)
+        req = SubscriptionRequest()
+        req.setMessage(msg)
+        resp = tClient.sendRequest(req)
+        retVal = self.__processResponse(resp)
         return retVal
     
     # Processes the request and reports the results. Data is
@@ -288,14 +289,12 @@ class SubscriptionManager:
     # return:
     #   0 if the message contained valid results, 0 otherwise
     def __processResponse(self,msg):
-        psr = MSG.Message(False)
-        psr.parse(msg)
         status = 0
         io = IO.InputOutput()
         # process the return message
-        for prop in psr.getProperties():
-            name = prop['name']
-            value = prop['value']
+        for prop in msg.getHeader().getProperties():
+            name = prop.getName()
+            value = prop.getValue()
             if name == 'STDERR':
                 parts = value.split(':',2)
                 if parts[0] == 'ERROR':
@@ -312,24 +311,23 @@ class SubscriptionManager:
     # return:
     #   the request message
     def __createMessage(self):
-        msg = MSG.Message(True)
-        msg.initializeMessage(False)
+        multimap = collections.defaultdict(list)
         for key in self.commands:
             if key == 'mode':
                 pass
             elif key == 'substitution':
                 dict = util.convListToDict(self.commands.get(key))
                 for sub in dict:
-                    msg.addProperty(name='substitution',value=str(sub)+":"+str(dict.get(sub)))
+                    multimap['substitution'].append(str(sub)+":"+str(dict.get(sub)))
             elif key == 'update':
                 dict = util.convListToDict(self.commands.get(key))
                 for sub in dict:
-                    msg.addProperty(name='update',value=str(sub)+":"+str(dict.get(sub)))
+                    multimap['update'].append(str(sub)+":"+str(dict.get(sub)))
             else:
-                msg.addProperty(name=key,value=self.commands.get(key))
+                multimap[key].append(self.commands.get(key))
         if self.__hasScript():
-            msg.addProperty(name='script',value=self.script)
-        return msg.getXML()
+            multimap['script'].append(self.script)
+        return Message(header=Header(multimap=multimap))
     
     # main class method. Performs the subscription update request.
     #
