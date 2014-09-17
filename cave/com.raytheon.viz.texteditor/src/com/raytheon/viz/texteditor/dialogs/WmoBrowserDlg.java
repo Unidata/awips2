@@ -63,6 +63,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 08/04/2009   2191        rjpeter     Initial implementation.
  * 04/14/2010   4734        mhuang      Corrected StdTextProduct import 
  *                                       dependency
+ * 09/11/2014   3580        mapeters    Removed IQueryTransport usage (no longer exists).
  * </pre>
  * 
  * @author rjpeter
@@ -328,7 +329,7 @@ public class WmoBrowserDlg extends CaveJFACEDialog {
 
                 try {
                     java.util.List<StdTextProduct> prodList = command
-                            .executeCommand(callbackClient.getQueryTransport());
+                            .executeCommand();
 
                     if (prodList != null && prodList.size() > 0) {
                         StdTextProduct prod = prodList.get(0);

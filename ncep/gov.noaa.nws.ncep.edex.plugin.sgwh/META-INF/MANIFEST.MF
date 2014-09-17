@@ -12,8 +12,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.plugin,
  com.raytheon.uf.common.wmo,
- com.raytheon.uf.edex.decodertools.bufr,
- com.raytheon.uf.edex.decodertools.bufr.descriptors,
- com.raytheon.uf.edex.decodertools.bufr.packets,
+ com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets,
  com.raytheon.uf.edex.decodertools.time,
  org.apache.commons.logging
