@@ -101,13 +101,18 @@
 	</bean>
 	-->
 
-	<bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="getInstance">
-		<property name="maxConnectionsPerHost" value="${PYPIES_MAX_CONN}"/>
+	<bean id="httpClientConfigBuilder" class="com.raytheon.uf.common.comm.HttpClientConfigBuilder">
+		<property name="maxConnections" value="${PYPIES_MAX_CONN}"/>
 		<!-- value in milliseconds to allow socket to timeout, don't allow this to be zero, bad things could happen -->
 	    <property name="socketTimeout" value="180000"/>
-	    <property name="compressRequests" value="false"/>
-	    <property name="gzipResponseHandling" value="false"/>
+	    <property name="handlingGzipResponses" value="false"/>
 	</bean>
+    
+    <bean id="httpClientConfig" factory-bean="httpClientConfigBuilder" factory-method="build"/>
+    
+    <bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="configureGlobalInstance">
+       <constructor-arg ref="httpClientConfig"/>
+    </bean>
 
 	<bean id="pypiesStoreProps" class="com.raytheon.uf.common.pypies.PypiesProperties">
 		<property name="address" value="${PYPIES_SERVER}" />
@@ -298,6 +303,11 @@
    <!-- Redirect geotools log -->
    <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="setGeotoolsLogFactory">
         <constructor-arg value="org.geotools.util.logging.Log4JLoggerFactory" />
+   </bean>
+      
+   <bean id="spatialQueryFactory" class="com.raytheon.uf.common.geospatial.SpatialQueryFactory"
+        factory-method="setImplementation">
+        <constructor-arg value="com.raytheon.edex.common.SpatialDbQuery"/>    
    </bean>
 
     <!-- Holds the registry of request routers by server key -->

@@ -19,11 +19,15 @@
  **/
 package com.raytheon.uf.viz.spellchecker.text;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.internal.ui.text.spelling.AddWordProposal;
+import org.eclipse.jdt.internal.ui.text.spelling.DisableSpellCheckingProposal;
+import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITextListener;
@@ -47,7 +51,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
@@ -55,6 +58,14 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.spellchecker.jobs.EnhancedSpellCheckJob;
 
@@ -70,6 +81,8 @@ import com.raytheon.uf.viz.spellchecker.jobs.EnhancedSpellCheckJob;
  * Jun 18, 2014 3453       rblum     Initial creation
  * Aug 06, 2014 3453       rblum     Refreshing all viewers on enable/
  *                                   disable of spell checking.
+ * Aug 18, 2014 3453       rblum     Added the spell check dictionary
+ *                                   to site level localization.
  * 
  * </pre>
  * 
@@ -77,8 +90,12 @@ import com.raytheon.uf.viz.spellchecker.jobs.EnhancedSpellCheckJob;
  * @version 1.0
  */
 
+@SuppressWarnings("restriction")
 public class SpellCheckTextViewer extends TextViewer implements
         ISpellingProblemCollector {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SpellCheckTextViewer.class);
 
     private List<SpellingProblem> problems;
 
@@ -90,6 +107,10 @@ public class SpellCheckTextViewer extends TextViewer implements
 
     private Map<Range<Integer>, SpellingProblem> ranges;
 
+    private final String siteDictionary = "spellcheck/dictionary.txt";
+
+    private LocalizationFile lf;
+
     /**
      * @param parent
      * @param styles
@@ -98,7 +119,18 @@ public class SpellCheckTextViewer extends TextViewer implements
         super(parent, styles);
         problems = new ArrayList<SpellingProblem>();
         ranges = new HashMap<Range<Integer>, SpellingProblem>();
-        store = EditorsUI.getPreferenceStore();
+        store = PreferenceConstants.getPreferenceStore();
+
+        IPathManager mgr = PathManagerFactory.getPathManager();
+        lf = mgr.getLocalizationFile(mgr.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE),
+                siteDictionary);
+
+        // Get the localized dictionary and store it in the Preference store
+        File dictionary = lf.getFile();
+        String filePath = dictionary.getPath();
+        store.setValue(PreferenceConstants.SPELLING_USER_DICTIONARY, filePath);
+
         setDocument(new Document());
         textViewers.add(this);
         ITextListener listener = new ITextListener() {
@@ -244,7 +276,24 @@ public class SpellCheckTextViewer extends TextViewer implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 ICompletionProposal prop = (ICompletionProposal) item.getData();
-                prop.apply(getDocument());
+                if (prop instanceof DisableSpellCheckingProposal) {
+                    store.setValue(SpellingService.PREFERENCE_SPELLING_ENABLED,
+                            false);
+                } else {
+                    prop.apply(getDocument());
+
+                    if (prop instanceof AddWordProposal) {
+                        try {
+                            if (lf != null) {
+                                lf.save();
+                            }
+                        } catch (LocalizationOpFailedException exception) {
+                            statusHandler
+                                    .error("Unable to save dictionary into localization",
+                                            exception);
+                        }
+                    }
+                }
                 scheduleSpellJob(true);
                 refreshAllTextViewers(false);
             }

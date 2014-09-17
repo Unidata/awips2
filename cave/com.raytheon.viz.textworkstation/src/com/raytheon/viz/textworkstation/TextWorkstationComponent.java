@@ -40,6 +40,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEDialogComponent;
  * Oct 02, 2012 1229       rferrel     Make a blocking dialog.
  * Oct 17, 2012 1229       rferrel     Changes for non-blocking
  *                                      TextWorkstationDlg.
+ * Sep 09, 2014 3580       mapeters    Removed {@link SerializationUtil} usage.
  * 
  * </pre>
  * 
@@ -58,7 +59,6 @@ public class TextWorkstationComponent extends AbstractCAVEDialogComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        SerializationUtil.getJaxbContext();
         TextWorkstationDlg textWorkstationDlg = new TextWorkstationDlg(
                 new Shell(Display.getCurrent()));
         textWorkstationDlg.open();

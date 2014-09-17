@@ -24,6 +24,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.plugin.taf.decoder.TAFChangeGroupFactory;
 
 
 
@@ -36,7 +37,11 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 13, 2013            bclement     Initial creation
+ * Nov 13, 2013            bclement    Initial creation
+ * Aug 26, 2014 3365       ccody       Separate Data Delivery tests out of AWIPS 2 baseline.
+ *                                     TAFChangeGroupFactory API Has changed since this test was created.
+ *                                     Test functionality that is no longer supported by the API (i.e. will not compile)
+ *                                     has been "deactivated" (commented out).
  * 
  * </pre>
  * 
@@ -64,11 +69,18 @@ public class TAFChangeGroupFactoryTest {
                 + " TEMPO 1300/1302 VCSH SCT017TCU\n"
                 + " TEMPO 1310/1312 5000 BCFG SCT015 TX31/1218Z TN23/1311Z=";
 
+        /* 08-26-2014 Issue 3365 TAFChangeGroupFactory API has changed.
+         * REMOVED BEGIN
+         *
         TAFChangeGroupFactory factory = new TAFChangeGroupFactory();
+        
         final String fileName = "/tmp/sbn/manual/nctext/20131112/11/FTXX99_KWBC_121100_20738883.2013111211";
         String result = factory.checkForLegacyFormat(new WMOHeader(
                 "FTXX99 KWBC 121100".getBytes(), fileName), input);
         Assert.assertEquals(expected, result);
+         * 08-26-2014 Issue 3365 TAFChangeGroupFactory API has changed.
+         * REMOVED END 
+         */
     }
 
 }

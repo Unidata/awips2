@@ -1,17 +1,20 @@
 <project default="deploy" basedir=".">
 
-    <property name="workspace" value="${basedir}/../.." />
-    <property name="workspace_edexOsgi" value="${workspace}/edexOsgi"/>
-    <property name="workspace_javaUtilities" value="${workspace}/javaUtilities"/>
-    <property name="workspace_cots" value="${workspace}/cots" />
+	<property name="workspace" value="${basedir}/../.." />
+	<property name="workspace_edexOsgi" value="${workspace}/edexOsgi"/>
+	<property name="workspace_javaUtilities" value="${workspace}/javaUtilities"/>
+	<property name="workspace_coreCommon" value="${workspace}/../ufcore/common"/>
+	<property name="workspace_cots" value="${workspace}/cots" />
+	<property name="workspace_coreFoss" value="${workspace}/../ufcore-foss/lib" />
+	<property name="workspace_awipsFoss" value="${workspace}/../AWIPS2_foss/lib" />
 
 	<property name="esb.build.directory" value="${workspace_edexOsgi}/build.edex" />
 	<property name="feature.file" value="${basedir}.feature/feature.xml" />
 	<property name="dataserver.root.directory" value="/awips2/collab-dataserver" />
 	<property name="includegen.filter" value="raytheon|collaboration.dataserver" />
-	<property name="basedirectories" value="${workspace_edexOsgi};${workspace_javaUtilities};${workspace_cots}" />
+	<property name="basedirectories" value="${workspace_edexOsgi};${workspace_javaUtilities};${workspace_cots};${workspace_coreCommon};${workspace_coreFoss};${workspace_awipsFoss}" />
 
-	<property name="tmp.dir" value="/tmp/collab-dataserver" />
+	<property name="tmp.dir" value="${basedir}/tmp" />
 	<property name="includes.directory" value="${tmp.dir}/includes" />
 	<property name="tmp.src.dir" value="${tmp.dir}/src" />
 	<property name="tmp.bin.dir" value="${tmp.dir}/bin" />
@@ -27,12 +30,20 @@
 	</path>
 
 	<target name="clean">
-		<!-- cleanup the temporary directories -->
+		<!-- cleanup temporary directories -->
 		<if>
 			<available file="${basedir}/tmp" type="dir" />
 			<then>
 				<delete includeemptydirs="true">
 					<fileset dir="${basedir}" includes="tmp/**" />
+				</delete>
+			</then>
+		</if>
+		<if>
+			<available file="${tmp.dir}" type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset dir="${tmp.dir}" includes="*/**" />
 				</delete>
 			</then>
 		</if>
@@ -66,8 +77,6 @@
 			<fileset dir="${basedir}/scriptBin" />
 		</copy>
 		<chmod dir="${dataserver.root.directory}/bin" perm="ug+rx" includes="**/*.sh" />
-		<!-- clean up -->
-		<antcall target="clean" />
 	</target>
 
 	<target name="build">
@@ -90,10 +99,13 @@
 
 			<!-- copy foss jars to tmp lib folder -->
 			<copyToBuild includes.file="${includes.directory}/cots.includes" source.base="${workspace_cots}" source.suffix="" includes.pattern="*.jar" target.dir="${tmp.lib.dir}" />
-
+			<copyToBuild includes.file="${includes.directory}/cots.includes" source.base="${workspace_coreFoss}" source.suffix="" includes.pattern="*.jar" target.dir="${tmp.lib.dir}" />
+			<copyToBuild includes.file="${includes.directory}/cots.includes" source.base="${workspace_awipsFoss}" source.suffix="" includes.pattern="*.jar" target.dir="${tmp.lib.dir}" />
 			<!-- copy all uframe source to tmp src folder -->
 			<copyToBuild includes.file="${includes.directory}/core.includes" source.base="${workspace_edexOsgi}" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
-
+			<copyToBuild includes.file="${includes.directory}/core.includes" source.base="${workspace_coreCommon}" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
+			
+			
 			<copyToBuild includes.file="${includes.directory}/plugins.includes" source.base="${workspace_edexOsgi}" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
 
 			<copy todir="${tmp.src.dir}" overwrite="true" verbose="true">
