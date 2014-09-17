@@ -496,8 +496,9 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         case IMAGE:
             ColorMapCapability colorMapCap = getCapability(ColorMapCapability.class);
             ImagingCapability imagingCap = getCapability(ImagingCapability.class);
+            ColorMapParameters params = null;
             if (renderableMap.isEmpty()) {
-                ColorMapParameters params = createColorMapParameters(data);
+                params = createColorMapParameters(data);
                 if (params.getColorMap() == null) {
                     if (params.getColorMapName() == null) {
                         params.setColorMapName("Grid/gridded data");
@@ -506,6 +507,11 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                             .getColorMapName()));
                 }
                 colorMapCap.setColorMapParameters(params);
+            } else {
+                params = colorMapCap.getColorMapParameters();
+            }
+            if (params.getDataMapping() != null) {
+                data.convert(params.getColorMapUnit());
             }
             TileImageCreator creator = new DataSourceTileImageCreator(
                     data.getScalarData(), data.getDataUnit(),
