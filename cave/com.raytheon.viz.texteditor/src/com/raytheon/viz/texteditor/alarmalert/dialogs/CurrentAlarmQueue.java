@@ -55,7 +55,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -71,7 +70,6 @@ import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
-import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.ModeListener;
@@ -110,6 +108,7 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  * Jun 23, 2014 #3161      lvenable    Added SWT dialog trim to the dialogs for thin client.
  * Jul 24, 2014  3423   randerso       Created eclipse job to get afos command 
  *                                     execution off the UI thread
+ * Sep 09, 2014  3580      mapeters    Removed IQueryTransport usage (no longer exists).
  * 
  * </pre>
  * 
@@ -142,8 +141,6 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     private java.util.List<Date> listDates;
 
     private Button displayAll;
-
-    private IQueryTransport queryTransport = null;
 
     private java.util.List<StdTextProduct> prodList = null;
 
@@ -672,9 +669,8 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
      */
     @Override
     public void executeCommand(ICommand command) {
-        queryTransport = TextEditorUtil.getTextDbsrvTransport();
         try {
-            prodList = command.executeCommand(queryTransport);
+            prodList = command.executeCommand();
             if (prodList == null || prodList.size() <= 0) {
                 prodList = new ArrayList<StdTextProduct>();
             }

@@ -34,12 +34,6 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
-import com.raytheon.uf.common.inventory.tree.DataTree;
-import com.raytheon.uf.common.inventory.tree.LevelNode;
-import com.raytheon.uf.common.inventory.tree.ParameterNode;
-import com.raytheon.uf.common.inventory.tree.SourceNode;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -57,6 +51,11 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.StereographicGridCoverage;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.tree.DataTree;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
+import com.raytheon.uf.common.inventory.tree.ParameterNode;
+import com.raytheon.uf.common.inventory.tree.SourceNode;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -84,6 +83,7 @@ import com.raytheon.viz.radar.util.StationUtils;
  * Mar 23, 2010 #4473      rjpeter     Initial creation
  * Feb 21, 2014 DR 16744   D. Friedman Add getUpdateConstraints
  * Apr  1, 2014 DR 17220   D. Friedman Handle uninitialized grid inventory
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -313,12 +313,7 @@ public class RadarAdapter {
      * @param level
      */
     private void initTopoParam(SourceNode modelNameNode) {
-        Level sfc = null;
-        try {
-            sfc = LevelFactory.getInstance().getLevel("SFC", 0.0);
-        } catch (CommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
+        Level sfc = LevelFactory.getInstance().getLevel("SFC", 0.0);
         DerivParamDesc topo = new DerivParamDesc();
         topo.setAbbreviation("Topo");
         topo.setName("Topography");

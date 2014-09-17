@@ -105,6 +105,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                      warnings clean up.
  * Sep 30, 2013     #2361   njensen     Use JAXBManager for XML
  * Jan 21, 2014     #2720   randerso    Improve efficiency of merging polygons in edit area generation
+ * Aug 27, 2014     #3563   randerso    Fix issue where edit areas are regenerated unnecessarily
  * 
  * </pre>
  * 
@@ -165,6 +166,7 @@ public class MapManager {
                     .getAbsolutePath();
             LocalizationContext edexStaticConfig = pathMgr.getContext(
                     LocalizationType.EDEX_STATIC, LocalizationLevel.CONFIGURED);
+            edexStaticConfig.setContextName(siteId);
             this.edexStaticConfigDir = pathMgr.getFile(edexStaticConfig, ".")
                     .getAbsolutePath();
             LocalizationContext edexStaticSite = pathMgr.getContextForSite(
@@ -298,6 +300,8 @@ public class MapManager {
             newestSource = Math.max(newestSource, file.lastModified());
             localMapsTag.mkdirs();
         } else if (localMapsTag.exists()) {
+            statusHandler
+                    .info("localMaps.py file removed. Edit areas will be regenerated.");
             localMapsTag.delete();
             newestSource = System.currentTimeMillis();
         }

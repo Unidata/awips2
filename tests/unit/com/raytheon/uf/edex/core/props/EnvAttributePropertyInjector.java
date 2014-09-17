@@ -42,6 +42,7 @@ public class EnvAttributePropertyInjector {
 
     public static void injectAttributeProperty(String attributeName,
             String attributeValue, String propertyValue) {
+        /* TODO HERE FIX PropertiesFactory reference
         Configuration attrNamesConfig = PropertiesFactory.getInstance()
                 .getEnvProperties().theAttrNamesConfiguration;
         Configuration envConfig = PropertiesFactory.getInstance()
@@ -49,5 +50,6 @@ public class EnvAttributePropertyInjector {
 
         attrNamesConfig.setProperty(attributeName, attributeValue);
         envConfig.setProperty(attributeValue, propertyValue);
+        */
     }
 }

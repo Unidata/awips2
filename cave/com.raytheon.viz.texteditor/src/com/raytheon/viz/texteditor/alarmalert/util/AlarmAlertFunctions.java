@@ -62,7 +62,6 @@ import com.raytheon.viz.texteditor.alarmalert.dialogs.AlarmAlertBell;
 import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.command.CommandFailedException;
 import com.raytheon.viz.texteditor.command.ICommand;
-import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -81,6 +80,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 12/07/2012	15555	   m.gamazaychikov	Added methods and constants for 
  * 											the implementation of proximity alarm
  * 07/24/2014   3423       randerso    Ensure ringBell is called on UI thread
+ * 09/09/2014   3580       mapeters    Removed IQueryTransport usage (no longer exists).
  * 
  * </pre>
  * 
@@ -261,8 +261,7 @@ public class AlarmAlertFunctions {
 
         ICommand command = CommandFactory.getAfosCommand(productId);
         try {
-            productList = command.executeCommand(TextEditorUtil
-                    .getTextDbsrvTransport());
+            productList = command.executeCommand();
         } catch (CommandFailedException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }

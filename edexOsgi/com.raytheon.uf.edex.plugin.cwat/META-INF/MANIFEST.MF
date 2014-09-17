@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Cwat Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.cwat
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=optional,
  com.raytheon.uf.common.monitor;bundle-version="1.11.7",
@@ -24,10 +24,10 @@ Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=
  com.raytheon.uf.edex.database,
  com.raytheon.uf.common.datastorage
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.cwat,
  com.raytheon.uf.edex.plugin.cwat.common
 Import-Package: com.raytheon.edex.urifilter,
  com.raytheon.uf.common.util,
+ com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.plugin.scan.common,
  org.apache.commons.logging
