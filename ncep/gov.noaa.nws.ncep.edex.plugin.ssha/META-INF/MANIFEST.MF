@@ -14,8 +14,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.31",
 Export-Package: gov.noaa.nws.ncep.edex.plugin.ssha.decoder,
  gov.noaa.nws.ncep.edex.plugin.ssha.util
 Import-Package: com.raytheon.uf.common.wmo,
- com.raytheon.uf.edex.decodertools.bufr,
- com.raytheon.uf.edex.decodertools.bufr.descriptors,
- com.raytheon.uf.edex.decodertools.bufr.packets,
+ com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets,
  com.raytheon.uf.edex.decodertools.time,
  org.apache.commons.logging

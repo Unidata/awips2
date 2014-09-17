@@ -5,6 +5,11 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
    
    <bean id="vilGenerator" class="com.raytheon.uf.edex.plugin.vil.VILGenerator"/>
+   
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="vil-camel" />
+        <constructor-arg ref="vilGenerator" />
+    </bean>
        
     <bean factory-bean="cpgSrvDispatcher" factory-method="register">
 		<constructor-arg ref="vilGenerator"/>

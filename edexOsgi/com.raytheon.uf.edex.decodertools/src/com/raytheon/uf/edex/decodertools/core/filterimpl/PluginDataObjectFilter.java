@@ -24,10 +24,7 @@ import static com.raytheon.uf.common.localization.LocalizationContext.Localizati
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -43,7 +40,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -58,6 +55,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Jun 11, 2014  2061     bsteffen    Remove IDecoderGettable
  * Jul 23, 2014 3410      bclement    location changed to floats
+ * Sep 09, 2014  3548     mapeters    Improved constructor's error messages.
+ * Sep 11, 2014  3548     mapeters    Replaced use of SerializationUtil
+ *                                    with JAXBManager.
  * 
  * </pre>
  * 
@@ -95,26 +95,18 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                     filterDir = manager.getFile(context, FILTERS_DIR);
                     if (filterDir.exists()) {
                         File srcFile = new File(filterDir, filterConfigFile);
+                        JAXBManager jaxb = new JAXBManager(
+                                PluginDataObjectFilter.class,
+                                RadiusFilterElement.class,
+                                RectFilterElement.class,
+                                StationIdFilterElement.class,
+                                WMOHeaderFilterElement.class);
+                        PluginDataObjectFilter filter = jaxb
+                                .unmarshalFromXmlFile(
+                                        PluginDataObjectFilter.class, srcFile);
 
-                        byte[] data = new byte[(int) srcFile.length()];
-
-                        InputStream stream = getInputStream(srcFile);
-                        try {
-                            stream.read(data);
-                            stream.close();
-
-                            AbstractObsFilter filter = SerializationUtil
-                                    .unmarshalFromXml(AbstractObsFilter.class,
-                                            new String(data));
-
-                            setFilterElements(filter.getFilterElements());
-                            setFilterName(filter.getFilterName());
-                        } catch (IOException e) {
-                            logger.error("Unable to read filter config", e);
-                        } catch (JAXBException e) {
-                            logger.error("Unable to unmarshall filter config",
-                                    e);
-                        }
+                        setFilterElements(filter.getFilterElements());
+                        setFilterName(filter.getFilterName());
                     } else {
                         logger.error(String.format(ERROR_2_FMT,
                                 filterDir.getPath()));
@@ -129,7 +121,7 @@ public class PluginDataObjectFilter extends AbstractObsFilter {
                 // Could not create PathManager
             }
         } catch (Exception e) {
-            logger.error("Error creating filter.", e);
+            logger.error("Error creating filter from " + filterConfigFile, e);
             createDummyFilter();
         }
         logger.info("Filter name = " + getFilterName());

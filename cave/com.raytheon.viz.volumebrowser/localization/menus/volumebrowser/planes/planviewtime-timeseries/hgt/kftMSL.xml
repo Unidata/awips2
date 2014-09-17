@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <contribute xsi:type="menuItem" menuText="1 kft MSL" key="1kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="2 kft MSL" key="2kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="3 kft MSL" key="3kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="4 kft MSL" key="4kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="5 kft MSL" key="5kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="6 kft MSL" key="6kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="7 kft MSL" key="7kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="8 kft MSL" key="8kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="9 kft MSL" key="9kft"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="10 kft MSL"
+        key="10kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="11 kft MSL"
+        key="11kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="12 kft MSL"
+        key="12kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="13 kft MSL"
+        key="13kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="14 kft MSL"
+        key="14kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="15 kft MSL"
+        key="15kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="16 kft MSL"
+        key="16kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="17 kft MSL"
+        key="17kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="20 kft MSL"
+        key="20kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="25 kft MSL"
+        key="25kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="30 kft MSL"
+        key="30kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="35 kft MSL"
+        key="35kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="40 kft MSL"
+        key="40kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="45 kft MSL"
+        key="45kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="50 kft MSL"
+        key="50kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="55 kft MSL"
+        key="55kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="60 kft MSL"
+        key="60kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="65 kft MSL"
+        key="65kft" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="70 kft MSL"
+        key="70kft" indentText="false" />
+</menuTemplate>

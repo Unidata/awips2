@@ -19,11 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.acars.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.SubSetList;
-import static com.raytheon.uf.edex.plugin.acars.common.ACARSConstants.NO_ICING;
-import static com.raytheon.uf.edex.plugin.acars.common.ACARSConstants.RESERVE_13;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -40,9 +35,11 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
+import com.raytheon.uf.edex.bufrtools.descriptors.BUFRDescriptor;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.plugin.acars.common.ACARSConstants;
 
 /**
  * Adapter used to decode ACARS data in BUFR format.
@@ -60,6 +57,7 @@ import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
  * Jun 12, 2014  2061     bsteffen    Generate unique stationid
  * Jul 22, 2014  3392     nabowle     ACARSRecord has Float fields instead of Double
  * Jul 23, 2014  3410     bclement    location changed to floats
+ * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -281,7 +279,8 @@ public class ACARSDataAdapter {
                                     getFlightPhase(subList, rpt, 9);
 
                                     IBUFRDataPacket wxData = subList.get(10);
-                                    if (RepSubList.getPacketType().equals(
+                                    if (DataPacketTypes.RepSubList
+                                            .getPacketType().equals(
                                             wxData.getUnits())) {
                                         List<IBUFRDataPacket> dataList = (List<IBUFRDataPacket>) wxData
                                                 .getValue();
@@ -640,7 +639,8 @@ public class ACARSDataAdapter {
         }
 
         Integer ice = record.getIcing();
-        if ((ice != null) && (ice > NO_ICING) && (ice < RESERVE_13)) {
+        if ((ice != null) && (ice > ACARSConstants.NO_ICING)
+                && (ice < ACARSConstants.RESERVE_13)) {
             if (record.getIceBaseHgt() == null) {
                 record.setIceBaseHgt(record.getFlightLevel());
             }
@@ -672,7 +672,8 @@ public class ACARSDataAdapter {
 
         List<IBUFRDataPacket> subList = null;
         IBUFRDataPacket packet = dataList.get(0);
-        if (SubSetList.getPacketType().equals(packet.getUnits())) {
+        if (DataPacketTypes.SubSetList.getPacketType()
+                .equals(packet.getUnits())) {
             subList = (List<IBUFRDataPacket>) packet.getValue();
             if ((subList != null) && (subList.size() >= 6)) {
                 packet = subList.get(0); // Height
