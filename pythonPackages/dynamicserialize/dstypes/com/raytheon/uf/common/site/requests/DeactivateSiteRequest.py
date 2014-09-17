@@ -17,41 +17,20 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    09/10/14         #3623        randerso       Manually created, do not regenerate
+#
+## 
 
-# File auto-generated against equivalent DynamicSerialize Java class
+class DeactivateSiteRequest(object):
 
-class SiteActivationNotification(object):
-
-    def __init__(self):
-        self.active = None
-        self.modifiedSite = None
-        self.runMode = None
-        self.serverName = None
-        self.siteID = None
-
-    def getActive(self):
-        return self.active
-
-    def setActive(self, active):
-        self.active = active
-
-    def getModifiedSite(self):
-        return self.modifiedSite
-
-    def setModifiedSite(self, modifiedSite):
-        self.modifiedSite = modifiedSite
-
-    def getRunMode(self):
-        return self.runMode
-
-    def setRunMode(self, runMode):
-        self.runMode = runMode
-
-    def getServerName(self):
-        return self.serverName
-
-    def setServerName(self, serverName):
-        self.serverName = serverName
+    def __init__(self, siteID=None, plugin=None):
+        self.siteID = siteID
+        self.plugin = plugin
 
     def getSiteID(self):
         return self.siteID
@@ -59,3 +38,8 @@ class SiteActivationNotification(object):
     def setSiteID(self, siteID):
         self.siteID = siteID
 
+    def getPlugin(self):
+        return self.plugin
+
+    def setPlugin(self, plugin):
+        self.plugin = plugin
