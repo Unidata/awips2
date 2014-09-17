@@ -22,6 +22,11 @@
    	    <constructor-arg ref="ffmpThreadPool"/>
    </bean>
           
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="ffmp-camel" />
+        <constructor-arg ref="ffmpGenerator" />
+    </bean>
+          
     <bean factory-bean="cpgSrvDispatcher" factory-method="register">
 		<constructor-arg ref="ffmpGenerator"/>
 	</bean>

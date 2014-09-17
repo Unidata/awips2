@@ -29,13 +29,13 @@ import org.eclipse.core.runtime.ListenerList;
 
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.viz.gfe.Activator;
 
 /**
