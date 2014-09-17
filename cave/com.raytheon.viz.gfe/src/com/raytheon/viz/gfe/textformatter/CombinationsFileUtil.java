@@ -72,6 +72,7 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Sep 30, 2013      2361  njensen     Use JAXBManager for XML
  * Feb 05, 2014     #2591  randerso    Forced retrieval of combinations file
  *                                     Implemented retry on error
+ * Aug 27, 2014     #3561  randerso    Yet another attempt to fix combinations file updating
  * 
  * </pre>
  * 
@@ -227,6 +228,16 @@ public class CombinationsFileUtil {
         File pyFile = null;
         if (lf != null) {
             try {
+                // get the local .py file
+                pyFile = lf.getFile(false);
+
+                // delete both the local .py and .pyo files to force retrieval
+                // and regeneration
+                pyFile.delete();
+                File pyoFile = new File(pyFile.getPath() + "o");
+                pyoFile.delete();
+
+                // retrieve the .py file
                 pyFile = lf.getFile(true);
             } catch (LocalizationException e) {
                 throw new GfeException("Error retrieving combinations file: "
@@ -234,7 +245,7 @@ public class CombinationsFileUtil {
             }
         }
 
-        if (pyFile == null || !pyFile.exists()) {
+        if ((pyFile == null) || !pyFile.exists()) {
             return Collections.emptyList();
         }
 
@@ -250,24 +261,24 @@ public class CombinationsFileUtil {
         map.put("comboName", comboName);
         PythonScript python = null;
         for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
-        try {
+            try {
                 python = new PythonScript(scriptPath,
                         PyUtil.buildJepIncludePath(
-                    GfePyIncludeUtil.getCombinationsIncludePath(),
-                    GfePyIncludeUtil.getCommonPythonIncludePath()),
-                    CombinationsFileUtil.class.getClassLoader());
+                                GfePyIncludeUtil.getCombinationsIncludePath(),
+                                GfePyIncludeUtil.getCommonPythonIncludePath()),
+                        CombinationsFileUtil.class.getClassLoader());
 
-            Object com = python.execute("getCombinations", map);
-            combos = (List<List<String>>) com;
+                Object com = python.execute("getCombinations", map);
+                combos = (List<List<String>>) com;
 
                 // if successfully retrieved break out of the loop
                 break;
-        } catch (JepException e) {
+            } catch (JepException e) {
                 // remove the .pyo file
                 new File(pyFile.getAbsolutePath() + "o").delete();
 
                 // if not last try, log and try again
-                if (retryCount < MAX_TRIES - 1) {
+                if (retryCount < (MAX_TRIES - 1)) {
                     // log but don't pop up
                     statusHandler.handle(Priority.EVENTB,
                             "Error loading combinations file: " + comboName
@@ -275,14 +286,14 @@ public class CombinationsFileUtil {
                 }
                 // else throw exception
                 else {
-            throw new GfeException("Error loading combinations file: "
-                    + comboName, e);
+                    throw new GfeException("Error loading combinations file: "
+                            + comboName, e);
                 }
-        } finally {
-            if (python != null) {
-                python.dispose();
+            } finally {
+                if (python != null) {
+                    python.dispose();
+                }
             }
-        }
         }
         return combos;
     }

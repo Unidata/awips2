@@ -137,6 +137,7 @@ import com.raytheon.uf.edex.plugin.ffmp.common.FFTIRatioDiff;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Apr 24, 2014 2940       dhladky     Prevent storage of bad records.
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
+ * Aug 26, 2014 3503       bclement    removed constructDataURI() call
  * </pre>
  * 
  * @author dhladky
@@ -700,7 +701,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
                     if (ffmpRec != null) {
 
-                        ffmpRec.constructDataURI();
                         persistRecord(ffmpRec);
                         processDataContainer(ffmpRec, siteKey);
                         // Now that we have the data container,

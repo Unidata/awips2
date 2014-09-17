@@ -46,7 +46,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
@@ -77,6 +76,9 @@ import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
 import com.raytheon.uf.common.geospatial.DestinationGeodeticCalculator;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -101,9 +103,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
@@ -224,6 +223,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 07/28/2014  DR 17475    Qinglu Lin  Updated populateStrings() and findLargestQuadrant(), removed findLargestGeometry(), 
  *                                     added createAreaAndCentroidMaps() and movePopulatePt(), updated paintText() to center W.
  * 08/20/2014  3353        rferrel     Generating Geo Spatial data set no longer on the UI thread.
+ * 08/20/2014  ASM #16703  D. Friedman Make geo feature types for watches explicit
+ * 09/15/2014  3353        rferrel     No longer have null parent shell for the GenerateGeoDataSetDialog.
  * </pre>
  * 
  * @author mschenke
@@ -1252,9 +1253,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         if (dataSet != null) {
                             updateGeoData(gData, dataSet, gmd, currKey, tq0);
                         } else {
+                            // This makes sure dialog exists and is open
+                            createDialog();
                             GenerateGeoDataSetDialog genDialog = new GenerateGeoDataSetDialog(
-                                    Display.getCurrent().getActiveShell(),
-                                    site, gmd);
+                                    dialog.getShell(), site, gmd);
 
                             // Assume this is a blocking dialog.
                             genDialog.open();
@@ -1558,48 +1560,42 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return null;
     }
 
+    public enum GeoFeatureType {
+        COUNTY("county", "FIPS"), MARINE("marinezones", "ID");
+        final private String tableName;
+        final private String fipsField;
+        private GeoFeatureType(String tableName, String fipsField) {
+            this.tableName = tableName;
+            this.fipsField = fipsField;
+        }
+    }
+
     /**
      * Returns a set of UGCs for each area in the CWA that intersects the given
      * polygon.
      */
-    public Set<String> getUgcsForWatches(Polygon polygon) throws Exception {
-        GeospatialDataAccessor gda = getGeospatialDataAcessor();
-        boolean isMarineZone = configuration.getGeospatialConfig()
-                .getAreaSource().equalsIgnoreCase(MARINE);
-        if (!isMarineZone) {
-            Set<String> ugcs = new HashSet<String>();
-            for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
-                ugcs.add(FipsUtil.getUgcFromFips(fips));
-            }
-            return ugcs;
-        } else {
-            Set<String> ids = new HashSet<String>();
-            Geometry g = gda.buildArea(polygon);
-            ids = getAllFipsInArea(g);
-            return ids;
-        }
+    public Set<String> getUgcsForWatches(Polygon polygon, GeoFeatureType type)
+            throws Exception {
+        Set<String> ugcs = new HashSet<String>();
+        GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
+        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon)))
+            ugcs.add(FipsUtil.getUgcFromFips(fips));
+        return ugcs;
     }
 
-    public Set<String> getAllUgcs() throws Exception {
-        GeospatialDataAccessor gda;
+    public Set<String> getAllUgcs(GeoFeatureType type) throws Exception {
+        // TODO: zig
+        GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
         Set<String> ugcs = new HashSet<String>();
-        gda = getGeospatialDataAcessor();
-        boolean isMarineZone = configuration.getGeospatialConfig()
-                .getAreaSource().equalsIgnoreCase(MARINE);
-        if (!isMarineZone) {
-            for (GeospatialData r : gda.geoData.features) {
-                ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
-            }
-        } else {
-            for (GeospatialData r : gda.geoData.features) {
-                ugcs.add(getFips(r));
-            }
+        for (GeospatialData r : gda.geoData.features) {
+            ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
         }
         return ugcs;
     }
 
-    private GeospatialDataAccessor getGeospatialDataAcessor() throws Exception {
-        GeospatialDataList gdl = searchGeospatialDataAccessor();
+    private GeospatialDataAccessor getGeospatialDataAcessor(GeoFeatureType type)
+            throws Exception {
+        GeospatialDataList gdl = searchGeospatialDataAccessor(type);
         if (gdl == null) {
             // Cause county geospatial data to be loaded
             /*
@@ -1609,36 +1605,33 @@ public class WarngenLayer extends AbstractStormTrackResource {
              * the filename. What happens in the future if the base file gets
              * changed again? A ticket should be opened for this to be resolved.
              */
-            WarngenConfiguration torConfig = WarngenConfiguration.loadConfig(
-                    "tornadoWarning", getLocalizedSite(), null);
-            loadGeodataForConfiguration(torConfig);
-            gdl = searchGeospatialDataAccessor();
+            String templateName;
+            if (type == GeoFeatureType.COUNTY)
+                templateName = "tornadoWarning";
+            else if (type == GeoFeatureType.MARINE)
+                templateName = "specialMarineWarning";
+            else
+                throw new IllegalArgumentException("Unsupported geo feature type " + type);
+            WarngenConfiguration config = WarngenConfiguration.loadConfig(
+                    templateName, getLocalizedSite(), null);
+            loadGeodataForConfiguration(config);
+            gdl = searchGeospatialDataAccessor(type);
         }
 
-        // TODO: There should be some way to get the "county" configuration by
-        // name
-        // independent of a template
+        // TODO: FIPS field should not be hardcoded.
         AreaSourceConfiguration areaConfig = new AreaSourceConfiguration();
-        areaConfig.setFipsField("FIPS");
+        areaConfig.setFipsField(type.fipsField);
 
         return new GeospatialDataAccessor(gdl, areaConfig);
     }
 
-    private GeospatialDataList searchGeospatialDataAccessor() {
+    private GeospatialDataList searchGeospatialDataAccessor(GeoFeatureType type) {
         synchronized (siteMap) {
             for (Map.Entry<String, GeospatialDataList> entry : siteMap
                     .entrySet()) {
                 String[] keyParts = entry.getKey().split("\\.");
-                boolean isMarineZone = configuration.getGeospatialConfig()
-                        .getAreaSource().equalsIgnoreCase(MARINE);
-                String mapdataTable = null;
-                if (!isMarineZone) {
-                    mapdataTable = "county";
-                } else {
-                    mapdataTable = "marinezones";
-                }
                 if ((keyParts.length == 2)
-                        && mapdataTable.equalsIgnoreCase(keyParts[0])
+                        && type.tableName.equalsIgnoreCase(keyParts[0])
                         && getLocalizedSite().equals(keyParts[1])) {
                     return entry.getValue();
                 }

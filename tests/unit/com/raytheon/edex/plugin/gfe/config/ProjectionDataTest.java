@@ -24,7 +24,9 @@ import java.awt.Point;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.opengis.metadata.spatial.PixelOrientation;
+//import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
 import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData.ProjectionType;
@@ -191,7 +193,7 @@ public class ProjectionDataTest {
      */
     @Test
     public void testGridCoordinateToLatLon() {
-        PixelOrientation orientation = PixelOrientation.CENTER;
+        //PixelOrientation orientation = PixelOrientation.CENTER;
 
         for (TestCase testCase : testCases) {
             System.out
@@ -199,15 +201,23 @@ public class ProjectionDataTest {
             for (Coordinate[] coords : testCase.testInOut) {
                 Coordinate gridCoord = coords[0];
                 Coordinate expected = coords[1];
-                Coordinate latLon = testCase.proj.gridCoordinateToLatLon(
-                        gridCoord, orientation);
-                System.out.println(gridCoord + "  " + latLon);
-                Assert.assertTrue("expected: " + expected.x + ", got: "
-                        + latLon.x,
-                        withinTolerance(latLon.x, expected.x, TOLERANCE));
-                Assert.assertTrue("expected: " + expected.y + ", got: "
-                        + latLon.y,
-                        withinTolerance(latLon.y, expected.y, TOLERANCE));
+                try {
+                    Coordinate latLon = testCase.proj.gridCoordinateToLatLon(
+                            gridCoord);
+                    System.out.println(gridCoord + "  " + latLon);
+                    Assert.assertTrue("expected: " + expected.x + ", got: "
+                            + latLon.x,
+                            withinTolerance(latLon.x, expected.x, TOLERANCE));
+                    Assert.assertTrue("expected: " + expected.y + ", got: "
+                            + latLon.y,
+                            withinTolerance(latLon.y, expected.y, TOLERANCE));
+                }
+                catch(FactoryException fe) {
+                    Assert.fail("Test failed : " + fe.getMessage());
+                }
+                catch(TransformException te) {
+                    Assert.fail("Test failed : " + te.getMessage());
+                }
             }
         }
     }

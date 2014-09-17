@@ -25,10 +25,10 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector;
 import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
@@ -44,6 +44,8 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 17, 2014 3453       rblum     Initial creation
+ * Aug 18, 2014 3453       rblum     Added the spell check dictionary
+ *                                   to site level localization.
  * 
  * </pre>
  * 
@@ -54,7 +56,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 public class EnhancedSpellCheckJob extends Job {
 
     private IDocument document;
-    
+
     private IRegion[] region = new IRegion[1];
 
     private ISpellingProblemCollector collector;
@@ -69,7 +71,7 @@ public class EnhancedSpellCheckJob extends Job {
     public void setDocument(IDocument document) {
         this.document = document;
     }
-    
+
     public void setRegion(IRegion region) {
         this.region[0] = region;
     }
@@ -83,9 +85,11 @@ public class EnhancedSpellCheckJob extends Job {
         SpellingService service = (SpellingService) PlatformUI.getWorkbench()
                 .getService(SpellingService.class);
         if (service == null) {
-            EditorsUI.getPreferenceStore().setValue(SpellingService.PREFERENCE_SPELLING_ENGINE,
+            PreferenceConstants.getPreferenceStore().setValue(
+                    SpellingService.PREFERENCE_SPELLING_ENGINE,
                     "spellingEngine");
-            service = new SpellingService(EditorsUI.getPreferenceStore());
+            service = new SpellingService(
+                    PreferenceConstants.getPreferenceStore());
         }
 
         SpellingContext context = new SpellingContext();
