@@ -24,6 +24,7 @@ import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
@@ -43,6 +44,7 @@ import com.raytheon.viz.ui.dialogs.ColormapComp;
  * ------------ ---------- ----------- --------------------------
  * Apr 8, 2009            njensen     Initial creation
  * Aug 11, 2010           wldougher
+ * Aug 28, 2014  3516     rferrel     Add separator after color map component.
  * 
  * </pre>
  * 
@@ -120,6 +122,7 @@ public class ChangeColorTableAction extends AbstractRightClickAction implements
             // Build a ColormapComp to get the menu from
             ColormapComp comp = new ColormapComp(parent, parms, cap);
             menu = comp.getMenu();
+            new MenuItem(menu, SWT.SEPARATOR);
         }
 
         ActionContributionItem aci = new ActionContributionItem(
