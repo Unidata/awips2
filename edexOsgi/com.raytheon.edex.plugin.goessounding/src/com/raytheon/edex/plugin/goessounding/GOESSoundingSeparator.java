@@ -25,9 +25,9 @@ import java.util.List;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
 import com.raytheon.uf.common.wmo.WMOHeader;
-import com.raytheon.uf.edex.decodertools.bufr.BUFROffsets;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRSection0;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRSection5;
+import com.raytheon.uf.edex.bufrtools.BUFROffsets;
+import com.raytheon.uf.edex.bufrtools.BUFRSection0;
+import com.raytheon.uf.edex.bufrtools.BUFRSection5;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 
 /**

@@ -189,20 +189,27 @@ ${drainage.name}##
 ########END MACRO
 
 #macro(inserttorwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($tornadoWatches = [])
+#set($keys = [])
+#set($mymap = {})
 #foreach(${watch} in ${watches})
 #if(${watch.getPhenSig()} == 'TO.A')
-#set($success = $tornadoWatches.add($watch))
-#set($endTime = ${watch.endTime})
-#if(!$latestEndTime || ${endTime.after($latestEndTime)})
-#set($latestEndTime = ${endTime})
+#set($key = ${watch.action} + ${watch.etn} + ${watch.startTime} + ${watch.endTime})
+#if (${list.contains(${keys}, $key)})
+#set($value = ${mymap.get($key)})
+#else
+#set($value = [])
+#set($success = $keys.add($key))
+#end
+#set($success = $value.add($watch))
+#set($success = ${mymap.put($key,$value)})
 #end
 #end
-#end
-#if(!${list.isEmpty($tornadoWatches)})
-
-A TORNADO WATCH REMAINS IN EFFECT UNTIL ${dateUtil.format(${latestEndTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
+#set($torWatchAlso = "")
+#foreach(${key} in ${keys})
+#set($tornadoWatches = ${mymap.get($key)})
+#set($tornadoWatch = ${tornadoWatches.get(0)})
+A TORNADO WATCH ${torWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${tornadoWatch.endTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
+${dateUtil.period(${tornadoWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
@@ -218,27 +225,36 @@ ${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
 ...##
 #end
 #end
+#set($torWatchAlso = "ALSO ")
 . ##
 #end
-
+  
+  
 #end
 ########END MACRO
 
 #macro(insertsvrwatches $watches $list $secondtimezone $dateUtil $timeFormat)
-#set($severeWatches = [])
+#set($keys = [])
+#set($mymap = {})
 #foreach(${watch} in ${watches})
 #if(${watch.getPhenSig()} == 'SV.A')
-#set($success = $severeWatches.add($watch))
-#set($endTime = ${watch.endTime})
-#if(!$latestEndTime || ${endTime.after($latestEndTime)})
-#set($latestEndTime = ${endTime})
+#set($key = ${watch.action} + ${watch.etn} + ${watch.startTime} + ${watch.endTime})
+#if (${list.contains(${keys}, $key)})
+#set($value = ${mymap.get($key)})
+#else
+#set($value = [])
+#set($success = $keys.add($key))
+#end
+#set($success = $value.add($watch))
+#set($success = ${mymap.put($key,$value)})
 #end
 #end
-#end
-#if(!${list.isEmpty($severeWatches)})
-
-A SEVERE THUNDERSTORM WATCH REMAINS IN EFFECT UNTIL ${dateUtil.format(${latestEndTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
-${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
+#set($svrWatchAlso = "")
+#foreach(${key} in ${keys})
+#set($severeWatches = ${mymap.get($key)})
+#set($svrWatch = ${severeWatches.get(0)})
+A SEVERE THUNDERSTORM WATCH ${svrWatchAlso}REMAINS IN EFFECT UNTIL ${dateUtil.format(${svrWatch.endTime}, ${timeFormat.plain}, 15, ${localtimezone})}##
+${dateUtil.period(${svrWatch.endTime},${timeFormat.plain}, 15, ${localtimezone})}##
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
@@ -254,11 +270,13 @@ ${dateUtil.period(${latestEndTime},${timeFormat.plain}, 15, ${localtimezone})}##
 ...##
 #end
 #end
+#set($svrWatchAlso = "ALSO ")
 . ##
 #end
 
+
 #end
-########END MACRO
+########END
 
 #macro(printcoords $coordinates $list)
 #set($count = 0)

@@ -70,6 +70,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2011            mschenke     Initial creation
+ * Aug 29, 2014 #3527      mapeters     Check for active editor to not 
+ *                                      be null before calling isDirty().
  * 
  * </pre>
  * 
@@ -142,7 +144,7 @@ public class LocalizationSaveAsPopulator extends CompoundContributionItem {
              */
             @Override
             public boolean isEnabled() {
-                return active.isDirty();
+                return (active != null) ? active.isDirty() : false;
             }
 
             /*
