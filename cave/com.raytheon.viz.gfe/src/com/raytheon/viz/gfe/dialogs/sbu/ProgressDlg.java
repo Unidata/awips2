@@ -33,12 +33,12 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.ServiceBackupMessageNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.ServiceBackupProgressNotification;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
@@ -169,9 +169,9 @@ public class ProgressDlg extends CaveJFACEDialog implements
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @see com.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
      */
     @SuppressWarnings("unchecked")
     @Override
