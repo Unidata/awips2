@@ -28,14 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
-import com.raytheon.uf.common.inventory.tree.DataTree;
-import com.raytheon.uf.common.inventory.tree.LevelNode;
-import com.raytheon.uf.common.inventory.tree.ParameterNode;
-import com.raytheon.uf.common.inventory.tree.SourceNode;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
@@ -46,6 +38,13 @@ import com.raytheon.uf.common.derivparam.library.DerivParamField;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod.MethodType;
 import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.tree.DataTree;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
+import com.raytheon.uf.common.inventory.tree.ParameterNode;
+import com.raytheon.uf.common.inventory.tree.SourceNode;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -63,7 +62,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 13, 2010            bsteffen     Initial creation
+ * Apr 13, 2010            bsteffen    Initial creation
+ * Sep 09, 2014  3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -279,15 +279,10 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
     }
 
     public static Level getStationLevel() {
-        try {
-            return LevelMappingFactory
-                    .getInstance(
-                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                    .getLevelMappingForKey("Station").getLevels().get(0);
-        } catch (CommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            return null;
-        }
+        return LevelMappingFactory
+                .getInstance(
+                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                .getLevelMappingForKey("Station").getLevels().get(0);
     }
 
 }
