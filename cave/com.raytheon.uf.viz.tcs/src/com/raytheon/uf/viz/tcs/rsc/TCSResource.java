@@ -69,7 +69,7 @@ import com.raytheon.viz.pointdata.util.SymbolLoader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Tropical Cyclone summary resource
  * 
  * <pre>
  * 
@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Oct 22, 2010            jsanchez     Initial creation
  * Jul 29, 2014 #3465      mapeters     Updated deprecated drawString() calls.
+ * Sep 17, 2014 3632       bclement     fixed index out of bounds
  * 
  * </pre>
  * 
@@ -160,7 +161,7 @@ public class TCSResource extends
         }
 
         if (pdc != null) {
-            for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
+            for (int uriCounter = 0; uriCounter < pdc.getCurrentSz(); uriCounter++) {
                 PointDataView pdv = pdc.readRandom(uriCounter);
                 if (resourceData.isHourlyForecast) {
                     paintHourlyForecast(target, paintProps, pdv, scale);
