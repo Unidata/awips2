@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.dataplugin.ffmp.dataaccess;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -121,22 +123,26 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
         List<Map<String, Object>> results = dbQueryResponse.getResults();
         Map<Long, DefaultGeometryData> cache = new HashMap<Long, DefaultGeometryData>();
         FFMPRecord record = null;
-        TimeRange range = new TimeRange();
+        Date start = new Date(Long.MAX_VALUE);
+        Date end = new Date(0);
+
         for (Map<String, Object> map : results) {
             for (Map.Entry<String, Object> es : map.entrySet()) {
                 FFMPRecord rec = (FFMPRecord) es.getValue();
-                // Adding all of the basin data to a single record so that we
-                // can get the accumulated values from that record
+                /*
+                 * Adding all of the basin data to a single record so that we
+                 * can get the accumulated values from that record
+                 */
                 if (record == null) {
                     record = rec;
                 }
                 // building a time range of the earliest FFMP time (based on
                 // each record) to the latest FFMP time (based on each record)
-                if (range.getStart().after(rec.getDataTime().getRefTime())) {
-                    range.setStart(rec.getDataTime().getRefTime());
+                if (start.after(rec.getDataTime().getRefTime())) {
+                    start = rec.getDataTime().getRefTime();
                 }
-                if (range.getEnd().before(rec.getDataTime().getRefTime())) {
-                    range.setEnd(rec.getDataTime().getRefTime());
+                if (end.before(rec.getDataTime().getRefTime())) {
+                    end = rec.getDataTime().getRefTime();
                 }
 
                 try {
@@ -147,11 +153,11 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                                     + rec.toString(), e);
                 }
 
-                // loop over each pfaf id in the current record (rec) we are
-                // iterating.
-                // Add that basin data to the record that we are keeping around
-                // (record)
-                // to use to get the accumulated value.
+                /*
+                 * loop over each pfaf id in the current record (rec) we are
+                 * iterating. Add that basin data to the record that we are
+                 * keeping around (record) to use to get the accumulated value.
+                 */
                 for (Long pfaf : rec.getBasinData().getPfafIds()) {
                     // setValue is a misnomer here, it is actually an add
                     record.getBasinData()
@@ -162,11 +168,13 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
 
             }
         }
-        // now that we have all the basin data in a single record (record), we
-        // can use the methods on the FFMPRecord class to get the accumulated
-        // value in the case of a non-guidance basin
+        /*
+         * now that we have all the basin data in a single record (record), we
+         * can use the methods on the FFMPRecord class to get the accumulated
+         * value in the case of a non-guidance basin
+         */
         try {
-            cache = makeGeometryData(record, request, cache, range);
+            cache = makeGeometryData(record, request, cache, start, end);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to create the geoemtry data from the records.", e);
@@ -226,7 +234,7 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
      */
     private Map<Long, DefaultGeometryData> makeGeometryData(FFMPRecord rec,
             IDataRequest request, Map<Long, DefaultGeometryData> cache,
-            TimeRange range) throws Exception {
+            Date start, Date end) throws Exception {
         String huc = (String) request.getIdentifiers().get(HUC);
         String dataKey = (String) request.getIdentifiers().get(DATA_KEY);
         String siteKey = (String) request.getIdentifiers().get(SITE_KEY);
@@ -275,6 +283,8 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                     data.setAttributes(attrs);
                     data.setLocationName(String.valueOf(pfaf));
                     data.setGeometry(geomMap.get(pfaf));
+                    data.setDataTime(new DataTime(start.getTime(),
+                            new TimeRange(start, end)));
                     cache.put(pfaf, data);
                 }
 
@@ -294,8 +304,7 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                     value = ((FFMPGuidanceBasin) basin).getValue(
                             rec.getSourceName(), 1000);
                 } else {
-                    value = basin.getAccumValue(range.getStart(),
-                            range.getEnd(),
+                    value = basin.getAccumValue(start, end,
                             sourceXml.getExpirationMinutes(rec.getSiteKey()),
                             false);
                     // value = basin.getValue(rec.getDataTime().getRefTime());
