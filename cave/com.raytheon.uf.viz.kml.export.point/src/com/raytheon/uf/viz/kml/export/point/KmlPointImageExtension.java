@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.kml.export.graphics.ext.point;
+package com.raytheon.uf.viz.kml.export.point;
 
 import java.awt.image.RenderedImage;
 import java.util.Arrays;
@@ -60,6 +60,7 @@ import de.micromata.opengis.kml.v_2_2_0.Style;
  * Jun  1, 2012            bsteffen    Initial creation
  * Aug 27, 2013     #2287  randerso    Removed 180 degree adjustment required by error
  *                                     in Maputil.rotation
+ * Sep 16, 2014            abenak      Split away from KML core
  * 
  * </pre>
  * 
