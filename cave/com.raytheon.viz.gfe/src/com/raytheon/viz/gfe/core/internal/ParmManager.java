@@ -143,6 +143,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 04/02/2014    #2969     randerso    Fix error when Toop parm is unloaded.
  * 05/01/2014    #3105     dgilling    Ensure mutable db gets into availableServerDatabases
  *                                     if it has to be created during ParmManager construction.
+ * 09/08/2104    #3592     randerso    Changed to use new pm listStaticFiles()
  * </pre>
  * 
  * @author chammack
@@ -3099,11 +3100,10 @@ public class ParmManager implements IParmManager, IMessageClient {
     private List<VCModule> initVirtualCalcParmDefinitions() {
         // retrieve the inventory from the ifpServer
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationFile[] modules = pathMgr
-                .listFiles(
-                        pathMgr.getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
-                        FileUtil.join("gfe", "vcmodule"),
-                        new String[] { "py" }, false, true);
+        LocalizationFile[] modules = pathMgr.listStaticFiles(
+                LocalizationType.COMMON_STATIC,
+                FileUtil.join("gfe", "vcmodule"), new String[] { "py" }, false,
+                true);
 
         List<VCModule> definitions = new ArrayList<VCModule>(modules.length);
         for (LocalizationFile mod : modules) {
@@ -3112,6 +3112,7 @@ public class ParmManager implements IParmManager, IMessageClient {
                 File textData = mod.getFile(true);
 
                 // create the VCModule
+                statusHandler.debug("Loading VCModule: " + mod);
                 VCModule m = new VCModule(dataManager, this, textData);
                 if (!m.isValid()) {
                     statusHandler.handle(Priority.PROBLEM,
