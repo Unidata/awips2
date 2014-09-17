@@ -30,6 +30,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                      not discard sounding data
  *                                      based on altitude here
  * Aug 18, 2014 3530       bclement     removed TimeTools usage and dead code
+ * Sep 02, 2014 3549       njensen      Improve error message
+ * 
  * </pre>
  */
 
@@ -228,14 +230,14 @@ public final class ACARSSoundingTools {
             }
         } catch (IOException ioe) {
             logger.error("Error reading data for tailnumber "
-                    + tailNumberFile.getName());
+                            + tailNumberFile.getName(), ioe);
         } finally {
             if (bf != null) {
                 try {
                     bf.close();
                 } catch (IOException ioe) {
                     logger.error("Error closing tailnumber file "
-                            + tailNumberFile.getName());
+                            + tailNumberFile.getName(), ioe);
                 }
             }
         }
@@ -269,14 +271,16 @@ public final class ACARSSoundingTools {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Error processing " + tailNumberFile.getName());
+                    logger.error(
+                            "Error processing " + tailNumberFile.getName(), e);
                 } finally {
                     if (writer != null) {
                         try {
                             writer.close();
                         } catch (IOException ioe) {
-                            logger.error("Error closing "
-                                    + tailNumberFile.getName());
+                            logger.error(
+                                    "Error closing " + tailNumberFile.getName(),
+                                    ioe);
                         }
                     }
                 }
@@ -326,13 +330,14 @@ public final class ACARSSoundingTools {
                 }
                 // All done reading
             } catch (IOException ioe) {
-                logger.error("Error reading " + tailNumberFile.getName());
+                logger.error("Error reading " + tailNumberFile.getName(), ioe);
             } finally {
                 if (bf != null) {
                     try {
                         bf.close();
                     } catch (IOException ioe) {
-                        logger.error("Error attempting to close file " + tailNumberFile.getName());
+                        logger.error("Error attempting to close file "
+                                + tailNumberFile.getName(), ioe);
                     }
                 }
             }

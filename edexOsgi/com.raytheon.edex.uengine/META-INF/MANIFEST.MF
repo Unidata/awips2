@@ -10,8 +10,7 @@ Export-Package: com.raytheon.edex.uengine,
  com.raytheon.edex.uengine.jep,
  com.raytheon.edex.uengine.runners,
  com.raytheon.edex.uengine.tasks,
- com.raytheon.edex.uengine.tasks.query,
- com.raytheon.edex.uengine.util
+ com.raytheon.edex.uengine.tasks.query
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.edex.exception,
  com.raytheon.edex.msg,
