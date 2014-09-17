@@ -31,6 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -40,6 +41,7 @@ import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
 import com.raytheon.uf.viz.application.component.IStandaloneComponent;
 import com.raytheon.uf.viz.core.ProgramArguments;
+import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationNotificationObserver;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
@@ -57,6 +59,8 @@ import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
  * Sep 29, 2008 #1433      chammack    Initial creation
  * Jan 12, 2012 #27        rferrel     Added createAlertVisualization
  * May 08, 2013 1939       rjpeter     Updated to start NotificationManagerJob.
+ * Aug 26, 2014 3356       njensen     Explicitly set localization adapter
+ * 
  * </pre>
  * 
  * @author chammack
@@ -178,6 +182,7 @@ public class AlertVizApplication implements IStandaloneComponent {
     }
 
     protected void initializeLocalization() throws Exception {
+        PathManagerFactory.setAdapter(new CAVELocalizationAdapter());
         new LocalizationInitializer(true, false).run();
     }
 
