@@ -20,7 +20,7 @@
 package com.raytheon.viz.gfe;
 
 import com.raytheon.viz.gfe.dialogs.sbu.ServiceBackupDlg;
-import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
+import com.raytheon.viz.ui.personalities.awips.AbstractAWIPSComponent;
 
 /**
  * Bring up the Service Backup Dialog in stand alone mode as a blocking dialog.
@@ -43,7 +43,7 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * @version 1.0
  */
 
-public class ServiceBackupComponent extends AbstractCAVEComponent {
+public class ServiceBackupComponent extends AbstractAWIPSComponent {
 
     /*
      * (non-Javadoc)

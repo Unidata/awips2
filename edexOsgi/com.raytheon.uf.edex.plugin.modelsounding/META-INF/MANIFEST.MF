@@ -21,7 +21,10 @@ Require-Bundle: com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174"
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.plugin,
- com.raytheon.uf.common.wmo
+ com.raytheon.uf.common.wmo,
+ com.raytheon.uf.edex.bufrtools,
+ com.raytheon.uf.edex.bufrtools.descriptors,
+ com.raytheon.uf.edex.bufrtools.packets
 Export-Package: com.raytheon.uf.edex.plugin.modelsounding,
  com.raytheon.uf.edex.plugin.modelsounding.common,
  com.raytheon.uf.edex.plugin.modelsounding.dao,
