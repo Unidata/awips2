@@ -59,8 +59,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBQuery;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -71,13 +69,13 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.AfosBrowserModel;
+import com.raytheon.viz.texteditor.TextDBQuery;
 import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.command.CommandFactory;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
 import com.raytheon.viz.texteditor.util.AFOS_CLASS;
 import com.raytheon.viz.texteditor.util.AFOS_ORIGIN;
-import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -105,6 +103,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      Changes to have multiple query jobs.
  * 15Apr2014    #3031       lvenable    Added dispose check in the runAsync calls.
  * 19May2014    2536        bclement    removed TimeTools usage
+ * 09Sep2014    3580        mapeters    Removed IQueryTransport usage 
+ *                                      (no longer exists).
  * </pre>
  * 
  * @author lvenable
@@ -238,8 +238,6 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
      */
     private boolean isAfosActive = true;
 
-    private IQueryTransport queryTransport = null;
-
     private String localSite = LocalizationManager.getInstance()
             .getCurrentSite();;
 
@@ -269,8 +267,6 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
         callbackClient = cbClient;
 
         TextDisplayModel.getInstance().setITextWorkstationCallback(token, this);
-
-        queryTransport = TextEditorUtil.getTextDbsrvTransport();
     }
 
     /*
@@ -668,7 +664,7 @@ public class AfosBrowserDlg extends CaveSWTDialog implements
      */
     private void queryTableUsingNodeAndCategory() {
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
-        TextDBQuery dbQuery = new TextDBQuery(queryTransport);
+        TextDBQuery dbQuery = new TextDBQuery();
         dbQuery.setQueryViewName("text");
         dbQuery.setQueryOpName("GET");
         dbQuery.setQuerySubObName("LATEST");
