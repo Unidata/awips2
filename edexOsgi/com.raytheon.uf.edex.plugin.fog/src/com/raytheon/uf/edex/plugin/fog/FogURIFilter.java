@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * 
  * Oct 31, 2012 15464      zhao        updated satellite URIfilters
+ * Aug 26, 2014 3503       bclement    removed serial version id
  * 
  * </pre>
  * 
@@ -46,11 +47,6 @@ import com.vividsolutions.jts.geom.Geometry;
 public class FogURIFilter extends URIFilter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FogURIFilter.class);
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -7693738314059883681L;
 
     public FogURIFilter(String name) {
         super(name);

@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.bufrsigwx.decoder;
 
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.RepSubList;
-import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.SubSetList;
-
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
@@ -36,10 +33,11 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
+import com.raytheon.uf.edex.bufrtools.BUFRDataDocument;
 import com.raytheon.uf.edex.bufrtools.BUFRPointDataAdapter;
-import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
-import com.raytheon.uf.edex.decodertools.bufr.packets.BUFRSublistPacket;
-import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
+import com.raytheon.uf.edex.bufrtools.packets.BUFRSublistPacket;
+import com.raytheon.uf.edex.bufrtools.packets.DataPacketTypes;
+import com.raytheon.uf.edex.bufrtools.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
@@ -55,6 +53,7 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * Jul 06, 2009 2538       jsanchez    Added latitude,longitude to point data.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Sep 16, 2014 3628       mapeters    Replaced static imports.
  * 
  * </pre>
  * 
@@ -241,9 +240,11 @@ public abstract class SigWxDataAdapter extends BUFRPointDataAdapter<SigWxData> {
     static List<IBUFRDataPacket> getPacketSubList(IBUFRDataPacket packet) {
         List<IBUFRDataPacket> list = null;
         if (packet instanceof BUFRSublistPacket) {
-            if (RepSubList.getPacketType().equals(packet.getUnits())) {
+            if (DataPacketTypes.RepSubList.getPacketType().equals(
+                    packet.getUnits())) {
                 list = (List<IBUFRDataPacket>) packet.getValue();
-            } else if (SubSetList.getPacketType().equals(packet.getUnits())) {
+            } else if (DataPacketTypes.SubSetList.getPacketType().equals(
+                    packet.getUnits())) {
                 list = (List<IBUFRDataPacket>) packet.getValue();
             }
         }
