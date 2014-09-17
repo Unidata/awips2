@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.monitor.fog.ui.dialogs.FogMonitoringAreaConfigDlg;
  * Dec 19 2009  3963       dhladky    Initial creation.
  * Jul 14 2010  6567       zhao       Launch AreaConfigDlg w/o monitor
  * Nov.27, 2012 1297       skorolev   Cleanup code for non-blocking dialog.
+ * Sep 16, 2014 2757       skorolev   Added test of dialog on dispose.
  * 
  * </pre>
  * 
@@ -51,7 +52,7 @@ public class FogAreaConfigAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        if (areaDialog == null) {
+        if (areaDialog == null || areaDialog.isDisposed()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             areaDialog = new FogMonitoringAreaConfigDlg(shell,
