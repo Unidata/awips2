@@ -178,7 +178,7 @@ public class SyncLocalizationEditor extends BooleanFieldEditor {
             MessageBox msgBox = new MessageBox(button.getShell(), SWT.YES
                     | SWT.NO | SWT.CANCEL | SWT.ICON_WARNING);
             msgBox.setText("Do you want to synchronize?");
-            msgBox.setMessage("If there are files missing locally, your CAVE might not work correctly. It is recommended that you synchronize all localization files with edex before enabling this option. Synchronizing will take lots of time and bandwidth.\n\n Would you like to syncronize now?");
+            msgBox.setMessage("If there are files missing locally, your CAVE might not work correctly. It is recommended that you synchronize all localization files with edex before enabling this option. Synchronizing will take lots of time and bandwidth.\n\n Would you like to synchronize now?");
             int result = msgBox.open();
             if (result == SWT.CANCEL) {
                 getChangeControl(button.getParent()).setSelection(false);
