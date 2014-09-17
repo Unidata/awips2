@@ -28,7 +28,9 @@ import java.util.TimeZone;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.raytheon.uf.edex.decodertools.time.TimeTools.ICheckAllowArchive;
+/* 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+ * REMOVED import com.raytheon.uf.edex.decodertools.time.TimeTools.ICheckAllowArchive;
+ */
 
 /**
  * Test {@link TimeTools}.
@@ -40,6 +42,10 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools.ICheckAllowArchive;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2013 1636       rferrel     Initial creation
+ * Aug 26, 2014 3365       ccody       Separate Data Delivery tests out of AWIPS 2 baseline.
+ *                                     Required class (ICheckAllowArchive) no longer exists
+ *                                     Test functionality that is no longer supported (i.e. will not compile)
+ *                                     has been "deactivated" (commented out).
  * 
  * </pre>
  * 
@@ -48,9 +54,15 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools.ICheckAllowArchive;
  */
 
 public class TimeToolsNoArchiveTest {
+    
+    ITimeService it;
+    
+    /* 08-26-2014 Issue 3365 ICheckAllowArchive class no longer exists.
+     * REMOVED BEGIN
+     *
     @BeforeClass
     public static void classSetup() {
-        TimeTools.checkAllowArchive = new ICheckAllowArchive() {
+                 TimeTools.checkAllowArchive = new ICheckAllowArchive() {
 
             @Override
             public boolean allowArchive() {
@@ -80,7 +92,9 @@ public class TimeToolsNoArchiveTest {
     public void test() {
         assertFalse(TimeTools.allowArchive());
     }
-
+     * 08-26-2014 Issue 3365 Functionality is no longer supported.
+     * REMOVED END 
+     */
     @Test
     public void test001() {
         String[] data = new String[] { "test001",
