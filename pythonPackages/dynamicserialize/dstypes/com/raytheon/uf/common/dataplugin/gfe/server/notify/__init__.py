@@ -25,7 +25,6 @@ __all__ = [
             'GfeNotification',
             'GridUpdateNotification',
             'LockNotification',
-            'SiteActivationNotification',
             'UserMessageNotification'
           ]
 
@@ -33,6 +32,5 @@ from DBInvChangeNotification import DBInvChangeNotification
 from GfeNotification import GfeNotification
 from GridUpdateNotification import GridUpdateNotification
 from LockNotification import LockNotification
-from SiteActivationNotification import SiteActivationNotification
 from UserMessageNotification import UserMessageNotification
 
