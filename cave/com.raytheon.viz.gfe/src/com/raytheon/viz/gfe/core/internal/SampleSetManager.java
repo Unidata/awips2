@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.core.internal;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +34,8 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleData;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -47,10 +50,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEException;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
 import com.raytheon.viz.gfe.core.msgs.ISampleSetChangedListener;
 import com.raytheon.viz.gfe.edittool.GridID;
@@ -68,13 +69,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 9, 2009  1288        rjpeter     Added ISampleSetChangedListener handling.
  * Aug 6, 2013  1561        njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * Sep 30, 2013 2361        njensen     Use JAXBManager for XML
+ * Sep 08, 2104 #3592       randerso    Changed to use new pm listStaticFiles()
  * </pre>
  * 
  * @author rbell
  * @version 1.0
  */
 
-public class SampleSetManager implements ISampleSetManager {
+public class SampleSetManager implements ISampleSetManager,
+        ILocalizationFileObserver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SampleSetManager.class);
 
@@ -91,19 +94,20 @@ public class SampleSetManager implements ISampleSetManager {
 
     private Map<String, List<Coordinate>> markerLocations;
 
-    private final DataManager dataManager;
-
     private final Set<ISampleSetChangedListener> sampleSetChangedListeners;
 
     private boolean showLatLon;
+
+    private IPathManager pathManager;
+
+    private LocalizationFile sampleSetDir;
 
     /**
      * Default constructor.
      * 
      * Gets the initial sample inventory.
      */
-    public SampleSetManager(DataManager dataManager) {
-        this.dataManager = dataManager;
+    public SampleSetManager() {
         this.loadedSet = new SampleId();
 
         this.inventory = new HashSet<SampleId>();
@@ -114,17 +118,23 @@ public class SampleSetManager implements ISampleSetManager {
 
         this.sampleSetChangedListeners = new HashSet<ISampleSetChangedListener>();
 
-        IPathManager pm = PathManagerFactory.getPathManager();
+        this.pathManager = PathManagerFactory.getPathManager();
 
-        LocalizationFile[] files = pm.listFiles(
-                pm.getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
-                SAMPLE_SETS_DIR, new String[] { ".xml" }, true, true);
+        this.sampleSetDir = pathManager.getLocalizationFile(pathManager
+                .getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE), SAMPLE_SETS_DIR);
+
+        // initialize the inventory
+        LocalizationFile[] files = pathManager.listStaticFiles(
+                LocalizationType.COMMON_STATIC, SAMPLE_SETS_DIR,
+                new String[] { ".xml" }, true, true);
 
         for (LocalizationFile file : files) {
             String fn = LocalizationUtil.extractName(file.getName()).replace(
                     ".xml", "");
             this.inventory.add(new SampleId(fn));
         }
+        this.sampleSetDir.addFileUpdatedObserver(this);
 
         // load default sample points
         String[] sampleSets = Activator.getDefault().getPreferenceStore()
@@ -133,24 +143,22 @@ public class SampleSetManager implements ISampleSetManager {
             for (String id : sampleSets) {
                 SampleId sid = new SampleId(id);
                 if (this.inventory.contains(sid)) {
-                    try {
-                        loadSampleSet(sid, SampleSetLoadMode.ADD);
-                    } catch (GFEException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-
-                    }
+                    loadSampleSet(sid, SampleSetLoadMode.ADD);
                 }
             }
         }
 
-        // get initial marker points
-        try {
-            getMarkerPoints();
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to get initial sampleset marker points", e);
-        }
+        getMarkerPoints();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.gfe.core.ISampleSetManager#dispose()
+     */
+    @Override
+    public void dispose() {
+        this.sampleSetDir.removeFileUpdatedObserver(this);
     }
 
     /*
@@ -160,8 +168,8 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#sampleSetLocations(java.lang
      * .String)
      */
-    public List<Coordinate> sampleSetLocations(final String setName)
-            throws GFEException {
+    @Override
+    public List<Coordinate> sampleSetLocations(final String setName) {
         // verify set in inventory
         boolean found = false;
         for (SampleId thisId : this.inventory) {
@@ -172,9 +180,10 @@ public class SampleSetManager implements ISampleSetManager {
         }
 
         if (!found) {
-            throw new GFEException(
-                    "Attempt to get locations for unknown sample set ["
+            statusHandler
+                    .error("Attempt to get locations for unknown sample set ["
                             + setName + "]");
+            return Collections.emptyList();
         }
 
         String fileName = FileUtil.join(SAMPLE_SETS_DIR, setName + ".xml");
@@ -187,9 +196,9 @@ public class SampleSetManager implements ISampleSetManager {
             f = file.getFile(true);
         } catch (LocalizationException e) {
             if (f == null) {
-                throw new GFEException(
-                        "An error occurred retrieving SampleSet: " + fileName,
-                        e);
+                statusHandler.error("An error occurred retrieving SampleSet: "
+                        + fileName, e);
+                return Collections.emptyList();
             }
         }
 
@@ -198,7 +207,8 @@ public class SampleSetManager implements ISampleSetManager {
             sampleData = SampleData.getJAXBManager().unmarshalFromXmlFile(
                     f.getAbsolutePath());
         } catch (Exception e) {
-            throw new GFEException("Unable to load sampledata: " + f, e);
+            statusHandler.error("Unable to load sampledata: " + f, e);
+            return Collections.emptyList();
         }
 
         return sampleData.getPoints();
@@ -212,8 +222,9 @@ public class SampleSetManager implements ISampleSetManager {
      * .edex.plugin.gfe.sample.SampleId,
      * com.raytheon.viz.gfe.core.internal.SampleSetManager.SampleSetLoadMode)
      */
+    @Override
     public void loadSampleSet(final SampleId sampleId,
-            SampleSetLoadMode loadMode) throws GFEException {
+            SampleSetLoadMode loadMode) {
         File f = PathManagerFactory.getPathManager().getStaticFile(
                 FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName() + ".xml"));
 
@@ -221,8 +232,9 @@ public class SampleSetManager implements ISampleSetManager {
         try {
             sampleData = SampleData.getJAXBManager().unmarshalFromXmlFile(
                     f.getPath());
+            sampleData.setSampleId(sampleId);
         } catch (Exception e) {
-            throw new GFEException("Unable to load sampledata: " + f);
+            statusHandler.error("Unable to load sampledata: " + f);
         }
 
         // set the loadedSet flag appropriately
@@ -247,6 +259,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#clearSamples()
      */
+    @Override
     public void clearSamples() {
         mergeSamples(new ArrayList<Coordinate>(), SampleSetLoadMode.REPLACE);
         this.loadedSet = new SampleId(); // no loaded set
@@ -260,6 +273,7 @@ public class SampleSetManager implements ISampleSetManager {
      * @seecom.raytheon.viz.gfe.core.ISampleSetManager#addAnchoredSample(com.
      * vividsolutions.jts.geom.Coordinate)
      */
+    @Override
     public void addAnchoredSample(final Coordinate sampleLocation) {
         mergeSamples(Arrays.asList(sampleLocation), SampleSetLoadMode.ADD);
         this.loadedSet = new SampleId(); // no longer a loaded set
@@ -274,6 +288,7 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#removeAnchoredSample(com.
      * vividsolutions.jts.geom.Coordinate)
      */
+    @Override
     public void removeAnchoredSample(final Coordinate sampleLocation) {
         removeAnchoredSample(sampleLocation,
                 ISampleSetManager.DEFAULT_THRESHOLD);
@@ -286,6 +301,7 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#removeAnchoredSample(com.
      * vividsolutions.jts.geom.Coordinate, float)
      */
+    @Override
     public void removeAnchoredSample(final Coordinate sampleLocation,
             float threshold) {
         mergeSamples(Arrays.asList(sampleLocation), SampleSetLoadMode.REMOVE,
@@ -301,6 +317,7 @@ public class SampleSetManager implements ISampleSetManager {
      * @seecom.raytheon.viz.gfe.core.ISampleSetManager#addAnchoredMarker(com.
      * vividsolutions.jts.geom.Coordinate)
      */
+    @Override
     public void addAnchoredMarker(final Coordinate location, final GridID gid) {
         String set = activeMarkerSet(gid);
         List<Coordinate> locations = markerLocations.get(set);
@@ -319,6 +336,7 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#removeAnchoredMarker(com.
      * vividsolutions.jts.geom.Coordinate)
      */
+    @Override
     public void removeAnchoredMarker(final Coordinate location, final GridID gid) {
         removeAnchoredMarker(location, gid, ISampleSetManager.DEFAULT_THRESHOLD);
     }
@@ -330,6 +348,7 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#removeAnchoredMarker(com.
      * vividsolutions.jts.geom.Coordinate, float)
      */
+    @Override
     public void removeAnchoredMarker(final Coordinate location,
             final GridID gid, float threshold) {
         boolean found = false;
@@ -361,6 +380,7 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#anchoredMarkerAtLocation(
      * com.vividsolutions.jts.geom.Coordinate, float)
      */
+    @Override
     public boolean anchoredMarkerAtLocation(final Coordinate location,
             final GridID gid, float threshold) {
         String set = activeMarkerSet(gid);
@@ -388,6 +408,7 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#saveSampleSet(com.vividsolutions
      * .jts.geom.Coordinate[], com.raytheon.edex.plugin.gfe.sample.SampleId)
      */
+    @Override
     public boolean saveSampleSet(final List<Coordinate> sampleLocations,
             final SampleId sampleId) {
 
@@ -413,13 +434,6 @@ public class SampleSetManager implements ISampleSetManager {
                     e);
         }
 
-        this.inventory.add(sampleId);
-
-        // // send a notification to interested users
-        // networkNotification(notification.inventory(),
-        // notification.additions(),
-        // notification.deletions(), notification.changes());
-
         return true;
     }
 
@@ -430,6 +444,7 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#saveActiveSampleSet(com.raytheon
      * .edex.plugin.gfe.sample.SampleId)
      */
+    @Override
     public boolean saveActiveSampleSet(final SampleId sampleId) {
         this.loadedSet = sampleId;
         return saveSampleSet(this.locations, sampleId);
@@ -442,6 +457,7 @@ public class SampleSetManager implements ISampleSetManager {
      * com.raytheon.viz.gfe.core.ISampleSetManager#deleteSampleSet(com.raytheon
      * .edex.plugin.gfe.sample.SampleId)
      */
+    @Override
     public boolean deleteSampleSet(final SampleId sampleId) {
         LocalizationFile file = PathManagerFactory.getPathManager()
                 .getStaticLocalizationFile(
@@ -458,7 +474,6 @@ public class SampleSetManager implements ISampleSetManager {
 
         try {
             file.delete();
-            this.inventory.remove(sampleId);
         } catch (LocalizationOpFailedException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error deleting from localization server", e);
@@ -471,69 +486,55 @@ public class SampleSetManager implements ISampleSetManager {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.viz.gfe.core.ISampleSetManager#networkNotification(com.raytheon
-     * .edex.plugin.gfe.sample.SampleId[],
-     * com.raytheon.edex.plugin.gfe.sample.SampleId[],
-     * com.raytheon.edex.plugin.gfe.sample.SampleId[],
-     * com.raytheon.edex.plugin.gfe.sample.SampleId[])
+     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
+     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
      */
-    public void networkNotification(final SampleId[] anInventory,
-            final SampleId[] additions, final SampleId[] deletions,
-            final SampleId[] changes) throws VizException {
+    @Override
+    public void fileUpdated(FileUpdatedMessage message) {
 
-        // logDebug << "NetworkNotification newInv=" << anInventory
-        // << " add=" << additions << " del=" << deletions << " chg="
-        // << changes << std::endl;
-        // logDebug << "OldInventory=" << anInventory << std::endl;
-        // logDebug << "Active loaded set=" << _loadedSet << std::endl;
+        String name = LocalizationUtil.extractName(message.getFileName())
+                .replace(".xml", "");
+        SampleId id = new SampleId(name);
 
-        // store the new inventory
-        this.inventory = new HashSet<SampleId>(Arrays.asList(anInventory));
+        switch (message.getChangeType()) {
+        case ADDED:
+        case UPDATED:
+            this.inventory.add(id);
 
-        // loaded sample set changed?, check by name field for a match
-        for (SampleId changesId : changes) {
-            if (changesId.getName().equals(this.loadedSet.getName())) {
-                // logDebug << "LoadedSampleSet changed " << _loadedSet <<
-                // std::endl;
-                loadSampleSet(changesId, SampleSetLoadMode.REPLACE);
+            // loaded sample set "added", may simply be a rename
+            if (id.getName().equals(this.loadedSet.getName())) {
+                loadSampleSet(id, SampleSetLoadMode.REPLACE);
             }
-            if (changesId.getName().equals(SampleSetManager.MARKER_NAME)) {
-                // logDebug << "MarkerSet changed " << changesId << std::endl;
+            if (id.getName().equals(SampleSetManager.MARKER_NAME)) {
                 getMarkerPoints();
             }
-        }
+            break;
 
-        // loaded sample set deleted?
-        for (SampleId deletionsId : deletions) {
-            if (deletionsId.getName().equals(this.loadedSet.getName())) {
-                // logDebug << "LoadedSampleSet deleted " << _loadedSet
-                // << ' ' << deletionsId << std::endl;
-                this.loadedSet = new SampleId();
+        case DELETED:
+            LocalizationFile[] files = pathManager.listStaticFiles(
+                    LocalizationType.COMMON_STATIC, message.getFileName(),
+                    new String[] { ".xml" }, false, true);
+
+            if (id.getName().equals(this.loadedSet.getName())) {
+                if (files.length > 0) {
+                    loadSampleSet(id, SampleSetLoadMode.REPLACE);
+                } else {
+                    this.inventory.remove(id);
+                    this.loadedSet = new SampleId();
+                }
             }
-            if (deletionsId.getName().equals(SampleSetManager.MARKER_NAME)) {
-                // logDebug << "MarkerSet deleted " << deletionsId << std::endl;
+
+            if (id.getName().equals(SampleSetManager.MARKER_NAME)) {
                 getMarkerPoints();
             }
+            break;
+
+        default:
+            statusHandler.error("Unexpected FileChangeType received: "
+                    + message.getChangeType().name());
+            break;
         }
 
-        // loaded sample set "added", may simply be a rename
-        for (SampleId additionsId : additions) {
-            if (additionsId.getName().equals(this.loadedSet.getName())) {
-                // logDebug << "LoadedSampleSet added " << _loadedSet
-                // << " " << additionsId << std::endl;
-                loadSampleSet(additionsId, SampleSetLoadMode.REPLACE);
-            }
-            if (additionsId.getName().equals(SampleSetManager.MARKER_NAME)) {
-                // logDebug << "MarkerSet added " << additionsId << std::endl;
-                getMarkerPoints();
-            }
-        }
-
-        // inventory changed?
-        if ((additions.length > 0) || (deletions.length > 0)
-                || (changes.length > 0)) {
-        }
-        // logDebug << "Active set is now: " << _loadedSet << std::endl;
         fireSampleSetChangedListeners();
     }
 
@@ -603,7 +604,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * Gets the set of points, sends out notification of changes.
      */
-    private void getMarkerPoints() throws VizException {
+    private void getMarkerPoints() {
         // ensure it is in the inventory
         this.markerLocations.clear();
 
@@ -621,6 +622,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#getLoadedSet()
      */
+    @Override
     public SampleId getLoadedSet() {
         return this.loadedSet;
     }
@@ -630,6 +632,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#getInventory()
      */
+    @Override
     public SampleId[] getInventory() {
         return this.inventory.toArray(new SampleId[this.inventory.size()]);
     }
@@ -639,6 +642,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#getInventoryAsList()
      */
+    @Override
     public ArrayList<SampleId> getInventoryAsList() {
         ArrayList<SampleId> ids = new ArrayList<SampleId>();
         for (SampleId id : this.inventory) {
@@ -652,6 +656,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#getInventoryAsStrings()
      */
+    @Override
     public String[] getInventoryAsStrings() {
         String[] retVal = new String[this.inventory.size()];
         int i = 0;
@@ -663,6 +668,7 @@ public class SampleSetManager implements ISampleSetManager {
         return retVal;
     }
 
+    @Override
     public String activeMarkerSet(GridID gid) {
         // get office type from GridID
         String ot = gid.getParm().getOfficeType();
@@ -678,6 +684,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#getLocations()
      */
+    @Override
     public List<Coordinate> getLocations() {
         return new ArrayList<Coordinate>(this.locations);
     }
@@ -687,6 +694,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#getMarkerLocations()
      */
+    @Override
     public Map<String, List<Coordinate>> getMarkerLocations() {
         return this.markerLocations;
     }
@@ -696,6 +704,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#isShowLatLon()
      */
+    @Override
     public boolean isShowLatLon() {
         return showLatLon;
     }
@@ -705,6 +714,7 @@ public class SampleSetManager implements ISampleSetManager {
      * 
      * @see com.raytheon.viz.gfe.core.ISampleSetManager#setShowLatLon(boolean)
      */
+    @Override
     public void setShowLatLon(boolean showLatLon) {
         this.showLatLon = showLatLon;
         fireSampleSetChangedListeners();
