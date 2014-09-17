@@ -57,6 +57,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
+import com.raytheon.viz.warngen.gui.WarngenLayer.GeoFeatureType;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -70,6 +71,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 17, 2014 3419       jsanchez     Initial creation
+ * Aug 20, 2014 ASM #16703 D. Friedman  Ensure watches have a state attribute.
  * 
  * </pre>
  * 
@@ -173,7 +175,8 @@ public class WatchUtil {
             }
 
             DbQueryRequest request = buildRequest(simulatedTime,
-                    phenSigConstraint.toString(), warngenLayer.getAllUgcs(),
+                    phenSigConstraint.toString(),
+                    warngenLayer.getAllUgcs(GeoFeatureType.COUNTY),
                     entityClass);
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
@@ -190,7 +193,7 @@ public class WatchUtil {
                     System.out.println("create watch area buffer time: "
                             + (System.currentTimeMillis() - t0));
                     Set<String> validUgcZones = warngenLayer
-                            .getUgcsForWatches(watchArea);
+                            .getUgcsForWatches(watchArea, GeoFeatureType.COUNTY);
                     watches = processRecords(records, validUgcZones);
                 } catch (RuntimeException e) {
                     statusHandler
@@ -327,6 +330,14 @@ public class WatchUtil {
              */
             String ugcZone = ar.getUgcZone();
             String state = getStateName(ugcZone.substring(0, 2));
+
+            /*
+             * Temporary fix for SS DR #16703. Remove when marine watch wording
+             * is fixed.
+             */
+            if (state == null)
+                continue;
+
             String action = ar.getAct();
             String phenSig = ar.getPhensig();
             String etn = ar.getEtn();
@@ -360,7 +371,16 @@ public class WatchUtil {
 
             @Override
             public int compare(Watch watch1, Watch watch2) {
-                return watch1.getState().compareTo(watch2.getState());
+                String state1 = watch1.getState();
+                String state2 = watch2.getState();
+                if (state1 == state2)
+                    return 0;
+                else if (state1 == null)
+                    return 1; // null state is greater; put at end
+                else if (state2 == null)
+                    return -1;
+                else
+                    return state1.compareTo(state2);
             }
         });
 

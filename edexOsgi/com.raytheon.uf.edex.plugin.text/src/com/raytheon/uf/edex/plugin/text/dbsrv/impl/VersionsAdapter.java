@@ -21,7 +21,6 @@ package com.raytheon.uf.edex.plugin.text.dbsrv.impl;
 
 
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBSrvCommandTags;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.VersionsTableTags;
 import com.raytheon.uf.common.message.Header;
@@ -40,6 +39,7 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  * ------------ ---------- ----------- --------------------------
  * Oct 8, 2008        1538 jkorman     Initial creation
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
+ * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
  * 
  * </pre>
  * 
@@ -81,12 +81,10 @@ public class VersionsAdapter implements ICommandExecutor {
         Header sHeader = cmdMessage.getHeader();
 
         // Get the operation code
-        String op = PropConverter.getProperty(sHeader,
-                VersionsTableTags.OP.name());
+        String op = sHeader.getProperty(VersionsTableTags.OP.name());
 
         TextDBSrvCommandTags opTag = TextDBSrvCommandTags.valueOf(op);
-        String productId = PropConverter.getProperty(sHeader,
-                VersionsTableTags.PRODID.name());
+        String productId = sHeader.getProperty(VersionsTableTags.PRODID.name());
 
         if (opTag != null && productId != null) {
             AFOSProductId prodId = new AFOSProductId(productId);
@@ -94,8 +92,7 @@ public class VersionsAdapter implements ICommandExecutor {
                 switch (opTag) {
 
                 case PUT: {
-                    String versions = PropConverter.getProperty(sHeader,
-                            VersionsTableTags.VERSION.name());
+                    String versions = sHeader.getProperty(VersionsTableTags.VERSION.name());
 
                     addVersionInfo(sHeader, prodId.getCcc(), prodId.getNnn(),
                             prodId.getXxx(), versions);
@@ -114,10 +111,9 @@ public class VersionsAdapter implements ICommandExecutor {
                 }
                 default: {
                     String tagName = (opTag != null) ? opTag.name() : "null";
-                    Property[] props = new Property[] { new Property("STDERR",
-                            PropConverter
-                                    .asciiToHex("ERROR:Invalid command tag = ["
-                                            + tagName + "]")), };
+                    Property[] props = new Property[] { new Property(
+                            CommandExecutor.STDERR,
+                            "ERROR:Invalid command tag = [" + tagName + "]"), };
                     sHeader.setProperties(props);
                     break;
                 }
@@ -140,12 +136,11 @@ public class VersionsAdapter implements ICommandExecutor {
      */
     private void addVersionInfo(Header header, String ccc, String nnn,
             String xxx, String versions) {
-        Property newProperty = new Property("STDERR",
-                PropConverter.asciiToHex("NORMAL:Adding productId " + ccc + nnn
-                        + xxx + " versions " + versions));
-        Property errProperty = new Property("STDERR",
-                PropConverter
-                        .asciiToHex("ERROR:Failure adding to versions table."));
+        Property newProperty = new Property(CommandExecutor.STDERR,
+                "NORMAL:Adding productId " + ccc + nnn + xxx + " versions "
+                        + versions);
+        Property errProperty = new Property(CommandExecutor.STDERR,
+                "ERROR:Failure adding to versions table.");
 
         Property[] props = new Property[] { newProperty, };
         if (!textDB.addVersions(ccc, nnn, xxx, Integer.parseInt(versions))) {
@@ -163,19 +158,16 @@ public class VersionsAdapter implements ICommandExecutor {
      */
     private void getVersionInfo(Header header, String ccc, String nnn,
             String xxx) {
-        String PROP_FMT = "STDOUT";
+        String PROP_FMT = CommandExecutor.STDOUT;
 
         Property[] props = null;
         String vers = textDB.getVersions(ccc, nnn, xxx);
 
         if (vers != null) {
-            props = new Property[] { new Property(PROP_FMT,
-                    PropConverter.asciiToHex(vers)) };
+            props = new Property[] { new Property(PROP_FMT, vers) };
         } else {
-            props = new Property[] { new Property(
-                    "STDERR",
-                    PropConverter
-                            .asciiToHex("ERROR:Failure reading versions table.")), };
+            props = new Property[] { new Property(CommandExecutor.STDERR,
+                    "ERROR:Failure reading versions table."), };
         }
         header.setProperties(props);
     }
@@ -189,12 +181,12 @@ public class VersionsAdapter implements ICommandExecutor {
      */
     private void deleteVersionInfo(Header header, String ccc, String nnn,
             String xxx) {
-        Property newProperty = new Property("STDERR",
-                PropConverter.asciiToHex("NORMAL:Deleting product id " + ccc
-                        + nnn + xxx + " from versionstable."));
-        Property errProperty = new Property("STDERR",
-                PropConverter.asciiToHex("ERROR:Failure deleting " + ccc + nnn
-                        + xxx + " from versionstable."));
+        Property newProperty = new Property(CommandExecutor.STDERR,
+                "NORMAL:Deleting product id " + ccc + nnn + xxx
+                        + " from versionstable.");
+        Property errProperty = new Property(CommandExecutor.STDERR,
+                "ERROR:Failure deleting "
+                + ccc + nnn + xxx + " from versionstable.");
 
         Property[] props = new Property[] { newProperty, };
         if (!textDB.deleteVersions(ccc, nnn, xxx)) {

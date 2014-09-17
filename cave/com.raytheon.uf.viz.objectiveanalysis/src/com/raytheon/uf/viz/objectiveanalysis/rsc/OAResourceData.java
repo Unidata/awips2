@@ -27,16 +27,14 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
-import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.style.level.Level.LevelType;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -52,6 +50,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2009            randerso     Initial creation
  * Jan 8, 2010  4205      jelkins      add equals checking for OA resources
+ * Sep 09, 2014 3356      njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -197,30 +196,27 @@ public class OAResourceData extends AbstractRequestableResourceData {
         if (this.levelKey.equals(ALL_TILTS)) {
             LevelFactory factory = LevelFactory.getInstance();
             List<DataTime> timesWithLevels = new ArrayList<DataTime>();
-            try {
-                MasterLevel ml = factory.getMasterLevel("TILT");
-                Set<Level> allLevels = LevelMappingFactory.getInstance(
-                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                        .getAllLevels();
-                List<Level> levels = new ArrayList<Level>();
-                for (Level l : allLevels) {
-                    if (l.getMasterLevel().equals(ml)) {
-                        levels.add(l);
-                    }
+            MasterLevel ml = factory.getMasterLevel("TILT");
+            Set<Level> allLevels = LevelMappingFactory.getInstance(
+                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                    .getAllLevels();
+            List<Level> levels = new ArrayList<Level>();
+            for (Level l : allLevels) {
+                if (l.getMasterLevel().equals(ml)) {
+                    levels.add(l);
                 }
-
-                for (int i = 0; i < times.length; ++i) {
-                    for (int j = 0; j < levels.size(); ++j) {
-                        DataTime time = times[i].clone();
-                        time.setLevelValue(levels.get(j).getLevelonevalue());
-                        if (time.isSpatial()) {
-                            timesWithLevels.add(time);
-                        }
-                    }
-                }
-            } catch (CommunicationException e) {
-                throw new VizCommunicationException(e);
             }
+
+            for (int i = 0; i < times.length; ++i) {
+                for (int j = 0; j < levels.size(); ++j) {
+                    DataTime time = times[i].clone();
+                    time.setLevelValue(levels.get(j).getLevelonevalue());
+                    if (time.isSpatial()) {
+                        timesWithLevels.add(time);
+                    }
+                }
+            }
+
             return timesWithLevels
                     .toArray(new DataTime[timesWithLevels.size()]);
         } else {

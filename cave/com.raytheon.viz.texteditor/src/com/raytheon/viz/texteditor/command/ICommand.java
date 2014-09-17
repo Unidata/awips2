@@ -22,7 +22,6 @@ package com.raytheon.viz.texteditor.command;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
 
 /**
  * A command.
@@ -35,6 +34,7 @@ import com.raytheon.uf.common.dataplugin.text.dbsrv.IQueryTransport;
  * Jul 30, 2009 2191       rjpeter     Initial creation
  * Apr 14, 2010 4734       mhuang      Corrected StdTextProduct import 
  *                                      dependency
+ * Sep 09, 2014 3580       mapeters    {@link #executeCommand()} takes no parameters.
  * 
  * </pre>
  * 
@@ -65,11 +65,8 @@ public interface ICommand {
      * Even though a command may return numerous entries, the command should
      * know how to aggregate the numerous returns into a single entry.
      * 
-     * @param transport
-     *            Query transport mechanism
-     * 
      * @return
      */
-    public abstract List<StdTextProduct> executeCommand(
-            IQueryTransport transport) throws CommandFailedException;
+    public abstract List<StdTextProduct> executeCommand()
+            throws CommandFailedException;
 }
