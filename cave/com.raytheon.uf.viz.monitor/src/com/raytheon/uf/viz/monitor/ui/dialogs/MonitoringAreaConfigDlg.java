@@ -73,6 +73,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Oct 07, 2013 #2443         lvenable     Fixed image memory leak.
  * Jan 29, 2014 2757          skorolev     Added status variables.
  * Apr 23, 2014 3054          skorolev     Fixed issue with removing from list a new zone and a new station.
+ * Sep 16, 2014 2757          skorolev     Updated createBottomButtons method.
  * </pre>
  * 
  * @author lvenable
@@ -1284,18 +1285,12 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Called when the cancel or "X" button is clicked.
+     * Called when the cancel.
      */
     private void closeWithoutSave() {
-        int choice = showMessage(shell, SWT.YES | SWT.NO, appName
-                + " Monitor Exit", "Are you sure you want to exit?");
-        if (choice == SWT.YES) {
-            MonitorConfigurationManager configManager = getConfigManager();
-            configManager.setAddedZones(new ArrayList<String>());
-            configManager.setAddedStations(new ArrayList<String>());
-            setReturnValue(true);
-            close();
-        }
+        resetStatus();
+        setReturnValue(true);
+        close();
     }
 
     /**
@@ -1304,7 +1299,8 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     protected abstract void setAlgorithmText();
 
     /**
-     * Handles OK button.
+     * Handles OK button. Save changes and close the dialog (or just close if
+     * there are no changes).
      */
     protected abstract void handleOkBtnSelection();
 
@@ -1466,4 +1462,5 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
                 "Edit Thresholds Now?", message2);
         return yesno;
     }
+
 }
