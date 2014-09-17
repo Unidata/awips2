@@ -27,10 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.inventory.tree.LevelNode;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode.Dependency;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -39,13 +35,11 @@ import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
 import com.raytheon.uf.common.derivparam.tree.OrLevelNode;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode.Dependency;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.parameter.Parameter;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.grid.util.RadarAdapter;
@@ -60,6 +54,7 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2010            bsteffen    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Sep 09, 2014 3356       njensen     Remove CommunicationException
  * 
  * </pre>
  * 
@@ -67,8 +62,6 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * @version 1.0
  */
 public class GridUpdater implements IAlertObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GridUpdater.class);
 
     private class UpdateValue {
         public int timeOffset;
@@ -152,8 +145,7 @@ public class GridUpdater implements IAlertObserver {
         ProductAlertObserver.removeObserver(GridInventory.PLUGIN_NAME, this);
     }
 
-    public synchronized void addNode(AbstractDerivedDataNode node)
-            throws VizException {
+    public synchronized void addNode(AbstractDerivedDataNode node) {
         List<Dependency> dependencies = node.getDependencies();
         if ((dependencies == null) || dependencies.isEmpty()) {
             return;
@@ -224,17 +216,11 @@ public class GridUpdater implements IAlertObserver {
             }
             GridMapKey updateKey = new GridMapKey(alert.decodedAlert);
             GridTimeCache.getInstance().clearTimes(updateKey);
-            LevelNode lNode = null;
-            try {
-                Level level = LevelFactory.getInstance().getLevel(
-                        updateKey.masterLevel, updateKey.levelone,
-                        updateKey.leveltwo);
-                lNode = inventory.getNode(updateKey.modelName,
-                        updateKey.parameter, level);
-            } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
+            Level level = LevelFactory.getInstance().getLevel(
+                    updateKey.masterLevel, updateKey.levelone,
+                    updateKey.leveltwo);
+            LevelNode lNode = inventory.getNode(updateKey.modelName,
+                    updateKey.parameter, level);
 
             if (lNode == null) {
                 inventory.reinitTree();
@@ -292,16 +278,7 @@ public class GridUpdater implements IAlertObserver {
                         .get(GridConstants.SECONDARY_ID));
                 fakeRec.setLocation((GridCoverage) alert.decodedAlert
                         .get(GridConstants.LOCATION));
-                try {
-                    fakeRec.constructDataURI();
-                    datauris.add(fakeRec.getDataURI());
-                } catch (PluginException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Unable to generate updates for derived product",
-                                    e);
-                }
-
+                datauris.add(fakeRec.getDataURI());
             }
         }
         myUpdates.addAll(datauris);
