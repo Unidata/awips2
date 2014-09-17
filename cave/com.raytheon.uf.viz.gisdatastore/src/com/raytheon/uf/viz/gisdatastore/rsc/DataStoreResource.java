@@ -75,7 +75,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -841,8 +840,6 @@ public class DataStoreResource extends
 
     protected IWireframeShape highlightShape;
 
-    protected IFont font;
-
     protected PixelExtent lastExtent;
 
     protected PixelExtent projExtent;
@@ -1140,6 +1137,15 @@ public class DataStoreResource extends
                 .getLabelField();
         boolean isLabeled = labelField != null;
 
+        double labelMagnification = getCapability(MagnificationCapability.class)
+                .getMagnification();
+
+        if (font == null) {
+            font = aTarget.initializeFont(aTarget.getDefaultFont()
+                    .getFontName(), (float) (10 * labelMagnification), null);
+            font.setSmoothing(false);
+        }
+
         String shadingField = getCapability(ShadeableCapability.class)
                 .getShadingField();
         boolean isShaded = isPolygonal() && (shadingField != null);
@@ -1217,12 +1223,8 @@ public class DataStoreResource extends
                     highlightWidth, highlightStyle);
         }
 
-        double labelMagnification = getCapability(MagnificationCapability.class)
-                .getMagnification();
-
         if ((labels != null) && isLabeled && (labelMagnification != 0)) {
-            drawLabels(aTarget, paintProps, labelMagnification,
-                    worldToScreenRatio);
+            drawLabels(aTarget, paintProps, worldToScreenRatio);
         }
 
         if (rubberBandExtent != null) {
@@ -1270,14 +1272,8 @@ public class DataStoreResource extends
     }
 
     private void drawLabels(IGraphicsTarget aTarget,
-            PaintProperties paintProps, double labelMagnification,
-            double worldToScreenRatio) throws VizException {
-        if (font == null) {
-            font = aTarget.initializeFont(aTarget.getDefaultFont()
-                    .getFontName(), (float) (10 * labelMagnification), null);
-            font.setSmoothing(false);
-        }
-
+            PaintProperties paintProps, double worldToScreenRatio)
+            throws VizException {
         double offsetX = getCapability(LabelableCapability.class).getxOffset()
                 * worldToScreenRatio;
         double offsetY = getCapability(LabelableCapability.class).getyOffset()
