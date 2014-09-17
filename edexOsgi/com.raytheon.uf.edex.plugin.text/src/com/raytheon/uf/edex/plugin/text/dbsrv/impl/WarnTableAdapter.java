@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.text.db.WatchWarn;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.ICommandExecutor;
-import com.raytheon.uf.common.dataplugin.text.dbsrv.PropConverter;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.TextDBSrvCommandTags;
 import com.raytheon.uf.common.dataplugin.text.dbsrv.WarnTableTags;
 import com.raytheon.uf.common.message.Header;
@@ -50,6 +49,7 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  *                                     from WatchWarn table.
  * Sep 14,2010  3944       cjenabap    Added sendTextToQueue()
  * May 15, 2014 2536       bclement    moved from uf.edex.textdbsrv
+ * Aug 22, 2014 2926       bclement    compatibility changes with new textdb service
  * </pre>
  * 
  * @author jkorman
@@ -94,7 +94,7 @@ public class WarnTableAdapter implements ICommandExecutor {
         Header sHeader = cmdMessage.getHeader();
 
         // Get the operation code
-        String op = PropConverter.getProperty(sHeader, WarnTableTags.OP.name());
+        String op = sHeader.getProperty(WarnTableTags.OP.name());
 
         TextDBSrvCommandTags opTag = TextDBSrvCommandTags.valueOf(op);
 
@@ -102,10 +102,8 @@ public class WarnTableAdapter implements ICommandExecutor {
             switch (opTag) {
 
             case PUT: {
-                String productId = PropConverter.getProperty(sHeader,
-                        WarnTableTags.PRODID.name());
-                String script = PropConverter.getProperty(sHeader,
-                        WarnTableTags.SCRIPT.name());
+                String productId = sHeader.getProperty(WarnTableTags.PRODID.name());
+                String script = sHeader.getProperty(WarnTableTags.SCRIPT.name());
 
                 addWatchWarn(sHeader, productId, script);
                 sendTextToQueue(productId, WATCH_WARN_QUEUE);
@@ -113,18 +111,15 @@ public class WarnTableAdapter implements ICommandExecutor {
             }
 
             case GET: {
-                String productId = PropConverter.getProperty(sHeader,
-                        WarnTableTags.PRODID.name());
+                String productId = sHeader.getProperty(WarnTableTags.PRODID.name());
                 if (productId != null) {
                     getWatchWarn(sHeader, productId);
                 }
                 break;
             }
             case DELETE: {
-                String productId = PropConverter.getProperty(sHeader,
-                        WarnTableTags.PRODID.name());
-                String script = PropConverter.getProperty(sHeader,
-                        WarnTableTags.SCRIPT.name());
+                String productId = sHeader.getProperty(WarnTableTags.PRODID.name());
+                String script = sHeader.getProperty(WarnTableTags.SCRIPT.name());
 
                 if ((productId != null) && (script != null)) {
                     deleteWatchWarn(sHeader, productId, script);
@@ -142,9 +137,9 @@ public class WarnTableAdapter implements ICommandExecutor {
             }
             default: {
                 String tagName = (opTag != null) ? opTag.name() : "null";
-                Property[] props = new Property[] { new Property("STDERR",
-                        PropConverter.asciiToHex("ERROR:Invalid command tag = ["
-                                + tagName + "]")), };
+                Property[] props = new Property[] { new Property(
+                        CommandExecutor.STDERR, "ERROR:Invalid command tag = ["
+                                + tagName + "]"), };
                 sHeader.setProperties(props);
                 break;
             }
@@ -164,12 +159,10 @@ public class WarnTableAdapter implements ICommandExecutor {
      * @return
      */
     private void addWatchWarn(Header header, String productId, String script) {
-        Property newProperty = new Property("STDERR",
-                PropConverter.asciiToHex("NORMAL:Adding productId " + productId
-                        + " to trigger."));
-        Property errProperty = new Property("STDERR",
-                PropConverter
-                        .asciiToHex("ERROR:Failure adding to state_ccc table."));
+        Property newProperty = new Property(CommandExecutor.STDERR,
+                "NORMAL:Adding productId " + productId + " to trigger.");
+        Property errProperty = new Property(CommandExecutor.STDERR,
+                "ERROR:Failure adding to state_ccc table.");
 
         Property[] props = new Property[] { newProperty, };
         if (!textDB.addWatchWarn(productId, script)) {
@@ -184,7 +177,7 @@ public class WarnTableAdapter implements ICommandExecutor {
      * @param productId
      */
     private void getWatchWarn(Header header, String productId) {
-        String PROP_FMT = "STDOUT";
+        String PROP_FMT = CommandExecutor.STDOUT;
 
         Property[] props = null;
 
@@ -193,20 +186,15 @@ public class WarnTableAdapter implements ICommandExecutor {
         if (dataList.size() > 0) {
             props = new Property[dataList.size() + 2];
             int i = 0;
-            props[i] = new Property(PROP_FMT,
-                    PropConverter.asciiToHex("PRODUCTID SCRIPT"));
-            props[i] = new Property(PROP_FMT,
-                    PropConverter.asciiToHex("--------- ------"));
+            props[i] = new Property(PROP_FMT, "PRODUCTID SCRIPT");
+            props[i] = new Property(PROP_FMT, "--------- ------");
             for (WatchWarn w : dataList) {
-                props[i++] = new Property(PROP_FMT,
-                        PropConverter.asciiToHex(String.format("%9s %s",
-                                w
-                        .getProductid(), w.getScript())));
+                props[i++] = new Property(PROP_FMT, String.format("%9s %s",
+                        w.getProductid(), w.getScript()));
             }
         } else {
-            props = new Property[] { new Property("STDERR",
-                    PropConverter
-                            .asciiToHex("ERROR:Failure reading from watch warn table.")), };
+            props = new Property[] { new Property(CommandExecutor.STDERR,
+                    "ERROR:Failure reading from watch warn table."), };
         }
         header.setProperties(props);
     }
@@ -219,12 +207,10 @@ public class WarnTableAdapter implements ICommandExecutor {
      * @return
      */
     private void deleteWatchWarn(Header header, String productId, String script) {
-        Property newProperty = new Property("STDERR",
-                PropConverter.asciiToHex("NORMAL:Deleting product id "
-                        + productId + " trigger."));
-        Property errProperty = new Property("STDERR",
-                PropConverter
-                        .asciiToHex("ERROR:Failure adding to state_ccc table."));
+        Property newProperty = new Property(CommandExecutor.STDERR,
+                "NORMAL:Deleting product id " + productId + " trigger.");
+        Property errProperty = new Property(CommandExecutor.STDERR,
+                "ERROR:Failure adding to state_ccc table.");
 
         Property[] props = new Property[] { newProperty, };
         if (!textDB.deleteWatchWarn(productId, script)) {

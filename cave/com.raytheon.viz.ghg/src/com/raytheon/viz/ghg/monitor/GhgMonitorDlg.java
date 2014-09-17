@@ -59,6 +59,9 @@ import org.eclipse.swt.widgets.Table;
 
 import com.raytheon.uf.common.activetable.VTECChange;
 import com.raytheon.uf.common.activetable.VTECTableChangeNotification;
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -66,9 +69,6 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.GFEServerException;
@@ -1997,9 +1997,9 @@ public class GhgMonitorDlg extends CaveSWTDialog implements
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @see com.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {

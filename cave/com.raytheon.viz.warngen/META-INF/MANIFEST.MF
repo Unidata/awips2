@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.raytheon.viz.warngen;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.warngen.Activator
 Bundle-Vendor: Raytheon
-Eclipse-RegisterBuddy: com.raytheon.viz.awipstools, org.apache.velocity
+Eclipse-RegisterBuddy: com.raytheon.uf.viz.core.rsc, org.apache.velocity
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.viz.core,
