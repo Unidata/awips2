@@ -2,15 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Warning
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.warning
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.dataplugin.warning.config,
  com.raytheon.uf.common.dataplugin.warning.gis,
  com.raytheon.uf.common.dataplugin.warning.portions,
  com.raytheon.uf.common.dataplugin.warning.util
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization.comm
 Import-Package: com.raytheon.uf.common.time,
  javax.persistence,
  org.apache.commons.lang,

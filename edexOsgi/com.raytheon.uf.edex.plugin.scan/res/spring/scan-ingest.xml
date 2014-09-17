@@ -15,8 +15,13 @@
 		<property name="keepAliveSeconds" value="60000" />
 	</bean>
 
-    <bean id="scanGenerator" class="com.raytheon.uf.edex.plugin.scan.ScanGenerator" depends-on="commonTimeRegistered, gridcoveragelookup">
+    <bean id="scanGenerator" class="com.raytheon.uf.edex.plugin.scan.ScanGenerator" >
    		<property name="executor" ref="scanThreadPool"/>
+    </bean>
+    
+    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
+        <constructor-arg ref="clusteredScanRoutes" />
+        <constructor-arg ref="scanGenerator" />
     </bean>
 
     <bean factory-bean="scanCpgSrvDispatcher" factory-method="register">

@@ -34,6 +34,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 10-21-09     #1711      bsteffen    Initial Comments, changed to accomodate both Fixed and Movable Rings
+ * 08-13-14     #3467      mapeters    Modified equals() method to prevent ArrayIndexOutOfBoundsException.
  * 
  * </pre>
  * 
@@ -179,7 +180,7 @@ public class RangeRing {
 		if (radii.length != otherRing.radii.length) {
 			return false;
 		}
-		for (int i = 0; i <= radii.length; i++) {
+        for (int i = 0; i < radii.length; i++) {
 			if (radii[i] != otherRing.radii[i]) {
 				return false;
 			}

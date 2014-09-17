@@ -25,6 +25,7 @@ import org.apache.commons.collections.map.DefaultedMap;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.raytheon.uf.common.comm.HttpClient;
+import com.raytheon.uf.common.comm.HttpClientConfigBuilder;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -60,6 +61,7 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * Feb 04, 2014  2704       njensen     Single proxy address/preference
  * May 19, 2014  3164       bsteffen    Disable request compression if it
  *                                      doesn't work.
+ * Sep 05, 2014  3570       bclement    HTTP client API changes
  * 
  * </pre>
  * 
@@ -82,7 +84,11 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
 
     @Override
     protected void setupServers() throws VizException {
-        HttpClient.getInstance().setGzipResponseHandling(true);
+        HttpClient httpClient = HttpClient.getInstance();
+        HttpClientConfigBuilder confBuilder = new HttpClientConfigBuilder(
+                httpClient.getConfig());
+        confBuilder.setHandlingGzipResponses(true);
+        HttpClient.configureGlobalInstance(confBuilder.build());
         if (promptUI) {
             ThinClientConnectivityDialog dlg = new ThinClientConnectivityDialog(
                     checkAlertviz);
