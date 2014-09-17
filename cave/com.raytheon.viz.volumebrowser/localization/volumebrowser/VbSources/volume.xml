@@ -29,11 +29,16 @@
     <vbSource key="ECMWF-HiRes" category="Volume" />
     <vbSource key="ECMF-NorthernHemisphere" category="Volume" />
     <vbSource key="GFS212" category="Volume" />
+    <!-- Old version being replaced by GFS229
     <vbSource key="AVN225" category="Volume" />
     <vbSource key="GFS213" category="Volume" />
     <vbSource key="MRF204" category="Volume" />
     <vbSource key="MRF205" category="Volume" />
+    -->
+    <vbSource key="GFS229" category="Volume" />
+    <!-- Old version being replaced by GFS229
     <vbSource key="AVN203" category="Volume" />
+    -->
     <vbSource key="GFS201" category="Volume" />
     <vbSource key="GEFS" category="Volume" />
     <vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES" />
