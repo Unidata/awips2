@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jan 16, 2014 #2691      lvenable    Fixed null pointer exception that occurs when closing
  *                                     the MPE perspective while the ColorScaleMgrDlg is
  *                                     visible.
+ * 04 Sep 2014  14448      cgobs       Make MPE redisplay after save of color settings in ColorScaleMgr
  * </pre>
  * 
  * @author mschenke
@@ -103,10 +104,54 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
                         DisplayFieldData dt = MPEDisplayManager.getCurrent()
                                 .getDisplayFieldType();
 
-                        MPEDisplayManager.getCurrent().displayFieldData(dt);
+                        int displayedAccumHrs = mdm.getDisplayedAccumHrs();
+                        mdm.displayFieldData(dt,displayedAccumHrs );
                     }
                 }
             });
+            
+            
+            //anonymous class declaration for the purposes of a callback execute upon save to database
+            colorScaleDlg.setSaveCallback(new ColorScaleMgrDlg.ISaveCallback() {
+
+                public void execute() {
+
+                    MPEDisplayManager mdm = MPEDisplayManager.getCurrent();
+
+                    // If the MPE Display Manager is null then return as no
+                    // action is needed.
+                    if (mdm == null) {
+                        return;
+                    }
+                    
+
+
+                    MPEFieldResource displayedFieldResource = mdm
+                            .getDisplayedFieldResource();
+
+                    if (displayedFieldResource != null) {
+                        MPEFieldResourceData resourceData = displayedFieldResource
+                                .getResourceData();
+                        displayedFieldResource
+                                .getCapability(ColorMapCapability.class)
+                                .setColorMapParameters(
+                                        MPEDisplayManager.createColorMap(
+                                                resourceData.getCvUseString(),
+                                                resourceData
+                                                        .getDurationInHours(),
+                                                resourceData.getDataUnits(),
+                                                resourceData.getDisplayUnits()));
+                        DisplayFieldData dt = MPEDisplayManager.getCurrent()
+                                .getDisplayFieldType();
+                        
+                        int displayedAccumHrs = mdm.getDisplayedAccumHrs();
+                       
+
+                        mdm.displayFieldData(dt, displayedAccumHrs);
+                    }
+                }
+            });
+            
             colorScaleDlg.open();
         } else {
             colorScaleDlg.bringToTop();
