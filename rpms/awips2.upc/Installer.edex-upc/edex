@@ -257,15 +257,15 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
 
 	# EDEX env
 
-	envGrep=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
-	echo -n ' Checking '$EDEX_ENV_FILE
-	if [[ ! -z ${envGrep} ]]; then
-		echo ' [OK]'
-		boolFiles[1]=false
-	else 
-		echo '      ** Missing '$HOSTNAME
-		continue=true
-	fi
+	#envGrep=`grep $HOSTNAME $EDEX_ENV_FILE | head -1`
+	#echo -n ' Checking '$EDEX_ENV_FILE
+	#if [[ ! -z ${envGrep} ]]; then
+	#	echo ' [OK]'
+	#	boolFiles[1]=false
+	#else 
+	#	echo '      ** Missing '$HOSTNAME
+	#	continue=true
+	#fi
 
 	# LDM
 	ldmGrep=`grep EDEX_HOSTNAME $LDMD_CONF | head -1`
