@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.kml.export.graphics.ext.radar;
+package com.raytheon.uf.viz.kml.export.radar;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.FactoryException;
@@ -41,6 +41,7 @@ import com.raytheon.viz.radar.rsc.image.IRadialMeshExtension;
  * Jun 06, 2012           bsteffen    Initial creation
  * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
  *                                    Mesh
+ * Sep 16, 2014           abenak      Split away from KML core
  * 
  * </pre>
  * 
@@ -56,7 +57,6 @@ public class KmlRadialMeshExtension extends
         return Compatibilty.TARGET_COMPATIBLE;
     }
 
-
     @Override
     public IMesh constructMesh(RadialMeshData meshData,
             GeneralGridGeometry targetGeometry) throws VizException {
@@ -66,6 +66,5 @@ public class KmlRadialMeshExtension extends
             throw new VizException(e);
         }
     }
-
 
 }
