@@ -20,9 +20,8 @@
 package com.raytheon.uf.edex.plugin.text.subscription.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import com.raytheon.uf.common.message.Property;
 
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.message.Property;
  * 14Nov2008    1709       MW Fegan    Initial creation.
  * 14Sep2010    3944       cjeanbap    Trim the newline char from value.
  * May 22, 2014 2536       bclement    moved from autobldsrv to edex.plugin.text
+ * Sep 05, 2014 2926       bclement    removed hex utilities
  * 
  * </pre>
  * 
@@ -53,6 +53,7 @@ public final class Tools {
     private Tools() {
         super();
     }
+
     /**
      * 
      * @param properties
@@ -77,13 +78,5 @@ public final class Tools {
         }
 
         return retVal;
-    }
-    public static final String AsciiToHex(String string) {
-        return new HexBinaryAdapter().marshal(string.getBytes());
-    }
-    
-    public static final String hexToAscii(String hexString) {
-        byte[] b = new HexBinaryAdapter().unmarshal(hexString);
-        return new String(b);
     }
 }

@@ -38,7 +38,7 @@ package com.raytheon.viz.ui.personalities.awips;
  * @version 1.0
  */
 
-public class CAVE extends AbstractCAVEComponent {
+public class CAVE extends AbstractAWIPSComponent {
 
     public int getRuntimeModes() {
         return (ALERT_VIZ | WORKBENCH);

@@ -23,14 +23,14 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 
+import com.raytheon.uf.common.jms.notification.INotificationObserver;
+import com.raytheon.uf.common.jms.notification.NotificationException;
+import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.notification.INotificationObserver;
-import com.raytheon.uf.viz.core.notification.NotificationException;
-import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 
 /**
@@ -75,9 +75,9 @@ public class AlertVizNotificationObserver implements INotificationObserver {
     /*
      * (non-Javadoc)
      * 
-     * @seecom.raytheon.uf.viz.core.notification.INotificationObserver#
+     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
      * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
+     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
