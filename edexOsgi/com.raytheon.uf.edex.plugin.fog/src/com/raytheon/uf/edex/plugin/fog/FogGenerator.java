@@ -30,6 +30,22 @@ import com.raytheon.uf.edex.cpgsrv.CompositeProductGenerator;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.fog.common.FogConfig;
 
+/**
+ * Composite product generator for fog products
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ???          ???         ???        Initial creation
+ * Aug 26, 2014 3503       bclement    removed constructDataURI() call
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
 public class FogGenerator extends CompositeProductGenerator {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FogGenerator.class);
@@ -92,8 +108,6 @@ public class FogGenerator extends CompositeProductGenerator {
             if (fog_config.getIR10_7() != null) {
                 fogRec.setIR_10_7Array(fog_config.getIR10_7());
             }
-
-            fogRec.constructDataURI();
 
             this.setPluginDataObjects(new FogRecord[] { fogRec });
 

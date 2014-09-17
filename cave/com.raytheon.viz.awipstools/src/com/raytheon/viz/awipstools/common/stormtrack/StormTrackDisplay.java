@@ -108,6 +108,7 @@ import com.vividsolutions.jts.geom.LineString;
  *  06-17-2014  DR17409 mgamazaychikov Fix futurePoints calculation in generateNewTrackInfo()
  *                                     and generateExistingTrackInfo()
  *  07-24-2014  3429       mapeters    Updated deprecated drawLine() calls.
+ *  08-21-2014  DR 15700   Qinglu Lin  handle the situation where frameTime is null in paintTrack().
  * 
  * </pre>
  * 
@@ -692,9 +693,6 @@ public class StormTrackDisplay implements IRenderable {
         }
 
         if (state.geomChanged) {
-            if (cachedTrack != null) {
-                cachedTrack.dispose();
-            }
             if (StormTrackState.trackType.equals("lineOfStorms") && state.justSwitchedToLOS) {
                 GeodeticCalculator gc = new GeodeticCalculator();
                 Coordinate[] coords = state.dragMeGeom.getCoordinates();
@@ -703,9 +701,16 @@ public class StormTrackDisplay implements IRenderable {
                         coords[coords.length - 1].y);
                 state.angle = adjustAngle(gc.getAzimuth() - 90);
             }
-            generateTrackInfo(state, paintProps);
-            if (state.mode == Mode.TRACK) {
-                createTrack(target, paintProps);
+            DataTime frameTime = paintProps.getDataTime();
+            if (frameTime != null) {
+                if (cachedTrack != null) {
+                    cachedTrack.dispose();
+                }
+                generateTrackInfo(state, paintProps, frameTime);
+                if (state.mode == Mode.TRACK) {
+                    createTrack(target, paintProps);
+                }
+                state.geomChanged = false;
             }
             state.geomChanged = false;
         }
@@ -726,7 +731,7 @@ public class StormTrackDisplay implements IRenderable {
      * @param currentState
      */
     private void generateTrackInfo(StormTrackState currentState,
-            PaintProperties paintProps) throws VizException {
+            PaintProperties paintProps, DataTime frameTime) throws VizException {
         int frameCount = trackUtil.getFrameCount(paintProps.getFramesInfo());
         int currFrame = trackUtil.getCurrentFrame(paintProps.getFramesInfo());
         try {
@@ -739,7 +744,6 @@ public class StormTrackDisplay implements IRenderable {
                         && currentState.timePoints.length != frameCount) {
                     // need to set theAnchorPoint and theAnchorIndex here
                     // because timePoints get erased before we get to updateAnchorPoint
-                    DataTime frameTime = paintProps.getDataTime();
                     for (int j=0;j<currentState.timePoints.length;j++){
                         if (frameTime.equals(currentState.timePoints[j].time)) {
                             theAnchorPoint = currentState.timePoints[j].coord;
@@ -786,7 +790,7 @@ public class StormTrackDisplay implements IRenderable {
                 generateNewTrackInfo(currentState, currFrame, paintProps);
                 currentDisplayedTimes = trackUtil.getDataTimes(paintProps
                         .getFramesInfo());
-                generateTrackInfo(currentState, paintProps);
+                generateTrackInfo(currentState, paintProps, frameTime);
             } else {
 
                 if (currentState.pointMoved) {

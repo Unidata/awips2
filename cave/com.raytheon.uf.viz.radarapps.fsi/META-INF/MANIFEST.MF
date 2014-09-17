@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.raytheon.uf.viz.radarapps.fsi;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.radarapps.fsi.Activator
 Bundle-Vendor: Raytheon
-Eclipse-BuddyPolicy: global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core;bundle-version="1.11.17",
