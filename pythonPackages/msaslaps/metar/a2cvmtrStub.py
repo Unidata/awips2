@@ -22,142 +22,189 @@
 # of times within a specifed area.  The data is output to stdout as ASCII.
 # Each line is one time/station combination. The individual data items are comma
 # delimited.
-#    
+#
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/15/2014      3593          nabowle        Initial modification. Fix index issues on 2D parameters.
+#    09/15/2014      3593          nabowle        Replace UEngine with DAF.
 #
 #
 
-# pointDataQuery.stationName_lat_lon.py
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
-import PointDataQuery
+import argparse
+import sys
 
-# 1. 
-pdq = PointDataQuery.PointDataQuery("obs")
+from datetime import datetime
+from ufpy.dataaccess import DataAccessLayer
+from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
-# 3.  the stuff we want returned to us in PointDataContainer
-reqPar = "stationName,timeObs"
-reqPar += ",latitude,longitude,elevation,wmoId"
-reqPar += ",autoStationType,reportType"
-reqPar += ",presWeather,visibility,skyCover,skyLayerBase"
-reqPar += ",altimeter,seaLevelPress,pressChange3Hour,pressChangeChar"
-reqPar += ",temperature,tempFromTenths,dewpoint,dpFromTenths"
-reqPar += ",windDir,windSpeed,windGust,maxTemp24Hour,minTemp24Hour"
-reqPar += ",precip1Hour,precip3Hour,precip6Hour,precip24Hour"
-pdq.setRequestedParameters(reqPar)
+def get_args():
+    parser = argparse.ArgumentParser(conflict_handler="resolve")
+    parser.add_argument("-h", action="store", dest="host",
+                        help="EDEX server hostname (optional)",
+                        metavar="hostname")
+    parser.add_argument("-b", action="store", dest="start", 
+                    help="The start of the time range in YYYY-MM-DD HH:MM",
+                    metavar="start")
+    parser.add_argument("-e", action="store", dest="end", 
+                    help="The end of the time range in YYYY-MM-DD HH:MM",
+                    metavar="end")
+    parser.add_argument("--lat-min", action="store", dest="latMin", type=float,
+                    help="Minimum latitude", default=0.0, metavar="lat")
+    parser.add_argument("--lat-max", action="store", dest="latMax", type=float,
+                    help="Maximum latitude", default=90.0, metavar="lat")
+    parser.add_argument("--lon-min", action="store", dest="lonMin", type=float,
+                    help="Minimum longitude", default=-180.0, metavar="lon")
+    parser.add_argument("--lon-max", action="store", dest="lonMax", type=float,
+                    help="Maximum longitude", default=180.0, metavar="lon")
+    return parser.parse_args()
 
-# 2.  some constraints
-pdq.addConstraint("dataTime","BBBBB:00.0",">=")
-pdq.addConstraint("dataTime","EEEEE:00.0","<=")
-pdq.addConstraint("location.longitude","LNMN",">=")
-pdq.addConstraint("location.longitude","LNMX","<=")
-pdq.addConstraint("location.latitude","LTMN",">=")
-pdq.addConstraint("location.latitude","LTMX","<=")
 
-# 5.1  execute() returns a ResponseMessageGeneric
-pdq.requestAllLevels()
-rmg = pdq.execute()
+def main():
+    # The multi-dimensional parameters.
+    PRES_PARAMS = set(["presWeather"])
+    SKY_PARAMS = set(["skyCover", "skyLayerBase"])
 
-# 5.1, cont'd.  RMG's payload is a PointDataContainer
-pdc = rmg.getContents()
-#return ResponseMessageGeneric(pdc)
+    user_args = get_args()
 
-# Get the data for each requested parameter.
-sName = pdc.getPointDataTypes().get("stationName").getStringData()
-tobs = pdc.getPointDataTypes().get("timeObs").getLongData()
-lat = pdc.getPointDataTypes().get("latitude").getFloatData()
-lon = pdc.getPointDataTypes().get("longitude").getFloatData()
-elev = pdc.getPointDataTypes().get("elevation").getFloatData()
-ista = pdc.getPointDataTypes().get("wmoId").getIntData()
-atype = pdc.getPointDataTypes().get("autoStationType").getStringData()
-repTyp = pdc.getPointDataTypes().get("reportType").getStringData()
-wx = pdc.getPointDataTypes().get("presWeather").getStringData()
-vis = pdc.getPointDataTypes().get("visibility").getFloatData()
-cvr = pdc.getPointDataTypes().get("skyCover").getStringData()
-bas = pdc.getPointDataTypes().get("skyLayerBase").getFloatData()
-alt = pdc.getPointDataTypes().get("altimeter").getFloatData()
-msl = pdc.getPointDataTypes().get("seaLevelPress").getFloatData()
-pchg = pdc.getPointDataTypes().get("pressChange3Hour").getFloatData()
-pchr =  pdc.getPointDataTypes().get("pressChangeChar").getStringData()
-temp = pdc.getPointDataTypes().get("temperature").getFloatData()
-t10 = pdc.getPointDataTypes().get("tempFromTenths").getFloatData()
-dpt = pdc.getPointDataTypes().get("dewpoint").getFloatData()
-td10 = pdc.getPointDataTypes().get("dpFromTenths").getFloatData()
-dir = pdc.getPointDataTypes().get("windDir").getFloatData()
-spd = pdc.getPointDataTypes().get("windSpeed").getFloatData()
-gust = pdc.getPointDataTypes().get("windGust").getFloatData()
-tmx = pdc.getPointDataTypes().get("maxTemp24Hour").getFloatData()
-tmn = pdc.getPointDataTypes().get("minTemp24Hour").getFloatData()
-pr1 = pdc.getPointDataTypes().get("precip1Hour").getFloatData()
-pr3 = pdc.getPointDataTypes().get("precip3Hour").getFloatData()
-pr6 = pdc.getPointDataTypes().get("precip6Hour").getFloatData()
-pr24 = pdc.getPointDataTypes().get("precip24Hour").getFloatData()
+    if user_args.host:
+        DataAccessLayer.changeEDEXHost(user_args.host)
 
-# 5.2 and 5.3
-if len(tobs) == 0 :
-   msg = "couldn't get data"
-   return ResponseMessageGeneric(msg)
+    start = user_args.start
+    end = user_args.end
 
-msg = "\n\n"
-i = i5 = i6 = 0
-while i < len(tobs) :
-    msg += sName[i] + ","
-    msg += str(tobs[i]/1000) + ","
-    msg += "%.4f"%lat[i] + ","
-    msg += "%.4f"%lon[i] + ","
-    msg += "%.0f"%elev[i] + ","
-    if ista[i] < 0 :
-        msg += "-99,"
-    else :
-        msg += str(ista[i]) + ","
-    msg += atype[i] + " ,"
-    msg += repTyp[i] + " ,"
-    msg += wx[i5] + " ,"
-    msg += "%.3f"%vis[i] + ","
+    if not start or not end:
+        print >> sys.stderr, "Start or End date not provided"
+        return
 
-    
-    msg += cvr[i6];
-    kk = 5
-    while kk > 0 and cvr[i6+kk] == "" :
-        kk -= 1
-    k = 1
-    while k <= kk :
-        msg += "|" + cvr[i6+k];
-        k += 1
-    msg += " ,"
-    msg += "%.1f"%bas[i6];
-    kk = 5
-    while kk > 0 and bas[i6+kk] < -9998 :
-        kk -= 1
-    k = 1
-    while k <= kk :
-        msg += "|" + "%.1f"%bas[i6+k];
-        k += 1
-    msg += ","
+    latMin = user_args.latMin
+    latMax = user_args.latMax
+    lonMin = user_args.lonMin
+    lonMax = user_args.lonMax
 
-    msg += "%.2f"%alt[i] + ","
-    msg += "%.2f"%msl[i] + ","
-    msg += "%.0f"%pchg[i] + ","
-    msg += pchr[i] + " ,"
-    msg += "%.1f"%temp[i] + ","
-    msg += "%.1f"%t10[i] + ","
-    msg += "%.1f"%dpt[i] + ","
-    msg += "%.1f"%td10[i] + ","
-    msg += "%.0f"%dir[i] + ","
-    msg += "%.1f"%spd[i] + ","
-    msg += "%.1f"%gust[i] + ","
-    msg += "%.1f"%tmx[i] + ","
-    msg += "%.1f"%tmn[i] + ","
-    msg += "%.2f"%pr1[i] + ","
-    msg += "%.2f"%pr3[i] + ","
-    msg += "%.2f"%pr6[i] + ","
-    msg += "%.2f"%pr24[i] + "\n"
-    i += 1
-    i5 += 5
-    i6 += 6;
+    beginRange = datetime.strptime( start + ":00.0", "%Y-%m-%d %H:%M:%S.%f")
+    endRange = datetime.strptime( end + ":59.9", "%Y-%m-%d %H:%M:%S.%f")
+    timerange = TimeRange(beginRange, endRange)
 
-return ResponseMessageGeneric(msg)
+    req = DataAccessLayer.newDataRequest("obs")
+    req.setParameters("stationName","timeObs","wmoId","autoStationType",
+        "elevation","reportType","presWeather","visibility","skyCover",
+        "skyLayerBase","altimeter","seaLevelPress","pressChange3Hour",
+        "pressChangeChar","temperature","tempFromTenths","dewpoint",
+        "dpFromTenths","windDir","windSpeed","windGust","maxTemp24Hour",
+        "minTemp24Hour""","precip1Hour","precip3Hour","precip6Hour",
+        "precip24Hour")
+    geometries = DataAccessLayer.getGeometryData(req, timerange)
 
+    if not geometries :
+#        print "No data available."
+        return
+
+    msg = ""
+    wx = []
+    cvr = []
+    bas = []
+    for geoData in geometries:
+        if set(geoData.getParameters()) & PRES_PARAMS :
+            wx.append(geoData.getString("presWeather"))
+            continue
+        if set(geoData.getParameters()) & SKY_PARAMS :
+            cvr.append(geoData.getString("skyCover"))
+            bas.append(geoData.getNumber("skyLayerBase"))
+            continue
+
+        lon = geoData.getGeometry().x
+        lat = geoData.getGeometry().y
+        if lon < lonMin or lon > lonMax or lat < latMin or lat > latMax:
+            wx = []
+            cvr = []
+            bas = []
+            continue
+
+        sName = geoData.getString("stationName")
+        tobs = geoData.getNumber("timeObs")
+        elev = geoData.getNumber("elevation")
+        ista = geoData.getNumber("wmoId")
+        atype = geoData.getString("autoStationType")
+        repTyp = geoData.getString("reportType")
+        vis = geoData.getNumber("visibility")
+        alt = geoData.getNumber("altimeter")
+        msl = geoData.getNumber("seaLevelPress")
+        pchg = geoData.getNumber("pressChange3Hour")
+        pchr =  geoData.getString("pressChangeChar")
+        temp = geoData.getNumber("temperature")
+        t10 = geoData.getNumber("tempFromTenths")
+        dpt = geoData.getNumber("dewpoint")
+        td10 = geoData.getNumber("dpFromTenths")
+        dir = geoData.getNumber("windDir")
+        spd = geoData.getNumber("windSpeed")
+        gust = geoData.getNumber("windGust")
+        tmx = geoData.getNumber("maxTemp24Hour")
+        tmn = geoData.getNumber("minTemp24Hour")
+        pr1 = geoData.getNumber("precip1Hour")
+        pr3 = geoData.getNumber("precip3Hour")
+        pr6 = geoData.getNumber("precip6Hour")
+        pr24 = geoData.getNumber("precip24Hour")
+
+
+        msg += sName + ","
+        msg += str(tobs/1000) + ","
+        msg += "%.4f"%lat + ","
+        msg += "%.4f"%lon + ","
+        msg += "%.0f"%elev + ","
+        if ista < 0 :
+            msg += "-99,"
+        else :
+            msg += str(ista) + ","
+        msg += atype + " ,"
+        msg += repTyp + " ,"
+        msg += wx[0] + " ,"
+        msg += "%.3f"%vis + ","
+
+
+        msg += cvr[0];
+        kk = 5
+        while kk > 0 and cvr[0+kk] == "" :
+            kk -= 1
+        k = 1
+        while k <= kk :
+            msg += "|" + cvr[0+k];
+            k += 1
+        msg += " ,"
+        msg += "%.1f"%bas[0];
+        kk = 5
+        while kk > 0 and bas[0+kk] < -9998 :
+            kk -= 1
+        k = 1
+        while k <= kk :
+            msg += "|" + "%.1f"%bas[0+k];
+            k += 1
+        msg += ","
+
+        msg += "%.2f"%alt + ","
+        msg += "%.2f"%msl + ","
+        msg += "%.0f"%pchg + ","
+        msg += pchr + " ,"
+        msg += "%.1f"%temp + ","
+        msg += "%.1f"%t10 + ","
+        msg += "%.1f"%dpt + ","
+        msg += "%.1f"%td10 + ","
+        msg += "%.0f"%dir + ","
+        msg += "%.1f"%spd + ","
+        msg += "%.1f"%gust + ","
+        msg += "%.1f"%tmx + ","
+        msg += "%.1f"%tmn + ","
+        msg += "%.2f"%pr1 + ","
+        msg += "%.2f"%pr3 + ","
+        msg += "%.2f"%pr6 + ","
+        msg += "%.2f"%pr24 + "\n"
+
+        wx = []
+        cvr = []
+        bas = []
+
+    print msg.strip()
+
+if __name__ == '__main__':
+    main()
