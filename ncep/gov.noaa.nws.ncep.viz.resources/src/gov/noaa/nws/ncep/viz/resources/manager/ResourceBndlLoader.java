@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -359,6 +360,12 @@ public class ResourceBndlLoader implements Runnable { // extends Job {
                 .isEmpty()) {
             rscList.addAll(pane.getRenderableDisplay().getDescriptor()
                     .getResourceList());
+            //When adding PGEN back, add tne remove-listener
+            if (pane.getRenderableDisplay().getDescriptor().getResourceList().get(0).getResource().getClass().getName()
+                    .endsWith("PgenResource")) {
+                rscList.addPreRemoveListener((RemoveListener) pane.getRenderableDisplay().getDescriptor().getResourceList().get(0).getResource());
+            }
+            
         }
 
         rscList.instantiateResources(descr, true);

@@ -19,6 +19,7 @@ import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.resources.groupresource.GroupResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
@@ -78,6 +79,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 11/25/2013   #1078      Greg Hull       check for FitToScreen and SizeOfImage in setPaneData()
  * 11/25/2013   #1079      Greg Hull       checkAndUpdateAreaFromResource
  * 05/15/2014   #1131      Quan Zhou       added rbdType GRAPH_DISPLAY
+ * 08/14/2014 	?			B. Yin		   Handle GroupResource for power legend.
  * </pre>
  * 
  * @author ghull
@@ -171,17 +173,22 @@ public class RscBundleDisplayMngr {
         // replace the existing base overlay.
         public boolean addSelectedResource(ResourceSelection rbt) {
             // for( ResourceSelection r : seldResources ) {
-            for (int r = 0; r < seldResources.size(); r++) {
-                ResourceSelection rscSel = seldResources.elementAt(r);
-                if (rbt.getResourceName().equals(rscSel.getResourceName())) {
-                    if (rscSel.isBaseLevelResource()) {
-                        // baseOverlayResources
-                        rbt.setIsBaseLevelResource(true);
-                        seldResources.add(r, rbt);
-                        seldResources.remove(r + 1);
-                        return true;
+            if (!(rbt.getResourceData() instanceof GroupResourceData)) { //add group on top
+                for (int r = 0; r < seldResources.size(); r++) {
+                    ResourceSelection rscSel = seldResources.elementAt(r);
+                    if (rscSel.getResourceData() instanceof GroupResourceData) { //skip groups
+                        continue;
                     }
-                    return false;
+                    if (rbt.getResourceName().equals(rscSel.getResourceName())) {
+                        if (rscSel.isBaseLevelResource()) {
+                            // baseOverlayResources
+                            rbt.setIsBaseLevelResource(true);
+                            seldResources.add(r, rbt);
+                            seldResources.remove(r + 1);
+                            return true;
+                        }
+                        return false;
+                    }
                 }
             }
 
@@ -951,6 +958,20 @@ public class RscBundleDisplayMngr {
 
     }
 
+    public boolean addSelectedResource(ResourceSelection rsel,
+            ResourceSelection grp) {
+        if (grp == null) {
+            return addSelectedResource(rsel);
+        } else {
+            if (grp.getResourceData() instanceof GroupResourceData) {
+                ((GroupResourceData) grp.getResourceData()).getResourceList()
+                        .add(rsel.getResourcePair());
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean addSelectedResourceToAllPanes(ResourceSelection rbt) {
         for (PaneSelectionData paneData : paneSelectionDataMap.values()) {
             paneData.addSelectedResource(rbt);
@@ -1192,7 +1213,9 @@ public class RscBundleDisplayMngr {
 
             // loop thru the bundles for the selected rscs
             //
-            for (ResourceSelection rbt : paneData.getSelectedResources()) {
+            for (int ii = paneData.getSelectedResources().length - 1; ii >= 0; ii--) {
+                ResourceSelection rbt = paneData.getSelectedResources()[ii];
+
                 ResourcePair rscPair = rbt.getResourcePair();
                 // if( dfltDomRscName == null &&
                 // rscPair.getResourceData() instanceof
@@ -1218,5 +1241,105 @@ public class RscBundleDisplayMngr {
         rbdBndl.setIsDefaultRbd(false);
 
         return rbdBndl;
+    }
+
+    public ResourceSelection[] getGroupResources() {
+        ArrayList<ResourceSelection> sels = new ArrayList<ResourceSelection>();
+        for (int ii = 0; ii < selectedPaneData.seldResources.size(); ii++) {
+            if (selectedPaneData.seldResources.get(ii).getResourceData() instanceof GroupResourceData) {
+                sels.add(selectedPaneData.seldResources.get(ii));
+            }
+        }
+        return (ResourceSelection[]) sels.toArray(new ResourceSelection[sels
+                .size()]);
+    }
+
+    public ResourceSelection[] getUngroupedResources() {
+        ArrayList<ResourceSelection> sels = new ArrayList<ResourceSelection>();
+        for (int ii = 0; ii < selectedPaneData.seldResources.size(); ii++) {
+            if (!(selectedPaneData.seldResources.get(ii).getResourceData() instanceof GroupResourceData)) {
+                sels.add(selectedPaneData.seldResources.get(ii));
+            }
+        }
+        return (ResourceSelection[]) sels.toArray(new ResourceSelection[sels
+                .size()]);
+    }
+
+    public ResourceSelection[] getResourcesInGroup(String grpName) {
+
+        if (grpName != null && !grpName.isEmpty()) {
+            ResourceSelection[] sels = getGroupResources();
+            for (int ii = 0; ii < sels.length; ii++) {
+                if (sels[ii].getResourceData() instanceof GroupResourceData) {
+                    GroupResourceData grd = (GroupResourceData) sels[ii]
+                            .getResourceData();
+                    if (grd.getGroupName().equals(grpName)) {
+
+                        ResourceSelection[] resInGrp = new ResourceSelection[grd
+                                .getResourceList().size()];
+                        for (int jj = 0; jj < resInGrp.length; jj++) {
+                            try {
+                                resInGrp[jj] = ResourceFactory
+                                        .createResource(grd.getResourceList()
+                                                .get(jj));
+                            } catch (VizException e) {
+
+                            }
+                        }
+
+                        return resInGrp;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void moveUpGrp(ResourcePair pair) {
+
+        int curIdx = -1;
+        int target = selectedPaneData.seldResources.size();
+        for (int ii = 0; ii < selectedPaneData.seldResources.size(); ii++) {
+
+            if (selectedPaneData.seldResources.get(ii).getResourcePair() == pair) {
+                curIdx = ii;
+                break;
+            } else if (selectedPaneData.seldResources.get(ii).getResourceData() instanceof GroupResourceData) {
+                target = ii;
+            }
+        }
+
+        if (curIdx != -1 && target < curIdx) {
+            ResourceSelection sel = selectedPaneData.seldResources.get(curIdx);
+            selectedPaneData.seldResources.set(curIdx,
+                    selectedPaneData.seldResources.get(target));
+            selectedPaneData.seldResources.set(target, sel);
+
+        }
+
+    }
+
+    public void moveDownGrp(ResourcePair pair) {
+
+        int curIdx = -1;
+        int target = selectedPaneData.seldResources.size();
+        for (int ii = selectedPaneData.seldResources.size() - 1; ii >= 0; ii--) {
+
+            if (selectedPaneData.seldResources.get(ii).getResourcePair() == pair) {
+                curIdx = ii;
+                break;
+            } else if (selectedPaneData.seldResources.get(ii).getResourceData() instanceof GroupResourceData) {
+                target = ii;
+            }
+        }
+
+        if (curIdx != -1 && target > curIdx) {
+            ResourceSelection sel = selectedPaneData.seldResources.get(curIdx);
+            selectedPaneData.seldResources.set(curIdx,
+                    selectedPaneData.seldResources.get(target));
+            selectedPaneData.seldResources.set(target, sel);
+
+        }
+
     }
 }
