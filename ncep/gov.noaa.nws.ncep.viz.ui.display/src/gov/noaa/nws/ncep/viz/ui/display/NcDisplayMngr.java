@@ -5,6 +5,7 @@ import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
 import gov.noaa.nws.ncep.viz.common.display.IPaneLayoutable;
+import gov.noaa.nws.ncep.viz.common.display.IPowerLegend;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 
@@ -68,6 +69,7 @@ import com.raytheon.viz.ui.panes.VizDisplayPane;
  * 08/09/2012     837       Archana      Updated getNcDisplayID() to fix a NumberFormatException     
  * 02/10/2012     #971      Greg Hull    Renamed from NmapUiUtils and add support for NcDisplayType and NcDisplayName
  * 05/15/2013     #862      Greg Hull    call setPaneManager() ; add method findRenderableDisplayByPaneName()
+ * 08/18/2014       ?       B. Yin       Added a method for function key to toggle GroupResource.
  * 
  * </pre>
  * 
@@ -530,4 +532,27 @@ public class NcDisplayMngr {
         }
     }
 
+    /*
+     * Function key to to activate GroupResource.
+     */
+    public static final void toggleOnResourceGroup(int funcKeyNum) {
+        AbstractEditor currEditor = NcDisplayMngr.getActiveNatlCntrsEditor();
+        for (ResourcePair pair : currEditor.getDisplayPanes()[0]
+                .getDescriptor().getResourceList()) {
+            if (pair.getResource() != null
+                    && pair.getResource() instanceof IPowerLegend) {
+                IPowerLegend grpRes = (IPowerLegend) pair.getResource();
+                if (grpRes.getFuncKeyNum() == funcKeyNum) {
+                    ((AbstractVizResource<?, ?>) grpRes).getProperties()
+                            .setVisible(true);
+                    // grpRes.setVisibleForAllResources(true);
+                } else {
+                    ((AbstractVizResource<?, ?>) grpRes).getProperties()
+                            .setVisible(false);
+                    // grpRes.setVisibleForAllResources(false);
+                }
+            }
+        }
+        currEditor.refresh();
+    }
 }
