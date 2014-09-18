@@ -197,8 +197,8 @@ public class WcnCountyQueryResult {
 
         ArrayList<ArrayList<Object[]>> list = fipsMultiResultMap.get(fips);
 
-        if (list == null) {
-            logger.log(Level.WARNING, "_______ No result for fips: " + fips);
+        if (list == null) {// mute? clouds output when CAVE is on during ingest
+            logger.log(Level.FINEST, "_______ No result for fips: " + fips);
 
             return new ArrayList<ArrayList<Object[]>>();
         }
