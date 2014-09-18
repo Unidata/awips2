@@ -10,6 +10,8 @@ import gov.noaa.nws.ncep.viz.common.display.INcPaneID;
 import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
+import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
+import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.GraphTimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl.IDominantResourceChangedListener;
@@ -17,6 +19,7 @@ import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionContr
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction;
+import gov.noaa.nws.ncep.viz.resources.groupresource.GroupResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.AbstractRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.NcMapRBD;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
@@ -34,6 +37,8 @@ import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,12 +50,24 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.ColumnViewerEditor;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.ICellModifier;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerEditor;
+import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -58,6 +75,9 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Device;
@@ -81,6 +101,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -89,6 +110,8 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -142,6 +165,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 05/07/2014   TTR991       D. Sushon   if a different NCP editor is selected, the CreateRDB tab should now adjust.
  * 05/29/2014     #1131      qzhou       Added NcDisplayType
  *                                       Modified creating new timelineControl in const and updateGUI
+ * 08/14/2014		?		 B. Yin		 Added power legend (resource group) support.
+ * 09/092014		?		 B. Yin		 Fixed NumPad enter issue and the "ResetToDefault" issue for groups. 
  * </pre>
  * 
  * @author ghull
@@ -178,6 +203,22 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
     private Group seld_rscs_grp = null;
 
     private ListViewer seld_rscs_lviewer = null;
+
+    private TableViewer groupListViewer;
+
+    private Text nameTxt;
+
+    private Button delGrpBtn;
+
+    private Composite grpColorComp;
+
+    private ColorButtonSelector grpColorBtn;
+
+    private Button grpMoveUpBtn;
+
+    private Button grpMoveDownBtn;
+
+    private int curGrp = -1;
 
     private Button replace_rsc_btn = null;
 
@@ -216,6 +257,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
     private Button custom_area_btn = null;
 
     private Group pane_layout_grp = null;
+
+    private Group groupGrp = null;
 
     private Button pane_sel_btns[][] = null;
 
@@ -263,11 +306,15 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
     private Group timeline_grp;
 
+    private int grpColor = 1;
+
     // private final String[] StandardZoomLevels = {"1",
     // "1.5","2","3","5","7.5","10","15","20","30"};
 
     private static Map<String, String> gempakProjMap = GempakProjectionValuesUtil
             .initializeProjectionNameMap();
+
+    private static String ungrpStr = "Ungrouped";
 
     // the rbdMngr will be used to set the gui so it should either be
     // initialized/cleared or set with the initial RBD.
@@ -505,10 +552,10 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         disp_type_lbl.setLayoutData(form_data);
 
         multi_pane_tog = new Button(rbd_grp, SWT.CHECK);
-        multi_pane_tog.setText("Multi-Pane Display");
+        multi_pane_tog.setText("Multi-Pane");
         form_data = new FormData();
         form_data.top = new FormAttachment(rbd_name_txt, -10, SWT.TOP);
-        form_data.left = new FormAttachment(rbd_name_txt, 35, SWT.RIGHT);
+        form_data.left = new FormAttachment(rbd_name_txt, 15, SWT.RIGHT);
         multi_pane_tog.setLayoutData(form_data);
 
         auto_update_btn = new Button(rbd_grp, SWT.CHECK);
@@ -532,6 +579,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         seld_rscs_grp = createSeldRscsGroup();
 
         createPaneLayoutGroup();
+
+        createGroupGrp();
     }
 
     private void createAreaGroup() {
@@ -542,7 +591,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         form_data.top = new FormAttachment(disp_type_combo, 25, SWT.BOTTOM);
         // form_data.bottom = new FormAttachment( 100, -60 ); // if offset for
         // room for the Load and Save buttons
-        form_data.bottom = new FormAttachment(100, -10);
+        form_data.bottom = new FormAttachment(100, 0);
         form_data.left = new FormAttachment(0, 10);
         form_data.right = new FormAttachment(24, 0);
 
@@ -698,8 +747,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         // form_data.top = new FormAttachment( rbd_name_txt, 25, SWT.BOTTOM );
         form_data.top = new FormAttachment(auto_update_btn, 15, SWT.BOTTOM);
         form_data.left = new FormAttachment(geo_area_grp, 10, SWT.RIGHT);
-        form_data.right = new FormAttachment(100, -10);
-        form_data.bottom = new FormAttachment(geo_area_grp, 0, SWT.BOTTOM);
+        form_data.right = new FormAttachment(100, -300);
+        form_data.bottom = new FormAttachment(100, 0);
         seld_rscs_grp.setLayoutData(form_data);
 
         // This is multi-select to make Deleting resources easier.
@@ -797,9 +846,490 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         edit_span_btn.setLayoutData(form_data);
         edit_span_btn.setEnabled(false);
 
-        seld_rscs_grp.pack(true);
+        // seld_rscs_grp.pack(true);
 
         return seld_rscs_grp;
+    }
+
+    private void createGroupGrp() {
+        groupGrp = new Group(rbd_grp, SWT.SHADOW_NONE);
+        groupGrp.setText("Resource Group");
+
+        FormData fd = new FormData();
+        fd.left = new FormAttachment(seld_rscs_grp, 10, SWT.RIGHT);
+        fd.top = new FormAttachment(0, 3);
+        fd.right = new FormAttachment(100, 0);
+        fd.bottom = new FormAttachment(100, 0);
+        groupGrp.setLayoutData(fd);
+
+        groupGrp.setLayout(new FormLayout());
+
+        Label nameLbl = new Label(groupGrp, SWT.NONE);
+        nameLbl.setText("Name:");
+        fd = new FormData();
+        fd.left = new FormAttachment(0, 5);
+        fd.top = new FormAttachment(0, 5);
+        nameLbl.setLayoutData(fd);
+
+        nameTxt = new Text(groupGrp, SWT.SINGLE | SWT.BORDER);
+        fd = new FormData(200, 20);
+        fd.left = new FormAttachment(nameLbl, 5, SWT.RIGHT);
+        fd.right = new FormAttachment(100, -40);
+        fd.top = new FormAttachment(nameLbl, -5, SWT.TOP);
+        nameTxt.setLayoutData(fd);
+
+        nameTxt.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent ke) {
+                Text txt = (Text) ke.widget;
+                if ((ke.keyCode == SWT.CR || ke.keyCode == SWT.KEYPAD_CR) && !txt.getText().isEmpty()) {
+
+                    if (txt.getText().equalsIgnoreCase(ungrpStr)) {
+                        curGrp = -1;
+                        selectUngroupedGrp();
+                        seld_rscs_lviewer.setInput(rbdMngr
+                                .getUngroupedResources());
+                        setGroupButtons();
+                        return;
+                    }
+
+                    int ii = 0;
+
+                    for (ResourceSelection rsel : rbdMngr.getGroupResources()) {
+                        if (rsel.getResourceData() instanceof GroupResourceData) {
+                            if (((GroupResourceData) rsel.getResourceData())
+                                    .getGroupName().equalsIgnoreCase(
+                                            txt.getText())) {
+
+                                groupListViewer.getTable().setSelection(ii);
+                                curGrp = groupListViewer.getTable()
+                                        .getSelectionIndex();
+                                seld_rscs_lviewer.setInput(rbdMngr
+                                        .getResourcesInGroup(groupListViewer
+                                                .getTable().getSelection().length == 0 ? null
+                                                : groupListViewer.getTable()
+                                                        .getSelection()[0]
+                                                        .getText()));
+                                setGroupButtons();
+
+                                return;
+
+                            }
+                        }
+                        ii++;
+                    }
+
+                    // groupListViewer.setSelection(selection)
+
+                    // Change group name
+                    // ResourceSelection sel = getGroupResourceSelection();
+                    // if (sel != null) {
+                    // ((GroupResourceData) sel.getResourceData())
+                    // .setGroupName(txt.getText());
+                    // groupListViewer.setInput(rbdMngr.getGroupResources());
+                    // groupListViewer.refresh();
+                    // groupListViewer.getTable().setSelection(curGrp);
+                    // } else {
+                    addResourceGroup(txt.getText());
+                    setGroupButtons();
+                    txt.setText("");
+                    // }
+                }
+            }
+        });
+
+        groupListViewer = new TableViewer(groupGrp, SWT.SINGLE | SWT.V_SCROLL
+                | SWT.H_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
+        fd = new FormData();
+        fd.top = new FormAttachment(nameLbl, 15, SWT.BOTTOM);
+        fd.bottom = new FormAttachment(100, -5);
+        fd.left = new FormAttachment(0, 5);
+        fd.right = new FormAttachment(100, -40);
+
+        groupListViewer.getTable().setLayoutData(fd);
+
+        groupListViewer.setContentProvider(new IStructuredContentProvider() {
+
+            @Override
+            public Object[] getElements(Object inputElement) {
+
+                // Add "Ungrouped" group
+                ResourcePair group = new ResourcePair();
+
+                GroupResourceData grd = new GroupResourceData(ungrpStr, 0,
+                        grpColorBtn.getColorValue());
+                group.setResourceData(grd);
+
+                ResourceSelection ungrouped = null;
+                try {
+                    ungrouped = ResourceFactory.createResource(group);
+                } catch (VizException e) {
+                }
+
+                ResourceSelection[] groups = (ResourceSelection[]) inputElement;
+
+                ResourceSelection[] groups1;
+
+                if (ungrouped != null) {
+                    if (groups != null) {
+                        List<ResourceSelection> list = new ArrayList<ResourceSelection>(
+                                Arrays.asList(groups));
+                        list.add(ungrouped);
+                        groups1 = (ResourceSelection[]) list
+                                .toArray(new ResourceSelection[list.size()]);
+                    } else {
+                        groups1 = new ResourceSelection[] { ungrouped };
+                    }
+                } else {
+                    groups1 = groups;
+                }
+
+                return groups1;
+
+            }
+
+            @Override
+            public void dispose() {
+            }
+
+            @Override
+            public void inputChanged(Viewer viewer, Object oldInput,
+                    Object newInput) {
+            }
+        });
+
+        groupListViewer.setLabelProvider(new LabelProvider() {
+            public String getText(Object element) {
+                ResourceSelection rscSel = (ResourceSelection) element;
+                if (rscSel.getResourceData() instanceof GroupResourceData) {
+                    return ((GroupResourceData) rscSel.getResourceData())
+                            .getGroupName();
+                } else {
+                    return "No Group Name";
+                }
+            }
+        });
+
+        // enable/disable the Edit/Delete/Clear buttons...
+        groupListViewer
+                .addSelectionChangedListener(new ISelectionChangedListener() {
+                    public void selectionChanged(SelectionChangedEvent event) {
+                        // System.out.println("table changed");
+
+                    }
+                });
+
+        groupListViewer.getTable().addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                // System.out.println("Current grp XXXXXXXXXXXXXX: " + curGrp);
+
+                curGrp = groupListViewer.getTable().getSelectionIndex();
+                if (groupListViewer.getTable().getSelection()[0].getText()
+                        .equalsIgnoreCase(ungrpStr)) {
+                    curGrp = -1;
+                    seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
+                } else {
+                    seld_rscs_lviewer.setInput(rbdMngr
+                            .getResourcesInGroup(groupListViewer.getTable()
+                                    .getSelection().length == 0 ? null
+                                    : groupListViewer.getTable().getSelection()[0]
+                                            .getText()));
+                }
+
+                setGroupButtons();
+
+                // System.out.println("Group: "
+                // + groupListViewer.getList().getSelection()[0]);
+
+            }
+        });
+
+        /*
+         * TableViewerColumn columnViewer = new
+         * TableViewerColumn(groupListViewer, SWT.NONE);
+         * columnViewer.setLabelProvider(new CellLabelProvider() {
+         * 
+         * @Override public void update(ViewerCell cell) { ResourceSelection
+         * rsel = (ResourceSelection) cell.getElement();
+         * cell.setText(((GroupResourceData) rsel.getResourceData())
+         * .getGroupName()); } });
+         * 
+         * columnViewer.getColumn().pack();
+         * 
+         * columnViewer.setEditingSupport(new EditingSupport(groupListViewer) {
+         * 
+         * @Override protected void setValue(Object element, Object value) { //
+         * ((Element) element).setValue((String) value); ResourceSelection rsel
+         * = (ResourceSelection) element;
+         * 
+         * ((GroupResourceData) rsel.getResourceData()) .setGroupName((String)
+         * value); groupListViewer.refresh(); }
+         * 
+         * @Override protected Object getValue(Object element) {
+         * ResourceSelection rsel = (ResourceSelection) element; return
+         * ((GroupResourceData) rsel.getResourceData()) .getGroupName(); }
+         * 
+         * @Override protected CellEditor getCellEditor(Object element) { return
+         * new TextCellEditor(groupListViewer.getTable()); }
+         * 
+         * @Override protected boolean canEdit(Object element) { return true; }
+         * });
+         * 
+         * TableViewerFocusCellManager focusCellManager = new
+         * TableViewerFocusCellManager( groupListViewer, new
+         * FocusCellOwnerDrawHighlighter( groupListViewer));
+         * 
+         * ColumnViewerEditorActivationStrategy activationSupport = new
+         * ColumnViewerEditorActivationStrategy( groupListViewer) { protected
+         * boolean isEditorActivationEvent( ColumnViewerEditorActivationEvent
+         * event) { // Enable editor // only with // mouse double // click if
+         * (event.eventType ==
+         * ColumnViewerEditorActivationEvent.MOUSE_DOUBLE_CLICK_SELECTION) {
+         * EventObject source = event.sourceEvent; if (source instanceof
+         * MouseEvent && ((MouseEvent) source).button == 3) return false;
+         * 
+         * return true; }
+         * 
+         * return false; } };
+         * 
+         * TableViewerEditor.create(groupListViewer, focusCellManager,
+         * activationSupport, ColumnViewerEditor.TABBING_HORIZONTAL |
+         * ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR |
+         * ColumnViewerEditor.TABBING_VERTICAL |
+         * ColumnViewerEditor.KEYBOARD_ACTIVATION);
+         */
+
+        groupListViewer.setColumnProperties(new String[] { "Group Name" });
+
+        groupListViewer.setCellModifier(new ICellModifier() {
+
+            @Override
+            public boolean canModify(Object element, String property) {
+                // TODO Auto-generated method stub
+                return true;
+            }
+
+            @Override
+            public Object getValue(Object element, String property) {
+
+                ResourceSelection sel = (ResourceSelection) element;
+                return ((GroupResourceData) sel.getResourceData())
+                        .getGroupName();
+            }
+
+            @Override
+            public void modify(Object element, String property, Object value) {
+
+                if (value != null && !((String) value).isEmpty()) {
+                    ResourceSelection sel = (ResourceSelection) ((TableItem) element)
+                            .getData();
+                    ((GroupResourceData) sel.getResourceData())
+                            .setGroupName((String) value);
+                    groupListViewer.refresh();
+                }
+            }
+
+        });
+
+        groupListViewer.setCellEditors(new CellEditor[] { new TextCellEditor(
+                groupListViewer.getTable()) });
+
+        ColumnViewerEditorActivationStrategy activationSupport = new ColumnViewerEditorActivationStrategy(
+                groupListViewer) {
+            protected boolean isEditorActivationEvent(
+                    ColumnViewerEditorActivationEvent event) { // Enable editor
+                                                               // only with
+                                                               // mouse double
+                                                               // click
+                if (event.eventType == ColumnViewerEditorActivationEvent.MOUSE_DOUBLE_CLICK_SELECTION) {
+                    EventObject source = event.sourceEvent;
+                    if (source instanceof MouseEvent
+                            && ((MouseEvent) source).button == 3)
+                        return false;
+                    if (((GroupResourceData) ((ResourceSelection) ((org.eclipse.jface.viewers.ViewerCell) event
+                            .getSource()).getElement()).getResourcePair()
+                            .getResourceData()).getGroupName()
+                            .equalsIgnoreCase(ungrpStr)) {
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+        };
+
+        TableViewerEditor.create(groupListViewer, activationSupport,
+                ColumnViewerEditor.TABBING_HORIZONTAL
+                        | ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
+                        | ColumnViewerEditor.TABBING_VERTICAL
+                        | ColumnViewerEditor.KEYBOARD_ACTIVATION);
+
+        groupListViewer.addDoubleClickListener(new IDoubleClickListener() {
+
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+
+                TableViewer tv = (TableViewer) event.getSource();
+
+                tv.setSelection(event.getSelection());
+                seld_rscs_lviewer.setInput(rbdMngr
+                        .getResourcesInGroup(groupListViewer.getTable()
+                                .getSelection().length == 0 ? null
+                                : groupListViewer.getTable().getSelection()[0]
+                                        .getText()));
+
+                curGrp = groupListViewer.getTable().getSelectionIndex();
+
+                if (groupListViewer.getTable().getSelection()[0].getText()
+                        .equalsIgnoreCase(ungrpStr)) {
+                    selectUngroupedGrp();
+                    seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
+                    curGrp = -1;
+                }
+
+                setGroupButtons();
+            }
+
+        });
+
+        groupListViewer.getTable().addListener(SWT.MouseUp, new Listener() {
+            public void handleEvent(Event event) {
+                org.eclipse.swt.widgets.Table grpList = (org.eclipse.swt.widgets.Table) event.widget;
+
+                if (grpList.getItemCount() > 0) {
+
+                    if (event.y > grpList.getItemCount()
+                            * grpList.getItemHeight()) {
+                        grpList.deselectAll();
+                        curGrp = -1;
+
+                        selectUngroupedGrp();
+
+                        seld_rscs_lviewer.setInput(rbdMngr
+                                .getUngroupedResources());
+                        setGroupButtons();
+
+                        nameTxt.setText("");
+                    }
+                }
+            }
+        });
+
+        grpMoveUpBtn = new Button(groupGrp, SWT.ARROW | SWT.UP);
+        grpMoveUpBtn.setToolTipText("Move Up");
+        fd = new FormData();
+        fd.width = 30;
+        fd.top = new FormAttachment(50, -70);
+        fd.left = new FormAttachment(groupListViewer.getTable(), 5, SWT.RIGHT);
+        grpMoveUpBtn.setLayoutData(fd);
+        grpMoveUpBtn.setEnabled(true);
+        grpMoveUpBtn.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                StructuredSelection isel = ((StructuredSelection) groupListViewer
+                        .getSelection());
+                ResourceSelection sel = (ResourceSelection) isel
+                        .getFirstElement();
+                if (sel != null) {
+                    rbdMngr.moveUpGrp(sel.getResourcePair());
+                    groupListViewer.setInput(rbdMngr.getGroupResources());
+                    groupListViewer.refresh();
+                    groupListViewer.setSelection(isel);
+                    curGrp = groupListViewer.getTable().getSelectionIndex();
+                    setGroupButtons();
+                }
+            }
+        });
+
+        grpMoveDownBtn = new Button(groupGrp, SWT.ARROW | SWT.DOWN);
+        grpMoveDownBtn.setToolTipText("Move Down");
+        fd = new FormData();
+        fd.width = 30;
+        fd.top = new FormAttachment(grpMoveUpBtn, 10, SWT.BOTTOM);
+        fd.left = new FormAttachment(groupListViewer.getTable(), 5, SWT.RIGHT);
+        grpMoveDownBtn.setLayoutData(fd);
+        grpMoveDownBtn.setEnabled(true);
+        grpMoveDownBtn.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                StructuredSelection isel = ((StructuredSelection) groupListViewer
+                        .getSelection());
+                ResourceSelection sel = (ResourceSelection) isel
+                        .getFirstElement();
+                if (sel != null) {
+                    rbdMngr.moveDownGrp(sel.getResourcePair());
+                    groupListViewer.setInput(rbdMngr.getGroupResources());
+                    groupListViewer.setSelection(isel);
+
+                    groupListViewer.refresh();
+                    curGrp = groupListViewer.getTable().getSelectionIndex();
+                    setGroupButtons();
+                }
+            }
+        });
+        delGrpBtn = new Button(groupGrp, SWT.PUSH);
+        delGrpBtn.setText("X");
+        delGrpBtn.setToolTipText("Remove");
+        fd = new FormData();
+        fd.width = 30;
+        fd.top = new FormAttachment(grpMoveDownBtn, 10, SWT.BOTTOM);
+        fd.left = new FormAttachment(groupListViewer.getTable(), 5, SWT.RIGHT);
+        delGrpBtn.setLayoutData(fd);
+        delGrpBtn.setEnabled(true);
+        delGrpBtn.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                ResourceSelection sel = (ResourceSelection) ((StructuredSelection) groupListViewer
+                        .getSelection()).getFirstElement();
+                if (sel != null) {
+                    rbdMngr.removeSelectedResource(sel);
+                    groupListViewer.setInput(rbdMngr.getGroupResources());
+                    groupListViewer.refresh();
+                    selectUngroupedGrp();
+                    seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
+                    setGroupButtons();
+                    curGrp = -1;
+
+                } else {
+                }
+            }
+        });
+
+        grpColorComp = new Composite(groupGrp, SWT.NONE);
+        grpColorComp.setLayout(new FormLayout());
+        grpColorComp.setToolTipText("Legend Color");
+        grpColorBtn = new ColorButtonSelector(grpColorComp, 28, 22);
+        // grpColorBtn.setColorValue(new RGB(0, 255, 0));
+        grpColorBtn.setColorValue(GempakColor.convertToRGB(1));
+
+        fd = new FormData();
+        fd.width = 30;
+        fd.top = new FormAttachment(delGrpBtn, 10, SWT.BOTTOM);
+        fd.left = new FormAttachment(groupListViewer.getTable(), 6, SWT.RIGHT);
+        grpColorComp.setLayoutData(fd);
+        grpColorComp.pack();
+
+        grpColorBtn.addListener(new IPropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent event) {
+                ResourceSelection sel = getGroupResourceSelection();
+                if (sel != null) {
+
+                    ((GroupResourceData) sel.getResourceData())
+                            .setLegendColor(grpColorBtn.getColorValue());
+                }
+            }
+        });
+
+        groupListViewer.setInput(rbdMngr.getGroupResources());
+
+        groupListViewer.refresh(true);
+
+        selectUngroupedGrp();
+
+        setGroupButtons();
+
+        groupGrp.pack();
+        groupGrp.setVisible(true);
     }
 
     private void createPaneLayoutGroup() {
@@ -809,8 +1339,8 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         FormData fd = new FormData();
         fd.left = new FormAttachment(seld_rscs_grp, 10, SWT.RIGHT);
         fd.top = new FormAttachment(0, 3);
-        fd.right = new FormAttachment(100, -10);
-        fd.bottom = new FormAttachment(100, -15);
+        fd.right = new FormAttachment(100, 0);
+        fd.bottom = new FormAttachment(100, 0);
         pane_layout_grp.setLayoutData(fd);
 
         Composite num_rows_cols_comp = new Composite(pane_layout_grp, SWT.NONE);
@@ -821,7 +1351,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         num_rows_cols_comp.setLayout(gl);
 
         fd = new FormData();
-        fd.left = new FormAttachment(0, 80);
+        fd.left = new FormAttachment(0, 100);
         fd.top = new FormAttachment(0, 3);
         fd.right = new FormAttachment(100, -10);
         num_rows_cols_comp.setLayoutData(fd);
@@ -884,7 +1414,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         sel_pane_lbl.setText("Select Pane");
         fd = new FormData();
         fd.left = new FormAttachment(0, 5);
-        fd.top = new FormAttachment(num_rows_cols_comp, 8, SWT.BOTTOM);
+        fd.top = new FormAttachment(num_rows_cols_comp, 2, SWT.BOTTOM);
         sel_pane_lbl.setLayoutData(fd);
 
         Label sep = new Label(pane_layout_grp, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -931,9 +1461,9 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         import_pane_btn = new Button(pane_layout_grp, SWT.PUSH);
         fd = new FormData();
         fd.top = new FormAttachment(pane_sel_comp, 10, SWT.BOTTOM);
-        fd.left = new FormAttachment(0, 10);
+        fd.left = new FormAttachment(50, -120);
         import_pane_btn.setLayoutData(fd);
-        import_pane_btn.setText(" Import... ");
+        import_pane_btn.setText("Import...");
         import_pane_btn.setEnabled(true);
 
         load_pane_btn = new Button(pane_layout_grp, SWT.PUSH);
@@ -941,14 +1471,14 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         fd.top = new FormAttachment(import_pane_btn, 0, SWT.TOP);
         fd.left = new FormAttachment(50, -38);
         load_pane_btn.setLayoutData(fd);
-        load_pane_btn.setText("  Re-Load  ");
+        load_pane_btn.setText(" Re-Load ");
 
         clr_pane_btn = new Button(pane_layout_grp, SWT.PUSH);
-        clr_pane_btn.setText("   Clear   ");
+        clr_pane_btn.setText("  Clear  ");
         fd = new FormData();
         // fd.width = 75;
         fd.top = new FormAttachment(import_pane_btn, 0, SWT.TOP);
-        fd.right = new FormAttachment(100, -10);
+        fd.left = new FormAttachment(50, 50);
         clr_pane_btn.setLayoutData(fd);
 
         pane_layout_grp.setVisible(false);
@@ -1126,8 +1656,37 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                         ResourceSelection rscSel = (ResourceSelection) sel_elems
                                 .getFirstElement();
 
-                        if (!rbdMngr.replaceSelectedResource(rscSel, rbt)) {
-                            // return;
+                        StructuredSelection grp = (StructuredSelection) groupListViewer
+                                .getSelection();
+
+                        ResourceSelection sel = (ResourceSelection) grp
+                                .getFirstElement();
+
+                        if (sel != null
+                                && ((GroupResourceData) sel.getResourcePair()
+                                        .getResourceData()).getGroupName()
+                                        .equalsIgnoreCase(ungrpStr)) {
+                            sel = null;
+                        }
+
+                        if (sel == null) {
+                            if (!rbdMngr.replaceSelectedResource(rscSel, rbt)) {
+                                // return;
+                            }
+                        } else {
+                            ((GroupResourceData) sel.getResourceData())
+                                    .replaceResourcePair(
+                                            rscSel.getResourcePair(),
+                                            rbt.getResourcePair());
+
+                            seld_rscs_lviewer.setInput(rbdMngr
+                                    .getResourcesInGroup(groupListViewer
+                                            .getTable().getSelection().length == 0 ? null
+                                            : groupListViewer.getTable()
+                                                    .getSelection()[0]
+                                                    .getText()));
+
+                            seld_rscs_lviewer.refresh(true);
                         }
 
                         // remove this from the list of available dominant
@@ -1158,11 +1717,40 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
                                 }
                                 return;
                             }
-                        } else if (!rbdMngr.addSelectedResource(rbt)) {
-                            if (done) {
-                                rscSelDlg.close();
+                        } else {
+
+                            StructuredSelection grp = (StructuredSelection) groupListViewer
+                                    .getSelection();
+
+                            ResourceSelection sel = (ResourceSelection) grp
+                                    .getFirstElement();
+
+                            if (sel != null
+                                    && ((GroupResourceData) sel
+                                            .getResourcePair()
+                                            .getResourceData()).getGroupName()
+                                            .equalsIgnoreCase(ungrpStr)) {
+                                sel = null;
                             }
-                            return;
+
+                            if (!rbdMngr.addSelectedResource(rbt, sel)) {
+                                if (sel != null) {
+                                    seld_rscs_lviewer.setInput(rbdMngr
+                                            .getResourcesInGroup(groupListViewer
+                                                    .getTable().getSelection().length == 0 ? null
+                                                    : groupListViewer
+                                                            .getTable()
+                                                            .getSelection()[0]
+                                                            .getText()));
+
+                                    seld_rscs_lviewer.refresh(true);
+                                }
+
+                                if (done) {
+                                    rscSelDlg.close();
+                                }
+                                return;
+                            }
                         }
                     }
 
@@ -1930,16 +2518,44 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
         // set the list of available resources for the timeline
         for (int paneIndx = 0; paneIndx < paneLayout.getNumberOfPanes(); paneIndx++) {
+
+            // only add resources in current group
+            // yin if (curGrp >= 1000) { // may use later
+            // ResourceSelection sel = getGroupResourceSelection();
+
+            // if (sel != null) {
+            // for (ResourcePair pair : ((GroupResourceData) sel
+            // .getResourceData()).getResourceList()) {
+            // if (pair.getResourceData() instanceof
+            // AbstractNatlCntrsRequestableResourceData) {
+            // timelineControl
+            // .addAvailDomResource((AbstractNatlCntrsRequestableResourceData)
+            // pair
+            // .getResourceData());
+            // }
+            // }
+            // }
+            // } else {
             for (ResourceSelection rscSel : rbdMngr
                     .getRscsForPane((NcPaneID) paneLayout
                             .createPaneId(paneIndx))) {
 
-                if (rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData) {
+                if (rscSel.getResourceData() instanceof GroupResourceData) {
+                    for (ResourcePair pair : ((GroupResourceData) rscSel
+                            .getResourceData()).getResourceList()) {
+                        if (pair.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData) {
+                            timelineControl
+                                    .addAvailDomResource((AbstractNatlCntrsRequestableResourceData) pair
+                                            .getResourceData());
+                        }
+                    }
+                } else if (rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData) {
                     timelineControl
                             .addAvailDomResource((AbstractNatlCntrsRequestableResourceData) rscSel
                                     .getResourceData());
                 }
             }
+            // }
         }
 
         NCTimeMatcher timeMatcher = rbdMngr.getInitialTimeMatcher();
@@ -2004,7 +2620,15 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
     }
 
     public void removeSelectedResource(ResourceSelection rscSel) {
-        rbdMngr.removeSelectedResource(rscSel);
+        if (groupListViewer.getSelection() == null
+                || groupListViewer.getSelection().isEmpty()
+                || groupListViewer.getTable().getSelection()[0].getText()
+                        .equalsIgnoreCase(ungrpStr)) {
+            rbdMngr.removeSelectedResource(rscSel);
+        } else { // remove from group
+            ((GroupResourceData) getGroupResourceSelection().getResourceData())
+                    .getResourceList().remove(rscSel.getResourcePair());
+        }
 
         // remove this from the list of available dominant resources.
         if (rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData) {
@@ -2101,6 +2725,13 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         }
 
         updateGUI();
+
+        curGrp = -1;
+        groupListViewer.setInput(rbdMngr.getGroupResources());
+        seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
+        seld_rscs_lviewer.refresh();
+        setGroupButtons();
+
     }
 
     // reset the ListViewer's input and update all of the buttons
@@ -2114,7 +2745,17 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             List<ResourceSelection> origSeldRscsList = (List<ResourceSelection>) orig_sel_elems
                     .toList();
 
-            seld_rscs_lviewer.setInput(rbdMngr.getSelectedRscs());
+            if (groupListViewer.getSelection().isEmpty()
+                    || groupListViewer.getTable().getSelection()[0].getText()
+                            .equalsIgnoreCase(ungrpStr)) {
+                seld_rscs_lviewer.setInput(rbdMngr.getUngroupedResources());
+            } else {
+                seld_rscs_lviewer.setInput(rbdMngr
+                        .getResourcesInGroup(groupListViewer.getTable()
+                                .getSelection().length == 0 ? null
+                                : groupListViewer.getTable().getSelection()[0]
+                                        .getText()));
+            }
             seld_rscs_lviewer.refresh(true);
 
             List<ResourceSelection> newSeldRscsList = new ArrayList<ResourceSelection>();
@@ -2330,6 +2971,36 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
             NcDisplayMngr.bringToTop(editor);
 
+            // Assign hot keys to group resources.
+            // Set visible for the selected group.
+            ResourceSelection rsel = getGroupResourceSelection();
+
+            for (AbstractRenderableDisplay rendDisp : rbdBndl.getDisplays()) {
+                int funKey = 1;
+                for (ResourcePair rp : rendDisp.getDescriptor()
+                        .getResourceList()) {
+                    if (rp.getResourceData() instanceof GroupResourceData) {
+
+                        GroupResourceData grd = (GroupResourceData) rp
+                                .getResourceData();
+
+                        grd.setFuncKeyNum(funKey);
+                        funKey++;
+
+                        // If nothing selected, turn on all groups.
+                        rp.getProperties().setVisible(true);
+
+                        if (rsel != null
+                                && !((GroupResourceData) rsel.getResourcePair()
+                                        .getResourceData()).getGroupName()
+                                        .equals(grd.getGroupName())) {
+                            rp.getProperties().setVisible(false);
+                        }
+
+                    }
+                }
+            }
+
             rbdLoader.addRBD(rbdBndl, editor);
 
             VizApp.runSync(rbdLoader);
@@ -2521,6 +3192,19 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
 
         try {
             rbdMngr.initFromRbdBundle(impRbd);
+
+            groupListViewer.setInput(rbdMngr.getGroupResources());
+            // the new group is always added at the top.
+            if (curGrp != -1) {
+                groupListViewer.getTable().setSelection(curGrp);
+                groupListViewer.refresh();
+
+                // seld_rscs_lviewer.setInput(null);
+                // seld_rscs_lviewer.refresh();
+            } else {
+                this.selectUngroupedGrp();
+            }
+
         } catch (VizException e) {
             rbdMngr.init(curDispType);
 
@@ -2603,7 +3287,7 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         updateSelectedResourcesView(true);
     }
 
-    public void updateGUIforMultipane(boolean isMultiPane) {
+    private void updateGUIforMultipane(boolean isMultiPane) {
         FormData fd = new FormData();
 
         geo_sync_panes.setVisible(isMultiPane);
@@ -2611,25 +3295,30 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
         pane_layout_grp.setVisible(isMultiPane);
 
         if (isMultiPane) {
+            groupGrp.setVisible(false);
+
             fd.left = new FormAttachment(geo_area_grp, 10, SWT.RIGHT);
             // fd.left = new FormAttachment( 30, 2 );
             // fd.top = new FormAttachment( geo_area_grp, 0, SWT.TOP );
             fd.top = new FormAttachment(geo_sync_panes, 10, SWT.BOTTOM);
             fd.bottom = new FormAttachment(geo_area_grp, 0, SWT.BOTTOM);
             fd.right = new FormAttachment(100, -300);
+
             seld_rscs_grp.setLayoutData(fd);
 
             shell.setSize(new Point(multiPaneDlgWidth, shell.getSize().y));
         } else {
+            groupGrp.setVisible(true);
+
             fd.left = new FormAttachment(geo_area_grp, 10, SWT.RIGHT);
             // fd.left = new FormAttachment( 30, 2 );
             // fd.top = new FormAttachment( geo_area_grp, 0, SWT.TOP );
             fd.top = new FormAttachment(auto_update_btn, 5, SWT.BOTTOM);
             fd.right = new FormAttachment(100, -10);
             fd.bottom = new FormAttachment(geo_area_grp, 0, SWT.BOTTOM);
-            seld_rscs_grp.setLayoutData(fd);
+            // seld_rscs_grp.setLayoutData(fd);
 
-            shell.setSize(new Point(singlePaneDlgWidth, shell.getSize().y));
+            shell.setSize(new Point(multiPaneDlgWidth - 10, shell.getSize().y));
         }
 
         // the area name may be truncated based on a shorter toolbar widget
@@ -2829,6 +3518,93 @@ public class CreateRbdControl extends Composite implements IPartListener2 {
             }
         }
 
+    }
+
+    private void addResourceGroup(String name) {
+        ResourcePair group = new ResourcePair();
+
+        // Add group, the default hot key is F1 and will be re-assigned at
+        // the time all groups are loaded.
+        grpColorBtn.setColorValue(GempakColor.convertToRGB(grpColor++));
+
+        GroupResourceData grd = new GroupResourceData(name, 1,
+                grpColorBtn.getColorValue());
+        group.setResourceData(grd);
+        try {
+            ResourceSelection sel = ResourceFactory.createResource(group);
+            rbdMngr.addSelectedResource(sel);
+            groupListViewer.setInput(rbdMngr.getGroupResources());
+
+            // the new group is always added at the top.
+            groupListViewer.getTable().setSelection(0);
+            curGrp = 0;
+
+            groupListViewer.refresh();
+
+            seld_rscs_lviewer.setInput(null);
+            seld_rscs_lviewer.refresh();
+
+        } catch (VizException e) {
+
+        }
+
+    }
+
+    private void setGroupButtons() {
+
+        if (groupListViewer.getTable().getSelectionCount() <= 0
+                || groupListViewer.getTable().getSelection()[0].getText()
+                        .equalsIgnoreCase(ungrpStr)) {
+            grpMoveUpBtn.setEnabled(false);
+            grpMoveDownBtn.setEnabled(false);
+            grpColorComp.setEnabled(false);
+            delGrpBtn.setEnabled(false);
+
+        } else if (groupListViewer.getTable().getItemCount() == 1) {
+            grpMoveUpBtn.setEnabled(false);
+            grpMoveDownBtn.setEnabled(false);
+            grpColorComp.setEnabled(true);
+            delGrpBtn.setEnabled(true);
+        } else {
+            int idx = groupListViewer.getTable().getSelectionIndex();
+            if (idx == 0) {
+                grpMoveUpBtn.setEnabled(false);
+                grpMoveDownBtn.setEnabled(true);
+                grpColorComp.setEnabled(true);
+                delGrpBtn.setEnabled(true);
+            }
+            if (idx == groupListViewer.getTable().getItemCount() - 2) {
+                grpMoveUpBtn.setEnabled(true);
+                grpMoveDownBtn.setEnabled(false);
+                grpColorComp.setEnabled(true);
+                delGrpBtn.setEnabled(true);
+            }
+            if (idx != 0
+                    && idx != groupListViewer.getTable().getItemCount() - 2) {
+                grpMoveUpBtn.setEnabled(true);
+                grpMoveDownBtn.setEnabled(true);
+                grpColorComp.setEnabled(true);
+                delGrpBtn.setEnabled(true);
+            }
+        }
+
+        // set the color button
+        ResourceSelection sel = getGroupResourceSelection();
+        if (sel != null) {
+            grpColorBtn.setColorValue(sel.getResourceData().getLegendColor());
+        }
+
+    }
+
+    private ResourceSelection getGroupResourceSelection() {
+        StructuredSelection isel = ((StructuredSelection) groupListViewer
+                .getSelection());
+        return (ResourceSelection) isel.getFirstElement();
+    }
+
+    private void selectUngroupedGrp() {
+        groupListViewer.getTable().setSelection(
+                groupListViewer.getTable().getItemCount() - 1);
     }
 
     @Override

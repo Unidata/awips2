@@ -19,13 +19,20 @@
  **/
 package gov.noaa.nws.ncep.viz.ui.display;
 
+import gov.noaa.nws.ncep.viz.common.display.IPowerLegend;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -57,6 +64,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * 10/19/2012   897         S. Gurung    Updated handleKeyUp() to not toggle PgenResource and added code to 
  * 										 refresh the editor after handling events.
  * 12/19/2012   960       G. Hull        use propertiesChanged() to toggle colorBar resources
+ * 08/18/2014   ?         B. Yin         Handle GroupResource.
  * 
  * 
  * 
@@ -83,6 +91,20 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
 
     private static boolean isFirstTime = true;
 
+    private boolean doubleClick = false;
+
+    private int doubleClickInterval = 300;
+
+    // (Integer)
+    // Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
+
+    private Job singleClickJob;
+
+    protected final Object singleClickJobLock = new Object();
+
+    private boolean isCtrlDown = false;
+    private boolean ctrlDown = false;
+
     @Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
 
@@ -94,58 +116,76 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
                 IDisplayPane activePane = editor.getActiveDisplayPane();
                 IRenderableDisplay display = editor.getActiveDisplayPane()
                         .getRenderableDisplay();
-                mouseDownRsc = resource.checkLabelSpace(
-                        display.getDescriptor(), activePane.getTarget(), x, y);
+                List<ResourcePair> resourcesClicked = resource
+                        .getResourceClicked(display.getDescriptor(),
+                                activePane.getTarget(), x, y);
+                if (resourcesClicked != null && !resourcesClicked.isEmpty()) {
+                    mouseDownRsc = resourcesClicked
+                            .get(resourcesClicked.size() - 1);
+                } else {
+                    mouseDownRsc = null;
+                }
             }
         }
         return false;
     }
 
     @Override
-    public boolean handleMouseUp(int x, int y, int mouseButton) {
+    public boolean handleMouseUp(final int x, final int y, final int mouseButton) {
 
-        AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
-        if (mouseButton == 1) {
-            if (editor != null && editor instanceof AbstractNcEditor) {
-                IDisplayPane activePane = editor.getActiveDisplayPane();
-                IRenderableDisplay display = editor.getActiveDisplayPane()
-                        .getRenderableDisplay();
-                ResourcePair rsc = resource.checkLabelSpace(
-                        display.getDescriptor(), activePane.getTarget(), x, y);
-
-                if (rsc != null && rsc == mouseDownRsc) {
-
-                    mouseDownRsc = null;
-                    toggleVisibility(rsc);
-                    editor.refresh();
-
-                    return true;
-                }
-            }
-        } else if (mouseButton == 2) {
-
-            if (mouseDownRsc != null
-                    && mouseDownRsc.getResource().hasCapability(
-                            EditableCapability.class)) {
-                // check / make editable
-                EditableManager.makeEditable(
-                        mouseDownRsc.getResource(),
-                        !mouseDownRsc.getResource()
-                                .getCapability(EditableCapability.class)
-                                .isEditable());
-                mouseDownRsc = null;
-
-                editor.refresh();
-                return true;
-            }
+        //Because we wait certain milliseconds for double click,
+        //we have to save the status of the ctrl key.
+        if ( this.isCtrlDown ){
+            ctrlDown = true;
         }
-        return false;
+        else {
+            ctrlDown = false;
+        }
+        
+        
+        if (mouseDownRsc != null) {
+
+            if (doubleClick) {
+                synchronized (singleClickJobLock) {
+                    if (singleClickJob != null) {
+                        singleClickJob.cancel();
+                    }
+                }
+                doubleClick = false;
+                return doubleClickMouseUp(x, y, mouseButton);
+
+            }
+
+            singleClickJob = new Job("SingleClickMouseUp") {
+                @Override
+                protected IStatus run(IProgressMonitor monitor) {
+                    VizApp.runSync(new Runnable() {
+                        @Override
+                        public void run() {
+                            singleClickMouseUp(x, y, mouseButton);
+                        }
+                    });
+                    synchronized (singleClickJobLock) {
+                        singleClickJob = null;
+                    }
+                    return Status.OK_STATUS;
+                }
+            };
+            singleClickJob.schedule(doubleClickInterval);
+
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
     @Override
     public boolean handleDoubleClick(int x, int y, int mouseButton) {
-        return false;
+        if (mouseDownRsc != null && mouseButton == 1) {
+            doubleClick = true;
+        }
+        return true;
     }
 
     @Override
@@ -175,6 +215,11 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
 
     @Override
     public boolean handleKeyUp(int keyCode) {
+
+        if (keyCode == SWT.CONTROL) {
+            isCtrlDown = false;
+            return true;
+        }
 
         if (keyCode != SWT.SHIFT && keyCode != SWT.ARROW_UP
                 && keyCode != SWT.ARROW_DOWN) {
@@ -313,11 +358,13 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
         if (keyCode == SWT.SHIFT) {
             isShiftDown = true;
             return false;
+        } else if (keyCode == SWT.CONTROL) {
+            isCtrlDown = true;
         }
         return false;
     }
 
-    private void toggleVisibility(ResourcePair rp) {
+    private void toggleVisibility(ResourcePair rp, ResourcePair grp) {
         AbstractVizResource<?, ?> rsc = rp.getResource();
         if (rsc != null) {
             if (rsc.hasCapability(BlendedCapability.class)) {
@@ -349,6 +396,115 @@ public class NCLegendHandler extends AbstractNCLegendInputHandler {
                 return;
             }
         }
+
+        // If the resource is turned on, turn on the resource group.
+        // Otherwise the resource is not visible.
+        if (grp != null && !rp.getProperties().isVisible()) {
+            grp.getProperties().setVisible(!rp.getProperties().isVisible());
+        }
+
         rp.getProperties().setVisible(!rp.getProperties().isVisible());
+
+        if (rp.getResource() instanceof IPowerLegend) {
+            IPowerLegend gr = (IPowerLegend) rp.getResource();
+            // gr.setVisibleForAllResources(rp.getProperties().isVisible());
+
+            // if the group is turned
+            // if (!rp.getProperties().isVisible()) {
+            // gr.setNameExpanded(false);
+            // }
+
+            // if CTRL is not down, disable all other groups
+            if (!ctrlDown) {
+                AbstractEditor editor = NcDisplayMngr
+                        .getActiveNatlCntrsEditor();
+                if (editor != null && editor instanceof AbstractNcEditor) {
+                    IRenderableDisplay display = editor.getActiveDisplayPane()
+                            .getRenderableDisplay();
+                    for (ResourcePair pair : display.getDescriptor()
+                            .getResourceList()) {
+                        if (pair.getResource() instanceof IPowerLegend
+                                && pair != rp && rp.getProperties().isVisible()) {
+                            pair.getProperties().setVisible(false);
+                            // ((IPowerLegend) pair.getResource())
+                            // .setVisibleForAllResources(false);
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    private boolean singleClickMouseUp(int x, int y, int mouseButton) {
+
+        AbstractEditor editor = NcDisplayMngr.getActiveNatlCntrsEditor();
+        if (mouseButton == 1) {
+            if (editor != null && editor instanceof AbstractNcEditor) {
+                IDisplayPane activePane = editor.getActiveDisplayPane();
+                IRenderableDisplay display = editor.getActiveDisplayPane()
+                        .getRenderableDisplay();
+
+                ResourcePair rsc;
+                ResourcePair grp = null;
+                List<ResourcePair> resourcesClicked = resource
+                        .getResourceClicked(display.getDescriptor(),
+                                activePane.getTarget(), x, y);
+                if (resourcesClicked != null && !resourcesClicked.isEmpty()) {
+                    rsc = resourcesClicked.get(resourcesClicked.size() - 1);
+                    // get the group that rsc belongs to.
+                    if (resourcesClicked.size() > 1) {
+                        grp = resourcesClicked.get(0);
+                    }
+                } else {
+                    rsc = null;
+                }
+
+                if (rsc != null && rsc == mouseDownRsc) {
+
+                    mouseDownRsc = null;
+                    toggleVisibility(rsc, grp);
+                    editor.refresh();
+
+                    return true;
+                }
+            }
+        } else if (mouseButton == 2) {
+
+            if (mouseDownRsc != null
+                    && mouseDownRsc.getResource().hasCapability(
+                            EditableCapability.class)) {
+                // check / make editable
+                EditableManager.makeEditable(
+                        mouseDownRsc.getResource(),
+                        !mouseDownRsc.getResource()
+                                .getCapability(EditableCapability.class)
+                                .isEditable());
+                mouseDownRsc = null;
+
+                editor.refresh();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean doubleClickMouseUp(int x, int y, int mouseButton) {
+
+        if (mouseDownRsc.getResource() instanceof IPowerLegend) {
+            IPowerLegend gr = (IPowerLegend) mouseDownRsc.getResource();
+            if (mouseDownRsc.getResource().getProperties().isVisible()) {
+                if (gr.isNameExpanded()) {
+                    gr.setNameExpanded(false);
+                } else {
+                    gr.setNameExpanded(true);
+                }
+            }
+
+            resource.issueRefresh();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
