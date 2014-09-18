@@ -219,6 +219,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 08/20/2014  ASM #16703  D. Friedman Make geo feature types for watches explicit
  * 09/14/2014  ASM #641    dhuffman    To facilitate Area.java need to filter the differences between Areas and Zones,
  *                                     refactored filterCheck and added a new siginature version of filterArea.
+ * 09/17/2014  ASM #15465  Qinglu Lin  get backupOfficeShort and backupOfficeLoc from backup WFO config.xml, and pop up AlertViz if
+ *                                     any of them is missing.
  * </pre>
  * 
  * @author mschenke
@@ -230,6 +232,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             .getHandler(WarngenLayer.class);
 
     String uniqueFip = null;
+    String backupOfficeShort = null;
+    String backupOfficeLoc = null;
 
     Map<String, Double> geomArea = new HashMap<String, Double>();
     Map<String, Point> geomCentroid = new HashMap<String, Point>();
@@ -1447,6 +1451,32 @@ public class WarngenLayer extends AbstractStormTrackResource {
             dialogConfig.setDefaultTemplate(dc.getDefaultTemplate());
             dialogConfig.setMainWarngenProducts(dc.getMainWarngenProducts());
             dialogConfig.setOtherWarngenProducts(dc.getOtherWarngenProducts());
+            backupOfficeShort = dc.getWarngenOfficeShort();
+            backupOfficeLoc = dc.getWarngenOfficeLoc();
+            if (backupSite != null) {
+                boolean shortTag = false;
+                boolean locTag = false;
+                String infoType = null;
+                if (backupOfficeShort == null || backupOfficeShort.trim().length() == 0) {
+                    shortTag = true;
+                }
+                if (backupOfficeLoc == null || backupOfficeLoc.trim().length() == 0) {
+                    locTag = true;
+                }
+                if (shortTag && locTag) {
+                    infoType = "warngenOfficeShort and warngenOfficeLoc";
+                } else {
+                    if (shortTag) {
+                        infoType = "warngenOfficeShort";
+                    } else if (locTag) {
+                        infoType = "warngenOfficeLoc";
+                    }
+                }
+                if (infoType != null) {
+                    statusHandler.handle(Priority.CRITICAL, "Info for " + infoType + " in " + backupSite + 
+                            "'s config.xml is missing.");
+                }
+            }
         }
     }
 
@@ -3676,6 +3706,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
             getStormTrackState().justSwitchedToLOS = true;
             StormTrackState.trackType = "lineOfStorms";
         }
+    }
+
+    public String getBackupOfficeShort() {
+        return backupOfficeShort;
+    }
+
+    public String getBackupOfficeLoc() {
+        return backupOfficeLoc;
     }
 
 }
