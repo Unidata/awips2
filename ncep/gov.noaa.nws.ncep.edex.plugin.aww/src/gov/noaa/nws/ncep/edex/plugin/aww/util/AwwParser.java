@@ -19,6 +19,8 @@
  * 01/26/2011   N/A				M. Gao 		Refactor: 
  * 											change the WMO regular expression more flexible. 
  * 08/01/2013   1028            G. Hull     sanity check on AwwReportType.
+ * 9/15/2014    4637            J. Huber    Changed parser for WCN's to read VTEC lines to parse out the watch
+ *                                          number instead of the WATCH NOTIFICATION string.
  *                                    
  * </pre>
  * 
@@ -53,6 +55,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 public class AwwParser {
+    private final static String VTEC_EXP = "(/([A-Z]{1}).([A-Z]{3}).([A-Z]{4}).([A-Z]{2}).([A-Z]{1}).([0-9]{4}).([0-9]{6}T[0-9]{4})Z-([0-9]{6}T[0-9]{4})Z/\\x0d\\x0d\\x0a)+";
 
     private static Logger logger = Logger.getLogger(AwwParser.class
             .getCanonicalName());
@@ -315,19 +318,18 @@ public class AwwParser {
     }
 
     /* TRAC 1112 Extract the watch number from a *.WCN file segment */
+    /*
+     * RM 4697 Use VTEC Line to extract watch number instead of WATCH COUNTY
+     * NOTIFCATION text string
+     */
     public static String retrieveWatchNumberFromWCN(String segment) {
         String watchNmbr = null;
-        int watchNmbrLength = 4;
-        int lengthDiff = 0;
-        String s = "WATCH COUNTY NOTIFICATION FOR WATCH\\s+(\\d+)\\s+";
-        Pattern p = Pattern.compile(s);
+        Pattern p = Pattern.compile(VTEC_EXP);
         Matcher m = p.matcher(segment);
-
         if (m.find()) {
-            watchNmbr = m.group(1);
-            watchNmbr = (watchNmbr != null) ? watchNmbr.trim() : watchNmbr;
+            watchNmbr = m.group(7);
+            watchNmbr = watchNmbr.replaceAll("^0+", "");
         }
-
         return watchNmbr;
     }
 
@@ -391,9 +393,6 @@ public class AwwParser {
         Boolean trackingContinue = false;
         String trackingNumber;
         int[] latlonIndex = new int[1];
-
-        // Regular expression for VTEC line
-        final String VTEC_EXP = "(/([A-Z]{1}).([A-Z]{3}).([A-Z]{4}).([A-Z]{2}).([A-Z]{1}).([0-9]{4}).([0-9]{6}T[0-9]{4})Z-([0-9]{6}T[0-9]{4})Z/\\x0d\\x0d\\x0a)+";
 
         // Pattern used to extract VTEC line
         final Pattern vtecPattern = Pattern.compile(VTEC_EXP);
@@ -629,9 +628,6 @@ public class AwwParser {
         String trackingNumber;
         int[] latlonIndex = new int[1];
 
-        // Regular expression for VTEC line
-        final String VTEC_EXP = "(/([A-Z]{1}).([A-Z]{3}).([A-Z]{4}).([A-Z]{2}).([A-Z]{1}).([0-9]{4}).([0-9]{6}T[0-9]{4})Z-([0-9]{6}T[0-9]{4})Z/\\x0d\\x0d\\x0a)+";
-        // final String WTCH_VTEC_EXP =
         // "WW\\s\\d{3}\\sTORNADO\\s([A-Z]{2}\\s)+CW\\s(\\d{6}Z)\\s\\-\\s(\\d{6}Z)";
         final String WTCH_VTEC_EXP = "WW\\s(\\d{1,4})\\s(TORNADO|SEVERE TSTM)\\s((\\w+|\\s+)*)\\s(\\d{6}Z)\\s\\-\\s(\\d{6}Z)";
         // Pattern used to extract VTEC line
