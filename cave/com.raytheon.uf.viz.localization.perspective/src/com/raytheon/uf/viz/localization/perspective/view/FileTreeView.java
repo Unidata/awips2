@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.localization.perspective.view;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -135,6 +136,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * Sep 17, 2013  2285      mschenke    Made openFile refresh items if file not found
  * Oct  9, 2013  2104      mschenke    Fixed file delete/add refresh issue and file change message
  *                                     found when testing scalesInfo.xml file
+ * Sep 18, 2014  3531      bclement    fixed file delete/add refresh issue when paths share string prefixes
  * 
  * </pre>
  * 
@@ -1437,11 +1439,33 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         return null;
     }
 
+    /**
+     * @see #find(TreeItem, LocalizationContext, java.nio.file.Path, boolean)
+     * @param item
+     * @param ctx
+     * @param path
+     * @param populateToFind
+     * @return null if no item found
+     */
     private TreeItem find(TreeItem item, LocalizationContext ctx, String path,
             boolean populateToFind) {
+        return find(item, ctx, Paths.get(path), populateToFind);
+    }
+
+    /**
+     * Recursively search tree for node matching path starting at item
+     * 
+     * @param item
+     * @param ctx
+     * @param path
+     * @param populateToFind
+     * @return null if no item found
+     */
+    private TreeItem find(TreeItem item, LocalizationContext ctx,
+            java.nio.file.Path path, boolean populateToFind) {
         FileTreeEntryData data = (FileTreeEntryData) item.getData();
         if (data.getPathData().getType() == ctx.getLocalizationType()) {
-            String itemPath = data.getPath();
+            java.nio.file.Path itemPath = Paths.get(data.getPath());
             if (path.startsWith(itemPath)) {
                 if (path.equals(itemPath)
                         || (data.hasRequestedChildren() == false && !populateToFind)) {
