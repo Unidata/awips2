@@ -18,6 +18,16 @@
             name="Change Area to Fit Image"
             sortID="13">
       </contextualMenu>
+            <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.resources.misc.NCMoveUpAction"
+            capabilityInterface="gov.noaa.nws.ncep.viz.resources.INatlCntrsResource"
+            name="NC Move Up"
+            sortID="898"/>
+      <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.resources.misc.NCMoveDownAction"
+            capabilityInterface="gov.noaa.nws.ncep.viz.resources.INatlCntrsResource"
+            name="NC Move Down"
+            sortID="899"/>
       <contextualMenu
             actionClass="gov.noaa.nws.ncep.viz.tools.panZoom.ZoomToResourceRightClickAction"
             capabilityInterface="gov.noaa.nws.ncep.viz.common.area.IAreaProviderCapable"
