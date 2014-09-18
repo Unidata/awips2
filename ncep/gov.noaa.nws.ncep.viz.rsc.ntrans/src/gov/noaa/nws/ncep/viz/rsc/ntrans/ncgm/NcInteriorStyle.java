@@ -31,8 +31,8 @@ public class NcInteriorStyle extends InteriorStyle implements INcCommand {
     }
 
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps,
-            IDescriptor descriptor, ImageBuilder ib) throws VizException {
+    public void contributeToPaintableImage(ImageBuilder ib, IGraphicsTarget target,
+            PaintProperties paintProps, IDescriptor descriptor) throws VizException {
         switch (this.style) {
         case SOLID: // TODO: For now, SOLID is assumed for all filled polygons
             break;
