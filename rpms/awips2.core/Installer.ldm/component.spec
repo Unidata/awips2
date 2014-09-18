@@ -194,7 +194,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
+su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --with-retrans --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
    > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
