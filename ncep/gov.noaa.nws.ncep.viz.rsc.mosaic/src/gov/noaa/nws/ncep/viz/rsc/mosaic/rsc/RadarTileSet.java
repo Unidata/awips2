@@ -1,7 +1,9 @@
 package gov.noaa.nws.ncep.viz.rsc.mosaic.rsc;
 
 import gov.noaa.nws.ncep.edex.plugin.mosaic.uengine.MosaicTiler;
+
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -21,6 +23,7 @@ import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
  *  Date         Ticket#     Engineer    Description
  *  ------------ ----------  ----------- --------------------------
  *  01/2001		 204		 M. Li       Initial Creation.
+ *  09/2014                  sgilbert    Clean up unused method
  * 
  * </pre>
  * 
@@ -47,7 +50,8 @@ public class RadarTileSet extends AbstractTileSet {
             String viewType) throws VizException {
 
         super(tiler.getLevels(), tiler.getTileSize(), tiler
-                .constructGridGeometry(), rsc, viewType);
+                .constructGridGeometry(), rsc, PixelInCell.CELL_CORNER,
+                viewType);
 
         this.tiler = tiler;
     }
@@ -93,13 +97,6 @@ public class RadarTileSet extends AbstractTileSet {
     @Override
     public boolean hasDataPreloaded(int level) {
         return true;
-    }
-
-    /**
-     * @return
-     */
-    public double getMaxExtent() {
-        return tiler.getMaxExent();
     }
 
     public CoordinateReferenceSystem getCRS() {
