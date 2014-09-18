@@ -51,6 +51,7 @@ Export-Package: gov.noaa.nws.ncep.viz.resources;
    org.eclipse.swt.widgets,
    gov.noaa.nws.ncep.viz.common.ui.color,
    gov.noaa.nws.ncep.viz.ui.display",
+ gov.noaa.nws.ncep.viz.resources.groupresource,
  gov.noaa.nws.ncep.viz.resources.manager;
   uses:="javax.xml.bind.annotation.adapters,
    gov.noaa.nws.ncep.viz.resources,

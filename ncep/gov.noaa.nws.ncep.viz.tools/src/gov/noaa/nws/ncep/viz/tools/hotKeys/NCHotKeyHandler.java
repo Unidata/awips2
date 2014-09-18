@@ -7,24 +7,11 @@
  */
 package gov.noaa.nws.ncep.viz.tools.hotKeys;
 
-import java.util.List;
-
-import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
-import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NcDisplayMngr;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
-
-import com.raytheon.viz.ui.UiUtil;
-import com.raytheon.viz.ui.editor.AbstractEditor;
-
- 
 
 /**
  * Hot Key handler to switch between tabs in the National Centers Perspective
@@ -40,39 +27,42 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 03/20/2013    972        Greg H.     use new NcDisplayName and NcDisplayMngr methods instead                                     
  *                                      of parsing the tab title.
  * 
- *</pre> 
+ * 08/14/2014		?		B. Yin		Change funtion keys to loop through resource group.
+ * </pre>
+ * 
  * @author archana
- *  @version 1.0
- *
+ * @version 1.0
+ * 
  */
-  public class NCHotKeyHandler extends AbstractHandler {
+public class NCHotKeyHandler extends AbstractHandler {
 
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		if(event.getCommand() == null){
-			return null;
-		}
-		
-		Object appCntxt = event.getApplicationContext();
-			
-		if( appCntxt != null ) {
-			
-		}
-		
-		String tabKeyValue = event.getParameter("keyNum");
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        if (event.getCommand() == null) {
+            return null;
+        }
 
-		if(tabKeyValue == null || tabKeyValue.isEmpty() ) {
-			return null;
-		}
+        Object appCntxt = event.getApplicationContext();
 
-		AbstractEditor ncDisp = NcDisplayMngr.findDisplayByID( 
-				new NcDisplayName( Integer.parseInt(tabKeyValue), "N/A" ) );
+        if (appCntxt != null) {
 
-		if( ncDisp != null ) {
-			NcDisplayMngr.bringToTop( ncDisp );
-		}
+        }
 
-		return null;	
-	}
+        String tabKeyValue = event.getParameter("keyNum");
 
- }
+        if (tabKeyValue == null || tabKeyValue.isEmpty()) {
+            return null;
+        }
+
+        // AbstractEditor ncDisp = NcDisplayMngr.findDisplayByID(
+        // new NcDisplayName( Integer.parseInt(tabKeyValue), "N/A" ) );
+
+        // if( ncDisp != null ) {
+        // NcDisplayMngr.bringToTop( ncDisp );
+        // }
+
+        NcDisplayMngr.toggleOnResourceGroup(Integer.parseInt(tabKeyValue));
+        return null;
+    }
+
+}
