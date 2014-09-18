@@ -29,8 +29,8 @@ public class NcCharacterHeight extends CharacterHeight implements INcCommand {
     }
 
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps,
-            IDescriptor descriptor, ImageBuilder ib) throws VizException {
+    public void contributeToPaintableImage(ImageBuilder ib, IGraphicsTarget target,
+            PaintProperties paintProps, IDescriptor descriptor) throws VizException {
         // Only change if different from the current size
         if (ib.currentFont.getFontSize() != this.characterHeight) { // TODO
             String currentFontNames = ib.currentFont.getFontName();
