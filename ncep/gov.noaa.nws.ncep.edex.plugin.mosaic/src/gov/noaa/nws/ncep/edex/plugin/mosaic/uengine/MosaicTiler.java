@@ -18,15 +18,18 @@ import org.opengis.referencing.crs.ProjectedCRS;
  * A tiler class that will allow the user to take a radial container and create
  * tiles at a particular zoom level.
  * 
- * Date         Ticket#         Engineer    	Description
- * ------------ ----------      ----------- 	--------------------------
- * 09/2009      143				L. Lin     		Initial creation
- * 12/2009		143				mgamazaychikov	Made constructor and constructGridGeometry
- * 												more suitable for raster images
- * 01/2010		204				M. Li			Set tileSize; correct geometry envelope
+ * <pre>
+ * Date         Ticket#         Engineer     Description 
+ * ------------ ----------      -----------  -------------------------- 
+ * 09/2009      143             L. Lin       Initial creation 
+ * 12/2009      143           mgamazaychikov Made constructor and constructGridGeometry more suitable for
+ * raster images 
+ * 01/2010      204             M. Li        Set tileSize; correct geometry envelope
+ * 09/2014                      sgilbert     Correct GridGeometry
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
+ * 
  * @author L. Lin
  * @version 1.0
  */
@@ -36,11 +39,11 @@ public class MosaicTiler {
     private int levels;
 
     private int tileSize;
-    
+
     private int tileSizeX, tileSizeY;
 
     private int fullResolution;
-    
+
     private int fullResolutionX, fullResolutionY;
 
     private int actualArrayLength;
@@ -50,10 +53,6 @@ public class MosaicTiler {
     private ByteBuffer bImage;
 
     private MosaicRecord mosaicData;
-
-    private double maxExtentW;
-    
-    private double maxExtentH;
 
     private UnitConverter dataToImage;
 
@@ -89,8 +88,8 @@ public class MosaicTiler {
             this.levels = 1;
             this.tileSizeX = data.getNy();
             this.tileSizeY = data.getNx();
-            this.tileSize = data.getNy(); 
-            
+            this.tileSize = data.getNy();
+
             this.fullResolutionX = (int) (this.tileSizeX * Math.pow(2,
                     this.levels - 1));
             this.fullResolutionY = (int) (this.tileSizeY * Math.pow(2,
@@ -99,7 +98,6 @@ public class MosaicTiler {
             blankImage = new byte[actualArrayLength];
             Arrays.fill(blankImage, (byte) 0);
         }
-        
 
         if (dataToImage == null) {
             this.dataToImage = UnitConverter.IDENTITY;
@@ -110,7 +108,6 @@ public class MosaicTiler {
             this.dataToImage = dataToImage;
         }
 
-        
     }
 
     /**
@@ -143,8 +140,8 @@ public class MosaicTiler {
     }
 
     /**
-     * Creates a full image of the mosaic data. The class needs to be constructed
-     * with the fullImage flag set to true for this to work.
+     * Creates a full image of the mosaic data. The class needs to be
+     * constructed with the fullImage flag set to true for this to work.
      * 
      * @return A byte array of the full image
      */
@@ -155,40 +152,39 @@ public class MosaicTiler {
     public GridGeometry2D constructGridGeometry() {
         ProjectedCRS crs = mosaicData.getCRS();
 
+        double minX, maxX, minY, maxY;
         GridGeometry2D gridGeometry2D = null;
 
         GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
         generalEnvelope.setCoordinateReferenceSystem(crs);
-        
-        maxExtentW = mosaicData.getResolution() * mosaicData.getNy();
-        maxExtentH = mosaicData.getResolution() * mosaicData.getNx();
+
+        // Assumes 0,0 point ( lat/lon of origin in CRS ) is at center of image
+        // and points at corner of cell
+        maxX = mosaicData.getResolution() * mosaicData.getNy();
+        maxY = mosaicData.getResolution() * mosaicData.getNx();
+        double halfResolution = mosaicData.getResolution() / 2.0;
+
+        maxX = (maxX / 2.0) - halfResolution;
+        maxY = (maxY / 2.0) - halfResolution;
+        minX = -maxX;
+        minY = -maxY;
+        maxX += mosaicData.getResolution();
+        maxY += mosaicData.getResolution();
+
+        generalEnvelope.setRange(0, minX, maxX);
+        generalEnvelope.setRange(1, minY, maxY);
 
         if ("Raster".equals(mosaicData.getFormat())) {
-            maxExtentW /= 2;
-            maxExtentH /= 2;
+            gridGeometry2D = new GridGeometry2D(new GeneralGridEnvelope(
+                    new int[] { 0, 0 }, new int[] { fullResolutionX,
+                            fullResolutionY }, false), generalEnvelope);
+        } else if ("Radial".equals(mosaicData.getFormat())) {
+            gridGeometry2D = new GridGeometry2D(new GeneralGridEnvelope(
+                    new int[] { 0, 0 }, new int[] { fullResolution,
+                            fullResolution }, false), generalEnvelope);
         }
-
-        generalEnvelope.setRange(0, -maxExtentW, maxExtentW);
-        generalEnvelope.setRange(1, -maxExtentH, maxExtentH);
-        
-        if ("Raster".equals(mosaicData.getFormat())) {
-        	gridGeometry2D = new GridGeometry2D(new GeneralGridEnvelope(new int[] {
-                    0, 0 }, new int[] { fullResolutionX, fullResolutionY }, false),
-                    generalEnvelope);
-        }
-        else if ("Radial".equals(mosaicData.getFormat())) {
-        	gridGeometry2D = new GridGeometry2D(new GeneralGridEnvelope(new int[] {
-                    0, 0 }, new int[] { fullResolution, fullResolution }, false),
-                    generalEnvelope);
-        }
-        
 
         return gridGeometry2D;
-    }
-
-    public double getMaxExent() {
-        return maxExtentW;
-
     }
 
     /**
