@@ -40,11 +40,9 @@ public class NcPolygonElement extends PolygonElement implements INcCommand {
     }
 
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps,
-            IDescriptor descriptor, ImageBuilder ib) throws VizException {
-
-        if (ib.shadedShapeReady)
-            return; // work already done
+    public void contributeToPaintableImage(ImageBuilder ib,
+            IGraphicsTarget target, PaintProperties paintProps, IDescriptor descriptor)
+            throws VizException {
 
         PathIterator pi = this.polygon.getPathIterator(null);
 

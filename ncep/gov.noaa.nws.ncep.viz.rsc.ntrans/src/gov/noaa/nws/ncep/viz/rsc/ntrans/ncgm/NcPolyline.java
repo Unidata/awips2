@@ -27,22 +27,34 @@ public class NcPolyline extends Polyline implements INcCommand {
     }
 
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps,
-            IDescriptor descriptor, ImageBuilder ib) throws VizException {
+    public void contributeToPaintableImage(ImageBuilder ib,
+            IGraphicsTarget target, PaintProperties paintProps,
+            IDescriptor descriptor) throws VizException {
 
+        // Create a key for this wireframe, based on current settings of
+        // line color and line width (which must be held constant during
+        // a single wireframe paint operation)
         WireframeKey key = ib.new WireframeKey(ib.currentLineColor,
                 ib.currentLineWidth);
 
-        IWireframeShape wireframeForThisKey = ib.wireframes.get(key);
+        // Put (or move) the key to last on the paint sequence
+        while (ib.wireframePaintOrder.remove(key))
+            // Remove any existing occurrence(s) in the list...
+            ;
+        ib.wireframePaintOrder.add(key); // ...and add to the end
 
+        // Pull up the wireframe (for this key) under construction.
+        // If none exists yet, start one.
+        IWireframeShape wireframeForThisKey = ib.wireframes.get(key);
         if (wireframeForThisKey == null) {
             wireframeForThisKey = target
                     .createWireframeShape(false, descriptor);
             ib.wireframes.put(key, wireframeForThisKey);
         }
 
+        // Process individual segments in the CGM polyline, adding them
+        // to the wireframe under construction.
         PathIterator pi = this.path.getPathIterator(null);
-
         while (pi.isDone() == false) {
             processCurrentSegment(pi, wireframeForThisKey, ib);
             pi.next();

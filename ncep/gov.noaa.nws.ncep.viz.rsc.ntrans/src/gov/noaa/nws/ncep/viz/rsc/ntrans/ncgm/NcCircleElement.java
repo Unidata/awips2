@@ -29,8 +29,8 @@ public class NcCircleElement extends CircleElement implements INcCommand {
     }
 
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps,
-            IDescriptor descriptor, ImageBuilder ib) throws VizException {
+    public void contributeToPaintableImage(ImageBuilder ib, IGraphicsTarget target,
+            PaintProperties paintProps, IDescriptor descriptor) throws VizException {
 
         // Used only to draw (teeny) circles to mark lat/lon lines?
         // If not, will need to revisit assumptions below... TODO
