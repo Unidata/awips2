@@ -28,8 +28,8 @@ public class NcTextAlignment extends TextAlignment implements INcCommand {
     }
 
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps,
-            IDescriptor descriptor, ImageBuilder ib) throws VizException {
+    public void contributeToPaintableImage(ImageBuilder ib, IGraphicsTarget target,
+            PaintProperties paintProps, IDescriptor descriptor) throws VizException {
 
         // Map/convert CGM-style text alignments to their IGraphicsTarget
         // equivalents.
