@@ -51,6 +51,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -69,9 +70,12 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * 05/20/2013??   988        Archana.S    Initial creation.
  * 02/26/2014    1061        B. Hebbard   Don't block on JobPool cancel, so CAVE doesn't freeze if resource unloaded during long retrieval
  * 04/01/2014    1040        B. Hebbard   In requestUpperAirData, (1) clear displayStationPlotBoolList for each new station, (2) call cond filter check with newInstance vs. metPrm
- * 04/08/2014    1127        B. Hebbard   In requestSurfaceData, exclude only those obs returned from HDF5 that don't match desired time; fix dataTime association; removed redunda
+ * 04/08/2014    1127        B. Hebbard   In requestSurfaceData, exclude only those obs returned from HDF5 that don't match desired time; fix dataTime association;
+ *                                        removed redundant datatimes from constraint.
  * 06/17/2014     932        S. Russell   TTR 923, altered methods addToDerivedParamsList(), requestSurfaceData(), and newInstance()
- * 07/08/2014 TTR1028        B. Hebbard   In requestSurfaceData(-) and requestUpperAirData(-), prune out stations that already have all met params they need, to avoid unnecessary querying
+ * 07/08/2014 TTR1028        B. Hebbard   In requestSurfaceData() and requestUpperAirData(), prune out stations that already have all met params they need, to avoid unnecessary querying
+ * 09/04/2014    1127        B. Hebbard   Exempt forecast (e.g., MOS) datatimes from check in requestSurfaceData that sees if retrieved value matches desired time.  This is because we retrieve only the refTime from HDF5 for comparison, which is sufficient for obs times, but not those with forecast component.
+ * 
  * 
  * 
  */
@@ -1571,8 +1575,11 @@ public class NcPlotModelHdf5DataRequestor {
 
                     DataTime dataTime = stationIdToDataTimeMap.get(stationId);
 
+                    // Caution: Single-element constructor; assumes this is an
+                    // observation time, and not a forecast time. See below.
                     DataTime retrievedDataTime = new DataTime(new Date(
                             pdv.getLong(refTimeDbName)));
+
                     // Since the constraints we use (if
                     // plotProp.hasDistinctStationId) are "stationID" IN
                     // list-of-all-stationIDs -AND- dataTime IN
@@ -1584,7 +1591,11 @@ public class NcPlotModelHdf5DataRequestor {
                     // we retrieved is the one we wanted for this station;
                     // if not, ignore this obs. (An obs with the desired
                     // time should appear elsewhere in the PDC).
-                    if (!dataTime.equals(retrievedDataTime)) {
+                    // Note that we exempt forecast (e.g., MOS) data times
+                    // from this check, since we don't retrieve forecast
+                    // hour from the DB for retrievedDataTime -- see above.
+                    if (!dataTime.getUtilityFlags().contains(FLAG.FCST_USED)
+                            && !dataTime.equals(retrievedDataTime)) {
                         Tracer.print(Tracer.shortTimeString(time)
                                 + " Retrieved dataTime for station "
                                 + stationId + " is " + retrievedDataTime
