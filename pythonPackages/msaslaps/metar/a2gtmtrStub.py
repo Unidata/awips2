@@ -22,80 +22,111 @@
 # times within a specifed area.  The data is output to stdout as ASCII.
 # Each line is one time/station combination. The individual data items are comma
 # delimited.
-#    
+#
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/15/2014      3593          nabowle        Initial modification. Fix losing first record.
+#    09/15/2014      3593          nabowle        Replace UEngine with DAF.
 #
 #
 
-# pointDataQuery.stationName_lat_lon.py
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
-import PointDataQuery
+import argparse
+import sys
 
-# 1. 
-pdq = PointDataQuery.PointDataQuery("obs")
+from datetime import datetime
+from ufpy.dataaccess import DataAccessLayer
+from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
-# 3.  the stuff we want returned to us in PointDataContainer
-reqPar = "stationName,timeObs"
-reqPar += ",latitude,longitude,elevation,wmoId,autoStationType"
-reqPar += ",seaLevelPress,temperature,dewpoint,windDir,windSpeed,altimeter"
-pdq.setRequestedParameters(reqPar)
+def get_args():
+    parser = argparse.ArgumentParser(conflict_handler="resolve")
+    parser.add_argument("-h", action="store", dest="host",
+                        help="EDEX server hostname (optional)",
+                        metavar="hostname")
+    parser.add_argument("-b", action="store", dest="start", 
+                    help="The start of the time range in YYYY-MM-DD HH:MM",
+                    metavar="start")
+    parser.add_argument("-e", action="store", dest="end", 
+                    help="The end of the time range in YYYY-MM-DD HH:MM",
+                    metavar="end")
+    parser.add_argument("--lat-min", action="store", dest="latMin", type=float,
+                    help="Minimum latitude", default=0.0, metavar="lat")
+    parser.add_argument("--lat-max", action="store", dest="latMax", type=float,
+                    help="Maximum latitude", default=90.0, metavar="lat")
+    parser.add_argument("--lon-min", action="store", dest="lonMin", type=float,
+                    help="Minimum longitude", default=-180.0, metavar="lon")
+    parser.add_argument("--lon-max", action="store", dest="lonMax", type=float,
+                    help="Maximum longitude", default=180.0, metavar="lon")
+    return parser.parse_args()
 
-# 2.  some constraints
-pdq.addConstraint("dataTime","BBBBB:00.0",">=")
-pdq.addConstraint("dataTime","EEEEE:00.0","<=")
-pdq.addConstraint("location.longitude","LNMN",">=")
-pdq.addConstraint("location.longitude","LNMX","<=")
-pdq.addConstraint("location.latitude","LTMN",">=")
-pdq.addConstraint("location.latitude","LTMX","<=")
 
-# 5.1  execute() returns a ResponseMessageGeneric
-rmg = pdq.execute()
+def main():
+    user_args = get_args()
 
-# 5.1, cont'd.  RMG's payload is a PointDataContainer
-pdc = rmg.getContents()
-#return ResponseMessageGeneric(pdc)
+    if user_args.host:
+        DataAccessLayer.changeEDEXHost(user_args.host)
 
-# Get the data for each requested parameter.
-sName = pdc.getPointDataTypes().get("stationName").getStringData()
-tobs = pdc.getPointDataTypes().get("timeObs").getLongData()
-lat = pdc.getPointDataTypes().get("latitude").getFloatData()
-lon = pdc.getPointDataTypes().get("longitude").getFloatData()
-elev = pdc.getPointDataTypes().get("elevation").getFloatData()
-ista = pdc.getPointDataTypes().get("wmoId").getIntData()
-atype = pdc.getPointDataTypes().get("autoStationType").getStringData()
-msl = pdc.getPointDataTypes().get("seaLevelPress").getFloatData()
-temp = pdc.getPointDataTypes().get("temperature").getFloatData()
-dpt = pdc.getPointDataTypes().get("dewpoint").getFloatData()
-dir = pdc.getPointDataTypes().get("windDir").getFloatData()
-spd = pdc.getPointDataTypes().get("windSpeed").getFloatData()
-alt = pdc.getPointDataTypes().get("altimeter").getFloatData()
+    start = user_args.start
+    end = user_args.end
 
-# 5.2 and 5.3
-if len(tobs) == 0 :
-   msg = "couldn't get data"
-   return ResponseMessageGeneric(msg)
+    if not start or not end:
+        print >> sys.stderr, "Start or End date not provided"
+        return
 
-msg = "\n\n"
-i = 0
-while i < len(tobs) :
-    msg += sName[i] + ","
-    msg += str(tobs[i]/1000) + ","
-    msg += "%.4f"%lat[i] + ","
-    msg += "%.4f"%lon[i] + ","
-    msg += "%.0f"%elev[i] + ","
-    msg += str(ista[i]) + ","
-    msg += atype[i] + " ,"
-    msg += "%.2f"%msl[i] + ","
-    msg += "%.1f"%temp[i] + ","
-    msg += "%.1f"%dpt[i] + ","
-    msg += "%.0f"%dir[i] + ","
-    msg += "%.1f"%spd[i] + ","
-    msg += "%.2f"%alt[i] + "\n"
-    i += 1
+    latMin = user_args.latMin
+    latMax = user_args.latMax
+    lonMin = user_args.lonMin
+    lonMax = user_args.lonMax
 
-return ResponseMessageGeneric(msg)
+    beginRange = datetime.strptime( start + ":00.0", "%Y-%m-%d %H:%M:%S.%f")
+    endRange = datetime.strptime( end + ":59.9", "%Y-%m-%d %H:%M:%S.%f")
+    timerange = TimeRange(beginRange, endRange)
 
+    req = DataAccessLayer.newDataRequest("obs")
+    req.setParameters("stationName","timeObs","wmoId","autoStationType",
+                      "elevation","seaLevelPress","temperature","dewpoint",
+                      "windDir","windSpeed","altimeter" )
+    geometries = DataAccessLayer.getGeometryData(req, timerange)
+
+    if not geometries :
+#        print "No data available."
+        return
+
+    msg = ""
+    for geo in geometries :
+        lon = geo.getGeometry().x
+        lat = geo.getGeometry().y
+        if lon < lonMin or lon > lonMax or lat < latMin or lat > latMax:
+            continue
+
+        sName = geo.getString("stationName")
+        tobs = geo.getNumber("timeObs")
+        elev = geo.getNumber("elevation")
+        ista = geo.getString("wmoId")
+        atype = geo.getString("autoStationType")
+        msl = geo.getNumber("seaLevelPress")
+        temp = geo.getNumber("temperature")
+        dpt = geo.getNumber("dewpoint")
+        dir = geo.getNumber("windDir")
+        spd = geo.getNumber("windSpeed")
+        alt = geo.getNumber("altimeter")
+
+        msg += sName + ","
+        msg += str(tobs/1000) + ","
+        msg += "%.4f"%lat + ","
+        msg += "%.4f"%lon + ","
+        msg += "%.0f"%elev + ","
+        msg += str(ista) + ","
+        msg += atype + " ,"
+        msg += "%.2f"%msl + ","
+        msg += "%.1f"%temp + ","
+        msg += "%.1f"%dpt + ","
+        msg += "%.0f"%dir + ","
+        msg += "%.1f"%spd + ","
+        msg += "%.2f"%alt + "\n"
+
+    print msg.strip()
+
+if __name__ == '__main__':
+    main()
