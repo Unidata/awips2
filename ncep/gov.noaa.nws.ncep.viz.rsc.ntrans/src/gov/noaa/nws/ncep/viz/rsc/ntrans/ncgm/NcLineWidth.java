@@ -25,8 +25,8 @@ public class NcLineWidth extends LineWidth implements INcCommand {
     }
 
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps,
-            IDescriptor descriptor, ImageBuilder ib) throws VizException {
+    public void contributeToPaintableImage(ImageBuilder ib, IGraphicsTarget target,
+            PaintProperties paintProps, IDescriptor descriptor) throws VizException {
         ib.currentLineWidth = this.width; // / 1.0; // TODO ??
     }
 
