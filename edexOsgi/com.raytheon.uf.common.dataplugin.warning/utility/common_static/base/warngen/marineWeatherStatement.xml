@@ -4,6 +4,7 @@
                  Evan Bookbinder 09-11-2012 Added settings for locations shapefile
                                             Added new areaSource objects
                  Phil Kurimski   09-19-2013 added geospatialConfig.xml
+                 Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
 -->
 <warngenConfig>
 
@@ -51,7 +52,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
 
  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include TO.A and/or SV.A, 
+<  	included with the warning product include TO.A and/or SV.A, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
   <includedWatch>TO.A</includedWatch>
