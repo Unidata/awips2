@@ -35,6 +35,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  gov.noaa.nws.ncep.viz.resources,
  gov.noaa.nws.ncep.viz.resources.attributes,
  gov.noaa.nws.ncep.viz.resources.misc,
+ gov.noaa.nws.ncep.viz.rsc.aww.wtch,
  gov.noaa.nws.ncep.viz.ui.display,
  org.apache.log4j
 Export-Package: gov.noaa.nws.ncep.viz.rsc.aww,
