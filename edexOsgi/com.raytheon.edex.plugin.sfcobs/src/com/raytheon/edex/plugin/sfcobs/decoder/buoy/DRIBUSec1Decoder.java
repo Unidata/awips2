@@ -34,6 +34,7 @@ import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSectionDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.SynopticGroups;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.core.DataItem;
 import com.raytheon.uf.edex.decodertools.core.ReportParser;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -49,6 +50,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20071010            391 jkorman     Initial coding.
+ * Sep 18, 2014       3627 mapeters    Updated deprecated {@link TimeTools} usage.
  * 
  * </pre>
  * 
@@ -152,9 +154,10 @@ public class DRIBUSec1Decoder extends AbstractSectionDecoder {
                     closeGroup(4);
                 } else if ("5".equals(s) && doGroup(5)) {
                     Integer val = getInt(element, 1, 2);
-                    changeCharacter = new DataItem("int", "changeCharacter", 1);
+                    changeCharacter = new DataItem("changeCharacter");
                     changeCharacter.setDataValue(val.doubleValue());
-                    changeCharacter.setDataPeriod(3 * TimeTools.SECONDS_HOUR);
+                    changeCharacter
+                            .setDataPeriod(3 * TimeUtil.SECONDS_PER_HOUR);
                     pressureChange = SynopticGroups.decodePressureChange(
                             element, 1);
                     closeGroup(5);
