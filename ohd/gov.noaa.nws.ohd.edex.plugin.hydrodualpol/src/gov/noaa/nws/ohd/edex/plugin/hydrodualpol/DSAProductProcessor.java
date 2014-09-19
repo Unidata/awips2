@@ -281,15 +281,37 @@ public class DSAProductProcessor {
 			
 			// parse string 1
 			//statusHandler.handle(Priority.INFO, "\n" + "orig string 1 = " + productText[0]);
-			String productText0 = productText[0].replace("ADAP(", "");
-			//statusHandler.handle(Priority.INFO, "\n" + "new string 1 = " + productText0);
-			
+
+			String productText0 = productText[0];
 			//"+" indicates that consecutive delimiters be treated as one
-			String [] valuesFromString1 = productText0.split("[ )]+");
-			//for (int i = 0; i < valuesFromString1.length; i++)
-			//{
-			//	statusHandler.handle(Priority.INFO,valuesFromString1[i]);
-			//}
+			//String [] valuesFromString1 = productText0.split("[ )]+"); -- original parse
+	
+			String [] valuesFromString1 = new String [10];
+	
+			// remove "ADAP(" and ")" from string leaving "36" as the first substring
+			valuesFromString1[0] = productText0.substring(0,8).replace("ADAP(", "").replace(")","");
+			
+			/* parse out remaining substrings from first string
+            valuesFromString1[1] = productText0.substring(8,16);
+            valuesFromString1[2] = productText0.substring(16,24);
+            valuesFromString1[3] = productText0.substring(24,32);
+            valuesFromString1[4] = productText0.substring(32,40);
+            valuesFromString1[5] = productText0.substring(40,48);
+            valuesFromString1[6] = productText0.substring(48,56);
+            valuesFromString1[7] = productText0.substring(56,64);
+            valuesFromString1[8] = productText0.substring(64,72);
+            valuesFromString1[9] = productText0.substring(72,80);
+            */
+			
+			for (int i = 1; i < 10; i++)
+			{
+			    valuesFromString1[i] = productText0.substring((i*8),((i+1)*8));
+			}
+			
+			for (int i = 0; i < valuesFromString1.length; i++)
+			{
+				statusHandler.handle(Priority.INFO,valuesFromString1[i]);
+			}
 			
 			// parse string 2		
 			//statusHandler.handle(Priority.INFO, "\n" + "string 2 = " + productText[1]);
@@ -334,8 +356,9 @@ public class DSAProductProcessor {
 	private void processDSAAdaptParameters(String radid, String obstime, String [] stringArray1, String [] stringArray2, String [] stringArray3, String [] stringArray4)
 	{
 	
+		
+		//statusHandler.handle(Priority.INFO, " In function processDSAAdaptParameters");
 		/*
-		statusHandler.handle(Priority.INFO, " In function processDSAAdaptParameters");
 		for (int i = 0; i < stringArray1.length; i++)
 		{
 			statusHandler.handle(Priority.INFO,stringArray1[i]);
