@@ -150,7 +150,7 @@
 	        <substitute key="stationId" value="72248"/>
 	    </contribute>
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Tallahasee, FL (KTAE)" id="raobTallahasee_FL"
+	                menuText="Tallahassee, FL (KTAE)" id="raobTallahassee_FL"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor">
 	        <substitute key="stationId" value="72214"/>
 	    </contribute>
