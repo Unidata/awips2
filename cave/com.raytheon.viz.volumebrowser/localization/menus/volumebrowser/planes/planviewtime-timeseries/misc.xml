@@ -53,6 +53,8 @@
         key="120agl" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="150agl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" 
+        key="400agl" indentText="false"/>
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
         key="Mept" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping"
