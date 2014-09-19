@@ -1278,4 +1278,9 @@ public class MPEDisplayManager {
 		
 		return type;
 	}
+
+    public int getDisplayedAccumHrs() {
+       
+        return displayedAccumHrs;
+    }
 }
