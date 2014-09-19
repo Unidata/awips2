@@ -238,7 +238,6 @@ public class RadarMosaicResource extends
     }
 
     @Override
-    @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         DataTime[] frameTimes = paintProps.getFramesInfo().getTimeMap()
