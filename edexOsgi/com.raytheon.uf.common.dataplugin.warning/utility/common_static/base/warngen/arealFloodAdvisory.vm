@@ -17,6 +17,9 @@
 ##           Mike Rega       01-17-2014 added GP Alaska changes 14.2.1           ##
 ##  Mike Dangelo  1/24/2014 made many changes for first bullet to match 10-922   ##
 ##           Mike Rega       02-27-2014 changed hycType IJ to match 10-922       ##
+##           Phil Kurimski   06-24-2014 altered urbanCTA for more succinct words ##
+##                                      and poor drainage wording OB14.2.2-9     ##
+##           Evan Bookbinder 09-5-2014 added automated guage verbiage            ##
 ###################################################################################
 #parse("config.vm")
 #if(${action} == "EXT")
@@ -91,7 +94,7 @@
 	#set($advType = "HYDROLOGIC ADVISORY FOR RAPID RISES FOR...")
 #end	
 #elseif(${list.contains(${bullets}, "poorDrainage")})
-	#set($advType = "FLOOD ADVISORY FOR MINOR FLOODING FOR POOR DRAINAGE AREAS FOR...")
+	#set($advType = "FLOOD ADVISORY FOR MINOR FLOODING IN POOR DRAINAGE AREAS FOR...")
 #if(${list.contains(${bullets}, "small")})
 	#set($advType = "SMALL STREAM FLOOD ADVISORY FOR POOR DRAINAGE AREAS FOR...")
 #end
@@ -208,7 +211,7 @@ ${advType}
   #set($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} WHICH WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA.")   
 #end
 #if(${list.contains(${bullets}, "dopplerGauge")} && ${list.contains(${bullets}, "actual")})
-  #set($report = "DOPPLER RADAR INDICATED ${cause} CAUSING ${advTypeShort}${report2} IN THE ADVISORY AREA.")   
+  #set($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} CAUSING ${advTypeShort}${report2} IN THE ADVISORY AREA.")   
 #end
 #if(${list.contains(${bullets}, "dopplerGauge")} && ${list.contains(${bullets}, "thunder")})
   #set($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA.")   
@@ -269,7 +272,7 @@ ${advType}
 #end     
 #### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
-  #set($report = "REPORTING GAUGES INDICATE !**EVENT TYPE**!." )   
+  #set($report = "GAUGE REPORTS INDICATED !**EVENT TYPE**!." )   
 #end
 ### GP end
 * ##
@@ -290,13 +293,14 @@ THIS IS A TEST MESSAGE. ##
 ############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
 #if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#if(${stormType} == "line")
-...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
-#else
-...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#set($phenom="")
+#if(${stormType} == "line" && ${list.contains(${bullets}, "thunder")})
+  #set($phenom="A LINE OF THUNDERSTORMS PRODUCING ")
+#elseif(${list.contains(${bullets}, "thunder")})
+  #set($phenom="A THUNDERSTORM PRODUCING ")
 #end
+...${phenom}HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 ...AND IS STATIONARY. ##
 #else
@@ -387,7 +391,7 @@ MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHER
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
