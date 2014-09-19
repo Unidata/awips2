@@ -78,6 +78,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Aug 28, 2014 ASM #15658 D. Friedman  Add marine zones.
  * Aug 29, 2014 ASM #15551 Qinglu Lin   Sort watches by ETN and filter out ActiveTableRecord
  *                                      with act of CAN and EXP in processRecords().
+ * Sep 12, 2014 ASM #15551 Qinglu Lin   Prevent a county's WOU from being used while its
+ *                                      corresponding WCN is canceled or expired.
  * 
  * </pre>
  * 
@@ -307,6 +309,8 @@ public class WatchUtil {
             InstantiationException {
         List<ActiveTableRecord> records = new ArrayList<ActiveTableRecord>(
                 response.getNumResults());
+        Map<Pair<String, String>, Set<String>> removedUgczones = new HashMap<Pair<String, String>, Set<String>>();
+        Set<String> ugczones = null;
         for (Map<String, Object> result : response.getResults()) {
             WarningAction action = WarningAction.valueOf(String.valueOf(result
                     .get(ACTION)));
@@ -316,7 +320,7 @@ public class WatchUtil {
              * fixed the underlying system. request.addConstraint("act", new
              * RequestConstraint("CAN", ConstraintType.NOT_EQUALS));
              */
-            if (action != WarningAction.CAN || action != WarningAction.EXP) {
+            if (action != WarningAction.CAN && action != WarningAction.EXP) {
                 ActiveTableRecord record = entityClass.newInstance();
                 record.setIssueTime((Calendar) result.get(ISSUE_TIME_FIELD));
                 record.setStartTime((Calendar) result.get(START_TIME_FIELD));
@@ -327,6 +331,37 @@ public class WatchUtil {
                 record.setEtn(String.valueOf(result.get(ETN)));
                 record.setAct(String.valueOf(result.get(ACTION)));
                 records.add(record);
+            } else {
+                Pair<String, String> key = new Pair<String, String>(null, null);
+                key.setFirst(String.valueOf(result.get(ETN)));
+                key.setSecond(String.valueOf(result.get(PHEN_SIG_FIELD)));
+                ugczones = removedUgczones.get(key);
+                if (ugczones == null) {
+                    ugczones = new HashSet<String>();
+                }
+                ugczones.add(String.valueOf(result.get(UGC_ZONE_FIELD)));
+                removedUgczones.put(key, ugczones);
+            }
+        }
+
+        // remove ActiveTableRecord from records whose etn, ugcZone, and phensig is same as 
+        // canceled or expired.
+        String etn, ugczone, phensig;
+        for (Pair<String, String> etnPhensig: removedUgczones.keySet()) {
+            ugczones = removedUgczones.get(etnPhensig);
+            etn = etnPhensig.getFirst();
+            phensig = etnPhensig.getSecond();
+            Iterator<String> iter = ugczones.iterator();
+            while (iter.hasNext()) {
+                ugczone = iter.next();
+                Iterator<ActiveTableRecord> iterator = records.iterator();
+                while (iterator.hasNext()) {
+                    ActiveTableRecord atr = iterator.next();
+                    if (atr.getEtn().equals(etn) && atr.getUgcZone().equals(ugczone) &&
+                            atr.getPhensig().equals(phensig)) {
+                        iterator.remove();
+                    }
+                }
             }
         }
 
@@ -361,9 +396,6 @@ public class WatchUtil {
         Map<Watch, List<String>> map = new HashMap<Watch, List<String>>();
         // For each watch event, get the end time and list of active zones
         for (ActiveTableRecord ar : activeTableRecords) {
-            if (ar.getAct().equals("CAN") || ar.getAct().equals("EXP")) {
-                continue;
-            }
             /*
              * Currently reports all zones in the watch even if a given zone is
              * not in the warning polygon. If the logic is changed to only show
