@@ -455,12 +455,9 @@ public class OtherPrecipOptions {
         // // do nothing
         // }
 
-        if (clientdata == 1) {
-            // do nothing
-        }
-
+        
         /* Rendering the grids and MAPs. */
-        else if (clientdata == 0) {
+        if (clientdata == 0) {
 
             BadValues bv = new BadValues();
             bv.update_bad_values(DailyQcUtils.pcpn_day);
@@ -472,16 +469,18 @@ public class OtherPrecipOptions {
             if (DailyQcUtils.pcpn_day == 0
                     && (DailyQcUtils.curHr00_06 == 1
                             || DailyQcUtils.curHr06_12 == 1 || DailyQcUtils.curHr18_00 == 1)) {
+                System.out.println("Not estimating partial point or daily stations.");
                 // don't estimate
             } else {
 
                 EstDailyStations ed = new EstDailyStations();
                 ed.estimate_daily_stations(DailyQcUtils.pcpn_day,
                         DailyQcUtils.precip_stations, num_stations);
-
+                System.out.println("Estimating daily stations.");
                 EstPartStations ep = new EstPartStations();
                 ep.estimate_partial_stations(DailyQcUtils.pcpn_day,
                         DailyQcUtils.precip_stations, num_stations);
+                System.out.println("Estimating partial stations.");
             }
 
             QCStations qs = new QCStations();
