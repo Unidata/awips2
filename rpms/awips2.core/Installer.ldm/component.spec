@@ -176,7 +176,7 @@ rm -f %{_ldm_src_tar}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-chown -R ldm:fxalpha ${_ldm_dir}
+chown -R ldm:fxalpha %{_ldm_dir}
 
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then
