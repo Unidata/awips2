@@ -161,6 +161,9 @@ _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
 _myHost=`echo ${_myHost} | cut -f1 -d'-'`
 
+# Remove old ldm dir
+rm -rf _ldm_root_dir
+
 pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
 # unpack the ldm source
