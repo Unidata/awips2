@@ -36,6 +36,7 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups;
 import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.PhysicalElementValue;
@@ -70,6 +71,8 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  * 09/24/2012   1210        jkorman     Modified the decode method to create the
  *                                      IDataRecord required by the SatelliteDao
  * 12/03/2013   DR 16841    D. Friedman Allow record overwrites
+ * 09/18/2014   3627        mapeters    Updated deprecated {@link TimeTools} and 
+ *                                      {@link SatelliteRecord#constructDataURI()} usage.
  * </pre>
  * 
  * @author
@@ -245,8 +248,8 @@ public class McidasSatelliteDecoder {
             }
 
             rec.setTraceId(traceId);
-            rec.setPersistenceTime(TimeTools.getSystemCalendar().getTime());
-            rec.constructDataURI();
+            rec.setPersistenceTime(TimeUtil.newGmtCalendar().getTime());
+            rec.getDataURI();
             rec.setOverwriteAllowed(true);
 
             // Set the data into the IDataRecord

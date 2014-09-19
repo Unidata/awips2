@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationRow;
@@ -40,17 +41,18 @@ import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2010            jkorman     Initial creation
- *
+ * Sep 18, 2014 #3627      mapeters    Updated deprecated {@link TimeTools} usage.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public abstract class AbstractTableHandler implements TableHandler {
@@ -193,7 +195,7 @@ public abstract class AbstractTableHandler implements TableHandler {
                 
                 String fs = data.substring(DIRECTIVE_STATUS_DIR.length()).trim();
                 
-                Calendar c = TimeTools.getSystemCalendar();
+                Calendar c = TimeUtil.newGmtCalendar();
                 fs = String.format("%s.%2$tY%<te%<td%<tH%<tM%<tS.jnl", fs, c);
                 try {
                     statusFile = new PrintStream(fs);
