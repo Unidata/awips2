@@ -90,6 +90,38 @@
       </path>
    </extension>
    <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution locationURI="menu:CAVE?after=browsers">
+			<menu id="dataDelivery" label="Data Delivery">
+				<command
+					commandId="com.raytheon.uf.viz.datadelivery.dataDelivery"
+					label="Subscription Manager..."
+					style="push"/>
+				<command
+					commandId="com.raytheon.uf.viz.datadelivery.notificationCmd"
+					label="Notification Center..."
+					style="push"/>
+				<command
+					commandId="com.raytheon.uf.viz.datadelivery.databrowser"
+					label="Dataset Discovery Browser..."
+					style="push"/>
+				<command
+					commandId="com.raytheon.uf.viz.datadelivery.subset"
+					label="Load Saved Subset..."
+					style="push"/>
+			    <command
+					commandId="com.raytheon.uf.viz.datadelivery.system"
+					label="System Management..."
+					style="push"/>
+                <command
+                     commandId="com.raytheon.uf.viz.datadelivery.bandwidth.schedule.graph"
+                     label="Bandwidth Utilization Graph..."
+                     style="push">
+		       </command>  
+			</menu>
+		</menuContribution>
+	</extension>
+   <extension
          point="com.raytheon.uf.viz.productbrowser.dataDefinition">
       <dataDefinition
             class="com.raytheon.uf.viz.datadelivery.DataDeliveryProductBrowserDataDefinition"
