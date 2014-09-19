@@ -22,6 +22,7 @@
     <!-- 
         Don't override this file, it exists only to support legacy overrides. 
         Please override menus/volumebrowser/planes/planViewTime-timeSeries.xml instead. 
+	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="400agl"  indentText="false"/>
     -->
     <contribute xsi:type="subinclude" fileName="menus/volumebrowser/planes/planViewTime-timeSeries.xml" />
 </menuTemplate>
