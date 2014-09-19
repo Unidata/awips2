@@ -420,18 +420,18 @@ public class PgenResourceData extends AbstractResourceData implements
     public void addProduct(List<Product> prds) {
 
         // remove the empty "Default" product
-        if (productList.size() == 1
-                && productList.get(0).getName().equals("Default")
-                && productList.get(0).getType().equals("Default")
-                && productList.get(0).getLayers().size() == 1
-                && productList.get(0).getLayers().get(0).getName()
-                        .equals("Default")
-                && productList.get(0).getLayers().get(0).getDrawables().size() == 0) {
-
+        /*
+         * if (productList.size() == 1 &&
+         * productList.get(0).getName().equals("Default") &&
+         * productList.get(0).getType().equals("Default") &&
+         * productList.get(0).getLayers().size() == 1 &&
+         * productList.get(0).getLayers().get(0).getName() .equals("Default") &&
+         * productList.get(0).getLayers().get(0).getDrawables().size() == 0) {
+         */
+        if (removeEmptyDefaultProduct()) {
             if (prds != null && prds.size() > 0) {
                 productList.clear();
             }
-
         }
 
         // Find the active Product.
@@ -1314,14 +1314,10 @@ public class PgenResourceData extends AbstractResourceData implements
             StringBuilder sdir = new StringBuilder();
 
             sdir.append(PgenUtil.getPgenOprDirectory() + File.separator
-                    + "Default.");
-
-            sdir.append(PgenUtil.formatDate(Calendar.getInstance()) + ".");
-
-            sdir.append(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-                    + ".xml");
+                    + "Default.DDMMYYYY.HH.xml");
 
             sfile = new String(sdir.toString());
+            sfile = PgenUtil.replaceWithDate(sfile, Calendar.getInstance());
         }
 
         return sfile;
@@ -1338,17 +1334,8 @@ public class PgenResourceData extends AbstractResourceData implements
             int idx = temp.lastIndexOf(File.separator);
             sfile = temp.substring(idx + 1);
         } else {
-
-            StringBuilder sdir = new StringBuilder();
-
-            sdir.append("Default.");
-
-            sdir.append(PgenUtil.formatDate(Calendar.getInstance()) + ".");
-
-            sdir.append(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-                    + ".xml");
-
-            sfile = new String(sdir.toString());
+            sfile = PgenUtil.replaceWithDate("Default.DDMMYYYY.HH.xml",
+                    Calendar.getInstance());
         }
 
         return sfile;
@@ -1371,5 +1358,23 @@ public class PgenResourceData extends AbstractResourceData implements
 
     public void setNeedsDisplay(boolean needsDisplay) {
         this.needsDisplay = needsDisplay;
+    }
+
+    // Check if need to remove the empty "Default" product
+    public boolean removeEmptyDefaultProduct() {
+
+        boolean remove = false;
+        if (productList.size() == 1
+                && productList.get(0).getName().equals("Default")
+                && productList.get(0).getType().equals("Default")
+                && productList.get(0).getLayers().size() == 1
+                && productList.get(0).getLayers().get(0).getName()
+                        .equals("Default")
+                && productList.get(0).getLayers().get(0).getDrawables().size() == 0) {
+            remove = true;
+        }
+
+        return remove;
+
     }
 }
