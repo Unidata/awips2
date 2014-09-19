@@ -33,8 +33,6 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
-//import gov.noaa.nws.ncep.edex.plugin.geomag.request.DatabaseUtil;
-
 /**
  * This java class calculates magnetometer k index and related values.
  * 
@@ -45,6 +43,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * -----------  ----------  ----------- --------------------------
  * 06/07/2013   #989        qzhou       Initial Creation, event driven
  * 03/18/2014   #1123       qzhou       Move some functions to common. Modified FillAvgTimeGap in the moved functions
+ * 06/26/2014   #1136       qzhou       Calculate hourly average when min>=55 instead of min=59
  * </pre>
  * 
  * @author qzhou
@@ -372,7 +371,14 @@ public class TrigKCalculation {
                 int min = time.getMinutes();
 
                 List<?> dataList = null;
-                if (min == 59)
+
+                // Ideally we want to calculate hourly average for each min=59
+                // ingest. But MEA and OTT stations only have 23:56 available.
+                // Calculate hourly average when min>=30 will not miss any
+                // average data. That might make the performance low.
+                // Currently we calculate hourly average when min>=55. (i.e.
+                // write to db 5 times each hour)
+                if (min >= 55)
                     dataList = DatabaseUtil.retrieveUriForAvg(dao, dataURI,
                             time);
                 else
@@ -451,6 +457,20 @@ public class TrigKCalculation {
                 if (dataList.size() <= HOURS)
                     continue;
 
+                // test code:
+                // String teststr = "";
+                // try {
+                // Date d = CalcUtil.getTimeFromUri(dataURI);
+                // int day = d.getDate();
+                // int h = d.getHours();
+                // int m = d.getMinutes();
+                // if (h == 10 && m == 41) { // && day == 14
+                // System.out.println("**dataURI " + dataURI);
+                // teststr = dataURI;
+                // }
+                // } catch (ParseException e1) {
+                // }
+
                 if (dataList != null && dataList.size() >= 5) {
                     List<Date> dateListFinal = new ArrayList<Date>();
                     List<Float> hHrAvgListFinal = new ArrayList<Float>();
@@ -485,13 +505,41 @@ public class TrigKCalculation {
 
                     float[] qha = CalcEach3hr.getQHA(quietHHrAvg);
                     float[] qda = CalcEach3hr.getQHA(quietDHrAvg);
+                    // test qha
+                    // if (!teststr.equals("")) {
+                    // System.out.println("**qha length " + teststr);
+                    // for (int i = 0; i < qha.length; i++)
+                    // System.out.print((float) qha[i] + "  ");
+                    // System.out.println("\n**qda length " + qda.length);
+                    // for (int i = 0; i < qda.length; i++)
+                    // System.out.print((float) qda[i] + "  ");
+                    //
+                    // }
 
                     float[] hQdc = CalcEach1min.getHarmonicFit(qha);// [1440]
                     float[] dQdc = CalcEach1min.getHarmonicFit(qda);
+                    // if (!teststr.equals("")) {
+                    // System.out.println("\n**hQdc length " + teststr);
+                    // for (int i = 0; i < hQdc.length; i++)
+                    // System.out.print((float) hQdc[i] + "  ");
+                    // System.out.println("\n**dQdc length " + dQdc.length);
+                    // for (int i = 0; i < dQdc.length; i++)
+                    // System.out.print((float) dQdc[i] + "  ");
+                    // }
 
                     float[] qhaQdc = CalcEach1min.getQHAQDC(hQdc);// [1440]
                     float[] qdaQdc = CalcEach1min.getQHAQDC(dQdc);
-
+                    // test hQdc
+                    // if (!teststr.equals("")) {
+                    // System.out.println("\n**qhaQdc length " + teststr);
+                    // for (int i = 0; i < qhaQdc.length; i++)
+                    // System.out.print((float) qhaQdc[i] + "  ");
+                    // System.out
+                    // .println("\n**qdaQdc length " + qdaQdc.length);
+                    // for (int i = 0; i < qdaQdc.length; i++)
+                    // System.out.print((float) qdaQdc[i] + "  ");
+                    // teststr = "";
+                    // }
                     /*
                      * Read H and D
                      */

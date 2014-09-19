@@ -12,9 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
@@ -30,26 +27,16 @@ import com.vividsolutions.jts.geom.LineString;
  */
 public class NcPolygonElement extends PolygonElement implements INcCommand {
 
-    private final Log logger = LogFactory.getLog(this.getClass()); // TODO
-                                                                   // static
-                                                                   // better??
+    // private final Log logger = LogFactory.getLog(this.getClass());
 
     static List<double[]> currentDraw = new ArrayList<double[]>();
 
     private GeometryFactory gf;
 
-    /**
-     * @param ec
-     * @param eid
-     * @param l
-     * @param in
-     * @throws IOException
-     */
     public NcPolygonElement(int ec, int eid, int l, DataInput in)
             throws IOException {
         super(ec, eid, l, in);
         gf = new GeometryFactory(); // TODO move!?
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -122,9 +109,9 @@ public class NcPolygonElement extends PolygonElement implements INcCommand {
         if (currentDraw.size() > 1) {
             Coordinate[] coords = new Coordinate[currentDraw.size()];
             for (int j = 0; j < currentDraw.size(); j++) {
-                coords[j] = new Coordinate(currentDraw.get(j)[0], 1000.000 - // TODO
-                                                                             // why?
-                        currentDraw.get(j)[1]);
+                // TODO: why?
+                coords[j] = new Coordinate(currentDraw.get(j)[0],
+                        1000.000 - currentDraw.get(j)[1]);
             }
             LineString[] lineStrings = new LineString[] { gf
                     .createLineString(coords) };
