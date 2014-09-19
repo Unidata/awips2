@@ -37,6 +37,7 @@ struct _parcel {
 	float cape3km;
 	float cape6km;
 	float wm10c;
+	float wm20c;
 	float wm30c;
 	float li5;
 	float li3;
