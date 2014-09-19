@@ -161,6 +161,9 @@ _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
 _myHost=`hostname`
 _myHost=`echo ${_myHost} | cut -f1 -d'-'`
 
+# Remove old ldm dir
+rm -rf _ldm_root_dir
+
 pushd . > /dev/null 2>&1
 cd ${_ldm_dir}/SOURCES
 # unpack the ldm source
@@ -173,7 +176,7 @@ rm -f %{_ldm_src_tar}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-chown -R ldm:fxalpha ${_ldm_dir}
+chown -R ldm:fxalpha %{_ldm_dir}
 
 # create .bash_profile
 if [ ! -f /usr/local/ldm/.bash_profile ]; then
@@ -194,7 +197,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 export _current_dir=`pwd`
-su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
+su ldm -lc "cd ${_current_dir}; ./configure --disable-max-size --with-noaaport --with-retrans --disable-root-actions --prefix=${_ldm_root_dir} CFLAGS='-g -O0'" \
    > configure.log 2>&1
 if [ $? -ne 0 ]; then
    echo "FATAL: ldm configure has failed!"
