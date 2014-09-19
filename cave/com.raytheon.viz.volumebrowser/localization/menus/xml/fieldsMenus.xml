@@ -19,30 +19,6 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-		<contribute xsi:type="menuItem" menuText="Pres Anl Uncertainty"
-			key="Perranl" indentText="true" />
-		<contribute xsi:type="menuItem" menuText="Max Gust Speed" key="MaxWHRRR"
-			 indentText="true" />
-			<contribute xsi:type="menuItem" menuText="Max Updraft VV"
-				key="MAXUVV"  indentText="true" />
-			<contribute xsi:type="menuItem" menuText="Max Downdraft VV"
-				key="MAXDVV"  indentText="true" />
-			<contribute xsi:type="menuItem" menuText="Max Updraft Helicity"
-				key="MAXUPHL"  indentText="true" />
-			<contribute xsi:type="menuItem" menuText="Most Unstable BL Parcel Level"
-				key="PLPL"  indentText="true" />
-			<contribute xsi:type="menuItem" menuText="Max Lightning Threat"
-				key="LTNG"  indentText="true" />
-			<contribute xsi:type="menuItem" menuText="Vsby Anl Uncertainty"
-				 key="Viserranl" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="CAPPI"
-			key="REFD"  indentText="true" />
-		<contribute xsi:type="menuItem" menuText="MAX 1hr CAPPI"
-			key="MXREF"  indentText="true" />
-		<contribute xsi:type="menuItem" menuText="Derived VIL"
-			key="VILIQ"  indentText="true" />
-		<contribute xsi:type="menuItem" menuText="Derived Echo Top"
-			key="RETOP"  indentText="true" />
     <!-- 
         Don't override this file, it exists only to support legacy overrides. 
         Please override menus/volumebrowser/fields/planViewTimeSeries.xml instead. 
