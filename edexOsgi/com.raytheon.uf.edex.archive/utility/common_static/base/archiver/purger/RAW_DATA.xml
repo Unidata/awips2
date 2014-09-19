@@ -28,6 +28,7 @@
  * Oct 01, 2013 2147       rferrel     Date time stamp no longer requires an hour field.
  * Dec 12, 2013 2624       rferrel     Document Julian time stamp.
  * May 14, 2014 2881       rferrel     Change retention times and data set modifications.
+ * Aug 25, 2014 3537       rferrel     Fixed dirPattern in Category Local.
  * 
  * @author rferrel
  * @version 1.0
@@ -142,7 +143,7 @@
         <name>Local</name>
         <extRetentionHours>168</extRetentionHours>
       	<dataSet>
-        	<dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/\d{2}/</dirPattern>
+        	<dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
             <filePattern>.*(LAPS|MSAS).*</filePattern>
             <timeType>Date</timeType>
             <displayLabel>{1}-LAPS/MSAS</displayLabel>
