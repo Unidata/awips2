@@ -21,8 +21,7 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <!-- 
         Don't override this file, it exists only to support legacy overrides. 
-        Please override menus/volumebrowser/planes/planViewTime-timeSeries.xml instead. 
-	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="400agl"  indentText="false"/>
+        Please override menus/volumebrowser/planes/planViewTime-timeSeries.xml instead.
     -->
     <contribute xsi:type="subinclude" fileName="menus/volumebrowser/planes/planViewTime-timeSeries.xml" />
 </menuTemplate>
