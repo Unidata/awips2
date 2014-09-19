@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.ui.personalities.awips;
 
-import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 
 /**
  * This is the default component for CAVE that is the standard workbench with
@@ -57,11 +56,6 @@ public class CAVE extends AbstractAWIPSComponent {
     @Override
     protected void startInternal(String componentName) throws Exception {
 
-    }
-
-    @Override
-    protected void postStartupActions() {
-        ProcedureXmlManager.inititializeAsync();
     }
 
 }
