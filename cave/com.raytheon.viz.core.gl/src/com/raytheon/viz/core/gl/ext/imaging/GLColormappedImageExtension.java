@@ -63,7 +63,7 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
  * Oct 16, 2013  2333     mschenke    Cleaned up load shader method, used isScaled.
  *                                    Added support for colormapping in non-data unit.
  * Nov 20, 2013  2492     bsteffen    Mosaic in image units.
- * 
+ * Aug 21, 2014  DR 17313 jgerth      Support for true color 
  * 
  * </pre>
  * 
@@ -212,7 +212,8 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
         // datamapping is not set, the data has already been mapped to
         // colorMapUnits and we need not do anything
         GLDataMapping dataMapping = glImage.getDataMapping();
-        if (dataMapping == null && colorMapParameters.getDataMapping() == null) {
+        if (dataMapping == null && colorMapParameters.getDataMapping() == null &&
+        		colorMapParameters.getColorMap() != null) {
             Unit<?> dataUnit = glImage.getDataUnit();
             int colorMapSize = colorMapParameters.getColorMap().getSize();
             float colorMapMin = colorMapParameters.getColorMapMin();
