@@ -1816,7 +1816,6 @@
 			sortID="702">
 		</contextualMenu>
 	</extension>
-	<!--
 	<extension point="com.raytheon.viz.ui.perspectiveManager">
 		<perspectiveManager
 		    perspectiveId="com.raytheon.viz.ui.GFEPerspective"
@@ -1839,7 +1838,6 @@
 			</perspectiveShortcut>
 		</perspectiveExtension>
 	</extension>
-	-->
 	<extension
    		point="com.raytheon.uf.viz.core.component">
    		<component key="gfeclient" class="com.raytheon.viz.gfe.GfeClient"/>
