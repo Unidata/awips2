@@ -151,7 +151,7 @@ char *hailwords( float num );
 	strcpy( st, qc2( mtof(agl(i_hght(temp_lvl( 0, &ix1 ), I_PRES))), "ft", 0 ));
 	disp_param( st, txtrow + 165, txtlin);
 
-	bunkers_storm_motion(&ix1, &ix2, &ix3, &ix4);
+	/*bunkers_storm_motion(&ix1, &ix2, &ix3, &ix4);*/
 	}
 
 	/*NP*/
@@ -544,7 +544,7 @@ void show_skewtpage1( void )
            /* Copy results to big array */
            h2[0]=1;        /* Hail model has been run */
            h2[1]=0;        /* New model has not yet been run */
-           for (i=0;i<=30;i++)
+           for (i=0;i<30;i++) //Chin was for (i=0;i<=30;i++), a bug as harvs[] size is only 30.
              {
                	printf( "HVARS[%d] = %f\n", i, hvars[i]); 
                	h2[i+2] = hvars[i];
@@ -610,7 +610,7 @@ void show_skewtpage1( void )
 
            h2[0]=1;        
            h2[1]=0;       
-           for (i=0;i<=30;i++)
+           for (i=0;i<30;i++) //Chin was for (i=0;i<=30;i++), a bug as harvs[] size is only 30.
              {
                 printf( "HVARS[%d] = %f\n", i, hvars[i]); 
                 h2[i+2] = hvars[i];
@@ -1108,7 +1108,7 @@ void show_preciptype(void)
         txtlin = anc_y + 20;
         outgtext ( st, txtrow, txtlin );
 
-	ship = sig_hail(pcl.bplus, mumixr, lr75, t500, kt_to_mps(shr6), ftom(fzlh), pcl.bminus, h2[5], h2[12], h2[4]);
+	ship = sig_hail(pcl.bplus, mumixr, lr75, t500, kt_to_mps(shr6), fzlh, pcl.bminus, h2[5], h2[12], h2[4]);
 	sprintf( st, "%.1f", ship); 
         txtrow = anc_x + 5;
         txtlin = anc_y + 40;
@@ -2268,7 +2268,7 @@ void main_winds(void)
 /* 24 Mar 2008 */
 /*        float nv_cape, nv_cinh, nv_cap, pres, ptop, pbot, mucape, mumixr, lcl;*/
 
-	float nv_cape, nv_cinh, nv_cap, pres, mucape, mumixr, lcl, precip_efficiency;
+	float nv_cape, nv_cinh, nv_cap, pres, mucape, mumixr, lcl, precip_efficiency, thte3;
         float lr75, shr6, fzlh, mucinh, ship, oldlplpres, sbcp, depth, el, mlcape;
         short txtlin, txtrow, oldlplchoice, pIndex, zIndex, tIndex, trow2, i, psigt_stpcin;
 	short lcl_mark, lfc_mark, el_mark, type_ww, dcp, wwtype;
@@ -3051,7 +3051,7 @@ void main_winds(void)
         outgtext( st, txtlin + 85, txtrow);
         sprintf( st, "FZL = %s", qc2( mtof(agl(i_hght(temp_lvl( 0, &ix1 ), I_PRES))), "'", 0 ));
         outgtext( st, txtlin + 195, txtrow);
-	fzlh = agl(i_hght(temp_lvl( 0, &ix1 ), I_PRES));
+	fzlh = mtof(agl(i_hght(temp_lvl( 0, &ix1 ), I_PRES)));
         sprintf( st, "ESP = %s", qc2( esp(), "", 1));
         outgtext( st, txtlin + 275, txtrow);
 
@@ -3103,8 +3103,8 @@ void main_winds(void)
 /*	printf("\nmean_rh = %0.1f\n", (mean_relhum(&ix3, -1, i_pres(sndg[sfc()][zIndex]+3000))/100));
 	printf("\npw = %0.1f\n", precip_water(&ix1, -1, -1));
 	printf("\nprecip_efficiency = %0.1f\n", (ix1) * (mean_relhum(&ix3, -1, i_pres(sndg[sfc()][zIndex]+3000))/100));  
+	printf("\n3km theta-e diff = %0.1f\n", ThetaE_diff2(&thte3)); 
 */
-
 	/* Draw line */
 	setcolor(31);
 	txtrow += 15;
@@ -3164,11 +3164,19 @@ void main_winds(void)
 	txtlin = skv.tlx + 230;
 	ix1 = sigtorn_cin(st_dir, st_spd);
 	setcolor(8);
-	if (ix1 < .45) setcolor(8);
+	/* original color scheme using T03 sample */
+/*	if (ix1 < .45) setcolor(8);
 	if (ix1 >= .45) setcolor(31);
 	if (ix1 >= 1.95) setcolor(19);
 	if (ix1 >= 3.95) setcolor(2);
 	if (ix1 >= 5.95) setcolor(7);
+*/
+	/* updated color scheme using Thompson et al. (2012) sample */
+        if (ix1 >= .5) setcolor(18);
+        if (ix1 >= 1) setcolor(31);
+        if (ix1 >= 2) setcolor(19);
+        if (ix1 >= 4) setcolor(2);
+        if (ix1 >= 8) setcolor(7);
         sprintf( st, "STP (CIN) = %s", qc2( ix1, "", 1 )); 
 	outgtext( st, txtlin, txtrow);
 
@@ -3176,11 +3184,19 @@ void main_winds(void)
         txtlin = skv.tlx + 230;
         ix4 = sigtorn_fixed(st_dir, st_spd);
         setcolor(8);
-        if (ix4 < .95) setcolor(8);
-        if (ix4 >= 1.95) setcolor(31);
+	/*original color scheme using T03 sample */
+/*      if (ix4 < .95) setcolor(8);
+        if (ix4 >= .95) setcolor(31);
         if (ix4 >= 3.95) setcolor(19);
         if (ix4 >= 7.95) setcolor(2);
         if (ix4 >= 11.95) setcolor(7);
+*/
+	/* updated color scheme using Thompson et al. (2012) sample */
+        if (ix4 >= .5) setcolor(18);
+        if (ix4 >= 1) setcolor(31);
+        if (ix4 >= 2) setcolor(19);
+        if (ix4 >= 5) setcolor(2);
+        if (ix4 >= 7) setcolor(7);
         sprintf( st, "STP (fixed) = %s", qc2( ix4, "", 1 ));
         outgtext( st, txtlin, txtrow);
 
@@ -3199,6 +3215,89 @@ void main_winds(void)
 	printf("\n***** end AWIPS2 additions ******\n"); 
 	/* end D2D skew-T additions */
 
+	/* additions for sfcoa 9/21/11 RLT */
+	/*printf("\n***** additions for sfcoa *****\n");
+        wind_shear(sndg[sfc()][pIndex], i_pres(msl(4000)), &ix1, &ix2, &ix3, &ix4);
+	printf("\n 0-4 km bulk wind difference (kt) = %0.1f", ix4);
+        wind_shear(sndg[sfc()][pIndex], i_pres(msl(5000)), &ix1, &ix2, &ix3, &ix4);
+        printf("\n 0-5 km bulk wind difference (kt) = %0.1f", ix4);
+        wind_shear(sndg[sfc()][pIndex], i_pres(msl(7000)), &ix1, &ix2, &ix3, &ix4);
+        printf("\n 0-7 km bulk wind difference (kt) = %0.1f", ix4);
+        wind_shear(sndg[sfc()][pIndex], i_pres(msl(9000)), &ix1, &ix2, &ix3, &ix4);
+        printf("\n 0-9 km bulk wind difference (kt) = %0.1f", ix4);
+        wind_shear(sndg[sfc()][pIndex], i_pres(msl(10000)), &ix1, &ix2, &ix3, &ix4);
+        printf("\n 0-10 km bulk wind difference (kt) = %0.1f", ix4);
+        wind_shear(i_pres(msl(3000)), i_pres(msl(6000)), &ix1, &ix2, &ix3, &ix4);
+        printf("\n 3-6 km AGL bulk shear U comp (kt) = %0.1f", ix1);
+        printf("\n 3-6 km AGL bulk shear V comp (kt) = %0.1f", ix2);
+        printf("\n 3-6 km AGL bulk wind difference (kt) = %0.1f", ix4);
+        wind_shear(i_pres(msl(3000)), i_pres(msl(8000)), &ix1, &ix2, &ix3, &ix4);
+        printf("\n 3-8 km AGL bulk shear U comp (kt) = %0.1f", ix1);
+        printf("\n 3-8 km AGL bulk shear V comp (kt) = %0.1f", ix2);
+        printf("\n 3-8 km AGL bulk wind difference (kt) = %0.1f", ix4);
+        define_parcel(3, mu_layer);
+        ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+        wind_shear(pcl.lclpres, pcl.elpres, &ix1, &ix2, &ix3, &ix4);
+        printf("\n cloud layer shear U comp (kt) = %0.1f", ix1);
+        printf("\n cloud layer shear V comp (kt) = %0.1f", ix2);
+	ix1 = i_wndu(p_top, I_PRES);
+	ix2 = i_wndv(p_top, I_PRES);
+	printf("\n U comp at top of effective inflow layer (kt) = %0.1f", ix1);
+        printf("\n V comp at top of effective inflow layer (kt) = %0.1f", ix2);	
+	lapse_rate(&ix4, i_pres(sndg[sfc()][zIndex]+3000), i_pres(sndg[sfc()][zIndex]+6000));
+        printf("\n 3-6 km lapse rate (C/km) = %0.1f", ix4);
+        lapse_rate(&ix4, i_pres(sndg[sfc()][zIndex]+3000), i_pres(sndg[sfc()][zIndex]+8000));
+        printf("\n 3-8 km lapse rate (C/km) = %0.1f", ix4);
+	relh(800, &ix4);
+	printf("\n 800 mb RH = %0.1f", ix4);
+        relh(700, &ix4);
+        printf("\n 700 mb RH = %0.1f", ix4);
+        relh(600, &ix4);
+        printf("\n 600 mb RH = %0.1f", ix4);
+	mean_mixratio(&ix1, -1, sndg[sfc()][pIndex]-50.0 );
+	mean_mixratio(&ix2, -1, sndg[sfc()][pIndex]-150.0 );
+        printf("\n 50 mb mean mixing ratio (g/kg) = %0.1f", ix1);
+        printf("\n 150 mb mean mixing ratio (g/kg) = %0.1f\n", ix2);
+	printf("\n **** end of sfcoa additions ****\n\n");*/
+
+	/* formatted for jh_calcs 2/10/12 RLT */
+	/* bulk wind difference parameters - need to create variables and insert for ix4 */
+/*      wind_shear(sndg[sfc()][1], i_pres(msl(4000)), &ix1, &ix2, &ix3, &ix4);
+        wind_shear(sndg[sfc()][1], i_pres(msl(5000)), &ix1, &ix2, &ix3, &ix4);
+        wind_shear(sndg[sfc()][1], i_pres(msl(7000)), &ix1, &ix2, &ix3, &ix4);
+        wind_shear(sndg[sfc()][1], i_pres(msl(9000)), &ix1, &ix2, &ix3, &ix4);
+        wind_shear(sndg[sfc()][1], i_pres(msl(10000)), &ix1, &ix2, &ix3, &ix4);
+        wind_shear(i_pres(msl(3000)), i_pres(msl(6000)), &ix1, &ix2, &ix3, &ix4);
+        wind_shear(i_pres(msl(3000)), i_pres(msl(8000)), &ix1, &ix2, &ix3, &ix4);
+        /*cloud layer bulk shear - need mu parcel LCL and EL, so find mu parcel part of jh_calcs */ 
+/*      define_parcel(3, mu_layer);
+        ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+        wind_shear(pcl.lclpres, pcl.elpres, &ix1, &ix2, &ix3, &ix4);
+        ix1 = i_wndu(p_top, I_PRES);
+        ix2 = i_wndv(p_top, I_PRES);
+*/	/* lapse rates - need to create lapse rate variables and insert for ix4 */
+/*      lapse_rate(&ix4, i_pres(sndg[sfc()][2]+3000), i_pres(sndg[sfc()][2]+6000));
+        lapse_rate(&ix4, i_pres(sndg[sfc()][2]+3000), i_pres(sndg[sfc()][2]+8000));
+*/	/* RH and mixing ratio - need to create variables and insert for ix4 */
+/*      relh(800, &ix4);
+        relh(700, &ix4);
+        relh(600, &ix4);
+        mean_mixratio(&ix4, -1, sndg[sfc()][1]-50.0 );
+        mean_mixratio(&ix4, -1, sndg[sfc()][1]-150.0 );
+*/
+	/* end of sfcoa additions */
+
+	/* parcel routine changes - LCL temp error check RLT 1/6/12 */
+        /*define_parcel(3,400);
+        ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+        printf("\n***** error checks for LCL temp in parcel routine *****\n");
+        printf("\n CAPE below 0 C (J/kg) = %0.1f\n", pcl.bfzl);
+        printf("\n CAPE below -10 C (J/kg) = %0.1f\n", pcl.wm10c);
+        printf("\n CAPE below -20 C (J/kg) = %0.1f\n", pcl.wm20c);
+        printf("\n CAPE below -30 C (J/kg) = %0.1f\n", pcl.wm30c); 
+        printf("\n **** end of parcel routine error checks  ****\n\n"); */
+	/*  end parcel routine error checks */
+
 	txtrow += 16;
 	txtlin = skv.tlx + 230;
         wind_shear(sndg[sfc()][pIndex], i_pres(msl(6000)), &ix1, &ix2, &ix3, &shr6);
@@ -3216,10 +3315,8 @@ void main_winds(void)
                 depth = el - agl(i_hght(p_bot, I_PRES));
                 wind_shear(p_bot, i_pres(msl(depth*0.5)), &ix1, &ix2, &ix3, &shr6);
                 }
-	//Chin: 10/19/2012.
-	// change fzlh to in unit of ft, after confirmed by Rich T.
-	// Fzlh should be in ft AGL when used in sig_hail according to Rich.
-	ship = sig_hail(mucape, mumixr, lr75, i_temp(500, I_PRES), kt_to_mps(shr6), mtof(fzlh), mucinh, 0, 0, 25, mlcape);
+
+	ship = sig_hail(mucape, mumixr, lr75, i_temp(500, I_PRES), kt_to_mps(shr6), fzlh, mucinh, 0, 0, 25, mlcape);
 	if (ship < .45) setcolor(8);
 	if (ship >= .45) setcolor(31);
 	if (ship >= .95) setcolor(19);
@@ -3612,7 +3709,7 @@ void main_winds(void)
 
         txtrow += 11;
         setcolor(12);
-/*	bunkers_storm_motion(&ix1, &ix2, &ix3, &ix4); */
+	bunkers_storm_motion(&ix1, &ix2, &ix3, &ix4); 
 	strcpy( st, "Bunkers Right =");
         outgtext(st, txtlin, txtrow);
         sprintf( st, "%4.0f/%.0f kt", st_dir, st_spd);
@@ -3683,6 +3780,17 @@ void main_winds(void)
         sprintf( st, "STPC (test) = %s", qc2( ix1, "", 1 ));
         outgtext( st, txtlin, txtrow);
 
+	/* Tropical Cyclone Tornado Parameter test */
+/*	ix1 = sigtorn_tc(st_dir, st_spd);
+        setcolor(8);
+        if (ix1 < .45) setcolor(8);
+        if (ix1 >= .45) setcolor(31);
+        if (ix1 >= 1.95) setcolor(19);
+        if (ix1 >= 3.95) setcolor(2);
+        if (ix1 >= 5.95) setcolor(7);
+        sprintf( st, "TCTP = %s", qc2( ix1, "", 1 ));
+        outgtext( st, txtlin + 100, txtrow);
+*/
 	}
 
         /*NP*/
@@ -3988,7 +4096,7 @@ void main_winds(void)
         txtrow += 5;
 
         /* ----- Hail Model Output ----- */
-        setcolor(26);//chin setcolor(5);
+        setcolor(5);
         set_font(4);
 	strcpy( st, "* * * HAILCAST HAIL MODEL - 4/21/10 * * *" );
         ix1 = (350 - getgtextextent(st))/2;
@@ -3997,12 +4105,12 @@ void main_winds(void)
         txtrow += 15;
 
         set_font(4);
-        setcolor(26);//chin setcolor(31);
+        setcolor(31);
         sprintf(st, "Hailcast1 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[18], ctof(h2[2]), ctof(h2[3]),h2[25]);
         outgtext ( st, txtlin, txtrow );
 
-        if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(26);//chin setcolor(3);
-        if (h2[24] >= 1.95) setcolor(26);//chin setcolor(2);
+        if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(3);
+        if (h2[24] >= 1.95) setcolor(2);
 
         txtrow += 15;
         sprintf(st, "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[19], h2[20],h2[21],h2[22], h2[23]);
@@ -4010,13 +4118,13 @@ void main_winds(void)
 
         txtrow +=20;
         set_font(4);
-        setcolor(26);//chin setcolor(31);
+        setcolor(31);
         if(h2[4] == 0) setcolor(31); 
         sprintf(st, "Hailcast2 --> (%.0f convecting)    T/Td= %.0fF/%.0fF    Storm Cat: %.0f of 4", h2[4], ctof(h2[2]), ctof(h2[3]),h2[17]);
         outgtext ( st, txtlin, txtrow );
 
-        if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(26);//chin setcolor(3);
-        if (h2[15] >= 1.95) setcolor(26);//chin setcolor(2);
+        if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(3);
+        if (h2[15] >= 1.95) setcolor(2);
 
         if(h2[4] == 0) h2[15] = 0;
         sprintf(st, "Avg: %.1f in.     Max: %.1f in.     Min: %.1f in.     SIG =  %.0f     SVR =  %.0f      ", h2[5], h2[6],h2[7],h2[8], h2[9]);
@@ -4026,13 +4134,13 @@ void main_winds(void)
 
 
         txtrow += 15;
-        setcolor(26);//chin setcolor(31);
+        setcolor(31);
         moveto(txtlin, txtrow);
         lineto(txtlin+340, txtrow);
 
 
 
-        setcolor(26);//chin setcolor(31);
+        setcolor(31);
         set_font(6);
         if (h2[4] == 0 && h2[18] == 0) {
         sprintf(st, "No Convecting Members");
@@ -4042,16 +4150,16 @@ void main_winds(void)
         }else{
 /* If convecting members then...........*/
         txtrow +=4;
-        if (h2[24] < 1.00) setcolor(26);//chin setcolor(31);
-        if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(26);//chin setcolor(3);
-        if (h2[24] >= 1.95) setcolor(26);//chin setcolor(2);
+        if (h2[24] < 1.00) setcolor(31);
+        if (h2[24] >= 1.00 && h2[18] >= 1) setcolor(3);
+        if (h2[24] >= 1.95) setcolor(2);
         sprintf(st, "Hailcast1--->   %.1f", h2[24]);
         ix1 = (350 - getgtextextent(st))/2; 
         outgtext(st, txtlin + ix1 - 85, txtrow);
 
-        if (h2[15] < 1.00) setcolor(26);//chin setcolor(31);
-        if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(26);//chin setcolor(3);
-        if (h2[15] >= 1.95) setcolor(26);//chin setcolor(2);
+        if (h2[15] < 1.00) setcolor(31);
+        if (h2[15] >= 1.00 && h2[4] >= 1) setcolor(3);
+        if (h2[15] >= 1.95) setcolor(2);
         sprintf(st, "Hailcast2--->   %.1f",h2[15]);
         ix1 = (350 - getgtextextent(st))/2;
         outgtext(st, txtlin + ix1 + 70, txtrow);
@@ -4208,7 +4316,7 @@ void main_winds(void)
         /*  SARS hail size */
         txtrow += 6;
         set_font(4);
-        setcolor(26);//chin setcolor(5);
+        setcolor(5);
         strcpy( st, "* * * SARS HAIL SIZE * * *" );
         ix1 = (350 - getgtextextent(st))/2;
         outgtext(st, txtlin + ix1 - 5, txtrow);
@@ -4216,14 +4324,14 @@ void main_winds(void)
         txtrow += 15;
         set_font(6);
         if (matches2 == 0) {
-        	setcolor(26);//chin setcolor(31);
+                setcolor(31);
                 sprintf(st, "No Matches");
 		ix1 = (350 - getgtextextent(st))/2;	
                 outgtext ( st, txtlin + ix1 - 5, txtrow );
                 }
-        if (matches2 == 1 || avsize <= 1.49) setcolor(26);//chin setcolor(31);
-        if (matches2 >= 2 && (avsize < 2.06 && avsize > 1.49)) setcolor(26);//chin setcolor(3);
-        if (matches2 >= 2 && avsize >= 2.06) setcolor(26);//chin setcolor(2);
+        if (matches2 == 1 || avsize <= 1.49) setcolor(31);
+        if (matches2 >= 2 && (avsize < 2.06 && avsize > 1.49)) setcolor(3);
+        if (matches2 >= 2 && avsize >= 2.06) setcolor(2);
 	if (matches2 >= 1) {
 		set_font(6);	
 		if (avsize <= 1.49) {
@@ -4280,13 +4388,13 @@ void main_winds(void)
 	      }	
 
         txtrow += 18;
-        setcolor(26);//chin setcolor(31);
+        setcolor(31);
         moveto(txtlin, txtrow);
         lineto(txtlin+340, txtrow);
 	if (matches2 > 0) {
         	txtrow += 7;
         	set_font(4);
-        	setcolor(26);//chin setcolor(31);
+        	setcolor(31);
         	strcpy( st, "SARS output ranges for reported sizes (white)");
         	ix1 = (350 - getgtextextent(st))/2;
         	outgtext(st, txtlin + ix1 - 5, txtrow);
@@ -4313,7 +4421,7 @@ void main_winds(void)
 */		
 		/* SARS for reported < 1" hail */
                 if (avsize <= 1.49) {
-                	setcolor(26);//chin setcolor(31);
+			setcolor(31);
 			set_font(6);
 			strcpy(st, "<1");
                		outgtext(st, txtlin + 60, txtrow);
@@ -4332,12 +4440,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(26);//chin setcolor(27);
+			setcolor(27);
                         rectangle(0, txtlin + 56, txtrow - 5, txtlin + 91, txtrow + 60);
 			}
                 /* SARS for reported 1-1.5" hail */
                 if ((avsize > 1.49) && (avsize <= 1.68)) {
-                	setcolor(26);//chin setcolor(31);
+                        setcolor(31);
                         set_font(4); 
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow);
@@ -4357,12 +4465,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(26);//chin setcolor(27);
+                        setcolor(27);
                         rectangle(0, txtlin + 91, txtrow - 5, txtlin + 126, txtrow + 60); 
                         }
                 /* SARS for reported 1.75" hail */
                 if ((avsize > 1.68) && (avsize <= 2.06)) {
-                	setcolor(26);//chin setcolor(31);
+                        setcolor(31);
                         set_font(4); 
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow);
@@ -4382,12 +4490,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(26);//chin setcolor(27);
+                        setcolor(27);
                         rectangle(0, txtlin + 126, txtrow - 5, txtlin + 161, txtrow + 60); 
                         }
                 /* SARS for reported 2" hail */
                 if ((avsize > 2.06) && (avsize <= 2.39)) {
-                	setcolor(26);//chin setcolor(31);
+                        setcolor(31);
                         set_font(4); 
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow);
@@ -4407,12 +4515,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(26);//chin setcolor(27);
+                        setcolor(27);
                         rectangle(0, txtlin + 161, txtrow - 5, txtlin + 196, txtrow + 60); 
                         }
                 /* SARS for reported 2.5" hail */
                 if ((avsize > 2.39) && (avsize <= 2.52)) {
-                	setcolor(26);//chin setcolor(31);
+                        setcolor(31);
                         set_font(4);
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow); 
@@ -4432,12 +4540,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(26);//chin setcolor(27);
+                        setcolor(27);
                         rectangle(0, txtlin + 196, txtrow - 5, txtlin + 231, txtrow + 60);
                         }
                 /* SARS for reported 2.75" hail */
 		if ((avsize > 2.52) && (avsize <= 2.56)) {
-			setcolor(26);//chin setcolor(31);
+                        setcolor(31);
                         set_font(4);
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow); 
@@ -4457,12 +4565,12 @@ void main_winds(void)
                         outgtext(st, txtlin + 270, txtrow);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(26);//chin setcolor(27);
+                        setcolor(27);
                         rectangle(0, txtlin + 231, txtrow - 5, txtlin + 266, txtrow + 60);
                         }
                 /* SARS for reported 3-4" hail */
                 if ((avsize > 2.56) && (avsize <= 2.64)) {
-                	setcolor(26);//chin setcolor(31);
+                        setcolor(31);
                         set_font(4);
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow); 
@@ -4482,12 +4590,12 @@ void main_winds(void)
 			set_font(4);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(26);//chin setcolor(27);
+                        setcolor(27);
                         rectangle(0, txtlin + 266, txtrow - 5, txtlin + 301, txtrow + 60);
                         }
                 /* SARS for reported >4" hail */
                 if (avsize > 2.64) {
-                	setcolor(26);//chin setcolor(31);
+                        setcolor(31);
                         set_font(4);
                         strcpy(st, "<1");
                         outgtext(st, txtlin + 60, txtrow); 
@@ -4506,16 +4614,16 @@ void main_winds(void)
 			set_font(6);
                         strcpy(st, ">4");
                         outgtext(st, txtlin + 305, txtrow);
-                        setcolor(26);//chin setcolor(27);
+                        setcolor(27);
                         rectangle(0, txtlin + 301, txtrow - 5, txtlin + 336, txtrow + 60);
                         }
 
 		txtrow += 15;
-		setcolor(26);//chin setcolor(31);
+		setcolor(31);
 		set_font(4);
 		strcpy(st, "+1 STD");
         	outgtext(st, txtlin, txtrow);
-        	setcolor(26);//chin setcolor(27);
+		setcolor(27);
         	strcpy(st, "1.9");
        		outgtext(st, txtlin + 60, txtrow);
         	strcpy(st, "2.0");
@@ -4534,10 +4642,10 @@ void main_winds(void)
         	outgtext(st, txtlin + 305, txtrow);
 
                 txtrow += 15;
-                setcolor(26);//chin setcolor(31);
+                setcolor(31);
                 strcpy(st, "AVG");
                 outgtext(st, txtlin, txtrow);
-                setcolor(26);//chin setcolor(27);
+                setcolor(27);
                 strcpy(st, "1.5");
                 outgtext(st, txtlin + 60, txtrow);
                 strcpy(st, "1.5");
@@ -4556,10 +4664,10 @@ void main_winds(void)
                 outgtext(st, txtlin + 305, txtrow);
 
         	txtrow += 15;
-        	setcolor(26);//chin setcolor(31);
+        	setcolor(31);
         	strcpy(st, "-1 STD");
         	outgtext(st, txtlin, txtrow);
-        	setcolor(26);//chin setcolor(27);
+		setcolor(27);
         	strcpy(st, "1.1");
         	outgtext(st, txtlin + 60, txtrow);
         	strcpy(st, "1.1");
@@ -4891,10 +4999,14 @@ void show_sars(void)
         printf("\n shr3k = %.1f\n", shr3k);
         printf("\n shr9k = %.1f\n", shr9k);
 */
-
+	 
         for (i=0; i < 15; i++) sndglist[i][14] = '\0';
         printf( "%d High Quality SUPERCELL Matches were found.\n", nsndgs);
-        for (i=0;i<nsndgs;i++) { printf( "SUPERCELL match = %s %.0f\n", sndglist[i]), suplist[i]; }
+	/* modified loop and printf statement to properly display supercell match type - RLT 4/24/12 */
+        for (i=0;i<nsndgs;i++) {
+		j = suplist[i]; 
+		printf( "SUPERCELL match = %s %s\n", sndglist[i], tortags[j]);
+		}
         printf( "%.0f Total matches were found.\n", matches);
         printf( "%.0f Percent were TOR.\n", p1);
 
@@ -4974,8 +5086,8 @@ void show_sars(void)
         /*                                                           */
         /*************************************************************/
         {
-	float s10th, s25th, s50th, s75th, s90th, w10th, w25th, w50th, w75th, w90th;
-	float n10th, n25th, n50th, n75th, n90th, stpc, maxval, ix1, pres;
+	float s10th, s25th, s50th, s75th, s90th;
+	float stpc, maxval, ix1, pres;
         short tlx, tly, oldlplchoice, pIndex, zIndex, tIndex, trow2, i, y, hash;
         char st[100];	
         Parcel pcl;
@@ -5008,8 +5120,8 @@ void show_sars(void)
 	/* graph title */
        	setcolor(31);
 	set_font(6); 
-	sprintf( st, "Significant Tornado Parameter (with CIN)");
-        outgtext ( st, tlx+40, tly+1);	
+	sprintf( st, "Effective-Layer STP (with CIN)");
+        outgtext ( st, tlx+75, tly+1);	
 
         /* ----- Plot Y-Coord hash marks ----- */
 	maxval = 12.0;
@@ -5030,76 +5142,206 @@ void show_sars(void)
 	/* plot labels for each box */
 	set_font(5);
 	setcolor(31);
-        sprintf( st, "SIGTOR");
-        outgtext ( st, tlx+60, tly+240);
-	sprintf( st, "WEAKTOR");
-        outgtext ( st, tlx+155, tly+240);
+        sprintf( st, "EF4+");
+        outgtext ( st, tlx+34, tly+240);
+	sprintf( st, "EF3");
+        outgtext ( st, tlx+91, tly+240);
+        sprintf( st, "EF2");
+        outgtext ( st, tlx+146, tly+240);
+        sprintf( st, "EF1");
+        outgtext ( st, tlx+201, tly+240);
+        sprintf( st, "EF0");
+        outgtext ( st, tlx+256, tly+240);
         sprintf( st, "NONTOR");
-        outgtext ( st, tlx+258, tly+240);	
+        outgtext ( st, tlx+303, tly+240);
 
-	/* sigtor box and whiskers values */
-	s90th = 6.3;
-	s75th = 4.5;
-	s50th =	2.2;
-	s25th = 1.1;
-	s10th = 0.3;
-        /* plot sigtor box and whiskers */
-        setcolor(23);
-        setlinestyle(1, 3);
-	/* draw box */
-	rectangle(0, tlx+50, tly+(short)(240-(s75th*20)), tlx+100, tly+(short)(240-(s25th*20)));
-	/* draw upper whisker */
-	moveto(tlx+75, tly+(short)(240-(s75th*20)));
-	lineto(tlx+75, tly+(short)(240-(s90th*20)));
-	/* draw lower whisker */ 
-	moveto(tlx+75, tly+(short)(240-(s25th*20)));
-	lineto(tlx+75, tly+(short)(240-(s10th*20)));
-	/* draw median */
-	moveto(tlx+50, tly+(short)(240-(s50th*20)));
-	lineto(tlx+100, tly+(short)(240-(s50th*20)));	
-
-        /* weaktor box and whiskers values */
-        s90th = 3.4;
-        s75th = 1.9;
-        s50th = 0.8;
-        s25th = 0.2;
-        s10th = 0.0;
-        /* plot weaktor box and whiskers */
-        setcolor(23);
+	/* percentile rank values from Fig. 12 in Thompson et al. (2012) WAF */
+        /* f4+ box and whiskers values */
+        s90th = 11.0;
+        s75th = 8.3;
+        s50th = 5.3;
+        s25th = 2.8;
+        s10th = 1.2;
+        /* plot f4+ box and whiskers */
+        setcolor(21);
         setlinestyle(1, 3);
         /* draw box */
-        rectangle(0, tlx+150, tly+(short)(240-(s75th*20)), tlx+200, tly+(short)(240-(s25th*20)));
+        rectangle(0, tlx+30, tly+(short)(240-(s75th*20)), tlx+60, tly+(short)(240-(s25th*20)));
         /* draw upper whisker */
-        moveto(tlx+175, tly+(short)(240-(s75th*20)));
-        lineto(tlx+175, tly+(short)(240-(s90th*20)));
+        moveto(tlx+45, tly+(short)(240-(s75th*20)));
+        lineto(tlx+45, tly+(short)(240-(s90th*20)));
         /* draw lower whisker */
-        moveto(tlx+175, tly+(short)(240-(s25th*20)));
-        lineto(tlx+175, tly+(short)(240-(s10th*20)));
+        moveto(tlx+45, tly+(short)(240-(s25th*20)));
+        lineto(tlx+45, tly+(short)(240-(s10th*20)));
         /* draw median */
-        moveto(tlx+150, tly+(short)(240-(s50th*20)));
-        lineto(tlx+200, tly+(short)(240-(s50th*20)));
+        moveto(tlx+30, tly+(short)(240-(s50th*20)));
+        lineto(tlx+60, tly+(short)(240-(s50th*20)));
 
-        /* nontor box and whiskers values */
-        s90th = 2.2;
-        s75th = 1.0;
-        s50th = 0.3;
+        /* f3 box and whiskers values */
+        s90th = 8.4;
+        s75th = 4.5;
+        s50th = 2.4;
+        s25th = 1.0;
+        s10th = 0.2;
+        /* plot f3 box and whiskers */
+        setcolor(21);
+        setlinestyle(1, 3);
+        /* draw box */
+        rectangle(0, tlx+85, tly+(short)(240-(s75th*20)), tlx+115, tly+(short)(240-(s25th*20)));
+        /* draw upper whisker */
+        moveto(tlx+100, tly+(short)(240-(s75th*20)));
+        lineto(tlx+100, tly+(short)(240-(s90th*20)));
+        /* draw lower whisker */
+        moveto(tlx+100, tly+(short)(240-(s25th*20)));
+        lineto(tlx+100, tly+(short)(240-(s10th*20)));
+        /* draw median */
+        moveto(tlx+85, tly+(short)(240-(s50th*20)));
+        lineto(tlx+115, tly+(short)(240-(s50th*20)));
+
+        /* f2 box and whiskers values */
+        s90th = 5.6;
+        s75th = 3.7;
+        s50th = 1.7;
+        s25th = 0.6;
+        s10th = 0.0;
+        /* plot f2 box and whiskers */
+        setcolor(21);
+        setlinestyle(1, 3);
+        /* draw box */
+        rectangle(0, tlx+140, tly+(short)(240-(s75th*20)), tlx+170, tly+(short)(240-(s25th*20)));
+        /* draw upper whisker */
+        moveto(tlx+155, tly+(short)(240-(s75th*20)));
+        lineto(tlx+155, tly+(short)(240-(s90th*20)));
+        /* draw lower whisker */
+        moveto(tlx+155, tly+(short)(240-(s25th*20)));
+        lineto(tlx+155, tly+(short)(240-(s10th*20)));
+        /* draw median */
+        moveto(tlx+140, tly+(short)(240-(s50th*20)));
+        lineto(tlx+170, tly+(short)(240-(s50th*20)));
+
+        /* f1 box and whiskers values */
+        s90th = 4.5;
+        s75th = 2.6;
+        s50th = 1.2;
+        s25th = 0.3;
+        s10th = 0.0;
+        /* plot f1 box and whiskers */
+        setcolor(22);
+        setlinestyle(1, 3);
+        /* draw box */
+        rectangle(0, tlx+195, tly+(short)(240-(s75th*20)), tlx+225, tly+(short)(240-(s25th*20)));
+        /* draw upper whisker */
+        moveto(tlx+210, tly+(short)(240-(s75th*20)));
+        lineto(tlx+210, tly+(short)(240-(s90th*20)));
+        /* draw lower whisker */
+        moveto(tlx+210, tly+(short)(240-(s25th*20)));
+        lineto(tlx+210, tly+(short)(240-(s10th*20)));
+        /* draw median */
+        moveto(tlx+195, tly+(short)(240-(s50th*20)));
+        lineto(tlx+225, tly+(short)(240-(s50th*20)));
+
+        /* f0 box and whiskers values */
+        s90th = 3.7;
+        s75th = 2.0;
+        s50th = 0.8;
         s25th = 0.1;
+        s10th = 0.0;
+        /* plot f0 box and whiskers */
+        setcolor(22);
+        setlinestyle(1, 3);
+        /* draw box */
+        rectangle(0, tlx+250, tly+(short)(240-(s75th*20)), tlx+280, tly+(short)(240-(s25th*20)));
+        /* draw upper whisker */
+        moveto(tlx+265, tly+(short)(240-(s75th*20)));
+        lineto(tlx+265, tly+(short)(240-(s90th*20)));
+        /* draw lower whisker */
+        moveto(tlx+265, tly+(short)(240-(s25th*20)));
+        lineto(tlx+265, tly+(short)(240-(s10th*20)));
+        /* draw median */
+        moveto(tlx+250, tly+(short)(240-(s50th*20)));
+        lineto(tlx+280, tly+(short)(240-(s50th*20)));
+
+	/* NONtor percentile ranks are a combination sighail and sigwind values from Fig. 12 in Thompson et al. (2012) WAF */
+        /* nontor box and whiskers values */
+        s90th = 1.5;
+        s75th = 0.7;
+        s50th = 0.2;
+        s25th = 0.0;
         s10th = 0.0;
         /* plot nontor box and whiskers */
         setcolor(23);
         setlinestyle(1, 3);
         /* draw box */
-        rectangle(0, tlx+250, tly+(short)(240-(s75th*20)), tlx+300, tly+(short)(240-(s25th*20)));
+        rectangle(0, tlx+305, tly+(short)(240-(s75th*20)), tlx+335, tly+(short)(240-(s25th*20)));
         /* draw upper whisker */
+        moveto(tlx+320, tly+(short)(240-(s75th*20)));
+        lineto(tlx+320, tly+(short)(240-(s90th*20)));
+        /* draw lower whisker */
+        moveto(tlx+320, tly+(short)(240-(s25th*20)));
+        lineto(tlx+320, tly+(short)(240-(s10th*20)));
+        /* draw median */
+        moveto(tlx+305, tly+(short)(240-(s50th*20)));
+        lineto(tlx+335, tly+(short)(240-(s50th*20)));
+
+	/* original sigtor, weaktor, and nontor plot code below */
+        /* plot labels for each box */
+/*      set_font(5);
+        setcolor(31);
+        sprintf( st, "SIGTOR");
+        outgtext ( st, tlx+60, tly+240);
+        sprintf( st, "WEAKTOR");
+        outgtext ( st, tlx+155, tly+240);
+        sprintf( st, "NONTOR");
+        outgtext ( st, tlx+258, tly+240);
+*/
+	/* sigtor box and whiskers values */
+/*	s90th = 6.3;
+	s75th = 4.5;
+	s50th =	2.2;
+	s25th = 1.1;
+	s10th = 0.3;
+        setcolor(23);
+        setlinestyle(1, 3);
+	rectangle(0, tlx+50, tly+(short)(240-(s75th*20)), tlx+100, tly+(short)(240-(s25th*20)));
+	moveto(tlx+75, tly+(short)(240-(s75th*20)));
+	lineto(tlx+75, tly+(short)(240-(s90th*20)));
+	moveto(tlx+75, tly+(short)(240-(s25th*20)));
+	lineto(tlx+75, tly+(short)(240-(s10th*20)));
+	moveto(tlx+50, tly+(short)(240-(s50th*20)));
+	lineto(tlx+100, tly+(short)(240-(s50th*20)));	
+*/
+        /* weaktor box and whiskers values */
+/*      s90th = 3.4;
+        s75th = 1.9;
+        s50th = 0.8;
+        s25th = 0.2;
+        s10th = 0.0;
+        setcolor(23);
+        setlinestyle(1, 3);
+        rectangle(0, tlx+150, tly+(short)(240-(s75th*20)), tlx+200, tly+(short)(240-(s25th*20)));
+        moveto(tlx+175, tly+(short)(240-(s75th*20)));
+        lineto(tlx+175, tly+(short)(240-(s90th*20)));
+        moveto(tlx+175, tly+(short)(240-(s25th*20)));
+        lineto(tlx+175, tly+(short)(240-(s10th*20)));
+        moveto(tlx+150, tly+(short)(240-(s50th*20)));
+        lineto(tlx+200, tly+(short)(240-(s50th*20)));
+*/
+        /* nontor box and whiskers values */
+/*      s90th = 2.2;
+        s75th = 1.0;
+        s50th = 0.3;
+        s25th = 0.1;
+        s10th = 0.0;
+        setcolor(23);
+        setlinestyle(1, 3);
+        rectangle(0, tlx+250, tly+(short)(240-(s75th*20)), tlx+300, tly+(short)(240-(s25th*20)));
         moveto(tlx+275, tly+(short)(240-(s75th*20)));
         lineto(tlx+275, tly+(short)(240-(s90th*20)));
-        /* draw lower whisker */
         moveto(tlx+275, tly+(short)(240-(s25th*20)));
         lineto(tlx+275, tly+(short)(240-(s10th*20)));
-        /* draw median */
         moveto(tlx+250, tly+(short)(240-(s50th*20)));
         lineto(tlx+300, tly+(short)(240-(s50th*20)));
-
+*/
 	/* plot sounding value of STPC */
 	/* max plotted STPC value will be 11 */
         ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
@@ -5107,11 +5349,20 @@ void show_sars(void)
 	if (stpc > 11) stpc = 11;
 	y = (short)(240 - (stpc * 20));
 	/* set line color to match color coding of composite parameter inset */
-        if (stpc < .45) setcolor(8);
+	/* original color scheme from T03 sample */
+/*        if (stpc < .45) setcolor(8);
         if (stpc >= .45) setcolor(31);
         if (stpc >= 1.95) setcolor(19);
         if (stpc >= 3.95) setcolor(2);
         if (stpc >= 5.95) setcolor(7);
+*/
+	/* updated color scheme using Thompson et al. (2012) sample */
+        if (stpc < .5) setcolor(8);
+        if (stpc >= .5) setcolor(18);
+        if (stpc >= 1) setcolor(31);
+        if (stpc >= 2) setcolor(19);
+        if (stpc >= 4) setcolor(2);
+        if (stpc >= 8) setcolor(7);
 	setlinestyle(1, 2);
 	moveto(tlx, tly + y);
 	lineto(tlx + 350, tly + y);
@@ -5120,20 +5371,20 @@ void show_sars(void)
 	prob_sigt_mllcl();
 	prob_sigt_eshear();
 	prob_sigt_esrh();
-	prob_sigt_stp();
 	prob_sigt_stpc();
+	prob_sigt_stp();
 	}
 	
 	/* NP */
 void prob_sigt_mlcape()
-        /*************************************************************/
-        /*  PROB_SIGT_MLCAPE                                         */
-        /*  Rich Thompson SPC OUN                                    */
-        /*                                                           */
-	/* Calculates and plots the probability of an F2+ tornado    */
-	/* (given a supercell) based on MLCAPE alone.  Probabilities */
-	/* are derived from Thompson et al. 2005 RUC soundings       */
-        /*************************************************************/
+        /***************************************************************/
+        /*  PROB_SIGT_MLCAPE                                           */
+        /*  Rich Thompson SPC OUN                                      */
+        /*                                                             */
+	/* Calculates and plots the probability of an EF2+ tornado     */
+	/* (given a supercell) based on MLCAPE.  Probabilities are     */
+	/* derived from Thompson et al. (2012) convective mode sample. */
+        /***************************************************************/
         {
         float psigt_mlcape;
         float mlcape;
@@ -5159,9 +5410,9 @@ void prob_sigt_mlcape()
         setcolor(31);
         rectangle(0, tlx + 200, tly + 20, tlx + 350, tly + 112);
         set_font(4);
-        sprintf( st, "Prob F2+ Torn with a supercell");
+        sprintf( st, "Prob EF2+ torn with supercell");
         outgtext ( st, tlx+205, tly+21);
-	sprintf( st, "Sounding CLIMO = .14 sigtor");
+	sprintf( st, "Sample CLIMO = .15 sigtor");
 	outgtext ( st, tlx+205, tly+31);
 	moveto(tlx+200, tly+43);
 	lineto(tlx+350, tly+43);
@@ -5176,7 +5427,59 @@ void prob_sigt_mlcape()
         ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
         mlcape = pcl.bplus;
 
-        if (mlcape >= 4500){ psigt_mlcape=.31;
+	/* logic statements for Thompson et al. (2012) WAF sample */
+	/* 24 sigtor, 125 non-sigtor supercells */
+        if (mlcape >= 4000){ psigt_mlcape=.16;
+                setcolor(31);
+                }
+        else
+		/* 86 sigtor, 347 non-sigtor supercells */
+                if (mlcape >= 3000 && mlcape < 4000){ psigt_mlcape=.20;
+                        setcolor(19);
+                        }
+        else
+		/* 77 sigtor, 357 non-sigtor supercells */
+                if (mlcape >= 2500 && mlcape < 3000){ psigt_mlcape=.18;
+                        setcolor(19);
+                        }
+        else
+		/* 87 sigtor, 535 non-sigtor supercells */
+                if (mlcape >= 2000 && mlcape < 2500){ psigt_mlcape=.14;
+                        setcolor(31);
+                        }
+        else
+                /* 125 sigtor, 845 non-sigtor supercells */
+                if (mlcape >= 1500 && mlcape < 2000){ psigt_mlcape=.13;
+                        setcolor(31);
+                        }
+        else
+		/* 187 sigtor, 1086 non-sigtor supercells */
+                if (mlcape >= 1000 && mlcape < 1500){ psigt_mlcape=.15;
+                        setcolor(31);
+                        }
+        else
+                /* 225 sigtor, 1199 non-sigtor supercells */
+                if (mlcape >= 500 && mlcape < 1000){ psigt_mlcape=.16;
+                        setcolor(31);
+                        }
+        else
+                /* 103 sigtor, 545 non-sigtor supercells */
+                if (mlcape >= 250 && mlcape < 500){ psigt_mlcape=.14;
+                        setcolor(31);
+                        }
+        else
+                /* 88 sigtor, 663 non-sigtor supercells */
+                if (mlcape > 0 && mlcape < 250){ psigt_mlcape=.12;
+                        setcolor(18);
+                        }
+	else
+		if (mlcape == 0.0) { psigt_mlcape=0.00;
+			setcolor(8);
+			}
+
+
+	/* original logic statements based on T03 sample */
+/*        if (mlcape >= 4500){ psigt_mlcape=.31;
 		setcolor(19);
 		}
         else
@@ -5199,7 +5502,7 @@ void prob_sigt_mlcape()
 		if (mlcape < 50){ psigt_mlcape=0.0;
 			setcolor(8);
 			}
-
+*/
         sprintf( st, "%.2f", psigt_mlcape);
         disp_param( st, tlx+335, tly+45);
         setcolor(31);
@@ -5232,14 +5535,14 @@ void prob_sigt_mlcape()
 
 	/* NP */
 void prob_sigt_mllcl()
-        /*************************************************************/
-        /*  PROB_SIGT_MLLCL                                          */
-        /*  Rich Thompson SPC OUN                                    */
-        /*                                                           */
-        /* Calculates and plots the probability of an F2+ tornado    */
-        /* (given a supercell) based on MLLCL alone.  Probabilities  */
-        /* are derived from Thompson et al. 2005 RUC soundings       */
-        /*************************************************************/
+        /***************************************************************/
+        /*  PROB_SIGT_MLLCL                                            */
+        /*  Rich Thompson SPC OUN                                      */
+        /*                                                             */
+        /* Calculates and plots the probability of an EF2+ tornado     */
+        /* (given a supercell) based on MLLCL.  Probabilities are      */
+        /* derived from Thompson et al. (2012) convective mode sample. */
+        /***************************************************************/
         {
         float psigt_mllcl;
         float mllcl;
@@ -5262,9 +5565,51 @@ void prob_sigt_mllcl()
 	/* lift current parcel */
 	define_parcel(4, 100);
         ix1 = parcel( -1, -1, lplvals.pres, lplvals.temp, lplvals.dwpt, &pcl);
+        mllcl = agl(i_hght(pcl.lclpres, I_PRES));	
 
-        mllcl = agl(i_hght(pcl.lclpres, I_PRES));
+	/* logic statements for Thompson et al. (2012) WAF sample */ 
+	/* 370 sigtor, 1532 non-sigtor supercells */
+        if (mllcl < 750 ){ psigt_mllcl=.19;
+                setcolor(19);
+                }
+	/* 309 sigtor, 1304 non-sigtor supercells */
+        else
+                if (mllcl >= 750 && mllcl < 1000 ){ psigt_mllcl=.19;
+                        setcolor(19);
+                        }
+	/* 182 sigtor, 1065 non-sigtor supercells */
+        else
+                if (mllcl >= 1000 && mllcl < 1250){ psigt_mllcl=.15;
+                        setcolor(31);
+                        }
+	/* 86 sigtor, 735 non-sigtor supercells */
+        else
+                if (mllcl >= 1250 && mllcl < 1500){ psigt_mllcl=.10;
+                        setcolor(18);
+                        }
+	/* 32 sigtor, 461 non-sigtor supercells */
+        else
+                if (mllcl >= 1500 && mllcl < 1750){ psigt_mllcl=.06;
+                        setcolor(8);
+                        }
+	/* 17 sigtor, 279 non-sigtor supercells */
+        else
+                if (mllcl >= 1750 && mllcl < 2000){ psigt_mllcl=.06;
+                        setcolor(8);
+                        }
+	/* 6 sigtor, 326 non-sigtor supercells */
+        else
+                if (mllcl >= 2000 && mllcl < 2500){ psigt_mllcl=.02;
+                        setcolor(8);
+                        }
+        else
+                if (mllcl >= 2500){ psigt_mllcl=0.0;
+                        setcolor(8);
+                        }
 
+
+	/* original logic statements based on T03 sample */
+/*
         if (mllcl < 500 ){ psigt_mllcl=.20;
 		setcolor(31);
 		}
@@ -5296,7 +5641,7 @@ void prob_sigt_mllcl()
 		if (mllcl > 2000){ psigt_mllcl=0.0;
 			setcolor(8);
 			}
-
+*/
         sprintf( st, "%.2f", psigt_mllcl);
         disp_param( st, tlx+335, tly+55);
         setcolor(31);
@@ -5329,15 +5674,15 @@ void prob_sigt_mllcl()
 
 	/* NP */
 void prob_sigt_esrh()
-        /*************************************************************/
-        /*  PROB_SIGT_ESRH                                           */
-        /*  Rich Thompson SPC OUN                                    */
-        /*                                                           */
-        /* Calculates and plots the probability of an F2+ tornado    */
-        /* (given a supercell) based on effective SRH alone.         */
-	/* Probabilities are derived from Thompson et al. 2005       */
-	/* RUC soundings       					     */
-        /*************************************************************/
+        /**************************************************************/
+        /*  PROB_SIGT_ESRH                                            */
+        /*  Rich Thompson SPC OUN                                     */
+        /*                                                            */
+        /* Calculates and plots the probability of an EF2+ tornado    */
+        /* (given a supercell) based on effective SRH.                */
+	/* Probabilities are derived from Thompson et al. (2012)      */
+	/* convective mode sample        			      */
+        /**************************************************************/
         {
         float psigt_esrh;
         float esrh, jh1, jh2, pbot, ptop, ix1, ix2, ix3, tlx, tly;
@@ -5375,8 +5720,55 @@ void prob_sigt_esrh()
 	   {
 	   esrh = 0.0;
 	   }		
-		
-        if (esrh > 450) { psigt_esrh=.37;
+
+/* logic statement for Thompson et al. (2012) WAF sample */
+	/* 68 sigtor, 94 non-sigtor supercells */ 
+        if (esrh > 700) { psigt_esrh=.42;
+                setcolor(2);
+                }
+	/* 74 sigtor, 128 non-sigtor supercells */
+        else
+                if (esrh >= 600 && esrh < 700){ psigt_esrh=.37;
+                        setcolor(2);
+                        }
+	/* 130 sigtor, 213 non-sigtor supercells */
+        else
+                if (esrh >= 500 && esrh < 600){ psigt_esrh=.38;
+                        setcolor(2);
+                        } 
+	/* 146 sigtor, 391 non-sigtor supercells */
+        else
+                if (esrh >= 400 && esrh < 500){ psigt_esrh=.27;
+                        setcolor(19);
+                        }
+	/* 180 sigtor, 710 non-sigtor supercells */
+        else
+                if (esrh >= 300 && esrh < 400){ psigt_esrh=.20;
+                        setcolor(19);
+                        }
+	/* 170 sigtor, 1074 non-sigtor supercells */
+        else
+                if (esrh >= 200 && esrh < 300){ psigt_esrh=.14;
+                        setcolor(31);
+                        }
+	/* 126 sigtor, 1440 non-sigtor supercells */
+        else
+                if (esrh >= 100 && esrh < 200){ psigt_esrh=.08;
+                        setcolor(18);
+                        }
+	/* 44 sigtor, 711 non-sigtor supercells */ 
+        else
+                if (esrh >= 50 && esrh < 100){ psigt_esrh=.06;
+                        setcolor(8);
+                        }
+	/* 64 sigtor, 941 non-sigtor supercells */
+        else
+                if (esrh < 50){ psigt_esrh=.06;
+                        setcolor(8);
+                        }
+
+/* original logic statements from T03 sample */ 		
+/*        if (esrh > 450) { psigt_esrh=.37;
 		setcolor(2);
 		}
         else
@@ -5407,7 +5799,7 @@ void prob_sigt_esrh()
 		if (esrh < .01){ psigt_esrh=0.0;
 			setcolor(8);
 			}
-
+*/
         sprintf( st, "%.2f", psigt_esrh);
         disp_param( st, tlx+335, tly+65);
         setcolor(31);
@@ -5419,15 +5811,15 @@ void prob_sigt_esrh()
 
 	/* NP */
 void prob_sigt_eshear()
-        /*************************************************************/
-        /*  PROB_SIGT_ESHEAR                                         */
-        /*  Rich Thompson SPC OUN                                    */
-        /*                                                           */
-        /* Calculates and plots the probability of an F2+ tornado    */
-        /* (given a supercell) based on effective bulk shear alone.  */
-	/* Probabilities are derived from Thompson et al. 2005       */
-	/* RUC soundings				             */
-        /*************************************************************/
+        /****************************************************************/
+        /*  PROB_SIGT_ESHEAR                                            */
+        /*  Rich Thompson SPC OUN                                       */
+        /*                                                              */
+        /* Calculates and plots the probability of an EF2+ tornado      */
+        /* (given a supercell) based on effective bulk wind difference. */
+	/* Probabilities are derived from Thompson et al. (2012)        */
+	/* convective mode sample                                       */
+        /****************************************************************/
         {
         float psigt_eshear;
 /* 24 Mar 2008 */
@@ -5474,8 +5866,53 @@ void prob_sigt_eshear()
 	        wind_shear( i_pres(msl(0)), i_pres(msl(6000)), &ix1, &ix2, &ix3, &ix4);
         	eshear = ix4;
         	}
-		
-        if (eshear >=70){ psigt_eshear=.20;
+/* logic statements for Thompson et al. (2012) WAF sample */
+	/* 17 sigtor, 49 non-sigtor supercells */
+        if (eshear >=80){ psigt_eshear=.26;
+                setcolor(19);
+                }
+        /* 111 sigtor, 300 non-sigtor supercells */
+        else
+                if (eshear >=70 && eshear < 80){ psigt_eshear=.36;
+                        setcolor(2);
+                        }
+        /* 251 sigtor, 676 non-sigtor supercells */
+        else
+                if (eshear >=60 && eshear < 70){ psigt_eshear=.27;
+                        setcolor(19);
+                        }
+        /* 303 sigtor, 1260 non-sigtor supercells */
+        else
+                if (eshear >=50 && eshear < 60){ psigt_eshear=.19;
+                        setcolor(19);
+                        }
+        /* 218 sigtor, 1647 non-sigtor supercells */
+        else
+                if (eshear >=40 && eshear < 50){ psigt_eshear=.12;
+                        setcolor(18);
+                        }
+	/* 74 sigtor, 1264 non-sigtor supercells */
+        else
+                if (eshear >=30 && eshear < 40){ psigt_eshear=.06;
+                        setcolor(8);
+                        }
+        /* 23 sigtor, 437 non-sigtor supercells */
+        else
+                if (eshear >=20 && eshear < 30){ psigt_eshear=.05;
+                        setcolor(8);
+                        }
+        /* 5 sigtor, 169 non-sigtor supercells */
+        else    
+                if (eshear > 0.0 && eshear < 20){ psigt_eshear=.03;
+                        setcolor(8);
+                        }
+
+        else     if (eshear == 0.0){psigt_eshear = 0.00;
+			setcolor(8);
+			} 
+
+/* original logic statements based on T03 sample */		
+/*        if (eshear >=70){ psigt_eshear=.20;
 		setcolor(19);
 		}
         else
@@ -5502,12 +5939,12 @@ void prob_sigt_eshear()
 		if (eshear < 20){ psigt_eshear=0.0;
 			setcolor(8);
 			}
-
+*/
         sprintf( st, "%.2f", psigt_eshear);
         disp_param( st, tlx+335, tly+75);
         setcolor(31);
         set_font(4);
-        sprintf( st, "based on EBS: ");
+        sprintf( st, "based on EBWD: ");
         outgtext( st, tlx+208, tly+75);
 
         /* ----- Set Parcel Back ----- */
@@ -5539,10 +5976,10 @@ void prob_sigt_stp()
         /*  PROB_SIGT_STP                                            */
         /*  Rich Thompson SPC OUN                                    */
         /*                                                           */
-        /* Calculates and plots the probability of an F2+ tornado    */
-        /* (given a supercell) based on the Sigtor Parameter.        */
-	/* Probabilities are derived from Thompson et al. 2005       */
-	/* RUC soundings    					     */
+        /* Calculates and plots the probability of an EF2+ tornado   */
+        /* (given a supercell) based on the fixed-layer STP.         */
+	/* Probabilities are derived from Thompson et al. (2012)     */
+	/* convective mode sample.                 		     */
         /*************************************************************/
         {
         float psigt_stp;
@@ -5560,9 +5997,56 @@ void prob_sigt_stp()
         tly = skv.bry + 20;
 
 	/* calculate STP  */
-        stp_nocin = sigtorn(st_dir, st_spd);
+        stp_nocin = sigtorn_fixed(st_dir, st_spd);
 
-        if (stp_nocin >= 8){ psigt_stp=.67;
+/* logic statements for Thompson et al. (2012) WAF sample */
+        /* 32 sigtor, 23 non-sigtor supercells */
+        if (stp_nocin >= 9){ psigt_stp=.58;
+                setcolor(7);
+                }
+        /* 46 sigtor, 37 non-sigtor supercells */
+        else
+                if (stp_nocin >= 7 && stp_nocin < 9){ psigt_stp=.55;
+                        setcolor(7);
+                        }
+        /* 112 sigtor, 172 non-sigtor supercells */
+        else
+                if (stp_nocin >= 5 && stp_nocin < 7){ psigt_stp=.39;
+                        setcolor(2);
+                        }
+        /* 172 sigtor, 515 non-sigtor supercells */
+        else
+                if (stp_nocin >= 3 && stp_nocin < 5){ psigt_stp=.25;
+                        setcolor(19);
+                        }
+        /* 177 sigtor, 541 non-sigtor supercells */
+        else
+                if (stp_nocin >= 2 && stp_nocin < 3){ psigt_stp=.25;
+                        setcolor(19);
+                        }
+        /* 218 sigtor, 1091 non-sigtor supercells */
+        else
+                if (stp_nocin >= 1 && stp_nocin < 2){ psigt_stp=.17;
+                        setcolor(31);
+                        }
+        /* 114 sigtor, 950 non-sigtor supercells */
+        else
+                if (stp_nocin >= .5 && stp_nocin < 1){ psigt_stp=.11;
+                        setcolor(18);
+                        }
+        /* 71 sigtor, 1107 non-sigtor supercells */
+        else
+                if (stp_nocin >= .1 && stp_nocin < .5){ psigt_stp=.06;
+                        setcolor(8);
+                        }
+        /* 60 sigtor, 1266 non-sigtor supercells */
+        else    
+                if (stp_nocin < .1){ psigt_stp=.05;
+                        setcolor(8);
+                        }
+
+/* original logic statements based on T03 sample */
+/*        if (stp_nocin >= 8){ psigt_stp=.67;
 		setcolor(7);
 		}
         else
@@ -5593,14 +6077,23 @@ void prob_sigt_stp()
 		if (stp_nocin < .01){ psigt_stp=0.0;
 			setcolor(8);
 			}
+*/
 
         sprintf( st, "%.2f", psigt_stp);
+        disp_param( st, tlx+335, tly+99);
+        setcolor(31);
+        set_font(4);
+        sprintf( st, "based on STP_fixed: ");
+        outgtext( st, tlx+208, tly+99);
+
+
+/*        sprintf( st, "%.2f", psigt_stp);
         disp_param( st, tlx+335, tly+89);
         setcolor(31);
         set_font(4);
         sprintf( st, "based on STP: ");
         outgtext( st, tlx+208, tly+89);
-
+*/
         }
 
 	/* NP */
@@ -5609,10 +6102,10 @@ void prob_sigt_stpc()
         /*  PROB_SIGT_STPC                                           */
         /*  Rich Thompson SPC OUN                                    */
         /*                                                           */
-        /* Calculates and plots the probability of an F2+ tornado    */
-        /* (given a supercell) based on the Sigtor Parameter that    */
-	/* includes CIN.  Probabilities are derived from             */
-	/* Thompson et al. 2005 RUC soundings                        */
+        /* Calculates and plots the probability of an EF2+ tornado   */
+        /* (given a supercell) based on the effective-layer STP      */
+	/* including CIN.  Probabilities are derived from            */
+	/* Thompson et al. (2012) convective mode sample             */
         /*************************************************************/
         {
         float psigt_stpcin;
@@ -5632,45 +6125,99 @@ void prob_sigt_stpc()
 	/* calculate STPC */
         stp_cin = sigtorn_cin(st_dir, st_spd);
 
-        if (stp_cin >= 8){ psigt_stpcin=.78;
+/* logic statements for Thompson et al. (2012) WAF sample */
+        /* 39 sigtor, 28 non-sigtor supercells */
+        if (stp_cin >= 10){ psigt_stpcin=.58;
 		setcolor(7);
 		}
+        /* 39 sigtor, 32 non-sigtor supercells */
         else
-                if (stp_cin >= 6 && stp_cin < 8){ psigt_stpcin=.53;
+                if (stp_cin >= 8 && stp_cin < 10){ psigt_stpcin=.55;
 			setcolor(7);
-			}
+			}			
+        /* 54 sigtor, 104 non-sigtor supercells */
         else
-                if (stp_cin >= 4 && stp_cin < 6){ psigt_stpcin=.41;
+                if (stp_cin >= 6 && stp_cin < 8){ psigt_stpcin=.34;
 			setcolor(2);
 			}
+        /* 146 sigtor, 305 non-sigtor supercells */
         else
-                if (stp_cin >= 2 && stp_cin < 4){ psigt_stpcin=.27;
+                if (stp_cin >= 4 && stp_cin < 6){ psigt_stpcin=.32;
+			setcolor(2);
+			}
+        /* 219 sigtor, 842 non-sigtor supercells */
+        else
+                if (stp_cin >= 2 && stp_cin < 4){ psigt_stpcin=.21;
 			setcolor(19);
 			}
+        /* 200 sigtor, 963 non-sigtor supercells */
         else
                 if (stp_cin >= 1 && stp_cin < 2){ psigt_stpcin=.17;
-			setcolor(31);
+                        setcolor(31);
+                        }
+        /* 112 sigtor, 823 non-sigtor supercells */
+        else
+                if (stp_cin >= .5 && stp_cin < 1){ psigt_stpcin=.12;
+			setcolor(18);
 			}
+        /* 84 sigtor, 1026 non-sigtor supercells */
+        else
+                if (stp_cin >= .1 && stp_cin < .5){ psigt_stpcin=.08;
+                        setcolor(18);
+                        }
+        /* 109 sigtor, 1571 non-sigtor supercells */
+	else	
+		if (stp_cin < .1){ psigt_stpcin=.06;
+			setcolor(8);	
+			}
+
+/* original logic statements based on T03 sample */
+/*      if (stp_cin >= 8){ psigt_stpcin=.78;
+                setcolor(7);
+                }
+        else
+                if (stp_cin >= 6 && stp_cin < 8){ psigt_stpcin=.53;
+                        setcolor(7);
+                        }
+        else
+                if (stp_cin >= 4 && stp_cin < 6){ psigt_stpcin=.41;
+                        setcolor(2);
+                        }
+        else
+                if (stp_cin >= 2 && stp_cin < 4){ psigt_stpcin=.27;
+                        setcolor(19);
+                        }
+        else
+                if (stp_cin >= 1 && stp_cin < 2){ psigt_stpcin=.17;
+                        setcolor(31);
+                        }
         else
                 if (stp_cin >= .5 && stp_cin < 1){ psigt_stpcin=.11;
                         setcolor(18);
                         }
         else
                 if (stp_cin < .5 && stp_cin > .01){ psigt_stpcin=.03;
-			setcolor(8);
-			}
-	else	
-		if (stp_cin < .01){ psigt_stpcin=.00;
-			setcolor(8);	
-			}
-
+                        setcolor(8);
+                        }
+        else
+                if (stp_cin < .01){ psigt_stpcin=.00;
+                        setcolor(8);
+                        }
+*/
         sprintf( st, "%.2f", psigt_stpcin);
+        disp_param( st, tlx+335, tly+89);
+        setcolor(31);
+        set_font(4);
+        sprintf( st, "based on STPC: ");
+        outgtext( st, tlx+208, tly+89);
+
+/*        sprintf( st, "%.2f", psigt_stpcin);
         disp_param( st, tlx+335, tly+99);
         setcolor(31);
         set_font(4);
         sprintf( st, "based on STPC: ");
         outgtext( st, tlx+208, tly+99);
-
+*/
         }
 
         /*NP*/
