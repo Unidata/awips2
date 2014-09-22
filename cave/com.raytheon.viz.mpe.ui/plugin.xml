@@ -1723,6 +1723,7 @@
 	            Theme for MPE Legend
 	        </description>
 	    </themeElementCategory>
+	    <!-- MPE Legend -->
 	    <fontDefinition
 	        categoryId="com.raytheon.viz.mpe.ui.theme.legend"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPELegendResource.miniscule"
@@ -1784,6 +1785,7 @@
 	        </description>
 	    </fontDefinition>
 	    
+	    <!-- Gage Plots -->
 	    <fontDefinition
 	        categoryId="com.raytheon.viz.mpe.ui.theme.gage"
 	        id="com.raytheon.viz.mpe.ui.rsc.MPEGageResource.miniscule"
@@ -1845,6 +1847,7 @@
 	        </description>
 	    </fontDefinition>
     
+    	<!-- Wx Plots -->
 	    <fontDefinition
 	        categoryId="com.raytheon.viz.mpe.ui.theme.default"
 	        id="com.raytheon.viz.mpe.ui.defaultFont.miniscule"

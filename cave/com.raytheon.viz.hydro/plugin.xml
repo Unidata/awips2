@@ -307,6 +307,7 @@
 		          name="com.raytheon.viz.hydro.separator"
 		          visible="true">
 		    </separator>
+			<!--command commandId="com.raytheon.viz.hydro.sshp.window.openunithydrographeditor" label="Launch UnitHydrographEditor..." style="push"/-->
 		  </menu>           
       </menuContribution>
       <menuContribution
