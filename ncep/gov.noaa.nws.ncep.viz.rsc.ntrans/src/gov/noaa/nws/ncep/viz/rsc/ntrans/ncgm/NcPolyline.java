@@ -10,9 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -21,15 +18,12 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 public class NcPolyline extends Polyline implements INcCommand {
 
-    private final Log logger = LogFactory.getLog(this.getClass()); // TODO
-                                                                   // static
-                                                                   // better??
+    // private final Log logger = LogFactory.getLog(this.getClass());
 
     static List<double[]> currentDraw = new ArrayList<double[]>();
 
     public NcPolyline(int ec, int eid, int l, DataInput in) throws IOException {
         super(ec, eid, l, in);
-        // TODO Auto-generated constructor stub
     }
 
     @Override

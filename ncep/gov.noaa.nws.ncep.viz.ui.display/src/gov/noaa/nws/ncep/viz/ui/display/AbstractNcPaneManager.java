@@ -69,7 +69,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/13/12			?		B. Yin		 Refresh only for multiple panes
  * 01/28/12      #972       Greg Hull    created from NCPaneManager minus remove PaneLayout code.
  * 12/16/13      #958       sgurung      Do not set virtual cursor for NcNonMapRenderableDisplay
- * 
+ * 05/16/2014    #1136      qzhou        Add NCTimeseries for Graph.
  * </pre>
  * 
  * @author ghull
@@ -236,6 +236,9 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
             return "gov.noaa.nws.ncep.viz.ui.display.NTransDisplay";
         } else if (displayType == NcDisplayType.SOLAR_DISPLAY) {
             return "gov.noaa.nws.ncep.viz.ui.display.SolarDisplay";
+        } else if (displayType == NcDisplayType.GRAPH_DISPLAY) {
+            return "gov.noaa.nws.ncep.viz.ui.display.GraphDisplay";
+
         }
         return "Unsupported displayType: " + displayType.toString();
     }
@@ -248,6 +251,9 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
             return "gov.noaa.nws.ncep.viz.ui.display.NCNonMapRenderableDisplay";
         } else if (displayType == NcDisplayType.SOLAR_DISPLAY) {
             return "gov.noaa.nws.ncep.viz.ui.display.NCNonMapRenderableDisplay";
+        } else if (displayType == NcDisplayType.GRAPH_DISPLAY) {
+            return "gov.noaa.nws.ncep.viz.ui.display.NCTimeSeriesRenderableDisplay";
+
         }
         return "Unsupported displayTyep: " + displayType.toString();
     }
@@ -259,6 +265,8 @@ public abstract class AbstractNcPaneManager extends PaneManager implements
             return "gov.noaa.nws.ncep.viz.ui.display.NCNonMapDescriptor";
         } else if (displayType == NcDisplayType.SOLAR_DISPLAY) {
             return "gov.noaa.nws.ncep.viz.ui.display.NCNonMapDescriptor";
+        } else if (displayType == NcDisplayType.GRAPH_DISPLAY) {
+            return "gov.noaa.nws.ncep.viz.ui.display.NCTimeSeriesDescriptor";
         }
         return "Unsupported displayTyep: " + displayType.toString();
     }
