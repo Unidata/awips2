@@ -73,7 +73,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                         disappearing after save
  * 01 Jul 2013  2088       rferrel     Changes for non-blocking dialogs.
  * 06 Sep 2013  #2342      lvenable    Fixed color memory leaks and a null point exception.
- * </pre>
+ * 04 Sep 2014  14448      cgobs       Make MPE redisplay after save of color settings in ColorScaleMgr
+   * </pre>
  * 
  * @author lvenable
  * @version 1.0
@@ -95,6 +96,19 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      * Allow only a single instance of the dialog.
      */
     private ColorChooserDlg colorDlg;
+
+    /**
+     * callback to be execute upon saving of a color set
+     * generally used to update the display with the newly-saved color set
+     */
+    private ISaveCallback saveCallback;
+
+    public interface ISaveCallback {
+
+        public void execute();
+        
+    }
+
 
     /**
      * User's name.
@@ -915,6 +929,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         }
     };
 
+ 
     /**
      * Update the color label on the display
      * 
@@ -2016,8 +2031,16 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
 
         updateDurationCombo();
         updateColorValueLabelBar();
-
+        
+        if (this.saveCallback != null) {
+            this.saveCallback.execute();
+        }
         setReturnValue(true);
+    }
+    
+    public void setSaveCallback(ISaveCallback iSaveCallback)
+    {
+        this.saveCallback = iSaveCallback;
     }
 
     /**
