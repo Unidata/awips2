@@ -39,6 +39,7 @@ import com.raytheon.uf.common.units.PiecewisePixel;
  * ------------ ---------- ----------- --------------------------
  *  6/2013      DR 16070   jgerth      Interpolation capability
  * Aug 2, 2013  2211       mschenke    Backed out 16070 changes
+ * Aug 21, 2014 DR 17313   jgerth      New methods
  * 
  * </pre>
  * 
@@ -249,7 +250,7 @@ public class DataMappingPreferences {
             } else if (">".equals(operator)) {
                 greaterThanEntries.add(entry);
                 Collections
-                        .sort(greaterThanEntries, Collections.reverseOrder());
+                .sort(greaterThanEntries, Collections.reverseOrder());
             } else if ("<".equals(operator)) {
                 lessThanEntries.add(entry);
                 Collections.sort(lessThanEntries);
@@ -289,4 +290,80 @@ public class DataMappingPreferences {
         return null;
     }
 
+    /**
+     * Matches a number against the pixelValue in each entry based on the
+     * operator until the first match is found.
+     * 
+     * jjg 7/24/2014
+     * 
+     * @param dataValue
+     *            the data value to match
+     * @return The entry sample, if one exists.
+     */
+    public String getSampleValueForDataValue(double dataValue) {
+        for (DataMappingEntry entry : equalsEntries) {
+            Double entryValue = entry.getPixelValue();
+            if (entryValue.equals(dataValue)) {
+                return entry.getSample();
+            }
+        }
+
+        for (DataMappingEntry entry : lessThanEntries) {
+            Double entryValue = entry.getPixelValue();
+            if (dataValue < entryValue) {
+                return entry.getSample();
+            }
+        }
+
+        for (DataMappingEntry entry : greaterThanEntries) {
+            Double entryValue = entry.getPixelValue();
+            if (dataValue > entryValue) {
+                return entry.getSample();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Matches a number against the pixelValue in each entry based on the
+     * operator until the first match is found.
+     * 
+     * jjg 7/24/2014
+     * 
+     * @param dataValue
+     *            the data value to match
+     * @return The entry sample or label, if one exists.
+     */
+    public String getSampleOrLabelValueForDataValue(double dataValue) {
+        for (DataMappingEntry entry : equalsEntries) {
+            Double entryValue = entry.getPixelValue();
+            if (entryValue.equals(dataValue)) {
+                if (entry.getSample() == null)
+                    return entry.getLabel();
+                else
+                    return entry.getSample();
+            }
+        }
+
+        for (DataMappingEntry entry : lessThanEntries) {
+            Double entryValue = entry.getPixelValue();
+            if (dataValue < entryValue) {
+                if (entry.getSample() == null)
+                    return entry.getLabel();
+                else
+                    return entry.getSample();
+            }
+        }
+
+        for (DataMappingEntry entry : greaterThanEntries) {
+            Double entryValue = entry.getPixelValue();
+            if (dataValue > entryValue) {
+                if (entry.getSample() == null)
+                    return entry.getLabel();
+                else
+                    return entry.getSample();
+            }
+        }
+        return null;
+    }
 }
