@@ -25,11 +25,13 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.Rectangle;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -69,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------- -------- ----------- --------------------------
  * Aug 06, 2012           mschenke    Initial creation
  * Apr 18, 2014  2947     bsteffen    Support unitless data.
+ * Sep 10, 2014  DR 17313 jgerth      Add inspect method
  * 
  * </pre>
  * 
@@ -140,7 +143,7 @@ public class TrueColorResourceGroup extends
      * Mapping to keep colormap parameters in sync with ChannelInfo in
      * resourceData
      */
-    private Map<ColorMapParameters, ChannelInfo> channelInfoMap = new IdentityHashMap<ColorMapParameters, ChannelInfo>();
+    private Map<ColorMapCapability, ChannelInfo> channelInfoMap = new IdentityHashMap<ColorMapCapability, ChannelInfo>();
 
     /**
      * @param resourceData
@@ -246,9 +249,9 @@ public class TrueColorResourceGroup extends
         for (ChannelResource cr : resourceData.getChannelResources()) {
             for (ResourcePair rp : resources) {
                 if (cr.getResourceData() == rp.getResourceData()) {
-                    DisplayedChannelResource displayedResource = new DisplayedChannelResource(
+                	DisplayedChannelResource displayedResource = new DisplayedChannelResource(
                             cr, rp.getResource());
-                    AbstractVizResource<?, ?> resource = rp.getResource();
+                	AbstractVizResource<?, ?> resource = rp.getResource();
                     resource.init(target);
 
                     // Check resource for required capabilities
@@ -256,16 +259,7 @@ public class TrueColorResourceGroup extends
                     if (resource.hasCapability(ImagingCapability.class)) {
                         ImagingCapability imaging = resource
                                 .getCapability(ImagingCapability.class);
-                        if (imaging.getProvider() != null) {
-                            if (resource
-                                    .hasCapability(ColorMapCapability.class) == false) {
-                                error = "does not have ColorMapCapability";
-                            } else if (resource.getCapability(
-                                    ColorMapCapability.class)
-                                    .getColorMapParameters() == null) {
-                                error = "does not have ColorMapParameters set";
-                            }
-                        } else {
+                        if (imaging.getProvider() == null) {
                             error = "does not have image provider set on the ImagingCapability";
                         }
                     } else {
@@ -279,35 +273,32 @@ public class TrueColorResourceGroup extends
 
                     if (error == null) {
                         // No errors so far, check for ChannelInfo override
-                        ColorMapParameters params = resource.getCapability(
-                                ColorMapCapability.class)
+                        ColorMapCapability cmapCap = resource
+                                .getCapability(ColorMapCapability.class);
+                        ColorMapParameters params = cmapCap
                                 .getColorMapParameters();
+
                         ChannelInfo ci = resourceData
                                 .getChannelInfo(displayedResource.getChannel());
-                        if (ci == null
-                                || ci.getUnit().isCompatible(
-                                        params.getDataUnit())) {
-                            if (ci == null) {
-                                ci = new ChannelInfo();
-                                ci.setChannel(displayedResource.getChannel());
-                                resourceData.setChannelInfo(ci);
-                            } else {
-                                params.setDisplayUnit(ci.getUnit());
-                                params.setColorMapMin((float) params
-                                        .getDisplayToDataConverter().convert(
-                                                ci.getRangeMin()));
-                                params.setColorMapMax((float) params
-                                        .getDisplayToDataConverter().convert(
-                                                ci.getRangeMax()));
+                        if (ci == null) {
+                            ci = new ChannelInfo();
+                            ci.setChannel(displayedResource.getChannel());
+                            if (params != null) {
+                                ci.setUnit(params.getColorMapUnit());
+                                ci.setRangeMin(params.getColorMapMin());
+                                ci.setRangeMax(params.getColorMapMax());
                             }
-                            channelInfoMap.put(params, ci);
-                            resourceChanged(
-                                    ChangeType.CAPABILITY,
-                                    resource.getCapability(ColorMapCapability.class));
-                        } else {
-                            error = "is not compatible with custom ChannelInfo for Channel="
-                                    + displayedResource.getChannel();
+                            resourceData.setChannelInfo(ci);
                         }
+
+                        channelInfoMap.put(cmapCap, ci);
+
+                        if (params != null && params.getColorMapUnit() == null) {
+                            // no colormap units set, default to ChannelInfo
+                            params.setColorMapUnit(ci.getUnit());
+                        }
+
+                        initializeParameters(ci, params);
                     }
 
                     if (error != null) {
@@ -317,7 +308,9 @@ public class TrueColorResourceGroup extends
                                         + error);
                         resources.remove(rp);
                     } else {
-                        resource.getResourceData().addChangeListener(this);
+                        // Listener will handle case where params are changed
+                        // after the fact and we will reinitialize
+                    	resource.getResourceData().addChangeListener(this);
                         displayedResources.put(displayedResource.getChannel(),
                                 displayedResource);
                     }
@@ -430,17 +423,88 @@ public class TrueColorResourceGroup extends
                 if (toDisplay == null) {
                     toDisplay = UnitConverter.IDENTITY;
                 }
-                ChannelInfo ci = channelInfoMap.get(params);
+                ChannelInfo ci = channelInfoMap.get(object);
                 if (ci != null) {
-                    ci.setRangeMin(toDisplay.convert(
-                            params.getColorMapMin()));
-                    ci.setRangeMax(toDisplay.convert(
-                            params.getColorMapMax()));
-                    ci.setUnit(params.getDisplayUnit());
+                    if (ci.getParameters() != params) {
+                        // Reinitialize params from channel info
+                        initializeParameters(ci, params);
+                    } else {
+                        ci.setRangeMin(toDisplay.convert(params
+                                .getColorMapMin()));
+                        ci.setRangeMax(toDisplay.convert(params
+                                .getColorMapMax()));
+                        ci.setUnit(params.getDisplayUnit());
+                    }
                 }
             }
         }
         issueRefresh();
+    }
+
+    @Override
+    public String inspect(ReferencedCoordinate coord) throws VizException {
+        String label = "";
+        for (Channel c : Channel.values()) {
+            DisplayedChannelResource dcr = displayedResources.get(c);
+            if (dcr != null) {
+                String ri = dcr.resource.inspect(coord);
+                label += c.name() + ": " + ri;
+                if (dcr.resource.hasCapability(ColorMapCapability.class) && ri.replaceAll("[^\\d]", "").length() > 0) {
+                    ColorMapParameters cmp = dcr.resource.getCapability(ColorMapCapability.class).getColorMapParameters();
+                    UnitConverter uc = cmp.getColorMapToDisplayConverter();
+                    if (uc == null)
+                        uc = UnitConverter.IDENTITY;
+                    double cmmax = uc.convert(cmp.getColorMapMax());
+                    double cmmin = uc.convert(cmp.getColorMapMin());
+                    String rirall;
+                    if (ri.charAt(0) == ('-'))
+                        rirall = "-" + (ri.substring(1) + "x").replaceAll("[^\\d.]", " ");
+                    else
+                        rirall = (ri + "x").replaceAll("[^\\d.]", " ");
+                    try {
+                        double value = Double.parseDouble(rirall.substring(0,rirall.indexOf(" ")));
+                        double percent = ((value - cmmin) * 100.0 / (cmmax - cmmin));
+                        if (percent < 0)
+                            percent = 0.0;
+                        else if (percent > 100)
+                            percent = 100.0;
+                        label += " (" + Math.round(percent) + "%)\n";
+                    } catch (Exception e) {
+                        label += "\n";
+                    }
+                } else
+                    label += "\n";
+            }
+        }
+        if (label.length() > 0)
+            return label;
+        else
+            return "NO DATA";
+    }
+
+    private static void initializeParameters(ChannelInfo ci,
+            ColorMapParameters params) {
+        if (params != null) {
+            ci.setParameters(params);
+            if (ci.getUnit() != null && params.getColorMapUnit() != null
+                    && ci.getUnit().isCompatible(params.getColorMapUnit())) {
+                params.setDisplayUnit(ci.getUnit());
+                UnitConverter displayToCmap = params
+                        .getDisplayToColorMapConverter();
+                params.setColorMapMin(
+                        (float) displayToCmap.convert(ci.getRangeMin()),
+                        true);
+                params.setColorMapMax(
+                        (float) displayToCmap.convert(ci.getRangeMax()),
+                        true);
+            } else {
+                UnitConverter cmapToDisplay = params
+                        .getColorMapToDisplayConverter();
+                ci.setRangeMin(cmapToDisplay.convert(params.getColorMapMin()));
+                ci.setRangeMax(cmapToDisplay.convert(params.getColorMapMax()));
+                ci.setUnit(params.getDisplayUnit());
+            }
+        }
     }
 
     public Collection<DisplayedChannelResource> getChannelResources() {
