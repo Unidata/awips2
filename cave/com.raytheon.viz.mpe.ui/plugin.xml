@@ -20,7 +20,6 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
-<!--
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
@@ -1921,5 +1920,4 @@
           perspectiveId="com.raytheon.viz.mpe.ui.MPEPerspective">
     </tearoffperspective>
  </extension>
- -->
 </plugin>

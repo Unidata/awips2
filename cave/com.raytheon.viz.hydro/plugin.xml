@@ -21,7 +21,6 @@
 
 <?eclipse version="3.0"?>
 <plugin>
-<!--
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
@@ -997,5 +996,4 @@
           perspectiveId="com.raytheon.viz.hydro.HydroPerspective">
     	</tearoffperspective>
  	</extension>
- 	-->
 </plugin>
