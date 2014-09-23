@@ -44,7 +44,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Apr 15, 2014  3017     bsteffen    Add new getCoverage methods to support
  *                                    either one corner + dx/dy or two corners.
  * Jun 05, 2014  3243     bsteffen    Remove deprecated lambert conformal call.
- * 
+ * Sep 15, 2014  DR 17303 jgerth      Support for second standard latitude
  * 
  * </pre>
  */
@@ -143,18 +143,20 @@ public class SatSpatialFactory {
      * @param ny
      *            the number of rows of data.
      * @param lov
-     *            the longitude orientatition, used by
+     *            the longitude orientation, used by
      *            {@link #PROJ_CYLIN_EQUIDISTANT}, {@link #PROJ_LAMBERT},
      *            {@link #PROJ_POLAR}.
      * @param latin
      *            the latitude at which the projection is tangent to the earths
      *            surface, used by {@link #PROJ_CYLIN_EQUIDISTANT},
      *            {@link #PROJ_LAMBERT}, {@link #PROJ_MERCATOR}.
+     * @param latin2
+     *            the second standard latitude, used by {@link #PROJ_LAMBERT}.
      * @param la1
      *            the latitude of a corner of the grid, if dy is positive this
      *            is an upper corner.
      * @param lo1
-     *            the longitide of a corner of the grid, if dx is positive this
+     *            the longitude of a corner of the grid, if dx is positive this
      *            is a left corner
      * @param dx
      *            the distance between columns measured in CRS meters.
@@ -165,10 +167,10 @@ public class SatSpatialFactory {
      * @throws DecoderException
      */
     public SatMapCoverage getCoverageSingleCorner(int crsType, int nx, int ny,
-            double lov, double latin, double la1, double lo1, double dx,
+            double lov, double latin, double latin2, double la1, double lo1, double dx,
             double dy) throws DecoderException {
         try {
-            ProjectedCRS crs = createCRS(crsType, lov, latin, 0.0);
+            ProjectedCRS crs = createCRS(crsType, lov, latin, latin2, 0.0);
             DirectPosition2D corner = new DirectPosition2D(lo1, la1);
             MathTransform fromLatLon = MapUtil.getTransformFromLatLon(crs);
             fromLatLon.transform(corner, corner);
@@ -196,9 +198,18 @@ public class SatSpatialFactory {
     }
 
     /**
+     * @see {@link #getCoverageSingleCorner(int, int, int, double, double, double, double, double, double, double)}
+     */
+    public SatMapCoverage getCoverageSingleCorner(int crsType, int nx, int ny,
+            double lov, double latin, double la1, double lo1, double dx,
+            double dy) throws DecoderException {
+        return getCoverageSingleCorner(crsType, nx, ny, lov, latin, latin, la1, lo1, dx, dy);
+    }
+
+    /**
      * 
      * Create a {@link SatMapCoverage} with an area defined by two corners. The
-     * two corners must be opposite(diagnol) from eachother. They caan be either
+     * two corners must be opposite (diagonal) from each other. They can be either
      * the upper left and lower right or the upper right and lower left corners.
      * 
      * @param crsType
@@ -206,36 +217,38 @@ public class SatSpatialFactory {
      *            {@link #PROJ_CYLIN_EQUIDISTANT}, {@link #PROJ_LAMBERT},
      *            {@link #PROJ_MERCATOR}, {@link #PROJ_POLAR}.
      * @param lov
-     *            the longitude orientatition, used by
+     *            the longitude orientation, used by
      *            {@link #PROJ_CYLIN_EQUIDISTANT}, {@link #PROJ_LAMBERT},
      *            {@link #PROJ_POLAR}.
      * @param latin
      *            the latitude at which the projection is tangent to the earths
      *            surface, used by {@link #PROJ_CYLIN_EQUIDISTANT},
      *            {@link #PROJ_LAMBERT}, {@link #PROJ_MERCATOR}.
+     * @param latin2
+     *            the second standard latitude, used by {@link #PROJ_LAMBERT}.
      * @param la1
      *            the latitude of a corner of the grid.
      * @param lo1
-     *            the longitide of a corner of the grid.
+     *            the longitude of a corner of the grid.
      * @param la2
      *            the latitude of a corner of the grid., should be opposite
      *            corner from la1.
      * @param lo2
-     *            the longitide of a corner of the grid, should be opposite
+     *            the longitude of a corner of the grid, should be opposite
      *            corner from lo1
      * @return a {@link SatMapCoverage} matching these parameters that has been
      *         loaded from or persisted to the database.
      * @throws DecoderException
      */
     public SatMapCoverage getCoverageTwoCorners(int crsType, int nx, int ny,
-            double lov, double latin, double la1, double lo1, double la2,
+            double lov, double latin, double latin2, double la1, double lo1, double la2,
             double lo2) throws DecoderException {
         try {
             double cm = 0.0;
             if ((lo1 > 0.0) && (lo2 < 0.0)) {
                 cm = 180.0;
             }
-            ProjectedCRS crs = createCRS(crsType, lov, latin, cm);
+            ProjectedCRS crs = createCRS(crsType, lov, latin, latin2, cm);
             DirectPosition2D corner1 = new DirectPosition2D(lo1, la1);
             DirectPosition2D corner2 = new DirectPosition2D(lo2, la2);
             MathTransform fromLatLon = MapUtil.getTransformFromLatLon(crs);
@@ -262,6 +275,15 @@ public class SatSpatialFactory {
             buf.append("lo2=" + lo2).append("\n");
             throw new DecoderException(buf.toString(), e);
         }
+    }
+
+    /**
+     * @see {@link #getCoverageTwoCorners(int, int, int, double, double, double, double, double, double, double)}
+     */
+    public SatMapCoverage getCoverageTwoCorners(int crsType, int nx, int ny,
+            double lov, double latin, double la1, double lo1, double la2,
+            double lo2) throws DecoderException {
+        return getCoverageTwoCorners(crsType, nx, ny, lov, latin, latin, la1, lo1, la2, lo2);
     }
 
     /** Load or persist a {@link SatMapCoverage} */
@@ -296,25 +318,27 @@ public class SatSpatialFactory {
      *            {@link #PROJ_CYLIN_EQUIDISTANT}, {@link #PROJ_LAMBERT},
      *            {@link #PROJ_MERCATOR}, {@link #PROJ_POLAR}. * @param lov
      * @param lov
-     *            the longitude orientatition, used by
+     *            the longitude orientation, used by
      *            {@link #PROJ_CYLIN_EQUIDISTANT}, {@link #PROJ_LAMBERT},
      *            {@link #PROJ_POLAR}.
      * @param latin
      *            the latitude at which the projection is tangent to the earths
      *            surface, used by {@link #PROJ_CYLIN_EQUIDISTANT},
      *            {@link #PROJ_LAMBERT}, {@link #PROJ_MERCATOR}.
+     * @param latin2
+     *            the second standard latitude, used by {@link #PROJ_LAMBERT}.
      * @param cm
      *            the central meridian of the projection, only used by
      *            {@link #PROJ_MERCATOR}.
      * @return
      */
     private static ProjectedCRS createCRS(int crsType, double lov,
-            double latin, double cm) {
+            double latin, double latin2, double cm) {
         switch (crsType) {
         case PROJ_MERCATOR:
             return createMercatorCrs(latin, cm);
         case PROJ_LAMBERT:
-            return createLambertCrs(latin, lov);
+            return createLambertCrs(latin, latin2, lov);
         case PROJ_CYLIN_EQUIDISTANT:
             return createEqCylCrs(latin, lov);
         default:
@@ -327,9 +351,9 @@ public class SatSpatialFactory {
                 MapUtil.AWIPS_EARTH_RADIUS, latin, cm);
     }
 
-    private static ProjectedCRS createLambertCrs(double latin, double lov) {
+    private static ProjectedCRS createLambertCrs(double latin, double latin2, double lov) {
         return MapUtil.constructLambertConformal(MapUtil.AWIPS_EARTH_RADIUS,
-                MapUtil.AWIPS_EARTH_RADIUS, latin, latin, lov, latin);
+                MapUtil.AWIPS_EARTH_RADIUS, latin, latin2, lov, latin);
     }
 
     private static ProjectedCRS createEqCylCrs(double latin, double lov) {
