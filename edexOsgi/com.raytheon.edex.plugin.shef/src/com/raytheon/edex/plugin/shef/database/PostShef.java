@@ -83,7 +83,6 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants.IngestSwitch;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
@@ -130,6 +129,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 07/14/2014              mpduff      Fix data range checks
  * 08/05/2014   15671      snaples     Fixed check for posting when not found in ingestfilter and token is set for load_shef_ingest
  * 09/03/2014              mpduff      Fixed river status table updates.
+ * 09/18/2014   3627       mapeters    Updated deprecated {@link TimeTools} usage.
  * </pre>
  * 
  * @author mduff
@@ -2892,8 +2892,7 @@ public class PostShef {
                         .parseInt(monthDayEnd.substring(0, 2)) * 100;
                 rangeEndDate += Integer.parseInt(monthDayEnd.substring(3));
 
-                Calendar date = TimeTools.getSystemCalendar();
-                date.setTime(obsTime);
+                Calendar date = TimeUtil.newGmtCalendar(obsTime);
 
                 int dataDate = (date.get(Calendar.MONTH) + 1) * 100;
                 dataDate += date.get(Calendar.DAY_OF_MONTH);
