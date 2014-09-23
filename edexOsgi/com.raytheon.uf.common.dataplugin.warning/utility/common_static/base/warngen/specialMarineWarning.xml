@@ -7,6 +7,7 @@ Added Volcano Information Phil Kurimski 23 Sept 2011
                           Evan Bookbinder 09-11-2012 Added settings for locations shapefile
                           Phil Kurimski   09-16-2013 Fixed multiple selections in pathcast
                           Phil Kurimski   09-19-2013 added geospatialConfig.xml
+                          Phil Kurimski   06-24-2014 fixed capable of producing waterspouts parseString
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -54,7 +55,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
  
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include TO.A and/or SV.A, 
+  	included with the warning product include TO.A and/or SV.A, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
   <includedWatch>TO.A</includedWatch>
@@ -121,7 +122,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="destructiveHail" bulletText="Large Destructive Hail" bulletGroup="hailThreat" parseString="LARGE DESTRUCTIVE HAIL"/>
   <bullet bulletText="  ****Waterspout Section****...(Choose 1 if applicable) " bulletType="title"/>
   <bullet bulletName="sightedSpout" bulletText="Waterspouts sighted" bulletGroup="wSpout" parseString="PRODUCING WATERSPOUT"/>
-  <bullet bulletName="possibleSpout" bulletText="Waterspouts possible" bulletGroup="wSpout" parseString="CAPABLE WATERSPOUT"/>
+  <bullet bulletName="possibleSpout" bulletText="Waterspouts possible" bulletGroup="wSpout" parseString="CAPABLE OF PRODUCING WATERSPOUT"/>
   <bullet bulletText="  ****Volcano Section****...(Choose if applicable) " bulletType="title"/>
   <bullet bulletName="ashfall" bulletText="Ashfall" parseString="ASHFALL"/>
   <bullet bulletName="debrisFlow" bulletText="Lahar/Debris flow" parseString="A TORRENT OF MUD"/>
@@ -172,7 +173,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="destructiveHail" bulletText="Large Destructive Hail" bulletGroup="hailThreat" parseString="LARGE DESTRUCTIVE HAIL"/>
   <bullet bulletText="  ****Waterspout Section****...(Choose 1 if applicable) " bulletType="title"/>
   <bullet bulletName="sightedSpout" bulletText="Waterspouts sighted" bulletGroup="wSpout" parseString="PRODUCING WATERSPOUT"/>
-  <bullet bulletName="possibleSpout" bulletText="Waterspouts possible" bulletGroup="wSpout" parseString="CAPABLE WATERSPOUT"/>
+  <bullet bulletName="possibleSpout" bulletText="Waterspouts possible" bulletGroup="wSpout" parseString="CAPABLE OF PRODUCING WATERSPOUT"/>
   <bullet bulletText="  ****Volcano Section****...(Choose if applicable) " bulletType="title"/>
   <bullet bulletName="ashfall" bulletText="Ashfall" parseString="ASHFALL"/>
   <bullet bulletName="debrisFlow" bulletText="Lahar/Debris flow" parseString="A TORRENT OF MUD"/>
