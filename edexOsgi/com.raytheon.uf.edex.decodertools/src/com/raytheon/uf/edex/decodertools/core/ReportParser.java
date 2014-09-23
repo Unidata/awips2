@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
  * 03 Oct 2007         391 jkorman     Initial Development
  * 20071130            410 jkorman     Changed bad copyright symbol.
  * 20071203            410 jkorman     JavaDoc complaints.
+ * Sep 18, 2014       3627 mapeters    Removed unused methods.
  * </pre>
  * 
  * @author jkorman
@@ -96,13 +97,6 @@ public class ReportParser {
     }
 
     /**
-     * Reset the internal position to the first text element in the parser.
-     */
-    public void reset() {
-        currentElement = 0;
-    }
-
-    /**
      * Advance to the next text element.
      * 
      * @return Was the internal position advanced.
@@ -114,20 +108,6 @@ public class ReportParser {
             advanced = true;
         }
         return advanced;
-    }
-
-    /**
-     * Move to the previous text element if it exists.
-     * 
-     * @return Was the internal position moved back.
-     */
-    public boolean previous() {
-        boolean retreated = false;
-        if (currentElement > 0) {
-            currentElement--;
-            retreated = true;
-        }
-        return retreated;
     }
 
     /**
