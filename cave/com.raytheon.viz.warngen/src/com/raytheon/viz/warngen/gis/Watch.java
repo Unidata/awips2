@@ -59,7 +59,7 @@ public class Watch {
 
     private List<String> partOfState;
 
-    private List<String> marineAreas;
+    private String marineArea;
 
     public Watch(String state, String action, String phenSig, String etn,
             Date startTime, Date endTime) {
@@ -135,12 +135,12 @@ public class Watch {
         this.etn = etn;
     }
 
-    public List<String> getMarineAreas() {
-        return marineAreas;
+    public String getMarineArea() {
+        return marineArea;
     }
 
-    public void setMarineAreas(List<String> marineAreas) {
-        this.marineAreas = marineAreas;
+    public void setMarineArea(String marineArea) {
+        this.marineArea = marineArea;
     }
 
     @Override
