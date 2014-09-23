@@ -59,6 +59,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.AFOSProductId;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -89,6 +90,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 03Oct2012	15244		mgamazaychikov	Added the fix to query the appropriate table
  * 											(operational or practice)
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
+ * Sep 18, 2014 3627       mapeters    Updated deprecated {@link TimeTools} usage.
  * </pre>
  * 
  * @author garmendariz
@@ -456,7 +458,7 @@ public class StdTextProductDao extends CoreDao {
             Map<String, String> tmp = buildCriterions(ProdCCC_ID, ccc,
                     ProdNNN_ID, nnn, ProdXXX_ID, xxx);
             long searchTime = System.currentTimeMillis() - pastHours
-                    * TimeTools.MILLIS_HOUR;
+                    * TimeUtil.MILLIS_PER_HOUR;
 
             Criteria criteria = session
                     .createCriteria(getStdTextProductInstance().getClass());
