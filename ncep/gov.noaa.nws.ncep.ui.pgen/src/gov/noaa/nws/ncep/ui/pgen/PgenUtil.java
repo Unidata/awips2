@@ -140,7 +140,10 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  * 07/26         TTR        J. Wu         Extract "DEL_PART" in DeletePartCommand into deleteLinePart().
  * 12/13         #1089      B. Yin        Removed the UTC time functions to a new class.
  * 12/13         #1091      J. Wu         Added getLayerMergeOption()
- * 
+ * 05/14         TTR 995    J. Wu         Added getContourLabelAutoPlacement().
+ * 05/14         TTR998     J. Wu         Added pixelToLatlon().
+ * 07/14                    Chin Chen     In latlonToPixel(), make sure not to add null pixel to its return pixel array
+ * 08/14          TTR962      J. Wu       Add replaceWithDate to format output file with DD, MM, YYYY, HH.
  * </pre>
  * 
  * @author
@@ -825,22 +828,45 @@ public class PgenUtil {
      * @param pts
      *            An array of points in lat/lon coordinates
      * @param mapDescriptor
-     *            Descriptoer to use for world to pixel transform
+     *            Descriptor to use for world to pixel transform
      * @return The array of points in pixel coordinates
      */
     public static final double[][] latlonToPixel(Coordinate[] pts,
             IMapDescriptor mapDescriptor) {
         double[] point = new double[3];
         double[][] pixels = new double[pts.length][3];
-
+        double[] pixel;
         for (int i = 0; i < pts.length; i++) {
             point[0] = pts[i].x;
             point[1] = pts[i].y;
             point[2] = 0.0;
-            pixels[i] = mapDescriptor.worldToPixel(point);
+            pixel = mapDescriptor.worldToPixel(point);
+            if (pixel != null)
+                pixels[i] = pixel;
         }
 
         return pixels;
+    }
+
+    /**
+     * Converts an array of point in pixel coordinates to lat/lons
+     * 
+     * @param pixels
+     *            An array of points in pixel coordinates
+     * @param mapDescriptor
+     *            Descriptor to use for world to pixel transform
+     * @return The array list of points in lat/lon coordinates
+     */
+    public static final ArrayList<Coordinate> pixelToLatlon(double[][] pixels,
+            IMapDescriptor mapDescriptor) {
+        ArrayList<Coordinate> crd = new ArrayList<Coordinate>();
+
+        for (int ii = 0; ii < pixels.length; ii++) {
+            double[] pt = mapDescriptor.pixelToWorld(pixels[ii]);
+            crd.add(new Coordinate(pt[0], pt[1]));
+        }
+
+        return crd;
     }
 
     /**
@@ -1616,6 +1642,42 @@ public class PgenUtil {
     }
 
     /**
+     * Replace "DD" in the string with DAY_OF_MONTH in the calendar, replace
+     * "MM" in the string with MONTH in the calendar, replace "YYYY" in the
+     * string with YEAR in the calendar, replace "HH" in the string with
+     * HOUR_OF_DAY in the calendar.
+     */
+    public static String replaceWithDate(String in, Calendar cal) {
+
+        if (in != null) {
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            if (day < 10) {
+                in = in.replaceAll("DD", "0" + day);
+            } else {
+                in = in.replaceAll("DD", "" + day);
+            }
+
+            int mon = cal.get(Calendar.MONTH) + 1;
+            if (mon < 10) {
+                in = in.replaceAll("MM", "0" + mon);
+            } else {
+                in = in.replaceAll("MM", "" + mon);
+            }
+
+            in = in.replaceAll("YYYY", "" + cal.get(Calendar.YEAR));
+
+            int hour = cal.get(Calendar.HOUR_OF_DAY);
+            if (hour < 10) {
+                in = in.replaceAll("HH", "0" + hour);
+            } else {
+                in = in.replaceAll("HH", "" + hour);
+            }
+        }
+
+        return in;
+    }
+
+    /**
      * Parse the environmental variables to get a full path file name. // *
      * Default path will be the user's PGEN_OPR directory.
      * 
@@ -2344,13 +2406,23 @@ public class PgenUtil {
     }
 
     /**
-     * Returns text auto placement flag
+     * ReturnsCCFP text box auto placement flag
      * 
      * @return
      */
     public static boolean getTextAutoPlacement() {
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
         return prefs.getBoolean(PgenPreferences.P_AUTOPLACE_TEXT);
+    }
+
+    /**
+     * Returns contour's label auto placement flag
+     * 
+     * @return
+     */
+    public static boolean getContourLabelAutoPlacement() {
+        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+        return prefs.getBoolean(PgenPreferences.P_AUTOPLACE_CONTOUR_LABEL);
     }
 
     /**
