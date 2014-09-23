@@ -13,12 +13,12 @@
    values passed to the template.
  -->
 <zoneWordingConfig>
-    <entry match="^LEZ.*" replace="THE ADJACENT COASTAL WATERS OF LAKE ERIE" />
-    <entry match="^LHZ.*" replace="THE ADJACENT COASTAL WATERS OF LAKE HURON" />
-    <entry match="^LMZ.*" replace="THE ADJACENT COASTAL WATERS OF LAKE MICHIGAN" />
-    <entry match="^LOZ.*" replace="THE ADJACENT COASTAL WATERS OF LAKE ONTARIO" />
-    <entry match="^LSZ.*" replace="THE ADJACENT COASTAL WATERS OF LAKE SUPERIOR" />
-    <entry match="^LCZ.*" replace="THE ADJACENT COASTAL WATERS OF LAKE SAINT CLAIRE" />
+    <entry match="^LEZ.*" replace="THE ADJACENT WATERS OF LAKE ERIE" />
+    <entry match="^LHZ.*" replace="THE ADJACENT WATERS OF LAKE HURON" />
+    <entry match="^LMZ.*" replace="THE ADJACENT WATERS OF LAKE MICHIGAN" />
+    <entry match="^LOZ.*" replace="THE ADJACENT WATERS OF LAKE ONTARIO" />
+    <entry match="^LSZ.*" replace="THE ADJACENT WATERS OF LAKE SUPERIOR" />
+    <entry match="^LCZ.*" replace="THE ADJACENT WATERS OF LAKE SAINT CLAIRE" />
     <entry match="^SLZ.*" replace="" /> <!-- Saint Lawrence River -->
     <entry match="^.*" replace="THE ADJACENT COASTAL WATERS" />
 </zoneWordingConfig>
