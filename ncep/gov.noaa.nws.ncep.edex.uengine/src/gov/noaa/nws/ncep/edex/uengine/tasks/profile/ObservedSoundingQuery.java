@@ -41,8 +41,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * gov.noaa.nws.ncep.edex.uengine.tasks.profile.ObservedSoundingQuery
  * 
- * This java class performs the observed sounding data query functions.
- * This code has been developed by the SIB for use in the AWIPS2 system.
+ * This java class performs the observed sounding data query functions. This
+ * code has been developed by the SIB for use in the AWIPS2 system.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                 better performance
  * Jul 19, 2013 1992    bsteffen   Remove redundant time columns from bufrua.
  * Aug 30, 2013 2298    rjpeter    Make getPluginName abstract
+ * June, 2014           Chin Chen  Retrieved observed sounding with reftime
  * </pre>
  * 
  * @author Chin Chen
@@ -211,15 +212,15 @@ public class ObservedSoundingQuery {
         } else if (obType.equals(ObsSndType.NCUAIR.toString())) {
             currentDBTblName = NCUAIR_TBL_NAME;
             queryStr = new String(
-                    "Select Distinct latitude, longitude, id, stationId, elevation, synoptictime FROM "
+                    "Select Distinct latitude, longitude, id, stationId, elevation, reftime FROM "
                             + currentDBTblName
-                            + " where nil='FALSE' AND synoptictime='"
+                            + " where nil='FALSE' AND reftime='"
                             + selectedSndTime
                             + "' AND latitude BETWEEN -89.9 AND 89.9 AND longitude BETWEEN -179.9 AND 179.9");
             queryStr1 = new String(
                     "Select Distinct latitude, longitude FROM "
                             + currentDBTblName
-                            + " where nil='FALSE' AND synoptictime='"
+                            + " where nil='FALSE' AND reftime='"
                             + selectedSndTime
                             + "' AND latitude BETWEEN -89.9 AND 89.9 AND longitude BETWEEN -179.9 AND 179.9");
             dao = new CoreDao(DaoConfig.forClass(NcUairRecord.class));
@@ -320,9 +321,9 @@ public class ObservedSoundingQuery {
 
         } else if (obType.equals(ObsSndType.NCUAIR.toString())) {
             currentDBTblName = NCUAIR_TBL_NAME;
-            queryStr = new String("Select Distinct synoptictime FROM "
+            queryStr = new String("Select Distinct reftime FROM "
                     + currentDBTblName
-                    + " where nil='FALSE' ORDER BY synoptictime DESC");
+                    + " where nil='FALSE' ORDER BY reftime DESC");
             dao = new CoreDao(DaoConfig.forClass(NcUairRecord.class));
         } else {
             return tl;
@@ -356,10 +357,9 @@ public class ObservedSoundingQuery {
 
         } else if (obType.equals(ObsSndType.NCUAIR.toString())) {
             currentDBTblName = NCUAIR_TBL_NAME;
-            queryStr = new String("Select Distinct synoptictime FROM "
-                    + currentDBTblName
-                    + " where nil='FALSE' AND synoptictime >= '" + startTimeStr
-                    + "' AND synoptictime <= '" + endTimeStr
+            queryStr = new String("Select Distinct reftime FROM "
+                    + currentDBTblName + " where nil='FALSE' AND reftime >= '"
+                    + startTimeStr + "' AND reftime <= '" + endTimeStr
                     + "' ORDER BY synoptictime DESC");
             dao = new CoreDao(DaoConfig.forClass(NcUairRecord.class));
         } else {
