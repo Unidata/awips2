@@ -34,7 +34,6 @@ import java.util.HashMap;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20071226            384 jkorman     Initial Coding.
- * Sep 18, 2014       3627 mapeters    Removed unused constructor.
  * </pre>
  * 
  * @author jkorman
@@ -43,6 +42,14 @@ import java.util.HashMap;
 public class PlatformLocationProxy
 {
     private static HashMap<String,BasePoint> myLOCATIONS = new HashMap<String,BasePoint>();
+
+    /**
+     * This constructor exists solely to ensure this class isn't instantiated.
+     * Only the static methods should be used.
+     */
+    private PlatformLocationProxy() {
+        // nothing
+    }
 
     public static BasePoint lookup(String navaid,String [] aNetworkTypeList) {
         BasePoint retValue = null;
