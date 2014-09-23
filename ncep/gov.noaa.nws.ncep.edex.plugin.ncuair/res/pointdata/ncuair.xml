@@ -111,4 +111,31 @@
   <parameter name="TTBB_LO_MEAN_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxMiscLevel"/>
   <parameter name="TTBB_HI_MEAN_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxMiscLevel"/>
   <parameter name="TTBB_HI_MEAN_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxMiscLevel"/>
+  
+  <parameter name="numXXAA" numDims="1" type="INT" />
+  <parameter name="XXAA_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxManLevel"/>
+  <parameter name="XXAA_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="XXAA_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="XXAA_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxManLevel"/>
+  <parameter name="XXAA_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxManLevel"/>
+  <parameter name="XXAA_HGHT" numDims="2" type="FLOAT" unit="m" dimension="maxManLevel"/>
+
+  <parameter name="numXXCC" numDims="1" type="INT" />
+  <parameter name="XXCC_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxManLevel"/>
+  <parameter name="XXCC_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="XXCC_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxManLevel"/>
+  <parameter name="XXCC_DRCT" numDims="2" type="FLOAT" unit="degrees" dimension="maxManLevel"/>
+  <parameter name="XXCC_SPED" numDims="2" type="FLOAT" unit="m/s" dimension="maxManLevel"/>
+  <parameter name="XXCC_HGHT" numDims="2" type="FLOAT" unit="m" dimension="maxManLevel"/>
+  
+  <parameter name="numXXBB" numDims="1" type="INT" />
+  <parameter name="XXBB_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxSigTempLevel"/>
+  <parameter name="XXBB_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxSigTempLevel"/>
+  <parameter name="XXBB_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxSigTempLevel"/>
+
+  <parameter name="numXXDD" numDims="1" type="INT" />
+  <parameter name="XXDD_PRES" numDims="2" type="FLOAT" unit="hPa" dimension="maxSigTempLevel"/>
+  <parameter name="XXDD_TEMP" numDims="2" type="FLOAT" unit="Celsius" dimension="maxSigTempLevel"/>
+  <parameter name="XXDD_DWPT" numDims="2" type="FLOAT" unit="Celsius" dimension="maxSigTempLevel"/>
+  
 </pointDataDescription>

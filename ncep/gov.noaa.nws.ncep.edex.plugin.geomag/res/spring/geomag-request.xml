@@ -54,4 +54,11 @@
         <constructor-arg ref="RetrieveK1minHandler" />
     </bean>
     
+    <bean id="RetrieveSingleK1minHandler"
+        class="gov.noaa.nws.ncep.edex.plugin.geomag.handler.RetrieveSingleK1minRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="gov.noaa.nws.ncep.common.dataplugin.geomag.request.RetrieveSingleK1minRequest" />
+        <constructor-arg ref="RetrieveSingleK1minHandler" />
+    </bean>
 </beans>
