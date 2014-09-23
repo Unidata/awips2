@@ -10,6 +10,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 10/23/2009		TBD		Chin Chen	Initial coding
+ * 07/10/2014               Chin Chen  .fixed month adjustment
  *
  * </pre>
  * 
@@ -63,20 +64,41 @@ public class NctextSeparator extends AbstractRecordSeparator {
     public static final String R_TYPE_SEPARATOR2 = "00///";
 
     public static final String R_TYPE_SEPARATOR3 = "[A-Z]{3,4}";
-    
-    public static String [][] gdStnGp= {{"PWM","BGR","CAR","CON","AFA"},{"ALB","BOS","PHL","BTV","LGA","IPT"},{"DCA","RDU","ILM","ORF","HAT"},
-    {"CAE","MIA","TLH","SAV","LAL"},{"BUF","CLE","CRW","PIT","DAY","IND"},{"STL","MEM","TYS","SDF","BNA","ATL"},{"BHM","JAN","SHV","MOB","MSY","LIT"},
-    {"DTW","MKE","INL","SSM","MSP","ORD"},{"DSM","DDC","LBF","TOP","OMA","BFF"},{"OKC","SAT","BRO","DFW","IAH","DRT"},{"BIS","RAP","BIL","FSD","GTF","MSO"},
-    {"LBB","ABQ","DEN","ELP","PHX","CYS"},{"SEA","PDX","BOI","GEG","MFR","PIH"},{"SFO","LAX","SLC","FAT","RNO","CDC"},{"YQB","YOW","YYB","YQT","YMW","YLH"},
-    {"YWG","YQR","YYC","YQD","YPA","YEG"},{"MCD","YXC","YVR","YRV","YCG","YXS"}, {"X68","EDW","LWS","UCC","BTNM","LGIN"}, {"SYR","ROA","ZZV","AOO","AVL"},
-    {"SGF","GRB","GJT","JKL","MLI","FAR","LND"},{"MAF","LCH","TUL","DHT","DHN","DAB"},{"GGW","RDD","LAS","PDT","EKO","FLG"},
-    {"AKN","CZF","EDF","EHM","SVW","TLJ"},{"EIL","GAL","LUR","TNC","UTO"},{"ANC","ANN","CDV","JNU","ORT","YAK"},{"ADQ","BET","CDB","MCG","SNP"},
-    {"BRW","BTI","BTT","FAI","OME","OTZ"},{"TJSJ","TJMZ","TJPS","TJBQ","TJGU","TJAD"},{"TIST","TISX","TNCM","TKPK","TJNR","TISJ"},{"PHNL","PHLI","PHOG","PHTO","HIB1","HIB4"}};
+
+    public static String[][] gdStnGp = { { "PWM", "BGR", "CAR", "CON", "AFA" },
+            { "ALB", "BOS", "PHL", "BTV", "LGA", "IPT" },
+            { "DCA", "RDU", "ILM", "ORF", "HAT" },
+            { "CAE", "MIA", "TLH", "SAV", "LAL" },
+            { "BUF", "CLE", "CRW", "PIT", "DAY", "IND" },
+            { "STL", "MEM", "TYS", "SDF", "BNA", "ATL" },
+            { "BHM", "JAN", "SHV", "MOB", "MSY", "LIT" },
+            { "DTW", "MKE", "INL", "SSM", "MSP", "ORD" },
+            { "DSM", "DDC", "LBF", "TOP", "OMA", "BFF" },
+            { "OKC", "SAT", "BRO", "DFW", "IAH", "DRT" },
+            { "BIS", "RAP", "BIL", "FSD", "GTF", "MSO" },
+            { "LBB", "ABQ", "DEN", "ELP", "PHX", "CYS" },
+            { "SEA", "PDX", "BOI", "GEG", "MFR", "PIH" },
+            { "SFO", "LAX", "SLC", "FAT", "RNO", "CDC" },
+            { "YQB", "YOW", "YYB", "YQT", "YMW", "YLH" },
+            { "YWG", "YQR", "YYC", "YQD", "YPA", "YEG" },
+            { "MCD", "YXC", "YVR", "YRV", "YCG", "YXS" },
+            { "X68", "EDW", "LWS", "UCC", "BTNM", "LGIN" },
+            { "SYR", "ROA", "ZZV", "AOO", "AVL" },
+            { "SGF", "GRB", "GJT", "JKL", "MLI", "FAR", "LND" },
+            { "MAF", "LCH", "TUL", "DHT", "DHN", "DAB" },
+            { "GGW", "RDD", "LAS", "PDT", "EKO", "FLG" },
+            { "AKN", "CZF", "EDF", "EHM", "SVW", "TLJ" },
+            { "EIL", "GAL", "LUR", "TNC", "UTO" },
+            { "ANC", "ANN", "CDV", "JNU", "ORT", "YAK" },
+            { "ADQ", "BET", "CDB", "MCG", "SNP" },
+            { "BRW", "BTI", "BTT", "FAI", "OME", "OTZ" },
+            { "TJSJ", "TJMZ", "TJPS", "TJBQ", "TJGU", "TJAD" },
+            { "TIST", "TISX", "TNCM", "TKPK", "TJNR", "TISJ" },
+            { "PHNL", "PHLI", "PHOG", "PHTO", "HIB1", "HIB4" } };
 
     public static final byte ASCII_RS = 0x1E; // record separator "^^"
+
     public static final byte ASCII_SP = 0x20; // SPACE
-    
-    
 
     // private static final int DTGROUP_SIZE = 6;
     private String cccc = null;
@@ -143,6 +165,8 @@ public class NctextSeparator extends AbstractRecordSeparator {
      */
     public NctextSeparator(String traceId) {
         this.traceId = traceId;
+        System.out.println("NctextSeparator constructed with traceId="
+                + traceId);
         nctextInputFileTypeDao = new NctextInputFileTypeDao();
         int ind = traceId.indexOf('.');
         if (ind > 0)
@@ -335,299 +359,164 @@ public class NctextSeparator extends AbstractRecordSeparator {
      */
     @Override
     public void setData(byte[] rawMessage, Headers headers) {
-    	/*
-        currentReport = -1;
-
-        // Now check for some binary data types, Stop decoding, if it is binary
-        String sRawMessage = new String(rawMessage);
-        int pos = sRawMessage.indexOf("BUFR");
-        boolean notStored = false;
-        notStored = notStored || ((pos >= 0) && (pos < 20));
-        pos = sRawMessage.indexOf("GRIB");
-        notStored = notStored || ((pos >= 0) && (pos < 20));
-        pos = sRawMessage.indexOf("JPG");
-        notStored = notStored || ((pos >= 0) && (pos < 20));
-        pos = sRawMessage.indexOf("PNG");
-        notStored = notStored || ((pos >= 0) && (pos < 20));
-        pos = sRawMessage.indexOf("GIF87");
-        notStored = notStored || ((pos >= 0) && (pos < 20));
-
-        int rawMsglength = rawMessage.length; //
-                                              // * start from this, and
-                                              // * decremented when each bulletin
-                                              // * found
-                                             //  
-        int rawMsgPointer = 0;//*
-                              // * start from 0 and incremented when each bulletin
-                              // * found
-                              // 
-        int recordId = 1; ///* to record number of records with same AWIPS header 
-        reports = new ArrayList<NctextRecord>();
-        String sRawMsgInProcessing = null;
-        int endPos;
-        int rsPos, nextRsPos, curPos;
-        if (!notStored) {
-            String fileType = nctextInputFileTypeDao
-                    .getFiletypeType(ingestFileExt);
-            while (rawMsglength > 0) {
-                sRawMsgInProcessing = sRawMessage.substring(rawMsgPointer);
-                // Parsing record header and find a "section" A section may
-                // contain more than one record for some data type, e.g. M type
-                // (MOS).
-                if (parseHeader(sRawMsgInProcessing)) {
-                    // Start of a "section" found after a Ctl-A,
-                    endPos = sRawMsgInProcessing
-                            .indexOf(IDecoderConstants.ASCII_ETX); // Ctl-C
-                    // set data to record
-                    if (endPos > messageDataStart) {
-                        // handle special type of data, e.g M,etc.. type
-                        if (fileType.equals("M")) {
-
-                            // M type data has several records in one "section".
-                            // They are separated by Record Separator "^^".
-                            rsPos = sRawMsgInProcessing.indexOf(ASCII_RS); // find
-                                                                           // first
-                                                                           // RS
-                            // testCount++;
-                            // if((testCount %50) == 0){
-                            // System.out.println("M type data: " + testCount+
-                            // " enterred! end position = "+ endPos+
-                            // "1st rs pos = "+rsPos);
-                            // }
-
-                            // cumRsPos = rsPos;
-                            if ((rsPos >= 0) && (rsPos < endPos)) {
-                                // String sMRawMsg =
-                                // sRawMsgInProcessing.substring(rsPos+1);//move
-                                // string to after first RS
-                                // get stnid=xxxx which is 4 chars right after
-                                // RS, like this ^^XXXX
-                                // String stnId = sMRawMsg.substring(0, 4);
-                                String stnId = sRawMsgInProcessing.substring(
-                                        rsPos + 1, rsPos + 5);
-                                // nextRsPos = sMRawMsg.indexOf(ASCII_RS); //2nd
-                                // RS
-                                curPos = rsPos + 1;
-                                nextRsPos = sRawMsgInProcessing.indexOf(
-                                        ASCII_RS, curPos); // 2nd RS
-                                // cumRsPos = cumRsPos + nextRsPos;
-                                int testCount1 = 0;
-                                while ((nextRsPos >= 0)
-                                        && (nextRsPos < endPos)) {
-                                    // find record(s) within the section, store
-                                    // it
-                                    testCount1++;
-                                    // if((testCount1 %50) == 1)
-                                    // System.out.println(" number RS = "+
-                                    // testCount);
-                                    // System.out.println("cur pos = "+curPos+
-                                    // " next rs pos = "+ nextRsPos);
-                                    NctextRecord nctextrecord = new NctextRecord();
-                                    setNctextRecord(nctextrecord);
-                                    // nctextrecord.setRawRecord(sMRawMsg.substring(0,
-                                    // nextRsPos-1));
-                                    nctextrecord
-                                            .setRawRecord(sRawMsgInProcessing
-                                                    .substring(curPos,
-                                                            nextRsPos - 1));
-                                    nctextrecord.setRecordId(recordId++);
-                                    nctextrecord.setIssueSite(stnId); // replace
-                                                                      // cccc
-                                                                      // with
-                                                                      // stndId
-                                                                      // found
-                                                                      // for
-                                                                      // this
-                                                                      // record
-                                    reports.add(nctextrecord);
-
-                                    // sMRawMsg =
-                                    // sMRawMsg.substring(nextRsPos+1);//move
-                                    // string to after current next RS
-                                    // nextRsPos =
-                                    // sMRawMsg.indexOf(ASCII_RS);//new next RS
-                                    stnId = sRawMsgInProcessing.substring(
-                                            nextRsPos + 1, nextRsPos + 5);
-                                    // cumRsPos = cumRsPos + nextRsPos;
-                                    curPos = nextRsPos + 1;
-
-                                    nextRsPos = sRawMsgInProcessing.indexOf(
-                                            ASCII_RS, nextRsPos + 1);// new next
-                                                                     // RS
-                                    // stnId = sMRawMsg.substring(0, 4);
-
-                                }
-                                // Handle the last record which is NOT saved in
-                                // the while loop
-                                NctextRecord nctextrecord = new NctextRecord();
-                                setNctextRecord(nctextrecord);
-                                // nctextrecord.setRawRecord(sMRawMsg);
-                                nctextrecord.setRawRecord(sRawMsgInProcessing
-                                        .substring(curPos, endPos - 1));
-                                nctextrecord.setRecordId(recordId++);
-                                nctextrecord.setIssueSite(stnId); // replace
-                                                                  // cccc with
-                                                                  // stndId
-                                                                  // found for
-                                                                  // this record
-                                reports.add(nctextrecord);
-                                // System.out.println(" number RS = "+
-                                // testCount);
-                            } else {
-                                // Chin debug
-                                System.out
-                                        .println("setData for M type: find wmoHeader "
-                                                + (recordId - 1)
-                                                + ": "
-                                                + WMOId
-                                                + " "
-                                                + cccc
-                                                + " "
-                                                + YYGGgg
-                                                + " "
-                                                + awipsId
-                                                + " BUT, no RS ^^ found!");
-
-                                rawMsglength = 0; ///* get out of here 
-                            }
-                            // System.out.println("M type report size : "+
-                            // reports.size());
-
-                        } else {
-                            // other data type - I.e. B,Z,R,O,F, W type
-                            int recordEndPos = endPos;
-                            recordEndPos--; // exclude Ctl-C
-                            // Adjust record end position by skipping CR and LN
-                            // at end of record
-                            while (recordEndPos > 0) {
-                                if ((sRawMsgInProcessing.charAt(recordEndPos) == IDecoderConstants.ASCII_LF)
-                                        || (sRawMsgInProcessing
-                                                .charAt(recordEndPos) == IDecoderConstants.ASCII_CR)) {
-                                    recordEndPos--;
-
-                                } else {
-                                    break;
-                                }
-                            }
-                            NctextRecord nctextrecord = new NctextRecord();
-                            setNctextRecord(nctextrecord);
-                            nctextrecord.setReportData(sRawMsgInProcessing
-                                    .substring(messageDataStart,
-                                            recordEndPos + 1));
-                            nctextrecord.setRawRecord(sRawMsgInProcessing
-                                    .substring(recordStart, recordEndPos + 1));
-                            nctextrecord.setRecordId(recordId++);
-
-                            reports.add(nctextrecord);
-                        }
-                        // adjust pointers for next possible section/record
-                        rawMsglength = rawMsglength - (endPos + 1); // string
-                                                                    // index
-                                                                    // start
-                                                                    // with 0
-                        rawMsgPointer = rawMsgPointer + (endPos + 1);
-                        // Chin debug
-                        // logger.info("setData : find wmoHeader "
-                        // +(recordId-1)+ ": "
-                        // + WMOId + " " + cccc + " " + YYGGgg+ " " + awipsId +
-                        // " " + proType
-                        // /*+"\n rawMsgLn " + rawMsglength + "rawMsgPointer " +
-                        // rawMsgPointer + "endPos " + endPos);
-                        resetVaraable();
-
-                    } else {
-                        // Chin debug
-                        logger.info("setData : find wmoHeader "
-                                + (recordId - 1) + ": " + WMOId + " " + cccc
-                                + " " + YYGGgg + " " + awipsId
-                                + " BUT, no message data end Ctl-C found! "//*
-                                                                          //  * +
-                                                                          //  * " rawMsgLn "
-                                                                          //  * +
-                                                                          //  * rawMsglength
-                                                                          ///  * +
-                                                                          //  * " rawMsgPointer "
-                                                                          //  * +
-                                                                          //  * rawMsgPointer
-                                                                          //  * +
-                                                                         //   * " endPos "
-                                                                          //  * +
-                                                                          //  * endPos
-                                                                          //  );
-
-                        rawMsglength = 0; ///* get out of here 
-                    }
-                }
-                // Chin debug
-                else {
-                    int ePos;
-                    switch (parseErr) {
-                    case NO_AWIPS_HDR:
-                        logger.info("setData : no header found. Stop here! ");
-                        rawMsglength = 0;// get out of here
-                        logErrToFile("No AWIPS header found in this file. Stop Parsing!\n");
-                        break;
-                    case NO_AWIPS_HDR_IN_BULLETIN:
-                        logger.info("setData : no header found in a bulletin. ");
-                        // Skip this part of data. adjust buffer to next
-                        // possible bulletin
-                        ePos = sRawMsgInProcessing
-                                .indexOf(IDecoderConstants.ASCII_ETX); // Ctl-C
-                        rawMsglength = rawMsglength - (ePos + 1); // string
-                                                                  // index start
-                                                                  // with 0
-                        rawMsgPointer = rawMsgPointer + (ePos + 1);
-                        logErrToFile("A Bulletin without good AWIPS header found. Skip it!\n");
-                        break;
-                    case NO_CTLA_IN_BULLETIN:
-                        logger.info("setData : no ctl-A found in a bulletin. ");
-                        // Skip this part of data. adjust buffer to next
-                        // possible bulletin
-                        ePos = sRawMsgInProcessing
-                                .indexOf(IDecoderConstants.ASCII_ETX); // Ctl-C
-                        rawMsglength = rawMsglength - (ePos + 1); // string
-                                                                  // index start
-                                                                  // with 0
-                        rawMsgPointer = rawMsgPointer + (ePos + 1);
-                        logErrToFile("A Bulletin without ctl-A found. Skip it!\n");
-                        break;
-                    case NO_CTLA_TO_END:
-                        logger.info("setData : no ctl-A found from this point down. Stop here! ");
-                        // Skip this part of data. adjust buffer to next
-                        // possible bulletin
-                        rawMsglength = 0;// get out of here
-                        logErrToFile("No ctl-A found from this point down. Stop here!\n");
-                        break;
-                    case NO_CTLC_TO_END:
-                        logger.info("setData : no ctl-C found from this point down. Stop here! ");
-                        // Skip this part of data. adjust buffer to next
-                        // possible bulletin
-                        rawMsglength = 0;// get out of here
-                        logErrToFile("No ctl-C found from this point down. Stop here!\n");
-                        break;
-                    case NO_ERR:
-                        logger.info("setData : end of file. Stop here! ");
-                        rawMsglength = 0;// get out of here
-                        break;
-                    default:
-                        logger.info("setData : general error! Stop here! ");
-                        logErrToFile("Unknow parsing error. Stop here!\n");
-                        rawMsglength = 0;// get out of here
-                        break;
-                    }
-                }
-
-            }// While loop
-
-        }
-
-        if ((reports != null) && (reports.size() > 0)) {
-            currentReport = 0;
-        } else {
-            // Chin debug
-            logger.info(traceId + " - setData():No reports found in data.");
-        }
-        */
+        /*
+         * currentReport = -1;
+         * 
+         * // Now check for some binary data types, Stop decoding, if it is
+         * binary String sRawMessage = new String(rawMessage); int pos =
+         * sRawMessage.indexOf("BUFR"); boolean notStored = false; notStored =
+         * notStored || ((pos >= 0) && (pos < 20)); pos =
+         * sRawMessage.indexOf("GRIB"); notStored = notStored || ((pos >= 0) &&
+         * (pos < 20)); pos = sRawMessage.indexOf("JPG"); notStored = notStored
+         * || ((pos >= 0) && (pos < 20)); pos = sRawMessage.indexOf("PNG");
+         * notStored = notStored || ((pos >= 0) && (pos < 20)); pos =
+         * sRawMessage.indexOf("GIF87"); notStored = notStored || ((pos >= 0) &&
+         * (pos < 20));
+         * 
+         * int rawMsglength = rawMessage.length; // // * start from this, and //
+         * * decremented when each bulletin // * found // int rawMsgPointer =
+         * 0;//* // * start from 0 and incremented when each bulletin // * found
+         * // int recordId = 1; ///* to record number of records with same AWIPS
+         * header reports = new ArrayList<NctextRecord>(); String
+         * sRawMsgInProcessing = null; int endPos; int rsPos, nextRsPos, curPos;
+         * if (!notStored) { String fileType = nctextInputFileTypeDao
+         * .getFiletypeType(ingestFileExt); while (rawMsglength > 0) {
+         * sRawMsgInProcessing = sRawMessage.substring(rawMsgPointer); //
+         * Parsing record header and find a "section" A section may // contain
+         * more than one record for some data type, e.g. M type // (MOS). if
+         * (parseHeader(sRawMsgInProcessing)) { // Start of a "section" found
+         * after a Ctl-A, endPos = sRawMsgInProcessing
+         * .indexOf(IDecoderConstants.ASCII_ETX); // Ctl-C // set data to record
+         * if (endPos > messageDataStart) { // handle special type of data, e.g
+         * M,etc.. type if (fileType.equals("M")) {
+         * 
+         * // M type data has several records in one "section". // They are
+         * separated by Record Separator "^^". rsPos =
+         * sRawMsgInProcessing.indexOf(ASCII_RS); // find // first // RS //
+         * testCount++; // if((testCount %50) == 0){ //
+         * System.out.println("M type data: " + testCount+ //
+         * " enterred! end position = "+ endPos+ // "1st rs pos = "+rsPos); // }
+         * 
+         * // cumRsPos = rsPos; if ((rsPos >= 0) && (rsPos < endPos)) { //
+         * String sMRawMsg = // sRawMsgInProcessing.substring(rsPos+1);//move //
+         * string to after first RS // get stnid=xxxx which is 4 chars right
+         * after // RS, like this ^^XXXX // String stnId = sMRawMsg.substring(0,
+         * 4); String stnId = sRawMsgInProcessing.substring( rsPos + 1, rsPos +
+         * 5); // nextRsPos = sMRawMsg.indexOf(ASCII_RS); //2nd // RS curPos =
+         * rsPos + 1; nextRsPos = sRawMsgInProcessing.indexOf( ASCII_RS,
+         * curPos); // 2nd RS // cumRsPos = cumRsPos + nextRsPos; int testCount1
+         * = 0; while ((nextRsPos >= 0) && (nextRsPos < endPos)) { // find
+         * record(s) within the section, store // it testCount1++; //
+         * if((testCount1 %50) == 1) // System.out.println(" number RS = "+ //
+         * testCount); // System.out.println("cur pos = "+curPos+ //
+         * " next rs pos = "+ nextRsPos); NctextRecord nctextrecord = new
+         * NctextRecord(); setNctextRecord(nctextrecord); //
+         * nctextrecord.setRawRecord(sMRawMsg.substring(0, // nextRsPos-1));
+         * nctextrecord .setRawRecord(sRawMsgInProcessing .substring(curPos,
+         * nextRsPos - 1)); nctextrecord.setRecordId(recordId++);
+         * nctextrecord.setIssueSite(stnId); // replace // cccc // with //
+         * stndId // found // for // this // record reports.add(nctextrecord);
+         * 
+         * // sMRawMsg = // sMRawMsg.substring(nextRsPos+1);//move // string to
+         * after current next RS // nextRsPos = //
+         * sMRawMsg.indexOf(ASCII_RS);//new next RS stnId =
+         * sRawMsgInProcessing.substring( nextRsPos + 1, nextRsPos + 5); //
+         * cumRsPos = cumRsPos + nextRsPos; curPos = nextRsPos + 1;
+         * 
+         * nextRsPos = sRawMsgInProcessing.indexOf( ASCII_RS, nextRsPos + 1);//
+         * new next // RS // stnId = sMRawMsg.substring(0, 4);
+         * 
+         * } // Handle the last record which is NOT saved in // the while loop
+         * NctextRecord nctextrecord = new NctextRecord();
+         * setNctextRecord(nctextrecord); //
+         * nctextrecord.setRawRecord(sMRawMsg);
+         * nctextrecord.setRawRecord(sRawMsgInProcessing .substring(curPos,
+         * endPos - 1)); nctextrecord.setRecordId(recordId++);
+         * nctextrecord.setIssueSite(stnId); // replace // cccc with // stndId
+         * // found for // this record reports.add(nctextrecord); //
+         * System.out.println(" number RS = "+ // testCount); } else { // Chin
+         * debug System.out .println("setData for M type: find wmoHeader " +
+         * (recordId - 1) + ": " + WMOId + " " + cccc + " " + YYGGgg + " " +
+         * awipsId + " BUT, no RS ^^ found!");
+         * 
+         * rawMsglength = 0; ///* get out of here } //
+         * System.out.println("M type report size : "+ // reports.size());
+         * 
+         * } else { // other data type - I.e. B,Z,R,O,F, W type int recordEndPos
+         * = endPos; recordEndPos--; // exclude Ctl-C // Adjust record end
+         * position by skipping CR and LN // at end of record while
+         * (recordEndPos > 0) { if ((sRawMsgInProcessing.charAt(recordEndPos) ==
+         * IDecoderConstants.ASCII_LF) || (sRawMsgInProcessing
+         * .charAt(recordEndPos) == IDecoderConstants.ASCII_CR)) {
+         * recordEndPos--;
+         * 
+         * } else { break; } } NctextRecord nctextrecord = new NctextRecord();
+         * setNctextRecord(nctextrecord);
+         * nctextrecord.setReportData(sRawMsgInProcessing
+         * .substring(messageDataStart, recordEndPos + 1));
+         * nctextrecord.setRawRecord(sRawMsgInProcessing .substring(recordStart,
+         * recordEndPos + 1)); nctextrecord.setRecordId(recordId++);
+         * 
+         * reports.add(nctextrecord); } // adjust pointers for next possible
+         * section/record rawMsglength = rawMsglength - (endPos + 1); // string
+         * // index // start // with 0 rawMsgPointer = rawMsgPointer + (endPos +
+         * 1); // Chin debug // logger.info("setData : find wmoHeader " //
+         * +(recordId-1)+ ": " // + WMOId + " " + cccc + " " + YYGGgg+ " " +
+         * awipsId + // " " + proType // /*+"\n rawMsgLn " + rawMsglength +
+         * "rawMsgPointer " + // rawMsgPointer + "endPos " + endPos);
+         * resetVaraable();
+         * 
+         * } else { // Chin debug logger.info("setData : find wmoHeader " +
+         * (recordId - 1) + ": " + WMOId + " " + cccc + " " + YYGGgg + " " +
+         * awipsId + " BUT, no message data end Ctl-C found! "//* // * + // *
+         * " rawMsgLn " // * + // * rawMsglength /// * + // * " rawMsgPointer "
+         * // * + // * rawMsgPointer // * + // * " endPos " // * + // * endPos
+         * // );
+         * 
+         * rawMsglength = 0; ///* get out of here } } // Chin debug else { int
+         * ePos; switch (parseErr) { case NO_AWIPS_HDR:
+         * logger.info("setData : no header found. Stop here! "); rawMsglength =
+         * 0;// get out of here
+         * logErrToFile("No AWIPS header found in this file. Stop Parsing!\n");
+         * break; case NO_AWIPS_HDR_IN_BULLETIN:
+         * logger.info("setData : no header found in a bulletin. "); // Skip
+         * this part of data. adjust buffer to next // possible bulletin ePos =
+         * sRawMsgInProcessing .indexOf(IDecoderConstants.ASCII_ETX); // Ctl-C
+         * rawMsglength = rawMsglength - (ePos + 1); // string // index start //
+         * with 0 rawMsgPointer = rawMsgPointer + (ePos + 1);
+         * logErrToFile("A Bulletin without good AWIPS header found. Skip it!\n"
+         * ); break; case NO_CTLA_IN_BULLETIN:
+         * logger.info("setData : no ctl-A found in a bulletin. "); // Skip this
+         * part of data. adjust buffer to next // possible bulletin ePos =
+         * sRawMsgInProcessing .indexOf(IDecoderConstants.ASCII_ETX); // Ctl-C
+         * rawMsglength = rawMsglength - (ePos + 1); // string // index start //
+         * with 0 rawMsgPointer = rawMsgPointer + (ePos + 1);
+         * logErrToFile("A Bulletin without ctl-A found. Skip it!\n"); break;
+         * case NO_CTLA_TO_END:
+         * logger.info("setData : no ctl-A found from this point down. Stop here! "
+         * ); // Skip this part of data. adjust buffer to next // possible
+         * bulletin rawMsglength = 0;// get out of here
+         * logErrToFile("No ctl-A found from this point down. Stop here!\n");
+         * break; case NO_CTLC_TO_END:
+         * logger.info("setData : no ctl-C found from this point down. Stop here! "
+         * ); // Skip this part of data. adjust buffer to next // possible
+         * bulletin rawMsglength = 0;// get out of here
+         * logErrToFile("No ctl-C found from this point down. Stop here!\n");
+         * break; case NO_ERR:
+         * logger.info("setData : end of file. Stop here! "); rawMsglength =
+         * 0;// get out of here break; default:
+         * logger.info("setData : general error! Stop here! ");
+         * logErrToFile("Unknow parsing error. Stop here!\n"); rawMsglength =
+         * 0;// get out of here break; } }
+         * 
+         * }// While loop
+         * 
+         * }
+         * 
+         * if ((reports != null) && (reports.size() > 0)) { currentReport = 0; }
+         * else { // Chin debug logger.info(traceId +
+         * " - setData():No reports found in data."); }
+         */
     }
 
     private synchronized boolean parseRcdHeader(String sInputMessageData) {
@@ -719,15 +608,16 @@ public class NctextSeparator extends AbstractRecordSeparator {
         }
         return isValid;
     }
-    private String[] getGdStnGp(String stnId){
-    	for(String[]  stnGp: gdStnGp){
-    		for(int i=0; i < stnGp.length; i++){
-    			if(stnId.equals(stnGp[i])){
-    				return stnGp;
-    			}
-    		}
-    	}
-    	return null;
+
+    private String[] getGdStnGp(String stnId) {
+        for (String[] stnGp : gdStnGp) {
+            for (int i = 0; i < stnGp.length; i++) {
+                if (stnId.equals(stnGp[i])) {
+                    return stnGp;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -743,9 +633,10 @@ public class NctextSeparator extends AbstractRecordSeparator {
 
         // Now check for some binary data types, Stop decoding, if it is binary
         String sRawMessage = new String(rawMessage);
-        //some reports contains null char which will cause DB persistence error. Replace all null with
+        // some reports contains null char which will cause DB persistence
+        // error. Replace all null with
         // Space.
-        sRawMessage = sRawMessage.replace((char)0x0, (char)0x20);
+        sRawMessage = sRawMessage.replace((char) 0x0, (char) 0x20);
         int pos = sRawMessage.indexOf("BUFR");
         boolean notStored = false;
         notStored = notStored || ((pos >= 0) && (pos < 20));
@@ -780,12 +671,13 @@ public class NctextSeparator extends AbstractRecordSeparator {
                         // They are separated by Record Separator "^^".
                         rsPos = strRcd.indexOf(ASCII_RS); // find first RS
                         if ((rsPos >= 0) && (rsPos < endPos)) {
-                        	int stnidEnd;
-                        	
-                        	stnidEnd = strRcd.substring(rsPos + 1).indexOf(ASCII_SP) + 1; //Chin fix mos stnid bug
-                            
-                            String stnId = strRcd.substring(rsPos + 1,
-                                    rsPos + stnidEnd);
+                            int stnidEnd;
+
+                            stnidEnd = strRcd.substring(rsPos + 1).indexOf(
+                                    ASCII_SP) + 1; // Chin fix mos stnid bug
+
+                            String stnId = strRcd.substring(rsPos + 1, rsPos
+                                    + stnidEnd);
                             curPos = rsPos + 1;
                             nextRsPos = strRcd.indexOf(ASCII_RS, curPos); // 2nd
                                                                           // RS
@@ -800,9 +692,15 @@ public class NctextSeparator extends AbstractRecordSeparator {
                                                                   // stndId
                                                                   // found for
                                                                   // this record
-                                if(stnId.length() <= 8) //Chin : to make sure we do not get unwanted/bad record with longer than 8 chars stnid
-                                	reports.add(nctextrecord);
-                                stnidEnd = strRcd.substring(nextRsPos + 1).indexOf(ASCII_SP) + 1; //Chin fix mos stnid bug
+                                if (stnId.length() <= 8) // Chin : to make sure
+                                                         // we do not get
+                                                         // unwanted/bad record
+                                                         // with longer than 8
+                                                         // chars stnid
+                                    reports.add(nctextrecord);
+                                stnidEnd = strRcd.substring(nextRsPos + 1)
+                                        .indexOf(ASCII_SP) + 1; // Chin fix mos
+                                                                // stnid bug
                                 stnId = strRcd.substring(nextRsPos + 1,
                                         nextRsPos + stnidEnd);
                                 curPos = nextRsPos + 1;
@@ -821,8 +719,8 @@ public class NctextSeparator extends AbstractRecordSeparator {
                                                               // with stndId
                                                               // found for this
                                                               // record
-                            if(stnId.length() <= 8) 
-                            	reports.add(nctextrecord);
+                            if (stnId.length() <= 8)
+                                reports.add(nctextrecord);
                         } else {
                             // Chin debug
                             System.out
@@ -837,57 +735,64 @@ public class NctextSeparator extends AbstractRecordSeparator {
                                             + " "
                                             + awipsId + " BUT, no RS ^^ found!");
                         }
-                    }
-                    else if (fileType.equals("R")){ 
-                    	Pattern p = Pattern.compile(R_TYPE_SEPARATOR); 
-                    	Matcher m =p.matcher(strRcd); 
-                    	String stnIdFound="NA",  subStr; 
-                    	String[] stnGp=null;
-                    	boolean saveit = false; 
-                    	if (m.find()) {
-                    		stnIdFound = m.group(); 
-                    		stnIdFound = stnIdFound.substring(0, stnIdFound.length()-2); 
-                    		stnGp = getGdStnGp(stnIdFound); 
-                    		if(stnGp !=null)
-                    			saveit =true; 
-                    	} else { //This record may have different format, Its Stn ID is one line before "00///" 
-                    		p = Pattern.compile(R_TYPE_SEPARATOR2); 
-                    		m = p.matcher(strRcd);
-                    		if (m.find()) { 
-                    			subStr = strRcd.substring(m.start()); 
-                    			// find the first "00///" and move str to here 
-                    			//from subStr, find a first stn id of this gp stns 
-                    			//this stn is actually not the first stn in the record. but it is ok, we only need one stn id in the gp.
-                    			p = Pattern.compile(R_TYPE_SEPARATOR3);
-                    			m = p.matcher(subStr); 
-                    			if (m.find()){ 
-                    				stnIdFound = m.group(); 
-                    				stnGp = getGdStnGp(stnIdFound); 
-                    				if(stnGp !=null)
-                    					saveit = true; 
-                    			} else {
-                    				logger.info("Could not find stn id in RGD file record !!!"); 
-                    			} 
-                    		} else {
-                    			logger.info("Could not find stn id in RGD file record!" ); 
-                    		} 
-                    	} 
-                    	if(saveit == true && stnGp != null) {
-                    		//For consistent with all other text record, we have to save smae record for each stn in the gp,
-                    		// so appication can query record based on stnId
-                    		for(String stn: stnGp){
-                    			NctextRecord nctextrecord = new NctextRecord();
-                    			setNctextRecord(nctextrecord);
-                    			nctextrecord.setRawRecord(strRcd.substring(recordStart,endPos-1)); 
-                    			nctextrecord.setRecordId(recordId++);
-                    			nctextrecord.setIssueSite(stn); 
-                    			// replace cccc with group stndId found for this record
-                    			reports.add(nctextrecord); 
-                    		}
-                    	} else 
-                    		logger.info("stn id "+ stnIdFound + " But gp Stn is not found");
-                    }                 
-                    else if (fileType.equals("O")) {
+                    } else if (fileType.equals("R")) {
+                        Pattern p = Pattern.compile(R_TYPE_SEPARATOR);
+                        Matcher m = p.matcher(strRcd);
+                        String stnIdFound = "NA", subStr;
+                        String[] stnGp = null;
+                        boolean saveit = false;
+                        if (m.find()) {
+                            stnIdFound = m.group();
+                            stnIdFound = stnIdFound.substring(0,
+                                    stnIdFound.length() - 2);
+                            stnGp = getGdStnGp(stnIdFound);
+                            if (stnGp != null)
+                                saveit = true;
+                        } else { // This record may have different format, Its
+                                 // Stn ID is one line before "00///"
+                            p = Pattern.compile(R_TYPE_SEPARATOR2);
+                            m = p.matcher(strRcd);
+                            if (m.find()) {
+                                subStr = strRcd.substring(m.start());
+                                // find the first "00///" and move str to here
+                                // from subStr, find a first stn id of this gp
+                                // stns
+                                // this stn is actually not the first stn in the
+                                // record. but it is ok, we only need one stn id
+                                // in the gp.
+                                p = Pattern.compile(R_TYPE_SEPARATOR3);
+                                m = p.matcher(subStr);
+                                if (m.find()) {
+                                    stnIdFound = m.group();
+                                    stnGp = getGdStnGp(stnIdFound);
+                                    if (stnGp != null)
+                                        saveit = true;
+                                } else {
+                                    logger.info("Could not find stn id in RGD file record !!!");
+                                }
+                            } else {
+                                logger.info("Could not find stn id in RGD file record!");
+                            }
+                        }
+                        if (saveit == true && stnGp != null) {
+                            // For consistent with all other text record, we
+                            // have to save smae record for each stn in the gp,
+                            // so appication can query record based on stnId
+                            for (String stn : stnGp) {
+                                NctextRecord nctextrecord = new NctextRecord();
+                                setNctextRecord(nctextrecord);
+                                nctextrecord.setRawRecord(strRcd.substring(
+                                        recordStart, endPos - 1));
+                                nctextrecord.setRecordId(recordId++);
+                                nctextrecord.setIssueSite(stn);
+                                // replace cccc with group stndId found for this
+                                // record
+                                reports.add(nctextrecord);
+                            }
+                        } else
+                            logger.info("stn id " + stnIdFound
+                                    + " But gp Stn is not found");
+                    } else if (fileType.equals("O")) {
                         logger.info("Observer data is not supported now!!!");
                     } else {
                         // other data types - I.e. B, W, Z, F types
@@ -958,7 +863,8 @@ public class NctextSeparator extends AbstractRecordSeparator {
             currentReport = 0;
         } else {
             // Chin debug
-            logger.info(traceId + " - setRecordData():No reports found in data.");
+            logger.info(traceId
+                    + " - setRecordData():No reports found in data.");
         }
     }
 
@@ -984,24 +890,28 @@ public class NctextSeparator extends AbstractRecordSeparator {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        if (traceId.length() >= YYYYMMDD_LENGTH) {
-            try {
-                // Adjust year and month from ingest file name
-                String date = traceId.substring(0, YYYYMMDD_LENGTH);
-                int iDay = Integer.parseInt(date.substring(6, 8).trim());
-                int iMonth = Integer.parseInt(date.substring(4, 6).trim());
-                int iYear = Integer.parseInt(date.substring(0, 4).trim());
-                // Note: month's index starts from 0
-                cal.set(iYear, iMonth - 1, iDay);
-            } catch (NumberFormatException n) {
-                // do nothing, if can't get yy/mon/day info from file name, just
-                // use current date
-            }
+        // Chin:: call to Util.findCurrentTime(YYGGgg); already takes care of
+        // year/month adjustment.
+        // if (traceId.length() >= YYYYMMDD_LENGTH) {
+        // try {
+        // // Adjust year and month from ingest file name
+        // String date = traceId.substring(0, YYYYMMDD_LENGTH);
+        // int iDay = Integer.parseInt(date.substring(6, 8).trim());
+        // int iMonth = Integer.parseInt(date.substring(4, 6).trim());
+        // int iYear = Integer.parseInt(date.substring(0, 4).trim());
+        // // Note: month's index starts from 0
+        // cal.set(iYear, iMonth - 1, iDay);
+        // } catch (NumberFormatException n) {
+        // // do nothing, if can't get yy/mon/day info from file name, just
+        // // use current date
+        // }
+        //
+        // }
 
-        }
         nctextrecord.setIssueTime(cal);
         nctextrecord.setDataTime(new DataTime(cal));
-
+        System.out.println("YYGGgg=" + YYGGgg + " traceId=" + traceId);
+        System.out.println("refTime= issueTime=" + cal.getTime().toGMTString());
         // set data productType,
         // String proType = nctextProductDao.getProductType(WMOId);
         nctextrecord.setProductType(ingestFileExt);
@@ -1021,6 +931,7 @@ public class NctextSeparator extends AbstractRecordSeparator {
      */
     public void setTraceId(String traceId) {
         this.traceId = traceId;
+        System.out.println("NctextSeparator set traceId=" + traceId);
     }
 
 }

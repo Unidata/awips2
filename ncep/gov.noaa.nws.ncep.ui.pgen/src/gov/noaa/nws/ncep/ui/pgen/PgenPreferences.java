@@ -40,6 +40,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  *     04/12        #977        S. Gilbert  PGEN Database support
  *     11/13        TTR752      J. Wu       Added P_AUTOPLACE_TEXT
  *     12/13        TTR776      J. Wu       Added P_LAYER_MERGE
+ *     05/14        TTR 995     J. Wu       Added P_AUTOPLACE_CONTOUR_LABEL.
  * 
  * </pre>
  * 
@@ -83,6 +84,11 @@ public class PgenPreferences extends FieldEditorPreferencePage implements
     public final static String P_AUTOPLACE_TEXT = "PGEN_AUTOPLACE_TEXT";
 
     private BooleanFieldEditor autoPlaceText;
+
+    // Preference to place text box automatically (CCFP);
+    public final static String P_AUTOPLACE_CONTOUR_LABEL = "PGEN_AUTOPLACE_CONTOUR_LABEL";
+
+    private BooleanFieldEditor autoPlaceContourLabel;
 
     public final static String P_LAYER_MERGE = "P_LAYER_MERGE";
 
@@ -142,9 +148,15 @@ public class PgenPreferences extends FieldEditorPreferencePage implements
         this.addField(projCombo);
 
         autoPlaceText = new BooleanFieldEditor(P_AUTOPLACE_TEXT,
-                "&Text Auto Placement (where applicable)",
+                "&Enable Auto Placement for CCFP Text Boxes",
                 BooleanFieldEditor.DEFAULT, getFieldEditorParent());
         this.addField(autoPlaceText);
+
+        autoPlaceContourLabel = new BooleanFieldEditor(
+                P_AUTOPLACE_CONTOUR_LABEL,
+                "&Enable Auto Placement for Contour Labels",
+                BooleanFieldEditor.DEFAULT, getFieldEditorParent());
+        this.addField(autoPlaceContourLabel);
 
         ComboFieldEditor layerMerge = new ComboFieldEditor(P_LAYER_MERGE,
                 "&Default Action for PGEN Layer Merge:", new String[][] {
