@@ -9,6 +9,7 @@
 ##           Mike Dangelo    9-18-2013 added initial position and pathcasting options
 ##           Evan Bookbinder 9-18-2013 implemented config.vm                    ##
 ##           Mike Rega       1-18-2014 added Alaska GP changes for 14.2.1       ##
+##           Phil Kurimski   06-24-2014 altered urbanCTA for more succinct words ##
 ##################################################################################
 #parse("config.vm")
 #if(${action} == "EXT")
@@ -147,7 +148,7 @@
 #end
 #### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
-  #set ($report = "REPORTING GAUGES INDICATE !**EVENT TYPE**!." )   
+  #set ($report = "GAUGE REPORTS INDICATED !**EVENT TYPE**!." )   
 #end
 ### GP end
 ##########################################
@@ -280,13 +281,14 @@ THIS IS A TEST MESSAGE. ##
 ############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
 #if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#if(${stormType} == "line")
-...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
-#else
-...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
-#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#set($phenom="")
+#if(${stormType} == "line" && ${list.contains(${bullets}, "thunder")})
+  #set($phenom="A LINE OF THUNDERSTORMS PRODUCING ")
+#elseif(${list.contains(${bullets}, "thunder")})
+  #set($phenom="A THUNDERSTORM PRODUCING ")
 #end
+...${phenom}HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 ...AND IS STATIONARY. ##
 #else
@@ -594,7 +596,7 @@ MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHER
 
 #end
 #if(${list.contains(${bullets}, "urbanCTA")})
-EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
