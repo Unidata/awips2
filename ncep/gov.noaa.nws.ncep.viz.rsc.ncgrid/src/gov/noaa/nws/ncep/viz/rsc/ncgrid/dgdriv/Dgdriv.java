@@ -7,11 +7,11 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv;
 import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
+import gov.noaa.nws.ncep.viz.common.util.CommonDateFormatUtil;
 import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag;
 import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag.gempak;
 import gov.noaa.nws.ncep.viz.gempak.grid.units.GempakGridParmInfoLookup;
 import gov.noaa.nws.ncep.viz.gempak.grid.units.GempakGridVcrdInfoLookup;
-import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLogger;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.customCoverage.CustomLambertConformalCoverage;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.customCoverage.CustomLatLonCoverage;
@@ -22,7 +22,6 @@ import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcEnsembleResourceData;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -136,6 +135,8 @@ public class Dgdriv {
     private String gdfile, gdpfun, gdattim, glevel, gvcord, scale, garea,
             dataSource;
 
+    private String gempakTime;
+
     private boolean scalar, arrowVector, flop, flip;
 
     private String gdfileOriginal;
@@ -148,6 +149,8 @@ public class Dgdriv {
 
     private ArrayList<DataTime> dataForecastTimes;
 
+    private int forecastTimeInSec;
+
     private NcgridDataCache cacheData;
 
     private static NcgribLogger ncgribLogger = NcgribLogger.getInstance();;
@@ -158,9 +161,6 @@ public class Dgdriv {
      * TODO Work around solution - need to find a way to set logging level
      * programmatically
      */
-    private static final DecimalFormat forecastHourFormat = new DecimalFormat(
-            "000");
-
     private static String[] nativeLogTypes = { "|critical", "|error", "|info",
             "|debug" };
 
@@ -238,6 +238,9 @@ public class Dgdriv {
 
     public void setGdattim(String gdattim) {
         this.gdattim = gdattim;
+        this.gempakTime = CommonDateFormatUtil.dbtimeToDattim(gdattim);
+        this.forecastTimeInSec = CommonDateFormatUtil
+                .getForecastTimeInSec(gempakTime);
     }
 
     public void setGlevel(String glevel) {
@@ -674,7 +677,7 @@ public class Dgdriv {
                     "From db_init: error initializing DB common area");
         }
 
-        String currentTime = dbtimeToDattim(gdattim);
+        String currentTime = gempakTime;
         gd.gem.db_wsetnavtime_(currentTime, iret);
         if (iret.getValue() != 0) {
             throw new DgdrivException(
@@ -730,7 +733,7 @@ public class Dgdriv {
             // else {
             // gd.gem.dgc_ndtm_ (dbtimeToDattim(gdattim), iret);
             // }
-            gd.gem.dgc_ndtm_(dbtimeToDattim(gdattim), iret);
+            gd.gem.dgc_ndtm_(gempakTime, iret);
             if (iret.getValue() != 0) {
                 gd.gem.erc_wmsg("DG", iret, "", ier);
                 proces = false;
@@ -1306,70 +1309,11 @@ public class Dgdriv {
         // TODO Auto-generated method stub
         StringBuilder resultsBuf = new StringBuilder();
         for (DataTime dt : dataForecastTimes) {
-            resultsBuf.append(dbtimeToDattim(dt.toString()));
+            resultsBuf
+                    .append(CommonDateFormatUtil.dbtimeToDattim(dt.toString()));
             resultsBuf.append("|");
         }
         return resultsBuf.substring(0, resultsBuf.length() - 1);
-    }
-
-    private String dbtimeToDattim(String aTime) {
-        String aDattim = null;
-        String[] inputStringArray = new String[2];
-
-        CharSequence char0 = "(";
-        /*
-         * Process time contains forecast hour info
-         */
-        if (aTime.contains(char0)) {
-            String zeroes = null;
-            int ind1 = aTime.indexOf("(");
-            int ind2 = aTime.indexOf(")");
-            if (ind2 - ind1 == 2) {
-                zeroes = "00";
-            } else if (ind2 - ind1 == 3) {
-                zeroes = "0";
-            }
-            String str1 = aTime.substring(0, ind1 - 1);
-            String str2 = "";
-            if (zeroes != null) {
-                str2 = "f" + zeroes + aTime.substring(ind1 + 1, ind2);
-            } else {
-                str2 = "f" + aTime.substring(ind1 + 1, ind2);
-            }
-
-            if (aTime.contains("_")) {
-                inputStringArray = str1.split("_");
-            } else if (!aTime.contains("_")) {
-                inputStringArray = str1.split(" ");
-            }
-
-            /*
-             * YYYY-MM-DD HH:MM:SS.S (HHH)-> YYMMDD/HHMMfHHH 2009-10-22
-             * 16:00:00.0 (5)-> 091022/1600f005 0123456789 0123456789
-             */
-            aDattim = inputStringArray[0].substring(2, 4)
-                    + inputStringArray[0].substring(5, 7)
-                    + inputStringArray[0].substring(8, 10) + "/"
-                    + inputStringArray[1].substring(0, 2)
-                    + inputStringArray[1].substring(3, 5) + str2;
-        }
-        /*
-         * Process time that does NOT contain forecast hour info
-         */
-        else {
-            inputStringArray = aTime.split(" ");
-
-            /*
-             * YYYY-MM-DD HH:MM:SS.S -> YYMMDD/HHMM 2009-01-20 02:25:00.0 ->
-             * 090120/0225 0123456789 0123456789
-             */
-            aDattim = inputStringArray[0].substring(2, 4)
-                    + inputStringArray[0].substring(5, 7)
-                    + inputStringArray[0].substring(8, 10) + "/"
-                    + inputStringArray[1].substring(0, 2)
-                    + inputStringArray[1].substring(3, 5);
-        }
-        return aDattim;
     }
 
     /*
@@ -1533,24 +1477,15 @@ public class Dgdriv {
         StringBuilder sb = new StringBuilder();
         String[] tmStr = uriStr[2].split("_");
         String dataDateStr = tmStr[0];
-        String fhrs = tmStr[2].substring(tmStr[2].indexOf("(") + 1,
-                tmStr[2].indexOf(")"));
-        String fhStr;
-        if (fhrs == null) {
-            fhStr = "000";
-        } else {
-            int number = 0;
-            try {
-                number = Integer.parseInt(fhrs);
-            } catch (NumberFormatException e) {
-                //
-            }
-            fhStr = forecastHourFormat.format(number);
-        }
+        int fcstTimeInSec = CommonDateFormatUtil
+                .getForecastTimeInSec(uriStr[2]);
+        String fcstTimeStr = CommonDateFormatUtil
+                .getForecastTimeString(fcstTimeInSec);
+
         sb.append(path);
         sb.append("-");
         sb.append(dataDateStr);
-        String dataTimeStr = tmStr[1].split(":")[0] + "-FH-" + fhStr;
+        String dataTimeStr = tmStr[1].split(":")[0] + "-FH-" + fcstTimeStr;
         sb.append("-");
         sb.append(dataTimeStr);
         sb.append(".h5");
@@ -1855,13 +1790,13 @@ public class Dgdriv {
 
             String prefix = modelName + "_" + dbTag + "_" + eventName + "_";
             for (int i = 0; i < responseList.size(); i++) {
-                Object fhrValue = responseList.get(i).get(
+                Object fSecValue = responseList.get(i).get(
                         GridDBConstants.FORECAST_TIME_QUERY);
                 Object refValue = responseList.get(i).get(
                         GridDBConstants.REF_TIME_QUERY);
-                if (fhrValue != null && fhrValue instanceof Integer
+                if (fSecValue != null && fSecValue instanceof Integer
                         && refValue != null && refValue instanceof Date) {
-                    int fhr = ((Integer) fhrValue).intValue() / 3600;
+                    int fcstTimeInSec = ((Integer) fSecValue).intValue();
                     DataTime refTime = new DataTime((Date) refValue);
                     String[] dts = refTime.toString().split(" ");
 
@@ -1872,8 +1807,13 @@ public class Dgdriv {
                         retFileNames = retFileNames + "|";
                     }
 
-                    retFileNames = retFileNames + prefix + dt + hh + "f"
-                            + forecastHourFormat.format(fhr);
+                    retFileNames = retFileNames
+                            + prefix
+                            + dt
+                            + hh
+                            + "f"
+                            + CommonDateFormatUtil
+                                    .getForecastTimeString(fcstTimeInSec);
                 }
             }
         } catch (VizException e) {
@@ -1895,8 +1835,9 @@ public class Dgdriv {
 
         try {
             Date date = sdf.parse(times[0]);
-            int fhr = Integer.parseInt(times[1]) * 3600;
-            dt = new DataTime(date, fhr);
+            int fcstTimeInSec = CommonDateFormatUtil
+                    .getForecastTimeInSec(gempakTimeStr);
+            dt = new DataTime(date, fcstTimeInSec);
         } catch (Exception e) {
             dt = null;
         }
@@ -1974,19 +1915,20 @@ public class Dgdriv {
 
         long t1 = System.currentTimeMillis();
         if (ncgribLogger.enableDiagnosticLogs()) {
-            String[] parmList = parameters.split("\\|");
-            String refTimeg = parmList[5].toUpperCase().split("F")[0];
-            String refTime = GempakGrid.dattimToDbtime(refTimeg);
-            refTime = refTime.substring(0, refTime.length() - 2);
-            String fcstTimeg = parmList[5].toUpperCase().split("F")[1];
+            String refTime = rcMap.get(GridDBConstants.REF_TIME_QUERY)
+                    .getConstraintValue();
+            int fcstTime = Integer.parseInt(rcMap.get(
+                    GridDBConstants.FORECAST_TIME_QUERY).getConstraintValue());
+            String fcstTimeg = CommonDateFormatUtil
+                    .getForecastColonTimeString(fcstTime);
             if (datauri != null) {
                 logger.info("### getDataURIFromAssembler(" + datauri + ") for("
-                        + parameters + ") reftime:" + refTime + "("
-                        + Integer.parseInt(fcstTimeg) + ") took: " + (t1 - t0));
+                        + parameters + ") reftime:" + refTime + "(" + fcstTimeg
+                        + ") took: " + (t1 - t0));
             } else {
                 logger.info("??? getDataURIFromAssembler(null) for("
-                        + parameters + ") reftime:" + refTime + "("
-                        + Integer.parseInt(fcstTimeg) + ") took: " + (t1 - t0));
+                        + parameters + ") reftime:" + refTime + "(" + fcstTimeg
+                        + ") took: " + (t1 - t0));
             }
         }
 
@@ -2251,16 +2193,13 @@ public class Dgdriv {
             return null;
         }
         String refTimeg = parmList[5].toUpperCase().split("F")[0];
-        String refTime = GempakGrid.dattimToDbtime(refTimeg);
-        refTime = refTime.substring(0, refTime.length() - 2);
-        String fcstTimeg = parmList[5].toUpperCase().split("F")[1];
-        String fcstTime = Integer
-                .toString(((Integer.parseInt(fcstTimeg)) * 3600));
+        String refTime = CommonDateFormatUtil.dattimToDbtime(refTimeg);
+        String fcstTimeInSec = Integer.toString(forecastTimeInSec);
 
         rcMap.put(GridDBConstants.REF_TIME_QUERY,
                 new RequestConstraint(refTime));
         rcMap.put(GridDBConstants.FORECAST_TIME_QUERY, new RequestConstraint(
-                fcstTime));
+                fcstTimeInSec));
         if (ncgribLogger.enableDiagnosticLogs()) {
             logger.info("exit getRequestConstraint - rcMap:" + rcMap.toString());
         }
