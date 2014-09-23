@@ -27,6 +27,9 @@ import static com.raytheon.edex.plugin.sfcobs.decoder.synoptic.ISynoptic.SEC_5_L
 import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_ERROR;
 import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.VAL_MISSING;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.SI;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,10 +38,9 @@ import com.raytheon.uf.common.dataplugin.sfcobs.AncPrecip;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncPressure;
 import com.raytheon.uf.common.dataplugin.sfcobs.AncTemp;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.core.DataItem;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.ReportParser;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * TODO Add Description
@@ -58,6 +60,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20071010            391 jkorman     Initial coding.
  * 20071203            410 jkorman     JavaDoc complaints.
  * 20080116            798 jkorman     Changed logging levels.
+ * Sep 18, 2014 #3627      mapeters    Convert units using {@UnitConverter},
+ *                                     removed unused duration field.
  * 
  * 
  * </pre>
@@ -86,7 +90,8 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
 
     private Double windGust912 = null;
 
-    private Integer duration = null;
+    private static final UnitConverter hPaToPa = SI.HECTO(SI.PASCAL)
+            .getConverterTo(SI.PASCAL);
 
     /**
      * 
@@ -135,7 +140,6 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     break;
                 }
 
-                // String s = null;
                 if ("1".equals(element.substring(0, 1)) && doGroup(1)) {
                     maxTemperature = SynopticGroups.decodeTemperature(element,
                             3);
@@ -161,10 +165,10 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     }
                     Integer val = getInt(element, 2, 5);
                     if ((val != null) && (val >= 0)) {
-                        pressure24 = new DataItem("Pascals", "24HRChange", 3);
-                        pressure24.setDataValue(DecoderTools.hPaToPascals(val
+                        pressure24 = new DataItem("24HRChange");
+                        pressure24.setDataValue(hPaToPa.convert(val
                                 * sign));
-                        pressure24.setDataPeriod(TimeTools.SECONDS_DAY);
+                        pressure24.setDataPeriod(TimeUtil.SECONDS_PER_DAY);
                     }
                     closeGroup(5);
                 } else if ("6".equals(element.substring(0, 1)) && doGroup(6)) {
@@ -178,16 +182,7 @@ public class SynopticSec3Decoder extends AbstractSectionDecoder {
                     // Group 8 doesn't get closed here, there may be more than
                     // one group.
                 } else if (matchElement(element, "907\\d{2}")) {
-                    Integer temp = getInt(element, 3, 5);
-                    if ((temp != null) && (temp >= 0)) {
-                        if (temp < 61) {
-                            duration = 6 * temp;
-                        } else if (temp < 67) {
-                            duration = (60 * (temp - 60)) + 360;
-                        } else {
-                            duration = 1080;
-                        }
-                    }
+                    // TODO : Should something be done here?
                 } else if (matchElement(element, "910\\d{2}")) {
                     Integer temp = getInt(element, 3, 5);
                     if ((temp != null) && (temp >= 0)) {

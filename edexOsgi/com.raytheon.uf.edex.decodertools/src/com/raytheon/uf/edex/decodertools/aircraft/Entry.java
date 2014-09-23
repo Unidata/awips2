@@ -23,44 +23,32 @@ package com.raytheon.uf.edex.decodertools.aircraft;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2011            jkorman     Initial creation
- *
+ * Sep 18, 2014 3627       mapeters    Removed unused methods/fields.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class Entry {
-    public final String word;
 
     private final String translatedWord;
-
-    private final Boolean isRegEx;
 
     private final Integer firstId;
 
     private final Integer secondId;
 
-    public Entry(String word, String translatedWord, boolean isRegEx,
-            Integer firstId, Integer secondId) {
-        this.word = word;
+    public Entry(String translatedWord, Integer firstId, Integer secondId) {
         this.translatedWord = translatedWord;
-        this.isRegEx = Boolean.valueOf(isRegEx);
         this.firstId = firstId;
         this.secondId = secondId;
-    }
-
-    /**
-     * @return the word
-     */
-    public String getWord() {
-        return word;
     }
 
     /**
@@ -68,13 +56,6 @@ public class Entry {
      */
     public String getTranslatedWord() {
         return translatedWord;
-    }
-
-    /**
-     * @return the isRegEx
-     */
-    public Boolean isRegEx() {
-        return isRegEx;
     }
 
     /**
