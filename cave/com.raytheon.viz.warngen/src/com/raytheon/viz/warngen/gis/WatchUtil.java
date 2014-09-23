@@ -440,19 +440,35 @@ public class WatchUtil {
                 List<String> partOfState = new ArrayList<String>(
                         determineAffectedPortions(watch.getAreas()));
                 watch.setPartOfState(partOfState);
+                watches.add(watch);
             } else {
-                watch.setMarineAreas(determineMarineAreas(watch.getAreas()));
+                watches.addAll(generateMarineWatchItems(watch,
+                        determineMarineAreas(watch.getAreas())));
             }
-            watches.add(watch);
         }
 
-        // keep the code for their use in the future
-        /*
-        // Sorts the watches based on state name.
+        /* Sorts the watches based on ETN, then state.  Marine areas
+         * have a null state value so they appear at the end of each
+         * watch.
+         */
         Collections.sort(watches, new Comparator<Watch>() {
 
             @Override
             public int compare(Watch watch1, Watch watch2) {
+                String etn1 = watch1.getEtn();
+                String etn2 = watch2.getEtn();
+                int c;
+                if (etn1 == etn2)
+                    c = 0;
+                else if (etn1 == null)
+                    return 1;
+                else if (etn2 == null)
+                    return -1;
+                else
+                    c = etn1.compareTo(etn2);
+                if (c != 0)
+                    return c;
+
                 String state1 = watch1.getState();
                 String state2 = watch2.getState();
                 if (state1 == state2)
@@ -463,25 +479,6 @@ public class WatchUtil {
                     return -1;
                 else
                     return state1.compareTo(state2);
-            }
-        });
-        */
-
-        // Sorts the watches based on ETN.
-        Collections.sort(watches, new Comparator<Watch>() {
-
-            @Override
-            public int compare(Watch watch1, Watch watch2) {
-                String etn1 = watch1.getEtn();
-                String etn2 = watch2.getEtn();
-                if (etn1 == etn2)
-                    return 0;
-                else if (etn1 == null)
-                    return 1;
-                else if (etn2 == null)
-                    return -1;
-                else
-                    return etn1.compareTo(etn2);
             }
         });
 
@@ -511,6 +508,18 @@ public class WatchUtil {
         Set<String> affectedPortions = new HashSet(
                 Area.converFeAreaToPartList(mungeFeAreas(feAreas)));
         return affectedPortions;
+    }
+
+    private List<Watch> generateMarineWatchItems(Watch template, List<String> areas) {
+        ArrayList<Watch> result = new ArrayList<Watch>();
+        for (String area: areas) {
+            Watch watch = new Watch(template.getState(), template.getAction(),
+                    template.getPhenSig(), template.getEtn(),
+                    template.getStartTime(), template.getEndTime());
+            watch.setMarineArea(area);
+            result.add(watch);
+        }
+        return result;
     }
 
     private List<String> determineMarineAreas(List<String> areas) {
