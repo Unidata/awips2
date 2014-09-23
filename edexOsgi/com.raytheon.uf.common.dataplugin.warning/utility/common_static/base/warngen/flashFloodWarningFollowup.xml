@@ -82,12 +82,14 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
 </bulletActionGroup>
 <bulletActionGroup action="CAN" phen="FF" sig="W">
  <bullets>
+  <bullet bulletText="****** CANCELLATION OPTIONS **********" bulletType="title"/>
   <bullet bulletName="recedingWater" bulletText="Water is receding" />
   <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="EXP" phen="FF" sig="W">
  <bullets>
+  <bullet bulletText="******* EXPIRATION OPTIONS **********" bulletType="title"/>
   <bullet bulletName="recedingWater" bulletText="Water is receding" />
   <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
  </bullets>
