@@ -36,8 +36,6 @@ import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * TODO Add Description
@@ -99,8 +97,12 @@ public class StationIdFilterElement extends AbstractFilterElement implements ISe
     }
 
     /**
-     * This execute
-     * @see com.raytheon.uf.edex.decodertools.core.IObsFilterElement#filter(com.raytheon.uf.common.dataplugin.PluginDataObject)
+     * Executes this filter element against the supplied report data. The
+     * supplied report is returned if it matches the filter criteria. A null
+     * report reference is returned if the report fails.
+     * 
+     * @param report
+     * @return may be null
      */
     @Override
     public PluginDataObject filter(PluginDataObject report) {
