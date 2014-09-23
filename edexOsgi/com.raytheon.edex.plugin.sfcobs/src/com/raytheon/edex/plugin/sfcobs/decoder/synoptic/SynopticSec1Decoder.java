@@ -53,6 +53,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 20071109            391 jkorman     Added guard for short data.
  * 20080123            757 jkorman     Ensure that the group 9 obs time has
  *                                     the correct day of month.
+ * Sep 18, 2014 #3627      mapeters    Updated deprecated {@link TimeTools} usage, 
+ *                                     removed unused lowCloudAmount field.
  * 
  * </pre>
  * 
@@ -101,8 +103,6 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
     private Integer pastWeather2 = null;
 
     private Integer loCloudHeight = null;
-
-    private Integer lowCloudAmount = null;
 
     private Integer lowCloudType = null;
 
@@ -233,7 +233,7 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 winds = true;
             } else if ("5".equals(element.substring(0, 1)) && doGroup(5)) {
                 Integer val = getInt(element, 1, 2);
-                changeCharacter = new DataItem("int", "changeCharacter", 1);
+                changeCharacter = new DataItem("changeCharacter");
                 changeCharacter.setDataValue(val.doubleValue());
                 changeCharacter.setDataPeriod(3 * 3600);
                 pressureChange = SynopticGroups
@@ -254,10 +254,6 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 winds = true;
             } else if ("8".equals(element.substring(0, 1)) && doGroup(8)) {
                 if (!winds && matchElement(element, "8[/0-9]{4}")) {
-
-                    if ((lowCloudAmount = getInt(element, 1, 2)) < 0) {
-                        lowCloudAmount = null;
-                    }
                     if ((lowCloudType = getInt(element, 2, 3)) < 0) {
                         lowCloudType = null;
                     }
@@ -385,7 +381,7 @@ public class SynopticSec1Decoder extends AbstractSectionDecoder {
                 long delta = newT.getTimeInMillis() - obsT.getTimeInMillis();
                 // Allow up to the reference hour + 30 minutes.
                 if (delta > 30 * 60 * 1000) {
-                    TimeTools.rollByDays(newT, -1);
+                    newT.add(Calendar.DAY_OF_MONTH, -1);
                 }
 
                 receiver.setTimeObs(newT);
