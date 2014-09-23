@@ -121,6 +121,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      parameters, implement ImageProvider
  *  May 06, 2014            njensen     Improve error message
  *  Jun 12, 2014  3238      bsteffen    Implement Interrogatable
+ *  Aug 21, 2014  DR 17313  jgerth      Set no data value if no data mapping
  * 
  * </pre>
  * 
@@ -394,7 +395,8 @@ public class SatResource extends
         if (persisted != null) {
             colorMapParameters.applyPersistedParameters(persisted);
         }
-        colorMapParameters.setNoDataValue(0);
+        if (colorMapParameters.getDataMapping() == null)
+        	colorMapParameters.setNoDataValue(0);
 
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
@@ -463,7 +465,7 @@ public class SatResource extends
         if (dataMapping != null) {
             // if the pixel value matches the data mapping entry use that
             // label instead
-            String label = dataMapping.getLabelValueForDataValue(measuredValue);
+        	String label = dataMapping.getSampleOrLabelValueForDataValue(measuredValue);
             if (label != null) {
                 return label;
             }
