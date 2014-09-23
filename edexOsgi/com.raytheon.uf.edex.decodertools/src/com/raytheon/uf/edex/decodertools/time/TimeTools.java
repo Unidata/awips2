@@ -50,6 +50,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 20130912           2249 rferrel     Added getWarningTimestamp method.
  * 20140409           2907 njensen     Deprecated duplicated functionality
  * 20140514           2536 bclement    moved WMO Header time parsing to WMOTimeParser
+ * 20140919           3627 mapeters    Removed unused methods/fields.
  * </pre>
  * 
  * @author jkorman
@@ -74,48 +75,11 @@ public class TimeTools {
      */
     private static Pattern FILE_WARNING_TIMESTAMP = null;
 
-
     /**
      * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
      */
     @Deprecated
-    public static final int HOURS_DAY = TimeUtil.HOURS_PER_DAY;
-
-    /**
-     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
-     */
-    @Deprecated
-    public static final int MINUTES_HOUR = TimeUtil.MINUTES_PER_HOUR;
-
-    /**
-     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
-     */
-    @Deprecated
-    public static final int SECONDS_HOUR = TimeUtil.SECONDS_PER_HOUR;
-
-    /**
-     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
-     */
-    @Deprecated
-    public static final int SECONDS_DAY = TimeUtil.SECONDS_PER_DAY;
-
-    /**
-     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
-     */
-    @Deprecated
-    public static final long MILLIS_HOUR = TimeUtil.MILLIS_PER_HOUR;
-
-    /**
-     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
-     */
-    @Deprecated
-    public static final long MILLIS_DAY = TimeUtil.MILLIS_PER_DAY;
-
-    /**
-     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
-     */
-    @Deprecated
-    public static final String ZULU_TIMEZONE = "Zulu";
+    private static final String ZULU_TIMEZONE = "Zulu";
 
     private static ITimeService timeService = null;
 
@@ -204,7 +168,7 @@ public class TimeTools {
      */
     @Deprecated
     public static final Calendar newCalendar(long timeInMillis) {
-        Calendar calendar = getSystemCalendar();
+        Calendar calendar = TimeUtil.newGmtCalendar();
 
         calendar.setTimeInMillis(timeInMillis);
 
@@ -223,7 +187,8 @@ public class TimeTools {
     public static final Calendar copy(Calendar calendar) {
         Calendar retValue = null;
         if (calendar != null) {
-            retValue = newCalendar(calendar.getTimeInMillis());
+            retValue = TimeUtil.newGmtCalendar();
+            retValue.setTimeInMillis(calendar.getTimeInMillis());
             retValue.setTimeZone(calendar.getTimeZone());
         }
         return retValue;
@@ -266,55 +231,5 @@ public class TimeTools {
             retValue.set(Calendar.MILLISECOND, 0);
         }
         return retValue;
-    }
-
-    /**
-     * Roll the date of a calendar +/- a given number of days.
-     * 
-     * @param calendar
-     *            Calendar instance to modify.
-     * @param byDays
-     *            Number of days to add or subtract.
-     * @return The modified calendar.
-     * @deprecated use java.util.Calendar.add(int, int) instead
-     */
-    @Deprecated
-    public static final Calendar rollByDays(Calendar calendar, int byDays) {
-        if (calendar != null) {
-            long millis = calendar.getTimeInMillis();
-
-            long days = byDays * MILLIS_DAY;
-
-            calendar.setTimeInMillis(millis + days);
-        }
-        return calendar;
-    }
-
-    /**
-     * Roll the date of a calendar +/- a given number of hours.
-     * 
-     * @param calendar
-     *            Calendar instance to modify.
-     * @param byHours
-     *            Number of hours to add or subtract.
-     * @return The modified calendar.
-     * @deprecated use java.util.Calendar.add(int, int) instead
-     */
-    @Deprecated
-    public static final Calendar rollByHours(Calendar calendar, int byHours) {
-        if (calendar != null) {
-            long millis = calendar.getTimeInMillis();
-
-            long hours = byHours * MILLIS_HOUR;
-
-            calendar.setTimeInMillis(millis + hours);
-        }
-        return calendar;
-    }
-
-    /**
-     * Disable constructor.
-     */
-    private TimeTools() {
     }
 }
