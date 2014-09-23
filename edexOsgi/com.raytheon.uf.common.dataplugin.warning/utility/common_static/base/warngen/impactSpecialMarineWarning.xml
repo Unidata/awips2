@@ -4,6 +4,7 @@
      PHIL KURIMSKI WFO DTX   9-16-2013 OB13.5.2-4 FOR IMPACT BASED SMW WARNINGS
      Note: Volcano information will not show up in the GUI unless uncommented out
      Phil Kurimski   09-19-2013 added geospatialConfig.xml
+     Phil Kurimski   06-26-2014 added DSS Events
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -14,6 +15,8 @@ PLACED IN FULL BELOW THE INCLUDE LINE BELOW. -->
 <!-- Include Various geospatial XML files to create their objects. These are *NOT*
 turned on unless the corresponding .vm file is turned on in a given template's .vm file
 -->  
+<include file="dssEvents.xml"/>
+<!-- To enable, make sure dssEvents.vm is added/uncommented in the impactSpecialMarineWarning.vm .vm file -->
 <include file="mileMarkers.xml"/>
 <!-- To enable, make sure mileMarkers.vm is added/uncommented in a WarnGen template's .vm file -->
 <include file="pointMarkers.xml"/>
@@ -52,11 +55,11 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
  
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
- 	included with the warning product include TO.A and/or SV.A, 
+ 	included with the warning product include torWatches and/or svrWatches, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
-  <includedWatch>TO.A</includedWatch>
-  <includedWatch>SV.A</includedWatch>
+  <includedWatch>torWatches</includedWatch>
+  <includedWatch>svrWatches</includedWatch>
  </includedWatches>
  
  <!-- durations: the list of possible durations of the warning -->
