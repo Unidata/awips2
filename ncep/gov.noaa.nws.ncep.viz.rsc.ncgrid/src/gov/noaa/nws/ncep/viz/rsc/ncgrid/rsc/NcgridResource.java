@@ -15,6 +15,7 @@ import gov.noaa.nws.ncep.viz.common.preferences.GraphicsAreaPreferences;
 import gov.noaa.nws.ncep.viz.common.ui.HILORelativeMinAndMaxLocator;
 import gov.noaa.nws.ncep.viz.common.ui.ModelListInfo;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
+import gov.noaa.nws.ncep.viz.common.util.CommonDateFormatUtil;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
@@ -2970,7 +2971,7 @@ public class NcgridResource extends
              */
             if (posF > posV && posV != 0) {
                 cal = cTime.getRefTimeAsCalendar();
-                timestampFormat = "%02d%02d%02d/%02d%02dF%03d";
+                timestampFormat = "%02d%02d%02d/%02d%02dF%s";
                 /*
                  * Legacy behavior will put the forcast time at the next
                  * position after the ^ when there is both ~ and ^ the ^ is
@@ -2985,9 +2986,11 @@ public class NcgridResource extends
                 }
             } else {
                 cal = currFrameTm.getValidTime();
-                timestampFormat = "%02d%02d%02d/%02d%02dV%03d";
+                timestampFormat = "%02d%02d%02d/%02d%02dV%s";
             }
-            int vTm = cTime.getFcstTime() / 3600;
+            String forecastTime = CommonDateFormatUtil
+                    .getForecastTimeString(cTime.getFcstTime());
+
             /*
              * check '?' flag for day of week
              */
@@ -3004,7 +3007,7 @@ public class NcgridResource extends
                     (cal.get(Calendar.MONTH) + 1),
                     cal.get(Calendar.DAY_OF_MONTH),
                     cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),
-                    vTm));
+                    forecastTime));
 
             deleteWildcard(titleBuilder, "^");
             deleteWildcard(titleBuilder, "~");
