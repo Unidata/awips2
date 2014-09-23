@@ -1,111 +1,160 @@
-# pointDataQuery.stationName_lat_lon.py
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
-import PointDataQuery
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
 
-# 1. 
-pdq = PointDataQuery.PointDataQuery("sfcobs")
+# Gets all available Laps maritime data in the A-II database over a specified
+# range of times. The data is output to stdout as ASCII.  Each line is one
+# time/platform combination.  The individual data items are comma delimited.
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    09/18/2014      3591          nabowle        Initial modification. Replace UEngine with DAF.
+#
+#
 
-# 3.  the stuff we want returned to us in PointDataContainer
-reqPar = "stationId,timeObs"
-reqPar += ",latitude,longitude,elevation,reportType,wx_present,visibility"
-reqPar += ",seaLevelPress,stationPress,pressChange3Hour,pressChangeChar"
-reqPar += ",temperature,dewpoint,seaSurfaceTemp,wetBulb"
-reqPar += ",windDir,windSpeed,equivWindSpeed10m,windGust"
-reqPar += ",precip1Hour,precip6Hour,precip24Hour"
-pdq.setRequestedParameters(reqPar)
+import argparse
+import sys
 
-# 2.  some constraints
-pdq.addConstraint("dataTime","BBBBB:00.0",">=")
-pdq.addConstraint("dataTime","EEEEE:00.0","<=")
+from datetime import datetime
+from ufpy.dataaccess import DataAccessLayer
+from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
-# 5.1  execute() returns a ResponseMessageGeneric
-pdq.requestAllLevels()
-rmg = pdq.execute()
+def get_args():
+    parser = argparse.ArgumentParser(conflict_handler="resolve")
+    parser.add_argument("-h", action="store", dest="host",
+                        help="EDEX server hostname (optional)",
+                        metavar="hostname")
+    parser.add_argument("-b", action="store", dest="start", 
+                    help="The start of the time range in YYYY-MM-DD HH:MM",
+                    metavar="start")
+    parser.add_argument("-e", action="store", dest="end", 
+                    help="The end of the time range in YYYY-MM-DD HH:MM",
+                    metavar="end")
+    return parser.parse_args()
 
-# 5.1, cont'd.  RMG's payload is a PointDataContainer
-pdc = rmg.getContents()
-#return ResponseMessageGeneric(pdc)
 
-# Initialize conversion array for wx.  Would be better to read from a
-# file, but do not know how to do this through the UEngine.
-wxstr = [ " ", " ", " ", " ", "FU", "HZ", "DU", "BLSA", "PO", "VCSS", \
-  "BR", "BCFG", "MIFG", "VCTS", "VCSH", "VCSH", "VCSH", " ", "SQ", "+FC", \
-  "DZ", "RA", "SN", "RA SN", "FZRA", "SHRA", "SHRA SHSN", "SHGR", "FG FZFG", "TS", \
-  "SS", "SS", "SS", "+SS", "+SS", "+SS", "DRSN", " ", "BLSN", "+BLSN", \
-  "VCFG", "BCFG", "FG FZFG", "FG FZFG", "FG FZFG", "FG FZFG", "FG FZFG", "FG FZFG", "FZFG", "FZFG", \
-  "-DZ", "-DZ", "DZ", "DZ", "+DZ", "+DZ", "-FZDZ", "FZDZ", "-DZ -RA", "DZ RA", \
-  "-RA", "-RA", "RA", "RA", "+RA", "+RA", "-FZRA", "FZRA", "-RA -SN", "RA SN", \
-  "-SN", "-SN", "SN", "SN", "+SN", "+SN", "IC", "SG", "IC", "PE", \
-  "-SHRA", "SHRA", "+SHRA", "-SHSN -SHRA", "SHSN SHRA", "-SNSN", "SHSN", "-SHPE", "SHPE", " ", \
-  "SHGR", "-RA", "+RA", "-RA -SN -GR", "+RA +SN +GR", "TSRA", "TSPE", "+TSRA", " ", "+TSPE" ]
+def main():
+    user_args = get_args()
 
-# Get the data for each requested parameter.
-sName = pdc.getPointDataTypes().get("stationId").getStringData()
-tobs = pdc.getPointDataTypes().get("timeObs").getLongData()
-lat = pdc.getPointDataTypes().get("latitude").getFloatData()
-lon = pdc.getPointDataTypes().get("longitude").getFloatData()
-elev = pdc.getPointDataTypes().get("elevation").getFloatData()
-typ = pdc.getPointDataTypes().get("reportType").getIntData()
-wx = pdc.getPointDataTypes().get("wx_present").getIntData()
-vis = pdc.getPointDataTypes().get("visibility").getIntData()
-msl = pdc.getPointDataTypes().get("seaLevelPress").getFloatData()
-p = pdc.getPointDataTypes().get("stationPress").getFloatData()
-pchg = pdc.getPointDataTypes().get("pressChange3Hour").getFloatData()
-pchr =  pdc.getPointDataTypes().get("pressChangeChar").getIntData()
-temp = pdc.getPointDataTypes().get("temperature").getFloatData()
-dpt = pdc.getPointDataTypes().get("dewpoint").getFloatData()
-th2o = pdc.getPointDataTypes().get("seaSurfaceTemp").getFloatData()
-tw = pdc.getPointDataTypes().get("wetBulb").getFloatData()
-dir = pdc.getPointDataTypes().get("windDir").getFloatData()
-spd = pdc.getPointDataTypes().get("windSpeed").getFloatData()
-s10 = pdc.getPointDataTypes().get("equivWindSpeed10m").getFloatData()
-gust = pdc.getPointDataTypes().get("windGust").getFloatData()
-pr1 = pdc.getPointDataTypes().get("precip1Hour").getFloatData()
-pr6 = pdc.getPointDataTypes().get("precip6Hour").getFloatData()
-pr24 = pdc.getPointDataTypes().get("precip24Hour").getFloatData()
+    if user_args.host:
+        DataAccessLayer.changeEDEXHost(user_args.host)
 
-# 5.2 and 5.3
-if len(tobs) == 0 :
-   msg = "couldn't get data"
-   return ResponseMessageGeneric(msg)
+    start = user_args.start
+    end = user_args.end
 
-msg = "\n"
-i = 0
-while i < len(tobs) :
-    msg += sName[i] + ","
-    msg += str(tobs[i]/1000) + ","
-    msg += "%.4f"%lat[i] + ","
-    msg += "%.4f"%lon[i] + ","
-    msg += "%.0f"%elev[i] + ","
-    if typ[i] < 1001 or typ[i] > 1007 :
-        msg += "-32767,"
-    elif typ[i] == 1001 or typ[i] == 1004 or typ[i] == 1005 :
-        msg += "0,"
-    else :
-        msg += "1,"
-    if wx[i] < 0 or wx[i] > 99 :
-        msg += " ,"
-    else :
-        msg += wxstr[wx[i]] + ","
-    msg += str(vis[i]) + ","
-    msg += "%.2f"%msl[i] + ","
-    msg += "%.2f"%p[i] + ","
-    msg += "%.0f"%pchg[i] + ","
-    if pchr[i] <= -9999 :
-       pchr[i] = -32767
-    msg += str(pchr[i]) + " ,"
-    msg += "%.1f"%temp[i] + ","
-    msg += "%.1f"%dpt[i] + ","
-    msg += "%.1f"%th2o[i] + ","
-    msg += "%.1f"%tw[i] + ","
-    msg += "%.0f"%dir[i] + ","
-    msg += "%.1f"%spd[i] + ","
-    msg += "%.1f"%s10[i] + ","
-    msg += "%.1f"%gust[i] + ","
-    msg += "%.2f"%pr1[i] + ","
-    msg += "%.2f"%pr6[i] + ","
-    msg += "%.2f"%pr24[i] + "\n"
-    i += 1
+    if not start or not end:
+        print >> sys.stderr, "Start or End date not provided"
+        return
 
-return ResponseMessageGeneric(msg)
+    beginRange = datetime.strptime( start + ":00.0", "%Y-%m-%d %H:%M:%S.%f")
+    endRange = datetime.strptime( end + ":59.9", "%Y-%m-%d %H:%M:%S.%f")
+    timerange = TimeRange(beginRange, endRange)
 
+    req = DataAccessLayer.newDataRequest("sfcobs")
+    req.setParameters("stationId","timeObs","elevation","reportType",
+                      "wx_present","visibility","seaLevelPress","stationPress",
+                      "pressChange3Hour","pressChangeChar","temperature",
+                      "dewpoint","seaSurfaceTemp","wetBulb","windDir",
+                      "windSpeed","equivWindSpeed10m","windGust","precip1Hour",
+                      "precip6Hour","precip24Hour" )
+    geometries = DataAccessLayer.getGeometryData(req, timerange)
+
+    if not geometries :
+#        print "No data available."
+        return
+
+    # Initialize conversion array for wx. 
+    wxstr = [ " ", " ", " ", " ", "FU", "HZ", "DU", "BLSA", "PO", "VCSS", \
+        "BR", "BCFG", "MIFG", "VCTS", "VCSH", "VCSH", "VCSH", " ", "SQ", "+FC", \
+        "DZ", "RA", "SN", "RA SN", "FZRA", "SHRA", "SHRA SHSN", "SHGR", "FG FZFG", "TS", \
+        "SS", "SS", "SS", "+SS", "+SS", "+SS", "DRSN", " ", "BLSN", "+BLSN", \
+        "VCFG", "BCFG", "FG FZFG", "FG FZFG", "FG FZFG", "FG FZFG", "FG FZFG", "FG FZFG", "FZFG", "FZFG", \
+        "-DZ", "-DZ", "DZ", "DZ", "+DZ", "+DZ", "-FZDZ", "FZDZ", "-DZ -RA", "DZ RA", \
+        "-RA", "-RA", "RA", "RA", "+RA", "+RA", "-FZRA", "FZRA", "-RA -SN", "RA SN", \
+        "-SN", "-SN", "SN", "SN", "+SN", "+SN", "IC", "SG", "IC", "PE", \
+        "-SHRA", "SHRA", "+SHRA", "-SHSN -SHRA", "SHSN SHRA", "-SNSN", "SHSN", "-SHPE", "SHPE", " ", \
+        "SHGR", "-RA", "+RA", "-RA -SN -GR", "+RA +SN +GR", "TSRA", "TSPE", "+TSRA", " ", "+TSPE" ]
+
+    msg = ""
+    for geo in geometries :
+        lon = geo.getGeometry().x
+        lat = geo.getGeometry().y
+
+        sName = geo.getString("stationId")
+        tobs = geo.getNumber("timeObs")
+        elev = geo.getNumber("elevation")
+        typ = geo.getNumber("reportType")
+        wx = geo.getNumber("wx_present")
+        vis = geo.getNumber("visibility")
+        msl = geo.getNumber("seaLevelPress")
+        p = geo.getNumber("stationPress")
+        pchg = geo.getNumber("pressChange3Hour")
+        pchr =  geo.getNumber("pressChangeChar")
+        temp = geo.getNumber("temperature")
+        dpt = geo.getNumber("dewpoint")
+        th2o = geo.getNumber("seaSurfaceTemp")
+        tw = geo.getNumber("wetBulb")
+        dir = geo.getNumber("windDir")
+        spd = geo.getNumber("windSpeed")
+        s10 = geo.getNumber("equivWindSpeed10m")
+        gust = geo.getNumber("windGust")
+        pr1 = geo.getNumber("precip1Hour")
+        pr6 = geo.getNumber("precip6Hour")
+        pr24 = geo.getNumber("precip24Hour")
+
+        msg += sName + ","
+        msg += str(tobs/1000) + ","
+        msg += "%.4f"%lat + ","
+        msg += "%.4f"%lon + ","
+        msg += "%.0f"%elev + ","
+        if typ < 1001 or typ > 1007 :
+            msg += "-32767,"
+        elif typ == 1001 or typ == 1004 or typ == 1005 :
+            msg += "0,"
+        else :
+            msg += "1,"
+        if wx < 0 or wx > 99 :
+            msg += " ,"
+        else :
+            msg += wxstr[wx] + ","
+        msg += str(vis) + ","
+        msg += "%.2f"%msl + ","
+        msg += "%.2f"%p + ","
+        msg += "%.0f"%pchg + ","
+        if pchr <= -9999 :
+           pchr = -32767
+        msg += str(pchr) + " ,"
+        msg += "%.1f"%temp + ","
+        msg += "%.1f"%dpt + ","
+        msg += "%.1f"%th2o + ","
+        msg += "%.1f"%tw + ","
+        msg += "%.0f"%dir + ","
+        msg += "%.1f"%spd + ","
+        msg += "%.1f"%s10 + ","
+        msg += "%.1f"%gust + ","
+        msg += "%.2f"%pr1 + ","
+        msg += "%.2f"%pr6 + ","
+        msg += "%.2f"%pr24 + "\n"
+
+    print msg.strip()
+
+if __name__ == '__main__':
+    main()
