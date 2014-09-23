@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ResourceDefinition xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
-    <inventoryEnabled>true</inventoryEnabled>    
     <resourceDefnName>DPD</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
     <rscImplementation>McidasSatellite</rscImplementation>
