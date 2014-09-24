@@ -15,50 +15,61 @@
 #clean up platform dictionary
 #
 
+cmddir=$(dirname $_)
+FNAME="spelldict"
 user=$(whoami)
 host=$(hostname)
+stddict=$cmddir/$FNAME.std
+
+[ ! -f $stddict ] && {
+    echo Error: the standard dictionary \"$stddict\" not found.
+    exit 1
+}
 
 edex_user_dir=/awips2/edex/data/utility/cave_static/user/
 cave_etc=/awips2/cave/etc
 run_type=0
-FNAME="spelldict"
 
 clean () {
     lines=`cat $1 |wc -l`
     size=`cat $1 |wc -c`
     MSG="$1, size=$size, #line=$lines:"
     LASTWD=$(grep 'zymurgy' $1)
-    if [ $size -eq 1290760 ]
+
+    if [ $run_type == 1 ] 
     then
-        remove $1
-#    elif [ $lines -gt 135553 ]  
-#    then
-#        [ $run_type == 1 ] && (cp $1 "$1.bak"; 
-#            sed -n "135554,${lines}p" "$1.bak" > $1)
-#        let "newlines=${lines}-135553"
-#        echo $MSG modified, \#line=$(( lines-135553 ))
-    elif [ "$LASTWD" ]
-    then
-        line=$(sed -n "/^$LASTWD/=" $1)
-#        echo line=$line
-        [ $run_type == 1 ] && (cp -p $1 "$1.bak"; sed "1, /^$LASTWD/d" "$1.bak" > $1)
-        echo $MSG "modified, #line=$(( lines-line ))"
+        cp -p $1 "$1.bak"
+        cp $stddict $1
+        if [ "$LASTWD" ]
+        then
+            sed "1, /^$LASTWD/d" "$1.bak" >> $1
+        else
+            cat $1.bak >> $1
+        fi
+        echo "$MSG modified, #line=$(cat $1 |wc -l)" 
     else
-        echo $MSG unchanged
+        echo $MSG "modified"
     fi
 }
 
 remove () {
-    lines=`cat $1 |wc -l`
-    size=`cat $1 |wc -c`
-    if [ $run_type == 1 ]
+    if [ $run_type == 1 ] && [ -f $1 ]
     then
-        cp -p $1 "$1.bak"
+        mv  $1 "$1.bak"
         [[ $1 == ${cave_etc}* ]] && cat /dev/null > $1 || rm -f $1
     fi
         
-    action=$([[ $1 == ${cave_etc}* ]] && echo emptied || echo removed )
-    echo "$1, size=$size, #line=$lines: $action"
+    echo "$1, removed"
+}
+
+create () {
+    [ $run_type == 1 ] && ( 
+        cp $stddict $1
+        chown awips $1
+        chgrp fxalpha $1
+        chmod 644 $1
+    )
+    echo "$1, created the standard dictionary"
 }
 
 usage () {
@@ -110,11 +121,7 @@ then
     then
         clean $f 
     else
-        cat /dev/null > $f
-        chown awips $f
-        chgrp fxalpha $f
-        chmod 644 $f
-        echo $f: created, size=0
+        create $f
     fi
 fi
 
