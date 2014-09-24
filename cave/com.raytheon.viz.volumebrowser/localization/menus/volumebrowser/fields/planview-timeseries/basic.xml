@@ -25,6 +25,8 @@
         indentText="true" />
     <contribute xsi:type="menuItem" menuText="Pressure" key="P"
         indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Pres Anl Uncertainty"
+        key="Perranl" indentText="true" />
     <contribute xsi:type="menuItem" menuText="MSL Press" key="msl-P"
         indentText="true" />
     <contribute xsi:type="menuItem" menuText="MSL Press (2)"
