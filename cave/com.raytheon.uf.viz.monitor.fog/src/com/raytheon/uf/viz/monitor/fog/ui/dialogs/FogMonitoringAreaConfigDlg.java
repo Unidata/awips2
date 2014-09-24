@@ -111,6 +111,8 @@ public class FogMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                         });
                         fogMonitorDlg.open();
                     }
+                    configManager.getAddedZones().clear();
+                    configManager.getAddedStations().clear();
                 }
             }
         }
