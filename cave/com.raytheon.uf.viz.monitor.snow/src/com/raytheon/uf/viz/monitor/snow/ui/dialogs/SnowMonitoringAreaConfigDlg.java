@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * Apr 23, 2014 3054       skorolev    Fixed issue with removing a new station from list.
  * Apr 28, 2014 3086       skorolev    Updated snowConfigManager.
+ * Sep 15, 2014 2757       skorolev    Removed extra dialog.
  * 
  * </pre>
  * 
@@ -104,17 +105,8 @@ public class SnowMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                     snowConfigMgr.getAddedStations().clear();
                 }
             }
-        } else {
-            String message3 = "No changes made.\nDo you want to exit?";
-            int yesno = showMessage(shell,
-                    SWT.ICON_QUESTION | SWT.YES | SWT.NO, "Exit", message3);
-            if (yesno == SWT.NO) {
-                return;
-            }
-            setReturnValue(true);
             snowConfigMgr = null;
-            close();
-        }
+        } 
     }
 
     /*
