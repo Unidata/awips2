@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.decodertools.core.filterimpl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +41,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2009            jkorman     Initial creation
  * Aug 28, 2014 3548       mapeters    Removed implementation of ISerializableObject
+ * Sep 18, 2014 3627       mapeters    Removed unused createFilter().
  * 
  * </pre>
  * 
@@ -63,17 +63,6 @@ public abstract class AbstractObsFilter {
     @XmlElement
     @DynamicSerializeElement
     private String filterName;
-    
-    /**
-     * 
-     * @param filterFile
-     */
-    void createFilter(File filterFile) {
-        
-        
-        
-        
-    }
     
     public abstract PluginDataObject [] filter(PluginDataObject [] reports);
     
